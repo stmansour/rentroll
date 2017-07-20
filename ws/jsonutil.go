@@ -26,7 +26,7 @@ func scanFwd(b []byte, k int, c byte) int {
 //			BID         int64
 //			Name        string
 //			Description string
-//			LastModTime time.Time
+//			LastModTime rlib.JSONDateTime
 //			LastModBy   int64
 //		}
 //

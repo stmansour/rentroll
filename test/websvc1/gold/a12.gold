@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang=en>
+  <head>
+    <title>
+      FRB Operating Account 4320
+    </title>
+    <style>
+      html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:20px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
+    </style>
+    <style>
+      div.rpt-table-container table thead tr th.header-0{text-align:left;width:55ch;}div.rpt-table-container table thead tr th.header-1{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-2{text-align:left;width:9ch;}div.rpt-table-container table thead tr th.header-3{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-4{text-align:left;width:15ch;}div.rpt-table-container table thead tr th.header-5{text-align:right;width:12ch;}div.rpt-table-container table thead tr th.header-6{text-align:right;width:12ch;}div.rpt-table-container table tbody tr td.cell-row-0-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-0-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-6{text-align:right;}
+    </style>
+  </head>
+  <body>
+    <div class=container>
+      <div class="rpt-table-container">
+        <p class="title">
+          FRB Operating Account 4320
+        </p>
+        <p class="section1">
+          GL Account: 10104
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header-0">
+                Description
+              </th>
+              <th class="header-1">
+                Date
+              </th>
+              <th class="header-2">
+                Journal ID
+              </th>
+              <th class="header-3">
+                Rental Agreement
+              </th>
+              <th class="header-4">
+                Rentable Name
+              </th>
+              <th class="header-5">
+                Amount
+              </th>
+              <th class="header-6">
+                Balance
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-row-0-col-0">
+                Opening Balance
+              </td>
+              <td class="cell-row-0-col-1">
+              </td>
+              <td class="cell-row-0-col-2">
+              </td>
+              <td class="cell-row-0-col-3">
+              </td>
+              <td class="cell-row-0-col-4">
+              </td>
+              <td class="cell-row-0-col-5">
+              </td>
+              <td class="cell-row-0-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-1-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-1-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-1-col-2">
+                J00000020
+              </td>
+              <td class="cell-row-1-col-3">
+              </td>
+              <td class="cell-row-1-col-4">
+              </td>
+              <td class="cell-row-1-col-5">
+                   25,180.00
+              </td>
+              <td class="cell-row-1-col-6">
+                   25,180.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-2-col-0">
+                Payment #48762876342 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-2-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-2-col-2">
+                J00000019
+              </td>
+              <td class="cell-row-2-col-3">
+              </td>
+              <td class="cell-row-2-col-4">
+              </td>
+              <td class="cell-row-2-col-5">
+                    1,000.00
+              </td>
+              <td class="cell-row-2-col-6">
+                   26,180.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-3-col-0">
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-3-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-3-col-2">
+                J00000018
+              </td>
+              <td class="cell-row-3-col-3">
+              </td>
+              <td class="cell-row-3-col-4">
+              </td>
+              <td class="cell-row-3-col-5">
+                      100.00
+              </td>
+              <td class="cell-row-3-col-6">
+                   26,280.00
+              </td>
+            </tr>
+            <tr class="bottom-line">
+              <td class="cell-row-4-col-0">
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-4-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-4-col-2">
+                J00000031
+              </td>
+              <td class="cell-row-4-col-3">
+              </td>
+              <td class="cell-row-4-col-4">
+              </td>
+              <td class="cell-row-4-col-5">
+                     -100.00
+              </td>
+              <td class="cell-row-4-col-6">
+                   26,180.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-5-col-0">
+                Closing Balance
+              </td>
+              <td class="cell-row-5-col-1">
+                07/31/2017
+              </td>
+              <td class="cell-row-5-col-2">
+              </td>
+              <td class="cell-row-5-col-3">
+              </td>
+              <td class="cell-row-5-col-4">
+              </td>
+              <td class="cell-row-5-col-5">
+              </td>
+              <td class="cell-row-5-col-6">
+                   26,180.00
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html><!DOCTYPE html>
+<html lang=en>
+  <head>
+    <title>
+      Accounts Receivable
+    </title>
+    <style>
+      html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:20px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
+    </style>
+    <style>
+      div.rpt-table-container table thead tr th.header-0{text-align:left;width:55ch;}div.rpt-table-container table thead tr th.header-1{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-2{text-align:left;width:9ch;}div.rpt-table-container table thead tr th.header-3{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-4{text-align:left;width:15ch;}div.rpt-table-container table thead tr th.header-5{text-align:right;width:12ch;}div.rpt-table-container table thead tr th.header-6{text-align:right;width:12ch;}div.rpt-table-container table tbody tr td.cell-row-0-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-0-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-6-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-6-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-7-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-7-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-8-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-8-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-9-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-9-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-10-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-10-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-11-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-11-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-12-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-12-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-13-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-13-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-14-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-14-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-15-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-15-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-16-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-16-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-17-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-17-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-17-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-17-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-17-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-17-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-17-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-18-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-18-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-18-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-18-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-18-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-18-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-18-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-19-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-19-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-19-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-19-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-19-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-19-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-19-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-20-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-20-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-20-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-20-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-20-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-20-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-20-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-21-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-21-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-21-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-21-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-21-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-21-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-21-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-22-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-22-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-22-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-22-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-22-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-22-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-22-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-23-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-23-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-23-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-23-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-23-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-23-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-23-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-24-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-24-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-24-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-24-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-24-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-24-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-24-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-25-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-25-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-25-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-25-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-25-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-25-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-25-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-26-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-26-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-26-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-26-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-26-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-26-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-26-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-27-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-27-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-27-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-27-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-27-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-27-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-27-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-28-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-28-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-28-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-28-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-28-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-28-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-28-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-29-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-29-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-29-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-29-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-29-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-29-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-29-col-6{text-align:right;}
+    </style>
+  </head>
+  <body>
+    <div class=container>
+      <div class="rpt-table-container">
+        <p class="title">
+          Accounts Receivable
+        </p>
+        <p class="section1">
+          GL Account: 11000
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header-0">
+                Description
+              </th>
+              <th class="header-1">
+                Date
+              </th>
+              <th class="header-2">
+                Journal ID
+              </th>
+              <th class="header-3">
+                Rental Agreement
+              </th>
+              <th class="header-4">
+                Rentable Name
+              </th>
+              <th class="header-5">
+                Amount
+              </th>
+              <th class="header-6">
+                Balance
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-row-0-col-0">
+                Opening Balance
+              </td>
+              <td class="cell-row-0-col-1">
+              </td>
+              <td class="cell-row-0-col-2">
+              </td>
+              <td class="cell-row-0-col-3">
+              </td>
+              <td class="cell-row-0-col-4">
+              </td>
+              <td class="cell-row-0-col-5">
+              </td>
+              <td class="cell-row-0-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-1-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-1-col-1">
+                01/01/2017
+              </td>
+              <td class="cell-row-1-col-2">
+                J00000011
+              </td>
+              <td class="cell-row-1-col-3">
+                        1
+              </td>
+              <td class="cell-row-1-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-1-col-5">
+                    4,000.00
+              </td>
+              <td class="cell-row-1-col-6">
+                    4,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-2-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-2-col-1">
+                01/01/2017
+              </td>
+              <td class="cell-row-2-col-2">
+                J00000002
+              </td>
+              <td class="cell-row-2-col-3">
+                        1
+              </td>
+              <td class="cell-row-2-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-2-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-2-col-6">
+                    7,750.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-3-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-3-col-1">
+                02/01/2017
+              </td>
+              <td class="cell-row-3-col-2">
+                J00000012
+              </td>
+              <td class="cell-row-3-col-3">
+                        1
+              </td>
+              <td class="cell-row-3-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-3-col-5">
+                    4,000.00
+              </td>
+              <td class="cell-row-3-col-6">
+                   11,750.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-4-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-4-col-1">
+                02/01/2017
+              </td>
+              <td class="cell-row-4-col-2">
+                J00000003
+              </td>
+              <td class="cell-row-4-col-3">
+                        1
+              </td>
+              <td class="cell-row-4-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-4-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-4-col-6">
+                   15,500.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-5-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-5-col-1">
+                03/01/2017
+              </td>
+              <td class="cell-row-5-col-2">
+                J00000013
+              </td>
+              <td class="cell-row-5-col-3">
+                        1
+              </td>
+              <td class="cell-row-5-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-5-col-5">
+                    4,000.00
+              </td>
+              <td class="cell-row-5-col-6">
+                   19,500.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-6-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-6-col-1">
+                03/01/2017
+              </td>
+              <td class="cell-row-6-col-2">
+                J00000004
+              </td>
+              <td class="cell-row-6-col-3">
+                        1
+              </td>
+              <td class="cell-row-6-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-6-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-6-col-6">
+                   23,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-7-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-7-col-1">
+                04/01/2017
+              </td>
+              <td class="cell-row-7-col-2">
+                J00000014
+              </td>
+              <td class="cell-row-7-col-3">
+                        1
+              </td>
+              <td class="cell-row-7-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-7-col-5">
+                    4,000.00
+              </td>
+              <td class="cell-row-7-col-6">
+                   27,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-8-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-8-col-1">
+                04/01/2017
+              </td>
+              <td class="cell-row-8-col-2">
+                J00000005
+              </td>
+              <td class="cell-row-8-col-3">
+                        1
+              </td>
+              <td class="cell-row-8-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-8-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-8-col-6">
+                   31,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-9-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-9-col-1">
+                05/01/2017
+              </td>
+              <td class="cell-row-9-col-2">
+                J00000015
+              </td>
+              <td class="cell-row-9-col-3">
+                        1
+              </td>
+              <td class="cell-row-9-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-9-col-5">
+                    4,000.00
+              </td>
+              <td class="cell-row-9-col-6">
+                   35,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-10-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-10-col-1">
+                05/01/2017
+              </td>
+              <td class="cell-row-10-col-2">
+                J00000006
+              </td>
+              <td class="cell-row-10-col-3">
+                        1
+              </td>
+              <td class="cell-row-10-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-10-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-10-col-6">
+                   38,750.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-11-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-11-col-1">
+                06/01/2017
+              </td>
+              <td class="cell-row-11-col-2">
+                J00000016
+              </td>
+              <td class="cell-row-11-col-3">
+                        1
+              </td>
+              <td class="cell-row-11-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-11-col-5">
+                    4,000.00
+              </td>
+              <td class="cell-row-11-col-6">
+                   42,750.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-12-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-12-col-1">
+                06/01/2017
+              </td>
+              <td class="cell-row-12-col-2">
+                J00000007
+              </td>
+              <td class="cell-row-12-col-3">
+                        1
+              </td>
+              <td class="cell-row-12-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-12-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-12-col-6">
+                   46,500.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-13-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-13-col-1">
+                07/01/2017
+              </td>
+              <td class="cell-row-13-col-2">
+                J00000017
+              </td>
+              <td class="cell-row-13-col-3">
+                        1
+              </td>
+              <td class="cell-row-13-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-13-col-5">
+                    4,000.00
+              </td>
+              <td class="cell-row-13-col-6">
+                   50,500.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-14-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-14-col-1">
+                07/01/2017
+              </td>
+              <td class="cell-row-14-col-2">
+                J00000008
+              </td>
+              <td class="cell-row-14-col-3">
+                        1
+              </td>
+              <td class="cell-row-14-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-14-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-14-col-6">
+                   54,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-15-col-0">
+                Assessment - Electric Base Fee Assessment
+              </td>
+              <td class="cell-row-15-col-1">
+                07/01/2017
+              </td>
+              <td class="cell-row-15-col-2">
+                J00000001
+              </td>
+              <td class="cell-row-15-col-3">
+                        1
+              </td>
+              <td class="cell-row-15-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-15-col-5">
+                       30.00
+              </td>
+              <td class="cell-row-15-col-6">
+                   54,280.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-16-col-0">
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-16-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-16-col-2">
+                J00000032
+              </td>
+              <td class="cell-row-16-col-3">
+                        1
+              </td>
+              <td class="cell-row-16-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-16-col-5">
+                      100.00
+              </td>
+              <td class="cell-row-16-col-6">
+                   54,380.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-17-col-0">
+                Assessment - Water and Sewer Base Fee
+              </td>
+              <td class="cell-row-17-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-17-col-2">
+                J00000009
+              </td>
+              <td class="cell-row-17-col-3">
+                        1
+              </td>
+              <td class="cell-row-17-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-17-col-5">
+                       40.00
+              </td>
+              <td class="cell-row-17-col-6">
+                   54,420.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-18-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-18-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-18-col-2">
+                J00000029
+              </td>
+              <td class="cell-row-18-col-3">
+                        1
+              </td>
+              <td class="cell-row-18-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-18-col-5">
+                      -30.00
+              </td>
+              <td class="cell-row-18-col-6">
+                   54,390.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-19-col-0">
+                Assessment - Water and Sewer Base Fee
+              </td>
+              <td class="cell-row-19-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-19-col-2">
+                J00000010
+              </td>
+              <td class="cell-row-19-col-3">
+                        1
+              </td>
+              <td class="cell-row-19-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-19-col-5">
+                      -40.00
+              </td>
+              <td class="cell-row-19-col-6">
+                   54,350.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-20-col-0">
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-20-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-20-col-2">
+                J00000021
+              </td>
+              <td class="cell-row-20-col-3">
+                        1
+              </td>
+              <td class="cell-row-20-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-20-col-5">
+                     -100.00
+              </td>
+              <td class="cell-row-20-col-6">
+                   54,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-21-col-0">
+                Payment #48762876342 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-21-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-21-col-2">
+                J00000022
+              </td>
+              <td class="cell-row-21-col-3">
+                        1
+              </td>
+              <td class="cell-row-21-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-21-col-5">
+                   -1,000.00
+              </td>
+              <td class="cell-row-21-col-6">
+                   53,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-22-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-22-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-22-col-2">
+                J00000023
+              </td>
+              <td class="cell-row-22-col-3">
+                        1
+              </td>
+              <td class="cell-row-22-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-22-col-5">
+                   -2,650.00
+              </td>
+              <td class="cell-row-22-col-6">
+                   50,600.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-23-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-23-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-23-col-2">
+                J00000024
+              </td>
+              <td class="cell-row-23-col-3">
+                        1
+              </td>
+              <td class="cell-row-23-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-23-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-23-col-6">
+                   46,850.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-24-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-24-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-24-col-2">
+                J00000025
+              </td>
+              <td class="cell-row-24-col-3">
+                        1
+              </td>
+              <td class="cell-row-24-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-24-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-24-col-6">
+                   43,100.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-25-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-25-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-25-col-2">
+                J00000026
+              </td>
+              <td class="cell-row-25-col-3">
+                        1
+              </td>
+              <td class="cell-row-25-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-25-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-25-col-6">
+                   39,350.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-26-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-26-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-26-col-2">
+                J00000027
+              </td>
+              <td class="cell-row-26-col-3">
+                        1
+              </td>
+              <td class="cell-row-26-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-26-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-26-col-6">
+                   35,600.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-27-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-27-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-27-col-2">
+                J00000028
+              </td>
+              <td class="cell-row-27-col-3">
+                        1
+              </td>
+              <td class="cell-row-27-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-27-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-27-col-6">
+                   31,850.00
+              </td>
+            </tr>
+            <tr class="bottom-line">
+              <td class="cell-row-28-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-28-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-28-col-2">
+                J00000030
+              </td>
+              <td class="cell-row-28-col-3">
+                        1
+              </td>
+              <td class="cell-row-28-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-28-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-28-col-6">
+                   28,100.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-29-col-0">
+                Closing Balance
+              </td>
+              <td class="cell-row-29-col-1">
+                07/31/2017
+              </td>
+              <td class="cell-row-29-col-2">
+              </td>
+              <td class="cell-row-29-col-3">
+              </td>
+              <td class="cell-row-29-col-4">
+              </td>
+              <td class="cell-row-29-col-5">
+              </td>
+              <td class="cell-row-29-col-6">
+                   28,100.00
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html><!DOCTYPE html>
+<html lang=en>
+  <head>
+    <title>
+      Gross Scheduled Rent Taxable
+    </title>
+    <style>
+      html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:20px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
+    </style>
+    <style>
+      div.rpt-table-container table thead tr th.header-0{text-align:left;width:55ch;}div.rpt-table-container table thead tr th.header-1{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-2{text-align:left;width:9ch;}div.rpt-table-container table thead tr th.header-3{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-4{text-align:left;width:15ch;}div.rpt-table-container table thead tr th.header-5{text-align:right;width:12ch;}div.rpt-table-container table thead tr th.header-6{text-align:right;width:12ch;}div.rpt-table-container table tbody tr td.cell-row-0-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-0-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-6-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-6-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-7-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-7-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-8-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-8-col-6{text-align:right;}
+    </style>
+  </head>
+  <body>
+    <div class=container>
+      <div class="rpt-table-container">
+        <p class="title">
+          Gross Scheduled Rent Taxable
+        </p>
+        <p class="section1">
+          GL Account: 40000
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header-0">
+                Description
+              </th>
+              <th class="header-1">
+                Date
+              </th>
+              <th class="header-2">
+                Journal ID
+              </th>
+              <th class="header-3">
+                Rental Agreement
+              </th>
+              <th class="header-4">
+                Rentable Name
+              </th>
+              <th class="header-5">
+                Amount
+              </th>
+              <th class="header-6">
+                Balance
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-row-0-col-0">
+                Opening Balance
+              </td>
+              <td class="cell-row-0-col-1">
+              </td>
+              <td class="cell-row-0-col-2">
+              </td>
+              <td class="cell-row-0-col-3">
+              </td>
+              <td class="cell-row-0-col-4">
+              </td>
+              <td class="cell-row-0-col-5">
+              </td>
+              <td class="cell-row-0-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-1-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-1-col-1">
+                01/01/2017
+              </td>
+              <td class="cell-row-1-col-2">
+                J00000011
+              </td>
+              <td class="cell-row-1-col-3">
+                        1
+              </td>
+              <td class="cell-row-1-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-1-col-5">
+                   -4,000.00
+              </td>
+              <td class="cell-row-1-col-6">
+                   -4,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-2-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-2-col-1">
+                02/01/2017
+              </td>
+              <td class="cell-row-2-col-2">
+                J00000012
+              </td>
+              <td class="cell-row-2-col-3">
+                        1
+              </td>
+              <td class="cell-row-2-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-2-col-5">
+                   -4,000.00
+              </td>
+              <td class="cell-row-2-col-6">
+                   -8,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-3-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-3-col-1">
+                03/01/2017
+              </td>
+              <td class="cell-row-3-col-2">
+                J00000013
+              </td>
+              <td class="cell-row-3-col-3">
+                        1
+              </td>
+              <td class="cell-row-3-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-3-col-5">
+                   -4,000.00
+              </td>
+              <td class="cell-row-3-col-6">
+                  -12,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-4-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-4-col-1">
+                04/01/2017
+              </td>
+              <td class="cell-row-4-col-2">
+                J00000014
+              </td>
+              <td class="cell-row-4-col-3">
+                        1
+              </td>
+              <td class="cell-row-4-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-4-col-5">
+                   -4,000.00
+              </td>
+              <td class="cell-row-4-col-6">
+                  -16,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-5-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-5-col-1">
+                05/01/2017
+              </td>
+              <td class="cell-row-5-col-2">
+                J00000015
+              </td>
+              <td class="cell-row-5-col-3">
+                        1
+              </td>
+              <td class="cell-row-5-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-5-col-5">
+                   -4,000.00
+              </td>
+              <td class="cell-row-5-col-6">
+                  -20,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-6-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-6-col-1">
+                06/01/2017
+              </td>
+              <td class="cell-row-6-col-2">
+                J00000016
+              </td>
+              <td class="cell-row-6-col-3">
+                        1
+              </td>
+              <td class="cell-row-6-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-6-col-5">
+                   -4,000.00
+              </td>
+              <td class="cell-row-6-col-6">
+                  -24,000.00
+              </td>
+            </tr>
+            <tr class="bottom-line">
+              <td class="cell-row-7-col-0">
+                Assessment - Taxable Rent Assessment
+              </td>
+              <td class="cell-row-7-col-1">
+                07/01/2017
+              </td>
+              <td class="cell-row-7-col-2">
+                J00000017
+              </td>
+              <td class="cell-row-7-col-3">
+                        1
+              </td>
+              <td class="cell-row-7-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-7-col-5">
+                   -4,000.00
+              </td>
+              <td class="cell-row-7-col-6">
+                  -28,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-8-col-0">
+                Closing Balance
+              </td>
+              <td class="cell-row-8-col-1">
+                07/31/2017
+              </td>
+              <td class="cell-row-8-col-2">
+              </td>
+              <td class="cell-row-8-col-3">
+              </td>
+              <td class="cell-row-8-col-4">
+              </td>
+              <td class="cell-row-8-col-5">
+              </td>
+              <td class="cell-row-8-col-6">
+                  -28,000.00
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html><!DOCTYPE html>
+<html lang=en>
+  <head>
+    <title>
+      Gross Scheduled Rent  Non-Taxable
+    </title>
+    <style>
+      html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:20px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
+    </style>
+    <style>
+      div.rpt-table-container table thead tr th.header-0{text-align:left;width:55ch;}div.rpt-table-container table thead tr th.header-1{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-2{text-align:left;width:9ch;}div.rpt-table-container table thead tr th.header-3{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-4{text-align:left;width:15ch;}div.rpt-table-container table thead tr th.header-5{text-align:right;width:12ch;}div.rpt-table-container table thead tr th.header-6{text-align:right;width:12ch;}div.rpt-table-container table tbody tr td.cell-row-0-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-0-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-6-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-6-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-7-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-7-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-8-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-8-col-6{text-align:right;}
+    </style>
+  </head>
+  <body>
+    <div class=container>
+      <div class="rpt-table-container">
+        <p class="title">
+          Gross Scheduled Rent  Non-Taxable
+        </p>
+        <p class="section1">
+          GL Account: 40001
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header-0">
+                Description
+              </th>
+              <th class="header-1">
+                Date
+              </th>
+              <th class="header-2">
+                Journal ID
+              </th>
+              <th class="header-3">
+                Rental Agreement
+              </th>
+              <th class="header-4">
+                Rentable Name
+              </th>
+              <th class="header-5">
+                Amount
+              </th>
+              <th class="header-6">
+                Balance
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-row-0-col-0">
+                Opening Balance
+              </td>
+              <td class="cell-row-0-col-1">
+              </td>
+              <td class="cell-row-0-col-2">
+              </td>
+              <td class="cell-row-0-col-3">
+              </td>
+              <td class="cell-row-0-col-4">
+              </td>
+              <td class="cell-row-0-col-5">
+              </td>
+              <td class="cell-row-0-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-1-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-1-col-1">
+                01/01/2017
+              </td>
+              <td class="cell-row-1-col-2">
+                J00000002
+              </td>
+              <td class="cell-row-1-col-3">
+                        1
+              </td>
+              <td class="cell-row-1-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-1-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-1-col-6">
+                   -3,750.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-2-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-2-col-1">
+                02/01/2017
+              </td>
+              <td class="cell-row-2-col-2">
+                J00000003
+              </td>
+              <td class="cell-row-2-col-3">
+                        1
+              </td>
+              <td class="cell-row-2-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-2-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-2-col-6">
+                   -7,500.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-3-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-3-col-1">
+                03/01/2017
+              </td>
+              <td class="cell-row-3-col-2">
+                J00000004
+              </td>
+              <td class="cell-row-3-col-3">
+                        1
+              </td>
+              <td class="cell-row-3-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-3-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-3-col-6">
+                  -11,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-4-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-4-col-1">
+                04/01/2017
+              </td>
+              <td class="cell-row-4-col-2">
+                J00000005
+              </td>
+              <td class="cell-row-4-col-3">
+                        1
+              </td>
+              <td class="cell-row-4-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-4-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-4-col-6">
+                  -15,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-5-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-5-col-1">
+                05/01/2017
+              </td>
+              <td class="cell-row-5-col-2">
+                J00000006
+              </td>
+              <td class="cell-row-5-col-3">
+                        1
+              </td>
+              <td class="cell-row-5-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-5-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-5-col-6">
+                  -18,750.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-6-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-6-col-1">
+                06/01/2017
+              </td>
+              <td class="cell-row-6-col-2">
+                J00000007
+              </td>
+              <td class="cell-row-6-col-3">
+                        1
+              </td>
+              <td class="cell-row-6-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-6-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-6-col-6">
+                  -22,500.00
+              </td>
+            </tr>
+            <tr class="bottom-line">
+              <td class="cell-row-7-col-0">
+                Assessment - Non-Taxable Rent Assessment
+              </td>
+              <td class="cell-row-7-col-1">
+                07/01/2017
+              </td>
+              <td class="cell-row-7-col-2">
+                J00000008
+              </td>
+              <td class="cell-row-7-col-3">
+                        1
+              </td>
+              <td class="cell-row-7-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-7-col-5">
+                   -3,750.00
+              </td>
+              <td class="cell-row-7-col-6">
+                  -26,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-8-col-0">
+                Closing Balance
+              </td>
+              <td class="cell-row-8-col-1">
+                07/31/2017
+              </td>
+              <td class="cell-row-8-col-2">
+              </td>
+              <td class="cell-row-8-col-3">
+              </td>
+              <td class="cell-row-8-col-4">
+              </td>
+              <td class="cell-row-8-col-5">
+              </td>
+              <td class="cell-row-8-col-6">
+                  -26,250.00
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html><!DOCTYPE html>
+<html lang=en>
+  <head>
+    <title>
+      Electric Base Fee
+    </title>
+    <style>
+      html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:20px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
+    </style>
+    <style>
+      div.rpt-table-container table thead tr th.header-0{text-align:left;width:55ch;}div.rpt-table-container table thead tr th.header-1{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-2{text-align:left;width:9ch;}div.rpt-table-container table thead tr th.header-3{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-4{text-align:left;width:15ch;}div.rpt-table-container table thead tr th.header-5{text-align:right;width:12ch;}div.rpt-table-container table thead tr th.header-6{text-align:right;width:12ch;}div.rpt-table-container table tbody tr td.cell-row-0-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-0-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-6{text-align:right;}
+    </style>
+  </head>
+  <body>
+    <div class=container>
+      <div class="rpt-table-container">
+        <p class="title">
+          Electric Base Fee
+        </p>
+        <p class="section1">
+          GL Account: 43001
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header-0">
+                Description
+              </th>
+              <th class="header-1">
+                Date
+              </th>
+              <th class="header-2">
+                Journal ID
+              </th>
+              <th class="header-3">
+                Rental Agreement
+              </th>
+              <th class="header-4">
+                Rentable Name
+              </th>
+              <th class="header-5">
+                Amount
+              </th>
+              <th class="header-6">
+                Balance
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-row-0-col-0">
+                Opening Balance
+              </td>
+              <td class="cell-row-0-col-1">
+              </td>
+              <td class="cell-row-0-col-2">
+              </td>
+              <td class="cell-row-0-col-3">
+              </td>
+              <td class="cell-row-0-col-4">
+              </td>
+              <td class="cell-row-0-col-5">
+              </td>
+              <td class="cell-row-0-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr class="bottom-line">
+              <td class="cell-row-1-col-0">
+                Assessment - Electric Base Fee Assessment
+              </td>
+              <td class="cell-row-1-col-1">
+                07/01/2017
+              </td>
+              <td class="cell-row-1-col-2">
+                J00000001
+              </td>
+              <td class="cell-row-1-col-3">
+                        1
+              </td>
+              <td class="cell-row-1-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-1-col-5">
+                      -30.00
+              </td>
+              <td class="cell-row-1-col-6">
+                      -30.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-2-col-0">
+                Closing Balance
+              </td>
+              <td class="cell-row-2-col-1">
+                07/31/2017
+              </td>
+              <td class="cell-row-2-col-2">
+              </td>
+              <td class="cell-row-2-col-3">
+              </td>
+              <td class="cell-row-2-col-4">
+              </td>
+              <td class="cell-row-2-col-5">
+              </td>
+              <td class="cell-row-2-col-6">
+                      -30.00
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html><!DOCTYPE html>
+<html lang=en>
+  <head>
+    <title>
+      Water and Sewer Base Fee
+    </title>
+    <style>
+      html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:20px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
+    </style>
+    <style>
+      div.rpt-table-container table thead tr th.header-0{text-align:left;width:55ch;}div.rpt-table-container table thead tr th.header-1{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-2{text-align:left;width:9ch;}div.rpt-table-container table thead tr th.header-3{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-4{text-align:left;width:15ch;}div.rpt-table-container table thead tr th.header-5{text-align:right;width:12ch;}div.rpt-table-container table thead tr th.header-6{text-align:right;width:12ch;}div.rpt-table-container table tbody tr td.cell-row-0-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-0-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-6{text-align:right;}
+    </style>
+  </head>
+  <body>
+    <div class=container>
+      <div class="rpt-table-container">
+        <p class="title">
+          Water and Sewer Base Fee
+        </p>
+        <p class="section1">
+          GL Account: 43003
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header-0">
+                Description
+              </th>
+              <th class="header-1">
+                Date
+              </th>
+              <th class="header-2">
+                Journal ID
+              </th>
+              <th class="header-3">
+                Rental Agreement
+              </th>
+              <th class="header-4">
+                Rentable Name
+              </th>
+              <th class="header-5">
+                Amount
+              </th>
+              <th class="header-6">
+                Balance
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-row-0-col-0">
+                Opening Balance
+              </td>
+              <td class="cell-row-0-col-1">
+              </td>
+              <td class="cell-row-0-col-2">
+              </td>
+              <td class="cell-row-0-col-3">
+              </td>
+              <td class="cell-row-0-col-4">
+              </td>
+              <td class="cell-row-0-col-5">
+              </td>
+              <td class="cell-row-0-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-1-col-0">
+                Assessment - Water and Sewer Base Fee
+              </td>
+              <td class="cell-row-1-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-1-col-2">
+                J00000010
+              </td>
+              <td class="cell-row-1-col-3">
+                        1
+              </td>
+              <td class="cell-row-1-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-1-col-5">
+                       40.00
+              </td>
+              <td class="cell-row-1-col-6">
+                       40.00
+              </td>
+            </tr>
+            <tr class="bottom-line">
+              <td class="cell-row-2-col-0">
+                Assessment - Water and Sewer Base Fee
+              </td>
+              <td class="cell-row-2-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-2-col-2">
+                J00000009
+              </td>
+              <td class="cell-row-2-col-3">
+                        1
+              </td>
+              <td class="cell-row-2-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-2-col-5">
+                      -40.00
+              </td>
+              <td class="cell-row-2-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-3-col-0">
+                Closing Balance
+              </td>
+              <td class="cell-row-3-col-1">
+                07/31/2017
+              </td>
+              <td class="cell-row-3-col-2">
+              </td>
+              <td class="cell-row-3-col-3">
+              </td>
+              <td class="cell-row-3-col-4">
+              </td>
+              <td class="cell-row-3-col-5">
+              </td>
+              <td class="cell-row-3-col-6">
+                        0.00
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html><!DOCTYPE html>
+<html lang=en>
+  <head>
+    <title>
+      Unapplied Funds
+    </title>
+    <style>
+      html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:20px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
+    </style>
+    <style>
+      div.rpt-table-container table thead tr th.header-0{text-align:left;width:55ch;}div.rpt-table-container table thead tr th.header-1{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-2{text-align:left;width:9ch;}div.rpt-table-container table thead tr th.header-3{text-align:left;width:10ch;}div.rpt-table-container table thead tr th.header-4{text-align:left;width:15ch;}div.rpt-table-container table thead tr th.header-5{text-align:right;width:12ch;}div.rpt-table-container table thead tr th.header-6{text-align:right;width:12ch;}div.rpt-table-container table tbody tr td.cell-row-0-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-0-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-0-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-1-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-1-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-2-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-2-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-3-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-3-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-4-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-4-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-5-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-5-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-6-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-6-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-6-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-7-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-7-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-7-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-8-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-8-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-8-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-9-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-9-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-9-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-10-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-10-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-10-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-11-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-11-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-11-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-12-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-12-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-12-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-13-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-13-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-13-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-14-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-14-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-14-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-15-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-15-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-15-col-6{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-16-col-0{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-1{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-2{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-3{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-4{text-align:left;}div.rpt-table-container table tbody tr td.cell-row-16-col-5{text-align:right;}div.rpt-table-container table tbody tr td.cell-row-16-col-6{text-align:right;}
+    </style>
+  </head>
+  <body>
+    <div class=container>
+      <div class="rpt-table-container">
+        <p class="title">
+          Unapplied Funds
+        </p>
+        <p class="section1">
+          GL Account: 10999
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header-0">
+                Description
+              </th>
+              <th class="header-1">
+                Date
+              </th>
+              <th class="header-2">
+                Journal ID
+              </th>
+              <th class="header-3">
+                Rental Agreement
+              </th>
+              <th class="header-4">
+                Rentable Name
+              </th>
+              <th class="header-5">
+                Amount
+              </th>
+              <th class="header-6">
+                Balance
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-row-0-col-0">
+                Opening Balance
+              </td>
+              <td class="cell-row-0-col-1">
+              </td>
+              <td class="cell-row-0-col-2">
+              </td>
+              <td class="cell-row-0-col-3">
+              </td>
+              <td class="cell-row-0-col-4">
+              </td>
+              <td class="cell-row-0-col-5">
+              </td>
+              <td class="cell-row-0-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-1-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-1-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-1-col-2">
+                J00000024
+              </td>
+              <td class="cell-row-1-col-3">
+                        1
+              </td>
+              <td class="cell-row-1-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-1-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-1-col-6">
+                    3,750.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-2-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-2-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-2-col-2">
+                J00000025
+              </td>
+              <td class="cell-row-2-col-3">
+                        1
+              </td>
+              <td class="cell-row-2-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-2-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-2-col-6">
+                    7,500.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-3-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-3-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-3-col-2">
+                J00000026
+              </td>
+              <td class="cell-row-3-col-3">
+                        1
+              </td>
+              <td class="cell-row-3-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-3-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-3-col-6">
+                   11,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-4-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-4-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-4-col-2">
+                J00000027
+              </td>
+              <td class="cell-row-4-col-3">
+                        1
+              </td>
+              <td class="cell-row-4-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-4-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-4-col-6">
+                   15,000.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-5-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-5-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-5-col-2">
+                J00000028
+              </td>
+              <td class="cell-row-5-col-3">
+                        1
+              </td>
+              <td class="cell-row-5-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-5-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-5-col-6">
+                   18,750.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-6-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-6-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-6-col-2">
+                J00000030
+              </td>
+              <td class="cell-row-6-col-3">
+                        1
+              </td>
+              <td class="cell-row-6-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-6-col-5">
+                    3,750.00
+              </td>
+              <td class="cell-row-6-col-6">
+                   22,500.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-7-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-7-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-7-col-2">
+                J00000023
+              </td>
+              <td class="cell-row-7-col-3">
+                        1
+              </td>
+              <td class="cell-row-7-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-7-col-5">
+                    2,650.00
+              </td>
+              <td class="cell-row-7-col-6">
+                   25,150.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-8-col-0">
+                Payment #48762876342 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-8-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-8-col-2">
+                J00000022
+              </td>
+              <td class="cell-row-8-col-3">
+                        1
+              </td>
+              <td class="cell-row-8-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-8-col-5">
+                    1,000.00
+              </td>
+              <td class="cell-row-8-col-6">
+                   26,150.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-9-col-0">
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-9-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-9-col-2">
+                J00000021
+              </td>
+              <td class="cell-row-9-col-3">
+                        1
+              </td>
+              <td class="cell-row-9-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-9-col-5">
+                      100.00
+              </td>
+              <td class="cell-row-9-col-6">
+                   26,250.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-10-col-0">
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-10-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-10-col-2">
+                J00000031
+              </td>
+              <td class="cell-row-10-col-3">
+              </td>
+              <td class="cell-row-10-col-4">
+              </td>
+              <td class="cell-row-10-col-5">
+                      100.00
+              </td>
+              <td class="cell-row-10-col-6">
+                   26,350.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-11-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-11-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-11-col-2">
+                J00000029
+              </td>
+              <td class="cell-row-11-col-3">
+                        1
+              </td>
+              <td class="cell-row-11-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-11-col-5">
+                       30.00
+              </td>
+              <td class="cell-row-11-col-6">
+                   26,380.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-12-col-0">
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-12-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-12-col-2">
+                J00000018
+              </td>
+              <td class="cell-row-12-col-3">
+              </td>
+              <td class="cell-row-12-col-4">
+              </td>
+              <td class="cell-row-12-col-5">
+                     -100.00
+              </td>
+              <td class="cell-row-12-col-6">
+                   26,280.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-13-col-0">
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-13-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-13-col-2">
+                J00000032
+              </td>
+              <td class="cell-row-13-col-3">
+                        1
+              </td>
+              <td class="cell-row-13-col-4">
+                309 S Rexford
+              </td>
+              <td class="cell-row-13-col-5">
+                     -100.00
+              </td>
+              <td class="cell-row-13-col-6">
+                   26,180.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-14-col-0">
+                Payment #48762876342 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-14-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-14-col-2">
+                J00000019
+              </td>
+              <td class="cell-row-14-col-3">
+              </td>
+              <td class="cell-row-14-col-4">
+              </td>
+              <td class="cell-row-14-col-5">
+                   -1,000.00
+              </td>
+              <td class="cell-row-14-col-6">
+                   25,180.00
+              </td>
+            </tr>
+            <tr class="bottom-line">
+              <td class="cell-row-15-col-0">
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+              </td>
+              <td class="cell-row-15-col-1">
+                07/19/2017
+              </td>
+              <td class="cell-row-15-col-2">
+                J00000020
+              </td>
+              <td class="cell-row-15-col-3">
+              </td>
+              <td class="cell-row-15-col-4">
+              </td>
+              <td class="cell-row-15-col-5">
+                  -25,180.00
+              </td>
+              <td class="cell-row-15-col-6">
+                        0.00
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-row-16-col-0">
+                Closing Balance
+              </td>
+              <td class="cell-row-16-col-1">
+                07/31/2017
+              </td>
+              <td class="cell-row-16-col-2">
+              </td>
+              <td class="cell-row-16-col-3">
+              </td>
+              <td class="cell-row-16-col-4">
+              </td>
+              <td class="cell-row-16-col-5">
+              </td>
+              <td class="cell-row-16-col-6">
+                        0.00
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

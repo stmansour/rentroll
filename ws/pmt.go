@@ -8,7 +8,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // PaymentTypeGrid contains the data from PaymentType that is targeted to the UI Grid that displays
@@ -20,7 +19,7 @@ type PaymentTypeGrid struct {
 	BUD         rlib.XJSONBud
 	Name        string
 	Description string
-	LastModTime time.Time
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 
@@ -36,15 +35,9 @@ type PaymentTypeSaveForm struct {
 	Recid       int64 `json:"recid"`
 	PMTID       int64
 	BID         int64
+	BUD         rlib.XJSONBud
 	Name        string
 	Description string
-	LastModTime time.Time
-	LastModBy   int64
-}
-
-// PaymentTypeSaveOther is a struct to handle the UI list box selections
-type PaymentTypeSaveOther struct {
-	BUD rlib.W2uiHTMLSelect
 }
 
 // SavePaymentTypeInput is the input data format for a Save command
@@ -53,14 +46,6 @@ type SavePaymentTypeInput struct {
 	Recid    int64               `json:"recid"`
 	FormName string              `json:"name"`
 	Record   PaymentTypeSaveForm `json:"record"`
-}
-
-// SavePaymentTypeOther is the input data format for the "other" data on the Save command
-type SavePaymentTypeOther struct {
-	Status string               `json:"status"`
-	Recid  int64                `json:"recid"`
-	Name   string               `json:"name"`
-	Record PaymentTypeSaveOther `json:"record"`
 }
 
 // PaymentTypeGetResponse is the response to a GetPaymentType request
@@ -300,7 +285,6 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "savePaymentType"
 		foo      SavePaymentTypeInput
-		bar      SavePaymentTypeOther
 		err      error
 	)
 
@@ -315,27 +299,33 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err := json.Unmarshal(data, &bar); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
 	var a rlib.PaymentType
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
 	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BUD.ID]
+	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BUD.ID)
+		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	if len(a.Name) == 0 {
+		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	var adup rlib.PaymentType
+	rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
+	if a.Name == adup.Name {
+		e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
 	if a.PMTID == 0 && d.ID == 0 {
 		// This is a new AR
-		fmt.Printf(">>>> NEW PAYMENT TYPE IS BEING ADDED\n")
 		err = rlib.InsertPaymentType(&a)
 	} else {
 		// update existing record
@@ -344,41 +334,13 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving payment type (PMTID=%d\n: %s", funcname, a.PMTID, err.Error())
+		e := fmt.Errorf("%s: Error saving Payment Type : %s", funcname, a.Name)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
 	SvcWriteSuccessResponse(w)
 }
-
-// // paymentTypeUpdate unmarshals the supplied string. If Recid > 0 it updates the
-// // PaymentType record using Recid as the PMTID.  If Recid == 0, then it inserts a
-// // new PaymentType record.
-// func paymentTypeUpdate(s string, d *ServiceData) error {
-// 	b := []byte(s)
-// 	var rec PaymentTypeGrid
-// 	if err := json.Unmarshal(b, &rec); err != nil { // first parse to determine the record ID we need to load
-// 		return err
-// 	}
-// 	var pt rlib.PaymentType
-// 	if rec.Recid > 0 { // is this an update?
-// 		rlib.GetPaymentType(rec.Recid, &pt)            // now load that record...
-// 		if err := json.Unmarshal(b, &pt); err != nil { // merge in the changes...
-// 			return err
-// 		}
-// 		return rlib.UpdatePaymentType(&pt) // and save the result
-// 	}
-// 	// no, it is a new table entry that has not been saved...
-// 	var a rlib.PaymentType
-// 	if err := json.Unmarshal(b, &a); err != nil { // merge in the changes...
-// 		return err
-// 	}
-// 	a.BID = d.BID
-// 	fmt.Printf("a = %#v\n", a)
-// 	fmt.Printf(">>>> NEW PAYMENT TYPE IS BEING ADDED\n")
-// 	return rlib.InsertPaymentType(&a)
-// }
 
 // GetPaymentType returns the requested assessment
 // wsdoc {

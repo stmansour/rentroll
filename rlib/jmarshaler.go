@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-// JSONTime is a wrapper around time.Time. We need it
+// JSONDate is a wrapper around time.Time. We need it
 // in order to be able to control the formatting used
 // on the date values sent to the w2ui controls.  Without
 // this wrapper, the default time format used by the
 // JSON encoder / decoder does not work with the w2ui
 // controls
-type JSONTime time.Time
+type JSONDate time.Time
 
 var earliestDate = time.Date(1900, time.January, 1, 0, 0, 0, 0, time.UTC)
 
@@ -20,7 +20,7 @@ var earliestDate = time.Date(1900, time.January, 1, 0, 0, 0, 0, time.UTC)
 // date strings of the form YYYY-MM-DD. Any date prior to Jan 1, 1900
 // is snapped to Jan 1, 1900.
 //--------------------------------------------------------------------
-func (t *JSONTime) MarshalJSON() ([]byte, error) {
+func (t *JSONDate) MarshalJSON() ([]byte, error) {
 	ts := time.Time(*t)
 	if ts.Before(earliestDate) {
 		ts = earliestDate
@@ -34,7 +34,7 @@ func (t *JSONTime) MarshalJSON() ([]byte, error) {
 // date strings of the form YYYY-MM-DD.  Any date prior to Jan 1, 1900
 // is snapped to Jan 1, 1900.
 //--------------------------------------------------------------------
-func (t *JSONTime) UnmarshalJSON(b []byte) error {
+func (t *JSONDate) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	s = Stripchars(s, "\"")
 	// x, err := time.Parse("2006-01-02", s)
@@ -45,7 +45,47 @@ func (t *JSONTime) UnmarshalJSON(b []byte) error {
 	if x.Before(earliestDate) {
 		x = earliestDate
 	}
-	*t = JSONTime(x)
+	*t = JSONDate(x)
+	return nil
+}
+
+// JSONDateTime is a wrapper around time.Time. We need it
+// in order to be able to control the formatting used
+// on the DATETIME values sent to the w2ui controls.  Without
+// this wrapper, the default time format used by the
+// JSON encoder / decoder does not work with the w2ui
+// controls
+type JSONDateTime time.Time
+
+// MarshalJSON overrides the default time.Time handler and sends
+// date strings of the form YYYY-MM-DD. Any date prior to Jan 1, 1900
+// is snapped to Jan 1, 1900.
+//--------------------------------------------------------------------
+func (t *JSONDateTime) MarshalJSON() ([]byte, error) {
+	ts := time.Time(*t)
+	if ts.Before(earliestDate) {
+		ts = earliestDate
+	}
+	val := fmt.Sprintf("\"%s\"", ts.Format(RRDATETIMEFMT))
+	return []byte(val), nil
+}
+
+// UnmarshalJSON overrides the default time.Time handler and reads in
+// date strings of the form YYYY-MM-DD.  Any date prior to Jan 1, 1900
+// is snapped to Jan 1, 1900.
+//--------------------------------------------------------------------
+func (t *JSONDateTime) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	s = Stripchars(s, "\"")
+	// x, err := time.Parse("2006-01-02", s)
+	x, err := StringToDate(s)
+	if err != nil {
+		return err
+	}
+	if x.Before(earliestDate) {
+		x = earliestDate
+	}
+	*t = JSONDateTime(x)
 	return nil
 }
 

@@ -28,14 +28,14 @@ type SearchAllocFundsResponse struct {
 // UnpaidAsm unpaid assessments of a payor
 type UnpaidAsm struct {
 	Recid      int              `json:"recid"`
-	DtStart    rlib.JSONTime    `json:"Date"`
+	DtStart    rlib.JSONDate    `json:"Date"`
 	ASMID      int64            `json:"ASMID"`
 	ARID       int64            `json:"ARID"`
 	Name       string           `json:"Assessment"`
 	Amount     float64          `json:"Amount"`
 	AmountPaid float64          `json:"AmountPaid"`
 	AmountOwed float64          `json:"AmountOwed"`
-	Dt         rlib.JSONTime    `json:"Dt"`
+	Dt         rlib.JSONDate    `json:"Dt"`
 	Allocate   rlib.NullFloat64 `json:"Allocate"`
 }
 
@@ -44,7 +44,7 @@ type PayorUnpaidAsmsResponse struct {
 	Status  string      `json:"status"`
 	Total   int64       `json:"total"`
 	Records []UnpaidAsm `json:"records"`
-	// Time    rlib.JSONTime `json:"time"`
+	// Time    rlib.JSONDate `json:"time"`
 }
 
 // PayorFund is used to get total unallocated fund for a payor
@@ -60,7 +60,7 @@ type PayorFundResponse struct {
 
 // AllocFundSaveRequest used to allocate fund to unpaid assessments
 type AllocFundSaveRequest struct {
-	// Time    rlib.JSONTime `json:"time"`
+	// Time    rlib.JSONDate `json:"time"`
 	TCID    int64
 	BID     int64
 	Records []UnpaidAsm `json:"records"`
@@ -115,7 +115,7 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		g        SearchAllocFundsResponse
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
+	// fmt.Printf("Entered %s\n", funcname)
 
 	rows, err := rlib.RRdb.Prepstmt.GetUnallocatedReceipts.Query(d.BID)
 	defer rows.Close()
@@ -123,7 +123,7 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("A\n")
+	// fmt.Printf("A\n")
 	i := d.wsSearchReq.Offset
 	count := 0
 
@@ -133,41 +133,41 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 
 	// get the transactants list
 	for rows.Next() {
-		fmt.Printf("B\n")
+		// fmt.Printf("B\n")
 		// get receipts record
 		var rcpt rlib.Receipt
 		rlib.ReadReceipts(rows, &rcpt)
-		fmt.Printf("B.1\n")
+		// fmt.Printf("B.1\n")
 
 		// get Transactant records
 		var t rlib.Transactant
 		err = rlib.GetTransactant(rcpt.TCID, &t)
 		if err != nil {
-			fmt.Printf("B.2  rcpt.RCPTID = %d,  rcpt.TCID = %d\n", rcpt.RCPTID, rcpt.TCID)
+			// fmt.Printf("B.2  rcpt.RCPTID = %d,  rcpt.TCID = %d\n", rcpt.RCPTID, rcpt.TCID)
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		fmt.Printf("C\n")
+		// fmt.Printf("C\n")
 
 		u[rcpt.TCID] = t
 		if !rlib.Int64InSlice(rcpt.TCID, payorTCIDList) {
 			payorTCIDList = append(payorTCIDList, rcpt.TCID)
 		}
 	}
-	fmt.Printf("D\n")
+	// fmt.Printf("D\n")
 	err = rows.Err()
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("E\n")
+	// fmt.Printf("E\n")
 
 	// sort the order of payors TCID
 	sort.Sort(payorTCIDList)
 
 	// now := time.Now()
 	for _, tcid := range payorTCIDList {
-		fmt.Printf("F\n")
+		// fmt.Printf("F\n")
 		t := u[tcid]
 		var q UnallocatedReceiptsPayors
 
@@ -192,12 +192,12 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
-			fmt.Printf("G\n")
+			// fmt.Printf("G\n")
 			break // if we've added the max number requested, then exit
 		}
 		i++ // update the index no matter what
 	}
-	fmt.Printf("H\n")
+	// fmt.Printf("H\n")
 
 	g.Status = "success"
 	g.Total = int64(len(g.Records))
@@ -306,13 +306,13 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 	TCID := d.ID
 	dt := time.Now()
-	// res.Time = rlib.JSONTime(dt) // let's keep it here as of now
+	// res.Time = rlib.JSONDate(dt) // let's keep it here as of now
 	m := bizlogic.GetAllUnpaidAssessmentsForPayor(d.BID, TCID, &dt)
 
 	for i, asm := range m {
 		var rec UnpaidAsm
 		rec.Recid = i
-		rec.DtStart = rlib.JSONTime(asm.Start)
+		rec.DtStart = rlib.JSONDate(asm.Start)
 		rec.Amount = asm.Amount
 		rec.AmountOwed = bizlogic.AssessmentUnpaidPortion(&m[i])
 		rec.AmountPaid = rec.Amount - rec.AmountOwed
@@ -325,7 +325,7 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 		rec.Name = ar.Name
 		rec.ASMID = asm.ASMID
 		rec.ARID = asm.ARID
-		rec.Dt = rlib.JSONTime(time.Now())
+		rec.Dt = rlib.JSONDate(time.Now())
 		res.Records = append(res.Records, rec)
 		res.Total++
 	}

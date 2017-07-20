@@ -89,11 +89,11 @@ func (ns *NullString) Scan(value interface{}) error {
 	return nil
 }
 
-// NullTime wraps mysql.NullTime data type
-type NullTime mysql.NullTime
+// NullDate wraps mysql.NullTime data type
+type NullDate mysql.NullTime
 
 // Scan implements the Scanner interface for NullTime
-func (nt *NullTime) Scan(value interface{}) error {
+func (nt *NullDate) Scan(value interface{}) error {
 	var t mysql.NullTime
 	if err := t.Scan(value); err != nil {
 		return err
@@ -101,13 +101,33 @@ func (nt *NullTime) Scan(value interface{}) error {
 
 	// if nil the make Valid false
 	if reflect.TypeOf(value) == nil {
-		*nt = NullTime{t.Time, false}
+		*nt = NullDate{t.Time, false}
 	} else {
-		*nt = NullTime{t.Time, true}
+		*nt = NullDate{t.Time, true}
 	}
 
 	return nil
 }
+
+/*// NullDateTime wraps mysql.NullTime data type
+type NullDateTime mysql.NullTime
+
+// Scan implements the Scanner interface for NullTime
+func (nt *NullDateTime) Scan(value interface{}) error {
+	var t mysql.NullTime
+	if err := t.Scan(value); err != nil {
+		return err
+	}
+
+	// if nil the make Valid false
+	if reflect.TypeOf(value) == nil {
+		*nt = NullDateTime{t.Time, false}
+	} else {
+		*nt = NullDateTime{t.Time, true}
+	}
+
+	return nil
+}*/
 
 // MarshalJSON for NullInt64
 func (ni *NullInt64) MarshalJSON() ([]byte, error) {
@@ -169,8 +189,8 @@ func (ns *NullString) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// MarshalJSON for NullTime
-func (nt *NullTime) MarshalJSON() ([]byte, error) {
+// MarshalJSON for NullDate
+func (nt *NullDate) MarshalJSON() ([]byte, error) {
 	if !nt.Valid {
 		return []byte("null"), nil
 	}
@@ -178,8 +198,8 @@ func (nt *NullTime) MarshalJSON() ([]byte, error) {
 	return []byte(val), nil
 }
 
-// UnmarshalJSON for NullTime
-func (nt *NullTime) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON for NullDate
+func (nt *NullDate) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	s = Stripchars(s, "\"")
 
@@ -193,3 +213,28 @@ func (nt *NullTime) UnmarshalJSON(b []byte) error {
 	nt.Valid = true
 	return nil
 }
+
+/*// MarshalJSON for NullDateTime
+func (nt *NullDateTime) MarshalJSON() ([]byte, error) {
+	if !nt.Valid {
+		return []byte("null"), nil
+	}
+	val := fmt.Sprintf("\"%s\"", nt.Time.Format(RRDATETIMEFMT))
+	return []byte(val), nil
+}
+
+// UnmarshalJSON for NullDateTime
+func (nt *NullDateTime) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	s = Stripchars(s, "\"")
+
+	x, err := StringToDate(s)
+	if err != nil {
+		nt.Valid = false
+		return err
+	}
+
+	nt.Time = time.Time(x)
+	nt.Valid = true
+	return nil
+}*/

@@ -34,7 +34,7 @@ sidebarL1     - w2ui sidebar
     tcidReceiptPayorPickerRender, unallocAmountRemaining,
     addDateNavToToolbar,dateFromString, getPayorFund, refreshUnallocAmtSummaries,
     getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer,
-    form_dirty_alert, _unAllocRcpts, w2confirm,getRentableTypes,getPersonDetailsByTCID,
+    form_dirty_alert, w2confirm,getRentableTypes,getPersonDetailsByTCID,
     tcidRUserPickerRender,rentalAgrFinderRender,rentalAgrFinderDropRender,rentalAgrFinderCompare,
     getAccountsList,getPostAccounts,int_to_bool,
 */
@@ -42,13 +42,10 @@ sidebarL1     - w2ui sidebar
 /*globals $:false */
 "use strict";
 
-var FormFLAGReportCSS = "background-color: #d0e9c6; padding: 8px 12px; border-radius: 4px; margin: 10px 0px;text-align: left; bottom: 0; position: absolute; width: 94%;";
-
 // unallocated receipts utility literal object
 var _unAllocRcpts = {
     layoutPanels: {
         top: function(unallocFund, person/*, tcid*/) {
-            "use strict";
             return `<html>
                 <head>
                 <link rel="stylesheet" href="/html/rentroll.css">
@@ -67,7 +64,6 @@ var _unAllocRcpts = {
                 </html>`;
         },
         bottom: function() {
-            "use strict";
             return `<div style="display: table; width: 100%; height: 100%;">
                     <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
                         <button class="w2ui-btn" id="alloc_fund_save_btn">Save</button>
@@ -1332,7 +1328,7 @@ function buildPageElements() {
             { field: "AllowPost", required: true, type: 'list', options: { items: app.account_stuff.allowPostList, selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
             { field: "ManageToBudget", required: true, type: 'list', options: { items: app.manageToBudgetList, selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
-            { field: "LastModTime", required: false, type: 'date', html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
         ],
         toolbar: {
@@ -1372,18 +1368,16 @@ function buildPageElements() {
         },
         actions: {
             save: function() {
-                var tgrid = w2ui.accountsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                var f = this,
+                    tgrid = w2ui.accountsGrid;
 
-                this.save({}, function (data) {
+                f.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                    tgrid.render();
                 });
             },
             delete: function() {
@@ -1411,7 +1405,7 @@ function buildPageElements() {
                         tgrid.reload();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Payment failed.");
+                        console.log("Delete Account failed.");
                     });
                 })
                 .no(function() {
@@ -1459,7 +1453,7 @@ function buildPageElements() {
 
                 formRefreshCallBack(f, "LID", header);
             };
-        }
+        },
     });
 
     //------------------------------------------------------------------------
@@ -2038,8 +2032,8 @@ function buildPageElements() {
             items: [
                 { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
                 { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
-            ],
+            { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+        ],
             onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
@@ -2905,7 +2899,7 @@ function buildPageElements() {
         },
         onChange: function(event) {
             event.done(function () {
-                calcRarGridContractRent(obj);
+                calcRarGridContractRent(this);
                 w2ui[this].save();
             });
         },
@@ -3126,6 +3120,17 @@ function buildPageElements() {
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},                                    // 0
+            {field: 'reversed', size: '10px', style: 'text-align: center', sortable: true,
+                    render: function (record /*, index, col_index*/) {
+                        if (typeof record === "undefined") {
+                            return;
+                        }
+                        if ( (record.FLAGS & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                            return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+                        }
+                        return '';
+                    },
+            },
             {field: 'RCPTID', caption: 'Receipt ID',  size: '80px', style: 'text-align: right', sortable: true},                // 1
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
             {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false}, // 3
@@ -3375,7 +3380,7 @@ function buildPageElements() {
 
                             // NOTE: have to trigger manually, b'coz we manually change the record,
                             // otherwise it triggers the change event but it won't get change (Object: {})
-                            var event = f.trigger({ phase: 'before', target: f.name, type: 'change', recid: recid, event: event }); // event before
+                            var event = f.trigger({ phase: 'before', target: f.name, type: 'change', event: event }); // event before
                             if (event.cancelled === true) return false;
                             f.trigger($.extend(event, { phase: 'after' })); // event after
                         };
@@ -3433,7 +3438,7 @@ function buildPageElements() {
                     };
                     if ($("#receiptForm").find("input[name=Payor]").length > 0) {
                         $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                    };
+                    }
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -3467,7 +3472,7 @@ function buildPageElements() {
                     };
                     if ($("#receiptForm").find("input[name=Payor]").length > 0) {
                         $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                    };
+                    }
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -3490,10 +3495,25 @@ function buildPageElements() {
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
 
+                formRefreshCallBack(f, "RCPTID", header);
+
+                // ==================================
+                // SPECIAL CASE
+                // ==================================
+                if (r.RCPTID === 0) { // if new record then do not worry about reversed thing
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    return;
+                } else {
+                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                }
+                // this one is a special case, where also have to take care of reverse button
                 // FLAG reports
                 var flag = r.FLAGS,
-                    flagHTML = "",
-                    reverseHide = false;
+                    flagHTML = "";
 
                 // unpaid, partial paid or fully paid
                 if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
@@ -3509,23 +3529,24 @@ function buildPageElements() {
                 // check if it is reversed or not
                 if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
-                    reverseHide = true;
+                    // reversed indication icon
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    // if reversed then do not show reverse, save, saveadd button
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").addClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    // if reversed then we need to show close button
+                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                } else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
-
-                formRefreshCallBack(f, "RCPTID", header);
-
-                // this one is a special case, where also have to take care of reverse button
-                if (reverseHide) { // if reversed then
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                }
-                else {
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                }
             };
         },
         onValidate: function (event) {
@@ -3549,10 +3570,7 @@ function buildPageElements() {
         onChange: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    r = f.record,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
-                    BUD = getBUDfromBID(BID);
+                    r = f.record;
 
                 if (event.target == "PmtTypeName") {
                     r.PMTID = event.value_new.id;
@@ -3658,9 +3676,8 @@ function buildPageElements() {
                 f.refresh();
             },
             save: function () {
-                var x = getCurrentBusiness();
-                var BID=x.value;
-                var BUD = getBUDfromBID(BID);
+                var x = getCurrentBusiness(),
+                    BID=x.value;
 
                 //var obj = this;
                 w2ui.receiptForm.url = '/v1/receipt/' + BID + '/0';
@@ -3747,7 +3764,18 @@ function buildPageElements() {
                             return;
                         }
                         if (record.RentCycle !== 0 && record.PASMID === 0) {
-                            return '<i class="fa fa-refresh" aria-hidden="true"></i>';
+                            return '<i class="fa fa-refresh" title="epoch" aria-hidden="true"></i>';
+                        }
+                        return '';
+                    },
+            },
+            {field: 'reversed', size: '10px', style: 'text-align: center', sortable: true,
+                    render: function (record /*, index, col_index*/) {
+                        if (typeof record === "undefined") {
+                            return;
+                        }
+                        if ( (record.FLAGS & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                            return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
                         }
                         return '';
                     },
@@ -4053,10 +4081,25 @@ function buildPageElements() {
                     r = f.record,
                     header = "Edit Assessment ({0})";
 
+                formRefreshCallBack(f, "ASMID", header);
+
+                // ===========================
+                // SPECIAL CASE
+                // ===========================
+
+                if (r.ASMID === 0) { // if new record then do not worry about reversed thing
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    return;
+                } else {
+                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                }
+
                 // FLAG reports
                 var flag = r.FLAGS,
-                    flagHTML = "",
-                    reverseHide = false;
+                    flagHTML = "";
 
                 // unpaid, partial paid or fully paid
                 if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
@@ -4072,48 +4115,60 @@ function buildPageElements() {
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
-                    reverseHide = true;
+                    // reversed indication icon
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    // if reversed then do not show reverse, save button
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").addClass("hidden");
+                    // if reversed then we need to show close button at the bottom of form
+                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                } else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-
-                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
-
-                formRefreshCallBack(f, "ASMID", header);
-
-                // this one is a special case, where also have to take care of reverse button
-                if (reverseHide) { // if reversed then
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                }
-                else {
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                }
             };
         },
         onChange: function(event) {
             event.onComplete = function() {
+                var f = this,
+                    r = f.record;
+
                 if (event.target == "Start") {
                     var x = document.getElementsByName('ExpandPastInst')[0];
-                    if (this.record.RentCycle.text != "norecur") {
+                    if (r.RentCycle.text != "Norecur") {
                         var DtStart = dateFromString(event.value_new);
                         var y = new Date();
                         x.checked = (DtStart <  y);
                     } else {
+                        // if Start date has been changed, in rentcycle with norecur mode
+                        // then we need to set stop date same value of start date
+                        r.Stop = r.Start;
                         x.checked = false;
                     }
                 }
                 if (event.target == "RentCycle") {
                     if (event.value_new.text == "Norecur") {
-                        w2ui.asmEpochForm.record.RentCycle = event.value_new;
-                        w2ui.asmEpochForm.record.ProrationCycle = {id: "Norecur", text: "Norecur"};
-                        w2ui.asmEpochForm.render();
+                        r.RentCycle = event.value_new;
+                        r.ProrationCycle = "Norecur";
+                        r.Stop = r.Start;
+                        // disable stop date control
+                        $("#"+f.name).find("input[name=Stop]").prop("disabled", true);
+                    } else {
+                        // enable stop date control
+                        $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
                     }
                 }
 
+                // finally refresh the form
+                f.refresh();
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
-                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                var diff = formRecDiffer(r, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
                 if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
                     app.form_is_dirty = false;
@@ -4247,10 +4302,24 @@ function buildPageElements() {
                 }
                 $("#"+f.name).find("#AssessmentEpochOrInstance").html(info);
 
+                formRefreshCallBack(f, "ASMID", header);
+
+                // ==============================
+                // SPECIAL CASE
+                // ==============================
+                if (r.ASMID === 0) { // if new record then do not worry about reversed thing
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    return;
+                } else {
+                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                }
+
                 // FLAG reports
                 var flag = r.FLAGS,
-                    flagHTML = "",
-                    reverseHide = false;
+                    flagHTML = "";
 
                 // unpaid, partial paid or fully paid
                 if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
@@ -4266,30 +4335,54 @@ function buildPageElements() {
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
-                    reverseHide = true;
+                    // reversed indication icon
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    // if reversed then do not show reverse, save button in form
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").addClass("hidden");
+                    // if reversed then we need to show close button at the bottom
+                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                } else {
+                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-
-                $("#"+f.name).find("#FLAGReport").attr("style", FormFLAGReportCSS);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
-
-                formRefreshCallBack(f, "ASMID", header);
-
-                // this one is a special case, where also have to take care of reverse button
-                if (reverseHide) { // if reversed then
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                }
-                else {
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                }
             };
         },
         onChange: function(event) {
             event.onComplete = function() {
+                var f = this,
+                    r = f.record;
+
+                if (event.target == "Start") {
+                    if (r.RentCycle.text == "Norecur") {
+                        // if Start date has been changed, in rentcycle with norecur mode
+                        // then we need to set stop date same value of start date
+                        r.Stop = r.Start;
+                    }
+                }
+                if (event.target == "RentCycle") {
+                    if (event.value_new.text == "Norecur") {
+                        r.RentCycle = event.value_new;
+                        r.ProrationCycle = "Norecur";
+                        r.Stop = r.Start;
+                        // disable stop date control
+                        $("#"+f.name).find("input[name=Stop]").prop("disabled", true);
+                    } else {
+                        // enable stop date control
+                        $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
+                    }
+                }
+
+                // finally refresh the form
+                f.refresh();
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
-                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                var diff = formRecDiffer(r, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
                 if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
                     app.form_is_dirty = false;
@@ -4328,7 +4421,7 @@ function buildPageElements() {
                 console.log('SAVE asmsReverseMode: Mode = ' + w2ui.reverseMode.record.ReverseMode.id);
                 w2popup.close();
                 w2ui.toplayout.hide('right',true);
-                w2ui.asmsGrid.reload();
+                w2ui.asmsGrid.refresh();
 
                 // var form = w2ui.asmInstForm;
                 var form = app.AsmtModeCallerForm;
@@ -4700,7 +4793,7 @@ function buildPageElements() {
             { field: 'PMTID', type: 'int', required: false, html: { caption: 'PMTID', page: 0, column: 0 }, hidden: true },
             { field: 'Name', type: 'text', required: true, html: { caption: 'Name', page: 0, column: 0 }, sortable: true },
             { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0 }, sortable: true },
-            { field: 'LastModTime', type: 'date', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
         ],
         toolbar: {
@@ -4722,35 +4815,21 @@ function buildPageElements() {
                 }
             }
         },
+        onError: function(event) {
+            console.log(event);
+        },
         actions: {
-            save: function() {
-                var tgrid = w2ui.pmtsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+            save: function(/*target, data*/) {
+                var f = this,
+                    tgrid = w2ui.pmtsGrid;
 
-                // this.save({}, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     tgrid.reload();
-                // });
-                var params = {cmd: 'save', formname: this.name, record: this.record };
-                var dat = JSON.stringify(params);
-
-                // save Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
-                })
-                .fail(function(/*data*/){
-                    console.log("Save Payment Type failed.");
+                    tgrid.render();
                 });
             },
             delete: function() {
@@ -4828,6 +4907,10 @@ function buildPageElements() {
                 $(w2ui.toplayout.get("right").content.box).height(h);
                 $(this.box).find("div.w2ui-form-box").height(h);
             };
+        },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
         },
     });
 
@@ -4994,7 +5077,7 @@ function buildPageElements() {
             { field: 'LID', type: 'list', required: true, options: { items: [], selected: {}, maxDropHeight: 200 }, html: { page: 0, column: 0 } },
             { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
             { field: 'AccountNo', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
         ],
         toolbar: {
@@ -5018,35 +5101,16 @@ function buildPageElements() {
         },
         actions: {
             save: function (/*target, data*/) {
-                var tgrid = w2ui.depGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                var f = this,
+                    tgrid = w2ui.depGrid;
 
-                // this.save({}, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     tgrid.reload();
-                // });
-                // TODO: need to figure out why save is not working here?
-
-                var params = {cmd: 'save', formname: this.name, record: this.record };
-                var dat = JSON.stringify(params);
-
-                // save Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
-                })
-                .fail(function(/*data*/){
-                    console.log("Save Depository failed.");
+                    tgrid.render();
                 });
             },
             delete: function(/*target, data*/) {
@@ -5110,6 +5174,10 @@ function buildPageElements() {
                 $(w2ui.toplayout.get("right").content.box).height(h);
                 $(this.box).find("div.w2ui-form-box").height(h);
             };
+        },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
         },
     });
 

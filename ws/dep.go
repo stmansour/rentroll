@@ -8,7 +8,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // DepositoryGrid contains the data from Depository that is targeted to the UI Grid that displays
@@ -23,7 +22,7 @@ type DepositoryGrid struct {
 	AccountNo   string
 	LdgrName    string
 	GLNumber    string
-	LastModTime time.Time
+	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 }
 
@@ -37,15 +36,15 @@ type DepositorySearchResponse struct {
 // DepositorySaveForm contains the data from Depository FORM that is targeted to the UI Form that displays
 // a list of Depository structs
 type DepositorySaveForm struct {
-	Recid       int64 `json:"recid"`
-	DEPID       int64
-	BID         int64
-	Name        string
-	AccountNo   string
-	LdgrName    string
-	GLNumber    string
-	LastModTime time.Time
-	LastModBy   int64
+	Recid     int64 `json:"recid"`
+	LID       int64
+	DEPID     int64
+	BID       int64
+	BUD       rlib.XJSONBud
+	Name      string
+	AccountNo string
+	LdgrName  string
+	GLNumber  string
 }
 
 // DepositoryGridSave is the input data format for a Save command
@@ -54,26 +53,6 @@ type DepositoryGridSave struct {
 	Recid    int64              `json:"recid"`
 	FormName string             `json:"name"`
 	Record   DepositorySaveForm `json:"record"`
-}
-
-// DepositorySaveOther is a struct to handle the UI list box selections
-type DepositorySaveOther struct {
-	BUD rlib.W2uiHTMLSelect
-	LID rlib.W2uiHTMLSelect
-}
-
-// SaveDepositoryOther is the input data format for the "other" data on the Save command
-type SaveDepositoryOther struct {
-	Status string              `json:"status"`
-	Recid  int64               `json:"recid"`
-	Name   string              `json:"name"`
-	Record DepositorySaveOther `json:"record"`
-}
-
-// DepSaveOther is a struct to handle the UI list box selections
-type DepSaveOther struct {
-	BUD rlib.W2uiHTMLSelect
-	LID rlib.W2uiHTMLSelect
 }
 
 // DepositoryGetResponse is the response to a GetDepository request
@@ -318,7 +297,6 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "saveDepository"
 		foo      DepositoryGridSave
-		bar      SaveDepositoryOther
 		err      error
 	)
 
@@ -334,29 +312,40 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err := json.Unmarshal(data, &bar); err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
 	var a rlib.Depository
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
 	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BUD.ID]
+	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BUD.ID)
+		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-	a.LID, ok = rlib.StringToInt64(bar.Record.LID.ID) // CreditLID has drop list
-	if !ok {
-		e := fmt.Errorf("%s: invalid LID value: %s", funcname, bar.Record.LID.ID)
+
+	if len(a.Name) == 0 {
+		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
+
+	adup := rlib.GetDepositoryByName(a.BID, a.Name)
+	if a.Name == adup.Name {
+		e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	adup = rlib.GetDepositoryByLID(a.BID, a.LID)
+	if a.LID == adup.LID {
+		l := rlib.GetLedger(a.LID)
+		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	rlib.GetDepositoryByName(a.BID, a.Name)
 
 	if a.DEPID == 0 && d.ID == 0 {
 		// This is a new AR
@@ -376,38 +365,6 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	SvcWriteSuccessResponse(w)
 }
-
-// // depositoryUpdate unmarshals the supplied string. If Recid > 0 it updates the
-// // Depository record using Recid as the DEPID.  If Recid == 0, then it inserts a
-// // new Depository record.
-// func depositoryUpdate(s string, d *ServiceData) error {
-// 	var err error
-// 	b := []byte(s)
-// 	var rec DepositoryGrid
-// 	if err = json.Unmarshal(b, &rec); err != nil { // first parse to determine the record ID we need to load
-// 		return err
-// 	}
-// 	if rec.Recid > 0 { // is this an update?
-// 		pt, err := rlib.GetDepository(rec.Recid) // now load that record...
-// 		if err != nil {
-// 			return err
-// 		}
-// 		if err = json.Unmarshal(b, &pt); err != nil { // merge in the changes...
-// 			return err
-// 		}
-// 		return rlib.UpdateDepository(&pt) // and save the result
-// 	}
-// 	// no, it is a new table entry that has not been saved...
-// 	var a rlib.Depository
-// 	if err := json.Unmarshal(b, &a); err != nil { // merge in the changes...
-// 		return err
-// 	}
-// 	a.BID = d.BID
-// 	fmt.Printf("a = %#v\n", a)
-// 	fmt.Printf(">>>> NEW DEPOSITORY IS BEING ADDED\n")
-// 	_, err = rlib.InsertDepository(&a)
-// 	return err
-// }
 
 // GetDepository returns the requested assessment
 // wsdoc {
