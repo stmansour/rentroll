@@ -4184,8 +4184,12 @@ function buildPageElements() {
                     }
                 }
 
+                // copy original record temporary and reset it back after refresh event
+                var temp = $.extend(true, {}, app.active_form_original);
                 // finally refresh the form
                 f.refresh();
+                // now reset app original form record
+                app.active_form_original = $.extend(true, {}, temp);
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(r, app.active_form_original, {});
@@ -4406,8 +4410,12 @@ function buildPageElements() {
                     }
                 }
 
+                // copy original record temporary and reset it back after refresh event
+                var temp = $.extend(true, {}, app.active_form_original);
                 // finally refresh the form
                 f.refresh();
+                // now reset app original form record
+                app.active_form_original = $.extend(true, {}, temp);
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(r, app.active_form_original, {});
