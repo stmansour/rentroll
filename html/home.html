@@ -3774,8 +3774,9 @@ function buildPageElements() {
                         if (record.RentCycle !== 0 && record.PASMID === 0) { // if epoch then make row bold
                             record["w2ui"] = {class: ""};
                             record.w2ui.class = "asmEpochRow";
-                        } else if (record.RentCycle) { // if recurring assessment then put refresh icon
                             return '<i class="fa fa-refresh" title="epoch" aria-hidden="true"></i>';
+                        } else if (record.RentCycle) { // if recurring assessment then put refresh icon
+                            return '<i class="fa fa-refresh" title="recurring" aria-hidden="true"></i>';
                         }
                         return ''; // if non-recur assessment then do nothing
                     },
