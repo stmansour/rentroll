@@ -71,7 +71,7 @@ package: rentroll
 	cp config.json report.css table.tmpl ./tmp/rentroll/
 	cp -r html ./tmp/rentroll/
 	cp ../gotable/pdfinstall.sh tmp/rentroll/
-	if [ -e js ]; then cp -r js ./tmp/rentroll/ ; fi
+	# if [ -e js ]; then cp -r js ./tmp/rentroll/ ; fi
 	cp activate.sh update.sh ./tmp/rentroll/
 	rm -f ./rrnewdb ./rrbkup ./rrrestore
 	ln -s tmp/rentroll/rrnewdb
@@ -89,7 +89,7 @@ pubimages:
 	cd tmp/rentroll;find . -name "*.png" | tar -cf rrimages.tar -T - ;gzip rrimages.tar ;/usr/local/accord/bin/deployfile.sh rrimages.tar.gz jenkins-snapshot/rentroll/latest
 
 pubjs:
-	cd tmp/rentroll;mv js/rutil.js .;tar czvf rrjs.tar.gz ./js;mv rutil.js js/;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
+	cd tmp/rentroll;mv js/bundle*.js .;tar czvf rrjs.tar.gz ./js;mv bundle*.js js/;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
 
 pubdb:
 	# testing db

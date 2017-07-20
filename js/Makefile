@@ -24,7 +24,7 @@ test:
 package:
 	@touch fail
 	mkdir -p ${BINDIR}/js
-	cp bundle.js ${BINDIR}
-	cp bundle.min.js ${BINDIR}
+	cp bundle.js ${BINDIR}/js/
+	cp bundle.min.js ${BINDIR}/js/
 	@rm -f fail
 	@echo "*** PACKAGE completed in js ***"
