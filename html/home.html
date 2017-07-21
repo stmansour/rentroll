@@ -3515,22 +3515,11 @@ function buildPageElements() {
                 var flag = r.FLAGS,
                     flagHTML = "";
 
-                // unpaid, partial paid or fully paid
-                if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
-                }
-                else if ( (flag & app.rcptFLAGS.RCPTPARTIALALLOCATED) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
-                }
-                else if ( (flag & app.rcptFLAGS.RCPTFULLALLOCATED) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
-                }
-
                 // check if it is reversed or not
                 if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save, saveadd button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
@@ -3538,6 +3527,19 @@ function buildPageElements() {
                     // if reversed then we need to show close button
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
                 } else {
+                    // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
+                    // unpaid, partial paid or fully paid
+                    if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
+                    }
+                    else if ( (flag & app.rcptFLAGS.RCPTPARTIALALLOCATED) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
+                    }
+                    else if ( (flag & app.rcptFLAGS.RCPTFULLALLOCATED) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
+                    }
+
+                    // show save, saveadd, reverse button, hide close button
                     $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
@@ -3608,6 +3610,9 @@ function buildPageElements() {
                 // clear the grid select recid
                 app.last.grid_sel_recid  =-1;
 
+                // select none if you're going to add new record
+                grid.selectNone();
+
                 // first save the record
                 f.url = '/v1/receipt/' + BID + '/0';
                 var errors = f.validate(true);
@@ -3637,51 +3642,41 @@ function buildPageElements() {
                     if (data.status != "success") {
                         return;
                     }
+
+                    // JUST RENDER THE GRID ONLY
+                    grid.render();
+
+                    // add new empty record and just refresh the form, don't need to do CLEAR form
+                    var y = new Date();
+                    var pmt_options = buildPaymentTypeSelectList(BUD);
+                    var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
+                    var record = {
+                        recid: 0,
+                        RCPTID: 0,
+                        PRCPTID: 0,
+                        ARID: 0,
+                        BID: BID,
+                        BUD: BUD,
+                        PMTID: 0,
+                        PmtTypeName: ptInit,
+                        Dt: w2uiDateControlString(y),
+                        DocNo: '',
+                        Payor: '',
+                        TCID: 0,
+                        Amount: 0,
+                        Comment: '',
+                        OtherPayorName: '',
+                        FLAGS: 0,
+                    };
+                    f.fields[0].options.items = pmt_options;
+                    f.fields[1].options.items = app.Receipts[BUD];
+                    f.record = record;
+                    f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.refresh();
                 })
                 .fail(function(/*data*/){
                     console.log("Save Receipt failed.");
                 });
-
-                // get length of records from receipt grid and add new records to it
-                // only if receipts date falls in date range selection of grid
-                var recDate = dateFromString(f.record.Dt);
-                var xd1 = document.getElementsByName('receiptsD1')[0].value;
-                var xd2 = document.getElementsByName('receiptsD2')[0].value;
-                var d1 = dateFromString(xd1);
-                var d2 = dateFromString(xd2);
-                if (d1.getTime() <= recDate.getTime() && recDate.getTime() < d2.getTime()) {
-                    // var recLen = w2ui.receiptsGrid.records.length;
-                    var newRec = f.record;
-                    grid.add(newRec);
-                    grid.render(); // redraw grid
-                }
-
-                // add new empty record and just refresh the form, don't need to do CLEAR form
-                var y = new Date();
-                var pmt_options = buildPaymentTypeSelectList(BUD);
-                var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                var record = {
-                    recid: 0,
-                    RCPTID: 0,
-                    PRCPTID: 0,
-                    ARID: 0,
-                    BID: BID,
-                    BUD: BUD,
-                    PMTID: 0,
-                    PmtTypeName: ptInit,
-                    Dt: w2uiDateControlString(y),
-                    DocNo: '',
-                    Payor: '',
-                    TCID: 0,
-                    Amount: 0,
-                    Comment: '',
-                    OtherPayorName: '',
-                };
-                f.fields[0].options.items = pmt_options;
-                f.fields[1].options.items = app.Receipts[BUD];
-                f.record = record;
-                f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
-                f.refresh();
             },
             save: function () {
                 var x = getCurrentBusiness(),
@@ -3772,11 +3767,15 @@ function buildPageElements() {
                             return;
                         }
                         if (record.RentCycle !== 0 && record.PASMID === 0) { // if epoch then make row bold
-                            record["w2ui"] = {class: ""};
+                            if (record.w2ui === undefined) {
+                                record.w2ui = {class:""};
+                            }
                             record.w2ui.class = "asmEpochRow";
                             return '<i class="fa fa-refresh" title="epoch" aria-hidden="true"></i>';
                         } else if (record.RentCycle) { // if recurring assessment then put refresh icon
-                            record["w2ui"] = {class: ""};
+                            if (record.w2ui === undefined) {
+                                record.w2ui = {class:""};
+                            }
                             record.w2ui.class = "asmInstRow";
                             return '<i class="fa fa-refresh" title="recurring" aria-hidden="true"></i>';
                         }
@@ -4078,6 +4077,79 @@ function buildPageElements() {
                     };
                 form_dirty_alert(yes_callBack, no_callBack);
             },
+            saveadd: function() {
+                var f = this,
+                    grid = w2ui.asmsGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // unselect the record
+                grid.selectNone();
+
+                // first save the record
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    // render the grid only
+                    grid.render();
+
+                    $.get('/v1/uival/' + BID + '/app.Assessments' )
+                    .done( function(data) {
+                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                            app.Assessments = JSON.parse(data);
+                            app.ridRentablePicker.BID = BID; // needed by typedown
+
+                            var y = new Date();
+                            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                                var record = {
+                                ARID: 0,
+                                recid: 0,
+                                RID: 0,
+                                ASMID: 0,
+                                PASMID: 0,
+                                ATypeLID: 0,
+                                InvoiceNo: 0,
+                                RAID: 0,
+                                BID: BUD,
+                                Start: w2uiDateControlString(y),
+                                Stop: w2uiDateControlString(y1),
+                                RentCycle: 'Monthly',
+                                ProrationCycle: 'Daily',
+                                TCID: 0,
+                                Amount: 0,
+                                AcctRule: '',
+                                Comment: '',
+                                LastModTime: w2uiDateControlString(y),
+                                LastModBy: 0,
+                                ExpandPastInst: true,
+                                FLAGS: 0,
+                                Mode: 0,
+                            };
+                            // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+                            f.fields[0].options.items = app.Assessments[BUD];
+                            f.record = record;
+                            f.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                            f.url  = "/v1/asm/" + BID + "/0";
+                            f.refresh();
+                        }
+                        if (data.status != 'success') {
+                            f.message(data.message);
+                        }
+                    })
+                    .fail( function() {
+                        console.log('Error getting /v1/uival/'+x.value+'/app.Assessments');
+                     }); //get assessment UI val done
+
+                });
+            },
             save: function () {
                 var x = getCurrentBusiness();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
@@ -4112,6 +4184,7 @@ function buildPageElements() {
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
                     return;
@@ -4123,30 +4196,34 @@ function buildPageElements() {
                 var flag = r.FLAGS,
                     flagHTML = "";
 
-                // unpaid, partial paid or fully paid
-                if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
-                }
-                else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
-                }
-                else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
-                }
-
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom of form
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
                 } else {
+                    // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
+                    // unpaid, partial paid or fully paid
+                    if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                    }
+                    else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                    }
+                    else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                    }
+
+                    // show reverse, save button, hide close button
                     $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                 }
 
@@ -4274,6 +4351,81 @@ function buildPageElements() {
                     };
                 form_dirty_alert(yes_callBack, no_callBack);
             },
+            saveadd: function() {
+                var f = this,
+                    epochForm = w2ui.asmEpochForm,
+                    grid = w2ui.asmsGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // unselect the record
+                grid.selectNone();
+
+                // first save the record
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    // render the grid only
+                    grid.render();
+
+                    $.get('/v1/uival/' + BID + '/app.Assessments' )
+                    .done( function(data) {
+                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                            app.Assessments = JSON.parse(data);
+                            app.ridRentablePicker.BID = BID; // needed by typedown
+
+                            var y = new Date();
+                            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                                var record = {
+                                ARID: 0,
+                                recid: 0,
+                                RID: 0,
+                                ASMID: 0,
+                                PASMID: 0,
+                                ATypeLID: 0,
+                                InvoiceNo: 0,
+                                RAID: 0,
+                                BID: BUD,
+                                Start: w2uiDateControlString(y),
+                                Stop: w2uiDateControlString(y1),
+                                RentCycle: 'Monthly',
+                                ProrationCycle: 'Daily',
+                                TCID: 0,
+                                Amount: 0,
+                                AcctRule: '',
+                                Comment: '',
+                                LastModTime: w2uiDateControlString(y),
+                                LastModBy: 0,
+                                ExpandPastInst: true,
+                                FLAGS: 0,
+                                Mode: 0,
+                            };
+                            // epochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+                            epochForm.fields[0].options.items = app.Assessments[BUD];
+                            epochForm.record = record;
+                            // epochForm.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                            // f.refresh();
+                            setToForm(epochForm.name, '/v1/asm/' + BID + '/0', 400);
+                        }
+                        if (data.status != 'success') {
+                            f.message(data.message);
+                        }
+                    })
+                    .fail( function() {
+                        console.log('Error getting /v1/uival/'+x.value+'/app.Assessments');
+                     }); //get assessment UI val done
+
+                });
+            },
             save: function () {
                 //var obj = this;
                 var tgrid = w2ui.asmsGrid;
@@ -4344,6 +4496,7 @@ function buildPageElements() {
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
                     return;
@@ -4355,30 +4508,34 @@ function buildPageElements() {
                 var flag = r.FLAGS,
                     flagHTML = "";
 
-                // unpaid, partial paid or fully paid
-                if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
-                }
-                else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
-                }
-                else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
-                }
-
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save button in form
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
                 } else {
+                    // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
+                    // unpaid, partial paid or fully paid
+                    if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                    }
+                    else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                    }
+                    else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                    }
+
+                    // show reverse, save button, hide close button
                     $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                 }
 
@@ -5371,7 +5528,8 @@ function buildPageElements() {
 
                             var record = {
                                 recid: 0,
-                                BID: BUD,
+                                BID: BID,
+                                BUD: BUD,
                                 ARID: 0,
                                 ARType: 0,
                                 DebitLID: post_accounts_pre_selected,
