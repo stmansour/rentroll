@@ -189,6 +189,7 @@ var acceptedDateFmts = []string{
 	RRDATEFMT,
 	RRDATEFMT3,
 	RRDATETIMEINPFMT,
+	RRDATETIMEFMT,
 }
 
 // StringToDate tries to convert the supplied string to a time.Time value. It will use the
