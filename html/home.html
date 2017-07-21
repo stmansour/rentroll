@@ -3774,11 +3774,15 @@ function buildPageElements() {
                             return;
                         }
                         if (record.RentCycle !== 0 && record.PASMID === 0) { // if epoch then make row bold
-                            record["w2ui"] = {class: ""};
+                            if (record.w2ui === undefined) {
+                                record.w2ui = {class:""};
+                            }
                             record.w2ui.class = "asmEpochRow";
                             return '<i class="fa fa-refresh" title="epoch" aria-hidden="true"></i>';
                         } else if (record.RentCycle) { // if recurring assessment then put refresh icon
-                            record["w2ui"] = {class: ""};
+                            if (record.w2ui === undefined) {
+                                record.w2ui = {class:""};
+                            }
                             record.w2ui.class = "asmInstRow";
                             return '<i class="fa fa-refresh" title="recurring" aria-hidden="true"></i>';
                         }

@@ -951,7 +951,9 @@ function addDateNavToToolbar(prefix) {
     grid.toolbar.on('click', function(event) {
         handleDateToolbarAction(event,prefix); // adjusts dates and loads into date controls
         grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        grid.load(grid.url);
+        grid.load(grid.url, function() {
+            grid.refresh(); // need to refresh the grid for redraw purpose
+        });
     });
     grid.toolbar.on('refresh', function (/*event*/) {
         setDateControlsInToolbar(prefix);
