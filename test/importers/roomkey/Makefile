@@ -1,4 +1,4 @@
-DIRS = roomkey_sample roomkey_sample_guest roomkey_exported roomkey_exported_guest
+DIRS = roomkey_sample_guest roomkey_exported_guest
 
 roomkey:
 	for dir in $(DIRS); do make -C $$dir;done
