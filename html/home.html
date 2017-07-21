@@ -3515,22 +3515,11 @@ function buildPageElements() {
                 var flag = r.FLAGS,
                     flagHTML = "";
 
-                // unpaid, partial paid or fully paid
-                if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
-                }
-                else if ( (flag & app.rcptFLAGS.RCPTPARTIALALLOCATED) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
-                }
-                else if ( (flag & app.rcptFLAGS.RCPTFULLALLOCATED) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
-                }
-
                 // check if it is reversed or not
                 if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save, saveadd button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
@@ -3538,6 +3527,19 @@ function buildPageElements() {
                     // if reversed then we need to show close button
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
                 } else {
+                    // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
+                    // unpaid, partial paid or fully paid
+                    if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
+                    }
+                    else if ( (flag & app.rcptFLAGS.RCPTPARTIALALLOCATED) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
+                    }
+                    else if ( (flag & app.rcptFLAGS.RCPTFULLALLOCATED) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
+                    }
+
+                    // show save, saveadd, reverse button, hide close button
                     $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
@@ -4123,28 +4125,30 @@ function buildPageElements() {
                 var flag = r.FLAGS,
                     flagHTML = "";
 
-                // unpaid, partial paid or fully paid
-                if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
-                }
-                else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
-                }
-                else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
-                }
-
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom of form
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
                 } else {
+                    // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
+                    // unpaid, partial paid or fully paid
+                    if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                    }
+                    else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                    }
+                    else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                    }
+
+                    // show reverse, save button, hide close button
                     $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
@@ -4355,28 +4359,30 @@ function buildPageElements() {
                 var flag = r.FLAGS,
                     flagHTML = "";
 
-                // unpaid, partial paid or fully paid
-                if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
-                }
-                else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
-                }
-                else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
-                }
-
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-3x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save button in form
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
                 } else {
+                    // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
+                    // unpaid, partial paid or fully paid
+                    if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                    }
+                    else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                    }
+                    else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                    }
+
+                    // show reverse, save button, hide close button
                     $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
