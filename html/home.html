@@ -3310,6 +3310,7 @@ function buildPageElements() {
         w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         w2ui.receiptsGrid.load(w2ui.receiptsGrid.url, function() {
             document.getElementsByName('receiptsD1')[0].focus();
+            w2ui.receiptsGrid.refresh();
         });
     }).on("keypress", "input[name=receiptsD2]", function(e) {
         // do not procedd further untill user press the Enter key
@@ -3336,6 +3337,7 @@ function buildPageElements() {
         w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         w2ui.receiptsGrid.load(w2ui.receiptsGrid.url, function() {
             document.getElementsByName('receiptsD2')[0].focus();
+            w2ui.receiptsGrid.refresh();
         });
     });
 
@@ -3973,6 +3975,7 @@ function buildPageElements() {
         w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         w2ui.asmsGrid.load(w2ui.asmsGrid.url, function() {
             document.getElementsByName('asmsD1')[0].focus();
+            w2ui.asmsGrid.refresh();
         });
     }).on("keypress", "input[name=asmsD2]", function(e) {
         // do not procedd further untill user press the Enter key
@@ -3999,6 +4002,7 @@ function buildPageElements() {
         w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         w2ui.asmsGrid.load(w2ui.asmsGrid.url, function() {
             document.getElementsByName('asmsD2')[0].focus();
+            w2ui.asmsGrid.refresh();
         });
     });
 
