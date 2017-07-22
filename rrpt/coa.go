@@ -11,17 +11,6 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 
 	Pldgr := ""
 
-	var sp string
-	switch p.RAAssociated {
-	case 0:
-		sp = "unknown"
-	case 1:
-		sp = "Unassociated"
-	case 2:
-		sp = "Associated"
-	default:
-		sp = fmt.Sprintf("??? invalid: %d", p.RAAssociated)
-	}
 	if p.PLID > 0 {
 		Pldgr = rlib.RRdb.BizTypes[p.BID].GLAccounts[p.PLID].Name
 	}
@@ -30,7 +19,6 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 		Name = iota
 		PGL  = iota
 		AT   = iota
-		RAA  = iota
 		RAR  = iota
 		Desc = iota
 	)
@@ -43,7 +31,6 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 	tbl.Puts(-1, Name, p.Name)
 	tbl.Puts(-1, PGL, Pldgr)
 	tbl.Puts(-1, AT, p.AcctType)
-	tbl.Puts(-1, RAA, sp)
 	tbl.Puts(-1, RAR, yn)
 	tbl.Puts(-1, Desc, p.Description)
 }
@@ -83,7 +70,6 @@ func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Name", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Parent", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Account Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Rental Agreement Associated", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rental Agreement Required", 5, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Description", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 

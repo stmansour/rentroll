@@ -594,7 +594,7 @@ ${4}
 EOF
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
-	${CSVLOAD} $2 >>${LOGFILE} 2>&1
+	#${CSVLOAD} $2 >>${LOGFILE} 2>&1
 	mysql --no-defaults <xxqq >${1}
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -628,7 +628,7 @@ EOF
 		UDIFFS=$(diff qqx qqy | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			if [ ${SHOWCOMMAND} -eq 1 ]; then
-				echo "PASSED	cmd: ${CSVLOAD} ${2}"
+				echo "PASSED	cmd: mysql --no-defaults <xxqq >${1}"
 			else
 				echo "PASSED"
 			fi

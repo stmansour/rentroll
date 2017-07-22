@@ -6,6 +6,36 @@ TESTSUMMARY="Load all csv files through loader and validate the database after l
 source ../share/base.sh
 RRCTX="-G ${BUD} -g 12/1/15,1/1/16"
 
+
+# Create a bunch of content
+${CSVLOAD} -b nb.csv >>${LOGFILE} 2>&1
+${CSVLOAD} -R rt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -u custom.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -d depository.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -s specialties.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -D bldg.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -p people.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -r rentable.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -T rat.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -C ra.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -E pets.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -V vehicle.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -c coa.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -ar ar.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -a rp.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -f rprefs.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -n rprtrate.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -t rpsprate.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -l strlists.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -A asmt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -P pmt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -e rcpt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -U assigncustom.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -O nt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -m depmeth.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -y deposit.csv -S sources.csv ${RRCTX} >>${LOGFILE} 2>&1
+
+
 mysqlverify "a"  "-b nb.csv"           		"NewBusinesses"	            	"select BID,BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC,LastModBy from Business;"
 mysqlverify "b"  "-l strlists.csv"     		"StringLists"	            	"select SLID,BID,Name,LastModBy from StringList;"
 mysqlverify "c"  " "	               		"SLString"	            		"select SLSID,SLID,Value,LastModBy from SLString;"
@@ -30,7 +60,7 @@ mysqlverify "t"  "-E pets.csv"         		"Pets"	                    	"select PET
 mysqlverify "u"  ""           		   	    "Notes"	                    	"select NID,PNID,Comment,LastModBy from Notes;"
 mysqlverify "v"  " "                   		"AgreementRentables"	    	"select * from RentalAgreementRentables;"
 mysqlverify "w"  " "                   		"AgreementPayors"	    		"select * from RentalAgreementPayors;"
-mysqlverify "x"  "-c coa.csv"          		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
+mysqlverify "x"  "-c coa.csv"          		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,AllowPost,LastModBy from GLAccount;"
 mysqlverify "xa"  "-ar ar.csv"          		"AccountRules"	    			"select ARID,BID,Name,ARType,DebitLID,CreditLID,Description,LastModBy from AR;"
 mysqlverify "y"  " "                   		"LedgerMarkers"	            	"select LMID,LID,BID,Dt,Balance,State,LastModBy from LedgerMarker;"
 mysqlverify "z"  "-a rp.csv"           		"RatePlan"	            		"select RPID,BID,Name,LastModBy from RatePlan;"

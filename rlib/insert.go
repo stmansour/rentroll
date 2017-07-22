@@ -296,7 +296,8 @@ func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 // InsertLedger writes a new GLAccount to the database
 func InsertLedger(l *GLAccount) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.TCID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.RAAssociated, l.AllowPost, l.RARequired, l.ManageToBudget, l.Description, l.CreateBy, l.LastModBy)
+	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,    Type,   Name,   AcctType,   AllowPost, RARequred,     ManageToBudget,   Description, CreateBy, LastModBy
+	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.TCID, l.GLNumber, l.Status, l.Type, l.Name, l.AcctType, l.AllowPost, l.RARequired, l.ManageToBudget, l.Description, l.CreateBy, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

@@ -1119,15 +1119,14 @@ CREATE TABLE GLAccount (
     AcctType VARCHAR(100) NOT NULL DEFAULT '',      -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
                                                     --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,
                                                     --    Cost of Goods Sold, Other Income, Other Expense
-    RAAssociated SMALLINT NOT NULL DEFAULT 0,       -- 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
     AllowPost SMALLINT NOT NULL DEFAULT 0,          -- 0 - do not allow posts to this ledger. 1 = allow posts
     RARequired SMALLINT NOT NULL DEFAULT 0,         -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,     -- 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
     Description VARCHAR(1024) NOT NULL DEFAULT '',  -- describe the assessment
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                          -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,         -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,            -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,   -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that created this record
     PRIMARY KEY (LID)
 );
 

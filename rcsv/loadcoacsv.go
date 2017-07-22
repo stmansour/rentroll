@@ -198,17 +198,6 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	}
 
 	// fmt.Println("F")
-	//----------------------------------------------------------------------
-	// ASSOCIATED
-	//----------------------------------------------------------------------
-	s = strings.ToLower(strings.TrimSpace(sa[8]))
-	if len(s) == 0 || "associated" == s || s == "y" || s == "yes" || s == "1" {
-		l.RAAssociated = rlib.RAASSOCIATED
-	} else if "unassociated" == s || s == "n" || s == "no" || s == "0" {
-		l.RAAssociated = rlib.RAUNASSOCIATED
-	} else {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid associated/unassociated value: %s", funcname, lineno, sa[8])
-	}
 
 	// fmt.Println("G")
 	//----------------------------------------------------------------------

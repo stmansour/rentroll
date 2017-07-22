@@ -43,7 +43,6 @@ type GLAccount struct {
 	Type           int64             // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name           string            // descriptive name for the GLAccount
 	AcctType       string            // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
-	RAAssociated   int64             // 1 = Unassociated with RentalAgreement, 2 = Associated with Rental Agreement, 0 = unknown
 	AllowPost      int64             // 0 = no posting, 1 = posting is allowed
 	RARequired     int64             // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 	ManageToBudget int64             // 0 = do not manage to budget; no ContractRent amount required. 1 = Manage to budget, ContractRent required.
@@ -73,7 +72,6 @@ type AcctDetailsForm struct {
 	Type           int64
 	Name           string
 	AcctType       string
-	RAAssociated   int64
 	AllowPost      int64
 	ManageToBudget int64
 	Description    string
@@ -95,7 +93,6 @@ type AcctSaveForm struct {
 	PLID           int64
 	Status         int64
 	Type           int64
-	RAAssociated   int64
 	AllowPost      int64
 	ManageToBudget int64
 }
@@ -147,13 +144,6 @@ var acctType = map[int64]string{
 	17: "Default Owner Equity",
 }
 
-// associated with rental agreement?
-var acctRAAssociated = map[int64]string{
-	0: "Unknown",
-	1: "Unassociated with RentalAgreement",
-	2: "Associated with Rental Agreement",
-}
-
 // account allow posts
 var acctAllowPosts = map[int64]string{
 	0: "Summary Account only, do not allow posts to this ledger",
@@ -165,7 +155,6 @@ func getAccountThingJSList() map[string]map[int64]string {
 	accountStuff := make(map[string]map[int64]string)
 
 	accountStuff["allowPostList"] = acctAllowPosts
-	accountStuff["RAAssociatedList"] = acctRAAssociated
 	accountStuff["typeList"] = acctType
 	accountStuff["statusList"] = acctStatus
 
@@ -701,7 +690,6 @@ var getAcctQuerySelectFields = selectQueryFields{
 	"GLAccount.Type",
 	"GLAccount.Name",
 	"GLAccount.AcctType",
-	"GLAccount.RAAssociated",
 	"GLAccount.AllowPost",
 	"GLAccount.ManageToBudget",
 	"GLAccount.Description",
@@ -761,7 +749,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
-		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Type, &gg.Name, &gg.AcctType, &gg.RAAssociated, &gg.AllowPost, &gg.ManageToBudget, &gg.Description, &gg.LastModTime, &gg.LastModBy)
+		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Type, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.ManageToBudget, &gg.Description, &gg.LastModTime, &gg.LastModBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
