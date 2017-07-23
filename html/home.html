@@ -1275,7 +1275,6 @@ function buildPageElements() {
                                     Name: '',
                                     AcctType: '',
                                     AllowPost: 1,
-                                    ManageToBudget: 0,
                                     Description: '',
                                     LastModTime: w2uiDateControlString(y),
                                     LastModBy: 0,
@@ -1324,7 +1323,6 @@ function buildPageElements() {
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
             { field: "AcctType", required: true, type: 'list', options: { items: app.qbAcctType, selected: {}, maxDropHeight: 350 }, html: { caption: "QB Account Type", page: 0, column: 0 } },
             { field: "AllowPost", required: true, type: 'list', options: { items: app.account_stuff.allowPostList, selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
-            { field: "ManageToBudget", required: true, type: 'list', options: { items: app.manageToBudgetList, selected: {}, maxDropHeight: 350 }, html: { caption: "Manage To Budget", page: 0, column: 0 } },
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
@@ -1442,7 +1440,6 @@ function buildPageElements() {
                 // }).data("selected", PLIDSel).change();
 
                 f.get("AllowPost").options.selected = r.AllowPost; // items are pre-defined, just give the value
-                f.get("ManageToBudget").options.selected = r.ManageToBudget; // items are pre-defined, just give the value
                 f.get("Status").options.selected = r.Status; // items are pre-defined, just give the value
                 f.get("Type").options.selected = r.Type; // items are pre-defined, just give the value
                 f.get("PLID").options.selected = PLIDSel; // items are NOT pre-defined, so give the object

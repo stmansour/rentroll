@@ -42,8 +42,6 @@ func RunCommandLine(ctx *DispatchCtx) {
 		intTest(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 4: // RENTROLL REPORT
 		rrpt.RentRollTextReport(&ri)
-	case 5: // ASSESSMENT CHECK REPORT
-		AssessmentCheckReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 6: // available
 	case 7: // RENTABLE COUNT BY TYPE
 		t := rrpt.RentableCountByRentableTypeReportTable(&ri)

@@ -408,7 +408,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER-->  GLAccount
 	//==========================================
-	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Type,Name,AcctType,AllowPost,RARequired,ManageToBudget,Description,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Type,Name,AcctType,AllowPost,RARequired,FLAGS,Description,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["GLAccount"] = flds
 	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND GLNumber=?")
 	Errcheck(err)

@@ -1621,8 +1621,8 @@ func GetAllRentableStatus(RID int64) []RentableStatus {
 
 // GetRentableType returns characteristics of the Rentable
 func GetRentableType(rtid int64, rt *RentableType) error {
-	err := RRdb.Prepstmt.GetRentableType.QueryRow(rtid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name, &rt.RentCycle,
-		&rt.Proration, &rt.GSRPC, &rt.ManageToBudget, &rt.CreateTS, &rt.CreateBy, &rt.LastModTime, &rt.LastModBy)
+	row := RRdb.Prepstmt.GetRentableType.QueryRow(rtid)
+	err := ReadRentableType(row, rt)
 	if nil == err {
 		var cerr error
 		rt.CA, cerr = GetAllCustomAttributes(ELEMRENTABLETYPE, rtid)
@@ -1636,8 +1636,8 @@ func GetRentableType(rtid int64, rt *RentableType) error {
 // GetRentableTypeByStyle returns characteristics of the Rentable
 func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	var rt RentableType
-	err := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid).Scan(&rt.RTID, &rt.BID, &rt.Style, &rt.Name,
-		&rt.RentCycle, &rt.Proration, &rt.GSRPC, &rt.ManageToBudget, &rt.CreateTS, &rt.CreateBy, &rt.LastModTime, &rt.LastModBy)
+	row := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid)
+	err := ReadRentableType(row, &rt)
 	return rt, err
 }
 
@@ -1650,9 +1650,8 @@ func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	defer rows.Close()
 	for rows.Next() {
 		var a RentableType
-		Errcheck(rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC,
-			&a.ManageToBudget, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
-		a.MR = make([]RentableMarketRate, 0)
+		ReadRentableTypes(rows, &a)
+		a.MR = []RentableMarketRate{}
 		GetRentableMarketRates(&a)
 		t[a.RTID] = a
 	}

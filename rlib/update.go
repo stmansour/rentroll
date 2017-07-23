@@ -70,7 +70,7 @@ func UpdateLedgerMarker(a *LedgerMarker) error {
 
 // UpdateLedger updates a Ledger record
 func UpdateLedger(a *GLAccount) error {
-	_, err := RRdb.Prepstmt.UpdateLedger.Exec(a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Status, a.Type, a.Name, a.AcctType, a.AllowPost, a.RARequired, a.ManageToBudget, a.Description, a.LastModBy, a.LID)
+	_, err := RRdb.Prepstmt.UpdateLedger.Exec(a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Status, a.Type, a.Name, a.AcctType, a.AllowPost, a.RARequired, a.FLAGS, a.Description, a.LastModBy, a.LID)
 	return updateError(err, "GLAccount", *a)
 }
 
