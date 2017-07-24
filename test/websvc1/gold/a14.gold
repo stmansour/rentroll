@@ -1,0 +1,22 @@
+{
+    "record": {
+        "AcctType": "Accounts Receivable",
+        "AllowPost": 1,
+        "BID": 1,
+        "BUD": "REX",
+        "CreateBy": 0,
+        "CreateTS": "2017-07-04T17:43:00Z",
+        "Description": "",
+        "GLNumber": "11000",
+        "LID": 5,
+        "LastModBy": 0,
+        "LastModTime": "2017-07-19T15:58:00Z",
+        "Name": "Accounts Receivable",
+        "PLID": 0,
+        "RAID": 0,
+        "Status": 2,
+        "TCID": 0,
+        "Type": 0
+    },
+    "status": "success"
+}

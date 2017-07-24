@@ -82,8 +82,15 @@ dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a13"  "WebService--
 
 # Read it back and make sure that AllowPosts is 1
 echo "%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a14"  "WebService--ERROR-VRFY-"
+dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a14"  "WebService--ERROR-VRFY-1"
 
+# Force an error on Account Update. Try to make a summary account (Cash - 10000) AllowPosts = 1
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22LID%22%3A1%2C%22PLID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210000%22%2C%22Status%22%3A2%2C%22Type%22%3A0%2C%22Name%22%3A%22Cash%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3A1%2C%22Description%22%3A%22%22%2C%22LastModTime%22%3A%222017-07-04T17%3A41%3A00Z%22%2C%22LastModBy%22%3A0%2C%22CreateTS%22%3A%222017-07-04T17%3A41%3A00Z%22%2C%22CreateBy%22%3A0%2C%22recid%22%3A%22%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/1/1" "request" "a15"  "WebService--ERROR-Set_Incorrect_AllowPost2"
+
+# Read it back and make sure that AllowPosts is 0
+echo "%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/1/1" "request" "a16"  "WebService--ERROR-VRFY-2"
 
 
 
