@@ -3864,7 +3864,7 @@ function buildPageElements() {
 
                             var y = new Date();
                             var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-                                var record = {
+                            var record = {
                                 ARID: 0,
                                 recid: 0,
                                 RID: 0,
@@ -3873,7 +3873,8 @@ function buildPageElements() {
                                 ATypeLID: 0,
                                 InvoiceNo: 0,
                                 RAID: 0,
-                                BID: BUD,
+                                BID: BID,
+                                BUD: BUD,
                                 Start: w2uiDateControlString(y),
                                 Stop: w2uiDateControlString(y1),
                                 RentCycle: 'Monthly',
@@ -3884,6 +3885,8 @@ function buildPageElements() {
                                 Comment: '',
                                 LastModTime: w2uiDateControlString(y),
                                 LastModBy: 0,
+                                CreateTS: w2uiDateControlString(y),
+                                CreateBy: 0,
                                 ExpandPastInst: true,
                                 FLAGS: 0,
                                 Mode: 0,
@@ -4002,7 +4005,8 @@ function buildPageElements() {
             { field: 'ARID',          type: 'list',     required: true, options: { items: app.Assessments }},
             { field: 'recid',         type: 'int',      required: false },
             { field: 'ASMID',         type: 'int',      required: false },
-            { field: 'BID',           type: 'list',     required: true, options:  {items: app.businesses}, },
+            { field: 'BID',           type: 'int',     required: true },
+            { field: 'BUD',           type: 'list',     required: true, options: {items: app.businesses} },
             { field: 'PASMID',        type: 'w2int',    required: false },
             { field: 'Rentable',      type: 'text',     required: false },
             { field: 'InvoiceNo',     type: 'int',      required: false },
@@ -4012,11 +4016,13 @@ function buildPageElements() {
             { field: 'Amount',        type: 'money',    required: true },
             { field: 'Start',         type: 'date',     required: true },
             { field: 'Stop',          type: 'date',     required: true },
-            { field: 'RentCycle',     type: 'list',     required: true, options:  {items: app.cycleFreq}, },
-            { field: 'ProrationCycle',type: 'list',     required: true, options:  {items: app.cycleFreq}, },
+            { field: 'RentCycle',     type: 'list',     required: true, options: {items: app.cycleFreq}, },
+            { field: 'ProrationCycle',type: 'list',     required: true, options: {items: app.cycleFreq}, },
             { field: 'Comment',       type: 'text',     required: false },
             { field: 'LastModTime',   type: 'hidden',   required: false },
             { field: 'LastModBy',     type: 'hidden',   required: false },
+            { field: 'CreateTS',   type: 'hidden',   required: false },
+            { field: 'CreateBy',     type: 'hidden',   required: false },
             { field: 'ExpandPastInst',type: 'checkbox', required: false },
             { field: 'FLAGS',         type: 'w2int',    required: false },
             { field: 'Mode',          type: 'w2int',    required: false },
@@ -4095,7 +4101,7 @@ function buildPageElements() {
 
                             var y = new Date();
                             var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-                                var record = {
+                            var record = {
                                 ARID: 0,
                                 recid: 0,
                                 RID: 0,
@@ -4104,7 +4110,8 @@ function buildPageElements() {
                                 ATypeLID: 0,
                                 InvoiceNo: 0,
                                 RAID: 0,
-                                BID: BUD,
+                                BID: BID,
+                                BUD: BUD,
                                 Start: w2uiDateControlString(y),
                                 Stop: w2uiDateControlString(y1),
                                 RentCycle: 'Monthly',
@@ -4115,6 +4122,8 @@ function buildPageElements() {
                                 Comment: '',
                                 LastModTime: w2uiDateControlString(y),
                                 LastModBy: 0,
+                                CreateTS: w2uiDateControlString(y),
+                                CreateBy: 0,
                                 ExpandPastInst: true,
                                 FLAGS: 0,
                                 Mode: 0,
@@ -4279,6 +4288,19 @@ function buildPageElements() {
                 $(this.box).find("div.w2ui-form-box").height(h);
             };
         },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
+            console.log(data.postData.record);
+            app.cycleFreq.forEach(function(item, index) {
+                if (item == data.postData.record.RentCycle) {
+                    data.postData.record.RentCycle = index;
+                };
+                if (item == data.postData.record.ProrationCycle) {
+                    data.postData.record.ProrationCycle = index;
+                };
+            });
+        },
     });
 
     //----------------------------------------------------------------------------------------------
@@ -4294,7 +4316,8 @@ function buildPageElements() {
             { field: 'ARID',          type: 'list',   required: true, options: { items: app.Assessments } },
             { field: 'recid',         type: 'int',    required: false },
             { field: 'ASMID',         type: 'int',    required: false },
-            { field: 'BID',           type: 'list',   options:  {items: app.businesses}, required: false },
+            { field: 'BUD',           type: 'list',   options:  {items: app.businesses}, required: false },
+            { field: 'BID',         type: 'int',    required: true },
             { field: 'PASMID',        type: 'w2int',  required: false },
             { field: 'RID',           type: 'w2int',  hidden:   true },
             { field: 'Rentable',      type: 'text',   required: false },
@@ -4307,6 +4330,8 @@ function buildPageElements() {
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },
+            { field: 'CreateTS',   type: 'hidden', required: false },
+            { field: 'CreateBy',     type: 'hidden', required: false },
             { field: 'FLAGS',         type: 'w2int',  required: false },
             { field: 'Mode',          type: 'w2int',  required: false },
         ],
@@ -4384,7 +4409,8 @@ function buildPageElements() {
                                 ATypeLID: 0,
                                 InvoiceNo: 0,
                                 RAID: 0,
-                                BID: BUD,
+                                BID: BID,
+                                BUD: BUD,
                                 Start: w2uiDateControlString(y),
                                 Stop: w2uiDateControlString(y1),
                                 RentCycle: 'Monthly',
@@ -4395,6 +4421,8 @@ function buildPageElements() {
                                 Comment: '',
                                 LastModTime: w2uiDateControlString(y),
                                 LastModBy: 0,
+                                CreateTS: w2uiDateControlString(y),
+                                CreateBy: 0,
                                 ExpandPastInst: true,
                                 FLAGS: 0,
                                 Mode: 0,
@@ -4590,6 +4618,18 @@ function buildPageElements() {
                 $(w2ui.toplayout.get("right").content.box).height(h);
                 $(this.box).find("div.w2ui-form-box").height(h);
             };
+        },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
+            app.cycleFreq.forEach(function(item, index) {
+                if (item == data.postData.record.RentCycle) {
+                    data.postData.record.RentCycle = index;
+                };
+                if (item == data.postData.record.ProrationCycle) {
+                    data.postData.record.ProrationCycle = index;
+                };
+            });
         },
     });
 
