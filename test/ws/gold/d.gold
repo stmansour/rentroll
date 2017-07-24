@@ -10,6 +10,7 @@
             "FLAGS": 0,
             "PMTID": 1,
             "Payor": "Aaron Read",
+            "PmtTypeName": "Cash",
             "RCPTID": 21,
             "TCID": 1,
             "recid": 0
@@ -24,6 +25,7 @@
             "FLAGS": 0,
             "PMTID": 1,
             "Payor": "Lauren Beck",
+            "PmtTypeName": "Cash",
             "RCPTID": 23,
             "TCID": 7,
             "recid": 1
@@ -38,6 +40,7 @@
             "FLAGS": 0,
             "PMTID": 1,
             "Payor": "Rita Costea",
+            "PmtTypeName": "Cash",
             "RCPTID": 22,
             "TCID": 3,
             "recid": 2
