@@ -4167,6 +4167,9 @@ function buildPageElements() {
                 // SPECIAL CASE
                 // ===========================
 
+                // custom header
+                f.header = '<i class="fa fa-refresh"></i> ASMID {0}: Repeating Assessment Series Definition'.format(r.ASMID);
+
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
@@ -4464,22 +4467,27 @@ function buildPageElements() {
                     header = "Edit Assessment ({0})",
                     info = "";
 
-                // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
-                if (typeof r.RentCycle !== "object") { return; }
-                if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
-                    // EPOCH
-                    info = "<p style='margin-bottom: 0px;'>This assessment is not part of any recurring series</p>";
-                } else {
-                    // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
-                    info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
-                }
-                $("#"+f.name).find("#AssessmentEpochOrInstance").html(info);
-
                 formRefreshCallBack(f, "ASMID", header);
 
                 // ==============================
                 // SPECIAL CASE
                 // ==============================
+
+                // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
+                if (typeof r.RentCycle !== "object") { return; }
+                if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
+                    // Non-recurred instance
+                    info = "<p style='margin-bottom: 0px;'>This assessment is not part of any recurring series</p>";
+                    // custom header for non recurred instance
+                    f.header = 'ASMID {0}: Single Instance Assessment'.format(r.ASMID);
+                } else {
+                    // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
+                    info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
+                    // custom header
+                    f.header = 'ASMID {0}: Recurring Instance Assessment'.format(r.ASMID);
+                }
+                $("#"+f.name).find("#AssessmentEpochOrInstance").html(info);
+
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
