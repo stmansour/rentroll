@@ -3549,7 +3549,8 @@ function buildPageElements() {
                 }
 
                 // finally append
-                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };
         },
@@ -4232,7 +4233,8 @@ function buildPageElements() {
                 }
 
                 // finally append
-                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };
         },
@@ -4544,7 +4546,8 @@ function buildPageElements() {
                 }
 
                 // finally append
-                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };
         },

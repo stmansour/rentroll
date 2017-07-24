@@ -31,6 +31,8 @@ type ReceiptSendForm struct {
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
+	CreateTS       rlib.JSONDateTime
+	CreateBy       int64
 	//AcctRule       string
 	FLAGS uint64
 }
