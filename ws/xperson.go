@@ -14,7 +14,8 @@ import (
 type RPerson struct {
 	Recid         int64 `json:"recid"` // this is to support the w2ui form
 	TCID          int64
-	BID           rlib.XJSONBud
+	BID           int64
+	BUD           rlib.XJSONBud
 	NLID          int64
 	FirstName     string
 	MiddleName    string
@@ -70,6 +71,8 @@ type RPerson struct {
 	EligibleFuturePayor       rlib.XJSONYesNo
 	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
+	CreateTS                  rlib.JSONDateTime
+	CreateBy                  int64
 }
 
 // RPersonForm is the expected return data format for updating a person.
@@ -125,19 +128,18 @@ type RPersonForm struct {
 	CreditLimit               float64
 	TaxpayorID                string
 	AccountRep                int64
-	LastModTime               rlib.JSONDateTime
-	LastModBy                 int64
+	BID                       int64
+	BUD                       rlib.XJSONBud
+	IsCompany                 int64 // 1 => the entity is a company, 0 = not a company
 }
 
 // RPersonOther contains the data from selections boxes in the UI. These come back
 // in structure form rather than as a single string value.
 type RPersonOther struct {
-	IsCompany           rlib.W2uiHTMLIdTextSelect // 1 => the entity is a company, 0 = not a company
-	BID                 rlib.W2uiHTMLSelect
-	State               rlib.W2uiHTMLSelect
-	EmployerState       rlib.W2uiHTMLSelect
-	EligibleFutureUser  rlib.W2uiHTMLSelect
-	EligibleFuturePayor rlib.W2uiHTMLSelect
+	State               string
+	EmployerState       string
+	EligibleFutureUser  string
+	EligibleFuturePayor string
 }
 
 // GetTransactantResponse is the response data to requests to get a transactant
@@ -484,32 +486,19 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	var ok bool
-	fmt.Printf("gxpo.BID.ID = %s\n", gxpo.BID.ID)
-	fmt.Printf("rlib.RRdb.BUDlist = %#v\n", rlib.RRdb.BUDlist)
-	xp.Trn.BID, ok = rlib.RRdb.BUDlist[gxpo.BID.ID]
-	if !ok {
-		e := fmt.Errorf("Could not map BID value: %s", gxpo.BID.ID)
-		rlib.LogAndPrintError("saveXPerson", e)
-		xp.Trn.BID = d.BID
-	}
-	xp.Usr.BID = xp.Trn.BID
-	xp.Pay.BID = xp.Trn.BID
-	xp.Psp.BID = xp.Trn.BID
 
-	xp.Trn.IsCompany = int64(gxpo.IsCompany.ID)
-
-	xp.Trn.State = gxpo.State.ID
-	xp.Usr.EligibleFutureUser, ok = rlib.YesNoMap[gxpo.EligibleFutureUser.ID]
+	xp.Trn.State = gxpo.State
+	xp.Usr.EligibleFutureUser, ok = rlib.YesNoMap[gxpo.EligibleFutureUser]
 	if !ok {
-		e := fmt.Errorf("Could not map EligibleFutureUser value: %s", gxpo.EligibleFutureUser.ID)
+		e := fmt.Errorf("Could not map EligibleFutureUser value: %s", gxpo.EligibleFutureUser)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-	xp.Psp.EmployerState = gxpo.EmployerState.ID
-	xp.Pay.EligibleFuturePayor, ok = rlib.YesNoMap[gxpo.EligibleFuturePayor.ID]
+	xp.Psp.EmployerState = gxpo.EmployerState
+	xp.Pay.EligibleFuturePayor, ok = rlib.YesNoMap[gxpo.EligibleFuturePayor]
 	if !ok {
-		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s", gxpo.EligibleFuturePayor.ID)
+		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s", gxpo.EligibleFuturePayor)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
@@ -611,6 +600,8 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if xp.Trn.TCID > 0 {
 		rlib.MigrateStructVals(&xp.Trn, &g.Record)
 	}
+	g.Record.BID = d.BID
+	g.Record.BUD = getBUDFromBIDList(d.BID)
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }

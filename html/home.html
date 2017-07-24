@@ -1666,7 +1666,8 @@ function buildPageElements() {
             { field: 'PreferredName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'PrimaryEmail', type: 'email', required: false, html: { page: 0, column: 0 } },
             { field: 'TCID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: app.businesses}, required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: false, html: { page: 0, column: 0 } },
             { field: 'NLID', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'CompanyName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'IsCompany', type: 'list', options: {items: app.companyOrPerson}, required: true, html: { page: 0, column: 0 } },
@@ -1682,6 +1683,8 @@ function buildPageElements() {
             { field: 'Website', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'Points', type: 'text', required: false, html: { page: 1, column: 0 } },
             { field: 'DateofBirth', type: 'date', required: false, html: { page: 1, column: 0 } },
             { field: 'EmergencyContactName', type: 'text', required: false, html: { page: 1, column: 0 } },
@@ -1847,7 +1850,11 @@ function buildPageElements() {
                 $(w2ui.toplayout.get("right").content.box).height(h);
                 $(this.box).find("div.w2ui-form-box").height(h);
             };
-        }
+        },
+        onSubmit: function(target, data){
+            // server request form data
+            getFormSubmitData(data.postData.record);
+        },
     });
 
 
