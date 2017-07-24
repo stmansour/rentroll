@@ -2740,7 +2740,8 @@ function buildPageElements() {
             { field: 'recid', type: 'int', required: false, html: {page: 0, column: 0 } },
             { field: 'RAID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'RATID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'BID', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
             { field: 'NLID', type: 'int', required: false, html: {page: 0, column: 0 } },
             { field: 'AgreementStart', type: 'date', required: true, html: { page: 0, column: 0 } },
             { field: 'AgreementStop', type: 'date', required: true, html: { page: 0, column: 0 } },
@@ -2753,8 +2754,10 @@ function buildPageElements() {
             { field: 'UnspecifiedChildren', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'Renewal', type: 'list', options: {items: app.renewalMap}, required: true, html: { page: 0, column: 0 } },
             { field: 'SpecialProvisions', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'LeaseType', type: 'w2int', required: false, html: {page: 1, column: 0}},
             { field: 'ExpenseAdjustmentType', type: 'w2int', required: false, html: {page: 1, column: 0}},
             { field: 'ExpensesStop', type: 'w2float', required: false, html: {page: 1, column: 0}},
@@ -2895,7 +2898,17 @@ function buildPageElements() {
                 $(w2ui.toplayout.get("right").content.box).height(h);
                 $(this.box).find("div.w2ui-form-box").height(h);
             };
-        }
+        },
+        onSubmit: function(target, data) {
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
+            app.renewalMap.forEach(function(item) {
+                if (item.id == data.postData.record.Renewal) {
+                    data.postData.record.Renewal = item.text;
+                    return false;
+                }
+            });
+        },
     });
 
     //------------------------------------------------------------------------
@@ -3691,13 +3704,10 @@ function buildPageElements() {
             },
             save: function () {
                 var x = getCurrentBusiness(),
-                    BID=x.value;
+                    BID=x.value,
+                    grid = w2ui.receiptsGrid;
 
-                //var obj = this;
-                w2ui.receiptForm.url = '/v1/receipt/' + BID + '/0';
-                var grid = w2ui.receiptsGrid;
-                var sel = grid.getSelection();
-                grid.unselect(sel);
+                grid.selectNone();
 
                 this.save({}, function (data) {
                     if (data.status == 'error') {
@@ -3705,7 +3715,7 @@ function buildPageElements() {
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    grid.reload();
+                    grid.render();
                 });
             },
             reverse: function() {

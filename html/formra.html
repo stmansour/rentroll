@@ -1,16 +1,15 @@
 <div id="rentalagrForm">
     <div class="w2ui-page page-0">	<!-- Rental Agreement -->
+	    <div class="w2ui-field"><input type="hidden" name="recid" /></div>
+	    <div class="w2ui-field"><input type="hidden" name="RAID" /></div>
+	    <div class="w2ui-field"><input type="hidden" name="NLID" /></div>
+	    <div class="w2ui-field"><input type="hidden" name="BID" /></div>
+	    <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
+	    <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
+	    <div class="w2ui-field"><input type="hidden" name="CreateTS"/></div>
+	    <div class="w2ui-field"><input type="hidden" name="CreateBy"/></div>
 	    <div class="w2ui-field">
-	        <input name="recid" type="hidden" />
-	    </div>
-	    <div class="w2ui-field">
-	        <input name="RAID" type="hidden" />
-	    </div>
-	    <div class="w2ui-field">
-	        <input name="NLID" type="hidden" />
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Business Unit:</label><div><input name="BID" type="list" disabled/></div>
+	        <label>Business Unit:</label><div><input name="BUD" type="list" disabled/></div>
 	    </div>
 	    <div class="w2ui-field">
 	        <label>RATID:</label><div><input name="RATID" type="int" maxlength="100" style="width: 100%"/></div>
@@ -42,8 +41,6 @@
 		<div class="w2ui-field">
 			<label>Special Provisions:</label><div><input name="SpecialProvisions" type="text" style="width: 100%"/></div>
 		</div>
-	    <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
-	    <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
 	</div>  <!-- end of page 0, Rental Agreement -->
 
     <div class="w2ui-page page-1">	<!-- Commercial -->
