@@ -1,6 +1,9 @@
 package bizlogic
 
-import "rentroll/rlib"
+import (
+	"fmt"
+	"rentroll/rlib"
+)
 
 // PossibleParentAccounts returns the list of possible Parent Accounts.
 // The only accounts that can be shown as possible Parent accounts
@@ -85,16 +88,111 @@ func PossiblePostAccounts(bid int64) []rlib.GLAccount {
 // was used in an AccountRule.  Then, at a later time, a user updates
 // the Chart of Accounts and attempts to use account X as a parent
 
-// SaveGLAccount saves or updates the supplied ledger.
-// It loads the existing ledger prior to the saving, if it exists.
-// If the new parent ledger is different than the old parent, it scans
-// Since Summary Accounts cannot have entries posted to them, we need
-// to filter the accounts available in the debit / credit dropdown
-// lists in the Assessment/Receipt Rules form so that only accounts
-// that are NOT Summary Accounts are available. We only post to
-// accounts that are called out in Assessment/Receipt rules.
+// SaveGLAccount saves or updates the supplied ledger. It performs multiple
+// checks to ensure that the values are valid and will not let invalid
+// states or values be saved.
+//
+// INPUTS
+//    l  =  ledger (gl account) to save
 //-----------------------------------------------------------------------------
-func SaveGLAccount(l *rlib.GLAccount) {
+func SaveGLAccount(l *rlib.GLAccount) []BizError {
 	//	p1 := int64(0)
+	var errlist []BizError
+	var err error
+	accts := rlib.GetGLAccountMap(l.BID)
+	rules := rlib.GetARMap(l.BID)
 
+	//-------------------------------------------------------------------------
+	// First, ensure that AllowPosts is in the correct state:
+	//     * If any account rule refers to this account it MUST  1. In this
+	//       case, no other account can call this account as its parent.
+	//     * If it is 0, it means that it is the parent to at least one other
+	//       account.  If this is NOT the case then we will quietly change the
+	//       AllowPost value to 1. This represents how people will approach
+	//       the problem... they will remove all the parent relationships from
+	//       the accounts first -- then they would expect the account to be
+	//       usable in an account rule.
+	//
+	// If the input ledger is a brand new and unsaved (i.e., its LID == 0) then
+	// it's OK to allow posts with no further checking because it is not
+	// possible that any other account has listed it as a parent.
+	//-------------------------------------------------------------------------
+	if l.LID > 0 { //  is this an existing ledger?
+		if l.AllowPost == 1 { // if so, is it allowing posts?
+			//-------------------------------------------------------
+			// Posts are allowed as long as no account refers to this
+			// account as its parent. Make sure that's the case.
+			//-------------------------------------------------------
+			found := false
+			for _, v := range accts {
+				found = (v.PLID == l.LID)
+				if found {
+					break
+				}
+			}
+			if found {
+				errlist = append(errlist, BizErrors[PostToSummaryAcct])
+				return errlist
+			}
+		}
+		if l.AllowPost == 0 { // is this a summary account
+			//-------------------------------------------------------
+			// AllowPost can be 0 unless there is already an Account
+			// Rule that uses it for debit or credit.  Make sure no
+			// Rule is using this account...
+			//-------------------------------------------------------
+			found := false
+			for _, v := range rules {
+				found = v.DebitLID == l.LID || v.CreditLID == l.LID
+				if found {
+					break
+				}
+			}
+			if found {
+				errlist = append(errlist, BizErrors[RuleUsesAcct])
+				return errlist
+			}
+		}
+	}
+	//---------------------------------------------------------------
+	// Even though no account rule currently uses this account, the
+	// user may be trying to remove all the parent-child relation-
+	// ships so that they CAN use it as to post to. So, if this
+	// account is not a Parent to any other account then it is OK to
+	// allow posts and we should set the value to 1.
+	//---------------------------------------------------------------
+	if l.AllowPost == 0 {
+		if l.LID == 0 { // is this a new account?
+			l.AllowPost = 1 // if so, then we can allow posts until we find relationships that don't allow it
+		} else {
+			found := false // assume this is not a parent to any account
+			for _, v := range accts {
+				found = (v.PLID == l.LID) // is l.PID a parent?
+				if found {                // yes?
+					break // we're done
+				}
+			}
+			if !found { // is l.PID free of all Parent-child relationships?
+				l.AllowPost = 1 // if so, then we can allow posts
+			}
+		}
+	}
+	//-----------------------------------------------------------------
+	// OK, we've made all the checks we know about.  Now we can save it
+	//-----------------------------------------------------------------
+	if l.LID == 0 {
+		_, err = rlib.InsertLedger(l)
+		if err != nil {
+			e := fmt.Errorf("Error saving Account %s, Error:= %s", l.Name, err.Error())
+			return bizErrSys(&e)
+		}
+	} else {
+		err = rlib.UpdateLedger(l)
+		if err != nil {
+			e := fmt.Errorf("Error updating account %s, Error:= %s", l.Name, err.Error())
+			return bizErrSys(&e)
+		}
+	}
+
+	return nil
 }

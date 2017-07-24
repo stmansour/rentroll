@@ -75,6 +75,16 @@ dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "a11"  "WebService--
 $(curl -s "http://localhost:8270/wsvc/211/1?r=RPTla&dtstart=2017-01-01&dtstop=2017-08-01" >a12)
 doValidateFile "a12" "WebService--Ledger_Activity_Report"
 
+# Force an error on Account Update. Try to make an account (Accounts Receivable - 11000) a summary
+# account when it is called out by an AccountRule...
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22LID%22%3A5%2C%22PLID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2211000%22%2C%22Status%22%3A2%2C%22Type%22%3A0%2C%22Name%22%3A%22Accounts%2BReceivable%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3A0%2C%22Description%22%3A%22update%2Bby%2Bfunctional%2Btest%22%2C%22LastModTime%22%3A%222017-07-19T15%3A58%3A00Z%22%2C%22LastModBy%22%3A0%2C%22recid%22%3A%22%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a13"  "WebService--ERROR-Set_Incorrect_AllowPost"
+
+# Read it back and make sure that AllowPosts is 1
+echo "%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a14"  "WebService--ERROR-VRFY-"
+
+
 
 
 stopRentRollServer

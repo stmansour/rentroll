@@ -2,3 +2,5 @@
 1,"Rentable Status cannot be found for the Rentable during the Assessment's timeframe"
 2,"One or field was not present or has an error. Please review and resubmit"
 3,"This item cannot be edited, it is a reversal"
+4,"This account cannot allow posts because it is the parent of one or more accounts"
+5,"This account cannot be a summary account because one or more rules uses it for debit/credit"

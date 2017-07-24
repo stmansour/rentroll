@@ -961,8 +961,8 @@ doValidateFile () {
 			cat ${ERRFILE}
 			failmsg
 			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING MOJO SERVER"
-				pkill mojosrv
+				echo "STOPPING RENTROLL SERVER"
+				pkill rentroll
 			fi
 			exit 1
 		fi

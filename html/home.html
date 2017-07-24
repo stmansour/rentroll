@@ -1144,18 +1144,20 @@ function buildPageElements() {
         url: '/v1/GLAccounts',
         multiSelect: false,
         show: {
-            header: false,
-            toolbar: true,
-            footer: true,
-            lineNumbers: false,
-            selectColumn: false,
-            expandColumn: false,
-            toolbarAdd: true,
-            searchAll: true,
-            toolbarSearch: true,
-            toolbarColumns: true,
-            toolbarInput: true,
-            toolbarReload: true,
+            toolbar         : true,
+            footer          : true,
+            toolbarAdd      : true,   // indicates if toolbar add new button is visible
+            toolbarDelete   : false,   // indicates if toolbar delete button is visible
+            toolbarSave     : false,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : true,
+            searchAll       : false,
+            toolbarReload   : true,
+            toolbarColumns  : true,
+
         },
         columns: [
             {field: 'recid',    caption: 'recid',     size: '80px', sortable: false, hidden: true},
@@ -3741,11 +3743,11 @@ function buildPageElements() {
         url: '/v1/asms',
         multiSelect: false,
         show: {
-            toolbar        : true,
-            footer         : true,
-            toolbarAdd     : true,   // indicates if toolbar add new button is visible
-            toolbarDelete  : false,   // indicates if toolbar delete button is visible
-            toolbarSave    : false,   // indicates if toolbar save button is visible
+            toolbar         : true,
+            footer          : true,
+            toolbarAdd      : true,   // indicates if toolbar add new button is visible
+            toolbarDelete   : false,   // indicates if toolbar delete button is visible
+            toolbarSave     : false,   // indicates if toolbar save button is visible
             selectColumn    : false,
             expandColumn    : false,
             toolbarEdit     : false,

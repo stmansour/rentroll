@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -311,12 +312,19 @@ func getBIDfromBUI(s string) (int64, error) {
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
 func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
-	fmt.Printf("<Function>: %s | <Error>: %s\n", funcname, err.Error())
+	// fmt.Printf("<Function>: %s | <Error>: %s\n", funcname, err.Error())
+	fmt.Printf("%s: %s\n", funcname, err.Error())
 	var e SvcGridError
 	e.Status = "error"
 	e.Message = fmt.Sprintf("Error: %s\n", err.Error())
 	b, _ := json.Marshal(e)
 	SvcWrite(w, b)
+}
+
+// SvcErrListReturn formats an error return to the grid widget and sends it
+func SvcErrListReturn(w http.ResponseWriter, errlist []bizlogic.BizError, funcname string) {
+	err := bizlogic.BizErrorListToError(errlist)
+	SvcGridErrorReturn(w, err, funcname)
 }
 
 // SvcGetInt64 tries to read an int64 value from the supplied string.
