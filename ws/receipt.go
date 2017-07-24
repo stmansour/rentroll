@@ -59,8 +59,6 @@ type ReceiptSaveForm struct {
 	TCID           int64  // TCID of payor
 	Comment        string
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
-	LastModTime    rlib.JSONDateTime
-	LastModBy      int64
 	FLAGS          uint64
 	// AcctRule       string
 }

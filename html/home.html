@@ -1276,7 +1276,7 @@ function buildPageElements() {
                                     AcctType: '',
                                     AllowPost: 1,
                                     Description: '',
-                                    LastModTime: w2uiDateControlString(y),
+                                    LastModTime: y.toISOString(),
                                     LastModBy: 0,
                                 };
 
@@ -1566,7 +1566,7 @@ function buildPageElements() {
                         PostalCode: "",
                         Country: "",
                         Website: "",
-                        LastModTime: w2uiDateControlString(y),
+                        LastModTime: y.toISOString(),
                         LastModBy: 0,
                         Points: 0,
                         DateofBirth: "1/1/1900",
@@ -2593,7 +2593,7 @@ function buildPageElements() {
                         UnspecifiedChildren: 0,
                         Renewal: {id:"month to month automatic renewal",text:"month to month automatic renewal"},
                         SpecialProvisions: '',
-                        LastModTime: w2uiDateControlString(y),
+                        LastModTime: y.toISOString(),
                         LastModBy: 0,
                         LeaseType: 0,
                         ExpenseAdjustmentType: 0,
@@ -3240,6 +3240,10 @@ function buildPageElements() {
                                 Comment: '',
                                 OtherPayorName: '',
                                 FLAGS: 0,
+                                LastModTime: y.toISOString(),
+                                LastModBy: 0,
+                                CreateTS: y.toISOString(),
+                                CreateBy: 0
                             };
                             w2ui.receiptForm.fields[0].options.items = pmt_options;
                             w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
@@ -3373,6 +3377,10 @@ function buildPageElements() {
             { field: 'Comment',        type: 'text',  required: false },
             { field: 'OtherPayorName', type: 'text',  required: false },
             { field: 'FLAGS',          type: 'w2int', required: false },
+            { field: 'LastModTime',          type: 'hidden', required: false },
+            { field: 'LastModBy',          type: 'hidden', required: false },
+            { field: 'CreateTS',          type: 'hidden', required: false },
+            { field: 'CreateBy',          type: 'hidden', required: false },
         ],
         toolbar: {
             items: [
@@ -3595,33 +3603,9 @@ function buildPageElements() {
                 // select none if you're going to add new record
                 grid.selectNone();
 
-                // first save the record
-                f.url = '/v1/receipt/' + BID + '/0';
-                var errors = f.validate(true);
-                if (errors.length > 1) {
-                    return;
-                }
-                // have to ignore issue with LastModTime
-                if (errors.length == 1 && errors[0].field.name != "LastModTime") {
-                    return;
-                }
-
-                // this.save({}, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     tgrid.reload();
-                // });
-                var saveRecord = getFormSubmitData(f.record);
-                var params = {cmd: 'save', formname: f.name, record: saveRecord };
-                var dat = JSON.stringify(params);
-
-                // save Depository request
-                $.post(f.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
                         return;
                     }
 
@@ -3649,15 +3633,17 @@ function buildPageElements() {
                         Comment: '',
                         OtherPayorName: '',
                         FLAGS: 0,
+                        LastModTime: y.toISOString(),
+                        LastModBy: 0,
+                        CreateTS: y.toISOString(),
+                        CreateBy: 0
                     };
                     f.fields[0].options.items = pmt_options;
                     f.fields[1].options.items = app.Receipts[BUD];
                     f.record = record;
                     f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.url = '/v1/receipt/' + BID + '/0';
                     f.refresh();
-                })
-                .fail(function(/*data*/){
-                    console.log("Save Receipt failed.");
                 });
             },
             save: function () {
@@ -3883,9 +3869,9 @@ function buildPageElements() {
                                 Amount: 0,
                                 AcctRule: '',
                                 Comment: '',
-                                LastModTime: w2uiDateControlString(y),
+                                LastModTime: y.toISOString,
                                 LastModBy: 0,
-                                CreateTS: w2uiDateControlString(y),
+                                CreateTS: y.toISOString(),
                                 CreateBy: 0,
                                 ExpandPastInst: true,
                                 FLAGS: 0,
@@ -4120,9 +4106,9 @@ function buildPageElements() {
                                 Amount: 0,
                                 AcctRule: '',
                                 Comment: '',
-                                LastModTime: w2uiDateControlString(y),
+                                LastModTime: y.toISOString(),
                                 LastModBy: 0,
-                                CreateTS: w2uiDateControlString(y),
+                                CreateTS: y.toISOString(),
                                 CreateBy: 0,
                                 ExpandPastInst: true,
                                 FLAGS: 0,
@@ -4419,9 +4405,9 @@ function buildPageElements() {
                                 Amount: 0,
                                 AcctRule: '',
                                 Comment: '',
-                                LastModTime: w2uiDateControlString(y),
+                                LastModTime: y.toISOString(),
                                 LastModBy: 0,
-                                CreateTS: w2uiDateControlString(y),
+                                CreateTS: y.toISOString(),
                                 CreateBy: 0,
                                 ExpandPastInst: true,
                                 FLAGS: 0,
