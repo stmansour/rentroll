@@ -322,19 +322,18 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if a.PMTID == 0 && d.ID == 0 {
-		var adup rlib.PaymentType
-		rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
-		if a.Name == adup.Name {
-			e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
-			SvcGridErrorReturn(w, e, funcname)
-			return
-		}
+	var adup rlib.PaymentType
+	rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
+	if a.Name == adup.Name {
+		e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
 
+	if a.PMTID == 0 && d.ID == 0 {
 		// This is a new AR
 		err = rlib.InsertPaymentType(&a)
 	} else {
-
 		// update existing record
 		fmt.Printf("Updating existing Payment Type: %d\n", a.PMTID)
 		err = rlib.UpdatePaymentType(&a)

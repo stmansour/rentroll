@@ -336,24 +336,22 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	rlib.GetDepositoryByName(a.BID, a.Name)
+	adup := rlib.GetDepositoryByName(a.BID, a.Name)
+	if a.Name == adup.Name {
+		e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	adup = rlib.GetDepositoryByLID(a.BID, a.LID)
+	if a.LID == adup.LID {
+		l := rlib.GetLedger(a.LID)
+		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
 
 	if a.DEPID == 0 && d.ID == 0 {
-		adup := rlib.GetDepositoryByName(a.BID, a.Name)
-		if a.Name == adup.Name {
-			e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
-			SvcGridErrorReturn(w, e, funcname)
-			return
-		}
-
-		adup = rlib.GetDepositoryByLID(a.BID, a.LID)
-		if a.LID == adup.LID {
-			l := rlib.GetLedger(a.LID)
-			e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
-			SvcGridErrorReturn(w, e, funcname)
-			return
-		}
-
 		// This is a new AR
 		fmt.Printf(">>>> NEW DEPOSITORY IS BEING ADDED\n")
 		_, err = rlib.InsertDepository(&a)
