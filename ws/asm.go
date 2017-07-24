@@ -457,14 +457,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg AssessmentSendForm
 		gg.ASMID = d.ASMID
 		gg.BID = d.BID
-
-		// get bud for BID field
-		for bud, bid := range rlib.RRdb.BUDlist {
-			if bid == d.BID {
-				gg.BUD = rlib.XJSONBud(bud)
-				break
-			}
-		}
+		gg.BUD = getBUDFromBIDList(gg.BID)
 
 		var rentCycle, prorationCycle int64
 

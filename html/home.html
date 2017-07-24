@@ -2383,7 +2383,8 @@ function buildPageElements() {
         fields: [
             { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'RID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'BID', type: 'list', required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
             { field: 'RARID', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'RAID', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'RARDtStart', type: 'date', required: false, html: { page: 0, column: 0 } },
@@ -2400,6 +2401,10 @@ function buildPageElements() {
             { field: 'RSDtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
             { field: 'CurrentDate', type: 'date', required: false },
             { field: 'AssignmentTime', type: 'list', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime',          type: 'hidden', required: false },
+            { field: 'LastModBy',          type: 'hidden', required: false },
+            { field: 'CreateTS',          type: 'hidden', required: false },
+            { field: 'CreateBy',          type: 'hidden', required: false },
         ],
         toolbar: {
             items: [
