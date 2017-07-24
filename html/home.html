@@ -1425,14 +1425,48 @@ function buildPageElements() {
                 var f = w2ui.accountForm,
                     r = f.record,
                     BUD = getBUDfromBID(r.BID),
+                    header = "Edit Account Details ({0})",
+                    statusSel = {},
                     PLIDSel = {},
-                    header = "Edit Account Details ({0})";
+                    acctTypeSel = {},
+                    typeSel = {},
+                    allowPostSel = {};
 
+                // PLID selected
                 app.parent_accounts[BUD].forEach(function(item) {
                     if (r.PLID == item.id) {
                         $.extend(PLIDSel, item);
                     }
                 });
+
+                // status selected
+                app.account_stuff.statusList.forEach(function(item) {
+                    if (r.Status == item.id) {
+                        $.extend(statusSel, item);
+                    }
+                });
+
+                // accttype selected
+                app.qbAcctType.forEach(function(item) {
+                    if (r.AcctType == item) {
+                        $.extend(acctTypeSel, {id: item, text: item});
+                    }
+                });
+
+                // status selected
+                app.account_stuff.typeList.forEach(function(item) {
+                    if (r.Type == item.id) {
+                        $.extend(typeSel, item);
+                    }
+                });
+
+                // AllowPost selected
+                app.account_stuff.allowPostList.forEach(function(item) {
+                    if (r.AllowPost == item.id) {
+                        $.extend(allowPostSel, item);
+                    }
+                });
+
 
                 // $("#accountForm").find('input[name=PLID]').data("selected", PLIDSel).change();
                 // Reference: http://jsfiddle.net/vtoah4t5/7/
@@ -1441,11 +1475,11 @@ function buildPageElements() {
                 //     selected: PLIDSel,
                 // }).data("selected", PLIDSel).change();
 
-                f.get("AllowPost").options.selected = r.AllowPost; // items are pre-defined, just give the value
-                f.get("Status").options.selected = r.Status; // items are pre-defined, just give the value
-                f.get("Type").options.selected = r.Type; // items are pre-defined, just give the value
-                f.get("PLID").options.selected = PLIDSel; // items are NOT pre-defined, so give the object
-                f.get("AcctType").options.selected = r.AcctType; // items are pre-defined, just give the value
+                f.get("AllowPost").options.selected = allowPostSel; // items are pre-defined, just give the value
+                f.get("Type").options.selected = typeSel;
+                f.get("PLID").options.selected = PLIDSel;
+                f.get("AcctType").options.selected = acctTypeSel;
+                f.get("Status").options.selected = statusSel;
 
                 formRefreshCallBack(f, "LID", header);
             };
