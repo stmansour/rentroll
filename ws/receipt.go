@@ -31,6 +31,8 @@ type ReceiptSendForm struct {
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
+	CreateTS       rlib.JSONDateTime
+	CreateBy       int64
 	//AcctRule       string
 	FLAGS uint64
 }
@@ -65,18 +67,19 @@ type ReceiptSaveForm struct {
 
 // PrReceiptGrid is a structure specifically for the UI Grid.
 type PrReceiptGrid struct {
-	Recid    int64 `json:"recid"` // this is to support the w2ui form
-	RCPTID   int64
-	BID      int64
-	TCID     int64 // TCID of payor
-	PMTID    int64
-	Dt       rlib.JSONDate
-	DocNo    string // check number, money order number, etc.; documents the payment
-	Amount   float64
-	Payor    rlib.NullString // name of the payor
-	ARID     int64           // which account rule
-	AcctRule rlib.NullString // expression showing how to account for the amount
-	FLAGS    uint64
+	Recid       int64 `json:"recid"` // this is to support the w2ui form
+	RCPTID      int64
+	BID         int64
+	TCID        int64 // TCID of payor
+	PMTID       int64
+	PmtTypeName string
+	Dt          rlib.JSONDate
+	DocNo       string // check number, money order number, etc.; documents the payment
+	Amount      float64
+	Payor       rlib.NullString // name of the payor
+	ARID        int64           // which account rule
+	AcctRule    rlib.NullString // expression showing how to account for the amount
+	FLAGS       uint64
 }
 
 // SaveReceiptInput is the input data format for a Save command
@@ -107,23 +110,24 @@ type DeleteRcptForm struct {
 
 // receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
 func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) (PrReceiptGrid, error) {
-	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS)
+	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS)
 	return q, err
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
 var receiptsFieldsMap = map[string][]string{
-	"RCPTID":   {"Receipt.RCPTID"},
-	"BID":      {"Receipt.BID"},
-	"TCID":     {"Receipt.TCID"},
-	"PMTID":    {"Receipt.PMTID"},
-	"Dt":       {"Receipt.Dt"},
-	"DocNo":    {"Receipt.DocNo"},
-	"Amount":   {"Receipt.Amount"},
-	"Payor":    {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
-	"ARID":     {"Receipt.ARID"},
-	"AcctRule": {"AR.Name"},
-	"FLAGS":    {"Receipt.FLAGS"},
+	"RCPTID":      {"Receipt.RCPTID"},
+	"BID":         {"Receipt.BID"},
+	"TCID":        {"Receipt.TCID"},
+	"PMTID":       {"Receipt.PMTID"},
+	"PmtTypeName": {"PaymentType.Name"},
+	"Dt":          {"Receipt.Dt"},
+	"DocNo":       {"Receipt.DocNo"},
+	"Amount":      {"Receipt.Amount"},
+	"Payor":       {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
+	"ARID":        {"Receipt.ARID"},
+	"AcctRule":    {"AR.Name"},
+	"FLAGS":       {"Receipt.FLAGS"},
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -132,12 +136,13 @@ var receiptsQuerySelectFields = []string{
 	"Receipt.BID",
 	"Receipt.TCID",
 	"Receipt.PMTID",
+	"PaymentType.Name as PmtTypeName",
 	"Receipt.Dt",
 	"Receipt.DocNo",
 	"Receipt.Amount",
 	"CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payor",
 	"Receipt.ARID",
-	"AR.Name",
+	"AR.Name as AcctRule",
 	"Receipt.FLAGS",
 }
 
@@ -179,6 +184,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 	FROM Receipt
 	LEFT JOIN Transactant ON Receipt.TCID=Transactant.TCID
 	LEFT JOIN AR ON Receipt.ARID=AR.ARID
+	LEFT JOIN PaymentType ON Receipt.PMTID=PaymentType.PMTID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 

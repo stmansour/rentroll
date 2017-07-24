@@ -3108,7 +3108,7 @@ function buildPageElements() {
             toolbarEdit     : false,
             toolbarSearch   : false,
             toolbarInput    : true,
-            searchAll       : true,
+            searchAll       : false,
             toolbarReload   : true,
             toolbarColumns  : true,
         },
@@ -3129,36 +3129,21 @@ function buildPageElements() {
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
             {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false}, // 3
             {field: 'AcctRule', caption: 'Account Rule',  size: '150px', sortable: true}, // 4
-            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right', searchable: true},   // 5
+            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},   // 5
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 6
-            {field: 'TCID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},                                     // 7
-            {field: 'PMTID', caption: 'Payment Type', size: '100px', sortable: true,     // 8 - if this changes, update switchToGrid()
-                    render: function (record/*, index, col_index*/) {
-                        if (typeof record === "undefined") {
-                            return;
-                        }
-
-                        var x = getCurrentBusiness(),
-                            BID = x.value,
-                            BUD = getBUDfromBID(BID),
-                            html = '',
-                            pmt_options = buildPaymentTypeSelectList(BUD);
-
-                        pmt_options.forEach(function(item) {
-                            if (item.id == record.PMTID)
-                                html = item.text;
-                        });
-                        return html;
-                    },
-            },
-            {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true, searchable: true},
-            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true, searchable: true},                                                  // 3
+            {field: 'TCID', hidden: true, caption: 'TCID', size: '40px', sortable: false},                                     // 7
+            {field: 'PMTID', hidden: true, caption: 'PMTID', sortable: false},              // 8 - if this changes, update switchToGrid()
+            {field: 'PmtTypeName', caption: 'Payment Type', size: '100px', sortable: true},
+            {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
+            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
         ],
-        // searches : [
-        //     { field: 'Amount', caption: 'Amount', type: 'string' },
-        //     { field: 'DocNo', caption: 'Document Number', type: 'string' },
-        //     { field: 'Payor', caption: 'Payor', type: 'string' },
-        // ],
+        searches : [
+            { field: 'Amount', caption: 'Amount', type: 'string' },
+            // { field: 'DocNo', caption: 'Document Number', type: 'string' },
+            { field: 'Payor', caption: 'Payor', type: 'string' },
+            { field: 'PmtTypeName', caption: 'Payment Type', type: 'string' },
+            { field: 'AcctRule', caption: 'Account Rule', type: 'string' },
+        ],
         onClick: function(event) {
             event.onComplete = function () {
                 var yes_args = [this, event.recid],
@@ -3543,7 +3528,8 @@ function buildPageElements() {
                 }
 
                 // finally append
-                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };
         },
@@ -3809,6 +3795,8 @@ function buildPageElements() {
         searches : [
             { field: 'Amount', caption: 'Amount', type: 'string' },
             // { field: 'Invoice', caption: 'Invoice Number', type: 'string' },
+            { field: 'AcctRule', caption: 'Account Rule', type: 'string' },
+            { field: 'Rentable', caption: app.sRentable, type: 'string' },
         ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -4179,6 +4167,9 @@ function buildPageElements() {
                 // SPECIAL CASE
                 // ===========================
 
+                // custom header
+                f.header = '<i class="fa fa-refresh"></i> ASMID {0}: Repeating Assessment Series Definition'.format(r.ASMID);
+
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
@@ -4226,7 +4217,8 @@ function buildPageElements() {
                 }
 
                 // finally append
-                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };
         },
@@ -4475,22 +4467,27 @@ function buildPageElements() {
                     header = "Edit Assessment ({0})",
                     info = "";
 
-                // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
-                if (typeof r.RentCycle !== "object") { return; }
-                if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
-                    // EPOCH
-                    info = "<p style='margin-bottom: 0px;'>This assessment is not part of any recurring series</p>";
-                } else {
-                    // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
-                    info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
-                }
-                $("#"+f.name).find("#AssessmentEpochOrInstance").html(info);
-
                 formRefreshCallBack(f, "ASMID", header);
 
                 // ==============================
                 // SPECIAL CASE
                 // ==============================
+
+                // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
+                if (typeof r.RentCycle !== "object") { return; }
+                if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
+                    // Non-recurred instance
+                    info = "<p style='margin-bottom: 0px;'>This assessment is not part of any recurring series</p>";
+                    // custom header for non recurred instance
+                    f.header = 'ASMID {0}: Single Instance Assessment'.format(r.ASMID);
+                } else {
+                    // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
+                    info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
+                    // custom header
+                    f.header = 'ASMID {0}: Recurring Instance Assessment'.format(r.ASMID);
+                }
+                $("#"+f.name).find("#AssessmentEpochOrInstance").html(info);
+
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
@@ -4538,7 +4535,8 @@ function buildPageElements() {
                 }
 
                 // finally append
-                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };
         },

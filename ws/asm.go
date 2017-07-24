@@ -32,6 +32,8 @@ type AssessmentSendForm struct {
 	Comment        string
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
+	CreateTS       rlib.JSONDateTime
+	CreateBy       int64
 	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 	FLAGS          uint64
 	Mode           int // initializes edit mode: 0 = this instance only, 1 = this and future, 2 = all
@@ -441,6 +443,8 @@ var asmFormSelectFields = []string{
 	"Assessments.Comment",
 	"Assessments.LastModTime",
 	"Assessments.LastModBy",
+	"Assessments.CreateTS",
+	"Assessments.CreateBy",
 	"Assessments.FLAGS",
 }
 
@@ -503,7 +507,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		var rentCycle, prorationCycle int64
 
-		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy, &gg.FLAGS)
+		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy, &gg.FLAGS)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
