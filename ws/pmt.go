@@ -21,6 +21,8 @@ type PaymentTypeGrid struct {
 	Description string
 	LastModTime rlib.JSONDateTime
 	LastModBy   int64
+	CreateTS    rlib.JSONDateTime
+	CreateBy    int64
 }
 
 // PaymentTypeSearchResponse is a response string to the search request for PaymentType records
@@ -61,7 +63,7 @@ type DeletePmtForm struct {
 
 // pmtRowScan scans a result from sql row and dump it in a PaymentTypeGrid struct
 func pmtRowScan(rows *sql.Rows, q PaymentTypeGrid) (PaymentTypeGrid, error) {
-	err := rows.Scan(&q.PMTID, &q.Name, &q.Description, &q.LastModTime, &q.LastModBy)
+	err := rows.Scan(&q.PMTID, &q.Name, &q.Description, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
 	return q, err
 }
 
@@ -114,6 +116,8 @@ var pmtSearchFieldMap = selectQueryFieldMap{
 	"Description": {"PaymentType.Description"},
 	"LastModTime": {"PaymentType.LastModTime"},
 	"LastModBy":   {"PaymentType.LastModBy"},
+	"CreateTS":    {"PaymentType.CreateTS"},
+	"CreateBy":    {"PaymentType.CreateBy"},
 }
 
 // which fields needs to be fetch to satisfy the struct
@@ -123,6 +127,8 @@ var pmtSearchSelectQueryFields = selectQueryFields{
 	"PaymentType.Description",
 	"PaymentType.LastModTime",
 	"PaymentType.LastModBy",
+	"PaymentType.CreateTS",
+	"PaymentType.CreateBy",
 }
 
 // SvcSearchHandlerPaymentTypes generates a report of all PaymentTypes defined business d.BID
@@ -316,18 +322,19 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	var adup rlib.PaymentType
-	rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
-	if a.Name == adup.Name {
-		e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
 	if a.PMTID == 0 && d.ID == 0 {
+		var adup rlib.PaymentType
+		rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
+		if a.Name == adup.Name {
+			e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+
 		// This is a new AR
 		err = rlib.InsertPaymentType(&a)
 	} else {
+
 		// update existing record
 		fmt.Printf("Updating existing Payment Type: %d\n", a.PMTID)
 		err = rlib.UpdatePaymentType(&a)

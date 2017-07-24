@@ -1326,6 +1326,8 @@ function buildPageElements() {
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
+            { field: "CreateTS", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "CreateBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -1644,7 +1646,7 @@ function buildPageElements() {
             { field: 'PostalCode', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'Country', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'Website', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'Points', type: 'text', required: false, html: { page: 1, column: 0 } },
             { field: 'DateofBirth', type: 'date', required: false, html: { page: 1, column: 0 } },
