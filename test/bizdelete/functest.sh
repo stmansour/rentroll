@@ -7,8 +7,30 @@ source ../share/base.sh
 RRCTX="-G ${BUD} -g 12/1/15,1/1/16"
 
 # Create a bunch of content
-${CSVLOAD} -b nb.csv  >>${LOGFILE} 2>&1
-${CSVLOAD} -f rprefs.csv -n rprtrate.csv -t rpsprate.csv -l strlists.csv -R rt.csv -u custom.csv -d depository.csv -s specialties.csv -D bldg.csv -p people.csv -r rentable.csv -T rat.csv -C ra.csv -E pets.csv -a rp.csv -c coa.csv -A asmt.csv -P pmt.csv -e rcpt.csv -U assigncustom.csv -O nt.csv -m depmeth.csv -y deposit.csv -S sources.csv ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -b nb.csv >>${LOGFILE} 2>&1
+${CSVLOAD} -R rt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -u custom.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -d depository.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -s specialties.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -D bldg.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -p people.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -r rentable.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -T rat.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -C ra.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -E pets.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -c coa.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -a rp.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -f rprefs.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -n rprtrate.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -t rpsprate.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -l strlists.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -A asmt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -P pmt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -e rcpt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -U assigncustom.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -O nt.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -m depmeth.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -y deposit.csv -S sources.csv ${RRCTX} >>${LOGFILE} 2>&1
 
 # Delete the content with DeleteBusinessFromDB
 dorrtest "a00" "-r 22 -b ${BUD}" "DeleteBusiness"
@@ -38,7 +60,7 @@ mysqlverify "t"  "${RRCTX}"		"Pets"	                    	"select PETID,BID,RAID,
 mysqlverify "u"  "${RRCTX}"		"Notes"	                    	"select NID,PNID,Comment,LastModBy from Notes;"
 mysqlverify "v"  "${RRCTX}"		"AgreementRentables"	    	"select * from RentalAgreementRentables;"
 mysqlverify "w"  "${RRCTX}"		"AgreementPayors"	    		"select * from RentalAgreementPayors;"
-mysqlverify "x"  "${RRCTX}"		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,LastModBy from GLAccount;"
+mysqlverify "x"  "${RRCTX}"		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,AllowPost,LastModBy from GLAccount;"
 mysqlverify "y"  "${RRCTX}"		"LedgerMarkers"	            	"select LMID,LID,BID,Dt,Balance,State,LastModBy from LedgerMarker;"
 mysqlverify "z"  "${RRCTX}"		"RatePlan"	            		"select RPID,BID,Name,LastModBy from RatePlan;"
 mysqlverify "a1" "${RRCTX}"		"RatePlanRef"	                "select RPRID,BID,RPID,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,PromoCode,CancellationFee,FLAGS,LastModBy from RatePlanRef;"

@@ -1,9 +1,9 @@
 package rlib
 
-import (
-	// "fmt"
-	"strings"
-)
+import
+// "fmt"
+
+"strings"
 
 // Define all the SQL prepared statements.
 
@@ -24,13 +24,13 @@ var TRNSfields = string("TCID,BID,NLID,FirstName,MiddleName,LastName,PreferredNa
 // GenSQLInsertAndUpdateStrings generates a string suitable for SQL INSERT and UPDATE statements given the fields as used in SELECT statements.
 //
 //  example:
-//	given this string:      "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModTime,LastModBy"
+//	given this string:      "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,LastModTime,LastModBy"
 //  we return these five strings:
-//  1)  "BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy"                  	-- use for SELECT
-//  2)  "?,?,?,?,?,?,?,?,?"  																	-- use for INSERT
-//  3)  "BID=?RAID=?,GLNumber=?,Status=?,Type=?,Name=?,AcctType=?,RAAssociated=?,LastModBy=?"   -- use for UPDATE
-//  4)  "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,RAAssociated,LastModBy", 				-- use for INSERT (no PRIMARYKEY), add "WHERE LID=?"
-//  5)  "?,?,?,?,?,?,?,?,?,?"  																	-- use for INSERT (no PRIMARYKEY)
+//  1)  "BID,RAID,GLNumber,Status,Type,Name,AcctType,LastModBy"                 -- use for SELECT
+//  2)  "?,?,?,?,?,?,?,?"  														-- use for INSERT
+//  3)  "BID=?RAID=?,GLNumber=?,Status=?,Type=?,Name=?,AcctType=?,LastModBy=?"  -- use for UPDATE
+//  4)  "LID,BID,RAID,GLNumber,Status,Type,Name,AcctType,LastModBy", 			-- use for INSERT (no PRIMARYKEY), add "WHERE LID=?"
+//  5)  "?,?,?,?,?,?,?,?,?"  													-- use for INSERT (no PRIMARYKEY)
 //
 // Note that in this convention, we remove LastModTime from insert and update statements (the db is set up to update them by default) and
 // we remove the initial ID as that number is AUTOINCREMENT on INSERTs and is not updated on UPDATE.
@@ -408,7 +408,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER-->  GLAccount
 	//==========================================
-	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Type,Name,AcctType,RAAssociated,AllowPost,RARequired,ManageToBudget,Description,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Type,Name,AcctType,AllowPost,RARequired,FLAGS,Description,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["GLAccount"] = flds
 	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND GLNumber=?")
 	Errcheck(err)
@@ -431,6 +431,7 @@ func buildPreparedStatements() {
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 
+	// fmt.Println("INSERT INTO GLAccount (" + s1 + ") VALUES(" + s2 + ")")
 	RRdb.Prepstmt.InsertLedger, err = RRdb.Dbrr.Prepare("INSERT INTO GLAccount (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateLedger, err = RRdb.Dbrr.Prepare("UPDATE GLAccount SET " + s3 + " WHERE LID=?")

@@ -4,20 +4,20 @@ BH Rexford Group, Inc.
 Suite 301
 Austin, TX 78738 USA
 
-                                                                                                               Rental           Rental                           
-                                                                                                               Agreement     Agreement                           
-GLNumber  Name                                      Parent                               Account Type          Associated     Required  Description              
---------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  -------------------------
-   10000  Cash                                                                           Bank Account          Unassociated         No                           
-   12000  Accounts Receivable                                                            Current Asset         Unassociated         No                           
-   30000  Security Deposits                                                              Current Liabilities   Unassociated        Yes                           
-   39000  Owners' Equity                                                                 Equity                Unassociated         No                           
-   41000  Unit Gross Scheduled Rent-Taxable                                              Income                Unassociated         No                           
-   41100  Income Offsets                                                                 Income                Unassociated         No                           
-   41101  Vacancy                                                                        Income                Unassociated         No                           
-   41102  Loss (Gain) to Lease                                                           Income                Unassociated        Yes                           
-   41104  Resident Concessions                      Income Offsets                       Income                Unassociated         No                           
-   41300  Other Income                                                                   Income                Unassociated         No                           
-   41306  Gas Overage                               Other Income                         Income                Unassociated        Yes                           
-   41413  Forfeited SecDep                                                               Income                Unassociated        Yes                           
+                                                                                                                  Rental                           
+                                                                                                               Agreement                           
+GLNumber  Name                                      Parent                               Account Type           Required  Description              
+--------  ----------------------------------------  -----------------------------------  --------------------  ---------  -------------------------
+   10000  Cash                                                                           Bank Account                 No                           
+   12000  Accounts Receivable                                                            Current Asset                No                           
+   30000  Security Deposits                                                              Current Liabilities         Yes                           
+   39000  Owners' Equity                                                                 Equity                       No                           
+   41000  Unit Gross Scheduled Rent-Taxable                                              Income                       No                           
+   41100  Income Offsets                                                                 Income                       No                           
+   41101  Vacancy                                                                        Income                       No                           
+   41102  Loss (Gain) to Lease                                                           Income                      Yes                           
+   41104  Resident Concessions                      Income Offsets                       Income                       No                           
+   41300  Other Income                                                                   Income                       No                           
+   41306  Gas Overage                               Other Income                         Income                      Yes                           
+   41413  Forfeited SecDep                                                               Income                      Yes                           
 

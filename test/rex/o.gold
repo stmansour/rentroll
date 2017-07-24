@@ -1,6 +1,0 @@
-                          Parent                                                                                                          
-Date        RCPTID        RCPTID        RAID        PMTID        Doc No      Amount  Account Rule                                  Comment
-----------  ------------  ------------  ----------  -----------  ------  ----------  --------------------------------------------  -------
-03/01/2016  RCPT00000001  RCPT00000000  RA00000001  PMT00000001  8832      3,750.00  ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _         
-03/02/2016  RCPT00000002  RCPT00000000  RA00000002  PMT00000002  2773      3,550.00  ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _         
-

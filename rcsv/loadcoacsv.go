@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-//   0   1                             2          3,               4             5                    6          7                  8             9         10       11         12          13              14
-// BUD,  Name,                         GLNumber,  Parent GLNumber, Collective    Account TYpe,        Balance,   Account Status, Associated,  Type,     Date,     AllowPosting, RARequired, ManageToBudget, Description
-// REH,  Bank Account FRB 2332352,     10001,     10000,           Cash,         bank,                0,         active,            Yes,         10,  "2016-03-01",  Yes,       0,          0,              Bla bla bla
-// REH,  General Accounts Receivable,  11001,     11000,           Cash,         Accounts Receivable, 0,         active,            Yes,         11,  "2016-03-01",  Yes,       0,          0,              Bla bla bla
+//   0   1                             2          3,               4             5                    6          7                  8             9         10       11         12          13
+// BUD,  Name,                         GLNumber,  Parent GLNumber, Collective    Account TYpe,        Balance,   Account Status, Associated,  Type,     Date,     AllowPosting, RARequired, Description
+// REH,  Bank Account FRB 2332352,     10001,     10000,           Cash,         bank,                0,         active,            Yes,         10,  "2016-03-01",  Yes,       0,          Bla bla bla
+// REH,  General Accounts Receivable,  11001,     11000,           Cash,         Accounts Receivable, 0,         active,            Yes,         11,  "2016-03-01",  Yes,       0,          Bla bla bla
 // REH,  Friday Lunch Fund,            11099,     11000,           Cash,         Accounts Receivable, 0.00,      active,            No,
 
 // CreateLedgerMarkers reads an assessment type string array and creates a database record for the assessment type
@@ -34,7 +34,6 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		Date           = iota
 		AllowPosting   = iota
 		cRARequired    = iota
-		ManageToBudget = iota
 		Description    = iota
 	)
 
@@ -53,7 +52,6 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		{"Date", Date},
 		{"AllowPosting", AllowPosting},
 		{"RARequired", cRARequired},
-		{"ManageToBudget", ManageToBudget},
 		{"Description", Description},
 	}
 
@@ -87,7 +85,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	// We'll either be updating an existing account or inserting a new one
 	// If updating existing, preload lm with existing info...
 	//----------------------------------------------------------------------
-	s := strings.TrimSpace(sa[9])
+	s := strings.TrimSpace(sa[Type])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(s)
 
@@ -119,14 +117,14 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	// NAME
 	//----------------------------------------------------------------------
-	l.Name = strings.TrimSpace(sa[1])
+	l.Name = strings.TrimSpace(sa[Name])
 
 	// fmt.Println("B")
 	//----------------------------------------------------------------------
 	// GLNUMBER
 	// Make sure the account number is unique
 	//----------------------------------------------------------------------
-	g := strings.TrimSpace(sa[2])
+	g := strings.TrimSpace(sa[GLNumber])
 	if len(g) == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - You must supply a GL Number for this entry", funcname, lineno)
 	}
@@ -151,7 +149,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	// PARENT GLNUMBER
 	//----------------------------------------------------------------------
 	l.PLID = int64(0) // assume no parent
-	g = strings.TrimSpace(sa[3])
+	g = strings.TrimSpace(sa[ParentGLNumber])
 	if len(g) > 0 {
 		parent := rlib.GetLedgerByGLNo(l.BID, g)
 		if parent.LID == 0 {
@@ -169,13 +167,13 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	// ACCOUNT TYPE
 	//----------------------------------------------------------------------
-	l.AcctType = strings.TrimSpace(sa[5])
+	l.AcctType = strings.TrimSpace(sa[AccountType])
 
 	//----------------------------------------------------------------------
 	// OPENING BALANCE
 	//----------------------------------------------------------------------
 	lm.Balance = float64(0) // assume a 0 starting balance
-	g = strings.TrimSpace(sa[6])
+	g = strings.TrimSpace(sa[Balance])
 	if len(g) > 0 {
 		x, err := strconv.ParseFloat(g, 64)
 		if err != nil {
@@ -188,7 +186,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	// GLACCOUNT STATUS
 	//----------------------------------------------------------------------
-	s = strings.ToLower(strings.TrimSpace(sa[7]))
+	s = strings.ToLower(strings.TrimSpace(sa[AccountStatus]))
 	if "active" == s {
 		l.Status = rlib.ACCTSTATUSACTIVE
 	} else if "inactive" == s {
@@ -198,23 +196,12 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	}
 
 	// fmt.Println("F")
-	//----------------------------------------------------------------------
-	// ASSOCIATED
-	//----------------------------------------------------------------------
-	s = strings.ToLower(strings.TrimSpace(sa[8]))
-	if len(s) == 0 || "associated" == s || s == "y" || s == "yes" || s == "1" {
-		l.RAAssociated = rlib.RAASSOCIATED
-	} else if "unassociated" == s || s == "n" || s == "no" || s == "0" {
-		l.RAAssociated = rlib.RAUNASSOCIATED
-	} else {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid associated/unassociated value: %s", funcname, lineno, sa[8])
-	}
 
 	// fmt.Println("G")
 	//----------------------------------------------------------------------
 	// TYPE
 	//----------------------------------------------------------------------
-	s = strings.TrimSpace(sa[9])
+	s = strings.TrimSpace(sa[Type])
 	if len(s) > 0 {
 		i, err := strconv.Atoi(strings.TrimSpace(s))
 		if err != nil {
@@ -229,24 +216,24 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	// DATE for opening balance
 	//----------------------------------------------------------------------
-	DtStop, err := rlib.StringToDate(sa[10])
+	DtStop, err := rlib.StringToDate(sa[Date])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[10])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[Date])
 	}
 	lm.Dt = DtStop
 
 	//----------------------------------------------------------------------
 	// ALLOW POST
 	//----------------------------------------------------------------------
-	l.AllowPost, err = rlib.YesNoToInt(sa[11])
+	l.AllowPost, err = rlib.YesNoToInt(sa[AllowPosting])
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid value for AllowPost:  %s", funcname, lineno, sa[11])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid value for AllowPost:  %s", funcname, lineno, sa[AllowPosting])
 	}
 
 	//----------------------------------------------------------------------
 	// RAREQUIRED
 	//----------------------------------------------------------------------
-	RARequired, err := rlib.IntFromString(sa[12], fmt.Sprintf("Invalid number for RARequired. Must be a number between %d and %d", rlib.RARQDINRANGE, rlib.RARQDLAST))
+	RARequired, err := rlib.IntFromString(sa[cRARequired], fmt.Sprintf("Invalid number for RARequired. Must be a number between %d and %d", rlib.RARQDINRANGE, rlib.RARQDLAST))
 	if err != nil {
 		return CsvErrorSensitivity, err
 	}
@@ -256,21 +243,13 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	l.RARequired = RARequired
 
 	//----------------------------------------------------------------------
-	// MANAGE TO BUDGET
-	//----------------------------------------------------------------------
-	l.ManageToBudget, err = rlib.YesNoToInt(sa[13])
-	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid yes/no value: %s", funcname, lineno, sa[13])
-	}
-
-	//----------------------------------------------------------------------
 	// DESCRIPTION
 	//----------------------------------------------------------------------
-	if len(sa[14]) > 1024 {
-		b := []byte(sa[14])
+	if len(sa[Description]) > 1024 {
+		b := []byte(sa[Description])
 		l.Description = string(b[:1024])
 	} else {
-		l.Description = sa[14]
+		l.Description = sa[Description]
 	}
 
 	//=======================================================================================

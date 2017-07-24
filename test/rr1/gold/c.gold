@@ -4,16 +4,16 @@ BH Rexford Group, Inc.
 Suite 301
 Austin, TX 78738 USA
 
-                                                                                                               Rental           Rental                           
-                                                                                                               Agreement     Agreement                           
-GLNumber  Name                                      Parent                               Account Type          Associated     Required  Description              
---------  ----------------------------------------  -----------------------------------  --------------------  ------------  ---------  -------------------------
-   10000  Cash                                                                           Cash                  Unassociated         No                           
-   12000  Accounts Receivable                                                            Accounts Receivable   Unassociated         No                           
-   30000  Security Deposits                                                              Security Deposit      Unassociated        Yes                           
-   39000  Owners' Equity                                                                 Equity                Unassociated         No                           
-   41000  Unit Gross Scheduled Rent-Taxable                                              Income                Unassociated         No                           
-   41101  Vacancy                                                                        Income Offsets        Unassociated         No                           
-   41102  Loss (Gain) to Lease                                                           Income Offsets        Unassociated        Yes                           
-   41413  Forfeited SecDep                                                               Other Income          Unassociated        Yes                           
+                                                                                                                  Rental                           
+                                                                                                               Agreement                           
+GLNumber  Name                                      Parent                               Account Type           Required  Description              
+--------  ----------------------------------------  -----------------------------------  --------------------  ---------  -------------------------
+   10000  Cash                                                                           Cash                         No                           
+   12000  Accounts Receivable                                                            Accounts Receivable          No                           
+   30000  Security Deposits                                                              Security Deposit            Yes                           
+   39000  Owners' Equity                                                                 Equity                       No                           
+   41000  Unit Gross Scheduled Rent-Taxable                                              Income                       No                           
+   41101  Vacancy                                                                        Income Offsets               No                           
+   41102  Loss (Gain) to Lease                                                           Income Offsets              Yes                           
+   41413  Forfeited SecDep                                                               Other Income                Yes                           
 

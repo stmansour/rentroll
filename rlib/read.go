@@ -102,15 +102,15 @@ func ReadDepositParts(rows *sql.Rows, a *DepositPart) {
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) {
 	Errcheck(row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
-		&a.ManageToBudget, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
+		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.AllowPost, &a.RARequired,
+		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadGLAccounts reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccounts(rows *sql.Rows, a *GLAccount) {
 	Errcheck(rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.RAAssociated, &a.AllowPost, &a.RARequired,
-		&a.ManageToBudget, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
+		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.AllowPost, &a.RARequired,
+		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadInvoice reads a full Invoice structure of data from the database based on the supplied Rows pointer.
@@ -308,6 +308,16 @@ func ReadRentable(row *sql.Row, a *Rentable) error {
 // ReadRentables reads a full Rentable structure of data from the database based on the supplied Rows pointer.
 func ReadRentables(rows *sql.Rows, a *Rentable) error {
 	return rows.Scan(&a.RID, &a.BID, &a.RentableName, &a.AssignmentTime, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentableType reads a full RentableType structure of data from the database based on the supplied Row pointer.
+func ReadRentableType(row *sql.Row, a *RentableType) error {
+	return row.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC, &a.ManageToBudget, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadRentableTypes reads a full RentableType structure of data from the database based on the supplied Rows pointer.
+func ReadRentableTypes(rows *sql.Rows, a *RentableType) error {
+	return rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC, &a.ManageToBudget, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentableTypeRef reads a full RentableTypeRef structure of data from the database based on the supplied Row pointer.
