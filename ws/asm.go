@@ -17,7 +17,8 @@ import (
 type AssessmentSendForm struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	ASMID          int64 // unique id for this assessment
-	BID            rlib.XJSONBud
+	BID            int64
+	BUD            rlib.XJSONBud
 	PASMID         int64
 	RID            int64
 	Rentable       string
@@ -48,6 +49,11 @@ type AssessmentSendForm struct {
 // is merged into the appropriate database structure using MigrateStructData.
 type AssessmentSaveForm struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	BID            int64
+	BUD            rlib.XJSONBud
+	RentCycle      int64
+	ProrationCycle int64
+	ARID           int64
 	ASMID          int64
 	PASMID         int64
 	RID            int64
@@ -58,19 +64,9 @@ type AssessmentSaveForm struct {
 	InvoiceNo      int64
 	Comment        string
 	ReverseMode    int // if this a Reversal (delete), then 0 = this instance only, 1 = this and future instances, 2 = all instances
-	LastModTime    rlib.JSONDateTime
-	LastModBy      int64
 	ExpandPastInst int // if this is a new  Assessment and its epoch date is in the past, do we create instances in the past after saving the recurring Assessment?
 	FLAGS          uint64
 	Mode           int // 0 = this instance only, 1 = this and future, 2 = all
-}
-
-// AssessmentSaveOther is a struct to handle the UI list box selections
-type AssessmentSaveOther struct {
-	BID            rlib.W2uiHTMLSelect
-	RentCycle      rlib.W2uiHTMLSelect
-	ProrationCycle rlib.W2uiHTMLSelect
-	ARID           rlib.W2uiHTMLIdTextSelect
 }
 
 // AssessmentGrid is a structure specifically for the UI Grid.
@@ -106,15 +102,6 @@ type SaveAssessmentInput struct {
 	Recid    int64              `json:"recid"`
 	FormName string             `json:"name"`
 	Record   AssessmentSaveForm `json:"record"`
-}
-
-// SaveAssessmentOther is the input data format for the "other" data on the Save command
-type SaveAssessmentOther struct {
-	Status string              `json:"status"`
-	Recid  int64               `json:"recid"`
-	Name   string              `json:"name"`
-	ARID   int64               `json:"ARID"`
-	Record AssessmentSaveOther `json:"record"`
 }
 
 // GetAssessmentResponse is the response to a GetAssessment request
@@ -367,33 +354,6 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
 	fmt.Printf("\nAfter MigrateStructVals: a = %#v\n", a)
-
-	//----------------------------------------------------------
-	// Now get the other variables and copy them into a...
-	//----------------------------------------------------------
-	var bar SaveAssessmentOther
-	err = json.Unmarshal(data, &bar) // and now the other variables
-	fmt.Printf("\n\n#################\nafter unmarshal, bar = %#v\n#################\n", bar)
-	if err != nil {
-		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
-	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
-	if !ok {
-		e := fmt.Errorf("Could not map BID value: %s", bar.Record.BID.ID)
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	a.RentCycle = rlib.CycleFreqMap[bar.Record.RentCycle.ID]
-	a.ProrationCycle = rlib.CycleFreqMap[bar.Record.ProrationCycle.ID]
-
-	a.ARID = int64(bar.Record.ARID.ID)
-	fmt.Printf("\nafter conversion: a.ARID = %d\n", a.ARID)
-
-	fmt.Printf("\na = %#v\n\n", a)
 	fmt.Printf("Start = %s, Stop = %s\n\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 
 	// Now just update the database
@@ -490,14 +450,8 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var gg AssessmentSendForm
 		gg.ASMID = d.ASMID
-
-		// get bud for BID field
-		for bud, bid := range rlib.RRdb.BUDlist {
-			if bid == d.BID {
-				gg.BID = rlib.XJSONBud(bud)
-				break
-			}
-		}
+		gg.BID = d.BID
+		gg.BUD = getBUDFromBIDList(gg.BID)
 
 		var rentCycle, prorationCycle int64
 

@@ -3,9 +3,11 @@
         {
             "BID": 1,
             "BUD": "REX",
+            "CreateBy": 0,
+            "CreateTS": "2017-07-24T17:26:00Z",
             "Description": "Cash",
             "LastModBy": 0,
-            "LastModTime": "2017-07-19T19:05:00Z",
+            "LastModTime": "2017-07-24T17:26:00Z",
             "Name": "Cash",
             "PMTID": 1,
             "recid": 0
@@ -13,9 +15,11 @@
         {
             "BID": 1,
             "BUD": "REX",
+            "CreateBy": 0,
+            "CreateTS": "2017-07-24T17:26:00Z",
             "Description": "Personal check from payor",
             "LastModBy": 0,
-            "LastModTime": "2017-07-19T19:05:00Z",
+            "LastModTime": "2017-07-24T17:26:00Z",
             "Name": "Check",
             "PMTID": 2,
             "recid": 1
@@ -23,9 +27,11 @@
         {
             "BID": 1,
             "BUD": "REX",
+            "CreateBy": 0,
+            "CreateTS": "2017-07-24T17:26:00Z",
             "Description": "Credit card charge",
             "LastModBy": 0,
-            "LastModTime": "2017-07-19T19:05:00Z",
+            "LastModTime": "2017-07-24T17:26:00Z",
             "Name": "VISA",
             "PMTID": 3,
             "recid": 2
@@ -33,9 +39,11 @@
         {
             "BID": 1,
             "BUD": "REX",
+            "CreateBy": 0,
+            "CreateTS": "2017-07-24T17:26:00Z",
             "Description": "American Express credit card",
             "LastModBy": 0,
-            "LastModTime": "2017-07-19T19:05:00Z",
+            "LastModTime": "2017-07-24T17:26:00Z",
             "Name": "AMEX",
             "PMTID": 4,
             "recid": 3

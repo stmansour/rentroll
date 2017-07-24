@@ -31,6 +31,8 @@ type ARSendForm struct {
 	PriorToRAStop    bool // is it ok to charge after RA stop
 	LastModTime      rlib.JSONDateTime
 	LastModBy        int64
+	CreateTS         rlib.JSONDateTime
+	CreateBy         int64
 }
 
 // ARSaveForm is a structure specifically for the return value from w2ui.
@@ -397,6 +399,8 @@ var getARQuerySelectFields = selectQueryFields{
 	"AR.RARequired",
 	"AR.LastModTime",
 	"AR.LastModBy",
+	"AR.CreateTS",
+	"AR.CreateBy",
 }
 
 // for what RARequired value, prior and after value are
@@ -457,7 +461,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
-		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop, &gg.raRequired, &gg.LastModTime, &gg.LastModBy)
+		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop, &gg.raRequired, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return

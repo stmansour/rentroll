@@ -21,22 +21,6 @@ import (
 //		2. Handle the dropdown menu selections separately using rlib.W2uiHTMLSelect
 //         for unmarshaling
 
-// RentableForm is a structure specifically for the UI. It will be
-// automatically populated from an rlib.Rentable struct
-type RentableForm struct {
-	Recid        int64 `json:"recid"` // this is to support the w2ui form
-	RID          int64
-	RentableName string
-	LastModTime  rlib.JSONDateTime
-	LastModBy    int64
-}
-
-// RentableOther is a struct to handle the UI list box selections
-type RentableOther struct {
-	BID rlib.W2uiHTMLSelect
-	// AssignmentTime rlib.W2uiHTMLSelect
-}
-
 // PrRentableOther is a structure specifically for the UI. It will be
 // automatically populated from an rlib.Rentable struct
 type PrRentableOther struct {
@@ -79,7 +63,8 @@ type RentableTypedownResponse struct {
 // RentableDetails holds the details about other detailed associated data with specific rentable
 type RentableDetails struct {
 	Recid          int64         `json:"recid"` // this is to support the w2ui form
-	BID            rlib.XJSONBud // business
+	BID            int64         // business
+	BUD            rlib.XJSONBud // business
 	RID            int64
 	RentableName   string         // Rentable Name
 	RARID          rlib.NullInt64 // RentalAgreementRentable ID
@@ -97,6 +82,10 @@ type RentableDetails struct {
 	RSDtStop       rlib.JSONDate  // rentable status stop date
 	CurrentDate    rlib.JSONDate
 	AssignmentTime int64 // assignment time
+	LastModTime    rlib.JSONDateTime
+	LastModBy      int64
+	CreateTS       rlib.JSONDateTime
+	CreateBy       int64
 }
 
 // SvcRentableTypeDown handles typedown requests for Rentables.  It returns
@@ -566,9 +555,9 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	)
 
 	// checks for valid values
-	requestedBID, ok := rlib.RRdb.BUDlist[string(rfRecord.BID)]
+	requestedBID, ok := rlib.RRdb.BUDlist[string(rfRecord.BUD)]
 	if !ok {
-		e := fmt.Errorf("Invalid Business ID found. BID: %s", rfRecord.BID)
+		e := fmt.Errorf("Invalid Business ID found. BUD: %s", rfRecord.BUD)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
@@ -762,6 +751,10 @@ var rentableFormSelectFields = []string{
 	"RentableStatus.DtStart as RSDtStart",
 	"RentableStatus.DtStop as RSDtStop",
 	"Rentable.AssignmentTime",
+	"Rentable.LastModTime",
+	"Rentable.LastModBy",
+	"Rentable.CreateTS",
+	"Rentable.CreateBy",
 }
 
 // getRentable returns the requested rentable
@@ -815,16 +808,11 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var gg RentableDetails
 		gg.CurrentDate = rlib.JSONDate(t)
-
-		for bud, bid := range rlib.RRdb.BUDlist {
-			if bid == d.BID {
-				gg.BID = rlib.XJSONBud(bud)
-				break
-			}
-		}
+		gg.BID = d.BID
+		gg.BUD = getBUDFromBIDList(gg.BID)
 
 		var rStatus int64
-		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &gg.RSID, &rStatus, &gg.RSDtStart, &gg.RSDtStop, &gg.AssignmentTime)
+		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &gg.RSID, &rStatus, &gg.RSDtStart, &gg.RSDtStop, &gg.AssignmentTime, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return

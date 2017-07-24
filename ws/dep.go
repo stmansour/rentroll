@@ -24,6 +24,8 @@ type DepositoryGrid struct {
 	GLNumber    string
 	LastModTime rlib.JSONDateTime
 	LastModBy   int64
+	CreateTS    rlib.JSONDateTime
+	CreateBy    int64
 }
 
 // DepositorySearchResponse is a response string to the search request for Depository records
@@ -112,7 +114,7 @@ func SvcHandlerDepository(w http.ResponseWriter, r *http.Request, d *ServiceData
 
 // depGridRowScan scans a result from sql row and dump it in a PrARGrid struct
 func depGridRowScan(rows *sql.Rows, q DepositoryGrid) (DepositoryGrid, error) {
-	err := rows.Scan(&q.DEPID, &q.LID, &q.Name, &q.AccountNo, &q.LdgrName, &q.GLNumber, &q.LastModTime, &q.LastModBy)
+	err := rows.Scan(&q.DEPID, &q.LID, &q.Name, &q.AccountNo, &q.LdgrName, &q.GLNumber, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
 	return q, err
 }
 
@@ -125,6 +127,8 @@ var depSearchFieldMap = selectQueryFieldMap{
 	"GLNumber":    {"GLAccount.GLNumber"},
 	"LastModTime": {"Depository.LastModTime"},
 	"LastModBy":   {"Depository.LastModBy"},
+	"CreateTS":    {"Depository.CreateTS"},
+	"CreateBy":    {"Depository.CreateBy"},
 }
 
 // which fields needs to be fetch to satisfy the struct
@@ -137,6 +141,8 @@ var depSearchSelectQueryFields = selectQueryFields{
 	"GLAccount.GLNumber",
 	"Depository.LastModTime",
 	"Depository.LastModBy",
+	"Depository.CreateTS",
+	"Depository.CreateBy",
 }
 
 // SvcSearchHandlerDepositories generates a report of all Depositories defined business d.BID
@@ -330,24 +336,24 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	adup := rlib.GetDepositoryByName(a.BID, a.Name)
-	if a.Name == adup.Name {
-		e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
-	adup = rlib.GetDepositoryByLID(a.BID, a.LID)
-	if a.LID == adup.LID {
-		l := rlib.GetLedger(a.LID)
-		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
 	rlib.GetDepositoryByName(a.BID, a.Name)
 
 	if a.DEPID == 0 && d.ID == 0 {
+		adup := rlib.GetDepositoryByName(a.BID, a.Name)
+		if a.Name == adup.Name {
+			e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+
+		adup = rlib.GetDepositoryByLID(a.BID, a.LID)
+		if a.LID == adup.LID {
+			l := rlib.GetLedger(a.LID)
+			e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+
 		// This is a new AR
 		fmt.Printf(">>>> NEW DEPOSITORY IS BEING ADDED\n")
 		_, err = rlib.InsertDepository(&a)

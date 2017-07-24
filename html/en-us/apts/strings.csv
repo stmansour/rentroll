@@ -1,4 +1,4 @@
-asmInstanceHeader,"<p style='margin: 5px 0px;'>This is an Instance of ASMID {0}</p><p>It recurs {1} from {2} to {3}</p>"
+asmInstanceHeader,"<p style='margin: 5px 0px;'>This is an Instance of ASMID {0}</p><p style='margin-bottom: 0px;'>It recurs {1} from {2} to {3}</p>"
 sTransactant,"Customer"
 sRentable,"Unit"
 sUser,"Resident"

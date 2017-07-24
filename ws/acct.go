@@ -75,6 +75,8 @@ type AcctDetailsForm struct {
 	Description string
 	LastModTime rlib.JSONDateTime
 	LastModBy   int64
+	CreateTS    rlib.JSONDateTime
+	CreateBy    int64
 }
 
 // AcctSaveForm used save inputs directly
@@ -689,6 +691,8 @@ var getAcctQuerySelectFields = selectQueryFields{
 	"GLAccount.Description",
 	"GLAccount.LastModTime",
 	"GLAccount.LastModBy",
+	"GLAccount.CreateTS",
+	"GLAccount.CreateBy",
 }
 
 // getGLAccount returns the requested glaccount
@@ -743,7 +747,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
-		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Type, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.LastModTime, &gg.LastModBy)
+		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Type, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
