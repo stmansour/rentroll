@@ -35,7 +35,6 @@ var smapToJS = []struct {
 }{
 	{"assignmentTimeList", &rlib.AssignmentTimeMap},
 	{"businesses", &rlib.RRdb.BUDlist},
-	{"renewalMap", &rlib.RenewalMap},
 	{"cycleFreq", &rlib.CycleFreqMap},
 }
 
@@ -43,6 +42,7 @@ var idTextMapList = []struct {
 	name   string
 	valmap *rlib.Str2Int64Map
 }{
+	{"renewalMap", &rlib.RenewalMap},
 	{"companyOrPerson", &rlib.CompanyOrPersonMap},
 	{"manageToBudgetList", &manageToBudget},
 }

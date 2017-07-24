@@ -15,10 +15,11 @@ import (
 // automatically populated from an rlib.RentalAgreement struct. Records of this type
 // are returned by the search handler
 type RentalAgr struct {
-	Recid                  int64             `json:"recid"` // this is to support the w2ui form
-	RAID                   int64             // internal unique id
-	RATID                  int64             // reference to Occupancy Master Agreement
-	BID                    rlib.XJSONBud     // Business (so that we can process by Business)
+	Recid                  int64 `json:"recid"` // this is to support the w2ui form
+	RAID                   int64 // internal unique id
+	RATID                  int64 // reference to Occupancy Master Agreement
+	BID                    int64 // Business (so that we can process by Business)
+	BUD                    rlib.XJSONBud
 	NLID                   int64             // Note ID
 	AgreementStart         rlib.JSONDate     // start date for rental agreement contract
 	AgreementStop          rlib.JSONDate     // stop date for rental agreement contract
@@ -29,7 +30,7 @@ type RentalAgr struct {
 	RentCycleEpoch         rlib.JSONDate     // Date on which rent cycle recurs. Start date for the recurring rent assessment
 	UnspecifiedAdults      int64             // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
 	UnspecifiedChildren    int64             // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
-	Renewal                rlib.XJSONRenewal // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
+	Renewal                int64             // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
 	SpecialProvisions      string            // free-form text
 	LeaseType              int64             // Full Service Gross, Gross, ModifiedGross, Tripple Net
 	ExpenseAdjustmentType  int64             // Base Year, No Base Year, Pass Through
@@ -49,49 +50,46 @@ type RentalAgr struct {
 	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
 	LastModTime            rlib.JSONDateTime // when was this record last written
 	LastModBy              int64             // employee UID (from phonebook) that modified it
+	CreateTS               rlib.JSONDateTime // when was this record last written
+	CreateBy               int64             // employee UID (from phonebook) that modified it
 	Payors                 rlib.NullString   // payors list attached with this RA within same time
 }
 
 // RentalAgrForm is used to save a Rental Agreement.  It holds those values
 type RentalAgrForm struct {
-	Recid                  int64             `json:"recid"` // this is to support the w2ui form
-	RAID                   int64             // internal unique id
-	RATID                  int64             // reference to Occupancy Master Agreement
-	NLID                   int64             // Note ID
-	AgreementStart         rlib.JSONDate     // start date for rental agreement contract
-	AgreementStop          rlib.JSONDate     // stop date for rental agreement contract
-	PossessionStart        rlib.JSONDate     // start date for Occupancy
-	PossessionStop         rlib.JSONDate     // stop date for Occupancy
-	RentStart              rlib.JSONDate     // start date for Rent
-	RentStop               rlib.JSONDate     // stop date for Rent
-	RentCycleEpoch         rlib.JSONDate     // Date on which rent cycle recurs. Start date for the recurring rent assessment
-	UnspecifiedAdults      int64             // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
-	UnspecifiedChildren    int64             // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
-	SpecialProvisions      string            // free-form text
-	LeaseType              int64             // Full Service Gross, Gross, ModifiedGross, Tripple Net
-	ExpenseAdjustmentType  int64             // Base Year, No Base Year, Pass Through
-	ExpensesStop           float64           // cap on the amount of oexpenses that can be passed through to the tenant
-	ExpenseStopCalculation string            // note on how to determine the expense stop
-	BaseYearEnd            rlib.JSONDate     // last day of the base year
-	ExpenseAdjustment      rlib.JSONDate     // the next date on which an expense adjustment is due
-	EstimatedCharges       float64           // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
-	RateChange             float64           // predetermined amount of rent increase, expressed as a percentage
-	NextRateChange         rlib.JSONDate     // he next date on which a RateChange will occur
-	PermittedUses          string            // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
-	ExclusiveUses          string            // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
-	ExtensionOption        string            // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
-	ExtensionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
-	ExpansionOption        string            // the right to expand to certanin spaces that are typically contiguous to their primary space
-	ExpansionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
-	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
-	LastModTime            rlib.JSONDateTime // when was this record last written
-	LastModBy              int64             // employee UID (from phonebook) that modified it
-}
-
-// RentalAgrOther is used to save a Rental Agreement.
-type RentalAgrOther struct {
-	BID     rlib.W2uiHTMLSelect // Business (so that we can process by Business)
-	Renewal rlib.W2uiHTMLSelect // 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
+	Recid                  int64 `json:"recid"` // this is to support the w2ui form
+	BID                    int64
+	BUD                    rlib.XJSONBud
+	RAID                   int64         // internal unique id
+	RATID                  int64         // reference to Occupancy Master Agreement
+	NLID                   int64         // Note ID
+	AgreementStart         rlib.JSONDate // start date for rental agreement contract
+	AgreementStop          rlib.JSONDate // stop date for rental agreement contract
+	PossessionStart        rlib.JSONDate // start date for Occupancy
+	PossessionStop         rlib.JSONDate // stop date for Occupancy
+	RentStart              rlib.JSONDate // start date for Rent
+	RentStop               rlib.JSONDate // stop date for Rent
+	RentCycleEpoch         rlib.JSONDate // Date on which rent cycle recurs. Start date for the recurring rent assessment
+	UnspecifiedAdults      int64         // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
+	UnspecifiedChildren    int64         // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
+	SpecialProvisions      string        // free-form text
+	LeaseType              int64         // Full Service Gross, Gross, ModifiedGross, Tripple Net
+	ExpenseAdjustmentType  int64         // Base Year, No Base Year, Pass Through
+	ExpensesStop           float64       // cap on the amount of oexpenses that can be passed through to the tenant
+	ExpenseStopCalculation string        // note on how to determine the expense stop
+	BaseYearEnd            rlib.JSONDate // last day of the base year
+	ExpenseAdjustment      rlib.JSONDate // the next date on which an expense adjustment is due
+	EstimatedCharges       float64       // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
+	RateChange             float64       // predetermined amount of rent increase, expressed as a percentage
+	NextRateChange         rlib.JSONDate // he next date on which a RateChange will occur
+	PermittedUses          string        // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
+	ExclusiveUses          string        // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
+	ExtensionOption        string        // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
+	ExtensionOptionNotice  rlib.JSONDate // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
+	ExpansionOption        string        // the right to expand to certanin spaces that are typically contiguous to their primary space
+	ExpansionOptionNotice  rlib.JSONDate // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
+	RightOfFirstRefusal    string        // Tenant may have the right to purchase their premises if LL chooses to sell
+	Renewal                rlib.XJSONRenewal
 }
 
 // RentalAgrSearchResponse is the response data for a Rental Agreement Search
@@ -147,6 +145,8 @@ var rentalAgrGridFieldsMap = map[string][]string{
 	"RightOfFirstRefusal":    {"RentalAgreement.RightOfFirstRefusal"},
 	"LastModTime":            {"RentalAgreement.LastModTime"},
 	"LastModBy":              {"RentalAgreement.LastModBy"},
+	"CreateTS":               {"RentalAgreement.CreateTS"},
+	"CreateBy":               {"RentalAgreement.CreateBy"},
 	"Payors":                 {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
 }
 
@@ -164,7 +164,7 @@ var rentalAgrQuerySelectFields = []string{
 	"RentalAgreement.RentCycleEpoch",
 	"RentalAgreement.UnspecifiedAdults",
 	"RentalAgreement.UnspecifiedChildren",
-	// "RentalAgreement.Renewal",
+	"RentalAgreement.Renewal",
 	"RentalAgreement.SpecialProvisions",
 	"RentalAgreement.LeaseType",
 	"RentalAgreement.ExpenseAdjustmentType",
@@ -184,6 +184,8 @@ var rentalAgrQuerySelectFields = []string{
 	"RentalAgreement.RightOfFirstRefusal",
 	"RentalAgreement.LastModTime",
 	"RentalAgreement.LastModBy",
+	"RentalAgreement.CreateTS",
+	"RentalAgreement.CreateBy",
 	"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
 }
 
@@ -265,7 +267,7 @@ func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *Servi
 
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
 func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) (RentalAgr, error) {
-	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren /*&q.Renewal, */, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.Payors)
+	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren, &q.Renewal, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy, &q.Payors)
 	return q, err
 }
 
@@ -366,7 +368,8 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	for rows.Next() {
 		var q RentalAgr
 		q.Recid = i
-		q.BID = rlib.XJSONBud(fmt.Sprintf("%d", d.BID))
+		q.BID = d.BID
+		q.BUD = getBUDFromBIDList(q.BID)
 
 		// get records info in struct q
 		q, err = rentalAgrRowScan(rows, q)
@@ -486,31 +489,11 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	fmt.Printf("B1\n")
 
-	var bar RentalAgrOther
-	//---------------------------
-	//  Handle all the list data
-	//---------------------------
-	err = json.Unmarshal([]byte(s), &bar)
-	if err != nil {
-		fmt.Printf("Data unmarshal error: %s\n", err.Error())
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	fmt.Printf("C\n")
-
 	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.BID.Text]
-	if !ok {
-		e := fmt.Errorf("Could not map BID value: %s", bar.BID.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	a.Renewal, ok = rlib.RenewalMap[bar.Renewal.Text]
+	a.Renewal, ok = rlib.RenewalMap[string(foo.Renewal)]
 	fmt.Printf("D\n")
 	if !ok {
-		e := fmt.Errorf("could not map %s to a Renewal value", bar.Renewal.ID)
+		e := fmt.Errorf("could not map %s to a Renewal value", foo.Renewal)
 		rlib.LogAndPrintError(funcname, e)
 		SvcGridErrorReturn(w, e, funcname)
 		return
@@ -564,6 +547,7 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	if a.RAID > 0 {
 		var gg RentalAgr
 		rlib.MigrateStructVals(&a, &gg)
+		gg.BUD = getBUDFromBIDList(gg.BID)
 		g.Record = gg
 	}
 	g.Status = "success"
