@@ -3617,6 +3617,12 @@ function buildPageElements() {
                     error: 'Please select the payment type'
                 });
             }
+            if (this.record.ARID.id === 0) {
+                event.errors.push({
+                    field: this.get('ARID'),
+                    error: 'Please select the receipt rule'
+                });
+            }
         },
         onSubmit: function(target, data) {
             // modify form data for server request
@@ -3633,7 +3639,7 @@ function buildPageElements() {
                 }
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
-                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                var diff = formRecDiffer(f.record, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
                 if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
                     app.form_is_dirty = false;
@@ -3666,7 +3672,7 @@ function buildPageElements() {
                 // select none if you're going to add new record
                 grid.selectNone();
 
-                this.save({}, function (data) {
+                f.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
@@ -3710,13 +3716,14 @@ function buildPageElements() {
                 });
             },
             save: function () {
-                var x = getCurrentBusiness(),
+                var f = this,
+                    x = getCurrentBusiness(),
                     BID=x.value,
                     grid = w2ui.receiptsGrid;
 
                 grid.selectNone();
 
-                this.save({}, function (data) {
+                f.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
