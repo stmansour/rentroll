@@ -3810,6 +3810,8 @@ function buildPageElements() {
         searches : [
             { field: 'Amount', caption: 'Amount', type: 'string' },
             // { field: 'Invoice', caption: 'Invoice Number', type: 'string' },
+            { field: 'AcctRule', caption: 'Account Rule', type: 'string' },
+            { field: 'Rentable', caption: app.sRentable, type: 'string' },
         ],
         onClick: function(event) {
             event.onComplete = function () {
