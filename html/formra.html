@@ -1,102 +1,125 @@
 <div id="rentalagrForm">
-    <div class="w2ui-page page-0">	<!-- Rental Agreement -->
-	    <div class="w2ui-field"><input type="hidden" name="recid" /></div>
-	    <div class="w2ui-field"><input type="hidden" name="RAID" /></div>
-	    <div class="w2ui-field"><input type="hidden" name="NLID" /></div>
-	    <div class="w2ui-field"><input type="hidden" name="BID" /></div>
-	    <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
-	    <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
-	    <div class="w2ui-field"><input type="hidden" name="CreateTS"/></div>
-	    <div class="w2ui-field"><input type="hidden" name="CreateBy"/></div>
-	    <div class="w2ui-field">
-	        <label>Business Unit:</label><div><input name="BUD" type="list" disabled/></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>RATID:</label><div><input name="RATID" type="int" maxlength="100" style="width: 100%"/></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Agreement:</label>
-	        <div><input name="AgreementStart" type="us-date1" size="11"> - <input name="AgreementStop" type="us-date2" size="11"></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Possession:</label>
-	        <div><input name="PossessionStart" type="us-date1" size="11"> - <input name="PossessionStop" type="us-date2" size="11"></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Rent:</label>
-	        <div><input name="RentStart" type="us-date1" size="11"> - <input name="RentStop" type="us-date2" size="11"></div>
-	    </div>
-		<div class="w2ui-field">
-			<label>Rent Cycle Epoch:</label><div><input type="us-date" name="RentCycleEpoch" size="11"/></div>
-		</div>
-	    <div class="w2ui-field">
-	        <label>Unspecified Adults:</label><div><input name="UnspecifiedAdults" type="int" size="3" /></div>
-	    </div>
-	    <div class="w2ui-field">
-	        <label>Unspecified Children:</label><div><input name="UnspecifiedChildren" type="int" size="3" /></div>
-	    </div>
-		<div class="w2ui-field">
-			<label>Renewal:</label><div><input name="Renewal" type="list" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Special Provisions:</label><div><input name="SpecialProvisions" type="text" style="width: 100%"/></div>
-		</div>
-	</div>  <!-- end of page 0, Rental Agreement -->
+    <div class="w2ui-page page-0">  <!-- Rental Agreement -->
+        <div class="w2ui-field"><input type="hidden" name="recid" /></div>
+        <div class="w2ui-field"><input type="hidden" name="RAID" /></div>
+        <div class="w2ui-field"><input type="hidden" name="NLID" /></div>
+        <div class="w2ui-field"><input type="hidden" name="BID" /></div>
+        <div class="w2ui-field"><input type="hidden" name="LastModTime"/></div>
+        <div class="w2ui-field"><input type="hidden" name="LastModBy"/></div>
+        <div class="w2ui-field"><input type="hidden" name="CreateTS"/></div>
+        <div class="w2ui-field"><input type="hidden" name="CreateBy"/></div>
+        <div class="w2ui-field">
+            <label>Business Unit:</label>
+            <div><input name="BUD" type="list" disabled/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>RATID:</label>
+            <div><input name="RATID" type="int" maxlength="100" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Agreement:</label>
+            <div><input name="AgreementStart" type="us-date1" size="11"> - <input name="AgreementStop" type="us-date2" size="11"></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Possession:</label>
+            <div><input name="PossessionStart" type="us-date1" size="11"> - <input name="PossessionStop" type="us-date2" size="11"></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Rent:</label>
+            <div><input name="RentStart" type="us-date1" size="11"> - <input name="RentStop" type="us-date2" size="11"></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Rent Cycle Epoch:</label>
+            <div><input type="us-date" name="RentCycleEpoch" size="11"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Unspecified Adults:</label>
+            <div><input name="UnspecifiedAdults" type="int" size="3" /></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Unspecified Children:</label>
+            <div><input name="UnspecifiedChildren" type="int" size="3" /></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Renewal:</label>
+            <div><input name="Renewal" type="list" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Special Provisions:</label>
+            <div><input name="SpecialProvisions" type="text" style="width: 100%"/></div>
+        </div>
+    </div>  <!-- end of page 0, Rental Agreement -->
 
-    <div class="w2ui-page page-1">	<!-- Commercial -->
-		<div class="w2ui-field">
-			<label>Lease Type:</label><div><input name="LeaseType" type="us-date" size="11"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Expense Adjustment Type:</label><div><input name="ExpenseAdjustmentType" type="w2int" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Expenses Stop:</label><div><input name="ExpensesStop" type="w2float" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>ExpenseStopCalculation:</label><div><input name="ExpenseStopCalculation" type="text" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>BaseYearEnd:</label><div><input name="BaseYearEnd" type="us-date" size="11"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Expense Adjustment:</label><div><input name="ExpenseAdjustment" type="us-date" size="11"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Estimated Charges:</label><div><input name="EstimatedCharges" type="w2float" /></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Rate Change:</label><div><input name="RateChange" type="w2float" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Next Rate Change:</label><div><input name="NextRateChange" type="us-date" size="11"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Permitted Uses:</label><div><input name="PermittedUses" type="text" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Exclusive Uses:</label><div><input name="ExclusiveUses" type="text" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>ExtensionOption:</label><div><input name="ExtensionOption" type="text" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Extension Option Notice:</label><div><input name="ExtensionOptionNotice" type="us-date" size="11"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Expansion Option:</label><div><input name="ExpansionOption" type="text" style="width: 100%"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Expansion Option Notice:</label><div><input name="ExpansionOptionNotice" type="us-date" size="11"/></div>
-		</div>
-		<div class="w2ui-field">
-			<label>Right Of First Refusal:</label><div><input name="RightOfFirstRefusal" type="text" style="width: 100%"/></div>
-		</div>
-	</div>  <!-- end of page 1, User -->
+    <div class="w2ui-page page-1">  <!-- Commercial -->
+        <div class="w2ui-field">
+            <label>Lease Type:</label>
+            <div><input name="LeaseType" type="us-date" size="11"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Expense Adjustment Type:</label>
+            <div><input name="ExpenseAdjustmentType" type="w2int" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Expenses Stop:</label>
+            <div><input name="ExpensesStop" type="w2float" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>ExpenseStopCalculation:</label>
+            <div><input name="ExpenseStopCalculation" type="text" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>BaseYearEnd:</label>
+            <div><input name="BaseYearEnd" type="us-date" size="11"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Expense Adjustment:</label>
+            <div><input name="ExpenseAdjustment" type="us-date" size="11"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Estimated Charges:</label>
+            <div><input name="EstimatedCharges" type="w2float" /></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Rate Change:</label>
+            <div><input name="RateChange" type="w2float" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Next Rate Change:</label>
+            <div><input name="NextRateChange" type="us-date" size="11"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Permitted Uses:</label>
+            <div><input name="PermittedUses" type="text" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Exclusive Uses:</label>
+            <div><input name="ExclusiveUses" type="text" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>ExtensionOption:</label>
+            <div><input name="ExtensionOption" type="text" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Extension Option Notice:</label>
+            <div><input name="ExtensionOptionNotice" type="us-date" size="11"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Expansion Option:</label>
+            <div><input name="ExpansionOption" type="text" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Expansion Option Notice:</label>
+            <div><input name="ExpansionOptionNotice" type="us-date" size="11"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Right Of First Refusal:</label>
+            <div><input name="RightOfFirstRefusal" type="text" style="width: 100%"/></div>
+        </div>
+    </div>  <!-- end of page 1, User -->
 
-	<div class="w2ui-buttons">
-	    <button class="w2ui-btn" name="save">Save</button>
-	    <button class="w2ui-btn" name="delete">Delete</button>
-	</div>
+    <div class="w2ui-buttons">
+        <button class="w2ui-btn" name="save">Save</button>
+        <button class="w2ui-btn" name="delete">Delete</button>
+    </div>
 </div>
 
