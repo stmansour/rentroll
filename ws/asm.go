@@ -182,7 +182,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	//  for Instances DtFrom <= Assessments.Start AND Assessments.Start < DtTo, for epochs does the Search Start/Stop overlap the Assessment Range
 	whr := `Assessments.BID = %d AND (((Assessments.PASMID!=0 OR Assessments.RentCycle=0) AND %q <= Assessments.Start AND Assessments.Start < %q) OR (Assessments.PASMID=0 AND Assessments.Stop >= %q AND Assessments.Start < %q))`
 	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
-	order := `Start ASC, RAID ASC` // default ORDER
+	order := `Assessments.Start ASC, Assessments.RAID ASC, Assessments.ASMID ASC` // default ORDER
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, asmFieldsMap)

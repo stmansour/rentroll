@@ -165,7 +165,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 
 	whr := `Receipt.BID=%d AND Receipt.Dt >= %q and Receipt.Dt < %q`
 	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
-	order := "Receipt.Dt ASC" // default ORDER
+	order := "Receipt.Dt ASC, Receipt.RCPTID ASC" // default ORDER
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, receiptsFieldsMap)

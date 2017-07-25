@@ -171,6 +171,9 @@ function setToForm(sform, url, width, doRequest) {
             $(w2ui.toplayout.get("right").content.box).height(h);
             $(f.box).find("div.w2ui-form-box").height(h);*/
         }
+        // NOTE: remove any error tags bound to field from previous form
+        $().w2tag();
+        // SHOW the right panel now
         w2ui.toplayout.show('right', true);
     }
 
