@@ -1362,6 +1362,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
         },
@@ -1854,6 +1858,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // server request form data
             getFormSubmitData(data.postData.record);
         },
@@ -2029,7 +2037,7 @@ function buildPageElements() {
                         ManageToBudget: 0,
                         RMRID: 0,
                         MarketRate: 0.0,
-                        LastModTime: y,
+                        LastModTime: y.toISOString(),
                         LastModBy: 0,
                     };
                     w2ui.rentableTypeForm.record = record;
@@ -2183,6 +2191,10 @@ function buildPageElements() {
             },
         },
         onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // server request form data
             getFormSubmitData(data.postData.record);
         },
@@ -2458,6 +2470,10 @@ function buildPageElements() {
             delete data.postData.record.RAID;
             delete data.postData.record.RARDtStop;
             delete data.postData.record.RARDtStart;
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             getFormSubmitData(data.postData.record);
         },
         onRefresh: function(event) {
@@ -2911,6 +2927,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
             app.renewalMap.forEach(function(item) {
@@ -3643,6 +3663,10 @@ function buildPageElements() {
             }
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
         },
@@ -4378,6 +4402,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
             console.log(data.postData.record);
@@ -4723,6 +4751,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
             app.cycleFreq.forEach(function(item, index) {
@@ -5243,6 +5275,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
         },
@@ -5512,6 +5548,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
         },
@@ -5806,6 +5846,10 @@ function buildPageElements() {
             },
         },
         onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             getFormSubmitData(data.postData.record);
             // object to value before submit to server
             data.postData.record.PriorToRAStart = int_to_bool(data.postData.record.PriorToRAStart);
