@@ -1578,7 +1578,7 @@ function buildPageElements() {
 
                     // insert an empty record....
                     var x = getCurrentBusiness();
-                    var BID=x.value;
+                    var BID=parseInt(x.value);
                     var BUD = getBUDfromBID(BID);
                     var y = new Date();
 
@@ -2622,7 +2622,7 @@ function buildPageElements() {
 
                     // Insert an empty record...
                     var x = getCurrentBusiness();
-                    var BID=x.value;
+                    var BID=parseInt(x.value);
                     var BUD = getBUDfromBID(BID);
                     var y = new Date();
                     var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
@@ -3471,7 +3471,7 @@ function buildPageElements() {
                 var f = this,
                     r = f.record,
                     x = getCurrentBusiness(),
-                    BID=x.value;
+                    BID=parseInt(x.value);
 
                 if (r.TCID < 1) { // if TCID is not greater than 0 then return
                     return;
@@ -3505,7 +3505,7 @@ function buildPageElements() {
                 var f = this,
                     r = f.record,
                     x = getCurrentBusiness(),
-                    BID=x.value;
+                    BID=parseInt(x.value);
 
                 if (r.TCID < 1) { // if TCID is not greater than 0 then return
                     return;
@@ -3560,6 +3560,9 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
+
+                    // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
+                    $("#"+f.name).find('input,button').prop("disabled", false);
                     return;
                 } else {
                     $("#"+f.name).find("#FLAGReport").removeClass("hidden");
@@ -3580,6 +3583,12 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
+
+                    // ********************************************************
+                    // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS
+                    // ********************************************************
+                    $("#"+f.name).find('input,button').prop("disabled", true);
+
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
@@ -3598,6 +3607,11 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
+
+                    // ********************************************************
+                    // IF not REVERSED THEN ENABLE ALL INPUTS, BUTTONS
+                    // ********************************************************
+                    $("#"+f.name).find('input,button').prop("disabled", false);
                 }
 
                 // finally append
@@ -3720,7 +3734,7 @@ function buildPageElements() {
             save: function () {
                 var f = this,
                     x = getCurrentBusiness(),
-                    BID=x.value,
+                    BID=parseInt(x.value),
                     grid = w2ui.receiptsGrid;
 
                 grid.selectNone();
@@ -3913,7 +3927,7 @@ function buildPageElements() {
                             app.Assessments = JSON.parse(data);
 
                             // Insert an empty record...
-                            var BID=x.value;
+                            var BID=parseInt(x.value);
                             var BUD = getBUDfromBID(BID);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
@@ -3938,7 +3952,7 @@ function buildPageElements() {
                                 Amount: 0,
                                 AcctRule: '',
                                 Comment: '',
-                                LastModTime: y.toISOString,
+                                LastModTime: y.toISOString(),
                                 LastModBy: 0,
                                 CreateTS: y.toISOString(),
                                 CreateBy: 0,
@@ -4231,19 +4245,26 @@ function buildPageElements() {
                 // SPECIAL CASE
                 // ===========================
 
-                var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Assessment Series Definition</p>'.format(r.ASMID);
-                $("#"+f.name).find("#AssessmentInfo").html(info);
-
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+
+                    // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
+                    $("#"+f.name).find('input,button').prop("disabled", false);
+
                     return;
                 } else {
                     $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                    $("#"+f.name).find("#AssessmentInfo").removeClass("hidden");
                 }
+
+                // Assessment Info at the top of form in white box
+                var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Assessment Series Definition</p>'.format(r.ASMID);
+                $("#"+f.name).find("#AssessmentInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -4260,6 +4281,12 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom of form
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
+
+                    // ****************************************
+                    // IF REVERSED THEN DISABLE ALL INPUTS
+                    // ****************************************
+                    $("#"+f.name).find('input,button').prop("disabled", true);
+
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
@@ -4278,6 +4305,11 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
+
+                    // ****************************************
+                    // IF not REVERSED THEN ENABLE ALL INPUTS
+                    // ****************************************
+                    $("#"+f.name).find('input,button').prop("disabled", false);
                 }
 
                 // finally append
@@ -4556,6 +4588,24 @@ function buildPageElements() {
                 // SPECIAL CASE
                 // ==============================
 
+                if (r.ASMID === 0) { // if new record then do not worry about reversed thing
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+
+                    // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
+                    $("#"+f.name).find('input,button').prop("disabled", false);
+
+                    return;
+                } else {
+                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                    $("#"+f.name).find("#AssessmentInfo").removeClass("hidden");
+                }
+
+                // Assessment Info at the top of form
                 // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
                 if (typeof r.RentCycle !== "object") { return; }
                 if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
@@ -4566,17 +4616,6 @@ function buildPageElements() {
                     info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
                 }
                 $("#"+f.name).find("#AssessmentInfo").html(info);
-
-                if (r.ASMID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
-                    return;
-                } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
-                }
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -4593,6 +4632,12 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
+
+                    // ****************************************
+                    // IF REVERSED THEN DISABLE ALL INPUTS
+                    // ****************************************
+                    $("#"+f.name).find('input,button').prop("disabled", true);
+
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
@@ -4611,6 +4656,11 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
+
+                    // ****************************************
+                    // IF not REVERSED THEN ENABLE ALL INPUTS
+                    // ****************************************
+                    $("#"+f.name).find('input,button').prop("disabled", false);
                 }
 
                 // finally append
@@ -5578,7 +5628,7 @@ function buildPageElements() {
 
                     // Insert an empty record...
                     var x = getCurrentBusiness(),
-                        BID=x.value,
+                        BID=parseInt(x.value),
                         BUD = getBUDfromBID(BID);
 
                     // get latest gl accounts first
