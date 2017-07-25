@@ -1578,7 +1578,7 @@ function buildPageElements() {
 
                     // insert an empty record....
                     var x = getCurrentBusiness();
-                    var BID=x.value;
+                    var BID=parseInt(x.value);
                     var BUD = getBUDfromBID(BID);
                     var y = new Date();
 
@@ -2622,7 +2622,7 @@ function buildPageElements() {
 
                     // Insert an empty record...
                     var x = getCurrentBusiness();
-                    var BID=x.value;
+                    var BID=parseInt(x.value);
                     var BUD = getBUDfromBID(BID);
                     var y = new Date();
                     var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
@@ -3471,7 +3471,7 @@ function buildPageElements() {
                 var f = this,
                     r = f.record,
                     x = getCurrentBusiness(),
-                    BID=x.value;
+                    BID=parseInt(x.value);
 
                 if (r.TCID < 1) { // if TCID is not greater than 0 then return
                     return;
@@ -3505,7 +3505,7 @@ function buildPageElements() {
                 var f = this,
                     r = f.record,
                     x = getCurrentBusiness(),
-                    BID=x.value;
+                    BID=parseInt(x.value);
 
                 if (r.TCID < 1) { // if TCID is not greater than 0 then return
                     return;
@@ -3720,7 +3720,7 @@ function buildPageElements() {
             save: function () {
                 var f = this,
                     x = getCurrentBusiness(),
-                    BID=x.value,
+                    BID=parseInt(x.value),
                     grid = w2ui.receiptsGrid;
 
                 grid.selectNone();
@@ -3913,7 +3913,7 @@ function buildPageElements() {
                             app.Assessments = JSON.parse(data);
 
                             // Insert an empty record...
-                            var BID=x.value;
+                            var BID=parseInt(x.value);
                             var BUD = getBUDfromBID(BID);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
@@ -5584,7 +5584,7 @@ function buildPageElements() {
 
                     // Insert an empty record...
                     var x = getCurrentBusiness(),
-                        BID=x.value,
+                        BID=parseInt(x.value),
                         BUD = getBUDfromBID(BID);
 
                     // get latest gl accounts first
