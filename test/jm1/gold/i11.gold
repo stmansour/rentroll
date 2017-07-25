@@ -6,10 +6,10 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                          Parent                                                                                          
-Date        RCPTID        RCPTID  PMTID        Doc No      Amount  Account Rule                                    Comment
-----------  ------------  ------  -----------  ------  ----------  ----------------------------------------------  -------
-11/01/2016  RCPT00000029  0       PMT00000001  2163      3,750.00  ASM(39) c ${GLGENRCV} _, ASM(39) d ${GLCASH} _         
-11/01/2016  RCPT00000030  0       PMT00000001  3279      4,150.00  ASM(40) c ${GLGENRCV} _, ASM(40) d ${GLCASH} _         
-11/02/2016  RCPT00000031  0       PMT00000001  8745     11,985.00  ASM(41) c ${GLGENRCV} _, ASM(41) d ${GLCASH} _         
+                          Parent                                                                                
+Date        RCPTID        RCPTID  PMTID        Doc No      Amount  Account Rule                          Comment
+----------  ------------  ------  -----------  ------  ----------  ------------------------------------  -------
+11/01/2016  RCPT00000029  0       PMT00000001  2163      3,750.00  ASM(39) c 12000 _, ASM(39) d 10000 _         
+11/01/2016  RCPT00000030  0       PMT00000001  3279      4,150.00  ASM(40) c 12000 _, ASM(40) d 10000 _         
+11/02/2016  RCPT00000031  0       PMT00000001  8745     11,985.00  ASM(41) c 12000 _, ASM(41) d 10000 _         
 

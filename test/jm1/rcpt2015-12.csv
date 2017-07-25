@@ -1,4 +1,4 @@
 BUD,TCID,RAID,PMTID,DEPID,Dt,DocNo,Amount,AR,AcctRule,Comment
-REX,aaron@rexford.com,RA00000001,1,1,12/2/15,1126,7000,,"ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _",Get the Security Deposit on the books
-REX,123-456-7892,RA00000002,1,1,12/3/15,1597,3000,,"ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _",Get the Security Deposit on the books
-REX,gagik@rexford.com,RA00000003,1,1,12/4/15,237,3300,,"ASM(3) c ${GLGENRCV} _, ASM(3) d ${GLCASH} _",Get the Security Deposit on the books
+REX,aaron@rexford.com,RA00000001,1,1,12/2/15,1126,7000,,"ASM(1) c 12000 _, ASM(1) d 10000 _",Get the Security Deposit on the books
+REX,123-456-7892,RA00000002,1,1,12/3/15,1597,3000,,"ASM(2) c 12000 _, ASM(2) d 10000 _",Get the Security Deposit on the books
+REX,gagik@rexford.com,RA00000003,1,1,12/4/15,237,3300,,"ASM(3) c 12000 _, ASM(3) d 10000 _",Get the Security Deposit on the books

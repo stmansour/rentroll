@@ -1,6 +1,6 @@
 BUD,TCID,RAID,PMTID,DEPID,Dt,DocNo,Amount,AR,AcctRule,Comment
-REX,info@arcenergy.com,3,1,1,7/2/16,2111,2500,,"ASM(5) d ${GLCASH} _,ASM(5) c ${GLGENRCV} _",
-REX,info@abc.com,1,1,1,7/15/16,2283,308.35,,"ASM(1) c ${GLGENRCV} _, ASM(1) d ${GLCASH} _",
-REX,asmith@gmail.com,2,1,1,7/16/16,3999,400,,"ASM(2) c ${GLGENRCV} _, ASM(2) d ${GLCASH} _",
-REX,CindyJ@rexford.com,4,1,1,7/3/16,1039,750,,"ASM(4) c ${GLGENRCV} _, ASM(4) d ${GLCASH} _",
-REX,info@soc.com,5,1,1,7/4/16,6430,4200,,"ASM(7) c ${GLGENRCV} _, ASM(7) d ${GLCASH} _",
+REX,info@arcenergy.com,3,1,1,7/2/16,2111,2500,,"ASM(5) d 10000 _,ASM(5) c 12000 _",
+REX,info@abc.com,1,1,1,7/15/16,2283,308.35,,"ASM(1) c 12000 _, ASM(1) d 10000 _",
+REX,asmith@gmail.com,2,1,1,7/16/16,3999,400,,"ASM(2) c 12000 _, ASM(2) d 10000 _",
+REX,CindyJ@rexford.com,4,1,1,7/3/16,1039,750,,"ASM(4) c 12000 _, ASM(4) d 10000 _",
+REX,info@soc.com,5,1,1,7/4/16,6430,4200,,"ASM(7) c 12000 _, ASM(7) d 10000 _",

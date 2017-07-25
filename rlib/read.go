@@ -102,14 +102,14 @@ func ReadDepositParts(rows *sql.Rows, a *DepositPart) {
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) {
 	Errcheck(row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.AllowPost, &a.RARequired,
+		&a.Status, &a.Name, &a.AcctType, &a.AllowPost, &a.RARequired,
 		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadGLAccounts reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccounts(rows *sql.Rows, a *GLAccount) {
 	Errcheck(rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		&a.Status, &a.Type, &a.Name, &a.AcctType, &a.AllowPost, &a.RARequired,
+		&a.Status, &a.Name, &a.AcctType, &a.AllowPost, &a.RARequired,
 		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 

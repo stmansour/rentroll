@@ -48,6 +48,7 @@ GOLD="./gold"
 
 SKIPCOMPARE=0
 FORCEGOOD=0
+ASKBEFOREEXIT=0
 TESTCOUNT=0
 
 if [ "x" == "x${RRDATERANGE}" ]; then
@@ -75,14 +76,29 @@ if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
 	MYSQLOPTS="--no-defaults"
 fi
 
+#############################################################################
+# pause()
+#   Description:
+#		Ask the user how to proceed.
+#
+#   Params:
+#       ${1} = name of the file to move to gold/${1}.gold if 'm' is pressed
+#############################################################################
 pause() {
 	echo
 	echo
-	read -p "Press [Enter] to continue,  Q or X to quit..." x
+	read -p "Press [Enter] to continue, M to move ${2} to gold/${2}.gold, Q or X to quit..." x
 	x=$(echo "${x}" | tr "[:upper:]" "[:lower:]")
 	if [ ${x} == "q" -o ${x} == "x" ]; then
 		exit 0
+	elif [[ ${x} == "m" ]]; then
+		echo "********************************************"
+		echo "********************************************"
+		echo "********************************************"
+		echo "mv ${1} gold/${1}.gold"
+		mv ${1} gold/${1}.gold
 	fi
+
 }
 
 csvload() {
@@ -96,108 +112,108 @@ app() {
 	${RENTROLL} ${RRDATERANGE} -b ${BUD} ${1}
 }
 
-#############################################################################
-# doReport()
-#   Description:
-#		Run database reports based on user selection
-#############################################################################
-doReport () {
-while :
-do
-	clear
-	cat <<EOF
------------------------------------------
-   R E N T R O L L  --  R E P O R T S
------------------------------------------
-A)   Assessments
-B)   Business
-C)   Chart of Accounts
-CA)  Custom Attributes
-D)   Delinquency
-DE)  Deposits
-DM)  Deposit Methods
-DY)  Depositories
-G)   GSR
-I)   Invoice
-IR)  Invoice Report
-J)   Journal
-L)   Ledger
-LA)  Ledger Activity
-LB)  Ledger Balance
-MR)  Market Rate for Rentable
-NT)  Note Types
-P)   People
-PE)  Pets
-PT)  Payment Types
-R)   Receipts
-RA)  Rental Agreements
-RAB) Rental Agreement Account Balance
-RC)  Rentable Count by Rentable Type
-RE)  Rentables
-RP)  RatePlans
-RR)  RentRoll
-RPR) RatePlanRef
-RS)  Rentable Specialty Assignments
-RT)  Rentable Types
-S)   Rentable Specialties
-SA)  Specialty Assignments
-SO)  Sources
-ST)  Statements
-T)   Rental Agreement Templates
-U)   Custom Attribute Assignments
+# #############################################################################
+# # doReport()
+# #   Description:
+# #		Run database reports based on user selection
+# #############################################################################
+# doReport () {
+# while :
+# do
+# 	clear
+# 	cat <<EOF
+# -----------------------------------------
+#    R E N T R O L L  --  R E P O R T S
+# -----------------------------------------
+# A)   Assessments
+# B)   Business
+# C)   Chart of Accounts
+# CA)  Custom Attributes
+# D)   Delinquency
+# DE)  Deposits
+# DM)  Deposit Methods
+# DY)  Depositories
+# G)   GSR
+# I)   Invoice
+# IR)  Invoice Report
+# J)   Journal
+# L)   Ledger
+# LA)  Ledger Activity
+# LB)  Ledger Balance
+# MR)  Market Rate for Rentable
+# NT)  Note Types
+# P)   People
+# PE)  Pets
+# PT)  Payment Types
+# R)   Receipts
+# RA)  Rental Agreements
+# RAB) Rental Agreement Account Balance
+# RC)  Rentable Count by Rentable Type
+# RE)  Rentables
+# RP)  RatePlans
+# RR)  RentRoll
+# RPR) RatePlanRef
+# RS)  Rentable Specialty Assignments
+# RT)  Rentable Types
+# S)   Rentable Specialties
+# SA)  Specialty Assignments
+# SO)  Sources
+# ST)  Statements
+# T)   Rental Agreement Templates
+# U)   Custom Attribute Assignments
 
 
-X) Exit
+# X) Exit
 
-input is case insensitive
-EOF
+# input is case insensitive
+# EOF
 
-	read -p "Enter choice: " choice
-	choice=$(echo "${choice}" | tr "[:upper:]" "[:lower:]")
-	case ${choice} in
-		  d) app "-b ${BUD} -r 14,2015-05-25" ;;
-		 ir) app "-b ${BUD} -r 9,IN00001" ;;
-		  j) app "-b ${BUD} -r 1" ;;
-		  l) app "-b ${BUD} -r 2" ;;
-		 la) app "-b ${BUD} -r 10" ;;
-		 lb) app "-b ${BUD} -r 17" ;;
-		 mr) app "-b ${BUD} -r 20,R001" ;;
-		  a) csvload "-L 11,${BUD}" ;;
-		  b) csvload "-L 3" ;;
-		  c) csvload "-L 10,${BUD}" ;;
-		 ca) csvload "-L 14" ;;
-		 de) csvload "${CSVDATERANGE} -L 19,${BUD}" ;;
-		 dm) csvload "-L 23,${BUD}" ;;
-		 dy) csvload "-L 18,${BUD}" ;;
-		  g) app "-b ${BUD} -r 11" ;;
-		  i) csvload "-L 20,${BUD}" ;;
-		 nt) csvload "-L 17,${BUD}" ;;
-		  p) csvload "-L 7,${BUD}" ;;
-		 pe) csvload "-L 16,RA0002" ;;
-		 pt) csvload "-L 12,${BUD}" ;;
-		  q) exit 0 ;;
-		  r) csvload "-L 13,${BUD}" ;;
-		 ra) csvload "-L 9,${BUD}" ;;
-		rab) app "-b ${BUD} -r 12,11,RA001,2016-07-04"; app "-b ${BUD} -r 12,9,RA001,2016-07-04" ;;
-		 rc) app "-b ${BUD} -r 7" ;;
-		 re) csvload "-L 6,${BUD}" ;;
-		 rp) csvload "-L 26,${BUD}" ;;
-		rpr) csvload "-L 27,${BUD}" ;;
-		 rr) app "-b ${BUD} -r 4" ;;
-		 rs) csvload "-L 22,${BUD}" ;;
-		 rt) csvload "-L 5,${BUD}" ;;
-		  s) csvload "-L 21,${BUD}" ;;
-		 sa) csvload "-L 22,${BUD}" ;;
-		 so) csvload "-L 24,${BUD}" ;;
-		 st) app "-b ${BUD} -r 8" ;;
-		  t) csvload "-L 8,${BUD}" ;;
-		  u) csvload "-L 15" ;;
-		  x)	exit 0 ;;
-		  *)	echo "Unknown report: ${choice}"
-	esac
-	pause
-done
-}
+# 	read -p "Enter choice: " choice
+# 	choice=$(echo "${choice}" | tr "[:upper:]" "[:lower:]")
+# 	case ${choice} in
+# 		  d) app "-b ${BUD} -r 14,2015-05-25" ;;
+# 		 ir) app "-b ${BUD} -r 9,IN00001" ;;
+# 		  j) app "-b ${BUD} -r 1" ;;
+# 		  l) app "-b ${BUD} -r 2" ;;
+# 		 la) app "-b ${BUD} -r 10" ;;
+# 		 lb) app "-b ${BUD} -r 17" ;;
+# 		 mr) app "-b ${BUD} -r 20,R001" ;;
+# 		  a) csvload "-L 11,${BUD}" ;;
+# 		  b) csvload "-L 3" ;;
+# 		  c) csvload "-L 10,${BUD}" ;;
+# 		 ca) csvload "-L 14" ;;
+# 		 de) csvload "${CSVDATERANGE} -L 19,${BUD}" ;;
+# 		 dm) csvload "-L 23,${BUD}" ;;
+# 		 dy) csvload "-L 18,${BUD}" ;;
+# 		  g) app "-b ${BUD} -r 11" ;;
+# 		  i) csvload "-L 20,${BUD}" ;;
+# 		 nt) csvload "-L 17,${BUD}" ;;
+# 		  p) csvload "-L 7,${BUD}" ;;
+# 		 pe) csvload "-L 16,RA0002" ;;
+# 		 pt) csvload "-L 12,${BUD}" ;;
+# 		  q) exit 0 ;;
+# 		  r) csvload "-L 13,${BUD}" ;;
+# 		 ra) csvload "-L 9,${BUD}" ;;
+# 		rab) app "-b ${BUD} -r 12,11,RA001,2016-07-04"; app "-b ${BUD} -r 12,9,RA001,2016-07-04" ;;
+# 		 rc) app "-b ${BUD} -r 7" ;;
+# 		 re) csvload "-L 6,${BUD}" ;;
+# 		 rp) csvload "-L 26,${BUD}" ;;
+# 		rpr) csvload "-L 27,${BUD}" ;;
+# 		 rr) app "-b ${BUD} -r 4" ;;
+# 		 rs) csvload "-L 22,${BUD}" ;;
+# 		 rt) csvload "-L 5,${BUD}" ;;
+# 		  s) csvload "-L 21,${BUD}" ;;
+# 		 sa) csvload "-L 22,${BUD}" ;;
+# 		 so) csvload "-L 24,${BUD}" ;;
+# 		 st) app "-b ${BUD} -r 8" ;;
+# 		  t) csvload "-L 8,${BUD}" ;;
+# 		  u) csvload "-L 15" ;;
+# 		  x)	exit 0 ;;
+# 		  *)	echo "Unknown report: ${choice}"
+# 	esac
+# 	pause
+# done
+# }
 
 usage() {
 	cat <<EOF
@@ -210,6 +226,10 @@ SYNOPSIS
 	If they match, keep going until all tasks are completed.
 
 OPTIONS
+	-a  If a test fails, pause after showing diffs from gold files, prompt
+	    for what to do next:  [Enter] to continue, m to move the output file
+	    into gold/ , or Q / X to exit.
+
 	-c  Show each command that was executed.
 
 	-f  Executes all the steps of the test but does not compare the output
@@ -353,7 +373,11 @@ docsvtest () {
 			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			exit 1
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${1}
+			else
+				exit 1
+			fi
 		fi
 	else
 		echo
@@ -397,7 +421,11 @@ dorrtest () {
 			echo "Command to reproduce:  ${RENTROLL} ${2}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			exit 1
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${1}
+			else
+				exit 1
+			fi
 		fi
 	else
 		echo
@@ -443,7 +471,11 @@ doCompareIgnoreDates() {
 		diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
 		cat ${ERRFILE}
 		failmsg
-		exit 1
+		if [ "${ASKBEFOREEXIT}" = "1" ]; then
+			pause ${1}
+		else
+			exit 1
+		fi
 	fi
 }
 
@@ -570,7 +602,11 @@ doRoomKeyTest () {
 			diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			exit 1
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${1}
+			else
+				exit 1
+			fi
 		fi
 	else
 		echo
@@ -595,6 +631,7 @@ EOF
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 	#${CSVLOAD} $2 >>${LOGFILE} 2>&1
+	CMD1="mysql --no-defaults <xxqq >${1}"
 	mysql --no-defaults <xxqq >${1}
 
 	if [ "${FORCEGOOD}" = "1" ]; then
@@ -634,11 +671,15 @@ EOF
 			fi
 		else
 			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
-			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CMD1}" >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
 			diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
 			cat ${ERRFILE}
-			failmsg
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${1}
+			else
+				exit 1
+			fi
 			exit 1
 		fi
 	else
@@ -696,7 +737,11 @@ logcheck() {
 			echo "If the new output is correct:  mv ${LOGFILE} ${GOLD}/${LOGFILE}.gold" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			exit 1
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${LOGFILE}
+			else
+				exit 1
+			fi
 		fi
 	else
 		echo "FINISHED...  but did not check output"
@@ -728,13 +773,19 @@ genericlogcheck() {
 		UDIFFS=$(diff ${1} gold/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
+			passmsg
 		else
 			echo "FAILED:  differences are as follows:" >> ${ERRFILE}
 			diff gold/${1}.gold ${1} >> ${ERRFILE}
 			echo >> ${ERRFILE}
 			echo "If the new output is correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			cat ${ERRFILE}
-			exit 1
+			failmsg
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${1}
+			else
+				exit 1
+			fi
 		fi
 	else
 		echo
@@ -826,11 +877,15 @@ dojsonPOST () {
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING RENTROLL SERVER"
-				pkill rentroll
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${3}
+			else
+				if [ ${MANAGESERVER} -eq 1 ]; then
+					echo "STOPPING RENTROLL SERVER"
+					pkill rentroll
+				fi
+				exit 1
 			fi
-			exit 1
 		fi
 	else
 		echo
@@ -895,11 +950,15 @@ dojsonGET () {
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING RENTROLL SERVER"
-				pkill rentroll
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${2}
+			else
+				if [ ${MANAGESERVER} -eq 1 ]; then
+					echo "STOPPING RENTROLL SERVER"
+					pkill rentroll
+				fi
+				exit 1
 			fi
-			exit 1
 		fi
 	else
 		echo
@@ -960,11 +1019,15 @@ doValidateFile () {
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING RENTROLL SERVER"
-				pkill rentroll
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${1}
+			else
+				if [ ${MANAGESERVER} -eq 1 ]; then
+					echo "STOPPING RENTROLL SERVER"
+					pkill rentroll
+				fi
+				exit 1
 			fi
-			exit 1
 		fi
 	else
 		echo 
@@ -1029,11 +1092,15 @@ doPlainGET () {
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING RENTROLL SERVER"
-				pkill rentroll
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause "${2}"
+			else
+				if [ ${MANAGESERVER} -eq 1 ]; then
+					echo "STOPPING RENTROLL SERVER"
+					pkill rentroll
+				fi
+				exit 1
 			fi
-			exit 1
 		fi
 	else
 		echo
@@ -1045,9 +1112,12 @@ doPlainGET () {
 #  Handle command line options...
 #--------------------------------------------------------------------------
 tdir
-while getopts "cfmornR:" o; do
+while getopts "acfmornR:" o; do
 	echo "o = ${o}"
 	case "${o}" in
+		a)	ASKBEFOREEXIT=1
+			echo "WILL ASK BEFORE EXITING ON ERROR"
+			;;
 		c | C)
 			SHOWCOMMAND=1
 			echo "SHOWCOMMAND"

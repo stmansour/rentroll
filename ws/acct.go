@@ -40,7 +40,6 @@ type GLAccount struct {
 	TCID        int64             // associated payor, this field is only used when Type = 1
 	GLNumber    string            // acct system name
 	Status      int64             // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	Type        int64             // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name        string            // descriptive name for the GLAccount
 	AcctType    string            // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	AllowPost   int64             // 0 = no posting, 1 = posting is allowed
@@ -68,7 +67,6 @@ type AcctDetailsForm struct {
 	TCID        int64
 	GLNumber    string
 	Status      int64
-	Type        int64
 	Name        string
 	AcctType    string
 	AllowPost   int64
@@ -92,7 +90,6 @@ type AcctSaveForm struct {
 	BUD         rlib.XJSONBud
 	PLID        int64
 	Status      int64
-	Type        int64
 	AllowPost   int64
 }
 
@@ -684,7 +681,6 @@ var getAcctQuerySelectFields = selectQueryFields{
 	"GLAccount.TCID",
 	"GLAccount.GLNumber",
 	"GLAccount.Status",
-	"GLAccount.Type",
 	"GLAccount.Name",
 	"GLAccount.AcctType",
 	"GLAccount.AllowPost",
@@ -747,7 +743,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
-		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Type, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
+		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return

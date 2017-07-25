@@ -140,7 +140,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 		a.ATypeLID, _ = rlib.IntFromString(sa[GLAcctID], "value for Assessment type is invalid")
 		// asmt, ok := (*AsmtTypes)[a.ATypeLID]
 		rlib.InitBusinessFields(a.BID)
-		rlib.GetDefaultLedgers(a.BID) // Gather its chart of accounts
+		// rlib.GetDefaultLedgers(a.BID) // Gather its chart of accounts
 		rlib.RRdb.BizTypes[a.BID].GLAccounts = rlib.GetGLAccountMap(a.BID)
 		gla, ok = rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
 		if !ok {

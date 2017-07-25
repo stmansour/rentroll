@@ -8,7 +8,6 @@ Austin, TX 78738 USA
                                                                                                                Agreement                           
 GLNumber  Name                                      Parent                               Account Type           Required  Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  ---------  -------------------------
-          Purge Me                                                                                                    No                           
    10000  Cash                                                                           Bank Account                Yes  Main cash account        
    10001  Cash BofA                                                                      Bank Account                 No                           
    10100  Unapplied Funds                                                                Holding Account             Yes  Holding account          

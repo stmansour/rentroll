@@ -5,8 +5,6 @@ California Commerce Centr
                                                                                                                Agreement                           
 GLNumber  Name                                      Parent                               Account Type           Required  Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  ---------  -------------------------
-          Purge Me                                                                                                    No                           
-          Owner Equity                                                                                                No                           
    10000  Cash                                                                           Bank Account                Yes  Main cash account        
    11000  Credit Card Clearing                                                           Current Asset                No                           
    12000  Accounts Receivable                                                            Current Asset                No                           

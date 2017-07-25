@@ -1,11 +1,14 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Sat Jul 22 14:43:09 PDT 2017
+Date/Time:    Mon Jul 24 15:49:21 PDT 2017
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
 CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
-2017/07/22 14:43:10 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
+CreateLedgerMarkers: line 29 - Account already exists: 42999
+CreateLedgerMarkers: line 30 - Account already exists: 42999
+CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
+2017/07/24 15:49:23 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -42,10 +45,7 @@ CreateVehicleFromCSV: line 10 - vehicle with License Plate BR549 in State = MO a
 CreateVehicleFromCSV: line 12 - vehicle with License Plate BR549 in State = MO already exists
 CreateVehicleFromCSV: line 13 - vehicle with License Plate BR549 in State = MO already exists
 CreateVehicleFromCSV: line 14 - vehicle with License Plate  in State =  already exists
-CreateLedgerMarkers: line 29 - Invalid Default value for account 42999: 333.  Value must blank, 0, or between 10 and 17
-CreateLedgerMarkers: line 30 - Account already exists: 42999
-CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
-CreateAssessmentsFromCSV: line 13 - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: 0
+CreateAssessmentsFromCSV: line 14 - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: 0
 Rental Agreement start/stop: 1/1/2004 - 11/8/2015 
       Assessment start/stop: 11/8/2015 - 11/8/2015 
 CreateAssessmentsFromCSV: line 15 - Assessment type is invalid: 0
@@ -64,4 +64,4 @@ CreateReceiptsFromCSV: line 7 -  error processing receipt: GenerateReceiptAlloca
 CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 ElementType value must be a number from 5 to 13
 Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Sat Jul 22 14:43:13 PDT 2017
+Test completed: Mon Jul 24 15:49:26 PDT 2017

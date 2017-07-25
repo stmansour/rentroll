@@ -55,6 +55,7 @@ func DoAcctSubstitution(bid int64, s string) string {
 	if s[0] == '$' {
 		m := rpnVariable.FindStringSubmatchIndex(s)
 		if m != nil && len(m) > 3 {
+			fmt.Printf("DoAcctSubstitution: s = %s, m[2] = %d, m[3] = %d\n", s, m[2], m[3])
 			match := s[m[2]:m[3]]
 			return VarAcctResolve(bid, match)
 		}

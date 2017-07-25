@@ -38,11 +38,13 @@ dojsonGET "http://localhost:8270/v1/postaccounts/2" "wc" "WebService--GetPostAcc
 
 # Get Chart of Accounts
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
-dojsonPOST "http://localhost:8270/v1/accounts/1" "request" "wd"  "WebService--ChartOfAccounts"
+dojsonPOST "http://localhost:8270/v1/accounts/2" "request" "wd"  "WebService--ChartOfAccounts"
 
 # Get Account details
-echo "request=%7B%22cmd%22%3A%22get%22%2C%22limit%22%3A0%2C%22offset%22%3A0%2C%22selected%22%3A%5B0%5D%2C%22searchLogic%22%3A%22%22%2C%22search%22%3A%5B%7B%22field%22%3A%22%22%2C%22type%22%3A%22%22%2C%22value%22%3A%22%22%2C%22operator%22%3A%22%22%7D%5D%2C%22sort%22%3A%5B%7B%22field%22%3A%22%22%2C%22direction%22%3A%22%22%7D%5D%7D" > request
-dojsonPOST "http://localhost:8270/v1/account/2/108" "request" "we"  "WebService--GetAccountDetails"
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/account/2/97" "request" "we" "WebService--ChartOfAccounts-detail"
+
+# dojsonPOST "http://localhost:8270/v1/account/2/97" "request" "we"  "WebService--GetAccountDetails"
 
 # Create new Account
 echo "request%3D%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22%22%2C%22record%22%3A%7B%22LID%22%3A0%2C%22BID%22%3A2%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%22123456789%22%2C%22Name%22%3A%22SmokeTest%20GLAccount%22%2C%22AcctType%22%3A%22%22%2C%22Description%22%3A%22%22%2C%22LastModTime%22%3A%221%2F1%2F1900%22%2C%22LastModBy%22%3A0%2C%22BUD%22%3A%22%22%2C%22PLID%22%3A0%2C%22Status%22%3A0%2C%22Type%22%3A0%2C%22AllowPost%22%3A0%2C%22ManageToBudget%22%3A0%7D%7D" > request
@@ -53,7 +55,7 @@ echo "request%3D%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22%2
 dojsonPOST "http://localhost:8270/v1/account/2/108" "request" "wg"  "WebService--UpdateGLAccount"
 
 # Delete Account
-echo "request=%7B%22cmd%22%3A%22delete%22%2C%22LID%22%3A108%7D" > request
+echo "request%3D%7B%22cmd%22%3A%22delete%22%2C%22LID%22%3A97%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/2/" "request" "wh"  "WebService--DeleteGLAccount"
 
 # Get Transactants
