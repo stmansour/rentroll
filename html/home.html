@@ -962,7 +962,7 @@ function buildPageElements() {
                 var sel_recid = parseInt(this.last.sel_recid);
                 if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
                         this.select(sel_recid);
@@ -1360,6 +1360,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
         },
@@ -1384,8 +1388,7 @@ function buildPageElements() {
                 w2confirm(delete_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.pmtsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                    tgrid.selectNone();
 
                     var params = {cmd: 'delete', formname: form.name, LID: form.record.LID };
                     var dat = JSON.stringify(params);
@@ -1398,8 +1401,7 @@ function buildPageElements() {
                         }
 
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
+                        tgrid.render();
                     })
                     .fail(function(/*data*/){
                         console.log("Delete Account failed.");
@@ -1587,7 +1589,8 @@ function buildPageElements() {
                         PreferredName: "",
                         PrimaryEmail: "",
                         TCID: 0,
-                        BID: BUD,
+                        BID: BID,
+                        BUD: BUD,
                         NLID: 0,
                         CompanyName: "",
                         IsCompany: 0,
@@ -1768,8 +1771,7 @@ function buildPageElements() {
         actions: {
             save: function () {
                 var tgrid = w2ui.transactantsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                tgrid.selectNone();
                 console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
                 this.save({}, function (data) {
                     if (data.status == 'error') {
@@ -1777,7 +1779,7 @@ function buildPageElements() {
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    tgrid.reload();
+                    tgrid.render();
                 });
             },
             delete: function(/*target, data*/) {
@@ -1785,8 +1787,7 @@ function buildPageElements() {
                 w2confirm(delete_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.transactantsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                    tgrid.selectNone();
                     var params = {cmd: 'delete', formname: form.name, TCID: form.record.TCID };
                     var dat = JSON.stringify(params);
 
@@ -1797,8 +1798,7 @@ function buildPageElements() {
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
+                        tgrid.render();
                     })
                     .fail(function(/*data*/){
                         console.log("Delete Transactant failed.");
@@ -1851,6 +1851,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // server request form data
             getFormSubmitData(data.postData.record);
         },
@@ -2026,7 +2030,7 @@ function buildPageElements() {
                         ManageToBudget: 0,
                         RMRID: 0,
                         MarketRate: 0.0,
-                        LastModTime: y,
+                        LastModTime: y.toISOString(),
                         LastModBy: 0,
                     };
                     w2ui.rentableTypeForm.record = record;
@@ -2061,10 +2065,10 @@ function buildPageElements() {
             { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { page: 0, column: 0 } },
             { field: 'RMRID', type: 'int', required: true, html: { page: 0, column: 0 } },
             { field: 'MarketRate', type: 'money', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'time', required: true, html: { page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'int', required: true, html: { page: 0, column: 0 } },
-            { field: 'CreateTS', type: 'time', required: true, html: { page: 0, column: 0 } },
-            { field: 'CreateBy', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -2072,7 +2076,7 @@ function buildPageElements() {
                 { id: 'bt3', type: 'spacer' },
             { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
         ],
-            onClick: function (event) {
+        onClick: function (event) {
                 switch(event.target) {
                 case 'btnClose':
                     var no_callBack = function() { return false; },
@@ -2086,7 +2090,7 @@ function buildPageElements() {
             },
         },
         onValidate: function(event) {
-            if (this.record.ManageToBudget === 1 && this.record.MarketRate === "") {
+            if (this.record.ManageToBudget.id === 1 && this.record.MarketRate === 0) {
                 event.errors.push({
                     field: this.get('MarketRate'),
                     error: 'MarketRate cannot be blank when Mange To Budget is Yes'
@@ -2109,41 +2113,15 @@ function buildPageElements() {
             save: function () {
                 //var obj = this;
                 var tgrid = w2ui.rtGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
-                var errors = w2ui.rentableTypeForm.validate(true);
-                if (errors.length > 1) {
-                    return;
-                }
-                // have to ignore issue with LastModTime
-                if (errors.length == 1 && errors[0].field.name != "LastModTime") {
-                    return;
-                }
+                tgrid.selectNone();
 
-                // this.save({}, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     tgrid.reload();
-                // });
-                var saveRecord = getFormSubmitData(this.record);
-                var params = {cmd: 'save', formname: this.name, record: saveRecord };
-                var dat = JSON.stringify(params);
-
-                // save Depository request
-                $.post(this.url, dat)
-                .done(function(data) {
-                    if (data.status != "success") {
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
-                })
-                .fail(function(/*data*/){
-                    console.log("Save RentableType failed.");
+                    tgrid.render();
                 });
             },
             delete: function() {
@@ -2153,8 +2131,7 @@ function buildPageElements() {
                 w2confirm(delete_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.rtGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                    tgrid.selectNone();
 
                     var params = {cmd: 'delete', formname: form.name, ID: form.record.RTID };
                     var dat = JSON.stringify(params);
@@ -2167,8 +2144,7 @@ function buildPageElements() {
                         }
 
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
+                        tgrid.render();
                     })
                     .fail(function(/*data*/){
                         console.log("Delete Payment failed.");
@@ -2180,6 +2156,10 @@ function buildPageElements() {
             },
         },
         onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // server request form data
             getFormSubmitData(data.postData.record);
         },
@@ -2286,10 +2266,10 @@ function buildPageElements() {
                 var sel_recid = parseInt(this.last.sel_recid);
                 if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
-                        this.unselect(sel_recid);
+                        this.selectNone();
                     }
                     else{
-                        this.select(sel_recid);
+                        this.select(app.last.grid_sel_recid);
                     }
                 }
             };
@@ -2342,7 +2322,8 @@ function buildPageElements() {
                         y = new Date(),
                         record = {
                             recid: 0,
-                            BID: BUD,
+                            BID: BID,
+                            BUD: BUD,
                             RID: 0,
                             RentableName: "",
                             RARID: 0,
@@ -2435,15 +2416,14 @@ function buildPageElements() {
             save: function () {
                 //var obj = this;
                 var tgrid = w2ui.rentablesGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                tgrid.selectNone();
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    tgrid.reload();
+                    tgrid.render();
                 });
 
             },
@@ -2454,6 +2434,10 @@ function buildPageElements() {
             delete data.postData.record.RAID;
             delete data.postData.record.RARDtStop;
             delete data.postData.record.RARDtStart;
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             getFormSubmitData(data.postData.record);
         },
         onRefresh: function(event) {
@@ -2629,7 +2613,8 @@ function buildPageElements() {
                         recid: newRecId,
                         RAID: 0,
                         RATID: 0,
-                        BID: {id: BID, text: BUD},
+                        BID: BID,
+                        BUD: BUD,
                         NLID: 0,
                         AgreementStart: w2uiDateControlString(y),
                         AgreementStop: w2uiDateControlString(y1),
@@ -2640,7 +2625,7 @@ function buildPageElements() {
                         RentCycleEpoch: w2uiDateControlString(y2),
                         UnspecifiedAdults: 0,
                         UnspecifiedChildren: 0,
-                        Renewal: {id:"month to month automatic renewal",text:"month to month automatic renewal"},
+                        Renewal: "month to month automatic renewal",
                         SpecialProvisions: '',
                         LastModTime: y.toISOString(),
                         LastModBy: 0,
@@ -2788,15 +2773,14 @@ function buildPageElements() {
         actions: {
             save: function () {
                 var tgrid = w2ui.rentalagrsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                tgrid.selectNone();
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    tgrid.reload();
+                    tgrid.render();
                 });
             },
             delete: function(/*target, data*/) {
@@ -2807,8 +2791,7 @@ function buildPageElements() {
                 .yes(function() {
 
                     var tgrid = w2ui.rentalagrsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                    tgrid.selectNone();
 
                     var params = {cmd: 'delete', formname: form.name, RAID: form.record.RAID };
                     var dat = JSON.stringify(params);
@@ -2820,8 +2803,7 @@ function buildPageElements() {
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
+                        tgrid.render();
                     })
                     .fail(function(/*data*/){
                         console.log("Delete RentalAgreement failed.");
@@ -2906,6 +2888,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
             app.renewalMap.forEach(function(item) {
@@ -3638,6 +3624,10 @@ function buildPageElements() {
             }
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
         },
@@ -3750,8 +3740,8 @@ function buildPageElements() {
                 w2confirm(reverse_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.receiptsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                    tgrid.selectNone();
+
                     var params = {cmd: 'delete', formname: form.name, RCPTID: form.record.RCPTID };
                     var dat = JSON.stringify(params);
                     // Reverse receipt request
@@ -3761,8 +3751,7 @@ function buildPageElements() {
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
+                        tgrid.render();
                     })
                     .fail(function(/*data*/){
                         console.log("Reverse Receipt failed.");
@@ -4212,18 +4201,19 @@ function buildPageElements() {
                 });
             },
             save: function () {
-                var x = getCurrentBusiness();
+                var x = getCurrentBusiness(),
+                    grid = w2ui.asmsGrid;
+
+                grid.selectNone();
                 w2ui.asmEpochForm.url = '/v1/asm/' + x.value + '/' + w2ui.asmEpochForm.record.ASMID;
-                var tgrid = w2ui.asmsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    tgrid.reload();
+                    grid.render();
                 });
             },
             reverse: function() {
@@ -4373,6 +4363,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
             console.log(data.postData.record);
@@ -4529,17 +4523,18 @@ function buildPageElements() {
                 });
             },
             save: function () {
-                //var obj = this;
-                var tgrid = w2ui.asmsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
-                this.save({}, function (data) {
+                var f = this,
+                    grid = w2ui.asmsGrid;
+
+                grid.selectNone();
+
+                f.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    tgrid.reload();
+                    grid.render();
                 });
 
             },
@@ -4718,6 +4713,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
             app.cycleFreq.forEach(function(item, index) {
@@ -4769,8 +4768,7 @@ function buildPageElements() {
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    //tgrid.reload();
+                    tgrid.render();
                 })
                 .fail(function(/*data*/){
                     //console.log("Reverse Assessment instance failed.");
@@ -5168,8 +5166,8 @@ function buildPageElements() {
                 w2confirm(delete_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.pmtsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+
+                    tgrid.selectNone();
 
                     var params = {cmd: 'delete', formname: form.name, ID: form.record.PMTID };
                     var dat = JSON.stringify(params);
@@ -5196,8 +5194,7 @@ function buildPageElements() {
                         app.pmtTypes[BUD] = temp_list;
 
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
+                        tgrid.render();
                     })
                     .fail(function(/*data*/){
                         console.log("Delete Payment failed.");
@@ -5238,6 +5235,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
         },
@@ -5452,8 +5453,7 @@ function buildPageElements() {
                 .yes(function() {
 
                     var tgrid = w2ui.depGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                    tgrid.selectNone();
 
                     var params = {cmd: 'delete', formname: form.name, ID: form.record.DEPID };
                     var dat = JSON.stringify(params);
@@ -5465,8 +5465,7 @@ function buildPageElements() {
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
+                        tgrid.render();
                     })
                     .fail(function(/*data*/){
                         console.log("Delete Depository failed.");
@@ -5507,6 +5506,10 @@ function buildPageElements() {
             };
         },
         onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
         },
@@ -5760,8 +5763,7 @@ function buildPageElements() {
                 w2confirm(delete_confirm_options)
                 .yes(function () {
                     var tgrid = w2ui.arsGrid;
-                    var sel = tgrid.getSelection();
-                    tgrid.unselect(sel);
+                    tgrid.selectNone();
 
                     var params = {cmd: 'delete', formname: form.name, ARID: form.record.ARID };
                     var dat = JSON.stringify(params);
@@ -5773,8 +5775,7 @@ function buildPageElements() {
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
-                        w2ui.toplayout.render();
-                        tgrid.reload();
+                        tgrid.render();
                     })
                     .fail(function(/*data*/){
                         console.log("Delete AR failed.");
@@ -5787,20 +5788,23 @@ function buildPageElements() {
             save: function () {
                 //var obj = this;
                 var tgrid = w2ui.arsGrid;
-                var sel = tgrid.getSelection();
-                tgrid.unselect(sel);
+                tgrid.selectNone();
+
                 this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.toplayout.render();
-                    tgrid.reload();
+                    tgrid.render();
                 });
             },
         },
         onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
             getFormSubmitData(data.postData.record);
             // object to value before submit to server
             data.postData.record.PriorToRAStart = int_to_bool(data.postData.record.PriorToRAStart);
