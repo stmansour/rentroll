@@ -118,7 +118,8 @@ function setToForm(sform, url, width, doRequest) {
     "use strict";
 
     // if not url defined then return
-    if (!(url.length > 0)) {
+    var url_len=url.length > 0;
+    if (!url_len) {
         return false;
     }
 
@@ -172,7 +173,7 @@ function setToForm(sform, url, width, doRequest) {
             $(f.box).find("div.w2ui-form-box").height(h);*/
         }
         w2ui.toplayout.show('right', true);
-    }
+    };
 
     if (doRequest) {
         f.request(function(event) {
@@ -991,7 +992,7 @@ function formRefreshCallBack(w2frm, id_name, form_header) {
         header = form_header;
 
     if (id === undefined) {
-        console.log("given id_name does not exist in form's record")
+        console.log("given id_name does not exist in form's record");
         return false;
     }
 
