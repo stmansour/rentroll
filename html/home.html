@@ -4231,19 +4231,22 @@ function buildPageElements() {
                 // SPECIAL CASE
                 // ===========================
 
-                var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Assessment Series Definition</p>'.format(r.ASMID);
-                $("#"+f.name).find("#AssessmentInfo").html(info);
-
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
                     return;
                 } else {
                     $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                    $("#"+f.name).find("#AssessmentInfo").removeClass("hidden");
                 }
+
+                // Assessment Info at the top of form in white box
+                var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Assessment Series Definition</p>'.format(r.ASMID);
+                $("#"+f.name).find("#AssessmentInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -4556,6 +4559,20 @@ function buildPageElements() {
                 // SPECIAL CASE
                 // ==============================
 
+                if (r.ASMID === 0) { // if new record then do not worry about reversed thing
+                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
+                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
+                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+                    return;
+                } else {
+                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                    $("#"+f.name).find("#AssessmentInfo").removeClass("hidden");
+                }
+
+                // Assessment Info at the top of form
                 // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
                 if (typeof r.RentCycle !== "object") { return; }
                 if (r.RentCycle.text == 'Norecur' && r.PASMID === 0) {
@@ -4566,17 +4583,6 @@ function buildPageElements() {
                     info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
                 }
                 $("#"+f.name).find("#AssessmentInfo").html(info);
-
-                if (r.ASMID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
-                    return;
-                } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
-                }
 
                 // FLAG reports
                 var flag = r.FLAGS,
