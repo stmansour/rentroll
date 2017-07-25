@@ -10,7 +10,6 @@ RRCTX="-G ${BUD} -g 12/1/15,1/1/16"
 ${CSVLOAD} -b nb.csv >>${LOGFILE} 2>&1
 ${CSVLOAD} -R rt.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -u custom.csv  ${RRCTX} >>${LOGFILE} 2>&1
-${CSVLOAD} -d depository.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -s specialties.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -D bldg.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -p people.csv  ${RRCTX} >>${LOGFILE} 2>&1
@@ -19,6 +18,7 @@ ${CSVLOAD} -T rat.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -C ra.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -E pets.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -c coa.csv  ${RRCTX} >>${LOGFILE} 2>&1
+${CSVLOAD} -d depository.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -a rp.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -f rprefs.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -n rprtrate.csv  ${RRCTX} >>${LOGFILE} 2>&1
@@ -60,7 +60,7 @@ mysqlverify "t"  "${RRCTX}"		"Pets"	                    	"select PETID,BID,RAID,
 mysqlverify "u"  "${RRCTX}"		"Notes"	                    	"select NID,PNID,Comment,LastModBy from Notes;"
 mysqlverify "v"  "${RRCTX}"		"AgreementRentables"	    	"select * from RentalAgreementRentables;"
 mysqlverify "w"  "${RRCTX}"		"AgreementPayors"	    		"select * from RentalAgreementPayors;"
-mysqlverify "x"  "${RRCTX}"		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,AllowPost,LastModBy from GLAccount;"
+mysqlverify "x"  "${RRCTX}"		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Name,AcctType,AllowPost,LastModBy from GLAccount;"
 mysqlverify "y"  "${RRCTX}"		"LedgerMarkers"	            	"select LMID,LID,BID,Dt,Balance,State,LastModBy from LedgerMarker;"
 mysqlverify "z"  "${RRCTX}"		"RatePlan"	            		"select RPID,BID,Name,LastModBy from RatePlan;"
 mysqlverify "a1" "${RRCTX}"		"RatePlanRef"	                "select RPRID,BID,RPID,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,PromoCode,CancellationFee,FLAGS,LastModBy from RatePlanRef;"

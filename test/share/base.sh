@@ -875,13 +875,13 @@ dojsonPOST () {
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING RENTROLL SERVER"
-				pkill rentroll
-			fi
 			if [ "${ASKBEFOREEXIT}" = "1" ]; then
 				pause ${3}
 			else
+				if [ ${MANAGESERVER} -eq 1 ]; then
+					echo "STOPPING RENTROLL SERVER"
+					pkill rentroll
+				fi
 				exit 1
 			fi
 		fi
@@ -948,13 +948,13 @@ dojsonGET () {
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING RENTROLL SERVER"
-				pkill rentroll
-			fi
 			if [ "${ASKBEFOREEXIT}" = "1" ]; then
 				pause ${2}
 			else
+				if [ ${MANAGESERVER} -eq 1 ]; then
+					echo "STOPPING RENTROLL SERVER"
+					pkill rentroll
+				fi
 				exit 1
 			fi
 		fi
@@ -1017,13 +1017,13 @@ doValidateFile () {
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING RENTROLL SERVER"
-				pkill rentroll
-			fi
 			if [ "${ASKBEFOREEXIT}" = "1" ]; then
 				pause ${1}
 			else
+				if [ ${MANAGESERVER} -eq 1 ]; then
+					echo "STOPPING RENTROLL SERVER"
+					pkill rentroll
+				fi
 				exit 1
 			fi
 		fi
@@ -1090,13 +1090,13 @@ doPlainGET () {
 			echo "Command to reproduce:  ${CMD}" >> ${ERRFILE}
 			cat ${ERRFILE}
 			failmsg
-			if [ ${MANAGESERVER} -eq 1 ]; then
-				echo "STOPPING RENTROLL SERVER"
-				pkill rentroll
-			fi
 			if [ "${ASKBEFOREEXIT}" = "1" ]; then
 				pause "${2}"
 			else
+				if [ ${MANAGESERVER} -eq 1 ]; then
+					echo "STOPPING RENTROLL SERVER"
+					pkill rentroll
+				fi
 				exit 1
 			fi
 		fi
