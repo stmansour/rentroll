@@ -360,13 +360,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.ASMID == 0 && d.ASMID == 0 {
 		errlist := bizlogic.InsertAssessment(&a, foo.Record.ExpandPastInst)
 		if len(errlist) > 0 {
-			errmsg := ""
-			for i := 0; i < len(errlist); i++ {
-				errmsg += errlist[i].Message + "\n"
-			}
-			fmt.Printf("BizLogic errors:  %s\n", errmsg)
-			e := fmt.Errorf("%s", errmsg)
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrListReturn(w, errlist, funcname)
 			return
 		}
 	} else if a.ASMID > 0 || d.ASMID > 0 {
@@ -374,8 +368,8 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		now := time.Now() // mark Assessment reversed at this time
 		errlist = bizlogic.UpdateAssessment(&a, foo.Record.Mode, &now, foo.Record.ExpandPastInst)
 		if len(errlist) > 0 {
-			err = bizlogic.BizErrorListToError(errlist)
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrListReturn(w, errlist, funcname)
+			return
 		}
 	} else {
 		err = fmt.Errorf("Unknown state: note an update, and not a new record")

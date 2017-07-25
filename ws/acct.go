@@ -616,42 +616,42 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// save or update
 	if a.LID == 0 && d.ID == 0 {
 
+		//-------------------------------------------------------------------
 		// check that given name is already exists for business, or GLNumber
 		// both name and GLNumber should be unique
 		// VALIDATION 2
+		//-------------------------------------------------------------------
 		existQuery := `SELECT LID FROM GLAccount WHERE {{.WhereClause}};`
 		qc := queryClauses{
 			"WhereClause": fmt.Sprintf("Name=\"%s\" OR GLNumber=\"%s\"",
 				strings.ToLower(a.Name), strings.ToLower(a.GLNumber)),
 		}
-
 		q := renderSQLQuery(existQuery, qc)
 		fmt.Printf("db query = %s\n", q)
-
-		// execute the query
 		rows, err := rlib.RRdb.Dbrr.Query(q)
 		defer rows.Close()
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-
 		for rows.Next() {
 			err := fmt.Errorf("GLAccount is already exists for given name or GLNumber")
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 
-		// This is a new AR
-		fmt.Printf(">>>> NEW GL Account IS BEING ADDED\n")
-		_, err = rlib.InsertLedger(&a)
-		if err != nil {
-			e := fmt.Errorf("Error saving Account %s, Error:= %s", a.Name, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+		//-------------------------------------------------------------------
+		// OK, it's a new account.  Do the bizlogic checks and save...
+		//-------------------------------------------------------------------
+		errlist := bizlogic.SaveGLAccount(&a)
+		if len(errlist) > 0 {
+			SvcErrListReturn(w, errlist, funcname)
 			return
 		}
 
-		// begin a LedgerMarker for this
+		//-------------------------------------------------------------------
+		// Since it is a new Account, we need a LedgerMarker for it...
+		//-------------------------------------------------------------------
 		var lm = rlib.LedgerMarker{
 			BID:   a.BID,
 			LID:   a.LID,
@@ -666,11 +666,9 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		// update existing record
-		fmt.Printf("Updating existing GLAccount: %s\n", a.Name)
-		err = rlib.UpdateLedger(&a)
-		if err != nil {
-			e := fmt.Errorf("Error updating account %s, Error:= %s", a.Name, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+		errlist := bizlogic.SaveGLAccount(&a)
+		if len(errlist) > 0 {
+			SvcErrListReturn(w, errlist, funcname)
 			return
 		}
 	}
