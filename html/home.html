@@ -4238,6 +4238,10 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
                     $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+
+                    // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
+                    $("#"+f.name).find('input,button').prop("disabled", false);
+
                     return;
                 } else {
                     $("#"+f.name).find("#FLAGReport").removeClass("hidden");
@@ -4263,6 +4267,12 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom of form
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
+
+                    // ****************************************
+                    // IF REVERSED THEN DISABLE ALL INPUTS
+                    // ****************************************
+                    $("#"+f.name).find('input,button').prop("disabled", true);
+
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
@@ -4281,6 +4291,11 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
+
+                    // ****************************************
+                    // IF not REVERSED THEN ENABLE ALL INPUTS
+                    // ****************************************
+                    $("#"+f.name).find('input,button').prop("disabled", false);
                 }
 
                 // finally append
@@ -4566,6 +4581,10 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
                     $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+
+                    // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
+                    $("#"+f.name).find('input,button').prop("disabled", false);
+
                     return;
                 } else {
                     $("#"+f.name).find("#FLAGReport").removeClass("hidden");
@@ -4599,6 +4618,12 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
+
+                    // ****************************************
+                    // IF REVERSED THEN DISABLE ALL INPUTS
+                    // ****************************************
+                    $("#"+f.name).find('input,button').prop("disabled", true);
+
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
@@ -4617,6 +4642,11 @@ function buildPageElements() {
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
+
+                    // ****************************************
+                    // IF not REVERSED THEN ENABLE ALL INPUTS
+                    // ****************************************
+                    $("#"+f.name).find('input,button').prop("disabled", false);
                 }
 
                 // finally append
