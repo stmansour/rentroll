@@ -115,15 +115,15 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (int, error) {
 		b.Designation = des
 	}
 
-	//fmt.Printf("Business to save:  %#v\n", b)
-	bid, err := rlib.InsertBusiness(&b)
+	// fmt.Printf("Business to save:  %#v\n", b)
+	_, err = rlib.InsertBusiness(&b)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: error inserting rlib.Business = %v", funcname, err)
 	}
-	err = rlib.NewBusinessInit(bid)
-	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: error from NewBusinessInit = %v", funcname, err)
-	}
+	// err = rlib.NewBusinessInit(bid)
+	// if err != nil {
+	// 	return CsvErrorSensitivity, fmt.Errorf("%s: error from NewBusinessInit = %v", funcname, err)
+	// }
 	return 0, nil
 }
 

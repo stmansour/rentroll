@@ -1110,7 +1110,7 @@ CREATE TABLE GLAccount (
     TCID BIGINT NOT NULL DEFAULT 0,                 -- Payor, only valid if TYPE is 2
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',      -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,             -- Whether a GL Account is currently unknown=0, inactive=1, active=2
-    Type SMALLINT NOT NULL DEFAULT 0,               -- flag: 0 = not a special account of any kind,
+    -- Type SMALLINT NOT NULL DEFAULT 0,               -- flag: 0 = not a special account of any kind,
     --                                                       1 - 9 Reserved
     --                                                       1 = balance for this particular RentalAgreement (we may deprecate this)
     --                                                       2 = balance for this payor

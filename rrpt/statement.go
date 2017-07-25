@@ -3,7 +3,9 @@ package rrpt
 import (
 	"fmt"
 	"gotable"
+	"os"
 	"rentroll/rlib"
+	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -64,13 +66,31 @@ func GetRentableCountByRentableType(xbiz *rlib.XBusiness, d1, d2 *time.Time) ([]
 	return m, err
 }
 
+// yes this is a total hack until I can get rid of some old infrastructure, it only applies to old tests though
+func temporaryGetAcctsRcv(bid int64) int64 {
+	var b rlib.GLAccount
+	q := "SELECT " + rlib.RRdb.DBFields["GLAccount"] + " FROM GLAccount WHERE Name LIKE \"%receivable%\""
+	row := rlib.RRdb.Dbrr.QueryRow(q)
+	rlib.ReadGLAccount(row, &b)
+	if b.LID == 0 {
+		b = rlib.GetLedgerByGLNo(bid, "12000")
+		if b.LID == 0 {
+			fmt.Printf("Could not find Accounts Receivable\n")
+			debug.PrintStack()
+			os.Exit(1) // yes this is terrible.
+		}
+	}
+	return b.LID
+}
+
 // GetStatementData returns an array of StatementEntries for building a statement
 func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []StmtEntry {
 	var m []StmtEntry
-	bal := rlib.GetRAAccountBalance(xbiz.P.BID, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID, raid, d1)
+	lid := temporaryGetAcctsRcv(xbiz.P.BID)
+	bal := rlib.GetRAAccountBalance(xbiz.P.BID, lid, raid, d1)
 	var initBal = StmtEntry{amt: bal, t: 3, dt: *d1}
 	m = append(m, initBal)
-	n, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, rlib.RRdb.BizTypes[xbiz.P.BID].DefaultAccts[rlib.GLGENRCV].LID)
+	n, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, lid)
 	if err != nil {
 		return m
 	}

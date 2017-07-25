@@ -9,6 +9,7 @@ RRCTX="-G ${BUD} -g 12/1/15,1/1/16"
 
 # Create a bunch of content
 ${CSVLOAD} -b nb.csv >>${LOGFILE} 2>&1
+${CSVLOAD} -c coa.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -R rt.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -u custom.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -d depository.csv  ${RRCTX} >>${LOGFILE} 2>&1
@@ -20,7 +21,6 @@ ${CSVLOAD} -T rat.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -C ra.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -E pets.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -V vehicle.csv  ${RRCTX} >>${LOGFILE} 2>&1
-${CSVLOAD} -c coa.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -ar ar.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -a rp.csv  ${RRCTX} >>${LOGFILE} 2>&1
 ${CSVLOAD} -f rprefs.csv  ${RRCTX} >>${LOGFILE} 2>&1
@@ -60,7 +60,7 @@ mysqlverify "t"  "-E pets.csv"         		"Pets"	                    	"select PET
 mysqlverify "u"  ""           		   	    "Notes"	                    	"select NID,PNID,Comment,LastModBy from Notes;"
 mysqlverify "v"  " "                   		"AgreementRentables"	    	"select * from RentalAgreementRentables;"
 mysqlverify "w"  " "                   		"AgreementPayors"	    		"select * from RentalAgreementPayors;"
-mysqlverify "x"  "-c coa.csv"          		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Type,Name,AcctType,AllowPost,LastModBy from GLAccount;"
+mysqlverify "x"  "-c coa.csv"          		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Name,AcctType,AllowPost,LastModBy from GLAccount;"
 mysqlverify "xa"  "-ar ar.csv"          		"AccountRules"	    			"select ARID,BID,Name,ARType,DebitLID,CreditLID,Description,LastModBy from AR;"
 mysqlverify "y"  " "                   		"LedgerMarkers"	            	"select LMID,LID,BID,Dt,Balance,State,LastModBy from LedgerMarker;"
 mysqlverify "z"  "-a rp.csv"           		"RatePlan"	            		"select RPID,BID,Name,LastModBy from RatePlan;"

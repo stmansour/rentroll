@@ -300,7 +300,7 @@ func LoadReceiptsCSV(fname string) []error {
 				return m
 			}
 			rlib.InitBusinessFields(b.BID)
-			rlib.GetDefaultLedgers(b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
+			// rlib.GetDefaultLedgers(b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
 		}
 	}
 

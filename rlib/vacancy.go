@@ -4,6 +4,31 @@ import (
 	"time"
 )
 
+func temporaryGetLTLAR(bid int64) string {
+	// "c ${GLGSRENT} _,d ${GLVAC} _"
+	// rlib.RRdb.
+	// QueryRow("SELECT ClassCode,CoCode,Name,Designation,Description,LastModTime,LastModBy FROM classes WHERE Designation=?",
+	var a, b GLAccount
+	q := "SELECT " + RRdb.DBFields["GLAccount"] + " FROM GLAccount WHERE Name LIKE \"%rent-not taxable%\""
+	row := RRdb.Dbrr.QueryRow(q)
+	ReadGLAccount(row, &a)
+	if a.LID == 0 {
+		q := "SELECT " + RRdb.DBFields["GLAccount"] + " FROM GLAccount WHERE Name LIKE \"%rent-not taxable%\""
+		row := RRdb.Dbrr.QueryRow(q)
+		ReadGLAccount(row, &a)
+		if a.LID == 0 {
+			a.GLNumber = "41000" // yes this is a total hack until I can get rid of some old infrastructure, it only applies to old tests though
+		}
+	}
+	q = "SELECT " + RRdb.DBFields["GLAccount"] + " FROM GLAccount WHERE Name LIKE \"%vacancy%\""
+	row = RRdb.Dbrr.QueryRow(q)
+	ReadGLAccount(row, &b)
+	if b.LID == 0 {
+		b.GLNumber = "41101" // yes this is a total hack until I can get rid of some old infrastructure, it only applies to old tests though
+	}
+	return "c " + a.GLNumber + " _,d " + b.GLNumber + " _"
+}
+
 // ProcessRentable looks for any time period for which the Rentable has
 // no rent assessment during the supplied time range. If it finds any
 // vacant time periods, it generates vacancy Journal entries for that period.
@@ -51,7 +76,8 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 			ja.JID = jid
 			ja.Amount = j.Amount
 			ja.ASMID = 0 // it's unassociated
-			ja.AcctRule = "c ${GLGSRENT} _,d ${GLVAC} _"
+
+			ja.AcctRule = temporaryGetLTLAR(xbiz.P.BID)
 			ja.RID = r.RID
 			ja.BID = r.BID
 			// fmt.Printf("VACANCY: inserting journalAllocation entry: %#v\n", ja)

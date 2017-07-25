@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-//   0   1                             2          3,               4             5                    6          7                  8             9         10       11         12          13
-// BUD,  Name,                         GLNumber,  Parent GLNumber, Collective    Account TYpe,        Balance,   Account Status, Associated,  Type,     Date,     AllowPosting, RARequired, Description
-// REH,  Bank Account FRB 2332352,     10001,     10000,           Cash,         bank,                0,         active,            Yes,         10,  "2016-03-01",  Yes,       0,          Bla bla bla
-// REH,  General Accounts Receivable,  11001,     11000,           Cash,         Accounts Receivable, 0,         active,            Yes,         11,  "2016-03-01",  Yes,       0,          Bla bla bla
+//   0   1                             2          3,               4             5                    6          7                  8          9            10         11          12
+// BUD,  Name,                         GLNumber,  Parent GLNumber, Collective    Account TYpe,        Balance,   Account Status, Associated,   Date,     AllowPosting, RARequired, Description
+// REH,  Bank Account FRB 2332352,     10001,     10000,           Cash,         bank,                0,         active,            Yes,     "2016-03-01",  Yes,       0,          Bla bla bla
+// REH,  General Accounts Receivable,  11001,     11000,           Cash,         Accounts Receivable, 0,         active,            Yes,     "2016-03-01",  Yes,       0,          Bla bla bla
 // REH,  Friday Lunch Fund,            11099,     11000,           Cash,         Accounts Receivable, 0.00,      active,            No,
 
 // CreateLedgerMarkers reads an assessment type string array and creates a database record for the assessment type
@@ -30,7 +30,6 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		Balance        = iota
 		AccountStatus  = iota
 		Associated     = iota
-		Type           = iota
 		Date           = iota
 		AllowPosting   = iota
 		cRARequired    = iota
@@ -48,7 +47,6 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		{"Balance", Balance},
 		{"AccountStatus", AccountStatus},
 		{"Associated", Associated},
-		{"Type", Type},
 		{"Date", Date},
 		{"AllowPosting", AllowPosting},
 		{"RARequired", cRARequired},
@@ -80,39 +78,39 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 
 	// fmt.Printf("LOADCSV - BEGIN: %v\n", sa)
 
-	//----------------------------------------------------------------------
-	// TYPE
-	// We'll either be updating an existing account or inserting a new one
-	// If updating existing, preload lm with existing info...
-	//----------------------------------------------------------------------
-	s := strings.TrimSpace(sa[Type])
-	if len(s) > 0 {
-		i, err := strconv.Atoi(s)
+	// //----------------------------------------------------------------------
+	// // TYPE
+	// // We'll either be updating an existing account or inserting a new one
+	// // If updating existing, preload lm with existing info...
+	// //----------------------------------------------------------------------
+	// s := strings.TrimSpace(sa[Type])
+	// if len(s) > 0 {
+	// 	i, err := strconv.Atoi(s)
 
-		// fmt.Printf("0.1  -  s = %s,  i = %d\n", s, i)
+	// 	// fmt.Printf("0.1  -  s = %s,  i = %d\n", s, i)
 
-		if err != nil || !(i == 0 || (rlib.GLCASH <= i && i <= rlib.GLLAST)) {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Default value for account %s: %s.  Value must blank, 0, or between %d and %d",
-				funcname, lineno, sa[2], s, rlib.GLCASH, rlib.GLLAST)
-		}
-		l1 := rlib.GetLedgerByType(l.BID, int64(i))
-		if l1.LID == 0 {
-			return CsvErrorSensitivity, nil
-		}
-		// fmt.Println("0.2")
-		l = l1            // update existing
-		inserting = false // looks like this is an update
+	// 	if err != nil || !(i == 0 || (rlib.GLCASH <= i && i <= rlib.GLLAST)) {
+	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Default value for account %s: %s.  Value must blank, 0, or between %d and %d",
+	// 			funcname, lineno, sa[2], s, rlib.GLCASH, rlib.GLLAST)
+	// 	}
+	// 	l1 := rlib.GetLedgerByType(l.BID, int64(i))
+	// 	if l1.LID == 0 {
+	// 		return CsvErrorSensitivity, nil
+	// 	}
+	// 	// fmt.Println("0.2")
+	// 	l = l1            // update existing
+	// 	inserting = false // looks like this is an update
 
-		lm1 := rlib.GetLatestLedgerMarkerByType(l.BID, l.Type)
+	// 	lm1 := rlib.GetLatestLedgerMarkerByType(l.BID, l.Type)
 
-		// fmt.Printf("0.25:  lm1 = %#v\n", lm1)
-		if lm1.LMID == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No default rlib.LedgerMarker for business %d, type = %d", funcname, lineno, l.BID, l.Type)
-		}
-		// fmt.Println("0.3")
-		lm = lm1 // we're just going to update the existing information
-	}
-	// fmt.Println("A")
+	// 	// fmt.Printf("0.25:  lm1 = %#v\n", lm1)
+	// 	if lm1.LMID == 0 {
+	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No default rlib.LedgerMarker for business %d, type = %d", funcname, lineno, l.BID, l.Type)
+	// 	}
+	// 	// fmt.Println("0.3")
+	// 	lm = lm1 // we're just going to update the existing information
+	// }
+	// // fmt.Println("A")
 
 	//----------------------------------------------------------------------
 	// NAME
@@ -186,7 +184,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	// GLACCOUNT STATUS
 	//----------------------------------------------------------------------
-	s = strings.ToLower(strings.TrimSpace(sa[AccountStatus]))
+	s := strings.ToLower(strings.TrimSpace(sa[AccountStatus]))
 	if "active" == s {
 		l.Status = rlib.ACCTSTATUSACTIVE
 	} else if "inactive" == s {
@@ -197,21 +195,21 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 
 	// fmt.Println("F")
 
-	// fmt.Println("G")
-	//----------------------------------------------------------------------
-	// TYPE
-	//----------------------------------------------------------------------
-	s = strings.TrimSpace(sa[Type])
-	if len(s) > 0 {
-		i, err := strconv.Atoi(strings.TrimSpace(s))
-		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s", funcname, lineno, s)
-		}
-		if i < 0 || (2 <= i && i <= 9) || i > rlib.GLLAST {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Type value is invalid: %s", funcname, lineno, s)
-		}
-		l.Type = int64(i)
-	}
+	// // fmt.Println("G")
+	// //----------------------------------------------------------------------
+	// // TYPE
+	// //----------------------------------------------------------------------
+	// s = strings.TrimSpace(sa[Type])
+	// if len(s) > 0 {
+	// 	i, err := strconv.Atoi(strings.TrimSpace(s))
+	// 	if err != nil {
+	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s", funcname, lineno, s)
+	// 	}
+	// 	if i < 0 || (2 <= i && i <= 9) || i > rlib.GLLAST {
+	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Type value is invalid: %s", funcname, lineno, s)
+	// 	}
+	// 	l.Type = int64(i)
+	// }
 
 	//----------------------------------------------------------------------
 	// DATE for opening balance

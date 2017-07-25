@@ -8,7 +8,6 @@ Austin, TX 78738 USA
                                                                                                                Agreement                           
 GLNumber  Name                                      Parent                               Account Type           Required  Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  ---------  -------------------------
-          Purge Me                                                                                                    No                           
    10000  Cash                                                                           Bank Account                Yes  Main cash account        
    10001  Cash BofA                                                                      Bank Account                 No                           
    10100  Unapplied Funds                                                                Holding Account             Yes  Holding account          
@@ -20,8 +19,8 @@ GLNumber  Name                                      Parent                      
    30102  Transient Occupancy Taxes                 Accrued Taxes                        Current Liabilities          No                           
    30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities          No                           
    39000  Owners' Equity                                                                 Equity                       No                           
-   41000  Gross Scheduled Rent-Taxable                                                   Income                       No                           
-   41001  Gross Scheduled Rent-Not Taxable                                               Income                       No                           
+   41000  Gross Scheduled Rent-Not Taxable                                               Income                       No                           
+   41001  Gross Scheduled Rent-Taxable                                                   Income                       No                           
    41002  Income Offsets                                                                 Income                       No                           
    41003  Other Income                                                                   Other Income                 No                           
    41100  Unit Income Offsets                       Income Offsets                       Income Offsets               No                           

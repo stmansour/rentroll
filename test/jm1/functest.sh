@@ -40,11 +40,11 @@ dorrtest "q" "-j 2015-12-01 -k 2016-01-01 -x -b ${BUD}" "Process-2015-DEC"
 dorrtest "r" "-j 2015-12-01 -k 2016-01-01 -b ${BUD} -r 1" "Journal"
 dorrtest "s" "-j 2015-12-01 -k 2016-01-01 -b ${BUD} -r 2" "Ledgers"
 dorrtest "t" "-r 12,1,RA001,2016-01-01 -b ${BUD}" "AccountBalance-GeneralAccountsReceivable-RA01"
-dorrtest "u" "-r 12,7,RA001,2016-01-01 -b ${BUD}" "AccountBalance-SecurityDeposits-RA01"
+dorrtest "u" "-r 12,4,RA001,2016-01-01 -b ${BUD}" "AccountBalance-SecurityDeposits-RA01"
 dorrtest "v" "-r 12,1,RA002,2016-01-01 -b ${BUD}" "AccountBalance-GeneralAccountsReceivable-RA02"
-dorrtest "x" "-r 12,7,RA002,2016-01-01 -b ${BUD}" "AccountBalance-SecurityDeposits-RA02"
+dorrtest "x" "-r 12,4,RA002,2016-01-01 -b ${BUD}" "AccountBalance-SecurityDeposits-RA02"
 dorrtest "y" "-r 12,1,RA003,2016-01-01 -b ${BUD}" "AccountBalance-GeneralAccountsReceivable-RA-03"
-dorrtest "z" "-r 12,7,RA003,2016-01-01 -b ${BUD}" "AccountBalance-SecurityDeposits-RA-03"
+dorrtest "z" "-r 12,4,RA003,2016-01-01 -b ${BUD}" "AccountBalance-SecurityDeposits-RA-03"
 
 #========================================================================================
 # JANUARY 2016
@@ -106,6 +106,7 @@ dorrtest  "n2" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
 dorrtest  "o2" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p2" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
 dorrtest  "q2" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+
 
 #========================================================================================
 # MARCH 2016

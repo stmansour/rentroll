@@ -6,13 +6,13 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                    Proration                                                                     
-ASMID        RAID        Rentable    Rent Cycle     Cycle              Amount  AsmType            AR Name                         
------------  ----------  ----------  -------------  -------------  ----------  -----------------  --------------------------------
-ASM00000001  RA00000001  309         non-recurring  non-recurring    7,000.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
-                         Rexford                                                                                                  
-ASM00000002  RA00000002  309 1/2     non-recurring  non-recurring    3,000.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
-                         Rexford                                                                                                  
-ASM00000003  RA00000003  311         non-recurring  non-recurring    3,300.00  Security Deposits  d ${GLGENRCV} _, c ${GLSECDEP} _
-                         Rexford                                                                                                  
+                                                    Proration                                                         
+ASMID        RAID        Rentable    Rent Cycle     Cycle              Amount  AsmType            AR Name             
+-----------  ----------  ----------  -------------  -------------  ----------  -----------------  --------------------
+ASM00000001  RA00000001  309         non-recurring  non-recurring    7,000.00  Security Deposits  d 12000 _, c 30000 _
+                         Rexford                                                                                      
+ASM00000002  RA00000002  309 1/2     non-recurring  non-recurring    3,000.00  Security Deposits  d 12000 _, c 30000 _
+                         Rexford                                                                                      
+ASM00000003  RA00000003  311         non-recurring  non-recurring    3,300.00  Security Deposits  d 12000 _, c 30000 _
+                         Rexford                                                                                      
 

@@ -777,15 +777,15 @@ func GetLatestLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
 	return GetLatestLedgerMarkerByLID(bid, l.LID)
 }
 
-// GetLatestLedgerMarkerByType returns the LedgerMarker struct for the supplied type
-func GetLatestLedgerMarkerByType(bid int64, t int64) LedgerMarker {
-	var r LedgerMarker
-	l := GetLedgerByType(bid, t)
-	if 0 == l.LID {
-		return r
-	}
-	return GetLatestLedgerMarkerByLID(bid, l.LID)
-}
+// // GetLatestLedgerMarkerByType returns the LedgerMarker struct for the supplied type
+// func GetLatestLedgerMarkerByType(bid int64, t int64) LedgerMarker {
+// 	var r LedgerMarker
+// 	l := GetLedgerByType(bid, t)
+// 	if 0 == l.LID {
+// 		return r
+// 	}
+// 	return GetLatestLedgerMarkerByLID(bid, l.LID)
+// }
 
 // // GetAllLedgerMarkersOnOrBefore returns a map of all ledgermarkers for the supplied business and dat
 // func GetAllLedgerMarkersOnOrBefore(bid int64, dt *time.Time) map[int64]LedgerMarker {
@@ -884,13 +884,13 @@ func GetLedgerByName(bid int64, s string) GLAccount {
 	return a
 }
 
-// GetLedgerByType returns the GLAccount struct for the supplied Type
-func GetLedgerByType(bid, t int64) GLAccount {
-	var a GLAccount
-	row := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t)
-	ReadGLAccount(row, &a)
-	return a
-}
+// // GetLedgerByType returns the GLAccount struct for the supplied Type
+// func GetLedgerByType(bid, t int64) GLAccount {
+// 	var a GLAccount
+// 	row := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t)
+// 	ReadGLAccount(row, &a)
+// 	return a
+// }
 
 // // GetRABalanceLedger returns the GLAccount struct for the supplied Type
 // func GetRABalanceLedger(bid, RAID int64) GLAccount {
@@ -910,17 +910,17 @@ func GetLedgerByType(bid, t int64) GLAccount {
 // 	return a
 // }
 
-// GetDefaultLedgers loads the default GLAccount for the supplied Business bid
-func GetDefaultLedgers(bid int64) {
-	rows, err := RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var r GLAccount
-		ReadGLAccounts(rows, &r)
-		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
-	}
-}
+// // GetDefaultLedgers loads the default GLAccount for the supplied Business bid
+// func GetDefaultLedgers(bid int64) {
+// 	rows, err := RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
+// 	Errcheck(err)
+// 	defer rows.Close()
+// 	for rows.Next() {
+// 		var r GLAccount
+// 		ReadGLAccounts(rows, &r)
+// 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
+// 	}
+// }
 
 //=======================================================
 //  LEDGER ENTRY

@@ -9,7 +9,6 @@ Austin, TX 78738 USA
                                                   Parent              
 GLNumber  Name                                   Balance       Balance
 --------  --------------------------------  ------------  ------------
-          Purge Me                                  0.00              
 10000     Cash                                               93,017.72
 10001     Cash BofA                                               0.00
 10100     Unapplied Funds                                         0.00
@@ -21,8 +20,8 @@ GLNumber  Name                                   Balance       Balance
 30102     Transient Occupancy Taxes                               0.00
 30199     Other Accrued Taxes                                     0.00
 39000     Owners' Equity                                          0.00
-41000     Gross Scheduled Rent-Taxable                     -155,850.00
-41001     Gross Scheduled Rent-Not Taxable                        0.00
+41000     Gross Scheduled Rent-Not Taxable                 -155,850.00
+41001     Gross Scheduled Rent-Taxable                            0.00
 41002     Income Offsets                       51,993.25              
 41003     Other Income                         -2,545.97              
 41100     Unit Income Offsets                  51,993.25              

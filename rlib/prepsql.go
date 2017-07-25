@@ -408,7 +408,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER-->  GLAccount
 	//==========================================
-	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Type,Name,AcctType,AllowPost,RARequired,FLAGS,Description,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Name,AcctType,AllowPost,RARequired,FLAGS,Description,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["GLAccount"] = flds
 	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND GLNumber=?")
 	Errcheck(err)
@@ -416,8 +416,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Name=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type=?")
-	Errcheck(err)
+	// RRdb.Prepstmt.GetLedgerByType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type=?")
+	// Errcheck(err)
 	// RRdb.Prepstmt.GetRABalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type=1 AND RAID=?")
 	// Errcheck(err)
 	// RRdb.Prepstmt.GetSecDepBalanceLedger, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type=2 AND RAID=?")
@@ -426,8 +426,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? ORDER BY GLNumber ASC, Name ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type>=10 ORDER BY GLNumber ASC")
-	Errcheck(err)
+	// RRdb.Prepstmt.GetDefaultLedgers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND Type>=10 ORDER BY GLNumber ASC")
+	// Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 

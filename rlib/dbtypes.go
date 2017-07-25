@@ -1102,15 +1102,15 @@ type LedgerMarker struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
-	Recid       int       `json:"recid"` // this is for the grid widget
-	LID         int64     // unique id for this GLAccount
-	PLID        int64     // unique id of Parent, 0 if no parent
-	BID         int64     // Business unit associated with this GLAccount
-	RAID        int64     // associated rental agreement, this field is only used when Type = 1
-	TCID        int64     // associated payor, this field is only used when Type = 1
-	GLNumber    string    // acct system name
-	Status      int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	Type        int64     // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
+	Recid    int    `json:"recid"` // this is for the grid widget
+	LID      int64  // unique id for this GLAccount
+	PLID     int64  // unique id of Parent, 0 if no parent
+	BID      int64  // Business unit associated with this GLAccount
+	RAID     int64  // associated rental agreement, this field is only used when Type = 1
+	TCID     int64  // associated payor, this field is only used when Type = 1
+	GLNumber string // acct system name
+	Status   int64  // Whether a GL Account is currently unknown=0, inactive=1, active=2
+	// Type        int64     // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
 	Name        string    // descriptive name for the GLAccount
 	AcctType    string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	AllowPost   int64     // 0 = no posting, 1 = posting is allowed
@@ -1239,7 +1239,6 @@ type RRprepSQL struct {
 	GetCustomAttributeByVals             *sql.Stmt
 	GetCustomAttributeRef                *sql.Stmt
 	GetCustomAttributeRefs               *sql.Stmt
-	GetDefaultLedgers                    *sql.Stmt
 	GetDemandSource                      *sql.Stmt
 	GetDemandSourceByName                *sql.Stmt
 	GetDeposit                           *sql.Stmt
@@ -1627,7 +1626,7 @@ func InitBizInternals(bid int64, xbiz *XBusiness) {
 	// fmt.Printf("Entered InitBizInternals\n")
 	GetXBusiness(bid, xbiz) // get its info
 	InitBusinessFields(bid)
-	GetDefaultLedgers(bid) // Gather its chart of accounts
+	// GetDefaultLedgers(bid) // Gather its chart of accounts
 	RRdb.BizTypes[bid].GLAccounts = GetGLAccountMap(bid)
 	RRdb.BizTypes[bid].AR = GetARMap(bid)
 	GetAllNoteTypes(bid)
