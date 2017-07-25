@@ -2092,7 +2092,7 @@ function buildPageElements() {
             },
         },
         onValidate: function(event) {
-            if (this.record.ManageToBudget === 1 && this.record.MarketRate === "") {
+            if (this.record.ManageToBudget === 1 && this.record.MarketRate === 0) {
                 event.errors.push({
                     field: this.get('MarketRate'),
                     error: 'MarketRate cannot be blank when Mange To Budget is Yes'
