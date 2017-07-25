@@ -4,9 +4,13 @@ BINDIR=${TOP}/tmp/rentroll
 
 js:
 	@touch fail
+	grunt clean
+	grunt jshint
 	grunt
+	mkdir -p ./../temp
+	grunt qunit
 	@rm -f fail
-	@echo "*** Webpack done ***"
+	@echo "*** Grunt done ***"
 
 clean:
 	@touch fail
@@ -16,8 +20,6 @@ clean:
 
 test:
 	@touch fail
-	mkdir -p ./../temp
-	grunt qunit
 	@echo "*** TESTS COMPLETE -- ALL TESTS PASS ***"
 	@rm -f fail
 

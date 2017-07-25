@@ -1,26 +1,3 @@
-function defineDateFmts() {
-    var month = (new Date()).getMonth() + 1;
-    var year  = (new Date()).getFullYear();
-    // // US Format
-    $('input[type=us-date]').w2field('date', { format: 'm/d/yyy' });
-    $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
-    $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});
-    $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]') });
-    $('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]') });
-    $('input[type=us-time]').w2field('time',  { format: 'h12' });
-    $('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
-
-    // EU Common Format
-    $('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
-    $('input[type=eu-dateA]').w2field('date', { format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year });
-    $('input[type=eu-dateB]').w2field('date', { format: 'd.m.yyyy', blocked: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]});
-    $('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[type=eu-date2]') });
-    $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
-    $('input[type=eu-time]').w2field('time',  { format: 'h24' });
-    $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
-}
-
-
 //-----------------------------------------------------------------------------
 // dayBack - supply the date control and this function will go to the previous
 //           day.
@@ -49,7 +26,6 @@ function dayFwd(dc) {
     x.setDate(x.getDate() + 1);
     return setDateControl(dc, x);
 }
-
 
 //-----------------------------------------------------------------------------
 // dateMonthFwd - return a date that is one month from the supplied date. It
@@ -113,7 +89,6 @@ function setToCurrentMonth(dc) {
     return setDateControl(dc, d2);
 }
 
-
 //-----------------------------------------------------------------------------
 // setToNextMonth
 //            This routine sets the supplied date control to the 1st of
@@ -156,7 +131,6 @@ function dateMonthBack(y) {
     return new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
 }
 
-
 //-----------------------------------------------------------------------------
 // monthBack - supply the date control, this function will go to the previous
 //             month. It will snap the date to the end of the month if the
@@ -171,7 +145,6 @@ function monthBack(dc) {
     var d2 =  dateMonthBack(y);
     return setDateControl(dc, d2);
 }
-
 
 //-----------------------------------------------------------------------------
 // dateControlString
@@ -212,8 +185,6 @@ function w2uiDateControlString(dt) {
     return s;
 }
 
-
-
 //-----------------------------------------------------------------------------
 // setDateControl
 //           - supply the date control and the date. This function will format
@@ -232,7 +203,6 @@ function setDateControl(dc, dt) {
     return s;
 }
 
-
 //-----------------------------------------------------------------------------
 // dateFromString - return a java date value equal to the date in the supplied
 //              date control
@@ -250,7 +220,6 @@ function dateFromString(ds) {
     ds = ds.replace(/-/g,"\/").replace(/T.+/, ''); // first replace `/` with `-` and also remove `hh:mm:ss` value we don't need it
     return new Date(ds);
 }
-
 
 //-----------------------------------------------------------------------------
 // dateTodayStr - return a string with today's date in the form d/m/yyyy

@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/html/fa/css/font-awesome.min.css">
     <link rel="stylesheet" href="/html/rentroll.css">
     <!-- <script src="/js/rutil.js"></script> -->
-    <script src="/js/bundle.js"></script>
     <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
 </head>
 <body>
@@ -294,7 +293,6 @@ function showReport(rptname, elToFocus) {
     }
     w2ui.reportslayout.load('main', url, null, callBack);
 }
-
 
 // ChangeBusiness updates the UI to the newly selected business.
 // This routine is indeed used, in spite of what JSHint thinks. It
@@ -6270,8 +6268,6 @@ function createRentalAgreementForm() {
     w2ui.raPetGrid.header = "Pets";
 }
 
-
-
 function finishInitialization() {
     defineDateFmts();
     buildPageElements();
@@ -6338,6 +6334,6 @@ window.onbeforeunload=form_dirty_alert_window_unload;
 </script>
 
 <div id="layout"style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
-
+<script src="/js/bundle.js"></script>
 </body>
 </html>
