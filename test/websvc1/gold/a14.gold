@@ -15,8 +15,7 @@
         "PLID": 0,
         "RAID": 0,
         "Status": 2,
-        "TCID": 0,
-        "Type": 0
+        "TCID": 0
     },
     "status": "success"
 }

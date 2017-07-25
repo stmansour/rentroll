@@ -773,12 +773,14 @@ genericlogcheck() {
 		UDIFFS=$(diff ${1} gold/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
+			passmsg
 		else
 			echo "FAILED:  differences are as follows:" >> ${ERRFILE}
 			diff gold/${1}.gold ${1} >> ${ERRFILE}
 			echo >> ${ERRFILE}
 			echo "If the new output is correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			cat ${ERRFILE}
+			failmsg
 			if [ "${ASKBEFOREEXIT}" = "1" ]; then
 				pause ${1}
 			else
