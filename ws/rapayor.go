@@ -27,7 +27,8 @@ type RAPayor struct {
 
 // RAPayorFormSave defines a person for the web service interface
 type RAPayorFormSave struct {
-	Recid        int64         `json:"recid"` // this the RAPID
+	Recid        int64 `json:"recid"` // this the RAPID
+	BID          int64
 	TCID         int64         // associated rental agreement
 	RAID         int64         // which rental agreement
 	FirstName    string        // person name
@@ -44,19 +45,6 @@ type RAPayorResponse struct {
 	Status  string    `json:"status"`
 	Total   int64     `json:"total"`
 	Records []RAPayor `json:"records"`
-}
-
-// RAPayorOtherSave is the structure of data we will receive from a UI form save
-type RAPayorOtherSave struct {
-	BID rlib.W2uiHTMLSelect // Business
-}
-
-// SaveRAPayorOther is the input data format for the "other" data on the Save command
-type SaveRAPayorOther struct {
-	Status string           `json:"status"`
-	Recid  int64            `json:"recid"`
-	Name   string           `json:"name"`
-	Record RAPayorOtherSave `json:"record"`
 }
 
 // DeleteRAPayor is the command structure returned when a Payor is
@@ -201,7 +189,6 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Desc  This service saves a RAPayor.  If :RAID exists, it will
 //  @Desc  be updated with the information supplied. All fields must
 //  @Desc  be supplied. If RAID is 0, then a new RAPayor is created.
-//	@Input RAPayorOtherSave
 //	@Input SaveRAPayorInput
 //  @Response SvcStatusResponse
 // wsdoc }
@@ -231,24 +218,6 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
 	fmt.Printf("saveRAPayor - first migrate: a = RAID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
-		a.RAID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
-
-	var bar SaveRAPayorOther
-	if err := json.Unmarshal(data, &bar); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
-	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
-	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	fmt.Printf("saveRAPayor - second migrate: a = RAID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
 		a.RAID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
 
 	// Try to read an existing record...

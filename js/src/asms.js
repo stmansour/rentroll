@@ -497,9 +497,9 @@ function buildAssessmentElements() {
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
 
                     // ****************************************
-                    // IF REVERSED THEN DISABLE ALL INPUTS
+                    // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS  EXCEPT close button
                     // ****************************************
-                    $("#"+f.name).find('input,button').prop("disabled", true);
+                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
@@ -853,9 +853,9 @@ function buildAssessmentElements() {
                     $("#"+f.name).find("button[name=close]").removeClass("hidden");
 
                     // ****************************************
-                    // IF REVERSED THEN DISABLE ALL INPUTS
+                    // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS  EXCEPT close button
                     // ****************************************
-                    $("#"+f.name).find('input,button').prop("disabled", true);
+                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER

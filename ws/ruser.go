@@ -120,7 +120,6 @@ func deleteRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Desc  This service saves a RAUser.  If :RAID exists, it will
 //  @Desc  be updated with the information supplied. All fields must
 //  @Desc  be supplied. If RAID is 0, then a new RAUser is created.
-//	@Input RAPeopleOtherSave
 //	@Input SaveRAPeopleInput
 //  @Response SvcStatusResponse
 // wsdoc }
@@ -150,26 +149,8 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("foo.Record = %#v\n", foo.Record)
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
-	// fmt.Printf("saveRUser - first migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
-	// 	a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
-
-	var bar SaveRAPeopleOther
-	if err := json.Unmarshal(data, &bar); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
-	var ok bool
-	a.BID, ok = rlib.RRdb.BUDlist[bar.Record.BID.ID]
-	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, bar.Record.BID.ID)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-	// fmt.Printf("saveRUser - second migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
-	// 	a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
+	fmt.Printf("saveRUser - first migrate: a = RID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
+		a.RID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
 
 	// make sure we don't already have this user and that there's no overlap
 	// with an existing record...
