@@ -262,7 +262,6 @@ function buildRAElements() {
         },
     });
 
-
     //------------------------------------------------------------------------
     //          Rental Agreement Details
     //------------------------------------------------------------------------
@@ -546,7 +545,6 @@ function buildRAElements() {
             });
         },
      });
-
 
     //------------------------------------------------------------------------
     //          rapGrid
@@ -889,212 +887,212 @@ function saveNewRAPayor() {
 }
 
 function buildRAPayorPicker(){
-//------------------------------------------------------------------------
-//          tcidRAPayorPicker
-//------------------------------------------------------------------------
-$().w2form({
-    name: 'tcidRAPayorPicker',
-    style: 'border: 0px; background-color: transparent;',
-    formURL: '/html/tcidrapayorpicker.html',
-    focus  : 0,
-    fields: [
-        { field: 'TCID', type: 'w2int', required: true },
-        { field: 'pickedName', required: true,
-            type: 'enum',
-            options: {
-                url:           '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
-                max:           1,
-                maxDropHeight: 350,
-                renderItem:    tcidRAPayorPickerRender,
-                renderDrop:    tcidPickerDropRender,
-                compare:       tcidPickerCompare,
-                onNew: function (event) {
-                    //console.log('++ New Item: Do not forget to submit it to the server too', event);
-                    $.extend(event.item, { FirstName: '', LastName : event.item.text });
+    //------------------------------------------------------------------------
+    //          tcidRAPayorPicker
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'tcidRAPayorPicker',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/tcidrapayorpicker.html',
+        focus  : 0,
+        fields: [
+            { field: 'TCID', type: 'w2int', required: true },
+            { field: 'pickedName', required: true,
+                type: 'enum',
+                options: {
+                    url:           '/v1/transactantstd/' + app.TcidRAPayorPicker.BID,
+                    max:           1,
+                    maxDropHeight: 350,
+                    renderItem:    tcidRAPayorPickerRender,
+                    renderDrop:    tcidPickerDropRender,
+                    compare:       tcidPickerCompare,
+                    onNew: function (event) {
+                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        $.extend(event.item, { FirstName: '', LastName : event.item.text });
+                    }
+                },
+            },
+            { field: 'DtStart', type: 'date', required: true },
+            { field: 'DtStop', type: 'date', required: true },
+            { field: 'FirstName', type: 'text', required: false },
+            { field: 'LastName', type: 'text', required: false },
+            { field: 'CompanyName', type: 'text', required: false },
+            { field: 'IsCompany', type: 'int', required: false },
+        ],
+        onRefresh: function(/*event*/) {
+            w2ui.tcidRAPayorPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRAPayorPicker.BID;
+            console.log('SAVE tcidRAPayorPicker: TCID = ' + w2ui.tcidRAPayorPicker.record.TCID + '  DtStart = ' + w2ui.tcidRAPayorPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRAPayorPicker.record.DtStop);
+        },
+        actions: {
+            save: function () {
+                var errs = w2ui.tcidRAPayorPicker.validate(true);
+                if (errs.length > 0) {
+                    return;
                 }
+                w2popup.close();
+                saveNewRAPayor();
             },
         },
-        { field: 'DtStart', type: 'date', required: true },
-        { field: 'DtStop', type: 'date', required: true },
-        { field: 'FirstName', type: 'text', required: false },
-        { field: 'LastName', type: 'text', required: false },
-        { field: 'CompanyName', type: 'text', required: false },
-        { field: 'IsCompany', type: 'int', required: false },
-    ],
-    onRefresh: function(/*event*/) {
-        w2ui.tcidRAPayorPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRAPayorPicker.BID;
-        console.log('SAVE tcidRAPayorPicker: TCID = ' + w2ui.tcidRAPayorPicker.record.TCID + '  DtStart = ' + w2ui.tcidRAPayorPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRAPayorPicker.record.DtStop);
-    },
-    actions: {
-        save: function () {
-            var errs = w2ui.tcidRAPayorPicker.validate(true);
-            if (errs.length > 0) {
-                return;
-            }
-            w2popup.close();
-            saveNewRAPayor();
-        },
-    },
-});
+    });
 }
 
 function buildRUserPicker(){
-//------------------------------------------------------------------------
-//          tcidRUserPicker
-//------------------------------------------------------------------------
-$().w2form({
-    name: 'tcidRUserPicker',
-    style: 'border: 0px; background-color: transparent;',
-    formURL: '/html/tcidruserpicker.html',
-    focus  : 0,
-    fields: [
-        { field: 'TCID', type: 'w2int', required: true },
-        { field: 'pickedName', required: true,
-            type: 'enum',
-            options: {
-                url:           '/v1/transactantstd/' + app.TcidRUserPicker.BID,
-                max:           1,
-                maxDropHeight: 350,
-                renderItem:    tcidRUserPickerRender,
-                renderDrop:    tcidPickerDropRender,
-                compare:       tcidPickerCompare,
-                onNew: function (event) {
-                    //console.log('++ New Item: Do not forget to submit it to the server too', event);
-                    $.extend(event.item, { FirstName: '', LastName : event.item.text });
-                }
+    //------------------------------------------------------------------------
+    //          tcidRUserPicker
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'tcidRUserPicker',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/tcidruserpicker.html',
+        focus  : 0,
+        fields: [
+            { field: 'TCID', type: 'w2int', required: true },
+            { field: 'pickedName', required: true,
+                type: 'enum',
+                options: {
+                    url:           '/v1/transactantstd/' + app.TcidRUserPicker.BID,
+                    max:           1,
+                    maxDropHeight: 350,
+                    renderItem:    tcidRUserPickerRender,
+                    renderDrop:    tcidPickerDropRender,
+                    compare:       tcidPickerCompare,
+                    onNew: function (event) {
+                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        $.extend(event.item, { FirstName: '', LastName : event.item.text });
+                    }
+                },
+            },
+            { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
+            { field: 'DtStart', type: 'date', required: true },
+            { field: 'DtStop', type: 'date', required: true },
+            { field: 'FirstName', type: 'text', required: false },
+            { field: 'LastName', type: 'text', required: false },
+            { field: 'CompanyName', type: 'text', required: false },
+            { field: 'IsCompany', type: 'int', required: false },
+        ],
+        onRefresh: function(/*event*/) {
+            w2ui.tcidRUserPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRUserPicker.BID;
+            w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
+            if (app.TcidRUserPicker.RARentablesNames.length == 1) {
+                w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
+            }
+        },
+        actions: {
+            save: function () {
+                var errs = w2ui.tcidRUserPicker.validate(true);
+                if (errs.length > 0) { return; }
+                console.log('SAVE tcidRUserPicker: TCID = ' + w2ui.tcidRUserPicker.record.TCID + '  DtStart = ' + w2ui.tcidRUserPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRUserPicker.record.DtStop);
+                w2popup.close();
+                saveNewRUser();
             },
         },
-        { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
-        { field: 'DtStart', type: 'date', required: true },
-        { field: 'DtStop', type: 'date', required: true },
-        { field: 'FirstName', type: 'text', required: false },
-        { field: 'LastName', type: 'text', required: false },
-        { field: 'CompanyName', type: 'text', required: false },
-        { field: 'IsCompany', type: 'int', required: false },
-    ],
-    onRefresh: function(/*event*/) {
-        w2ui.tcidRUserPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRUserPicker.BID;
-        w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
-        if (app.TcidRUserPicker.RARentablesNames.length == 1) {
-            w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
-        }
-    },
-    actions: {
-        save: function () {
-            var errs = w2ui.tcidRUserPicker.validate(true);
-            if (errs.length > 0) { return; }
-            console.log('SAVE tcidRUserPicker: TCID = ' + w2ui.tcidRUserPicker.record.TCID + '  DtStart = ' + w2ui.tcidRUserPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRUserPicker.record.DtStop);
-            w2popup.close();
-            saveNewRUser();
-        },
-    },
-});
+    });
 }
 
 function buildRentablePicker(){
-//------------------------------------------------------------------------
-//          ridRentablePicker
-//------------------------------------------------------------------------
-$().w2form({
-    name: 'ridRentablePicker',
-    style: 'border: 0px; background-color: transparent;',
-    formURL: '/html/ridrentablepicker.html',
-    focus  : 0,
-    openOnFocus: true,
-    fields: [
-        { field: 'RentableName', required: true,
-            type: 'enum',
-            options: {
-                url:           '/v1/rentablestd/' + app.ridRentablePicker.BID,
-                max:           1,
-                cacheMax:      50,
-                maxDropHeight: 350,
-                renderItem:    ridRentablePickerRender,
-                renderDrop:    ridRentableDropRender,
-                compare:       ridRentableCompare,
-                onNew:         function (event) {
-                    //console.log('++ New Item: Do not forget to submit it to the server too', event);
-                    $.extend(event.item, { RentableName : event.item.text });
-                }
+    //------------------------------------------------------------------------
+    //          ridRentablePicker
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'ridRentablePicker',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/ridrentablepicker.html',
+        focus  : 0,
+        openOnFocus: true,
+        fields: [
+            { field: 'RentableName', required: true,
+                type: 'enum',
+                options: {
+                    url:           '/v1/rentablestd/' + app.ridRentablePicker.BID,
+                    max:           1,
+                    cacheMax:      50,
+                    maxDropHeight: 350,
+                    renderItem:    ridRentablePickerRender,
+                    renderDrop:    ridRentableDropRender,
+                    compare:       ridRentableCompare,
+                    onNew:         function (event) {
+                        //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        $.extend(event.item, { RentableName : event.item.text });
+                    }
+                },
+            },
+            { field: 'DtStart', type: 'date',  required: true },
+            { field: 'DtStop',  type: 'date',  required: true },
+            { field: 'Amount',  type: 'money', required: true },
+            { field: 'RID',     type: 'wsint' },
+        ],
+        onRefresh: function(/*event*/) {
+            w2ui.ridRentablePicker.fields[0].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+        },
+        actions: {
+            save: function () {
+                var errs = w2ui.ridRentablePicker.validate(true);
+                if (errs.length > 0) { return; }
+                console.log('SAVE ridRentablePicker: TCID = ' + w2ui.ridRentablePicker.record.TCID + '  DtStart = ' + w2ui.ridRentablePicker.record.DtStart + '  DtStop = ' + w2ui.ridRentablePicker.record.DtStop);
+                w2popup.close();
+                saveNewRARentable();
             },
         },
-        { field: 'DtStart', type: 'date',  required: true },
-        { field: 'DtStop',  type: 'date',  required: true },
-        { field: 'Amount',  type: 'money', required: true },
-        { field: 'RID',     type: 'wsint' },
-    ],
-    onRefresh: function(/*event*/) {
-        w2ui.ridRentablePicker.fields[0].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-    },
-    actions: {
-        save: function () {
-            var errs = w2ui.ridRentablePicker.validate(true);
-            if (errs.length > 0) { return; }
-            console.log('SAVE ridRentablePicker: TCID = ' + w2ui.ridRentablePicker.record.TCID + '  DtStart = ' + w2ui.ridRentablePicker.record.DtStart + '  DtStop = ' + w2ui.ridRentablePicker.record.DtStop);
-            w2popup.close();
-            saveNewRARentable();
-        },
-    },
-});
+    });
 }
 
 function buildRAFinder(){
-//------------------------------------------------------------------------
-//          rental Agreement Finder
-//------------------------------------------------------------------------
-$().w2form({
-    name: 'rentalAgrFinder',
-    style: 'border: 0px; background-color: transparent;',
-    formURL: '/html/rentalagrfinder.html',
-    focus  : 0,
-    fields: [
-        { field: 'TCID', type: 'int', required: true },
-        // INDEX 1
-        { field: 'PayorName', required: true,
-            type: 'enum',
-            options: {
-                url:        '/v1/rentalagrtd/' + app.RentalAgrFinder.BID,
-                // max:     1,
-                items: [],
-                openOnFocus: true,
-                maxDropHeight: 350,
-                renderItem: rentalAgrFinderRender,
-                renderDrop: rentalAgrFinderDropRender,
-                compare:    rentalAgrFinderCompare,
-                onNew: function (event) {
-                    console.log('++ New Item: Do not forget to submit it to the server too', event);
-                    //$.extend(event.item, { FirstName: '', LastName : event.item.text });
-                }
+    //------------------------------------------------------------------------
+    //          rental Agreement Finder
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'rentalAgrFinder',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/html/rentalagrfinder.html',
+        focus  : 0,
+        fields: [
+            { field: 'TCID', type: 'int', required: true },
+            // INDEX 1
+            { field: 'PayorName', required: true,
+                type: 'enum',
+                options: {
+                    url:        '/v1/rentalagrtd/' + app.RentalAgrFinder.BID,
+                    // max:     1,
+                    items: [],
+                    openOnFocus: true,
+                    maxDropHeight: 350,
+                    renderItem: rentalAgrFinderRender,
+                    renderDrop: rentalAgrFinderDropRender,
+                    compare:    rentalAgrFinderCompare,
+                    onNew: function (event) {
+                        console.log('++ New Item: Do not forget to submit it to the server too', event);
+                        //$.extend(event.item, { FirstName: '', LastName : event.item.text });
+                    }
+                },
+            },
+            // INDEX 2
+            { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
+            { field: 'RAID',         type: 'int',  required: true  },
+            { field: 'FirstName',    type: 'text', required: false },
+            { field: 'LastName',     type: 'text', required: false },
+            { field: 'CompanyName',  type: 'text', required: false },
+            { field: 'IsCompany',    type: 'int',  required: false },
+        ],
+        onRefresh: function(/*event*/) {
+            w2ui.rentalAgrFinder.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrFinder.BID;
+            w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
+            if (app.RentalAgrFinder.RARentablesNames.length == 1) {
+                w2ui.rentalAgrFinder.record.RentableName = app.RentalAgrFinder.RARentablesNames[0];
+            }
+
+        },
+        actions: {
+            save: function () {
+                w2ui.asmEpochForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
+                w2ui.asmEpochForm.record.Rentable = w2ui.rentalAgrFinder.record.RentableName.text;
+                w2ui.asmEpochForm.record.RID = w2ui.rentalAgrFinder.record.RentableName.id;
+                w2ui.asmEpochForm.refresh();
+                w2popup.close();
+                // var errs = w2ui.tcidRUserPicker.validate(true);
+                // if (errs.length > 0) { return; }
+                // console.log('SAVE tcidRUserPicker: TCID = ' + w2ui.tcidRUserPicker.record.TCID + '  DtStart = ' + w2ui.tcidRUserPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRUserPicker.record.DtStop);
+                // saveNewRUser();
             },
         },
-        // INDEX 2
-        { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
-        { field: 'RAID',         type: 'int',  required: true  },
-        { field: 'FirstName',    type: 'text', required: false },
-        { field: 'LastName',     type: 'text', required: false },
-        { field: 'CompanyName',  type: 'text', required: false },
-        { field: 'IsCompany',    type: 'int',  required: false },
-    ],
-    onRefresh: function(/*event*/) {
-        w2ui.rentalAgrFinder.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrFinder.BID;
-        w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
-        if (app.RentalAgrFinder.RARentablesNames.length == 1) {
-            w2ui.rentalAgrFinder.record.RentableName = app.RentalAgrFinder.RARentablesNames[0];
-        }
-
-    },
-    actions: {
-        save: function () {
-            w2ui.asmEpochForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
-            w2ui.asmEpochForm.record.Rentable = w2ui.rentalAgrFinder.record.RentableName.text;
-            w2ui.asmEpochForm.record.RID = w2ui.rentalAgrFinder.record.RentableName.id;
-            w2ui.asmEpochForm.refresh();
-            w2popup.close();
-            // var errs = w2ui.tcidRUserPicker.validate(true);
-            // if (errs.length > 0) { return; }
-            // console.log('SAVE tcidRUserPicker: TCID = ' + w2ui.tcidRUserPicker.record.TCID + '  DtStart = ' + w2ui.tcidRUserPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRUserPicker.record.DtStop);
-            // saveNewRUser();
-        },
-    },
-});
+    });
 }
