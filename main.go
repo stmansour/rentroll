@@ -11,9 +11,11 @@ import (
 	"phonebook/lib"
 	"rentroll/rcsv"
 	"rentroll/rlib"
+	"rentroll/worker"
 	"rentroll/ws"
 	"strings"
 	"time"
+	"tws"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -184,7 +186,9 @@ func main() {
 		rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
 		RunCommandLine(&ctx)
 	} else {
-		initHTTP()
+		tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir) // starts the scheduler in a go routine. only initialize when we're in server mode
+		worker.Init()                             // register Rentroll's TWS workers
+		initHTTP()                                // identify the handlers
 		rlib.Ulog("RentRoll initiating HTTP service on port %d and HTTPS on port %d\n", App.PortRR, App.PortRR+1)
 
 		go http.ListenAndServeTLS(fmt.Sprintf(":%d", App.PortRR+1), App.CertFile, App.KeyFile, nil)

@@ -1099,3 +1099,19 @@ function buildRAFinder(){
         },
     });
 }
+
+function createRentalAgreementForm() {
+    w2ui.raLayout.content('left', w2ui.rentalagrForm);
+    w2ui.raLayout.content('main', w2ui.raLayoutSub1);
+
+    w2ui.raLayoutSub1.content('top', w2ui.rarGrid);
+    w2ui.rarGrid.header = plural(app.sRentable);
+    w2ui.raLayoutSub1.content('main', w2ui.rapGrid);
+    w2ui.rapGrid.header = plural(app.sPayor);
+
+    w2ui.raLayoutSub1.content('preview', w2ui.rauGrid);
+    w2ui.rauGrid.header = plural(app.sUser);
+    w2ui.raLayoutSub1.content('bottom', w2ui.raPetGrid);
+    w2ui.raPetGrid.header = "Pets";
+}
+

@@ -15,7 +15,82 @@ String.prototype.format = function() {
         return typeof args[number] != 'undefined'? args[number] : match;
     });
 };
+
+//---------------------------------------------------------------------------------
+// ChangeBusiness updates the UI to the newly selected business.
+// This routine is indeed used, in spite of what JSHint thinks. It
+// is embedded in a string defining the OnClick handler for a button
+// in the main toolbar.
 // ---------------------------------------------------------------------------------
+function ChangeBusiness() {
+    var bizName = $("select[name=BusinessSelect]").find(":selected").attr("name"),
+        bizVal = $("select[name=BusinessSelect]").val();
+
+    // if same business value then nothing to do
+    if (bizName === app.last.BUD) {
+        return;
+    }
+
+    w2ui.toplayout.content('main', ' ');
+    w2ui.toplayout.hide('right',true);
+    var s = w2ui.sidebarL1;
+    var sel = s.selected;
+    if (sel !== null) {
+        s.unselect(sel);
+    }
+
+    var no_callBack = function() {
+        // revert back to last one
+        $("select[name=BusinessSelect] option[value="+app.last.BID+"]").prop("selected", true);
+        return false;
+    },
+    yes_callBack = function() {
+        w2ui.toplayout.content('main', ' ');
+        w2ui.toplayout.hide('right',true);
+        var s = w2ui.sidebarL1;
+        var sel = s.selected;
+        if (sel !== null) {
+            s.unselect(sel);
+        }
+        w2ui.reportslayout.load('main','/html/blank.html');
+        app.last.report = '';
+        app.last.BUD = bizName;
+        app.last.BID = bizVal;
+        s.collapse('reports');
+        return true;
+    };
+
+    // warn user if active form has been changed
+    form_dirty_alert(yes_callBack, no_callBack);
+}
+
+//---------------------------------------------------------------------------------
+// switchToGrid - changes the main view of the program to a grid with
+//                variable name svc + 'Grid'
+//
+// @params  svc = prefix of grid name
+//
+//---------------------------------------------------------------------------------
+function switchToGrid(svc) {
+    var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
+    var x = getCurrentBusiness();
+    var url = '/v1/' + svc + '/' + x.value;
+    w2ui[grid].url = url;
+    w2ui[grid].last.sel_recid = null; // whenever switch grid, erase last selected record
+    app.last.grid_sel_recid = -1;
+    app.active_grid = grid; // mark active grid in app.active_grid
+    w2ui.toplayout.content('main', w2ui[grid]);
+    w2ui.toplayout.hide('right',true);
+}
+
+//---------------------------------------------------------------------------------
+// opeinInNewTab simply opens a new tab in the browser and load the provided url
+//---------------------------------------------------------------------------------
+function openInNewTab(url) {
+    var win = window.open(url, '_blank');
+    win.focus();
+}
+
 
 //-----------------------------------------------------------------------------
 // getBUDfromBID  - given the BID return the associated BUD. Returns
@@ -1027,125 +1102,6 @@ function formRefreshCallBack(w2frm, id_name, form_header) {
     $(w2frm.box).find("div.w2ui-form-box").height(h);*/
 }
 
-//-----------------------------------------------------------------------------
-// formRecDiffer -  tells that form record has been changed
-// **[copied from w2ui form's getChanges internal function]**
-// @params
-//   record = form's current record
-//   original = form's initial record
-//   result = returned object
-// @return
-//      Object with difference from `record` to `original`
-//-----------------------------------------------------------------------------
-var formRecDiffer = function(record, original, result) {
-    "use strict";
-    for (var i in record) {
-        if (typeof record[i] == "object") {
-            result[i] = formRecDiffer(record[i], original[i] || {}, {});
-            if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
-        } else if ( record[i] !== null && record[i] != original[i] ) {
-            /*** ================================================================
-            || BY DEFAULT, W2UI SETS VALUE OF FIELD TO NULL IF NOTHING IS IN THERE
-            || NOTE: be careful, for form record, <null> and <""> (blank string) both are same
-            || it should not alert user that content has been changed !!!
-            || so, for this, <undefined>, <NaN>, <null>, <""> all are same
-            || NEED TO DO SOMETHING ABOUT THIS
-            || HECK: it only makes sense when record[i] is not NULL (undefined, null, "", NaN)
-            ================================================================ ***/
-            result[i] = record[i];
-        }
-    }
-    return result;
-};
-
-//-----------------------------------------------------------------------------
-// getPersonDetailsByTCID -  returns the person details for given TCID
-// @params
-//   TCID = Transactant ID
-// @return
-//      Object with Transactant record
-//-----------------------------------------------------------------------------
-function getPersonDetailsByTCID(BID, TCID) {
-    "use strict";
-
-    // we need to use this structure to get person details from given TCID
-    var params = {"cmd":"get","recid":0,"name":"transactantForm"},
-        dat = JSON.stringify(params);
-
-    return $.post("/v1/person/"+BID+"/"+TCID, dat);
-}
-
-// form dirty alert confirmation dialog box options
-var form_dirty_alert_options = {
-    msg          : '<p>There are unsaved changes.</p><p>Select OK to exit without saving your changes or Cancel to continue editing.</p>',
-    title        : '',
-    width        : 480,     // width of the dialog
-    height       : 180,     // height of the dialog
-    btn_yes      : {
-        text     : 'OK',   // text for yes button (or yes_text)
-        class    : 'w2ui-btn w2ui-btn-red',      // class for yes button (or yes_class)
-        style    : '',      // style for yes button (or yes_style)
-        callBack : null     // callBack for yes button (or yes_callBack)
-    },
-    btn_no       : {
-        text     : 'Cancel',    // text for no button (or no_text)
-        class    : 'w2ui-btn',      // class for no button (or no_class)
-        style    : '',      // style for no button (or no_style)
-        callBack : null     // callBack for no button (or no_callBack)
-    },
-    callBack     : function(answer) {
-        console.log("common callBack (Yes/No): ", answer);
-    }     // common callBack
-};
-
-//-----------------------------------------------------------------------------
-// form_dirty_alert - alert the user if form content has been changed and he leaves the form at five times as follows
-// 1. When user change the business
-// 2. When he clicks on the sidebar that load something else
-// 3. When closing the form
-// 4. When click on other record
-// 5. When user closing the whole window
-// NOTE: if form is dirty then only alert the user, otherwise always return true;
-// @params
-//   yes callback = what to do if user agree (Yes)
-//   no callback = what to do if user disagree (No)
-//   yes_args = yes callback arguments
-//   no_args = no callback arguments
-// @return: true or false
-//-----------------------------------------------------------------------------
-function form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args) {
-    if (app.form_is_dirty) {
-        w2confirm(form_dirty_alert_options)
-        .yes(function() {
-            if (typeof yes_callBack === "function") {
-                if (Array.isArray(yes_args) && yes_args.length > 0) {
-                    yes_callBack.apply(null, yes_args);
-                } else{
-                    yes_callBack();
-                }
-            }
-        })
-        .no(function() {
-            if (typeof no_callBack === "function") {
-                if (Array.isArray(no_args) && no_args.length > 0) {
-                    no_callBack.apply(null, no_args);
-                } else{
-                    no_callBack();
-                }
-            }
-        });
-    } else {
-        // if form is not dirty then simply execute yes callback which is default action
-        if (typeof yes_callBack === "function") {
-            // Reference: http://odetocode.com/blogs/scott/archive/2007/07/04/function-apply-and-function-call-in-javascript.aspx
-            if (Array.isArray(yes_args) && yes_args.length > 0) {
-                yes_callBack.apply(null, yes_args);
-            } else{
-                yes_callBack();
-            }
-        }
-    }
-}
 
 function number_format(number, decimals, dec_point, thousands_sep) {
     // http://kevin.vanzonneveld.net

@@ -178,91 +178,6 @@ var reverse_confirm_options = {
     callBack     : null     // common callBack
 };
 
-// ChangeBusiness updates the UI to the newly selected business.
-// This routine is indeed used, in spite of what JSHint thinks. It
-// is embedded in a string defining the OnClick handler for a button
-// in the main toolbar.
-function ChangeBusiness() {
-    var bizName = $("select[name=BusinessSelect]").find(":selected").attr("name"),
-        bizVal = $("select[name=BusinessSelect]").val();
-
-    // if same business value then nothing to do
-    if (bizName === app.last.BUD) {
-        return;
-    }
-
-    w2ui.toplayout.content('main', ' ');
-    w2ui.toplayout.hide('right',true);
-    var s = w2ui.sidebarL1;
-    var sel = s.selected;
-    if (sel !== null) {
-        s.unselect(sel);
-    }
-
-    var no_callBack = function() {
-        // revert back to last one
-        $("select[name=BusinessSelect] option[value="+app.last.BID+"]").prop("selected", true);
-        return false;
-    },
-    yes_callBack = function() {
-        w2ui.toplayout.content('main', ' ');
-        w2ui.toplayout.hide('right',true);
-        var s = w2ui.sidebarL1;
-        var sel = s.selected;
-        if (sel !== null) {
-            s.unselect(sel);
-        }
-        w2ui.reportslayout.load('main','/html/blank.html');
-        app.last.report = '';
-        app.last.BUD = bizName;
-        app.last.BID = bizVal;
-        s.collapse('reports');
-        return true;
-    };
-
-    // warn user if active form has been changed
-    form_dirty_alert(yes_callBack, no_callBack);
-}
-
-function switchToGrid(svc) {
-    var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
-    var x = getCurrentBusiness();
-    var url = '/v1/' + svc + '/' + x.value;
-    w2ui[grid].url = url;
-    w2ui[grid].last.sel_recid = null; // whenever switch grid, erase last selected record
-    app.last.grid_sel_recid = -1;
-    app.active_grid = grid; // mark active grid in app.active_grid
-    w2ui.toplayout.content('main', w2ui[grid]);
-    w2ui.toplayout.hide('right',true);
-}
-
-function defineDateFmts() {
-    var month = (new Date()).getMonth() + 1;
-    var year  = (new Date()).getFullYear();
-    // // US Format
-    $('input[type=us-date]').w2field('date', { format: 'm/d/yyy' });
-    $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
-    $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});
-    $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]') });
-    $('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]') });
-    $('input[type=us-time]').w2field('time',  { format: 'h12' });
-    $('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
-
-    // EU Common Format
-    $('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
-    $('input[type=eu-dateA]').w2field('date', { format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year });
-    $('input[type=eu-dateB]').w2field('date', { format: 'd.m.yyyy', blocked: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]});
-    $('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[type=eu-date2]') });
-    $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
-    $('input[type=eu-time]').w2field('time',  { format: 'h24' });
-    $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
-}
-
-function openInNewTab(url) {
-    var win = window.open(url, '_blank');
-    win.focus();
-}
-
 // The reason to load these elements in this way rather than storing them as part of a
 // 'config' variable then passing them into the widget generators is that we need to
 // download the lists first. Making the elements part of a config.* variable would evaluate
@@ -284,7 +199,6 @@ function buildPageElements() {
             { type: 'bottom', size: 20, resizable: false, style: app.stdfmt, content: '&copy; 2015-2017 Accord Interests' }
         ]
     });
-
 
     //------------------------------------------------------------------------
     //          toptoolbar
@@ -349,8 +263,7 @@ function buildPageElements() {
         },
     }));
 
-    buildTopLayout();
-    buildNewsLayout();
+    buildAppLayout();
     buildSidebar();
     buildAllocFundsGrid();
     buildAccountElements();
@@ -370,80 +283,8 @@ function buildPageElements() {
     buildReportElements();
     buildTWSElemets();
 
-    //------------------------------------------------------------------------
-    //          notesPopUp
-    //------------------------------------------------------------------------
-    function notesPopUp() {
-        w2popup.open({
-            width   : 580,
-            height  : 350,
-            title   : 'Notes',
-            body    : '<div class="w2ui-centered" style="line-height: 1.8">'+
-                      '     This is a sample of what the Notes area.'+
-                      '     <br>The focus will not leave popup. <br><br>'+
-                      '     Add Note: <textarea name="comments" type="text" style="width: 385px; height: 80px"></textarea><br>'+
-                       '</div>',
-            buttons : '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'+
-                      '<button class="w2ui-btn" onclick="w2popup.close()">Cancel</button>'
-        });
-    }
-
 }  // buildPageElements
 
-function popupRentalAgrPicker() {
-    var x = getCurrentBusiness();
-    app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []};
-    app.RentalAgrFinder.RARentablesNames = [{id: 0, text:" "}];
-    w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
-    w2ui.rentalAgrFinder.record.TCID = -1;
-    w2ui.rentalAgrFinder.record.RAID = -1;
-    w2ui.rentalAgrFinder.record.PayorName = '';
-    w2ui.rentalAgrFinder.record.IsCompany = -1;
-    w2ui.rentalAgrFinder.record.CompanyName = '';
-    w2ui.rentalAgrFinder.record.FirstName = '';
-    w2ui.rentalAgrFinder.record.LastName = '';
-    w2ui.rentalAgrFinder.refresh();
-
-
-    $().w2popup('open', {
-        title   : 'Find Rental Agreement',
-        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
-        style   : 'padding: 15px 0px 0px 0px',
-        width   : 400,
-        height  : 250,
-        showMax : true,
-        onToggle: function (event) {
-            $(w2ui.rentalAgrFinder.box).hide();
-            event.onComplete = function () {
-                $(w2ui.rentalAgrFinder.box).show();
-                w2ui.rentalAgrFinder.resize();
-            };
-        },
-        onOpen: function (event) {
-            event.onComplete = function () {
-                // specifying an onOpen handler instead would be equivalent to specifying
-                // an onBeforeOpen handler, which would make this code execute too
-                // early and hence not deliver.
-                $('#w2ui-popup #form').w2render('rentalAgrFinder');
-            };
-        }
-    });
-}
-
-function createRentalAgreementForm() {
-    w2ui.raLayout.content('left', w2ui.rentalagrForm);
-    w2ui.raLayout.content('main', w2ui.raLayoutSub1);
-
-    w2ui.raLayoutSub1.content('top', w2ui.rarGrid);
-    w2ui.rarGrid.header = plural(app.sRentable);
-    w2ui.raLayoutSub1.content('main', w2ui.rapGrid);
-    w2ui.rapGrid.header = plural(app.sPayor);
-
-    w2ui.raLayoutSub1.content('preview', w2ui.rauGrid);
-    w2ui.rauGrid.header = plural(app.sUser);
-    w2ui.raLayoutSub1.content('bottom', w2ui.raPetGrid);
-    w2ui.raPetGrid.header = "Pets";
-}
 
 function finishInitialization() {
     defineDateFmts();
@@ -459,54 +300,25 @@ function finishInitialization() {
 $(function () {
     $.get('/v1/uilists/' + app.language + '/' + app.template)
     .done(function(data, textStatus, jqXHR) {
-
         if (data.substring(11,14) == "err") {
             console.log('ERROR: '+data);
         }
-
-        // if status is success then
         if (jqXHR.status == 200) {
             var app_data = JSON.parse(data);
-            // fit all lists, values, maps in app variable
-            for( var key in app_data ) {
+            for( var key in app_data ) {   // fit all lists, values, maps in app variable
                 app[key] = app_data[key];
             }
         } else {
             console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + textStatus);
         }
-
-        // finish initialization
         finishInitialization();
-
     })
     .fail( function() {
         console.log('Error getting /v1/uilists');
     });
 });
 
-// =================================================
-// WINDOW BEFORE UNLOAD EVENT
-// =================================================
-// warn user if active form content has been changed
-// for security reason you can't just popup your custom dialog
-// see the thread: https://stackoverflow.com/questions/30712377/jquery-beforeunload-custom-pop-up-window-for-leaving-a-page
-function form_dirty_alert_window_unload(e) {
-    if (app.form_is_dirty){
-        if(!e) e = window.event;
-
-        //e.cancelBubble is supported by IE - this will kill the bubbling process.
-        e.cancelBubble = true;
-
-        //e.stopPropagation works in Firefox.
-        if (e.stopPropagation) {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-        return "Changes in the form that you made may not be saved.";
-    }
-}
 window.onbeforeunload=form_dirty_alert_window_unload;
-// =================================================
 
 </script>
 

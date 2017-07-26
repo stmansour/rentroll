@@ -1006,9 +1006,6 @@ function buildAssessmentElements() {
             },
         },
     });
-
-
-
 }
 
 function popupAsmRevMode(mode,form) {
@@ -1031,6 +1028,48 @@ function popupAsmRevMode(mode,form) {
         onOpen: function (event) {
             event.onComplete = function () {
                 $('#w2ui-popup #form').w2render('reverseMode');
+            };
+        }
+    });
+}
+
+// popupRentalAgrPicker comes up when the user clicks on the Find... button
+// while creating an assessment. It is used to locate a rental agreement by payor.
+//----------------------------------------------------------------------------------
+function popupRentalAgrPicker() {
+    var x = getCurrentBusiness();
+    app.RentalAgrFinder = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []};
+    app.RentalAgrFinder.RARentablesNames = [{id: 0, text:" "}];
+    w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
+    w2ui.rentalAgrFinder.record.TCID = -1;
+    w2ui.rentalAgrFinder.record.RAID = -1;
+    w2ui.rentalAgrFinder.record.PayorName = '';
+    w2ui.rentalAgrFinder.record.IsCompany = -1;
+    w2ui.rentalAgrFinder.record.CompanyName = '';
+    w2ui.rentalAgrFinder.record.FirstName = '';
+    w2ui.rentalAgrFinder.record.LastName = '';
+    w2ui.rentalAgrFinder.refresh();
+
+    $().w2popup('open', {
+        title   : 'Find Rental Agreement',
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 400,
+        height  : 250,
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.rentalAgrFinder.box).hide();
+            event.onComplete = function () {
+                $(w2ui.rentalAgrFinder.box).show();
+                w2ui.rentalAgrFinder.resize();
+            };
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                // specifying an onOpen handler instead would be equivalent to specifying
+                // an onBeforeOpen handler, which would make this code execute too
+                // early and hence not deliver.
+                $('#w2ui-popup #form').w2render('rentalAgrFinder');
             };
         }
     });

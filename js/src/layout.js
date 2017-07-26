@@ -1,26 +1,9 @@
 /*global
     console
 */
-function buildNewsLayout(){
-    //------------------------------------------------------------------------
-    //          NEWS LAYOUT
-    //------------------------------------------------------------------------
-    $().w2layout({
-        name: 'newsLayout',
-        padding: 0,
-        panels: [
-            { type: 'left', hidden: false, style: app.pstyleNB, size: 20 },
-            { type: 'top', hidden: true },
-            { type: 'main', size: '90%', resizable: true, hidden: false, style: app.pstyleNB, content: 'Hi.  I should load w2ui.newsLayout' },
-            { type: 'preview', hidden: true },
-            { type: 'bottom', hidden: true },
-            { type: 'right', hidden: true }
-        ]
-    });
-}
 
-function buildTopLayout(){
-    //------------------------------------------------------------------------
+function buildAppLayout(){
+     //------------------------------------------------------------------------
     //          toplayout
     //------------------------------------------------------------------------
     w2ui.mainlayout.content('main', $().w2layout({
@@ -49,4 +32,19 @@ function buildTopLayout(){
             };
         },
     }));
+    //------------------------------------------------------------------------
+    //          NEWS LAYOUT
+    //------------------------------------------------------------------------
+    $().w2layout({
+        name: 'newsLayout',
+        padding: 0,
+        panels: [
+            { type: 'left', hidden: false, style: app.pstyleNB, size: 20 },
+            { type: 'top', hidden: true },
+            { type: 'main', size: '90%', resizable: true, hidden: false, style: app.pstyleNB, content: 'Hi.  I should load w2ui.newsLayout' },
+            { type: 'preview', hidden: true },
+            { type: 'bottom', hidden: true },
+            { type: 'right', hidden: true }
+        ]
+    });
 }
