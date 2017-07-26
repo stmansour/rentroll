@@ -15,16 +15,12 @@ import (
 // RAPeopleFormSave is the structure of data we will receive from a UI form save
 type RAPeopleFormSave struct {
 	RAID    int64
+	BID     int64
 	TCID    int64         // the payor's transactant id
 	RID     int64         // same struct type used for adding Users.  RID will be populated here, not RAID
 	DtStart rlib.JSONDate // start date/time for this Payor
 	DtStop  rlib.JSONDate // stop date/time
 	FLAGS   uint64        // 1<<0 is the bit that indicates this payor is a 'guarantor'
-}
-
-// RAPeopleOtherSave is the structure of data we will receive from a UI form save
-type RAPeopleOtherSave struct {
-	BID rlib.W2uiHTMLSelect // Business
 }
 
 // SaveRAPeopleInput is the input data format for a Save command
@@ -33,14 +29,6 @@ type SaveRAPeopleInput struct {
 	Recid    int64            `json:"recid"`
 	FormName string           `json:"name"`
 	Record   RAPeopleFormSave `json:"record"`
-}
-
-// SaveRAPeopleOther is the input data format for the "other" data on the Save command
-type SaveRAPeopleOther struct {
-	Status string            `json:"status"`
-	Recid  int64             `json:"recid"`
-	Name   string            `json:"name"`
-	Record RAPeopleOtherSave `json:"record"`
 }
 
 // DeleteRAPeople is the command structure returned when a Payor is

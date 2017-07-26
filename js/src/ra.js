@@ -55,7 +55,7 @@ function saveNewRUser() {
 function saveNewRARentable() {
     var rec = {
         recid: 0,                                                   // new
-        BUI: w2ui.rentalagrForm.record.BID.text,                         // BID of RID we're editing
+        BUI: w2ui.rentalagrForm.record.BUD.text,                         // BID of RID we're editing
         RAID: w2ui.rentalagrForm.record.RAID,                       // The RAID from the form being edited
         RID: w2ui.ridRentablePicker.record.RID,                     // the selected RID
         RentableName: w2ui.ridRentablePicker.record.RentableName[0].RentableName,   // the name of the rentable
@@ -936,6 +936,10 @@ function buildRAPayorPicker(){
                 saveNewRAPayor();
             },
         },
+        onSubmit: function(target, data){
+            // server request form data
+            getFormSubmitData(data.postData.record);
+        },
     });
 }
 
@@ -989,6 +993,10 @@ function buildRUserPicker(){
                 saveNewRUser();
             },
         },
+        onSubmit: function(target, data){
+            // server request form data
+            getFormSubmitData(data.postData.record);
+        },
     });
 }
 
@@ -1035,6 +1043,10 @@ function buildRentablePicker(){
                 w2popup.close();
                 saveNewRARentable();
             },
+        },
+        onSubmit: function(target, data){
+            // server request form data
+            getFormSubmitData(data.postData.record);
         },
     });
 }

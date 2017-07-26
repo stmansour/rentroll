@@ -142,7 +142,6 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Desc  This service saves a RARentable.  If :RAID exists, it will
 //  @Desc  be updated with the information supplied. All fields must
 //  @Desc  be supplied. If RAID is 0, then a new RARentable is created.
-//	@Input RARentableOtherSave
 //	@Input SaveRARentableInput
 //  @Response SvcStatusResponse
 // wsdoc }
