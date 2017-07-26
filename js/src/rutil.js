@@ -25,7 +25,7 @@ String.prototype.format = function() {
 // @return  the BUD (or empty string if not found)
 //-----------------------------------------------------------------------------
 function getBUDfromBID(BID) {
-    "use strict";
+    // "use strict";
     var BUD = '';
     for (var i=0; i<app.BizMap.length; i++) {
         if (BID == app.BizMap[i].BID) {

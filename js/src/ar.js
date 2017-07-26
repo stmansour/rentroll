@@ -1,3 +1,8 @@
+/*global
+    console, getPostAccounts, formRefreshCallBack
+*/
+
+function buildARElements() {
 //------------------------------------------------------------------------
 //          Account Rules Grid
 //------------------------------------------------------------------------
@@ -178,3 +183,150 @@ $().w2grid({
         form_dirty_alert(yes_callBack, no_callBack, yes_args);
     },
 });
+
+    //------------------------------------------------------------------------
+    //          Account Rules Form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'arsForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: 'Edit Account Rule',
+        url: '/v1/ar',
+        formURL: '/html/formar.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'ARID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', required: true, options: { items: app.businesses }, html: { page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'ARType', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'DebitLID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'CreditLID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'Description', type: 'text', required: false, html: { page: 0, column: 0} },
+            { field: 'DtStart', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'DtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStart', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStop', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
+            { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
+            { field: "CreateTS", required: false, type: 'time', html: { caption: "CreateTS", page: 0, column: 0 } },
+            { field: "CreateBy", required: false, type: 'int', html: { caption: "CreateBy", page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.arsGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
+                    break;
+                }
+            },
+        },
+        onValidate: function(event) {
+            if (this.record.DtStart === '') {
+                event.errors.push({
+                    field: this.get('DtStart'),
+                    error: 'Start date cannot be blank'
+                });
+            }
+            if (this.record.DtStop === '') {
+                event.errors.push({
+                    field: this.get('DtStop'),
+                    error: 'Stop date cannot be blank'
+                });
+            }
+        },
+        actions: {
+            delete: function() {
+                var form = this;
+                w2confirm(delete_confirm_options)
+                .yes(function () {
+                    var tgrid = w2ui.arsGrid;
+                    tgrid.selectNone();
+
+                    var params = {cmd: 'delete', formname: form.name, ARID: form.record.ARID };
+                    var dat = JSON.stringify(params);
+
+                    // delete AR request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        tgrid.render();
+                    })
+                    .fail(function(/*data*/){
+                        console.log("Delete AR failed.");
+                    });
+                })
+                .no(function () {
+                    return;
+                });
+            },
+            save: function () {
+                //var obj = this;
+                var tgrid = w2ui.arsGrid;
+                tgrid.selectNone();
+
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    tgrid.render();
+                });
+            },
+        },
+        onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
+            getFormSubmitData(data.postData.record);
+            // object to value before submit to server
+            data.postData.record.PriorToRAStart = int_to_bool(data.postData.record.PriorToRAStart);
+            data.postData.record.PriorToRAStop = int_to_bool(data.postData.record.PriorToRAStop);
+            console.log(data.postData.record);
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = this,
+                    header = "Edit Account Rule ({0})";
+
+                formRefreshCallBack(f, "ARID", header);
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
+    });
+}
