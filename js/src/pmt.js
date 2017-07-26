@@ -1,3 +1,20 @@
+/*global
+    w2ui, w2confirm, console, plural,setToRAForm, setToForm,
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString,dateMonthFwd,
+    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
+    ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
+    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentType,
+    getBUDfromBID, buildPaymentTypeSelectList,
+    tcidReceiptPayorPickerRender, unallocAmountRemaining,
+    addDateNavToToolbar,dateFromString, getPayorFund, refreshUnallocAmtSummaries,
+    getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer,
+    form_dirty_alert, w2confirm,getRentableTypes,getPersonDetailsByTCID,
+    tcidRUserPickerRender,rentalAgrFinderRender,rentalAgrFinderDropRender,rentalAgrFinderCompare,
+    getAccountsList,getPostAccounts,int_to_bool,app,delete_confirm_options
+*/
+
+function buildPaymentTypeElements() {
+"use strict";
 //------------------------------------------------------------------------
 //          payment types Grid
 //------------------------------------------------------------------------
@@ -115,3 +132,145 @@ $().w2grid({
         form_dirty_alert(yes_callBack, no_callBack, yes_args);
     },
 });
+
+    //------------------------------------------------------------------------
+    //          payment types form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'pmtForm',
+        header: 'Payment Type Detail',
+        url: '/v1/pmts',
+        style: 'border: 0px; background-color: transparent;display: block;',
+        formURL: '/html/formpmt.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 }, hidden: true },
+            { field: 'BUD', type: 'list', options: { items: app.businesses }, required: true, html: { caption: 'BUD', page: 0, column: 0 } },
+            { field: 'PMTID', type: 'int', required: false, html: { caption: 'PMTID', page: 0, column: 0 }, hidden: true },
+            { field: 'Name', type: 'text', required: true, html: { caption: 'Name', page: 0, column: 0 }, sortable: true },
+            { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0 }, sortable: true },
+            { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function(event) {
+                switch(event.target) {
+                    case 'btnClose':
+                        var no_callBack = function() { return false; },
+                            yes_callBack = function() {
+                                w2ui.toplayout.hide('right',true);
+                                w2ui.pmtsGrid.render();
+                            };
+                        form_dirty_alert(yes_callBack, no_callBack);
+                        break;
+                }
+            }
+        },
+        onError: function(event) {
+            console.log(event);
+        },
+        actions: {
+            save: function(/*target, data*/) {
+                var f = this,
+                    tgrid = w2ui.pmtsGrid;
+
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    tgrid.render();
+                });
+            },
+            delete: function() {
+
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.pmtsGrid;
+
+                    tgrid.selectNone();
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.PMTID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+
+                        // update payments list for a business
+                        var x = getCurrentBusiness();
+                        var BID=parseInt(x.value);
+                        var BUD = getBUDfromBID(BID);
+
+                        // remove this from app.pmtTypes[BUD] if successfully removed
+                        var temp_list = [];
+                        app.pmtTypes[BUD].forEach(function(item){
+                            if (item.PMTID != form.record.PMTID) {
+                                temp_list.push({PMTID: item.PMTID, Name: item.Name});
+                            }
+                        });
+                        app.pmtTypes[BUD] = temp_list;
+
+                        w2ui.toplayout.hide('right',true);
+                        tgrid.render();
+                    })
+                    .fail(function(/*data*/){
+                        console.log("Delete Payment failed.");
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = this,
+                    header = "Edit Payment Type ({0})";
+
+                formRefreshCallBack(f, "PMTID", header);
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
+        onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
+        },
+    });
+
+}

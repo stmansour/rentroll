@@ -22,7 +22,7 @@ config.json:
 
 jshint:
 	@touch fail
-	@${COUNTOL} "jshint --extract=always html/*.html html/test/*.html js/rutil.js"
+	@${COUNTOL} "jshint --extract=always html/*.html html/test/*.html js/src/*.js"
 	@rm -rf fail
 
 try: clean rentroll package testdb
