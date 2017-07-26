@@ -1,3 +1,5 @@
+function buildRentableTypeElements() {
+  
 //------------------------------------------------------------------------
 //          rentable types Grid
 //------------------------------------------------------------------------
@@ -161,3 +163,193 @@ $().w2grid({
         form_dirty_alert(yes_callBack, no_callBack, yes_args);
     },
 });
+
+
+    //------------------------------------------------------------------------
+    //          rentable Type Form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'rentableTypeForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: app.sRentableType + ' Detail',
+        url: '/v1/rentabletypes',
+        formURL: '/html/formrt.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'RTID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
+            { field: 'Style', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'RentCycle', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'Proration', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'RMRID', type: 'int', required: true, html: { page: 0, column: 0 } },
+            { field: 'MarketRate', type: 'money', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+            { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+        ],
+        onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.rtGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
+                    break;
+                }
+            },
+        },
+        onValidate: function(event) {
+            if (this.record.ManageToBudget.id === 1 && this.record.MarketRate === 0) {
+                event.errors.push({
+                    field: this.get('MarketRate'),
+                    error: 'MarketRate cannot be blank when Mange To Budget is Yes'
+                });
+            }
+            if (this.record.Style === "") {
+                event.errors.push({
+                    field: this.get('Style'),
+                    error: 'Style cannot be blank'
+                });
+            }
+            if (this.record.Name === "") {
+                event.errors.push({
+                    field: this.get('Name'),
+                    error: 'Name cannot be blank'
+                });
+            }
+        },
+        actions: {
+            save: function () {
+                //var obj = this;
+                var tgrid = w2ui.rtGrid;
+                tgrid.selectNone();
+
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    tgrid.render();
+                });
+            },
+            delete: function() {
+
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.rtGrid;
+                    tgrid.selectNone();
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.RTID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+
+                        w2ui.toplayout.hide('right',true);
+                        tgrid.render();
+                    })
+                    .fail(function(/*data*/){
+                        console.log("Delete Payment failed.");
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+        onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
+            // server request form data
+            getFormSubmitData(data.postData.record);
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = this,
+                    r = f.record,
+                    header = "Edit Rentable Type ({0})";
+
+                // dropdown list items and selected variables
+                var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
+                    manageToBudgetSel = {}, cycleFreqItems = [];
+
+                // select value for rentcycle, proration, gsrpc
+                app.cycleFreq.forEach(function(itemText, itemIndex) {
+                    if (itemIndex == r.RentCycle) {
+                        rentCycleSel = { id: itemIndex, text: itemText };
+                    }
+                    if (itemIndex == r.Proration) {
+                        prorationSel = { id: itemIndex, text: itemText };
+                    }
+                    if (itemIndex == r.GSRPC) {
+                        gsrpcSel = { id: itemIndex, text: itemText };
+                    }
+                    cycleFreqItems.push({ id: itemIndex, text: itemText });
+                });
+
+                // select value for manage to budget
+                app.manageToBudgetList.forEach(function(item) {
+                    if (item.id == r.ManageToBudget) {
+                        manageToBudgetSel = {id: item.id, text: item.text};
+                    }
+                });
+
+                // fill the field with values
+                f.get("RentCycle").options.items = cycleFreqItems;
+                f.get("RentCycle").options.selected = rentCycleSel;
+                f.get("Proration").options.items = cycleFreqItems;
+                f.get("Proration").options.selected = prorationSel;
+                f.get("GSRPC").options.items = cycleFreqItems;
+                f.get("GSRPC").options.selected = gsrpcSel;
+                f.get("ManageToBudget").options.items = app.manageToBudgetList;
+                f.get("ManageToBudget").options.selected = manageToBudgetSel;
+
+                formRefreshCallBack(f, "RTID", header);
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        }
+    });
+
+}

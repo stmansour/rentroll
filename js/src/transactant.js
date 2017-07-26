@@ -1,3 +1,5 @@
+function buildTransactElements() {
+    
 //------------------------------------------------------------------------
 //          transactantsGrid
 //------------------------------------------------------------------------
@@ -161,3 +163,215 @@ $().w2grid({
         form_dirty_alert(yes_callBack, no_callBack, yes_args);
     },
 });
+
+
+    //------------------------------------------------------------------------
+    //          transactantForm
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'transactantForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: app.sTransactant + ' Detail',
+        url: '/v1/person',
+        formURL: '/html/formtc.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'FirstName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'MiddleName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'PreferredName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'PrimaryEmail', type: 'email', required: false, html: { page: 0, column: 0 } },
+            { field: 'TCID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: false, html: { page: 0, column: 0 } },
+            { field: 'NLID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CompanyName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'IsCompany', type: 'list', options: {items: app.companyOrPerson}, required: true, html: { page: 0, column: 0 } },
+            { field: 'SecondaryEmail', type: 'email', required: false, html: { page: 0, column: 0 } },
+            { field: 'WorkPhone', type: 'phone', required: false, html: { page: 0, column: 0 } },
+            { field: 'CellPhone', type: 'phone', required: false, html: { page: 0, column: 0 } },
+            { field: 'Address', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Address2', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'City', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false, html: { page: 0, column: 0 } },
+            { field: 'PostalCode', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Country', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'Website', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'Points', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'DateofBirth', type: 'date', required: false, html: { page: 1, column: 0 } },
+            { field: 'EmergencyContactName', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'EmergencyContactAddress', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'EmergencyContactTelephone', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'EmergencyEmail', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'AlternateAddress', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'EligibleFutureUser', type: 'list', options: {items: app.yesNoList}, required: false, html: { page: 1, column: 0 } },
+            { field: 'Industry', type: 'text', required: false, html: { page: 1, column: 0 } },
+            { field: 'SourceSLSID', type: 'w2int', required: false, html: { page: 1, column: 0 } },
+            { field: 'CreditLimit', type: 'money', required: false, html: {page: 2, column: 0 } },
+            { field: 'TaxpayorID', type: 'text', required: false, html: {page: 2, column: 0 } },
+            { field: 'AccountRep', type: 'text', required: false, html: {page: 2, column: 0 } },
+            { field: 'EligibleFuturePayor', type: 'list', options: {items: app.yesNoList}, required: false, html: {page: 2, column: 0 } },
+            { field: 'EmployerName', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerStreetAddress', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerCity', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerState', type: 'list', options: {items: app.usStateAbbr}, required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerPostalCode', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerEmail', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'EmployerPhone', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'Occupation', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'ApplicationFee', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'DesiredUsageStartDate', type: 'date', required: false, html: {page: 3, column: 0 } },
+            { field: 'RentableTypePreference', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'FLAGS', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'Approver', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'DeclineReasonSLSID', type: 'w2int', required: false, html: {page: 3, column: 0 } },
+            { field: 'OtherPreferences', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'FollowUpDate', type: 'date', required: false, html: {page: 3, column: 0 } },
+            { field: 'CSAgent', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'OutcomeSLSID', type: 'text', required: false, html: {page: 3, column: 0 } },
+            { field: 'FloatingDeposit', type: 'w2float', required: false, html: {page: 3, column: 0 } },
+            { field: 'RAID', type: 'w2int', required: false, html: {page: 3, column: 0 } },
+        ],
+        tabs: [
+            { id: 'tab1', caption: app.sTransactant },
+            { id: 'tab2', caption: app.sUser },
+            { id: 'tab3', caption: app.sPayor },
+            { id: 'tab4', caption: app.sProspect },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                if (event.target == 'btnClose') {
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.transactantsGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
+                }
+                if (event.target == 'btnNotes') {
+                    notesPopUp();
+                }
+            },
+        },
+        onValidate: function (event) {
+            if (this.record.IsCompany.text == 'Person' && this.record.FirstName === '') {
+                event.errors.push({
+                    field: this.get('FirstName'),
+                    error: 'FirstName required when "Person or Company" field is set to Person'
+                });
+            }
+            if (this.record.IsCompany.text == 'Person' && this.record.LastName === '') {
+                event.errors.push({
+                    field: this.get('LastName'),
+                    error: 'LastName required when "Person or Company" field is set to Person'
+                });
+            }
+            if (this.record.IsCompany.text == 'Company' && this.record.CompanyName === '') {
+                event.errors.push({
+                    field: this.get('CompanyName'),
+                    error: 'Company Name required when "Person or Company" field is set to Company'
+                });
+            }
+        },
+        actions: {
+            save: function () {
+                var tgrid = w2ui.transactantsGrid;
+                tgrid.selectNone();
+                console.log('before: tgrid.getSelection() = ' + tgrid.getSelection() );
+                this.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    tgrid.render();
+                });
+            },
+            delete: function(/*target, data*/) {
+                var form = this;
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.transactantsGrid;
+                    tgrid.selectNone();
+                    var params = {cmd: 'delete', formname: form.name, TCID: form.record.TCID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Transactant request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        tgrid.render();
+                    })
+                    .fail(function(/*data*/){
+                        console.log("Delete Transactant failed.");
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = this,
+                    r = f.record,
+                    header="";
+
+                // custom header
+                if (r.TCID) {
+                    if (f.original.IsCompany > 0) {
+                        header = "Edit Transactant - {0} ({1})".format(r.CompanyName, r.TCID);
+                    } else {
+                        header = "Edit Transactant - {0} {1} ({2})".format(r.FirstName, r.LastName, r.TCID);
+                    }
+                } else {
+                    header = "Edit Transactant ({0})".format("new");
+                }
+
+                formRefreshCallBack(f, "TCID", header);
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
+        onSubmit: function(target, data){
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
+            // server request form data
+            getFormSubmitData(data.postData.record);
+        },
+    });
+
+}

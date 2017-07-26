@@ -1,3 +1,20 @@
+/*global
+    w2ui, console, plural,setToRAForm, setToForm,
+    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString,dateMonthFwd,
+    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
+    ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
+    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentType,
+    getBUDfromBID, buildPaymentTypeSelectList,
+    tcidReceiptPayorPickerRender, unallocAmountRemaining,
+    addDateNavToToolbar,dateFromString, getPayorFund, refreshUnallocAmtSummaries,
+    getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer,
+    form_dirty_alert, w2confirm,getRentableTypes,getPersonDetailsByTCID,
+    tcidRUserPickerRender,rentalAgrFinderRender,rentalAgrFinderDropRender,rentalAgrFinderCompare,
+    getAccountsList,getPostAccounts,int_to_bool,app
+*/
+
+function buildDepositoryElements() {
+"use strict";
 //------------------------------------------------------------------------
 //          depository Grid
 //------------------------------------------------------------------------
@@ -46,6 +63,7 @@ $().w2grid({
     },
     onClick: function(event) {
         event.onComplete = function () {
+            var x = 5;
             var yes_args = [this, event.recid],
                 no_args = [this],
                 no_callBack = function(grid) {
@@ -143,3 +161,130 @@ $().w2grid({
         form_dirty_alert(yes_callBack, no_callBack, yes_args);
     },
 });
+
+    //------------------------------------------------------------------------
+    //          depository Form
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'depForm',
+        style: 'border: 0px; background-color: transparent;',
+        header: 'Depository Detail',
+        url: '/v1/dep',
+        formURL: '/html/formdep.html',
+        fields: [
+            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'DEPID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'BUD', type: 'list', required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
+            { field: 'LID', type: 'list', required: true, options: { items: [], selected: {}, maxDropHeight: 200 }, html: { page: 0, column: 0 } },
+            { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
+            { field: 'AccountNo', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+        ],
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+            ],
+            onClick: function (event) {
+                switch(event.target) {
+                case 'btnClose':
+                    var no_callBack = function() { return false; },
+                        yes_callBack = function() {
+                            w2ui.toplayout.hide('right',true);
+                            w2ui.depGrid.render();
+                        };
+                    form_dirty_alert(yes_callBack, no_callBack);
+                    break;
+                }
+            },
+        },
+        actions: {
+            save: function (/*target, data*/) {
+                var f = this,
+                    tgrid = w2ui.depGrid;
+
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    tgrid.render();
+                });
+            },
+            delete: function(/*target, data*/) {
+
+                var form = this;
+
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+
+                    var tgrid = w2ui.depGrid;
+                    tgrid.selectNone();
+
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.DEPID };
+                    var dat = JSON.stringify(params);
+
+                    // delete Depository request
+                    $.post(form.url, dat)
+                    .done(function(data) {
+                        if (data.status != "success") {
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        tgrid.render();
+                    })
+                    .fail(function(/*data*/){
+                        console.log("Delete Depository failed.");
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var f = this,
+                    header = "Edit Depository ({0})";
+
+                formRefreshCallBack(f, "DEPID", header);
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                var diff = formRecDiffer(this.record, app.active_form_original, {});
+                // if diff == {} then make dirty flag as false, else true
+                if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                    app.form_is_dirty = false;
+                } else {
+                    app.form_is_dirty = true;
+                }
+            };
+        },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
+        onSubmit: function(target, data) {
+            delete data.postData.record.LastModTime;
+            delete data.postData.record.LastModBy;
+            delete data.postData.record.CreateTS;
+            delete data.postData.record.CreateBy;
+            // modify form data for server request
+            getFormSubmitData(data.postData.record);
+        },
+    });
+
+}
