@@ -33,9 +33,9 @@ func initRentRoll() {
 func createStartupCtx() DispatchCtx {
 	var ctx DispatchCtx
 	var err error
+
 	ctx.DtStart, err = rlib.StringToDate(App.sStart)
 	if err != nil {
-		fmt.Printf("Invalid start date:  %s\n", App.sStart)
 		os.Exit(1)
 	}
 	ctx.DtStop, err = rlib.StringToDate(App.sStop)

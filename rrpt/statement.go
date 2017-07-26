@@ -27,11 +27,12 @@ type StatementEntry struct {
 
 // StmtEntry describes an entry on a statement
 type StmtEntry struct {
-	t       int   // 1 = assessment, 2 = Receipt, 3 = Initial Balance
-	id      int64 // ASMID if t==1, RCPTID if t==2, n/a if t==3
-	asmtlid int64 // valid only for t==1, the assessments ATypeLID
-	amt     float64
-	dt      time.Time
+	t   int              // 1 = assessment, 2 = Receipt, 3 = Initial Balance
+	id  int64            // ASMID if t==1, RCPTID if t==2, n/a if t==3
+	a   *rlib.Assessment // for type==1, the pointer to the assessment
+	r   *rlib.Receipt    // for type ==2, the pointer to the receipt
+	amt float64
+	dt  time.Time
 }
 
 // GetRentableCountByRentableType returns a structure containing the count of Rentables for each RentableType
@@ -105,10 +106,22 @@ func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []Stm
 			// read the assessment to find out what it was for...
 			a, err := rlib.GetAssessment(se.id)
 			if err != nil {
+				rlib.LogAndPrint("rrpt.GetStatementData: error getting asmid %d: %s\n", se.id, err.Error())
 				return m
 			}
-			se.asmtlid = a.ATypeLID
+			se.a = &a
+		} else if se.t == rlib.JOURNALTYPERCPTID {
+			r := rlib.GetReceipt(se.id)
+			ja := rlib.GetJournalAllocation(n[i].JAID)
+			a, err := rlib.GetAssessment(ja.ASMID)
+			if err != nil {
+				rlib.LogAndPrint("rrpt.GetStatementData: error getting asmid %d: %s\n", ja.ASMID, err.Error())
+				return m
+			}
+			se.a = &a
+			se.r = &r
 		}
+
 		m = append(m, se)
 	}
 	return m
@@ -125,9 +138,9 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 	// table init
 	tbl := getRRTable()
 
-	tbl.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("ID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Description", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Description", 45, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Charge", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Payment", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
@@ -145,20 +158,31 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 	var d = float64(0)                 // debit
 	for i := 0; i < len(m); i++ {
 		tbl.AddRow()
+		descr := ""
+		if m[i].t == 1 || m[i].t == 2 {
+			if m[i].a.ARID > 0 {
+				descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].AR[m[i].a.ARID].Name
+			} else {
+				descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].a.ATypeLID].Name
+			}
+		}
 		switch m[i].t {
 		case 1: // assessments
 			amt := rlib.RoundToCent(m[i].amt)
 			c += amt
 			b += amt
 			tbl.Puts(-1, 1, rlib.IDtoString("ASM", m[i].id))
-			tbl.Puts(-1, 2, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].asmtlid].Name)
+			tbl.Puts(-1, 2, descr)
 			tbl.Putf(-1, 3, amt)
 		case 2: // receipts
 			amt := rlib.RoundToCent(m[i].amt)
 			d += amt
 			b += amt
+			if m[i].a.ASMID > 0 {
+				descr = fmt.Sprintf("%s (%s)", descr, m[i].a.IDtoString())
+			}
 			tbl.Puts(-1, 1, rlib.IDtoString("RCPT", m[i].id))
-			tbl.Puts(-1, 2, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].asmtlid].Name)
+			tbl.Puts(-1, 2, descr)
 			tbl.Putf(-1, 4, amt)
 		case 3: // opening balance
 			tbl.Puts(-1, 2, "Opening Balance")
@@ -178,7 +202,6 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 // RptStatementReportTable is a returns list of table object for all Statement for a RentalAgreement
 func RptStatementReportTable(ri *ReporterInfo) []gotable.Table {
 	var m []gotable.Table
-
 	// init some values
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
