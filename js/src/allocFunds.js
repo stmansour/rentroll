@@ -1,3 +1,7 @@
+/*global
+    refreshUnallocAmtSummaries, unallocAmountRemaining, selectNone, getPayorFund
+*/
+
 function buildAllocFundsGrid() {
     //------------------------------------------------------------------------
     //          allocfundsGrid
@@ -99,7 +103,7 @@ function buildAllocFundsGrid() {
     //------------------------------------------------------------------------------
     //   UNPAID ASSESSMENTS GRID
     //------------------------------------------------------------------------------
-    
+
     $().w2grid({
         name: 'unpaidASMsGrid',
         header: 'Unpaid Assessments',

@@ -1,3 +1,7 @@
+/*global
+    getPostAccounts, formRefreshCallBack
+*/
+
 function buildARElements() {
 //------------------------------------------------------------------------
 //          Account Rules Grid

@@ -1,3 +1,7 @@
+/*global
+    plural, form_dirty_alert, showReport
+
+*/
 function buildSidebar() {
     //------------------------------------------------------------------------
     //          sidebarL1

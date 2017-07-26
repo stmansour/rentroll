@@ -1,5 +1,8 @@
+/*global
+    form_dirty_alert, setToForm, getCurrentBusiness, getBUDfromBID, notesPopUp, formRefreshCallBack, formRecDiffer
+*/
 function buildTransactElements() {
-    
+
 //------------------------------------------------------------------------
 //          transactantsGrid
 //------------------------------------------------------------------------

@@ -46,5 +46,4 @@ function buildTopLayout(){
             };
         },
     }));
-
 }

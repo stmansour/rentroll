@@ -1,3 +1,6 @@
+/*global
+    w2confirm, formRefreshCallBack, form_dirty_alert, formRecDiffer
+*/
 function buildAccountElements() {
 
 //------------------------------------------------------------------------
@@ -164,7 +167,6 @@ $().w2grid({
             form_dirty_alert(yes_callBack, no_callBack, yes_args);
     },
 });
-
 
     //------------------------------------------------------------------------
     //          Account Form

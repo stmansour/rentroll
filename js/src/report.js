@@ -1,3 +1,7 @@
+/*global
+    getCurrentBusiness, parseFloat, popupPDFCustomDimensions, handleDateToolbarAction, dateFromString, dateControlString, showReport, dateControlString
+*/
+
 function exportReportCSV(rptname){
     if (rptname === '') {
         return;

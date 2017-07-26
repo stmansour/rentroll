@@ -1,3 +1,8 @@
+/*global
+    setToForm, setDateControlsInToolbar, getCurrentBusiness, getBUDfromBID, parseInt, buildPaymentTypeSelectList, w2uiDateControlString, setToForm, dateFromString, dateControlString, getPersonDetailsByTCID
+    formRefreshCallBack, getFormSubmitData, form_dirty_alert, buildPaymentTypeSelectList, w2uiDateControlString
+*/
+
 function buildReceiptElements() {
 //------------------------------------------------------------------------
 //          receiptsGrid

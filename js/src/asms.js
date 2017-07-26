@@ -1,3 +1,6 @@
+/*global
+    getCurrentBusiness, getBUDfromBID
+*/
 function buildAssessmentElements() {
     //------------------------------------------------------------------------
     //          asmsGrid
