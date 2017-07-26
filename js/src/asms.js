@@ -1,5 +1,5 @@
 /*global
-    getCurrentBusiness, getBUDfromBID
+    console, getCurrentBusiness, getBUDfromBID
 */
 function buildAssessmentElements() {
     //------------------------------------------------------------------------

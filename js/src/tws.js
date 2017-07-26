@@ -1,3 +1,6 @@
+/*global
+    console
+*/
 function buildTWSElemets(){
 //------------------------------------------------------------------------
 //          twsGrid

@@ -1,5 +1,5 @@
 /*global
-    addDateNavToToolbar
+    console, addDateNavToToolbar
 */
 //------------------------------------------------------------------------
 //          ledger grid

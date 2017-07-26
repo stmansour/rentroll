@@ -1,5 +1,5 @@
 /*global
-    form_dirty_alert, w2confirm, formRefreshCallBack, setToForm, getCurrentBusiness, getBUDfromBID, getFormSubmitData, formRecDiffer
+    console, form_dirty_alert, w2confirm, formRefreshCallBack, setToForm, getCurrentBusiness, getBUDfromBID, getFormSubmitData, formRecDiffer
 */
 function buildRentableTypeElements() {
 

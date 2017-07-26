@@ -1,5 +1,5 @@
 /*global
-    getPostAccounts, formRefreshCallBack
+    console, getPostAccounts, formRefreshCallBack
 */
 
 function buildARElements() {

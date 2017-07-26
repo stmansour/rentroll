@@ -1,5 +1,5 @@
 /*global
-    getCurrentBusiness, parseInt, getBUDfromBID, getRentableTypes, setToForm, form_dirty_alert, getBUDfromBID, w2uiDateControlString, setToForm, form_dirty_alert, getFormSubmitData, formRefreshCallBack
+    console, getCurrentBusiness, parseInt, getBUDfromBID, getRentableTypes, setToForm, form_dirty_alert, getBUDfromBID, w2uiDateControlString, setToForm, form_dirty_alert, getFormSubmitData, formRefreshCallBack
 */
 function buildRentableElements() {
     //------------------------------------------------------------------------

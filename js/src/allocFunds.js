@@ -1,5 +1,5 @@
 /*global
-    refreshUnallocAmtSummaries, unallocAmountRemaining, selectNone, getPayorFund
+    console, refreshUnallocAmtSummaries, unallocAmountRemaining, selectNone, getPayorFund
 */
 
 function buildAllocFundsGrid() {

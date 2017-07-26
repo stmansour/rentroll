@@ -1,5 +1,5 @@
 /*global
-    getBUDfromBID, getCurrentBusiness, parseInt, form_dirty_alert, setToRAForm, w2confirm, formRefreshCallBack, formRecDiffer, getFormSubmitData, getCurrentBusiness, popupRidRentablePicker, calcRarGridContractRent, popupTcidRAPayorPicker, w2uiDateControlString, saveNewRAPayor, saveNewRUser, saveNewRARentable
+    console, getBUDfromBID, getCurrentBusiness, parseInt, form_dirty_alert, setToRAForm, w2confirm, formRefreshCallBack, formRecDiffer, getFormSubmitData, getCurrentBusiness, popupRidRentablePicker, calcRarGridContractRent, popupTcidRAPayorPicker, w2uiDateControlString, saveNewRAPayor, saveNewRUser, saveNewRARentable
 */
 function saveNewRUser() {
     var myRID = -1;
