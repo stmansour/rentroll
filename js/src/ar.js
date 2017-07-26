@@ -1,0 +1,180 @@
+//------------------------------------------------------------------------
+//          Account Rules Grid
+//------------------------------------------------------------------------
+$().w2grid({
+    name: 'arsGrid',
+    url: '/v1/ars',
+    multiSelect: false,
+    show: {
+        toolbar        : true,
+        footer         : true,
+        toolbarAdd     : true,    // indicates if toolbar add new button is visible
+        toolbarDelete  : false,   // indicates if toolbar delete button is visible
+        toolbarSave    : false,   // indicates if toolbar save button is visible
+        selectColumn   : false,
+        expandColumn   : false,
+        toolbarEdit    : false,
+        toolbarSearch  : false,
+        toolbarInput   : false,
+        searchAll      : false,
+        toolbarReload  : false,
+        toolbarColumns : false,
+    },
+    columns: [
+        {field: 'recid',  hidden: true,  caption: 'recid', size: '40px',  sortable: true},
+        {field: 'ARID',   hidden: true,  caption: 'COPID', size: '150px', sortable: true, style: 'text-align: center'},
+        {field: 'BID',    hidden: true,  caption: 'BID',   size: '150px', sortable: true, style: 'text-align: center'},
+        {field: 'Name',   hidden: false, caption: 'Name',  size: '15%',   sortable: true, style: 'text-align: left'},
+        {field: 'ARType', hidden: false, caption: 'ARType',size: '80px',  sortable: true, style: 'text-align: left',
+            render: function (record, index, col_index) {
+                return app.ARTypes[this.getCellValue(index, col_index)];
+            }
+        },
+        {field: 'DebitLID',        hidden: true,  caption: 'DebitLID',   size: '50px', sortable: true},
+        {field: 'DebitLedgerName', hidden: false, caption: 'Debit',      size: '200px',sortable: true, style: 'text-align: left'},
+        {field: 'CreditLID',       hidden: true,  caption: 'CreditLID',  size: '50px', sortable: true},
+        {field: 'CreditLedgerName',hidden: false, caption: 'Credit',     size: '200px',sortable: true, style: 'text-align: left'},
+        {field: 'DtStart',                        caption: 'Start',      size: '80px', sortable: true, style: 'text-align: right'},
+        {field: 'DtStop',                         caption: 'Stop',       size: '80px', sortable: true, style: 'text-align: right'},
+        {field: 'Description',     hidden: false, caption: 'Description',size: '20%',  sortable: true, style: 'text-align: left'},
+    ],
+    onRefresh: function(event) {
+        event.onComplete = function() {
+            if (app.active_grid == this.name) {
+                if (app.new_form_rec) {
+                    this.selectNone();
+                }
+                else{
+                    this.select(app.last.grid_sel_recid);
+                }
+            }
+        };
+    },
+    onClick: function(event) {
+        event.onComplete = function () {
+            var yes_args = [this, event.recid],
+                no_args = [this],
+                no_callBack = function(grid) {
+                    grid.select(app.last.grid_sel_recid);
+                    return false;
+                },
+                yes_callBack = function(grid, recid) {
+                    app.last.grid_sel_recid = parseInt(recid);
+
+                    // keep highlighting current row in any case
+                    grid.select(app.last.grid_sel_recid);
+
+                    // multi select is false
+                    var rec = grid.get(recid),
+                        BUD = getBUDfromBID(rec.BID);
+
+                    // set ARType DropDown list
+                    var artype_selected,
+                        artype_items = [];
+
+                    Object.keys(app.ARTypes).forEach(function(id){
+                        var artype_id = parseInt(id);
+                        if (rec.ARType == artype_id) {
+                            artype_selected = {id: artype_id, text: app.ARTypes[artype_id]};
+                        }
+                        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                    });
+
+                    // get gl account list
+                    getPostAccounts(rec.BID)
+                    .done(function(/*data*/){
+                        // set fields
+                        w2ui.arsForm.get('ARType').options.items=artype_items;
+                        w2ui.arsForm.get('ARType').options.selected=artype_selected;
+                        w2ui.arsForm.get('DebitLID').options.items=app.post_accounts[BUD];
+                        w2ui.arsForm.get('DebitLID').options.selected={id: rec.DebitLID, text: rec.DebitLedgerName};
+                        w2ui.arsForm.get('CreditLID').options.items=app.post_accounts[BUD];
+                        w2ui.arsForm.get('CreditLID').options.selected={id: rec.CreditLID, text: rec.CreditLedgerName};
+                        setToForm('arsForm', '/v1/ar/' + rec.BID + '/' + rec.ARID, 400, true);
+                    })
+                    .fail(function(/*data*/){
+                        console.log("Failed to get glAccountList");
+                    });
+                };
+
+            // alert user if form content has been changed
+            form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+        };
+    },
+    onAdd: function (/*event*/) {
+        var yes_args = [this],
+            no_callBack = function() { return false; },
+            yes_callBack = function(grid) {
+                // first reset grid sel recid
+                app.last.grid_sel_recid = -1;
+                grid.selectNone();
+
+                // Insert an empty record...
+                var x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
+
+                // get latest gl accounts first
+                getPostAccounts(BID)
+                .done(function(data) {
+                    if (data.status != 'success') {
+                        w2ui.arsForm.message(data.message);
+                        w2ui.toplayout.content('right', w2ui.arsForm);
+                        w2ui.toplayout.show('right', true);
+                        w2ui.toplayout.sizeTo('right', 700);
+                        return;
+                    }
+                    else {
+                        // var artype_pre_selected = {id: 0, text: " -- Select AR type -- "};
+                        var artype_items = [];
+                        Object.keys(app.ARTypes).forEach(function(id){
+                            var artype_id = parseInt(id);
+                            artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                        });
+
+                        var post_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
+                        var post_accounts_items = [post_accounts_pre_selected];
+                        post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
+
+                        w2ui.arsForm.get('ARType').options.items = artype_items;
+                        // w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
+                        w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
+                        w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
+                        w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
+                        w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
+                        // w2ui.arsForm.refresh();
+
+                        var y1 = new Date();
+                        var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
+                        var ny = new Date(9999, 11, 31, 0, 0, 0);
+
+                        var record = {
+                            recid: 0,
+                            BID: BID,
+                            BUD: BUD,
+                            ARID: 0,
+                            ARType: 0,
+                            DebitLID: post_accounts_pre_selected,
+                            CreditLID: post_accounts_pre_selected,
+                            Name: '',
+                            Description: '',
+                            DtStart: w2uiDateControlString(y),
+                            DtStop: w2uiDateControlString(ny),
+                            PriorToRAStart: true,
+                            PriorToRAStop: true,
+                        };
+                        w2ui.arsForm.record = record;
+                        w2ui.arsForm.refresh();
+                        setToForm('arsForm', '/v1/ar/' + BID + '/0', 400);
+                    }
+                })
+                .fail( function() {
+                    console.log('unable to get GLAccounts');
+                    return;
+                 });
+            };
+
+        // alert user if form content has been changed
+        form_dirty_alert(yes_callBack, no_callBack, yes_args);
+    },
+});
