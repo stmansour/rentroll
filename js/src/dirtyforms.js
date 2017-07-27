@@ -125,7 +125,6 @@ function form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args) {
 // warn user if active form content has been changed
 // for security reason you can't just popup your custom dialog
 // see the thread: https://stackoverflow.com/questions/30712377/jquery-beforeunload-custom-pop-up-window-for-leaving-a-page
-window.onbeforeunload=form_dirty_alert_window_unload;
 function form_dirty_alert_window_unload(e) {
     if (app.form_is_dirty){
         if(!e) e = window.event;
@@ -141,4 +140,5 @@ function form_dirty_alert_window_unload(e) {
         return "Changes in the form that you made may not be saved.";
     }
 }
+window.onbeforeunload=form_dirty_alert_window_unload;
 // =================================================
