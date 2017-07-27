@@ -1,6 +1,12 @@
 /*global
-    console, getCurrentBusiness, getBUDfromBID
+    console, getCurrentBusiness, getBUDfromBID, app, w2ui, setToForm,
+    form_dirty_alert, w2uiDateControlString, setDateControlsInToolbar,
+    w2popup, addDateNavToToolbar, dateFromString, dateControlString,
+    formRefreshCallBack, formRecDiffer, getFormSubmitData
 */
+
+"use strict";
+
 function buildAssessmentElements() {
     //------------------------------------------------------------------------
     //          asmsGrid
@@ -216,63 +222,6 @@ function buildAssessmentElements() {
     });
 
     addDateNavToToolbar('asms');
-
-    // bind onchange event for date input control for assessments
-    $(document).on("keypress", "input[name=asmsD1]", function(e) {
-        // do not procedd further untill user press the Enter key
-        if (e.which != 13) {
-            return;
-        }
-        var xd1 = document.getElementsByName('asmsD1')[0].value;
-        var xd2 = document.getElementsByName('asmsD2')[0].value;
-        var d1 = dateFromString(xd1);
-        var d2 = dateFromString(xd2);
-        // check that it is valid or not
-        if (isNaN(Date.parse(xd1))) {
-            return;
-        }
-        // check that year is not behind 2000
-        if (d1.getFullYear() < 2000) {
-            return;
-        }
-        // check that from date does not have value greater then To date
-        if (d1.getTime() >= d2.getTime()) {
-            d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
-        }
-        app.D1 = dateControlString(d1);
-        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.asmsGrid.load(w2ui.asmsGrid.url, function() {
-            document.getElementsByName('asmsD1')[0].focus();
-            w2ui.asmsGrid.refresh();
-        });
-    }).on("keypress", "input[name=asmsD2]", function(e) {
-        // do not procedd further untill user press the Enter key
-        if (e.which != 13) {
-            return;
-        }
-        var xd1 = document.getElementsByName('asmsD1')[0].value;
-        var xd2 = document.getElementsByName('asmsD2')[0].value;
-        var d1 = dateFromString(xd1);
-        var d2 = dateFromString(xd2);
-        // check that it is valid or not
-        if (isNaN(Date.parse(xd2))) {
-            return;
-        }
-        // check that year is not behind 2000
-        if (d2.getFullYear() < 2000) {
-            return;
-        }
-        // check that from date does not have value greater then To date
-        if (d2.getTime() <= d1.getTime()) {
-            d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000); //one day forward from From date
-        }
-        app.D2 = dateControlString(d2);
-        w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        w2ui.asmsGrid.load(w2ui.asmsGrid.url, function() {
-            document.getElementsByName('asmsD2')[0].focus();
-            w2ui.asmsGrid.refresh();
-        });
-    });
 
     //---------------------------------------------------------------------------------
     //          asmEpochForm  -  assessment epoch - this is for recurring assessments
@@ -995,7 +944,7 @@ function buildAssessmentElements() {
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    tgrid.render();
+                    w2ui.asmsGrid.render();
                 })
                 .fail(function(/*data*/){
                     //console.log("Reverse Assessment instance failed.");

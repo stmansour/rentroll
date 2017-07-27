@@ -5,7 +5,7 @@ BINDIR=${TOP}/tmp/rentroll
 js:
 	@touch fail
 	grunt clean
-	grunt jshint
+	# grunt jshint
 	grunt
 	mkdir -p ./../temp
 	grunt qunit

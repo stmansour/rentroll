@@ -25,7 +25,9 @@ jshint:
 	@${COUNTOL} "jshint --extract=always html/*.html html/test/*.html js/src/*.js"
 	@rm -rf fail
 
-try: clean rentroll package testdb
+try: build testdb
+
+build: clean rentroll package
 
 testdb:
 	cd test/ws;mysql --no-defaults rentroll < restore.sql

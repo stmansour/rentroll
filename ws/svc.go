@@ -165,6 +165,8 @@ var Svcs = []ServiceHandler{
 	{"rt", SvcHandlerRentableType, true},
 	{"rtlist", SvcRentableTypesTD, true},
 	{"ruser", SvcRUser, true},
+	{"stmt", SvcStatement, true},
+	{"stmtDetail", SvcStatementDetail, true},
 	{"transactants", SvcSearchHandlerTransactants, true},
 	{"transactantstd", SvcTransactantTypeDown, true},
 	{"tws", SvcTWS, true},
@@ -206,6 +208,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
 	pathElements := strings.Split(ss[0], "/")
 	d.Service = pathElements[1]
+	rlib.Console("pathElements:  len = %d, val = %v\n", len(pathElements), pathElements)
 	if d.Service != "uilists" && len(pathElements) >= 3 {
 		d.BID, err = getBIDfromBUI(pathElements[2])
 		if err != nil {
@@ -380,8 +383,8 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		SvcGridErrorReturn(w, e, funcname)
 		return e
 	}
-	fmt.Printf("\t- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
-	fmt.Printf("\thtmlData = %s\n", htmlData)
+	rlib.Console("\t- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
+	rlib.Console("\thtmlData = %s\n", htmlData)
 	if len(htmlData) == 0 {
 		d.wsSearchReq.Cmd = "?"
 		return nil
@@ -392,7 +395,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		SvcGridErrorReturn(w, e, funcname)
 		return e
 	}
-	fmt.Printf("\tUnescaped htmlData = %s\n", u)
+	rlib.Console("\tUnescaped htmlData = %s\n", u)
 
 	u = strings.TrimPrefix(u, "request=") // strip off "request=" if it is present
 	d.data = u
@@ -415,14 +418,14 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		SvcGridErrorReturn(w, e, funcname)
 		return e
 	}
-	fmt.Printf("Unescaped query = %s\n", s)
+	rlib.Console("Unescaped query = %s\n", s)
 	w2uiPrefix := "request="
 	n := strings.Index(s, w2uiPrefix)
-	fmt.Printf("n = %d\n", n)
+	rlib.Console("n = %d\n", n)
 	if n > 0 {
-		fmt.Printf("Will process as Typedown\n")
+		rlib.Console("Will process as Typedown\n")
 		d.data = s[n+len(w2uiPrefix):]
-		fmt.Printf("%s: will unmarshal: %s\n", funcname, d.data)
+		rlib.Console("%s: will unmarshal: %s\n", funcname, d.data)
 		if err = json.Unmarshal([]byte(d.data), &d.wsTypeDownReq); err != nil {
 			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 			SvcGridErrorReturn(w, e, funcname)
@@ -430,50 +433,50 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		}
 		d.wsSearchReq.Cmd = "typedown"
 	} else {
-		fmt.Printf("Will process as web search command\n")
+		rlib.Console("Will process as web search command\n")
 		d.wsSearchReq.Cmd = r.URL.Query().Get("cmd")
 	}
 	return nil
 }
 
 func showRequestHeaders(r *http.Request) {
-	fmt.Printf("Headers:\n")
+	rlib.Console("Headers:\n")
 	for k, v := range r.Header {
-		fmt.Printf("\t%s: ", k)
+		rlib.Console("\t%s: ", k)
 		for i := 0; i < len(v); i++ {
-			fmt.Printf("%q  ", v[i])
+			rlib.Console("%q  ", v[i])
 		}
-		fmt.Printf("\n")
+		rlib.Console("\n")
 	}
 }
 
 func showWebRequest(d *ServiceData) {
 	if d.wsSearchReq.Cmd == "typedown" {
-		fmt.Printf("Typedown:\n")
-		fmt.Printf("\tSearch  = %q\n", d.wsTypeDownReq.Search)
-		fmt.Printf("\tMax     = %d\n", d.wsTypeDownReq.Max)
+		rlib.Console("Typedown:\n")
+		rlib.Console("\tSearch  = %q\n", d.wsTypeDownReq.Search)
+		rlib.Console("\tMax     = %d\n", d.wsTypeDownReq.Max)
 	} else {
-		fmt.Printf("\tSearchReq:\n")
-		fmt.Printf("\t\tCmd           = %s\n", d.wsSearchReq.Cmd)
-		fmt.Printf("\t\tLimit         = %d\n", d.wsSearchReq.Limit)
-		fmt.Printf("\t\tOffset        = %d\n", d.wsSearchReq.Offset)
-		fmt.Printf("\t\tsearchLogic   = %s\n", d.wsSearchReq.SearchLogic)
-		fmt.Printf("\t\tsearchDtStart = %s\n", time.Time(d.wsSearchReq.SearchDtStart).Format(rlib.RRDATEFMT4))
-		fmt.Printf("\t\tsearchDtStop  = %s\n", time.Time(d.wsSearchReq.SearchDtStop).Format(rlib.RRDATEFMT4))
+		rlib.Console("\tSearchReq:\n")
+		rlib.Console("\t\tCmd           = %s\n", d.wsSearchReq.Cmd)
+		rlib.Console("\t\tLimit         = %d\n", d.wsSearchReq.Limit)
+		rlib.Console("\t\tOffset        = %d\n", d.wsSearchReq.Offset)
+		rlib.Console("\t\tsearchLogic   = %s\n", d.wsSearchReq.SearchLogic)
+		rlib.Console("\t\tsearchDtStart = %s\n", time.Time(d.wsSearchReq.SearchDtStart).Format(rlib.RRDATEFMT4))
+		rlib.Console("\t\tsearchDtStop  = %s\n", time.Time(d.wsSearchReq.SearchDtStop).Format(rlib.RRDATEFMT4))
 		for i := 0; i < len(d.wsSearchReq.Search); i++ {
-			fmt.Printf("\t\tsearch[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.wsSearchReq.Search[i].Field, d.wsSearchReq.Search[i].Type, d.wsSearchReq.Search[i].Value, d.wsSearchReq.Search[i].Operator)
+			rlib.Console("\t\tsearch[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.wsSearchReq.Search[i].Field, d.wsSearchReq.Search[i].Type, d.wsSearchReq.Search[i].Value, d.wsSearchReq.Search[i].Operator)
 		}
 		for i := 0; i < len(d.wsSearchReq.Sort); i++ {
-			fmt.Printf("\t\tsort[%d] - Field = %s,  Direction = %s\n", i, d.wsSearchReq.Sort[i].Field, d.wsSearchReq.Sort[i].Direction)
+			rlib.Console("\t\tsort[%d] - Field = %s,  Direction = %s\n", i, d.wsSearchReq.Sort[i].Field, d.wsSearchReq.Sort[i].Direction)
 		}
 	}
 }
 
 func svcDebugTxn(funcname string, r *http.Request) {
-	fmt.Printf("\n%s\n", rlib.Mkstr(80, '-'))
-	fmt.Printf("URL:      %s\n", r.URL.String())
-	fmt.Printf("METHOD:   %s\n", r.Method)
-	fmt.Printf("Handler:  %s\n", funcname)
+	rlib.Console("\n%s\n", rlib.Mkstr(80, '-'))
+	rlib.Console("URL:      %s\n", r.URL.String())
+	rlib.Console("METHOD:   %s\n", r.Method)
+	rlib.Console("Handler:  %s\n", funcname)
 }
 
 func svcDebugURL(r *http.Request, d *ServiceData) {
@@ -484,16 +487,16 @@ func svcDebugURL(r *http.Request, d *ServiceData) {
 	//-----------------------------------------------------------------------
 	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
 	pathElements := strings.Split(ss[0], "/")
-	fmt.Printf("\t%s\n", r.URL.String()) // print before we strip it off
+	rlib.Console("\t%s\n", r.URL.String()) // print before we strip it off
 	for i := 0; i < len(pathElements); i++ {
-		fmt.Printf("\t\t%d. %s\n", i, pathElements[i])
+		rlib.Console("\t\t%d. %s\n", i, pathElements[i])
 	}
-	fmt.Printf("BUSINESS: %d\n", d.BID)
-	fmt.Printf("ID:       %d\n", d.ID)
+	rlib.Console("BUSINESS: %d\n", d.BID)
+	rlib.Console("ID:       %d\n", d.ID)
 }
 
 func svcDebugTxnEnd() {
-	fmt.Printf("END\n")
+	rlib.Console("END\n")
 }
 
 // SvcWriteResponse finishes the transaction with the W2UI client
@@ -511,7 +514,7 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 // SvcWrite is a general write routine for service calls... it is a bottleneck
 // where we can place debug statements as needed.
 func SvcWrite(w http.ResponseWriter, b []byte) {
-	fmt.Printf("first 300 chars of response: %-300.300s\n", string(b))
+	rlib.Console("first 300 chars of response: %-300.300s\n", string(b))
 	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }

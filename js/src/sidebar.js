@@ -25,14 +25,14 @@ function buildSidebar() {
                         { id: 'assignrnt',    text: 'Assign A ' + app.sRentable,     icon: 'fa fa-check-square-o' },
                         { id: 'movein',       text: app.sTransactant + ' Arrival',   icon: 'fa fa-sign-in' },
                         { id: 'moveout',      text: app.sTransactant + ' Departure', icon: 'fa fa-sign-out' },
-                        { id: 'rentalagrs',   text: 'Add/Modify Agreements',         icon: 'fa fa-certificate', hint: 'Add/Modify Agreements' },
+                        { id: 'rentalagrs',   text: 'Rental Agreements',             icon: 'fa fa-certificate', hint: 'Rental Agreements' },
                         { id: 'updatera',     text: 'Extend ' + app.sRentalAgreement,icon: 'fa fa-pencil' },
                 ]
             },
-            { id: 'collections', text: 'Collections', img: 'icon-folder', expanded: false, group: true,
+            { id: 'collections', text: 'Collections', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
                         { id: 'dlnq',         text: 'Delinquency Analysis',          icon: 'fa fa-pie-chart',   hint: 'Delinquency Analysis' },
-                        { id: 'stmt',         text: 'Statements',                    icon: 'fa fa-file-o',      hint: 'Statements' },
+                        { id: 'stmt',         text: 'Statements',                    icon: 'fa fa-star-half-o', hint: 'Statements' },
                         { id: 'prepnotice',   text: 'Prepare Notices',               icon: 'fa fa-file-text-o', hint: 'Prepare Notices' },
                 ]
             },
@@ -134,6 +134,7 @@ function buildSidebar() {
                     case 'ars':
                     case 'tws':
                     case 'ledgers':
+                    case 'stmt':
                     case 'allocfunds':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         switchToGrid(target);

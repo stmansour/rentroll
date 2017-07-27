@@ -27,12 +27,12 @@ type StatementEntry struct {
 
 // StmtEntry describes an entry on a statement
 type StmtEntry struct {
-	t   int              // 1 = assessment, 2 = Receipt, 3 = Initial Balance
-	id  int64            // ASMID if t==1, RCPTID if t==2, n/a if t==3
-	a   *rlib.Assessment // for type==1, the pointer to the assessment
-	r   *rlib.Receipt    // for type ==2, the pointer to the receipt
-	amt float64
-	dt  time.Time
+	T   int              // 1 = assessment, 2 = Receipt, 3 = Initial Balance
+	ID  int64            // ASMID if t==1, RCPTID if t==2, n/a if t==3
+	A   *rlib.Assessment // for type==1, the pointer to the assessment
+	R   *rlib.Receipt    // for type ==2, the pointer to the receipt
+	Amt float64
+	Dt  time.Time
 }
 
 // GetRentableCountByRentableType returns a structure containing the count of Rentables for each RentableType
@@ -85,11 +85,11 @@ func temporaryGetAcctsRcv(bid int64) int64 {
 }
 
 // GetStatementData returns an array of StatementEntries for building a statement
-func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []StmtEntry {
+func GetStatementData(bid int64, raid int64, d1, d2 *time.Time) []StmtEntry {
 	var m []StmtEntry
-	lid := temporaryGetAcctsRcv(xbiz.P.BID)
-	bal := rlib.GetRAAccountBalance(xbiz.P.BID, lid, raid, d1)
-	var initBal = StmtEntry{amt: bal, t: 3, dt: *d1}
+	lid := temporaryGetAcctsRcv(bid)
+	bal := rlib.GetRAAccountBalance(bid, lid, raid, d1)
+	var initBal = StmtEntry{Amt: bal, T: 3, Dt: *d1}
 	m = append(m, initBal)
 	n, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, lid)
 	if err != nil {
@@ -97,29 +97,29 @@ func GetStatementData(xbiz *rlib.XBusiness, raid int64, d1, d2 *time.Time) []Stm
 	}
 	for i := 0; i < len(n); i++ {
 		var se StmtEntry
-		se.amt = n[i].Amount
-		se.dt = n[i].Dt
+		se.Amt = n[i].Amount
+		se.Dt = n[i].Dt
 		j := rlib.GetJournal(n[i].JID)
-		se.t = int(j.Type)
-		se.id = j.ID
-		if se.t == rlib.JOURNALTYPEASMID {
+		se.T = int(j.Type)
+		se.ID = j.ID
+		if se.T == rlib.JOURNALTYPEASMID {
 			// read the assessment to find out what it was for...
-			a, err := rlib.GetAssessment(se.id)
+			a, err := rlib.GetAssessment(se.ID)
 			if err != nil {
-				rlib.LogAndPrint("rrpt.GetStatementData: error getting asmid %d: %s\n", se.id, err.Error())
+				rlib.LogAndPrint("rrpt.GetStatementData: error getting asmid %d: %s\n", se.ID, err.Error())
 				return m
 			}
-			se.a = &a
-		} else if se.t == rlib.JOURNALTYPERCPTID {
-			r := rlib.GetReceipt(se.id)
+			se.A = &a
+		} else if se.T == rlib.JOURNALTYPERCPTID {
+			r := rlib.GetReceipt(se.ID)
 			ja := rlib.GetJournalAllocation(n[i].JAID)
 			a, err := rlib.GetAssessment(ja.ASMID)
 			if err != nil {
 				rlib.LogAndPrint("rrpt.GetStatementData: error getting asmid %d: %s\n", ja.ASMID, err.Error())
 				return m
 			}
-			se.a = &a
-			se.r = &r
+			se.A = &a
+			se.R = &r
 		}
 
 		m = append(m, se)
@@ -152,49 +152,49 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 		return tbl
 	}
 
-	m := GetStatementData(ri.Xbiz, ra.RAID, &ri.D1, &ri.D2)
-	var b = rlib.RoundToCent(m[0].amt) // element 0 is always the account balance
+	m := GetStatementData(ri.Xbiz.P.BID, ra.RAID, &ri.D1, &ri.D2)
+	var b = rlib.RoundToCent(m[0].Amt) // element 0 is always the account balance
 	var c = float64(0)                 // credit
 	var d = float64(0)                 // debit
 	for i := 0; i < len(m); i++ {
 		tbl.AddRow()
 		descr := ""
-		if m[i].t == 1 || m[i].t == 2 {
-			if m[i].a.ARID > 0 {
-				descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].AR[m[i].a.ARID].Name
+		if m[i].T == 1 || m[i].T == 2 {
+			if m[i].A.ARID > 0 {
+				descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].AR[m[i].A.ARID].Name
 			} else {
-				descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].a.ATypeLID].Name
+				descr = rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[m[i].A.ATypeLID].Name
 			}
 		}
-		switch m[i].t {
+		switch m[i].T {
 		case 1: // assessments
-			amt := rlib.RoundToCent(m[i].amt)
+			amt := rlib.RoundToCent(m[i].Amt)
 			c += amt
 			b += amt
-			tbl.Puts(-1, 1, rlib.IDtoString("ASM", m[i].id))
+			tbl.Puts(-1, 1, rlib.IDtoString("ASM", m[i].ID))
 			tbl.Puts(-1, 2, descr)
 			tbl.Putf(-1, 3, amt)
 		case 2: // receipts
-			amt := rlib.RoundToCent(m[i].amt)
+			amt := rlib.RoundToCent(m[i].Amt)
 			d += amt
 			b += amt
-			if m[i].a.ASMID > 0 {
-				descr = fmt.Sprintf("%s (%s)", descr, m[i].a.IDtoString())
+			if m[i].A.ASMID > 0 {
+				descr = fmt.Sprintf("%s (%s)", descr, m[i].A.IDtoString())
 			}
-			tbl.Puts(-1, 1, rlib.IDtoString("RCPT", m[i].id))
+			tbl.Puts(-1, 1, rlib.IDtoString("RCPT", m[i].ID))
 			tbl.Puts(-1, 2, descr)
 			tbl.Putf(-1, 4, amt)
 		case 3: // opening balance
 			tbl.Puts(-1, 2, "Opening Balance")
 		}
-		tbl.Putd(-1, 0, m[i].dt)
+		tbl.Putd(-1, 0, m[i].Dt)
 		tbl.Putf(-1, 5, b)
 	}
 	tbl.AddLineAfter(tbl.RowCount() - 1)
 	tbl.AddRow()
 	tbl.Putf(-1, 3, c)
 	tbl.Putf(-1, 4, d)
-	tbl.Putf(-1, 5, c+d+m[0].amt)
+	tbl.Putf(-1, 5, c+d+m[0].Amt)
 
 	return tbl
 }
