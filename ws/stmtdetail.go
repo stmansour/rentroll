@@ -41,7 +41,30 @@ type StmtDetailResponse struct {
 // wsdoc }
 func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData) {
 	funcname := "SvcStatementDetails"
+	rlib.Console("Entered %s\n", funcname)
 	var g StmtDetailResponse
+	var xbiz rlib.XBusiness
+
+	//
+	// UGH!
+	//=======================================================================
+	rlib.InitBizInternals(sd.BID, &xbiz)
+	rlib.Console("sd.BID = %d\n", sd.BID)
+	_, ok := rlib.RRdb.BizTypes[sd.BID]
+	if !ok {
+		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d]", sd.BID)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	_, ok = rlib.RRdb.BizTypes[sd.BID].GLAccounts[1]
+	if !ok {
+		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d].GLAccounts", sd.BID)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	//=======================================================================
+	// UGH!
+
 	d1 := time.Now()
 	d2 := d1.AddDate(0, 1, 0)
 	m := rrpt.GetStatementData(sd.BID, sd.ID, &d1, &d2)

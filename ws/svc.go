@@ -208,7 +208,6 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
 	pathElements := strings.Split(ss[0], "/")
 	d.Service = pathElements[1]
-	rlib.Console("pathElements:  len = %d, val = %v\n", len(pathElements), pathElements)
 	if d.Service != "uilists" && len(pathElements) >= 3 {
 		d.BID, err = getBIDfromBUI(pathElements[2])
 		if err != nil {
