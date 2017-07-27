@@ -69,14 +69,38 @@ function setDateControlsInToolbar(prefix) {
 // @return  an array of fields that can be passed into toolbar.add()
 //-----------------------------------------------------------------------------
 function genDateRangeNavigator(prefix) {
-    var html1 = '<div style="padding: 0px 5px;">From: <input type="date" name="' + prefix + 'D1"></div>';
-    var html2 = '<div style="padding: 0px 5px;">To: <input type="date" name="' + prefix + 'D2">' + '</div>';
+    var html1 = '<div class="w2ui-field" style="padding: 0px 5px;">From: <input type="from-date" id="from-date" name="' + prefix + 'D1"></div>';
+    var html2 = '<div clasps="w2ui-field" style="padding: 0px 5px;">To: <input type="to-date" id="to-date" name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
         { type: 'button', id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
         { type: 'button', id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' },
-        { type: 'html', id: 'D1', html: function() {return html1; } },
+        { type: 'html', id: 'D1', html: function() {return html1; },
+        onRefresh: function(event) {
+               if(event.target == 'D1'){
+                   console.log('Event type: '+ event.type + ' TARGET: '+ event.target, event);
+
+                   // w2field in toolbar must be initialized during refresh
+                   // see: https://github.com/vitmalina/w2ui/issues/886
+                   event.onComplete = function(ev){
+                       $("#from-date").w2field('date', {format: 'm/d/yyyy', end: dateTodayStr()});
+                   };
+               }
+            }
+        },
         { type: 'button', id: 'today', icon: 'fa fa-circle-o', tooltip: 'present month' },
-        { type: 'html', id: 'D2', html: function() {return html2; } },
+        { type: 'html', id: 'D2', html: function() {return html2; },
+        onRefresh: function(event) {
+               if(event.target == 'D2'){
+                   console.log('Event type: '+ event.type + ' TARGET: '+ event.target, event);
+
+                   // w2field in toolbar must be initialized during refresh
+                   // see: https://github.com/vitmalina/w2ui/issues/886
+                   event.onComplete = function(ev){
+                       $("#to-date").w2field('date', {format: 'm/d/yyyy', end: dateTodayStr(), start: $('input[type=from-date]')});
+                   };
+               }
+            }
+        },
         { type: 'button', id: 'dayfwd', icon: 'fa fa-chevron-circle-right', tooltip: 'day forward' },
         { type: 'button', id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
     ];
