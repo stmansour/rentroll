@@ -69,7 +69,6 @@ function setDateControlsInToolbar(prefix) {
 // @return  an array of fields that can be passed into toolbar.add()
 //-----------------------------------------------------------------------------
 function genDateRangeNavigator(prefix) {
-    "use strict";
     var html1 = '<div style="padding: 0px 5px;">From: <input type="date" name="' + prefix + 'D1"></div>';
     var html2 = '<div style="padding: 0px 5px;">To: <input type="date" name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
