@@ -1,0 +1,18 @@
+{
+    "records": [
+        {
+            "AsmtAmount": 0,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": -4000,
+            "Descr": "Opening Balance",
+            "Dt": "7/26/2017",
+            "ID": "",
+            "RAID": 5,
+            "RcptAmount": 0,
+            "recid": 0
+        }
+    ],
+    "status": "success",
+    "total": 1
+}
