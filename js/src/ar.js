@@ -1,5 +1,4 @@
 "use strict";
-
 function buildARElements() {
 //------------------------------------------------------------------------
 //          Account Rules Grid

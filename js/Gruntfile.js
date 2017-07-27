@@ -28,6 +28,9 @@ module.exports = function(grunt) {
 
     // configure jshint to validate js files -----------------------------------
     jshint: {
+      options:{
+          jshintrc: './../.jshintrc'
+      },
       all: ['Grunfile.js', '<%= distInput %>']
     },
 

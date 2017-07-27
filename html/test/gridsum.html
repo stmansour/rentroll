@@ -12,22 +12,15 @@
 <p >w2ui.grid.summary[0].amount = <span id="gridtotal">$0.00</span></p>
 <button class="w2ui-btn" onclick="updateTotal();">Call updateTotal()</button>
 <script>
-/*global
-    w2ui, console, plural, monthBack, monthFwd, dayBack, dayFwd, setToRAForm, setToForm,
-    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString, dateMonthFwd,
-    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
-    ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
-*/
-
+"use strict";
 /*globals $:false */
 
 $(function() {
-    "use strict";
     $('#grid').w2grid({
     name: 'grid',
     columns: [
         {field: 'recid', caption: 'recid', size: '50px', sortable: true, attr: 'align=center'},
-        {field: 'lname', caption: 'Last Name', size: '150px', sortable: true }, 
+        {field: 'lname', caption: 'Last Name', size: '150px', sortable: true },
         {field: 'amount', caption: 'Amount', size: '100px', render: 'money', editable: {type: 'money'}},
      ],
     records: [
@@ -38,7 +31,7 @@ $(function() {
     ],
     onRender: function(event) {
       var obj = this;
-      event.done(function() {updateTotal(obj); 
+      event.done(function() {updateTotal(obj);
       });
     },
     onChange: function(event) {
@@ -46,12 +39,11 @@ $(function() {
       event.done(function() {
         updateTotal(obj);
       });
-    },        
+    },
   });
 });
 
 function updateTotal(grid) {
-    "use strict";
     grid = w2ui.grid || grid;
     var chgs = grid.getChanges();
     var amts = [];

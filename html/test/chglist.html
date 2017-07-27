@@ -12,25 +12,24 @@
 <div id="form" style="width: 750px;"></div>
 
 <script type="text/javascript">
+"use strict";
 $(function () {
-    "use strict";
     $.get("/v1/uilists/",HandleData);
 });
 
 function HandleData(data,status) {
-    "use strict";
     var app = {};
     if (status == "success") {
         /* jshint ignore:start */
         eval(data);
         /* jshint ignore:end */
     }
-    
-    $('#form').w2form({ 
+
+    $('#form').w2form({
         name     : 'form',
         url      : 'server/post',
         header   : 'Field Types',
-        // formURL  : 'data/form.html', 
+        // formURL  : 'data/form.html',
         toolbar: {
             items: [
                 { id: 'btnChangeList', type: 'button', caption: 'Change List', img: 'icon-folder' },
@@ -60,9 +59,9 @@ function HandleData(data,status) {
             { field: 'field_int', type: 'int', required: true },
             { field: 'field_float', type: 'float', required: true },
             { field: 'field_date', type: 'date' },
-            { field: 'field_list', type: 'list', required: true, 
+            { field: 'field_list', type: 'list', required: true,
                 options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-            { field: 'field_enum', type: 'enum', required: true, 
+            { field: 'field_enum', type: 'enum', required: true,
                 options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
             { field: 'field_textarea', type: 'text'},
             { field: 'yesnolist', type: 'select', required: false, options: {items: app.yesNoList} },
@@ -76,7 +75,7 @@ function HandleData(data,status) {
             },
             save: function () {
                 var obj = this;
-                this.save({}, function (data) { 
+                this.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
