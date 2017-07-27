@@ -1,5 +1,5 @@
 /*global
-    app, console, w2ui, form_dirty_alert, addDateNavToToolbar, dateFromString, 
+    app, console, w2ui, form_dirty_alert, addDateNavToToolbar, dateFromString,
     dateControlString
 */
 
@@ -7,35 +7,35 @@
 
 function buildStatementsElements() {
 
-	//------------------------------------------------------------------------
-	//          stmtGrid  -  THE LIST OF ALL RENTAL AGREEMENTS
-	//------------------------------------------------------------------------
-	$().w2grid({
-	    name: 'stmtGrid',
-	    url: '/v1/stmt',
-	    multiSelect: false,
-	    postData: {searchDtStart: app.D1, searchDtStop: app.D2},
-	    show: {
-	        toolbar         : true,
-	        footer          : true,
-	        toolbarAdd      : false,   // indicates if toolbar add new button is visible
-	        toolbarDelete   : false,   // indicates if toolbar delete button is visible
-	        toolbarSave     : false,   // indicates if toolbar save button is visible
-	        selectColumn    : false,
-	        expandColumn    : false,
-	        toolbarEdit     : false,
-	        toolbarSearch   : false,
-	        toolbarInput    : true,
-	        searchAll       : false,
-	        toolbarReload   : true,
-	        toolbarColumns  : true,
-	    },
-	    columns: [
-	        {field: 'recid', hidden: true,  caption: 'recid',            size: '40px',  sortable: true},
-	        {field: 'BID',   hidden: true,  caption: 'BID',              size: '40px',  sortable: true},
-	        {field: 'RAID',  hidden: false, caption: 'Rental Agreement', size: '200px', sortable: true},
-	        {field: 'Payors',hidden: false, caption: 'Payors',           size: '250px', sortable: true},
-	    ],
+    //------------------------------------------------------------------------
+    //          stmtGrid  -  THE LIST OF ALL RENTAL AGREEMENTS
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'stmtGrid',
+        url: '/v1/stmt',
+        multiSelect: false,
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
+        show: {
+            toolbar         : true,
+            footer          : true,
+            toolbarAdd      : false,   // indicates if toolbar add new button is visible
+            toolbarDelete   : false,   // indicates if toolbar delete button is visible
+            toolbarSave     : false,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : true,
+            searchAll       : false,
+            toolbarReload   : true,
+            toolbarColumns  : true,
+        },
+        columns: [
+            {field: 'recid', hidden: true,  caption: 'recid',            size: '40px',  sortable: true},
+            {field: 'BID',   hidden: true,  caption: 'BID',              size: '40px',  sortable: true},
+            {field: 'RAID',  hidden: false, caption: 'Rental Agreement', size: '200px', sortable: true},
+            {field: 'Payors',hidden: false, caption: 'Payors',           size: '250px', sortable: true},
+        ],
         onClick: function(event) {
             event.onComplete = function () {
                 var yes_args = [this, event.recid],
@@ -60,7 +60,7 @@ function buildStatementsElements() {
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
-	});
+    });
 
     addDateNavToToolbar('stmt');
 
@@ -99,52 +99,52 @@ function buildStatementsElements() {
             { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
         ],
         save: function () {
-            	console.log('Save button from stmtDetailForm');
+                console.log('Save button from stmtDetailForm');
         },
     });
 
-	//------------------------------------------------------------------------
-	//  stmtDetailGrid  -  lists all the assessments and receipts for 
-	//                     the selected Rental Agreement from the stmtGrid
-	//------------------------------------------------------------------------
-	$().w2grid({
-	    name: 'stmtDetailGrid',
-	    url: '/v1/stmtDetail',
-	    multiSelect: false,
-	    postData: {searchDtStart: app.D1, searchDtStop: app.D2},
-	    show: {
-	        toolbar         : true,
-	        footer          : true,
-	        toolbarAdd      : false,   // indicates if toolbar add new button is visible
-	        toolbarDelete   : false,   // indicates if toolbar delete button is visible
-	        toolbarSave     : false,   // indicates if toolbar save button is visible
-	        selectColumn    : false,
-	        expandColumn    : false,
-	        toolbarEdit     : false,
-	        toolbarSearch   : false,
-	        toolbarInput    : true,
-	        searchAll       : false,
-	        toolbarReload   : true,
-	        toolbarColumns  : true,
-	    },
-	    columns: [
-	        {field: 'recid',      caption: 'recid',       size: '40px',  sortable: true, hidden: true},
-	        {field: 'Date',       caption: 'Date',        size: '80px',  sortable: true},
-	        {field: 'ID',         caption: 'ID',          size: '100px', sortable: true},
-	        {field: 'Descr',      caption: 'Description', size: '250px', sortable: true},
-	        {field: 'Assessment', caption: 'Assessment',  size: '100px', sortable: true},
-	        {field: 'Receipt',    caption: 'Receipt',     size: '100px', sortable: true},
-	        {field: 'Balance',    caption: 'Balance',     size: '100px', sortable: true},
-	    ],
-	});
+    //------------------------------------------------------------------------
+    //  stmtDetailGrid  -  lists all the assessments and receipts for
+    //                     the selected Rental Agreement from the stmtGrid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'stmtDetailGrid',
+        url: '/v1/stmtDetail',
+        multiSelect: false,
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
+        show: {
+            toolbar         : true,
+            footer          : true,
+            toolbarAdd      : false,   // indicates if toolbar add new button is visible
+            toolbarDelete   : false,   // indicates if toolbar delete button is visible
+            toolbarSave     : false,   // indicates if toolbar save button is visible
+            selectColumn    : false,
+            expandColumn    : false,
+            toolbarEdit     : false,
+            toolbarSearch   : false,
+            toolbarInput    : true,
+            searchAll       : false,
+            toolbarReload   : true,
+            toolbarColumns  : true,
+        },
+        columns: [
+            {field: 'recid',      caption: 'recid',       size: '40px',  sortable: true, hidden: true},
+            {field: 'Date',       caption: 'Date',        size: '80px',  sortable: true},
+            {field: 'ID',         caption: 'ID',          size: '100px', sortable: true},
+            {field: 'Descr',      caption: 'Description', size: '250px', sortable: true},
+            {field: 'Assessment', caption: 'Assessment',  size: '100px', sortable: true},
+            {field: 'Receipt',    caption: 'Receipt',     size: '100px', sortable: true},
+            {field: 'Balance',    caption: 'Balance',     size: '100px', sortable: true},
+        ],
+    });
 
     addDateNavToToolbar('stmtDetail');
 
-	//------------------------------------------------------------------------
-	//  stmtlayout - The layout to contain the stmtForm and stmtDetailGrid
-	//               top  - stmtForm
-	//               main - stmtDetailGrid
-	//------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    //  stmtlayout - The layout to contain the stmtForm and stmtDetailGrid
+    //               top  - stmtForm
+    //               main - stmtDetailGrid
+    //------------------------------------------------------------------------
     $().w2layout({
         name: 'stmtLayout',
         padding: 0,
@@ -169,15 +169,17 @@ function buildStatementsElements() {
 //-----------------------------------------------------------------------------
 function setToStmtForm(bid, raid, d1,d2) {
     if (raid > 0) {
-        w2ui.stmtDetailGrid.url = '/v1/stmtDetail/' + bid + '/' + raid;
-        console.log( 'w2ui.stmtDetailGrid = '+w2ui.stmtDetailGrid);
-		w2ui.stmtDetailGrid.request('get',{},w2ui.stmtDetailGrid.url);
-        var f = w2ui.stmtDetailForm;
+        var g = w2ui.stmtLayout.get("main").content,
+            f = w2ui.stmtLayout.get("top").content;
+
+        // we don't have to request for this grid, when we set the layout in toplayout content it will automatically fires
+        g.url = '/v1/stmtDetail/' + bid + '/' + raid;
+        f.url = '/v1/stmtInfo/' + bid + '/' + raid;
+        f.request();
+
         w2ui.toplayout.content('right', w2ui.stmtLayout);
         w2ui.toplayout.show('right', true);
         w2ui.toplayout.sizeTo('right', 700);
-        f.url = '/v1/stmtInfo/' + bid + '/' + raid;
-        f.request();
         w2ui.toplayout.render();
         app.new_form_rec = false; // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
