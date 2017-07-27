@@ -1,9 +1,4 @@
-/*global
-    w2ui, console, w2confirm, formRefreshCallBack, form_dirty_alert, formRecDiffer,
-    app, getCurrentBusiness, parseInt, getBUDfromBID, getBUDfromBID
-*/
 "use strict";
-
 function buildAccountElements() {
 
 //------------------------------------------------------------------------
@@ -84,7 +79,7 @@ $().w2grid({
                     var rec = grid.get(recid);
 
                     // get latest gl accounts first
-                    getBUDfromBID(rec.BID, rec.LID)
+                    getParentAccounts(rec.BID, rec.LID)
                     .done(function(data) {
                         if (data.status != 'success') {
                             w2ui.accountForm.message(data.message);

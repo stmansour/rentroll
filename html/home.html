@@ -23,56 +23,16 @@ sidebarL1     - w2ui sidebar
 -->
 
 <script>
-/*global
-    w2ui, console, plural,setToRAForm, setToForm, window,
-    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString,dateMonthFwd,
-    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
-    ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
-    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentType,
-    getBUDfromBID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender, unallocAmountRemaining,
-    addDateNavToToolbar,dateFromString, getPayorFund, refreshUnallocAmtSummaries,
-    getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer,
-    form_dirty_alert, w2confirm,getRentableTypes,getPersonDetailsByTCID,
-    tcidRUserPickerRender,rentalAgrFinderRender,rentalAgrFinderDropRender,rentalAgrFinderCompare,
-    getAccountsList,getPostAccounts,int_to_bool,buildTopLayout,buildNewsLayout,
-    buildSidebar,buildAllocFundsGrid,buildAccountElements,buildTransactElements,
-    buildRentableTypeElements,buildRentableElements,buildRAElements,
-    buildRAPayorPicker,buildRUserPicker,buildRentablePicker,buildRAFinder,buildReceiptElements,
-    buildAssessmentElements,buildARElements,buildPaymentTypeElements,buildDepositoryElements,buildReportElements,buildTWSElemets
-*/
-
-/*globals $:false */
-/*jshint globalstrict: true*/
 "use strict";
 
 // unallocated receipts utility literal object
 var _unAllocRcpts = {
     layoutPanels: {
         top: function(unallocFund, person/*, tcid*/) {
-            return `<html>
-                <head>
-                <link rel="stylesheet" href="/html/rentroll.css">
-                </head>
-                <body>
-                <div style="display: table; width: 100%; height: 40%;">
-                    <div style="display: table-cell; vertical-align: middle;text-align: left;width: 100%;">
-                        <p style="margin: 5px auto;font-size: 1.5rem;font-weight: bold;" name="unallocForm">`+person+`<br>Remaining unallocated funds:
-                        <span id="total_fund_amount" data-fund="`+unallocFund+`"
-                        style="padding: 10px; color: #00AA00; font-size: 1.5rem; font-weight: bold; margin: 10px auto; width: 30%;">`+
-                        unallocFund+
-                        `</span>&nbsp;&nbsp;&nbsp;&nbsp;<button class="w2ui-btn w2ui-btn-green" style="font-size: 1.1rem;" id="auto_allocate_btn">Auto-Allocate</button></p>
-                    </div>
-                </div>
-                </body>
-                </html>`;
+            return "<html><head><link rel=\"stylesheet\" href=\"/html/rentroll.css\"></head><body><div style=\"display: table; width: 100%; height: 40%;\"><div style=\"display: table-cell; vertical-align: middle;text-align: left;width: 100%;\"><p style=\"margin: 5px auto;font-size: 1.5rem;font-weight: bold;\" name=\"unallocForm\">"+person+"<br>Remaining unallocated funds:<span id=\"total_fund_amount\" data-fund=\""+unallocFund+"\"style=\"padding: 10px; color: #00AA00; font-size:1.5rem;font-weight: bold; margin: 10px auto; width: 30%;\">"+unallocFund+"</span>&nbsp;&nbsp;&nbsp;&nbsp;<button class=\"w2ui-btn w2ui-btn-green\" style=\"font-size: 1.1rem;\" id=\"auto_allocate_btn\">Auto-Allocate</button></p></div></div></body></html>";
         },
         bottom: function() {
-            return `<div style="display: table; width: 100%; height: 100%;">
-                    <div style="display: table-cell; vertical-align: middle;text-align: center;width: 100%;">
-                        <button class="w2ui-btn" id="alloc_fund_save_btn">Save</button>
-                    </div>
-                </div>`;
+            return "<div style=\"display: table; width: 100%; height: 100%;\"><div style=\"display: table-cell; vertical-align: middle;text-align: center;width: 100%;\"><button class=\"w2ui-btn\" id=\"alloc_fund_save_btn\">Save</button></div></div>";
         }
     }
 };
@@ -282,6 +242,7 @@ function buildPageElements() {
     buildDepositoryElements();
     buildStatementsElements();
     buildReportElements();
+    buildLedgerElements();
     buildTWSElemets();
 
 }  // buildPageElements

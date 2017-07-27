@@ -1,12 +1,4 @@
-/*global
-    console, getCurrentBusiness, getBUDfromBID, app, w2ui, setToForm,
-    form_dirty_alert, w2uiDateControlString, setDateControlsInToolbar,
-    w2popup, addDateNavToToolbar, dateFromString, dateControlString,
-    formRefreshCallBack, formRecDiffer, getFormSubmitData
-*/
-
 "use strict";
-
 function buildAssessmentElements() {
     //------------------------------------------------------------------------
     //          asmsGrid

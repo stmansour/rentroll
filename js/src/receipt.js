@@ -1,12 +1,4 @@
-/*global
-    console, setToForm, setDateControlsInToolbar, getCurrentBusiness, getBUDfromBID, parseInt, buildPaymentTypeSelectList, 
-    w2uiDateControlString, setToForm, getPersonDetailsByTCID,
-    formRefreshCallBack, getFormSubmitData, form_dirty_alert, buildPaymentTypeSelectList, w2uiDateControlString,
-    app, w2ui, addDateNavToToolbar, parseInt, w2confirm, tcidReceiptPayorPickerRender, tcidPickerDropRender, tcidPickerCompare,
-    reverse_confirm_options
-*/
 "use strict";
-
 function buildReceiptElements() {
     //------------------------------------------------------------------------
     //          receiptsGrid

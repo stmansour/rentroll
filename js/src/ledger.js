@@ -1,6 +1,5 @@
-/*global
-    console, addDateNavToToolbar
-*/
+"use strict";
+function buildLedgerElements(){
 //------------------------------------------------------------------------
 //          ledger grid
 //------------------------------------------------------------------------
@@ -50,3 +49,4 @@ $().w2grid({
     // },
 });
 addDateNavToToolbar('ledgers');
+}

@@ -6,13 +6,13 @@ module.exports = function(grunt) {
   grunt.initConfig({
 
     // set the varibel for output javascript directory
-    distConcatOutput: 'js/bundle.js',
-    distMinifiedOutput: 'js/bundle.min.js',
-    javascriptTestCase: 'js/src/index.html',
+    distConcatOutput: './bundle.js',
+    distMinifiedOutput: './bundle.min.js',
+    javascriptTestCase: './src/index.html',
     banner: "/*! '<%= grunt.template.today(\"yyyy-mm-dd\") %> */",
 
     // set the varibale for input javascript directory
-    distInput: 'js/src/*.js',
+    distInput: './src/*.js',
 
     //configure concat plugins
     concat: {
@@ -28,6 +28,9 @@ module.exports = function(grunt) {
 
     // configure jshint to validate js files -----------------------------------
     jshint: {
+      options:{
+          jshintrc: './../.jshintrc'
+      },
       all: ['Grunfile.js', '<%= distInput %>']
     },
 
@@ -37,19 +40,19 @@ module.exports = function(grunt) {
             "--web-security": "no",
             coverage: {
                 src: [ "<%= distInput %>" ],
-                instrumentedFiles: "temp/",
-                htmlReport: "js/coverage/html",
-                lcovReport: "js/coverage/lcov",
-                coberturaReport: "js/coverage/cobertura",
+                instrumentedFiles: "./../temp/",
+                htmlReport: "./coverage/html",
+                lcovReport: "./coverage/lcov",
+                coberturaReport: "./coverage/cobertura",
                 linesThresholdPct: 0
             }
         },
-        all: ["js/tests/*.html"]
+        all: ["./tests/*.html"]
     },
 
     // clean the bundle file
     clean: {
-        js: ['<%= distConcatOutput %>', '<%= distMinifiedOutput %>', './js/coverage/']
+        js: ['<%= distConcatOutput %>', '<%= distMinifiedOutput %>', './coverage/']
     },
 
     // configure uglify to minify js files -------------------------------------
@@ -68,7 +71,7 @@ module.exports = function(grunt) {
     watch: {
       scripts: {
         files: '<%= distInput %>',
-        tasks: ['uglify', 'concat']
+        tasks: ['jshint', 'uglify', 'concat']
       }
     }
 

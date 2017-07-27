@@ -1,7 +1,4 @@
-/*global
-    console, getCurrentBusiness, parseFloat, popupPDFCustomDimensions, handleDateToolbarAction, dateFromString, dateControlString, showReport, dateControlString
-*/
-
+"use strict";
 function exportReportCSV(rptname){
     if (rptname === '') {
         return;

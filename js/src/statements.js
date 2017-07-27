@@ -1,8 +1,3 @@
-/*global
-    app, console, w2ui, form_dirty_alert, addDateNavToToolbar, dateFromString,
-    dateControlString
-*/
-
 "use strict";
 
 function buildStatementsElements() {

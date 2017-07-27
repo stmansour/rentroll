@@ -1,7 +1,4 @@
-/*global
-    console, plural, form_dirty_alert, showReport
-
-*/
+"use strict";
 function buildSidebar() {
     //------------------------------------------------------------------------
     //          sidebarL1

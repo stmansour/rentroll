@@ -1,3 +1,4 @@
+"use strict";
 function defineDateFmts() {
     var month = (new Date()).getMonth() + 1;
     var year  = (new Date()).getFullYear();

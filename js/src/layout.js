@@ -1,7 +1,4 @@
-/*global
-    console
-*/
-
+"use strict";
 function buildAppLayout(){
      //------------------------------------------------------------------------
     //          toplayout

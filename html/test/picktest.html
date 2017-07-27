@@ -12,18 +12,19 @@
     </div>
 </div>
 <script type="text/javascript">
+"use strict";
 $(function () {
-    $('#form').w2form({ 
+    $('#form').w2form({
         name  : 'form',
         fields: [
-            { field: 'tcidRAPayorPicker', 
-                type: 'enum', 
+            { field: 'tcidRAPayorPicker',
+                type: 'enum',
                 options: {
                     url: '/v1/transactantstd/ISO',
                     renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
                     renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
                     compare: function (item, search) {
-                        var FirstName = search, 
+                        var FirstName = search,
                             LastName = search;
                         if (search.indexOf(' ') != -1) {
                             FirstName = search.split(' ')[0];

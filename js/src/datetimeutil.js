@@ -1,3 +1,4 @@
+"use strict";
 //-----------------------------------------------------------------------------
 // dayBack - supply the date control and this function will go to the previous
 //           day.
@@ -6,7 +7,7 @@
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function dayBack(dc) {
-    "use strict";
+
     var x = dateFromString(dc.value);
     // set date to previous day
     x.setDate(x.getDate() - 1);
@@ -20,7 +21,7 @@ function dayBack(dc) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function dayFwd(dc) {
-    "use strict";
+
     var x = dateFromString(dc.value);
     // set date to next day
     x.setDate(x.getDate() + 1);
@@ -36,7 +37,7 @@ function dayFwd(dc) {
 // @return - a date that is one month from y
 //-----------------------------------------------------------------------------
 function dateMonthFwd(y) {
-    "use strict";
+
     var m = (y.getMonth() + 1) % 12; // set m to the correct next month value
     var my = (y.getMonth() + 1) / 12; // number of years to add for next month
     var d = y.getDate(); // this is the target date
@@ -68,7 +69,7 @@ function dateMonthFwd(y) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function monthFwd(dc) {
-    "use strict";
+
     var y = dateFromString(dc.value);
     var d2 = dateMonthFwd(y);
     return setDateControl(dc, d2);
@@ -83,7 +84,7 @@ function monthFwd(dc) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function setToCurrentMonth(dc) {
-    "use strict";
+
     var y = new Date();
     var d2 = new Date(y.getFullYear(), y.getMonth(), 1, 0, 0, 0, 0);
     return setDateControl(dc, d2);
@@ -98,7 +99,7 @@ function setToCurrentMonth(dc) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function setToNextMonth(dc) {
-    "use strict";
+
     var y = new Date();
     var my = (y.getMonth() + 1) / 12; // number of years to add for next month
     var m = (y.getMonth() + 1) % 12;  // next month
@@ -113,7 +114,7 @@ function setToNextMonth(dc) {
 // @return date which is y - 1 month
 //-----------------------------------------------------------------------------
 function dateMonthBack(y) {
-    "use strict";
+
     var yb = 0; // assume same year
     var m = y.getMonth() - 1;
     if (m < 0) {
@@ -140,7 +141,7 @@ function dateMonthBack(y) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function monthBack(dc) {
-    "use strict";
+
     var y = dateFromString(dc.value);
     var d2 =  dateMonthBack(y);
     return setDateControl(dc, d2);
@@ -156,7 +157,7 @@ function monthBack(dc) {
 // @return string value yyyy-mm-dd
 //-----------------------------------------------------------------------------
 function dateControlString(dt) {
-    "use strict";
+
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
     var s = '' + dt.getFullYear() + '-';
@@ -178,7 +179,7 @@ function dateControlString(dt) {
 // @return string value yyyy-mm-dd
 //-----------------------------------------------------------------------------
 function w2uiDateControlString(dt) {
-    "use strict";
+
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
     var s = '' + m + '/' + d+'/' + dt.getFullYear();
@@ -197,7 +198,7 @@ function w2uiDateControlString(dt) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function setDateControl(dc, dt) {
-    "use strict";
+
     var s = dateControlString(dt);
     dc.value = s;
     return s;
@@ -211,7 +212,7 @@ function setDateControl(dc, dt) {
 // @return - java date value
 //-----------------------------------------------------------------------------
 function dateFromString(ds) {
-    "use strict";
+
 
     // Strange thing about javascript dates
     // new Date("2017-06-28") gives a date with offset value with local timezone i.e, Wed Jun 28 2017 05:30:00 GMT+0530 (IST)
@@ -228,7 +229,7 @@ function dateFromString(ds) {
 // @return - formatted date string
 //-----------------------------------------------------------------------------
 function dateTodayStr() {
-    "use strict";
+
     var today = new Date();
     return dateFmtStr(today);
 }
@@ -240,7 +241,7 @@ function dateTodayStr() {
 // @return - formatted date string
 //-----------------------------------------------------------------------------
 function dateFmtStr(today) {
-    "use strict";
+
     var dd = today.getDate();
     var mm = today.getMonth() + 1; //January is 0!
     var yyyy = today.getFullYear();

@@ -1,7 +1,4 @@
-/*global
-    console, getPostAccounts, formRefreshCallBack
-*/
-
+"use strict";
 function buildARElements() {
 //------------------------------------------------------------------------
 //          Account Rules Grid

@@ -8,12 +8,13 @@
 <body>
 <div class="w2ui-field"><label>Name Picker:</label><div> <input id="tcidRAPayorPicker"></div></div>
 <script>
+"use strict";
 $('#tcidRAPayorPicker').w2field('enum', {
     url: '/v1/transactantstd/ISO',
     renderItem: function (item) {return item.FirstName + ' ' + item.LastName; },
     renderDrop: function (item) {return item.FirstName + ' ' + item.LastName; },
     compare: function (item, search) {
-        var FirstName = search, 
+        var FirstName = search,
             LastName = search;
         if (search.indexOf(' ') != -1) {
             FirstName = search.split(' ')[0];

@@ -1,3 +1,4 @@
+"use strict";
 //-----------------------------------------------------------------------------
 // formRecDiffer -  tells that form record has been changed
 // **[copied from w2ui form's getChanges internal function]**
@@ -9,7 +10,7 @@
 //      Object with difference from `record` to `original`
 //-----------------------------------------------------------------------------
 var formRecDiffer = function(record, original, result) {
-    "use strict";
+
     for (var i in record) {
         if (typeof record[i] == "object") {
             result[i] = formRecDiffer(record[i], original[i] || {}, {});
@@ -37,7 +38,7 @@ var formRecDiffer = function(record, original, result) {
 //      Object with Transactant record
 //-----------------------------------------------------------------------------
 function getPersonDetailsByTCID(BID, TCID) {
-    "use strict";
+
 
     // we need to use this structure to get person details from given TCID
     var params = {"cmd":"get","recid":0,"name":"transactantForm"},
@@ -124,6 +125,7 @@ function form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args) {
 // warn user if active form content has been changed
 // for security reason you can't just popup your custom dialog
 // see the thread: https://stackoverflow.com/questions/30712377/jquery-beforeunload-custom-pop-up-window-for-leaving-a-page
+window.onbeforeunload=form_dirty_alert_window_unload;
 function form_dirty_alert_window_unload(e) {
     if (app.form_is_dirty){
         if(!e) e = window.event;
