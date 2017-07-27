@@ -1,8 +1,4 @@
-/*global
-    w2ui, app, monthBack, monthFwd, setToCurrentMonth,
-    setToNextMonth, dayBack, dayFwd, dateFromString,
-    dateControlString    
-*/
+"use strict";
 //-----------------------------------------------------------------------------
 // handleDateToolbarAction
 //          - based on the button selected, perform the appropriate date
@@ -16,7 +12,6 @@
 // @return  <no return value>
 //-----------------------------------------------------------------------------
 function handleDateToolbarAction(event,prefix) {
-    "use strict";
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
     switch (event.target) {
@@ -54,7 +49,6 @@ function handleDateToolbarAction(event,prefix) {
 // @return  <no return value>
 //-----------------------------------------------------------------------------
 function setDateControlsInToolbar(prefix) {
-    "use strict";
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
     if (typeof xd1 != "undefined") { xd1.value = app.D1; }
@@ -75,7 +69,6 @@ function setDateControlsInToolbar(prefix) {
 // @return  an array of fields that can be passed into toolbar.add()
 //-----------------------------------------------------------------------------
 function genDateRangeNavigator(prefix) {
-    "use strict";
     var html1 = '<div style="padding: 0px 5px;">From: <input type="date" name="' + prefix + 'D1"></div>';
     var html2 = '<div style="padding: 0px 5px;">To: <input type="date" name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
@@ -99,7 +92,6 @@ function genDateRangeNavigator(prefix) {
 // @return  <no return value>
 //-----------------------------------------------------------------------------
 function addDateNavToToolbar(prefix) {
-    "use strict";
     var grid = w2ui[prefix+'Grid'];
     grid.toolbar.add( genDateRangeNavigator(prefix) );
     grid.toolbar.on('click', function(event) {

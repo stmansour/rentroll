@@ -1,6 +1,4 @@
-/*global
-    console, form_dirty_alert, setToForm, getCurrentBusiness, getBUDfromBID, notesPopUp, formRefreshCallBack, formRecDiffer
-*/
+"use strict";
 function buildTransactElements() {
 
 //------------------------------------------------------------------------

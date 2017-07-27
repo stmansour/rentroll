@@ -1,6 +1,4 @@
-/*global
-    console, getBUDfromBID, getCurrentBusiness, parseInt, form_dirty_alert, setToRAForm, w2confirm, formRefreshCallBack, formRecDiffer, getFormSubmitData, getCurrentBusiness, popupRidRentablePicker, calcRarGridContractRent, popupTcidRAPayorPicker, w2uiDateControlString, saveNewRAPayor, saveNewRUser, saveNewRARentable
-*/
+"use strict";
 function saveNewRUser() {
     var myRID = -1;
     var rname = w2ui.tcidRUserPicker.record.RentableName.text;
@@ -1126,4 +1124,3 @@ function createRentalAgreementForm() {
     w2ui.raLayoutSub1.content('bottom', w2ui.raPetGrid);
     w2ui.raPetGrid.header = "Pets";
 }
-

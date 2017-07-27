@@ -1,7 +1,4 @@
-/*global
-    w2ui, app, console
-*/
-
+"use strict";
 // ---------------------------------------------------------------------------------
 // String format: https://gist.github.com/tbranyen/1049426 (if want to format object, array as well)
 // Reference: https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
@@ -100,7 +97,7 @@ function openInNewTab(url) {
 // @return  the BUD (or empty string if not found)
 //-----------------------------------------------------------------------------
 function getBUDfromBID(BID) {
-    // "use strict";
+    //
     var BUD = '';
     for (var i=0; i<app.BizMap.length; i++) {
         if (BID == app.BizMap[i].BID) {
@@ -117,7 +114,7 @@ function getBUDfromBID(BID) {
 // @return  the BID (or `undefined` if not found)
 //-----------------------------------------------------------------------------
 function getBIDfromBUD(BUD) {
-    "use strict";
+
     var BID;
     for (var i=0; i<app.BizMap.length; i++) {
         if (BUD == app.BizMap[i].BUD) {
@@ -135,7 +132,7 @@ function getBIDfromBUD(BUD) {
 // @return  the Payment Type (or empty object if not found)
 //-----------------------------------------------------------------------------
 function getPaymentType(BUD, reqPMTID) {
-    "use strict";
+
 
     var pmt = {};
     if (typeof BUD === "undefined") {
@@ -158,7 +155,7 @@ function getPaymentType(BUD, reqPMTID) {
 // @return  the list of Payment Type Names (or empty list if BUD not found)
 //-----------------------------------------------------------------------------
 function buildPaymentTypeSelectList(BUD) {
-    "use strict";
+
     var options = [{id:0, text: " -- Select Payment Type -- "}];
     if (typeof BUD == "undefined") {
         return options;
@@ -176,7 +173,7 @@ function buildPaymentTypeSelectList(BUD) {
 // @return  the BUD of the currently selected business
 //-----------------------------------------------------------------------------
 function getCurrentBusiness() {
-    "use strict";
+
     var x = document.getElementsByName("BusinessSelect");
     return x[0];
 }
@@ -190,7 +187,7 @@ function getCurrentBusiness() {
 //   [width] = optional, if specified it is the width of the form
 //-----------------------------------------------------------------------------
 function setToForm(sform, url, width, doRequest) {
-    "use strict";
+
 
     // if not url defined then return
     var url_len=url.length > 0;
@@ -289,7 +286,7 @@ function setToForm(sform, url, width, doRequest) {
 //     d = date to use for time sensitive data
 //-----------------------------------------------------------------------------
 function setToRAForm(bid, raid, d) {
-    "use strict";
+
     if (raid > 0) {
         var f = w2ui.rentalagrForm;
         w2ui.toplayout.content('right', w2ui.raLayout);
@@ -362,7 +359,7 @@ function setToRAForm(bid, raid, d) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function ridRentablePickerRender(item) {
-    "use strict";
+
     w2ui.ridRentablePicker.record.RID = item.recid;
     return item.RentableName + '  (RID: ' + item.recid + ')';
 }
@@ -374,7 +371,7 @@ function ridRentablePickerRender(item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function asmFormRentablePickerRender(item) {
-    "use strict";
+
     w2ui.asmEpochForm.record.RID = item.recid;
     return item.RentableName + '  (RID: ' + item.recid + ')';
 }
@@ -386,7 +383,7 @@ function asmFormRentablePickerRender(item) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 function ridRentableDropRender (item) {
-    "use strict";
+
     // w2ui.ridRentablePicker.RID = item.RID;
     return item.RentableName + '  (RID: ' + item.recid + ')';
 }
@@ -398,7 +395,7 @@ function ridRentableDropRender (item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function ridRentableCompare(item, search) {
-    "use strict";
+
     var s = item.RentableName.toLowerCase();
     return s.includes(search.toLowerCase());
 }
@@ -410,7 +407,7 @@ function ridRentableCompare(item, search) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function tcidRAPayorPickerRender(item) {
-    "use strict";
+
     var s="";
     if (item.IsCompany > 0) {
         s = item.CompanyName;
@@ -437,7 +434,7 @@ function tcidRAPayorPickerRender(item) {
 // @return - the full name concatenated together
 //-----------------------------------------------------------------------------
 function getFullName(item) {
-    "use strict";
+
     var s = item.FirstName;
     if (item.MiddleName.length > 0) { s += ' ' + item.MiddleName; }
     if (item.LastName.length > 0 ) { s += ' ' + item.LastName; }
@@ -454,7 +451,7 @@ function getFullName(item) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 function getTCIDName(item) {
-    "use strict";
+
     var s = (item.IsCompany > 0) ? item.CompanyName : getFullName(item);
     if (item.TCID > 0) { s += ' (TCID: '+ String(item.TCID) +')'; }
     return s;
@@ -468,7 +465,7 @@ function getTCIDName(item) {
 // @return - true if the search string is found, false otherwise
 //-----------------------------------------------------------------------------
 function tcidPickerCompare(item, search) {
-    "use strict";
+
     var s = getTCIDName(item);
     s = s.toLowerCase();
     var srch = search.toLowerCase();
@@ -483,7 +480,7 @@ function tcidPickerCompare(item, search) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 function tcidPickerDropRender(item) {
-    "use strict";
+
     return getTCIDName(item);
 }
 
@@ -495,7 +492,7 @@ function tcidPickerDropRender(item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function tcidReceiptPayorPickerRender(item) {
-    "use strict";
+
     var s = getTCIDName(item);
     w2ui.receiptForm.record.TCID = item.TCID;
     w2ui.receiptForm.record.Payor = s;
@@ -509,7 +506,7 @@ function tcidReceiptPayorPickerRender(item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function tcidRUserPickerRender(item) {
-    "use strict";
+
     var s;
     if (item.IsCompany > 0) {
         s = item.CompanyName;
@@ -541,7 +538,7 @@ function tcidRUserPickerRender(item) {
 // @return - true if the search string is found, false otherwise
 //-----------------------------------------------------------------------------
 function rentalAgrFinderCompare(item, search) {
-    "use strict";
+
     var s = getTCIDName(item);
     s = s.toLowerCase();
     var srch = search.toLowerCase();
@@ -556,7 +553,7 @@ function rentalAgrFinderCompare(item, search) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 function rentalAgrFinderDropRender(item) {
-    "use strict";
+
     return getTCIDName(item);
 }
 
@@ -568,7 +565,7 @@ function rentalAgrFinderDropRender(item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function rentalAgrFinderRender(item) {
-    "use strict";
+
     var s = getTCIDName(item);
     w2ui.rentalAgrFinder.record.TCID = item.TCID;
     w2ui.rentalAgrFinder.record.Payor = s;
@@ -583,7 +580,7 @@ function rentalAgrFinderRender(item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function rentalAgrFinderRender(item) {
-    "use strict";
+
     var s;
     if (item.IsCompany > 0) {
         s = item.CompanyName;
@@ -632,7 +629,7 @@ function rentalAgrFinderRender(item) {
 // @return - the plural of word s
 //-----------------------------------------------------------------------------
 function plural(s) {
-    "use strict";
+
     return s + 's';
 }
 
@@ -645,7 +642,7 @@ function plural(s) {
 // @return  The total of the column
 //-----------------------------------------------------------------------------
 function calcRarGridContractRent(grid) {
-    "use strict";
+
     grid = w2ui.rarGrid || grid;
     var chgs = grid.getChanges();
     var amts = [];
@@ -686,7 +683,7 @@ function calcRarGridContractRent(grid) {
 // @return  the Rentable Types List
 //-----------------------------------------------------------------------------
 function getRentableTypes(BUD) {
-    "use strict";
+
     return jQuery.ajax({
         type: "GET",
         url: "/v1/rtlist/"+BUD,
@@ -708,7 +705,7 @@ function getRentableTypes(BUD) {
 // @return the list of accounts
 //-----------------------------------------------------------------------------
 function getAccountsList(BID) {
-    "use strict";
+
     return jQuery.ajax({
         type: "GET",
         url: "/v1/accountlist/"+BID,
@@ -731,7 +728,7 @@ function getAccountsList(BID) {
 // @return the list of post accounts
 //-----------------------------------------------------------------------------
 function getPostAccounts(BID) {
-    "use strict";
+
     return jQuery.ajax({
         type: "GET",
         url: "/v1/postaccounts/"+BID,
@@ -756,7 +753,7 @@ function getPostAccounts(BID) {
 // @return the list of parent accounts excluding delLID (current account ID from accountForm)
 //-----------------------------------------------------------------------------
 function getParentAccounts(BID, delLID) {
-    "use strict";
+
     return jQuery.ajax({
         type: "GET",
         url: "/v1/parentaccounts/"+BID,
@@ -790,7 +787,7 @@ function getParentAccounts(BID, delLID) {
 // @return
 //-----------------------------------------------------------------------------
 function unallocAmountRemaining() {
-    "use strict";
+
     var totalFunds = app.payor_fund; // must already be set to total unallocated receipt funds
     for (var i=0; i < w2ui.unpaidASMsGrid.records.length; i++) {
         totalFunds -= w2ui.unpaidASMsGrid.records[i].Allocate;
@@ -810,7 +807,7 @@ function unallocAmountRemaining() {
 // @return
 //-----------------------------------------------------------------------------
 function refreshUnallocAmtSummaries() {
-    "use strict";
+
     if (w2ui.unpaidASMsGrid.records.length === 0 ) { return; }
     var amt = 0;
     var amtPaid = 0;
@@ -828,7 +825,7 @@ function refreshUnallocAmtSummaries() {
 
 // int_to_bool converts int to bool. i.e, 0: false, 1: true
 function int_to_bool(i){
-    "use strict";
+
     if (i>0) {
         return true;
     } else {
@@ -843,7 +840,7 @@ function int_to_bool(i){
 // @return  the jquery promise
 //-----------------------------------------------------------------------------
 function getPayorFund(BID, TCID) {
-    "use strict";
+
     return jQuery.ajax({
         type: "GET",
         url: '/v1/payorfund/'+BID+'/'+TCID,
@@ -853,7 +850,7 @@ function getPayorFund(BID, TCID) {
 
 // Auto Allocate amount for each unpaid assessment
 jQuery(document).on('click', '#auto_allocate_btn', function(/*event*/) {
-    "use strict";
+
     var fund = app.payor_fund;
     var grid = w2ui.unpaidASMsGrid;
 
@@ -885,7 +882,7 @@ jQuery(document).on('click', '#auto_allocate_btn', function(/*event*/) {
 });
 
 jQuery(document).on('click', '#alloc_fund_save_btn', function(/*event*/) {
-    "use strict";
+
     var tgrid = w2ui.allocfundsGrid;
     var rec = tgrid.getSelection();
     if (rec.length < 0) {
@@ -924,7 +921,7 @@ jQuery(document).on('click', '#alloc_fund_save_btn', function(/*event*/) {
 // item in record has just a value instead of another object
 //-----------------------------------------------------------------------------
 function getFormSubmitData(record) {
-    "use strict";
+
 
     // check that it is typeof object or not
     if (typeof record !== "object") {
@@ -952,7 +949,7 @@ function getFormSubmitData(record) {
 //   form_header = header (title) of form
 //-----------------------------------------------------------------------------
 function formRefreshCallBack(w2frm, id_name, form_header) {
-    "use strict";
+
     var fname = w2frm.name,
         record = w2frm.record,
         id = record[id_name],

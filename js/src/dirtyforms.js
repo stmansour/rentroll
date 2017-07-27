@@ -1,3 +1,4 @@
+"use strict";
 //-----------------------------------------------------------------------------
 // formRecDiffer -  tells that form record has been changed
 // **[copied from w2ui form's getChanges internal function]**
@@ -9,7 +10,7 @@
 //      Object with difference from `record` to `original`
 //-----------------------------------------------------------------------------
 var formRecDiffer = function(record, original, result) {
-    "use strict";
+
     for (var i in record) {
         if (typeof record[i] == "object") {
             result[i] = formRecDiffer(record[i], original[i] || {}, {});
@@ -37,7 +38,7 @@ var formRecDiffer = function(record, original, result) {
 //      Object with Transactant record
 //-----------------------------------------------------------------------------
 function getPersonDetailsByTCID(BID, TCID) {
-    "use strict";
+
 
     // we need to use this structure to get person details from given TCID
     var params = {"cmd":"get","recid":0,"name":"transactantForm"},

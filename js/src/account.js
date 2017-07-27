@@ -1,7 +1,3 @@
-/*global
-    w2ui, console, w2confirm, formRefreshCallBack, form_dirty_alert, formRecDiffer,
-    app, getCurrentBusiness, parseInt, getBUDfromBID, getBUDfromBID
-*/
 "use strict";
 
 function buildAccountElements() {

@@ -1,20 +1,6 @@
-/*global
-    w2ui, console, plural,setToRAForm, setToForm,
-    w2uiDateControlString, w2popup, getCurrentBusiness, dateControlString,dateMonthFwd,
-    tcidPickerDropRender, tcidRAPayorPickerRender, tcidPickerCompare,
-    ridRentablePickerRender, ridRentableDropRender,ridRentableCompare, calcRarGridContractRent,
-    handleDateToolbarAction, setDateControlsInToolbar, genDateRangeNavigator, getPaymentType,
-    getBUDfromBID, buildPaymentTypeSelectList,
-    tcidReceiptPayorPickerRender, unallocAmountRemaining,
-    addDateNavToToolbar,dateFromString, getPayorFund, refreshUnallocAmtSummaries,
-    getParentAccounts, formRefreshCallBack, getFormSubmitData, formRecDiffer,
-    form_dirty_alert, w2confirm,getRentableTypes,getPersonDetailsByTCID,
-    tcidRUserPickerRender,rentalAgrFinderRender,rentalAgrFinderDropRender,rentalAgrFinderCompare,
-    getAccountsList,getPostAccounts,int_to_bool,app
-*/
-
+"use strict";
 function buildDepositoryElements() {
-    "use strict";
+
     //------------------------------------------------------------------------
     //          depository Grid
     //------------------------------------------------------------------------

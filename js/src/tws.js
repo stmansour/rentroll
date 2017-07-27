@@ -1,6 +1,4 @@
-/*global
-    console
-*/
+"use strict";
 function buildTWSElemets(){
 //------------------------------------------------------------------------
 //          twsGrid

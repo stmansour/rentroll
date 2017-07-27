@@ -1,8 +1,3 @@
-/*global
-    app, console, w2ui, form_dirty_alert, addDateNavToToolbar, dateFromString, 
-    dateControlString
-*/
-
 "use strict";
 
 function buildStatementsElements() {
@@ -104,7 +99,7 @@ function buildStatementsElements() {
     });
 
 	//------------------------------------------------------------------------
-	//  stmtDetailGrid  -  lists all the assessments and receipts for 
+	//  stmtDetailGrid  -  lists all the assessments and receipts for
 	//                     the selected Rental Agreement from the stmtGrid
 	//------------------------------------------------------------------------
 	$().w2grid({

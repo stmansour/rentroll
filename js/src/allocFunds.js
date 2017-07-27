@@ -1,9 +1,4 @@
-/*global
-    console, refreshUnallocAmtSummaries, unallocAmountRemaining, selectNone, getPayorFund
-*/
-
-
-
+"use strict";
 function buildAllocFundsGrid() {
     //------------------------------------------------------------------------
     //          allocfundsGrid
