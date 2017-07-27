@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"rentroll/rlib"
 	"rentroll/rrpt"
-	"time"
 )
 
 // StatementDetail is a structure to fill the statement detail grid
@@ -65,8 +64,8 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	//=======================================================================
 	// UGH!
 
-	d1 := time.Now()
-	d2 := d1.AddDate(0, 1, 0)
+	d1 := sd.wsSearchReq.SearchDtStart
+	d2 := sd.wsSearchReq.SearchDtStop
 	m := rrpt.GetStatementData(sd.BID, sd.ID, &d1, &d2)
 	var b = rlib.RoundToCent(m[0].Amt) // element 0 is always the account balance
 	var c = float64(0)                 // credit
