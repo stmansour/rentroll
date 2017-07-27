@@ -9,6 +9,7 @@
         "app": true,
         "w2ui": true,
         "w2popup": true,
+        "dateTodayStr": true,
         "_unAllocRcpts": true,
         "delete_confirm_options": true,
         "reverse_confirm_options": true,
