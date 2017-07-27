@@ -160,6 +160,48 @@ $().w2grid({
             console.log(event);
         },
         actions: {
+            saveadd: function() {
+                var f = this,
+                    grid = w2ui.pmtsGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD=getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // select none if you're going to add new record
+                grid.selectNone();
+
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    // JUST RENDER THE GRID ONLY
+                    grid.render();
+
+                    // add new empty record and just refresh the form, don't need to do CLEAR form
+                    var y = new Date();
+                    var record = {
+                        recid: 0,
+                        PMTID: 0,
+                        BID: BID,
+                        BUD: BUD,
+                        Name: '',
+                        Description: '',
+                        LastModTime: y.toISOString(),
+                        LastModBy: 0
+                    };
+                    f.record = record;
+                    f.header = "Edit Payment Type (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.url = '/v1/pmts/' + BID+'/0';
+                    f.refresh();
+                });
+            },
             save: function(/*target, data*/) {
                 var f = this,
                     tgrid = w2ui.pmtsGrid;
