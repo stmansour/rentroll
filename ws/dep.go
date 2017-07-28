@@ -337,14 +337,14 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	adup := rlib.GetDepositoryByName(a.BID, a.Name)
-	if a.Name == adup.Name {
+	if a.Name == adup.Name && a.DEPID != adup.DEPID {
 		e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
 	adup = rlib.GetDepositoryByLID(a.BID, a.LID)
-	if a.LID == adup.LID {
+	if a.LID == adup.LID && a.DEPID != adup.DEPID {
 		l := rlib.GetLedger(a.LID)
 		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
 		SvcGridErrorReturn(w, e, funcname)

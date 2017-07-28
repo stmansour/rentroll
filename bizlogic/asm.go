@@ -312,6 +312,7 @@ func DeallocateAppliedFunds(a *rlib.Assessment, asmtRevID int64, dt *time.Time) 
 			vra.Amount = -vra.Amount
 			vra.AcctRule = acctrule
 			vra.Dt = *dt
+			vra.RAID = ja.RAID
 			_, err = rlib.InsertReceiptAllocation(&vra)
 			if err != nil {
 				return err

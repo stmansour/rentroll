@@ -169,9 +169,6 @@ doPlainGET "http://localhost:8270/v1/uival/REX/app.Receipts" "b1" "WebService--G
 # rental Agreement typedown...
 dojsonGET "http://localhost:8270/v1/rentalagrtd/CCC?request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D" "c1" "WebService--GetRentalAgreementTypeDown"
 
-# get Statement
-echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222016-02-01%22%2C%22searchDtStop%22%3A%222016-03-01%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/stmtDetail/1/5" "request" "d1"  "WebService--StatementDetail"
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"

@@ -1,0 +1,102 @@
+{
+    "records": [
+        {
+            "AsmtAmount": 0,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": 0,
+            "Descr": "Opening Balance",
+            "Dt": "11/1/2016",
+            "ID": "",
+            "RAID": 5,
+            "RcptAmount": 0,
+            "recid": 0
+        },
+        {
+            "AsmtAmount": 4000,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": -4000,
+            "Descr": "Non-Taxable Rent Assessment",
+            "Dt": "11/1/2016",
+            "ID": "ASM00000035",
+            "RAID": 5,
+            "RcptAmount": 0,
+            "recid": 0
+        },
+        {
+            "AsmtAmount": 15,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": -4015,
+            "Descr": "Bank Services",
+            "Dt": "11/11/2016",
+            "ID": "ASM00000054",
+            "RAID": 5,
+            "RcptAmount": 0,
+            "recid": 0
+        },
+        {
+            "AsmtAmount": 0,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": -15,
+            "Descr": "Non-Taxable Rent Assessment (ASM00000035)",
+            "Dt": "11/11/2016",
+            "ID": "RCPT00000038",
+            "RAID": 5,
+            "RcptAmount": 4000,
+            "recid": 0
+        },
+        {
+            "AsmtAmount": 0,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": 0,
+            "Descr": "Bank Services (ASM00000054)",
+            "Dt": "11/11/2016",
+            "ID": "RCPT00000038",
+            "RAID": 5,
+            "RcptAmount": 15,
+            "recid": 0
+        },
+        {
+            "AsmtAmount": 0,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": 4000,
+            "Descr": "Non-Taxable Rent Assessment (ASM00000036)",
+            "Dt": "11/11/2016",
+            "ID": "RCPT00000038",
+            "RAID": 5,
+            "RcptAmount": 4000,
+            "recid": 0
+        },
+        {
+            "AsmtAmount": 0,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": 7970,
+            "Descr": "Non-Taxable Rent Assessment (ASM00000037)",
+            "Dt": "11/11/2016",
+            "ID": "RCPT00000038",
+            "RAID": 5,
+            "RcptAmount": 3970,
+            "recid": 0
+        },
+        {
+            "AsmtAmount": -4015,
+            "BID": 1,
+            "BUD": "REX",
+            "Balance": 7970,
+            "Descr": "Closing Balance",
+            "Dt": "11/30/2016",
+            "ID": "",
+            "RAID": 5,
+            "RcptAmount": 11985,
+            "recid": 0
+        }
+    ],
+    "status": "success",
+    "total": 8
+}

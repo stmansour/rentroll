@@ -105,6 +105,7 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 		ra.RCPTID = rr.RCPTID  // the reversal receipt id
 		ra.Amount = -ra.Amount // reverse the allocation
 		ra.Dt = *dt            // date of reversal
+		ra.RAID = r.RA[i].RAID // RAID toward which this receipt was applied
 
 		// build a new AcctRule
 		var xbiz1 rlib.XBusiness // not actually used, but needed for the call to ParseAcctRule

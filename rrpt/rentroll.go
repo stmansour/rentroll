@@ -259,8 +259,8 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 			// Payments received... or more precisely that portion of a Receipt that went to pay an Assessment on
 			// on this Rentable during this period d1 - d2.  We expand the search range to the entire report range
 			//-------------------------------------------------------------------------------------------------------
-			// fmt.Printf("GetReceiptAllocationsInRAIDDateRange: BID = %d, RAID = %d, d1-d2 = %s - %s\n", p.BID, ra.RAID, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
-			m := rlib.GetReceiptAllocationsInRAIDDateRange(p.BID, ra.RAID, d1, d2) // receipts for ra.RAID during d1-d2, ReceiptAllocations are also loaded
+			// fmt.Printf("GetASMReceiptAllocationsInRAIDDateRange: RAID = %d, d1-d2 = %s - %s\n", ra.RAID, d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
+			m := rlib.GetASMReceiptAllocationsInRAIDDateRange(ra.RAID, d1, d2) // receipts for ra.RAID during d1-d2, ReceiptAllocations are also loaded
 			totpmt := float64(0)
 			for k := 0; k < len(m); k++ { // for each ReceiptAllocation read the Assessment
 				a, err := rlib.GetAssessment(m[k].ASMID) // if Rentable == p.RID, we found the PaymentReceived value

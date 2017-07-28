@@ -65,7 +65,7 @@ function buildStatementsElements() {
     $().w2form({
         name: 'stmtDetailForm',
         style: 'border: 0px; background-color: transparent;',
-        header: app.sRentalAgreement + ' Detail',
+        header: 'Statement Detail',
         url: '/v1/stmtInfo',
         formURL: '/html/formstmtdet.html',
         toolbar: {
@@ -93,9 +93,6 @@ function buildStatementsElements() {
             { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
         ],
-        save: function () {
-                console.log('Save button from stmtDetailForm');
-        },
     });
 
     //------------------------------------------------------------------------
@@ -117,19 +114,19 @@ function buildStatementsElements() {
             expandColumn    : false,
             toolbarEdit     : false,
             toolbarSearch   : false,
-            toolbarInput    : true,
+            toolbarInput    : false,   // the text area for searches
             searchAll       : false,
-            toolbarReload   : true,
-            toolbarColumns  : true,
+            toolbarReload   : false,
+            toolbarColumns  : false,
         },
         columns: [
             {field: 'recid',      caption: 'recid',       size: '40px',  sortable: true, hidden: true},
-            {field: 'Date',       caption: 'Date',        size: '80px',  sortable: true},
+            {field: 'Dt',         caption: 'Date',        size: '80px',  sortable: true},
             {field: 'ID',         caption: 'ID',          size: '100px', sortable: true},
-            {field: 'Descr',      caption: 'Description', size: '250px', sortable: true},
-            {field: 'Assessment', caption: 'Assessment',  size: '100px', sortable: true},
-            {field: 'Receipt',    caption: 'Receipt',     size: '100px', sortable: true},
-            {field: 'Balance',    caption: 'Balance',     size: '100px', sortable: true},
+            {field: 'Descr',      caption: 'Description', size: '50%', sortable: true},
+            {field: 'AsmtAmount', caption: 'Assessment',  size: '90px', sortable: true, render: 'money'},
+            {field: 'RcptAmount', caption: 'Receipt',     size: '90px', sortable: true, render: 'money'},
+            {field: 'Balance',    caption: 'Balance',     size: '90px', sortable: true, render: 'money'},
         ],
     });
 
@@ -145,8 +142,8 @@ function buildStatementsElements() {
         padding: 0,
         panels: [
             { type: 'left',    size: '40%', hidden: true },
-            { type: 'top',     size: 300,   hidden: false, content: w2ui.stmtDetailForm,  resizable: true, style: app.pstyle },
-            { type: 'main',    size: '60%', hidden: false, content: w2ui.stmtDetailGrid, resizable: true, style: app.pstyle },
+            { type: 'top',     size: 300,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'main',    size: '60%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
             { type: 'bottom',  size: 0,     hidden: true },
             { type: 'right',   size: 0,     hidden: true }
@@ -164,19 +161,23 @@ function buildStatementsElements() {
 //-----------------------------------------------------------------------------
 function setToStmtForm(bid, raid, d1,d2) {
     if (raid > 0) {
-        var g = w2ui.stmtLayout.get("main").content,
-            f = w2ui.stmtLayout.get("top").content;
-
-        // we don't have to request for this grid, when we set the layout in toplayout content it will automatically fires
-        g.url = '/v1/stmtDetail/' + bid + '/' + raid;
-        f.url = '/v1/stmtInfo/' + bid + '/' + raid;
-        f.request();
+        w2ui.stmtDetailGrid.url = '/v1/stmtDetail/' + bid + '/' + raid;
+        w2ui.stmtDetailForm.url = '/v1/stmtInfo/' + bid + '/' + raid;
 
         w2ui.toplayout.content('right', w2ui.stmtLayout);
         w2ui.toplayout.show('right', true);
-        w2ui.toplayout.sizeTo('right', 700);
+        w2ui.toplayout.sizeTo('right', 730);
         w2ui.toplayout.render();
         app.new_form_rec = false; // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
     }
+}
+
+//-----------------------------------------------------------------------------
+// createStmtForm - add the grid and form to the statement layout
+// @params
+//-----------------------------------------------------------------------------
+function createStmtForm() {
+        w2ui.stmtLayout.content('top',w2ui.stmtDetailForm);
+        w2ui.stmtLayout.content('main',w2ui.stmtDetailGrid);
 }

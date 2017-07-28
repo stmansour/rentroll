@@ -1088,13 +1088,13 @@ CREATE TABLE LedgerMarker (
     LMID BIGINT NOT NULL AUTO_INCREMENT,
     LID BIGINT NOT NULL DEFAULT 0,                            -- associated GLAccount
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
-    RAID BIGINT NOT NULL DEFAULT 0,                           -- 0 means it's either a marker for a Rentable or the balance for the whole account;  > 0 means it's the amount associated with rental agreement RAID
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- 0 means it's either a marker for a Rentable or the balance for the whole account;  > 0 AND LID=0 means it's the amount associated with rental agreement RAID
     RID BIGINT NOT NULL DEFAULT 0,                            -- 0 means it's either a marker for a RentalAgreement or the balance for a whole account; >0 means it's the amount associated with Rentable RID
     TCID BIGINT NOT NULL DEFAULT 0,                           -- if 0 then LM for whole acct, if > 0 then it's the amount for this payor; TCID
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',       -- Balance is valid as of this time
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record

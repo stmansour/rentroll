@@ -63,7 +63,7 @@ func SvcSearchHandlerLedger(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // GetAccountBalance returns the balance of the account at time dt
 //
 func GetAccountBalance(bid, lid int64, dt *time.Time) (float64, rlib.LedgerMarker) {
-	lm := rlib.GetRALedgerMarkerOnOrBefore(bid, lid, 0, dt) // find nearest ledgermarker, use it as a starting point
+	lm := rlib.GetRALedgerMarkerOnOrBeforeDeprecated(bid, lid, 0, dt) // find nearest ledgermarker, use it as a starting point
 	bal, _ := rlib.GetAccountActivity(bid, lid, &lm.Dt, dt)
 	return bal, lm
 }

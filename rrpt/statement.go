@@ -16,15 +16,6 @@ type RTIDCount struct {
 	Count int64             // the count
 }
 
-// StatementEntry is a struct containing references to an Assessment or a Receipt that is
-// part of a billing statement associated with a RentalAgreement
-type StatementEntry struct {
-	t   int              // type: 1 = assessment, 2 = Receipt, 3 = Initial Balance
-	a   *rlib.Assessment // for type==1, the pointer to the assessment
-	r   *rlib.Receipt    // for type ==2, the pointer to the receipt
-	bal float64          // opening balance
-}
-
 // StmtEntry describes an entry on a statement
 type StmtEntry struct {
 	T   int              // 1 = assessment, 2 = Receipt, 3 = Initial Balance

@@ -324,7 +324,7 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var adup rlib.PaymentType
 	rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
-	if a.Name == adup.Name {
+	if a.Name == adup.Name && a.PMTID != adup.PMTID {
 		e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
 		SvcGridErrorReturn(w, e, funcname)
 		return

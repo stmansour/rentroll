@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"rentroll/rrpt"
 )
 
 // StatementDetail is a structure to fill the statement detail grid
@@ -44,6 +43,12 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	var g StmtDetailResponse
 	var xbiz rlib.XBusiness
 
+	bud, err := bidToBud(sd.BID)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
 	//
 	// UGH!
 	//=======================================================================
@@ -55,8 +60,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-	_, ok = rlib.RRdb.BizTypes[sd.BID].GLAccounts[1]
-	if !ok {
+	if len(rlib.RRdb.BizTypes[sd.BID].GLAccounts) == 0 {
 		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d].GLAccounts", sd.BID)
 		SvcGridErrorReturn(w, e, funcname)
 		return
@@ -64,60 +68,85 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	//=======================================================================
 	// UGH!
 
+	//--------------------------------------------
+	// Get the statement data...
+	//--------------------------------------------
 	d1 := sd.wsSearchReq.SearchDtStart
 	d2 := sd.wsSearchReq.SearchDtStop
-	m := rrpt.GetStatementData(sd.BID, sd.ID, &d1, &d2)
-	var b = rlib.RoundToCent(m[0].Amt) // element 0 is always the account balance
-	var c = float64(0)                 // credit
-	var d = float64(0)                 // debit
+	m, err := rlib.GetRAIDStatementInfo(sd.ID, &d1, &d2)
+	if err != nil {
+		e := fmt.Errorf("GetRAIDAccountBalance returned error: %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
 
-	for i := 0; i < len(m); i++ {
-		bud, err := bidToBud(sd.BID)
-		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
+	//--------------------------------------------
+	// Set the opening balance.
+	//--------------------------------------------
+	var b, c, d float64
+	var a = StatementDetail{
+		BID:     sd.BID,
+		BUD:     rlib.XJSONBud(bud),
+		RAID:    sd.ID,
+		Dt:      rlib.JSONDate(m.DtStart),
+		Descr:   "Opening Balance",
+		Balance: m.OpeningBal,
+	}
+	g.Records = append(g.Records, a)
+	b = m.OpeningBal
+	for i := 0; i < len(m.Stmt); i++ {
 
 		var a = StatementDetail{
 			BID:  sd.BID,
 			BUD:  rlib.XJSONBud(bud),
 			RAID: sd.ID,
-			Dt:   rlib.JSONDate(m[i].Dt),
+			Dt:   rlib.JSONDate(m.Stmt[i].Dt),
 		}
 
 		descr := ""
-		if m[i].T == 1 || m[i].T == 2 {
-			if m[i].A.ARID > 0 {
-				descr = rlib.RRdb.BizTypes[sd.BID].AR[m[i].A.ARID].Name
+		if m.Stmt[i].T == 1 || m.Stmt[i].T == 2 {
+			if m.Stmt[i].A.ARID > 0 {
+				descr = rlib.RRdb.BizTypes[sd.BID].AR[m.Stmt[i].A.ARID].Name
 			} else {
-				descr = rlib.RRdb.BizTypes[sd.BID].GLAccounts[m[i].A.ATypeLID].Name
+				descr = rlib.RRdb.BizTypes[sd.BID].GLAccounts[m.Stmt[i].A.ATypeLID].Name
 			}
 		}
-		switch m[i].T {
+		switch m.Stmt[i].T {
 		case 1: // assessments
-			amt := rlib.RoundToCent(m[i].Amt)
-			c += amt
-			b += amt
-			a.Dt = rlib.JSONDate(m[i].Dt)
-			a.ID = rlib.IDtoString("ASM", m[i].ID)
+			amt := m.Stmt[i].Amt
+			c -= amt
+			b -= amt
+			a.Dt = rlib.JSONDate(m.Stmt[i].Dt)
+			a.ID = rlib.IDtoString("ASM", m.Stmt[i].A.ASMID)
 			a.Descr = descr
 			a.AsmtAmount = amt
 		case 2: // receipts
-			amt := rlib.RoundToCent(m[i].Amt)
+			amt := m.Stmt[i].Amt
 			d += amt
 			b += amt
-			if m[i].A.ASMID > 0 {
-				descr = fmt.Sprintf("%s (%s)", descr, m[i].A.IDtoString())
+			if m.Stmt[i].A.ASMID > 0 {
+				descr = fmt.Sprintf("%s (%s)", descr, m.Stmt[i].A.IDtoString())
 			}
-			a.ID = rlib.IDtoString("RCPT", m[i].ID)
+			a.ID = rlib.IDtoString("RCPT", m.Stmt[i].R.RCPTID)
 			a.Descr = descr
 			a.RcptAmount = amt
-		case 3: // opening balance
-			a.Descr = "Opening Balance"
 		}
 		a.Balance = b
 		g.Records = append(g.Records, a)
 	}
+
+	a = StatementDetail{
+		BID:        sd.BID,
+		BUD:        rlib.XJSONBud(bud),
+		RAID:       sd.ID,
+		Dt:         rlib.JSONDate(m.DtStop.AddDate(0, 0, -1)),
+		Descr:      "Closing Balance",
+		Balance:    m.ClosingBal,
+		AsmtAmount: c,
+		RcptAmount: d,
+	}
+	g.Records = append(g.Records, a)
+
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	g.Total = int64(len(g.Records))

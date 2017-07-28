@@ -128,6 +128,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	ra.BID = a.BID                                 // this business
 	ra.RCPTID = rcpt.RCPTID                        // bind this allocation the the receipt
 	ra.Dt = *dt                                    // the date is the one supplied to this routine, may be different than the Receipt's date
+	ra.RAID = a.RAID                               // this Rental Agreement
 	car := rlib.RRdb.BizTypes[a.BID].AR[a.ARID]    // this is the assessment's Account Rule
 	dar := rlib.RRdb.BizTypes[a.BID].AR[rcpt.ARID] // debit -- this is the receipt's Account Rule, credit account
 

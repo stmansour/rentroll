@@ -28,7 +28,9 @@ var QBAcctType = []string{
 	"Expense Account",
 }
 
-// RentalPeriodToString takes an accrual recurrence value and returns its name as a string
+// RentalPeriodToString takes an accrual recurrence value and returns its
+// name as a string
+//=============================================================================
 func RentalPeriodToString(a int64) string {
 	s := ""
 	switch a {
@@ -54,7 +56,9 @@ func RentalPeriodToString(a int64) string {
 	return s
 }
 
-// ProrationUnits returns a string for the supplied accrual duration value suitable for use as units
+// ProrationUnits returns a string for the supplied accrual duration value
+// suitable for use as units
+//=============================================================================
 func ProrationUnits(a int64) string {
 	s := ""
 	switch a {
@@ -80,7 +84,8 @@ func ProrationUnits(a int64) string {
 	return s
 }
 
-// // StringToDate tries to convert the supplied string to a time.Time value. It will use the two
+// // StringToDate tries to convert the supplied string to a time.Time value.
+// // It will use the two
 // // formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2
 // func s2d(s string) time.Time {
 // 	var t time.Time
@@ -96,7 +101,9 @@ func ProrationUnits(a int64) string {
 // 	return t
 // }
 
-// CycleDuration returns the prorateDuration in microseconds and the units as a string
+// CycleDuration returns the prorateDuration in microseconds and the units as
+// a string
+//=============================================================================
 func CycleDuration(cycle int64, epoch time.Time) time.Duration {
 	var cycleDur time.Duration
 	month := epoch.Month()
@@ -127,7 +134,9 @@ func CycleDuration(cycle int64, epoch time.Time) time.Duration {
 	return cycleDur
 }
 
-// GetProrationRange returns the duration appropriate for the provided anchor dates, Accrual Rate, and Proration Rate
+// GetProrationRange returns the duration appropriate for the provided anchor
+// dates, Accrual Rate, and Proration Rate
+//=============================================================================
 func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration {
 	var timerange time.Duration
 	accrueDur := CycleDuration(RentCycle, d1)
@@ -155,7 +164,9 @@ func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration
 	return timerange
 }
 
-// SelectRentableStatusForPeriod returns a subset of Rentable states that overlap the supplied range.
+// SelectRentableStatusForPeriod returns a subset of Rentable states that
+// overlap the supplied range.
+//=============================================================================
 func SelectRentableStatusForPeriod(rsa *[]RentableStatus, dt1, dt2 time.Time) []RentableStatus {
 	var m []RentableStatus
 	for i := 0; i < len(*rsa); i++ {
@@ -168,7 +179,9 @@ func SelectRentableStatusForPeriod(rsa *[]RentableStatus, dt1, dt2 time.Time) []
 	return m
 }
 
-// GetRentableStateForDate returns the status of the Rentable on the supplied date
+// GetRentableStateForDate returns the status of the Rentable on the supplied
+// date
+//=============================================================================
 func GetRentableStateForDate(rid int64, dt *time.Time) int64 {
 	status := int64(RENTABLESTATUSUNKNOWN)
 	d2 := dt.Add(24 * time.Hour)
@@ -179,8 +192,10 @@ func GetRentableStateForDate(rid int64, dt *time.Time) int64 {
 	return status
 }
 
-// GetLIDFromGLAccountName returns the LID based on the supplied GLAccount name. It returns
+// GetLIDFromGLAccountName returns the LID based on the supplied GLAccount
+// name. It returns
 // 0 if no account matched the supplied name
+//=============================================================================
 func GetLIDFromGLAccountName(bid int64, s string) int64 {
 	for k, v := range RRdb.BizTypes[bid].GLAccounts {
 		if v.Name == s {
@@ -190,8 +205,10 @@ func GetLIDFromGLAccountName(bid int64, s string) int64 {
 	return int64(0)
 }
 
-// GetGLAccountChildAccts returns an array of LIDs whose parent are the suppliedbased on the supplied GLAccount name. If
-// there are no child accounts, the list will be empty
+// GetGLAccountChildAccts returns an array of LIDs whose parent are the
+// suppliedbased on the supplied GLAccount name. If there are no child
+// accounts, the list will be empty
+//=============================================================================
 func GetGLAccountChildAccts(bid, lid int64) []int64 {
 	var m []int64
 	for _, v := range RRdb.BizTypes[bid].GLAccounts {
@@ -204,6 +221,7 @@ func GetGLAccountChildAccts(bid, lid int64) []int64 {
 
 // GetAccountActivity returns the summed Amount balance for activity
 // in GLAccount lid associated with RentalAgreement raid
+//=============================================================================
 func GetAccountActivity(bid, lid int64, d1, d2 *time.Time) (float64, error) {
 	var bal = float64(0)
 	m, err := GetLedgerEntriesInRange(d1, d2, bid, lid)
@@ -218,6 +236,7 @@ func GetAccountActivity(bid, lid int64, d1, d2 *time.Time) (float64, error) {
 
 // GetRAAccountActivity returns the summed Amount balance for activity
 // in GLAccount lid associated with RentalAgreement raid
+//=============================================================================
 func GetRAAccountActivity(bid, lid, raid int64, d1, d2 *time.Time) (float64, error) {
 	var bal = float64(0)
 	m, err := GetLedgerEntriesForRAID(d1, d2, raid, lid)
@@ -232,6 +251,7 @@ func GetRAAccountActivity(bid, lid, raid int64, d1, d2 *time.Time) (float64, err
 
 // GetRentableAccountActivity returns the summed Amount balance for activity
 // in GLAccount lid associated with Rentable rid
+//=============================================================================
 func GetRentableAccountActivity(bid, lid, rid int64, d1, d2 *time.Time) (float64, error) {
 	var bal = float64(0)
 	m, err := GetLedgerEntriesForRentable(d1, d2, rid, lid)
@@ -244,7 +264,8 @@ func GetRentableAccountActivity(bid, lid, rid int64, d1, d2 *time.Time) (float64
 	return bal, err
 }
 
-// GetAccountTypeBalance totals the leaf node accounts for the supplied account type
+// GetAccountTypeBalance totals the leaf node accounts for the supplied
+// account type
 //   a = AccountType for which to retrieve balance
 // bid = which business
 //  dt = balance on this date
@@ -252,6 +273,7 @@ func GetRentableAccountActivity(bid, lid, rid int64, d1, d2 *time.Time) (float64
 // RETURNS:
 //   float64 balance
 //   error or nil
+//=============================================================================
 func GetAccountTypeBalance(a string, bid int64, dt *time.Time) (float64, error) {
 	bal := float64(0)
 	found := false
@@ -281,8 +303,10 @@ func GetAccountTypeBalance(a string, bid int64, dt *time.Time) (float64, error) 
 	return bal, nil
 }
 
-// GetRAAccountBalance returns the balance of the account with LID lid on date dt. If raid is 0 then all
-// transactions are considered. Otherwise, only transactions involving this RAID are considered.
+// GetRAAccountBalance returns the balance of the account with LID lid on date
+// dt. If raid is 0 then all transactions are considered. Otherwise, only
+// transactions involving this RAID are considered.
+//=============================================================================
 func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 	// fmt.Printf("GetRAAccountBalance: bid = %d, lid = %d, raid = %d, dt = %s ", bid, lid, raid, dt.Format(RRDATEFMT4))
 	bal := float64(0)
@@ -300,8 +324,8 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 	// Compute the total for this account. If this ledger does not allow posts, don't
 	// consider its Balance.
 	//--------------------------------------------------------------------------------
-	lm := GetRALedgerMarkerOnOrBefore(bid, lid, raid, dt) // find nearest ledgermarker, use it as a basis
-	// fmt.Printf("GetRALedgerMarkerOnOrBefore(bid,lid,raid,dt) = lm.LMID = %d, lm.Dt = %s\n", lm.LMID, lm.Dt.Format(RRDATEFMT4))
+	lm := GetRALedgerMarkerOnOrBeforeDeprecated(bid, lid, raid, dt) // find nearest ledgermarker, use it as a basis
+	// fmt.Printf("GetRALedgerMarkerOnOrBeforeDeprecated(bid,lid,raid,dt) = lm.LMID = %d, lm.Dt = %s\n", lm.LMID, lm.Dt.Format(RRDATEFMT4))
 	if lm.LMID > 0 && RRdb.BizTypes[bid].GLAccounts[lid].AllowPost != 0 {
 		bal += lm.Balance // we initialize the balance to this amount
 		// fmt.Printf("LedgerMarker( bid=%d, lid=%d, raid=%d ) --> LM%08d,  dt = %10s, lm.Balance = %8.2f ==>  bal = %8.2f\n", bid, lid, raid, lm.LMID, lm.Dt.Format(RRDATEFMT4), lm.Balance, bal)
@@ -324,12 +348,15 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 // GetAccountBalance returns the balance of the account with LID lid on date dt.
 // It's just a wrapper around GetRAAccountBalance with raid set to 0.  This returns
 // the account balance we're after, but with a more obvious function name to call.
+//=============================================================================
 func GetAccountBalance(bid, lid int64, dt *time.Time) float64 {
 	return GetRAAccountBalance(bid, lid, 0, dt)
 }
 
-// GetRentableAccountBalance returns the balance of the account with LID lid on date dt. If rid is 0 then all
-// transactions are considered. Otherwise, only transactions involving this RID are considered.
+// GetRentableAccountBalance returns the balance of the account with LID lid
+// on date dt. If rid is 0 then all transactions are considered. Otherwise,
+// only transactions involving this RID are considered.
+//=============================================================================
 func GetRentableAccountBalance(bid, lid, rid int64, dt *time.Time) float64 {
 	// fmt.Printf("GetRAAccountBalance: bid = %d, lid = %d, rid = %d, dt = %s\n", bid, lid, rid, dt.Format(RRDATEFMT4))
 	bal := float64(0)
@@ -360,14 +387,16 @@ func GetRentableAccountBalance(bid, lid, rid int64, dt *time.Time) float64 {
 	return bal
 }
 
-// GetRentCycleAndProration returns the RentCycle (and Proration) to use for the supplied rentable and date.
-// If the override RentCycle is set for this time period, it is returned. Otherwise, the RentCycle for this
-// Rentable's RentableType is returned
+// GetRentCycleAndProration returns the RentCycle (and Proration) to use for
+// the supplied rentable and date. If the override RentCycle is set for this
+// time period, it is returned. Otherwise, the RentCycle for this Rentable's
+// RentableType is returned
 // Returns:
 //		RentCycle
 //		Proration
 //		rtid for the supplied date
 //		error
+//=============================================================================
 func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int64, int64, int64, error) {
 	var err error
 	var rc, pro, rtid int64

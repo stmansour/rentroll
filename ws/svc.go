@@ -215,6 +215,11 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
+		if d.BID < 0 {
+			e := fmt.Errorf("Invalid business id: %s", pathElements[2])
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 	}
 	if len(pathElements) >= 4 {
 		d.DetVal = pathElements[3]

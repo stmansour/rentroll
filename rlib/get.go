@@ -689,11 +689,22 @@ func GetLedgerMarkerOnOrBefore(bid, lid int64, dt *time.Time) LedgerMarker {
 // 	return r
 // }
 
-// GetRALedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with
+// GetRALedgerMarkerOnOrBeforeDeprecated returns the LedgerMarker struct for the GLAccount with
 // the supplied LID filtered for the supplied RentalAgreement raid
-func GetRALedgerMarkerOnOrBefore(bid, lid, raid int64, dt *time.Time) LedgerMarker {
+// THIS HAS BEEN DEPRECATED  7/27/2017
+func GetRALedgerMarkerOnOrBeforeDeprecated(bid, lid, raid int64, dt *time.Time) LedgerMarker {
 	var r LedgerMarker
-	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore.QueryRow(bid, lid, raid, dt)
+	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBeforeDeprecated.QueryRow(bid, lid, raid, dt)
+	ReadLedgerMarker(row, &r)
+	return r
+}
+
+// GetRALedgerMarkerOnOrBefore returns the LedgerMarker struct for the RAID with
+// the supplied LID filtered for the supplied RentalAgreement raid
+//=============================================================================
+func GetRALedgerMarkerOnOrBefore(raid int64, dt *time.Time) LedgerMarker {
+	var r LedgerMarker
+	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore.QueryRow(raid, dt)
 	ReadLedgerMarker(row, &r)
 	return r
 }
@@ -752,7 +763,7 @@ func GetRentableLedgerMarkerOnOrBefore(bid, lid, rid int64, dt *time.Time) Ledge
 //			   will be loaded and returned.
 //-----------------------------------------------------------------------------
 func LoadRALedgerMarker(bid, lid, raid int64, dt *time.Time) LedgerMarker {
-	lm := GetRALedgerMarkerOnOrBefore(bid, lid, raid, dt)
+	lm := GetRALedgerMarkerOnOrBeforeDeprecated(bid, lid, raid, dt)
 	if lm.LMID == 0 {
 		lm.LID = lid
 		lm.BID = bid
@@ -1303,11 +1314,11 @@ func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
 	return t
 }
 
-// GetReceiptAllocationsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2).
+// GetASMReceiptAllocationsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2).
 // To do this we select all the ReceiptAllocations that occurred during d1-d2 that involved
 // raid.
-func GetReceiptAllocationsInRAIDDateRange(bid, raid int64, d1, d2 *time.Time) []ReceiptAllocation {
-	rows, err := RRdb.Prepstmt.GetReceiptAllocationsInRAIDDateRange.Query(bid, raid, d1, d2)
+func GetASMReceiptAllocationsInRAIDDateRange(raid int64, d1, d2 *time.Time) []ReceiptAllocation {
+	rows, err := RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(raid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 	var t = []ReceiptAllocation{}
