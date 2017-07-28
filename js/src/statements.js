@@ -66,7 +66,7 @@ function buildStatementsElements() {
         name: 'stmtDetailForm',
         style: 'border: 0px; background-color: transparent;',
         header: 'Statement Detail',
-        url: '/v1/stmtInfo',
+        url: '/v1/stmtinfo',
         formURL: '/html/formstmtdet.html',
         toolbar: {
             items: [
@@ -91,8 +91,19 @@ function buildStatementsElements() {
             { field: 'recid', type: 'int', required: false, html: {page: 0, column: 0 } },
             { field: 'RAID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
+            { field: 'Balance', type: 'float', required: false, html: { page: 0, column: 0 }, render: 'money' },
+            { field: 'Payors', type: 'text', required: false, html: { page: 0, column: 0 } },
+
         ],
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                var x = document.getElementById("bannerRAID");
+                if (x !== null) {
+                    x.innerHTML = '' + this.record.RAID;
+                }
+            };
+        },
+
     });
 
     //------------------------------------------------------------------------
@@ -101,7 +112,7 @@ function buildStatementsElements() {
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'stmtDetailGrid',
-        url: '/v1/stmtDetail',
+        url: '/v1/stmtdetail',
         multiSelect: false,
         postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
@@ -161,8 +172,9 @@ function buildStatementsElements() {
 //-----------------------------------------------------------------------------
 function setToStmtForm(bid, raid, d1,d2) {
     if (raid > 0) {
-        w2ui.stmtDetailGrid.url = '/v1/stmtDetail/' + bid + '/' + raid;
-        w2ui.stmtDetailForm.url = '/v1/stmtInfo/' + bid + '/' + raid;
+        w2ui.stmtDetailGrid.url = '/v1/stmtdetail/' + bid + '/' + raid;
+        w2ui.stmtDetailForm.url = '/v1/stmtinfo/' + bid + '/' + raid;
+        w2ui.stmtDetailForm.request();
 
         w2ui.toplayout.content('right', w2ui.stmtLayout);
         w2ui.toplayout.show('right', true);

@@ -19,6 +19,15 @@ func IDtoString(pre string, id int64) string {
 	return fmt.Sprintf("%s%08d", pre, id)
 }
 
+// IDtoShortString is the generic ID prenter. Provide it a prefix and an id
+// and it will return the formatted id as a string.
+func IDtoShortString(pre string, id int64) string {
+	if 0 == id {
+		return "0"
+	}
+	return fmt.Sprintf("%s-%d", pre, id)
+}
+
 // IDtoString is the method to produce a consistent printable id string
 func (t *Assessment) IDtoString() string {
 	return IDtoString("ASM", t.ASMID)

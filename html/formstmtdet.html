@@ -1,29 +1,19 @@
 <div id="stmtDetailForm">
     <div class="w2ui-page page-0">
-        <div class="w2ui-field"><input type="hidden" name="recid" /></div>
-        <div class="w2ui-field"><input type="hidden" name="BID" /></div>
-        <div class="w2ui-field">
-            <label>Business Unit:</label>
-            <div><input name="BID" type="int" disabled/></div>
-        </div>
-        <!--
-        <div class="w2ui-field">
-            <label>Business Unit:</label>
-            <div><input name="BUD" type="int" disabled/></div>
-        </div>
-        -->
-        <div class="w2ui-field">
-            <label>Rental Agreement:</label>
-            <div><input name="RAID" type="int" disabled/></div>
-        </div>
-        <div class="w2ui-field">
-            <label>Balance:</label>
-            <div><input name="Balance" type="float" disabled/></div>
+        <div id="RAInfo" style="background-color: white; padding: 8px 12px; border-radius: 4px; margin: 10px 5px;text-align: left;">
+            <p class="bannerTitle">Rental Agreement &nbsp;&nbsp;<span id="bannerRAID">RA-*</span></p>
         </div>
 
-    <div class="w2ui-buttons">
-        <button class="w2ui-btn" name="save">Save</button>
-        <button class="w2ui-btn" name="delete">Delete</button>
-    </div>
+        <div class="w2ui-field"><input type="hidden" name="recid" /></div>
+        <div class="w2ui-field"><input type="hidden" name="RAID" /></div>
+        <div class="w2ui-field"><input type="hidden" name="BID" /></div>
+        <div class="w2ui-field">
+            <label>Payors:</label>
+            <div><input name="Payors" style="width: 100%" type="text" disabled/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Current Balance:</label>
+            <div><input name="Balance" type="float" disabled/></div>
+        </div>
 </div>
 

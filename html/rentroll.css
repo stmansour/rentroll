@@ -27,6 +27,12 @@ p {
     font-size: 9pt;
 }
 
+.bannerTitle {
+    font-family: "Open Sans","Roboto", sans-serif;
+    font-size: 12pt;
+    font-weight: bold;
+}
+
 .preformatted {
     font-family: "Monaco", "Menlo", "Source Code Pro", monospace;
     white-space: pre;

@@ -117,7 +117,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			c -= amt
 			b -= amt
 			a.Dt = rlib.JSONDate(m.Stmt[i].Dt)
-			a.ID = rlib.IDtoString("ASM", m.Stmt[i].A.ASMID)
+			a.ID = rlib.IDtoShortString("ASM", m.Stmt[i].A.ASMID)
 			a.Descr = descr
 			a.AsmtAmount = amt
 		case 2: // receipts
@@ -125,9 +125,9 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			d += amt
 			b += amt
 			if m.Stmt[i].A.ASMID > 0 {
-				descr = fmt.Sprintf("%s (%s)", descr, m.Stmt[i].A.IDtoString())
+				descr = fmt.Sprintf("%s (%s)", descr, rlib.IDtoShortString("ASM", m.Stmt[i].A.ASMID))
 			}
-			a.ID = rlib.IDtoString("RCPT", m.Stmt[i].R.RCPTID)
+			a.ID = rlib.IDtoShortString("RCPT", m.Stmt[i].R.RCPTID)
 			a.Descr = descr
 			a.RcptAmount = amt
 		}
