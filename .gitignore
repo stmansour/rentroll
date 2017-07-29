@@ -22,3 +22,11 @@ bizerr.csv
 node_modules
 js/._w2ui*
 js/._jquery*
+test/401/
+test/conv/conv
+test/importers/roomkey/roomkey_exported/
+test/importers/roomkey/roomkey_sample/
+test/irex/rex2017-07-27.sql
+test/irex/statements.txt
+test/irex/tables/
+

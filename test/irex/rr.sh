@@ -12,7 +12,7 @@ echo "BEGIN IREX FUNCTIONAL TEST" >>${LOGFILE}
 #   This section has the 1-time tasks to set up the business and get the accounts to
 #   their correct starting values.
 #========================================================================================
-# docsvtest "a" "-b business.csv -L 3" "Business"
+docsvtest "a" "-b business.csv -L 3" "Business"
 docsvtest "e" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
 
 logcheck

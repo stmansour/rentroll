@@ -108,6 +108,19 @@ function getBUDfromBID(BID) {
 }
 
 //-----------------------------------------------------------------------------
+// GridMoneyFormat  - format comma-delimited money amount. 
+// @params  x   - value to be formatted
+// @return  HTML string for the amount, suitable for render in w2ui grid cells
+//-----------------------------------------------------------------------------
+function GridMoneyFormat(x) {
+    var h = '';
+    if (x !== 0) {
+        h = '$ ' + number_format(x,2);
+    }
+    return h;
+}
+
+//-----------------------------------------------------------------------------
 // getBIDfromBUD  - given the BUD return the associated BID. Returns
 //                  undefined if BUD is not found
 // @params  BUD   - the BUD for the business of interest

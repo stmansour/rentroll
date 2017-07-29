@@ -11,6 +11,7 @@ type RAStmtEntry struct {
 	T   int                // 1 = assessment, 2 = Receipt
 	A   *Assessment        // for type==1, the pointer to the assessment
 	R   *ReceiptAllocation // for type ==2, the pointer to the receipt
+	RNT *Rentable          // the associated rentable, if known
 	Amt float64
 	Dt  time.Time
 }
@@ -117,11 +118,14 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 	for rows.Next() {
 		var a Assessment
 		ReadAssessments(rows, &a)
+		var rnt Rentable
+		GetRentableByID(a.RID, &rnt)
 		se := RAStmtEntry{
 			T:   1,
 			A:   &a,
 			Amt: a.Amount,
 			Dt:  a.Start,
+			RNT: &rnt,
 		}
 		(*p) = append((*p), se)
 		bal -= a.Amount
@@ -138,10 +142,13 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 		ReadReceiptAllocations(rows, &ra)
 		a, err := GetAssessment(ra.ASMID)
 		Errcheck(err)
+		var rnt Rentable
+		GetRentableByID(a.RID, &rnt)
 		se := RAStmtEntry{
 			T:   2,
 			R:   &ra,
 			A:   &a,
+			RNT: &rnt,
 			Amt: ra.Amount,
 			Dt:  ra.Dt,
 		}

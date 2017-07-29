@@ -1,4 +1,7 @@
 "use strict";
+/*global
+    GridMoneyFormat
+*/
 
 function buildStatementsElements() {
 
@@ -93,13 +96,22 @@ function buildStatementsElements() {
             { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'Balance', type: 'float', required: false, html: { page: 0, column: 0 }, render: 'money' },
             { field: 'Payors', type: 'text', required: false, html: { page: 0, column: 0 } },
-
+            { field: 'AgreementStart', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'AgreementStop', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'PossessionStart', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'PossessionStop', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'RentStart', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'RentStop', type: 'date', required: false, html: { page: 0, column: 0 } },
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
                 var x = document.getElementById("bannerRAID");
                 if (x !== null) {
                     x.innerHTML = '' + this.record.RAID;
+                }
+                x = document.getElementById("bannerPayors");
+                if (x !== null) {
+                    x.innerHTML = '' + this.record.Payors;
                 }
             };
         },
@@ -131,13 +143,20 @@ function buildStatementsElements() {
             toolbarColumns  : false,
         },
         columns: [
-            {field: 'recid',      caption: 'recid',       size: '40px',  sortable: true, hidden: true},
-            {field: 'Dt',         caption: 'Date',        size: '80px',  sortable: true},
-            {field: 'ID',         caption: 'ID',          size: '100px', sortable: true},
-            {field: 'Descr',      caption: 'Description', size: '50%', sortable: true},
-            {field: 'AsmtAmount', caption: 'Assessment',  size: '90px', sortable: true, render: 'money'},
-            {field: 'RcptAmount', caption: 'Receipt',     size: '90px', sortable: true, render: 'money'},
-            {field: 'Balance',    caption: 'Balance',     size: '90px', sortable: true, render: 'money'},
+            {field: 'recid',        caption: 'recid',       size: '35px',  sortable: true, hidden: true},
+            {field: 'Dt',           caption: 'Date',        size: '75px',  sortable: true},
+            {field: 'ID',           caption: 'ID',          size: '80px', sortable: true},
+            {field: 'RentableName', caption: app.sRentable, size: '30%', sortable: true},
+            {field: 'Descr',        caption: 'Description', size: '60%', sortable: true},
+            {field: 'AsmtAmount',   caption: 'Assessment',  size: '90px', sortable: true, style: 'text-align: right',
+                    render: function (record) { return GridMoneyFormat(record.AsmtAmount); },
+            },
+            {field: 'RcptAmount',   caption: 'Receipt',     size: '90px', sortable: true, style: 'text-align: right',
+                    render: function (record) { return GridMoneyFormat(record.RcptAmount); },
+            },
+            {field: 'Balance',      caption: 'Balance',     size: '90px', sortable: true, style: 'text-align: right',
+                    render: function (record) { return GridMoneyFormat(record.Balance); },
+            },
         ],
     });
 
@@ -178,7 +197,7 @@ function setToStmtForm(bid, raid, d1,d2) {
 
         w2ui.toplayout.content('right', w2ui.stmtLayout);
         w2ui.toplayout.show('right', true);
-        w2ui.toplayout.sizeTo('right', 730);
+        w2ui.toplayout.sizeTo('right', 770);
         w2ui.toplayout.render();
         app.new_form_rec = false; // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
@@ -186,10 +205,12 @@ function setToStmtForm(bid, raid, d1,d2) {
 }
 
 //-----------------------------------------------------------------------------
-// createStmtForm - add the grid and form to the statement layout
+// createStmtForm - add the grid and form to the statement layout.  I'm not
+//      sure why this is necessary. But if I put this grid and form directly
+//      into the layout when it gets created, they do not work correctly.
 // @params
 //-----------------------------------------------------------------------------
 function createStmtForm() {
-        w2ui.stmtLayout.content('top',w2ui.stmtDetailForm);
-        w2ui.stmtLayout.content('main',w2ui.stmtDetailGrid);
+    w2ui.stmtLayout.content('top',w2ui.stmtDetailForm);
+    w2ui.stmtLayout.content('main',w2ui.stmtDetailGrid);
 }

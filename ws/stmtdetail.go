@@ -8,16 +8,17 @@ import (
 
 // StatementDetail is a structure to fill the statement detail grid
 type StatementDetail struct {
-	Recid      int64         `json:"recid"` // this is to support the w2ui form
-	RAID       int64         // internal unique id
-	BID        int64         // Business (so that we can process by Business)
-	BUD        rlib.XJSONBud // which business
-	ID         string        // rcpt or asmt id
-	Dt         rlib.JSONDate // date of the assessment or payment
-	Descr      string        // about the assessment/receipt
-	AsmtAmount float64       // amount of assessment
-	RcptAmount float64       // amount of receipt
-	Balance    float64       // sum
+	Recid        int64         `json:"recid"` // this is to support the w2ui form
+	RAID         int64         // internal unique id
+	BID          int64         // Business (so that we can process by Business)
+	BUD          rlib.XJSONBud // which business
+	ID           string        // rcpt or asmt id
+	Dt           rlib.JSONDate // date of the assessment or payment
+	Descr        string        // about the assessment/receipt
+	AsmtAmount   float64       // amount of assessment
+	RcptAmount   float64       // amount of receipt
+	RentableName string        // associated rentable name
+	Balance      float64       // sum
 }
 
 // StmtDetailResponse is the response data for a Rental Agreement Search
@@ -94,7 +95,8 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	}
 	g.Records = append(g.Records, a)
 	b = m.OpeningBal
-	for i := 0; i < len(m.Stmt); i++ {
+	count := 0
+	for i := sd.wsSearchReq.Offset; i < len(m.Stmt); i++ {
 
 		var a = StatementDetail{
 			BID:  sd.BID,
@@ -131,8 +133,14 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			a.Descr = descr
 			a.RcptAmount = amt
 		}
+		a.RentableName = m.Stmt[i].RNT.RentableName
 		a.Balance = b
+		a.Recid = int64(i)
 		g.Records = append(g.Records, a)
+		count++
+		if count >= sd.wsSearchReq.Limit {
+			break
+		}
 	}
 
 	a = StatementDetail{
