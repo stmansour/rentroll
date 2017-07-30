@@ -110,6 +110,7 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+	now := time.Now()
 	g.Record.Payors = strings.Join(sa, ",")
 	g.Record.BID = d.BID
 	g.Record.RAID = d.ID
@@ -119,6 +120,11 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	g.Record.PossessionStop = rlib.JSONDate(p.PossessionStop)
 	g.Record.RentStart = rlib.JSONDate(p.RentStart)
 	g.Record.RentStop = rlib.JSONDate(p.RentStop)
+	g.Record.Balance, err = rlib.GetRAIDBalance(d.ID, &now)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
 
 	g.Status = "success"
 	SvcWriteResponse(&g, w)

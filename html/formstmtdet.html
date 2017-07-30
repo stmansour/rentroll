@@ -3,29 +3,27 @@
         <div id="RAInfo" style="background-color: white; padding: 8px 12px; border-radius: 4px; margin: 10px 5px;text-align: left;">
             <p class="bannerTitle">Rental Agreement &nbsp;&nbsp;<span id="bannerRAID">RA-*</span></p>
             <p>&nbsp;</p>
-            <p>Payors: <span id="bannerPayors">payor</span>
+            <table class="bannerTable">
+              <tr><td>Payors: </td><td width="10">&nbsp;</td><td><span id="bannerPayors"></span></td></tr>
+              <tr><td>Rental Agreement</td><td width="10">&nbsp;</td><td><span id="RentalAgreementDates"></span></td></tr>
+              <tr><td>Possession</td><td width="10">&nbsp;</td><td><span id="PossessionDates"></span></td></tr>
+              <tr><td>Rent</td><td width="10">&nbsp;</td><td><span id="RentDates"></span></td></tr>
+              <tr><td class"CurrentBalance">Current Balance</td><td width="10">&nbsp;</td><td><span id="CurrentStatementBalance"></span></td></tr>
+            </table>
         </div>
 
         <div class="w2ui-field"><input type="hidden" name="recid" /></div>
         <div class="w2ui-field"><input type="hidden" name="RAID" /></div>
         <div class="w2ui-field"><input type="hidden" name="BID" /></div>
         <div class="w2ui-field"><input type="hidden" name="Payors" /></div>
+        <div class="w2ui-field"><input type="hidden" name="AgreementStart" /></div>
+        <div class="w2ui-field"><input type="hidden" name="AgreementStop" /></div>
+        <div class="w2ui-field"><input type="hidden" name="PossessionStart" /></div>
+        <div class="w2ui-field"><input type="hidden" name="PossessionStop" /></div>
+        <div class="w2ui-field"><input type="hidden" name="RentStart" /></div>
+        <div class="w2ui-field"><input type="hidden" name="RentStop" /></div>
+        <div class="w2ui-field"><input type="hidden" name="RentStop" /></div>
+        <div class="w2ui-field"><input type="hidden" name="Balance" /></div>
 
-        <div class="w2ui-field">
-            <label>Agreement:</label>
-            <div><input name="AgreementStart" type="us-date1" size="11" disabled/> - <input name="AgreementStop" type="us-date2" size="11" disabled/></div>
-        </div>
-        <div class="w2ui-field">
-            <label>Possession:</label>
-            <div><input name="PossessionStart" type="us-date1" size="11" disabled/> - <input name="PossessionStop" type="us-date2" size="11" disabled/></div>
-        </div>
-        <div class="w2ui-field">
-            <label>Rent:</label>
-            <div><input name="RentStart" type="us-date1" size="11" disabled/> - <input name="RentStop" type="us-date2" size="11" disabled/></div>
-        </div>
-        <div class="w2ui-field">
-            <label>Current Balance:</label>
-            <div><input name="Balance" type="float" disabled/></div>
-        </div>
 </div>
 

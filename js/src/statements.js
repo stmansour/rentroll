@@ -1,6 +1,6 @@
 "use strict";
 /*global
-    GridMoneyFormat
+    GridMoneyFormat, number_format
 */
 
 function buildStatementsElements() {
@@ -113,6 +113,22 @@ function buildStatementsElements() {
                 if (x !== null) {
                     x.innerHTML = '' + this.record.Payors;
                 }
+                x = document.getElementById("RentalAgreementDates");
+                if (x !== null) {
+                    x.innerHTML = '' + this.record.AgreementStart + ' - ' + this.record.AgreementStop;
+                }
+                x = document.getElementById("PossessionDates");
+                if (x !== null) {
+                    x.innerHTML = '' + this.record.PossessionStart + ' - ' + this.record.PossessionStop;
+                }
+                x = document.getElementById("RentDates");
+                if (x !== null) {
+                    x.innerHTML = '' + this.record.RentStart + ' - ' + this.record.RentStop;
+                }
+                x = document.getElementById("CurrentStatementBalance");
+                if (x !== null) {
+                    x.innerHTML = '$ ' + number_format(this.record.Balance ,2);
+                }
             };
         },
 
@@ -149,13 +165,13 @@ function buildStatementsElements() {
             {field: 'RentableName', caption: app.sRentable, size: '30%', sortable: true},
             {field: 'Descr',        caption: 'Description', size: '60%', sortable: true},
             {field: 'AsmtAmount',   caption: 'Assessment',  size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record) { return GridMoneyFormat(record.AsmtAmount); },
+                    render: function (record,index,col_index) { return GridMoneyFormat(record.AsmtAmount); },
             },
             {field: 'RcptAmount',   caption: 'Receipt',     size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record) { return GridMoneyFormat(record.RcptAmount); },
+                    render: function (record,index,col_index) { return GridMoneyFormat(record.RcptAmount); },
             },
             {field: 'Balance',      caption: 'Balance',     size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record) { return GridMoneyFormat(record.Balance); },
+                    render: function (record,index,col_index) { return GridMoneyFormat(record.Balance); },
             },
         ],
     });
@@ -171,9 +187,9 @@ function buildStatementsElements() {
         name: 'stmtLayout',
         padding: 0,
         panels: [
-            { type: 'left',    size: '40%', hidden: true },
-            { type: 'top',     size: 300,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
-            { type: 'main',    size: '60%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
+            { type: 'left',    size: '30%', hidden: true },
+            { type: 'top',     size: 250,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'main',    size: '70%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
             { type: 'bottom',  size: 0,     hidden: true },
             { type: 'right',   size: 0,     hidden: true }

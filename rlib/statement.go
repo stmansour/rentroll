@@ -46,6 +46,33 @@ type RAAcctBal struct {
 	ClosingBal float64       // balance at close of period
 }
 
+// GetRAIDBalance returns the balance of the account for the supplied
+// rental agreement on the date requested.
+//
+//
+// Parameters
+//     raid  = Rental Agreement ID
+//       dt  = date for which balance is needed
+//
+// Returns
+//  balance  = RAID account balance if err == nil
+//      err  = any error that occurred or nil if no errors
+//
+//=============================================================================
+func GetRAIDBalance(raid int64, dt *time.Time) (float64, error) {
+	bal := float64(0)
+	lm := GetRALedgerMarkerOnOrBefore(raid, dt)
+	if lm.LMID == 0 {
+		err := fmt.Errorf("*** ERROR ***  could not find ledger marker for RAID %d on or before %s", raid, dt.Format(RRDATEFMTSQL))
+		return bal, err
+	}
+
+	var rs RAStmtEntries
+	bal = lm.Balance                               // initialize
+	bal += GetRAIDAcctRange(raid, &lm.Dt, dt, &rs) // update with total for this range
+	return bal, nil
+}
+
 // GetRAIDStatementInfo is written in a way that will work for cash based
 // systems or accrual based systems. It looks at all the transactions
 // involving the RAID provided and computes a total.  The total is computed

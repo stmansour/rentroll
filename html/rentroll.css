@@ -33,6 +33,12 @@ p {
     font-weight: bold;
 }
 
+.bannerTable td {
+    border: 0px solid #bbb;
+    padding: 4px;
+    font-size: 10pt;
+}
+
 .preformatted {
     font-family: "Monaco", "Menlo", "Source Code Pro", monospace;
     white-space: pre;
