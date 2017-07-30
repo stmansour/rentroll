@@ -76,8 +76,11 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	d2 := sd.wsSearchReq.SearchDtStop
 	m, err := rlib.GetRAIDStatementInfo(sd.ID, &d1, &d2)
 	if err != nil {
-		e := fmt.Errorf("GetRAIDAccountBalance returned error: %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		// e := fmt.Errorf("GetRAIDAccountBalance returned error: %s", err.Error())
+		// SvcGridErrorReturn(w, e, funcname)
+		g.Total = 0
+		g.Status = "success"
+		SvcWriteResponse(&g, w)
 		return
 	}
 

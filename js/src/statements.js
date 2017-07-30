@@ -165,13 +165,13 @@ function buildStatementsElements() {
             {field: 'RentableName', caption: app.sRentable, size: '30%', sortable: true},
             {field: 'Descr',        caption: 'Description', size: '60%', sortable: true},
             {field: 'AsmtAmount',   caption: 'Assessment',  size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return GridMoneyFormat(record.AsmtAmount); },
+                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.AsmtAmount); },
             },
             {field: 'RcptAmount',   caption: 'Receipt',     size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return GridMoneyFormat(record.RcptAmount); },
+                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.RcptAmount); },
             },
             {field: 'Balance',      caption: 'Balance',     size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return GridMoneyFormat(record.Balance); },
+                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.Balance); },
             },
         ],
     });
@@ -195,6 +195,14 @@ function buildStatementsElements() {
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
+}
+
+
+function stmtRenderHandler(record,index,col_index,amt) {
+    if (record.Descr.includes("Closing Balance") && Math.abs(amt) < 0.001) {
+        return '$ 0.00';
+    }
+    return GridMoneyFormat(amt); 
 }
 
 //-----------------------------------------------------------------------------
