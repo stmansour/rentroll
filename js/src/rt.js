@@ -240,6 +240,7 @@ function buildRentableTypeElements() {
             saveadd: function() {
                 var f = this,
                     grid = w2ui.rtGrid,
+                    r = f.record,
                     x = getCurrentBusiness(),
                     BID=parseInt(x.value),
                     BUD=getBUDfromBID(BID);
@@ -257,6 +258,40 @@ function buildRentableTypeElements() {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
+
+                    // dropdown list items and selected variables
+                    var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
+                        manageToBudgetSel = {}, cycleFreqItems = [];
+
+                    // select value for rentcycle, proration, gsrpc
+                    app.cycleFreq.forEach(function(itemText, itemIndex) {
+                        if (itemIndex == r.RentCycle) {
+                            rentCycleSel = { id: itemIndex, text: itemText };
+                        }
+                        if (itemIndex == r.Proration) {
+                            prorationSel = { id: itemIndex, text: itemText };
+                        }
+                        if (itemIndex == r.GSRPC) {
+                            gsrpcSel = { id: itemIndex, text: itemText };
+                        }
+                        cycleFreqItems.push({ id: itemIndex, text: itemText });
+                    });
+
+                    // select value for manage to budget
+                    app.manageToBudgetList.forEach(function(item) {
+                        if (item.id == r.ManageToBudget) {
+                            manageToBudgetSel = {id: item.id, text: item.text};
+                        }
+                    });
+
+                    f.get("ManageToBudget").options.items = app.manageToBudgetList;
+                    f.get("ManageToBudget").options.selected = manageToBudgetSel[0];
+                    f.get("RentCycle").options.items = cycleFreqItems;
+                    f.get("RentCycle").options.selected = rentCycleSel[0];
+                    f.get("Proration").options.items = cycleFreqItems;
+                    f.get("Proration").options.selected = prorationSel[0];
+                    f.get("GSRPC").options.items = cycleFreqItems;
+                    f.get("GSRPC").options.selected = gsrpcSel[0];
 
                     // JUST RENDER THE GRID ONLY
                     grid.render();
