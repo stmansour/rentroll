@@ -218,6 +218,14 @@ function buildDepositoryElements() {
                     // JUST RENDER THE GRID ONLY
                     grid.render();
 
+                    var gl_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
+                    var gl_accounts_items = [gl_accounts_pre_selected];
+                    // get gl account list for BUD from `gl_accounts` key of `app`
+                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
+
+                    f.get('LID').options.items = gl_accounts_items;
+                    f.get('LID').options.selected = gl_accounts_pre_selected;
+
                     // add new empty record and just refresh the form, don't need to do CLEAR form
                     var record = getDepoInitRecord(BID, BUD);
 
