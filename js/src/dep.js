@@ -1,4 +1,16 @@
 "use strict";
+function getDepoInitRecord(BID, BUD){
+    return {
+        recid: 0,
+        DEPID: 0,
+        BID: BID,
+        BUD: BUD,
+        LID: 0,
+        Name: "",
+        AccountNo: "",
+    };
+}
+
 function buildDepositoryElements() {
 
     //------------------------------------------------------------------------
@@ -115,15 +127,7 @@ function buildDepositoryElements() {
                             w2ui.toplayout.sizeTo('right', 700);
                             return;
                         } else {
-                            var record = {
-                                recid: 0,
-                                DEPID: 0,
-                                BID: BID,
-                                BUD: BUD,
-                                LID: 0,
-                                Name: "",
-                                AccountNo: "",
-                            };
+                            var record = getDepoInitRecord(BID, BUD);
 
                             var gl_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
                             var gl_accounts_items = [gl_accounts_pre_selected];
@@ -214,21 +218,17 @@ function buildDepositoryElements() {
                     // JUST RENDER THE GRID ONLY
                     grid.render();
 
+                    var gl_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
+                    var gl_accounts_items = [gl_accounts_pre_selected];
+                    // get gl account list for BUD from `gl_accounts` key of `app`
+                    gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
+
+                    f.get('LID').options.items = gl_accounts_items;
+                    f.get('LID').options.selected = gl_accounts_pre_selected;
+
                     // add new empty record and just refresh the form, don't need to do CLEAR form
-                    var y = new Date();
-                    var record = {
-                        recid: 0,
-                        DEPID: 0,
-                        BID: BID,
-                        BUD: BUD,
-                        LID: 0,
-                        Name: '',
-                        AccountNo: '',
-                        LdgrName: '',
-                        GLNumber: '',
-                        LastModTime: y.toISOString(),
-                        LastModBy: 0
-                    };
+                    var record = getDepoInitRecord(BID, BUD);
+
                     f.record = record;
                     f.header = "Edit Depository (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/dep/' + BID + '/0';

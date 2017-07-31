@@ -114,6 +114,8 @@ function showReport(rptname, elToFocus) {
 
     if (elToFocus) {
         callBack = function() {
+            // $("input[name="+elToFocus+"]").prop('readonly', true).focus().prop('readonly', false);
+            // elToFocus.focus();
             // document.getElementsByName(elToFocus)[0].focus(); // arrr..... does not found element, WHY!!
         };
     }
@@ -222,10 +224,13 @@ function buildReportElements(){
     }));
 
     // bind onchange event for date input control for reports
-    $(document).on("keypress", "input[name=dateD1]", function(e) {
-        // do not procedd further untill user press the Enter key
-        if (e.which != 13) {
-            return;
+    $(document).on("keypress change", "input[name=dateD1]", function(e) {
+        // if event type is keypress then
+        if (e.type == 'keypress'){
+            // do not procedd further untill user press the Enter key
+            if (e.which != 13) {
+                return;
+            }
         }
         var xd1 = document.getElementsByName('dateD1')[0].value;
         var xd2 = document.getElementsByName('dateD2')[0].value;
@@ -244,11 +249,15 @@ function buildReportElements(){
             d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
         }
         app.D1 = dateControlString(d1);
+        app.D2 = dateControlString(d2);
         showReport(app.last.report, "dateD1");
-    }).on("keypress", "input[name=dateD2]", function(e) {
-        // do not procedd further untill user press the Enter key
-        if (e.which != 13) {
-            return;
+    }).on("keypress change", "input[name=dateD2]", function(e) {
+        // if event type is keypress then
+        if (e.type == 'keypress'){
+            // do not procedd further untill user press the Enter key
+            if (e.which != 13) {
+                return;
+            }
         }
         var xd1 = document.getElementsByName('dateD1')[0].value;
         var xd2 = document.getElementsByName('dateD2')[0].value;
@@ -266,6 +275,7 @@ function buildReportElements(){
         if (d2.getTime() <= d1.getTime()) {
             d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000); //one day forward from From date
         }
+        app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
         showReport(app.last.report, "dateD2");
     });

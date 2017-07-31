@@ -1,4 +1,29 @@
 "use strict";
+function getRentableInitRecord(BID, BUD){
+    var y = new Date();
+    return {
+        recid: 0,
+        BID: BID,
+        BUD: BUD,
+        RID: 0,
+        RentableName: "",
+        RARID: 0,
+        RAID: 0,
+        RARDtStart: w2uiDateControlString(y),
+        RARDtStop: "1/1/9999",
+        RTID: {id: 0, text: ''},
+        RTRID: 0,
+        RTRefDtStart: w2uiDateControlString(y),
+        RTRefDtStop: "1/1/9999",
+        RSID: 0,
+        RentableStatus: "unknown",
+        RSDtStart: w2uiDateControlString(y),
+        RSDtStop: "1/1/9999",
+        CurrentDate: y,
+        AssignmentTime: 0,
+    };
+}
+
 function buildRentableElements() {
     //------------------------------------------------------------------------
     //          rentablesGrid
@@ -87,29 +112,9 @@ function buildRentableElements() {
 
                     var x = getCurrentBusiness(),
                         BID=parseInt(x.value),
-                        BUD = getBUDfromBID(BID),
-                        y = new Date(),
-                        record = {
-                            recid: 0,
-                            BID: BID,
-                            BUD: BUD,
-                            RID: 0,
-                            RentableName: "",
-                            RARID: 0,
-                            RAID: 0,
-                            RARDtStart: w2uiDateControlString(y),
-                            RARDtStop: "1/1/9999",
-                            RTID: {id: 0, text: ''},
-                            RTRID: 0,
-                            RTRefDtStart: w2uiDateControlString(y),
-                            RTRefDtStop: "1/1/9999",
-                            RSID: 0,
-                            RentableStatus: "unknown",
-                            RSDtStart: w2uiDateControlString(y),
-                            RSDtStop: "1/1/9999",
-                            CurrentDate: y,
-                            AssignmentTime: 0,
-                        };
+                        BUD = getBUDfromBID(BID);
+
+                    var record = getRentableInitRecord(BID, BUD);
 
                     getRentableTypes(BUD)
                     .done(function(/*data*/){
@@ -182,6 +187,47 @@ function buildRentableElements() {
             },
         },
         actions: {
+            saveadd: function() {
+                var f = this,
+                    grid = w2ui.rentablesGrid,
+                    r = f.record,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD=getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // select none if you're going to add new record
+                grid.selectNone();
+
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    getRentableTypes(BUD)
+                    .done(function(/*data*/){
+                        w2ui.rentableForm.record = record;
+                        w2ui.rentableForm.refresh();
+                        setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
+                    })
+                    .fail(function(){
+                        console.log("Failed to get rentable type list");
+                    });
+                    // JUST RENDER THE GRID ONLY
+                    grid.render();
+
+                    var record = getRentableInitRecord(BID, BUD);
+                    f.record = record;
+                    f.header = "Edit {0} ({1}) as of {2}".format(app.sRentable, "new", w2uiDateControlString(r.CurrentDate));
+                    f.url = '/v1/rentable/' + BID+'/0';
+                    f.refresh();
+                });
+            },
             save: function () {
                 //var obj = this;
                 var tgrid = w2ui.rentablesGrid;

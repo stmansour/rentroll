@@ -69,19 +69,44 @@ function setDateControlsInToolbar(prefix) {
 // @return  an array of fields that can be passed into toolbar.add()
 //-----------------------------------------------------------------------------
 function genDateRangeNavigator(prefix) {
-    var html1 = '<div style="padding: 0px 5px;">From: <input type="date" name="' + prefix + 'D1"></div>';
-    var html2 = '<div style="padding: 0px 5px;">To: <input type="date" name="' + prefix + 'D2">' + '</div>';
+    var html1 = '<div class="w2ui-field" style="padding: 0px 5px;">From: <input name="' + prefix + 'D1"></div>';
+    var html2 = '<div class="w2ui-field" style="padding: 0px 5px;">To: <input name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
         { type: 'button', id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
         { type: 'button', id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' },
-        { type: 'html', id: 'D1', html: function() {return html1; } },
+        { type: 'html', id: 'D1', html: function() {return html1; },
+        onRefresh: function(event) {
+               if(event.target == 'D1'){
+                   console.log('Event type: '+ event.type + ' TARGET: '+ event.target, event);
+
+                   // w2field in toolbar must be initialized during refresh
+                   // see: https://github.com/vitmalina/w2ui/issues/886
+                   event.onComplete = function(ev){
+                       $('input[name='+ prefix +'D1]').w2field('date', {format: 'm/d/yyyy'});
+                   };
+               }
+            }
+        },
         { type: 'button', id: 'today', icon: 'fa fa-circle-o', tooltip: 'present month' },
-        { type: 'html', id: 'D2', html: function() {return html2; } },
+        { type: 'html', id: 'D2', html: function() {return html2; },
+        onRefresh: function(event) {
+               if(event.target == 'D2'){
+                   console.log('Event type: '+ event.type + ' TARGET: '+ event.target, event);
+
+                   // w2field in toolbar must be initialized during refresh
+                   // see: https://github.com/vitmalina/w2ui/issues/886
+                   event.onComplete = function(ev){
+                       $('input[name='+ prefix +'D2]').w2field('date', {format: 'm/d/yyyy', start: $('input[name='+ prefix +'D1]')});
+                   };
+               }
+            }
+        },
         { type: 'button', id: 'dayfwd', icon: 'fa fa-chevron-circle-right', tooltip: 'day forward' },
         { type: 'button', id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
     ];
     return tmp;
 }
+
 
 
 //-----------------------------------------------------------------------------
@@ -110,10 +135,13 @@ function addDateNavToToolbar(prefix) {
     // bind onchange event for date input control for assessments
     var nd1 = prefix + "D1";
     var nd2 = prefix + "D2";
-    $(document).on("keypress", "input[name="+nd1+"]", function(e) {
-        // do not procedd further untill user press the Enter key
-        if (e.which != 13) {
-            return;
+    $(document).on("keypress change", "input[name="+nd1+"]", function(e) {
+        // if event type is keypress then
+        if (e.type == 'keypress'){
+            // do not procedd further untill user press the Enter key
+            if (e.which != 13) {
+                return;
+            }
         }
         var xd1 = document.getElementsByName(nd1)[0].value;
         var xd2 = document.getElementsByName(nd2)[0].value;
@@ -132,15 +160,23 @@ function addDateNavToToolbar(prefix) {
             d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
         }
         app.D1 = dateControlString(d1);
+        app.D2 = dateControlString(d2);
         grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         grid.load(grid.url, function() {
-            document.getElementsByName(nd1)[0].focus();
             grid.refresh();
+            // w2ui internally loads date calender on focus event. look at the following link:
+            // https://github.com/mpf82/w2ui/blob/f7f7159af5066b86a4e13bac1c1aa88e2e6b354f/src/w2fields.js#L933
+            // we dont want to show calender overlay while on focus. so make it readonly temporary.
+            // Ref:https://github.com/mpf82/w2ui/blob/f7f7159af5066b86a4e13bac1c1aa88e2e6b354f/src/w2fields.js#L1602
+            $("input[name="+nd1+"]").prop('readonly', true).focus().prop('readonly', false);
         });
-    }).on("keypress", "input[name="+nd2+"]", function(e) {
-        // do not procedd further untill user press the Enter key
-        if (e.which != 13) {
-            return;
+    }).on("keypress change", "input[name="+nd2+"]", function(e) {
+        // if event type is keypress then
+        if (e.type == 'keypress'){
+            // do not procedd further untill user press the Enter key
+            if (e.which != 13) {
+                return;
+            }
         }
         var xd1 = document.getElementsByName(nd1)[0].value;
         var xd2 = document.getElementsByName(nd2)[0].value;
@@ -158,12 +194,16 @@ function addDateNavToToolbar(prefix) {
         if (d2.getTime() <= d1.getTime()) {
             d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000); //one day forward from From date
         }
+        app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
         grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         grid.load(grid.url, function() {
-            document.getElementsByName(nd2)[0].focus();
             grid.refresh();
+            // w2ui internally loads date calender on focus event. look at the following link:
+            // https://github.com/mpf82/w2ui/blob/f7f7159af5066b86a4e13bac1c1aa88e2e6b354f/src/w2fields.js#L933
+            // we dont want to show calender overlay while on focus. so make it readonly temporary.
+            // Ref:https://github.com/mpf82/w2ui/blob/f7f7159af5066b86a4e13bac1c1aa88e2e6b354f/src/w2fields.js#L1602
+            $("input[name="+nd2+"]").prop('readonly', true).focus().prop('readonly', false);
         });
     });
-
 }

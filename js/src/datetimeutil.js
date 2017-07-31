@@ -151,20 +151,20 @@ function monthBack(dc) {
 // dateControlString
 //           - return a date string based on the supplied date that can be
 //             used as the .value attribute of a date control.  That is, in
-//             the format  yyyy-mm-dd.
+//             the format  m/d/yyyy.
 // @params
 //   dt = java date value
-// @return string value yyyy-mm-dd
+// @return string value m/d/yyyy
 //-----------------------------------------------------------------------------
 function dateControlString(dt) {
 
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
-    var s = '' + dt.getFullYear() + '-';
-    if (m < 10) { s += '0'; }
-    s += '' + m + '-';
-    if (d < 10) { s += '0'; }
+    // if (m < 10) { s += '0'; }
+    var s = '' + m + '/';
+    // if (d < 10) { s += '0'; }
     s += d;
+    s += '/' + dt.getFullYear() + '';
     return s;
 }
 
@@ -176,7 +176,7 @@ function dateControlString(dt) {
 //             the format  m/d/yyyy.
 // @params
 //   dt = java date value
-// @return string value yyyy-mm-dd
+// @return string value mm-dd-yyyy
 //-----------------------------------------------------------------------------
 function w2uiDateControlString(dt) {
 
@@ -199,7 +199,7 @@ function w2uiDateControlString(dt) {
 //-----------------------------------------------------------------------------
 function setDateControl(dc, dt) {
 
-    var s = dateControlString(dt);
+    var s = w2uiDateControlString(dt);
     dc.value = s;
     return s;
 }

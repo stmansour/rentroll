@@ -1,5 +1,28 @@
 "use strict";
+function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected){
+    var y1 = new Date();
+    var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
+    var ny = new Date(9999, 11, 31, 0, 0, 0);
+
+    return {
+        recid: 0,
+        BID: BID,
+        BUD: BUD,
+        ARID: 0,
+        ARType: 0,
+        DebitLID: post_accounts_pre_selected,
+        CreditLID: post_accounts_pre_selected,
+        Name: '',
+        Description: '',
+        DtStart: w2uiDateControlString(y),
+        DtStop: w2uiDateControlString(ny),
+        PriorToRAStart: true,
+        PriorToRAStop: true
+    };
+}
+
 function buildARElements() {
+
 //------------------------------------------------------------------------
 //          Account Rules Grid
 //------------------------------------------------------------------------
@@ -145,26 +168,7 @@ $().w2grid({
                         w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
                         w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
                         // w2ui.arsForm.refresh();
-
-                        var y1 = new Date();
-                        var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
-                        var ny = new Date(9999, 11, 31, 0, 0, 0);
-
-                        var record = {
-                            recid: 0,
-                            BID: BID,
-                            BUD: BUD,
-                            ARID: 0,
-                            ARType: 0,
-                            DebitLID: post_accounts_pre_selected,
-                            CreditLID: post_accounts_pre_selected,
-                            Name: '',
-                            Description: '',
-                            DtStart: w2uiDateControlString(y),
-                            DtStop: w2uiDateControlString(ny),
-                            PriorToRAStart: true,
-                            PriorToRAStop: true,
-                        };
+                        var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected);
                         w2ui.arsForm.record = record;
                         w2ui.arsForm.refresh();
                         setToForm('arsForm', '/v1/ar/' + BID + '/0', 400);
@@ -243,6 +247,55 @@ $().w2grid({
             }
         },
         actions: {
+            saveadd: function() {
+                var f = this,
+                    grid = w2ui.arsGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD=getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // select none if you're going to add new record
+                grid.selectNone();
+
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    // JUST RENDER THE GRID ONLY
+                    grid.render();
+
+                    // add new empty record and just refresh the form, don't need to do CLEAR form
+                    var artype_items = [];
+                    Object.keys(app.ARTypes).forEach(function(id){
+                        var artype_id = parseInt(id);
+                        artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
+                    });
+
+                    var post_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
+                    var post_accounts_items = [post_accounts_pre_selected];
+                    post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
+
+                    w2ui.arsForm.get('ARType').options.items = artype_items;
+                    // w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
+                    w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
+                    w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
+                    w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
+                    w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
+                    
+                    var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected);
+                    f.record = record;
+                    f.header = "Edit Account Rule (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.url = '/v1/ar/' + BID+'/0';
+                    f.refresh();
+                });
+            },
             delete: function() {
                 var form = this;
                 w2confirm(delete_confirm_options)
