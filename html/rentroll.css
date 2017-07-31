@@ -27,6 +27,13 @@ p {
     font-size: 9pt;
 }
 
+input:not([type=button]):not([type=submit]).w2ui-input:focus,
+input:not([type=button]):not([type=submit]).w2ui-input-focus,
+textarea.w2ui-input:focus,
+textarea.w2ui-input-focus {
+    outline: 1px #72b2ff solid;
+}
+
 .bannerTitle {
     font-family: "Open Sans","Roboto", sans-serif;
     font-size: 12pt;
