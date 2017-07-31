@@ -1,4 +1,27 @@
 "use strict";
+function getAccountInitRecord(BID, BUD){
+    var y = new Date();
+
+    return {
+        recid: 0,
+        LID: 0,
+        PLID: 0,
+        BID: BID,
+        BUD: BUD,
+        RAID: 0,
+        TCID: 0,
+        GLNumber: '',
+        Status: 2,
+        Name: '',
+        AcctType: '',
+        AllowPost: 1,
+        Description: '',
+        LastModTime: y.toISOString(),
+        LastModBy: 0,
+    };
+}
+
+
 function buildAccountElements() {
 
 //------------------------------------------------------------------------
@@ -113,11 +136,9 @@ $().w2grid({
                 app.last.grid_sel_recid = -1;
                 grid.selectNone();
 
-
                 var x = getCurrentBusiness();
                 var BID=parseInt(x.value);
                 var BUD = getBUDfromBID(BID);
-
                 getParentAccounts(BID, 0)
                .done(function(data) {
                     if (data.status != 'success') {
@@ -127,24 +148,7 @@ $().w2grid({
                         w2ui.toplayout.sizeTo('right', 700);
                         return;
                     } else {
-                        var y = new Date(),
-                            record = {
-                                recid: 0,
-                                LID: 0,
-                                PLID: 0,
-                                BID: BID,
-                                BUD: BUD,
-                                RAID: 0,
-                                TCID: 0,
-                                GLNumber: '',
-                                Status: 2,
-                                Name: '',
-                                AcctType: '',
-                                AllowPost: 1,
-                                Description: '',
-                                LastModTime: y.toISOString(),
-                                LastModBy: 0,
-                            };
+                        var record = getAccountInitRecord(BID, BUD);
 
                         w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
                         w2ui.accountForm.record = record;
@@ -235,6 +239,40 @@ $().w2grid({
             getFormSubmitData(data.postData.record);
         },
         actions: {
+            saveadd: function() {
+                var f = this,
+                    grid = w2ui.accountsGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD=getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // select none if you're going to add new record
+                grid.selectNone();
+
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    // JUST RENDER THE GRID ONLY
+                    grid.render();
+
+                    // add new empty record and just refresh the form, don't need to do CLEAR form
+                    var record = getAccountInitRecord(BID, BUD);
+
+                    w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
+                    f.record = record;
+                    f.header = "Edit Account Details (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.url = '/v1/account/' + BID+'/0';
+                    f.refresh();
+                });
+            },
             save: function() {
                 var f = this,
                     tgrid = w2ui.accountsGrid;

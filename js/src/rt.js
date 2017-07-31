@@ -1,4 +1,24 @@
 "use strict";
+function getRTInitRecord(BID, BUD){
+    var y = new Date();
+    return {
+        recid: 0,
+        BID: BID,
+        BUD: BUD,
+        RTID: 0,
+        Style: "",
+        Name: "",
+        RentCycle: 0,
+        Proration: 0,
+        GSRPC: 0,
+        ManageToBudget: 0,
+        RMRID: 0,
+        MarketRate: 0.0,
+        LastModTime: y.toISOString(),
+        LastModBy: 0,
+    };
+}
+
 function buildRentableTypeElements() {
 
     //------------------------------------------------------------------------
@@ -136,25 +156,9 @@ function buildRentableTypeElements() {
 
                     var x = getCurrentBusiness(),
                         BID=parseInt(x.value),
-                        BUD = getBUDfromBID(BID),
-                        y = new Date();
+                        BUD = getBUDfromBID(BID);
 
-                    var record = {
-                        recid: 0,
-                        BID: BID,
-                        BUD: BUD,
-                        RTID: 0,
-                        Style: "",
-                        Name: "",
-                        RentCycle: 0,
-                        Proration: 0,
-                        GSRPC: 0,
-                        ManageToBudget: 0,
-                        RMRID: 0,
-                        MarketRate: 0.0,
-                        LastModTime: y.toISOString(),
-                        LastModBy: 0,
-                    };
+                    var record = getRTInitRecord(BID, BUD);
                     w2ui.rentableTypeForm.record = record;
                     w2ui.rentableTypeForm.refresh();
                     setToForm('rentableTypeForm', '/v1/rt/' + BID + '/0', 400);
@@ -233,6 +237,37 @@ function buildRentableTypeElements() {
             }
         },
         actions: {
+            saveadd: function() {
+                var f = this,
+                    grid = w2ui.rtGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD=getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // select none if you're going to add new record
+                grid.selectNone();
+
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    // JUST RENDER THE GRID ONLY
+                    grid.render();
+
+                    var record = getRTInitRecord(BID, BUD);
+                    f.record = record;
+                    f.header = "Edit Rentable Type (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.url = '/v1/rt/' + BID+'/0';
+                    f.refresh();
+                });
+            },
             save: function () {
                 //var obj = this;
                 var tgrid = w2ui.rtGrid;

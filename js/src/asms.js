@@ -1,4 +1,36 @@
 "use strict";
+function getAsmsInitRecord(BID, BUD){
+    var y = new Date();
+    var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+    return {
+        ARID: 0,
+        recid: 0,
+        RID: 0,
+        ASMID: 0,
+        PASMID: 0,
+        ATypeLID: 0,
+        InvoiceNo: 0,
+        RAID: 0,
+        BID: BID,
+        BUD: BUD,
+        Start: w2uiDateControlString(y),
+        Stop: w2uiDateControlString(y1),
+        RentCycle: 'Monthly',
+        ProrationCycle: 'Daily',
+        TCID: 0,
+        Amount: 0,
+        AcctRule: '',
+        Comment: '',
+        LastModTime: y.toISOString(),
+        LastModBy: 0,
+        CreateTS: y.toISOString(),
+        CreateBy: 0,
+        ExpandPastInst: true,
+        FLAGS: 0,
+        Mode: 0,
+    };
+}
+
 function buildAssessmentElements() {
     //------------------------------------------------------------------------
     //          asmsGrid
@@ -143,35 +175,7 @@ function buildAssessmentElements() {
                             var BUD = getBUDfromBID(BID);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var y = new Date();
-                            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-                            var record = {
-                                ARID: 0,
-                                recid: 0,
-                                RID: 0,
-                                ASMID: 0,
-                                PASMID: 0,
-                                ATypeLID: 0,
-                                InvoiceNo: 0,
-                                RAID: 0,
-                                BID: BID,
-                                BUD: BUD,
-                                Start: w2uiDateControlString(y),
-                                Stop: w2uiDateControlString(y1),
-                                RentCycle: 'Monthly',
-                                ProrationCycle: 'Daily',
-                                TCID: 0,
-                                Amount: 0,
-                                AcctRule: '',
-                                Comment: '',
-                                LastModTime: y.toISOString(),
-                                LastModBy: 0,
-                                CreateTS: y.toISOString(),
-                                CreateBy: 0,
-                                ExpandPastInst: true,
-                                FLAGS: 0,
-                                Mode: 0,
-                            };
+                            var record = getAsmsInitRecord(BID, BUD);
                             // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
                             w2ui.asmEpochForm.record = record;
@@ -322,35 +326,8 @@ function buildAssessmentElements() {
                             app.Assessments = JSON.parse(data);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var y = new Date();
-                            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-                            var record = {
-                                ARID: 0,
-                                recid: 0,
-                                RID: 0,
-                                ASMID: 0,
-                                PASMID: 0,
-                                ATypeLID: 0,
-                                InvoiceNo: 0,
-                                RAID: 0,
-                                BID: BID,
-                                BUD: BUD,
-                                Start: w2uiDateControlString(y),
-                                Stop: w2uiDateControlString(y1),
-                                RentCycle: 'Monthly',
-                                ProrationCycle: 'Daily',
-                                TCID: 0,
-                                Amount: 0,
-                                AcctRule: '',
-                                Comment: '',
-                                LastModTime: y.toISOString(),
-                                LastModBy: 0,
-                                CreateTS: y.toISOString(),
-                                CreateBy: 0,
-                                ExpandPastInst: true,
-                                FLAGS: 0,
-                                Mode: 0,
-                            };
+                            var record = getAsmsInitRecord(BID, BUD);
+
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             f.fields[0].options.items = app.Assessments[BUD];
                             f.record = record;
@@ -644,35 +621,8 @@ function buildAssessmentElements() {
                             app.Assessments = JSON.parse(data);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var y = new Date();
-                            var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-                                var record = {
-                                ARID: 0,
-                                recid: 0,
-                                RID: 0,
-                                ASMID: 0,
-                                PASMID: 0,
-                                ATypeLID: 0,
-                                InvoiceNo: 0,
-                                RAID: 0,
-                                BID: BID,
-                                BUD: BUD,
-                                Start: w2uiDateControlString(y),
-                                Stop: w2uiDateControlString(y1),
-                                RentCycle: 'Monthly',
-                                ProrationCycle: 'Daily',
-                                TCID: 0,
-                                Amount: 0,
-                                AcctRule: '',
-                                Comment: '',
-                                LastModTime: y.toISOString(),
-                                LastModBy: 0,
-                                CreateTS: y.toISOString(),
-                                CreateBy: 0,
-                                ExpandPastInst: true,
-                                FLAGS: 0,
-                                Mode: 0,
-                            };
+                            var record = getAsmsInitRecord(BID, BUD);
+
                             // epochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             epochForm.fields[0].options.items = app.Assessments[BUD];
                             epochForm.record = record;

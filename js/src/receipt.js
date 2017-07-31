@@ -1,4 +1,30 @@
 "use strict";
+function getReceiptInitRecord(BID, BUD, ptInit){
+    var y = new Date();
+    return {
+        recid: 0,
+        RCPTID: 0,
+        PRCPTID: 0,
+        ARID: 0,
+        PMTID: 0,
+        PmtTypeName: ptInit,
+        BID: BID,
+        BUD: BUD,
+        Dt: w2uiDateControlString(y),
+        LastModTime: y.toISOString(),
+        CreateTS: y.toISOString(),
+        DocNo: '',
+        Payor: '',
+        TCID: 0,
+        Amount: 0,
+        Comment: '',
+        OtherPayorName: '',
+        FLAGS: 0,
+        LastModBy: 0,
+        CreateBy: 0
+    };
+}
+
 function buildReceiptElements() {
     //------------------------------------------------------------------------
     //          receiptsGrid
@@ -131,31 +157,9 @@ function buildReceiptElements() {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                             app.Receipts = JSON.parse(data);
 
-                            var y = new Date();
                             var pmt_options = buildPaymentTypeSelectList(BUD);
                             var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                            var record = {
-                                recid: 0,
-                                RCPTID: 0,
-                                PRCPTID: 0,
-                                ARID: 0,
-                                BID: BID,
-                                BUD: BUD,
-                                PMTID: 0,
-                                PmtTypeName: ptInit,
-                                Dt: w2uiDateControlString(y),
-                                DocNo: '',
-                                Payor: '',
-                                TCID: 0,
-                                Amount: 0,
-                                Comment: '',
-                                OtherPayorName: '',
-                                FLAGS: 0,
-                                LastModTime: y.toISOString(),
-                                LastModBy: 0,
-                                CreateTS: y.toISOString(),
-                                CreateBy: 0
-                            };
+                            var record = getReceiptInitRecord(BID, BUD, ptInit);
                             w2ui.receiptForm.fields[0].options.items = pmt_options;
                             w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
                             w2ui.receiptForm.record = record;
@@ -494,28 +498,7 @@ function buildReceiptElements() {
                     var y = new Date();
                     var pmt_options = buildPaymentTypeSelectList(BUD);
                     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                    var record = {
-                        recid: 0,
-                        RCPTID: 0,
-                        PRCPTID: 0,
-                        ARID: 0,
-                        BID: BID,
-                        BUD: BUD,
-                        PMTID: 0,
-                        PmtTypeName: ptInit,
-                        Dt: w2uiDateControlString(y),
-                        DocNo: '',
-                        Payor: '',
-                        TCID: 0,
-                        Amount: 0,
-                        Comment: '',
-                        OtherPayorName: '',
-                        FLAGS: 0,
-                        LastModTime: y.toISOString(),
-                        LastModBy: 0,
-                        CreateTS: y.toISOString(),
-                        CreateBy: 0
-                    };
+                    var record = getReceiptInitRecord(BID, BUD, ptInit);
                     f.fields[0].options.items = pmt_options;
                     f.fields[1].options.items = app.Receipts[BUD];
                     f.record = record;

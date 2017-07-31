@@ -1,4 +1,15 @@
 "use strict";
+function getPmtInitRecord(BID, BUD){
+    return {
+        recid: 0,
+        PMTID: 0,
+        BID: BID,
+        BUD: BUD,
+        Name: '',
+        Description: '',
+    };
+}
+
 function buildPaymentTypeElements() {
 //------------------------------------------------------------------------
 //          payment types Grid
@@ -99,14 +110,7 @@ $().w2grid({
                 var x = getCurrentBusiness(),
                     BID=parseInt(x.value),
                     BUD = getBUDfromBID(BID),
-                    record = {
-                        recid: 0,
-                        PMTID: 0,
-                        BID: BID,
-                        BUD: BUD,
-                        Name: '',
-                        Description: '',
-                    };
+                    record = getPmtInitRecord(BID, BUD);
                 w2ui.pmtForm.record = record;
                 // need to call refresh once before, already refreshin in setToForm
                 w2ui.pmtForm.refresh();
@@ -186,16 +190,7 @@ $().w2grid({
 
                     // add new empty record and just refresh the form, don't need to do CLEAR form
                     var y = new Date();
-                    var record = {
-                        recid: 0,
-                        PMTID: 0,
-                        BID: BID,
-                        BUD: BUD,
-                        Name: '',
-                        Description: '',
-                        LastModTime: y.toISOString(),
-                        LastModBy: 0
-                    };
+                    var record = getPmtInitRecord(BID, BUD);
                     f.record = record;
                     f.header = "Edit Payment Type (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/pmts/' + BID+'/0';
