@@ -243,8 +243,14 @@ $().w2grid({
                 var f = this,
                     grid = w2ui.accountsGrid,
                     x = getCurrentBusiness(),
+                    r = f.record,
                     BID=parseInt(x.value),
-                    BUD=getBUDfromBID(BID);
+                    BUD=getBUDfromBID(BID),
+                    statusSel = {},
+                    PLIDSel = {},
+                    acctTypeSel = {},
+                    typeSel = {},
+                    allowPostSel = {};
 
                 // clean dirty flag of form
                 app.form_is_dirty = false;
@@ -259,6 +265,9 @@ $().w2grid({
                         console.log('ERROR: '+ data.message);
                         return;
                     }
+
+                    f.get("PLID").options.selected = r.PLID[0];
+                    f.get("Status").options.selected = r.Status[0];
 
                     // JUST RENDER THE GRID ONLY
                     grid.render();
