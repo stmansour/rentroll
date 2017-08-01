@@ -80,6 +80,7 @@ function buildSidebar() {
                         { id: 'accounts',    text: 'Chart Of Accounts',                   icon: 'fa fa-list' },
                         { id: 'pmts',        text: 'Payment Types',                       icon: 'fa fa-credit-card' },
                         { id: 'dep',         text: 'Depositories',                        icon: 'fa fa-university' },
+                        { id: 'depmeth',     text: 'Deposit Methods',                     icon: 'fa fa-envelope-o' },
                         { id: 'ars',         text: 'Assessment/Receipt Rules',            icon: 'fa fa-cogs' },
                         { id: 'rt',          text: plural(app.sRentableType),             icon: 'fa fa-asterisk', hint: 'Rentable Types' },
                         { id: 'rentables',   text: 'Add/Modify ' + plural(app.sRentable), icon: 'fa fa-cube' },
