@@ -65,6 +65,29 @@ func GetReceiptList(bid int64) (map[string][]IDTextMap, error) {
 	return appData, nil
 }
 
+// GetDepositoryList returns all assessments for the supplied business
+func GetDepositoryList(bid int64) (map[string][]IDTextMap, error) {
+
+	// initialize list with 0-id value
+	list := []IDTextMap{{ID: 0, Text: " -- Select Depository -- "}}
+
+	// json response data
+	appData := make(map[string][]IDTextMap)
+
+	bud, err := bidToBud(bid)
+	if err != nil {
+		return appData, err
+	}
+
+	m := rlib.GetAllDepositories(bid)
+	for i := 0; i < len(m); i++ {
+		list = append(list, IDTextMap{ID: m[i].DEPID, Text: m[i].Name})
+	}
+	appData[bud] = list
+
+	return appData, nil
+}
+
 // SvcUIVal returns the requested variable in JSON form
 //
 // wsdoc {
@@ -72,7 +95,7 @@ func GetReceiptList(bid int64) (map[string][]IDTextMap, error) {
 //	@URL /v1/uival/:BID/varname
 //  @Method  GET
 //	@Synopsis Return JSON representing the UI Value
-//  @Desc Return data can be processed by eval() to create the string lists used in the UI.
+//  @Desc Return data can be parsed to create the string lists used in the UI.
 //	@Input
 //  @Response JSONResponse
 // wsdoc }
@@ -103,6 +126,19 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		// send down then json stuff
 		if err := json.NewEncoder(w).Encode(rcptData); err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+	case "app.Depositories":
+		// get receipts data
+		data, err := GetDepositoryList(d.BID)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+
+		// send down then json stuff
+		if err := json.NewEncoder(w).Encode(data); err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}

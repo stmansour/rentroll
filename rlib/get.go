@@ -376,6 +376,7 @@ func GetAllDepositsInRange(bid int64, d1, d2 *time.Time) []Deposit {
 		ReadDeposits(rows, &a)
 		a.DP, err = GetDepositParts(a.DID)
 		Errcheck(err)
+		//Console("GetAllDepositsInRange: a.DID = %d, len(a.DP) =  %d\n", a.DID, len(a.DP))
 		t = append(t, a)
 	}
 	Errcheck(rows.Err())
@@ -438,7 +439,7 @@ func GetDepositParts(id int64) ([]DepositPart, error) {
 
 	for rows.Next() {
 		var a DepositPart
-		ReadDepositParts(rows, &a)
+		Errcheck(ReadDepositParts(rows, &a))
 		m = append(m, a)
 	}
 	Errcheck(rows.Err())
@@ -448,14 +449,16 @@ func GetDepositParts(id int64) ([]DepositPart, error) {
 // GetDepositMethod reads a DepositMethod structure based on the supplied Deposit id
 func GetDepositMethod(id int64) (DepositMethod, error) {
 	var a DepositMethod
-	err := RRdb.Prepstmt.GetDepositMethod.QueryRow(id).Scan(&a.DPMID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy)
+	row := RRdb.Prepstmt.GetDepositMethod.QueryRow(id)
+	err := ReadDepositMethod(row, &a)
 	return a, err
 }
 
 // GetDepositMethodByName reads a DepositMethod structure based on the supplied BID and Name
 func GetDepositMethodByName(bid int64, name string) (DepositMethod, error) {
 	var a DepositMethod
-	err := RRdb.Prepstmt.GetDepositMethodByName.QueryRow(bid, name).Scan(&a.DPMID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy)
+	row := RRdb.Prepstmt.GetDepositMethodByName.QueryRow(bid, name)
+	err := ReadDepositMethod(row, &a)
 	return a, err
 }
 
@@ -466,9 +469,9 @@ func GetAllDepositMethods(bid int64) []DepositMethod {
 	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {
-		var r DepositMethod
-		Errcheck(rows.Scan(&r.DPMID, &r.BID, &r.Name, &r.CreateTS, &r.CreateBy))
-		t = append(t, r)
+		var a DepositMethod
+		Errcheck(ReadDepositMethods(rows, &a))
+		t = append(t, a)
 	}
 	Errcheck(rows.Err())
 	return t

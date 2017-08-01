@@ -151,7 +151,7 @@ func InsertDeposit(a *Deposit) (int64, error) {
 
 // InsertDepositMethod writes a new DepositMethod record to the database
 func InsertDepositMethod(a *DepositMethod) error {
-	_, err := RRdb.Prepstmt.InsertDepositMethod.Exec(a.BID, a.Name, a.CreateBy)
+	_, err := RRdb.Prepstmt.InsertDepositMethod.Exec(a.BID, a.Name, a.CreateBy, a.LastModBy)
 	if nil != err {
 		Ulog("Error inserting DepositMethod:  %v\n", err)
 		Ulog("DepositMethod = %#v\n", *a)
@@ -161,7 +161,7 @@ func InsertDepositMethod(a *DepositMethod) error {
 
 // InsertDepositPart writes a new DepositPart record to the database
 func InsertDepositPart(a *DepositPart) error {
-	_, err := RRdb.Prepstmt.InsertDepositPart.Exec(a.DID, a.BID, a.RCPTID, a.CreateBy)
+	_, err := RRdb.Prepstmt.InsertDepositPart.Exec(a.DID, a.BID, a.RCPTID, a.CreateBy, a.LastModBy)
 	if nil != err {
 		Ulog("Error inserting DepositPart:  %v\n", err)
 		Ulog("DepositPart = %#v\n", *a)

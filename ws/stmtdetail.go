@@ -119,7 +119,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 		switch m.Stmt[i].T {
 		case 1: // assessments
 			amt := m.Stmt[i].Amt
-			c -= amt
+			c += amt
 			b -= amt
 			a.Dt = rlib.JSONDate(m.Stmt[i].Dt)
 			a.ID = rlib.IDtoShortString("ASM", m.Stmt[i].A.ASMID)

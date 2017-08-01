@@ -89,14 +89,24 @@ func ReadDepositories(rows *sql.Rows, a *Depository) error {
 	return rows.Scan(&a.DEPID, &a.BID, &a.LID, &a.Name, &a.AccountNo, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
+// ReadDepositMethod reads a full DepositMethod structure from the database based on the supplied row object
+func ReadDepositMethod(row *sql.Row, a *DepositMethod) error {
+	return row.Scan(&a.DPMID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadDepositMethods reads a full DepositMethod structure from the database based on the supplied row object
+func ReadDepositMethods(rows *sql.Rows, a *DepositMethod) error {
+	return rows.Scan(&a.DPMID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
 // ReadDepositPart reads a full DepositPart structure from the database based on the supplied row object
-func ReadDepositPart(row *sql.Row, a *DepositPart) {
-	Errcheck(row.Scan(&a.DID, &a.BID, &a.RCPTID, &a.CreateTS, &a.CreateBy))
+func ReadDepositPart(row *sql.Row, a *DepositPart) error {
+	return row.Scan(&a.DPID, &a.DID, &a.BID, &a.RCPTID, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
 }
 
 // ReadDepositParts reads a full DepositPart structure from the database based on the supplied row object
-func ReadDepositParts(rows *sql.Rows, a *DepositPart) {
-	Errcheck(rows.Scan(&a.DID, &a.BID, &a.RCPTID, &a.CreateTS, &a.CreateBy))
+func ReadDepositParts(rows *sql.Rows, a *DepositPart) error {
+	return rows.Scan(&a.DPID, &a.DID, &a.BID, &a.RCPTID, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
 }
 
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.

@@ -34,6 +34,8 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 		{"ReceiptSpec", ReceiptSpec},
 	}
 
+	//rlib.Console("%s: processing input: %#v\n", funcname, sa)
+
 	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
 	if y {
 		return 1, err
@@ -92,6 +94,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no receipts found. You must supply at least one receipt", funcname, lineno)
 	}
 	for i := 0; i < len(ssa); i++ {
+		//rlib.Console("%d. %s\n", i, ssa[i])
 		id := CSVLoaderGetRCPTID(ssa[i])
 		if 0 == id {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid receipt number: %s", funcname, lineno, ssa[i])
@@ -108,11 +111,15 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// We have all we need. Write the records...
 	//-------------------------------------------------------------------
+	//rlib.Console("CreateDepositsFromCSV:  deposit.Amount = %8.2f\n", d.Amount)
+
 	id, err := rlib.InsertDeposit(&d)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit: %v", funcname, lineno, err)
 	}
 	for i := 0; i < len(rcpts); i++ {
+		//rlib.Console("Receipt Parts: %d. %d\n", i, rcpts[i])
+
 		var a rlib.DepositPart
 		a.DID = id
 		a.BID = d.BID

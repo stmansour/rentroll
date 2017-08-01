@@ -246,7 +246,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// DEPOSIT METHOD
 	//==========================================
-	flds = "DPMID,BID,Name,CreateTS,CreateBy"
+	flds = "DPMID,BID,Name,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["DepositMethod"] = flds
 	RRdb.Prepstmt.GetDepositMethod, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM DepositMethod WHERE DPMID=?")
 	Errcheck(err)
@@ -266,14 +266,16 @@ func buildPreparedStatements() {
 	//==========================================
 	// DEPOSIT PART
 	//==========================================
-	flds = "DID,BID,RCPTID,CreateTS,CreateBy"
+	flds = "DPID,DID,BID,RCPTID,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["DepositPart"] = flds
 	RRdb.Prepstmt.GetDepositParts, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM DepositPart WHERE DID=?")
 	Errcheck(err)
-	_, _, _, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertDepositPart, err = RRdb.Dbrr.Prepare("INSERT INTO DepositPart (" + s4 + ") VALUES (" + s5 + ")")
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertDepositPart, err = RRdb.Dbrr.Prepare("INSERT INTO DepositPart (" + s1 + ") VALUES (" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteDepositParts, err = RRdb.Dbrr.Prepare("DELETE FROM DepositPart WHERE DID=?")
+	RRdb.Prepstmt.UpdateDeposit, err = RRdb.Dbrr.Prepare("UPDATE DepositPart SET " + s3 + " WHERE DPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteDepositParts, err = RRdb.Dbrr.Prepare("DELETE FROM DepositPart WHERE DPID=?")
 	Errcheck(err)
 
 	//==========================================

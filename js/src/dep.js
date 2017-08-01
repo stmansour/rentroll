@@ -61,7 +61,6 @@ function buildDepositoryElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                var x = 5;
                 var yes_args = [this, event.recid],
                     no_args = [this],
                     no_callBack = function(grid) {

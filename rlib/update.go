@@ -44,22 +44,28 @@ func UpdateDeposit(a *Deposit) error {
 	return updateError(err, "Deposit", *a)
 }
 
-// UpdateDepositMethod updates a DepositMethod record
-func UpdateDepositMethod(a *DepositMethod) error {
-	_, err := RRdb.Prepstmt.UpdateDepositMethod.Exec(a.BID, a.Name, a.DPMID)
-	return updateError(err, "Deposit", *a)
-}
-
 // UpdateDepository updates a Depository record
 func UpdateDepository(a *Depository) error {
 	_, err := RRdb.Prepstmt.UpdateDepository.Exec(a.BID, a.LID, a.Name, a.AccountNo, a.LastModBy, a.DEPID)
 	return updateError(err, "Depository", *a)
 }
 
+// UpdateDepositMethod updates a DepositMethod record
+func UpdateDepositMethod(a *DepositMethod) error {
+	_, err := RRdb.Prepstmt.UpdateDepositMethod.Exec(a.BID, a.Name, a.LastModBy, a.DPMID)
+	return updateError(err, "DepositMethod", *a)
+}
+
+// UpdateDepositPart updates a DepositPart record
+func UpdateDepositPart(a *DepositPart) error {
+	_, err := RRdb.Prepstmt.UpdateDepositPart.Exec(a.DID, a.BID, a.RCPTID, a.LastModBy, a.DPID)
+	return updateError(err, "DepositPart", *a)
+}
+
 // UpdateInvoice updates a Invoice record
 func UpdateInvoice(a *Invoice) error {
 	_, err := RRdb.Prepstmt.UpdateInvoice.Exec(a.BID, a.Dt, a.DtDue, a.Amount, a.DeliveredBy, a.LastModBy, a.InvoiceNo)
-	return updateError(err, "Deposit", *a)
+	return updateError(err, "Invoice", *a)
 }
 
 // UpdateLedgerMarker updates a LedgerMarker record

@@ -66,12 +66,18 @@ function ChangeBusiness() {
 //                variable name svc + 'Grid'
 //
 // @params  svc = prefix of grid name
+//          svcOverride = name of webservice to call if the name does not
+//                match the name of the svc
 //
 //---------------------------------------------------------------------------------
-function switchToGrid(svc) {
+function switchToGrid(svc,svcOverride) {
     var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
     var x = getCurrentBusiness();
-    var url = '/v1/' + svc + '/' + x.value;
+    var websvc = svc;
+    if (typeof svcOverride === "string") {
+        websvc = svcOverride;
+    }
+    var url = '/v1/' + websvc + '/' + x.value;
     w2ui[grid].url = url;
     w2ui[grid].last.sel_recid = null; // whenever switch grid, erase last selected record
     app.last.grid_sel_recid = -1;

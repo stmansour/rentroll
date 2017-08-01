@@ -822,20 +822,25 @@ type Deposit struct {
 // thinking about it is that this query produces the list of all receipts in a Deposit:
 //		SELECT RCPTID WHERE DIP=someDID
 type DepositPart struct {
-	DID      int64     // deposit id
-	BID      int64     // business id
-	RCPTID   int64     // receipt id
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	DPID        int64
+	DID         int64     // deposit id
+	BID         int64     // business id
+	RCPTID      int64     // receipt id
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // DepositMethod is a list of methods used to make deposits to a depository
 type DepositMethod struct {
-	DPMID    int64     //the method id
-	BID      int64     // business id
-	Name     string    // descriptive name
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	DPMID       int64     //the method id
+	BID         int64     // business id
+	Name        string    // descriptive name
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Invoice is a structure that defines an invoice - a collection of assessments
@@ -1460,6 +1465,7 @@ type RRprepSQL struct {
 	GetAssessmentFirstInstance              *sql.Stmt
 	GetDepositoryByName                     *sql.Stmt
 	GetDepositoryByLID                      *sql.Stmt
+	UpdateDepositPart                       *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
