@@ -10,7 +10,7 @@ function buildSidebar() {
                 nodes: [
                         { id: 'asms',         text: 'Assess Charges',                icon: 'fa fa-star-o',      hint: plural(app.sAssessment) },
                         { id: 'receipts',     text: 'Receive '+plural(app.sReceipt), icon: 'fa fa-star',        hint: plural(app.sReceipt) },
-                        { id: 'deposit',        text: 'Make A Deposit',                icon: 'fa fa-plus-circle', hint: 'Make Deposit' },
+                        { id: 'deposit',      text: 'Deposits',                      icon: 'fa fa-plus-circle', hint: 'Make Deposit' },
                         { id: 'allocfunds',   text: 'Apply '+plural(app.sReceipt),   icon: 'fa fa-check-circle-o' },
                         //{ id: 'reversepmt',   text: 'Reverse '+plural(app.sReceipt), icon: 'fa fa-window-close' },
                         { id: 'gdssvcs',      text: 'Goods & Services',              icon: 'fa fa-coffee' },
@@ -133,6 +133,7 @@ function buildSidebar() {
                     case 'tws':
                     case 'ledgers':
                     case 'stmt':
+                    case 'depmeth':
                     case 'allocfunds':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         switchToGrid(target);

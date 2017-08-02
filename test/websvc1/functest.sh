@@ -92,6 +92,10 @@ dojsonPOST "http://localhost:8270/v1/account/1/1" "request" "a15"  "WebService--
 echo "%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/1/1" "request" "a16"  "WebService--ERROR-VRFY-2"
 
+# Read Deposit Methods
+echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/deposits/1" "request" "a17"  "WebService--DepositMethods"
+
 
 
 stopRentRollServer

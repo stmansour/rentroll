@@ -426,7 +426,7 @@ CREATE TABLE `DepositMethod` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`DPMID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -435,6 +435,7 @@ CREATE TABLE `DepositMethod` (
 
 LOCK TABLES `DepositMethod` WRITE;
 /*!40000 ALTER TABLE `DepositMethod` DISABLE KEYS */;
+INSERT INTO `DepositMethod` VALUES (1,1,'Hand Delivery','2017-08-01 21:34:15',0,'2017-08-01 21:34:15',0),(2,1,'Scanned/Electronic Batch','2017-08-01 21:34:15',0,'2017-08-01 21:34:15',0),(3,1,'ACH','2017-08-01 21:34:15',0,'2017-08-01 21:34:15',0),(4,1,'US Mail','2017-08-01 21:34:15',0,'2017-08-01 21:34:15',0);
 /*!40000 ALTER TABLE `DepositMethod` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2125,4 +2126,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-07-31 18:46:39
+-- Dump completed on 2017-08-01 14:34:25

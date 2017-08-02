@@ -76,6 +76,12 @@ type IDTextMap struct {
 	Text string `json:"text"`
 }
 
+// depmethMap drop down list for deposit methods
+type depmethMap struct {
+	DPMID int64  `json:"id"`
+	Text  string `json:"text"`
+}
+
 // SvcUILists returns JSON for the Javascript lists needed for the UI.  Typically,
 // these lists are put into a map such as rlib.Str2Int64Map or a slice of strings.
 // Then the map or slice is entered into either smapToJS or ssliceToJS so that it
@@ -188,6 +194,18 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		pmtTypes[bud] = bizPmtList
 	}
 	appData["pmtTypes"] = pmtTypes
+
+	// --------------- LIST DOWN DEPOSIT METHODS ----------------------
+	var budDepMethods = make(map[string][]depmethMap)
+	for bud, bid := range rlib.RRdb.BUDlist {
+		depmethList := []depmethMap{}
+		m := rlib.GetAllDepositMethods(bid) // get the payment types for this business
+		for i := 0; i < len(m); i++ {
+			depmethList = append(depmethList, depmethMap{DPMID: m[i].DPMID, Text: m[i].Name})
+		}
+		budDepMethods[bud] = depmethList
+	}
+	appData["depmeth"] = budDepMethods
 
 	// --------------- LIST DOWN SLICES ----------------------
 	for i := 0; i < len(ssliceToJS); i++ {

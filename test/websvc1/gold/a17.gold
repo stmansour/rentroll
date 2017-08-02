@@ -1,0 +1,50 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "CreateBy": 0,
+            "CreateTS": "2017-08-01T14:34:00Z",
+            "DPMID": 1,
+            "LastModBy": 0,
+            "LastModTime": "2017-08-01T14:34:00Z",
+            "Name": "Hand Delivery",
+            "recid": 0
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "CreateBy": 0,
+            "CreateTS": "2017-08-01T14:34:00Z",
+            "DPMID": 2,
+            "LastModBy": 0,
+            "LastModTime": "2017-08-01T14:34:00Z",
+            "Name": "Scanned/Electronic Batch",
+            "recid": 1
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "CreateBy": 0,
+            "CreateTS": "2017-08-01T14:34:00Z",
+            "DPMID": 3,
+            "LastModBy": 0,
+            "LastModTime": "2017-08-01T14:34:00Z",
+            "Name": "ACH",
+            "recid": 2
+        },
+        {
+            "BID": 1,
+            "BUD": "REX",
+            "CreateBy": 0,
+            "CreateTS": "2017-08-01T14:34:00Z",
+            "DPMID": 4,
+            "LastModBy": 0,
+            "LastModTime": "2017-08-01T14:34:00Z",
+            "Name": "US Mail",
+            "recid": 3
+        }
+    ],
+    "status": "success",
+    "total": 4
+}
