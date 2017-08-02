@@ -8,12 +8,13 @@ import (
 
 // RAStmtEntry describes an entry on a statement
 type RAStmtEntry struct {
-	T   int                // 1 = assessment, 2 = Receipt
-	A   *Assessment        // for type==1, the pointer to the assessment
-	R   *ReceiptAllocation // for type ==2, the pointer to the receipt
-	RNT *Rentable          // the associated rentable, if known
-	Amt float64
-	Dt  time.Time
+	T       int                // 1 = assessment, 2 = Receipt
+	A       *Assessment        // for type==1, the pointer to the assessment
+	R       *ReceiptAllocation // for type ==2, the pointer to the receipt
+	RNT     *Rentable          // the associated rentable, if known
+	Amt     float64            // amount of the receipt or assessment
+	Reverse bool               // is this a reversal?
+	Dt      time.Time
 }
 
 // RAStmtEntries is needed to sort the array
@@ -148,14 +149,17 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 		var rnt Rentable
 		GetRentableByID(a.RID, &rnt)
 		se := RAStmtEntry{
-			T:   1,
-			A:   &a,
-			Amt: a.Amount,
-			Dt:  a.Start,
-			RNT: &rnt,
+			T:       1,
+			A:       &a,
+			Amt:     a.Amount,
+			Dt:      a.Start,
+			RNT:     &rnt,
+			Reverse: a.FLAGS&0x4 != 0, // bit 2 is the reversal flag
 		}
 		(*p) = append((*p), se)
-		bal -= a.Amount
+		if !se.Reverse {
+			bal -= a.Amount // if it is a reversal, do
+		}
 	}
 
 	//----------------------------------------------------------------
@@ -172,15 +176,18 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 		var rnt Rentable
 		GetRentableByID(a.RID, &rnt)
 		se := RAStmtEntry{
-			T:   2,
-			R:   &ra,
-			A:   &a,
-			RNT: &rnt,
-			Amt: ra.Amount,
-			Dt:  ra.Dt,
+			T:       2,
+			R:       &ra,
+			A:       &a,
+			RNT:     &rnt,
+			Amt:     ra.Amount,
+			Dt:      ra.Dt,
+			Reverse: a.FLAGS&0x4 != 0, // bit 2 is the reversal flag
 		}
-		bal += ra.Amount
 		(*p) = append((*p), se)
+		if !se.Reverse {
+			bal += ra.Amount
+		}
 	}
 	return bal
 }

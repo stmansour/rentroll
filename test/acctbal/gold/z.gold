@@ -1,5 +1,5 @@
 RA statement info for period May 1, 2017 - Jun 1, 2017
-m.OpeningBal -->  -4491.79
+m.OpeningBal -->  -4606.79
 date = Oct 1, 2016, asmt = -4000.00,  bal = -4000.00
 date = Oct 3, 2016, RCPT =  4000.00,  bal =     0.00
 date = Nov 1, 2016, asmt = -4000.00,  bal = -4000.00
@@ -29,20 +29,20 @@ date = Mar 1, 2017, asmt =   160.00,  bal =   -60.00
 date = Apr 1, 2017, asmt =   -81.79,  bal =  -141.79
 date = Apr 1, 2017, asmt =  -350.00,  bal =  -491.79
 date = Apr 1, 2017, asmt = -4000.00,  bal = -4491.79
-OpeningBal = -4491.79,   newbal = -4491.79
+OpeningBal = -4606.79,   newbal = -4491.79
 
 STATEMENT
-May 1, 2017 Opening Balance: -4491.79
-May 1, 2017, asmt = -4000.00,  bal = -8491.79
-May 1, 2017, asmt =  -350.00,  bal = -8841.79
-May 12, 2017, asmt =   -15.00,  bal = -8856.79
-May 12, 2017, RCPT =    45.00,  bal = -8811.79
-May 12, 2017, RCPT =  4000.00,  bal = -4811.79
-May 12, 2017, RCPT =   350.00,  bal = -4461.79
-May 12, 2017, RCPT =    81.79,  bal = -4380.00
-May 12, 2017, RCPT =  4000.00,  bal =  -380.00
-May 12, 2017, RCPT =   350.00,  bal =   -30.00
-May 12, 2017, RCPT =    15.00,  bal =   -15.00
-May 12, 2017, RCPT =  4000.00,  bal =  3985.00
-May 12, 2017, RCPT =   275.00,  bal =  4260.00
-May 31, 2017 ClosingBal =  4260.00,   newbal =  4260.00
+May 1, 2017 Opening Balance: -4606.79
+May 1, 2017, asmt = -4000.00,  bal = -8606.79
+May 1, 2017, asmt =  -350.00,  bal = -8956.79
+May 12, 2017, asmt =   -15.00,  bal = -8971.79
+May 12, 2017, RCPT =    45.00,  bal = -8926.79
+May 12, 2017, RCPT =  4000.00,  bal = -4926.79
+May 12, 2017, RCPT =   350.00,  bal = -4576.79
+May 12, 2017, RCPT =    81.79,  bal = -4495.00
+May 12, 2017, RCPT =  4000.00,  bal =  -495.00
+May 12, 2017, RCPT =   350.00,  bal =  -145.00
+May 12, 2017, RCPT =    15.00,  bal =  -130.00
+May 12, 2017, RCPT =  4000.00,  bal =  3870.00
+May 12, 2017, RCPT =   275.00,  bal =  4145.00
+May 31, 2017 ClosingBal =  4100.00,   newbal =  4145.00

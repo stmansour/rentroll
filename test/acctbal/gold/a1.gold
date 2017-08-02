@@ -11,6 +11,7 @@
             "RAID": 5,
             "RcptAmount": 0,
             "RentableName": "",
+            "Reverse": false,
             "recid": 0
         },
         {
@@ -24,6 +25,7 @@
             "RAID": 5,
             "RcptAmount": 0,
             "RentableName": "309 1/2 S Rexford",
+            "Reverse": false,
             "recid": 0
         },
         {
@@ -37,6 +39,7 @@
             "RAID": 5,
             "RcptAmount": 0,
             "RentableName": "309 1/2 S Rexford",
+            "Reverse": false,
             "recid": 1
         },
         {
@@ -44,12 +47,13 @@
             "BID": 1,
             "BUD": "REX",
             "Balance": -15,
-            "Descr": "Non-Taxable Rent Assessment (ASM-35)",
+            "Descr": "Non-Taxable Rent Assessment",
             "Dt": "11/11/2016",
             "ID": "RCPT-38",
             "RAID": 5,
             "RcptAmount": 4000,
             "RentableName": "309 1/2 S Rexford",
+            "Reverse": false,
             "recid": 2
         },
         {
@@ -57,12 +61,13 @@
             "BID": 1,
             "BUD": "REX",
             "Balance": 0,
-            "Descr": "Bank Services (ASM-54)",
+            "Descr": "Bank Services",
             "Dt": "11/11/2016",
             "ID": "RCPT-38",
             "RAID": 5,
             "RcptAmount": 15,
             "RentableName": "309 1/2 S Rexford",
+            "Reverse": false,
             "recid": 3
         },
         {
@@ -70,12 +75,13 @@
             "BID": 1,
             "BUD": "REX",
             "Balance": 4000,
-            "Descr": "Non-Taxable Rent Assessment (ASM-36)",
+            "Descr": "Non-Taxable Rent Assessment",
             "Dt": "11/11/2016",
             "ID": "RCPT-38",
             "RAID": 5,
             "RcptAmount": 4000,
             "RentableName": "309 1/2 S Rexford",
+            "Reverse": false,
             "recid": 4
         },
         {
@@ -83,12 +89,13 @@
             "BID": 1,
             "BUD": "REX",
             "Balance": 7970,
-            "Descr": "Non-Taxable Rent Assessment (ASM-37)",
+            "Descr": "Non-Taxable Rent Assessment",
             "Dt": "11/11/2016",
             "ID": "RCPT-38",
             "RAID": 5,
             "RcptAmount": 3970,
             "RentableName": "309 1/2 S Rexford",
+            "Reverse": false,
             "recid": 5
         },
         {
@@ -102,6 +109,7 @@
             "RAID": 5,
             "RcptAmount": 11985,
             "RentableName": "",
+            "Reverse": false,
             "recid": 0
         }
     ],

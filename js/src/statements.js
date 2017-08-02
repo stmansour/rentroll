@@ -1,6 +1,6 @@
 "use strict";
 /*global
-    GridMoneyFormat, number_format
+    GridMoneyFormat, number_format, renderReversalIcon
 */
 
 function buildStatementsElements() {
@@ -161,17 +161,19 @@ function buildStatementsElements() {
         columns: [
             {field: 'recid',        caption: 'recid',       size: '35px',  sortable: true, hidden: true},
             {field: 'Dt',           caption: 'Date',        size: '75px',  sortable: true},
-            {field: 'ID',           caption: 'ID',          size: '80px', sortable: true},
-            {field: 'RentableName', caption: app.sRentable, size: '30%', sortable: true},
-            {field: 'Descr',        caption: 'Description', size: '60%', sortable: true},
-            {field: 'AsmtAmount',   caption: 'Assessment',  size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.AsmtAmount); },
+            {field: 'Reverse',      caption: ' ',           size: '12px',  sortable: true, render: renderStmtReversal
+            },
+            {field: 'ID',           caption: 'ID',          size: '80px',  sortable: true},
+            {field: 'RentableName', caption: app.sRentable, size: '30%',   sortable: true},
+            {field: 'Descr',        caption: 'Description', size: '60%',   sortable: true},
+            {field: 'AsmtAmount',   caption: 'Assessment',  size: '90px',  sortable: true, style: 'text-align: right',
+                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.AsmtAmount,true); },
             },
             {field: 'RcptAmount',   caption: 'Receipt',     size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.RcptAmount); },
+                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.RcptAmount,true); },
             },
             {field: 'Balance',      caption: 'Balance',     size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.Balance); },
+                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.Balance,false); },
             },
         ],
     });
@@ -197,10 +199,22 @@ function buildStatementsElements() {
     });
 }
 
+function renderStmtReversal(record /*, index, col_index*/) {
+    if (typeof record === "undefined") {
+        return;
+    }
+    if ( record.Reverse ) { // if reversed then
+        return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+    }
+    return '';
+}
 
-function stmtRenderHandler(record,index,col_index,amt) {
-    if (record.Descr.includes("Closing Balance") && Math.abs(amt) < 0.001) {
-        return '$ 0.00';
+
+function stmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
+    if (Math.abs(amt) < 0.001) {
+        if (record.Descr.includes("Closing Balance") || !bRemoveZero) {
+            return '$ 0.00';
+        }
     }
     return GridMoneyFormat(amt); 
 }

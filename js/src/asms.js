@@ -31,6 +31,16 @@ function getAsmsInitRecord(BID, BUD){
     };
 }
 
+function renderReversalIcon(record /*, index, col_index*/) {
+    if (typeof record === "undefined") {
+        return;
+    }
+    if ( (record.FLAGS & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+        return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+    }
+    return '';
+}
+
 function buildAssessmentElements() {
     //------------------------------------------------------------------------
     //          asmsGrid
@@ -78,15 +88,7 @@ function buildAssessmentElements() {
                     },
             },
             {field: 'reversed', size: '10px', style: 'text-align: center', sortable: true,
-                    render: function (record /*, index, col_index*/) {
-                        if (typeof record === "undefined") {
-                            return;
-                        }
-                        if ( (record.FLAGS & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
-                            return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
-                        }
-                        return '';
-                    },
+                    render: renderReversalIcon,
             },
             {field: 'ASMID', caption: 'ASMID',  size: '60px', style: 'text-align: right', sortable: true},
             {field: 'Invoice', caption: 'Invoice', size: '80px', sortable: true, style: 'text-align: right'},
