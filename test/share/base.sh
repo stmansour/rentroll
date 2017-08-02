@@ -46,6 +46,7 @@ RENTROLL="${RRBIN}/rentroll -A"
 CSVLOAD="${RRBIN}/rrloadcsv"
 GOLD="./gold"
 
+PAUSE=0
 SKIPCOMPARE=0
 FORCEGOOD=0
 ASKBEFOREEXIT=0
@@ -99,6 +100,24 @@ pause() {
 		mv ${1} gold/${1}.gold
 	fi
 
+}
+
+
+#############################################################################
+# checkPause()
+#   Description:
+#		if PAUSE = 1 then call pause() after executing a command. This is
+#       handy when checking the database or other output as each command
+#       executes to see when something happens or when something in the 
+#       database goes bad.
+#
+#   Params:
+#
+#############################################################################
+checkPause() {
+	if [ "${PAUSE}" = "1" ]; then
+		pause
+	fi
 }
 
 csvload() {
@@ -247,6 +266,10 @@ OPTIONS
 	    can be a huge time saver, but use it with caution. All .gold files
 	    are maintained in the ./${GOLD}/ directory.
 
+	-p  Causes execution to pause between tests so that you can perform
+	    checks in the database, or in logfiles, or any other output that
+	    the tests cause.
+
 	-r  Run the script in interactive REPORT mode. A menu of report options
 	    is displayed. Type in the letter(s) for the the report you want and
 	    it will run. When the report completes, the script will pause for you
@@ -349,6 +372,8 @@ docsvtest () {
 		${CSVLOAD} ${2} >${1} 2>&1
 	fi
 
+	checkPause
+
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
 		cp ${1} ${GOLD}/${1}.gold
@@ -396,6 +421,8 @@ dorrtest () {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 	${RENTROLL} ${2} >${1} 2>&1
+
+	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
@@ -496,6 +523,8 @@ doOnesiteTest () {
 		${RRBIN}/importers/onesite/onesiteload $2 >${1} 2>&1
 	fi
 
+	checkPause
+
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
 		cp ${1} ${GOLD}/${1}.gold
@@ -527,6 +556,8 @@ docsvIgnoreDatesTest () {
 	if [ "x${2}" != "x" ]; then
 		${CSVLOAD} $2 >${1} 2>&1
 	fi
+
+	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
@@ -560,6 +591,8 @@ doRoomKeyTest () {
 	if [ "x${2}" != "x" ]; then
 		${RRBIN}/importers/roomkey/roomkeyload $2 >${1} 2>&1
 	fi
+
+	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
@@ -633,6 +666,8 @@ EOF
 	#${CSVLOAD} $2 >>${LOGFILE} 2>&1
 	CMD1="mysql --no-defaults <xxqq >${1}"
 	mysql --no-defaults <xxqq >${1}
+
+	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
@@ -760,6 +795,9 @@ logcheck() {
 genericlogcheck() {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
+
+	checkPause
+
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
 		cp ${1} ${GOLD}/${1}.gold
@@ -833,6 +871,8 @@ dojsonPOST () {
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $3 $4
 	CMD="curl -s -X POST ${1} -H \"Content-Type: application/json\" -d @${2}"
 	${CMD} | python -m json.tool >${3} 2>>${LOGFILE}
+
+	checkPause
 
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
@@ -908,6 +948,8 @@ dojsonGET () {
 	CMD="curl -s ${1}"
 	${CMD} | python -m json.tool >${2} 2>>${LOGFILE}
 
+	checkPause
+
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
 		cp ${2} ${GOLD}/${2}.gold
@@ -978,6 +1020,9 @@ doValidateFile () {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $2
 	echo >> ${1}	# force a newline at the end of the file, which often doesn't happen with command output
+
+	checkPause
+
 	if [ "${FORCEGOOD}" = "1" ]; then
 		cp ${1} ${GOLD}/${1}.gold
 		echo "DONE"
@@ -1050,6 +1095,8 @@ doPlainGET () {
 	CMD="curl -s ${1}"
 	${CMD} > ${2} 2>>${LOGFILE}
 
+	checkPause
+
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
 		cp ${2} ${GOLD}/${2}.gold
@@ -1112,7 +1159,7 @@ doPlainGET () {
 #  Handle command line options...
 #--------------------------------------------------------------------------
 tdir
-while getopts "acfmornR:" o; do
+while getopts "acfmoprnR:" o; do
 	echo "o = ${o}"
 	case "${o}" in
 		a)	ASKBEFOREEXIT=1
@@ -1125,6 +1172,10 @@ while getopts "acfmornR:" o; do
 		r | R)
 			doReport
 			exit 0
+			;;
+		p | P)
+			PAUSE=1
+			echo "PAUSE BETWEEN COMMANDS"
 			;;
 		f)  SKIPCOMPARE=1
 			echo "SKIPPING COMPARES..."

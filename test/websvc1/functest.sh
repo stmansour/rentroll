@@ -27,8 +27,10 @@ startRentRollServer
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A4%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%227%2F1%2F2017%22%2C%22Stop%22%3A%227%2F1%2F2017%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A30%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22LastModTime%22%3A%227%2F19%2F2017%22%2C%22LastModBy%22%3A0%2C%22ExpandPastInst%22%3A1%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%2C%22Rentable%22%3A%22309%2BS%2BRexford%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "a0"  "WebService--Create_NonRecurring_Assessment"
 
-# Create a recurring rent assessment
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A2%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22BID%22%3A1%2C%22Start%22%3A%221%2F1%2F2017%22%2C%22Stop%22%3A%221%2F1%2F2018%22%2C%22RentCycle%22%3A6%2C%22ProrationCycle%22%3A4%2C%22TCID%22%3A0%2C%22Amount%22%3A3750%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22LastModTime%22%3A%227%2F19%2F2017%22%2C%22LastModBy%22%3A0%2C%22ExpandPastInst%22%3A1%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%2C%22Rentable%22%3A%22309%2BS%2BRexford%22%7D%7D" > request
+# Create a recurring rent assessment  
+#    -- set a known endpoint prior to date of creation so
+#       that the recurrences will not change as time goes on.
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A2%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22BID%22%3A1%2C%22Start%22%3A%221%2F1%2F2017%22%2C%22Stop%22%3A%227%2F31%2F2017%22%2C%22RentCycle%22%3A6%2C%22ProrationCycle%22%3A4%2C%22TCID%22%3A0%2C%22Amount%22%3A3750%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22LastModTime%22%3A%227%2F19%2F2017%22%2C%22LastModBy%22%3A0%2C%22ExpandPastInst%22%3A1%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%2C%22Rentable%22%3A%22309%2BS%2BRexford%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "a1"  "WebService--Create_Recurring_Assessment"
 
 # Create a non-recurring assessment to reverse...
@@ -40,7 +42,7 @@ echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22asmInstForm%22%2C%22ASMI
 dojsonPOST "http://localhost:8270/v1/asm/1/10" "request" "a3"  "WebService--Reverse_nonrecurring_assessment"
 
 # Create a recurring assessment to reverse...
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A1%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%221%2F1%2F2017%22%2C%22Stop%22%3A%221%2F1%2F2018%22%2C%22RentCycle%22%3A6%2C%22ProrationCycle%22%3A4%2C%22TCID%22%3A0%2C%22Amount%22%3A4000%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22LastModTime%22%3A%227%2F19%2F2017%22%2C%22LastModBy%22%3A0%2C%22ExpandPastInst%22%3A1%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%2C%22Rentable%22%3A%22309%2BS%2BRexford%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A1%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%221%2F1%2F2017%22%2C%22Stop%22%3A%227%2F31%2F2017%22%2C%22RentCycle%22%3A6%2C%22ProrationCycle%22%3A4%2C%22TCID%22%3A0%2C%22Amount%22%3A4000%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22LastModTime%22%3A%227%2F19%2F2017%22%2C%22LastModBy%22%3A0%2C%22ExpandPastInst%22%3A1%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%2C%22Rentable%22%3A%22309%2BS%2BRexford%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "a4"  "WebService--Create_recurring_Assessment_to_reverse"
 
 # Do the reversal...
