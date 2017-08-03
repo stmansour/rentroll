@@ -308,7 +308,6 @@ $().w2grid({
                     // delete Depository request
                     $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        console.log(form.record);
                         if (data.status === "error") {
                             form.error(w2utils.lang(data.message));
                             return;
