@@ -5,6 +5,7 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //   0   1                             2          3,               4             5                    6          7                  8          9            10         11          12
@@ -75,42 +76,6 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	}
 
 	lm.State = 3 // Initial marker, no prior records
-
-	// fmt.Printf("LOADCSV - BEGIN: %v\n", sa)
-
-	// //----------------------------------------------------------------------
-	// // TYPE
-	// // We'll either be updating an existing account or inserting a new one
-	// // If updating existing, preload lm with existing info...
-	// //----------------------------------------------------------------------
-	// s := strings.TrimSpace(sa[Type])
-	// if len(s) > 0 {
-	// 	i, err := strconv.Atoi(s)
-
-	// 	// fmt.Printf("0.1  -  s = %s,  i = %d\n", s, i)
-
-	// 	if err != nil || !(i == 0 || (rlib.GLCASH <= i && i <= rlib.GLLAST)) {
-	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid Default value for account %s: %s.  Value must blank, 0, or between %d and %d",
-	// 			funcname, lineno, sa[2], s, rlib.GLCASH, rlib.GLLAST)
-	// 	}
-	// 	l1 := rlib.GetLedgerByType(l.BID, int64(i))
-	// 	if l1.LID == 0 {
-	// 		return CsvErrorSensitivity, nil
-	// 	}
-	// 	// fmt.Println("0.2")
-	// 	l = l1            // update existing
-	// 	inserting = false // looks like this is an update
-
-	// 	lm1 := rlib.GetLatestLedgerMarkerByType(l.BID, l.Type)
-
-	// 	// fmt.Printf("0.25:  lm1 = %#v\n", lm1)
-	// 	if lm1.LMID == 0 {
-	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No default rlib.LedgerMarker for business %d, type = %d", funcname, lineno, l.BID, l.Type)
-	// 	}
-	// 	// fmt.Println("0.3")
-	// 	lm = lm1 // we're just going to update the existing information
-	// }
-	// // fmt.Println("A")
 
 	//----------------------------------------------------------------------
 	// NAME
@@ -195,30 +160,14 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 
 	// fmt.Println("F")
 
-	// // fmt.Println("G")
-	// //----------------------------------------------------------------------
-	// // TYPE
-	// //----------------------------------------------------------------------
-	// s = strings.TrimSpace(sa[Type])
-	// if len(s) > 0 {
-	// 	i, err := strconv.Atoi(strings.TrimSpace(s))
-	// 	if err != nil {
-	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s", funcname, lineno, s)
-	// 	}
-	// 	if i < 0 || (2 <= i && i <= 9) || i > rlib.GLLAST {
-	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Type value is invalid: %s", funcname, lineno, s)
-	// 	}
-	// 	l.Type = int64(i)
-	// }
-
 	//----------------------------------------------------------------------
 	// DATE for opening balance
 	//----------------------------------------------------------------------
-	DtStop, err := rlib.StringToDate(sa[Date])
+	_, err = rlib.StringToDate(sa[Date])
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid stop date:  %s", funcname, lineno, sa[Date])
 	}
-	lm.Dt = DtStop
+	lm.Dt = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC) // always force the initial ledger marker to "the beginning of time"
 
 	//----------------------------------------------------------------------
 	// ALLOW POST

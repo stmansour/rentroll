@@ -771,7 +771,7 @@ func LoadRALedgerMarker(bid, lid, raid int64, dt *time.Time) LedgerMarker {
 		lm.LID = lid
 		lm.BID = bid
 		lm.RAID = raid
-		lm.Dt = *dt
+		lm.Dt = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 		lm.State = MARKERSTATEORIGIN
 		err := InsertLedgerMarker(&lm)
 		if nil != err {
@@ -880,6 +880,21 @@ func GetLedgerEntriesByJAID(bid, jaid int64) []LedgerEntry {
 		m = append(m, le)
 	}
 	return m
+}
+
+// GetCountLedgerEntries get total count for RentableTypes
+// with particular associated business
+func GetCountLedgerEntries(lid, bid int64) int64 {
+	var id int64
+	rows, err := RRdb.Prepstmt.CountLedgerEntries.Query(lid, bid)
+	Errcheck(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		rows.Scan(&id)
+		return id
+	}
+	return id
 }
 
 // GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo

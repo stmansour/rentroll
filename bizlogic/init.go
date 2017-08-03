@@ -27,6 +27,8 @@ const (
 	EditReversal          = 3
 	PostToSummaryAcct     = 4
 	RuleUsesAcct          = 5
+	AcctHasLedgerEntries  = 6
+	AcctRefInRule         = 7
 )
 
 // InitBizLogic loads the error messages needed for validation errors

@@ -122,7 +122,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			template = ss[3]
 		}
 	}
-	fmt.Printf("Language: %s\nTemplate: %s\n", language, template)
+	rlib.Console("Language: %s\nTemplate: %s\n", language, template)
 
 	// appData will hold the map of data with key as string
 	// value would be any type, typically it will be used in front-end side

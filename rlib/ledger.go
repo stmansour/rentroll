@@ -267,7 +267,7 @@ func closeLedgerPeriod(xbiz *XBusiness, li *GLAccount, lm *LedgerMarker, dt *tim
 	nlm.Balance = bal
 	nlm.Dt = *dt
 	nlm.State = state
-	InsertLedgerMarker(&nlm)
+	InsertLedgerMarker(&nlm) // this is a period close
 }
 
 // GenerateLedgerMarkers creates all ledgermarkers at d2

@@ -17,15 +17,21 @@ var RDateFmt = []string{
 // QBAcctType - this was previously a text field. But because we dropped the
 // notion of "default accounts", it was important to formalize the list of account
 // types.
-var QBAcctType = []string{
-	"Cash",
-	"Accounts Receivable",
-	"Current Liabilities",
-	"Income",
-	"Income Offsets",
-	"Other Income",
-	"Security Deposits",
-	"Expense Account",
+var QBAcctType = []string{}
+
+// QBAcctInfo indicates how numbers should be processed in the account Rules
+var QBAcctInfo = []struct {
+	Name   string
+	Negate bool // Indicates whether or not the amount in an Assessment should be shown as a negative number
+}{
+	{"Cash", false},
+	{"Accounts Receivable", true},
+	{"Current Liabilities", false},
+	{"Income", true},
+	{"Income Offsets", false},
+	{"Other Income", false},
+	{"Security Deposits", false},
+	{"Expense Account", false},
 }
 
 // RentalPeriodToString takes an accrual recurrence value and returns its

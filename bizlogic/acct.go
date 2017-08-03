@@ -3,6 +3,7 @@ package bizlogic
 import (
 	"fmt"
 	"rentroll/rlib"
+	"sort"
 )
 
 // PossibleParentAccounts returns the list of possible Parent Accounts.
@@ -82,6 +83,58 @@ func PossiblePostAccounts(bid int64) []rlib.GLAccount {
 		}
 	}
 	return n
+}
+
+// OKToDelete makes checks to determine whether or not it is OK to
+// delete an account.
+//
+// INPUTS
+//    l  =  ledger (gl account) in question
+//
+// RETURNS
+//    bool        - true means it's ok to delete, false means do not delete
+//    [] BizError - List of errors encountered, explains why the account
+//                  cannot be deleted
+//-----------------------------------------------------------------------------
+func OKToDelete(l *rlib.GLAccount) (bool, []BizError) {
+	var errlist []BizError
+	ok := true // start out positive, change it if problems are encountered
+
+	//----------------------------------------------------------
+	// Are there any Ledger Entries?  If so, we cannot allow
+	// the ledger to be deleted.
+	//----------------------------------------------------------
+	n := rlib.GetCountLedgerEntries(l.LID, l.BID)
+	if n > 0 {
+		errlist = append(errlist, BizErrors[AcctHasLedgerEntries])
+		ok = false
+	}
+
+	//----------------------------------------------------------
+	// Is it referenced by any account rule?
+	//----------------------------------------------------------
+	var sa []string
+	for _, v := range rlib.RRdb.BizTypes[l.BID].AR {
+		if l.LID == v.DebitLID || l.LID == v.CreditLID {
+			sa = append(sa, v.Name)
+		}
+	}
+	if len(sa) > 0 {
+		ok = false
+		sort.Strings(sa)
+		rulenames := " ("
+		for i := 0; i < len(sa); i++ {
+			if i > 0 {
+				rulenames += ", "
+			}
+			rulenames += sa[i]
+		}
+		b := BizErrors[AcctRefInRule]
+		b.Message += rulenames + ")"
+		errlist = append(errlist, b)
+	}
+
+	return ok, errlist
 }
 
 // xxx - It is possible that at time0 account X is not a parent, so it

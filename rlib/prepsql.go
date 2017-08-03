@@ -450,6 +450,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerEntriesInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from LedgerEntry WHERE BID=? AND LID=? AND RAID=? AND ?<=Dt AND Dt<?")
 	Errcheck(err)
+	RRdb.Prepstmt.CountLedgerEntries, err = RRdb.Dbrr.Prepare("SELECT COUNT(LEID) FROM LedgerEntry WHERE LID=? AND BID=?")
+	Errcheck(err)
 	// RRdb.Prepstmt.GetLedgerEntriesInRangeByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from LedgerEntry WHERE BID=? AND GLNo=? AND ?<=Dt AND Dt<? ORDER BY JAID ASC")
 	// Errcheck(err)
 	// RRdb.Prepstmt.GetLedgerEntriesInRangeByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from LedgerEntry WHERE BID=? AND LID=? AND ?<=Dt AND Dt<? ORDER BY Amount DESC, Dt ASC")

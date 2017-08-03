@@ -776,7 +776,6 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
 	var (
 		funcname = "deleteGLAccount"
 		del      AcctDeleteForm
@@ -789,7 +788,9 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	//----------------------------------------
 	// First check, account exists or not
+	//----------------------------------------
 	gl := rlib.GetLedger(del.LID)
 	if gl.LID == 0 {
 		err := fmt.Errorf("No such account exists with ID: %d", del.LID)
@@ -797,7 +798,20 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// First, remove LedgerMarkers for this LID
+	//----------------------------------------
+	// do biz logic checks...
+	//----------------------------------------
+	l := rlib.GetLedger(del.LID)
+	ok, errlist := bizlogic.OKToDelete(&l)
+	if !ok {
+		SvcErrListReturn(w, errlist, funcname)
+		return
+	}
+
+	//-----------------------------------------------
+	// Passed all the checks... OK to remove it.
+	// Remove LedgerMarkers for this LID
+	//-----------------------------------------------
 	lm := rlib.GetLatestLedgerMarkerByLID(d.BID, del.LID)
 	if lm.State != rlib.MARKERSTATEORIGIN {
 		e := fmt.Errorf("This account (LID = %d) cannot be deleted because Ledger Markers exist beyond the origin", del.LID)

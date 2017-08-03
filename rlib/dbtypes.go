@@ -1466,6 +1466,7 @@ type RRprepSQL struct {
 	GetDepositoryByName                     *sql.Stmt
 	GetDepositoryByLID                      *sql.Stmt
 	UpdateDepositPart                       *sql.Stmt
+	CountLedgerEntries                      *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
@@ -1608,6 +1609,9 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 
 	RRdb.BUDlist = buildBusinessDesignationMap()
 
+	for i := 0; i < len(QBAcctInfo); i++ {
+		QBAcctType = append(QBAcctType, QBAcctInfo[i].Name)
+	}
 	// fmt.Printf("Initial:  RRdb.BUDlist\n")
 	// for k, v := range RRdb.BUDlist {
 	// 	fmt.Printf("key = %s,  val = %d\n", k, v)
