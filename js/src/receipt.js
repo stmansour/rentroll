@@ -526,24 +526,26 @@ function buildReceiptElements() {
             },
             reverse: function() {
                 var form = this;
+
                 w2confirm(reverse_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.receiptsGrid;
-                    tgrid.selectNone();
-
                     var params = {cmd: 'delete', formname: form.name, RCPTID: form.record.RCPTID };
                     var dat = JSON.stringify(params);
                     // Reverse receipt request
-                    $.post(form.url, dat)
+                    $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        if (data.status != "success") {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
+                        // reversed items should not be deleted!
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        console.log("Reverse Receipt failed.");
+                        form.error("Reverse Receipt failed.");
+                        return;
                     });
                 })
                 .no(function() {

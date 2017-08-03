@@ -212,28 +212,24 @@ $().w2grid({
             },
             delete: function() {
 
-                var form = this;
+                var form = this,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
 
                 w2confirm(delete_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.pmtsGrid;
-
-                    tgrid.selectNone();
-
                     var params = {cmd: 'delete', formname: form.name, ID: form.record.PMTID };
                     var dat = JSON.stringify(params);
 
                     // delete Depository request
-                    $.post(form.url, dat)
+                    $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        if (data.status != "success") {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
                             return;
                         }
-
-                        // update payments list for a business
-                        var x = getCurrentBusiness();
-                        var BID=parseInt(x.value);
-                        var BUD = getBUDfromBID(BID);
 
                         // remove this from app.pmtTypes[BUD] if successfully removed
                         var temp_list = [];
@@ -245,10 +241,12 @@ $().w2grid({
                         app.pmtTypes[BUD] = temp_list;
 
                         w2ui.toplayout.hide('right',true);
+                        tgrid.remove(app.last.grid_sel_recid);
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Payment failed.");
+                        form.error("Delete Payment failed.");
+                        return;
                     });
                 })
                 .no(function() {

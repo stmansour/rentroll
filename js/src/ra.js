@@ -458,22 +458,23 @@ function buildRAElements() {
                 .yes(function() {
 
                     var tgrid = w2ui.rentalagrsGrid;
-                    tgrid.selectNone();
-
                     var params = {cmd: 'delete', formname: form.name, RAID: form.record.RAID };
                     var dat = JSON.stringify(params);
 
                     // delete RentalAgreement request
-                    $.post(form.url, dat)
+                    $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        if (data.status != "success") {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
+                        tgrid.remove(app.last.grid_sel_recid);
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete RentalAgreement failed.");
+                        form.error("Delete RentalAgreement failed.");
+                        return;
                     });
                 })
                 .no(function() {

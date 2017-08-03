@@ -301,24 +301,26 @@ $().w2grid({
 
                 w2confirm(delete_confirm_options)
                 .yes(function() {
-                    var tgrid = w2ui.pmtsGrid;
-                    tgrid.selectNone();
-
+                    var tgrid = w2ui.accountsGrid;
                     var params = {cmd: 'delete', formname: form.name, LID: form.record.LID };
                     var dat = JSON.stringify(params);
 
                     // delete Depository request
-                    $.post(form.url, dat)
+                    $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        if (data.status != "success") {
+                        console.log(form.record);
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
                             return;
                         }
 
                         w2ui.toplayout.hide('right',true);
+                        tgrid.remove(app.last.grid_sel_recid);
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Account failed.");
+                        form.error("Delete Account failed.");
+                        return;
                     });
                 })
                 .no(function() {

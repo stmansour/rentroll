@@ -302,21 +302,23 @@ $().w2grid({
                 w2confirm(delete_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.transactantsGrid;
-                    tgrid.selectNone();
                     var params = {cmd: 'delete', formname: form.name, TCID: form.record.TCID };
                     var dat = JSON.stringify(params);
 
                     // delete Transactant request
-                    $.post(form.url, dat)
+                    $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        if (data.status != "success") {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
+                        tgrid.remove(app.last.grid_sel_recid);
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Transactant failed.");
+                        form.error("Delete Transactant failed.");
+                        return;
                     });
                 })
                 .no(function() {

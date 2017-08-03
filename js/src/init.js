@@ -20,3 +20,19 @@ function defineDateFmts() {
     $('input[type=eu-time]').w2field('time',  { format: 'h24' });
     $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
 }
+
+// // GLOBAL AJAX SETUP
+// $.ajaxSetup({
+//     dataType: "json"
+// });
+
+// --------------------------------------------------------
+// extend w2ui grid remove prototype
+// --------------------------------------------------------
+// when record removed, reset `app.grid_sel_recid`
+w2obj.grid.prototype._remove = w2obj.grid.prototype.remove;
+w2obj.grid.prototype.remove = function() {
+    app.last.grid_sel_recid = -1;
+    this._remove.apply(this, arguments);
+};
+

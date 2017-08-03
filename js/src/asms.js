@@ -865,14 +865,16 @@ function buildAssessmentElements() {
              required: true },
         ],
         actions: {
-            save: function () {
-                console.log('SAVE asmsReverseMode: Mode = ' + w2ui.reverseMode.record.ReverseMode.id);
-                w2popup.close();
-                w2ui.toplayout.hide('right',true);
-                w2ui.asmsGrid.refresh();
-
+            reverse: function () {
                 // var form = w2ui.asmInstForm;
                 var form = app.AsmtModeCallerForm;
+                var tgrid = w2ui.asmsGrid;
+
+                console.log('asmsReverseMode: Mode = ' + w2ui.reverseMode.record.ReverseMode.id);
+                w2popup.close();
+                w2ui.toplayout.hide('right',true);
+                tgrid.refresh();
+
                 var params = {
                     cmd:         'delete',
                     formname:    form.name,
@@ -882,16 +884,19 @@ function buildAssessmentElements() {
                 var dat = JSON.stringify(params);
 
                 // delete Depository request
-                $.post(form.url, dat)
+                $.post(form.url, dat, null, "json")
                 .done(function(data) {
-                    if (data.status != "success") {
+                    if (data.status === "error") {
+                        form.error(w2utils.lang(data.message));
                         return;
                     }
                     w2ui.toplayout.hide('right',true);
-                    w2ui.asmsGrid.render();
+                    // reversed items should not be deleted!
+                    tgrid.render();
                 })
                 .fail(function(/*data*/){
-                    //console.log("Reverse Assessment instance failed.");
+                    form.error("Reverse Assessment instance failed.");
+                    return;
                 });
             },
             cancel: function() {

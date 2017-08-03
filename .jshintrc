@@ -8,6 +8,8 @@
         "console": true,
         "app": true,
         "w2ui": true,
+        "w2obj": true,
+        "w2utils": true,
         "w2popup": true,
         "dateTodayStr": true,
         "_unAllocRcpts": true,
