@@ -324,23 +324,23 @@ function buildRentableTypeElements() {
                 w2confirm(delete_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.rtGrid;
-                    tgrid.selectNone();
-
                     var params = {cmd: 'delete', formname: form.name, ID: form.record.RTID };
                     var dat = JSON.stringify(params);
 
                     // delete Depository request
-                    $.post(form.url, dat)
+                    $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        if (data.status != "success") {
+                        if (data.status === "error") {
                             return;
                         }
 
                         w2ui.toplayout.hide('right',true);
+                        tgrid.remove(app.last.grid_sel_recid);
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Payment failed.");
+                        form.error("Delete Payment failed.");
+                        return;
                     });
                 })
                 .no(function() {

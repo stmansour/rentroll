@@ -255,22 +255,23 @@ function buildDepositoryElements() {
                 .yes(function() {
 
                     var tgrid = w2ui.depGrid;
-                    tgrid.selectNone();
-
                     var params = {cmd: 'delete', formname: form.name, ID: form.record.DEPID };
                     var dat = JSON.stringify(params);
 
                     // delete Depository request
-                    $.post(form.url, dat)
+                    $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        if (data.status != "success") {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
+                        tgrid.remove(app.last.grid_sel_recid);
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete Depository failed.");
+                        form.error("Delete Depository failed.");
+                        return;
                     });
                 })
                 .no(function() {

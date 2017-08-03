@@ -288,7 +288,7 @@ $().w2grid({
                     w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
                     w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
                     w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
-                    
+
                     var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected);
                     f.record = record;
                     f.header = "Edit Account Rule (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
@@ -301,22 +301,23 @@ $().w2grid({
                 w2confirm(delete_confirm_options)
                 .yes(function () {
                     var tgrid = w2ui.arsGrid;
-                    tgrid.selectNone();
-
                     var params = {cmd: 'delete', formname: form.name, ARID: form.record.ARID };
                     var dat = JSON.stringify(params);
 
                     // delete AR request
-                    $.post(form.url, dat)
+                    $.post(form.url, dat, null, "json")
                     .done(function(data) {
-                        if (data.status != "success") {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
                             return;
                         }
                         w2ui.toplayout.hide('right',true);
+                        tgrid.remove(app.last.grid_sel_recid);
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        console.log("Delete AR failed.");
+                        form.error("Delete AR failed.");
+                        return;
                     });
                 })
                 .no(function () {
