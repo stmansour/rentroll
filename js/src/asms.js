@@ -883,7 +883,7 @@ function buildAssessmentElements() {
                 };
                 var dat = JSON.stringify(params);
 
-                // delete Depository request
+                // They chose the delete / reverse button
                 $.post(form.url, dat, null, "json")
                 .done(function(data) {
                     if (data.status === "error") {

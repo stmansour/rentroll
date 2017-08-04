@@ -109,6 +109,14 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			Dt:   rlib.JSONDate(m.Stmt[i].Dt),
 		}
 
+		//---------------------------------------------------------------------
+		// There are two things we need from the Account Rules.  First
+		// is the name of the rule, which is basically an explanation of the
+		// charge or payment.  Second, we find out if we need to negate the
+		// number in its usage.  The Negate flag indicates whether the
+		// Amount of an Assessment should be negated prior to using it in the
+		// context of a credit.
+		//---------------------------------------------------------------------
 		descr := ""
 		if m.Stmt[i].T == 1 || m.Stmt[i].T == 2 {
 			if m.Stmt[i].A.ARID > 0 {
@@ -127,19 +135,20 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			a.AsmtAmount = amt
 			if !a.Reverse {
 				c += amt
-				b -= amt
+				b += amt
 			} else {
 				a.Descr += " (" + m.Stmt[i].A.Comment + ")"
 			}
 		case 2: // receipts
 			amt := m.Stmt[i].Amt
-			a.ID = rlib.IDtoShortString("RCPT", m.Stmt[i].R.RCPTID)
-			a.Descr = descr
 			a.RcptAmount = amt
+			a.ID = rlib.IDtoShortString("RCPT", m.Stmt[i].R.RCPTID)
 			a.Reverse = m.Stmt[i].Reverse
+			rlib.Console("RCPT - associated ASMID = %d\n", m.Stmt[i].A.ASMID)
 			if m.Stmt[i].A.ASMID > 0 {
-				descr = fmt.Sprintf("%s (%s)", descr, rlib.IDtoShortString("ASM", m.Stmt[i].A.ASMID))
+				descr += " (" + rlib.IDtoShortString("ASM", m.Stmt[i].A.ASMID) + ")"
 			}
+			a.Descr = descr
 			if !a.Reverse {
 				d += amt
 				b += amt

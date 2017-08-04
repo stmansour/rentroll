@@ -673,7 +673,7 @@ type Assessment struct {
 	InvoiceNo      int64     // A uniqueID for the invoice number
 	AcctRule       string    // override ARID with this account rule
 	ARID           int64     // reference to the account rule to use
-	FLAGS          uint64    // bit flags.  bits 0-1: 0 = unpaid, 1 = partially paid, 2 = fully paid
+	FLAGS          uint64    // bit flags.  bits 0-1: 0 = unpaid, 1 = partially paid, 2 = fully paid, 3 = it's an offset, do not apply payments to this assessment; Bit 2: 1 = this assmt has been reversed
 	Comment        string
 	LastModTime    time.Time
 	LastModBy      int64
@@ -1120,7 +1120,7 @@ type GLAccount struct {
 	AcctType    string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	AllowPost   int64     // 0 = no posting, 1 = posting is allowed
 	RARequired  int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-	FLAGS       uint64    //
+	FLAGS       uint64    // 1 << 0 = offset account, do not try to fund it from receipts
 	Description string    // description for this account
 	LastModTime time.Time // auto updated
 	LastModBy   int64     // user making the mod

@@ -140,6 +140,7 @@ func buildPreparedStatements() {
 	// FLAGS bits 0-1 mean: 0 = unpaid, 1 = partially paid, 2 = fully paid.
 	// So, FLAGS & 3 gives us the values of bits 0-1.  if the value is 0 or 1 then the assessment is not yet paid.
 	// So (FLAGS & 3) < 2 means that the assessment is not yet paid
+	// Note that if FLAGS & 0x3 == 3 then the assessment is an offset and should not be considered for payment
 	RRdb.Prepstmt.GetUnpaidAssessmentsByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (FLAGS & 3)<2 AND (FLAGS & 4)=0 AND (PASMID!=0 OR RentCycle=0) ORDER BY Start ASC")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)

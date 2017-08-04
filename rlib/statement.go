@@ -148,18 +148,36 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 		ReadAssessments(rows, &a)
 		var rnt Rentable
 		GetRentableByID(a.RID, &rnt)
+
+		// handle offsets... negate the credit value
+		negate := false
+		if a.ARID > 0 {
+			crlid := RRdb.BizTypes[a.BID].AR[a.ARID].CreditLID
+			negate = AccountTypeNegateFlag(RRdb.BizTypes[a.BID].GLAccounts[crlid].AcctType)
+			// Console("%s: CreditLID = %s (%s), Acct Type = %s, Negate = %t\n",
+			// 	RRdb.BizTypes[a.BID].AR[a.ARID].Name,
+			// 	RRdb.BizTypes[a.BID].GLAccounts[crlid].Name,
+			// 	RRdb.BizTypes[a.BID].GLAccounts[crlid].GLNumber,
+			// 	RRdb.BizTypes[a.BID].GLAccounts[crlid].AcctType,
+			// 	negate)
+		}
+
 		se := RAStmtEntry{
 			T:       1,
 			A:       &a,
-			Amt:     a.Amount,
+			Amt:     -a.Amount,
 			Dt:      a.Start,
 			RNT:     &rnt,
 			Reverse: a.FLAGS&0x4 != 0, // bit 2 is the reversal flag
 		}
+		if negate {
+			se.Amt = -se.Amt
+		}
 		(*p) = append((*p), se)
 		if !se.Reverse {
-			bal -= a.Amount // if it is a reversal, do
+			bal += se.Amt // if it is a reversal, do
 		}
+		Console("ASMID  = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t\n", a.ASMID, se.Amt, bal, se.Reverse)
 	}
 
 	//----------------------------------------------------------------
@@ -180,14 +198,15 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 			R:       &ra,
 			A:       &a,
 			RNT:     &rnt,
-			Amt:     ra.Amount,
+			Amt:     -ra.Amount,
 			Dt:      ra.Dt,
 			Reverse: a.FLAGS&0x4 != 0, // bit 2 is the reversal flag
 		}
 		(*p) = append((*p), se)
 		if !se.Reverse {
-			bal += ra.Amount
+			bal += se.Amt
 		}
+		Console("RCPTID = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t,  ASMID = %3d\n", se.RNT.RID, se.Amt, bal, se.Reverse, se.A.ASMID)
 	}
 	return bal
 }

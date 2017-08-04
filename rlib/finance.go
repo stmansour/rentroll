@@ -17,21 +17,32 @@ var RDateFmt = []string{
 // QBAcctType - this was previously a text field. But because we dropped the
 // notion of "default accounts", it was important to formalize the list of account
 // types.
-var QBAcctType = []string{}
+var QBAcctType []string
 
 // QBAcctInfo indicates how numbers should be processed in the account Rules
 var QBAcctInfo = []struct {
 	Name   string
-	Negate bool // Indicates whether or not the amount in an Assessment should be shown as a negative number
+	Negate bool // Indicates whether or not the amount in an Assessment should be negated before showing it in a report
 }{
 	{"Cash", false},
-	{"Accounts Receivable", true},
+	{"Accounts Receivable", false},
 	{"Current Liabilities", false},
 	{"Income", true},
 	{"Income Offsets", false},
 	{"Other Income", false},
 	{"Security Deposits", false},
 	{"Expense Account", false},
+}
+
+// AccountTypeNegateFlag returns the Negate flag associated with the supplied account type.
+// If the account type is not matched it returns false.
+func AccountTypeNegateFlag(s string) bool {
+	for i := 0; i < len(QBAcctInfo); i++ {
+		if s == QBAcctInfo[i].Name {
+			return QBAcctInfo[i].Negate
+		}
+	}
+	return false
 }
 
 // RentalPeriodToString takes an accrual recurrence value and returns its

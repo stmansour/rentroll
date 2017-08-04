@@ -389,20 +389,42 @@ func DeallocateAppliedFunds(a *rlib.Assessment, asmtRevID int64, dt *time.Time) 
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
 func InsertAssessment(a *rlib.Assessment, exp int) []BizError {
+	funcname := "bizlogic.InsertAssessment"
+	rlib.Console("Entered %s\n", funcname)
 	var errlist []BizError
 	errlist = ValidateAssessment(a) // Make sure there are no bizlogic errors before saving
 	if len(errlist) > 0 {
 		return errlist
 	}
+
+	rlib.Console("A.  a.BID = %d, a.ARID = %d\n", a.BID, a.ARID)
+	var xbiz rlib.XBusiness
+	rlib.InitBizInternals(a.BID, &xbiz)
+
+	//-------------------------------------------------------------------------
+	// If the AcctRule sends money to an offset account, mark it as an offset.
+	//-------------------------------------------------------------------------
+	clid := rlib.RRdb.BizTypes[a.BID].AR[a.ARID].CreditLID // this is the assessment's Account Rule credit ledger
+	dlid := rlib.RRdb.BizTypes[a.BID].AR[a.ARID].DebitLID  // this is the assessment's Account Rule debit ledger
+
+	// rlib.Console("Pay Assessment: Assessment Rule:  Debit %s, Credit %s\n", rlib.RRdb.BizTypes[a.BID].GLAccounts[car.DebitLID].Name, rlib.RRdb.BizTypes[a.BID].GLAccounts[car.CreditLID].Name)
+	// rlib.Console("Pay Assessment:    Receipt Rule:  Debit %s, Credit %s\n", rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.DebitLID].Name, rlib.RRdb.BizTypes[a.BID].GLAccounts[dar.CreditLID].Name)
+
+	if rlib.RRdb.BizTypes[a.BID].GLAccounts[dlid].FLAGS&0x1 > 0 || rlib.RRdb.BizTypes[a.BID].GLAccounts[clid].FLAGS&0x1 > 0 {
+		a.FLAGS &= 0x8ffffffffffffffc //zero bits 0:1
+		a.FLAGS |= 0x3                // indicate that this is an OFFSET and should not be processd during payment allocation
+	}
+
+	rlib.Console("B\n")
 	_, err := rlib.InsertAssessment(a) // No bizlogic errors, save it
 	if err != nil {
 		return bizErrSys(&err)
 	}
 
+	rlib.Console("C\n")
 	//------------------------------------------------
 	// Add the journal and ledger entries
 	//------------------------------------------------
-	var xbiz rlib.XBusiness
 	rlib.GetXBusiness(a.BID, &xbiz)
 	d1, d2 := rlib.GetMonthPeriodForDate(&a.Start) // TODO: probably needs to be more generalized
 	rlib.InitLedgerCache()
@@ -415,6 +437,7 @@ func InsertAssessment(a *rlib.Assessment, exp int) []BizError {
 			createInstancesToDate(a, &xbiz)
 		}
 	}
+	rlib.Console("D\n")
 	return nil
 }
 
@@ -449,11 +472,11 @@ func ValidateAssessment(a *rlib.Assessment) []BizError {
 		rsl := rlib.GetRentableStatusByRange(a.RID, &a.Start, &a.Stop)
 		l = len(rsl)
 		if l == 0 {
-			// fmt.Printf("ValidateAssessment: l=0\n")
+			// rlib.Console("ValidateAssessment: l=0\n")
 			e = append(e, BizErrors[RentableStatusUnknown])
 		} else {
-			// fmt.Printf("ValidateAssessment: a.Start-Stop = %s - %s\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
-			// fmt.Printf("ValidateAssessment: rtl = %s - %s\n", rtl[0].DtStart.Format(rlib.RRDATEINPFMT), rtl[l-1].DtStop.Format(rlib.RRDATEINPFMT))
+			// rlib.Console("ValidateAssessment: a.Start-Stop = %s - %s\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
+			// rlib.Console("ValidateAssessment: rtl = %s - %s\n", rtl[0].DtStart.Format(rlib.RRDATEINPFMT), rtl[l-1].DtStop.Format(rlib.RRDATEINPFMT))
 			if a.Stop.Before(rtl[0].DtStart) || a.Start.After(rtl[l-1].DtStop) {
 				e = append(e, BizErrors[RentableStatusUnknown])
 			}

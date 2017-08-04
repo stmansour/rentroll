@@ -25,9 +25,9 @@ import (
 
 // ROUNDINGERR may not be necessary, but if division becomes a part of the floating
 // point calculations below, it is likely that subtracting things that should result
-// in zero will not be exactly zero.  So, if the error is less than $0.01 we just call
+// in zero will not be exactly zero.  So, if the error is less than $0.001 we just call
 // it a rounding error and assume that it's 0.
-const ROUNDINGERR = float64(0.00999)
+const ROUNDINGERR = float64(0.000999)
 
 // GetAllUnpaidAssessmentsForPayor determines all the Rental Agreements for which
 // the supplied Transactant is Payor at time dt, then returns a list of all unpaid

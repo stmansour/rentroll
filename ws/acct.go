@@ -45,6 +45,7 @@ type GLAccount struct {
 	AllowPost   int64             // 0 = no posting, 1 = posting is allowed
 	RARequired  int64             // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 	Description string            // description for this account
+	FLAGS       uint64            // bit 0 = Offset-Account flag
 	LastModTime rlib.JSONDateTime // auto updated
 	LastModBy   int64             // user making the mod
 	// W2UIChild      w2uiChild `json:"w2ui"`
@@ -59,38 +60,42 @@ type SearchGLAccountsResponse struct {
 
 // AcctDetailsForm is the response data to request for a GLAccount
 type AcctDetailsForm struct {
-	LID         int64
-	PLID        int64
-	BID         int64
-	BUD         rlib.XJSONBud
-	RAID        int64
-	TCID        int64
-	GLNumber    string
-	Status      int64
-	Name        string
-	AcctType    string
-	AllowPost   int64
-	Description string
-	LastModTime rlib.JSONDateTime
-	LastModBy   int64
-	CreateTS    rlib.JSONDateTime
-	CreateBy    int64
+	LID           int64
+	PLID          int64
+	BID           int64
+	BUD           rlib.XJSONBud
+	RAID          int64
+	TCID          int64
+	GLNumber      string
+	Status        int64
+	Name          string
+	AcctType      string
+	AllowPost     int64
+	Description   string
+	FLAGS         uint64
+	OffsetAccount int // 0 = not offset-account, 1 = offset account
+	LastModTime   rlib.JSONDateTime
+	LastModBy     int64
+	CreateTS      rlib.JSONDateTime
+	CreateBy      int64
 }
 
 // AcctSaveForm used save inputs directly
 type AcctSaveForm struct {
-	LID         int64
-	BID         int64
-	RAID        int64
-	TCID        int64
-	GLNumber    string
-	Name        string
-	AcctType    string
-	Description string
-	BUD         rlib.XJSONBud
-	PLID        int64
-	Status      int64
-	AllowPost   int64
+	LID           int64
+	BID           int64
+	RAID          int64
+	TCID          int64
+	GLNumber      string
+	Name          string
+	AcctType      string
+	Description   string
+	BUD           rlib.XJSONBud
+	PLID          int64
+	Status        int64
+	AllowPost     int64
+	FLAGS         uint64 // FLAGS bit 0. Offset-Account flag
+	OffsetAccount int    // the UI value for bit 0 of FLAGS
 }
 
 // SaveAcctInput is the input data format for a Save command
@@ -583,8 +588,8 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err      error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	// get data
 	data := []byte(d.data)
@@ -594,9 +599,23 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	//--------------------------------------------------------------------------
+	// Make no assumptions about what the caller has done to the FLAGS
+	// Only accept those bits that a caller is authorized to edit. The bizlogic
+	// check takes care of not overwriting the existing FLAG values if this
+	// is an update operation. Vut we're going to limit the FLAGS to only what
+	// clients are authorized to change...
+	//--------------------------------------------------------------------------
+	rlib.Console("foo.Record.OffsetAccount = %d\n", foo.Record.OffsetAccount)
+
 	// migrate foo.Record data to a struct's fields
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveAcct - first migrate: a = %#v\n", a)
+
+	oaval := uint64(foo.Record.OffsetAccount & 0x1) // assume it is not an offset account
+	a.FLAGS = 0                                     // reset anything that the UI sent
+	a.FLAGS |= oaval                                // The UI is authorized to modify this flag
+	rlib.Console("a.FL = %d\n", foo.Record.OffsetAccount)
 
 	// data validation
 	if a.Name == "" {
@@ -685,6 +704,7 @@ var getAcctQuerySelectFields = selectQueryFields{
 	"GLAccount.AcctType",
 	"GLAccount.AllowPost",
 	"GLAccount.Description",
+	"GLAccount.FLAGS",
 	"GLAccount.LastModTime",
 	"GLAccount.LastModBy",
 	"GLAccount.CreateTS",
@@ -743,11 +763,12 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
-		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
+		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
+		gg.OffsetAccount = int(gg.FLAGS & 0x1)
 
 		g.Record = gg
 	}

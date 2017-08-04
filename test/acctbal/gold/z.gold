@@ -1,48 +1,89 @@
 RA statement info for period May 1, 2017 - Jun 1, 2017
-m.OpeningBal -->  -4606.79
+ASMID  =  34,  se.Amt =  4000.00,  bal =  4000.00,  Reverse = false
+ASMID  =  35,  se.Amt =  4000.00,  bal =  8000.00,  Reverse = false
+ASMID  =  36,  se.Amt =  4000.00,  bal = 12000.00,  Reverse = false
+ASMID  =  37,  se.Amt =  4000.00,  bal = 16000.00,  Reverse = false
+ASMID  =  38,  se.Amt =  4000.00,  bal = 20000.00,  Reverse = false
+ASMID  =  39,  se.Amt =  4000.00,  bal = 24000.00,  Reverse = false
+ASMID  =  40,  se.Amt =  4000.00,  bal = 28000.00,  Reverse = false
+ASMID  =  44,  se.Amt =  -628.45,  bal = 27371.55,  Reverse = false
+ASMID  =  45,  se.Amt =  -175.00,  bal = 27196.55,  Reverse = false
+ASMID  =  46,  se.Amt =  -160.00,  bal = 27196.55,  Reverse = true
+ASMID  =  47,  se.Amt =  -350.00,  bal = 26846.55,  Reverse = false
+ASMID  =  48,  se.Amt =   -81.79,  bal = 26764.76,  Reverse = false
+ASMID  =  54,  se.Amt =   -15.00,  bal = 26749.76,  Reverse = false
+ASMID  =  55,  se.Amt =   -15.00,  bal = 26734.76,  Reverse = false
+ASMID  =  57,  se.Amt =   160.00,  bal = 26734.76,  Reverse = true
+ASMID  =  58,  se.Amt =  -175.00,  bal = 26559.76,  Reverse = false
+RCPTID =   2,  se.Amt = -4000.00,  bal = 22559.76,  Reverse = false,  ASMID =  34
+RCPTID =   2,  se.Amt = -4000.00,  bal = 18559.76,  Reverse = false,  ASMID =  35
+RCPTID =   2,  se.Amt =   -15.00,  bal = 18544.76,  Reverse = false,  ASMID =  54
+RCPTID =   2,  se.Amt = -4000.00,  bal = 14544.76,  Reverse = false,  ASMID =  36
+RCPTID =   2,  se.Amt = -3970.00,  bal = 10574.76,  Reverse = false,  ASMID =  37
+RCPTID =   2,  se.Amt =   -30.00,  bal = 10544.76,  Reverse = false,  ASMID =  37
+RCPTID =   2,  se.Amt =  -598.45,  bal =  9946.31,  Reverse = false,  ASMID =  44
+RCPTID =   2,  se.Amt =   -30.00,  bal =  9916.31,  Reverse = false,  ASMID =  44
+RCPTID =   2,  se.Amt = -4000.00,  bal =  5916.31,  Reverse = false,  ASMID =  38
+RCPTID =   2,  se.Amt =  -175.00,  bal =  5741.31,  Reverse = false,  ASMID =  45
+RCPTID =   2,  se.Amt =   -15.00,  bal =  5726.31,  Reverse = false,  ASMID =  55
+RCPTID =   2,  se.Amt = -4000.00,  bal =  1726.31,  Reverse = false,  ASMID =  39
+RCPTID =   2,  se.Amt =  -115.00,  bal =  1726.31,  Reverse = true,  ASMID =  46
+ASMID  =  41,  se.Amt =  4000.00,  bal =  4000.00,  Reverse = false
+ASMID  =  49,  se.Amt =  -350.00,  bal =  3650.00,  Reverse = false
+ASMID  =  56,  se.Amt =   -15.00,  bal =  3635.00,  Reverse = false
+RCPTID =   2,  se.Amt =   -45.00,  bal =  3635.00,  Reverse = true,  ASMID =  46
+RCPTID =   2,  se.Amt = -4000.00,  bal =  -365.00,  Reverse = false,  ASMID =  40
+RCPTID =   2,  se.Amt =  -350.00,  bal =  -715.00,  Reverse = false,  ASMID =  47
+RCPTID =   2,  se.Amt =   -81.79,  bal =  -796.79,  Reverse = false,  ASMID =  48
+RCPTID =   2,  se.Amt = -4000.00,  bal = -4796.79,  Reverse = false,  ASMID =  41
+RCPTID =   2,  se.Amt =  -350.00,  bal = -5146.79,  Reverse = false,  ASMID =  49
+RCPTID =   2,  se.Amt =   -15.00,  bal = -5161.79,  Reverse = false,  ASMID =  56
+RCPTID =   2,  se.Amt = -4000.00,  bal = -9161.79,  Reverse = false,  ASMID =  42
+RCPTID =   2,  se.Amt =  -275.00,  bal = -9436.79,  Reverse = false,  ASMID =  50
+m.OpeningBal -->   1726.31
 date = Oct 1, 2016, asmt = -4000.00,  bal = -4000.00
-date = Oct 3, 2016, RCPT =  4000.00,  bal =     0.00
-date = Nov 1, 2016, asmt = -4000.00,  bal = -4000.00
-date = Nov 11, 2016, RCPT =  3970.00,  bal =   -30.00
-date = Nov 11, 2016, RCPT =  4000.00,  bal =  3970.00
-date = Nov 11, 2016, asmt =   -15.00,  bal =  3955.00
-date = Nov 11, 2016, RCPT =  4000.00,  bal =  7955.00
-date = Nov 11, 2016, RCPT =    15.00,  bal =  7970.00
-date = Dec 1, 2016, asmt = -4000.00,  bal =  3970.00
-date = Jan 1, 2017, asmt = -4000.00,  bal =   -30.00
-date = Jan 24, 2017, asmt =  -628.45,  bal =  -658.45
-date = Feb 1, 2017, asmt =  -175.00,  bal =  -833.45
-date = Feb 1, 2017, asmt = -4000.00,  bal = -4833.45
-date = Feb 3, 2017, RCPT =   598.45,  bal = -4235.00
-date = Feb 3, 2017, RCPT =    30.00,  bal = -4205.00
-date = Feb 13, 2017, asmt =   -15.00,  bal = -4220.00
-date = Feb 13, 2017, RCPT =    30.00,  bal = -4190.00
-date = Feb 13, 2017, RCPT =   175.00,  bal = -4015.00
-date = Feb 13, 2017, RCPT =    15.00,  bal = -4000.00
-date = Feb 13, 2017, RCPT =  4000.00,  bal =     0.00
-date = Feb 13, 2017, RCPT =  4000.00,  bal =  4000.00
-date = Feb 13, 2017, RCPT =   115.00,  bal =  4115.00
-date = Mar 1, 2017, asmt =  -175.00,  bal =  3940.00
-date = Mar 1, 2017, asmt =  -160.00,  bal =  3780.00
-date = Mar 1, 2017, asmt = -4000.00,  bal =  -220.00
-date = Mar 1, 2017, asmt =   160.00,  bal =   -60.00
-date = Apr 1, 2017, asmt =   -81.79,  bal =  -141.79
-date = Apr 1, 2017, asmt =  -350.00,  bal =  -491.79
-date = Apr 1, 2017, asmt = -4000.00,  bal = -4491.79
-OpeningBal = -4606.79,   newbal = -4491.79
+date = Oct 3, 2016, RCPT = -4000.00,  bal = -8000.00
+date = Nov 1, 2016, asmt = -4000.00,  bal = -12000.00
+date = Nov 11, 2016, RCPT = -3970.00,  bal = -15970.00
+date = Nov 11, 2016, RCPT = -4000.00,  bal = -19970.00
+date = Nov 11, 2016, asmt =    15.00,  bal = -19955.00
+date = Nov 11, 2016, RCPT = -4000.00,  bal = -23955.00
+date = Nov 11, 2016, RCPT =   -15.00,  bal = -23970.00
+date = Dec 1, 2016, asmt = -4000.00,  bal = -27970.00
+date = Jan 1, 2017, asmt = -4000.00,  bal = -31970.00
+date = Jan 24, 2017, asmt =   628.45,  bal = -31341.55
+date = Feb 1, 2017, asmt =   175.00,  bal = -31166.55
+date = Feb 1, 2017, asmt = -4000.00,  bal = -35166.55
+date = Feb 3, 2017, RCPT =  -598.45,  bal = -35765.00
+date = Feb 3, 2017, RCPT =   -30.00,  bal = -35795.00
+date = Feb 13, 2017, asmt =    15.00,  bal = -35780.00
+date = Feb 13, 2017, RCPT =   -30.00,  bal = -35810.00
+date = Feb 13, 2017, RCPT =  -175.00,  bal = -35985.00
+date = Feb 13, 2017, RCPT =   -15.00,  bal = -36000.00
+date = Feb 13, 2017, RCPT = -4000.00,  bal = -40000.00
+date = Feb 13, 2017, RCPT = -4000.00,  bal = -44000.00
+date = Feb 13, 2017, RCPT =  -115.00,  bal = -44115.00
+date = Mar 1, 2017, asmt =   175.00,  bal = -43940.00
+date = Mar 1, 2017, asmt =   160.00,  bal = -43780.00
+date = Mar 1, 2017, asmt = -4000.00,  bal = -47780.00
+date = Mar 1, 2017, asmt =  -160.00,  bal = -47940.00
+date = Apr 1, 2017, asmt =    81.79,  bal = -47858.21
+date = Apr 1, 2017, asmt =   350.00,  bal = -47508.21
+date = Apr 1, 2017, asmt = -4000.00,  bal = -51508.21
+OpeningBal =  1726.31,   newbal = -51508.21
 
 STATEMENT
-May 1, 2017 Opening Balance: -4606.79
-May 1, 2017, asmt = -4000.00,  bal = -8606.79
-May 1, 2017, asmt =  -350.00,  bal = -8956.79
-May 12, 2017, asmt =   -15.00,  bal = -8971.79
-May 12, 2017, RCPT =    45.00,  bal = -8926.79
-May 12, 2017, RCPT =  4000.00,  bal = -4926.79
-May 12, 2017, RCPT =   350.00,  bal = -4576.79
-May 12, 2017, RCPT =    81.79,  bal = -4495.00
-May 12, 2017, RCPT =  4000.00,  bal =  -495.00
-May 12, 2017, RCPT =   350.00,  bal =  -145.00
-May 12, 2017, RCPT =    15.00,  bal =  -130.00
-May 12, 2017, RCPT =  4000.00,  bal =  3870.00
-May 12, 2017, RCPT =   275.00,  bal =  4145.00
-May 31, 2017 ClosingBal =  4100.00,   newbal =  4145.00
+May 1, 2017 Opening Balance:  1726.31
+May 1, 2017, asmt = -4000.00,  bal = -2273.69
+May 1, 2017, asmt =   350.00,  bal = -1923.69
+May 12, 2017, asmt =    15.00,  bal = -1908.69
+May 12, 2017, RCPT =   -45.00,  bal = -1953.69
+May 12, 2017, RCPT = -4000.00,  bal = -5953.69
+May 12, 2017, RCPT =  -350.00,  bal = -6303.69
+May 12, 2017, RCPT =   -81.79,  bal = -6385.48
+May 12, 2017, RCPT = -4000.00,  bal = -10385.48
+May 12, 2017, RCPT =  -350.00,  bal = -10735.48
+May 12, 2017, RCPT =   -15.00,  bal = -10750.48
+May 12, 2017, RCPT = -4000.00,  bal = -14750.48
+May 12, 2017, RCPT =  -275.00,  bal = -15025.48
+May 31, 2017 ClosingBal = -7710.48,   newbal = -15025.48
