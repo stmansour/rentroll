@@ -229,7 +229,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// DEPOSIT
 	//==========================================
-	flds = "DID,BID,DEPID,DPMID,Dt,Amount,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "DID,BID,DEPID,DPMID,Dt,Amount,ClearedAmount,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Deposit"] = flds
 	RRdb.Prepstmt.GetDeposit, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Deposit WHERE DID=?")
 	Errcheck(err)

@@ -136,7 +136,7 @@ func InsertDemandSource(a *DemandSource) (int64, error) {
 // InsertDeposit writes a new Deposit record to the database
 func InsertDeposit(a *Deposit) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertDeposit.Exec(a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.CreateBy, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertDeposit.Exec(a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.ClearedAmount, a.FLAGS, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

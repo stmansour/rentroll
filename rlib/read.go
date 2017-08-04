@@ -71,12 +71,12 @@ func ReadDemandSources(rows *sql.Rows, a *DemandSource) {
 
 // ReadDeposit reads a full Deposit structure from the database based on the supplied row object
 func ReadDeposit(row *sql.Row, a *Deposit) error {
-	return row.Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return row.Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.ClearedAmount, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadDeposits reads a full Deposit structure from the database based on the supplied rows object
 func ReadDeposits(rows *sql.Rows, a *Deposit) error {
-	return rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.ClearedAmount, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadDepository reads a full Depository structure from the database based on the supplied row object

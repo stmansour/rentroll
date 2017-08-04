@@ -805,17 +805,19 @@ type Depository struct {
 // Deposit is simply a list of receipts that form a deposit to a Depository. This struct contains
 // the static attributes of the list
 type Deposit struct {
-	DID         int64         // Unique id of this deposit
-	BID         int64         // business id
-	DEPID       int64         // Depository id where the deposit was made
-	DPMID       int64         // Deposit method
-	Dt          time.Time     // Date of deposit
-	Amount      float64       // the total amount of the deposit
-	LastModTime time.Time     // when was this record last written
-	LastModBy   int64         // employee UID (from phonebook) that modified it
-	DP          []DepositPart // array of DepositParts for this deposit
-	CreateTS    time.Time     // when was this record created
-	CreateBy    int64         // employee UID (from phonebook) that created it
+	DID           int64         // Unique id of this deposit
+	BID           int64         // business id
+	DEPID         int64         // Depository id where the deposit was made
+	DPMID         int64         // Deposit method
+	Dt            time.Time     // Date of deposit
+	Amount        float64       // the total amount of the deposit
+	ClearedAmount float64       // the amount cleared by the depository
+	FLAGS         uint64        // bitflags
+	LastModTime   time.Time     // when was this record last written
+	LastModBy     int64         // employee UID (from phonebook) that modified it
+	CreateTS      time.Time     // when was this record created
+	CreateBy      int64         // employee UID (from phonebook) that created it
+	DP            []DepositPart // array of DepositParts for this deposit
 }
 
 // DepositPart is a reference to a Receipt that is part of this deposit.  Another way of

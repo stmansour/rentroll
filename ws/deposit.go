@@ -6,46 +6,43 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 )
 
 // DepositGrid contains the data from Deposit that is targeted to the UI Grid that displays
 // a list of Deposit structs
 type DepositGrid struct {
-	Recid       int64 `json:"recid"`
-	DID         int64
-	BID         int64
-	BUD         rlib.XJSONBud
-	LID         int64
-	Name        string
-	AccountNo   string
-	LdgrName    string
-	GLNumber    string
-	LastModTime rlib.JSONDateTime
-	LastModBy   int64
-	CreateTS    rlib.JSONDateTime
-	CreateBy    int64
-}
-
-// DepositSearchResponse is a response string to the search request for Deposit records
-type DepositSearchResponse struct {
-	Status  string        `json:"status"`
-	Total   int64         `json:"total"`
-	Records []DepositGrid `json:"records"`
+	Recid         int64 `json:"recid"`
+	DID           int64
+	BID           int64
+	BUD           rlib.XJSONBud
+	DEPID         int64
+	DPMID         int64
+	Dt            rlib.JSONDateTime
+	Amount        float64
+	ClearedAmount float64
+	FLAGS         uint64
+	LastModTime   rlib.JSONDateTime
+	LastModBy     int64
+	CreateTS      rlib.JSONDateTime
+	CreateBy      int64
 }
 
 // DepositSaveForm contains the data from Deposit FORM that is targeted to the UI Form that displays
 // a list of Deposit structs
 type DepositSaveForm struct {
-	Recid     int64 `json:"recid"`
-	LID       int64
-	DID       int64
-	BID       int64
-	BUD       rlib.XJSONBud
-	Name      string
-	AccountNo string
-	LdgrName  string
-	GLNumber  string
+	Recid         int64 `json:"recid"`
+	LID           int64
+	DID           int64
+	BID           int64
+	BUD           rlib.XJSONBud
+	DEPID         int64
+	DPMID         int64
+	Dt            rlib.JSONDateTime
+	Amount        float64
+	ClearedAmount float64
+	FLAGS         uint64
 }
 
 // DepositGridSave is the input data format for a Save command
@@ -77,13 +74,13 @@ func SvcHandlerDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err      error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("Request: %s:  BID = %d,  DID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("Request: %s:  BID = %d,  DID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
 		if d.ID <= 0 && d.wsSearchReq.Limit > 0 {
-			SvcSearchHandlerDepositories(w, r, d) // it is a query for the grid.
+			SvcSearchHandlerDeposits(w, r, d) // it is a query for the grid.
 		} else {
 			if d.ID < 0 {
 				err = fmt.Errorf("DepositID is required but was not specified")
@@ -104,36 +101,175 @@ func SvcHandlerDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 }
 
 // depositGridRowScan scans a result from sql row and dump it in a PrARGrid struct
-func depositGridRowScan(rows *sql.Rows, q DepositGrid) (DepositGrid, error) {
-	err := rows.Scan(&q.DID, &q.LID, &q.Name, &q.AccountNo, &q.LdgrName, &q.GLNumber, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
-	return q, err
+func depositGridRowScan(rows *sql.Rows, a *DepositGrid) error {
+	err := rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.ClearedAmount, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return err
 }
 
+// DepositSearchResponse is a response string to the search request for Deposit records
+type DepositSearchResponse struct {
+	Status  string        `json:"status"`
+	Total   int64         `json:"total"`
+	Records []DepositGrid `json:"records"`
+}
+
+// type Deposit struct {
+// 	DID           int64         // Unique id of this deposit
+// 	BID           int64         // business id
+// 	DEPID         int64         // Depository id where the deposit was made
+// 	DPMID         int64         // Deposit method
+// 	Dt            time.Time     // Date of deposit
+// 	Amount        float64       // the total amount of the deposit
+// 	ClearedAmount float64       // the amount cleared by the depository
+// 	FLAGS         uint64        // bitflags
+// 	LastModTime   time.Time     // when was this record last written
+// 	LastModBy     int64         // employee UID (from phonebook) that modified it
+// 	CreateTS      time.Time     // when was this record created
+// 	CreateBy      int64         // employee UID (from phonebook) that created it
+// 	DP            []DepositPart // array of DepositParts for this deposit
+// }
+//
+
 var depositSearchFieldMap = selectQueryFieldMap{
-	"DID":         {"Deposit.DID"},
-	"LID":         {"Deposit.LID"},
-	"Name":        {"Deposit.Name"},
-	"AccountNo":   {"Deposit.AccountNo"},
-	"LdgrName":    {"GLAccount.Name"},
-	"GLNumber":    {"GLAccount.GLNumber"},
-	"LastModTime": {"Deposit.LastModTime"},
-	"LastModBy":   {"Deposit.LastModBy"},
-	"CreateTS":    {"Deposit.CreateTS"},
-	"CreateBy":    {"Deposit.CreateBy"},
+	"DID":           {"Deposit.DID"},
+	"BID":           {"Deposit.BID"},
+	"DEPID":         {"Deposit.DEPID"},
+	"DPMID":         {"Deposit.DPMID"},
+	"Dt":            {"Deposit.Dt"},
+	"Amount":        {"Deposit.Amount"},
+	"ClearedAmount": {"Deposit.ClearedAmount"},
+	"FLAGS":         {"Deposit.FLAGS"},
+	"LastModTime":   {"Deposit.LastModTime"},
+	"LastModBy":     {"Deposit.LastModBy"},
+	"CreateTS":      {"Deposit.CreateTS"},
+	"CreateBy":      {"Deposit.CreateBy"},
 }
 
 // which fields needs to be fetch to satisfy the struct
 var depositSearchSelectQueryFields = selectQueryFields{
 	"Deposit.DID",
-	"Deposit.LID",
-	"Deposit.Name",
-	"Deposit.AccountNo",
-	"GLAccount.Name as LdgrName",
-	"GLAccount.GLNumber",
+	"Deposit.BID",
+	"Deposit.DEPID",
+	"Deposit.DPMID",
+	"Deposit.Dt",
+	"Deposit.Amount",
+	"Deposit.ClearedAmount",
+	"Deposit.FLAGS",
 	"Deposit.LastModTime",
 	"Deposit.LastModBy",
 	"Deposit.CreateTS",
 	"Deposit.CreateBy",
+}
+
+// SvcSearchHandlerDeposits generates a report of all Deposits defined business d.BID
+// wsdoc {
+//  @Title  Search Deposits
+//	@URL /v1/pmts/:BUI
+//  @Method  POST
+//	@Synopsis Search Deposits
+//  @Descr  Search all PaymentType and return those that match the Search Logic.
+//  @Descr  The search criteria includes start and stop dates of interest.
+//	@Input WebGridSearchRequest
+//  @Response DepositSearchResponse
+// wsdoc }
+func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "SvcSearchHandlerDeposits"
+		g        DepositSearchResponse
+		err      error
+		order    = "DID ASC" // default ORDER
+		whr      = fmt.Sprintf("BID=%d", d.BID)
+	)
+
+	rlib.Console("Entered %s\n", funcname)
+
+	// get where clause and order clause for sql query
+	_, orderClause := GetSearchAndSortSQL(d, depositSearchFieldMap)
+	if len(orderClause) > 0 {
+		order = orderClause
+	}
+
+	theQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Deposit
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
+
+	qc := queryClauses{
+		"SelectClause": strings.Join(depositSearchSelectQueryFields, ","),
+		"WhereClause":  whr,
+		"OrderClause":  order,
+	}
+
+	// get TOTAL COUNT First
+	countQuery := renderSQLQuery(theQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc)
+	if err != nil {
+		rlib.Console("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	rlib.Console("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	theQueryWithLimit := theQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
+	// get formatted query with substitution of select, where, order clause
+	qry := renderSQLQuery(theQueryWithLimit, qc)
+	rlib.Console("db query = %s\n", qry)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
+	if err != nil {
+		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	defer rows.Close()
+
+	i := int64(d.wsSearchReq.Offset)
+	count := 0
+	for rows.Next() {
+		var q DepositGrid
+		q.Recid = i
+		q.BID = d.BID
+		q.BUD = getBUDFromBIDList(q.BID)
+
+		err = depositGridRowScan(rows, &q)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+
+		g.Records = append(g.Records, q)
+		count++ // update the count only after adding the record
+		if count >= d.wsSearchReq.Limit {
+			break // if we've added the max number requested, then exit
+		}
+		i++
+	}
+
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
+	SvcWriteResponse(&g, w)
+
 }
 
 // GetDeposit returns the requested assessment
@@ -154,8 +290,8 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err      error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	// get data
 	data := []byte(d.data)
@@ -215,7 +351,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		whr      = fmt.Sprintf("Deposit.DID=%d", d.ID)
 	)
 
-	fmt.Printf("entered %s\n", funcname)
+	rlib.Console("entered %s\n", funcname)
 
 	depQuery := `
 	SELECT
@@ -233,7 +369,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
+		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -244,7 +380,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		q.BID = d.BID
 		q.BUD = getBUDFromBIDList(q.BID)
 
-		q, err = depositGridRowScan(rows, q)
+		err = depositGridRowScan(rows, &q)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return

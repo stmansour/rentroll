@@ -1,5 +1,7 @@
 package ws
 
+//
+
 import (
 	"fmt"
 	"net/http"
@@ -100,6 +102,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	g.Records = append(g.Records, a)
 	b = m.OpeningBal
 	count := 0
+	offset := sd.wsSearchReq.Offset
 	for i := sd.wsSearchReq.Offset; i < len(m.Stmt); i++ {
 
 		var a = StatementDetail{
@@ -144,7 +147,6 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			a.RcptAmount = amt
 			a.ID = rlib.IDtoShortString("RCPT", m.Stmt[i].R.RCPTID)
 			a.Reverse = m.Stmt[i].Reverse
-			rlib.Console("RCPT - associated ASMID = %d\n", m.Stmt[i].A.ASMID)
 			if m.Stmt[i].A.ASMID > 0 {
 				descr += " (" + rlib.IDtoShortString("ASM", m.Stmt[i].A.ASMID) + ")"
 			}
@@ -161,13 +163,19 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 				a.Descr += " (" + comment + ")"
 			}
 		}
-		a.RentableName = m.Stmt[i].RNT.RentableName
-		a.Balance = b
-		a.Recid = int64(i)
-		g.Records = append(g.Records, a)
-		count++
-		if count >= sd.wsSearchReq.Limit {
-			break
+		//---------------------------------------------------
+		// only add it if it is what was requested...
+		//---------------------------------------------------
+		if i >= offset {
+			a.RentableName = m.Stmt[i].RNT.RentableName
+			a.Balance = b
+			a.Recid = int64(i)
+			g.Records = append(g.Records, a)
+			count++
+			// we terminate the loop if we've hit the max count
+			if count >= sd.wsSearchReq.Limit {
+				break
+			}
 		}
 	}
 
@@ -182,10 +190,10 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 		RcptAmount: d,
 	}
 	g.Records = append(g.Records, a)
-
+	g.Total = int64(len(m.Stmt) + 2)
 	g.Status = "success"
+
 	w.Header().Set("Content-Type", "application/json")
-	g.Total = int64(len(g.Records))
 	SvcWriteResponse(&g, w)
 
 }

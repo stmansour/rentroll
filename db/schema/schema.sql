@@ -945,6 +945,8 @@ CREATE TABLE Deposit (
     DPMID BIGINT NOT NULL DEFAULT 0,                            -- Deposit Method
     Dt DATE NOT NULL DEFAULT '1970-01-01 00:00:00',             -- Date of deposit
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                  -- total amount of all Receipts in this deposit
+    ClearedAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,           -- Amount cleared by the bank
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bitflags
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created

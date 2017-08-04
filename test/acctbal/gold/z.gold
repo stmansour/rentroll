@@ -1,45 +1,4 @@
 RA statement info for period May 1, 2017 - Jun 1, 2017
-ASMID  =  34,  se.Amt =  4000.00,  bal =  4000.00,  Reverse = false
-ASMID  =  35,  se.Amt =  4000.00,  bal =  8000.00,  Reverse = false
-ASMID  =  36,  se.Amt =  4000.00,  bal = 12000.00,  Reverse = false
-ASMID  =  37,  se.Amt =  4000.00,  bal = 16000.00,  Reverse = false
-ASMID  =  38,  se.Amt =  4000.00,  bal = 20000.00,  Reverse = false
-ASMID  =  39,  se.Amt =  4000.00,  bal = 24000.00,  Reverse = false
-ASMID  =  40,  se.Amt =  4000.00,  bal = 28000.00,  Reverse = false
-ASMID  =  44,  se.Amt =  -628.45,  bal = 27371.55,  Reverse = false
-ASMID  =  45,  se.Amt =  -175.00,  bal = 27196.55,  Reverse = false
-ASMID  =  46,  se.Amt =  -160.00,  bal = 27196.55,  Reverse = true
-ASMID  =  47,  se.Amt =  -350.00,  bal = 26846.55,  Reverse = false
-ASMID  =  48,  se.Amt =   -81.79,  bal = 26764.76,  Reverse = false
-ASMID  =  54,  se.Amt =   -15.00,  bal = 26749.76,  Reverse = false
-ASMID  =  55,  se.Amt =   -15.00,  bal = 26734.76,  Reverse = false
-ASMID  =  57,  se.Amt =   160.00,  bal = 26734.76,  Reverse = true
-ASMID  =  58,  se.Amt =  -175.00,  bal = 26559.76,  Reverse = false
-RCPTID =   2,  se.Amt = -4000.00,  bal = 22559.76,  Reverse = false,  ASMID =  34
-RCPTID =   2,  se.Amt = -4000.00,  bal = 18559.76,  Reverse = false,  ASMID =  35
-RCPTID =   2,  se.Amt =   -15.00,  bal = 18544.76,  Reverse = false,  ASMID =  54
-RCPTID =   2,  se.Amt = -4000.00,  bal = 14544.76,  Reverse = false,  ASMID =  36
-RCPTID =   2,  se.Amt = -3970.00,  bal = 10574.76,  Reverse = false,  ASMID =  37
-RCPTID =   2,  se.Amt =   -30.00,  bal = 10544.76,  Reverse = false,  ASMID =  37
-RCPTID =   2,  se.Amt =  -598.45,  bal =  9946.31,  Reverse = false,  ASMID =  44
-RCPTID =   2,  se.Amt =   -30.00,  bal =  9916.31,  Reverse = false,  ASMID =  44
-RCPTID =   2,  se.Amt = -4000.00,  bal =  5916.31,  Reverse = false,  ASMID =  38
-RCPTID =   2,  se.Amt =  -175.00,  bal =  5741.31,  Reverse = false,  ASMID =  45
-RCPTID =   2,  se.Amt =   -15.00,  bal =  5726.31,  Reverse = false,  ASMID =  55
-RCPTID =   2,  se.Amt = -4000.00,  bal =  1726.31,  Reverse = false,  ASMID =  39
-RCPTID =   2,  se.Amt =  -115.00,  bal =  1726.31,  Reverse = true,  ASMID =  46
-ASMID  =  41,  se.Amt =  4000.00,  bal =  4000.00,  Reverse = false
-ASMID  =  49,  se.Amt =  -350.00,  bal =  3650.00,  Reverse = false
-ASMID  =  56,  se.Amt =   -15.00,  bal =  3635.00,  Reverse = false
-RCPTID =   2,  se.Amt =   -45.00,  bal =  3635.00,  Reverse = true,  ASMID =  46
-RCPTID =   2,  se.Amt = -4000.00,  bal =  -365.00,  Reverse = false,  ASMID =  40
-RCPTID =   2,  se.Amt =  -350.00,  bal =  -715.00,  Reverse = false,  ASMID =  47
-RCPTID =   2,  se.Amt =   -81.79,  bal =  -796.79,  Reverse = false,  ASMID =  48
-RCPTID =   2,  se.Amt = -4000.00,  bal = -4796.79,  Reverse = false,  ASMID =  41
-RCPTID =   2,  se.Amt =  -350.00,  bal = -5146.79,  Reverse = false,  ASMID =  49
-RCPTID =   2,  se.Amt =   -15.00,  bal = -5161.79,  Reverse = false,  ASMID =  56
-RCPTID =   2,  se.Amt = -4000.00,  bal = -9161.79,  Reverse = false,  ASMID =  42
-RCPTID =   2,  se.Amt =  -275.00,  bal = -9436.79,  Reverse = false,  ASMID =  50
 m.OpeningBal -->   1726.31
 date = Oct 1, 2016, asmt = -4000.00,  bal = -4000.00
 date = Oct 3, 2016, RCPT = -4000.00,  bal = -8000.00

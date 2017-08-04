@@ -177,7 +177,7 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 		if !se.Reverse {
 			bal += se.Amt // if it is a reversal, do
 		}
-		Console("ASMID  = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t\n", a.ASMID, se.Amt, bal, se.Reverse)
+		// Console("ASMID  = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t\n", a.ASMID, se.Amt, bal, se.Reverse)
 	}
 
 	//----------------------------------------------------------------
@@ -206,7 +206,7 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 		if !se.Reverse {
 			bal += se.Amt
 		}
-		Console("RCPTID = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t,  ASMID = %3d\n", se.RNT.RID, se.Amt, bal, se.Reverse, se.A.ASMID)
+		// Console("RCPTID = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t,  ASMID = %3d\n", se.RNT.RID, se.Amt, bal, se.Reverse, se.A.ASMID)
 	}
 	return bal
 }

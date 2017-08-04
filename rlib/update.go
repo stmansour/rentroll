@@ -40,7 +40,7 @@ func UpdateDemandSource(a *DemandSource) error {
 
 // UpdateDeposit updates a Deposit record
 func UpdateDeposit(a *Deposit) error {
-	_, err := RRdb.Prepstmt.UpdateDeposit.Exec(a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.LastModBy, a.DID)
+	_, err := RRdb.Prepstmt.UpdateDeposit.Exec(a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.ClearedAmount, a.FLAGS, a.LastModBy, a.DID)
 	return updateError(err, "Deposit", *a)
 }
 
