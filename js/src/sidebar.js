@@ -135,12 +135,9 @@ function buildSidebar() {
                     case 'stmt':
                     case 'depmeth':
                     case 'allocfunds':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                        switchToGrid(target);
-                        break;
                     case 'deposit':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                        switchToGrid('deposit','dep');
+                        switchToGrid(target);
                         break;
                     case 'goRatePlan':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view

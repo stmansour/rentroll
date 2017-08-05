@@ -201,7 +201,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		depmethList := []depmethMap{}
 		m := rlib.GetAllDepositMethods(bid) // get the payment types for this business
 		for i := 0; i < len(m); i++ {
-			depmethList = append(depmethList, depmethMap{DPMID: m[i].DPMID, Text: m[i].Name})
+			depmethList = append(depmethList, depmethMap{DPMID: m[i].DPMID, Text: m[i].Method})
 		}
 		budDepMethods[bud] = depmethList
 	}

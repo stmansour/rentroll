@@ -62,12 +62,12 @@ func CreateDepositMethod(sa []string, lineno int) (int, error) {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d -   returners, d error %v", funcname, lineno, err)
 			}
 		}
-		if len(a1.Name) > 0 {
+		if len(a1.Method) > 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - DepositMethod with Name %s already exists", funcname, lineno, name)
 		}
 	}
 
-	a.Name = name
+	a.Method = name
 	rlib.InsertDepositMethod(&a)
 	return 0, nil
 }

@@ -18,8 +18,10 @@ type DepositGrid struct {
 	BID           int64
 	BUD           rlib.XJSONBud
 	DEPID         int64
+	DEPName       string
 	DPMID         int64
-	Dt            rlib.JSONDateTime
+	DPMName       string
+	Dt            rlib.JSONDate
 	Amount        float64
 	ClearedAmount float64
 	FLAGS         uint64
@@ -102,7 +104,7 @@ func SvcHandlerDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // depositGridRowScan scans a result from sql row and dump it in a PrARGrid struct
 func depositGridRowScan(rows *sql.Rows, a *DepositGrid) error {
-	err := rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.DPMID, &a.Dt, &a.Amount, &a.ClearedAmount, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := rows.Scan(&a.DID, &a.BID, &a.DEPID, &a.DEPName, &a.DPMID, &a.DPMName, &a.Dt, &a.Amount, &a.ClearedAmount, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	return err
 }
 
@@ -113,28 +115,13 @@ type DepositSearchResponse struct {
 	Records []DepositGrid `json:"records"`
 }
 
-// type Deposit struct {
-// 	DID           int64         // Unique id of this deposit
-// 	BID           int64         // business id
-// 	DEPID         int64         // Depository id where the deposit was made
-// 	DPMID         int64         // Deposit method
-// 	Dt            time.Time     // Date of deposit
-// 	Amount        float64       // the total amount of the deposit
-// 	ClearedAmount float64       // the amount cleared by the depository
-// 	FLAGS         uint64        // bitflags
-// 	LastModTime   time.Time     // when was this record last written
-// 	LastModBy     int64         // employee UID (from phonebook) that modified it
-// 	CreateTS      time.Time     // when was this record created
-// 	CreateBy      int64         // employee UID (from phonebook) that created it
-// 	DP            []DepositPart // array of DepositParts for this deposit
-// }
-//
-
 var depositSearchFieldMap = selectQueryFieldMap{
 	"DID":           {"Deposit.DID"},
 	"BID":           {"Deposit.BID"},
 	"DEPID":         {"Deposit.DEPID"},
+	"DEPName":       {"Depository.Name"},
 	"DPMID":         {"Deposit.DPMID"},
+	"DPMName":       {"DepositMethod.Method"},
 	"Dt":            {"Deposit.Dt"},
 	"Amount":        {"Deposit.Amount"},
 	"ClearedAmount": {"Deposit.ClearedAmount"},
@@ -150,7 +137,9 @@ var depositSearchSelectQueryFields = selectQueryFields{
 	"Deposit.DID",
 	"Deposit.BID",
 	"Deposit.DEPID",
+	"Depository.Name",
 	"Deposit.DPMID",
+	"DepositMethod.Method",
 	"Deposit.Dt",
 	"Deposit.Amount",
 	"Deposit.ClearedAmount",
@@ -177,8 +166,10 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 		funcname = "SvcSearchHandlerDeposits"
 		g        DepositSearchResponse
 		err      error
-		order    = "DID ASC" // default ORDER
-		whr      = fmt.Sprintf("BID=%d", d.BID)
+		order    = "Deposit.DID ASC" // default ORDER
+		whr      = fmt.Sprintf("Deposit.BID=%d AND %q <= Deposit.Dt AND Deposit.Dt < %q",
+			d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
+			d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -193,6 +184,8 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 	SELECT
 		{{.SelectClause}}
 	FROM Deposit
+	LEFT JOIN Depository ON Deposit.DEPID = Depository.DEPID
+	LEFT JOIN DepositMethod ON Deposit.DPMID = DepositMethod.DPMID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 

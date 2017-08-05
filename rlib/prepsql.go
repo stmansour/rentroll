@@ -247,11 +247,11 @@ func buildPreparedStatements() {
 	//==========================================
 	// DEPOSIT METHOD
 	//==========================================
-	flds = "DPMID,BID,Name,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "DPMID,BID,Method,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["DepositMethod"] = flds
 	RRdb.Prepstmt.GetDepositMethod, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM DepositMethod WHERE DPMID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetDepositMethodByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM DepositMethod WHERE BID=? and Name=?")
+	RRdb.Prepstmt.GetDepositMethodByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM DepositMethod WHERE BID=? and Method=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllDepositMethods, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM DepositMethod WHERE BID=?")
 	Errcheck(err)

@@ -52,7 +52,7 @@ func UpdateDepository(a *Depository) error {
 
 // UpdateDepositMethod updates a DepositMethod record
 func UpdateDepositMethod(a *DepositMethod) error {
-	_, err := RRdb.Prepstmt.UpdateDepositMethod.Exec(a.BID, a.Name, a.LastModBy, a.DPMID)
+	_, err := RRdb.Prepstmt.UpdateDepositMethod.Exec(a.BID, a.Method, a.LastModBy, a.DPMID)
 	return updateError(err, "DepositMethod", *a)
 }
 

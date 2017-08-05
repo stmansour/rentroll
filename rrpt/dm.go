@@ -29,7 +29,7 @@ func RRreportDepositMethodsTable(ri *ReporterInfo) gotable.Table {
 		tbl.AddRow()
 		tbl.Puts(-1, 0, rlib.IDtoString("DPM", m[i].DPMID))
 		tbl.Puts(-1, 1, rlib.IDtoString("B", m[i].BID))
-		tbl.Puts(-1, 2, m[i].Name)
+		tbl.Puts(-1, 2, m[i].Method)
 	}
 	tbl.TightenColumns()
 	return tbl

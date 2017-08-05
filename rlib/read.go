@@ -91,12 +91,12 @@ func ReadDepositories(rows *sql.Rows, a *Depository) error {
 
 // ReadDepositMethod reads a full DepositMethod structure from the database based on the supplied row object
 func ReadDepositMethod(row *sql.Row, a *DepositMethod) error {
-	return row.Scan(&a.DPMID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return row.Scan(&a.DPMID, &a.BID, &a.Method, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadDepositMethods reads a full DepositMethod structure from the database based on the supplied row object
 func ReadDepositMethods(rows *sql.Rows, a *DepositMethod) error {
-	return rows.Scan(&a.DPMID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.DPMID, &a.BID, &a.Method, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadDepositPart reads a full DepositPart structure from the database based on the supplied row object

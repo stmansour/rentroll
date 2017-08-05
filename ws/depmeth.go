@@ -58,7 +58,7 @@ type DepositMethodGetResponse struct {
 var depositMethodSearchFieldMap = selectQueryFieldMap{
 	"DPMID":       {"DepositMethod.DPMID"},
 	"BID":         {"DepositMethod.BID"},
-	"Name":        {"DepositMethod.Name"},
+	"Method":      {"DepositMethod.Method"},
 	"LastModTime": {"DepositMethod.LastModTime"},
 	"LastModBy":   {"DepositMethod.LastModBy"},
 	"CreateTS":    {"DepositMethod.CreateTS"},
@@ -69,7 +69,7 @@ var depositMethodSearchFieldMap = selectQueryFieldMap{
 var depositMethodSearchSelectQueryFields = selectQueryFields{
 	"DepositMethod.DPMID",
 	"DepositMethod.BID",
-	"DepositMethod.Name",
+	"DepositMethod.Method",
 	"DepositMethod.LastModTime",
 	"DepositMethod.LastModBy",
 	"DepositMethod.CreateTS",
@@ -300,20 +300,20 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-	if len(a.Name) == 0 {
+	if len(a.Method) == 0 {
 		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
 
 	var adup rlib.DepositMethod
-	adup, err = rlib.GetDepositMethodByName(a.BID, a.Name)
+	adup, err = rlib.GetDepositMethodByName(a.BID, a.Method)
 	if err != nil && !rlib.IsSQLNoResultsError(err) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	if a.Name == adup.Name && a.DPMID != adup.DPMID {
-		e := fmt.Errorf("%s: A DepositMethod with the name %s already exists", funcname, a.Name)
+	if a.Method == adup.Method && a.DPMID != adup.DPMID {
+		e := fmt.Errorf("%s: A DepositMethod with the name %s already exists", funcname, a.Method)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
@@ -328,7 +328,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving Payment Type : %s", funcname, a.Name)
+		e := fmt.Errorf("%s: Error saving Payment Type : %s", funcname, a.Method)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}

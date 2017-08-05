@@ -838,7 +838,7 @@ type DepositPart struct {
 type DepositMethod struct {
 	DPMID       int64     //the method id
 	BID         int64     // business id
-	Name        string    // descriptive name
+	Method      string    // descriptive name
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created

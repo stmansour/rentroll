@@ -42,17 +42,21 @@ function buildDepositElements() {
             toolbarSearch  : false,
             toolbarInput   : false,
             searchAll      : false,
-            toolbarReload  : false,
-            toolbarColumns : false,
+            toolbarReload  : true,
+            toolbarColumns : true,
         },
         columns: [
-            {field: 'recid',     hidden: true,  caption: 'recid', size: '40px', sortable: true},
-            {field: 'DID',     hidden: true,  caption: 'DEPID', size: '150px', sortable: true, style: 'text-align: center'},
-            {field: 'BID',       hidden: true,  caption: 'BID', size: '150px', sortable: true, style: 'text-align: center'},
-            {field: 'BUD',       hidden: true,  caption: 'BUD', size: '150px', sortable: true, style: 'text-align: center'},
-            {field: 'Date',      hidden: false, caption: 'Where to Deposit', size: '20%', sortable: true, style: 'text-align: left'},
-            {field: 'Depository',  hidden: true, caption: 'GL Acct Name', size: '20%', sortable: true, style: 'text-align: left'},
-            {field: 'Amount',  hidden: true, caption: 'GL Number', size: '150px', sortable: true, style: 'text-align: right'},
+            {field: 'recid',        hidden: true,  caption: 'recid',        size: '40px',  sortable: true},
+            {field: 'DID',          hidden: false, caption: 'DID',          size: '50px',  sortable: true, style: 'text-align: center'},
+            {field: 'BID',          hidden: false, caption: 'BID',          size: '50px',  sortable: true, style: 'text-align: center'},
+            {field: 'BUD',          hidden: false, caption: 'BUD',          size: '50px',  sortable: true, style: 'text-align: center'},
+            {field: 'DEPID',        hidden: true,  caption: 'DEPID',        size: '50px',  sortable: true, style: 'text-align: center'},
+            {field: 'DEPName',      hidden: false, caption: 'Depository',   size: '80px',  sortable: true, style: 'text-align: center'},
+            {field: 'DPMID',        hidden: true,  caption: 'DPMID',        size: '50px',  sortable: true, style: 'text-align: center'},
+            {field: 'DPMName',      hidden: false, caption: 'Method',       size: '150px',  sortable: true, style: 'text-align: center'},
+            {field: 'Dt',           hidden: false, caption: 'Date',         size: '100px', sortable: true, style: 'text-align: center'},
+            {field: 'Amount',       hidden: false, caption: 'Amount',       size: '100px', sortable: true, style: 'text-align: right', render: 'money'},
+            {field: 'ClearedAmount',hidden: false, caption: 'ClearedAmount',size: '100px', sortable: true, style: 'text-align: right', render: 'money'},
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -116,6 +120,9 @@ function buildDepositElements() {
             form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
    });
+
+    addDateNavToToolbar('deposit');
+
 
     //------------------------------------------------------------------------
     //          deposit Form
