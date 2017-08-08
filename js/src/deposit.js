@@ -1,5 +1,5 @@
 /*global
-    parseInt, w2ui, getDepMeth
+    parseInt, w2ui, getDepMeth, getDepository
 */
 
 "use strict";
@@ -93,21 +93,36 @@ function buildDepositElements() {
                         var x = getCurrentBusiness();
                         var Bid = x.value;
                         var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.depmeth' )
-                        .done( function(data) {
-                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.depmeth = JSON.parse(data);
+
+                        var getUIInfo = function(bid,x) {
+                            return $.get('/v1/uival/' + bid + x );
+                        };
+
+                        $.when( getUIInfo(Bid,"/app.depmeth"),
+                                getUIInfo(Bid,"/app.Depositories"))
+                        .done( function(dpmArgs,depArgs) {
+                            if (typeof dpmArgs[0] == 'string') {
+                                app.depmeth = JSON.parse(dpmArgs[0]);
                                 w2ui.depositForm.get('DPMName').options.items = app.depmeth[Bud];
-                                w2ui.depositForm.refresh();
-                                app.last.grid_sel_recid = parseInt(recid);
-                                grid.select(app.last.grid_sel_recid); // keep highlighting current row in any case
-                                var rec = grid.get(recid);
-                                var myurl = '/v1/deposit/' + rec.BID + '/' + rec.DID;
-                                setToForm("depositForm",myurl,400,true);
+                            } else if (dpmArgs[0].status != 'success') {
+                                w2ui.depositForm.message(dpmArgs[0].message);
                             }
-                            if (data.status != 'success') {w2ui.depositForm.message(data.message);}
+
+                            if (typeof depArgs[0] == 'string') {
+                                app.Depositories = JSON.parse(depArgs[0]);
+                                w2ui.depositForm.get('DEPName').options.items = app.Depositories[Bud];
+                            } else if (depArgs[0].status != 'success') {
+                                w2ui.depositForm.message(depArgs[0].message);
+                            }
+
+                            w2ui.depositForm.refresh();
+                            app.last.grid_sel_recid = parseInt(recid);
+                            grid.select(app.last.grid_sel_recid); // keep highlighting current row in any case
+                            var rec = grid.get(recid);
+                            var myurl = '/v1/deposit/' + rec.BID + '/' + rec.DID;
+                            setToForm("depositForm",myurl,700,true);
                         })
-                        .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/app.depmeth'); });
+                        .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
                     };
 
                     form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args); // warn user if form content has been changed
@@ -128,8 +143,31 @@ function buildDepositElements() {
                 f = w2ui.depositForm;
                 var record = getDepoInitRecord(BID, BUD);
                 f.record = record;
+                var getUIInfo = function(bid,x) {
+                    return $.get('/v1/uival/' + bid + x );
+                };
+
+                $.when( getUIInfo(BID,"/app.depmeth"),
+                        getUIInfo(BID,"/app.Depositories"))
+                .done( function(dpmArgs,depArgs) {
+                    if (typeof dpmArgs[0] == 'string') {
+                        app.depmeth = JSON.parse(dpmArgs[0]);
+                        w2ui.depositForm.get('DPMName').options.items = app.depmeth[BUD];
+                    } else if (dpmArgs[0].status != 'success') {
+                        w2ui.depositForm.message(dpmArgs[0].message);
+                    }
+
+                    if (typeof depArgs[0] == 'string') {
+                        app.Depositories = JSON.parse(depArgs[0]);
+                        w2ui.depositForm.get('DEPName').options.items = app.Depositories[BUD];
+                    } else if (depArgs[0].status != 'success') {
+                        w2ui.depositForm.message(depArgs[0].message);
+                    }
+                })
+                .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
+
                 f.refresh();
-                setToForm('depositForm', '/v1/deposit/' + BID + '/0', 500);
+                setToForm('depositForm', '/v1/deposit/' + BID + '/0', 700);
             };
 
             // warn user if form content has been changed
@@ -155,14 +193,14 @@ function buildDepositElements() {
             { field: 'DID',           type: 'int',   required: false, html: { page: 0, column: 0 } },
             { field: 'BID',           type: 'int',   required: false, html: { page: 0, column: 0 } },
             { field: 'DEPID',         type: 'int',   required: false, html: { page: 0, column: 0 } },
-            { field: 'DPMID',         type: 'int',  required: true, html: { page: 0, column: 0 } },
+            { field: 'DPMID',         type: 'int',   required: true, html: { page: 0, column: 0 } },
             { field: 'FLAGS',         type: 'int',   required: false, html: { page: 0, column: 0 } },
             { field: 'BUD',           type: 'list',  required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
             { field: 'Dt',            type: 'date',  required: true },
             { field: 'DEPName',       type: 'list',  required: true, options:  {items: [], selected: {}} },
             { field: 'DPMName',       type: 'list',  required: true, options:  {items: [], selected: {}} },
-            { field: 'Amount',        type: 'float', required: true,  html: { page: 0, column: 0 } },
-            { field: 'ClearedAmount', type: 'float', required: false, html: { page: 0, column: 0 } },
+            { field: 'Amount',        type: 'money', required: true,  html: { page: 0, column: 0 } },
+            { field: 'ClearedAmount', type: 'money', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModTime',   type: 'time',  required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy',     type: 'int',   required: false, html: { page: 0, column: 0 } },
             { field: 'CreateTS',      type: 'time',  required: false, html: { page: 0, column: 0 } },
@@ -205,11 +243,14 @@ function buildDepositElements() {
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this;
+                var r = f.record;
                 var header = "Edit Deposit ({0})";
-                var bud = f.record.BUD.text;
-                var dpmid = f.record.DPMID; 
+                var bud = r.BUD.text;
+                var dpmid = r.DPMID;
+                var depid = r.DEPID;
 
                 f.get("DPMName").options.selected = getDepMeth(bud, dpmid);
+                f.get("DEPName").options.selected = getDepository(bud, depid);
                 formRefreshCallBack(f, "DID", header);
             };
         },
