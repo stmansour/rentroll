@@ -1,18 +1,28 @@
 /*global
-    parseInt, w2ui, app
+    parseInt, w2ui, getDepMeth
 */
 
 "use strict";
 
 function getDepoInitRecord(BID, BUD){
+    var y = new Date();
     return {
         recid: 0,
-        DEPID: 0,
+        DID: 0,
         BID: BID,
         BUD: BUD,
-        LID: 0,
-        Name: "",
-        AccountNo: "",
+        DEPID: 0,
+        DEPName: "",
+        DPMID: 0,
+        DPMName: "",
+        Dt: y.toISOString(),
+        FLAGS: 0,
+        Amount: 0.0,
+        ClearedAmount: 0.0,
+        LastModTime: y.toISOString(),
+        LastModBy: 0,
+        CreateTS: y.toISOString(),
+        CreateBy: 0,
     };
 }
 
@@ -71,50 +81,56 @@ function buildDepositElements() {
                 }
             };
         },
+        onClick: function(event) {
+            event.onComplete = function () {
+                var yes_args = [this, event.recid],
+                    no_args = [this],
+                    no_callBack = function(grid) {
+                        grid.select(app.last.grid_sel_recid);
+                        return false;
+                    },
+                    yes_callBack = function(grid, recid) {
+                        var x = getCurrentBusiness();
+                        var Bid = x.value;
+                        var Bud = getBUDfromBID(Bid);
+                        $.get('/v1/uival/' + x.value + '/app.depmeth' )
+                        .done( function(data) {
+                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                                app.depmeth = JSON.parse(data);
+                                w2ui.depositForm.get('DPMName').options.items = app.depmeth[Bud];
+                                w2ui.depositForm.refresh();
+                                app.last.grid_sel_recid = parseInt(recid);
+                                grid.select(app.last.grid_sel_recid); // keep highlighting current row in any case
+                                var rec = grid.get(recid);
+                                var myurl = '/v1/deposit/' + rec.BID + '/' + rec.DID;
+                                setToForm("depositForm",myurl,400,true);
+                            }
+                            if (data.status != 'success') {w2ui.depositForm.message(data.message);}
+                        })
+                        .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/app.depmeth'); });
+                    };
+
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args); // warn user if form content has been changed
+            };
+        },
         onAdd: function (/*event*/) {
-            var yes_args = [this],
-                no_callBack = function() { return false; },
-                yes_callBack = function(grid) {
-                    // reset it
-                    app.last.grid_sel_recid = -1;
-                    grid.selectNone();
+            var yes_args = [this];
+            var no_callBack = function() { return false; };
+            var yes_callBack = function(grid) {
+                // reset it
+                app.last.grid_sel_recid = -1;
+                grid.selectNone();
 
-                    // Insert an empty record...
-                    var x = getCurrentBusiness(),
-                        BID=parseInt(x.value),
-                        BUD = getBUDfromBID(BID),
-                        f = w2ui.depositForm;
-
-                    // get latest gl accounts first
-                    getAccountsList(BID)
-                    .done(function(data) {
-
-                        if (data.status != 'success') {
-                            f.message(data.message);
-                            w2ui.toplayout.content('right', f);
-                            w2ui.toplayout.show('right', true);
-                            w2ui.toplayout.sizeTo('right', 700);
-                            return;
-                        } else {
-                            var record = getDepoInitRecord(BID, BUD);
-
-                            var gl_accounts_pre_selected = {id: 0, text: " -- Select GL Account -- "};
-                            var gl_accounts_items = [gl_accounts_pre_selected];
-                            // get gl account list for BUD from `gl_accounts` key of `app`
-                            gl_accounts_items = gl_accounts_items.concat(app.gl_accounts[BUD]);
-
-                            f.get('LID').options.items = gl_accounts_items;
-                            f.get('LID').options.selected = gl_accounts_pre_selected;
-                            f.record = record;
-                            f.refresh();
-                            setToForm('depositForm', '/v1/deposit/' + BID + '/0', 400);
-                        }
-                    })
-                    .fail( function() {
-                        console.log('unable to get GLAccounts');
-                        return;
-                     });
-                };  // yes callback
+                // Insert an empty record...
+                var x = getCurrentBusiness(),
+                BID=parseInt(x.value),
+                BUD = getBUDfromBID(BID),
+                f = w2ui.depositForm;
+                var record = getDepoInitRecord(BID, BUD);
+                f.record = record;
+                f.refresh();
+                setToForm('depositForm', '/v1/deposit/' + BID + '/0', 500);
+            };
 
             // warn user if form content has been changed
             form_dirty_alert(yes_callBack, no_callBack, yes_args);
@@ -131,21 +147,26 @@ function buildDepositElements() {
         name: 'depositForm',
         style: 'border: 0px; background-color: transparent;',
         header: 'Deposit Detail',
-        //url: '/v1/deposit',
-        // formURL: '/html/formdep.html',
+        url: '/v1/deposit',
+        formURL: '/html/formdeposit.html',
+
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'DID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'BUD', type: 'list', required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
-            { field: 'LID', type: 'list', required: true, options: { items: [], selected: {}, maxDropHeight: 200 }, html: { page: 0, column: 0 } },
-            // { field: 'Transmittal', type: 'list', required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
-            { field: 'WrittenAmount', type: 'Total For Deposit', required: true, options: { items: [], selected: {}, maxDropHeight: 200 }, html: { page: 0, column: 0 } },
-            { field: 'ClearedAmount', type: 'Cleared Amount', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
-            { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'recid',         type: 'int',   required: false, html: { page: 0, column: 0 } },
+            { field: 'DID',           type: 'int',   required: false, html: { page: 0, column: 0 } },
+            { field: 'BID',           type: 'int',   required: false, html: { page: 0, column: 0 } },
+            { field: 'DEPID',         type: 'int',   required: false, html: { page: 0, column: 0 } },
+            { field: 'DPMID',         type: 'int',  required: true, html: { page: 0, column: 0 } },
+            { field: 'FLAGS',         type: 'int',   required: false, html: { page: 0, column: 0 } },
+            { field: 'BUD',           type: 'list',  required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
+            { field: 'Dt',            type: 'date',  required: true },
+            { field: 'DEPName',       type: 'list',  required: true, options:  {items: [], selected: {}} },
+            { field: 'DPMName',       type: 'list',  required: true, options:  {items: [], selected: {}} },
+            { field: 'Amount',        type: 'float', required: true,  html: { page: 0, column: 0 } },
+            { field: 'ClearedAmount', type: 'float', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModTime',   type: 'time',  required: false, html: { page: 0, column: 0 } },
+            { field: 'LastModBy',     type: 'int',   required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateTS',      type: 'time',  required: false, html: { page: 0, column: 0 } },
+            { field: 'CreateBy',      type: 'int',   required: false, html: { page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -159,7 +180,7 @@ function buildDepositElements() {
                     var no_callBack = function() { return false; },
                         yes_callBack = function() {
                             w2ui.toplayout.hide('right',true);
-                            w2ui.depGrid.render();
+                            w2ui.depositGrid.render();
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
@@ -169,7 +190,7 @@ function buildDepositElements() {
         actions: {
             save: function (/*target, data*/) {
                 var f = this,
-                    tgrid = w2ui.depGrid;
+                    tgrid = w2ui.depositGrid;
 
                 f.save({}, function (data) {
                     if (data.status == 'error') {
@@ -183,9 +204,12 @@ function buildDepositElements() {
          },
         onRefresh: function(event) {
             event.onComplete = function() {
-                var f = this,
-                    header = "Edit Deposit ({0})";
+                var f = this;
+                var header = "Edit Deposit ({0})";
+                var bud = f.record.BUD.text;
+                var dpmid = f.record.DPMID; 
 
+                f.get("DPMName").options.selected = getDepMeth(bud, dpmid);
                 formRefreshCallBack(f, "DID", header);
             };
         },

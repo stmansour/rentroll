@@ -151,13 +151,10 @@ function getBIDfromBUD(BUD) {
 // @return  the Payment Type (or empty object if not found)
 //-----------------------------------------------------------------------------
 function getPaymentType(BUD, reqPMTID) {
-
-
     var pmt = {};
     if (typeof BUD === "undefined") {
         return pmt;
     }
-
     app.pmtTypes[BUD].forEach(function(item) {
         if (item.PMTID == reqPMTID) {
             pmt = { id: item.PMTID, text: item.Name };
@@ -165,6 +162,28 @@ function getPaymentType(BUD, reqPMTID) {
         }
     });
     return pmt;
+}
+
+//-----------------------------------------------------------------------------
+// getDepMeth     - searches BUD's Deposit Methods for DPMID.  If found the
+//                  then Deposit Method object is returned, otherwise an
+//                  empty object is returned.
+// @params  BUD   - the BUD for the business of interest
+//          DPMID - the Deposit Method id for which we want the name
+// @return  the Deposit Method (or empty object if not found)
+//-----------------------------------------------------------------------------
+function getDepMeth(BUD, reqid) {
+    var dpm = {};
+    if (typeof BUD === "undefined") {
+        return dpm;
+    }
+    for (var i = 0; i < app.depmeth[BUD].length; i++) {
+        if (app.depmeth[BUD][i].id == reqid) {
+            dpm = { id: reqid, text: app.depmeth[BUD][i].text };
+            return dpm;
+        }
+    }
+    return dpm;
 }
 
 //-----------------------------------------------------------------------------
@@ -204,6 +223,7 @@ function getCurrentBusiness() {
 //   sform   = name of the form
 //   url     = request URL for the form
 //   [width] = optional, if specified it is the width of the form
+//   doRequest = 
 //-----------------------------------------------------------------------------
 function setToForm(sform, url, width, doRequest) {
 

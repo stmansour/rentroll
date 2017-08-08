@@ -1,8 +1,11 @@
-<div id="depForm">
+<div id="depositForm">
     <div class="w2ui-page page-0">
         <div class="w2ui-field"><input type="hidden" name="recid" /></div>
         <div class="w2ui-field"><input type="hidden" name="BID" /></div>
+        <div class="w2ui-field"><input type="hidden" name="DID" /></div>
         <div class="w2ui-field"><input type="hidden" name="DEPID" /></div>
+        <div class="w2ui-field"><input type="hidden" name="DPMID" /></div>
+        <div class="w2ui-field"><input type="hidden" name="FLAGS" /></div>
         <div class="w2ui-field"><input type="hidden" name="LastModTime" /></div>
         <div class="w2ui-field"><input type="hidden" name="LastModBy" /></div>
         <div class="w2ui-field"><input type="hidden" name="CreateTS" /></div>
@@ -12,16 +15,26 @@
             <div><input name="BUD" type="list" disabled/></div>
         </div>
         <div class="w2ui-field">
-            <label>GL Account:</label>
-            <div><input name="LID" type="list" style="width: 100%"/></div>
+            <label>Date:</label>
+            <div>
+                <input name="Dt" type="us-date1" size="11">
+            </div>
         </div>
         <div class="w2ui-field">
-            <label>Name:</label>
-            <div><input name="Name" type="text" style="width: 100%"/></div>
+            <label>Depository:</label>
+            <div><input name="DEPName" type="list" style="width: 100%"/></div>
         </div>
         <div class="w2ui-field">
-            <label>Account No:</label>
-            <div><input name="AccountNo" type="text" style="width: 100%"/></div>
+            <label>Deposit Method:</label>
+            <div><input name="DPMName" type="enum" style="width: 100%"/></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Amount:</label>
+            <div><input name="Amount" type="w2float" /></div>
+        </div>
+        <div class="w2ui-field">
+            <label>Cleared Amount:</label>
+            <div><input name="ClearedAmount" type="w2float" /></div>
         </div>
     </div>
 

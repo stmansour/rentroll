@@ -99,11 +99,11 @@ function buildReceiptElements() {
                         var x = getCurrentBusiness();
                         var Bid = x.value;
                         var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.Receipts' )
+                        $.get('/v1/uival/' + x.value + '/app.ReceiptRules' )
                         .done( function(data) {
                             if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.Receipts = JSON.parse(data);
-                                w2ui.receiptForm.get('ARID').options.items = app.Receipts[Bud];
+                                app.ReceiptRules = JSON.parse(data);
+                                w2ui.receiptForm.get('ARID').options.items = app.ReceiptRules[Bud];
                                 w2ui.receiptForm.refresh();
                                 setToForm('receiptForm', '/v1/receipt/' + rec.BID + '/' + rec.RCPTID, 400, true);
                             }
@@ -112,7 +112,7 @@ function buildReceiptElements() {
                             }
                         })
                         .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.Receipts');
+                            console.log('Error getting /v1/uival/' + x.value + '/app.ReceiptRules');
                          });
                     };
 
@@ -152,16 +152,16 @@ function buildReceiptElements() {
                     var x = getCurrentBusiness();
                     var BID=parseInt(x.value);
                     var BUD = getBUDfromBID(BID);
-                    $.get('/v1/uival/' + x.value + '/app.Receipts' )
+                    $.get('/v1/uival/' + x.value + '/app.ReceiptRules' )
                     .done( function(data) {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.Receipts = JSON.parse(data);
+                            app.ReceiptRules = JSON.parse(data);
 
                             var pmt_options = buildPaymentTypeSelectList(BUD);
                             var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
                             var record = getReceiptInitRecord(BID, BUD, ptInit);
                             w2ui.receiptForm.fields[0].options.items = pmt_options;
-                            w2ui.receiptForm.fields[1].options.items = app.Receipts[BUD];
+                            w2ui.receiptForm.fields[1].options.items = app.ReceiptRules[BUD];
                             w2ui.receiptForm.record = record;
                             w2ui.receiptForm.refresh();
                             setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
@@ -171,7 +171,7 @@ function buildReceiptElements() {
                         }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+BUD+'/app.Receipts');
+                        console.log('Error getting /v1/uival/'+BUD+'/app.ReceiptRules');
                     });
                 };
 
@@ -193,7 +193,7 @@ function buildReceiptElements() {
         formURL: '/html/formrcpt.html',
         fields: [
             { field: 'PmtTypeName',    type: 'list', required: true, options: { items: [], selected: {} }, html: { caption: "BUD", page: 0 } }, // keep this at position 0 as the list changes and we need to update it
-            { field: 'ARID',           type: 'list',  required: true, options:  {items: app.Receipts} },  // 1
+            { field: 'ARID',           type: 'list',  required: true, options:  {items: app.ReceiptRules} },  // 1
             { field: 'recid',          type: 'int',   required: false },                                     // 2
             { field: "BID", required: false, type: 'int', html: { caption: "BID", page: 0, column: 0 } },
             { field: "BUD", required: true, options: { items: app.businesses, maxDropHeight: 350 }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
@@ -235,10 +235,10 @@ function buildReceiptElements() {
             { field: 'Comment',        type: 'text',  required: false },
             { field: 'OtherPayorName', type: 'text',  required: false },
             { field: 'FLAGS',          type: 'w2int', required: false },
-            { field: 'LastModTime',          type: 'hidden', required: false },
-            { field: 'LastModBy',          type: 'hidden', required: false },
-            { field: 'CreateTS',          type: 'hidden', required: false },
-            { field: 'CreateBy',          type: 'hidden', required: false },
+            { field: 'LastModTime',    type: 'hidden', required: false },
+            { field: 'LastModBy',      type: 'hidden', required: false },
+            { field: 'CreateTS',       type: 'hidden', required: false },
+            { field: 'CreateBy',       type: 'hidden', required: false },
         ],
         toolbar: {
             items: [
@@ -338,7 +338,7 @@ function buildReceiptElements() {
 
                 f.get("PmtTypeName").options.items = buildPaymentTypeSelectList( BUD );
                 f.get("PmtTypeName").options.selected = getPaymentType(BUD, r.PMTID);
-                f.get("ARID").options.items = app.Receipts[BUD];
+                f.get("ARID").options.items = app.ReceiptRules[BUD];
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
 
@@ -500,7 +500,7 @@ function buildReceiptElements() {
                     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
                     var record = getReceiptInitRecord(BID, BUD, ptInit);
                     f.fields[0].options.items = pmt_options;
-                    f.fields[1].options.items = app.Receipts[BUD];
+                    f.fields[1].options.items = app.ReceiptRules[BUD];
                     f.record = record;
                     f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/receipt/' + BID + '/0';

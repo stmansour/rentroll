@@ -1,0 +1,21 @@
+{
+    "record": {
+        "Amount": 7300,
+        "BID": 1,
+        "BUD": "REX",
+        "ClearedAmount": 0,
+        "CreateBy": 0,
+        "CreateTS": "2017-08-04T21:36:00Z",
+        "DEPID": 1,
+        "DEPName": "Wells Fargo",
+        "DID": 3,
+        "DPMID": 1,
+        "DPMName": "Hand Delivery",
+        "Dt": "3/20/2016",
+        "FLAGS": 0,
+        "LastModBy": 0,
+        "LastModTime": "2017-08-04T21:36:00Z",
+        "recid": 3
+    },
+    "status": "success"
+}
