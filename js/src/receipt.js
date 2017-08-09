@@ -37,17 +37,17 @@ function buildReceiptElements() {
         show: {
             toolbar        : true,
             footer         : true,
-            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarAdd     : true,    // indicates if toolbar add new button is visible
             toolbarDelete  : false,   // indicates if toolbar delete button is visible
             toolbarSave    : false,   // indicates if toolbar save button is visible
-            selectColumn    : false,
-            expandColumn    : false,
-            toolbarEdit     : false,
-            toolbarSearch   : false,
-            toolbarInput    : true,
-            searchAll       : false,
-            toolbarReload   : true,
-            toolbarColumns  : true,
+            selectColumn   : false,
+            expandColumn   : false,
+            toolbarEdit    : false,
+            toolbarSearch  : false,
+            toolbarInput   : true,
+            searchAll      : false,
+            toolbarReload  : true,
+            toolbarColumns : true,
         },
         columns: [
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},                                    // 0
@@ -64,15 +64,15 @@ function buildReceiptElements() {
             },
             {field: 'RCPTID', caption: 'Receipt ID',  size: '80px', style: 'text-align: right', sortable: true},                // 1
             {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
-            {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false}, // 3
-            {field: 'AcctRule', caption: 'Account Rule',  size: '150px', sortable: true}, // 4
+            {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false},                                    // 3
+            {field: 'AcctRule', caption: 'Account Rule',  size: '150px', sortable: true},                                       // 4
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},   // 5
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 6
-            {field: 'TCID', hidden: true, caption: 'TCID', size: '40px', sortable: false},                                     // 7
+            {field: 'TCID', hidden: true, caption: 'TCID', size: '40px', sortable: false},                                      // 7
             {field: 'PMTID', hidden: true, caption: 'PMTID', sortable: false},              // 8 - if this changes, update switchToGrid()
             {field: 'PmtTypeName', caption: 'Payment Type', size: '100px', sortable: true},
             {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
-            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},                                                  // 3
+            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},
         ],
         searches : [
             { field: 'Amount', caption: 'Amount', type: 'string' },
@@ -91,9 +91,7 @@ function buildReceiptElements() {
                     },
                     yes_callBack = function(grid, recid) {
                         app.last.grid_sel_recid = parseInt(recid);
-
-                        // keep highlighting current row in any case
-                        grid.select(app.last.grid_sel_recid);
+                        grid.select(app.last.grid_sel_recid);// keep highlighting current row in any case
 
                         var rec = grid.get(recid);
                         var x = getCurrentBusiness();
@@ -115,9 +113,7 @@ function buildReceiptElements() {
                             console.log('Error getting /v1/uival/' + x.value + '/app.ReceiptRules');
                          });
                     };
-
-                // warn user if form content has been changed
-                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);  // warn user if form content has been changed
             };
         },
         onRequest: function(/*event*/) {

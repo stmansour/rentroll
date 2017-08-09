@@ -19,19 +19,24 @@ var RDateFmt = []string{
 // types.
 var QBAcctType []string
 
+// Assets        = Liabilities + Owner Equity
+// ∂ OwnerEquity = (t1)Income(t1) - Expenses(t1)
+// Contract Rent = Gross Scheduled Rent - Income Offsets
+// Receipt       = Contract Rent - Expenses
+
 // QBAcctInfo indicates how numbers should be processed in the account Rules
 var QBAcctInfo = []struct {
 	Name   string
 	Negate bool // Indicates whether or not the amount in an Assessment should be negated before showing it in a report
 }{
-	{"Cash", false},
-	{"Accounts Receivable", false},
-	{"Current Liabilities", false},
-	{"Income", true},
-	{"Income Offsets", false},
-	{"Other Income", false},
-	{"Security Deposits", false},
-	{"Expense Account", false},
+	{"Cash", false},                // Asset         D +   C -
+	{"Accounts Receivable", false}, // Asset         D +   C -
+	{"Liabilities", false},         // Liabilities   D -   C +
+	{"Income", true},               // Income Acct   D -   C +
+	{"Income Offsets", false},      // Income Acct   D -   C +
+	{"Other Income", false},        // Income Acct   D -   C +
+	{"Security Deposits", false},   // REMOVE THIS  Deprecated
+	{"Expense Account", false},     // Expense Acct  D +   C -
 }
 
 // AccountTypeNegateFlag returns the Negate flag associated with the supplied account type.

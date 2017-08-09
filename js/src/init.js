@@ -3,7 +3,7 @@ function defineDateFmts() {
     var month = (new Date()).getMonth() + 1;
     var year  = (new Date()).getFullYear();
     // // US Format
-    $('input[type=us-date]').w2field('date', { format: 'm/d/yyy' });
+    $('input[type=us-date]').w2field('date',  { format: 'm/d/yyy' });
     $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
     $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});
     $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]') });

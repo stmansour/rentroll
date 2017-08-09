@@ -280,7 +280,7 @@ func GetSQLWhereClause(fieldMap map[GenSearch][]string, searchLogic string) stri
 
 // GetSearchAndSortSQL returns where and order by clause
 func GetSearchAndSortSQL(d *ServiceData, fieldMap map[string][]string) (string, string) {
-
+	rlib.Console("Entered GetSearchAndSortSQL\n")
 	var (
 		reqWhereClause     string
 		reqOrderClause     string

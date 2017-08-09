@@ -237,7 +237,7 @@ function setToStmtForm(bid, raid, d1,d2) {
         w2ui.toplayout.show('right', true);
         w2ui.toplayout.sizeTo('right', 810);
         w2ui.toplayout.render();
-        app.new_form_rec = false; // mark as record exists
+        app.new_form_rec = false;  // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
     }
 }

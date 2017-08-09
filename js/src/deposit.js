@@ -83,13 +83,13 @@ function buildDepositElements() {
         },
         onClick: function(event) {
             event.onComplete = function () {
-                var yes_args = [this, event.recid],
-                    no_args = [this],
-                    no_callBack = function(grid) {
+                var yes_args = [this, event.recid];
+                var no_args = [this];
+                var no_callBack = function(grid) {
                         grid.select(app.last.grid_sel_recid);
                         return false;
-                    },
-                    yes_callBack = function(grid, recid) {
+                    };
+                var yes_callBack = function(grid, recid) {
                         var x = getCurrentBusiness();
                         var Bid = x.value;
                         var Bud = getBUDfromBID(Bid);
@@ -120,12 +120,13 @@ function buildDepositElements() {
                             grid.select(app.last.grid_sel_recid); // keep highlighting current row in any case
                             var rec = grid.get(recid);
                             var myurl = '/v1/deposit/' + rec.BID + '/' + rec.DID;
-                            setToForm("depositForm",myurl,700,true);
+                            var urlgrid = '/v1/depositlist/' + rec.BID + '/' + rec.DID;
+                            setToDepositForm("depositLayout","depositForm",myurl,urlgrid,700,true);
                         })
                         .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
                     };
 
-                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args); // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args); // warn user if form content has been changed
             };
         },
         onAdd: function (/*event*/) {
@@ -167,7 +168,7 @@ function buildDepositElements() {
                 .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
 
                 f.refresh();
-                setToForm('depositForm', '/v1/deposit/' + BID + '/0', 700);
+                setToDepositForm('depositLayout', 'depositForm', '/v1/deposit/' + BID + '/0','', 700);
             };
 
             // warn user if form content has been changed
@@ -286,20 +287,151 @@ function buildDepositElements() {
     });
 
     //------------------------------------------------------------------------
-    //  depositLayout - The layout to contain the depositForm and depositDetailGrid
-    //               top  - depositForm
-    //               main - depositDetailGrid
+    //  depositListGrid - For new deposits, it lists all that are not 
+    //                    currently part of a deposit. Any combination can be
+    //                    selected to be part of the new deposit.
+    //
+    //                    For existing deposits, it lists the receipts that
+    //                    belong to the deposit.
     //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'depositListGrid',
+        url: '/v1/depositlist',
+        multiSelect: false,
+        show: {
+            toolbar        : false,
+            footer         : true,
+            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarDelete  : false,   // indicates if toolbar delete button is visible
+            toolbarSave    : false,   // indicates if toolbar save button is visible
+            selectColumn   : false,
+            expandColumn   : false,
+            toolbarEdit    : false,
+            toolbarSearch  : false,
+            toolbarInput   : false,
+            searchAll      : false,
+            toolbarReload  : true,
+            toolbarColumns : true,
+        },
+        columns: [
+            {field: 'recid',    caption: 'recid',        hidden: true,  size: '40px',  sortable: true  },
+            {field: 'RCPTID',   caption: 'Receipt ID',   hidden: false, size: '80px',  sortable: true, style: 'text-align: right'},
+            {field: 'Dt',       caption: 'Date',         hidden: false, size: '80px',  sortable: true, style: 'text-align: right'},
+            {field: 'ARID',     caption: 'ARID',         hidden: true,  size: '150px', sortable: false },
+            {field: 'AcctRule', caption: 'Account Rule', hidden: true,  size: '150px', sortable: true  },
+            {field: 'Amount',   caption: 'Amount',       hidden: false, size: '100px', sortable: true, style: 'text-align: right', render: 'money'},
+            {field: 'BID',      caption: 'BUD',          hidden: true,  size: '40px',  sortable: false },
+            {field: 'TCID',     caption: 'TCID',         hidden: true,  size: '40px',  sortable: false },
+            {field: 'PMTID',    caption: 'PMTID',        hidden: true,                 sortable: false },
+            {field: 'PMTName',  caption: 'Payment Type', hidden: false, size: '100px', sortable: true, style: 'text-align: center' },
+            {field: 'DocNo',    caption: 'Document No.', hidden: false, size: '100px', sortable: true, style: 'text-align: right'},
+            {field: 'Payors',   caption: 'Payors',       hidden: false, size: '200px', sortable: true  },
+        ],
+    });    
+
+    //-------------------------------------------------------------------------------
+    //  depositLayout - The layout to contain the depositForm and depositDetailGrid
+    //-------------------------------------------------------------------------------
     $().w2layout({
         name: 'depositLayout',
         padding: 0,
         panels: [
             { type: 'left',    size: '30%', hidden: true },
-            { type: 'top',     size: 300,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'top',     size: 375,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
             { type: 'main',    size: '70%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
             { type: 'bottom',  size: 0,     hidden: true },
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
+}
+
+//-----------------------------------------------------------------------------
+// createDepositForm - add the grid and form to the statement layout.  I'm not
+//      sure why this is necessary. But if I put this grid and form directly
+//      into the layout when it gets created, they do not work correctly.
+// @params
+//-----------------------------------------------------------------------------
+function createDepositForm() {
+    w2ui.depositLayout.content('top',w2ui.depositForm);
+    w2ui.depositLayout.content('main',w2ui.depositListGrid);
+}
+
+//-----------------------------------------------------------------------------
+// setToDepositForm - set to the Deposit Form - puts the depositLayout in
+//                    toplayout's right content area. Didn't use the general
+//                    call in rutil.js because this form requires the layout
+//                    and has multiple parts.
+// @params
+//   sform   = name of the form
+//   url     = request URL for the form
+//   [width] = optional, if specified it is the width of the form
+//   doRequest = 
+//-----------------------------------------------------------------------------
+function setToDepositForm(slayout, sform, url, urlgrid, width, doRequest) {
+    // if not url defined then return
+    var url_len=url.length > 0;
+    if (!url_len) {
+        return false;
+    }
+
+    // if form not found then return
+    var f = w2ui[sform];
+    if (!f) {
+        return false;
+    }
+
+    // if current grid not found then return
+    var g = w2ui[app.active_grid];
+    if (!g) {
+        return false;
+    }
+
+    // if doRequest is defined then take false as default one
+    if (!doRequest) {
+        doRequest = false;
+    }
+    f.url = url;
+    if (typeof f.tabs.name == "string") {
+        f.tabs.click('tab1');
+    }
+    app.new_form_rec = !doRequest;
+    app.form_is_dirty = false;
+
+    var right_panel_content = w2ui.toplayout.get("right").content;
+    var fc = w2ui[slayout]; // in this case, we're putting the layout into the content area
+    w2ui.depositListGrid.url = urlgrid;
+    var showForm = function() {
+        // if the same content is there, then no need to render toplayout again
+        if ( fc !== right_panel_content) {
+            w2ui.toplayout.content('right', fc);
+            w2ui.toplayout.sizeTo('right', width);
+            w2ui.toplayout.render();
+        } else {
+            fc.refresh();
+        }
+        $().w2tag();
+        w2ui.toplayout.show('right', true);
+    };
+
+    if (doRequest) {
+        f.request(function(event) {
+            if (event.status === "success") {
+                showForm();
+                return true;
+            }
+            else {
+                showForm();
+                f.message("Could not get form data from server...!!");
+                return false;
+            }
+        });
+    } else {
+        var sel_recid = parseInt(g.last.sel_recid);
+        if (sel_recid > -1) {
+            g.unselect(g.last.sel_recid); // if new record is being added then unselect {{the selected record}} from the grid
+        }
+        showForm();
+        return true;
+    }
 }
