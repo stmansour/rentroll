@@ -94,6 +94,7 @@
         "setToCurrentMonth": true,
         "setToNextMonth": true,
         "createStmtForm": true,
-        "buildPageElementsWrapper": true
+        "buildPageElementsWrapper": true,
+        "createDepositForm": true
     }
 }
