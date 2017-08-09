@@ -218,7 +218,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fname := folderPath + "/html/" + language + "/" + template + "/strings.csv"
+	fname := folderPath + "/webclient/html/" + language + "/" + template + "/strings.csv"
 	fmt.Printf("fname = %s\n", fname)
 	_, err = os.Stat(fname)
 	if nil != err {
