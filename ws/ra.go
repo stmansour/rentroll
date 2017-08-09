@@ -267,7 +267,12 @@ func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *Servi
 
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
 func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) (RentalAgr, error) {
-	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren, &q.Renewal, &q.SpecialProvisions, &q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment, &q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption, &q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy, &q.Payors)
+	err := rows.Scan(&q.RAID, &q.RATID, &q.NLID, &q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop,
+		&q.RentStart, &q.RentStop, &q.RentCycleEpoch, &q.UnspecifiedAdults, &q.UnspecifiedChildren, &q.Renewal, &q.SpecialProvisions,
+		&q.LeaseType, &q.ExpenseAdjustmentType, &q.ExpensesStop, &q.ExpenseStopCalculation, &q.BaseYearEnd, &q.ExpenseAdjustment,
+		&q.EstimatedCharges, &q.RateChange, &q.NextRateChange, &q.PermittedUses, &q.ExclusiveUses, &q.ExtensionOption,
+		&q.ExtensionOptionNotice, &q.ExpansionOption, &q.ExpansionOptionNotice, &q.RightOfFirstRefusal,
+		&q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy, &q.Payors)
 	return q, err
 }
 
