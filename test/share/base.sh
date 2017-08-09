@@ -25,6 +25,7 @@ MYSQL=$(which mysql)
 TESTCOUNT=0			## this is an internal counter, your external script should not touch it
 SHOWCOMMAND=0
 SCRIPTPATH=$(pwd -P)
+CASPERTEST="casperjs test"
 
 if [ "x${MANAGESERVER}" = "x" ]; then
 	MANAGESERVER=1
@@ -108,7 +109,7 @@ pause() {
 #   Description:
 #		if PAUSE = 1 then call pause() after executing a command. This is
 #       handy when checking the database or other output as each command
-#       executes to see when something happens or when something in the 
+#       executes to see when something happens or when something in the
 #       database goes bad.
 #
 #   Params:
@@ -520,7 +521,7 @@ doOnesiteTest () {
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
-		${RRBIN}/importers/onesite/onesiteload $2 >${1} 2>&1
+		${RRBIN}/importers/onesite/onesiteload ${2} >${1} 2>&1
 	fi
 
 	checkPause
@@ -589,7 +590,7 @@ doRoomKeyTest () {
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
-		${RRBIN}/importers/roomkey/roomkeyload $2 >${1} 2>&1
+		${RRBIN}/importers/roomkey/roomkeyload ${2} >${1} 2>&1
 	fi
 
 	checkPause
@@ -622,14 +623,14 @@ doRoomKeyTest () {
 		# UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			if [ ${SHOWCOMMAND} -eq 1 ]; then
-				echo "PASSED	cmd: ${CSVLOAD} ${2}"
+				echo "PASSED	cmd: ${RRBIN}/importers/roomkey/roomkeyload ${2}"
 			else
 				echo "PASSED"
 			fi
 			rm -f ${1}.g ${GOLD}/${1}.g
 		else
 			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
-			echo "Command to reproduce:  ${CSVLOAD} ${2}" >> ${ERRFILE}
+			echo "Command to reproduce:  ${RRBIN}/importers/roomkey/roomkeyload ${2}" >> ${ERRFILE}
 			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
 			# diff ${GOLD}/${1}.gold ${1} >> ${ERRFILE}
 			diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
@@ -645,7 +646,6 @@ doRoomKeyTest () {
 		echo
 	fi
 }
-
 
 ########################################
 # mysqlverify()
@@ -840,7 +840,9 @@ genericlogcheck() {
 startRentRollServer () {
 	if [ ${MANAGESERVER} -eq 1 ]; then
 		stopRentRollServer
-		${RRBIN}/rentroll -p ${RRPORT} > ${RRBIN}/rrlog 2>&1 &
+		cmd="${RRBIN}/rentroll -p ${RRPORT} ${RSD} > ${RRBIN}/rrlog 2>&1 &"
+		echo "${cmd}"
+		${RRBIN}/rentroll -p ${RRPORT} ${RSD} > ${RRBIN}/rrlog 2>&1 &
 		sleep 1
 	fi
 }
@@ -1075,7 +1077,7 @@ doValidateFile () {
 			fi
 		fi
 	else
-		echo 
+		echo
 	fi
 	rm -f qqx qqy
 }
@@ -1154,6 +1156,74 @@ doPlainGET () {
 	fi
 	rm -f qqx qqy
 }
+
+#############################################################################
+# doCasperUITest()
+#	UI automation testing in headless mode with casperjs and phantomjs
+#
+#	Parameters:
+# 		$1 = base file name
+#		$2 = javascript file from which UI automated testing should be performed with options
+# 		$3 = title for reporting.  No spaces
+#############################################################################
+doCasperUITest () {
+	TESTCOUNT=$((TESTCOUNT + 1))
+	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
+
+	if [ "x${2}" != "x" ]; then
+		${CASPERTEST} ${2} >${1} 2>&1
+	fi
+
+	checkPause
+
+	if [ "${FORCEGOOD}" = "1" ]; then
+		goldpath
+		cp ${1} ${GOLD}/${1}.gold
+		echo "DONE"
+	elif [ "${SKIPCOMPARE}" = "0" ]; then
+		if [ ! -f ${GOLD}/${1}.gold ]; then
+			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
+			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
+		fi
+		declare -a out_filters=(
+			's/executed in +([0-9]*\.[0-9]*)s,/executed in (EXECUTED)s,/g'
+			's/^Date:.*/current time/'
+			's/\s+[0-1]?[0-9]\/[0-3]?[0-9]\/[0-9][0-9][^-]*/date/g'
+			's/\s+[0-1]?[0-9]\/[0-3]?[0-9]\/20[0-9][0-9][^-]*/date/g'
+		)
+		cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
+		cp ${1} ${1}.g
+		for f in "${out_filters[@]}"
+		do
+			perl -pe "$f" ${GOLD}/${1}.g > ${GOLD}/${1}.t; mv ${GOLD}/${1}.t ${GOLD}/${1}.g
+			perl -pe "$f" ${1}.g > ${1}.t; mv ${1}.t ${1}.g
+		done
+		UDIFFS=$(diff ${1}.g ${GOLD}/${1}.g | wc -l)
+		if [ ${UDIFFS} -eq 0 ]; then
+			if [ ${SHOWCOMMAND} -eq 1 ]; then
+				echo "PASSED	cmd: ${CASPERTEST} ${2}"
+			else
+				echo "PASSED"
+			fi
+			rm -f ${1}.g ${GOLD}/${1}.g
+		else
+			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
+			echo "Command to reproduce:  ${CASPERTEST} ${2}" >> ${ERRFILE}
+			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
+			diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
+			cat ${ERRFILE}
+			failmsg
+			if [ "${ASKBEFOREEXIT}" = "1" ]; then
+				pause ${1}
+			else
+				exit 1
+			fi
+		fi
+	else
+		echo
+	fi
+}
+
 
 #--------------------------------------------------------------------------
 #  Handle command line options...
