@@ -5,8 +5,11 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"rentroll/rlib"
 	"strings"
+
+	"github.com/kardianos/osext"
 )
 
 // HomeUIHandler sends the main UI to the browser
@@ -25,6 +28,12 @@ func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
 	appPage := "home.html"
 	lang := "en-us"
 	tmpl := "default"
+
+	cwd, err := osext.ExecutableFolder()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	path := "/home/"                // this is the part of the URL that got us into this handler
 	uri := r.RequestURI[len(path):] // this pulls off the specific request
@@ -62,7 +71,11 @@ func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
 		rlib.Ulog("GetAllBusinesses: err = %s\n", err.Error())
 	}
 
-	t, err := template.New(appPage).Funcs(RRfuncMap).ParseFiles("./html/" + appPage)
+	clientDir := filepath.Join(cwd, "webclient")
+	htmlDir := filepath.Join(clientDir, "html")
+	tmplFile := filepath.Join(htmlDir, appPage)
+
+	t, err := template.New(appPage).Funcs(RRfuncMap).ParseFiles(tmplFile)
 	if nil != err {
 		s := fmt.Sprintf("%s: error loading template: %v\n", funcname, err)
 		ui.ReportContent += s
