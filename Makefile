@@ -1,4 +1,4 @@
-DIRS = db rlib rrpt rcsv worker ws bizlogic admin importers js tools test
+DIRS = db rlib rrpt rcsv worker ws bizlogic admin importers webclient tools test
 TOP = .
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
@@ -22,7 +22,7 @@ config.json:
 
 jshint:
 	@touch fail
-	@${COUNTOL} "jshint --extract=always html/*.html html/test/*.html js/src/*.js"
+	@${COUNTOL} "jshint --extract=always ./webclient/html/*.html ./webclient/html/test/*.html ./webclient/js/elems/*.js"
 	@rm -rf fail
 
 try: build testdb
@@ -70,8 +70,7 @@ package: rentroll
 	cp rentroll.1 tmp/rentroll/man/man1
 	for dir in $(DIRS); do make -C $$dir package;done
 	cp rentroll ./tmp/rentroll/
-	cp config.json report.css table.tmpl ./tmp/rentroll/
-	cp -r html ./tmp/rentroll/
+	cp config.json ./tmp/rentroll/
 	cp ../gotable/pdfinstall.sh tmp/rentroll/
 	# if [ -e js ]; then cp -r js ./tmp/rentroll/ ; fi
 	cp activate.sh update.sh ./tmp/rentroll/
@@ -99,7 +98,7 @@ pubdb:
 
 pubfa:
 	# font awesome
-	cd tmp/rentroll;tar czvf fa.tar.gz ./html/fa;/usr/local/accord/bin/deployfile.sh fa.tar.gz jenkins-snapshot/rentroll/latest
+	cd tmp/rentroll;tar czvf fa.tar.gz ./webclient/html/fa;/usr/local/accord/bin/deployfile.sh fa.tar.gz jenkins-snapshot/rentroll/latest
 
 # publish all the non-os-dependent files to the repo
 pub: pubjs pubimages pubdb pubfa
