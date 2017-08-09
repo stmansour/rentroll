@@ -40,6 +40,7 @@ var _unAllocRcpts = {
 var app = {
     D1: "2016-02-01",
     D2: "2016-03-01",
+    Depositories: {}, // gets loaded as needed
     uid: 211,
     WidestFormWidth: 900,
     sidebarWidth: 215,
@@ -229,6 +230,7 @@ function finishInitialization() {
     buildPageElements();
     createRentalAgreementForm();
     createStmtForm();
+    createDepositForm();
     var d1 = new Date();
     d1.setDate(1);
     app.D1 = dateControlString(d1);

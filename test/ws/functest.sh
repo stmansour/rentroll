@@ -163,8 +163,8 @@ dojsonPOST "http://localhost:8270/v1/pmts/1/1" "request" "y"  "WebService--Payme
 dojsonGET "http://localhost:8270/v1/rtlist/2" "z" "WebService--GetRentableTypesForBusiness"
 
 # get UI Values...
-doPlainGET "http://localhost:8270/v1/uival/REX/app.Assessments" "a1" "WebService--GetUIValue-app.Assessments"
-doPlainGET "http://localhost:8270/v1/uival/REX/app.Receipts" "b1" "WebService--GetUIValue-app.Receipts"
+doPlainGET "http://localhost:8270/v1/uival/REX/app.AssessmentRules" "a1" "WebService--GetUIValue-app.AssessmentRules"
+doPlainGET "http://localhost:8270/v1/uival/REX/app.ReceiptRules" "b1" "WebService--GetUIValue-app.ReceiptRules"
 
 # rental Agreement typedown...
 dojsonGET "http://localhost:8270/v1/rentalagrtd/CCC?request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D" "c1" "WebService--GetRentalAgreementTypeDown"

@@ -88,6 +88,20 @@ func GetDepositoryList(bid int64) (map[string][]IDTextMap, error) {
 	return appData, nil
 }
 
+// SvcUIErrAndVarResponse encapsulates a lot of lines that would need to appear
+// in each case of a switch.  This just makes things a lot more readable and
+// it bottlenecks the handling so it is easy to extend or modify.
+func SvcUIErrAndVarResponse(w http.ResponseWriter, funcname string, err error, x interface{}) {
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	if err := json.NewEncoder(w).Encode(x); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+}
+
 // SvcUIVal returns the requested variable in JSON form
 //
 // wsdoc {
@@ -101,47 +115,20 @@ func GetDepositoryList(bid int64) (map[string][]IDTextMap, error) {
 // wsdoc }
 func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcUIVar"
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 	switch d.DetVal {
-	case "app.Assessments":
-		// get assessments data
+	case "app.AssessmentRules":
 		asmData, err := GetAssessmentList(d.BID)
-		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
-
-		// send down then json stuff
-		if err := json.NewEncoder(w).Encode(asmData); err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
-	case "app.Receipts":
-		// get receipts data
+		SvcUIErrAndVarResponse(w, funcname, err, asmData)
+	case "app.ReceiptRules":
 		rcptData, err := GetReceiptList(d.BID)
-		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
-
-		// send down then json stuff
-		if err := json.NewEncoder(w).Encode(rcptData); err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
+		SvcUIErrAndVarResponse(w, funcname, err, rcptData)
 	case "app.Depositories":
-		// get receipts data
 		data, err := GetDepositoryList(d.BID)
-		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
-
-		// send down then json stuff
-		if err := json.NewEncoder(w).Encode(data); err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
+		SvcUIErrAndVarResponse(w, funcname, err, data)
+	case "app.depmeth":
+		depmeth := GetJSDepositMethods()
+		SvcUIErrAndVarResponse(w, funcname, nil, depmeth)
 	default:
 		e := fmt.Errorf("Unknown variable requested: %s", d.DetVal)
 		SvcGridErrorReturn(w, e, funcname)

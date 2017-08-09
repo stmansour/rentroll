@@ -83,14 +83,14 @@ function buildDepositoryElements() {
                         getAccountsList(rec.BID)
                         .done(function(data){
                             if (data.status != 'success') {
-                                w2ui.depForm.message(data.message);
+                                w2ui.depositoryForm.message(data.message);
                             } else {
                                 var gl_selected = {id: rec.LID, text: rec.GLNumber+" "+"(" + rec.LdgrName + ")"};
                                 // get gl accounts for BUD
-                                w2ui.depForm.get('LID').options.items = app.gl_accounts[BUD];
-                                w2ui.depForm.get('LID').options.selected = gl_selected;
+                                w2ui.depositoryForm.get('LID').options.items = app.gl_accounts[BUD];
+                                w2ui.depositoryForm.get('LID').options.selected = gl_selected;
                             }
-                            setToForm('depForm', '/v1/dep/' + rec.BID + '/' + rec.DEPID, 400, true);
+                            setToForm('depositoryForm', '/v1/dep/' + rec.BID + '/' + rec.DEPID, 400, true);
                         })
                         .fail(function(/*data*/){
                             console.log("Failed to get glAccountList");
@@ -113,7 +113,7 @@ function buildDepositoryElements() {
                     var x = getCurrentBusiness(),
                         BID=parseInt(x.value),
                         BUD = getBUDfromBID(BID),
-                        f = w2ui.depForm;
+                        f = w2ui.depositoryForm;
 
                     // get latest gl accounts first
                     getAccountsList(BID)
@@ -137,7 +137,7 @@ function buildDepositoryElements() {
                             f.get('LID').options.selected = gl_accounts_pre_selected;
                             f.record = record;
                             f.refresh();
-                            setToForm('depForm', '/v1/dep/' + BID + '/0', 400);
+                            setToForm('depositoryForm', '/v1/dep/' + BID + '/0', 400);
                         }
                     })
                     .fail( function() {
@@ -155,11 +155,11 @@ function buildDepositoryElements() {
     //          depository Form
     //------------------------------------------------------------------------
     $().w2form({
-        name: 'depForm',
+        name: 'depositoryForm',
         style: 'border: 0px; background-color: transparent;',
         header: 'Depository Detail',
         url: '/v1/dep',
-        formURL: '/webclient/html/formdep.html',
+        formURL: '/webclient/html/formdepository.html',
         fields: [
             { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'DEPID', type: 'int', required: false, html: { page: 0, column: 0 } },

@@ -34,17 +34,17 @@ type DepositGrid struct {
 // DepositSaveForm contains the data from Deposit FORM that is targeted to the UI Form that displays
 // a list of Deposit structs
 type DepositSaveForm struct {
-	Recid         int64 `json:"recid"`
-	LID           int64
-	DID           int64
-	BID           int64
-	BUD           rlib.XJSONBud
-	DEPID         int64
-	DPMID         int64
-	Dt            rlib.JSONDateTime
-	Amount        float64
-	ClearedAmount float64
-	FLAGS         uint64
+	Recid         int64             `json:"recid"` //
+	LID           int64             // GL Account for the depository
+	DID           int64             // deposit id
+	BID           int64             // biz
+	BUD           rlib.XJSONBud     // 3-letter code
+	DEPID         int64             // Depository ID
+	DPMID         int64             // Deposit Method
+	Dt            rlib.JSONDateTime // Date of deposit
+	Amount        float64           // amount deposited
+	ClearedAmount float64           // amount the bank cleared for the deposit
+	FLAGS         uint64            // bit 0 = Bank Has provided Cleared Amount
 }
 
 // DepositGridSave is the input data format for a Save command
@@ -350,7 +350,8 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SELECT
 		{{.SelectClause}}
 	FROM Deposit
-	LEFT JOIN GLAccount on GLAccount.LID=Deposit.LID
+	LEFT JOIN Depository ON Deposit.DEPID = Depository.DEPID
+	LEFT JOIN DepositMethod ON Deposit.DPMID = DepositMethod.DPMID
 	WHERE {{.WhereClause}};`
 
 	qc := queryClauses{
@@ -359,6 +360,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	qry := renderSQLQuery(depQuery, qc)
+	rlib.Console("query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {

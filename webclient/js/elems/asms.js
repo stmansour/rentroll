@@ -136,11 +136,11 @@ function buildAssessmentElements() {
                         var x = getCurrentBusiness();
                         var Bid = x.value;
                         var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.Assessments' )
+                        $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
                         .done( function(data) {
                             if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.Assessments = JSON.parse(data);
-                                w2ui[form].get('ARID').options.items = app.Assessments[Bud];
+                                app.AssessmentRules = JSON.parse(data);
+                                w2ui[form].get('ARID').options.items = app.AssessmentRules[Bud];
                                 w2ui[form].refresh();
 
                                 setToForm(form, myurl, 400, true);
@@ -150,7 +150,7 @@ function buildAssessmentElements() {
                             }
                         })
                         .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.Assessments');
+                            console.log('Error getting /v1/uival/' + x.value + '/app.AssessmentRules');
                          });
                     };
 
@@ -167,10 +167,10 @@ function buildAssessmentElements() {
                     grid.selectNone();
 
                     var x = getCurrentBusiness();
-                    $.get('/v1/uival/' + x.value + '/app.Assessments' )
+                    $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
                     .done( function(data) {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.Assessments = JSON.parse(data);
+                            app.AssessmentRules = JSON.parse(data);
 
                             // Insert an empty record...
                             var BID=parseInt(x.value);
@@ -179,7 +179,7 @@ function buildAssessmentElements() {
 
                             var record = getAsmsInitRecord(BID, BUD);
                             // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            w2ui.asmEpochForm.fields[0].options.items = app.Assessments[BUD];
+                            w2ui.asmEpochForm.fields[0].options.items = app.AssessmentRules[BUD];
                             w2ui.asmEpochForm.record = record;
                             w2ui.asmEpochForm.refresh();
 
@@ -190,7 +190,7 @@ function buildAssessmentElements() {
                         }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.Assessments');
+                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
                      });
                 };
 
@@ -231,7 +231,7 @@ function buildAssessmentElements() {
         url: '/v1/asm',
         formURL: '/webclient/html/formasmepoch.html',
         fields: [
-            { field: 'ARID',          type: 'list',     required: true, options: { items: app.Assessments }},
+            { field: 'ARID',          type: 'list',     required: true, options: { items: app.AssessmentRules }},
             { field: 'recid',         type: 'int',      required: false },
             { field: 'ASMID',         type: 'int',      required: false },
             { field: 'BID',           type: 'int',     required: true },
@@ -322,16 +322,16 @@ function buildAssessmentElements() {
                     // render the grid only
                     grid.render();
 
-                    $.get('/v1/uival/' + BID + '/app.Assessments' )
+                    $.get('/v1/uival/' + BID + '/app.AssessmentRules' )
                     .done( function(data) {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.Assessments = JSON.parse(data);
+                            app.AssessmentRules = JSON.parse(data);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
                             var record = getAsmsInitRecord(BID, BUD);
 
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            f.fields[0].options.items = app.Assessments[BUD];
+                            f.fields[0].options.items = app.AssessmentRules[BUD];
                             f.record = record;
                             f.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             f.url  = "/v1/asm/" + BID + "/0";
@@ -342,7 +342,7 @@ function buildAssessmentElements() {
                         }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.Assessments');
+                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
                      }); //get assessment UI val done
 
                 });
@@ -538,7 +538,7 @@ function buildAssessmentElements() {
         url: '/v1/asm',
         formURL: '/webclient/html/formasminst.html',
         fields: [
-            { field: 'ARID',          type: 'list',   required: true, options: { items: app.Assessments } },
+            { field: 'ARID',          type: 'list',   required: true, options: { items: app.AssessmentRules } },
             { field: 'recid',         type: 'int',    required: false },
             { field: 'ASMID',         type: 'int',    required: false },
             { field: 'BUD',           type: 'list',   options:  {items: app.businesses}, required: false },
@@ -617,16 +617,16 @@ function buildAssessmentElements() {
                     // render the grid only
                     grid.render();
 
-                    $.get('/v1/uival/' + BID + '/app.Assessments' )
+                    $.get('/v1/uival/' + BID + '/app.AssessmentRules' )
                     .done( function(data) {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.Assessments = JSON.parse(data);
+                            app.AssessmentRules = JSON.parse(data);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
                             var record = getAsmsInitRecord(BID, BUD);
 
                             // epochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            epochForm.fields[0].options.items = app.Assessments[BUD];
+                            epochForm.fields[0].options.items = app.AssessmentRules[BUD];
                             epochForm.record = record;
                             // epochForm.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             // f.refresh();
@@ -637,7 +637,7 @@ function buildAssessmentElements() {
                         }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.Assessments');
+                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
                      }); //get assessment UI val done
 
                 });

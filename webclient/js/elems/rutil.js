@@ -151,13 +151,10 @@ function getBIDfromBUD(BUD) {
 // @return  the Payment Type (or empty object if not found)
 //-----------------------------------------------------------------------------
 function getPaymentType(BUD, reqPMTID) {
-
-
     var pmt = {};
     if (typeof BUD === "undefined") {
         return pmt;
     }
-
     app.pmtTypes[BUD].forEach(function(item) {
         if (item.PMTID == reqPMTID) {
             pmt = { id: item.PMTID, text: item.Name };
@@ -165,6 +162,50 @@ function getPaymentType(BUD, reqPMTID) {
         }
     });
     return pmt;
+}
+
+//-----------------------------------------------------------------------------
+// getDepMeth     - searches BUD's Deposit Methods for id.  If found the
+//                  then Deposit Method object is returned, otherwise an
+//                  empty object is returned.
+// @params  BUD   - the BUD for the business of interest
+//          id - the Deposit Method id for which we want the name
+// @return  the Deposit Method (or empty object if not found)
+//-----------------------------------------------------------------------------
+function getDepMeth(BUD, id) {
+    var dpm = {};
+    if (typeof BUD === "undefined") {
+        return dpm;
+    }
+    for (var i = 0; i < app.depmeth[BUD].length; i++) {
+        if (app.depmeth[BUD][i].id == id) {
+            dpm = { id: id, text: app.depmeth[BUD][i].text };
+            return dpm;
+        }
+    }
+    return dpm;
+}
+
+//-----------------------------------------------------------------------------
+// getDepository - searches BUD's Depositories for id.  If found the
+//                 then Depository object is returned, otherwise an
+//                 empty object is returned.
+// @params  BUD  - the BUD for the business of interest
+//          id   - the Depository id for which we want the name
+// @return  the Depository (or empty object if not found)
+//-----------------------------------------------------------------------------
+function getDepository(BUD, id) {
+    var val = {};
+    if (typeof BUD === "undefined") {
+        return val;
+    }
+    for (var i = 0; i < app.Depositories[BUD].length; i++) {
+        if (app.Depositories[BUD][i].id == id) {
+            val = { id: id, text: app.Depositories[BUD][i].text };
+            return val;
+        }
+    }
+    return val;
 }
 
 //-----------------------------------------------------------------------------
@@ -204,10 +245,9 @@ function getCurrentBusiness() {
 //   sform   = name of the form
 //   url     = request URL for the form
 //   [width] = optional, if specified it is the width of the form
+//   doRequest = 
 //-----------------------------------------------------------------------------
 function setToForm(sform, url, width, doRequest) {
-
-
     // if not url defined then return
     var url_len=url.length > 0;
     if (!url_len) {
@@ -284,8 +324,7 @@ function setToForm(sform, url, width, doRequest) {
                 return false;
             }
         });
-    }
-    else{
+    } else {
         var sel_recid = parseInt(g.last.sel_recid);
         if (sel_recid > -1) {
             // if new record is being added then unselect {{the selected record}} from the grid
