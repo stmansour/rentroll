@@ -19,7 +19,7 @@ import (
 func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 	funcname := "SendWebSvcPage"
 	tmpl := "v1rpt.html"
-	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./html/" + tmpl)
+	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./webclient/html/" + tmpl)
 	if nil != err {
 		s := fmt.Sprintf("%s: error loading template: %v\n", funcname, err)
 		ui.ReportContent += s

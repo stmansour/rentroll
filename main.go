@@ -55,6 +55,7 @@ var App struct {
 	CertFile     string   // public certificate
 	KeyFile      string   //private key file
 	//DBRR         string   // rentroll database
+	RootStaticDir string // root directory settings
 }
 
 // RRfuncMap is a map of functions passed to each html page that can be referenced
@@ -80,6 +81,7 @@ func readCommandLineArgs() {
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 	xPtr := flag.Bool("x", false, "if specified, inhibit vacancy checking")
+	rsd := flag.String("rsd", "./", "Root Static Directory path") // it will pick static content from provided path, default will be current directory
 
 	flag.Parse()
 	if *verPtr {
@@ -100,6 +102,7 @@ func readCommandLineArgs() {
 	App.KeyFile = *pKey
 	// fmt.Printf("*pLoad = %s\n", *pLoad)
 	App.CSVLoad = *pLoad
+	App.RootStaticDir = *rsd
 }
 
 func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
@@ -122,7 +125,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func initHTTP() {
-	Chttp.Handle("/", http.FileServer(http.Dir("./")))
+	Chttp.Handle("/", http.FileServer(http.Dir(App.RootStaticDir)))
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/home/", HomeUIHandler)
 	http.HandleFunc("/v1/", ws.V1ServiceHandler)
