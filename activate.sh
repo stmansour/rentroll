@@ -97,6 +97,46 @@ setupAppNode() {
 	echo "Done."
 }
 
+#--------------------------------------------------------------
+#  For QA, Sandbox, and Production nodes, go through the
+#  laundry list of details...
+#  1. Set up permissions for the database on QA and Sandbox nodes
+#  2. Install a database with some data for testing
+#  3. For PDF printing, install wkhtmltopdf
+#--------------------------------------------------------------
+setupAppNode() {
+	#---------------------
+	# database
+	#---------------------
+	RRDB=$(echo "show databases;" | mysql | grep rentroll | wc -l)
+	if [ ${RRDB} -gt "0" ]; then
+	    rm -rf ${DATABASENAME}db*  >log.out 2>&1 
+	    ${GETFILE} accord/db/${DATABASENAME}db.sql.gz  >log.out 2>&1 
+	    gunzip ${DATABASENAME}db.sql  >log.out 2>&1 
+	    echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
+	    echo "source ${DATABASENAME}db.sql" >> restore.sql
+	    echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
+	    mysql ${MYSQLOPTS} < restore.sql  >log.out 2>&1 
+	fi
+
+	#---------------------
+	# wkhtmltopdf
+	#---------------------
+	./pdfinstall.sh  >log.out 2>&1 
+	
+	#-----------------------------------------------------------------
+	#  If no config.json exists, pull the development environment
+	#  version and use it.  The Env values mean the following:
+	#    0 = development environment
+	#    1 = production environment
+	#    2 = QA environment
+	#-----------------------------------------------------------------
+	if [ ! -f ./config.json ]; then
+		${GETFILE} accord/db/confdev.json  >log.out 2>&1 
+		mv confdev.json config.json
+	fi
+}
+
 start() {
 	# Create a database if this is a localhost instance  
 	if [ ${IAM} == "root" ]; then
@@ -118,12 +158,12 @@ start() {
 
 	if [ ! -f "/usr/local/share/man/man1/rentroll.1" ]; then
 		./installman.sh >installman.log 2>&1
-		${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz
-		tar xzvf rrimages.tar.gz
-		${GETFILE} jenkins-snapshot/rentroll/latest/rrjs.tar.gz
-		tar xzvf rrjs.tar.gz
-		${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz
-		tar xzvf fa.tar.gz
+		${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz  >log.out 2>&1 
+		tar xzvf rrimages.tar.gz  >log.out 2>&1 
+		${GETFILE} jenkins-snapshot/rentroll/latest/rrjs.tar.gz  >log.out 2>&1 
+		tar xzvf rrjs.tar.gz  >log.out 2>&1 
+		${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz  >log.out 2>&1 
+		tar xzvf fa.tar.gz  >log.out 2>&1 
 	fi
 
 	#---------------------------------------------------
@@ -150,7 +190,7 @@ start() {
 	./${PROGNAME} >log.out 2>&1 &
 	if [ ${IAM} == "root" ]; then
 		if [ ! -d /var/run/${PROGNAME} ]; then
-			mkdir /var/run/${PROGNAME}
+			mkdir /var/run/${PROGNAME}  >log.out 2>&1 
 		fi
 		echo $! >/var/run/${PROGNAME}/${PROGNAME}.pid
 		touch /var/lock/${PROGNAME}
