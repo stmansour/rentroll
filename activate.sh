@@ -78,13 +78,16 @@ setupAppNode() {
 	#---------------------
 	# database
 	#---------------------
-	rm -rf ${DATABASENAME}db*
-	${GETFILE} accord/db/${DATABASENAME}db.sql.gz
-	gunzip ${DATABASENAME}db.sql
-	echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
-	echo "source ${DATABASENAME}db.sql" >> restore.sql
-	echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
-	mysql ${MYSQLOPTS} < restore.sql
+	RRDB=$(echo "show databases;" | mysql | grep rentroll | wc -l)
+	if [ ${RRDB} -gt "0" ]; then
+	    rm -rf ${DATABASENAME}db*
+	    ${GETFILE} accord/db/${DATABASENAME}db.sql.gz
+	    gunzip ${DATABASENAME}db.sql
+	    echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
+	    echo "source ${DATABASENAME}db.sql" >> restore.sql
+	    echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
+	    mysql ${MYSQLOPTS} < restore.sql
+	fi
 
 	#---------------------
 	# wkhtmltopdf
@@ -96,12 +99,12 @@ setupAppNode() {
 
 start() {
 	# Create a database if this is a localhost instance  
-	# if [ ${IAM} == "root" ]; then
-	# 	x=$(grep RRDbhost config.json | grep localhost | wc -l)
-	# 	if (( x == 1 )); then
-	# 		setupAppNode
-	# 	fi
-	# fi
+	if [ ${IAM} == "root" ]; then
+		x=$(grep RRDbhost config.json | grep localhost | wc -l)
+	 	if (( x == 1 )); then
+	 		setupAppNode
+	 	fi
+	fi
 
 	if [ ${IAM} == "root" ]; then
 		chown -R ec2-user *
