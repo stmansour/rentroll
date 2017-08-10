@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
-    <script src="/webclient/js/jquery.min.js"></script>
-    <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
-    <link rel="stylesheet" href="/webclient/html/fa/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/webclient/html/rentroll.css">
-    <link rel="icon" type="image/png" href="/webclient/html/images/favicon32x32.png">
+    <link rel="stylesheet" type="text/css" href="/js/w2ui-1.5.rc1.min.css" />
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/w2ui-1.5.rc1.js"></script>
+    <link rel="stylesheet" href="/html/fa/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/html/rentroll.css">
+    <link rel="icon" type="image/png" href="/html/images/favicon32x32.png">
 </head>
 <body>
 
@@ -28,7 +28,7 @@ sidebarL1     - w2ui sidebar
 var _unAllocRcpts = {
     layoutPanels: {
         top: function(unallocFund, person/*, tcid*/) {
-            return "<html><head><link rel=\"stylesheet\" href=\"/webclient/html/rentroll.css\"></head><body><div style=\"display: table; width: 100%; height: 40%;\"><div style=\"display: table-cell; vertical-align: middle;text-align: left;width: 100%;\"><p style=\"margin: 5px auto;font-size: 1.5rem;font-weight: bold;\" name=\"unallocForm\">"+person+"<br>Remaining unallocated funds:<span id=\"total_fund_amount\" data-fund=\""+unallocFund+"\"style=\"padding: 10px; color: #00AA00; font-size:1.5rem;font-weight: bold; margin: 10px auto; width: 30%;\">"+unallocFund+"</span>&nbsp;&nbsp;&nbsp;&nbsp;<button class=\"w2ui-btn w2ui-btn-green\" style=\"font-size: 1.1rem;\" id=\"auto_allocate_btn\">Auto-Allocate</button></p></div></div></body></html>";
+            return "<html><head><link rel=\"stylesheet\" href=\"/html/rentroll.css\"></head><body><div style=\"display: table; width: 100%; height: 40%;\"><div style=\"display: table-cell; vertical-align: middle;text-align: left;width: 100%;\"><p style=\"margin: 5px auto;font-size: 1.5rem;font-weight: bold;\" name=\"unallocForm\">"+person+"<br>Remaining unallocated funds:<span id=\"total_fund_amount\" data-fund=\""+unallocFund+"\"style=\"padding: 10px; color: #00AA00; font-size:1.5rem;font-weight: bold; margin: 10px auto; width: 30%;\">"+unallocFund+"</span>&nbsp;&nbsp;&nbsp;&nbsp;<button class=\"w2ui-btn w2ui-btn-green\" style=\"font-size: 1.1rem;\" id=\"auto_allocate_btn\">Auto-Allocate</button></p></div></div></body></html>";
         },
         bottom: function() {
             return "<div style=\"display: table; width: 100%; height: 100%;\"><div style=\"display: table-cell; vertical-align: middle;text-align: center;width: 100%;\"><button class=\"w2ui-btn\" id=\"alloc_fund_save_btn\">Save</button></div></div>";
@@ -167,7 +167,7 @@ function buildPageElements() {
         items: [
              { type: 'html',  id: 'logo',
                 html: '<div style="padding: 4px 0px;">'+
-                      '<img src="/webclient/html/images/logo.png">'+
+                      '<img src="/html/images/logo.png">'+
                       '</div>'
             },
             { type: 'break', id: 'break1' },
@@ -215,7 +215,7 @@ function buildPageElements() {
                 case "menuButton:Messages":
                         w2ui.toplayout.toggle('top',true);
                         w2ui.toplayout.set('top',{ content: w2ui.newsLayout});
-                        w2ui.newsLayout.load('main', '/webclient/html/news.html', 'flip-down', function () {console.log('content loaded');});
+                        w2ui.newsLayout.load('main', '/html/news.html', 'flip-down', function () {console.log('content loaded');});
                         w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'});
                         break;
             }
@@ -261,6 +261,6 @@ $(function () {
 </script>
 
 <div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
-<script src="/webclient/js/bundle.js"></script>
+<script src="/js/bundle.js"></script>
 </body>
 </html>

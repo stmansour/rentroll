@@ -62,6 +62,12 @@ func UpdateDepositPart(a *DepositPart) error {
 	return updateError(err, "DepositPart", *a)
 }
 
+// UpdateExpense updates a Expense record
+func UpdateExpense(a *Expense) error {
+	_, err := RRdb.Prepstmt.UpdateExpense.Exec(a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.EXPID)
+	return updateError(err, "Expense", *a)
+}
+
 // UpdateInvoice updates a Invoice record
 func UpdateInvoice(a *Invoice) error {
 	_, err := RRdb.Prepstmt.UpdateInvoice.Exec(a.BID, a.Dt, a.DtDue, a.Amount, a.DeliveredBy, a.LastModBy, a.InvoiceNo)

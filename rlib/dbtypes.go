@@ -681,6 +681,26 @@ type Assessment struct {
 	CreateBy       int64     // employee UID (from phonebook) that created it
 }
 
+// Expense is an amount that reduces some assessment
+// for example, the bank fee associated with a wire transfer
+type Expense struct {
+	EXPID       int64
+	RPEXPID     int64
+	BID         int64
+	RID         int64
+	RAID        int64
+	Amount      float64
+	Dt          time.Time
+	AcctRule    string
+	ARID        int64
+	FLAGS       uint64
+	Comment     string
+	LastModTime int64
+	LastModBy   int64
+	CreateTS    int64
+	CreateBy    int64
+}
+
 // AR is the table that defines the AcctRules for Assessments and Receipts
 type AR struct {
 	ARID        int64
@@ -1469,6 +1489,10 @@ type RRprepSQL struct {
 	GetDepositoryByLID                      *sql.Stmt
 	UpdateDepositPart                       *sql.Stmt
 	CountLedgerEntries                      *sql.Stmt
+	GetExpense                              *sql.Stmt
+	InsertExpense                           *sql.Stmt
+	DeleteExpense                           *sql.Stmt
+	UpdateExpense                           *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
@@ -1489,6 +1513,7 @@ var AllTables = []string{
 	"DepositMethod",
 	"DepositPart",
 	"Depository",
+	"Expense",
 	"GLAccount",
 	"Invoice",
 	"InvoiceAssessment",

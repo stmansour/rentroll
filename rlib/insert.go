@@ -1,5 +1,13 @@
 package rlib
 
+func insertError(err error, n string, a interface{}) error {
+	if nil != err {
+		Ulog("Insert%s: error inserting %s:  %v\n", n, n, err)
+		Ulog("%s = %#v\n", n, a)
+	}
+	return err
+}
+
 // InsertAR writes a new AR record to the database. If the record is successfully written,
 // the ARID field is set to its new value.
 func InsertAR(a *AR) (int64, error) {
@@ -12,8 +20,7 @@ func InsertAR(a *AR) (int64, error) {
 			a.ARID = rid
 		}
 	} else {
-		Ulog("InsertAR: error inserting AR:  %v\n", err)
-		Ulog("AR = %#v\n", *a)
+		err = insertError(err, "AR", *a)
 	}
 	return rid, err
 }
@@ -40,8 +47,7 @@ func InsertAssessment(a *Assessment) (int64, error) {
 			a.ASMID = rid
 		}
 	} else {
-		Ulog("InsertAssessment: error inserting Assessment:  %v\n", err)
-		Ulog("Assessment = %#v\n", *a)
+		err = insertError(err, "Insert", *a)
 	}
 	return rid, err
 }
@@ -56,8 +62,7 @@ func InsertBuilding(a *Building) (int64, error) {
 			rid = int64(id)
 		}
 	} else {
-		Ulog("Error inserting Building:  %v\n", err)
-		Ulog("Bldg = %#v\n", *a)
+		err = insertError(err, "Building", *a)
 	}
 	return rid, err
 }
@@ -73,8 +78,7 @@ func InsertBuildingWithID(a *Building) (int64, error) {
 			rid = int64(id)
 		}
 	} else {
-		Ulog("InsertBuildingWithID: error inserting Building:  %v\n", err)
-		Ulog("Bldg = %#v\n", *a)
+		err = insertError(err, "Building", *a)
 	}
 	return rid, err
 }
@@ -105,8 +109,7 @@ func InsertCustomAttribute(a *CustomAttribute) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertCustomAttribute: error inserting CustomAttribute:  %v\n", err)
-		Ulog("CustomAttribute = %#v\n", *a)
+		err = insertError(err, "CustomAttribute", *a)
 	}
 	return tid, err
 }
@@ -127,8 +130,7 @@ func InsertDemandSource(a *DemandSource) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertDemandSource: error inserting DemandSource:  %v\n", err)
-		Ulog("DemandSource = %#v\n", *a)
+		err = insertError(err, "DemandSource", *a)
 	}
 	return tid, err
 }
@@ -143,8 +145,7 @@ func InsertDeposit(a *Deposit) (int64, error) {
 			rid = int64(id)
 		}
 	} else {
-		Ulog("Error inserting Deposit:  %v\n", err)
-		Ulog("Deposit = %#v\n", *a)
+		err = insertError(err, "Deposit", *a)
 	}
 	return rid, err
 }
@@ -153,8 +154,7 @@ func InsertDeposit(a *Deposit) (int64, error) {
 func InsertDepositMethod(a *DepositMethod) error {
 	_, err := RRdb.Prepstmt.InsertDepositMethod.Exec(a.BID, a.Method, a.CreateBy, a.LastModBy)
 	if nil != err {
-		Ulog("Error inserting DepositMethod:  %v\n", err)
-		Ulog("DepositMethod = %#v\n", *a)
+		return insertError(err, "DepositMethod", *a)
 	}
 	return err
 }
@@ -163,24 +163,41 @@ func InsertDepositMethod(a *DepositMethod) error {
 func InsertDepositPart(a *DepositPart) error {
 	_, err := RRdb.Prepstmt.InsertDepositPart.Exec(a.DID, a.BID, a.RCPTID, a.CreateBy, a.LastModBy)
 	if nil != err {
-		Ulog("Error inserting DepositPart:  %v\n", err)
-		Ulog("DepositPart = %#v\n", *a)
+		return insertError(err, "DepositPart", *a)
 	}
 	return err
 }
 
 // InsertDepository writes a new Depository record to the database
 func InsertDepository(a *Depository) (int64, error) {
-	var rid = int64(0)
+	var id = int64(0)
 	res, err := RRdb.Prepstmt.InsertDepository.Exec(a.BID, a.LID, a.Name, a.AccountNo, a.CreateBy, a.LastModBy)
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			id = int64(x)
+		}
+	} else {
+		err = insertError(err, "Depository", *a)
+	}
+	return id, err
+}
+
+//======================================
+//  EXPENSE
+//======================================
+
+// InsertExpense writes a new Expense record to the database
+func InsertExpense(a *Expense) (int64, error) {
+	var rid = int64(0)
+	res, err := RRdb.Prepstmt.InsertExpense.Exec(a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy, a.EXPID)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
 		}
 	} else {
-		Ulog("Error inserting Depository:  %v\n", err)
-		Ulog("Depository = %#v\n", *a)
+		err = insertError(err, "Expense", *a)
 	}
 	return rid, err
 }
@@ -199,8 +216,7 @@ func InsertInvoice(a *Invoice) (int64, error) {
 			rid = int64(id)
 		}
 	} else {
-		Ulog("Error inserting Invoice:  %v\n", err)
-		Ulog("Invoice = %#v\n", *a)
+		err = insertError(err, "Invoice", *a)
 	}
 	return rid, err
 }
@@ -209,8 +225,7 @@ func InsertInvoice(a *Invoice) (int64, error) {
 func InsertInvoiceAssessment(a *InvoiceAssessment) error {
 	_, err := RRdb.Prepstmt.InsertInvoiceAssessment.Exec(a.InvoiceNo, a.BID, a.ASMID, a.CreateBy)
 	if nil != err {
-		Ulog("Error inserting InvoiceAssessment:  %v\n", err)
-		Ulog("DepositPart = %#v\n", *a)
+		return insertError(err, "DepositPart", *a)
 	}
 	return err
 }
@@ -219,8 +234,7 @@ func InsertInvoiceAssessment(a *InvoiceAssessment) error {
 func InsertInvoicePayor(a *InvoicePayor) error {
 	_, err := RRdb.Prepstmt.InsertInvoicePayor.Exec(a.InvoiceNo, a.BID, a.PID, a.CreateBy)
 	if nil != err {
-		Ulog("Error inserting InvoicePayor:  %v\n", err)
-		Ulog("DepositPayor = %#v\n", *a)
+		return insertError(err, "DepositPayor", *a)
 	}
 	return err
 }
@@ -381,8 +395,7 @@ func InsertRatePlan(a *RatePlan) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertRatePlan: error inserting RatePlan:  %v\n", err)
-		Ulog("RatePlan = %#v\n", *a)
+		err = insertError(err, "RatePlan", *a)
 	}
 	a.RPID = tid
 	return tid, err
@@ -398,8 +411,7 @@ func InsertRatePlanRef(a *RatePlanRef) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertRatePlanRef: error inserting RatePlanRef:  %v\n", err)
-		Ulog("RatePlanRef = %#v\n", *a)
+		err = insertError(err, "RatePlanRef", *a)
 	}
 	a.RPRID = tid
 	return tid, err
@@ -409,8 +421,7 @@ func InsertRatePlanRef(a *RatePlanRef) (int64, error) {
 func InsertRatePlanRefRTRate(a *RatePlanRefRTRate) error {
 	_, err := RRdb.Prepstmt.InsertRatePlanRefRTRate.Exec(a.RPRID, a.BID, a.RTID, a.FLAGS, a.Val, a.CreateBy)
 	if nil != err {
-		Ulog("InsertRatePlanRefRTRate: error inserting RatePlanRefRTRate:  %v\n", err)
-		Ulog("RatePlanRefRTRate = %#v\n", *a)
+		return insertError(err, "RatePlanRefRTRate", *a)
 	}
 	return err
 }
@@ -419,8 +430,7 @@ func InsertRatePlanRefRTRate(a *RatePlanRefRTRate) error {
 func InsertRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 	_, err := RRdb.Prepstmt.InsertRatePlanRefSPRate.Exec(a.RPRID, a.BID, a.RTID, a.RSPID, a.FLAGS, a.Val, a.CreateBy)
 	if nil != err {
-		Ulog("InsertRatePlanRefSPRate: error inserting RatePlanRefSPRate:  %v\n", err)
-		Ulog("RatePlanRefSPRate = %#v\n", *a)
+		return insertError(err, "RatePlanRefSPRate", *a)
 	}
 	return err
 }
@@ -438,8 +448,7 @@ func InsertPaymentType(a *PaymentType) error {
 			a.PMTID = int64(id)
 		}
 	} else {
-		Ulog("InsertPayor: error inserting Payor:  %v\n", err)
-		Ulog("Payor = %#v\n", *a)
+		return insertError(err, "Payor", *a)
 	}
 	return err
 }
@@ -454,8 +463,7 @@ func InsertPayor(a *Payor) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertPayor: error inserting Payor:  %v\n", err)
-		Ulog("Payor = %#v\n", *a)
+		err = insertError(err, "Payor", *a)
 	}
 	return tid, err
 }
@@ -473,8 +481,7 @@ func InsertProspect(a *Prospect) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertProspect: error inserting Prospect:  %v\n", err)
-		Ulog("Prospect = %#v\n", *a)
+		err = insertError(err, "Prospect", *a)
 	}
 	return tid, err
 }
@@ -489,8 +496,7 @@ func InsertRentable(a *Rentable) (int64, error) {
 			rid = int64(id)
 		}
 	} else {
-		Ulog("InsertRentable: error inserting Building:  %v\n", err)
-		Ulog("Rentable = %#v\n", *a)
+		err = insertError(err, "Rentable", *a)
 	}
 	return rid, err
 }
@@ -511,8 +517,7 @@ func InsertReceipt(r *Receipt) (int64, error) {
 			r.RCPTID = tid
 		}
 	} else {
-		Ulog("InsertReceipt: error inserting Receipt:  %v\n", err)
-		Ulog("Receipt = %#v\n", *r)
+		err = insertError(err, "Receipt", *r)
 	}
 	return tid, err
 }
@@ -528,8 +533,7 @@ func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
 			a.RCPAID = tid
 		}
 	} else {
-		Ulog("InsertReceiptAllocation: error inserting ReceiptAllocation:  %v\n", err)
-		Ulog("ReceiptAllocation = %#v\n", *a)
+		err = insertError(err, "ReceiptAllocation", *a)
 	}
 	return tid, err
 }
@@ -545,8 +549,7 @@ func InsertRentalAgreement(a *RentalAgreement) (int64, error) {
 			a.RAID = tid
 		}
 	} else {
-		Ulog("InsertRentalAgreement: error inserting RentalAgreement:  %v\n", err)
-		Ulog("RentalAgreement = %#v\n", *a)
+		err = insertError(err, "RentalAgreement", *a)
 	}
 	return tid, err
 }
@@ -562,8 +565,7 @@ func InsertRentalAgreementPayor(a *RentalAgreementPayor) (int64, error) {
 			a.RAPID = tid
 		}
 	} else {
-		Ulog("InsertRentalAgreementPayor: error inserting RentalAgreementPayor:  %v\n", err)
-		Ulog("RentalAgreementPayor = %#v\n", *a)
+		err = insertError(err, "RentalAgreementPayor", *a)
 	}
 	return tid, err
 }
@@ -578,8 +580,7 @@ func InsertRentalAgreementPet(a *RentalAgreementPet) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertRentalAgreementPet: error inserting RentalAgreementPet:  %v\n", err)
-		Ulog("RentalAgreementPet = %#v\n", *a)
+		err = insertError(err, "RentalAgreementPet", *a)
 	}
 	return tid, err
 }
@@ -595,8 +596,7 @@ func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
 			a.RARID = tid
 		}
 	} else {
-		Ulog("InsertRentalAgreementRentable: error inserting RentalAgreementRentable:  %v\n", err)
-		Ulog("RentalAgreementRentable = %#v\n", *a)
+		err = insertError(err, "RentalAgreementRentable", *a)
 	}
 	return tid, err
 }
@@ -615,8 +615,7 @@ func InsertRentalAgreementTemplate(a *RentalAgreementTemplate) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertRentalAgreementTemplate: error inserting RentalAgreementTemplate:  %v\n", err)
-		Ulog("RentalAgreementTemplate = %#v\n", *a)
+		err = insertError(err, "RentalAgreementTemplate", *a)
 	}
 	return tid, err
 }
@@ -658,9 +657,7 @@ func InsertRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 func InsertRentableStatus(a *RentableStatus) error {
 	res, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.CreateBy, a.LastModBy)
 	if nil != err {
-		Ulog("InsertRentableStatus: error inserting RentableStatus:  %v\n", err)
-		Ulog("RentableStatus = %#v\n", *a)
-		return err
+		return insertError(err, "RentableStatus", *a)
 	}
 	id, err := res.LastInsertId()
 	if err == nil {
@@ -674,9 +671,7 @@ func InsertRentableStatus(a *RentableStatus) error {
 func InsertRentableTypeRef(a *RentableTypeRef) error {
 	res, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
 	if nil != err {
-		Ulog("InsertRentableTypeRef: error inserting RentableTypeRef:  %v\n", err)
-		Ulog("RentableTypeRef = %#v\n", *a)
-		return err
+		return insertError(err, "RentableTypeRef", *a)
 	}
 	id, err := res.LastInsertId()
 	if err == nil {
@@ -689,9 +684,7 @@ func InsertRentableTypeRef(a *RentableTypeRef) error {
 func InsertRentableUser(a *RentableUser) error {
 	res, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop, a.CreateBy)
 	if nil != err {
-		Ulog("InsertRentableUser: error inserting RentableUser:  %v\n", err)
-		Ulog("RentableUser = %#v\n", *a)
-		return err
+		return insertError(err, "RentableUser", *a)
 	}
 	id, err := res.LastInsertId()
 	if err == nil {
@@ -710,8 +703,7 @@ func InsertStringList(a *StringList) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertStringList: error inserting StringList:  %v\n", err)
-		Ulog("StringList = %#v\n", *a)
+		err = insertError(err, "StringList", *a)
 	}
 	a.SLID = tid
 	InsertSLStrings(a)
@@ -741,8 +733,7 @@ func InsertTransactant(a *Transactant) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertTransactant: error inserting Transactant:  %v\n", err)
-		Ulog("Transactant = %#v\n", *a)
+		err = insertError(err, "Transactant", *a)
 	}
 	return tid, err
 }
@@ -757,8 +748,7 @@ func InsertUser(a *User) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertUser: error inserting User:  %v\n", err)
-		Ulog("User = %#v\n", *a)
+		err = insertError(err, "User", *a)
 	}
 	return tid, err
 }
@@ -773,8 +763,7 @@ func InsertVehicle(a *Vehicle) (int64, error) {
 			tid = int64(id)
 		}
 	} else {
-		Ulog("InsertVehicle: error inserting Vehicle:  %v\n", err)
-		Ulog("Vehicle = %#v\n", *a)
+		err = insertError(err, "Vehicle", *a)
 	}
 	return tid, err
 }

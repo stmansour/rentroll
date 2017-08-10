@@ -82,6 +82,16 @@ func DeleteDepositParts(id int64) {
 	}
 }
 
+// DeleteExpense deletes the Expense associated with the supplied id
+func DeleteExpense(id int64) error {
+	_, err := RRdb.Prepstmt.DeleteExpense.Exec(id)
+	if err != nil {
+		Ulog("Error deleting Invoice for InvoiceNo = %d, error: %v\n", id, err)
+		return err
+	}
+	return nil
+}
+
 // DeleteInvoice deletes the Invoice associated with the supplied id
 // For convenience, this routine calls DeleteInvoiceAssessments. The InvoiceAssessments are
 // tightly bound to the Invoice. If a Invoice is deleted, the parts should be deleted as well.

@@ -87,18 +87,18 @@ casper.then(function pageBasicLayoutTest() {
 // --------------------------------------------------
 casper.then(function gridTesting() {
     gridM.w2uiGridTest(asmM.gridConf);
-    gridM.w2uiGridTest(receiptsM.gridConf);
-    gridM.w2uiGridTest(depositM.gridConf);
-    gridM.w2uiGridTest(allocfundsM.gridConf);
-    gridM.w2uiGridTest(transactantsM.gridConf);
-    gridM.w2uiGridTest(raM.gridConf);
-    gridM.w2uiGridTest(acctM.gridConf);
-    gridM.w2uiGridTest(pmtM.gridConf);
-    gridM.w2uiGridTest(depM.gridConf);
-    gridM.w2uiGridTest(depmethM.gridConf);
-    gridM.w2uiGridTest(arsM.gridConf);
-    gridM.w2uiGridTest(rtM.gridConf);
-    gridM.w2uiGridTest(rentableM.gridConf);
+    // gridM.w2uiGridTest(receiptsM.gridConf);
+    // gridM.w2uiGridTest(depositM.gridConf);
+    // gridM.w2uiGridTest(allocfundsM.gridConf);
+    // gridM.w2uiGridTest(transactantsM.gridConf);
+    // gridM.w2uiGridTest(raM.gridConf);
+    // gridM.w2uiGridTest(acctM.gridConf);
+    // gridM.w2uiGridTest(pmtM.gridConf);
+    // gridM.w2uiGridTest(depM.gridConf);
+    // gridM.w2uiGridTest(depmethM.gridConf);
+    // gridM.w2uiGridTest(arsM.gridConf);
+    // gridM.w2uiGridTest(rtM.gridConf);
+    // gridM.w2uiGridTest(rentableM.gridConf);
 });
 
 // ========== RUN TEST ==========

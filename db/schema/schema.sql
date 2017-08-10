@@ -667,6 +667,32 @@ CREATE TABLE AssessmentTax (
 
 -- **************************************
 -- ****                              ****
+-- ****          EXPENSE             ****
+-- ****                              ****
+-- **************************************
+-- charges associated with a Rentable
+CREATE TABLE Expense (
+    EXPID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for expense
+    RPEXPID BIGINT NOT NULL DEFAULT 0,                      -- reversal parent Expense, if it is non-zero, then the expense has been reversed.
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
+    RID BIGINT NOT NULL DEFAULT 0,                          -- Associated rentable id
+    RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Expense amount
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- epoch date for recurring expenses; the date/time of the expense for instances
+    AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
+    ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 
+    Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (EXID)
+);
+
+
+-- **************************************
+-- ****                              ****
 -- ****     AccountRule              ****
 -- ****                              ****
 -- **************************************

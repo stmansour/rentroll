@@ -304,6 +304,23 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// EXPENSE
+	//==========================================
+	flds = "EXPID,RPEXPID,BID,RID,RAID,Amount,Dt,AcctRule,ARID,FLAGS,Comment,LastModTime,LastModBy,CreateTS,CreateBy"
+	RRdb.DBFields["Expense"] = flds
+
+	RRdb.Prepstmt.GetExpense, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Expense WHERE EXPID=?")
+	Errcheck(err)
+
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertExpense, err = RRdb.Dbrr.Prepare("INSERT INTO Expense (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteExpense, err = RRdb.Dbrr.Prepare("DELETE FROM Expense WHERE EXPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateExpense, err = RRdb.Dbrr.Prepare("UPDATE Expense SET " + s3 + " WHERE EXPID=?")
+	Errcheck(err)
+
+	//==========================================
 	// INVOICE
 	//==========================================
 	flds = "InvoiceNo,BID,Dt,DtDue,Amount,DeliveredBy,CreateTS,CreateBy,LastModTime,LastModBy"

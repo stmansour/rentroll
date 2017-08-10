@@ -478,6 +478,19 @@ func GetAllDepositMethods(bid int64) []DepositMethod {
 }
 
 //=======================================================
+//  EXPENSE
+//=======================================================
+
+// GetExpense reads a Expense structure based on the supplied Expense id
+func GetExpense(id int64) (Expense, error) {
+	var a Expense
+	var err error
+	row := RRdb.Prepstmt.GetExpense.QueryRow(id)
+	err = ReadExpense(row, &a)
+	return a, err
+}
+
+//=======================================================
 //  I N V O I C E
 //=======================================================
 

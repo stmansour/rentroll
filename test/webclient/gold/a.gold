@@ -4,40 +4,4 @@
 [33m# w2ui grid [asmsGrid] test[0m
 [32;1mPASS[0m Grid [asmsGrid] records (table rows) loaded in DOM
 [32;1mPASS[0m w2ui grid [asmsGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [receiptsGrid] test[0m
-[32;1mPASS[0m Grid [receiptsGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [receiptsGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [depositGrid] test[0m
-[32;1mPASS[0m Grid [depositGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [depositGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [allocfundsGrid] test[0m
-[32;1mPASS[0m Grid [allocfundsGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [allocfundsGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [transactantsGrid] test[0m
-[32;1mPASS[0m Grid [transactantsGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [transactantsGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [rentalagrsGrid] test[0m
-[32;1mPASS[0m Grid [rentalagrsGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [rentalagrsGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [accountsGrid] test[0m
-[32;1mPASS[0m Grid [accountsGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [accountsGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [pmtsGrid] test[0m
-[32;1mPASS[0m Grid [pmtsGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [pmtsGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [depGrid] test[0m
-[32;1mPASS[0m Grid [depGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [depGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [depmethGrid] test[0m
-[32;1mPASS[0m Grid [depmethGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [depmethGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [arsGrid] test[0m
-[32;1mPASS[0m Grid [arsGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [arsGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [rtGrid] test[0m
-[32;1mPASS[0m Grid [rtGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [rtGrid] test [32;1m(1 test)[0m
-[33m# w2ui grid [rentablesGrid] test[0m
-[32;1mPASS[0m Grid [rentablesGrid] records (table rows) loaded in DOM
-[32;1mPASS[0m w2ui grid [rentablesGrid] test [32;1m(1 test)[0m
-[37;42;1mPASS 13 tests executed in 8.232s, 13 passed, 0 failed, 0 dubious, 0 skipped.    [0m
+[37;42;1mPASS 1 test executed in 0.582s, 1 passed, 0 failed, 0 dubious, 0 skipped.       [0m

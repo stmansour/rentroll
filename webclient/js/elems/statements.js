@@ -1,10 +1,10 @@
 "use strict";
 /*global
-    GridMoneyFormat, number_format, renderReversalIcon
+    GridMoneyFormat, number_format, w2ui, $, app, console,
+    form_dirty_alert, addDateNavToToolbar
 */
 
 function buildStatementsElements() {
-
     //------------------------------------------------------------------------
     //          stmtGrid  -  THE LIST OF ALL RENTAL AGREEMENTS
     //------------------------------------------------------------------------
@@ -161,8 +161,7 @@ function buildStatementsElements() {
         columns: [
             {field: 'recid',        caption: 'recid',       size: '35px',  sortable: true, hidden: true},
             {field: 'Dt',           caption: 'Date',        size: '75px',  sortable: true},
-            {field: 'Reverse',      caption: ' ',           size: '12px',  sortable: true, render: renderStmtReversal
-            },
+            {field: 'Reverse',      caption: ' ',           size: '12px',  sortable: true, render: renderStmtReversal },
             {field: 'ID',           caption: 'ID',          size: '80px',  sortable: true},
             {field: 'RentableName', caption: app.sRentable, size: '30%',   sortable: true},
             {field: 'Descr',        caption: 'Description', size: '60%',   sortable: true},
@@ -211,6 +210,7 @@ function renderStmtReversal(record /*, index, col_index*/) {
 
 
 function stmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
+    if (record.Reverse && col_index == 8) { return; }  // don't update balance if it's a reversal
     if (Math.abs(amt) < 0.001) {
         if (record.Descr.includes("Closing Balance") || !bRemoveZero) {
             return '$ 0.00';

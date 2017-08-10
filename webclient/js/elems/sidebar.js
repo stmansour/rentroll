@@ -10,9 +10,9 @@ function buildSidebar() {
                 nodes: [
                         { id: 'asms',         text: 'Assess Charges',                icon: 'fa fa-star-o',      hint: plural(app.sAssessment) },
                         { id: 'receipts',     text: 'Receive '+plural(app.sReceipt), icon: 'fa fa-star',        hint: plural(app.sReceipt) },
+                        { id: 'expense',      text: plural(app.sExpense),            icon: 'fa fa-minus-circle',hint: plural(app.sExpense) },
                         { id: 'deposit',      text: 'Deposits',                      icon: 'fa fa-plus-circle', hint: 'Make Deposit' },
                         { id: 'allocfunds',   text: 'Apply '+plural(app.sReceipt),   icon: 'fa fa-check-circle-o' },
-                        //{ id: 'reversepmt',   text: 'Reverse '+plural(app.sReceipt), icon: 'fa fa-window-close' },
                         { id: 'gdssvcs',      text: 'Goods & Services',              icon: 'fa fa-coffee' },
                ]
             },
@@ -22,7 +22,7 @@ function buildSidebar() {
                         { id: 'assignrnt',    text: 'Assign A ' + app.sRentable,     icon: 'fa fa-check-square-o' },
                         { id: 'movein',       text: app.sTransactant + ' Arrival',   icon: 'fa fa-sign-in' },
                         { id: 'moveout',      text: app.sTransactant + ' Departure', icon: 'fa fa-sign-out' },
-                        { id: 'rentalagrs',   text: 'Rental Agreements',             icon: 'fa fa-certificate', hint: 'Rental Agreements' },
+                        { id: 'rentalagrs',   text: plural(app.sRentalAgreement),    icon: 'fa fa-certificate', hint: 'Rental Agreements' },
                         { id: 'updatera',     text: 'Extend ' + app.sRentalAgreement,icon: 'fa fa-pencil' },
                 ]
             },
@@ -76,15 +76,15 @@ function buildSidebar() {
             },
             { id: 'setup', text: 'Setup', img: 'icon-wrench', expanded: true, group: true,
                 nodes: [
-                        { id: 'changeRT',    text: 'Change ' + app.sRentable +' Type',    icon: 'fa fa-refresh' },
-                        { id: 'accounts',    text: 'Chart Of Accounts',                   icon: 'fa fa-list' },
-                        { id: 'pmts',        text: 'Payment Types',                       icon: 'fa fa-credit-card' },
-                        { id: 'dep',         text: 'Depositories',                        icon: 'fa fa-university' },
-                        { id: 'depmeth',     text: 'Deposit Methods',                     icon: 'fa fa-envelope-o' },
-                        { id: 'ars',         text: 'Assessment/Receipt Rules',            icon: 'fa fa-cogs' },
-                        { id: 'rt',          text: plural(app.sRentableType),             icon: 'fa fa-asterisk', hint: 'Rentable Types' },
-                        { id: 'rentables',   text: 'Add/Modify ' + plural(app.sRentable), icon: 'fa fa-cube' },
-                        { id: 'permissions', text: 'Permissions',                         icon: 'fa fa-thumbs-o-up' },
+                        { id: 'changeRT',    text: 'Change ' + app.sRentable +' Type', icon: 'fa fa-refresh' },
+                        { id: 'accounts',    text: 'Chart Of Accounts',                icon: 'fa fa-list' },
+                        { id: 'pmts',        text: 'Payment Types',                    icon: 'fa fa-credit-card' },
+                        { id: 'dep',         text: 'Depositories',                     icon: 'fa fa-university' },
+                        { id: 'depmeth',     text: 'Deposit Methods',                  icon: 'fa fa-envelope-o' },
+                        { id: 'ars',         text: 'Assessment/Receipt Rules',         icon: 'fa fa-cogs' },
+                        { id: 'rt',          text: plural(app.sRentableType),          icon: 'fa fa-asterisk', hint: 'Rentable Types' },
+                        { id: 'rentables',   text: plural(app.sRentable),              icon: 'fa fa-cube' },
+                        { id: 'permissions', text: 'Permissions',                      icon: 'fa fa-thumbs-o-up' },
                 ]
             },
             { id: 'admin', text: 'Administrator', img: 'icon-wrench', expanded: true, group: true,
@@ -136,6 +136,7 @@ function buildSidebar() {
                     case 'depmeth':
                     case 'allocfunds':
                     case 'deposit':
+                    case 'expense':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         switchToGrid(target);
                         break;

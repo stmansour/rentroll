@@ -27,20 +27,19 @@ var QBAcctType []string
 // QBAcctInfo indicates how numbers should be processed in the account Rules
 var QBAcctInfo = []struct {
 	Name   string
-	Negate bool // Indicates whether or not the amount in an Assessment should be negated before showing it in a report
+	Negate bool // Indicates whether or not negate an assessment amount if showing it as a debit
 }{
 	{"Cash", false},                // Asset         D +   C -
 	{"Accounts Receivable", false}, // Asset         D +   C -
-	{"Liabilities", false},         // Liabilities   D -   C +
+	{"Liabilities", true},          // Liabilities   D -   C +
 	{"Income", true},               // Income Acct   D -   C +
-	{"Income Offsets", false},      // Income Acct   D -   C +
-	{"Other Income", false},        // Income Acct   D -   C +
-	{"Security Deposits", false},   // REMOVE THIS  Deprecated
+	{"Income Offsets", true},       // Income Acct   D -   C +
+	{"Other Income", true},         // Income Acct   D -   C +
 	{"Expense Account", false},     // Expense Acct  D +   C -
 }
 
 // AccountTypeNegateFlag returns the Negate flag associated with the supplied account type.
-// If the account type is not matched it returns false.
+// Basically, if you're DEBITing the account the flag tells whether or not you should negate it.
 func AccountTypeNegateFlag(s string) bool {
 	for i := 0; i < len(QBAcctInfo); i++ {
 		if s == QBAcctInfo[i].Name {

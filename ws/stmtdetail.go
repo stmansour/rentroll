@@ -153,7 +153,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			a.Descr = descr
 			if !a.Reverse {
 				d += amt
-				b += amt
+				b -= amt
 			} else {
 				rcpt := rlib.GetReceipt(m.Stmt[i].R.RCPTID)
 				comment := ""
@@ -172,8 +172,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			a.Recid = int64(i)
 			g.Records = append(g.Records, a)
 			count++
-			// we terminate the loop if we've hit the max count
-			if count >= sd.wsSearchReq.Limit {
+			if count >= sd.wsSearchReq.Limit { // terminate the loop if we've hit the max count
 				break
 			}
 		}

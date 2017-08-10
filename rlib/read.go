@@ -109,6 +109,16 @@ func ReadDepositParts(rows *sql.Rows, a *DepositPart) error {
 	return rows.Scan(&a.DPID, &a.DID, &a.BID, &a.RCPTID, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
 }
 
+// ReadExpense reads a full Expense structure from the database based on the supplied row object
+func ReadExpense(row *sql.Row, a *Expense) error {
+	return row.Scan(&a.EXPID, &a.RPEXPID, &a.BID, &a.RID, &a.RAID, &a.Amount, &a.Dt, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
+}
+
+// ReadExpenses reads a full Expense structure from the database based on the supplied row object
+func ReadExpenses(rows *sql.Rows, a *Expense) error {
+	return rows.Scan(&a.EXPID, &a.RPEXPID, &a.BID, &a.RID, &a.RAID, &a.Amount, &a.Dt, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
+}
+
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) {
 	Errcheck(row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
