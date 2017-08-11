@@ -26,16 +26,18 @@ const (
 	ELEMRENTALAGREEMENT = 13
 	ELEMLAST            = 13 // keep in sync with last one added
 
+	// ARASSESSMENT et al, are Account Rule Types.
 	ARASSESSMENT = 0
 	ARRECEIPT    = 1
+	AREXPENSE    = 2
 
-	// ASMUNPAID et all are flags for assessment
+	// ASMUNPAID et al are flags for assessment
 	ASMUNPAID      = 0
 	ASMPARTIALPAID = 1
 	ASMFULLPAID    = 2
 	ASMREVERSED    = 4
 
-	// RCPTUNALLOCATED et all are flags for receipt
+	// RCPTUNALLOCATED et al are flags for receipt
 	RCPTUNALLOCATED      = 0
 	RCPTPARTIALALLOCATED = 1
 	RCPTFULLALLOCATED    = 2
@@ -685,7 +687,7 @@ type Assessment struct {
 // for example, the bank fee associated with a wire transfer
 type Expense struct {
 	EXPID       int64
-	RPEXPID     int64
+	RPEXPID     int64 // Reversal parent
 	BID         int64
 	RID         int64
 	RAID        int64
@@ -695,18 +697,18 @@ type Expense struct {
 	ARID        int64
 	FLAGS       uint64
 	Comment     string
-	LastModTime int64
+	LastModTime time.Time
 	LastModBy   int64
-	CreateTS    int64
+	CreateTS    time.Time
 	CreateBy    int64
 }
 
-// AR is the table that defines the AcctRules for Assessments and Receipts
+// AR is the table that defines the AcctRules for Assessments, Expenses and Receipts
 type AR struct {
 	ARID        int64
 	BID         int64
 	Name        string
-	ARType      int64
+	ARType      int64 // 0 = Assessment, 1 = Receipt, 2 = Expense
 	DebitLID    int64
 	CreditLID   int64
 	Description string

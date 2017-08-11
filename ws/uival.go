@@ -17,52 +17,34 @@ func bidToBud(businessID int64) (string, error) {
 	return "", fmt.Errorf("Could not find business for bid: %d", businessID)
 }
 
-// GetAssessmentList returns all assessments for the supplied business
-func GetAssessmentList(bid int64) (map[string][]IDTextMap, error) {
-
-	// initialize list with 0-id value
-	list := []IDTextMap{{ID: 0, Text: " -- Select Assessment Rule -- "}}
-
-	// json response data
-	appData := make(map[string][]IDTextMap)
-
+func getListTypes(bid int64, s string, t int) (map[string][]IDTextMap, error) {
+	list := []IDTextMap{{ID: 0, Text: s}}   // initialize list with 0-id value
+	appData := make(map[string][]IDTextMap) // json response data
 	bud, err := bidToBud(bid)
 	if err != nil {
 		return appData, err
 	}
-
-	// get records and append in IDTextMap list
-	m := rlib.GetARsByType(bid, rlib.ARASSESSMENT)
+	m := rlib.GetARsByType(bid, t) // get records and append in IDTextMap list
 	for i := 0; i < len(m); i++ {
 		list = append(list, IDTextMap{ID: m[i].ARID, Text: m[i].Name})
 	}
 	appData[bud] = list
-
 	return appData, nil
+}
+
+// GetAssessmentList returns all assessments for the supplied business
+func GetAssessmentList(bid int64) (map[string][]IDTextMap, error) {
+	return getListTypes(bid, " -- Select Assessment Rule -- ", rlib.ARASSESSMENT)
+}
+
+// GetExpenseList returns all assessments for the supplied business
+func GetExpenseList(bid int64) (map[string][]IDTextMap, error) {
+	return getListTypes(bid, " -- Select Expense Rule -- ", rlib.AREXPENSE)
 }
 
 // GetReceiptList returns all assessments for the supplied business
 func GetReceiptList(bid int64) (map[string][]IDTextMap, error) {
-
-	// initialize list with 0-id value
-	list := []IDTextMap{{ID: 0, Text: " -- Select Receipt Rule -- "}}
-
-	// json response data
-	appData := make(map[string][]IDTextMap)
-
-	bud, err := bidToBud(bid)
-	if err != nil {
-		return appData, err
-	}
-
-	// get records and append in IDTextMap list
-	m := rlib.GetARsByType(bid, rlib.ARRECEIPT)
-	for i := 0; i < len(m); i++ {
-		list = append(list, IDTextMap{ID: m[i].ARID, Text: m[i].Name})
-	}
-	appData[bud] = list
-
-	return appData, nil
+	return getListTypes(bid, " -- Select Receipt Rule -- ", rlib.ARRECEIPT)
 }
 
 // GetDepositoryList returns all assessments for the supplied business
@@ -123,6 +105,9 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "app.ReceiptRules":
 		rcptData, err := GetReceiptList(d.BID)
 		SvcUIErrAndVarResponse(w, funcname, err, rcptData)
+	case "app.ExpenseRules":
+		expData, err := GetExpenseList(d.BID)
+		SvcUIErrAndVarResponse(w, funcname, err, expData)
 	case "app.Depositories":
 		data, err := GetDepositoryList(d.BID)
 		SvcUIErrAndVarResponse(w, funcname, err, data)

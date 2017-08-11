@@ -147,6 +147,7 @@ var Svcs = []ServiceHandler{
 	{"depositlist", SvcHandlerDepositList, true},
 	{"discon", SvcDisableConsole, false},
 	{"encon", SvcEnableConsole, false},
+	{"expense", SvcHandlerExpense, false},
 	{"ledgers", getLedgerGrid, true},
 	{"parentaccounts", SvcParentAccountsList, true},
 	{"payorfund", SvcHandlerTotalUnallocFund, true},

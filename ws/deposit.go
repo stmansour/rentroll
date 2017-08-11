@@ -61,8 +61,7 @@ type DepositGetResponse struct {
 	Record DepositGrid `json:"record"`
 }
 
-// SvcHandlerDeposit formats a complete data record for an assessment for use with the w2ui Form
-// For this call, we expect the URI to contain the BID and the DID as follows:
+// SvcHandlerDeposit dispatches the web request to the appropriate handler
 //
 // The server command can be:
 //      get

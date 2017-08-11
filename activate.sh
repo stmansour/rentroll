@@ -64,7 +64,7 @@ stopwatchdog() {
 }
 
 makeProdNode() {
-	${GETFILE} accord/db/config.json
+	${GETFILE} accord/db/config.json  >log.out 2>&1 
 }
 
 #--------------------------------------------------------------
@@ -80,21 +80,31 @@ setupAppNode() {
 	#---------------------
 	RRDB=$(echo "show databases;" | mysql | grep rentroll | wc -l)
 	if [ ${RRDB} -gt "0" ]; then
-	    rm -rf ${DATABASENAME}db*
-	    ${GETFILE} accord/db/${DATABASENAME}db.sql.gz
-	    gunzip ${DATABASENAME}db.sql
+	    rm -rf ${DATABASENAME}db*  >log.out 2>&1 
+	    ${GETFILE} accord/db/${DATABASENAME}db.sql.gz  >log.out 2>&1 
+	    gunzip ${DATABASENAME}db.sql  >log.out 2>&1 
 	    echo "DROP DATABASE IF EXISTS ${DATABASENAME}; CREATE DATABASE ${DATABASENAME}; USE ${DATABASENAME};" > restore.sql
 	    echo "source ${DATABASENAME}db.sql" >> restore.sql
 	    echo "GRANT ALL PRIVILEGES ON ${DATABASENAME} TO 'ec2-user'@'localhost' WITH GRANT OPTION;" >> restore.sql
-	    mysql ${MYSQLOPTS} < restore.sql
+	    mysql ${MYSQLOPTS} < restore.sql  >log.out 2>&1 
 	fi
 
 	#---------------------
 	# wkhtmltopdf
 	#---------------------
-	./pdfinstall.sh
+	./pdfinstall.sh  >log.out 2>&1 
 	
-	echo "Done."
+	#-----------------------------------------------------------------
+	#  If no config.json exists, pull the development environment
+	#  version and use it.  The Env values mean the following:
+	#    0 = development environment
+	#    1 = production environment
+	#    2 = QA environment
+	#-----------------------------------------------------------------
+	if [ ! -f ./config.json ]; then
+		${GETFILE} accord/db/confdev.json  >log.out 2>&1 
+		mv confdev.json config.json
+	fi
 }
 
 start() {
@@ -118,12 +128,12 @@ start() {
 
 	if [ ! -f "/usr/local/share/man/man1/rentroll.1" ]; then
 		./installman.sh >installman.log 2>&1
-		${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz
-		tar xzvf rrimages.tar.gz
-		${GETFILE} jenkins-snapshot/rentroll/latest/rrjs.tar.gz
-		tar xzvf rrjs.tar.gz
-		${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz
-		tar xzvf fa.tar.gz
+		${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz  >log.out 2>&1 
+		tar xzvf rrimages.tar.gz  >log.out 2>&1 
+		${GETFILE} jenkins-snapshot/rentroll/latest/rrjs.tar.gz  >log.out 2>&1 
+		tar xzvf rrjs.tar.gz  >log.out 2>&1 
+		${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz  >log.out 2>&1 
+		tar xzvf fa.tar.gz  >log.out 2>&1 
 	fi
 
 	#---------------------------------------------------
@@ -150,7 +160,7 @@ start() {
 	./${PROGNAME} >log.out 2>&1 &
 	if [ ${IAM} == "root" ]; then
 		if [ ! -d /var/run/${PROGNAME} ]; then
-			mkdir /var/run/${PROGNAME}
+			mkdir /var/run/${PROGNAME}  >log.out 2>&1 
 		fi
 		echo $! >/var/run/${PROGNAME}/${PROGNAME}.pid
 		touch /var/lock/${PROGNAME}

@@ -177,7 +177,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 		err      error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	//  for Instances DtFrom <= Assessments.Start AND Assessments.Start < DtTo, for epochs does the Search Start/Stop overlap the Assessment Range
 	whr := `Assessments.BID = %d AND (((Assessments.PASMID!=0 OR Assessments.RentCycle=0) AND %q <= Assessments.Start AND Assessments.Start < %q) OR (Assessments.PASMID=0 AND Assessments.Stop >= %q AND Assessments.Start < %q))`
@@ -212,11 +212,11 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	countQuery := renderSQLQuery(asmQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		rlib.Console("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -234,7 +234,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 
 	// get formatted query with substitution of select, where, order clause
 	qry := renderSQLQuery(asmQueryWithLimit, qc)
-	fmt.Printf("db query = %s\n", qry)
+	rlib.Console("db query = %s\n", qry)
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
@@ -291,14 +291,14 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 		err      error
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	if d.ASMID, err = SvcExtractIDFromURI(r.RequestURI, "ASMID", 3, w); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
-	fmt.Printf("Request: %s:  BID = %d,  ASMID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ASMID)
+	rlib.Console("Request: %s:  BID = %d,  ASMID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ASMID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -334,8 +334,8 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		errlist  []bizlogic.BizError
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	var foo SaveAssessmentInput
 	data := []byte(d.data)
@@ -346,15 +346,15 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	fmt.Printf("\nAfter unmarshal: foo = %#v\n", foo)
+	rlib.Console("\nAfter unmarshal: foo = %#v\n", foo)
 	//----------------------------------------------------------
 	// Parse the standard variables from the return struct...
 	//----------------------------------------------------------
 	var a rlib.Assessment
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
-	fmt.Printf("\nAfter MigrateStructVals: a = %#v\n", a)
-	fmt.Printf("Start = %s, Stop = %s\n\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
+	rlib.Console("\nAfter MigrateStructVals: a = %#v\n", a)
+	rlib.Console("Start = %s, Stop = %s\n\n", a.Start.Format(rlib.RRDATEINPFMT), a.Stop.Format(rlib.RRDATEINPFMT))
 
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
@@ -364,7 +364,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	} else if a.ASMID > 0 || d.ASMID > 0 {
-		fmt.Printf(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
+		rlib.Console(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
 		now := time.Now() // mark Assessment reversed at this time
 		errlist = bizlogic.UpdateAssessment(&a, foo.Record.Mode, &now, foo.Record.ExpandPastInst)
 		if len(errlist) > 0 {
@@ -420,7 +420,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err      error
 	)
 
-	fmt.Printf("entered %s\n", funcname)
+	rlib.Console("entered %s\n", funcname)
 
 	asmQuery := `
 	SELECT
@@ -437,7 +437,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// get formatted query with substitution of select, where, order clause
 	q := renderSQLQuery(asmQuery, qc)
-	fmt.Printf("db query = %s\n", q)
+	rlib.Console("db query = %s\n", q)
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
@@ -502,8 +502,8 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		del      DeleteAsmForm
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
@@ -516,7 +516,7 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	fmt.Printf("Reversal Mode = %d\n", del.ReverseMode)
+	rlib.Console("Reversal Mode = %d\n", del.ReverseMode)
 
 	now := time.Now() // mark Assessment reversed at this time
 	errlist := bizlogic.ReverseAssessment(&a, del.ReverseMode, &now)

@@ -31,3 +31,5 @@ clean:
 
 all: clean jshint test
 
+link:
+	ln -s 

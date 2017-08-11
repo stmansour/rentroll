@@ -125,6 +125,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func initHTTP() {
+	rlib.Ulog("Rentroll static file directory = %s\n", App.RootStaticDir)
 	Chttp.Handle("/", http.FileServer(http.Dir(App.RootStaticDir)))
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/home/", HomeUIHandler)
