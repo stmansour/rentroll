@@ -8,7 +8,7 @@ doc
 .DS_Store
 */.DS_Store
 */*/.DS_Store
-js/w2ui*
+js
 html/help/SettingUpANewBusinessWithCSVImport/images/
 html/help/Glossary/.DS_Store
 html/help/Glossary/resources/
@@ -17,16 +17,15 @@ localhost.*
 test/testreport.txt
 js/jquery*
 test/testdb/rex.sql
-html/fa/
+html
 bizerr.csv
 node_modules
-js/._w2ui*
-js/._jquery*
 test/401/
 test/conv/conv
 test/importers/roomkey/roomkey_exported/
 test/importers/roomkey/roomkey_sample/
-test/irex/rex2017-07-27.sql
+test/irex/rex*
+test/irex/m
 test/irex/statements.txt
 test/irex/tables/
 

@@ -1,3 +1,7 @@
+/*global
+    app, w2ui, $, form_dirty_alert,
+
+*/
 "use strict";
 // ---------------------------------------------------------------------------------
 // String format: https://gist.github.com/tbranyen/1049426 (if want to format object, array as well)
@@ -509,98 +513,6 @@ function tcidRUserPickerRender(item) {
     };
     return s;
 }
-
-// ############################################################################
-
-
-//-----------------------------------------------------------------------------
-// rentalAgrFinderCompare - Compare item to the search string. Verify that the
-//          supplied search string can be found in item
-// @params
-//   item = an object assumed to have a FirstName and LastName
-// @return - true if the search string is found, false otherwise
-//-----------------------------------------------------------------------------
-function rentalAgrFinderCompare(item, search) {
-
-    var s = getTCIDName(item);
-    s = s.toLowerCase();
-    var srch = search.toLowerCase();
-    var match = (s.indexOf(srch) >= 0);
-    return match;
-}
-
-//-----------------------------------------------------------------------------
-// rentalAgrFinderDropRender - renders a name during typedown.
-// @params
-//   item = an object assumed to have a FirstName and LastName
-// @return - the name to render
-//-----------------------------------------------------------------------------
-function rentalAgrFinderDropRender(item) {
-
-    return getTCIDName(item);
-}
-
-//-----------------------------------------------------------------------------
-// rentalAgrFinderRender - renders a name during typedown in the
-//          rentalAgrFinder. It also sets the TCID for the record.
-// @params
-//   item = an object assumed to have a FirstName and LastName
-// @return - true if the names match, false otherwise
-//-----------------------------------------------------------------------------
-function rentalAgrFinderRender(item) {
-
-    var s = getTCIDName(item);
-    w2ui.rentalAgrFinder.record.TCID = item.TCID;
-    w2ui.rentalAgrFinder.record.Payor = s;
-    w2ui.rentalAgrFinder.record.RAID = item.RAID;
-    return s;
-}
-
-//-----------------------------------------------------------------------------
-// rentalAgrFinderRender - renders a name during typedown.
-// @params
-//   item = an object assumed to have a FirstName and LastName
-// @return - true if the names match, false otherwise
-//-----------------------------------------------------------------------------
-function rentalAgrFinderRender(item) {
-
-    var s;
-    if (item.IsCompany > 0) {
-        s = item.CompanyName;
-    } else {
-        s = item.FirstName + ' ' + item.LastName;
-    }
-
-    w2ui.rentalAgrFinder.record = {
-        TCID: item.TCID,
-        RAID: item.RAID,
-        PayorName: s,
-        FirstName: item.FirstName,
-        MiddleName: item.MiddleName,
-        LastName: item.LastName,
-        IsCompany: item.IsCompany,
-        CompanyName: item.CompanyName,
-        RID: item.RID,
-    };
-
-    // we need to get the rentables associated with item.RAID
-    var url = '/v1/rar/' + app.RentalAgrFinder.BID + '/' + item.RAID;
-    $.get(url,function(data,status) {
-        app.RentalAgrFinder.RAR = JSON.parse(data);
-        app.RentalAgrFinder.RARentablesNames = [];
-        for (var i = 0; i < app.RentalAgrFinder.RAR.records.length; i++) {
-            app.RentalAgrFinder.RARentablesNames.push(
-                { id: app.RentalAgrFinder.RAR.records[i].RID, text: app.RentalAgrFinder.RAR.records[i].RentableName} );
-        }
-        console.log('calling rentalAgrFinder.refresh(), app.RentalAgrFinder.RARentablesNames.length = ' + app.RentalAgrFinder.RARentablesNames.length );
-        w2ui.rentalAgrFinder.refresh();
-    });
-
-
-    return s;
-}
-
-// ############################################################################
 
 
 //-----------------------------------------------------------------------------

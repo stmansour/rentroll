@@ -1124,68 +1124,6 @@ function buildRentablePicker(){
         },
     });
 }
-
-function buildRAFinder(){
-    //------------------------------------------------------------------------
-    //          rental Agreement Finder
-    //------------------------------------------------------------------------
-    $().w2form({
-        name: 'rentalAgrFinder',
-        style: 'border: 0px; background-color: transparent;',
-        formURL: '/webclient/html/rentalagrfinder.html',
-        focus  : 0,
-        fields: [
-            { field: 'TCID', type: 'int', required: true },
-            // INDEX 1
-            { field: 'PayorName', required: true,
-                type: 'enum',
-                options: {
-                    url:        '/v1/rentalagrtd/' + app.RentalAgrFinder.BID,
-                    // max:     1,
-                    items: [],
-                    openOnFocus: true,
-                    maxDropHeight: 350,
-                    renderItem: rentalAgrFinderRender,
-                    renderDrop: rentalAgrFinderDropRender,
-                    compare:    rentalAgrFinderCompare,
-                    onNew: function (event) {
-                        console.log('++ New Item: Do not forget to submit it to the server too', event);
-                        //$.extend(event.item, { FirstName: '', LastName : event.item.text });
-                    }
-                },
-            },
-            // INDEX 2
-            { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
-            { field: 'RAID',         type: 'int',  required: true  },
-            { field: 'FirstName',    type: 'text', required: false },
-            { field: 'LastName',     type: 'text', required: false },
-            { field: 'CompanyName',  type: 'text', required: false },
-            { field: 'IsCompany',    type: 'int',  required: false },
-        ],
-        onRefresh: function(/*event*/) {
-            w2ui.rentalAgrFinder.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrFinder.BID;
-            w2ui.rentalAgrFinder.fields[2].options.items = app.RentalAgrFinder.RARentablesNames;
-            if (app.RentalAgrFinder.RARentablesNames.length == 1) {
-                w2ui.rentalAgrFinder.record.RentableName = app.RentalAgrFinder.RARentablesNames[0];
-            }
-
-        },
-        actions: {
-            save: function () {
-                w2ui.asmEpochForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
-                w2ui.asmEpochForm.record.Rentable = w2ui.rentalAgrFinder.record.RentableName.text;
-                w2ui.asmEpochForm.record.RID = w2ui.rentalAgrFinder.record.RentableName.id;
-                w2ui.asmEpochForm.refresh();
-                w2popup.close();
-                // var errs = w2ui.tcidRUserPicker.validate(true);
-                // if (errs.length > 0) { return; }
-                // console.log('SAVE tcidRUserPicker: TCID = ' + w2ui.tcidRUserPicker.record.TCID + '  DtStart = ' + w2ui.tcidRUserPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRUserPicker.record.DtStop);
-                // saveNewRUser();
-            },
-        },
-    });
-}
-
 function createRentalAgreementForm() {
     w2ui.raLayout.content('left', w2ui.rentalagrForm);
     w2ui.raLayout.content('main', w2ui.raLayoutSub1);

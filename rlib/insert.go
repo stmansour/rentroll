@@ -190,7 +190,7 @@ func InsertDepository(a *Depository) (int64, error) {
 // InsertExpense writes a new Expense record to the database
 func InsertExpense(a *Expense) error {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertExpense.Exec(a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy, a.EXPID)
+	res, err := RRdb.Prepstmt.InsertExpense.Exec(a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -198,9 +198,9 @@ func InsertExpense(a *Expense) error {
 			a.EXPID = rid
 		}
 	} else {
-		err = insertError(err, "Expense", *a)
+		return insertError(err, "Expense", *a)
 	}
-	return err
+	return nil
 }
 
 //======================================

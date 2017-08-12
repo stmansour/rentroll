@@ -34,10 +34,10 @@ echo "Running casper UI test cases..."
 # casperjs test index.js --log-level=debug --verbose
 
 # call loader
-# doCasperUITest "a" "./index.js" "CasperUITesting"
+doCasperUITest "a" "./index.js" "CasperUITesting"
 
-# stopRentRollServer
-# echo "RENTROLL SERVER STOPPED"
+stopRentRollServer
+echo "RENTROLL SERVER STOPPED"
 
 logcheck
 

@@ -681,7 +681,7 @@ CREATE TABLE Expense (
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- epoch date for recurring expenses; the date/time of the expense for instances
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
     ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 2 = Reversed
     Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it

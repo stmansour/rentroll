@@ -695,7 +695,7 @@ type Expense struct {
 	Dt          time.Time
 	AcctRule    string
 	ARID        int64
-	FLAGS       uint64
+	FLAGS       uint64 // bit 2 = Reversed
 	Comment     string
 	LastModTime time.Time
 	LastModBy   int64
