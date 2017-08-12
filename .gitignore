@@ -8,7 +8,6 @@ doc
 .DS_Store
 */.DS_Store
 */*/.DS_Store
-js
 html/help/SettingUpANewBusinessWithCSVImport/images/
 html/help/Glossary/.DS_Store
 html/help/Glossary/resources/
@@ -17,7 +16,6 @@ localhost.*
 test/testreport.txt
 js/jquery*
 test/testdb/rex.sql
-html
 bizerr.csv
 node_modules
 test/401/
