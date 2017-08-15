@@ -26,6 +26,7 @@ type ExpenseGridNull struct {
 	ARName       string
 	RentableName rlib.NullString
 	FLAGS        uint64
+	Comment      string
 	LastModTime  rlib.JSONDateTime
 	LastModBy    int64
 	CreateTS     rlib.JSONDateTime
@@ -47,6 +48,7 @@ type ExpenseGrid struct {
 	ARName      string
 	RName       string
 	FLAGS       uint64
+	Comment     string
 	LastModTime rlib.JSONDateTime
 	LastModBy   int64
 	CreateTS    rlib.JSONDateTime
@@ -105,6 +107,7 @@ var expenseMethodSearchFieldMap = selectQueryFieldMap{
 	"Dt":           {"Expense.Dt"},
 	"RentableName": {"Rentable.RentableName"},
 	"FLAGS":        {"Expense.FLAGS"},
+	"Comment":      {"Expense.Comment"},
 	"LastModTime":  {"Expense.LastModTime"},
 	"LastModBy":    {"Expense.LastModBy"},
 	"CreateTS":     {"Expense.CreateTS"},
@@ -123,6 +126,7 @@ var expenseMethodSearchSelectQueryFields = selectQueryFields{
 	"Expense.Dt",
 	"Rentable.RentableName",
 	"Expense.FLAGS",
+	"Expense.Comment",
 	"Expense.LastModTime",
 	"Expense.LastModBy",
 	"Expense.CreateTS",
@@ -132,7 +136,7 @@ var expenseMethodSearchSelectQueryFields = selectQueryFields{
 // pmtRowScan scans a result from sql row and dump it in a ExpenseGrid struct
 func expenseRowScan(rows *sql.Rows) (ExpenseGrid, error) {
 	var a ExpenseGridNull
-	err := rows.Scan(&a.EXPID, &a.BID, &a.RID, &a.RAID, &a.ARID, &a.ARName, &a.Amount, &a.Dt, &a.RentableName, &a.FLAGS, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
+	err := rows.Scan(&a.EXPID, &a.BID, &a.RID, &a.RAID, &a.ARID, &a.ARName, &a.Amount, &a.Dt, &a.RentableName, &a.FLAGS, &a.Comment, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
 	var b ExpenseGrid
 	rlib.MigrateStructVals(&a, &b)
 	if a.RentableName.Valid {
@@ -379,7 +383,12 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.ProcessNewExpense(&a, &xbiz)
 	} else {
 		fmt.Printf("Updating existing Expense: %d\n", a.EXPID)
-		err = rlib.UpdateExpense(&a)
+		now := time.Now() // in case reversal is necessary
+		errlist := bizlogic.UpdateExpense(&a, &now)
+		if len(errlist) > 0 {
+			SvcErrListReturn(w, errlist, funcname)
+			return
+		}
 	}
 
 	if err != nil {

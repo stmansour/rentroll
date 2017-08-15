@@ -385,7 +385,7 @@ function buildExpenseElements() {
 
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    flagHTML += "<p style='margin-bottom: 5px;'><strong>REVERSED</strong> ("+r.Comment+")</p>";
                     // reversed indication icon
                     flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
                     // if reversed then do not show reverse, save button
