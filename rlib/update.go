@@ -88,7 +88,7 @@ func UpdateLedger(a *GLAccount) error {
 
 // UpdateJournalAllocation updates a JournalAllocation record
 func UpdateJournalAllocation(a *JournalAllocation) error {
-	_, err := RRdb.Prepstmt.UpdateJournalAllocation.Exec(a.BID, a.JID, a.RID, a.RAID, a.TCID, a.RCPTID, a.Amount, a.ASMID, a.AcctRule, a.JAID)
+	_, err := RRdb.Prepstmt.UpdateJournalAllocation.Exec(a.BID, a.JID, a.RID, a.RAID, a.TCID, a.RCPTID, a.Amount, a.ASMID, a.EXPID, a.AcctRule, a.JAID)
 	return updateError(err, "JournalAllocation", *a)
 }
 

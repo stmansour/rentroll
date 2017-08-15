@@ -1,6 +1,7 @@
 /*global
     w2ui, app, $, w2uiDateControlString, addDateNavToToolbar, console, getCurrentBusiness, getBUDfromBID,
-    popupRentalAgrPicker, rafinder
+    popupRentalAgrPicker, rafinder, form_dirty_alert, setToForm, setDateControlsInToolbar, formRefreshCallBack,
+    formRecDiffer, getFormSubmitData, w2confirm, w2utils
 */
 "use strict";
 function getExpenseInitRecord(BID, BUD){
@@ -317,6 +318,32 @@ function buildExpenseElements() {
                 });
             },
             reverse: function() {
+                var form = this;
+
+                w2confirm(reverse_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.expenseGrid;
+                    var params = {cmd: 'delete', formname: form.name, ID: form.record.EXPID };
+                    var dat = JSON.stringify(params);
+                    // Reverse receipt request
+                    $.post(form.url, dat, null, "json")
+                    .done(function(data) {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        // reversed items should not be deleted!
+                        tgrid.render();
+                    })
+                    .fail(function(/*data*/){
+                        form.error("Reverse Expense failed.");
+                        return;
+                    });
+                })
+                .no(function() {
+                    return;
+                });
             },
         },
         onRefresh: function(event) {
@@ -455,4 +482,3 @@ function expFormRASelect() {
     w2ui.expenseForm.record.RID = w2ui.rentalAgrFinder.record.RentableName.id;
     w2ui.expenseForm.refresh();
 }
-

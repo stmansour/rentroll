@@ -390,7 +390,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// Journal Allocation
 	//==========================================
-	flds = "JAID,BID,JID,RID,RAID,TCID,RCPTID,Amount,ASMID,AcctRule,CreateTS,CreateBy"
+	flds = "JAID,BID,JID,RID,RAID,TCID,RCPTID,Amount,ASMID,EXPID,AcctRule,CreateTS,CreateBy"
 	RRdb.DBFields["JournalAllocation"] = flds
 	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE JAID=?")
 	Errcheck(err)

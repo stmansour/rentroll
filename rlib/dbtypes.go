@@ -107,8 +107,9 @@ const (
 	REPORTJUSTIFYRIGHT = 1
 
 	JNLTYPEUNAS = 0 // record is unassociated with any assessment or Receipt
-	JNLTYPEASMT = 1 // record is the result of an assessment
+	JNLTYPEASMT = 1 // record is the result of an Assessment
 	JNLTYPERCPT = 2 // record is the result of a Receipt
+	JNLTYPEEXP  = 3 // record is the result of an Expense
 
 	MARKERSTATEOPEN   = 0 // Journal/LedgerMarker state
 	MARKERSTATECLOSED = 1
@@ -968,7 +969,6 @@ type Rentable struct {
 	LastModTime    time.Time         // time of last update to the db record
 	LastModBy      int64             // who made the update (Phonebook UID)
 	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
-	RTCurrent      int64             // RentableType ID its current type (current as defined by system datetime), NOT A DB FIELD
 	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
 	CreateTS time.Time // when was this record created
 	CreateBy int64     // employee UID (from phonebook) that created it
@@ -1073,6 +1073,7 @@ type JournalAllocation struct {
 	RCPTID   int64     // associated receipt if TCID > 0
 	Amount   float64   // amount of this allocation
 	ASMID    int64     // associated AssessmentID -- source of the charge
+	EXPID    int64     // associated Expense -- source of the charge
 	AcctRule string    // describes how this amount distributed across the accounts
 	CreateTS time.Time // when was this record created
 	CreateBy int64     // employee UID (from phonebook) that created it

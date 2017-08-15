@@ -620,102 +620,6 @@ CREATE TABLE RentableSpecialtyRef (
 
 -- **************************************
 -- ****                              ****
--- ****        ASSESSMENTS           ****
--- ****                              ****
--- **************************************
--- charges associated with a Rentable
-CREATE TABLE Assessments (
-    ASMID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for assessment
-    PASMID BIGINT NOT NULL DEFAULT 0,                       -- parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID.
-                                                            --     When non-zero DO NOT process as a recurring assessment, it is an instance
-    RPASMID BIGINT NOT NULL DEFAULT 0,                      -- reversal parent Assessment, if it is non-zero, then the assessment has been reversed.
-    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
-    RID BIGINT NOT NULL DEFAULT 0,                          -- rentable id
-    ATypeLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID describing the type of assessment (ex: Rent, SecurityDeposit, ...)
-    RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
-    Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for recurring assessments; the date/time of the assessment for instances
-    Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date for recurrent assessments; the date/time of the assessment for instances
-    RentCycle SMALLINT NOT NULL DEFAULT 0,                  -- 0 = non-recurring, 1 = secondly, 2 = minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly, 7=quarterly, 8=yearly
-    ProrationCycle SMALLINT NOT NULL DEFAULT 0,             --
-    InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- DELETE THIS -- DON'T KEEP THE INVOICE REFERENCE IN THE ASSESSMENT... !!!! <<<<TODO
-    AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
-    ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- Bits 0-1:  0 = unpaid, 1 = partially paid, 2 = fully paid, 3 = not-defined at this time
-                                                            -- Bit 2: 1 = this assmt has been reversed.
-    Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (ASMID)
-);
-
--- the actual tax rate or fee will be read from the TaxRate table based on the instance date of the assessment
-CREATE TABLE AssessmentTax (
-    ASMID BIGINT NOT NULL DEFAULT 0,                        -- the assessment to which this tax is bound
-    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
-    TAXID BIGINT NOT NULL DEFAULT 0,                        -- what type of tax.
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 0 = override this tax -- do not apply, bit 1 - override and use OverrideAmount
-    OverrideTaxApprover MEDIUMINT NOT NULL DEFAULT 0,       -- if tax is overridden, who approved it
-    OverrideAmount DECIMAL(19,4) NOT NULL DEFAULT 0,        -- Don't calculate. Use this amount. OverrideApprover required.  0 if not applicable.
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
-);
-
--- **************************************
--- ****                              ****
--- ****          EXPENSE             ****
--- ****                              ****
--- **************************************
--- charges associated with a Rentable
-CREATE TABLE Expense (
-    EXPID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for expense
-    RPEXPID BIGINT NOT NULL DEFAULT 0,                      -- reversal parent Expense, if it is non-zero, then the expense has been reversed.
-    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
-    RID BIGINT NOT NULL DEFAULT 0,                          -- Associated rentable id
-    RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Expense amount
-    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- epoch date for recurring expenses; the date/time of the expense for instances
-    AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
-    ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 2 = Reversed
-    Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (EXPID)
-);
-
-
--- **************************************
--- ****                              ****
--- ****     AccountRule              ****
--- ****                              ****
--- **************************************
-CREATE TABLE AR (
-    ARID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
-    Name VARCHAR(100) NOT NULL DEFAULT '',
-    ARType SMALLINT NOT NULL DEFAULT 0,                     -- Assessment = 0, Receipt = 1, Expense = 2
-    RARequired SMALLINT NOT NULL DEFAULT 0,                 -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-    DebitLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID of debit part
-    CreditLID BIGINT NOT NULL DEFAULT 0,                    -- Ledger ID of crdit part
-    Description VARCHAR(1024) NOT NULL DEFAULT '',
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for recurring assessments; the date/time of the assessment for instances
-    DtStop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date for recurrent assessments; the date/time of the assessment for instances
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY(ARID)
-);
-
--- **************************************
--- ****                              ****
 -- ****           PEOPLE             ****
 -- ****                              ****
 -- **************************************
@@ -889,6 +793,103 @@ CREATE TABLE Payor (
     PRIMARY KEY (TCID)
 );
 
+
+-- **************************************
+-- ****                              ****
+-- ****        ASSESSMENTS           ****
+-- ****                              ****
+-- **************************************
+-- charges associated with a Rentable
+CREATE TABLE Assessments (
+    ASMID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for assessment
+    PASMID BIGINT NOT NULL DEFAULT 0,                       -- parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID.
+                                                            --     When non-zero DO NOT process as a recurring assessment, it is an instance
+    RPASMID BIGINT NOT NULL DEFAULT 0,                      -- reversal parent Assessment, if it is non-zero, then the assessment has been reversed.
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
+    RID BIGINT NOT NULL DEFAULT 0,                          -- rentable id
+    ATypeLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID describing the type of assessment (ex: Rent, SecurityDeposit, ...)
+    RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Assessment amount
+    Start DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for recurring assessments; the date/time of the assessment for instances
+    Stop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date for recurrent assessments; the date/time of the assessment for instances
+    RentCycle SMALLINT NOT NULL DEFAULT 0,                  -- 0 = non-recurring, 1 = secondly, 2 = minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly, 7=quarterly, 8=yearly
+    ProrationCycle SMALLINT NOT NULL DEFAULT 0,             --
+    InvoiceNo BIGINT NOT NULL DEFAULT 0,                    -- DELETE THIS -- DON'T KEEP THE INVOICE REFERENCE IN THE ASSESSMENT... !!!! <<<<TODO
+    AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
+    ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- Bits 0-1:  0 = unpaid, 1 = partially paid, 2 = fully paid, 3 = not-defined at this time
+                                                            -- Bit 2: 1 = this assmt has been reversed.
+    Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (ASMID)
+);
+
+-- the actual tax rate or fee will be read from the TaxRate table based on the instance date of the assessment
+CREATE TABLE AssessmentTax (
+    ASMID BIGINT NOT NULL DEFAULT 0,                        -- the assessment to which this tax is bound
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
+    TAXID BIGINT NOT NULL DEFAULT 0,                        -- what type of tax.
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 0 = override this tax -- do not apply, bit 1 - override and use OverrideAmount
+    OverrideTaxApprover MEDIUMINT NOT NULL DEFAULT 0,       -- if tax is overridden, who approved it
+    OverrideAmount DECIMAL(19,4) NOT NULL DEFAULT 0,        -- Don't calculate. Use this amount. OverrideApprover required.  0 if not applicable.
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+);
+
+-- **************************************
+-- ****                              ****
+-- ****          EXPENSE             ****
+-- ****                              ****
+-- **************************************
+-- charges associated with a Rentable
+CREATE TABLE Expense (
+    EXPID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique id for expense
+    RPEXPID BIGINT NOT NULL DEFAULT 0,                      -- reversal parent Expense, if it is non-zero, then the expense has been reversed.
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
+    RID BIGINT NOT NULL DEFAULT 0,                          -- Associated rentable id
+    RAID BIGINT NOT NULL DEFAULT 0,                         -- Associated Rental Agreement ID
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- Expense amount
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- epoch date for recurring expenses; the date/time of the expense for instances
+    AcctRule VARCHAR(200) NOT NULL DEFAULT '',              -- Accounting rule override- which acct debited, which credited
+    ARID BIGINT NOT NULL DEFAULT 0,                         -- The accounting rule to apply
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- bit 2 = Reversed
+    Comment VARCHAR(256) NOT NULL DEFAULT '',               -- for comments such as "Prior period adjustment"
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (EXPID)
+);
+
+
+-- **************************************
+-- ****                              ****
+-- ****     AccountRule              ****
+-- ****                              ****
+-- **************************************
+CREATE TABLE AR (
+    ARID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
+    Name VARCHAR(100) NOT NULL DEFAULT '',
+    ARType SMALLINT NOT NULL DEFAULT 0,                     -- Assessment = 0, Receipt = 1, Expense = 2
+    RARequired SMALLINT NOT NULL DEFAULT 0,                 -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+    DebitLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID of debit part
+    CreditLID BIGINT NOT NULL DEFAULT 0,                    -- Ledger ID of crdit part
+    Description VARCHAR(1024) NOT NULL DEFAULT '',
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for recurring assessments; the date/time of the assessment for instances
+    DtStop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date for recurrent assessments; the date/time of the assessment for instances
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    PRIMARY KEY(ARID)
+);
+
 -- **************************************
 -- ****                              ****
 -- ****           RECEIPTS           ****
@@ -1040,10 +1041,11 @@ CREATE TABLE Journal (
     -- RAID BIGINT NOT NULL DEFAULT 0,                                -- associated rental agreement
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- date when it occurred
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- how much
-    Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unassociated with RA, 1 = assessment, 2 = payment/Receipt
+    Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unassociated with RA, 1 = assessment, 2 = payment/Receipt, 3 = Expense
     ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 0 then it is the RentableID,
                                                                    -- if Type == 1 then it is the ASMID that caused this entry,
                                                                    -- if Type == 2 then it is the RCPTID
+                                                                   -- if Type == 3 then it is the EXPID
     Comment VARCHAR(256) NOT NULL DEFAULT '',                      -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                         -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
@@ -1062,6 +1064,7 @@ CREATE TABLE JournalAllocation (
     RCPTID BIGINT NOT NULL DEFAULT 0,                              -- associated receipt if TCID > 0
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- Amount transacted
     ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
+    EXPID BIGINT NOT NULL DEFAULT 0,                               -- the associated expense.
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record

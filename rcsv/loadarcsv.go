@@ -6,7 +6,8 @@ import (
 	"strings"
 )
 
-// 0   1   2
+//                     Ledger NAME or ID works
+// 0   1   2           3
 // Bud,Name,ARType,    DebitLID,CreditLID,Description
 // REX,Rent,Assessment,2,       8,        Rent assessment, accrual based, manage to budget
 // REX,FNB, Receipt,   3,       7,        payments that are deposited in First National Bank
@@ -77,6 +78,8 @@ func CreateAR(sa []string, lineno int) (int, error) {
 		b.ARType = 0
 	case "receipt":
 		b.ARType = 1
+	case "expense":
+		b.ARType = 2
 	default:
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - ARType must be either Assessment or Receipt.  Found: %s", funcname, lineno, s)
 	}

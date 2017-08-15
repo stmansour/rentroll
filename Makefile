@@ -57,6 +57,10 @@ test: package
 man: rentroll.1
 	cp rentroll.1 /usr/local/share/man/man1
 
+dev:
+	ln -s ./webclient/js
+	ln -s ./webclient/html
+
 instman:
 	pushd tmp/rentroll;./installman.sh;popd
 

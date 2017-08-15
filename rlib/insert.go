@@ -258,7 +258,7 @@ func InsertJournal(j *Journal) (int64, error) {
 // newly assigned id.
 func InsertJournalAllocationEntry(ja *JournalAllocation) error {
 	// debug.PrintStack()
-	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.TCID, ja.RCPTID, ja.Amount, ja.ASMID, ja.AcctRule, ja.CreateBy)
+	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.TCID, ja.RCPTID, ja.Amount, ja.ASMID, ja.EXPID, ja.AcctRule, ja.CreateBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

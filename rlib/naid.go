@@ -84,6 +84,16 @@ func (t *Depository) IDtoString() string {
 }
 
 // IDtoString is the method to produce a consistent printable id string
+func (t *Expense) IDtoString() string {
+	return IDtoString("EXP", t.EXPID)
+}
+
+// IDtoShortString is the method to produce a consistent printable id string
+func (t *Expense) IDtoShortString() string {
+	return IDtoShortString("EXP", t.EXPID)
+}
+
+// IDtoString is the method to produce a consistent printable id string
 func (t *GLAccount) IDtoString() string {
 	return IDtoString("L", t.LID)
 }
