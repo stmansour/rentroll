@@ -127,6 +127,49 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
+func printJournalExpense(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Expense, r *rlib.Rentable) {
+	s := rlib.RRdb.BizTypes[xbiz.P.BID].AR[a.ARID].Name
+	if a.RID > 0 {
+		rtr := rlib.GetRentableTypeRefForDate(r.RID, &j.Dt)
+		s += fmt.Sprintf("  %s [%s]", r.RentableName, xbiz.RT[rtr.RTID].Style)
+	}
+	s += " " + j.Comment
+
+	tbl.AddRow()
+	tbl.Puts(-1, 0, j.IDtoString())
+	tbl.Puts(-1, 1, s)
+
+	for i := 0; i < len(j.JA); i++ {
+		clid := rlib.RRdb.BizTypes[j.BID].AR[a.ARID].CreditLID
+		dlid := rlib.RRdb.BizTypes[j.BID].AR[a.ARID].DebitLID
+		rn := ""
+		if j.JA[i].RID > 0 {
+			rn = r.RentableName
+		}
+		raid := ""
+		if j.JA[i].RAID > 0 {
+			raid = rlib.IDtoString("RA", j.JA[i].RAID)
+		}
+		tbl.AddRow()
+		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].Name)
+		tbl.Putd(-1, 2, j.Dt)
+		tbl.Puts(-1, 3, raid)
+		tbl.Puts(-1, 4, rn)
+		tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].GLNumber)
+		tbl.Putf(-1, 6, j.Amount)
+
+		tbl.AddRow()
+		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].Name)
+		tbl.Putd(-1, 2, j.Dt)
+		tbl.Puts(-1, 3, raid)
+		tbl.Puts(-1, 4, rn)
+		tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].GLNumber)
+		tbl.Putf(-1, 6, -j.Amount)
+	}
+
+	tbl.AddRow() // nothing in this line, it's blank
+}
+
 func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt) {
 	funcname := "textPrintJournalReceipt"
 	// fmt.Printf("Entered: %s,   JID = %d, RCPTID = %d\n", funcname, j.JID, rcpt.RCPTID)
@@ -268,6 +311,10 @@ func textPrintJournalEntry(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)
 		textPrintJournalAssessment(tbl, jctx, ri.Xbiz, j, &a, &r, rentDuration, assessmentDuration)
+	case rlib.JNLTYPEEXP:
+		a, _ := rlib.GetExpense(j.ID)
+		r := rlib.GetRentable(a.RID)
+		printJournalExpense(tbl, ri.Xbiz, j, &a, &r)
 	default:
 		rlib.LogAndPrint("printJournalEntry: unrecognized type: %d\n", j.Type)
 	}

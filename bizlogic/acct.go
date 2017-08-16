@@ -152,13 +152,8 @@ func SaveGLAccount(l *rlib.GLAccount) []BizError {
 	//	p1 := int64(0)
 	var errlist []BizError
 	var err error
-	var lcur rlib.GLAccount // if it is an existing account, load current version
 	accts := rlib.GetGLAccountMap(l.BID)
 	rules := rlib.GetARMap(l.BID)
-
-	if l.LID > 0 {
-		lcur = rlib.GetLedger(l.LID)
-	}
 
 	//-------------------------------------------------------------------------
 	// First, ensure that AllowPosts is in the correct state:
@@ -239,16 +234,14 @@ func SaveGLAccount(l *rlib.GLAccount) []BizError {
 	//-----------------------------------------------------------------
 	// Only update the FLAGS that a client is allowed to change...
 	//-----------------------------------------------------------------
+	// var lcur rlib.GLAccount // if it is an existing account, load current version
+	// if l.LID > 0 {
+	// 	lcur = rlib.GetLedger(l.LID)
+	// }
 	curflags := l.FLAGS // start with what the client sent
-	if lcur.LID > 0 {
-		curflags = lcur.FLAGS // override with existing flags if we have them
-	}
-	curflags &= 0x8ffffffffffffffe // mask off the offset-account bit
-	curflags |= l.FLAGS & 0x1      // logical OR in the updated offset-account bit
-
-	// handle any new flags here...
-
-	// set the final FLAGS value
+	// DO ANY FLAG CHECKING NEEDED
+	// at the moment there are no flags to check
+	curflags = 0 // change this as needed if any flags are defined
 	l.FLAGS = curflags
 
 	//-----------------------------------------------------------------

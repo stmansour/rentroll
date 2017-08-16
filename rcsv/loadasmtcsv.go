@@ -6,36 +6,36 @@ import (
 	"strings"
 )
 
-// ValidAssessmentDate determines whether the assessment type supplied can be assessed during the assessment's defined period
-// given the supplied Rental Agreement period.
-// Returns true if the assessment is valid, false otherwise
-func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.GLAccount, ra *rlib.RentalAgreement) bool {
-	v := false // be pessimistic
-	t1 := rlib.DateInRange(&a.Start, &ra.AgreementStart, &ra.AgreementStop)
-	t2 := a.Start.Equal(ra.AgreementStart)
-	t3 := rlib.DateInRange(&a.Stop, &ra.AgreementStart, &ra.AgreementStop)
-	t4 := a.Stop.Equal(ra.AgreementStop)
+// // ValidAssessmentDate determines whether the assessment type supplied can be assessed during the assessment's defined period
+// // given the supplied Rental Agreement period.
+// // Returns true if the assessment is valid, false otherwise
+// func ValidAssessmentDate(a *rlib.Assessment, asmt *rlib.GLAccount, ra *rlib.RentalAgreement) bool {
+// 	v := false // be pessimistic
+// 	t1 := rlib.DateInRange(&a.Start, &ra.AgreementStart, &ra.AgreementStop)
+// 	t2 := a.Start.Equal(ra.AgreementStart)
+// 	t3 := rlib.DateInRange(&a.Stop, &ra.AgreementStart, &ra.AgreementStop)
+// 	t4 := a.Stop.Equal(ra.AgreementStop)
 
-	// fmt.Printf("a.Start = %s, a.Stop = %s, ra.AgrStart = %s, ra.AgrStop = %s\n", a.Start.Format(rlib.RRDATEFMT4), a.Stop.Format(rlib.RRDATEFMT4), ra.AgreementStart.Format(rlib.RRDATEFMT4), ra.AgreementStop.Format(rlib.RRDATEFMT4))
-	// fmt.Printf("t1 = %t, t2 = %t, t3 = %t, t4 = %t\n", t1, t2, t3, t4)
+// 	// fmt.Printf("a.Start = %s, a.Stop = %s, ra.AgrStart = %s, ra.AgrStop = %s\n", a.Start.Format(rlib.RRDATEFMT4), a.Stop.Format(rlib.RRDATEFMT4), ra.AgreementStart.Format(rlib.RRDATEFMT4), ra.AgreementStop.Format(rlib.RRDATEFMT4))
+// 	// fmt.Printf("t1 = %t, t2 = %t, t3 = %t, t4 = %t\n", t1, t2, t3, t4)
 
-	inRange := (t1 || t2) && (t3 || t4)
-	before := a.Start.Before(ra.AgreementStart) && a.Stop.Before(ra.AgreementStop)
-	after := (a.Start.After(ra.AgreementStart) || a.Start.Equal(ra.AgreementStart)) && (a.Stop.After(ra.AgreementStop) || a.Stop.Equal(ra.AgreementStop))
+// 	inRange := (t1 || t2) && (t3 || t4)
+// 	before := a.Start.Before(ra.AgreementStart) && a.Stop.Before(ra.AgreementStop)
+// 	after := (a.Start.After(ra.AgreementStart) || a.Start.Equal(ra.AgreementStart)) && (a.Stop.After(ra.AgreementStop) || a.Stop.Equal(ra.AgreementStop))
 
-	switch asmt.RARequired {
-	case rlib.RARQDINRANGE:
-		v = inRange
-	case rlib.RARQDPRIOR:
-		v = inRange || before
-	case rlib.RARQDAFTER:
-		v = inRange || after
-	case rlib.RARQDANY:
-		v = true
-	}
-	// fmt.Printf("inRange = %t, before = %t, after = %t, v = %t, GLAccount = %s (%d)\n", inRange, before, after, v, asmt.Name, asmt.LID)
-	return v
-}
+// 	switch asmt.RARequired {
+// 	case rlib.RARQDINRANGE:
+// 		v = inRange
+// 	case rlib.RARQDPRIOR:
+// 		v = inRange || before
+// 	case rlib.RARQDAFTER:
+// 		v = inRange || after
+// 	case rlib.RARQDANY:
+// 		v = true
+// 	}
+// 	// fmt.Printf("inRange = %t, before = %t, after = %t, v = %t, GLAccount = %s (%d)\n", inRange, before, after, v, asmt.Name, asmt.LID)
+// 	return v
+// }
 
 // CSV FIELDS FOR THIS MODULE
 //    0  1             2      3       4             5             6     7             8                9          10
@@ -134,7 +134,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// rlib.Assessment Type
 	//-------------------------------------------------------------------
-	var gla rlib.GLAccount
+	// var gla rlib.GLAccount
 	var ok bool
 	if len(sa[GLAcctID]) > 0 {
 		a.ATypeLID, _ = rlib.IntFromString(sa[GLAcctID], "value for Assessment type is invalid")
@@ -142,7 +142,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 		rlib.InitBusinessFields(a.BID)
 		// rlib.GetDefaultLedgers(a.BID) // Gather its chart of accounts
 		rlib.RRdb.BizTypes[a.BID].GLAccounts = rlib.GetGLAccountMap(a.BID)
-		gla, ok = rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
+		/*gla,*/ _, ok = rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
 		if !ok {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Assessment type is invalid: %s", funcname, lineno, sa[2])
 		}
@@ -157,12 +157,15 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 		if err != nil {
 			fmt.Printf("%s: line %d - error loading Rental Agreement with RAID = %s,  error = %s\n", funcname, lineno, sa[6], err.Error())
 		}
-		if !ValidAssessmentDate(&a, &gla, &ra) {
-			rs := fmt.Sprintf("%s: line %d - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: %d\n",
-				funcname, lineno, gla.RARequired)
-			rs += fmt.Sprintf("Rental Agreement start/stop: %s - %s \n", ra.AgreementStart.Format(rlib.RRDATEFMT3), ra.AgreementStop.Format(rlib.RRDATEFMT3))
-			return CsvErrorSensitivity, fmt.Errorf("%s      Assessment start/stop: %s - %s ", rs, a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
+		if ra.RAID == 0 {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Rental agreement %d could not be found", funcname, lineno, a.RAID)
 		}
+		// 	if !ValidAssessmentDate(&a, &gla, &ra) {
+		// 		rs := fmt.Sprintf("%s: line %d - Assessment occurs outside the allowable time range for the Rentable Agreement Require attribute value: %d\n",
+		// 			funcname, lineno, gla.RARequired)
+		// 		rs += fmt.Sprintf("Rental Agreement start/stop: %s - %s \n", ra.AgreementStart.Format(rlib.RRDATEFMT3), ra.AgreementStop.Format(rlib.RRDATEFMT3))
+		// 		return CsvErrorSensitivity, fmt.Errorf("%s      Assessment start/stop: %s - %s ", rs, a.Start.Format(rlib.RRDATEFMT3), a.Stop.Format(rlib.RRDATEFMT3))
+		// 	}
 	}
 
 	//-------------------------------------------------------------------
@@ -175,7 +178,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.RentCycle, _ = rlib.IntFromString(sa[RentCycle], "Accrual value is invalid")
 	if !rlib.IsValidAccrual(a.RentCycle) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Accrual must be between %d and %d.  Found %s", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, sa[7])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Accrual must be between %d and %d.  Found %d", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, a.RentCycle)
 	}
 
 	//-------------------------------------------------------------------

@@ -107,8 +107,9 @@ const (
 	REPORTJUSTIFYRIGHT = 1
 
 	JNLTYPEUNAS = 0 // record is unassociated with any assessment or Receipt
-	JNLTYPEASMT = 1 // record is the result of an assessment
+	JNLTYPEASMT = 1 // record is the result of an Assessment
 	JNLTYPERCPT = 2 // record is the result of a Receipt
+	JNLTYPEEXP  = 3 // record is the result of an Expense
 
 	MARKERSTATEOPEN   = 0 // Journal/LedgerMarker state
 	MARKERSTATECLOSED = 1
@@ -968,7 +969,6 @@ type Rentable struct {
 	LastModTime    time.Time         // time of last update to the db record
 	LastModBy      int64             // who made the update (Phonebook UID)
 	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
-	RTCurrent      int64             // RentableType ID its current type (current as defined by system datetime), NOT A DB FIELD
 	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
 	CreateTS time.Time // when was this record created
 	CreateBy int64     // employee UID (from phonebook) that created it
@@ -1073,6 +1073,7 @@ type JournalAllocation struct {
 	RCPTID   int64     // associated receipt if TCID > 0
 	Amount   float64   // amount of this allocation
 	ASMID    int64     // associated AssessmentID -- source of the charge
+	EXPID    int64     // associated Expense -- source of the charge
 	AcctRule string    // describes how this amount distributed across the accounts
 	CreateTS time.Time // when was this record created
 	CreateBy int64     // employee UID (from phonebook) that created it
@@ -1131,25 +1132,24 @@ type LedgerMarker struct {
 
 // GLAccount describes the static (or mostly static) attributes of a Ledger
 type GLAccount struct {
-	Recid    int    `json:"recid"` // this is for the grid widget
-	LID      int64  // unique id for this GLAccount
-	PLID     int64  // unique id of Parent, 0 if no parent
-	BID      int64  // Business unit associated with this GLAccount
-	RAID     int64  // associated rental agreement, this field is only used when Type = 1
-	TCID     int64  // associated payor, this field is only used when Type = 1
-	GLNumber string // acct system name
-	Status   int64  // Whether a GL Account is currently unknown=0, inactive=1, active=2
-	// Type        int64     // flag: 0 = not a default account, 1-9 reserved, 1=RentalAgreement balance, 2=Payor balance,  10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, ...
+	Recid       int       `json:"recid"` // this is for the grid widget
+	LID         int64     // unique id for this GLAccount
+	PLID        int64     // unique id of Parent, 0 if no parent
+	BID         int64     // Business unit associated with this GLAccount
+	RAID        int64     // associated rental agreement, this field is only used when Type = 1
+	TCID        int64     // associated payor, this field is only used when Type = 1
+	GLNumber    string    // acct system name
+	Status      int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Name        string    // descriptive name for the GLAccount
 	AcctType    string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
 	AllowPost   int64     // 0 = no posting, 1 = posting is allowed
-	RARequired  int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-	FLAGS       uint64    // 1 << 0 = offset account, do not try to fund it from receipts
+	FLAGS       uint64    //
 	Description string    // description for this account
 	LastModTime time.Time // auto updated
 	LastModBy   int64     // user making the mod
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
+	// RARequired  int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 }
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
@@ -1495,6 +1495,7 @@ type RRprepSQL struct {
 	InsertExpense                           *sql.Stmt
 	DeleteExpense                           *sql.Stmt
 	UpdateExpense                           *sql.Stmt
+	GetRentableTypeByName                   *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

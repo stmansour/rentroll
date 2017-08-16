@@ -258,7 +258,7 @@ func InsertJournal(j *Journal) (int64, error) {
 // newly assigned id.
 func InsertJournalAllocationEntry(ja *JournalAllocation) error {
 	// debug.PrintStack()
-	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.TCID, ja.RCPTID, ja.Amount, ja.ASMID, ja.AcctRule, ja.CreateBy)
+	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.TCID, ja.RCPTID, ja.Amount, ja.ASMID, ja.EXPID, ja.AcctRule, ja.CreateBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -311,8 +311,8 @@ func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 // InsertLedger writes a new GLAccount to the database
 func InsertLedger(l *GLAccount) (int64, error) {
 	var rid = int64(0)
-	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,   Name,   AcctType,   AllowPost, RARequred,     FLAGS,   Description, CreateBy, LastModBy
-	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.TCID, l.GLNumber, l.Status, l.Name, l.AcctType, l.AllowPost, l.RARequired, l.FLAGS, l.Description, l.CreateBy, l.LastModBy)
+	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,   Name,   AcctType,   AllowPost,  FLAGS,   Description, CreateBy, LastModBy
+	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.TCID, l.GLNumber, l.Status, l.Name, l.AcctType, l.AllowPost, l.FLAGS, l.Description, l.CreateBy, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

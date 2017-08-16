@@ -122,14 +122,14 @@ func ReadExpenses(rows *sql.Rows, a *Expense) error {
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) {
 	Errcheck(row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		&a.Status, &a.Name, &a.AcctType, &a.AllowPost, &a.RARequired,
+		&a.Status, &a.Name, &a.AcctType, &a.AllowPost,
 		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadGLAccounts reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccounts(rows *sql.Rows, a *GLAccount) {
 	Errcheck(rows.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
-		&a.Status, &a.Name, &a.AcctType, &a.AllowPost, &a.RARequired,
+		&a.Status, &a.Name, &a.AcctType, &a.AllowPost,
 		&a.FLAGS, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
@@ -165,12 +165,12 @@ func ReadJournals(rows *sql.Rows, a *Journal) {
 
 // ReadJournalAllocation reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadJournalAllocation(row *sql.Row, a *JournalAllocation) {
-	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
+	Errcheck(row.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.RCPTID, &a.Amount, &a.ASMID, &a.EXPID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
 }
 
 // ReadJournalAllocations reads a full JournalAllocation structure of data from the database based on the supplied Rows pointer.
 func ReadJournalAllocations(rows *sql.Rows, a *JournalAllocation) {
-	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.RCPTID, &a.Amount, &a.ASMID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
+	Errcheck(rows.Scan(&a.JAID, &a.BID, &a.JID, &a.RID, &a.RAID, &a.TCID, &a.RCPTID, &a.Amount, &a.ASMID, &a.EXPID, &a.AcctRule, &a.CreateTS, &a.CreateBy))
 }
 
 // ReadLedgerEntry reads a full LedgerEntry structure of data from the database based on the supplied Rows pointer.

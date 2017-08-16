@@ -502,6 +502,42 @@ INSERT INTO `Depository` VALUES (1,1,3,'FRB Operating  Account Deposit','4320','
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Expense`
+--
+
+DROP TABLE IF EXISTS `Expense`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Expense` (
+  `EXPID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `RPEXPID` bigint(20) NOT NULL DEFAULT '0',
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `RID` bigint(20) NOT NULL DEFAULT '0',
+  `RAID` bigint(20) NOT NULL DEFAULT '0',
+  `Amount` decimal(19,4) NOT NULL DEFAULT '0.0000',
+  `Dt` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `AcctRule` varchar(200) NOT NULL DEFAULT '',
+  `ARID` bigint(20) NOT NULL DEFAULT '0',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `Comment` varchar(256) NOT NULL DEFAULT '',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`EXPID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Expense`
+--
+
+LOCK TABLES `Expense` WRITE;
+/*!40000 ALTER TABLE `Expense` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Expense` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `GLAccount`
 --
 
@@ -670,6 +706,7 @@ CREATE TABLE `JournalAllocation` (
   `RCPTID` bigint(20) NOT NULL DEFAULT '0',
   `Amount` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `ASMID` bigint(20) NOT NULL DEFAULT '0',
+  `EXPID` bigint(20) NOT NULL DEFAULT '0',
   `AcctRule` varchar(200) NOT NULL DEFAULT '',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2128,4 +2165,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-04 21:16:41
+-- Dump completed on 2017-08-14 20:29:05

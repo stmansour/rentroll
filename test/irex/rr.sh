@@ -13,7 +13,9 @@ echo "BEGIN IREX FUNCTIONAL TEST" >>${LOGFILE}
 #   their correct starting values.
 #========================================================================================
 docsvtest "a" "-b business.csv -L 3" "Business"
+docsvtest "b" "-c coa.csv -L 10,${BUD}" "Business"
 docsvtest "e" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
+docsvtest "f" "-r rentable.csv -L 6,${BUD}" "Rentables"
 
 logcheck
 

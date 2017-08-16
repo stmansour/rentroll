@@ -1683,6 +1683,14 @@ func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
 	return rt, err
 }
 
+// GetRentableTypeByName returns characteristics of the Rentable
+func GetRentableTypeByName(name string, bid int64) (RentableType, error) {
+	var rt RentableType
+	row := RRdb.Prepstmt.GetRentableTypeByName.QueryRow(name, bid)
+	err := ReadRentableType(row, &rt)
+	return rt, err
+}
+
 // GetBusinessRentableTypes returns a slice of RentableType indexed by the RTID
 func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
 	var t map[int64]RentableType

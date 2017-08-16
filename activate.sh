@@ -119,7 +119,7 @@ setupAppNode() {
 	# database
 	#---------------------
 	RRDB=$(echo "show databases;" | mysql | grep rentroll | wc -l)
-	if [ ${RRDB} -gt "0" ]; then
+	if [ ${RRDB} -lt "1" ]; then
 	    rm -rf ${DATABASENAME}db*  >log.out 2>&1 
 	    ${GETFILE} accord/db/${DATABASENAME}db.sql.gz  >log.out 2>&1 
 	    gunzip ${DATABASENAME}db.sql  >log.out 2>&1 

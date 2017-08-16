@@ -21,8 +21,8 @@ func UpdateAssessment(anew *rlib.Assessment, mode int, dt *time.Time, exp int) [
 	var err error
 	var errlist []BizError
 
-	fmt.Printf("Entered bizlogic.UpdateAssessment:  anew.ASMID = %d, mode = %d, dt = %s, exp = %d\n", anew.ASMID, mode, dt.Format(rlib.RRDATEREPORTFMT), exp)
-	fmt.Printf("anew.FLAGS = %X\n", anew.FLAGS)
+	rlib.Console("Entered bizlogic.UpdateAssessment:  anew.ASMID = %d, mode = %d, dt = %s, exp = %d\n", anew.ASMID, mode, dt.Format(rlib.RRDATEREPORTFMT), exp)
+	rlib.Console("anew.FLAGS = %X\n", anew.FLAGS)
 
 	if anew.FLAGS&0x4 != 0 {
 		errlist = append(errlist, BizErrors[EditReversal])
@@ -93,7 +93,7 @@ func UpdateAssessment(anew *rlib.Assessment, mode int, dt *time.Time, exp int) [
 func ReverseAssessment(aold *rlib.Assessment, mode int, dt *time.Time) []BizError {
 	funcname := "bizlogic.ReverseAssessment"
 	var errlist []BizError
-	fmt.Printf("Entered ReverseAssessment\n")
+	rlib.Console("Entered ReverseAssessment\n")
 	if aold.PASMID == 0 {
 		mode = 2 // force behavior on the epoch
 	}
@@ -161,13 +161,13 @@ func ReverseAssessment(aold *rlib.Assessment, mode int, dt *time.Time) []BizErro
 func ReverseAssessmentsGoingForward(aold *rlib.Assessment, dtStart, dt *time.Time) []BizError {
 	var errlist []BizError
 
-	fmt.Printf("ENTERED: ReverseAssessmentsGoingForward\n")
+	rlib.Console("ENTERED: ReverseAssessmentsGoingForward\n")
 
 	d2 := time.Date(9999, time.December, 31, 0, 0, 0, 0, time.UTC)
-	fmt.Printf("aold.PASMID = %d, dtStart = %s, dt = %s\n", aold.PASMID, dtStart.Format(rlib.RRDATEREPORTFMT), dt.Format(rlib.RRDATEREPORTFMT))
+	rlib.Console("aold.PASMID = %d, dtStart = %s, dt = %s\n", aold.PASMID, dtStart.Format(rlib.RRDATEREPORTFMT), dt.Format(rlib.RRDATEREPORTFMT))
 
 	m := rlib.GetAssessmentInstancesByParent(aold.PASMID, dtStart, &d2)
-	fmt.Printf("Number of instances to reverse: %d\n", len(m))
+	rlib.Console("Number of instances to reverse: %d\n", len(m))
 	for i := 0; i < len(m); i++ {
 		errlist = ReverseAssessmentInstance(&m[i], dt)
 		if len(errlist) > 0 {

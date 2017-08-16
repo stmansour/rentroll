@@ -1,7 +1,7 @@
 *.xlsx
 *.xls
 mdb
-buildno
+ws/buildno
 tmp
 bkup
 doc

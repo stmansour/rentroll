@@ -29,13 +29,14 @@ var QBAcctInfo = []struct {
 	Name   string
 	Negate bool // Indicates whether or not negate an assessment amount if showing it as a debit
 }{
-	{"Cash", false},                // Asset         D +   C -
+	{"Asset", false},               // Asset         D +   C -
 	{"Accounts Receivable", false}, // Asset         D +   C -
+	{"Cash", false},                // Asset         D +   C -
+	{"Expense", false},             // Expense Acct  D +   C -
 	{"Liabilities", true},          // Liabilities   D -   C +
 	{"Income", true},               // Income Acct   D -   C +
 	{"Income Offsets", true},       // Income Acct   D -   C +
 	{"Other Income", true},         // Income Acct   D -   C +
-	{"Expense Account", false},     // Expense Acct  D +   C -
 }
 
 // AccountTypeNegateFlag returns the Negate flag associated with the supplied account type.

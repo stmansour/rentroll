@@ -8,7 +8,7 @@ function buildAppLayout(){
         padding: 2,
         panels: [
             { type: 'top',     size: 200, style: app.pstyle2,  hidden: true, resizable: true, content: w2ui.newsLayout},
-            { type: 'left',    size: app.sidebarWidth, style: app.pstyle2,                resizable: true, content: 'sidebar' },
+            { type: 'left',    size: app.sidebarWidth, style: app.pstyle2,   resizable: true, content: 'sidebar' },
             { type: 'main',               style: app.pstyle2   },
             { type: 'preview', size: 0,   style: app.bgyellow, hidden: true, resizable: true, content: 'preview' },
             { type: 'right',   size: 200, style: app.pstyle2,  hidden: true, resizable: true },

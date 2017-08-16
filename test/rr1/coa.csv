@@ -1,9 +1,9 @@
-BUD,Name,GLNumber,Parent GLNumber,Collective,Account Type,Balance,Account Status,Associated,Date,Allow Posting,RARequired,Description
-REX,Cash,10000,,,Cash,0,active,Associated,6/30/16,yes,0,
-REX,Loss (Gain) to Lease,41102,,,Income Offsets,0,active,Associated,6/30/16,yes,2,
-REX,Owners' Equity,39000,,,Equity,0,active,Associated,6/30/16,yes,0,
-REX,Vacancy,41101,,,Income Offsets,0,active,Associated,6/30/16,yes,0,
-REX,Forfeited SecDep,41413,,,Other Income,0,active,Associated,6/30/16,yes,2,
-REX,Accounts Receivable,12000,,,Accounts Receivable,0,active,Associated,6/30/16,yes,0,
-REX,Unit Gross Scheduled Rent-Taxable,41000,,,Income,0,active,Associated,6/30/16,yes,0,
-REX,Security Deposits,30000,,,Security Deposit,0,active,Associated,6/30/16,yes,2,
+BUD,Name,GLNumber,Parent GLNumber,Account Type,Balance,Account Status,Date,Description
+REX,Cash,10000,,Cash,0,active,6/30/16,
+REX,Loss (Gain) to Lease,41102,,Income Offsets,0,active,6/30/16,
+REX,Owners' Equity,39000,,Equity,0,active,6/30/16,
+REX,Vacancy,41101,,Income Offsets,0,active,6/30/16,
+REX,Forfeited SecDep,41413,,Other Income,0,active,6/30/16,
+REX,Accounts Receivable,12000,,Accounts Receivable,0,active,6/30/16,
+REX,Unit Gross Scheduled Rent-Taxable,41000,,Income,0,active,6/30/16,
+REX,Security Deposits,30000,,Security Deposit,0,active,6/30/16,

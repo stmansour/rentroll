@@ -1,3 +1,8 @@
+/*global
+    w2ui, app, $, console, setToForm, form_dirty_alert, formRefreshCallBack, formRecDiffer,
+    getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness, 
+    addDateNavToToolbar, 
+*/
 "use strict";
 function getRTInitRecord(BID, BUD){
     var y = new Date();
@@ -169,6 +174,7 @@ function buildRentableTypeElements() {
         },
     });
 
+    addDateNavToToolbar('rt');
 
     //------------------------------------------------------------------------
     //          rentable Type Form

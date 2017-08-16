@@ -1,3 +1,8 @@
+/*global
+    $, console, w2ui, w2confirm, app, getBUDfromBID, getCurrentBusiness, getParentAccounts,
+    setToForm, form_dirty_alert, formRecDiffer, getFormSubmitData, delete_confirm_options,
+    w2utils, formRefreshCallBack,
+*/
 "use strict";
 function getAccountInitRecord(BID, BUD){
     var y = new Date();
@@ -195,7 +200,6 @@ function buildAccountElements() {
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
             { field: "AcctType", required: true, type: 'list', options: { items: app.qbAcctType, selected: {}, maxDropHeight: 350 }, html: { caption: "QB Account Type", page: 0, column: 0 } },
 //            { field: "AllowPost", required: true, type: 'list', options: { items: app.account_stuff.allowPostList, selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
-            { field: 'OffsetAccount', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
             { field: 'FLAGS', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },

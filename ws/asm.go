@@ -521,13 +521,7 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	now := time.Now() // mark Assessment reversed at this time
 	errlist := bizlogic.ReverseAssessment(&a, del.ReverseMode, &now)
 	if len(errlist) > 0 {
-		s := ""
-		for i := 0; i < len(errlist); i++ {
-			s += errlist[i].Message + "\n"
-		}
-		e := fmt.Errorf("Error reversing assessment %s: %s", a.IDtoString(), s)
-		SvcGridErrorReturn(w, e, funcname)
-		return
+		SvcErrListReturn(w, errlist, funcname)
 	}
 
 	SvcWriteSuccessResponse(w)

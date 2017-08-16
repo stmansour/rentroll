@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"sort"
 	"strconv"
@@ -462,10 +463,16 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	errlist := bizlogic.ValidateRentableType(&a)
+	if len(errlist) > 0 {
+		SvcErrListReturn(w, errlist, funcname)
+		return
+	}
+
 	if a.RTID == 0 && d.ID == 0 {
 		// This is a new AR
-		fmt.Printf(">>>> NEW RentableType IS BEING ADDED\n")
-		// override RTID if insertion done successful
+		rlib.Console(">>>> NEW RentableType IS BEING ADDED\n")
+
 		a.RTID, err = rlib.InsertRentableType(&a)
 		if err != nil {
 			e := fmt.Errorf("%s: unable to save RentableType record: %s", funcname, err.Error())

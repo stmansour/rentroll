@@ -45,7 +45,7 @@ type GLAccount struct {
 	AllowPost   int64             // 0 = no posting, 1 = posting is allowed
 	RARequired  int64             // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 	Description string            // description for this account
-	FLAGS       uint64            // bit 0 = Offset-Account flag
+	FLAGS       uint64            //
 	LastModTime rlib.JSONDateTime // auto updated
 	LastModBy   int64             // user making the mod
 	// W2UIChild      w2uiChild `json:"w2ui"`
@@ -94,7 +94,7 @@ type AcctSaveForm struct {
 	PLID          int64
 	Status        int64
 	AllowPost     int64
-	FLAGS         uint64 // FLAGS bit 0. Offset-Account flag
+	FLAGS         uint64 //
 	OffsetAccount int    // the UI value for bit 0 of FLAGS
 }
 
@@ -611,11 +611,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// migrate foo.Record data to a struct's fields
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	fmt.Printf("saveAcct - first migrate: a = %#v\n", a)
-
-	oaval := uint64(foo.Record.OffsetAccount & 0x1) // assume it is not an offset account
-	a.FLAGS = 0                                     // reset anything that the UI sent
-	a.FLAGS |= oaval                                // The UI is authorized to modify this flag
-	rlib.Console("a.FL = %d\n", foo.Record.OffsetAccount)
+	a.FLAGS = 0 // reset anything that the UI sent
 
 	// data validation
 	if a.Name == "" {
@@ -631,7 +627,6 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// save or update
 	if a.LID == 0 && d.ID == 0 {
-
 		//-------------------------------------------------------------------
 		// check that given name is already exists for business, or GLNumber
 		// both name and GLNumber should be unique

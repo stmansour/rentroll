@@ -2,7 +2,6 @@ package rlib
 
 import (
 	"fmt"
-	"os"
 	"time"
 )
 
@@ -315,7 +314,7 @@ func ProcessNewAssessmentInstance(xbiz *XBusiness, d1, d2 *time.Time, a *Assessm
 }
 
 // ProcessNewReceipt creates a Journal entry for the supplied receipt
-//=================================================================================================
+//-----------------------------------------------------------------------------
 func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) (Journal, error) {
 	var j Journal
 	j.BID = xbiz.P.BID
@@ -349,16 +348,59 @@ func ProcessNewReceipt(xbiz *XBusiness, d1, d2 *time.Time, r *Receipt) (Journal,
 			ja.TCID = r.TCID
 			if err = InsertJournalAllocationEntry(&ja); err != nil {
 				LogAndPrintError("ProcessNewReceipt", err)
-				os.Exit(1)
+				return j, err
 			}
 			j.JA = append(j.JA, ja)
 		}
 	}
-	return j, err
+	return j, nil
 }
 
-// ProcessJournalEntry processes an assessment. It adds instances of recurring assessments for
-// the time period d1-d2 if they do not already exist. Then creates a journal entry for the assessment.
+// ProcessNewExpense adds a new expense instance.
+//-----------------------------------------------------------------------------
+func ProcessNewExpense(a *Expense, xbiz *XBusiness) error {
+	InitBizInternals(a.BID, xbiz)
+	var j = Journal{
+		BID:    xbiz.P.BID,
+		Amount: a.Amount,
+		Dt:     a.Dt,
+		Type:   JNLTYPEEXP,
+		ID:     a.EXPID,
+	}
+	_, err := InsertJournal(&j)
+	if err != nil {
+		Ulog("Error inserting Journal Expense entry: %v\n", err)
+		return err
+	}
+	var ja = JournalAllocation{
+		JID:    j.JID,
+		BID:    j.BID,
+		RID:    a.RID,
+		RAID:   a.RAID,
+		Amount: a.Amount,
+		EXPID:  a.EXPID,
+	}
+	clid := RRdb.BizTypes[a.BID].AR[a.ARID].CreditLID
+	dlid := RRdb.BizTypes[a.BID].AR[a.ARID].DebitLID
+	ja.AcctRule = fmt.Sprintf("d %s %.2f, c %s %.2f",
+		RRdb.BizTypes[a.BID].GLAccounts[dlid].GLNumber, a.Amount,
+		RRdb.BizTypes[a.BID].GLAccounts[clid].GLNumber, a.Amount)
+	if err = InsertJournalAllocationEntry(&ja); err != nil {
+		LogAndPrintError("ProcessNewReceipt", err)
+		return err
+	}
+	j.JA = append(j.JA, ja)
+	d1 := time.Date(a.Dt.Year(), a.Dt.Month(), 1, 0, 0, 0, 0, time.UTC)
+	d2 := d1.AddDate(0, 1, 0)
+	InitLedgerCache()
+	GenerateLedgerEntriesFromJournal(xbiz, &j, &d1, &d2)
+	return nil
+}
+
+// ProcessJournalEntry processes an assessment. It adds instances of recurring
+// assessments for the time period d1-d2 if they do not already exist. Then
+// creates a journal entry for the assessment.
+//-----------------------------------------------------------------------------
 func ProcessJournalEntry(a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool) {
 	funcname := "ProcessJournalEntry"
 	var j Journal

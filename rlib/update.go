@@ -82,13 +82,13 @@ func UpdateLedgerMarker(a *LedgerMarker) error {
 
 // UpdateLedger updates a Ledger record
 func UpdateLedger(a *GLAccount) error {
-	_, err := RRdb.Prepstmt.UpdateLedger.Exec(a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Status, a.Name, a.AcctType, a.AllowPost, a.RARequired, a.FLAGS, a.Description, a.LastModBy, a.LID)
+	_, err := RRdb.Prepstmt.UpdateLedger.Exec(a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Status, a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.LastModBy, a.LID)
 	return updateError(err, "GLAccount", *a)
 }
 
 // UpdateJournalAllocation updates a JournalAllocation record
 func UpdateJournalAllocation(a *JournalAllocation) error {
-	_, err := RRdb.Prepstmt.UpdateJournalAllocation.Exec(a.BID, a.JID, a.RID, a.RAID, a.TCID, a.RCPTID, a.Amount, a.ASMID, a.AcctRule, a.JAID)
+	_, err := RRdb.Prepstmt.UpdateJournalAllocation.Exec(a.BID, a.JID, a.RID, a.RAID, a.TCID, a.RCPTID, a.Amount, a.ASMID, a.EXPID, a.AcctRule, a.JAID)
 	return updateError(err, "JournalAllocation", *a)
 }
 

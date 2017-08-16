@@ -29,6 +29,10 @@ const (
 	RuleUsesAcct          = 5
 	AcctHasLedgerEntries  = 6
 	AcctRefInRule         = 7
+	MissingName           = 8  // Missing required Name field
+	DuplicateName         = 9  // Duplicate Name. An item with that name already exists.
+	MissingStyleName      = 10 // Style name is missing.
+	DuplicateStyleName    = 11 // Duplicate Style name.  An item with that style name already exists.
 )
 
 // InitBizLogic loads the error messages needed for validation errors
@@ -51,4 +55,15 @@ func InitBizLogic() {
 		b := BizError{Errno: j, Message: t[i][1]}
 		BizErrors = append(BizErrors, b)
 	}
+}
+
+// AddBizErrToList updates the supplied error list with the error message
+// corresponding to errno
+func AddBizErrToList(e []BizError, errno int) []BizError {
+	if errno < 0 || errno+1 > len(BizErrors) {
+		return e
+	}
+	b := BizError{Errno: errno, Message: BizErrors[errno].Message}
+	e = append(e, b)
+	return e
 }
