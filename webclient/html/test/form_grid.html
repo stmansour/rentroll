@@ -1,0 +1,131 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
+    <script src="/webclient/js/jquery.min.js"></script>
+    <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
+    <script src="/webclient/html/favicon32x32"></script>
+    <link rel="icon" type="image/png" href="/webclient/html/images/favicon32x32.png" />
+</head>
+<body>
+
+<!--  color Icon images:  icon-page, w2ui-icon-check, ... see below in toptoolbar -->
+<!--
+
+mainlayout    - w2ui layout toptoolbar, toplayout, footer
+toplayout     - w2ui layout for sidebar, main, and right (Detail)
+reportslayout -
+toptoolbar    - w2ui toolbar
+sidebarL1     - w2ui sidebar
+
+-->
+
+<div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
+
+
+<script>
+"use strict";
+var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
+var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
+var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 8pt; background-color: white;';
+var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777';
+var config = {
+    mainlayout: {
+        name: 'mainlayout',
+        padding: 0,
+        panels: [
+            { type: 'top', size: 55, style: pstyle, content: 'top' },
+            { type: 'left', size: 200, hidden: true, style: pstyle, content: 'left' },
+            { type: 'main', style: pstyle, content: 'main' },
+            { type: 'preview', size: '0%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
+            { type: 'right', size: 200, resizable: true, style: pstyle, hidden: true, content: 'Details' },
+            { type: 'bottom', size: 23, resizable: true, style: stdfmt, content: '&copy; 2015-2016 Accord Interests' }
+        ]
+    },
+    toptoolbar: {
+        name: 'toptoolbar',
+        items: [
+             { type: 'html',  id: 'logo',
+                html: '<div style="padding: 4px 0px;">'+
+                      '<img src="/webclient/html/images/logo.png">'+
+                      '</div>'
+            },
+            { type: 'break', id: 'break1' },
+            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
+                { text: 'Directory',          icon: 'fa fa-user' },
+                { text: 'RentRoll',           icon: 'fa fa-building-o' },
+                { text: 'Forms & Procedures', icon: 'fa fa-book' },
+            ]},
+            { type: 'break', id: 'break2' },
+        ]
+    }
+};
+
+$().w2field('addType', 'nem_form_grid', function (options) {
+    var obj = this;
+    var $el = $(this.el);
+    var subgrid_name = obj.el.name + '_nem_form_grid';
+    /*// hide the actual field element
+    $el.hide();
+    // create grid container only once!
+    var $grid_el = $("#" + subgrid_name);
+    if($grid_el.length){return; }
+    $el.after('<div id="'+ subgrid_name +'" style="height: 200px; width: 100%;" class="nem_form_grid"></div>');*/
+    /*var subgrid_params = { ... };
+    // build w2grid
+    var subgrid = w2ui_get_grid_content(subgrid_params);
+    if(subgrid){
+        // render w2grid
+        subgrid.render($grid_el);
+    }*/
+    w2ui[obj.el.name].render("#" + subgrid_name);
+});
+
+var sampleForm = {
+    formURL: "/webclient/html/test/sampleForm.html",
+    style: "width: 100%;",
+    name: 'sampleForm',
+    header: 'sample Form',
+    fields: [
+        { name: 'first_name', type: 'text', required: true, style: "width: 200px;" },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'comments', type: 'text' },
+        { name: 'sampleGrid', type: 'nem_form_grid', required: false },
+    ],
+    actions: {
+        reset: function() {
+            this.clear();
+        },
+        save: function() {
+            this.save();
+        }
+    }
+};
+
+var sampleGrid = {
+    name: 'sampleGrid',
+    columns : [
+        { field: "fname", caption: "First Name", size: "30%" },
+        { field: "lname", caption: "First Name", size: "30%" },
+        { field: "email", caption: "First Name", size: "40%" },
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com' },
+    ],
+};
+
+$(function () {
+    $().w2grid(sampleGrid);
+    $('#layout').w2layout(config.mainlayout);
+    // w2ui.mainlayout.content('main', $().w2grid(sampleGrid));
+    w2ui.mainlayout.content('top', $().w2toolbar(config.toptoolbar));
+    w2ui.mainlayout.content('main', $().w2form(sampleForm));
+});
+</script>
+
+</body>
+</html>
+
+
+</script>
