@@ -428,7 +428,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// LEDGER-->  GLAccount
 	//==========================================
-	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Name,AcctType,AllowPost,RARequired,FLAGS,Description,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "LID,PLID,BID,RAID,TCID,GLNumber,Status,Name,AcctType,AllowPost,FLAGS,Description,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["GLAccount"] = flds
 	RRdb.Prepstmt.GetLedgerByGLNo, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM GLAccount WHERE BID=? AND GLNumber=?")
 	Errcheck(err)
@@ -1017,6 +1017,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetRentableType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypes WHERE RTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableTypeByStyle, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypes WHERE Style=? and BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetRentableTypeByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypes WHERE Name=? and BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllBusinessRentableTypes, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypes WHERE BID=? ORDER BY RTID ASC")
 	Errcheck(err)

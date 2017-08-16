@@ -1148,18 +1148,13 @@ CREATE TABLE GLAccount (
     TCID BIGINT NOT NULL DEFAULT 0,                 -- Payor, only valid if TYPE is 2
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',      -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,             -- Whether a GL Account is currently unknown=0, inactive=1, active=2
-    -- Type SMALLINT NOT NULL DEFAULT 0,               -- flag: 0 = not a special account of any kind,
-    --                                                       1 - 9 Reserved
-    --                                                       1 = balance for this particular RentalAgreement (we may deprecate this)
-    --                                                       2 = balance for this payor
-    --                                                       10-default cash, 11-GENRCV, 12-GrossSchedRENT, 13-LTL, 14-VAC, 15 sec dep receivable, 16 sec dep assessment
     Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',      -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
                                                     --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,
                                                     --    Cost of Goods Sold, Other Income, Other Expense
     AllowPost SMALLINT NOT NULL DEFAULT 0,          -- 0 - do not allow posts to this ledger. 1 = allow posts
-    RARequired SMALLINT NOT NULL DEFAULT 0,         -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-    FLAGS BIGINT NOT NULL DEFAULT 0,                -- 1<<0 = offset account - do not try to fund it from a payment
+    -- RARequired SMALLINT NOT NULL DEFAULT 0,         -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+    FLAGS BIGINT NOT NULL DEFAULT 0,                -- 
     Description VARCHAR(1024) NOT NULL DEFAULT '',  -- describe the assessment
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,            -- employee UID (from phonebook) that modified it

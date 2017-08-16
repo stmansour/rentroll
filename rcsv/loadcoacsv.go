@@ -8,11 +8,17 @@ import (
 	"time"
 )
 
-//   0   1                             2          3,               4             5                    6          7                  8          9            10         11          12
-// BUD,  Name,                         GLNumber,  Parent GLNumber, Collective    Account TYpe,        Balance,   Account Status, Associated,   Date,     AllowPosting, RARequired, Description
-// REH,  Bank Account FRB 2332352,     10001,     10000,           Cash,         bank,                0,         active,            Yes,     "2016-03-01",  Yes,       0,          Bla bla bla
-// REH,  General Accounts Receivable,  11001,     11000,           Cash,         Accounts Receivable, 0,         active,            Yes,     "2016-03-01",  Yes,       0,          Bla bla bla
-// REH,  Friday Lunch Fund,            11099,     11000,           Cash,         Accounts Receivable, 0.00,      active,            No,
+// TODO:
+// Remove Associated
+// Remove Collective
+// Allow Posting
+// RA Required
+
+//   0   1                             2          3,               4                    5          6                 7           8
+// BUD,  Name,                         GLNumber,  Parent GLNumber, Account Type,        Balance,   Account Status,   Date,       Description
+// REH,  Bank Account FRB 2332352,     10001,     10000,           bank,                0,         active,         "2016-03-01", Bla bla bla
+// REH,  General Accounts Receivable,  11001,     11000,           Accounts Receivable, 0,         active,         "2016-03-01", Bla bla bla
+// REH,  Friday Lunch Fund,            11099,     11000,           Accounts Receivable, 0.00,      active,
 
 // CreateLedgerMarkers reads an assessment type string array and creates a database record for the assessment type
 func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
@@ -20,20 +26,17 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	inserting := true // this may be changed, depends on the value for sa[7]
 	var lm rlib.LedgerMarker
 	var l rlib.GLAccount
+	var parent rlib.GLAccount
 
 	const (
 		BUD            = 0
 		Name           = iota
 		GLNumber       = iota
 		ParentGLNumber = iota
-		Collective     = iota
 		AccountType    = iota
 		Balance        = iota
 		AccountStatus  = iota
-		Associated     = iota
 		Date           = iota
-		AllowPosting   = iota
-		cRARequired    = iota
 		Description    = iota
 	)
 
@@ -43,16 +46,14 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		{"Name", Name},
 		{"GLNumber", GLNumber},
 		{"ParentGLNumber", ParentGLNumber},
-		{"Collective", Collective},
 		{"AccountType", AccountType},
 		{"Balance", Balance},
 		{"AccountStatus", AccountStatus},
-		{"Associated", Associated},
 		{"Date", Date},
-		{"AllowPosting", AllowPosting},
-		{"RARequired", cRARequired},
 		{"Description", Description},
 	}
+
+	l.AllowPost = 1 // default is to allow, server will modify as needed
 
 	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
 	if y {
@@ -114,18 +115,13 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	l.PLID = int64(0) // assume no parent
 	g = strings.TrimSpace(sa[ParentGLNumber])
 	if len(g) > 0 {
-		parent := rlib.GetLedgerByGLNo(l.BID, g)
+		parent = rlib.GetLedgerByGLNo(l.BID, g)
 		if parent.LID == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error getting GLAccount: %s", funcname, lineno, g)
 		}
 		l.PLID = parent.LID
 	}
 	// fmt.Println("D")
-
-	//----------------------------------------------------------------------
-	// Collective
-	//----------------------------------------------------------------------
-	// strings.TrimSpace(sa[4])
 
 	//----------------------------------------------------------------------
 	// ACCOUNT TYPE
@@ -140,7 +136,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	if len(g) > 0 {
 		x, err := strconv.ParseFloat(g, 64)
 		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid balance: %s", funcname, lineno, sa[6])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid balance: %s", funcname, lineno, sa[Balance])
 		}
 		lm.Balance = x
 	}
@@ -155,7 +151,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	} else if "inactive" == s {
 		l.Status = rlib.ACCTSTATUSINACTIVE
 	} else {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid account status: %s", funcname, lineno, sa[7])
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid account status: %s", funcname, lineno, sa[AccountStatus])
 	}
 
 	// fmt.Println("F")
@@ -169,25 +165,13 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	}
 	lm.Dt = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC) // always force the initial ledger marker to "the beginning of time"
 
-	//----------------------------------------------------------------------
-	// ALLOW POST
-	//----------------------------------------------------------------------
-	l.AllowPost, err = rlib.YesNoToInt(sa[AllowPosting])
-	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid value for AllowPost:  %s", funcname, lineno, sa[AllowPosting])
-	}
-
-	//----------------------------------------------------------------------
-	// RAREQUIRED
-	//----------------------------------------------------------------------
-	RARequired, err := rlib.IntFromString(sa[cRARequired], fmt.Sprintf("Invalid number for RARequired. Must be a number between %d and %d", rlib.RARQDINRANGE, rlib.RARQDLAST))
-	if err != nil {
-		return CsvErrorSensitivity, err
-	}
-	if RARequired < rlib.RARQDINRANGE || RARequired > rlib.RARQDLAST {
-		return CsvErrorSensitivity, fmt.Errorf("Invalid number for RARequired. Must be a number between %d and %d", rlib.RARQDINRANGE, rlib.RARQDLAST)
-	}
-	l.RARequired = RARequired
+	// //----------------------------------------------------------------------
+	// // ALLOW POST
+	// //----------------------------------------------------------------------
+	// l.AllowPost, err = rlib.YesNoToInt(sa[AllowPosting])
+	// if err != nil {
+	// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid value for AllowPost:  %s", funcname, lineno, sa[AllowPosting])
+	// }
 
 	//----------------------------------------------------------------------
 	// DESCRIPTION
@@ -225,6 +209,17 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	}
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save rlib.GLAccount marker, err = %v", funcname, lineno, err)
+	}
+
+	//--------------------------------------------------------------
+	// If this entry called out a Parent, make sure the Parent's
+	// AllowPost attribute is set properly
+	//--------------------------------------------------------------
+	if l.PLID > 0 && l.PLID == parent.LID {
+		if parent.AllowPost == 1 {
+			parent.AllowPost = 0
+			rlib.UpdateLedger(&parent)
+		}
 	}
 
 	return 0, nil

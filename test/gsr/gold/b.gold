@@ -4,80 +4,78 @@ BH Rexford Group, Inc.
 Suite 301
 Austin, TX 78738 USA
 
-                                                                                                                  Rental                           
-                                                                                                               Agreement                           
-GLNumber  Name                                      Parent                               Account Type           Required  Description              
---------  ----------------------------------------  -----------------------------------  --------------------  ---------  -------------------------
-   10000  Cash                                                                           Bank Account                Yes  Main cash account        
-   10001  Cash BofA                                                                      Bank Account                 No                           
-   10100  Unapplied Funds                                                                Holding Account             Yes  Holding account          
-   11000  Credit Card Clearing                                                           Current Asset                No                           
-   12000  Accounts Receivable                                                            Current Asset                No                           
-   30000  Security Deposits                                                              Current Liabilities         Yes                           
-   30100  Accrued Taxes                                                                  Current Liabilities          No                           
-   30101  Sales Taxes                               Accrued Taxes                        Current Liabilities          No                           
-   30102  Transient Occupancy Taxes                 Accrued Taxes                        Current Liabilities          No                           
-   30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities          No                           
-   39000  Owners' Equity                                                                 Equity                       No                           
-   41000  Gross Scheduled Rent-Taxable                                                   Income                       No                           
-   41001  Gross Scheduled Rent-Not Taxable                                               Income                       No                           
-   41002  Income Offsets                                                                 Income                       No                           
-   41003  Other Income                                                                   Income                       No                           
-   41100  Unit Income Offsets                       Income Offsets                       Income                       No                           
-   41101  Vacancy                                   Unit Income Offsets                  Income                       No                           
-   41102  Loss (Gain) to Lease                      Unit Income Offsets                  Income                       No                           
-   41103  Employee Concessions                      Unit Income Offsets                  Income                       No                           
-   41104  Resident Concessions                      Unit Income Offsets                  Income                       No                           
-   41105  Owner Concession                          Unit Income Offsets                  Income                       No                           
-   41106  Administrative Concession                 Unit Income Offsets                  Income                       No                           
-   41107  Off Line Renovations                      Unit Income Offsets                  Income                       No                           
-   41108  Off Line Maintenance                      Unit Income Offsets                  Income                       No                           
-   41199  Othe Income Offsets                       Unit Income Offsets                  Income                       No                           
-   41200  Serviced Fees                             Other Income                         Income                       No                           
-   41201  Broadcast and IT Services                 Serviced Fees                        Income                       No                           
-   41202  Food Services                             Serviced Fees                        Income                       No                           
-   41203  Linen Services                            Serviced Fees                        Income                       No                           
-   41204  Wash N Fold Services                      Serviced Fees                        Income                       No                           
-   41299  Other Service Fees                        Serviced Fees                        Income                       No                           
-   41300  Utility Fees                              Other Income                         Income                       No                           
-   41301  Electric Base Fee                         Utility Fees                         Income                       No                           
-   41302  Electric Overage                          Utility Fees                         Income                       No                           
-   41303  Water and Sewer Base Fee                  Utility Fees                         Income                      Yes                           
-   41304  Water and Sewer Overage                   Utility Fees                         Income                      Yes                           
-   41305  Gas Base Fee                              Utility Fees                         Income                      Yes                           
-   41306  Gas Overage                               Utility Fees                         Income                      Yes                           
-   41307  Trash Collection Base Fee                 Utility Fees                         Income                      Yes                           
-   41308  Trash Collection Overage                  Utility Fees                         Income                      Yes                           
-   41399  Other Utility Fee                         Utility Fees                         Income                      Yes                           
-   41400  Miscellaneous Income                      Other Income                         Income                       No                           
-   41401  Application Fees                          Miscellaneous Income                 Income                      Yes                           
-   41402  Late Fees                                 Miscellaneous Income                 Income                      Yes                           
-   41403  Insufficient Funds Fee                    Miscellaneous Income                 Income                       No                           
-   41404  Month to Month Fee                        Miscellaneous Income                 Income                       No                           
-   41405  Premium Upgrades                          Miscellaneous Income                 Income                       No                           
-   41406  No Show or Termination Fee                Miscellaneous Income                 Income                       No                           
-   41407  Pet Fees                                  Miscellaneous Income                 Income                       No                           
-   41408  Pet Rent                                  Miscellaneous Income                 Income                       No                           
-   41409  Expense Reimbursement                     Miscellaneous Income                 Income                       No                           
-   41410  Special Cleaning Fee                      Miscellaneous Income                 Income                       No                           
-   41411  Eviction Fee Reimbursement                Miscellaneous Income                 Income                      Yes                           
-   41412  Extra Person Charge                       Miscellaneous Income                 Income                       No                           
-   41413  Forfeited SecDep                          Miscellaneous Income                 Income                      Yes                           
-   41414  Damage Fee                                Miscellaneous Income                 Income                      Yes                           
-   41415  CAM Fees                                                                       Income                      Yes                           
-   41499  Other Miscellaneous Income                Miscellaneous Income                 Income                      Yes                           
-   41500  Taxes Collected in Trust                  Other Income                         Income                      Yes                           
-   41501  Sales Taxes                               Taxes Collected in Trust             Income                      Yes                           
-   41502  Transient Occupancy Taxes                 Taxes Collected in Trust             Income                      Yes                           
-   42000  Business Income                           Other Income                         Income                       No                           
-   42100  Convenience Store                         Business Income                      Income                       No                           
-   42200  Fitness Center Revenue                    Business Income                      Income                       No                           
-   42300  Vending Income                            Business Income                      Income                       No                           
-   42400  Restaurant Sales                          Business Income                      Income                       No                           
-   42500  Bar Sales                                 Business Income                      Income                       No                           
-   42600  Spa Sales                                 Business Income                      Income                       No                           
-   49991  Cash Over/Short                           Business Income                      Income                       No                           
-   49992  Bad Debt                                  Business Income                      Income                       No                           
-   49998  Income Suspense                           Business Income                      Income                       No                           
-   49999  Other Business Income                     Business Income                      Income                       No                           
+GLNumber  Name                                      Parent                               Account Type          Description              
+--------  ----------------------------------------  -----------------------------------  --------------------  -------------------------
+   10000  Cash                                                                           Bank Account          Main cash account        
+   10001  Cash BofA                                                                      Bank Account                                   
+   10100  Unapplied Funds                                                                Holding Account       Holding account          
+   11000  Credit Card Clearing                                                           Current Asset                                  
+   12000  Accounts Receivable                                                            Current Asset                                  
+   30000  Security Deposits                                                              Current Liabilities                            
+   30100  Accrued Taxes                                                                  Current Liabilities                            
+   30101  Sales Taxes                               Accrued Taxes                        Current Liabilities                            
+   30102  Transient Occupancy Taxes                 Accrued Taxes                        Current Liabilities                            
+   30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities                            
+   39000  Owners' Equity                                                                 Equity                                         
+   41000  Gross Scheduled Rent-Taxable                                                   Income                                         
+   41001  Gross Scheduled Rent-Not Taxable                                               Income                                         
+   41002  Income Offsets                                                                 Income                                         
+   41003  Other Income                                                                   Income                                         
+   41100  Unit Income Offsets                       Income Offsets                       Income                                         
+   41101  Vacancy                                   Unit Income Offsets                  Income                                         
+   41102  Loss (Gain) to Lease                      Unit Income Offsets                  Income                                         
+   41103  Employee Concessions                      Unit Income Offsets                  Income                                         
+   41104  Resident Concessions                      Unit Income Offsets                  Income                                         
+   41105  Owner Concession                          Unit Income Offsets                  Income                                         
+   41106  Administrative Concession                 Unit Income Offsets                  Income                                         
+   41107  Off Line Renovations                      Unit Income Offsets                  Income                                         
+   41108  Off Line Maintenance                      Unit Income Offsets                  Income                                         
+   41199  Othe Income Offsets                       Unit Income Offsets                  Income                                         
+   41200  Serviced Fees                             Other Income                         Income                                         
+   41201  Broadcast and IT Services                 Serviced Fees                        Income                                         
+   41202  Food Services                             Serviced Fees                        Income                                         
+   41203  Linen Services                            Serviced Fees                        Income                                         
+   41204  Wash N Fold Services                      Serviced Fees                        Income                                         
+   41299  Other Service Fees                        Serviced Fees                        Income                                         
+   41300  Utility Fees                              Other Income                         Income                                         
+   41301  Electric Base Fee                         Utility Fees                         Income                                         
+   41302  Electric Overage                          Utility Fees                         Income                                         
+   41303  Water and Sewer Base Fee                  Utility Fees                         Income                                         
+   41304  Water and Sewer Overage                   Utility Fees                         Income                                         
+   41305  Gas Base Fee                              Utility Fees                         Income                                         
+   41306  Gas Overage                               Utility Fees                         Income                                         
+   41307  Trash Collection Base Fee                 Utility Fees                         Income                                         
+   41308  Trash Collection Overage                  Utility Fees                         Income                                         
+   41399  Other Utility Fee                         Utility Fees                         Income                                         
+   41400  Miscellaneous Income                      Other Income                         Income                                         
+   41401  Application Fees                          Miscellaneous Income                 Income                                         
+   41402  Late Fees                                 Miscellaneous Income                 Income                                         
+   41403  Insufficient Funds Fee                    Miscellaneous Income                 Income                                         
+   41404  Month to Month Fee                        Miscellaneous Income                 Income                                         
+   41405  Premium Upgrades                          Miscellaneous Income                 Income                                         
+   41406  No Show or Termination Fee                Miscellaneous Income                 Income                                         
+   41407  Pet Fees                                  Miscellaneous Income                 Income                                         
+   41408  Pet Rent                                  Miscellaneous Income                 Income                                         
+   41409  Expense Reimbursement                     Miscellaneous Income                 Income                                         
+   41410  Special Cleaning Fee                      Miscellaneous Income                 Income                                         
+   41411  Eviction Fee Reimbursement                Miscellaneous Income                 Income                                         
+   41412  Extra Person Charge                       Miscellaneous Income                 Income                                         
+   41413  Forfeited SecDep                          Miscellaneous Income                 Income                                         
+   41414  Damage Fee                                Miscellaneous Income                 Income                                         
+   41415  CAM Fees                                                                       Income                                         
+   41499  Other Miscellaneous Income                Miscellaneous Income                 Income                                         
+   41500  Taxes Collected in Trust                  Other Income                         Income                                         
+   41501  Sales Taxes                               Taxes Collected in Trust             Income                                         
+   41502  Transient Occupancy Taxes                 Taxes Collected in Trust             Income                                         
+   42000  Business Income                           Other Income                         Income                                         
+   42100  Convenience Store                         Business Income                      Income                                         
+   42200  Fitness Center Revenue                    Business Income                      Income                                         
+   42300  Vending Income                            Business Income                      Income                                         
+   42400  Restaurant Sales                          Business Income                      Income                                         
+   42500  Bar Sales                                 Business Income                      Income                                         
+   42600  Spa Sales                                 Business Income                      Income                                         
+   49991  Cash Over/Short                           Business Income                      Income                                         
+   49992  Bad Debt                                  Business Income                      Income                                         
+   49998  Income Suspense                           Business Income                      Income                                         
+   49999  Other Business Income                     Business Income                      Income                                         
 

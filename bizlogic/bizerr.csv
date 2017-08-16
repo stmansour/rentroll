@@ -6,3 +6,7 @@
 5,"This account cannot be a summary account because one or more rules uses it for debit/credit. "
 6,"This account cannot be deleted as it has ledger entries. "
 7,"This account cannot be deleted as it is referenced by one or more Account Rules. "
+8,"Missing required Name field"
+9,"Duplicate Name. An item with that name already exists."
+10,"Style name is missing."
+11,"Duplicate Style name.  An item with that style name already exists."
