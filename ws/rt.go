@@ -44,6 +44,8 @@ type RentableTypeGridRecord struct {
 	CreateBy       int64
 	RMRID          int64
 	MarketRate     float64
+	DtStart        rlib.JSONDate
+	DtStop         rlib.JSONDate
 }
 
 // RentableTypeSearchResponse is a response string to the search request for rentable types records
@@ -157,7 +159,8 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 // rtGridRowScan scans a result from sql row and dump it in a struct for rentableGrid
 func rentableTypeGridRowScan(rows *sql.Rows, q RentableTypeGridRecord) (RentableTypeGridRecord, error) {
-	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.ManageToBudget, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy, &q.RMRID, &q.MarketRate)
+	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.ManageToBudget,
+		&q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy, &q.RMRID, &q.MarketRate, &q.DtStart, &q.DtStop)
 	return q, err
 }
 
@@ -175,6 +178,8 @@ var rtSearchFieldMap = selectQueryFieldMap{
 	"CreateBy":       {"RentableTypes.CreateBy"},
 	"RMRID":          {"RentableMarketRate.RMRID"},
 	"MarketRate":     {"RentableMarketRate.MarketRate"},
+	"DtStart":        {"RentableMarketRate.DtStart"},
+	"DtStop":         {"RentableMarketRate.DtStop"},
 }
 
 // which fields needs to be fetch to satisfy the struct
@@ -192,6 +197,8 @@ var rtSearchSelectQueryFields = selectQueryFields{
 	"RentableTypes.CreateBy",
 	"RentableMarketRate.RMRID",
 	"RentableMarketRate.MarketRate",
+	"RentableMarketRate.DtStart",
+	"RentableMarketRate.DtStop",
 }
 
 // SvcSearchHandlerRentableTypes generates a report of all RentableTypes defined business d.BID
@@ -208,12 +215,12 @@ var rtSearchSelectQueryFields = selectQueryFields{
 func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var (
-		funcname    = "SvcSearchHandlerRentableTypes"
-		g           RentableTypeSearchResponse
-		err         error
-		currentTime = time.Now().UTC()
-		order       = `RentableTypes.RTID ASC` // default ORDER in sql result
-		whr         = fmt.Sprintf("RentableTypes.BID=%d AND RentableMarketRate.DtStop>%q", d.BID, currentTime)
+		funcname = "SvcSearchHandlerRentableTypes"
+		g        RentableTypeSearchResponse
+		err      error
+		order    = `RentableTypes.RTID ASC` // default ORDER in sql result
+		whr      = fmt.Sprintf("RentableTypes.BID=%d AND %q<RentableMarketRate.DtStop AND RentableMarketRate.DtStart<%q ",
+			d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 	)
 	fmt.Printf("Entered %s\n", funcname)
 

@@ -112,9 +112,11 @@ function buildRentableTypeElements() {
                 },
             },
             {field: 'LastModTime', caption: 'LastModTime', hidden: true},
-            {field: 'LastModBy', caption: 'LastModBy', hidden: true},
-            {field: 'RMRID', caption: 'RMRID', hidden: true},
-            {field: 'MarketRate', caption: 'MarketRate', size: '100px', sortable: true, render: 'money'},
+            {field: 'LastModBy',   caption: 'LastModBy',   hidden: true},
+            {field: 'RMRID',       caption: 'RMRID',       hidden: true},
+            {field: 'MarketRate',  caption: 'MarketRate',  size: '100px', sortable: true, render: 'money'},
+            {field: 'DtStart',     caption: 'DtStart',     size: '100px', sortable: true, style: 'text-align: right'},
+            {field: 'DtStop',      caption: 'DtStop',      size: '100px', sortable: true, style: 'text-align: right'},
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
