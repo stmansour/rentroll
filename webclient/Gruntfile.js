@@ -53,7 +53,7 @@ module.exports = function gruntInit(grunt) {
                 // timeout: 30000,
                 "--web-security": "no",
                 coverage: {
-                    src: [ "<%= distInput %>" ],
+                    src: [ "<%= distConcatOutput %>" ],
                     instrumentedFiles: '<%= qUnitInstrumentedFiles %>',
                     htmlReport: "./coverage/html",
                     lcovReport: "./coverage/lcov",
