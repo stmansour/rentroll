@@ -329,6 +329,18 @@ function buildDepositElements() {
             {field: 'DocNo',    caption: 'Document No.', hidden: false, size: '100px', sortable: true, style: 'text-align: right'},
             {field: 'Payors',   caption: 'Payors',       hidden: false, size: '200px', sortable: true  },
         ],
+        onLoad: function(event) {
+            event.done(function () {
+                if (w2ui.depositListGrid.summary.length === 0) {
+                    var x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
+                    var rec = {recid: 's-1', DID: 0, BID: BID, BUD: BUD, DEPID: 0, DEPName: "", DPMID: 0, DPMName: "", Dt: null, FLAGS: 0, Amount: 0.0, ClearedAmount: 0.0, LastModTime: null, LastModBy: 0, CreateTS: null, CreateBy: 0, w2ui:{summary: true}, };
+                    w2ui.depositListGrid.add(rec);
+                }
+                calcTotalCheckedReceipts();
+            });
+        },
     });
 
     addDateNavToToolbar('depositList');
@@ -348,6 +360,46 @@ function buildDepositElements() {
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
+}
+
+//-----------------------------------------------------------------------------
+// calcTotalCheckedReceipts - go through all the depositListGrid items and 
+//      total all the checked receipts. Update the Amount column of the
+//      summary row with the total.
+// @params
+//-----------------------------------------------------------------------------
+function calcTotalCheckedReceipts() {
+    var t = 100.00;
+    var grid = w2ui.depositListGrid;
+    // var chgs = grid.getChanges();
+    // var amts = [];
+    // //
+    // // Build up a list of amounts...
+    // //
+    // for (var i = 0; i < grid.records.length; i++) {
+    //     if (typeof grid.records[i].ContractRent == "number") {
+    //         amts.push({ recid: grid.records[i].recid, ContractRent: grid.records[i].ContractRent });
+    //     }
+    // }
+    // //
+    // // Any changes override these ContractRents...
+    // //
+    // for (i = 0; i < chgs.length; i++) {
+    //     if (typeof chgs[i].ContractRent == "number") {
+    //         for (var j = 0; j < amts.length; j++) {
+    //             if (chgs[i].recid == amts[j].recid) {
+    //                 amts[j] = { recid: chgs[i].recid, ContractRent: chgs[i].ContractRent };
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
+    // // now total everything...
+    // var total = 0.0;
+    // for (i = 0; i < amts.length; i++) {
+    //     total += amts[i].ContractRent;
+    // }
+    grid.set('s-1', { Amount: t });
 }
 
 //-----------------------------------------------------------------------------
