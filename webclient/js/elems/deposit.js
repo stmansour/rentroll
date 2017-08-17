@@ -1,5 +1,6 @@
 /*global
-    parseInt, w2ui, getDepMeth, getDepository
+    parseInt, w2ui, getDepMeth, getDepository, $, app, getBUDfromBID, getCurrentBusiness, console,
+    form_dirty_alert, getFormSubmitData, formRecDiffer, formRefreshCallBack, addDateNavToToolbar,
 */
 
 "use strict";
@@ -168,7 +169,7 @@ function buildDepositElements() {
                 .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
 
                 f.refresh();
-                setToDepositForm('depositLayout', 'depositForm', '/v1/deposit/' + BID + '/0','', 700);
+                setToDepositForm('depositLayout', 'depositForm', '/v1/deposit/' + BID + '/0','/v1/depositlist/'+BID+'/0', 700);
             };
 
             // warn user if form content has been changed
@@ -299,9 +300,9 @@ function buildDepositElements() {
         url: '/v1/depositlist',
         multiSelect: false,
         show: {
-            toolbar        : false,
+            toolbar        : true,
             footer         : true,
-            toolbarAdd     : true,   // indicates if toolbar add new button is visible
+            toolbarAdd     : false,   // indicates if toolbar add new button is visible
             toolbarDelete  : false,   // indicates if toolbar delete button is visible
             toolbarSave    : false,   // indicates if toolbar save button is visible
             selectColumn   : false,
@@ -315,6 +316,7 @@ function buildDepositElements() {
         },
         columns: [
             {field: 'recid',    caption: 'recid',        hidden: true,  size: '40px',  sortable: true  },
+            {field: 'check',    caption: 'check',        hidden: false, size: '40px',  editable: { type: 'checkbox' } },
             {field: 'RCPTID',   caption: 'Receipt ID',   hidden: false, size: '80px',  sortable: true, style: 'text-align: right'},
             {field: 'Dt',       caption: 'Date',         hidden: false, size: '80px',  sortable: true, style: 'text-align: right'},
             {field: 'ARID',     caption: 'ARID',         hidden: true,  size: '150px', sortable: false },
@@ -329,6 +331,8 @@ function buildDepositElements() {
         ],
     });
 
+    addDateNavToToolbar('depositList');
+
     //-------------------------------------------------------------------------------
     //  depositLayout - The layout to contain the depositForm and depositDetailGrid
     //-------------------------------------------------------------------------------
@@ -337,7 +341,7 @@ function buildDepositElements() {
         padding: 0,
         panels: [
             { type: 'left',    size: '30%', hidden: true },
-            { type: 'top',     size: 375,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'top',     size: 350,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
             { type: 'main',    size: '70%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
             { type: 'bottom',  size: 0,     hidden: true },

@@ -33,6 +33,8 @@ const (
 	DuplicateName         = 9  // Duplicate Name. An item with that name already exists.
 	MissingStyleName      = 10 // Style name is missing.
 	DuplicateStyleName    = 11 // Duplicate Style name.  An item with that style name already exists.
+	BadDebitAccount       = 12 // The Debit account is not valid.
+	BadCreditAccount      = 13 // The Credit account is not valid.
 )
 
 // InitBizLogic loads the error messages needed for validation errors

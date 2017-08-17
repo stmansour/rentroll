@@ -293,6 +293,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
 	var ok bool
+	a.Method = foo.Record.Name
 	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
@@ -363,6 +364,7 @@ func getDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.DPMID > 0 {
 		var gg DepositMethodGrid
 		rlib.MigrateStructVals(&a, &gg)
+		gg.Name = a.Method
 		gg.BUD = getBUDFromBIDList(gg.BID)
 		g.Record = gg
 	}

@@ -1,3 +1,10 @@
+/*global
+    w2ui, $, app, w2confirm, getBUDfromBID, getCurrentBusiness, setToForm,
+    console, form_dirty_alert, buildPaymentTypeSelectList, setDateControlsInToolbar,
+    addDateNavToToolbar, tcidReceiptPayorPickerRender, tcidPickerDropRender, tcidPickerCompare,
+    getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
+    getFormSubmitData, w2uiDateControlString, 
+*/
 "use strict";
 function getReceiptInitRecord(BID, BUD, ptInit){
     var y = new Date();
@@ -10,6 +17,7 @@ function getReceiptInitRecord(BID, BUD, ptInit){
         PmtTypeName: ptInit,
         BID: BID,
         BUD: BUD,
+        DID: 0,
         Dt: w2uiDateControlString(y),
         LastModTime: y.toISOString(),
         CreateTS: y.toISOString(),
@@ -50,7 +58,7 @@ function buildReceiptElements() {
             toolbarColumns : true,
         },
         columns: [
-            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},                                    // 0
+            {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'reversed', size: '10px', style: 'text-align: center', sortable: true,
                     render: function (record /*, index, col_index*/) {
                         if (typeof record === "undefined") {
@@ -62,17 +70,18 @@ function buildReceiptElements() {
                         return '';
                     },
             },
-            {field: 'RCPTID', caption: 'Receipt ID',  size: '80px', style: 'text-align: right', sortable: true},                // 1
-            {field: 'Dt', caption: 'Date', size: '80px', sortable: true, style: 'text-align: right'},                           // 2
-            {field: 'ARID', caption: 'ARID',  size: '150px', hidden: true, sortable: false},                                    // 3
-            {field: 'AcctRule', caption: 'Account Rule',  size: '150px', sortable: true},                                       // 4
-            {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},   // 5
-            {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},                                        // 6
-            {field: 'TCID', hidden: true, caption: 'TCID', size: '40px', sortable: false},                                      // 7
-            {field: 'PMTID', hidden: true, caption: 'PMTID', sortable: false},              // 8 - if this changes, update switchToGrid()
-            {field: 'PmtTypeName', caption: 'Payment Type', size: '100px', sortable: true},
-            {field: 'DocNo', caption: 'Document Number',  size: '150px', style: 'text-align: right', sortable: true},
-            {field: 'Payor', caption: 'Payor', size: '150px', sortable: true},
+            {field: 'RCPTID',      caption: 'Receipt ID',     size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'Dt',          caption: 'Date',           size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'ARID',        caption: 'ARID',           size: '150px', hidden: true,  sortable: false},
+            {field: 'DID',         caption: 'DID',            size: '150px', hidden: true,  sortable: false},
+            {field: 'AcctRule',    caption: 'Account Rule',   size: '150px', hidden: false, sortable: true},
+            {field: 'Amount',      caption: 'Amount',         size: '100px', hidden: false, sortable: true, render: 'money', style: 'text-align: right'},
+            {field: 'BID',         caption: 'BUD',            size: '40px',  hidden: true,  sortable: false},
+            {field: 'TCID',        caption: 'TCID',           size: '40px',  hidden: true,  sortable: false},
+            {field: 'PMTID',       caption: 'PMTID',                         hidden: true,  sortable: false},
+            {field: 'PmtTypeName', caption: 'Payment Type',   size: '100px', hidden: false, sortable: true},
+            {field: 'DocNo',       caption: 'Document Number',size: '150px', hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'Payor',       caption: 'Payor',          size: '150px', hidden: false, sortable: true},
         ],
         searches : [
             { field: 'Amount', caption: 'Amount', type: 'string' },
@@ -491,7 +500,6 @@ function buildReceiptElements() {
                     grid.render();
 
                     // add new empty record and just refresh the form, don't need to do CLEAR form
-                    var y = new Date();
                     var pmt_options = buildPaymentTypeSelectList(BUD);
                     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
                     var record = getReceiptInitRecord(BID, BUD, ptInit);

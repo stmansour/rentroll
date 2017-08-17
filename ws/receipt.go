@@ -19,6 +19,7 @@ type ReceiptSendForm struct {
 	RCPTID         int64
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
 	BID            int64
+	DID            int64
 	BUD            rlib.XJSONBud
 	PMTID          int64
 	Payor          string // name of the payor
@@ -48,6 +49,7 @@ type ReceiptSaveForm struct {
 	Recid          int64 `json:"recid"` // this is to support the w2ui form
 	RCPTID         int64
 	BID            int64
+	DID            int64
 	BUD            rlib.XJSONBud
 	ARID           int64
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
@@ -68,6 +70,7 @@ type PrReceiptGrid struct {
 	Recid       int64 `json:"recid"` // this is to support the w2ui form
 	RCPTID      int64
 	BID         int64
+	DID         int64
 	TCID        int64 // TCID of payor
 	PMTID       int64
 	PmtTypeName string
@@ -108,7 +111,7 @@ type DeleteRcptForm struct {
 
 // receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
 func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) (PrReceiptGrid, error) {
-	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS)
+	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS, &q.DID)
 	return q, err
 }
 
@@ -126,6 +129,7 @@ var receiptsFieldsMap = map[string][]string{
 	"ARID":        {"Receipt.ARID"},
 	"AcctRule":    {"AR.Name"},
 	"FLAGS":       {"Receipt.FLAGS"},
+	"DID":         {"Receipt.DID"},
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -142,6 +146,7 @@ var receiptsQuerySelectFields = []string{
 	"Receipt.ARID",
 	"AR.Name as AcctRule",
 	"Receipt.FLAGS",
+	"Receipt.DID",
 }
 
 // SvcSearchHandlerReceipts generates a report of all Receipts defined business d.BID

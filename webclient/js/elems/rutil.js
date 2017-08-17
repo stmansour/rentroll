@@ -181,6 +181,7 @@ function getDepMeth(BUD, id) {
     if (typeof BUD === "undefined") {
         return dpm;
     }
+    if (typeof app.depmeth[BUD].length == "undefined") { return; }
     for (var i = 0; i < app.depmeth[BUD].length; i++) {
         if (app.depmeth[BUD][i].id == id) {
             dpm = { id: id, text: app.depmeth[BUD][i].text };

@@ -1,3 +1,7 @@
+/*global
+    app, w2ui, $, monthBack, monthFwd, dayBack, dayFwd, setToCurrentMonth, setToNextMonth,
+    console, dateFromString, dateControlString,
+*/
 "use strict";
 //-----------------------------------------------------------------------------
 // handleDateToolbarAction
@@ -81,7 +85,7 @@ function genDateRangeNavigator(prefix) {
 
                    // w2field in toolbar must be initialized during refresh
                    // see: https://github.com/vitmalina/w2ui/issues/886
-                   event.onComplete = function(ev){
+                   event.onComplete = function(/*ev*/){
                        $('input[name='+ prefix +'D1]').w2field('date', {format: 'm/d/yyyy'});
                    };
                }
@@ -95,7 +99,7 @@ function genDateRangeNavigator(prefix) {
 
                    // w2field in toolbar must be initialized during refresh
                    // see: https://github.com/vitmalina/w2ui/issues/886
-                   event.onComplete = function(ev){
+                   event.onComplete = function(/*ev*/){
                        $('input[name='+ prefix +'D2]').w2field('date', {format: 'm/d/yyyy', start: $('input[name='+ prefix +'D1]')});
                    };
                }

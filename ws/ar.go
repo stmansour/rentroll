@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -363,6 +364,13 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			a.RARequired = int64(raReq)
 			break
 		}
+	}
+
+	// Ensure that the supplied data is valid
+	e := bizlogic.ValidateAcctRule(&a)
+	if len(e) > 0 {
+		SvcErrListReturn(w, e, funcname)
+		return
 	}
 
 	// save or update
