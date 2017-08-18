@@ -113,6 +113,6 @@ module.exports = function gruntInit(grunt) {
             grunt.file.mkdir("temp");
         }
     );
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'qunit-instrumented-dir', 'qunit']); // commented out qunit until we find the problem on the build machine
+    grunt.registerTask('default', ['clean', 'jshint', 'concat', 'uglify', 'qunit-instrumented-dir', 'qunit']); // commented out qunit until we find the problem on the build machine
     grunt.registerTask('dev', ['watch']);
 };
