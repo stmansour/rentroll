@@ -65,7 +65,7 @@ function buildDepositElements() {
             {field: 'DEPID',        hidden: true,  caption: 'DEPID',        size: '50px',  sortable: true, style: 'text-align: center'},
             {field: 'DEPName',      hidden: false, caption: 'Depository',   size: '80px',  sortable: true, style: 'text-align: center'},
             {field: 'DPMID',        hidden: true,  caption: 'DPMID',        size: '50px',  sortable: true, style: 'text-align: center'},
-            {field: 'DPMName',      hidden: false, caption: 'Method',       size: '150px',  sortable: true, style: 'text-align: center'},
+            {field: 'DPMName',      hidden: false, caption: 'Method',       size: '150px', sortable: true, style: 'text-align: center'},
             {field: 'Dt',           hidden: false, caption: 'Date',         size: '100px', sortable: true, style: 'text-align: center'},
             {field: 'Amount',       hidden: false, caption: 'Amount',       size: '100px', sortable: true, style: 'text-align: right', render: 'money'},
             {field: 'ClearedAmount',hidden: false, caption: 'ClearedAmount',size: '100px', sortable: true, style: 'text-align: right', render: 'money'},
@@ -232,19 +232,7 @@ function buildDepositElements() {
             },
         },
         actions: {
-            save: function (/*target, data*/) {
-                var f = this,
-                    tgrid = w2ui.depositGrid;
-
-                f.save({}, function (data) {
-                    if (data.status == 'error') {
-                        console.log('ERROR: '+ data.message);
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    tgrid.render();
-                });
-            },
+            save: saveDepositForm,
          },
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -272,15 +260,15 @@ function buildDepositElements() {
                 }
             };
         },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
-            };
-        },
+        // onResize: function(event) {
+        //     event.onComplete = function() {
+        //         // HACK: set the height of right panel of toplayout box div and form's box div
+        //         // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+        //         var h = w2ui.toplayout.get("right").height;
+        //         $(w2ui.toplayout.get("right").content.box).height(h);
+        //         $(this.box).find("div.w2ui-form-box").height(h);
+        //     };
+        // },
         onSubmit: function(target, data) {
             delete data.postData.record.LastModTime;
             delete data.postData.record.LastModBy;
