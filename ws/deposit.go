@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -49,9 +50,10 @@ type DepositSaveForm struct {
 
 // DepositGridSave is the input data format for a Save command
 type DepositGridSave struct {
-	Status   string          `json:"status"`
+	Cmd      string          `json:"cmd"`
 	Recid    int64           `json:"recid"`
 	FormName string          `json:"name"`
+	Receipts []int64         `json:"Receipts"`
 	Record   DepositSaveForm `json:"record"`
 }
 
@@ -309,7 +311,12 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.DID == 0 && d.ID == 0 {
 		// This is a new AR
 		rlib.Console(">>>> NEW DEPOSIT IS BEING ADDED\n")
-		_, err = rlib.InsertDeposit(&a)
+		rlib.Console("Receipts[] = %#v\n", foo.Receipts)
+		e := bizlogic.SaveDeposit(&a, foo.Receipts)
+		if len(e) > 0 {
+			SvcErrListReturn(w, e, funcname)
+			return
+		}
 	} else {
 		// update existing record
 		rlib.Console("Updating existing Deposit: %d\n", a.DID)

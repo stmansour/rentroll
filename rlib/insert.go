@@ -143,6 +143,7 @@ func InsertDeposit(a *Deposit) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
+			a.DID = rid
 		}
 	} else {
 		err = insertError(err, "Deposit", *a)
@@ -176,6 +177,7 @@ func InsertDepository(a *Depository) (int64, error) {
 		x, err := res.LastInsertId()
 		if err == nil {
 			id = int64(x)
+			a.DEPID = id
 		}
 	} else {
 		err = insertError(err, "Depository", *a)

@@ -12,3 +12,4 @@
 11,"Duplicate Style name.  An item with that style name already exists."
 12,"The Debit account is not valid."
 13,"The Credit account is not valid."
+14,"Receipt %s is already a part of Deposit %s"

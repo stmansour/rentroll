@@ -9,6 +9,7 @@ function getDepoInitRecord(BID, BUD){
     var y = new Date();
     return {
         recid: 0,
+        check: 0,
         DID: 0,
         BID: BID,
         BUD: BUD,
@@ -211,6 +212,7 @@ function buildDepositElements() {
         toolbar: {
             items: [
                 { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'formSave', type: 'button', caption: 'Save', icon: 'fa fa-check'},
                 { id: 'bt3', type: 'spacer' },
                 { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
             ],
@@ -224,6 +226,8 @@ function buildDepositElements() {
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
+                case 'formSave':
+                    saveDepositForm();
                 }
             },
         },
@@ -316,7 +320,7 @@ function buildDepositElements() {
         },
         columns: [
             {field: 'recid',    caption: 'recid',        hidden: true,  size: '40px',  sortable: true  },
-            {field: 'check',    caption: 'check',        hidden: false, size: '40px',  editable: { type: 'checkbox' } },
+            {field: 'Check',    caption: '',             hidden: false, size: '40px',  editable: { type: 'checkbox' } },
             {field: 'RCPTID',   caption: 'Receipt ID',   hidden: false, size: '80px',  sortable: true, style: 'text-align: right'},
             {field: 'Dt',       caption: 'Date',         hidden: false, size: '80px',  sortable: true, style: 'text-align: right'},
             {field: 'ARID',     caption: 'ARID',         hidden: true,  size: '150px', sortable: false },
@@ -341,6 +345,13 @@ function buildDepositElements() {
                 calcTotalCheckedReceipts();
             });
         },
+        onChange: function(event) {
+            event.done(function () {
+                if (event.column == 1) {
+                    calcTotalCheckedReceipts();
+                }
+            });
+        }        
     });
 
     addDateNavToToolbar('depositList');
@@ -362,6 +373,38 @@ function buildDepositElements() {
     });
 }
 
+
+//-----------------------------------------------------------------------------
+// saveDepositForm - pull the checked Receipts, extend the return values
+//      and save the form.
+// @params
+//-----------------------------------------------------------------------------
+function saveDepositForm() {
+    var rcpts = getCheckedReceipts();
+    var f = w2ui.depositForm;
+    f.record.DPMID = f.record.DPMName.id;
+    f.record.DEPID = f.record.DEPName.id;
+    if (typeof f.record.DID == "string" || typeof f.record.DID == "undefined") {
+        f.record.DID = 0;
+    }
+    if (typeof f.record.FLAGS == "string" || typeof f.record.FLAGS == "undefined") {
+        f.record.FLAGS = 0;
+    }
+    if (typeof f.record.ClearedAmount == "string" || typeof f.record.ClearedAmount == "undefined") {
+        f.record.ClearedAmount = 0.0;
+    }
+    f.save({Receipts: rcpts},function (data) {
+        if (data.status == 'error') {
+            console.log('ERROR: '+ data.message);
+            return;
+        }
+        w2ui.toplayout.hide('right',true);
+        app.form_is_dirty = false;// clean dirty flag of form
+        app.last.grid_sel_recid  =-1;// clear the grid select recid
+        w2ui.depositGrid.render();
+    });
+}
+
 //-----------------------------------------------------------------------------
 // calcTotalCheckedReceipts - go through all the depositListGrid items and 
 //      total all the checked receipts. Update the Amount column of the
@@ -369,37 +412,41 @@ function buildDepositElements() {
 // @params
 //-----------------------------------------------------------------------------
 function calcTotalCheckedReceipts() {
-    var t = 100.00;
+    var t = 0.0;
     var grid = w2ui.depositListGrid;
-    // var chgs = grid.getChanges();
-    // var amts = [];
-    // //
-    // // Build up a list of amounts...
-    // //
-    // for (var i = 0; i < grid.records.length; i++) {
-    //     if (typeof grid.records[i].ContractRent == "number") {
-    //         amts.push({ recid: grid.records[i].recid, ContractRent: grid.records[i].ContractRent });
-    //     }
-    // }
-    // //
-    // // Any changes override these ContractRents...
-    // //
-    // for (i = 0; i < chgs.length; i++) {
-    //     if (typeof chgs[i].ContractRent == "number") {
-    //         for (var j = 0; j < amts.length; j++) {
-    //             if (chgs[i].recid == amts[j].recid) {
-    //                 amts[j] = { recid: chgs[i].recid, ContractRent: chgs[i].ContractRent };
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
-    // // now total everything...
-    // var total = 0.0;
-    // for (i = 0; i < amts.length; i++) {
-    //     total += amts[i].ContractRent;
-    // }
+
+    for (var i = 0; i < grid.records.length; i++) {
+        var x = grid.getCellValue(i,1); // this is what is in the checkbox column
+        if (typeof x == "boolean" ) {
+            if (x) {
+                t += grid.getCellValue(i,6);
+            }
+        }
+    }
     grid.set('s-1', { Amount: t });
+}
+
+//-----------------------------------------------------------------------------
+// getCheckedReceipts - go through depositListGrid items and build a list 
+//      of the RCPTIDs of the select receipts
+// @params
+//
+// @returns
+//      a list of selected receipts
+//-----------------------------------------------------------------------------
+function getCheckedReceipts() {
+    var t = [];
+    var grid = w2ui.depositListGrid;
+
+    for (var i = 0; i < grid.records.length; i++) {
+        var x = grid.getCellValue(i,1); // this is what is in the checkbox column
+        if (typeof x == "boolean" ) {
+            if (x) {
+                t.push( grid.getCellValue(i,2));
+            }
+        }
+    }
+    return t;
 }
 
 //-----------------------------------------------------------------------------
