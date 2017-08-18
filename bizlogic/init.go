@@ -21,20 +21,21 @@ var BizErrors []BizError
 
 // RentableTypeUnknown, et al, are the error numbers for us in BizErrors
 const (
-	RentableTypeUnknown   = 0
-	RentableStatusUnknown = 1
-	InvalidField          = 2
-	EditReversal          = 3
-	PostToSummaryAcct     = 4
-	RuleUsesAcct          = 5
-	AcctHasLedgerEntries  = 6
-	AcctRefInRule         = 7
-	MissingName           = 8  // Missing required Name field
-	DuplicateName         = 9  // Duplicate Name. An item with that name already exists.
-	MissingStyleName      = 10 // Style name is missing.
-	DuplicateStyleName    = 11 // Duplicate Style name.  An item with that style name already exists.
-	BadDebitAccount       = 12 // The Debit account is not valid.
-	BadCreditAccount      = 13 // The Credit account is not valid.
+	RentableTypeUnknown     = 0
+	RentableStatusUnknown   = 1
+	InvalidField            = 2
+	EditReversal            = 3
+	PostToSummaryAcct       = 4
+	RuleUsesAcct            = 5
+	AcctHasLedgerEntries    = 6
+	AcctRefInRule           = 7
+	MissingName             = 8  // Missing required Name field
+	DuplicateName           = 9  // Duplicate Name. An item with that name already exists.
+	MissingStyleName        = 10 // Style name is missing.
+	DuplicateStyleName      = 11 // Duplicate Style name.  An item with that style name already exists.
+	BadDebitAccount         = 12 // The Debit account is not valid.
+	BadCreditAccount        = 13 // The Credit account is not valid.
+	ReceiptAlreadyDeposited = 14 // The receipt is already a member of another deposit
 )
 
 // InitBizLogic loads the error messages needed for validation errors
@@ -68,4 +69,10 @@ func AddBizErrToList(e []BizError, errno int) []BizError {
 	b := BizError{Errno: errno, Message: BizErrors[errno].Message}
 	e = append(e, b)
 	return e
+}
+
+// AddErrToBizErrlist add a standard error to the biz errlist, and sets errno to -1
+func AddErrToBizErrlist(e error, el []BizError) []BizError {
+	b := BizError{Errno: -1, Message: e.Error()}
+	return append(el, b)
 }

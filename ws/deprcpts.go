@@ -27,6 +27,7 @@ type DepositListGrid struct {
 	ClearedAmount float64
 	FLAGS         uint64
 	PMTName       string
+	Check         bool
 	LastModTime   rlib.JSONDateTime
 	LastModBy     int64
 	CreateTS      rlib.JSONDateTime
@@ -276,6 +277,7 @@ func SvcDepositReceipts(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 }
 
 func depositListScan(w http.ResponseWriter, r *http.Request, d *ServiceData, qry, funcname string, g *DepositListSearchResponse) {
+	chk := d.ID >= 1
 	rlib.Console("depositListScan:  db query = %s\n", qry)
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
@@ -298,7 +300,7 @@ func depositListScan(w http.ResponseWriter, r *http.Request, d *ServiceData, qry
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-
+		q.Check = chk
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {

@@ -1,3 +1,7 @@
+/*global
+  console, QUnit, number_format,
+*/
+"use strict";
 QUnit.log(function QunitLOG( details ) {
   if ( details.result ) {
     console.log("Test Module: "+ details.module ,"-- Routine name: "+ details.name, "-- Testcase Result: "+ details.result, "-- Detail: " + details.message);
@@ -10,7 +14,7 @@ QUnit.log(function QunitLOG( details ) {
 
 QUnit.done(function QunitDone( details ) {
   console.log("-----------------------------------------------------");
-  console.log( "Total: ", details.total, " Failed: ", details.failed, " Passed: ", details.passed, " Runtime: ", details.runtime);
+  console.log( "Total: ", details.total, "\nFailed: ", details.failed, "\nPassed: ", details.passed, "\nRuntime: ", details.runtime);
   console.log("-----------------------------------------------------");
 });
 
@@ -22,8 +26,8 @@ QUnit.test('plural test', function pluralTest(assert, details){
 
 QUnit.module("Int to bool Test");
 QUnit.test('int_to_bool', function intToBoolTest(assert){
-    assert.ok(int_to_bool(-1) == false, "-1");
-    assert.ok(int_to_bool(3) == true, "3");
+    assert.ok(int_to_bool(-1) === false, "-1");
+    assert.ok(int_to_bool(3) === true, "3");
 });
 
 QUnit.module("dateTodayStr Test");
