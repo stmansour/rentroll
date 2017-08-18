@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Grid in Form | w2ui demo</title>
+    <link rel="icon" type="image/png" href="/webclient/html/images/favicon32x32.png" />
+    <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
+    <script src="/webclient/js/jquery.min.js"></script>
+    <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
+</head>
+<body>
+
+<!--  color Icon images:  icon-page, w2ui-icon-check, ... see below in toptoolbar -->
+<!--
+
+mainlayout    - w2ui layout toptoolbar, toplayout, footer
+toplayout     - w2ui layout for sidebar, main, and right (Detail)
+reportslayout -
+toptoolbar    - w2ui toolbar
+sidebarL1     - w2ui sidebar
+
+-->
+
+<div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
+
+
+<script>
+"use strict";
+// widget configuration
+var config = {
+    layout: {
+        name: 'layout',
+        padding: 0,
+        panels: [
+            { type: 'left', size: 200, resizable: true, minSize: 120, content: "sidebar" },
+            { type: 'main', overflow: 'hidden',
+                style: 'background-color: white; border: 1px solid silver; border-top: 0px; padding: 10px;',
+                tabs: {
+                    active: 'grid1',
+                    tabs: [
+                        { id: 'grid1', caption: 'Grid1' },
+                        { id: 'grid2', caption: 'Grid2' },
+                    ],
+                    onClick: function (event) {
+                        w2ui.layout.html('main', w2ui[event.target]);
+                    },
+                    onClose: function (event) {
+                        this.click('grid1');
+                    }
+                }
+            }
+        ]
+    },
+    grid1: {
+        name: 'grid1',
+        header: 'Grid 1',
+        show: {
+            header: true,
+            footer: true
+        },
+        style: 'padding: 0px',
+        columns: [
+            { field: 'recid', caption: "id", size: '100px' },
+            { field: 'title', caption: "text", size: '100%' }
+        ]
+    },
+    grid2: {
+        name: 'grid2',
+        header: 'Grid 2',
+        show: {
+            header: true,
+            footer: true
+        },
+        style: 'padding: 0px',
+        columns: [
+            { field: 'recid', caption: "id", size: '100px' },
+            { field: 'title', caption: "text", size: '100%' },
+            { field: 'third_column', caption: "Third Column", size: '100%' }
+        ]
+    },
+    sidebar: {
+        name: 'sidebar',
+        nodes: [
+            { id: 'general', text: 'General', group: true, expanded: true, nodes: [
+                { id: 'item1', text: 'Item 1', img: 'icon-page' },
+                { id: 'item2', text: 'Item 2', img: 'icon-page' },
+                { id: 'item3', text: 'Item 3', img: 'icon-page' },
+                { id: 'item4', text: 'Item 4', img: 'icon-page' }
+            ]}
+        ],
+    }
+}
+
+$(function () {
+    // initialization
+    $('#layout').w2layout(config.layout);
+    $().w2grid(config.grid1);
+    $().w2grid(config.grid2);
+    w2ui.layout.content('left', $().w2sidebar(config.sidebar));
+    w2ui.layout.html('main', w2ui.grid1);
+});
+</script>
+
+</body>
+</html>
+
