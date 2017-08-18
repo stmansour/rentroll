@@ -76,7 +76,6 @@ function buildSidebar() {
             },
             { id: 'setup', text: 'Setup', img: 'icon-wrench', expanded: true, group: true,
                 nodes: [
-                        { id: 'changeRT',    text: 'Change ' + app.sRentable +' Type', icon: 'fa fa-refresh' },
                         { id: 'accounts',    text: 'Chart Of Accounts',                icon: 'fa fa-list' },
                         { id: 'pmts',        text: 'Payment Types',                    icon: 'fa fa-credit-card' },
                         { id: 'dep',         text: 'Depositories',                     icon: 'fa fa-university' },
@@ -84,6 +83,7 @@ function buildSidebar() {
                         { id: 'ars',         text: 'Assessment/Receipt Rules',         icon: 'fa fa-cogs' },
                         { id: 'rt',          text: plural(app.sRentableType),          icon: 'fa fa-asterisk', hint: 'Rentable Types' },
                         { id: 'rentables',   text: plural(app.sRentable),              icon: 'fa fa-cube' },
+                        { id: 'changeRT',    text: 'Change ' + app.sRentable +' Type', icon: 'fa fa-refresh' },
                         { id: 'permissions', text: 'Permissions',                      icon: 'fa fa-thumbs-o-up' },
                 ]
             },

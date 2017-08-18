@@ -36,6 +36,8 @@ const (
 	BadDebitAccount         = 12 // The Debit account is not valid.
 	BadCreditAccount        = 13 // The Credit account is not valid.
 	ReceiptAlreadyDeposited = 14 // The receipt is already a member of another deposit
+	ReceiptBizMismatch      = 15 // The receipt belongs to a different business
+	DepositTotalMismatch    = 16 // the total of the supplied receipts does not match
 )
 
 // InitBizLogic loads the error messages needed for validation errors

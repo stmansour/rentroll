@@ -8,23 +8,23 @@
 function getDepoInitRecord(BID, BUD){
     var y = new Date();
     return {
-        recid: 0,
-        check: 0,
-        DID: 0,
-        BID: BID,
-        BUD: BUD,
-        DEPID: 0,
-        DEPName: "",
-        DPMID: 0,
-        DPMName: "",
-        Dt: y.toISOString(),
-        FLAGS: 0,
-        Amount: 0.0,
-        ClearedAmount: 0.0,
-        LastModTime: y.toISOString(),
-        LastModBy: 0,
-        CreateTS: y.toISOString(),
-        CreateBy: 0,
+        recid:          0,
+        check:          0,
+        DID:            0,
+        BID:            BID,
+        BUD:            BUD,
+        DEPID:          0,
+        DEPName:        "",
+        DPMID:          0,
+        DPMName:        "",
+        Dt:             y.toISOString(),
+        FLAGS:          0,
+        Amount:         0.0,
+        ClearedAmount:  0.0,
+        LastModTime:    y.toISOString(),
+        LastModBy:      0,
+        CreateTS:       y.toISOString(),
+        CreateBy:       0,
     };
 }
 
@@ -260,15 +260,6 @@ function buildDepositElements() {
                 }
             };
         },
-        // onResize: function(event) {
-        //     event.onComplete = function() {
-        //         // HACK: set the height of right panel of toplayout box div and form's box div
-        //         // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-        //         var h = w2ui.toplayout.get("right").height;
-        //         $(w2ui.toplayout.get("right").content.box).height(h);
-        //         $(this.box).find("div.w2ui-form-box").height(h);
-        //     };
-        // },
         onSubmit: function(target, data) {
             delete data.postData.record.LastModTime;
             delete data.postData.record.LastModBy;
@@ -303,8 +294,8 @@ function buildDepositElements() {
             toolbarSearch  : false,
             toolbarInput   : false,
             searchAll      : false,
-            toolbarReload  : true,
-            toolbarColumns : true,
+            toolbarReload  : false,
+            toolbarColumns : false,
         },
         columns: [
             {field: 'recid',    caption: 'recid',        hidden: true,  size: '40px',  sortable: true  },
@@ -344,6 +335,21 @@ function buildDepositElements() {
 
     addDateNavToToolbar('depositList');
 
+
+    //------------------------------------------------------------------------
+    //  depositFormButtons - Save, Save And Add, Delete buttons
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'depositFormBtns',
+        style: 'border: 0px; background-color: transparent;',
+        url: '/v1/deposit',
+        formURL: '/webclient/html/formdepositbtns.html',
+        fields: [],  
+        actions: {
+            save: saveDepositForm,
+         },
+     });
+
     //-------------------------------------------------------------------------------
     //  depositLayout - The layout to contain the depositForm and depositDetailGrid
     //-------------------------------------------------------------------------------
@@ -351,11 +357,11 @@ function buildDepositElements() {
         name: 'depositLayout',
         padding: 0,
         panels: [
+            { type: 'top',     size: 290,   hidden: false, content: 'top',   resizable: true,  style: app.pstyle },
+            { type: 'main',    size: '70%', hidden: false, content: 'main',  resizable: true,  style: app.pstyle },
+            { type: 'bottom',  size: 50,    hidden: false, content: 'bottom',resizable: false, style: app.pstyle },
             { type: 'left',    size: '30%', hidden: true },
-            { type: 'top',     size: 350,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
-            { type: 'main',    size: '70%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
-            { type: 'bottom',  size: 0,     hidden: true },
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
@@ -444,8 +450,9 @@ function getCheckedReceipts() {
 // @params
 //-----------------------------------------------------------------------------
 function createDepositForm() {
-    w2ui.depositLayout.content('top',w2ui.depositForm);
-    w2ui.depositLayout.content('main',w2ui.depositListGrid);
+    w2ui.depositLayout.content('top',   w2ui.depositForm);
+    w2ui.depositLayout.content('main',  w2ui.depositListGrid);
+    w2ui.depositLayout.content('bottom',w2ui.depositFormBtns);
 }
 
 //-----------------------------------------------------------------------------
