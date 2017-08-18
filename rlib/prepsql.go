@@ -274,7 +274,7 @@ func buildPreparedStatements() {
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertDepositPart, err = RRdb.Dbrr.Prepare("INSERT INTO DepositPart (" + s1 + ") VALUES (" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateDeposit, err = RRdb.Dbrr.Prepare("UPDATE DepositPart SET " + s3 + " WHERE DPID=?")
+	RRdb.Prepstmt.UpdateDepositPart, err = RRdb.Dbrr.Prepare("UPDATE DepositPart SET " + s3 + " WHERE DPID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteDepositParts, err = RRdb.Dbrr.Prepare("DELETE FROM DepositPart WHERE DPID=?")
 	Errcheck(err)

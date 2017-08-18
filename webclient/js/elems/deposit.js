@@ -212,7 +212,7 @@ function buildDepositElements() {
         toolbar: {
             items: [
                 { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'formSave', type: 'button', caption: 'Save', icon: 'fa fa-check'},
+                //{ id: 'formSave', type: 'button', caption: 'Save', icon: 'fa fa-check'},
                 { id: 'bt3', type: 'spacer' },
                 { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
             ],
@@ -330,7 +330,7 @@ function buildDepositElements() {
                     calcTotalCheckedReceipts();
                 }
             });
-        }        
+        },      
     });
 
     addDateNavToToolbar('depositList');

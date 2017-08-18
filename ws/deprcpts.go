@@ -134,7 +134,7 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 		g        DepositListSearchResponse
 		err      error
 		order    = "Receipt.Dt ASC" // default ORDER
-		whr      = fmt.Sprintf("Receipt.DID=0")
+		whr      = fmt.Sprintf("Receipt.DID=0 AND Receipt.BID=%d", d.BID)
 	)
 
 	rlib.Console("Entered %s\n", funcname)

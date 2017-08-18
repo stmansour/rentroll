@@ -13,3 +13,5 @@
 12,"The Debit account is not valid."
 13,"The Credit account is not valid."
 14,"Receipt %s is already a part of Deposit %s"
+15,"Receipt %s is not eligible for inclusion as it is part of a different business"
+16,"Total of the receipts does not match the Amount value for this deposit."

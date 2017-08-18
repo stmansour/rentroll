@@ -281,7 +281,6 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "saveDeposit"
 		foo      DepositGridSave
-		err      error
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -320,15 +319,12 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else {
 		// update existing record
 		rlib.Console("Updating existing Deposit: %d\n", a.DID)
-		err = rlib.UpdateDeposit(&a)
+		e := bizlogic.SaveDeposit(&a, foo.Receipts)
+		if len(e) > 0 {
+			SvcErrListReturn(w, e, funcname)
+			return
+		}
 	}
-
-	if err != nil {
-		e := fmt.Errorf("%s: Error saving depository (DID=%d\n: %s", funcname, a.DID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
 	SvcWriteSuccessResponse(w)
 }
 

@@ -76,38 +76,80 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			}
 		}
 	} else {
-		// err := rlib.UpdateDeposit(a)
-		// if err != nil {
-		// 	e = AddErrToBizErrlist(err, e)
-		// }
-		// //---------------------------------------------------------------------------
-		// // If any receipts have been removed from the previous version.  To do
-		// // this we will compare the list of current Deposit's RCPTIDs to the
-		// // list of newly proposed RCPTIDs.  We will compare the two lists and
-		// // produce 2 new lists: addlist and removelist.  Then we will add and
-		// // link the addlist, and unlink the removelist.  The new Receipts are
-		// // already provided in newRcpts.
-		// //---------------------------------------------------------------------------
-		// curRcpts, err = rlib.GetDepositParts(a.DID)
-		// if err != nil {
-		// 	e = AddErrToBizErrlist(err, e)
-		// 	return e
-		// }
+		err := rlib.UpdateDeposit(a)
+		if err != nil {
+			e = AddErrToBizErrlist(err, e)
+		}
+		//---------------------------------------------------------------------------
+		// If any receipts have been removed from the previous version.  To do
+		// this we will compare the list of current Deposit's RCPTIDs to the
+		// list of newly proposed RCPTIDs.  We will compare the two lists and
+		// produce 2 new lists: addlist and removelist.  Then we will add and
+		// link the addlist, and unlink the removelist.  The new Receipts are
+		// already provided in newRcpts.
+		//---------------------------------------------------------------------------
+		curRcpts, err := rlib.GetDepositParts(a.DID)
+		if err != nil {
+			e = AddErrToBizErrlist(err, e)
+			return e
+		}
 
-		// current := map[int64]int{}
-		// for i := 0; i < len(curRcpts); i++ {
-		// 	current[curRcpts[i]] = 0
-		// }
+		current := map[int64]int{}
+		for i := 0; i < len(curRcpts); i++ {
+			current[curRcpts[i].RCPTID] = 0
+		}
 
-		// var addlist []int64
-		// for i := 0; i < len(newRcpts); i++ {
-		// 	_, ok := current[newRcpts[i]]
-		// 	if !ok {
-		// 		addlist = append(addlist, newRcpts[i])
-		// 	}
-		// }
+		var addlist []int64
+		for i := 0; i < len(newRcpts); i++ {
+			_, ok := current[newRcpts[i]]
+			if !ok {
+				addlist = append(addlist, newRcpts[i])
+			}
+		}
 
-		// var removelist []int64
+		var newlist = map[int64]int{}
+		for i := 0; i < len(newRcpts); i++ {
+			newlist[newRcpts[i]] = 0
+		}
+
+		var removelist []int64
+		for i := 0; i < len(curRcpts); i++ {
+			_, ok := newlist[curRcpts[i].RCPTID]
+			if !ok {
+				removelist = append(removelist, curRcpts[i].RCPTID)
+			}
+		}
+
+		//--------------------------------------------------------
+		// Remove the deposit link in the removelist receipts...
+		//--------------------------------------------------------
+		for i := 0; i < len(removelist); i++ {
+			r := rlib.GetReceipt(removelist[i])
+			if r.RCPTID == 0 {
+				err := fmt.Errorf("could not load receipt %d", removelist[i])
+				e = AddErrToBizErrlist(err, e)
+			}
+			r.DID = 0
+			err := rlib.UpdateReceipt(&r)
+			if err != nil {
+				e = AddErrToBizErrlist(err, e)
+			}
+		}
+		//--------------------------------------------------------
+		// Add the deposit link in the addlist receipts...
+		//--------------------------------------------------------
+		for i := 0; i < len(addlist); i++ {
+			r := rlib.GetReceipt(addlist[i])
+			if r.RCPTID == 0 {
+				err := fmt.Errorf("could not load receipt %d", addlist[i])
+				e = AddErrToBizErrlist(err, e)
+			}
+			r.DID = a.DID
+			err := rlib.UpdateReceipt(&r)
+			if err != nil {
+				e = AddErrToBizErrlist(err, e)
+			}
+		}
 
 	}
 	return e

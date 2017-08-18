@@ -204,6 +204,9 @@ function getDepository(BUD, id) {
     if (typeof BUD === "undefined") {
         return val;
     }
+    if (typeof app.Depositories[BUD] !== "object") {
+        return val;
+    }
     for (var i = 0; i < app.Depositories[BUD].length; i++) {
         if (app.Depositories[BUD][i].id == id) {
             val = { id: id, text: app.Depositories[BUD][i].text };
