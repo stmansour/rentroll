@@ -85,7 +85,7 @@ module.exports = function gruntInit(grunt) {
         watch: {
             scripts: {
                 files: ['<%= distInput %>', '<%= distHTMLs %>'],
-                tasks: ['jshint', 'concat', 'uglify', 'qunit']
+                tasks: ['clean', 'jshint', 'concat', 'uglify', 'qunit-instrumented-dir', 'qunit']
             }
         },
 
@@ -100,6 +100,19 @@ module.exports = function gruntInit(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // ========== REGISTERED TASKS ==========
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify' /*, 'qunit'*/]); // commented out qunit until we find the problem on the build machine
+    grunt.registerTask('qunit-instrumented-dir',
+        'Generate qunit instrumentedFiles (temp) directory required by qunit test, ' +
+        'it should be run before invoking "grunt qunit" command',
+        function() {
+            // BY default, grunt current working directory pointing at path where Gruntfile is located
+
+            // if instrumented directoy exists then remove and create it
+            if(grunt.file.isDir("temp")) {
+                grunt.file.delete("temp", { force: true });
+            }
+            grunt.file.mkdir("temp");
+        }
+    );
+    grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'qunit-instrumented-dir', 'qunit']); // commented out qunit until we find the problem on the build machine
     grunt.registerTask('dev', ['watch']);
 };

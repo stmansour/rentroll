@@ -11,9 +11,7 @@ webclient:
 		echo "Could not make node_modules directory" ;\
 		exit 1 ;\
 	fi
-	
 	grunt clean
-	mkdir -p ./temp
 	grunt
 	@rm -f fail
 	@echo "*** Grunt done ***"
