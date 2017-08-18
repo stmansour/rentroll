@@ -1,10 +1,11 @@
+<!DOCTYPE HTML>
 <html>
 <head>
+    <title>Grid in Form | w2ui demo</title>
+    <link rel="icon" type="image/png" href="/webclient/html/images/favicon32x32.png" />
     <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
     <script src="/webclient/js/jquery.min.js"></script>
     <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
-    <script src="/webclient/html/favicon32x32"></script>
-    <link rel="icon" type="image/png" href="/webclient/html/images/favicon32x32.png" />
 </head>
 <body>
 
@@ -24,9 +25,7 @@ sidebarL1     - w2ui sidebar
 
 <script>
 "use strict";
-var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
-var pstyle2 = 'border: 1px solid #cfcfcf; padding: 0px;';
-var prefmt = 'font-family: "Monaco", "Menlo", "Source Code Pro", monospace; white-space: pre; font-size: 8pt; background-color: white;';
+var pstyle = 'border: 1px solid #dfdfdf; padding: 0px';
 var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 9pt; border-spacing:5px; padding: 5px; color: #777777';
 var config = {
     mainlayout: {
@@ -60,25 +59,25 @@ var config = {
     }
 };
 
-$().w2field('addType', 'nem_form_grid', function (options) {
-    var obj = this;
-    var $el = $(this.el);
-    var subgrid_name = obj.el.name + '_nem_form_grid';
-    /*// hide the actual field element
-    $el.hide();
-    // create grid container only once!
-    var $grid_el = $("#" + subgrid_name);
-    if($grid_el.length){return; }
-    $el.after('<div id="'+ subgrid_name +'" style="height: 200px; width: 100%;" class="nem_form_grid"></div>');*/
-    /*var subgrid_params = { ... };
-    // build w2grid
-    var subgrid = w2ui_get_grid_content(subgrid_params);
-    if(subgrid){
-        // render w2grid
-        subgrid.render($grid_el);
-    }*/
-    w2ui[obj.el.name].render("#" + subgrid_name);
-});
+// $().w2field('addType', 'nem_form_grid', function (options) {
+//     var obj = this;
+//     var $el = $(this.el);
+//     var subgrid_name = obj.el.name + '_nem_form_grid';
+//     // hide the actual field element
+//     $el.hide();
+//     // create grid container only once!
+//     var $grid_el = $("#" + subgrid_name);
+//     if($grid_el.length){return; }
+//     $el.after('<section id="'+ subgrid_name +'" style="height: 200px; width: 100%;" class="nem_form_grid"></section>');
+//     /*var subgrid_params = { ... };
+//     // build w2grid
+//     var subgrid = w2ui_get_grid_content(subgrid_params);
+//     if(subgrid){
+//         // render w2grid
+//         subgrid.render($grid_el);
+//     }*/
+//     w2ui[obj.el.name].render("#" + subgrid_name);
+// });
 
 var sampleForm = {
     formURL: "/webclient/html/test/sampleForm.html",
@@ -86,10 +85,14 @@ var sampleForm = {
     name: 'sampleForm',
     header: 'sample Form',
     fields: [
-        { name: 'first_name', type: 'text', required: true, style: "width: 200px;" },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'comments', type: 'text' },
-        { name: 'sampleGrid', type: 'nem_form_grid', required: false },
+        { name: 'first_name', type: 'text', required: true, style: "width: 200px;", html: { page: 0, column: 0 } },
+        { name: 'last_name', type: 'text', required: true, html: { page: 0, column: 0 } },
+        { name: 'comments', type: 'text', html: { page: 0, column: 0 } },
+        // { name: 'sampleGrid', type: 'nem_form_grid', required: false, html: { page: 1, column: 0 } },
+    ],
+    tabs: [
+        { id: 'tab1', caption: "General Info" },
+        { id: 'tab2', caption: "Detailed Info" },
     ],
     actions: {
         reset: function() {
@@ -98,6 +101,13 @@ var sampleForm = {
         save: function() {
             this.save();
         }
+    },
+    onRender: function(event) {
+        event.onComplete = function() {
+            setTimeout(function() {
+                w2ui.sampleGrid.render("#sampleForm #sampleGrid_nem_form_grid");
+            }, 1000);
+        };
     }
 };
 
@@ -116,16 +126,14 @@ var sampleGrid = {
 };
 
 $(function () {
+    $().w2form(sampleForm);
     $().w2grid(sampleGrid);
     $('#layout').w2layout(config.mainlayout);
-    // w2ui.mainlayout.content('main', $().w2grid(sampleGrid));
     w2ui.mainlayout.content('top', $().w2toolbar(config.toptoolbar));
-    w2ui.mainlayout.content('main', $().w2form(sampleForm));
+    w2ui.mainlayout.content('main', w2ui.sampleForm);
 });
 </script>
 
 </body>
 </html>
 
-
-</script>

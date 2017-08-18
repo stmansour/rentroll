@@ -6,6 +6,7 @@
         "document": true,
         "jQuery": true,
         "console": true,
+        "setTimeout": true,
         "app": true,
         "w2ui": true,
         "w2obj": true,

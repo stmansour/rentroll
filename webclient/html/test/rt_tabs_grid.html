@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Grid in Form | w2ui demo</title>
+    <link rel="icon" type="image/png" href="/webclient/html/images/favicon32x32.png" />
+    <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
+    <script src="/webclient/js/jquery.min.js"></script>
+    <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
+</head>
+<body>
+
+<!--  color Icon images:  icon-page, w2ui-icon-check, ... see below in toptoolbar -->
+<!--
+
+mainlayout    - w2ui layout toptoolbar, toplayout, footer
+toplayout     - w2ui layout for sidebar, main, and right (Detail)
+reportslayout -
+toptoolbar    - w2ui toolbar
+sidebarL1     - w2ui sidebar
+
+-->
+
+<div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
+
+
+<script>
+"use strict";
+// widget configuration
+var config = {
+    layout: {
+        name: 'layout',
+        padding: 0,
+        panels: [
+            { type: 'left', size: 200, resizable: true, minSize: 120, content: "sidebar" },
+            { type: 'main', overflow: 'hidden',
+                style: 'background-color: white; border: 1px solid silver; border-top: 0px; padding: 10px;',
+                tabs: {
+                    active: 'grid1',
+                    tabs: [
+                        { id: 'rentableTypeForm', caption: 'Rentable Type Detail' },
+                        { id: 'rtGrid', caption: 'Rentable Type listing' },
+                    ],
+                    onClick: function (event) {
+                        if (event.target === "rtGrid") {
+                            w2ui.layout.html('main', w2ui.rtGrid);
+                        }
+                        if (event.target === "rentableTypeForm") {
+                            w2ui.layout.html('main', w2ui.rentableTypeForm);
+                        }
+                    },
+                    onClose: function (event) {
+                        this.click('grid1');
+                    }
+                }
+            }
+        ]
+    },
+    sidebar: {
+        name: 'sidebar',
+        nodes: [
+            { id: 'general', text: 'General', group: true, expanded: true, nodes: [
+                { id: 'item1', text: 'Item 1', img: 'icon-page' },
+                { id: 'item2', text: 'Item 2', img: 'icon-page' },
+                { id: 'item3', text: 'Item 3', img: 'icon-page' },
+                { id: 'item4', text: 'Item 4', img: 'icon-page' }
+            ]}
+        ],
+    }
+}
+
+var app = {
+    businesses: ["REX", "CCC", "401", "ISO", "RKY"],
+    cycleFreq: ["Norecur", "Secondly", "Minutely", "Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Yearly"],
+    manageToBudgetList: [
+        {id: 0, text: "No"},
+        {id: 1, text: "Yes (Market Rate required)"}
+    ]
+};
+
+//------------------------------------------------------------------------
+//          rentable Type Form
+//------------------------------------------------------------------------
+$().w2form({
+    name: 'rentableTypeForm',
+    style: 'border: 0px; background-color: transparent;padding: 0;',
+    header: 'RentableType Form Detail',
+    url: '/v1/rt/2/14',
+    formURL: '/webclient/html/formrt.html',
+    fields: [
+        { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
+        { field: 'RTID', type: 'int', required: true, html: { page: 0, column: 0 } },
+        { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
+        { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
+        { field: 'Style', type: 'text', required: true, html: { page: 0, column: 0 } },
+        { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
+        { field: 'RentCycle', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+        { field: 'Proration', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+        { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
+        { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { page: 0, column: 0 } },
+        { field: 'RMRID', type: 'int', required: true, html: { page: 0, column: 0 } },
+        { field: 'MarketRate', type: 'money', required: false, html: { page: 0, column: 0 } },
+        { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
+        { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+        { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
+        { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+    ],
+    toolbar: {
+        items: [
+            { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+            { id: 'bt3', type: 'spacer' },
+           { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+        ],
+    },
+    onRefresh: function(event) {
+        event.onComplete = function() {
+            var f = this,
+                r = f.record,
+                header = "Edit Rentable Type ({0})";
+
+            // dropdown list items and selected variables
+            var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
+                manageToBudgetSel = {}, cycleFreqItems = [];
+
+            // select value for rentcycle, proration, gsrpc
+            app.cycleFreq.forEach(function(itemText, itemIndex) {
+                if (itemIndex == r.RentCycle) {
+                    rentCycleSel = { id: itemIndex, text: itemText };
+                }
+                if (itemIndex == r.Proration) {
+                    prorationSel = { id: itemIndex, text: itemText };
+                }
+                if (itemIndex == r.GSRPC) {
+                    gsrpcSel = { id: itemIndex, text: itemText };
+                }
+                cycleFreqItems.push({ id: itemIndex, text: itemText });
+            });
+
+            // select value for manage to budget
+            app.manageToBudgetList.forEach(function(item) {
+                if (item.id == r.ManageToBudget) {
+                    manageToBudgetSel = {id: item.id, text: item.text};
+                }
+            });
+
+            // fill the field with values
+            f.get("RentCycle").options.items = cycleFreqItems;
+            f.get("RentCycle").options.selected = rentCycleSel;
+            f.get("Proration").options.items = cycleFreqItems;
+            f.get("Proration").options.selected = prorationSel;
+            f.get("GSRPC").options.items = cycleFreqItems;
+            f.get("GSRPC").options.selected = gsrpcSel;
+            f.get("ManageToBudget").options.items = app.manageToBudgetList;
+            f.get("ManageToBudget").options.selected = manageToBudgetSel;
+
+            // formRefreshCallBack(f, "RTID", header);
+        };
+    },
+});
+
+//------------------------------------------------------------------------
+//          rentable types Grid
+//------------------------------------------------------------------------
+$().w2grid({
+    name: 'rtGrid',
+    header: "Rentable Types",
+    url: '/v1/rt/2',
+    multiSelect: false,
+    style: 'padding: 0px',
+    show: {
+        header: true,
+        toolbar: true,
+        toolbarReload: false,
+        toolbarColumns: false,
+        toolbarSearch: true,
+        toolbarAdd: true,
+        toolbarDelete: false,
+        toolbarSave: false,
+        searchAll       : true,
+        footer: true,
+        lineNumbers: false,
+        selectColumn: false,
+        expandColumn: false
+    },
+    columns: [
+        {field: 'recid', caption: 'recid', hidden: true},
+        {field: 'RTID', caption: 'RTID', size: '50px', sortable: true},
+        {field: 'Name', caption: 'Name', size: '150px', sortable: true},
+        {field: 'Style', caption: 'Style', size: '100px', sortable: true},
+        {field: 'BID', caption: 'BID', hidden: true},
+        {field: 'BUD', caption: 'BUD', hidden: true},
+        {field: 'RentCycle', caption: 'RentCycle', size: '75px', sortable: true},
+        {field: 'Proration', caption: 'Proration', size: '90px', sortable: true},
+        {field: 'GSRPC', caption: 'GSRPC', size: '65px', sortable: true},
+        {field: 'ManageToBudget', caption: 'ManageToBudget', size: '200px', sortable: true},
+        {field: 'LastModTime', caption: 'LastModTime', hidden: true},
+        {field: 'LastModBy',   caption: 'LastModBy',   hidden: true},
+        {field: 'RMRID',       caption: 'RMRID',       hidden: true},
+        {field: 'MarketRate',  caption: 'MarketRate',  size: '100px', sortable: true, render: 'money'},
+        {field: 'DtStart',     caption: 'DtStart',     size: '100px', sortable: true, style: 'text-align: right'},
+        {field: 'DtStop',      caption: 'DtStop',      size: '1%', sortable: true, style: 'text-align: right'},
+    ],
+    onRequest: function(event) {
+        event.postData["searchDtStart"] = "8/1/2017";
+        event.postData["searchDtStop"] = "9/1/2017";
+    }
+});
+
+$(function () {
+    // initialization
+    $('#layout').w2layout(config.layout);
+    w2ui.layout.content('left', $().w2sidebar(config.sidebar));
+    w2ui.rentableTypeForm.request();
+    w2ui.layout.get("main").tabs.click("rentableTypeForm");
+});
+</script>
+
+</body>
+</html>
+
