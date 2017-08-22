@@ -179,8 +179,8 @@ function buildDepositMethodElements() {
                     var y = new Date();
                     var record = getDepMethInitRecord(BID, BUD);
                     f.record = record;
-                    f.header = "Edit Payment Type (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
-                    f.url = '/v1/depmeths/' + BID+'/0';
+                    f.header = "Edit Deposit Method (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.url = '/v1/depmeth/' + BID+'/0';
                     f.refresh();
                 });
             },
@@ -244,7 +244,7 @@ function buildDepositMethodElements() {
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    header = "Edit Payment Type ({0})";
+                    header = "Edit Deposit Method ({0})";
 
                 formRefreshCallBack(f, "DPMID", header);
             };

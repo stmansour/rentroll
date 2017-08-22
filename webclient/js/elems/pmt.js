@@ -189,7 +189,7 @@ $().w2grid({
                     grid.render();
 
                     // add new empty record and just refresh the form, don't need to do CLEAR form
-                    var y = new Date();
+                    //var y = new Date();
                     var record = getPmtInitRecord(BID, BUD);
                     f.record = record;
                     f.header = "Edit Payment Type (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
