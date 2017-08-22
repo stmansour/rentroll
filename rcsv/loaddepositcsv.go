@@ -2,6 +2,7 @@ package rcsv
 
 import (
 	"fmt"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strings"
 )
@@ -113,22 +114,31 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	//rlib.Console("CreateDepositsFromCSV:  deposit.Amount = %8.2f\n", d.Amount)
 
-	id, err := rlib.InsertDeposit(&d)
-	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit: %v", funcname, lineno, err)
-	}
-	for i := 0; i < len(rcpts); i++ {
-		//rlib.Console("Receipt Parts: %d. %d\n", i, rcpts[i])
+	// id, err := rlib.InsertDeposit(&d)
+	// if err != nil {
+	// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit: %v", funcname, lineno, err)
+	// }
+	// for i := 0; i < len(rcpts); i++ {
+	// 	//rlib.Console("Receipt Parts: %d. %d\n", i, rcpts[i])
 
-		var a rlib.DepositPart
-		a.DID = id
-		a.BID = d.BID
-		a.RCPTID = rcpts[i]
-		err = rlib.InsertDepositPart(&a)
-		if nil != err {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit part: %v", funcname, lineno, err)
+	// 	var a rlib.DepositPart
+	// 	a.DID = id
+	// 	a.BID = d.BID
+	// 	a.RCPTID = rcpts[i]
+	// 	err = rlib.InsertDepositPart(&a)
+	// 	if nil != err {
+	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit part: %v", funcname, lineno, err)
+	// 	}
+	// }
+	errlist := bizlogic.SaveDeposit(&d, rcpts)
+	if len(errlist) > 0 {
+		srr := ""
+		for i := 0; i < len(errlist); i++ {
+			srr += errlist[i].Message + "\n"
 		}
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error saving deposit: %s", funcname, lineno, srr)
 	}
+
 	return 0, nil
 }
 

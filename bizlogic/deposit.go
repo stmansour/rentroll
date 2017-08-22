@@ -88,15 +88,15 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 		// link the addlist, and unlink the removelist.  The new Receipts are
 		// already provided in newRcpts.
 		//---------------------------------------------------------------------------
-		curRcpts, err := rlib.GetDepositParts(a.DID)
+		curDepParts, err := rlib.GetDepositParts(a.DID)
 		if err != nil {
 			e = AddErrToBizErrlist(err, e)
 			return e
 		}
 
 		current := map[int64]int{}
-		for i := 0; i < len(curRcpts); i++ {
-			current[curRcpts[i].RCPTID] = 0
+		for i := 0; i < len(curDepParts); i++ {
+			current[curDepParts[i].RCPTID] = 0 // mark each receipt as initialized to 0
 		}
 
 		var addlist []int64
@@ -113,10 +113,10 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 		}
 
 		var removelist []int64
-		for i := 0; i < len(curRcpts); i++ {
-			_, ok := newlist[curRcpts[i].RCPTID]
+		for i := 0; i < len(curDepParts); i++ {
+			_, ok := newlist[curDepParts[i].RCPTID]
 			if !ok {
-				removelist = append(removelist, curRcpts[i].RCPTID)
+				removelist = append(removelist, curDepParts[i].RCPTID)
 			}
 		}
 
@@ -134,6 +134,19 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}
+			//---------------------------------------
+			// Now remove the Deposit Part record...
+			//---------------------------------------
+			for j := 0; j < len(curDepParts); j++ {
+				if curDepParts[j].RCPTID == removelist[i] {
+					err = rlib.DeleteDepositPart(curDepParts[j].DPID)
+					if err != nil {
+						e = AddErrToBizErrlist(err, e)
+					}
+					break
+				}
+			}
+			current[curDepParts[i].RCPTID]++ // mark that we've acutally processed this entry
 		}
 		//--------------------------------------------------------
 		// Add the deposit link in the addlist receipts...
@@ -149,8 +162,39 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}
+			//-----------------------------------------
+			// Add a deposit part for this receipt...
+			//-----------------------------------------
+			var dp = rlib.DepositPart{
+				DID:    a.DID,
+				BID:    a.BID,
+				RCPTID: r.RCPTID,
+			}
+			err = rlib.InsertDepositPart(&dp)
+			if err != nil {
+				e = AddErrToBizErrlist(err, e)
+			}
+			current[newRcpts[i]]++ // mark that we've acutally processed this entry
 		}
-
+		//--------------------------------------------------------
+		// For any entry that was not processed, make sure that
+		// its DID pointer points to this deposit. This should
+		// never happen, but some of the older databases where
+		// receipts and deposits were loaded via CSV files did
+		// have an issue where they were not properly linked.
+		//--------------------------------------------------------
+		for k, v := range current {
+			if v == 0 { // if this receipt has not been looked at
+				r := rlib.GetReceipt(k) // load it
+				if r.DID != a.DID {     // if its Deposit ID is not THIS deposit
+					r.DID = a.DID                 // make it point to this deposit
+					err := rlib.UpdateReceipt(&r) // and update it
+					if err != nil {
+						e = AddErrToBizErrlist(err, e)
+					}
+				}
+			}
+		}
 	}
 	return e
 }

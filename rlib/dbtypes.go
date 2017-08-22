@@ -1169,7 +1169,7 @@ type RRprepSQL struct {
 	DeleteDeposit                           *sql.Stmt
 	DeleteDepositMethod                     *sql.Stmt
 	DeleteDepository                        *sql.Stmt
-	DeleteDepositParts                      *sql.Stmt
+	DeleteDepositPart                       *sql.Stmt
 	DeleteInvoice                           *sql.Stmt
 	DeleteInvoiceAssessments                *sql.Stmt
 	DeleteInvoicePayors                     *sql.Stmt

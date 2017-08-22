@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
@@ -93,7 +92,7 @@ func SvcHandlerDepositList(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	switch d.wsSearchReq.Cmd {
 	case "get":
 		if d.ID > 0 && d.wsSearchReq.Limit > 0 {
-			SvcDepositReceipts(w, r, d) // it is a query for the grid.
+			SvcDepositReceiptsAndUndeposited(w, r, d) // it is a query for the grid.
 			return
 		}
 		if d.ID <= 0 && d.wsSearchReq.Limit > 0 {
@@ -110,11 +109,11 @@ func SvcHandlerDepositList(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	}
 }
 
-// depositListGridRowScan scans a result from sql row and dump it in a PrARGrid struct
-func depositListGridRowScan(rows *sql.Rows, a *DepositListGrid) error {
-	err := rows.Scan(&a.DPID, &a.DID, &a.BID, &a.RCPTID, &a.Dt, &a.Amount, &a.TCID, &a.DocNo, &a.PMTID, &a.PMTName /*&a.Payors,*/, &a.ClearedAmount, &a.FLAGS, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
-	return err
-}
+// // depositListGridRowScan scans a result from sql row and dump it in a PrARGrid struct
+// func depositListGridRowScan(rows *sql.Rows, a *DepositListGrid) error {
+// 	err := rows.Scan(&a.DPID, &a.DID, &a.BID, &a.RCPTID, &a.Dt, &a.Amount, &a.TCID, &a.DocNo, &a.PMTID, &a.PMTName /*&a.Payors,*/, &a.ClearedAmount, &a.FLAGS, &a.LastModTime, &a.LastModBy, &a.CreateTS, &a.CreateBy)
+// 	return err
+// }
 
 // SvcUndepositedReceiptList returns the list of possible receipts that can be included
 // as part of a new deposit.
@@ -133,48 +132,47 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 		funcname = "SvcUndepositedReceiptList"
 		g        DepositListSearchResponse
 		err      error
-		order    = "Receipt.Dt ASC" // default ORDER
-		whr      = fmt.Sprintf("Receipt.DID=0 AND Receipt.BID=%d", d.BID)
 	)
 
 	rlib.Console("Entered %s\n", funcname)
 
-	// get where clause and order clause for sql query
-	_, orderClause := GetSearchAndSortSQL(d, depositListSearchFieldMap)
+	whr := `Receipt.BID=%d AND Receipt.DID=0 AND Receipt.FLAGS & 4 = 0 AND Receipt.Dt >= %q and Receipt.Dt < %q`
+	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+	order := "Receipt.Dt ASC, Receipt.RCPTID ASC" // default ORDER
 
+	// get where clause and order clause for sql query
+	whereClause, orderClause := GetSearchAndSortSQL(d, receiptsFieldsMap)
+	if len(whereClause) > 0 {
+		whr += " AND (" + whereClause + ")"
+	}
 	if len(orderClause) > 0 {
 		order = orderClause
 	}
 
-	theQuery := `
-	SELECT
-		{{.SelectClause}}
-	FROM DepositPart
-	LEFT JOIN Deposit ON DepositPart.DID = Deposit.DID
-	LEFT JOIN Receipt ON DepositPart.RCPTID = Receipt.RCPTID
-	LEFT JOIN PaymentType ON Receipt.PMTID = PaymentType.PMTID
-	LEFT JOIN Transactant ON Receipt.TCID = Transactant.TCID
+	receiptsQuery := `
+	SELECT {{.SelectClause}}
+	FROM Receipt
+	LEFT JOIN Transactant ON Receipt.TCID=Transactant.TCID
+	LEFT JOIN AR ON Receipt.ARID=AR.ARID
+	LEFT JOIN PaymentType ON Receipt.PMTID=PaymentType.PMTID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
 	qc := queryClauses{
-		"SelectClause": strings.Join(qfields, ","),
+		"SelectClause": strings.Join(receiptsQuerySelectFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
-	rlib.Console("Query = %s\n", theQuery)
-
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(theQuery, qc)
+	countQuery := renderSQLQuery(receiptsQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
-	rlib.Console("finished query count\n")
 	if err != nil {
-		rlib.Console("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	rlib.Console("g.Total = %d\n", g.Total)
+	fmt.Printf("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -184,78 +182,126 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// build query with limit and offset clause
 	// if query ends with ';' then remove it
-	theQueryWithLimit := theQuery + limitAndOffsetClause
+	receiptsQueryWithLimit := receiptsQuery + limitAndOffsetClause
 
 	// Add limit and offset value
 	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(theQueryWithLimit, qc)
+	qry := renderSQLQuery(receiptsQueryWithLimit, qc)
 	rlib.Console("db query = %s\n", qry)
-	depositListScan(w, r, d, qry, funcname, &g)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
+	if err != nil {
+		fmt.Printf("Error from DB Query: %s\n", err.Error())
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	defer rows.Close()
+
+	i := int64(d.wsSearchReq.Offset)
+	count := 0
+	for rows.Next() {
+		var q PrReceiptGrid
+		var dlg DepositListGrid
+
+		q, err = receiptsGridRowScan(rows, q)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+
+		rlib.MigrateStructVals(&q, &dlg)
+		dlg.Recid = i
+		dlg.PMTName = q.PmtTypeName
+		if q.Payor.Valid {
+			dlg.Payors = q.Payor.String
+		}
+
+		g.Records = append(g.Records, dlg)
+
+		count++ // update the count only after adding the record
+		if count >= d.wsSearchReq.Limit {
+			break // if we've added the max number requested, then exit
+		}
+		i++
+	}
+
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
+	SvcWriteResponse(&g, w)
+
 }
 
-// SvcDepositReceipts returns the list of receipts associated with a deposit. If
+// SvcDepositReceiptsAndUndeposited returns the list of receipts associated with a deposit. If
 // the DID
 // wsdoc {
 //  @Title  Deposit Receipts
 //	@URL /v1/depositlist/:BUI/DID
 //  @Method  POST
-//	@Synopsis Return the list of Receipts for a deposit
+//	@Synopsis Return a Deposit's Receipts and all undeposited receipts
 //  @Descr  If d.ID > 0 then the return list will be the list of receipts
 //  @Descr  associated with deposit DID.  If DID == 0 or not supplied then
 //  @Descr  the call should be made to SvcUndepositedReceiptList.
 //	@Input WebGridSearchRequest
 //  @Response DepositListSearchResponse
 // wsdoc }
-func SvcDepositReceipts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+func SvcDepositReceiptsAndUndeposited(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
-		funcname = "SvcDepositReceipts"
+		funcname = "SvcDepositReceiptsAndUndeposited"
 		g        DepositListSearchResponse
 		err      error
-		order    = "Receipt.Dt ASC" // default ORDER
-		whr      = fmt.Sprintf("DepositPart.DID=%d", d.ID)
+		// order    = "Receipt.DID DESC,Receipt.Dt ASC" // default ORDER
+		// whr      = fmt.Sprintf("DepositPart.BID=%d AND Receipt.BID=%d AND Receipt.FLAGS & 4=0 AND (DepositPart.DID=%d OR Receipt.DID=0)", d.BID, d.BID, d.ID)
+		//whr      = fmt.Sprintf("DepositPart.DID=%d", d.ID)
 	)
 
 	rlib.Console("Entered %s\n", funcname)
 
-	// get where clause and order clause for sql query
-	_, orderClause := GetSearchAndSortSQL(d, depositListSearchFieldMap)
+	whr := `Receipt.BID=%d AND (Receipt.DID=%d OR (Receipt.DID=0 AND Receipt.FLAGS & 4 = 0 AND Receipt.Dt >= %q and Receipt.Dt < %q))`
+	whr = fmt.Sprintf(whr, d.BID, d.ID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+	order := "Receipt.DID DESC,Receipt.Dt ASC" // default ORDER
 
+	// get where clause and order clause for sql query
+	whereClause, orderClause := GetSearchAndSortSQL(d, receiptsFieldsMap)
+	if len(whereClause) > 0 {
+		whr += " AND (" + whereClause + ")"
+	}
 	if len(orderClause) > 0 {
 		order = orderClause
 	}
 
-	theQuery := `
-	SELECT
-		{{.SelectClause}}
-	FROM DepositPart
-	LEFT JOIN Deposit ON DepositPart.DID = Deposit.DID
-	LEFT JOIN Receipt ON DepositPart.RCPTID = Receipt.RCPTID
-	LEFT JOIN PaymentType ON Receipt.PMTID = PaymentType.PMTID
-	LEFT JOIN Transactant ON Receipt.TCID = Transactant.TCID
+	receiptsQuery := `
+	SELECT {{.SelectClause}}
+	FROM Receipt
+	LEFT JOIN Transactant ON Receipt.TCID=Transactant.TCID
+	LEFT JOIN AR ON Receipt.ARID=AR.ARID
+	LEFT JOIN PaymentType ON Receipt.PMTID=PaymentType.PMTID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
 	qc := queryClauses{
-		"SelectClause": strings.Join(qfields, ","),
+		"SelectClause": strings.Join(receiptsQuerySelectFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
-	rlib.Console("Query = %s\n", theQuery)
-
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(theQuery, qc)
+	countQuery := renderSQLQuery(receiptsQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
-	rlib.Console("finished query count\n")
 	if err != nil {
-		rlib.Console("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	rlib.Console("g.Total = %d\n", g.Total)
+	fmt.Printf("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -265,20 +311,16 @@ func SvcDepositReceipts(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 
 	// build query with limit and offset clause
 	// if query ends with ';' then remove it
-	theQueryWithLimit := theQuery + limitAndOffsetClause
+	receiptsQueryWithLimit := receiptsQuery + limitAndOffsetClause
 
 	// Add limit and offset value
 	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(theQueryWithLimit, qc)
-	depositListScan(w, r, d, qry, funcname, &g)
-}
+	qry := renderSQLQuery(receiptsQueryWithLimit, qc)
+	rlib.Console("db query = %s\n", qry)
 
-func depositListScan(w http.ResponseWriter, r *http.Request, d *ServiceData, qry, funcname string, g *DepositListSearchResponse) {
-	chk := d.ID >= 1
-	rlib.Console("depositListScan:  db query = %s\n", qry)
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
@@ -290,18 +332,21 @@ func depositListScan(w http.ResponseWriter, r *http.Request, d *ServiceData, qry
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
 	for rows.Next() {
-		var q DepositListGrid
-		q.Recid = i
-		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		var q PrReceiptGrid
+		var dlg DepositListGrid
 
-		err = depositListGridRowScan(rows, &q)
+		q, err = receiptsGridRowScan(rows, q)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		q.Check = chk
-		g.Records = append(g.Records, q)
+
+		rlib.MigrateStructVals(&q, &dlg)
+		dlg.Recid = i
+		dlg.BID = d.BID
+		dlg.BUD = getBUDFromBIDList(q.BID)
+		dlg.Check = q.DID == d.ID
+		g.Records = append(g.Records, dlg)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit

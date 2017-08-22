@@ -276,7 +276,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateDepositPart, err = RRdb.Dbrr.Prepare("UPDATE DepositPart SET " + s3 + " WHERE DPID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteDepositParts, err = RRdb.Dbrr.Prepare("DELETE FROM DepositPart WHERE DPID=?")
+	RRdb.Prepstmt.DeleteDepositPart, err = RRdb.Dbrr.Prepare("DELETE FROM DepositPart WHERE DPID=?")
 	Errcheck(err)
 
 	//==========================================

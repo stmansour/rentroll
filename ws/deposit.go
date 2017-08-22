@@ -343,7 +343,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname = "getDeposit"
 		g        DepositGetResponse
-		whr      = fmt.Sprintf("Deposit.DID=%d", d.ID)
+		whr      = fmt.Sprintf("Deposit.BID=%d AND Deposit.DID=%d", d.BID, d.ID)
 	)
 
 	rlib.Console("entered %s\n", funcname)
