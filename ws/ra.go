@@ -513,6 +513,12 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		err = rlib.UpdateRentalAgreement(&a)
 	} else {
 		_, err = rlib.InsertRentalAgreement(&a)
+		if err == nil {
+			var lm rlib.LedgerMarker
+			lm.Dt = a.AgreementStart
+			lm.RAID = a.RAID
+			err = rlib.InsertLedgerMarker(&lm)
+		}
 	}
 
 	if err != nil {

@@ -80,7 +80,7 @@ function buildSidebar() {
                         { id: 'pmts',        text: 'Payment Types',                    icon: 'fa fa-credit-card' },
                         { id: 'dep',         text: 'Depositories',                     icon: 'fa fa-university' },
                         { id: 'depmeth',     text: 'Deposit Methods',                  icon: 'fa fa-envelope-o' },
-                        { id: 'ars',         text: 'Assessment/Receipt Rules',         icon: 'fa fa-cogs' },
+                        { id: 'ars',         text: 'Account Rules',                    icon: 'fa fa-cogs' },
                         { id: 'rt',          text: plural(app.sRentableType),          icon: 'fa fa-asterisk', hint: 'Rentable Types' },
                         { id: 'rentables',   text: plural(app.sRentable),              icon: 'fa fa-cube' },
                         { id: 'changeRT',    text: 'Change ' + app.sRentable +' Type', icon: 'fa fa-refresh' },
