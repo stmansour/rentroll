@@ -1,0 +1,16 @@
+{
+    "record": {
+        "AgreementStart": "10/1/2016",
+        "AgreementStop": "12/31/2017",
+        "BID": 1,
+        "Balance": 8614.999999999996,
+        "Payors": "Beaumont Partners LLC",
+        "PossessionStart": "10/1/2016",
+        "PossessionStop": "12/31/2017",
+        "RAID": 5,
+        "RentStart": "10/1/2016",
+        "RentStop": "12/31/2017",
+        "recid": 0
+    },
+    "status": "success"
+}

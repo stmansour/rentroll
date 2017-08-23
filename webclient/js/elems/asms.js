@@ -147,7 +147,7 @@ function buildAssessmentElements() {
                                 w2ui[form].get('ARID').options.items = app.AssessmentRules[Bud];
                                 w2ui[form].refresh();
 
-                                setToForm(form, myurl, 400, true);
+                                setToForm(form, myurl, 450, true);
                             }
                             if (data.status != 'success') {
                                 w2ui.asmsGrid.message(data.message);
@@ -187,7 +187,7 @@ function buildAssessmentElements() {
                             w2ui.asmEpochForm.record = record;
                             w2ui.asmEpochForm.refresh();
 
-                            setToForm('asmEpochForm', '/v1/asm/' + BID + '/0', 400);
+                            setToForm('asmEpochForm', '/v1/asm/' + BID + '/0', 450);
                         }
                         if (data.status != 'success') {
                             w2ui.asmEpochForm.message(data.message);
