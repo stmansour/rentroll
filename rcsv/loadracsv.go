@@ -282,6 +282,10 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.RentalAgreement = %v", funcname, lineno, err)
 	}
+	var lm rlib.LedgerMarker
+	lm.Dt = ra.AgreementStart
+	lm.RAID = ra.RAID
+	err = rlib.InsertLedgerMarker(&lm)
 
 	//------------------------------------------------------------
 	// Add the rentables, and the users of those rentables...
