@@ -50,8 +50,7 @@ function buildStatementsElements() {
 
                         var rec = grid.get(recid);
                         console.log( 'BID = ' + rec.BID + ',   RAID = ' + rec.RAID);
-                        var d = new Date();  // we'll use today for time-sensitive data
-                        setToStmtForm(rec.BID, rec.RAID, d,d);
+                        setToStmtForm(rec.BID, rec.RAID, app.D1, app.D2);
                     };
 
                 // warn user if form content has been changed
@@ -231,6 +230,10 @@ function setToStmtForm(bid, raid, d1,d2) {
     if (raid > 0) {
         w2ui.stmtDetailGrid.url = '/v1/stmtdetail/' + bid + '/' + raid;
         w2ui.stmtDetailForm.url = '/v1/stmtinfo/' + bid + '/' + raid;
+        w2ui.stmtDetailForm.postData = {
+            searchDtStart: d1,
+            searchDtStop: d2,
+        };
         w2ui.stmtDetailForm.request();
 
         w2ui.toplayout.content('right', w2ui.stmtLayout);

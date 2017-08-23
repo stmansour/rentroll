@@ -519,6 +519,12 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			lm.RAID = a.RAID
 			err = rlib.InsertLedgerMarker(&lm)
 		}
+		if err == nil {
+			var lm rlib.LedgerMarker
+			lm.Dt = a.AgreementStart
+			lm.RAID = a.RAID
+			err = rlib.InsertLedgerMarker(&lm)
+		}
 	}
 
 	if err != nil {

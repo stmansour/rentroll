@@ -51,7 +51,7 @@ type StatementInfoGetResponse struct {
 // SvcGetStatementInfo returns the requested StatementInfo record
 // wsdoc {
 //  @Title  Get Statement Info
-//	@URL /v1/rt/:BUI/:RAID
+//	@URL /v1/stmtinfo/:BUI/:RAID
 //  @Method  POST
 //	@Synopsis Get information about a Rental Agreement Statement
 //  @Description  Return information about a Rental Agreement Statement
@@ -90,9 +90,11 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	sa := []string{}
 	var p PayorHistory
+	i := 0
 	for rows.Next() {
 		err := rows.Scan(&p.RAPID, &p.RAID, &p.TCID, &p.DtStart, &p.DtStop, &p.IsCompany, &p.FirstName, &p.LastName, &p.CompanyName,
 			&p.AgreementStart, &p.AgreementStop, &p.PossessionStart, &p.PossessionStop, &p.RentStart, &p.RentStop)
+		i++
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -110,16 +112,37 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	now := time.Now()
-	g.Record.Payors = strings.Join(sa, ",")
 	g.Record.BID = d.BID
 	g.Record.RAID = d.ID
-	g.Record.AgreementStart = rlib.JSONDate(p.AgreementStart)
-	g.Record.AgreementStop = rlib.JSONDate(p.AgreementStop)
-	g.Record.PossessionStart = rlib.JSONDate(p.PossessionStart)
-	g.Record.PossessionStop = rlib.JSONDate(p.PossessionStop)
-	g.Record.RentStart = rlib.JSONDate(p.RentStart)
-	g.Record.RentStop = rlib.JSONDate(p.RentStop)
+	if i == 0 {
+		//------------------------------------------------------------------------
+		// If nothing was read, then the date range is not valid.  Load the info
+		// for that rental agreement and fill out the dates. As for the payors,
+		// get the payors over the lifetime of the agreement
+		//------------------------------------------------------------------------
+		ra, err := rlib.GetRentalAgreement(d.ID)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		sap := ra.GetPayorNameList(&ra.AgreementStart, &ra.AgreementStop)
+		g.Record.Payors = strings.Join(sap, ",")
+		g.Record.AgreementStart = rlib.JSONDate(ra.AgreementStart)
+		g.Record.AgreementStop = rlib.JSONDate(ra.AgreementStop)
+		g.Record.PossessionStart = rlib.JSONDate(ra.PossessionStart)
+		g.Record.PossessionStop = rlib.JSONDate(ra.PossessionStop)
+		g.Record.RentStart = rlib.JSONDate(ra.RentStart)
+		g.Record.RentStop = rlib.JSONDate(ra.RentStop)
+	} else {
+		g.Record.Payors = strings.Join(sa, ",")
+		g.Record.AgreementStart = rlib.JSONDate(p.AgreementStart)
+		g.Record.AgreementStop = rlib.JSONDate(p.AgreementStop)
+		g.Record.PossessionStart = rlib.JSONDate(p.PossessionStart)
+		g.Record.PossessionStop = rlib.JSONDate(p.PossessionStop)
+		g.Record.RentStart = rlib.JSONDate(p.RentStart)
+		g.Record.RentStop = rlib.JSONDate(p.RentStop)
+	}
+	now := time.Now()
 	g.Record.Balance, err = rlib.GetRAIDBalance(d.ID, &now)
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
