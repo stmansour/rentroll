@@ -324,13 +324,13 @@ function buildDepositElements() {
                 calcTotalCheckedReceipts();
             });
         },
-        onChange: function(event) {
+        onClick: function(event) {
             event.done(function () {
                 if (event.column == 1) {
                     calcTotalCheckedReceipts();
                 }
             });
-        },      
+        },
     });
 
     addDateNavToToolbar('depositList');
@@ -344,7 +344,7 @@ function buildDepositElements() {
         style: 'border: 0px; background-color: transparent;',
         url: '/v1/deposit',
         formURL: '/webclient/html/formdepositbtns.html',
-        fields: [],  
+        fields: [],
         actions: {
             save: saveDepositForm,
          },
@@ -400,7 +400,7 @@ function saveDepositForm() {
 }
 
 //-----------------------------------------------------------------------------
-// calcTotalCheckedReceipts - go through all the depositListGrid items and 
+// calcTotalCheckedReceipts - go through all the depositListGrid items and
 //      total all the checked receipts. Update the Amount column of the
 //      summary row with the total.
 // @params
@@ -421,7 +421,7 @@ function calcTotalCheckedReceipts() {
 }
 
 //-----------------------------------------------------------------------------
-// getCheckedReceipts - go through depositListGrid items and build a list 
+// getCheckedReceipts - go through depositListGrid items and build a list
 //      of the RCPTIDs of the select receipts
 // @params
 //
