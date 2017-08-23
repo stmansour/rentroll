@@ -725,6 +725,16 @@ func GetRALedgerMarkerOnOrBefore(raid int64, dt *time.Time) LedgerMarker {
 	return r
 }
 
+// GetRALedgerMarkerOnOrAfter returns the LedgerMarker struct for the RAID with
+// the supplied LID filtered for the supplied RentalAgreement raid
+//=============================================================================
+func GetRALedgerMarkerOnOrAfter(raid int64, dt *time.Time) LedgerMarker {
+	var r LedgerMarker
+	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrAfter.QueryRow(raid, dt)
+	ReadLedgerMarker(row, &r)
+	return r
+}
+
 // GetRentableLedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with
 // the supplied LID filtered for the supplied Rentable rid
 func GetRentableLedgerMarkerOnOrBefore(bid, lid, rid int64, dt *time.Time) LedgerMarker {

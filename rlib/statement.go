@@ -113,9 +113,15 @@ func GetRAIDStatementInfo(raid int64, d1, d2 *time.Time) (RAAcctBal, error) {
 	//  First, find the ledger marker for this RentalAgreement...
 	//----------------------------------------------------------------
 	m.LmStart = GetRALedgerMarkerOnOrBefore(raid, d1)
-	if m.LmStart.LMID == 0 {
-		err = fmt.Errorf("*** ERROR ***  could not find ledger marker for RAID %d on or before %s", raid, d1.Format(RRDATEFMTSQL))
-		return m, err
+	if m.LmStart.LMID == 0 { // if there's no marker on or prior to d1
+		m.LmStart = GetRALedgerMarkerOnOrAfter(raid, d1) // see where the first marker happens
+		if m.LmStart.LMID == 0 {
+			err = fmt.Errorf("*** ERROR ***  could not find ledger marker for RAID %d", raid)
+			return m, err
+		}
+		if m.LmStart.Dt.After(*d2) { // if no find, then there is no ledger information for the supplied date range
+			return m, nil // not really an error, but there's no data for this time range
+		}
 	}
 
 	m.OpeningBal = m.LmStart.Balance                                  // initialize

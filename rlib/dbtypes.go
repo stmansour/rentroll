@@ -1496,6 +1496,7 @@ type RRprepSQL struct {
 	DeleteExpense                           *sql.Stmt
 	UpdateExpense                           *sql.Stmt
 	GetRentableTypeByName                   *sql.Stmt
+	GetRALedgerMarkerOnOrAfter              *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

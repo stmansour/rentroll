@@ -512,6 +512,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE RAID=? and Dt<=? ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
+	RRdb.Prepstmt.GetRALedgerMarkerOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE RAID=? and Dt>=? ORDER BY Dt ASC LIMIT 1")
+	Errcheck(err)
 	RRdb.Prepstmt.GetRALedgerMarkerOnOrBeforeDeprecated, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=? and Dt<=?  ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableLedgerMarkerOnOrBefore, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RID=? and Dt<=?  ORDER BY Dt DESC LIMIT 1")
