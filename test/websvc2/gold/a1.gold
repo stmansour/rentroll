@@ -5,7 +5,7 @@
         "BUD": "REX",
         "ClearedAmount": 0,
         "CreateBy": 0,
-        "CreateTS": "2017-08-04T21:36:00Z",
+        "CreateTS": "2017-08-23T11:53:00Z",
         "DEPID": 1,
         "DEPName": "Wells Fargo",
         "DID": 3,
@@ -14,7 +14,7 @@
         "Dt": "3/20/2016",
         "FLAGS": 0,
         "LastModBy": 0,
-        "LastModTime": "2017-08-04T21:36:00Z",
+        "LastModTime": "2017-08-23T11:53:00Z",
         "recid": 3
     },
     "status": "success"

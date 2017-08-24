@@ -182,8 +182,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 	}
 
 	theQuery := `
-	SELECT
-		{{.SelectClause}}
+	SELECT {{.SelectClause}}
 	FROM Deposit
 	LEFT JOIN Depository ON Deposit.DEPID = Depository.DEPID
 	LEFT JOIN DepositMethod ON Deposit.DPMID = DepositMethod.DPMID

@@ -1,7 +1,7 @@
 /*global
     w2ui, app, $, w2uiDateControlString, addDateNavToToolbar, console, getCurrentBusiness, getBUDfromBID,
     popupRentalAgrPicker, rafinder, form_dirty_alert, setToForm, setDateControlsInToolbar, formRefreshCallBack,
-    formRecDiffer, getFormSubmitData, w2confirm, w2utils
+    formRecDiffer, getFormSubmitData, w2confirm, w2utils, get2XReversalSymbolHTML, getGridReversalSymbolHTML, 
 */
 "use strict";
 function getExpenseInitRecord(BID, BUD){
@@ -387,7 +387,7 @@ function buildExpenseElements() {
                 if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>REVERSED</strong> ("+r.Comment+")</p>";
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");

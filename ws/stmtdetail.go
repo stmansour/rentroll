@@ -22,6 +22,7 @@ type StatementDetail struct {
 	RcptAmount   float64       // amount of receipt
 	RentableName string        // associated rentable name
 	Balance      float64       // sum
+	FLAGS        uint64        // Rcpt / Asmt flags
 }
 
 // StmtDetailResponse is the response data for a Rental Agreement Search
@@ -142,6 +143,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 			} else {
 				a.Descr += " (" + m.Stmt[i].A.Comment + ")"
 			}
+			a.FLAGS = m.Stmt[i].A.FLAGS
 		case 2: // receipts
 			amt := m.Stmt[i].Amt
 			a.RcptAmount = amt
@@ -162,6 +164,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 				}
 				a.Descr += " (" + comment + ")"
 			}
+			a.FLAGS = m.Stmt[i].R.FLAGS
 		}
 		//---------------------------------------------------
 		// only add it if it is what was requested...
