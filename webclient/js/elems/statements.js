@@ -101,6 +101,7 @@ function buildStatementsElements() {
             { field: 'PossessionStop', type: 'date', required: false, html: { page: 0, column: 0 } },
             { field: 'RentStart', type: 'date', required: false, html: { page: 0, column: 0 } },
             { field: 'RentStop', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'PayorUnalloc', type: 'text', required: false, html: { page: 0, column: 0 } },
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -127,6 +128,10 @@ function buildStatementsElements() {
                 x = document.getElementById("CurrentStatementBalance");
                 if (x !== null) {
                     x.innerHTML = '$ ' + number_format(this.record.Balance ,2);
+                }
+                x = document.getElementById("payorunalloc");
+                if (x !== null) {
+                    x.innerHTML = '' + this.record.PayorUnalloc;
                 }
             };
         },
