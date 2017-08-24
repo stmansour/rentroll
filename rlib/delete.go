@@ -50,11 +50,12 @@ func DeleteDemandSource(id int64) error {
 // DeleteDeposit deletes the Deposit associated with the supplied id
 // For convenience, this routine calls DeleteDepositPart. The DepositParts are
 // tightly bound to the Deposit. If a Deposit is deleted, the parts should be deleted as well.
-func DeleteDeposit(id int64) {
+func DeleteDeposit(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteDeposit.Exec(id)
 	if err != nil {
 		Ulog("Error deleting Deposit for DID = %d, error: %v\n", id, err)
 	}
+	return err
 }
 
 // DeleteDepository deletes the Depository associated with the supplied id

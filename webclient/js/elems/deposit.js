@@ -1,7 +1,8 @@
 /*global
     parseInt, w2ui, getDepMeth, getDepository, $, app, getBUDfromBID, getCurrentBusiness, console,
     form_dirty_alert, getFormSubmitData, formRecDiffer, formRefreshCallBack, addDateNavToToolbar,
-    getGridReversalSymbolHTML, dateControlString,
+    getGridReversalSymbolHTML, dateControlString, w2utils, saveDepositForm, w2confirm,
+    delete_confirm_options,
 */
 
 "use strict";
@@ -360,8 +361,36 @@ function buildDepositElements() {
         fields: [],
         actions: {
             save: saveDepositForm,
-         },
-     });
+            delete: function() {
+                var form = this;
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.depositForm;
+                    var params = {cmd: 'delete', formname: form.name, DID: w2ui.depositForm.record.DID };
+                    var dat = JSON.stringify(params);
+                    form.url = '/v1/deposit/' + w2ui.depositForm.record.BID + '/' + w2ui.depositForm.record.DID;
+                    
+                    $.post(form.url, dat, null, "json")
+                    .done(function(data) {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.depositGrid.remove(app.last.grid_sel_recid);
+                        w2ui.depositGrid.render();
+                    })
+                    .fail(function(/*data*/){
+                        form.error("Delete Account failed.");
+                        return;
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+    });
 
     //-------------------------------------------------------------------------------
     //  depositLayout - The layout to contain the depositForm and depositDetailGrid
