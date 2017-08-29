@@ -253,7 +253,7 @@ function getCurrentBusiness() {
 //   sform   = name of the form
 //   url     = request URL for the form
 //   [width] = optional, if specified it is the width of the form
-//   doRequest = 
+//   doRequest =
 //-----------------------------------------------------------------------------
 function setToForm(sform, url, width, doRequest) {
     // if not url defined then return
@@ -847,7 +847,7 @@ function getFormSubmitData(record) {
 //   id_name  = form's primary Id
 //   form_header = header (title) of form
 //-----------------------------------------------------------------------------
-function formRefreshCallBack(w2frm, id_name, form_header) {
+function formRefreshCallBack(w2frm, id_name, form_header, show_header) {
 
     var fname = w2frm.name,
         record = w2frm.record,
@@ -866,12 +866,16 @@ function formRefreshCallBack(w2frm, id_name, form_header) {
     // if new record then disable delete button
     // and format the equivalent header
     if (id === 0) {
-        w2frm.header = header.format("new");
+        if (show_header) {
+            w2frm.header = header.format("new");
+        }
         $("#"+fname).find("button[name=delete]").addClass("hidden");
         $("#"+fname).find("button[name=reverse]").addClass("hidden");
     }
     else {
-        w2frm.header = header.format(id);
+        if (show_header) {
+            w2frm.header = header.format(id);
+        }
         $("#"+fname).find("button[name=delete]").removeClass("hidden");
         $("#"+fname).find("button[name=reverse]").removeClass("hidden");
     }

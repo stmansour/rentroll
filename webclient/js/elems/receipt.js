@@ -3,7 +3,7 @@
     console, form_dirty_alert, buildPaymentTypeSelectList, setDateControlsInToolbar,
     addDateNavToToolbar, tcidReceiptPayorPickerRender, tcidPickerDropRender, tcidPickerCompare,
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
-    getFormSubmitData, w2uiDateControlString, 
+    getFormSubmitData, w2uiDateControlString,
 */
 "use strict";
 function getReceiptInitRecord(BID, BUD, ptInit){

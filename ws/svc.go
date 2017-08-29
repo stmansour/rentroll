@@ -167,6 +167,7 @@ var Svcs = []ServiceHandler{
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
 	{"rentalagrtd", SvcRentalAgreementTypeDown, true},
 	{"rt", SvcHandlerRentableType, true},
+	{"rmr", SvcHandlerRentableMarketRates, true},
 	{"rtlist", SvcRentableTypesTD, true},
 	{"ruser", SvcRUser, true},
 	{"stmt", SvcStatement, true},

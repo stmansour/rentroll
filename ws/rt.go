@@ -10,7 +10,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // RentableTypeTD is struct to list down individual rentable type
@@ -42,10 +41,10 @@ type RentableTypeGridRecord struct {
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
 	CreateBy       int64
-	RMRID          int64
-	MarketRate     float64
-	DtStart        rlib.JSONDate
-	DtStop         rlib.JSONDate
+	RMRID          rlib.NullInt64
+	MarketRate     rlib.NullFloat64
+	DtStart        rlib.NullDate
+	DtStop         rlib.NullDate
 }
 
 // RentableTypeSearchResponse is a response string to the search request for rentable types records
@@ -219,7 +218,9 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 		g        RentableTypeSearchResponse
 		err      error
 		order    = `RentableTypes.RTID ASC` // default ORDER in sql result
-		whr      = fmt.Sprintf("RentableTypes.BID=%d AND %q<RentableMarketRate.DtStop AND RentableMarketRate.DtStart<%q ",
+		whr      = fmt.Sprintf(`RentableTypes.BID=%d
+				AND (RentableMarketRate.DtStart <= %q OR RentableMarketRate.DtStart IS NULL)
+				AND (RentableMarketRate.DtStop >%q OR RentableMarketRate.DtStop IS NULL)`,
 			d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 	)
 	fmt.Printf("Entered %s\n", funcname)
@@ -412,6 +413,12 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 
+	// Remove rentableTypeRef related with it
+	if err := rlib.DeleteRentableTypeRefWithRTID(del.ID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
 	// Remove rentableMarketRate related with it
 	if err := rlib.DeleteRentableTypeRefWithRTID(del.ID); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
@@ -434,10 +441,9 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var (
-		funcname    = "saveRentableType"
-		foo         RentableTypeFormSave
-		err         error
-		currentTime = time.Now().UTC()
+		funcname = "saveRentableType"
+		foo      RentableTypeFormSave
+		err      error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -454,12 +460,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var a rlib.RentableType
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
-
-	var b rlib.RentableMarketRate
-	rlib.MigrateStructVals(&foo.Record, &b) // the variables that don't need special handling
-
 	fmt.Printf("RentableType Record: %#v\n", a)
-	fmt.Printf("RentableMarketRate Record: %#v\n", b)
 
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
@@ -479,19 +480,9 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.RTID == 0 && d.ID == 0 {
 		// This is a new AR
 		rlib.Console(">>>> NEW RentableType IS BEING ADDED\n")
-
 		a.RTID, err = rlib.InsertRentableType(&a)
 		if err != nil {
 			e := fmt.Errorf("%s: unable to save RentableType record: %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
-			return
-		}
-		b.RTID = a.RTID
-		b.DtStart = currentTime
-		b.DtStop = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-		err = rlib.InsertRentableMarketRates(&b)
-		if err != nil {
-			e := fmt.Errorf("%s: unable to save RentableMarketRate record: %s", funcname, err.Error())
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
@@ -504,40 +495,286 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
+	}
 
-		// first get RentableMarketRate instance from RMRID
-		rmr, err := rlib.GetRentableMarketRateInstance(foo.Record.RMRID)
+	SvcWriteSuccessResponseWithID(w, a.RTID)
+}
+
+// RentableMarketRateGridResponse holds the struct for grids response
+type RentableMarketRateGridResponse struct {
+	Status  string                      `json:"status"`
+	Total   int64                       `json:"total"`
+	Records []RentableMarketRateGridRec `json:"records"`
+}
+
+// RentableMarketRateGridRec holds a struct for single record of grid
+type RentableMarketRateGridRec struct {
+	Recid      int64 `json:"recid"`
+	BID        int64
+	BUD        rlib.XJSONBud
+	RMRID      int64
+	RTID       int64
+	MarketRate float64
+	DtStart    rlib.JSONDate
+	DtStop     rlib.JSONDate
+}
+
+// rmrGridRowScan scans a result from sql row and dump it in a struct for rentableGrid
+func rmrGridRowScan(rows *sql.Rows, q RentableMarketRateGridRec) (RentableMarketRateGridRec, error) {
+	err := rows.Scan(&q.RTID, &q.RMRID, &q.MarketRate, &q.DtStart, &q.DtStop)
+	return q, err
+}
+
+var rmrSearchFieldMap = selectQueryFieldMap{
+	"RTID":       {"RentableMarketRate.RTID"},
+	"RMRID":      {"RentableMarketRate.RMRID"},
+	"MarketRate": {"RentableMarketRate.MarketRate"},
+	"DtStart":    {"RentableMarketRate.DtStart"},
+	"DtStop":     {"RentableMarketRate.DtStop"},
+}
+
+// which fields needs to be fetch to satisfy the struct
+var rmrSearchSelectQueryFields = selectQueryFields{
+	"RentableMarketRate.RTID",
+	"RentableMarketRate.RMRID",
+	"RentableMarketRate.MarketRate",
+	"RentableMarketRate.DtStart",
+	"RentableMarketRate.DtStop",
+}
+
+// SvcHandlerRentableMarketRates returns the list of market rates for given rentable type
+func SvcHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "SvcHandlerRentableMarketRates"
+		err      error
+	)
+
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("Request: %s:  BID = %d,  RTID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+
+	// This operation requires RentableType ID
+	if d.ID < 0 {
+		err = fmt.Errorf("ID for RentableType is required but was not specified")
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	switch d.wsSearchReq.Cmd {
+	case "get":
+		svcSearchHandlerRentableMarketRates(w, r, d) // it is a query for the grid.
+		break
+	case "save":
+		saveRentableTypeMarketRates(w, r, d)
+		break
+	case "delete":
+		deleteRentableTypeMarketRates(w, r, d)
+		break
+	default:
+		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+}
+
+// svcSearchHandlerRentableMarketRates handles market rate grid request/response
+func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "svcSearchHandlerRentableMarketRates"
+		g        RentableMarketRateGridResponse
+		err      error
+		order    = `RentableMarketRate.RMRID ASC`
+		whr      = fmt.Sprintf("RentableMarketRate.RTID=%d", d.ID)
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	// get where clause and order clause for sql query
+	whereClause, orderClause := GetSearchAndSortSQL(d, rmrSearchFieldMap)
+	if len(whereClause) > 0 {
+		whr += " AND (" + whereClause + ")"
+	}
+	if len(orderClause) > 0 {
+		order = orderClause
+	}
+
+	mrQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM RentableMarketRate
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
+
+	qc := queryClauses{
+		"SelectClause": strings.Join(rmrSearchSelectQueryFields, ","),
+		"WhereClause":  whr,
+		"OrderClause":  order,
+	}
+
+	// get TOTAL COUNT First
+	countQuery := renderSQLQuery(mrQuery, qc)
+	g.Total, err = GetQueryCount(countQuery, qc)
+	if err != nil {
+		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	fmt.Printf("g.Total = %d\n", g.Total)
+
+	// FETCH the records WITH LIMIT AND OFFSET
+	// limit the records to fetch from server, page by page
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+
+	// build query with limit and offset clause
+	// if query ends with ';' then remove it
+	queryWithLimit := mrQuery + limitAndOffsetClause
+
+	// Add limit and offset value
+	qc["LimitClause"] = strconv.Itoa(d.wsSearchReq.Limit)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
+
+	// get formatted query with substitution of select, where, order clause
+	qry := renderSQLQuery(queryWithLimit, qc)
+	fmt.Printf("db query = %s\n", qry)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
+	if err != nil {
+		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	defer rows.Close()
+
+	i := int64(d.wsSearchReq.Offset)
+	count := 0
+	for rows.Next() {
+		var q RentableMarketRateGridRec
+		q.Recid = i
+		q.BID = d.BID
+		q.BUD = getBUDFromBIDList(q.BID)
+
+		q, err = rmrGridRowScan(rows, q)
 		if err != nil {
-			e := fmt.Errorf("%s: unable to update RentableType (RTID=%d\n: %s", funcname, a.RTID, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 
-		// now check marketrate is changed or not
-		if rmr.MarketRate != foo.Record.MarketRate { // if it is not same, then update rentableMarketRate with new record
-			// mark old record's stop date as Today's date
-			rmr.DtStop = currentTime
-			err = rlib.UpdateRentableMarketRateInstance(&rmr)
+		g.Records = append(g.Records, q)
+		count++ // update the count only after adding the record
+		if count >= d.wsSearchReq.Limit {
+			break // if we've added the max number requested, then exit
+		}
+		i++
+	}
+
+	err = rows.Err()
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
+	SvcWriteResponse(&g, w)
+}
+
+// MarketRateGridSave is the input data format for a Save command
+type MarketRateGridSave struct {
+	Cmd      string                      `json:"cmd"`
+	Selected []int64                     `json:"selected"`
+	Limit    int64                       `json:"limit"`
+	Offset   int64                       `json:"offset"`
+	Changes  []RentableMarketRateGridRec `json:"changes"`
+}
+
+// saveRentableTypeMarketRates save/update market rates associated with RentableType
+func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "saveRentableTypeMarketRates"
+		err      error
+		foo      MarketRateGridSave
+	)
+	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("record data: %s\n", d.data)
+
+	// get data
+	data := []byte(d.data)
+
+	if err = json.Unmarshal(data, &foo); err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	fmt.Printf("foo Changes: %v", foo.Changes)
+
+	var bizErrs []bizlogic.BizError
+	for _, mr := range foo.Changes {
+		var a rlib.RentableMarketRate
+		rlib.MigrateStructVals(&mr, &a) // the variables that don't need special handling
+
+		errs := bizlogic.ValidateRentableMarketRate(&a)
+		if len(errs) > 0 {
+			bizErrs = append(bizErrs, errs...)
+			continue
+		}
+
+		// insert new marketRate
+		if a.RMRID == 0 {
+			err = rlib.InsertRentableMarketRates(&a)
 			if err != nil {
-				e := fmt.Errorf("%s: unable to update RentableType (RTID=%d\n: %s", funcname, a.RTID, err.Error())
+				e := fmt.Errorf("Error while inserting market rate:  %s", err.Error())
 				SvcGridErrorReturn(w, e, funcname)
 				return
 			}
-
-			// insert new record
-			newRMR := rmr
-			newRMR.MarketRate = b.MarketRate
-			newRMR.DtStart = currentTime
-			newRMR.DtStop = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-			err = rlib.InsertRentableMarketRates(&newRMR)
+		} else { // else update existing one
+			err = rlib.UpdateRentableMarketRateInstance(&a)
 			if err != nil {
-				e := fmt.Errorf("%s: unable to update RentableType (RTID=%d\n: %s", funcname, a.RTID, err.Error())
+				e := fmt.Errorf("Error with updating market rate instance (%d), RTID=%d : %s", a.RMRID, a.RTID, err.Error())
 				SvcGridErrorReturn(w, e, funcname)
 				return
 			}
 		}
-
 	}
 
+	// if any marketRate has problem in bizlogic then return list
+	if len(bizErrs) > 0 {
+		SvcErrListReturn(w, bizErrs, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
+}
+
+// MarketRateGridDelete is a struct used in delete request for market rates
+type MarketRateGridDelete struct {
+	Cmd       string  `json:"cmd"`
+	RMRIDList []int64 `json:"RMRIDList"`
+}
+
+// deleteRentableTypeMarketRates used to delete multiple market rate records associated with rentable type
+func deleteRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "deleteRentableTypeMarketRates"
+		err      error
+		foo      MarketRateGridDelete
+	)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data: %s\n", d.data)
+
+	data := []byte(d.data)
+	if err = json.Unmarshal(data, &foo); err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	for _, rmrid := range foo.RMRIDList {
+		err = rlib.DeleteRentableMarketRateInstance(rmrid)
+		if err != nil {
+			e := fmt.Errorf("Error with deleting MarketRate with ID %d:  %s", rmrid, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+	}
 	SvcWriteSuccessResponse(w)
 }
