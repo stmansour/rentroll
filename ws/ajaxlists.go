@@ -45,6 +45,7 @@ var idTextMapList = []struct {
 	{"renewalMap", &rlib.RenewalMap},
 	{"companyOrPerson", &rlib.CompanyOrPersonMap},
 	{"manageToBudgetList", &manageToBudget},
+	{"rtActiveFLAGS", &rlib.RtActiveFLAGS},
 }
 
 var ssliceToJS = []struct {

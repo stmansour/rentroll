@@ -15,5 +15,6 @@
 14,"Receipt %s is already a part of Deposit %s"
 15,"Receipt %s is not eligible for inclusion as it is part of a different business"
 16,"Total of the receipts does not match the Amount value for this deposit."
-17,"Given Rentable Market Rate is invalid for (RMRID: %d)"
-18,"Given Rentable Market Rate dates are invalid for (RMRID: %d), conflicts with (RMRID: %d) for (%s)"
+17,"Given Rentable Market Rate(RMRID: %d) amount is invalid (Amount: %f)"
+18,"Given Rentable Market Rate(RMRID: %d) StopDate(%s) should not be before StartDate(%s)"
+19,"Given Rentable Market Rate(RMRID: %d) dates are invalid, overlaps with (RMRID: %d)"

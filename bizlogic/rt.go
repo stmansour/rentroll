@@ -40,12 +40,15 @@ func ValidateRentableMarketRate(rmr *rlib.RentableMarketRate) []BizError {
 
 	// 1. check first MarketRate is valid or not
 	if rmr.MarketRate <= 0 {
-		errlist = AddBizErrToList(errlist, InvalidRentableMarketRate)
+		s := fmt.Sprintf(BizErrors[InvalidRentableMarketRateAmount].Message, rmr.RMRID, rmr.MarketRate)
+		b := BizError{Errno: InvalidRentableMarketRateAmount, Message: s}
+		errlist = append(errlist, b)
 	}
 
 	// 2. Stopdate should not be before startDate
 	if rmr.DtStop.Before(rmr.DtStart) {
-		s := fmt.Sprintf(BizErrors[InvalidRentableMRDates].Message, rmr.RMRID, -1, "EndDate is before StartDate")
+		s := fmt.Sprintf(BizErrors[InvalidRentableMRDates].Message,
+			rmr.RMRID, rmr.DtStop.Format(rlib.RRDATEFMT4), rmr.DtStart.Format(rlib.RRDATEFMT4))
 		b := BizError{Errno: InvalidRentableMRDates, Message: s}
 		errlist = append(errlist, b)
 	}
@@ -61,21 +64,9 @@ func ValidateRentableMarketRate(rmr *rlib.RentableMarketRate) []BizError {
 			continue
 		}
 		// start date should not sit between other market rate's time span
-		if rmr.DtStart.After(mr.DtStart) && rmr.DtStart.Before(mr.DtStop) {
-			s := fmt.Sprintf(BizErrors[InvalidRentableMRDates].Message, rmr.RMRID, mr.RMRID, "StartDate")
-			b := BizError{Errno: InvalidRentableMRDates, Message: s}
-			errlist = append(errlist, b)
-		}
-		// end date should not sit between other market rate's time span
-		if rmr.DtStop.After(mr.DtStart) && rmr.DtStop.Before(mr.DtStop) {
-			s := fmt.Sprintf(BizErrors[InvalidRentableMRDates].Message, rmr.RMRID, mr.RMRID, "EndDate")
-			b := BizError{Errno: InvalidRentableMRDates, Message: s}
-			errlist = append(errlist, b)
-		}
-		// start/stop should not cover other market rate's time span
-		if rmr.DtStart.Before(mr.DtStart) && rmr.DtStop.After(mr.DtStop) {
-			s := fmt.Sprintf(BizErrors[InvalidRentableMRDates].Message, rmr.RMRID, mr.RMRID, "Covering")
-			b := BizError{Errno: InvalidRentableMRDates, Message: s}
+		if rlib.DateRangeOverlap(&rmr.DtStart, &rmr.DtStop, &mr.DtStart, &mr.DtStop) {
+			s := fmt.Sprintf(BizErrors[RentableMRDatesOverlap].Message, rmr.RMRID, mr.RMRID)
+			b := BizError{Errno: RentableMRDatesOverlap, Message: s}
 			errlist = append(errlist, b)
 		}
 	}

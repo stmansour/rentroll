@@ -51,6 +51,18 @@ function buildRentableTypeElements() {
         columns: [
             {field: 'recid', caption: 'recid', hidden: true},
             {field: 'RTID', caption: 'RTID', size: '50px', sortable: true},
+            {field: 'Active', caption: 'Active', size: '50px', sortable: true,
+                render: function(record) {
+                    if (record) {
+                        if ((record.FLAGS & 1) == 1) {
+                            return "NO";
+                        }
+                        if ((record.FLAGS & 0) == 0) {
+                            return "YES";
+                        }
+                    }
+                }
+            },
             {field: 'Name', caption: 'Name', size: '150px', sortable: true},
             {field: 'Style', caption: 'Style', size: '100px', sortable: true},
             {field: 'BID', caption: 'BID', hidden: true},
@@ -200,6 +212,7 @@ function buildRentableTypeElements() {
             { field: 'Proration', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
             { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
             { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'FLAGS', type: 'list', options: {items: app.rtActiveFLAGS, selected: {}}, required: true, html: { page: 0, column: 0 } },
             { field: 'RMRID', type: 'int', required: true, html: { page: 0, column: 0 } },
             { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
@@ -246,7 +259,8 @@ function buildRentableTypeElements() {
 
                 // dropdown list items and selected variables
                 var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
-                    manageToBudgetSel = {}, cycleFreqItems = [];
+                    manageToBudgetSel = {}, FLAGSel = {},
+                    cycleFreqItems = [];
 
                 // select value for rentcycle, proration, gsrpc
                 app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -269,6 +283,13 @@ function buildRentableTypeElements() {
                     }
                 });
 
+                // select value for rentable type FLAGS
+                app.rtActiveFLAGS.forEach(function(item) {
+                    if (item.id == r.FLAGS) {
+                        FLAGSel = {id: item.id, text: item.text};
+                    }
+                });
+
                 // fill the field with values
                 f.get("RentCycle").options.items = cycleFreqItems;
                 f.get("RentCycle").options.selected = rentCycleSel;
@@ -276,8 +297,8 @@ function buildRentableTypeElements() {
                 f.get("Proration").options.selected = prorationSel;
                 f.get("GSRPC").options.items = cycleFreqItems;
                 f.get("GSRPC").options.selected = gsrpcSel;
-                f.get("ManageToBudget").options.items = app.manageToBudgetList;
                 f.get("ManageToBudget").options.selected = manageToBudgetSel;
+                f.get("FLAGS").options.selected = FLAGSel;
 
                 formRefreshCallBack(f, "RTID", header, false);
             };
@@ -333,11 +354,15 @@ function buildRentableTypeElements() {
 
                     // now set the url of market Rate grid so that it can save the record on server side
                     rmrG.url = '/v1/rmr/' + BID + '/' + rtF.record.RTID;
-                    rmrG.save();
-                    rmrG.url = ""; // after save, remove it
+                    rmrG.save(function(data) {
+                        // no matter, if it was succeed or not, just reset it, we already setting it before save call
+                        rmrG.url = ""; // after save, remove it
 
-                    w2ui.toplayout.hide('right',true);
-                    rtG.render();
+                        if (data.status == "success") {
+                            w2ui.toplayout.hide('right',true);
+                            rtG.render();
+                        }
+                    });
                 });
             },
             saveadd: function() {
@@ -365,53 +390,61 @@ function buildRentableTypeElements() {
 
                     // now set the url of market Rate grid so that it can save the record on server side
                     rmrG.url = '/v1/rmr/' + BID + '/' + rtF.record.RTID;
-                    rmrG.save();
-                    rmrG.url = ""; // after save, remove it
-                    // clear grid as we're going to add new Form
-                    rmrG.clear();
+                    rmrG.save(function(data) {
+                        // no matter, if it was succeed or not, just reset it, we already setting it before save call
+                        rmrG.url = ""; // after save, remove it
 
-                    // dropdown list items and selected variables
-                    var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
-                        manageToBudgetSel = {}, cycleFreqItems = [];
+                        if (data.status != "success") {
+                            return false;
+                        }
+                        else {
+                            // clear grid as we're going to add new Form
+                            rmrG.clear();
 
-                    // select value for rentcycle, proration, gsrpc
-                    app.cycleFreq.forEach(function(itemText, itemIndex) {
-                        if (itemIndex == rtF.record.RentCycle) {
-                            rentCycleSel = { id: itemIndex, text: itemText };
+                            // dropdown list items and selected variables
+                            var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
+                                manageToBudgetSel = {}, cycleFreqItems = [];
+
+                            // select value for rentcycle, proration, gsrpc
+                            app.cycleFreq.forEach(function(itemText, itemIndex) {
+                                if (itemIndex == rtF.record.RentCycle) {
+                                    rentCycleSel = { id: itemIndex, text: itemText };
+                                }
+                                if (itemIndex == rtF.record.Proration) {
+                                    prorationSel = { id: itemIndex, text: itemText };
+                                }
+                                if (itemIndex == rtF.record.GSRPC) {
+                                    gsrpcSel = { id: itemIndex, text: itemText };
+                                }
+                                cycleFreqItems.push({ id: itemIndex, text: itemText });
+                            });
+
+                            // select value for manage to budget
+                            app.manageToBudgetList.forEach(function(item) {
+                                if (item.id == rtF.record.ManageToBudget) {
+                                    manageToBudgetSel = {id: item.id, text: item.text};
+                                }
+                            });
+
+                            rtF.get("ManageToBudget").options.items = app.manageToBudgetList;
+                            rtF.get("ManageToBudget").options.selected = manageToBudgetSel[0];
+                            rtF.get("RentCycle").options.items = cycleFreqItems;
+                            rtF.get("RentCycle").options.selected = rentCycleSel[0];
+                            rtF.get("Proration").options.items = cycleFreqItems;
+                            rtF.get("Proration").options.selected = prorationSel[0];
+                            rtF.get("GSRPC").options.items = cycleFreqItems;
+                            rtF.get("GSRPC").options.selected = gsrpcSel[0];
+
+                            // JUST RENDER THE GRID ONLY
+                            rtG.render();
+
+                            var record = getRTInitRecord(BID, BUD);
+                            rtF.record = record;
+                            rtF.header = "Edit Rentable Type (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                            rtF.url = '/v1/rt/' + BID+'/0';
+                            rtF.refresh();
                         }
-                        if (itemIndex == rtF.record.Proration) {
-                            prorationSel = { id: itemIndex, text: itemText };
-                        }
-                        if (itemIndex == rtF.record.GSRPC) {
-                            gsrpcSel = { id: itemIndex, text: itemText };
-                        }
-                        cycleFreqItems.push({ id: itemIndex, text: itemText });
                     });
-
-                    // select value for manage to budget
-                    app.manageToBudgetList.forEach(function(item) {
-                        if (item.id == rtF.record.ManageToBudget) {
-                            manageToBudgetSel = {id: item.id, text: item.text};
-                        }
-                    });
-
-                    rtF.get("ManageToBudget").options.items = app.manageToBudgetList;
-                    rtF.get("ManageToBudget").options.selected = manageToBudgetSel[0];
-                    rtF.get("RentCycle").options.items = cycleFreqItems;
-                    rtF.get("RentCycle").options.selected = rentCycleSel[0];
-                    rtF.get("Proration").options.items = cycleFreqItems;
-                    rtF.get("Proration").options.selected = prorationSel[0];
-                    rtF.get("GSRPC").options.items = cycleFreqItems;
-                    rtF.get("GSRPC").options.selected = gsrpcSel[0];
-
-                    // JUST RENDER THE GRID ONLY
-                    rtG.render();
-
-                    var record = getRTInitRecord(BID, BUD);
-                    rtF.record = record;
-                    rtF.header = "Edit Rentable Type (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
-                    rtF.url = '/v1/rt/' + BID+'/0';
-                    rtF.refresh();
                 });
             },
             delete: function() {
@@ -497,6 +530,19 @@ function buildRentableTypeElements() {
                         if (event.target === "rtForm") {
                             w2ui.rtDetailLayout.html('main', w2ui.rtForm);
                         }
+
+                        // if RentableType is not active then lock the content loaded in main panel
+                        setTimeout(function() {
+                            var FLAG = w2ui.rtForm.record.FLAGS;
+                            var rtActive = typeof FLAG == "object" ? FLAG.id : FLAG;
+                            if (rtActive == 1) { // 1 means inactive
+                                w2ui.rtDetailLayout.lock("main");
+                                w2ui.rtDetailLayout.lock("bottom");
+                            } else {
+                                w2ui.rtDetailLayout.unlock("main");
+                                w2ui.rtDetailLayout.unlock("bottom");
+                            }
+                        }, 0);
                     }
                 }
             },

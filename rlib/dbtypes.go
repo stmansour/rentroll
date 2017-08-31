@@ -34,14 +34,18 @@ const (
 	// ASMUNPAID et al are flags for assessment
 	ASMUNPAID      = 0
 	ASMPARTIALPAID = 1
-	ASMFULLPAID    = 2
+	ASMFULLYPAID   = 2
 	ASMREVERSED    = 4
 
 	// RCPTUNALLOCATED et al are flags for receipt
 	RCPTUNALLOCATED      = 0
 	RCPTPARTIALALLOCATED = 1
-	RCPTFULLALLOCATED    = 2
+	RCPTFULLYALLOCATED   = 2
 	RCPTREVERSED         = 4
+
+	// RTACTIVE et all are flags for rentableTypes
+	RTACTIVE   = 0
+	RTINACTIVE = 1
 
 	// CUSTSTRING et al are Custom Attribute types
 	CUSTSTRING = 0
@@ -927,6 +931,7 @@ type RentableType struct {
 	Proration      int64                      // frequency for prorating rent if the full rentcycle is not used
 	GSRPC          int64                      // Time increments in which GSR is calculated to account for rate changes
 	ManageToBudget int64                      // 0=no, 1 = yes
+	FLAGS          int64                      // 0=active, 1=inactive
 	MR             []RentableMarketRate       // array of time sensitive market rates
 	CA             map[string]CustomAttribute // index by Name of attribute, associated custom attributes
 	MRCurrent      float64                    // the current market rate (historical values are in MR)

@@ -37,6 +37,7 @@ type RentableTypeGridRecord struct {
 	Proration      int64
 	GSRPC          int64
 	ManageToBudget int64
+	FLAGS          int64
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
@@ -158,7 +159,7 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 // rtGridRowScan scans a result from sql row and dump it in a struct for rentableGrid
 func rentableTypeGridRowScan(rows *sql.Rows, q RentableTypeGridRecord) (RentableTypeGridRecord, error) {
-	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.ManageToBudget,
+	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.ManageToBudget, &q.FLAGS,
 		&q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy, &q.RMRID, &q.MarketRate, &q.DtStart, &q.DtStop)
 	return q, err
 }
@@ -171,6 +172,7 @@ var rtSearchFieldMap = selectQueryFieldMap{
 	"Proration":      {"RentableTypes.Proration"},
 	"GSRPC":          {"RentableTypes.GSRPC"},
 	"ManageToBudget": {"RentableTypes.ManageToBudget"},
+	"FLAGS":          {"RentableTypes.FLAGS"},
 	"LastModTime":    {"RentableTypes.LastModTime"},
 	"LastModBy":      {"RentableTypes.LastModBy"},
 	"CreateTS":       {"RentableTypes.CreateTS"},
@@ -190,6 +192,7 @@ var rtSearchSelectQueryFields = selectQueryFields{
 	"RentableTypes.Proration",
 	"RentableTypes.GSRPC",
 	"RentableTypes.ManageToBudget",
+	"RentableTypes.FLAGS",
 	"RentableTypes.LastModTime",
 	"RentableTypes.LastModBy",
 	"RentableTypes.CreateTS",
@@ -412,19 +415,6 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-
-	// Remove rentableTypeRef related with it
-	if err := rlib.DeleteRentableTypeRefWithRTID(del.ID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
-
-	// Remove rentableMarketRate related with it
-	if err := rlib.DeleteRentableTypeRefWithRTID(del.ID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
-
 	SvcWriteSuccessResponse(w)
 }
 

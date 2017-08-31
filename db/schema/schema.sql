@@ -429,6 +429,7 @@ CREATE TABLE RentableTypes (
     Proration BIGINT NOT NULL DEFAULT 0,                    -- prorate frequency
     GSRPC BIGINT NOT NULL DEFAULT 0,                        -- Increments in which GSR is calculated to account for rate changes
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
+    FLAGS TINYINT NOT NULL DEFAULT 0,                      -- 0=active, 1=inactive
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
@@ -1154,7 +1155,7 @@ CREATE TABLE GLAccount (
                                                     --    Cost of Goods Sold, Other Income, Other Expense
     AllowPost SMALLINT NOT NULL DEFAULT 0,          -- 0 - do not allow posts to this ledger. 1 = allow posts
     -- RARequired SMALLINT NOT NULL DEFAULT 0,         -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-    FLAGS BIGINT NOT NULL DEFAULT 0,                -- 
+    FLAGS BIGINT NOT NULL DEFAULT 0,                --
     Description VARCHAR(1024) NOT NULL DEFAULT '',  -- describe the assessment
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,            -- employee UID (from phonebook) that modified it

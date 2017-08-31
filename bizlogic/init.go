@@ -21,25 +21,26 @@ var BizErrors []BizError
 
 // RentableTypeUnknown, et al, are the error numbers for us in BizErrors
 const (
-	RentableTypeUnknown       = 0
-	RentableStatusUnknown     = 1
-	InvalidField              = 2
-	EditReversal              = 3
-	PostToSummaryAcct         = 4
-	RuleUsesAcct              = 5
-	AcctHasLedgerEntries      = 6
-	AcctRefInRule             = 7
-	MissingName               = 8  // Missing required Name field
-	DuplicateName             = 9  // Duplicate Name. An item with that name already exists.
-	MissingStyleName          = 10 // Style name is missing.
-	DuplicateStyleName        = 11 // Duplicate Style name.  An item with that style name already exists.
-	BadDebitAccount           = 12 // The Debit account is not valid.
-	BadCreditAccount          = 13 // The Credit account is not valid.
-	ReceiptAlreadyDeposited   = 14 // The receipt is already a member of another deposit
-	ReceiptBizMismatch        = 15 // The receipt belongs to a different business
-	DepositTotalMismatch      = 16 // the total of the supplied receipts does not match
-	InvalidRentableMarketRate = 17 // the amount of marketRate for rentable is invalid
-	InvalidRentableMRDates    = 18 // market rate dates should not overlap with other market rates
+	RentableTypeUnknown             = 0
+	RentableStatusUnknown           = 1
+	InvalidField                    = 2
+	EditReversal                    = 3
+	PostToSummaryAcct               = 4
+	RuleUsesAcct                    = 5
+	AcctHasLedgerEntries            = 6
+	AcctRefInRule                   = 7
+	MissingName                     = 8  // Missing required Name field
+	DuplicateName                   = 9  // Duplicate Name. An item with that name already exists.
+	MissingStyleName                = 10 // Style name is missing.
+	DuplicateStyleName              = 11 // Duplicate Style name.  An item with that style name already exists.
+	BadDebitAccount                 = 12 // The Debit account is not valid.
+	BadCreditAccount                = 13 // The Credit account is not valid.
+	ReceiptAlreadyDeposited         = 14 // The receipt is already a member of another deposit
+	ReceiptBizMismatch              = 15 // The receipt belongs to a different business
+	DepositTotalMismatch            = 16 // the total of the supplied receipts does not match
+	InvalidRentableMarketRateAmount = 17 // the amount of marketRate for rentable is invalid
+	InvalidRentableMRDates          = 18 // market rate dates should not overlap with other market rates
+	RentableMRDatesOverlap          = 19
 )
 
 // InitBizLogic loads the error messages needed for validation errors
