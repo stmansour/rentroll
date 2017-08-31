@@ -392,7 +392,7 @@ function buildAssessmentElements() {
                     $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
@@ -447,7 +447,7 @@ function buildAssessmentElements() {
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
@@ -713,7 +713,7 @@ function buildAssessmentElements() {
                     $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
@@ -776,7 +776,7 @@ function buildAssessmentElements() {
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append

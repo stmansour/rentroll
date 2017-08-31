@@ -360,7 +360,7 @@ function buildReceiptElements() {
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
                     return;
                 } else {
                     $("#"+f.name).find("#FLAGReport").removeClass("hidden");
@@ -409,7 +409,7 @@ function buildReceiptElements() {
                     // ********************************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS, BUTTONS
                     // ********************************************************
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
