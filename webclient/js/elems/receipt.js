@@ -3,7 +3,7 @@
     console, form_dirty_alert, buildPaymentTypeSelectList, setDateControlsInToolbar,
     addDateNavToToolbar, tcidReceiptPayorPickerRender, tcidPickerDropRender, tcidPickerCompare,
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
-    getFormSubmitData, w2uiDateControlString,
+    getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
 */
 "use strict";
 function getReceiptInitRecord(BID, BUD, ptInit){
@@ -65,7 +65,7 @@ function buildReceiptElements() {
                             return;
                         }
                         if ( (record.FLAGS & app.rcptFLAGS.REVERSED) !== 0 ) { // if reversed then
-                            return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+                            return getGridReversalSymbolHTML();
                         }
                         return '';
                     },
@@ -73,7 +73,7 @@ function buildReceiptElements() {
             {field: 'RCPTID',      caption: 'Receipt ID',     size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
             {field: 'Dt',          caption: 'Date',           size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
             {field: 'ARID',        caption: 'ARID',           size: '150px', hidden: true,  sortable: false},
-            {field: 'DID',         caption: 'DID',            size: '150px', hidden: true,  sortable: false},
+            {field: 'DID',         caption: 'DID',            size: '150px', hidden: false, sortable: false},
             {field: 'AcctRule',    caption: 'Account Rule',   size: '150px', hidden: false, sortable: true},
             {field: 'Amount',      caption: 'Amount',         size: '100px', hidden: false, sortable: true, render: 'money', style: 'text-align: right'},
             {field: 'BID',         caption: 'BUD',            size: '40px',  hidden: true,  sortable: false},
@@ -235,11 +235,12 @@ function buildReceiptElements() {
                     }
                 },
             },
-            { field: 'TCID',           type: 'int64', required: false },
-            { field: 'Amount',         type: 'money', required: true },
-            { field: 'Comment',        type: 'text',  required: false },
-            { field: 'OtherPayorName', type: 'text',  required: false },
-            { field: 'FLAGS',          type: 'w2int', required: false },
+            { field: 'TCID',           type: 'int64',  required: false },
+            { field: 'Amount',         type: 'money',  required: true },
+            { field: 'Comment',        type: 'text',   required: false },
+            { field: 'OtherPayorName', type: 'text',   required: false },
+            { field: 'FLAGS',          type: 'w2int',  required: false },
+            { field: 'DID',            type: 'int',    required: false },
             { field: 'LastModTime',    type: 'hidden', required: false },
             { field: 'LastModBy',      type: 'hidden', required: false },
             { field: 'CreateTS',       type: 'hidden', required: false },
@@ -374,7 +375,7 @@ function buildReceiptElements() {
                 if ( (flag & app.rcptFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save, saveadd button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
@@ -390,13 +391,13 @@ function buildReceiptElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.rcptFLAGS.UNALLOCATED) === 0 || (flag & (app.rcptFLAGS.PARTIALALLOCATED | app.rcptFLAGS.FULLALLOCATED)) === 0 ) {
+                    if ( (flag | app.rcptFLAGS.UNALLOCATED) === 0 || (flag & (app.rcptFLAGS.PARTIALALLOCATED | app.rcptFLAGS.FULLYALLOCATED)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
                     }
                     else if ( (flag & app.rcptFLAGS.PARTIALALLOCATED) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
                     }
-                    else if ( (flag & app.rcptFLAGS.FULLALLOCATED) !== 0 ) {
+                    else if ( (flag & app.rcptFLAGS.FULLYALLOCATED) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
                     }
 

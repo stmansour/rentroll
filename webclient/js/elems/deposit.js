@@ -1,11 +1,13 @@
 /*global
     parseInt, w2ui, getDepMeth, getDepository, $, app, getBUDfromBID, getCurrentBusiness, console,
     form_dirty_alert, getFormSubmitData, formRecDiffer, formRefreshCallBack, addDateNavToToolbar,
+    getGridReversalSymbolHTML, dateControlString, w2utils, saveDepositForm, w2confirm,
+    delete_confirm_options,
 */
 
 "use strict";
 
-function getDepoInitRecord(BID, BUD){
+function getDepositInitRecord(BID, BUD){
     var y = new Date();
     return {
         recid:          0,
@@ -17,7 +19,7 @@ function getDepoInitRecord(BID, BUD){
         DEPName:        "",
         DPMID:          0,
         DPMName:        "",
-        Dt:             y.toISOString(),
+        Dt:             dateControlString(y),
         FLAGS:          0,
         Amount:         0.0,
         ClearedAmount:  0.0,
@@ -144,7 +146,7 @@ function buildDepositElements() {
                 BID=parseInt(x.value),
                 BUD = getBUDfromBID(BID),
                 f = w2ui.depositForm;
-                var record = getDepoInitRecord(BID, BUD);
+                var record = getDepositInitRecord(BID, BUD);
                 f.record = record;
                 var getUIInfo = function(bid,x) {
                     return $.get('/v1/uival/' + bid + x );
@@ -300,6 +302,17 @@ function buildDepositElements() {
         columns: [
             {field: 'recid',    caption: 'recid',        hidden: true,  size: '40px',  sortable: true  },
             {field: 'Check',    caption: '',             hidden: false, size: '40px',  editable: { type: 'checkbox' } },
+            {field: 'reversed', size: '10px', style: 'text-align: center', sortable: true,
+                    render: function (record /*, index, col_index*/) {
+                        if (typeof record === "undefined") {
+                            return;
+                        }
+                        if ( (record.FLAGS & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                            return getGridReversalSymbolHTML();
+                        }
+                        return '';
+                    },
+            },
             {field: 'RCPTID',   caption: 'Receipt ID',   hidden: false, size: '80px',  sortable: true, style: 'text-align: right'},
             {field: 'Dt',       caption: 'Date',         hidden: false, size: '80px',  sortable: true, style: 'text-align: right'},
             {field: 'ARID',     caption: 'ARID',         hidden: true,  size: '150px', sortable: false },
@@ -311,6 +324,7 @@ function buildDepositElements() {
             {field: 'PMTName',  caption: 'Payment Type', hidden: false, size: '100px', sortable: true, style: 'text-align: center' },
             {field: 'DocNo',    caption: 'Document No.', hidden: false, size: '100px', sortable: true, style: 'text-align: right'},
             {field: 'Payors',   caption: 'Payors',       hidden: false, size: '200px', sortable: true  },
+            {field: 'FLAGS',    caption: 'FLAGS',        hidden: true,  size: '20px',  sortable: false  },
         ],
         onLoad: function(event) {
             event.done(function () {
@@ -347,8 +361,36 @@ function buildDepositElements() {
         fields: [],
         actions: {
             save: saveDepositForm,
-         },
-     });
+            delete: function() {
+                var form = this;
+                w2confirm(delete_confirm_options)
+                .yes(function() {
+                    var tgrid = w2ui.depositForm;
+                    var params = {cmd: 'delete', formname: form.name, DID: w2ui.depositForm.record.DID };
+                    var dat = JSON.stringify(params);
+                    form.url = '/v1/deposit/' + w2ui.depositForm.record.BID + '/' + w2ui.depositForm.record.DID;
+                    
+                    $.post(form.url, dat, null, "json")
+                    .done(function(data) {
+                        if (data.status === "error") {
+                            form.error(w2utils.lang(data.message));
+                            return;
+                        }
+                        w2ui.toplayout.hide('right',true);
+                        w2ui.depositGrid.remove(app.last.grid_sel_recid);
+                        w2ui.depositGrid.render();
+                    })
+                    .fail(function(/*data*/){
+                        form.error("Delete Account failed.");
+                        return;
+                    });
+                })
+                .no(function() {
+                    return;
+                });
+            },
+        },
+    });
 
     //-------------------------------------------------------------------------------
     //  depositLayout - The layout to contain the depositForm and depositDetailGrid
@@ -408,12 +450,21 @@ function saveDepositForm() {
 function calcTotalCheckedReceipts() {
     var t = 0.0;
     var grid = w2ui.depositListGrid;
+    var checkcol=0;
+    var amtcol=0;
+    var flgcol=0;
+    for (i = 0; i < grid.columns.length; i++) {
+        if (grid.columns[i].field === "Check") {checkcol = i;}
+        if (grid.columns[i].field === "Amount") {amtcol = i;}
+        if (grid.columns[i].field === "FLAGS") {flgcol = i;}
+    }
 
     for (var i = 0; i < grid.records.length; i++) {
-        var x = grid.getCellValue(i,1); // this is what is in the checkbox column
+        var x = grid.getCellValue(i,checkcol); // this is what is in the checkbox column
         if (typeof x == "boolean" ) {
-            if (x) {
-                t += grid.getCellValue(i,6);
+            var y = grid.getCellValue(i,flgcol) & 0x4;
+            if (x && y === 0) {
+                t += grid.getCellValue(i,amtcol);
             }
         }
     }
@@ -431,12 +482,21 @@ function calcTotalCheckedReceipts() {
 function getCheckedReceipts() {
     var t = [];
     var grid = w2ui.depositListGrid;
+    var i=0;
+    var checkcol=0;
+    var rcptidcol=0;
+    var flagscol=0;
+    for (i = 0; i < grid.columns.length; i++) {
+        if (grid.columns[i].field === "Check") {checkcol = i;}
+        if (grid.columns[i].field === "RCPTID") {rcptidcol = i;}
+        //if (grid.columns[i].field === "FLAGS") {flagscol = i;}
+    }
 
-    for (var i = 0; i < grid.records.length; i++) {
-        var x = grid.getCellValue(i,1); // this is what is in the checkbox column
+    for (i = 0; i < grid.records.length; i++) {
+        var x = grid.getCellValue(i,checkcol); // this is what is in the checkbox column
         if (typeof x == "boolean" ) {
             if (x) {
-                t.push( grid.getCellValue(i,2));
+                t.push( grid.getCellValue(i,rcptidcol));
             }
         }
     }

@@ -1,6 +1,7 @@
 /*global
     popupRentalAgrPicker, $, asm, console, w2ui, w2uiDateControlString, app,
-    getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder,
+    getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder, get2XReversalSymbolHTML,
+    getGridReversalSymbolHTML,
 */
 "use strict";
 function getAsmsInitRecord(BID, BUD){
@@ -40,7 +41,7 @@ function renderReversalIcon(record /*, index, col_index*/) {
         return;
     }
     if ( (record.FLAGS & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
-        return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+        return getGridReversalSymbolHTML();
     }
     return '';
 }
@@ -412,7 +413,7 @@ function buildAssessmentElements() {
                 if ( (flag & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
@@ -428,13 +429,13 @@ function buildAssessmentElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLPAID)) === 0 ) {
+                    if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLYPAID)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
                     }
                     else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
                     }
-                    else if ( (flag & app.asmFLAGS.FULLPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.FULLYPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
                     }
 
@@ -741,7 +742,7 @@ function buildAssessmentElements() {
                 if ( (flag & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
-                    flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
+                    flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button in form
                     $("#"+f.name).find("button[name=reverse]").addClass("hidden");
                     $("#"+f.name).find("button[name=save]").addClass("hidden");
@@ -757,13 +758,13 @@ function buildAssessmentElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLPAID)) === 0 ) {
+                    if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLYPAID)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
                     }
                     else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
                     }
-                    else if ( (flag & app.asmFLAGS.FULLPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.FULLYPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
                     }
 

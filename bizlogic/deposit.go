@@ -176,25 +176,6 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			}
 			current[newRcpts[i]]++ // mark that we've acutally processed this entry
 		}
-		//--------------------------------------------------------
-		// For any entry that was not processed, make sure that
-		// its DID pointer points to this deposit. This should
-		// never happen, but some of the older databases where
-		// receipts and deposits were loaded via CSV files did
-		// have an issue where they were not properly linked.
-		//--------------------------------------------------------
-		for k, v := range current {
-			if v == 0 { // if this receipt has not been looked at
-				r := rlib.GetReceipt(k) // load it
-				if r.DID != a.DID {     // if its Deposit ID is not THIS deposit
-					r.DID = a.DID                 // make it point to this deposit
-					err := rlib.UpdateReceipt(&r) // and update it
-					if err != nil {
-						e = AddErrToBizErrlist(err, e)
-					}
-				}
-			}
-		}
 	}
 	return e
 }

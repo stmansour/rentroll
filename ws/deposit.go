@@ -57,6 +57,14 @@ type DepositGridSave struct {
 	Record   DepositSaveForm `json:"record"`
 }
 
+// DepositDeleteForm is used to delete a depos
+type DepositDeleteForm struct {
+	Cmd      string `json:"cmd"`
+	Recid    int64  `json:"recid"`
+	FormName string `json:"formname"`
+	DID      int64
+}
+
 // DepositGetResponse is the response to a GetDeposit request
 type DepositGetResponse struct {
 	Status string      `json:"status"`
@@ -95,7 +103,8 @@ func SvcHandlerDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		break
 	case "save":
 		saveDeposit(w, r, d)
-		break
+	case "delete":
+		deleteDeposit(w, r, d)
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcGridErrorReturn(w, err, funcname)
@@ -154,7 +163,7 @@ var depositSearchSelectQueryFields = selectQueryFields{
 // SvcSearchHandlerDeposits generates a report of all Deposits defined business d.BID
 // wsdoc {
 //  @Title  Search Deposits
-//	@URL /v1/pmts/:BUI
+//	@URL /v1/deposit/:BUI
 //  @Method  POST
 //	@Synopsis Search Deposits
 //  @Descr  Search all PaymentType and return those that match the Search Logic.
@@ -182,8 +191,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 	}
 
 	theQuery := `
-	SELECT
-		{{.SelectClause}}
+	SELECT {{.SelectClause}}
 	FROM Deposit
 	LEFT JOIN Depository ON Deposit.DEPID = Depository.DEPID
 	LEFT JOIN DepositMethod ON Deposit.DPMID = DepositMethod.DPMID
@@ -269,8 +277,8 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 // GetDeposit returns the requested assessment
 // wsdoc {
 //  @Title  Save Deposit
-//	@URL /v1/dep/:BUI/:DID
-//  @Method  GET
+//	@URL /v1/deposit/:BUI/:DID
+//  @Method  POST
 //	@Synopsis Update the information on a Deposit with the supplied data
 //  @Description  This service updates Deposit :DID with the information supplied. All fields must be supplied.
 //	@Input DepositGridSave
@@ -330,8 +338,65 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // GetDeposit returns the requested assessment
 // wsdoc {
+//  @Title  Delete Deposit
+//	@URL /v1/deposit/:BUI/DID
+//  @Method  GET
+//	@Synopsis Delete a deposit
+//  @Description  Deletes deposit DID and
+//	@Input WebGridSearchRequest
+//  @Response DepositGetResponse
+// wsdoc }
+func deleteDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+
+	var (
+		funcname = "deleteDeposit"
+		del      DepositDeleteForm
+	)
+
+	rlib.Console("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	//----------------------------------------
+	// Remove the deposit parts and mark each
+	// Receipt as no longer a member of DID
+	//----------------------------------------
+	m, err := rlib.GetDepositParts(del.DID)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	for i := 0; i < len(m); i++ {
+		r := rlib.GetReceipt(m[i].RCPTID)
+		if r.RCPTID > 0 {
+			r.DID = 0
+			if err = rlib.UpdateReceipt(&r); err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+		}
+		if err = rlib.DeleteDepositPart(m[i].DPID); err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+	}
+	err = rlib.DeleteDeposit(del.DID)
+	if err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(w)
+}
+
+// GetDeposit returns the requested assessment
+// wsdoc {
 //  @Title  Get Deposit
-//	@URL /v1/dep/:BUI/:DID
+//	@URL /v1/deposit/:BUI/:DID
 //  @Method  GET
 //	@Synopsis Get information on a Deposit
 //  @Description  Return all fields for assessment :DID

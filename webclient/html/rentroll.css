@@ -41,9 +41,18 @@ textarea.w2ui-input-focus {
 }
 
 .bannerTable td {
+    font-family: "Open Sans","Roboto", sans-serif;
     border: 0px solid #bbb;
     padding: 4px;
     font-size: 10pt;
+}
+
+.bannerTableStrong td {
+    font-family: "Open Sans","Roboto", sans-serif;
+    border: 0px solid #bbb;
+    padding: 4px;
+    font-size: 10pt;
+    font-weight: bolder;
 }
 
 .preformatted {

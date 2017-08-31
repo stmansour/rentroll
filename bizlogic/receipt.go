@@ -59,7 +59,30 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 		if err != nil {
 			return err
 		}
-		return InsertReceipt(rnew) // Finally, insert the new receipt...
+		err = InsertReceipt(rnew) // Insert the new receipt...
+		if err != nil {
+			return err
+		}
+		if rnew.DID > 0 { // update DepositPart if necessary
+			var dp = rlib.DepositPart{
+				DID:    rnew.DID,
+				BID:    rnew.BID,
+				RCPTID: rnew.RCPTID,
+			}
+			if err = rlib.InsertDepositPart(&dp); err != nil {
+				return err
+			}
+		}
+		// the deposit total may have changed...
+		if rold.Amount != rnew.Amount {
+			dep, err := rlib.GetDeposit(rnew.DID)
+			if err != nil {
+				return err
+			}
+			dep.Amount = dep.Amount - rold.Amount + rnew.Amount
+			return rlib.UpdateDeposit(&dep)
+		}
+		return nil
 	}
 
 	return rlib.UpdateReceipt(rnew) // reversal not needed, just update the receipt
@@ -87,6 +110,21 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 	rr.RA = []rlib.ReceiptAllocation{}
 	if err := InsertReceipt(&rr); err != nil {
 		return err
+	}
+
+	//---------------------------------------------------------------------------
+	// If the receipt was part of a deposit, add the reversal to the deposit...
+	//---------------------------------------------------------------------------
+	if r.DID > 0 {
+		var dp = rlib.DepositPart{
+			DID:    rr.DID,
+			BID:    rr.BID,
+			RCPTID: rr.RCPTID,
+		}
+		err := rlib.InsertDepositPart(&dp)
+		if err != nil {
+			return err
+		}
 	}
 
 	//----------------------------------------------------------------------

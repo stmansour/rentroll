@@ -66,6 +66,28 @@ function ChangeBusiness() {
 }
 
 //---------------------------------------------------------------------------------
+// getGridReversalSymbolHTML - returns the HTML to insert into a grid cell to
+//          indicat that the record is reversed
+//
+// @params  <none>
+// @retunrs a string with HTML
+//---------------------------------------------------------------------------------
+function getGridReversalSymbolHTML() {
+    return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+}
+
+//---------------------------------------------------------------------------------
+// get2XReversalSymbolHTML - returns the HTML to insert into a grid cell to
+//          indicat that the record is reversed
+//
+// @params  <none>
+// @retunrs a string with HTML
+//---------------------------------------------------------------------------------
+function get2XReversalSymbolHTML() {
+    return "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
+}
+
+//---------------------------------------------------------------------------------
 // switchToGrid - changes the main view of the program to a grid with
 //                variable name svc + 'Grid'
 //
