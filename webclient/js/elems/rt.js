@@ -536,10 +536,10 @@ function buildRentableTypeElements() {
                             var FLAG = w2ui.rtForm.record.FLAGS;
                             var rtActive = typeof FLAG == "object" ? FLAG.id : FLAG;
                             if (rtActive == 1) { // 1 means inactive
-                                w2ui.rtDetailLayout.lock("main");
+                                w2ui.rtDetailLayout.get("main").content.lock();
                                 w2ui.rtDetailLayout.lock("bottom");
                             } else {
-                                w2ui.rtDetailLayout.unlock("main");
+                                w2ui.rtDetailLayout.get("main").content.unlock();
                                 w2ui.rtDetailLayout.unlock("bottom");
                             }
                         }, 0);
