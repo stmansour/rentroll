@@ -1030,7 +1030,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET " + s3 + " WHERE RTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableType, err = RRdb.Dbrr.Prepare("DELETE FROM RentableTypes WHERE RTID=?")
+	RRdb.Prepstmt.DeleteRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=1 WHERE RTID=?")
 	Errcheck(err)
 
 	//===============================

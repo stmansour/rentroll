@@ -59,6 +59,8 @@ var assignmap = []struct {
 	{a: "int", b: "XJSONAsmFLAGS", mapper: MigrateInt64ToString, valmap: &AsmFLAGS},
 	{a: "XJSONRcptFLAGS", b: "int", mapper: MigrateStrToInt64, valmap: &RcptFLAGS},
 	{a: "int", b: "XJSONRcptFLAGS", mapper: MigrateInt64ToString, valmap: &RcptFLAGS},
+	{a: "XJSONRtActiveFLAGS", b: "int", mapper: MigrateStrToInt64, valmap: &RtActiveFLAGS},
+	{a: "int", b: "XJSONRtActiveFLAGS", mapper: MigrateInt64ToString, valmap: &RtActiveFLAGS},
 }
 
 var xjson = string("XJSON")
@@ -224,10 +226,10 @@ type XJSONAsmFLAGS string
 
 // AsmFLAGS is the mapping for assessment flags
 var AsmFLAGS = Str2Int64Map{
-	"ASMUNPAID":      int64(ASMUNPAID),
-	"ASMPARTIALPAID": int64(ASMPARTIALPAID),
-	"ASMFULLPAID":    int64(ASMFULLPAID),
-	"ASMREVERSED":    int64(ASMREVERSED),
+	"UNPAID":      int64(ASMUNPAID),
+	"PARTIALPAID": int64(ASMPARTIALPAID),
+	"FULLYPAID":   int64(ASMFULLYPAID),
+	"REVERSED":    int64(ASMREVERSED),
 }
 
 // XJSONRcptFLAGS is a UI converter: back-end int, UI: string
@@ -235,8 +237,17 @@ type XJSONRcptFLAGS string
 
 // RcptFLAGS is the mapping for receipt flags
 var RcptFLAGS = Str2Int64Map{
-	"RCPTUNALLOCATED":      int64(RCPTUNALLOCATED),
-	"RCPTPARTIALALLOCATED": int64(RCPTPARTIALALLOCATED),
-	"RCPTFULLALLOCATED":    int64(RCPTFULLALLOCATED),
-	"RCPTREVERSED":         int64(RCPTREVERSED),
+	"UNALLOCATED":      int64(RCPTUNALLOCATED),
+	"PARTIALALLOCATED": int64(RCPTPARTIALALLOCATED),
+	"FULLYALLOCATED":   int64(RCPTFULLYALLOCATED),
+	"REVERSED":         int64(RCPTREVERSED),
+}
+
+// XJSONRtActiveFLAGS is a UI converter: back-end int, UI: string
+type XJSONRtActiveFLAGS string
+
+// RtActiveFLAGS is the mapping of FLAGS for active/inactive indication
+var RtActiveFLAGS = Str2Int64Map{
+	"Yes": int64(RTACTIVE),
+	"No":  int64(RTINACTIVE),
 }

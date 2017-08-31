@@ -64,7 +64,7 @@ function buildReceiptElements() {
                         if (typeof record === "undefined") {
                             return;
                         }
-                        if ( (record.FLAGS & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                        if ( (record.FLAGS & app.rcptFLAGS.REVERSED) !== 0 ) { // if reversed then
                             return getGridReversalSymbolHTML();
                         }
                         return '';
@@ -361,7 +361,7 @@ function buildReceiptElements() {
                     $("#"+f.name).find("#FLAGReport").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
                     return;
                 } else {
                     $("#"+f.name).find("#FLAGReport").removeClass("hidden");
@@ -372,7 +372,7 @@ function buildReceiptElements() {
                     flagHTML = "";
 
                 // check if it is reversed or not
-                if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                if ( (flag & app.rcptFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
@@ -391,13 +391,13 @@ function buildReceiptElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
+                    if ( (flag | app.rcptFLAGS.UNALLOCATED) === 0 || (flag & (app.rcptFLAGS.PARTIALALLOCATED | app.rcptFLAGS.FULLYALLOCATED)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
                     }
-                    else if ( (flag & app.rcptFLAGS.RCPTPARTIALALLOCATED) !== 0 ) {
+                    else if ( (flag & app.rcptFLAGS.PARTIALALLOCATED) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
                     }
-                    else if ( (flag & app.rcptFLAGS.RCPTFULLALLOCATED) !== 0 ) {
+                    else if ( (flag & app.rcptFLAGS.FULLYALLOCATED) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
                     }
 
@@ -410,7 +410,7 @@ function buildReceiptElements() {
                     // ********************************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS, BUTTONS
                     // ********************************************************
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append

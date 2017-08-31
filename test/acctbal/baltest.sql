@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.19, for Linux (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.16
+-- Server version	5.7.19-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1627,6 +1627,7 @@ CREATE TABLE `RentableTypes` (
   `Proration` bigint(20) NOT NULL DEFAULT '0',
   `GSRPC` bigint(20) NOT NULL DEFAULT '0',
   `ManageToBudget` smallint(6) NOT NULL DEFAULT '0',
+  `FLAGS` tinyint(4) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1641,7 +1642,7 @@ CREATE TABLE `RentableTypes` (
 
 LOCK TABLES `RentableTypes` WRITE;
 /*!40000 ALTER TABLE `RentableTypes` DISABLE KEYS */;
-INSERT INTO `RentableTypes` VALUES (1,1,'Rex1','309 Rexford',6,4,4,1,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(2,1,'Rex2','309 1/2 Rexford',6,4,4,1,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(3,1,'Rex3','311 Rexford',6,4,4,1,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(4,1,'Rex4','311 1/2 Rexford',6,4,4,1,'2017-06-15 05:43:52',0,'2017-06-14 18:26:53',0);
+INSERT INTO `RentableTypes` VALUES (1,1,'Rex1','309 Rexford',6,4,4,1,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(2,1,'Rex2','309 1/2 Rexford',6,4,4,1,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(3,1,'Rex3','311 Rexford',6,4,4,1,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(4,1,'Rex4','311 1/2 Rexford',6,4,4,1,0,'2017-06-15 05:43:52',0,'2017-06-14 18:26:53',0);
 /*!40000 ALTER TABLE `RentableTypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2171,4 +2172,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-14 20:23:26
+-- Dump completed on 2017-08-30 22:18:17
