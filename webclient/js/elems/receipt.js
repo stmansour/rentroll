@@ -64,7 +64,7 @@ function buildReceiptElements() {
                         if (typeof record === "undefined") {
                             return;
                         }
-                        if ( (record.FLAGS & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                        if ( (record.FLAGS & app.rcptFLAGS.REVERSED) !== 0 ) { // if reversed then
                             return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
                         }
                         return '';
@@ -371,7 +371,7 @@ function buildReceiptElements() {
                     flagHTML = "";
 
                 // check if it is reversed or not
-                if ( (flag & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                if ( (flag & app.rcptFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
@@ -390,13 +390,13 @@ function buildReceiptElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.rcptFLAGS.RCPTUNALLOCATED) === 0 || (flag & (app.rcptFLAGS.RCPTPARTIALALLOCATED | app.rcptFLAGS.RCPTFULLALLOCATED)) === 0 ) {
+                    if ( (flag | app.rcptFLAGS.UNALLOCATED) === 0 || (flag & (app.rcptFLAGS.PARTIALALLOCATED | app.rcptFLAGS.FULLALLOCATED)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
                     }
-                    else if ( (flag & app.rcptFLAGS.RCPTPARTIALALLOCATED) !== 0 ) {
+                    else if ( (flag & app.rcptFLAGS.PARTIALALLOCATED) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
                     }
-                    else if ( (flag & app.rcptFLAGS.RCPTFULLALLOCATED) !== 0 ) {
+                    else if ( (flag & app.rcptFLAGS.FULLALLOCATED) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
                     }
 

@@ -39,7 +39,7 @@ function renderReversalIcon(record /*, index, col_index*/) {
     if (typeof record === "undefined") {
         return;
     }
-    if ( (record.FLAGS & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+    if ( (record.FLAGS & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
         return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
     }
     return '';
@@ -409,7 +409,7 @@ function buildAssessmentElements() {
                     flagHTML = "";
 
                 // check if it is reversed or not
-                if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                if ( (flag & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
@@ -428,13 +428,13 @@ function buildAssessmentElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                    if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLPAID)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
                     }
-                    else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
                     }
-                    else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.FULLPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
                     }
 
@@ -738,7 +738,7 @@ function buildAssessmentElements() {
                     flagHTML = "";
 
                 // check if it is reversed or not
-                if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                if ( (flag & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
@@ -757,13 +757,13 @@ function buildAssessmentElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                    if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLPAID)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
                     }
-                    else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
                     }
-                    else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.FULLPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
                     }
 
