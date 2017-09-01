@@ -735,6 +735,26 @@ func GetRALedgerMarkerOnOrAfter(raid int64, dt *time.Time) LedgerMarker {
 	return r
 }
 
+// GetTCLedgerMarkerOnOrBefore returns the LedgerMarker struct for the TCID
+// filtered for the supplied date
+//=============================================================================
+func GetTCLedgerMarkerOnOrBefore(tcid int64, dt *time.Time) LedgerMarker {
+	var r LedgerMarker
+	row := RRdb.Prepstmt.GetTCLedgerMarkerOnOrBefore.QueryRow(tcid, dt)
+	ReadLedgerMarker(row, &r)
+	return r
+}
+
+// GetTCLedgerMarkerOnOrAfter returns the LedgerMarker struct for the TCID
+// filtered for the supplied date
+//=============================================================================
+func GetTCLedgerMarkerOnOrAfter(tcid int64, dt *time.Time) LedgerMarker {
+	var r LedgerMarker
+	row := RRdb.Prepstmt.GetTCLedgerMarkerOnOrAfter.QueryRow(tcid, dt)
+	ReadLedgerMarker(row, &r)
+	return r
+}
+
 // GetRentableLedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with
 // the supplied LID filtered for the supplied Rentable rid
 func GetRentableLedgerMarkerOnOrBefore(bid, lid, rid int64, dt *time.Time) LedgerMarker {
@@ -1355,12 +1375,8 @@ func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
 	return t
 }
 
-// GetASMReceiptAllocationsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2).
-// To do this we select all the ReceiptAllocations that occurred during d1-d2 that involved
-// raid.
-func GetASMReceiptAllocationsInRAIDDateRange(raid int64, d1, d2 *time.Time) []ReceiptAllocation {
-	rows, err := RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(raid, d1, d2)
-	Errcheck(err)
+// GetReceiptAllocationList for the supplied rows variable
+func GetReceiptAllocationList(rows *sql.Rows) []ReceiptAllocation {
 	defer rows.Close()
 	var t = []ReceiptAllocation{}
 	for rows.Next() {
@@ -1371,20 +1387,34 @@ func GetASMReceiptAllocationsInRAIDDateRange(raid int64, d1, d2 *time.Time) []Re
 	return t
 }
 
+// GetASMReceiptAllocationsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2).
+// To do this we select all the ReceiptAllocations that occurred during d1-d2 that involved
+// raid.
+func GetASMReceiptAllocationsInRAIDDateRange(raid int64, d1, d2 *time.Time) []ReceiptAllocation {
+	rows, err := RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(raid, d1, d2)
+	Errcheck(err)
+	return GetReceiptAllocationList(rows)
+}
+
 // GetReceiptAllocationsByASMID returns any payment allocation on targeted at the supplied ASMID.
 // This call is used primarily to determine how much payment is left to make on a partially paid
 // assessment.
 func GetReceiptAllocationsByASMID(bid, asmid int64) []ReceiptAllocation {
 	rows, err := RRdb.Prepstmt.GetReceiptAllocationsByASMID.Query(bid, asmid)
 	Errcheck(err)
-	defer rows.Close()
-	var t = []ReceiptAllocation{}
-	for rows.Next() {
-		var r ReceiptAllocation
-		ReadReceiptAllocations(rows, &r)
-		t = append(t, r)
-	}
-	return t
+	return GetReceiptAllocationList(rows)
+}
+
+// GetReceiptAllocationsThroughDate selects the ReceiptAllocations associated with receipt id
+// and that happened on or before the supplied date
+// @params
+//	 id = RCPTID of desired allocations
+//   dt = date for all allocations to be on or prior to
+// @returns  []ReceiptAllocation
+func GetReceiptAllocationsThroughDate(id int64, dt *time.Time) []ReceiptAllocation {
+	rows, err := RRdb.Prepstmt.GetReceiptAllocationsThroughDate.Query(id, dt)
+	Errcheck(err)
+	return GetReceiptAllocationList(rows)
 }
 
 // GetUnallocatedReceiptsByPayor returns the receipts paid by the supplied payor tcid that
@@ -1925,6 +1955,14 @@ func GetRentalAgreementPayorsInRange(raid int64, d1, d2 *time.Time) []RentalAgre
 // TCID is a payor on the specified date
 func GetRentalAgreementsByPayor(bid, tcid int64, dt *time.Time) []RentalAgreementPayor {
 	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid, dt, dt)
+	Errcheck(err)
+	return GetRentalAgreementPayorsByRows(rows)
+}
+
+// GetRentalAgreementsByPayorRange returns an array of RentalAgreementPayor where the supplied
+// TCID is a payor within the supplied range
+func GetRentalAgreementsByPayorRange(bid, tcid int64, d1, d2 *time.Time) []RentalAgreementPayor {
+	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid, d2, d1)
 	Errcheck(err)
 	return GetRentalAgreementPayorsByRows(rows)
 }

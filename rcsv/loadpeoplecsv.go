@@ -2,6 +2,7 @@ package rcsv
 
 import (
 	"fmt"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -487,6 +488,10 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	_, err = rlib.InsertProspect(&pr)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.Prospect = %v", funcname, lineno, err)
+	}
+	errlist := bizlogic.FinalizeTransactant(&tr)
+	if len(errlist) > 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting Transactant LedgerMarker = %s", funcname, lineno, errlist[0].Message)
 	}
 	return 0, nil
 }

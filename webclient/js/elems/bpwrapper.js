@@ -5,8 +5,8 @@
     buildRAElements, buildRAPayorPicker, buildRUserPicker, buildRentablePicker, 
     buildRASelect, buildReceiptElements, buildAssessmentElements, buildExpenseElements, 
     buildARElements, buildPaymentTypeElements, buildDepositoryElements, buildDepositElements, 
-    buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElemets, 
-    buildDepositMethodElements,
+    buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElements, 
+    buildDepositMethodElements,buildPayorStatementElements,
 */
 
 "use strict";
@@ -35,6 +35,7 @@ function buildPageElementsWrapper() {
     buildStatementsElements();
     buildReportElements();
     buildLedgerElements();
-    buildTWSElemets();
+    buildTWSElements();
     buildDepositMethodElements();
+    buildPayorStatementElements();
 }

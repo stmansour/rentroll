@@ -1,3 +1,6 @@
+/*global
+    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert,
+*/
 "use strict";
 function buildSidebar() {
     //------------------------------------------------------------------------
@@ -29,7 +32,8 @@ function buildSidebar() {
             { id: 'collections', text: 'Collections', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
                         { id: 'dlnq',         text: 'Delinquency Analysis',          icon: 'fa fa-pie-chart',   hint: 'Delinquency Analysis' },
-                        { id: 'stmt',         text: 'Statements',                    icon: 'fa fa-star-half-o', hint: 'Statements' },
+                        { id: 'stmt',         text: 'RA Statements',                 icon: 'fa fa-star-half-o', hint: 'Rental Agreement Statements' },
+                        { id: 'payorstmt',    text: 'Payor Statements',              icon: 'fa fa-star-half-o fa-flip-horizontal', hint: 'Payor Statements' },
                         { id: 'prepnotice',   text: 'Prepare Notices',               icon: 'fa fa-file-text-o', hint: 'Prepare Notices' },
                 ]
             },
@@ -137,6 +141,7 @@ function buildSidebar() {
                     case 'allocfunds':
                     case 'deposit':
                     case 'expense':
+                    case 'payorstmt':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         switchToGrid(target);
                         break;

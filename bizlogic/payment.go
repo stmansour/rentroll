@@ -70,8 +70,21 @@ func RemainingReceiptFunds(r *rlib.Receipt) float64 {
 	return float64(0)
 }
 
+// RemainingReceiptFundsOnDate returns the amount of funds remaining in a
+// receipt on the supplied date
+//--------------------------------------------------------------------------
+func RemainingReceiptFundsOnDate(a *rlib.Receipt, dt *time.Time) float64 {
+	m := rlib.GetReceiptAllocationsThroughDate(a.RCPTID, dt)
+	amt := a.Amount
+	for i := 0; i < len(m); i++ {
+		amt -= m[i].Amount
+	}
+	return amt
+}
+
 // AssessmentUnpaidPortion computes and returns the unpaid portion of an
 // assessment.
+//--------------------------------------------------------------------------
 func AssessmentUnpaidPortion(a *rlib.Assessment) float64 {
 	funcname := "AssessmentUnpaidPortion"
 	switch a.FLAGS & 3 {
@@ -198,7 +211,6 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	// Find the journal entry for this Receipt and add a journal allocation
 	// based on the allocation we just did for the receipt
 	//-------------------------------------------------------------------------
-	// jnl := rlib.GetJournalByReceiptID(rcpt.RCPTID)
 
 	// New
 	var jnl = rlib.Journal{
@@ -214,7 +226,6 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 		return err
 	}
 
-	// rlib.GetJournalAllocations(&jnl)  // I DON'T THINK WE NEED THIS STATEMENT
 	var ja = rlib.JournalAllocation{
 		JID:      jnl.JID,
 		AcctRule: ra.AcctRule,

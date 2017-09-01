@@ -1,3 +1,7 @@
+/*global
+    app, w2ui, w2popup, getCurrentBusiness, $, console, genDateRangeNavigator,
+    handleDateToolbarAction, dateFromString, dateControlString, 
+*/
 "use strict";
 function exportReportCSV(rptname){
     if (rptname === '') {

@@ -35,7 +35,7 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 
 func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w http.ResponseWriter) {
 	funcname := "v1ReportHandler"
-	fmt.Printf("%s: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", funcname, reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
+	rlib.Console("%s: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", funcname, reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 
 	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTHTML, Bid: xbiz.P.BID, D1: ui.D1, D2: ui.D2, Xbiz: xbiz, BlankLineAfterRptName: true}
 	rlib.InitBizInternals(ri.Bid, xbiz)
@@ -247,7 +247,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 //
 func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "webServiceHandler"
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 	var ui RRuiSupport
 	var d ws.ServiceData
 	var xbiz rlib.XBusiness
@@ -255,9 +255,9 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if r.Method == "GET" {
-		fmt.Printf("r.RequestURL = %s\n", r.URL.String())
+		rlib.Console("r.RequestURL = %s\n", r.URL.String())
 		sa := strings.Split(r.URL.Path, "/") // ["", "wsvc", "<UID>", "<BID>"]
-		fmt.Printf("sa = %#v\n", sa)
+		rlib.Console("sa = %#v\n", sa)
 		d.UID, err = rlib.IntFromString(sa[2], "bad request integer value")
 		if err != nil {
 			ui.ReportContent = fmt.Sprintf("Error parsing request URI: %s", err.Error())
@@ -281,7 +281,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 			SendWebSvcPage(w, r, &ui)
 			return
 		}
-		fmt.Printf("m = %#v\n", m)
+		rlib.Console("m = %#v\n", m)
 		// What report
 		x, ok := m["r"] // ?r=<reportname>
 		if !ok {

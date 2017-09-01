@@ -201,7 +201,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		foo      AllocFundSaveRequest
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	// get data
 	data := []byte(d.data)
@@ -211,7 +211,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	fmt.Printf("Began to allocate funds for TCID=%d, BID=%d\n", foo.TCID, foo.BID)
+	rlib.Console("Began to allocate funds for TCID=%d, BID=%d\n", foo.TCID, foo.BID)
 
 	// Need to init some internals for Business
 	var xbiz rlib.XBusiness
@@ -221,7 +221,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// get receipts for payor
 	n := rlib.GetUnallocatedReceiptsByPayor(foo.BID, foo.TCID)
-	fmt.Printf("number of unallocated receipts: %d\n", len(n))
+	rlib.Console("number of unallocated receipts: %d\n", len(n))
 
 	for _, asmRec := range foo.Records {
 
@@ -240,22 +240,24 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		needed := bizlogic.AssessmentUnpaidPortion(&asm)
-		fmt.Printf("ASMID = %d, Requested Amount = %.2f, AR = %d\n", asm.ASMID, amt, asm.ARID)
+		rlib.Console("ASMID = %d, Requested Amount = %.2f, AR = %d\n", asm.ASMID, amt, asm.ARID)
+		dt := time.Time(asmRec.Dt)
+		rlib.Console("Allocation date: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
 
 		for j := 0; j < len(n); j++ {
-			fmt.Printf("*******************\nprocessing Receipt: %d\n", n[j].RCPTID)
+			rlib.Console("*******************\nprocessing Receipt: %d\n", n[j].RCPTID)
 			if n[j].FLAGS&3 == 2 { // if there are no funds left in this receipt...
 				continue // move on to the next receipt
 			}
 
-			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt, &n[j].Dt)
-			fmt.Printf("amt = %.2f .  Amount still owed: %.2f\n", amt, needed)
+			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt /*&n[j].Dt*/, &dt)
+			rlib.Console("amt = %.2f .  Amount still owed: %.2f\n", amt, needed)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
 			if amt < bizlogic.ROUNDINGERR { // if we've applied the requested amount...
-				fmt.Printf("ASMID %d is paid off, moving on to next record\n", asm.ASMID)
+				rlib.Console("ASMID %d is paid off, moving on to next record\n", asm.ASMID)
 				break // ... then break out of the loop; we're done
 			}
 		}

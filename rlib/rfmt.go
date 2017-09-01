@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -280,6 +281,11 @@ type Int64Range []int64
 func (a Int64Range) Len() int           { return len(a) }
 func (a Int64Range) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a Int64Range) Less(i, j int) bool { return a[i] < a[j] }
+
+// SortInt64 implements the sort function for a slice of int64.
+func SortInt64(a *Int64Range) {
+	sort.Sort(*a)
+}
 
 // StringToInt64 simply converts string to int64 and returns it with ok flag
 func StringToInt64(s string) (int64, bool) {

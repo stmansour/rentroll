@@ -8,6 +8,7 @@ import (
 	"rentroll/rlib"
 	"rentroll/rrpt"
 	"strings"
+	"time"
 )
 
 // RRPHreport et al are categorizations of commands
@@ -131,9 +132,167 @@ func RunCommandLine(ctx *DispatchCtx) {
 		rrpt.RRreportBusiness(&ri)
 		fmt.Printf("Deleting business: %d\n", ctx.xbiz.P.BID)
 		rlib.DeleteBusinessFromDB(ctx.xbiz.P.BID)
+	case 23: // payor statement
+		// ctx.Report format:  23,TCID
+		sa := strings.Split(ctx.Args, ",")
+		if len(sa) < 2 {
+			fmt.Printf("Missing one or more parameters.  Example:  -r 23,35\n")
+			os.Exit(1)
+		}
+		tcid, ok := rlib.StringToInt64(sa[1])
+		if !ok {
+			fmt.Printf("Bad number: %s\n", sa[1])
+		}
+		tbl := PayorStatement(ctx.xbiz.P.BID, tcid, &ctx.DtStart, &ctx.DtStop)
+		s, err := tbl.SprintTable()
+		if err != nil {
+			rlib.LogAndPrintError("RunCommandLine", err)
+			return
+		}
+		fmt.Print(s)
 
 	default:
 		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
 		rlib.GenerateLedgerEntries(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	}
+}
+
+// PayorStatement builds a statement for a Payor for a time period
+func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
+	var t gotable.Table
+	var xbiz rlib.XBusiness
+
+	const (
+		Date           = 0
+		Payor          = iota
+		Description    = iota
+		RAID           = iota
+		ASMID          = iota
+		RCPTID         = iota
+		Rentable       = iota
+		UnappliedFunds = iota
+		AppliedFunds   = iota
+		Assessment     = iota
+		Balance        = iota
+	)
+
+	//
+	// UGH!
+	//=======================================================================
+	rlib.InitBizInternals(bid, &xbiz)
+	rlib.Console("bid = %d\n", bid)
+	_, ok := rlib.RRdb.BizTypes[bid]
+	if !ok {
+		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d]", bid)
+		t.SetSection3(e.Error())
+		return t
+	}
+	if len(rlib.RRdb.BizTypes[bid].GLAccounts) == 0 {
+		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d].GLAccounts", bid)
+		t.SetSection3(e.Error())
+		return t
+	}
+	//=======================================================================
+	// UGH!
+
+	t.Init()
+	t.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Payor", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Description", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RAID", 6, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("ASMID", 6, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RCPTID", 6, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Rentable", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Unapplied Funds", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Applied Funds", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Assessment", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	t.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+
+	t.SetTitle("Payor Statement\n\n")
+	payors := []int64{tcid}
+	m, err := rlib.PayorsStatement(bid, payors, d1, d2)
+	if err != nil {
+		t.SetSection3("Error from PayorsStatement: " + err.Error())
+		return t
+	}
+
+	//------------------------
+	// init running totals
+	//------------------------
+	b := float64(0)
+	c := b
+	d := b
+
+	// type RAStmtEntry struct {
+	// 	T       int                // 1 = assessment, 2 = Receipt
+	// 	A       *Assessment        // for type==1, the pointer to the assessment
+	// 	R       *ReceiptAllocation // for type ==2, the pointer to the receipt
+	// 	RNT     *Rentable          // the associated rentable, if known
+	// 	Amt     float64            // amount of the receipt or assessment
+	// 	Reverse bool               // is this a reversal?
+	// 	Dt      time.Time          // date/time of this assessment or receipt
+	// 	TCID    int64              // IF THIS IS FOR A PAYOR STATEMENT, the TCID of the Payor, otherwise 0
+	// }
+
+	//------------------------
+	// Generate the table
+	//------------------------
+	for i := 0; i < len(m); i++ { // for each RA
+		rlib.Console("Processing m[%d], bal = %.2f\n", i, m[i].ClosingBal)
+		rlib.Console("   len(m[%d].Stmt) = %d\n", i, len(m[i].Stmt))
+		for j := 0; j < len(m[i].Stmt); j++ { // for each line in the statement
+			rlib.Console("%d. Dt=%s, T=%d, Amt = %.2f, Reverse=%t, TCID=%d\n", j, m[i].Stmt[j].Dt.Format(rlib.RRDATEREPORTFMT), m[i].Stmt[j].T, m[i].Stmt[j].Amt, m[i].Stmt[j].R, m[i].Stmt[j].TCID)
+			t.AddRow()
+			t.Putd(-1, Date, m[i].Stmt[j].Dt)
+			if m[i].Stmt[j].TCID > 0 {
+				t.Puts(-1, Payor, rlib.IDtoShortString("TC", m[i].Stmt[j].TCID))
+			}
+
+			descr := ""
+			if m[i].Stmt[j].Reverse {
+				descr += "REVERSAL: "
+			}
+			if m[i].Stmt[j].T == 1 || m[i].Stmt[j].T == 2 {
+				if m[i].Stmt[j].A.ARID > 0 {
+					descr += rlib.RRdb.BizTypes[bid].AR[m[i].Stmt[j].A.ARID].Name
+				} else {
+					descr += rlib.RRdb.BizTypes[bid].GLAccounts[m[i].Stmt[j].A.ATypeLID].Name
+				}
+			}
+			amt := m[i].Stmt[j].Amt
+
+			switch m[i].Stmt[j].T {
+			case 1: // assessments
+				t.Putf(-1, Assessment, amt)
+				if m[i].Stmt[j].A.ASMID > 0 {
+					t.Puts(-1, Payor, rlib.IDtoShortString("TC", m[i].Stmt[j].A.ASMID))
+				}
+				if !m[i].Stmt[j].Reverse {
+					c += amt
+					b += amt
+				} else {
+					descr += " (" + m[i].Stmt[j].A.Comment + ")"
+				}
+			case 2: // receipts
+				t.Putf(-1, AppliedFunds, amt)
+				if m[i].Stmt[j].R.RCPTID > 0 {
+					t.Puts(-1, AppliedFunds, rlib.IDtoShortString("RCPT", m[i].Stmt[j].R.RCPTID))
+				}
+				if m[i].Stmt[j].A.ASMID > 0 {
+					descr += " (" + rlib.IDtoShortString("ASM", m[i].Stmt[j].A.ASMID) + ")"
+				}
+				if !m[i].Stmt[j].Reverse {
+					d += amt
+					b -= amt
+				} else {
+					rcpt := rlib.GetReceipt(m[i].Stmt[j].R.RCPTID)
+					if rcpt.RCPTID > 0 && len(rcpt.Comment) > 0 {
+						descr += " (" + rcpt.Comment + ")"
+					}
+				}
+			}
+			t.Puts(-1, Description, descr)
+		}
+	}
+	return t
 }

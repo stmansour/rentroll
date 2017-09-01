@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
@@ -506,6 +507,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	//===============================================================
 	// save or update
+	//===============================================================
 	if xp.Trn.TCID == 0 {
 		// this is new transactant record
 		fmt.Println(">>> Inserting New Transactant Record")
@@ -513,6 +515,12 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if err != nil {
 			e := fmt.Errorf("%s: Insert Transactant error:  %s", funcname, err.Error())
 			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+
+		errlist := bizlogic.FinalizeTransactant(&xp.Trn)
+		if len(errlist) > 0 {
+			SvcErrListReturn(w, errlist, funcname)
 			return
 		}
 

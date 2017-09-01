@@ -14,7 +14,8 @@ type RAStmtEntry struct {
 	RNT     *Rentable          // the associated rentable, if known
 	Amt     float64            // amount of the receipt or assessment
 	Reverse bool               // is this a reversal?
-	Dt      time.Time
+	Dt      time.Time          // date/time of this assessment or receipt
+	TCID    int64              // IF THIS IS FOR A PAYOR STATEMENT, the TCID of the Payor, otherwise 0
 }
 
 // RAStmtEntries is needed to sort the array

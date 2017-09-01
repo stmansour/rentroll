@@ -37,12 +37,6 @@ const (
 	ASMFULLPAID    = 2
 	ASMREVERSED    = 4
 
-	// RCPTUNALLOCATED et al are flags for receipt
-	RCPTUNALLOCATED      = 0
-	RCPTPARTIALALLOCATED = 1
-	RCPTFULLALLOCATED    = 2
-	RCPTREVERSED         = 4
-
 	// CUSTSTRING et al are Custom Attribute types
 	CUSTSTRING = 0
 	CUSTINT    = 1
@@ -51,23 +45,34 @@ const (
 	CUSTDATE   = 4
 	CUSTLAST   = 4 // this should be maintained as matching the highest index value in the group
 
-	RENT                      = 1
-	SECURITYDEPOSIT           = 2
-	SECURITYDEPOSITASSESSMENT = 58
+	// RCPTUNALLOCATED et al are flags for receipt
+	RCPTUNALLOCATED      = 0
+	RCPTPARTIALALLOCATED = 1
+	RCPTFULLALLOCATED    = 2
+	RCPTREVERSED         = 4
+
+	// ledger marker states
+	LMOPEN   = 0
+	LMCLOSED = 1
+	LMLOCKED = 2
+
+	// RENT                      = 1
+	// SECURITYDEPOSIT           = 2
+	// SECURITYDEPOSITASSESSMENT = 58
 
 	ACCTSTATUSINACTIVE = 1
 	ACCTSTATUSACTIVE   = 2
 	RAASSOCIATED       = 1
 	RAUNASSOCIATED     = 2
 
-	GLCASH       = 10
-	GLGENRCV     = 11
-	GLGSRENT     = 12
-	GLLTL        = 13
-	GLVAC        = 14
-	GLSECDEP     = 16
-	GLOWNREQUITY = 17
-	GLLAST       = 17 // set this to the last default account index
+	// GLCASH       = 10
+	// GLGENRCV     = 11
+	// GLGSRENT     = 12
+	// GLLTL        = 13
+	// GLVAC        = 14
+	// GLSECDEP     = 16
+	// GLOWNREQUITY = 17
+	// GLLAST       = 17 // set this to the last default account index
 	// GLSECDEPRCV  = 15
 
 	CYCLENORECUR   = 0
@@ -1303,6 +1308,8 @@ type RRprepSQL struct {
 	GetLedgerMarkerByDateRange              *sql.Stmt
 	GetLedgerMarkerByLIDDateRange           *sql.Stmt
 	GetLedgerMarkerOnOrBefore               *sql.Stmt
+	GetTCLedgerMarkerOnOrBefore             *sql.Stmt
+	GetTCLedgerMarkerOnOrAfter              *sql.Stmt
 	GetLedgerMarkers                        *sql.Stmt
 	GetNote                                 *sql.Stmt
 	GetNoteAndChildNotes                    *sql.Stmt
@@ -1497,6 +1504,7 @@ type RRprepSQL struct {
 	UpdateExpense                           *sql.Stmt
 	GetRentableTypeByName                   *sql.Stmt
 	GetRALedgerMarkerOnOrAfter              *sql.Stmt
+	GetReceiptAllocationsThroughDate        *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

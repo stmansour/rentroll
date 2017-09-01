@@ -734,6 +734,7 @@ func InsertTransactant(a *Transactant) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			tid = int64(id)
+			a.TCID = tid
 		}
 	} else {
 		err = insertError(err, "Transactant", *a)

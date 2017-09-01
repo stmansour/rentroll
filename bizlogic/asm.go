@@ -389,15 +389,15 @@ func DeallocateAppliedFunds(a *rlib.Assessment, asmtRevID int64, dt *time.Time) 
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
 func InsertAssessment(a *rlib.Assessment, exp int) []BizError {
-	funcname := "bizlogic.InsertAssessment"
-	rlib.Console("Entered %s\n", funcname)
+	// funcname := "bizlogic.InsertAssessment"
+	// rlib.Console("Entered %s\n", funcname)
 	var errlist []BizError
 	errlist = ValidateAssessment(a) // Make sure there are no bizlogic errors before saving
 	if len(errlist) > 0 {
 		return errlist
 	}
 
-	rlib.Console("A.  a.BID = %d, a.ARID = %d\n", a.BID, a.ARID)
+	// rlib.Console("A.  a.BID = %d, a.ARID = %d\n", a.BID, a.ARID)
 	var xbiz rlib.XBusiness
 	rlib.InitBizInternals(a.BID, &xbiz)
 
@@ -415,13 +415,13 @@ func InsertAssessment(a *rlib.Assessment, exp int) []BizError {
 		a.FLAGS |= 0x3                // indicate that this is an OFFSET and should not be processd during payment allocation
 	}
 
-	rlib.Console("B\n")
+	// rlib.Console("B\n")
 	_, err := rlib.InsertAssessment(a) // No bizlogic errors, save it
 	if err != nil {
 		return bizErrSys(&err)
 	}
 
-	rlib.Console("C\n")
+	// rlib.Console("C\n")
 	//------------------------------------------------
 	// Add the journal and ledger entries
 	//------------------------------------------------
@@ -431,13 +431,15 @@ func InsertAssessment(a *rlib.Assessment, exp int) []BizError {
 	if a.RentCycle == rlib.RECURNONE { // for nonrecurring, use existng struct: a
 		rlib.ProcessJournalEntry(a, &xbiz, &d1, &d2, true)
 	} else if exp != 0 && a.PASMID == 0 { // only expand if we're asked and if we're not an instance
+		// rlib.Console("C1\n")
 		now := rlib.DateAtTimeZero(time.Now())
 		dt := rlib.DateAtTimeZero(a.Start)
 		if !dt.After(now) {
+			// rlib.Console("C2\n")
 			createInstancesToDate(a, &xbiz)
 		}
 	}
-	rlib.Console("D\n")
+	// rlib.Console("D\n")
 	return nil
 }
 

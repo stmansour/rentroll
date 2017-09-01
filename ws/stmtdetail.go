@@ -18,8 +18,9 @@ type StatementDetail struct {
 	Reverse      bool          // is this a reversal
 	Dt           rlib.JSONDate // date of the assessment or payment
 	Descr        string        // about the assessment/receipt
+	Receipt      float64       // amount of payment remitted by payor
 	AsmtAmount   float64       // amount of assessment
-	RcptAmount   float64       // amount of receipt
+	RcptAmount   float64       // amount of receipt allocation
 	RentableName string        // associated rentable name
 	Balance      float64       // sum
 	FLAGS        uint64        // Rcpt / Asmt flags

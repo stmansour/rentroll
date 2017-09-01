@@ -1007,9 +1007,9 @@ CREATE TABLE Invoice (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                  -- total amount of all assessments in this invoice
     DeliveredBy VARCHAR(256) NOT NULL DEFAULT '',               -- mail, FedEx, UPS, ...
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (InvoiceNo)
 );
 
@@ -1017,16 +1017,16 @@ CREATE TABLE InvoiceAssessment (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
     BID BIGINT NOT NULL DEFAULT 0,                              -- bid
     ASMID BIGINT NOT NULL DEFAULT 0,                            -- assessment id
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
 );
 
 CREATE TABLE InvoicePayor (
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
     BID BIGINT NOT NULL DEFAULT 0,                              -- bid
     PID BIGINT NOT NULL DEFAULT 0,                              -- Payor id
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
 );
 
 
@@ -1078,9 +1078,9 @@ CREATE TABLE JournalMarker (
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                           -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                  -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that created this record
     PRIMARY KEY (JMID)
 );
 
@@ -1116,9 +1116,9 @@ CREATE TABLE LedgerEntry (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                -- balance amount since last close
     Comment VARCHAR(256) NOT NULL DEFAULT '',                 -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY (LEID)
 );
 
@@ -1133,33 +1133,33 @@ CREATE TABLE LedgerMarker (
     Balance DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     State SMALLINT NOT NULL DEFAULT 0,                        -- 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY (LMID)
 );
 
 -- GL Account
 CREATE TABLE GLAccount (
-    LID BIGINT NOT NULL AUTO_INCREMENT,             -- unique id for this GLAccount
-    PLID BIGINT NOT NULL DEFAULT 0,                 -- Parent ID for this GLAccount.  0 if no parent.
-    BID BIGINT NOT NULL DEFAULT 0,                  -- Business id
-    RAID BIGINT NOT NULL DEFAULT 0,                 -- rental agreement account, only valid if TYPE is 1
-    TCID BIGINT NOT NULL DEFAULT 0,                 -- Payor, only valid if TYPE is 2
-    GLNumber VARCHAR(100) NOT NULL DEFAULT '',      -- if not '' then it's a link a QB  GeneralLedger (GL)account
-    Status SMALLINT NOT NULL DEFAULT 0,             -- Whether a GL Account is currently unknown=0, inactive=1, active=2
-    Name VARCHAR(100) NOT NULL DEFAULT '',
-    AcctType VARCHAR(100) NOT NULL DEFAULT '',      -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
-                                                    --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,
-                                                    --    Cost of Goods Sold, Other Income, Other Expense
-    AllowPost SMALLINT NOT NULL DEFAULT 0,          -- 0 - do not allow posts to this ledger. 1 = allow posts
-    -- RARequired SMALLINT NOT NULL DEFAULT 0,         -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-    FLAGS BIGINT NOT NULL DEFAULT 0,                -- 
-    Description VARCHAR(1024) NOT NULL DEFAULT '',  -- describe the assessment
+    LID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id for this GLAccount
+    PLID BIGINT NOT NULL DEFAULT 0,                           -- Parent ID for this GLAccount.  0 if no parent.
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business id
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- rental agreement account, only valid if TYPE is 1
+    TCID BIGINT NOT NULL DEFAULT 0,                           -- Payor, only valid if TYPE is 2
+    GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
+    Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2
+    Name VARCHAR(100) NOT NULL DEFAULT '',            
+    AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
+                                                              --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,
+                                                              --    Cost of Goods Sold, Other Income, Other Expense
+    AllowPost SMALLINT NOT NULL DEFAULT 0,                    -- 0 - do not allow posts to this ledger. 1 = allow posts
+    -- RARequired SMALLINT NOT NULL DEFAULT 0,                -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
+    FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 
+    Description VARCHAR(1024) NOT NULL DEFAULT '',            -- describe the assessment
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,            -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,   -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY (LID)
 );
 

@@ -23,24 +23,24 @@ func VarAcctResolve(bid int64, s string) string {
 	// fmt.Printf("VarAcctResolve( %d, %q )\n", bid, s)
 
 	i := int64(0)
-	switch {
-	case s == "GLCASH":
-		i = GLCASH
-	case s == "GLGENRCV":
-		i = GLGENRCV
-	case s == "GLGSRENT":
-		i = GLGSRENT
-	case s == "GLLTL":
-		i = GLLTL
-	case s == "GLVAC":
-		i = GLVAC
-	// case s == "GLSECDEPRCV":
-	// 	i = GLSECDEPRCV
-	case s == "GLSECDEP":
-		i = GLSECDEP
-	case s == "GLOWNREQUITY":
-		i = GLOWNREQUITY
-	}
+	// switch {
+	// case s == "GLCASH":
+	// 	i = GLCASH
+	// case s == "GLGENRCV":
+	// 	i = GLGENRCV
+	// case s == "GLGSRENT":
+	// 	i = GLGSRENT
+	// case s == "GLLTL":
+	// 	i = GLLTL
+	// case s == "GLVAC":
+	// 	i = GLVAC
+	// // case s == "GLSECDEPRCV":
+	// // 	i = GLSECDEPRCV
+	// case s == "GLSECDEP":
+	// 	i = GLSECDEP
+	// case s == "GLOWNREQUITY":
+	// 	i = GLOWNREQUITY
+	// }
 	if i > 0 {
 		// fmt.Printf("VarAcctResolve: i = %d, returning %s\n", i, RRdb.BizTypes[bid].DefaultAccts[i].GLNumber)
 		return RRdb.BizTypes[bid].DefaultAccts[i].GLNumber
