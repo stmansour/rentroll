@@ -1202,6 +1202,7 @@ type RRprepSQL struct {
 	DeleteRentableSpecialtyRef              *sql.Stmt
 	DeleteRentableStatus                    *sql.Stmt
 	DeleteRentableType                      *sql.Stmt
+	ReactivateRentableType                  *sql.Stmt
 	DeleteRentableTypeRef                   *sql.Stmt
 	DeleteRentableTypeRefWithRTID           *sql.Stmt
 	DeleteRentableUser                      *sql.Stmt

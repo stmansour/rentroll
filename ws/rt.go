@@ -66,6 +66,11 @@ type DeleteRentableTypeForm struct {
 	ID int64
 }
 
+// ReactivateRentableTypeForm used to delete form
+type ReactivateRentableTypeForm struct {
+	ID int64
+}
+
 // RentableTypeFormSave is the input data format for a Save command
 type RentableTypeFormSave struct {
 	Status   string                 `json:"status"`
@@ -149,6 +154,9 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		break
 	case "delete":
 		deleteRentableType(w, r, d)
+		break
+	case "reactivate":
+		reactivateRentableType(w, r, d)
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
@@ -410,8 +418,39 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 
-	// DeleteRentableType is still not implemented
 	if err := rlib.DeleteRentableType(del.ID); err != nil {
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	SvcWriteSuccessResponse(w)
+}
+
+// reactivateRentableType re-activates a RentableType from the database
+// wsdoc {
+//  @Title  Reactivate RentableType
+//	@URL /v1/rt/:BUI/:RTID
+//  @Method  POST
+//	@Synopsis Reactivate a RentableType (deleted previously)
+//  @Desc  This service reactivates a RentableType.
+//	@Input ReactivateRentableTypeForm
+//  @Response SvcStatusResponse
+// wsdoc }
+func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "reactivateRentableType"
+	)
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
+
+	var reActF ReactivateRentableTypeForm
+	if err := json.Unmarshal([]byte(d.data), &reActF); err != nil {
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	rt := rlib.RentableType{RTID: reActF.ID}
+	if err := rlib.ReactivateRentableType(&rt); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}

@@ -210,6 +210,12 @@ func UpdateRentableType(a *RentableType) error {
 	return updateError(err, "RentableType", *a)
 }
 
+// ReactivateRentableType reactivates a RentableType record in the database
+func ReactivateRentableType(a *RentableType) error {
+	_, err := RRdb.Prepstmt.ReactivateRentableType.Exec(a.RTID)
+	return updateError(err, "RentableType", *a)
+}
+
 // UpdateRentableTypeRef updates a RentableTypeRef record in the database
 func UpdateRentableTypeRef(a *RentableTypeRef) error {
 	//  SET BID=?,RTID=?,OverrideRentCycle=?,OverrideProrationCycle=?,LastModBy=? WHERE RID=? and DtStart=? and DtStop=?"

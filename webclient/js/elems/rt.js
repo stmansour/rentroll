@@ -465,7 +465,6 @@ function buildRentableTypeElements() {
                         }
 
                         w2ui.toplayout.hide('right',true);
-                        rtG.remove(app.last.grid_sel_recid);
                         rtG.render();
                     })
                     .fail(function(/*data*/){
@@ -477,8 +476,47 @@ function buildRentableTypeElements() {
                     return;
                 });
             },
+            reactivate: function() {
+                var rtF = w2ui.rtForm;
+
+                var rtG = w2ui.rtGrid;
+                var params = {cmd: 'reactivate', formname: rtF.name, ID: rtF.record.RTID };
+                var dat = JSON.stringify(params);
+
+                // delete Depository request
+                $.post(rtF.url, dat, null, "json")
+                .done(function(data) {
+                    if (data.status === "error") {
+                        return;
+                    }
+
+                    w2ui.toplayout.hide('right',true);
+                    rtG.render();
+                })
+                .fail(function(/*data*/){
+                    rtF.error("Delete Payment failed.");
+                    return;
+                });
+            },
          },
-     });
+         onRefresh: function(event) {
+            event.onComplete = function() {
+                var FLAG = w2ui.rtForm.record.FLAGS;
+                var rtActive = typeof FLAG == "object" ? FLAG.id : FLAG;
+                if (rtActive == 1) { // 1 means inactive
+                    $("#rtFormBtns").find("button[name=save]").addClass("hidden");
+                    $("#rtFormBtns").find("button[name=saveadd]").addClass("hidden");
+                    $("#rtFormBtns").find("button[name=delete]").addClass("hidden");
+                    $("#rtFormBtns").find("button[name=reactivate]").removeClass("hidden");
+                } else {
+                    $("#rtFormBtns").find("button[name=save]").removeClass("hidden");
+                    $("#rtFormBtns").find("button[name=saveadd]").removeClass("hidden");
+                    $("#rtFormBtns").find("button[name=delete]").removeClass("hidden");
+                    $("#rtFormBtns").find("button[name=reactivate]").addClass("hidden");
+                }
+            };
+         },
+    });
 
     //------------------------------------------------------------------------
     //          rentable Type Detailed Layout
@@ -537,10 +575,8 @@ function buildRentableTypeElements() {
                             var rtActive = typeof FLAG == "object" ? FLAG.id : FLAG;
                             if (rtActive == 1) { // 1 means inactive
                                 w2ui.rtDetailLayout.get("main").content.lock();
-                                w2ui.rtDetailLayout.lock("bottom");
                             } else {
                                 w2ui.rtDetailLayout.get("main").content.unlock();
-                                w2ui.rtDetailLayout.unlock("bottom");
                             }
                         }, 0);
                     }

@@ -1032,6 +1032,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=1 WHERE RTID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.ReactivateRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=0 WHERE RTID=?")
+	Errcheck(err)
 
 	//===============================
 	//  RentableMarketRates
