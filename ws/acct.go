@@ -667,7 +667,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			BID:   a.BID,
 			LID:   a.LID,
 			Dt:    time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC),
-			State: rlib.MARKERSTATEORIGIN,
+			State: rlib.LMINITIAL,
 		}
 		err = rlib.InsertLedgerMarker(&lm)
 		if err != nil {
@@ -829,7 +829,7 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Remove LedgerMarkers for this LID
 	//-----------------------------------------------
 	lm := rlib.GetLatestLedgerMarkerByLID(d.BID, del.LID)
-	if lm.State != rlib.MARKERSTATEORIGIN {
+	if lm.State != rlib.LMINITIAL {
 		e := fmt.Errorf("This account (LID = %d) cannot be deleted because Ledger Markers exist beyond the origin", del.LID)
 		SvcGridErrorReturn(w, e, funcname)
 		return

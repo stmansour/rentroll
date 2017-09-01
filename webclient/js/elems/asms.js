@@ -40,7 +40,7 @@ function renderReversalIcon(record /*, index, col_index*/) {
     if (typeof record === "undefined") {
         return;
     }
-    if ( (record.FLAGS & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+    if ( (record.FLAGS & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
         return getGridReversalSymbolHTML();
     }
     return '';
@@ -393,7 +393,7 @@ function buildAssessmentElements() {
                     $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
@@ -410,7 +410,7 @@ function buildAssessmentElements() {
                     flagHTML = "";
 
                 // check if it is reversed or not
-                if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                if ( (flag & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
@@ -429,13 +429,13 @@ function buildAssessmentElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                    if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLYPAID)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
                     }
-                    else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
                     }
-                    else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.FULLYPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
                     }
 
@@ -448,7 +448,7 @@ function buildAssessmentElements() {
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
@@ -714,7 +714,7 @@ function buildAssessmentElements() {
                     $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
@@ -739,7 +739,7 @@ function buildAssessmentElements() {
                     flagHTML = "";
 
                 // check if it is reversed or not
-                if ( (flag & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
+                if ( (flag & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
                     flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
@@ -758,13 +758,13 @@ function buildAssessmentElements() {
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
-                    if ( (flag | app.asmFLAGS.ASMUNPAID) === 0 || (flag & (app.asmFLAGS.ASMPARTIALPAID | app.asmFLAGS.ASMFULLPAID)) === 0 ) {
+                    if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLYPAID)) === 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
                     }
-                    else if ( (flag & app.asmFLAGS.ASMPARTIALPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
                     }
-                    else if ( (flag & app.asmFLAGS.ASMFULLPAID) !== 0 ) {
+                    else if ( (flag & app.asmFLAGS.FULLYPAID) !== 0 ) {
                         flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
                     }
 
@@ -777,7 +777,7 @@ function buildAssessmentElements() {
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append

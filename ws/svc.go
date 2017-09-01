@@ -167,6 +167,7 @@ var Svcs = []ServiceHandler{
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
 	{"rentalagrtd", SvcRentalAgreementTypeDown, true},
 	{"rt", SvcHandlerRentableType, true},
+	{"rmr", SvcHandlerRentableMarketRates, true},
 	{"rtlist", SvcRentableTypesTD, true},
 	{"ruser", SvcRUser, true},
 	{"stmt", SvcStatement, true},
@@ -331,6 +332,7 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
 	var e SvcGridError
 	e.Status = "error"
 	e.Message = fmt.Sprintf("Error: %s\n", err.Error())
+	w.Header().Set("Content-Type", "application/json")
 	b, _ := json.Marshal(e)
 	SvcWrite(w, b)
 }

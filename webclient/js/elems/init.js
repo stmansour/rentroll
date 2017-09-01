@@ -36,3 +36,38 @@ w2obj.grid.prototype.remove = function() {
     this._remove.apply(this, arguments);
 };
 
+// --------------------------------------------------------
+// extend w2ui grid save prototype
+// --------------------------------------------------------
+w2obj.grid.prototype.save = function (callBack) {
+    var obj = this;
+    var changes = this.getChanges();
+    var url = (typeof this.url != 'object' ? this.url : this.url.save);
+    // event before
+    var edata = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes });
+    if (edata.isCancelled === true) {
+        if (url) {
+            if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
+        }
+        return;
+    }
+    if (url) {
+        this.request('save', { 'changes' : edata.changes }, null,
+            function (data) {
+                if (data.status !== 'error') {
+                    // only merge changes, if save was successful
+                    obj.mergeChanges();
+                }
+                // event after
+                obj.trigger($.extend(edata, { phase: 'after' }));
+                // call back
+                if (typeof callBack == 'function') callBack(data);
+            }
+        );
+    } else {
+        this.mergeChanges();
+        // event after
+        this.trigger($.extend(edata, { phase: 'after' }));
+    }
+};
+

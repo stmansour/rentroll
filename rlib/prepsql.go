@@ -503,6 +503,8 @@ func buildPreparedStatements() {
 	RRdb.DBFields["LedgerMarker"] = flds
 	RRdb.Prepstmt.GetLatestLedgerMarkerByLID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and TCID=0 ORDER BY Dt DESC")
 	Errcheck(err)
+	RRdb.Prepstmt.GetInitialLedgerMarkerByRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE RAID=? AND State=3")
+	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkerByDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and LID=? and RAID=0 and RID=0 and TCID=0 and Dt>?  ORDER BY LID ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetLedgerMarkers, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM LedgerMarker WHERE BID=? and RAID=0 and RID=0 and TCID=0 ORDER BY LMID DESC LIMIT ?")
@@ -1036,7 +1038,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET " + s3 + " WHERE RTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableType, err = RRdb.Dbrr.Prepare("DELETE FROM RentableTypes WHERE RTID=?")
+	RRdb.Prepstmt.DeleteRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=1 WHERE RTID=?")
 	Errcheck(err)
 
 	//===============================

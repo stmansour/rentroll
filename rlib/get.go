@@ -689,6 +689,14 @@ func GetLatestLedgerMarkerByLID(bid, lid int64) LedgerMarker {
 	return r
 }
 
+// GetInitialLedgerMarkerByRAID returns the LedgerMarker struct for the GLAccount with the supplied LID
+func GetInitialLedgerMarkerByRAID(raid int64) LedgerMarker {
+	var r LedgerMarker
+	row := RRdb.Prepstmt.GetInitialLedgerMarkerByRAID.QueryRow(raid)
+	ReadLedgerMarker(row, &r)
+	return r
+}
+
 // GetLedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with the supplied LID
 func GetLedgerMarkerOnOrBefore(bid, lid int64, dt *time.Time) LedgerMarker {
 	var r LedgerMarker
@@ -784,7 +792,7 @@ func GetRentableLedgerMarkerOnOrBefore(bid, lid, rid int64, dt *time.Time) Ledge
 // 		lm.BID = bid
 // 		lm.TCID = tcid
 // 		lm.Dt = *dt
-// 		lm.State = MARKERSTATEORIGIN
+// 		lm.State = LMINITIAL
 // 		err := InsertLedgerMarker(&lm)
 // 		if nil != err {
 // 			fmt.Printf("LoadRALedgerMarker: Error creating LedgerMarker: %s\n", err.Error())
@@ -815,7 +823,7 @@ func LoadRALedgerMarker(bid, lid, raid int64, dt *time.Time) LedgerMarker {
 		lm.BID = bid
 		lm.RAID = raid
 		lm.Dt = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
-		lm.State = MARKERSTATEORIGIN
+		lm.State = LMINITIAL
 		err := InsertLedgerMarker(&lm)
 		if nil != err {
 			fmt.Printf("LoadRALedgerMarker: Error creating LedgerMarker: %s\n", err.Error())
@@ -1855,6 +1863,19 @@ func LoadXRentalAgreement(raid int64, r *RentalAgreement, d1, d2 *time.Time) err
 		}
 	}
 	return err
+}
+
+// GetRentalAgreementEarliestDate returns the earliest of
+// AgreementStart, PossessionStart, and RentStart
+func GetRentalAgreementEarliestDate(a *RentalAgreement) time.Time {
+	dt := a.AgreementStart
+	if a.PossessionStart.Before(dt) {
+		dt = a.PossessionStart
+	}
+	if a.RentStart.Before(dt) {
+		dt = a.RentStart
+	}
+	return dt
 }
 
 // GetXRentalAgreement gets the RentalAgreement plus the associated rentables and payors for the

@@ -283,7 +283,7 @@ func GenerateLedgerMarkers(xbiz *XBusiness, d2 *time.Time) {
 			fmt.Printf("%s: Could not get GLAccount %d (%s) in business %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
 			continue
 		}
-		closeLedgerPeriod(xbiz, &t[i], &lm, d2, MARKERSTATEOPEN)
+		closeLedgerPeriod(xbiz, &t[i], &lm, d2, LMOPEN)
 	}
 
 	//----------------------------------------------------------------------------------

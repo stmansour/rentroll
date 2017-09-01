@@ -11,6 +11,7 @@
             "ID": "",
             "RAID": 5,
             "RcptAmount": 0,
+            "Receipt": 0,
             "RentableName": "",
             "Reverse": false,
             "recid": 0
@@ -26,6 +27,7 @@
             "ID": "ASM-35",
             "RAID": 5,
             "RcptAmount": 0,
+            "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": false,
             "recid": 0
@@ -41,6 +43,7 @@
             "ID": "ASM-54",
             "RAID": 5,
             "RcptAmount": 0,
+            "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": true,
             "recid": 1
@@ -56,6 +59,7 @@
             "ID": "ASM-62",
             "RAID": 5,
             "RcptAmount": 0,
+            "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": true,
             "recid": 2
@@ -71,6 +75,7 @@
             "ID": "ASM-63",
             "RAID": 5,
             "RcptAmount": 0,
+            "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": false,
             "recid": 3
@@ -86,6 +91,7 @@
             "ID": "RCPT-38",
             "RAID": 5,
             "RcptAmount": 4000,
+            "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": false,
             "recid": 4
@@ -101,6 +107,7 @@
             "ID": "RCPT-38",
             "RAID": 5,
             "RcptAmount": 15,
+            "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": true,
             "recid": 5
@@ -116,6 +123,7 @@
             "ID": "RCPT-38",
             "RAID": 5,
             "RcptAmount": 4000,
+            "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": false,
             "recid": 6
@@ -131,6 +139,7 @@
             "ID": "RCPT-38",
             "RAID": 5,
             "RcptAmount": 3970,
+            "Receipt": 0,
             "RentableName": "309 1/2 S Rexford",
             "Reverse": false,
             "recid": 7
@@ -146,6 +155,7 @@
             "ID": "",
             "RAID": 5,
             "RcptAmount": 11970,
+            "Receipt": 0,
             "RentableName": "",
             "Reverse": false,
             "recid": 0

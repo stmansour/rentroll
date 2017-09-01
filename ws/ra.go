@@ -247,11 +247,11 @@ func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *Servi
 		g        RentalAgreementTypedownResponse
 		err      error
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
-	fmt.Printf("handle typedown: GetRentalAgreementTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	rlib.Console("handle typedown: GetRentalAgreementTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	g.Records, err = GetRentalAgreementTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
-	fmt.Printf("GetRentalAgreementTypeDown returned %d matches\n", len(g.Records))
+	rlib.Console("GetRentalAgreementTypeDown returned %d matches\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	if err != nil {
 		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
@@ -295,7 +295,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		t        = time.Now()
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	const (
 		limitClause int = 100
@@ -336,11 +336,11 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	countQuery := renderSQLQuery(rentalAgrQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		rlib.Console("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -358,7 +358,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// get formatted query with substitution of select, where, order clause
 	qry := renderSQLQuery(rentalAgrQueryWithLimit, qc)
-	fmt.Printf("db query = %s\n", qry)
+	rlib.Console("db query = %s\n", qry)
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
@@ -413,7 +413,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("Entered SvcFormHandlerRentalAgreement\n")
+	rlib.Console("Entered SvcFormHandlerRentalAgreement\n")
 	var (
 		funcname = "SvcFormHandlerRentalAgreement"
 		err      error
@@ -424,7 +424,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 		return
 	}
 
-	fmt.Printf("Requester UID = %d, BID = %d,  RAID = %d\n", d.UID, d.BID, d.RAID)
+	rlib.Console("Requester UID = %d, BID = %d,  RAID = %d\n", d.UID, d.BID, d.RAID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -460,10 +460,10 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	)
 
 	target := `"record":`
-	fmt.Printf("SvcFormHandlerRentalAgreement save\n")
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("SvcFormHandlerRentalAgreement save\n")
+	rlib.Console("record data = %s\n", d.data)
 	i := strings.Index(d.data, target)
-	fmt.Printf("record is at index = %d\n", i)
+	rlib.Console("record is at index = %d\n", i)
 	if i < 0 {
 		e := fmt.Errorf("saveRentalAgreement: cannot find %s in form json", target)
 		SvcGridErrorReturn(w, e, funcname)
@@ -471,7 +471,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	}
 	s := d.data[i+len(target):]
 	s = s[:len(s)-1]
-	fmt.Printf("data to unmarshal is:  %s\n", s)
+	rlib.Console("data to unmarshal is:  %s\n", s)
 
 	//===============================================================
 	//------------------------------
@@ -479,7 +479,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	//------------------------------
 	var foo RentalAgrForm
 
-	fmt.Printf("A\n")
+	rlib.Console("A\n")
 
 	err = json.Unmarshal([]byte(s), &foo)
 	if err != nil {
@@ -487,16 +487,16 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-	fmt.Printf("B\n")
+	rlib.Console("B\n")
 	// migrate the variables that transfer without needing special handling...
 	var a rlib.RentalAgreement
 	rlib.MigrateStructVals(&foo, &a)
 
-	fmt.Printf("B1\n")
+	rlib.Console("B1\n")
 
 	var ok bool
 	a.Renewal, ok = rlib.RenewalMap[string(foo.Renewal)]
-	fmt.Printf("D\n")
+	rlib.Console("D\n")
 	if !ok {
 		e := fmt.Errorf("could not map %s to a Renewal value", foo.Renewal)
 		rlib.LogAndPrintError(funcname, e)
@@ -506,26 +506,57 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	//===============================================================
 
-	fmt.Printf("Update complete:  RA = %#v\n", a)
+	rlib.Console("Update complete:  RA = %#v\n", a)
 
 	// Now just update the database
 	if a.RAID > 0 {
 		err = rlib.UpdateRentalAgreement(&a)
+		if err != nil {
+			e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		//------------------------------------------------------------------------
+		// If any of the start dates are prior to this RA's initial LedgerMarker
+		// then we need to move the initial LedgerMarker's date back.
+		//------------------------------------------------------------------------
+		lm := rlib.GetInitialLedgerMarkerByRAID(a.RAID)
+		if lm.LMID == 0 {
+			e := fmt.Errorf("Could not find initial LedgerMarker for RAID = %d", a.RAID)
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
+		rlib.Console("Found initial LedgerMarker for RAID %d\n", a.RAID)
+		if lm.Dt.After(a.AgreementStart) || lm.Dt.After(a.PossessionStart) || lm.Dt.After(a.RentStart) {
+			// find the earliest date...
+			dt := rlib.GetRentalAgreementEarliestDate(&a)
+			rlib.Console("Moving initial LedgerMarker to: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
+			if dt.Before(lm.Dt) {
+				lm.Dt = dt // update the ledger marker date to the earliest date
+				err = rlib.UpdateLedgerMarker(&lm)
+				if err != nil {
+					e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
+					SvcGridErrorReturn(w, e, funcname)
+					return
+				}
+			}
+		}
 	} else {
 		_, err = rlib.InsertRentalAgreement(&a)
 		if err == nil {
 			var lm rlib.LedgerMarker
 			lm.Dt = a.AgreementStart
 			lm.RAID = a.RAID
+			lm.State = rlib.LMINITIAL
 			err = rlib.InsertLedgerMarker(&lm)
+			if err != nil {
+				e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
+				SvcGridErrorReturn(w, e, funcname)
+				return
+			}
 		}
 	}
 
-	if err != nil {
-		e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
 	SvcWriteSuccessResponseWithID(w, a.RAID)
 }
 
@@ -547,7 +578,7 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		g        GetRentalAgreementResponse
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	a, err := rlib.GetRentalAgreement(d.RAID)
 	if err != nil {
@@ -581,8 +612,8 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		del      DeleteRentalAgreementForm
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())

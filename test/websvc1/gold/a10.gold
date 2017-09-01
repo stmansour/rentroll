@@ -267,13 +267,13 @@
             </tr>
             <tr>
               <td class="cell-row-3-col-0">
-                Assessment - Taxable Rent Assessment
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-3-col-1">
-                02/01/2017
+                01/01/2017
               </td>
               <td class="cell-row-3-col-2">
-                J00000012
+                J00000021
               </td>
               <td class="cell-row-3-col-3">
                         1
@@ -282,21 +282,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-3-col-5">
-                    4,000.00
+                     -100.00
               </td>
               <td class="cell-row-3-col-6">
-                   11,750.00
+                    7,650.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-4-col-0">
-                Assessment - Non-Taxable Rent Assessment
+                Payment #48762876342 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-4-col-1">
-                02/01/2017
+                01/01/2017
               </td>
               <td class="cell-row-4-col-2">
-                J00000003
+                J00000022
               </td>
               <td class="cell-row-4-col-3">
                         1
@@ -305,21 +305,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-4-col-5">
-                    3,750.00
+                   -1,000.00
               </td>
               <td class="cell-row-4-col-6">
-                   15,500.00
+                    6,650.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-5-col-0">
-                Assessment - Taxable Rent Assessment
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-5-col-1">
-                03/01/2017
+                01/01/2017
               </td>
               <td class="cell-row-5-col-2">
-                J00000013
+                J00000023
               </td>
               <td class="cell-row-5-col-3">
                         1
@@ -328,21 +328,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-5-col-5">
-                    4,000.00
+                   -2,650.00
               </td>
               <td class="cell-row-5-col-6">
-                   19,500.00
+                    4,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-6-col-0">
-                Assessment - Non-Taxable Rent Assessment
+                Assessment - Taxable Rent Assessment
               </td>
               <td class="cell-row-6-col-1">
-                03/01/2017
+                02/01/2017
               </td>
               <td class="cell-row-6-col-2">
-                J00000004
+                J00000012
               </td>
               <td class="cell-row-6-col-3">
                         1
@@ -351,21 +351,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-6-col-5">
-                    3,750.00
+                    4,000.00
               </td>
               <td class="cell-row-6-col-6">
-                   23,250.00
+                    8,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-7-col-0">
-                Assessment - Taxable Rent Assessment
+                Assessment - Non-Taxable Rent Assessment
               </td>
               <td class="cell-row-7-col-1">
-                04/01/2017
+                02/01/2017
               </td>
               <td class="cell-row-7-col-2">
-                J00000014
+                J00000003
               </td>
               <td class="cell-row-7-col-3">
                         1
@@ -374,21 +374,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-7-col-5">
-                    4,000.00
+                    3,750.00
               </td>
               <td class="cell-row-7-col-6">
-                   27,250.00
+                   11,750.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-8-col-0">
-                Assessment - Non-Taxable Rent Assessment
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-8-col-1">
-                04/01/2017
+                02/01/2017
               </td>
               <td class="cell-row-8-col-2">
-                J00000005
+                J00000024
               </td>
               <td class="cell-row-8-col-3">
                         1
@@ -397,10 +397,10 @@
                 309 S Rexford
               </td>
               <td class="cell-row-8-col-5">
-                    3,750.00
+                   -3,750.00
               </td>
               <td class="cell-row-8-col-6">
-                   31,000.00
+                    8,000.00
               </td>
             </tr>
             <tr>
@@ -408,10 +408,10 @@
                 Assessment - Taxable Rent Assessment
               </td>
               <td class="cell-row-9-col-1">
-                05/01/2017
+                03/01/2017
               </td>
               <td class="cell-row-9-col-2">
-                J00000015
+                J00000013
               </td>
               <td class="cell-row-9-col-3">
                         1
@@ -423,7 +423,7 @@
                     4,000.00
               </td>
               <td class="cell-row-9-col-6">
-                   35,000.00
+                   12,000.00
               </td>
             </tr>
             <tr>
@@ -431,10 +431,10 @@
                 Assessment - Non-Taxable Rent Assessment
               </td>
               <td class="cell-row-10-col-1">
-                05/01/2017
+                03/01/2017
               </td>
               <td class="cell-row-10-col-2">
-                J00000006
+                J00000004
               </td>
               <td class="cell-row-10-col-3">
                         1
@@ -446,18 +446,18 @@
                     3,750.00
               </td>
               <td class="cell-row-10-col-6">
-                   38,750.00
+                   15,750.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-11-col-0">
-                Assessment - Taxable Rent Assessment
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-11-col-1">
-                06/01/2017
+                03/01/2017
               </td>
               <td class="cell-row-11-col-2">
-                J00000016
+                J00000025
               </td>
               <td class="cell-row-11-col-3">
                         1
@@ -466,21 +466,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-11-col-5">
-                    4,000.00
+                   -3,750.00
               </td>
               <td class="cell-row-11-col-6">
-                   42,750.00
+                   12,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-12-col-0">
-                Assessment - Non-Taxable Rent Assessment
+                Assessment - Taxable Rent Assessment
               </td>
               <td class="cell-row-12-col-1">
-                06/01/2017
+                04/01/2017
               </td>
               <td class="cell-row-12-col-2">
-                J00000007
+                J00000014
               </td>
               <td class="cell-row-12-col-3">
                         1
@@ -489,21 +489,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-12-col-5">
-                    3,750.00
+                    4,000.00
               </td>
               <td class="cell-row-12-col-6">
-                   46,500.00
+                   16,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-13-col-0">
-                Assessment - Taxable Rent Assessment
+                Assessment - Non-Taxable Rent Assessment
               </td>
               <td class="cell-row-13-col-1">
-                07/01/2017
+                04/01/2017
               </td>
               <td class="cell-row-13-col-2">
-                J00000017
+                J00000005
               </td>
               <td class="cell-row-13-col-3">
                         1
@@ -512,21 +512,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-13-col-5">
-                    4,000.00
+                    3,750.00
               </td>
               <td class="cell-row-13-col-6">
-                   50,500.00
+                   19,750.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-14-col-0">
-                Assessment - Non-Taxable Rent Assessment
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-14-col-1">
-                07/01/2017
+                04/04/2017
               </td>
               <td class="cell-row-14-col-2">
-                J00000008
+                J00000026
               </td>
               <td class="cell-row-14-col-3">
                         1
@@ -535,21 +535,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-14-col-5">
-                    3,750.00
+                   -3,750.00
               </td>
               <td class="cell-row-14-col-6">
-                   54,250.00
+                   16,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-15-col-0">
-                Assessment - Electric Base Fee Assessment
+                Assessment - Taxable Rent Assessment
               </td>
               <td class="cell-row-15-col-1">
-                07/01/2017
+                05/01/2017
               </td>
               <td class="cell-row-15-col-2">
-                J00000001
+                J00000015
               </td>
               <td class="cell-row-15-col-3">
                         1
@@ -558,21 +558,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-15-col-5">
-                       30.00
+                    4,000.00
               </td>
               <td class="cell-row-15-col-6">
-                   54,280.00
+                   20,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-16-col-0">
-                Assessment - Water and Sewer Base Fee
+                Assessment - Non-Taxable Rent Assessment
               </td>
               <td class="cell-row-16-col-1">
-                07/19/2017
+                05/01/2017
               </td>
               <td class="cell-row-16-col-2">
-                J00000009
+                J00000006
               </td>
               <td class="cell-row-16-col-3">
                         1
@@ -581,10 +581,10 @@
                 309 S Rexford
               </td>
               <td class="cell-row-16-col-5">
-                       40.00
+                    3,750.00
               </td>
               <td class="cell-row-16-col-6">
-                   54,320.00
+                   23,750.00
               </td>
             </tr>
             <tr>
@@ -592,10 +592,10 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-17-col-1">
-                07/19/2017
+                05/01/2017
               </td>
               <td class="cell-row-17-col-2">
-                J00000029
+                J00000027
               </td>
               <td class="cell-row-17-col-3">
                         1
@@ -604,21 +604,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-17-col-5">
-                      -30.00
+                   -3,750.00
               </td>
               <td class="cell-row-17-col-6">
-                   54,290.00
+                   20,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-18-col-0">
-                Assessment - Water and Sewer Base Fee
+                Assessment - Taxable Rent Assessment
               </td>
               <td class="cell-row-18-col-1">
-                07/19/2017
+                06/01/2017
               </td>
               <td class="cell-row-18-col-2">
-                J00000010
+                J00000016
               </td>
               <td class="cell-row-18-col-3">
                         1
@@ -627,21 +627,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-18-col-5">
-                      -40.00
+                    4,000.00
               </td>
               <td class="cell-row-18-col-6">
-                   54,250.00
+                   24,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-19-col-0">
-                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+                Assessment - Non-Taxable Rent Assessment
               </td>
               <td class="cell-row-19-col-1">
-                07/19/2017
+                06/01/2017
               </td>
               <td class="cell-row-19-col-2">
-                J00000021
+                J00000007
               </td>
               <td class="cell-row-19-col-3">
                         1
@@ -650,21 +650,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-19-col-5">
-                     -100.00
+                    3,750.00
               </td>
               <td class="cell-row-19-col-6">
-                   54,150.00
+                   27,750.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-20-col-0">
-                Payment #48762876342 - deposited to 10104 (FRB Operating Account 4320)
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-20-col-1">
-                07/19/2017
+                06/01/2017
               </td>
               <td class="cell-row-20-col-2">
-                J00000022
+                J00000028
               </td>
               <td class="cell-row-20-col-3">
                         1
@@ -673,21 +673,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-20-col-5">
-                   -1,000.00
+                   -3,750.00
               </td>
               <td class="cell-row-20-col-6">
-                   53,150.00
+                   24,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-21-col-0">
-                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+                Assessment - Taxable Rent Assessment
               </td>
               <td class="cell-row-21-col-1">
-                07/19/2017
+                07/01/2017
               </td>
               <td class="cell-row-21-col-2">
-                J00000023
+                J00000017
               </td>
               <td class="cell-row-21-col-3">
                         1
@@ -696,21 +696,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-21-col-5">
-                   -2,650.00
+                    4,000.00
               </td>
               <td class="cell-row-21-col-6">
-                   50,500.00
+                   28,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-22-col-0">
-                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+                Assessment - Non-Taxable Rent Assessment
               </td>
               <td class="cell-row-22-col-1">
-                07/19/2017
+                07/01/2017
               </td>
               <td class="cell-row-22-col-2">
-                J00000024
+                J00000008
               </td>
               <td class="cell-row-22-col-3">
                         1
@@ -719,21 +719,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-22-col-5">
-                   -3,750.00
+                    3,750.00
               </td>
               <td class="cell-row-22-col-6">
-                   46,750.00
+                   31,750.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-23-col-0">
-                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+                Assessment - Electric Base Fee Assessment
               </td>
               <td class="cell-row-23-col-1">
-                07/19/2017
+                07/01/2017
               </td>
               <td class="cell-row-23-col-2">
-                J00000025
+                J00000001
               </td>
               <td class="cell-row-23-col-3">
                         1
@@ -742,10 +742,10 @@
                 309 S Rexford
               </td>
               <td class="cell-row-23-col-5">
-                   -3,750.00
+                       30.00
               </td>
               <td class="cell-row-23-col-6">
-                   43,000.00
+                   31,780.00
               </td>
             </tr>
             <tr>
@@ -753,10 +753,10 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-24-col-1">
-                07/19/2017
+                07/01/2017
               </td>
               <td class="cell-row-24-col-2">
-                J00000026
+                J00000029
               </td>
               <td class="cell-row-24-col-3">
                         1
@@ -765,10 +765,10 @@
                 309 S Rexford
               </td>
               <td class="cell-row-24-col-5">
-                   -3,750.00
+                      -30.00
               </td>
               <td class="cell-row-24-col-6">
-                   39,250.00
+                   31,750.00
               </td>
             </tr>
             <tr>
@@ -776,10 +776,10 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-25-col-1">
-                07/19/2017
+                07/01/2017
               </td>
               <td class="cell-row-25-col-2">
-                J00000027
+                J00000030
               </td>
               <td class="cell-row-25-col-3">
                         1
@@ -791,18 +791,18 @@
                    -3,750.00
               </td>
               <td class="cell-row-25-col-6">
-                   35,500.00
+                   28,000.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-26-col-0">
-                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+                Assessment - Water and Sewer Base Fee
               </td>
               <td class="cell-row-26-col-1">
                 07/19/2017
               </td>
               <td class="cell-row-26-col-2">
-                J00000028
+                J00000009
               </td>
               <td class="cell-row-26-col-3">
                         1
@@ -811,21 +811,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-26-col-5">
-                   -3,750.00
+                       40.00
               </td>
               <td class="cell-row-26-col-6">
-                   31,750.00
+                   28,040.00
               </td>
             </tr>
             <tr class="bottom-line">
               <td class="cell-row-27-col-0">
-                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+                Assessment - Water and Sewer Base Fee
               </td>
               <td class="cell-row-27-col-1">
                 07/19/2017
               </td>
               <td class="cell-row-27-col-2">
-                J00000030
+                J00000010
               </td>
               <td class="cell-row-27-col-3">
                         1
@@ -834,7 +834,7 @@
                 309 S Rexford
               </td>
               <td class="cell-row-27-col-5">
-                   -3,750.00
+                      -40.00
               </td>
               <td class="cell-row-27-col-6">
                    28,000.00
@@ -1691,10 +1691,10 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-1-col-1">
-                07/19/2017
+                01/01/2017
               </td>
               <td class="cell-row-1-col-2">
-                J00000024
+                J00000023
               </td>
               <td class="cell-row-1-col-3">
                         1
@@ -1703,21 +1703,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-1-col-5">
-                    3,750.00
+                    2,650.00
               </td>
               <td class="cell-row-1-col-6">
-                    3,750.00
+                    2,650.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-2-col-0">
-                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+                Payment #48762876342 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-2-col-1">
-                07/19/2017
+                01/01/2017
               </td>
               <td class="cell-row-2-col-2">
-                J00000025
+                J00000022
               </td>
               <td class="cell-row-2-col-3">
                         1
@@ -1726,21 +1726,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-2-col-5">
-                    3,750.00
+                    1,000.00
               </td>
               <td class="cell-row-2-col-6">
-                    7,500.00
+                    3,650.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-3-col-0">
-                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
+                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-3-col-1">
-                07/19/2017
+                01/01/2017
               </td>
               <td class="cell-row-3-col-2">
-                J00000026
+                J00000021
               </td>
               <td class="cell-row-3-col-3">
                         1
@@ -1749,10 +1749,10 @@
                 309 S Rexford
               </td>
               <td class="cell-row-3-col-5">
-                    3,750.00
+                      100.00
               </td>
               <td class="cell-row-3-col-6">
-                   11,250.00
+                    3,750.00
               </td>
             </tr>
             <tr>
@@ -1760,10 +1760,10 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-4-col-1">
-                07/19/2017
+                02/01/2017
               </td>
               <td class="cell-row-4-col-2">
-                J00000027
+                J00000024
               </td>
               <td class="cell-row-4-col-3">
                         1
@@ -1775,7 +1775,7 @@
                     3,750.00
               </td>
               <td class="cell-row-4-col-6">
-                   15,000.00
+                    7,500.00
               </td>
             </tr>
             <tr>
@@ -1783,10 +1783,10 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-5-col-1">
-                07/19/2017
+                03/01/2017
               </td>
               <td class="cell-row-5-col-2">
-                J00000028
+                J00000025
               </td>
               <td class="cell-row-5-col-3">
                         1
@@ -1798,7 +1798,7 @@
                     3,750.00
               </td>
               <td class="cell-row-5-col-6">
-                   18,750.00
+                   11,250.00
               </td>
             </tr>
             <tr>
@@ -1806,10 +1806,10 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-6-col-1">
-                07/19/2017
+                04/04/2017
               </td>
               <td class="cell-row-6-col-2">
-                J00000030
+                J00000026
               </td>
               <td class="cell-row-6-col-3">
                         1
@@ -1821,7 +1821,7 @@
                     3,750.00
               </td>
               <td class="cell-row-6-col-6">
-                   22,500.00
+                   15,000.00
               </td>
             </tr>
             <tr>
@@ -1829,10 +1829,10 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-7-col-1">
-                07/19/2017
+                05/01/2017
               </td>
               <td class="cell-row-7-col-2">
-                J00000023
+                J00000027
               </td>
               <td class="cell-row-7-col-3">
                         1
@@ -1841,21 +1841,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-7-col-5">
-                    2,650.00
+                    3,750.00
               </td>
               <td class="cell-row-7-col-6">
-                   25,150.00
+                   18,750.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-8-col-0">
-                Payment #48762876342 - deposited to 10104 (FRB Operating Account 4320)
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-8-col-1">
-                07/19/2017
+                06/01/2017
               </td>
               <td class="cell-row-8-col-2">
-                J00000022
+                J00000028
               </td>
               <td class="cell-row-8-col-3">
                         1
@@ -1864,21 +1864,21 @@
                 309 S Rexford
               </td>
               <td class="cell-row-8-col-5">
-                    1,000.00
+                    3,750.00
               </td>
               <td class="cell-row-8-col-6">
-                   26,150.00
+                   22,500.00
               </td>
             </tr>
             <tr>
               <td class="cell-row-9-col-0">
-                Payment #4321 - deposited to 10104 (FRB Operating Account 4320)
+                Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-9-col-1">
-                07/19/2017
+                07/01/2017
               </td>
               <td class="cell-row-9-col-2">
-                J00000021
+                J00000030
               </td>
               <td class="cell-row-9-col-3">
                         1
@@ -1887,7 +1887,7 @@
                 309 S Rexford
               </td>
               <td class="cell-row-9-col-5">
-                      100.00
+                    3,750.00
               </td>
               <td class="cell-row-9-col-6">
                    26,250.00
@@ -1898,7 +1898,7 @@
                 Payment #4645727272 - deposited to 10104 (FRB Operating Account 4320)
               </td>
               <td class="cell-row-10-col-1">
-                07/19/2017
+                07/01/2017
               </td>
               <td class="cell-row-10-col-2">
                 J00000029

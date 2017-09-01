@@ -285,6 +285,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	var lm rlib.LedgerMarker
 	lm.Dt = ra.AgreementStart
 	lm.RAID = ra.RAID
+	lm.State = rlib.LMINITIAL
 	err = rlib.InsertLedgerMarker(&lm)
 
 	//------------------------------------------------------------

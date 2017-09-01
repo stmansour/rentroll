@@ -76,7 +76,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		l.BID = b1.BID
 	}
 
-	lm.State = 3 // Initial marker, no prior records
+	lm.State = rlib.LMINITIAL // Initial marker, no prior records
 
 	//----------------------------------------------------------------------
 	// NAME

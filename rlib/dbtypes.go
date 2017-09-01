@@ -34,8 +34,18 @@ const (
 	// ASMUNPAID et al are flags for assessment
 	ASMUNPAID      = 0
 	ASMPARTIALPAID = 1
-	ASMFULLPAID    = 2
+	ASMFULLYPAID   = 2
 	ASMREVERSED    = 4
+
+	// RCPTUNALLOCATED et al are flags for receipt
+	RCPTUNALLOCATED      = 0
+	RCPTPARTIALALLOCATED = 1
+	RCPTFULLYALLOCATED   = 2
+	RCPTREVERSED         = 4
+
+	// RTACTIVE et all are flags for rentableTypes
+	RTACTIVE   = 0
+	RTINACTIVE = 1
 
 	// CUSTSTRING et al are Custom Attribute types
 	CUSTSTRING = 0
@@ -45,35 +55,16 @@ const (
 	CUSTDATE   = 4
 	CUSTLAST   = 4 // this should be maintained as matching the highest index value in the group
 
-	// RCPTUNALLOCATED et al are flags for receipt
-	RCPTUNALLOCATED      = 0
-	RCPTPARTIALALLOCATED = 1
-	RCPTFULLALLOCATED    = 2
-	RCPTREVERSED         = 4
-
 	// ledger marker states
-	LMOPEN   = 0
-	LMCLOSED = 1
-	LMLOCKED = 2
-
-	// RENT                      = 1
-	// SECURITYDEPOSIT           = 2
-	// SECURITYDEPOSITASSESSMENT = 58
+	LMOPEN    = 0
+	LMCLOSED  = 1
+	LMLOCKED  = 2
+	LMINITIAL = 3
 
 	ACCTSTATUSINACTIVE = 1
 	ACCTSTATUSACTIVE   = 2
 	RAASSOCIATED       = 1
 	RAUNASSOCIATED     = 2
-
-	// GLCASH       = 10
-	// GLGENRCV     = 11
-	// GLGSRENT     = 12
-	// GLLTL        = 13
-	// GLVAC        = 14
-	// GLSECDEP     = 16
-	// GLOWNREQUITY = 17
-	// GLLAST       = 17 // set this to the last default account index
-	// GLSECDEPRCV  = 15
 
 	CYCLENORECUR   = 0
 	CYCLESECONDLY  = 1
@@ -116,11 +107,6 @@ const (
 	JNLTYPERCPT = 2 // record is the result of a Receipt
 	JNLTYPEEXP  = 3 // record is the result of an Expense
 
-	MARKERSTATEOPEN   = 0 // Journal/LedgerMarker state
-	MARKERSTATECLOSED = 1
-	MARKERSTATELOCKED = 2
-	MARKERSTATEORIGIN = 3
-
 	JOURNALTYPEASMID  = 1
 	JOURNALTYPERCPTID = 2
 
@@ -138,33 +124,6 @@ const (
 	RRDATETIMEFMT    = "2006-01-02T15:04:00Z"
 	RRDATEREPORTFMT  = "Jan 2, 2006"
 )
-
-//==========================================
-// ASMID = Assessment id
-// ATypeLID = assessment type id
-// AVAILID = availability id
-// BID = Business id
-// BLDGID = Building id
-// CID = custom attribute id
-// DISBID = disbursement id
-// JAID = Journal allocation id
-// JID = Journal id
-// JMID = Journal marker id
-// LEID = LedgerEntry id
-// LMID = LedgerMarker id
-// OFSID = offset id
-// PID = Payor id
-// PMTID = payment type id
-// PRSPID = Prospect id
-// RAID = rental agreement / occupancy agreement
-// RATID = occupancy agreement template id
-// RCPTID = Receipt id
-// USERID = User id
-// RID = Rentable id
-// RSPID = unit specialty id
-// RTID = Rentable type id
-// TCID = Transactant id == PayorID == UserID == ProspectID
-//==========================================
 
 // StringList is a generic list structure for lists of strings. These could be used to implement things like
 // the list of reasons why an applicant's application was turned down, the list of reasons why a tenant is
@@ -932,6 +891,7 @@ type RentableType struct {
 	Proration      int64                      // frequency for prorating rent if the full rentcycle is not used
 	GSRPC          int64                      // Time increments in which GSR is calculated to account for rate changes
 	ManageToBudget int64                      // 0=no, 1 = yes
+	FLAGS          int64                      // 0=active, 1=inactive
 	MR             []RentableMarketRate       // array of time sensitive market rates
 	CA             map[string]CustomAttribute // index by Name of attribute, associated custom attributes
 	MRCurrent      float64                    // the current market rate (historical values are in MR)
@@ -1505,6 +1465,7 @@ type RRprepSQL struct {
 	GetRentableTypeByName                   *sql.Stmt
 	GetRALedgerMarkerOnOrAfter              *sql.Stmt
 	GetReceiptAllocationsThroughDate        *sql.Stmt
+	GetInitialLedgerMarkerByRAID            *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

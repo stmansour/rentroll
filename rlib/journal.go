@@ -281,7 +281,7 @@ func RemoveJournalEntries(xbiz *XBusiness, d1, d2 *time.Time) error {
 
 	// only delete the marker if it is in this time range and if it is not the origin marker
 	jm := GetLastJournalMarker()
-	if jm.State == MARKERSTATEOPEN && (jm.DtStart.After(*d1) || jm.DtStart.Equal(*d1)) && (jm.DtStop.Before(*d2) || jm.DtStop.Equal(*d2)) {
+	if jm.State == LMOPEN && (jm.DtStart.After(*d1) || jm.DtStart.Equal(*d1)) && (jm.DtStop.Before(*d2) || jm.DtStop.Equal(*d2)) {
 		DeleteJournalMarker(jm.JMID)
 	}
 
@@ -505,7 +505,7 @@ func ProcessReceiptRange(xbiz *XBusiness, d1, d2 *time.Time) {
 func CreateJournalMarker(xbiz *XBusiness, d1, d2 *time.Time) {
 	var jm JournalMarker
 	jm.BID = xbiz.P.BID
-	jm.State = MARKERSTATEOPEN
+	jm.State = LMOPEN
 	jm.DtStart = *d1
 	jm.DtStop = *d2
 	InsertJournalMarker(&jm)
