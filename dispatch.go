@@ -197,8 +197,8 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 
 	t.Init()
 	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("Payor(s)", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("Description", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Payor(s)", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Description", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("ASMID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("RCPTID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -216,12 +216,6 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 		return t
 	}
 
-	//------------------------
-	// init running totals
-	//------------------------
-	b := float64(0)
-	c := b
-	d := b
 	payorcache := map[int64]rlib.Transactant{}
 
 	//------------------------
@@ -236,6 +230,20 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 			continue
 		}
 		rentableName := ra.GetTheRentableName(d1, d2)
+		t.AddRow()
+		t.Puts(-1, Description, fmt.Sprintf("*** RENTAL AGREEMENT %d ***", m[i].RAID))
+		t.AddRow()
+		t.Puts(-1, Description, "Opening balance")
+		t.Putd(-1, Date, m[i].DtStart)
+		t.Putf(-1, Balance, m[i].OpeningBal)
+
+		//------------------------
+		// init running totals
+		//------------------------
+		bal := m[i].OpeningBal
+		asmts := float64(0)
+		applied := asmts
+		// unapplied := asmts
 
 		for j := 0; j < len(m[i].Stmt); j++ { // for each line in the statement
 			t.AddRow()
@@ -271,9 +279,9 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 					}
 					t.Puts(-1, Payor, strings.Join(sa, ","))
 				}
-				if !m[i].Stmt[j].Reverse {
-					c += amt
-					b += amt
+				if !m[i].Stmt[j].Reverse { // update running totals if not a reversal
+					asmts += amt
+					bal += amt
 				} else {
 					descr += " (" + m[i].Stmt[j].A.Comment + ")"
 				}
@@ -293,8 +301,8 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 					t.Puts(-1, ASMID, rlib.IDtoShortString("ASM", m[i].Stmt[j].A.ASMID))
 				}
 				if !m[i].Stmt[j].Reverse {
-					d += amt
-					b -= amt
+					applied += amt
+					bal -= amt
 				} else {
 					rcpt := rlib.GetReceipt(m[i].Stmt[j].R.RCPTID)
 					if rcpt.RCPTID > 0 && len(rcpt.Comment) > 0 {
@@ -302,8 +310,17 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 					}
 				}
 			}
+			t.Putf(-1, Balance, bal)
 			t.Puts(-1, Description, descr)
 		}
+		t.AddLineAfter(len(t.Row) - 1)
+		t.AddRow()
+		t.Putd(-1, Date, m[i].DtStop)
+		t.Puts(-1, Description, "Closing balance")
+		t.Putf(-1, AppliedFunds, applied)
+		t.Putf(-1, Assessment, asmts)
+		t.Putf(-1, Balance, m[i].ClosingBal)
+		t.AddRow()
 	}
 	return t
 }
