@@ -179,11 +179,14 @@ func (t *RentableType) IDtoString() string {
 }
 
 // IDtoString for Vehicle returns a unique identifier string.
+//-----------------------------------------------------------------------------
 func (t *Vehicle) IDtoString() string {
 	return IDtoString("V", t.VID)
 }
 
-// GetUserNameList returns an array of strings with all the User names associated with the Rentable. the strings are sorted alphabetically
+// GetUserNameList returns an array of strings with all the User names
+// associated with the Rentable. the strings are sorted alphabetically
+//-----------------------------------------------------------------------------
 func (t *Rentable) GetUserNameList(d1, d2 *time.Time) []string {
 	var m []string
 	users := GetRentableUsersInRange(t.RID, d1, d2) // get all defined renters for this period
@@ -196,7 +199,9 @@ func (t *Rentable) GetUserNameList(d1, d2 *time.Time) []string {
 	return m
 }
 
-// GetFullTransactantName returns the full user name if the Transactant is a person or the CompanyName if it is a company
+// GetFullTransactantName returns the full user name if the Transactant is a
+// person or the CompanyName if it is a company
+//-----------------------------------------------------------------------------
 func (t *Transactant) GetFullTransactantName() string {
 	if t.IsCompany > 0 {
 		return t.CompanyName
@@ -208,7 +213,9 @@ func (t *Transactant) GetFullTransactantName() string {
 	return s + " " + t.LastName
 }
 
-// GetTransactantLastName returns the Last name of the user if the Transactant is a person or the CompanyName if it is a company
+// GetTransactantLastName returns the Last name of the user if the Transactant
+// is a person or the CompanyName if it is a company
+//-----------------------------------------------------------------------------
 func (t *Transactant) GetTransactantLastName() string {
 	if t.IsCompany > 0 {
 		return t.CompanyName
@@ -228,7 +235,13 @@ func (t *RentalAgreement) GetPayorLastNames(d1, d2 *time.Time) []string {
 	return sa
 }
 
-// GetPayorNameList returns an array of strings with all the Payor names associated with the Rental Agreement
+//-------------------------------------------------
+// RENTAL AGREEMENT
+//-------------------------------------------------
+
+// GetPayorNameList returns an array of strings with all the Payor names
+// associated with the Rental Agreement
+//-----------------------------------------------------------------------------
 func (t *RentalAgreement) GetPayorNameList(d1, d2 *time.Time) []string {
 	var m []string
 	payors := GetRentalAgreementPayorsInRange(t.RAID, d1, d2) // get all defined renters for this period
@@ -240,9 +253,11 @@ func (t *RentalAgreement) GetPayorNameList(d1, d2 *time.Time) []string {
 	return m
 }
 
-// GetUserNameList loops through all the rentables associated with this rental agreement. It returns an array
-// of strings with all the User names associated with each Rentable in the Rental Agreement for the supplied
-// time range
+// GetUserNameList loops through all the rentables associated with this rental
+// agreement. It returns an array of strings with all the User names
+// associated with each Rentable in the Rental Agreement for the supplied time
+// range.
+//-----------------------------------------------------------------------------
 func (t *RentalAgreement) GetUserNameList(d1, d2 *time.Time) []string {
 	var m []string
 	c := make(map[string]int)
@@ -262,21 +277,47 @@ func (t *RentalAgreement) GetUserNameList(d1, d2 *time.Time) []string {
 	return m
 }
 
+// GetTheRentableName is used to get the name of the highest priced rentable
+// (based on the rentable's type).  There is an assumption that all rentables
+// belonging to this rental agreement have the same rent cycle.
+//-----------------------------------------------------------------------------
+func (t *RentalAgreement) GetTheRentableName(d1, d2 *time.Time) string {
+	var xbiz XBusiness
+	GetXBusiness(t.BID, &xbiz)
+	max := float64(0)
+	var theRentable Rentable
+
+	Console("Entered: RentalAgreement.GetTheRentableName\n")
+	rl := GetRentalAgreementRentables(t.RAID, d1, d2)
+	for i := 0; i < len(rl); i++ {
+		r := GetRentable(rl[i].RID)
+		amt := GetRentableMarketRate(&xbiz, &r, d1, d2)
+		Console("Rentable = %d, MarketRate = %.2f\n", r.RID, amt)
+		if amt > max {
+			theRentable = r
+		}
+	}
+	return theRentable.RentableName
+}
+
 //-------------------------------------------------
 //  TRANSACTANT
 //-------------------------------------------------
 
 // IDtoString for XPerson returns a unique identifier string.
+//-----------------------------------------------------------------------------
 func (t *XPerson) IDtoString() string {
 	return IDtoString("TC", t.Trn.TCID)
 }
 
 // IDtoString for XPerson returns a unique identifier string.
+//-----------------------------------------------------------------------------
 func (t *Transactant) IDtoString() string {
 	return IDtoString("TC", t.TCID)
 }
 
 // GetUserName returns a string with the user's first, middle, and last name
+//-----------------------------------------------------------------------------
 func (t *Transactant) GetUserName() string {
 	if t.IsCompany > 0 {
 		return t.CompanyName

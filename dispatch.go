@@ -196,12 +196,12 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 	// UGH!
 
 	t.Init()
-	t.AddColumn("Date", 8, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("Payor", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("Payor(s)", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Description", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("RAID", 6, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("ASMID", 6, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
-	t.AddColumn("RCPTID", 6, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("ASMID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	t.AddColumn("RCPTID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Rentable", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	t.AddColumn("Unapplied Funds", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	t.AddColumn("Applied Funds", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
@@ -222,28 +222,26 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 	b := float64(0)
 	c := b
 	d := b
-
-	// type RAStmtEntry struct {
-	// 	T       int                // 1 = assessment, 2 = Receipt
-	// 	A       *Assessment        // for type==1, the pointer to the assessment
-	// 	R       *ReceiptAllocation // for type ==2, the pointer to the receipt
-	// 	RNT     *Rentable          // the associated rentable, if known
-	// 	Amt     float64            // amount of the receipt or assessment
-	// 	Reverse bool               // is this a reversal?
-	// 	Dt      time.Time          // date/time of this assessment or receipt
-	// 	TCID    int64              // IF THIS IS FOR A PAYOR STATEMENT, the TCID of the Payor, otherwise 0
-	// }
+	payorcache := map[int64]rlib.Transactant{}
 
 	//------------------------
 	// Generate the table
 	//------------------------
 	for i := 0; i < len(m); i++ { // for each RA
-		rlib.Console("Processing m[%d], bal = %.2f\n", i, m[i].ClosingBal)
-		rlib.Console("   len(m[%d].Stmt) = %d\n", i, len(m[i].Stmt))
+
+		raidstr := rlib.IDtoShortString("RA", m[i].RAID)
+		ra, err := rlib.GetRentalAgreement(m[i].RAID)
+		if err != nil {
+			rlib.LogAndPrintError("PayorStatement", err)
+			continue
+		}
+		rentableName := ra.GetTheRentableName(d1, d2)
+
 		for j := 0; j < len(m[i].Stmt); j++ { // for each line in the statement
-			rlib.Console("%d. Dt=%s, T=%d, Amt = %.2f, Reverse=%t, TCID=%d\n", j, m[i].Stmt[j].Dt.Format(rlib.RRDATEREPORTFMT), m[i].Stmt[j].T, m[i].Stmt[j].Amt, m[i].Stmt[j].R, m[i].Stmt[j].TCID)
 			t.AddRow()
 			t.Putd(-1, Date, m[i].Stmt[j].Dt)
+			t.Puts(-1, RAID, raidstr)
+			t.Puts(-1, Rentable, rentableName)
 			if m[i].Stmt[j].TCID > 0 {
 				t.Puts(-1, Payor, rlib.IDtoShortString("TC", m[i].Stmt[j].TCID))
 			}
@@ -252,20 +250,26 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 			if m[i].Stmt[j].Reverse {
 				descr += "REVERSAL: "
 			}
-			if m[i].Stmt[j].T == 1 || m[i].Stmt[j].T == 2 {
-				if m[i].Stmt[j].A.ARID > 0 {
-					descr += rlib.RRdb.BizTypes[bid].AR[m[i].Stmt[j].A.ARID].Name
-				} else {
-					descr += rlib.RRdb.BizTypes[bid].GLAccounts[m[i].Stmt[j].A.ATypeLID].Name
-				}
-			}
 			amt := m[i].Stmt[j].Amt
 
 			switch m[i].Stmt[j].T {
 			case 1: // assessments
 				t.Putf(-1, Assessment, amt)
+				if m[i].Stmt[j].A.ARID > 0 { // The description will be the name of the Account Rule...
+					descr += rlib.RRdb.BizTypes[bid].AR[m[i].Stmt[j].A.ARID].Name
+				} else {
+					descr += rlib.RRdb.BizTypes[bid].GLAccounts[m[i].Stmt[j].A.ATypeLID].Name
+				}
 				if m[i].Stmt[j].A.ASMID > 0 {
-					t.Puts(-1, Payor, rlib.IDtoShortString("TC", m[i].Stmt[j].A.ASMID))
+					t.Puts(-1, ASMID, rlib.IDtoShortString("ASM", m[i].Stmt[j].A.ASMID))
+				}
+				if m[i].Stmt[j].A.RAID > 0 { // Payor(s) = all payors associated with RentalAgreement
+					pyrs := rlib.GetRentalAgreementPayorsInRange(m[i].Stmt[j].A.RAID, d1, d2)
+					sa := []string{}
+					for k := 0; k < len(pyrs); k++ {
+						sa = append(sa, getNameFromCache(pyrs[k].TCID, payorcache))
+					}
+					t.Puts(-1, Payor, strings.Join(sa, ","))
 				}
 				if !m[i].Stmt[j].Reverse {
 					c += amt
@@ -275,11 +279,18 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 				}
 			case 2: // receipts
 				t.Putf(-1, AppliedFunds, amt)
-				if m[i].Stmt[j].R.RCPTID > 0 {
-					t.Puts(-1, AppliedFunds, rlib.IDtoShortString("RCPT", m[i].Stmt[j].R.RCPTID))
+				rcptid := m[i].Stmt[j].R.RCPTID
+				descr += "Receipt allocation"
+				if rcptid > 0 {
+					t.Puts(-1, RCPTID, rlib.IDtoShortString("RCPT", rcptid))
+					rcpt := rlib.GetReceipt(rcptid)
+					if rcpt.RCPTID > 0 {
+						name := getNameFromCache(rcpt.TCID, payorcache)
+						t.Puts(-1, Payor, name)
+					}
 				}
 				if m[i].Stmt[j].A.ASMID > 0 {
-					descr += " (" + rlib.IDtoShortString("ASM", m[i].Stmt[j].A.ASMID) + ")"
+					t.Puts(-1, ASMID, rlib.IDtoShortString("ASM", m[i].Stmt[j].A.ASMID))
 				}
 				if !m[i].Stmt[j].Reverse {
 					d += amt
@@ -295,4 +306,19 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time) gotable.Table {
 		}
 	}
 	return t
+}
+
+func getNameFromCache(tcid int64, payorcache map[int64]rlib.Transactant) string {
+	p, ok := payorcache[tcid]
+	if ok {
+		return p.GetUserName()
+	} else {
+		var tr rlib.Transactant
+		err := rlib.GetTransactant(tcid, &tr)
+		if err == nil {
+			payorcache[tr.TCID] = tr
+			return tr.GetUserName()
+		}
+	}
+	return ""
 }

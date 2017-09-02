@@ -46,6 +46,7 @@ type RAAcctBal struct {
 	OpeningBal float64       // balance at the open of period DtStart
 	Stmt       RAStmtEntries // these are the actual statement entries
 	ClosingBal float64       // balance at close of period
+	RAID       int64         // which RentalAgreement is this for
 }
 
 // GetRAIDBalance returns the balance of the account for the supplied
@@ -109,6 +110,7 @@ func GetRAIDStatementInfo(raid int64, d1, d2 *time.Time) (RAAcctBal, error) {
 
 	m.DtStart = *d1
 	m.DtStop = *d2
+	m.RAID = raid
 
 	//----------------------------------------------------------------
 	//  First, find the ledger marker for this RentalAgreement...
