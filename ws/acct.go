@@ -1,12 +1,15 @@
 package ws
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"sort"
+	"strconv"
 	// "strconv"
 	"strings"
 	"time"
@@ -845,4 +848,72 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	SvcWriteSuccessResponse(w)
+}
+
+// SvcExportGLAccounts used to export glaccounts for a business in csv format
+func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	var (
+		funcname = "SvcExportGLAccounts"
+		buf      = bytes.Buffer{}
+		wr       = csv.NewWriter(&buf)
+	)
+	fmt.Printf("Entered %s", funcname)
+
+	// Need to init some internals for Business
+	var xbiz rlib.XBusiness
+	rlib.InitBizInternals(d.BID, &xbiz)
+
+	// get list of all accounts
+	accts := rlib.GetLedgerList(d.BID)
+
+	// write csv file headers
+	wr.Write([]string{"BUD", "Name", "GLNumber", "Parent GLNumber", "Account Type",
+		"Balance", "Account Status", "Date", "Description"})
+
+	for _, a := range accts {
+		bud := getBUDFromBIDList(a.BID)
+		rec := []string{string(bud), a.Name, a.GLNumber}
+
+		// get parent account GLNumber
+		var paGLNumber string
+		if a.PLID > 0 {
+			pa := rlib.GetLedger(a.PLID)
+			paGLNumber = pa.GLNumber
+		}
+		rec = append(rec, paGLNumber)
+
+		// append account type
+		rec = append(rec, a.AcctType)
+
+		// append balance
+		now := time.Now()
+		bal := rlib.GetAccountBalance(d.BID, a.LID, &now)
+		s64Bal := strconv.FormatFloat(bal, 'f', 2, 64)
+		rec = append(rec, s64Bal)
+
+		// append Status, CreateDate, Description
+		rec = append(rec, acctStatus[a.Status])
+		rec = append(rec, a.CreateTS.Format(rlib.RRDATEFMT3))
+		rec = append(rec, a.Description)
+
+		// write to buffer
+		wr.Write(rec)
+	}
+	wr.Flush()
+
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=GLAccounts.csv")
+	w.Write(buf.Bytes())
+}
+
+// SvcImportGLAccounts used to import glaccounts for a business from csv format
+func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	// var (
+	// 	funcname = "SvcImportGLAccounts"
+	// 	err      error
+	// 	buf      = &bytes.Buffer{}
+	// 	wr       = csv.NewWriter(buf)
+	// )
+
+	return
 }

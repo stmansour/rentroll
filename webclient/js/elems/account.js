@@ -52,7 +52,26 @@ function buildAccountElements() {
             searchAll       : false,
             toolbarReload   : true,
             toolbarColumns  : true,
+        },
+        toolbar: {
+            items: [
+                { type: 'break' },
+                { type: 'button', id: 'export', caption: 'Export', icon: 'fa fa-paper-plane' },
+                { type: 'button', id: 'import', caption: 'Import', icon: 'fa fa-file-excel-o' }
+            ],
+            onClick: function(event) {
+                event.onComplete = function() {
+                    // export function
+                    if(event.target == "export") {
+                        exportGLAccounts();
+                    }
 
+                    // import function
+                    if(event.target == "import") {
+                        popupImportFileDialog();
+                    }
+                };
+            }
         },
         columns: [
             {field: 'recid',    caption: 'recid',     size: '80px', sortable: false, hidden: true},
@@ -405,4 +424,82 @@ function buildAccountElements() {
         },
     });
 
+}
+
+// exportGLAccounts downloads csv file containing all accounts info
+function exportGLAccounts() {
+    var x = getCurrentBusiness(),
+        BID=parseInt(x.value);
+
+    var downloadURL = "/v1/exportaccounts/" + BID + "/";
+    $.ajax({
+        url: downloadURL,
+        type: 'GET',
+        success: function() {
+            window.open(downloadURL);
+        }
+    });
+}
+
+// popupImportFileDialog invoked when user wants to import file of accounts
+function popupImportFileDialog() {
+
+    var BizSelHTML = '<select id="importGLAcctsBizSel" class="w2ui-select" style="cursor: default; width: 100%; outline: none; opacity: 1; margin: 0px; border: 1px solid transparent; padding: 4px 4px 4px 0px;">';
+    app.businesses.forEach(function(bud) {
+        BizSelHTML += '<option val=' + bud + '>' + bud + '</option>';
+    });
+    BizSelHTML += '</select>';
+
+    w2popup.open({
+        title     : 'Import GLAccounts file',
+        body      : '<div class="w2ui-centered">' +
+            '<div class="w2ui-field"><label>GLAccounts file: </label><div><input type="file" name="acct_import_file" class="w2ui-input" style="cursor: default; width: 100%; outline: none; opacity: 1; margin: 0px; border: 1px solid transparent; padding: 4px 4px 4px 0px; background-color: transparent;" /></div></div>' +
+            '<div class="w2ui-field"><label>Business Unit: </label><div>' + BizSelHTML + '</div></div>' +
+            '</div>',
+        buttons   : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
+                    '<button class="w2ui-btn" onclick="importAccountsFile();" >Import</button>',
+        width     : 500,
+        height    : 200,
+        overflow  : 'hidden',
+        color     : '#333',
+        speed     : '0.3',
+        opacity   : '0.5',
+        modal     : true,
+        showClose : true,
+    });
+}
+
+// importAccountsFile request to server for importing accounts file
+function importAccountsFile() {
+    var x = getCurrentBusiness(),
+        BID=parseInt(x.value);
+
+    var importURL = "/v1/importaccounts/" + BID + "/";
+    var formData = new FormData();
+    var file = $("input[name=acct_import_file]")[0].files[0];
+    // empty file check
+    if (file.size < 1) {
+        alert("File is empty");
+        return false;
+    }
+    // .csv extension check
+    var splitParts = file.name.split(".");
+    var ext = splitParts[splitParts.length - 1];
+    if (ext != "csv") {
+        alert("Please, upload csv file");
+        return false;
+    }
+    formData.append("GLAccountFile", file);
+    formData.append("BUD", $("select[id=importGLAcctsBizSel]").val());
+
+    $.ajax({
+        url: importURL,
+        type: 'POST',
+        data: formData,
+        enctype: 'multipart/form-data',
+        processData: false,
+        success: function (response) {
+            alert(response);
+        }
+   });
 }
