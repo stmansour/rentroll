@@ -5,8 +5,10 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"rentroll/bizlogic"
+	"rentroll/importers/core"
 	"rentroll/rlib"
 	"sort"
 	"strconv"
@@ -906,14 +908,98 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	w.Write(buf.Bytes())
 }
 
+// ImportGLAccountRow struct used to load data from imported csv file
+type ImportGLAccountRow struct {
+	BUD            string
+	Name           string
+	GLNumber       string
+	ParentGLNumber string
+	AccountType    string
+	Balance        string
+	AccountStatus  string
+	Date           string
+	Description    string
+}
+
 // SvcImportGLAccounts used to import glaccounts for a business from csv format
 func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	// var (
-	// 	funcname = "SvcImportGLAccounts"
-	// 	err      error
-	// 	buf      = &bytes.Buffer{}
-	// 	wr       = csv.NewWriter(buf)
-	// )
+	var (
+		funcname      = "SvcImportGLAccounts"
+		err           error
+		inf           multipart.File
+		recs          = [][]string{}
+		skipRowsCount int
+		// it tells which headers holds which column index
+		acctCSVIndexMap = map[string]int{
+			"bud":            -1,
+			"name":           -1,
+			"glnumber":       -1,
+			"parentglnumber": -1,
+			"accounttype":    -1,
+			"balance":        -1,
+			"accountstatus":  -1,
+			"date":           -1,
+			"description":    -1,
+		}
+	)
+	fmt.Printf("Entered %s\n", funcname)
 
-	return
+	fheaders, ok := d.Files["GLAccountFile"]
+	if !ok { // if not found file then just return
+		w.Write([]byte("No such file exists"))
+		return
+	}
+
+	fh := fheaders[0]    // get one file
+	inf, err = fh.Open() // get File (multipart.File)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+	// check extension/content-type
+	if fh.Header["Content-Type"][0] != "text/csv" {
+		w.Write([]byte("Not csv file"))
+		return
+	}
+
+	cr := csv.NewReader(inf) // csv NewReader (since, inf composed io.Reader)
+	recs, err = cr.ReadAll()
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// get headers index
+	for ri := 0; ri < len(recs); ri++ {
+		for ci := 0; ci < len(recs[ri]); ci++ {
+			cell := strings.ToLower(core.SpecialCharsReplacer.Replace(recs[ri][ci]))
+			// if header is exist in map then overwrite it position
+			if _, ok := acctCSVIndexMap[cell]; ok {
+				acctCSVIndexMap[cell] = ci
+			}
+		}
+		// check after row columns parsing that headers are found or not
+		headersFound := true
+		for _, v := range acctCSVIndexMap {
+			if v == -1 {
+				headersFound = false
+				break
+			}
+		}
+
+		if headersFound {
+			ri++
+			skipRowsCount = ri
+			break
+		}
+	}
+
+	/*// start to get data
+	for ri := skipRowsCount; ri < len(recs); ri++ {
+		for ci := 0; ci < len(recs[ri]); ci++ {
+
+		}
+	}*/
+	fmt.Println(acctCSVIndexMap)
+	fmt.Println(skipRowsCount)
 }
