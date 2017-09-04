@@ -1187,6 +1187,7 @@ doCasperUITest () {
 		fi
 		declare -a out_filters=(
 			's/executed in +([0-9]*\.[0-9]*)s,/executed in (EXECUTED)s,/g'
+			's/skipped.*/skipped./g'
 			's/^Date:.*/current time/'
 			's/\s+[0-1]?[0-9]\/[0-3]?[0-9]\/[0-9][0-9][^-]*/date/g'
 			's/\s+[0-1]?[0-9]\/[0-3]?[0-9]\/20[0-9][0-9][^-]*/date/g'
