@@ -496,7 +496,7 @@ function importAccountsFile() {
         url: importURL,
         type: 'POST',
         data: formData,
-        enctype: 'multipart/form-data',
+        contentType: false,
         processData: false,
         success: function (response) {
             alert(response);
