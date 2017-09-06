@@ -84,7 +84,7 @@ module.exports = function gruntInit(grunt) {
         // run tasks whenever watched files changed
         watch: {
             scripts: {
-                files: ['<%= distInput %>', '<%= distHTMLs %>'],
+                files: ['<%= distInput %>', '<%= distHTMLs %>', '.jshintrc'],
                 tasks: ['clean', 'jshint', 'concat', 'uglify', 'qunit-instrumented-dir', 'qunit']
             }
         },

@@ -2,6 +2,7 @@
     "strict": "global" ,
     "globals": {
         "$": true,
+        "FormData": true,
         "window": true,
         "document": true,
         "jQuery": true,
