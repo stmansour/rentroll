@@ -466,13 +466,19 @@ function popupImportFileDialog() {
         opacity   : '0.5',
         modal     : true,
         showClose : true,
+        onOpen: function(event) {
+            $("select[id=importGLAcctsBizSel]").val(""); //onOpen reset selection
+        }
     });
 }
 
 // importAccountsFile request to server for importing accounts file
 function importAccountsFile() {
     var x = getCurrentBusiness(),
-        BID=parseInt(x.value);
+        BID=parseInt(x.value),
+        BUD = getBUDfromBID(BID);
+
+    var chosenBUD = $("select[id=importGLAcctsBizSel]").val();
 
     var importURL = "/v1/importaccounts/" + BID + "/";
     var formData = new FormData();
@@ -490,7 +496,7 @@ function importAccountsFile() {
         return false;
     }
     formData.append("GLAccountFile", file);
-    formData.append("BUD", $("select[id=importGLAcctsBizSel]").val());
+    formData.append("BUD", chosenBUD);
 
     $.ajax({
         url: importURL,
@@ -498,8 +504,21 @@ function importAccountsFile() {
         data: formData,
         contentType: false,
         processData: false,
+        dataType: "json",
         success: function (response) {
-            alert(response);
+            if (response.status == "success") {
+                // reset html inputs
+                $("select[id=importGLAcctsBizSel]").val("");
+                $("input[name=acct_import_file]").val("");
+
+                // close popup
+                w2popup.close();
+
+                // reload accounts grid if imported csv's business is current business
+                if (BUD == chosenBUD) {
+                    w2ui.accountsGrid.reload();
+                }
+            }
         }
    });
 }

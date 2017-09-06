@@ -903,8 +903,9 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	}
 	wr.Flush()
 
+	expFileName := fmt.Sprintf("%s_%s.csv", getBUDFromBIDList(d.BID), "GLAccounts")
 	w.Header().Set("Content-Type", "text/csv")
-	w.Header().Set("Content-Disposition", "attachment;filename=GLAccounts.csv")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s", expFileName))
 	w.Write(buf.Bytes())
 }
 
@@ -915,9 +916,9 @@ type ImportGLAccountRow struct {
 	GLNumber       string
 	ParentGLNumber string
 	AccountType    string
-	Balance        string
+	Balance        float64
 	AccountStatus  string
-	Date           string
+	Date           time.Time
 	Description    string
 }
 
@@ -944,28 +945,44 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
+	// Need to init some internals for Business
+	var xbiz rlib.XBusiness
+	rlib.InitBizInternals(d.BID, &xbiz)
+
+	// get BUD from formData value
+	var bud = d.MFValues["BUD"][0] //get first value from slice
+	bid, ok := rlib.RRdb.BUDlist[bud]
+	if !ok {
+		err = fmt.Errorf("Supplied Business (%s) not found", bud)
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+
 	fheaders, ok := d.Files["GLAccountFile"]
 	if !ok { // if not found file then just return
-		w.Write([]byte("No such file exists"))
+		err = fmt.Errorf("file is missing")
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
 	fh := fheaders[0]    // get one file
 	inf, err = fh.Open() // get File (multipart.File)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 	// check extension/content-type
 	if fh.Header["Content-Type"][0] != "text/csv" {
-		w.Write([]byte("Not csv file"))
+		err = fmt.Errorf("Provided file is not type of csv")
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
 	cr := csv.NewReader(inf) // csv NewReader (since, inf composed io.Reader)
 	recs, err = cr.ReadAll()
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		err = fmt.Errorf("Unable to read the file")
+		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -991,15 +1008,78 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			ri++
 			skipRowsCount = ri
 			break
+		} else {
+			missingFields := []string{}
+			for h, i := range acctCSVIndexMap {
+				if i == -1 {
+					missingFields = append(missingFields, h)
+				}
+			}
+			err = fmt.Errorf("Required fields(%v) are not present in file", missingFields)
+			SvcGridErrorReturn(w, err, funcname)
+			return
 		}
 	}
 
-	/*// start to get data
+	// iterate over csv rows
 	for ri := skipRowsCount; ri < len(recs); ri++ {
-		for ci := 0; ci < len(recs[ri]); ci++ {
-
+		// first check if account is already exists, if yes then continue to next
+		// 1. By GLNumber,
+		var gla rlib.GLAccount
+		glNo := recs[ri][acctCSVIndexMap["glnumber"]]
+		gla = rlib.GetLedgerByGLNo(bid, glNo)
+		if gla.LID > 0 {
+			continue
 		}
-	}*/
-	fmt.Println(acctCSVIndexMap)
-	fmt.Println(skipRowsCount)
+		// 2. By Name
+		name := recs[ri][acctCSVIndexMap["name"]]
+		gla = rlib.GetLedgerByName(bid, name)
+		if gla.LID > 0 {
+			continue
+		}
+
+		// create new accounts [NOTE: ignore bud, date]
+		var ngl = rlib.GLAccount{BID: bid, Name: name, GLNumber: glNo}
+		ngl.AcctType = recs[ri][acctCSVIndexMap["accounttype"]]
+		ngl.Description = recs[ri][acctCSVIndexMap["description"]]
+		// set status
+		strStatus := recs[ri][acctCSVIndexMap["accountstatus"]]
+		for n, s := range acctStatus {
+			if strings.ToLower(s) == strings.ToLower(strStatus) { // if both match as case-insensetive the mark
+				ngl.Status = n
+			}
+		}
+		if ngl.Status == 0 { // set default as active
+			ngl.Status = 2 // 0=unknown, 1=inactive, 2=active
+		}
+		pglNo := recs[ri][acctCSVIndexMap["parentglnumber"]]
+		if pglNo != "" { // set parent account LID -> PLID
+			pgl := rlib.GetLedgerByGLNo(bid, pglNo)
+			if pgl.LID > 0 {
+				ngl.PLID = pgl.LID // set parent account lid in PLID field
+			}
+		}
+
+		// now hit this in database
+		ngl.LID, err = rlib.InsertLedger(&ngl)
+		if err != nil {
+			break //break current loop and continue to next one
+		}
+		// if succeed then, process for balance
+		lm := rlib.LedgerMarker{
+			BID:     bid,
+			State:   3,
+			Dt:      time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC),
+			LID:     ngl.LID,
+			Balance: float64(0),
+		}
+		// now if balance provided, then parse it to float64
+		balStr := recs[ri][acctCSVIndexMap["balance"]]
+		bal, _ := strconv.ParseFloat(balStr, 64)
+		lm.Balance = bal             // don't worry about balance if can't parsed from string, default will be 0
+		rlib.InsertLedgerMarker(&lm) // insert ledger marker
+	}
+
+	// if all passed then return success response
+	SvcWriteSuccessResponse(w)
 }
