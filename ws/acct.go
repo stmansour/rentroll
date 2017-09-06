@@ -1023,25 +1023,30 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	// iterate over csv rows
 	for ri := skipRowsCount; ri < len(recs); ri++ {
+		// new gl account
+		var ngl rlib.GLAccount
+
 		// first check if account is already exists, if yes then continue to next
 		// 1. By GLNumber,
-		var gla rlib.GLAccount
 		glNo := recs[ri][acctCSVIndexMap["glnumber"]]
-		gla = rlib.GetLedgerByGLNo(bid, glNo)
-		if gla.LID > 0 {
+		ngl = rlib.GetLedgerByGLNo(bid, glNo)
+		if ngl.LID > 0 {
 			continue
 		}
 		// 2. By Name
 		name := recs[ri][acctCSVIndexMap["name"]]
-		gla = rlib.GetLedgerByName(bid, name)
-		if gla.LID > 0 {
+		ngl = rlib.GetLedgerByName(bid, name)
+		if ngl.LID > 0 {
 			continue
 		}
 
-		// create new accounts [NOTE: ignore bud, date]
-		var ngl = rlib.GLAccount{BID: bid, Name: name, GLNumber: glNo}
+		// NOTE: ignore bud, date
+		ngl.BID = bid
+		ngl.Name = name
+		ngl.GLNumber = glNo
 		ngl.AcctType = recs[ri][acctCSVIndexMap["accounttype"]]
 		ngl.Description = recs[ri][acctCSVIndexMap["description"]]
+
 		// set status
 		strStatus := recs[ri][acctCSVIndexMap["accountstatus"]]
 		for n, s := range acctStatus {
@@ -1052,6 +1057,8 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		if ngl.Status == 0 { // set default as active
 			ngl.Status = 2 // 0=unknown, 1=inactive, 2=active
 		}
+
+		// set PLID from parent glnumber if available
 		pglNo := recs[ri][acctCSVIndexMap["parentglnumber"]]
 		if pglNo != "" { // set parent account LID -> PLID
 			pgl := rlib.GetLedgerByGLNo(bid, pglNo)
@@ -1060,11 +1067,14 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			}
 		}
 
-		// now hit this in database
+		// now hit this in database to insert new record
 		ngl.LID, err = rlib.InsertLedger(&ngl)
 		if err != nil {
-			break //break current loop and continue to next one
+			// continue to next one, if current one fails
+			// process as much as possible, we can mark failure one in future
+			continue
 		}
+
 		// if succeed then, process for balance
 		lm := rlib.LedgerMarker{
 			BID:     bid,
