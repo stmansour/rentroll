@@ -1,4 +1,70 @@
 "use strict";
+function getTransactantInitRecord(BID, BUD) {
+    var y = new Date();
+
+    return {
+        recid: 0,
+        FirstName: "",
+        LastName: "",
+        MiddleName: "",
+        PreferredName: "",
+        PrimaryEmail: "",
+        TCID: 0,
+        BID: BID,
+        BUD: BUD,
+        NLID: 0,
+        CompanyName: "",
+        IsCompany: 0,
+        SecondaryEmail: "",
+        WorkPhone: "",
+        CellPhone: "",
+        Address: "",
+        Address2: "",
+        City: "",
+        State: "",
+        PostalCode: "",
+        Country: "",
+        Website: "",
+        LastModTime: y.toISOString(),
+        LastModBy: 0,
+        Points: 0,
+        DateofBirth: "1/1/1900",
+        EmergencyContactName: "",
+        EmergencyContactAddress: "",
+        EmergencyContactTelephone: "",
+        EmergencyEmail: "",
+        AlternateAddress: "",
+        EligibleFutureUser: "yes",
+        Industry: "",
+        SourceSLSID: 0,
+        CreditLimit: 0.00,
+        TaxpayorID: "",
+        AccountRep: 0,
+        EligibleFuturePayor: "yes",
+        EmployerName: "",
+        EmployerStreetAddress: "",
+        EmployerCity: "",
+        EmployerState: "",
+        EmployerPostalCode: "",
+        EmployerEmail: "",
+        EmployerPhone: "",
+        Occupation: "",
+        ApplicationFee: 0.00,
+        DesiredUsageStartDate: "1/1/1900",
+        RentableTypePreference: 0,
+        FLAGS: 0,
+        Approver: 0,
+        DeclineReasonSLSID: 0,
+        OtherPreferences: "",
+        FollowUpDate: "1/1/1900",
+        CSAgent: 0,
+        OutcomeSLSID: 0,
+        FloatingDeposit: 0.00,
+        RAID: 0,
+    };
+}
+
+
 function buildTransactElements() {
 
 //------------------------------------------------------------------------
@@ -93,68 +159,8 @@ $().w2grid({
                 var x = getCurrentBusiness();
                 var BID=parseInt(x.value);
                 var BUD = getBUDfromBID(BID);
-                var y = new Date();
 
-                var record = {
-                    recid: 0,
-                    FirstName: "",
-                    LastName: "",
-                    MiddleName: "",
-                    PreferredName: "",
-                    PrimaryEmail: "",
-                    TCID: 0,
-                    BID: BID,
-                    BUD: BUD,
-                    NLID: 0,
-                    CompanyName: "",
-                    IsCompany: 0,
-                    SecondaryEmail: "",
-                    WorkPhone: "",
-                    CellPhone: "",
-                    Address: "",
-                    Address2: "",
-                    City: "",
-                    State: "",
-                    PostalCode: "",
-                    Country: "",
-                    Website: "",
-                    LastModTime: y.toISOString(),
-                    LastModBy: 0,
-                    Points: 0,
-                    DateofBirth: "1/1/1900",
-                    EmergencyContactName: "",
-                    EmergencyContactAddress: "",
-                    EmergencyContactTelephone: "",
-                    EmergencyEmail: "",
-                    AlternateAddress: "",
-                    EligibleFutureUser: "yes",
-                    Industry: "",
-                    SourceSLSID: 0,
-                    CreditLimit: 0.00,
-                    TaxpayorID: "",
-                    AccountRep: 0,
-                    EligibleFuturePayor: "yes",
-                    EmployerName: "",
-                    EmployerStreetAddress: "",
-                    EmployerCity: "",
-                    EmployerState: "",
-                    EmployerPostalCode: "",
-                    EmployerEmail: "",
-                    EmployerPhone: "",
-                    Occupation: "",
-                    ApplicationFee: 0.00,
-                    DesiredUsageStartDate: "1/1/1900",
-                    RentableTypePreference: 0,
-                    FLAGS: 0,
-                    Approver: 0,
-                    DeclineReasonSLSID: 0,
-                    OtherPreferences: "",
-                    FollowUpDate: "1/1/1900",
-                    CSAgent: 0,
-                    OutcomeSLSID: 0,
-                    FloatingDeposit: 0.00,
-                    RAID: 0,
-                };
+                var record = getTransactantInitRecord(BID, BUD);
                 w2ui.transactantForm.record = record;
                 w2ui.transactantForm.refresh();
                 setToForm('transactantForm', '/v1/person/' + BID + '/0', 700);
@@ -295,6 +301,40 @@ $().w2grid({
                     }
                     w2ui.toplayout.hide('right',true);
                     tgrid.render();
+                });
+            },
+            saveadd: function() {
+                var f = this,
+                    grid = w2ui.transactantsGrid,
+                    x = getCurrentBusiness(),
+                    r = f.record,
+                    BID=parseInt(x.value),
+                    BUD=getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // select none if you're going to add new record
+                grid.selectNone();
+
+                f.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    // JUST RENDER THE GRID ONLY
+                    grid.render();
+
+                    // add new empty record and just refresh the form, don't need to do CLEAR form
+                    var record = getTransactantInitRecord(BID, BUD);
+
+                    f.record = record;
+                    f.header = "Edit Transactant (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.url = '/v1/person/' + BID+'/0';
+                    f.refresh();
                 });
             },
             delete: function(/*target, data*/) {

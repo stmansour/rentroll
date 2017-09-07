@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"mime"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"rentroll/bizlogic"
@@ -130,10 +132,14 @@ type ServiceData struct {
 	wsTypeDownReq WebTypeDownRequest   // fast for typedown
 	data          string               // the raw unparsed data
 	GetParams     map[string]string    // parameters when HTTP GET is used
+	Files         map[string][]*multipart.FileHeader
+	MFValues      map[string][]string
 }
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
+	{"exportaccounts", SvcExportGLAccounts, true},
+	{"importaccounts", SvcImportGLAccounts, true},
 	{"account", SvcFormHandlerGLAccounts, true},
 	{"accountlist", SvcAccountsList, true},
 	{"accounts", SvcSearchHandlerGLAccounts, true},
@@ -390,6 +396,48 @@ func SvcExtractIDFromURI(uri, errmsg string, pos int, w http.ResponseWriter) (in
 func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	funcname := "getPOSTdata"
 	var err error
+
+	const _1MB = (1 << 20) * 1024
+
+	// if content type is form data then
+	ct := r.Header.Get("Content-Type")
+	ct, _, err = mime.ParseMediaType(ct)
+	if err != nil {
+		e := fmt.Errorf("%s: Error while parsing content type: %s", funcname, err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return e
+	}
+	if ct == "multipart/form-data" {
+		// parse multipart form first
+		err = r.ParseMultipartForm(_1MB)
+		if err != nil {
+			e := fmt.Errorf("%s: Error while parsing multipart form: %s", funcname, err.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return e
+		}
+
+		// check for headers
+		for _, fheaders := range r.MultipartForm.File {
+			for _, fh := range fheaders {
+				cd := "Content-Disposition"
+				if _, ok := fh.Header["Content-Disposition"]; !ok {
+					e := fmt.Errorf("%s: Header missing (%s)", funcname, cd)
+					SvcGridErrorReturn(w, e, funcname)
+					return e
+				}
+				ct := "Content-Type"
+				if _, ok := fh.Header["Content-Type"]; !ok {
+					e := fmt.Errorf("%s: Header missing (%s)", funcname, ct)
+					SvcGridErrorReturn(w, e, funcname)
+					return e
+				}
+			}
+		}
+
+		d.Files = r.MultipartForm.File
+		d.MFValues = r.MultipartForm.Value
+	}
+
 	htmlData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		e := fmt.Errorf("%s: Error reading message Body: %s", funcname, err.Error())
