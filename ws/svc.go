@@ -122,6 +122,7 @@ type ServiceData struct {
 	RCPTID        int64                // RCPTID if supplied
 	ASMID         int64                // ASMID if supplied
 	ARID          int64                // ARID if supplied
+	pathElements  []string             // the parts of the uri
 	Dt            time.Time            // for cmds that need a single date
 	D1            time.Time            // start of date range
 	D2            time.Time            // end of date range
@@ -151,6 +152,7 @@ var Svcs = []ServiceHandler{
 	{"ledgers", getLedgerGrid, true},
 	{"parentaccounts", SvcParentAccountsList, true},
 	{"payorfund", SvcHandlerTotalUnallocFund, true},
+	{"payorstmt", SvcPayorStmtDispatch, true},
 	{"person", SvcFormHandlerXPerson, true},
 	{"ping", SvcHandlerPing, true},
 	{"pmts", SvcHandlerPaymentType, true},
@@ -212,23 +214,23 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	// BID is common to nearly all commands
 	//-----------------------------------------------------------------------
 	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
-	pathElements := strings.Split(ss[0], "/")
-	d.Service = pathElements[1]
-	if d.Service != "uilists" && len(pathElements) >= 3 {
-		d.BID, err = getBIDfromBUI(pathElements[2])
+	d.pathElements = strings.Split(ss[0], "/")
+	d.Service = d.pathElements[1]
+	if d.Service != "uilists" && len(d.pathElements) >= 3 {
+		d.BID, err = getBIDfromBUI(d.pathElements[2])
 		if err != nil {
-			e := fmt.Errorf("Could not determine business from %s", pathElements[2])
+			e := fmt.Errorf("Could not determine business from %s", d.pathElements[2])
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 		if d.BID < 0 {
-			e := fmt.Errorf("Invalid business id: %s", pathElements[2])
+			e := fmt.Errorf("Invalid business id: %s", d.pathElements[2])
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
 	}
-	if len(pathElements) >= 4 {
-		d.DetVal = pathElements[3]
+	if len(d.pathElements) >= 4 {
+		d.DetVal = d.pathElements[3]
 		d.ID, err = rlib.IntFromString(d.DetVal, "bad request integer value") // assume it's a BID
 		if err != nil {
 			d.ID = 0
@@ -259,8 +261,8 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		if Svcs[i].Cmd == d.Service {
 			if Svcs[i].NeedBiz && d.BID == 0 {
 				var sbid = "<missing>"
-				if len(pathElements) > 3 {
-					sbid = pathElements[3]
+				if len(d.pathElements) > 3 {
+					sbid = d.pathElements[3]
 				}
 				e := fmt.Errorf("Could not identify business: %s", sbid)
 				fmt.Printf("***ERROR IN URL***  %s\n", e.Error())
@@ -496,11 +498,11 @@ func svcDebugURL(r *http.Request, d *ServiceData) {
 	// Break up {subservice}/{BUI}/{ID} into an array of strings
 	// BID is common to nearly all commands
 	//-----------------------------------------------------------------------
-	ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
-	pathElements := strings.Split(ss[0], "/")
+	//ss := strings.Split(r.RequestURI[1:], "?") // it could be GET command
+	//pathElements := strings.Split(ss[0], "/")
 	rlib.Console("\t%s\n", r.URL.String()) // print before we strip it off
-	for i := 0; i < len(pathElements); i++ {
-		rlib.Console("\t\t%d. %s\n", i, pathElements[i])
+	for i := 0; i < len(d.pathElements); i++ {
+		rlib.Console("\t\t%d. %s\n", i, d.pathElements[i])
 	}
 	rlib.Console("BUSINESS: %d\n", d.BID)
 	rlib.Console("ID:       %d\n", d.ID)

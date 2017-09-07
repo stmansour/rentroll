@@ -1,16 +1,18 @@
-"use strict";
 /*global
     GridMoneyFormat, number_format, w2ui, $, app, console,
-    form_dirty_alert, addDateNavToToolbar
+    form_dirty_alert, addDateNavToToolbar, renderPayorStmtReversal, payorstmtRenderHandler,
+    dateFromString, dateFmtString,
 */
+"use strict";
 
-function buildStatementsElements() {
+function buildPayorStatementElements() {
     //------------------------------------------------------------------------
-    //          stmtGrid  -  THE LIST OF ALL RENTAL AGREEMENTS
+    //  payorstmt  -  lists all the assessments and receipts for
+    //                     the selected Payors
     //------------------------------------------------------------------------
     $().w2grid({
-        name: 'stmtGrid',
-        url: '/v1/stmt',
+        name: 'payorstmtGrid',
+        url: '/v1/payorstmt',
         multiSelect: false,
         postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
@@ -23,16 +25,18 @@ function buildStatementsElements() {
             expandColumn    : false,
             toolbarEdit     : false,
             toolbarSearch   : false,
-            toolbarInput    : true,
+            toolbarInput    : true,    // the text area for searches
             searchAll       : false,
-            toolbarReload   : true,
-            toolbarColumns  : true,
+            toolbarReload   : false,
+            toolbarColumns  : false,
         },
         columns: [
-            {field: 'recid', hidden: true,  caption: 'recid',            size: '40px',  sortable: true},
-            {field: 'BID',   hidden: true,  caption: 'BID',              size: '40px',  sortable: true},
-            {field: 'RAID',  hidden: false, caption: 'Rental Agreement', size: '110px', sortable: true},
-            {field: 'Payors',hidden: false, caption: 'Payors',           size: '250px', sortable: true},
+            {field: 'recid',       caption: 'recid',       size: '35px',  sortable: true, hidden: true},
+            {field: 'TCID',        caption: 'TCID',        size: '75px',  sortable: true},
+            {field: 'FirstName',   caption: 'FirstName',   size: '150px',  sortable: true},
+            {field: 'LastName',    caption: 'LastName',    size: '150px',  sortable: true},
+            {field: 'CompanyName', caption: 'CompanyName', size: '200px', sortable: true},
+            {field: 'IsCompany',   caption: 'IsCompany',   size: '200px', sortable: true, hidden: true },
         ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -50,7 +54,7 @@ function buildStatementsElements() {
 
                         var rec = grid.get(recid);
                         console.log( 'BID = ' + rec.BID + ',   RAID = ' + rec.RAID);
-                        setToStmtForm(rec.BID, rec.RAID, app.D1, app.D2);
+                        setToPayorStmtForm(rec.BID, rec.TCID, app.D1, app.D2);
                     };
 
                 // warn user if form content has been changed
@@ -59,17 +63,17 @@ function buildStatementsElements() {
         },
     });
 
-    addDateNavToToolbar('stmt');
+    addDateNavToToolbar('payorstmt');
 
     //------------------------------------------------------------------------
-    //  stmtDetailForm
+    //  payorStmtInfoForm
     //------------------------------------------------------------------------
     $().w2form({
-        name: 'stmtDetailForm',
+        name: 'payorStmtInfoForm',
         style: 'border: 0px; background-color: transparent;',
-        header: 'Statement Detail',
+        header: 'Payor Statement',
         url: '/v1/stmtinfo',
-        formURL: '/webclient/html/formstmtdet.html',
+        formURL: '/webclient/html/formpayorstmtdet.html',
         toolbar: {
             items: [
                 { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
@@ -82,7 +86,7 @@ function buildStatementsElements() {
                     var no_callBack = function() { return false; },
                         yes_callBack = function() {
                             w2ui.toplayout.hide('right',true);
-                            w2ui.stmtGrid.render();
+                            w2ui.payorstmtGrid.render();
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
@@ -105,11 +109,11 @@ function buildStatementsElements() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
-                var x = document.getElementById("bannerRAID");
+                var x = document.getElementById("bannerTCID");
                 if (x !== null) {
-                    x.innerHTML = '' + this.record.RAID;
+                    x.innerHTML = '' + this.record.TCID;
                 }
-                x = document.getElementById("bannerPayors");
+                x = document.getElementById("bannerRAIDs");
                 if (x !== null) {
                     x.innerHTML = '' + this.record.Payors;
                 }
@@ -139,12 +143,12 @@ function buildStatementsElements() {
     });
 
     //------------------------------------------------------------------------
-    //  stmtDetailGrid  -  lists all the assessments and receipts for
+    //  payorStmtDetailGrid  -  lists all the assessments and receipts for
     //                     the selected Rental Agreement from the stmtGrid
     //------------------------------------------------------------------------
     $().w2grid({
-        name: 'stmtDetailGrid',
-        url: '/v1/stmtdetail',
+        name: 'payorStmtDetailGrid',
+        url: '/v1/payorstmt',
         multiSelect: false,
         postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
@@ -163,34 +167,42 @@ function buildStatementsElements() {
             toolbarColumns  : false,
         },
         columns: [
-            {field: 'recid',        caption: 'recid',        size: '35px',  sortable: true, hidden: true},
-            {field: 'Dt',           caption: 'Date',         size: '75px',  sortable: true},
-            {field: 'Reverse',      caption: ' ',            size: '12px',  sortable: true, render: renderStmtReversal },
-            {field: 'ID',           caption: 'ID',           size: '80px',  sortable: true},
-            {field: 'RentableName', caption: app.sRentable,  size: '30%',   sortable: true},
-            {field: 'Descr',        caption: 'Description',  size: '60%',   sortable: true},
-            {field: 'AsmtAmount',   caption: 'Assessment',   size: '90px',  sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.AsmtAmount,true); },
+            {field: 'recid',           caption: 'recid',           size: '35px',  sortable: true, hidden: true},
+            {field: 'Date',            caption: 'Date',            size: '75px',  sortable: true, render: function(rec) {return renderPayorStmtDate(rec.Date); }},
+            {field: 'Reverse',         caption: ' ',               size: '12px',  sortable: true, render: renderPayorStmtReversal },
+            {field: 'Payor',           caption: 'Payor',           size: '100px', sortable: true},
+            {field: 'TCID',            caption: 'TCID',            size: '80px',  sortable: true, hidden: true},
+            {field: 'RAID',            caption: 'RAID',            size: '50px',  sortable: true, render:  renderPayorStmtID},
+            {field: 'ASMID',           caption: 'ASMID',           size: '50px',  sortable: true, render:  renderPayorStmtID},
+            {field: 'RCPTID',          caption: 'RCPTID',          size: '50px',  sortable: true, render:  renderPayorStmtID},
+            {field: 'RentableName',    caption: app.sRentable,     size: '30%',   sortable: true},
+            {field: 'Description',     caption: 'Description',     size: '60%',   sortable: true},
+            {field: 'UnappliedAmount', caption: 'Unapplied Funds', size: '90px',  sortable: true, style: 'text-align: right',
+                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.AsmtAmount,true); },
             },
-            {field: 'RcptAmount',   caption: 'Applied Funds',size: '95px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.RcptAmount,true); },
+            {field: 'AppliedAmount',   caption: 'Applied Funds',   size: '95px', sortable: true, style: 'text-align: right',
+                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.RcptAmount,true); },
             },
-            {field: 'Balance',      caption: 'Balance',      size: '90px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return stmtRenderHandler(record,index,col_index,record.Balance,false); },
+            {field: 'AsmtAmount',      caption: 'Assessment',      size: '90px',  sortable: true, style: 'text-align: right',
+                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.AsmtAmount,true); },
             },
-            {field: 'dummy',      caption: ' ',            size: '8px' },
+            {field: 'Balance',         caption: 'Balance',         size: '90px', sortable: true, style: 'text-align: right',
+                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.Balance,false); },
+            },
+            {field: 'spacer',          caption: ' ',               size: '7px'},
+
         ],
     });
 
-    addDateNavToToolbar('stmtDetail');
+    addDateNavToToolbar('payorStmtDetail');
 
     //------------------------------------------------------------------------
-    //  stmtlayout - The layout to contain the stmtForm and stmtDetailGrid
+    //  payorstmtlayout - The layout to contain the stmtForm and payorStmtDetailGrid
     //               top  - stmtForm
-    //               main - stmtDetailGrid
+    //               main - payorStmtDetailGrid
     //------------------------------------------------------------------------
     $().w2layout({
-        name: 'stmtLayout',
+        name: 'payorstmtLayout',
         padding: 0,
         panels: [
             { type: 'left',    size: '30%', hidden: true },
@@ -203,7 +215,7 @@ function buildStatementsElements() {
     });
 }
 
-function renderStmtReversal(record /*, index, col_index*/) {
+function renderPayorStmtReversal(record /*, index, col_index*/) {
     if (typeof record === "undefined") {
         return;
     }
@@ -213,11 +225,48 @@ function renderStmtReversal(record /*, index, col_index*/) {
     return '';
 }
 
+function renderPayorStmtDate(s) {
+    //var d = new Date(y);
+    var d = dateFromString(s);
+    if (d.getFullYear() < 1971) {
+        return '';
+    }
+    return dateFmtStr(d);
+}
 
-function stmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
+//-----------------------------------------------------------------------------
+// renderPayorStmtID - render the ID number for RAID, ASMID, and RCPTID.
+//        If the ID is > 0 return the number, otherwise just return an 
+//        empty string.
+// @params
+//    record = current record being rendered
+//     index = index within the record array
+// col_index = column index within the record
+//
+// @returns
+//      an empty string if the id is 0
+//      the number if ID >= 1
+//-----------------------------------------------------------------------------
+function renderPayorStmtID(record, index, col_index) {
+    var f = w2ui.payorStmtDetailGrid.columns[col_index];
+    var n = 0;
+    switch ( f.field ) {
+        case "RAID":   n = record.RAID; break;
+        case "ASMID":  n = record.ASMID; break;
+        case "RCPTID": n = record.RCPTID; break;
+        default:
+            return ''; 
+    }
+    if (n > 0) {
+        return ''+n;
+    }
+    return '';
+}
+
+function payorstmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
     if (record.Reverse && col_index == 8) { return; }  // don't update balance if it's a reversal
     if (Math.abs(amt) < 0.001) {
-        if (record.Descr.includes("Closing Balance") || !bRemoveZero) {
+        if (record.Description.includes("Closing Balance") || !bRemoveZero) {
             return '$ 0.00';
         }
     }
@@ -225,26 +274,27 @@ function stmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
 }
 
 //-----------------------------------------------------------------------------
-// setToStmtForm -  enable the Statement form in toplayout.  Also, set
+// setToPayorStmtForm -  enable the Statement form in toplayout.  Also, set
 //                the forms url and request data from the server
 // @params
 //   bid = business id (or the BUD)
-//  raid = Rental Agreement ID
+//  tcid = Payor's TCID
 // d1,d2 = date range to use
 //-----------------------------------------------------------------------------
-function setToStmtForm(bid, raid, d1,d2) {
-    if (raid > 0) {
-        w2ui.stmtDetailGrid.url = '/v1/stmtdetail/' + bid + '/' + raid;
-        w2ui.stmtDetailForm.url = '/v1/stmtinfo/' + bid + '/' + raid;
-        w2ui.stmtDetailForm.postData = {
+function setToPayorStmtForm(bid, tcid, d1,d2) {
+    if (tcid > 0) {
+        w2ui.payorStmtDetailGrid.url = '/v1/payorstmt/' + bid + '/' + tcid;
+        w2ui.payorStmtInfoForm.url = '/v1/payorstmtinfo/' + bid + '/' + tcid;
+        w2ui.payorStmtInfoForm.postData = {
             searchDtStart: d1,
             searchDtStop: d2,
         };
-        w2ui.stmtDetailForm.request();
+        w2ui.payorStmtInfoForm.header = 'Payor Statement for TCID ' + tcid;
+        w2ui.payorStmtInfoForm.request();
 
-        w2ui.toplayout.content('right', w2ui.stmtLayout);
+        w2ui.toplayout.content('right', w2ui.payorstmtLayout);
         w2ui.toplayout.show('right', true);
-        w2ui.toplayout.sizeTo('right', 850);
+        w2ui.toplayout.sizeTo('right', 1000);
         w2ui.toplayout.render();
         app.new_form_rec = false;  // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
@@ -252,12 +302,12 @@ function setToStmtForm(bid, raid, d1,d2) {
 }
 
 //-----------------------------------------------------------------------------
-// createStmtForm - add the grid and form to the statement layout.  I'm not
+// createPayorStmtForm - add the grid and form to the statement layout.  I'm not
 //      sure why this is necessary. But if I put this grid and form directly
 //      into the layout when it gets created, they do not work correctly.
 // @params
 //-----------------------------------------------------------------------------
-function createStmtForm() {
-    w2ui.stmtLayout.content('top',w2ui.stmtDetailForm);
-    w2ui.stmtLayout.content('main',w2ui.stmtDetailGrid);
+function createPayorStmtForm() {
+    w2ui.payorstmtLayout.content('top',w2ui.payorStmtInfoForm);
+    w2ui.payorstmtLayout.content('main',w2ui.payorStmtDetailGrid);
 }

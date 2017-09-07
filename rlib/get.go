@@ -1425,6 +1425,33 @@ func GetReceiptAllocationsThroughDate(id int64, dt *time.Time) []ReceiptAllocati
 	return GetReceiptAllocationList(rows)
 }
 
+// GetReceiptAllocationAmountsOnDate returns the amount of unallocated funds in id on the
+// supplied date
+// @params
+//	 id = RCPTID of the receipt in question
+//   dt = date on which the unallocated amount is desired
+// @returns  float64 of:
+//   receipt amount
+//   amount allocated as of dt
+//   amount unallocated as of dt
+func GetReceiptAllocationAmountsOnDate(id int64, dt *time.Time) (float64, float64, float64) {
+	amt := float64(0)
+	alloc := amt
+	unalloc := amt
+	rcpt := GetReceipt(id)
+	if rcpt.RCPTID == 0 {
+		return amt, alloc, unalloc
+	}
+	amt = rcpt.Amount
+	unalloc = rcpt.Amount
+	m := GetReceiptAllocationsThroughDate(id, dt)
+	for i := 0; i < len(m); i++ {
+		unalloc -= m[i].Amount
+		alloc += m[i].Amount
+	}
+	return amt, alloc, unalloc
+}
+
 // GetUnallocatedReceiptsByPayor returns the receipts paid by the supplied payor tcid that
 // have not yet been fully allocated.
 func GetUnallocatedReceiptsByPayor(bid, tcid int64) []Receipt {
@@ -1792,7 +1819,7 @@ func GetRentableMarketRateInstance(rmrid int64) (RentableMarketRate, error) {
 func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) float64 {
 	rtid := GetRTIDForDate(r.RID, d1) // first thing... find the RTID for this time range
 	mr := xbiz.RT[rtid].MR
-	Console("GetRentableMarketRate: len(mr) is %d\n", len(mr))
+	// Console("GetRentableMarketRate: len(mr) is %d\n", len(mr))
 	for i := 0; i < len(mr); i++ {
 		if DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
 			return mr[i].MarketRate

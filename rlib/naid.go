@@ -287,12 +287,12 @@ func (t *RentalAgreement) GetTheRentableName(d1, d2 *time.Time) string {
 	max := float64(0)
 	var theRentable Rentable
 
-	Console("Entered: RentalAgreement.GetTheRentableName\n")
+	// Console("Entered: RentalAgreement.GetTheRentableName\n")
 	rl := GetRentalAgreementRentables(t.RAID, d1, d2)
 	for i := 0; i < len(rl); i++ {
 		r := GetRentable(rl[i].RID)
 		amt := GetRentableMarketRate(&xbiz, &r, d1, d2)
-		Console("Rentable = %d, MarketRate = %.2f\n", r.RID, amt)
+		// Console("Rentable = %d, MarketRate = %.2f\n", r.RID, amt)
 		if amt > max {
 			theRentable = r
 		}

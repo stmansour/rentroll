@@ -1,0 +1,24 @@
+Payor Statement
+
+                                                                                                                                    Unapplied       Applied                            
+Date        Payor(s)                   Description                          RAID        ASMID       RCPTID      Rentable                Funds         Funds    Assessment       Balance
+----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
+                                       No receipts this period                                                                                                                         
+                                                                                                                                                                                       
+                                       No allocations this period                                                                                                                      
+                                                                                                                                                                                       
+                                       *** RENTAL AGREEMENT 1 ***                                                                                                                      
+03/01/2017                             Opening balance                                                                                                                             0.00
+03/01/2017  Bill Williams,Sally        Rent Non-Taxable                     RA-1        ASM-4                   Unit 1                                           3,000.00      3,000.00
+            Struthers,Mark Markson                                                                                                                                                     
+03/03/2017  Sally Struthers            Receipt allocation                   RA-1        ASM-4       RCPT-2      Unit 1                               500.00                    2,500.00
+03/03/2017  Mark Markson               Receipt allocation                   RA-1        ASM-4       RCPT-3      Unit 1                               750.00                    1,750.00
+----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
+04/01/2017                             Closing balance                                                                                             1,250.00      3,000.00      1,750.00
+                                                                                                                                                                                       
+                                       *** RENTAL AGREEMENT 2 ***                                                                                                                      
+03/01/2017                             Opening balance                                                                                                                         4,000.00
+03/01/2017  Bill Williams              Rent Non-Taxable                     RA-2        ASM-13                  Unit 2                                           2,000.00      6,000.00
+----------  -------------------------  -----------------------------------  ----------  ----------  ----------  ---------------  ------------  ------------  ------------  ------------
+04/01/2017                             Closing balance                                                                                                 0.00      2,000.00      6,000.00
+                                                                                                                                                                                       

@@ -18,6 +18,14 @@ type RAStmtEntry struct {
 	TCID    int64              // IF THIS IS FOR A PAYOR STATEMENT, the TCID of the Payor, otherwise 0
 }
 
+// ReceiptListEntry shows the receipts for all RentalAgreements in
+// a payors statement
+type ReceiptListEntry struct {
+	R           Receipt
+	Allocated   float64
+	Unallocated float64
+}
+
 // RAStmtEntries is needed to sort the array
 type RAStmtEntries []RAStmtEntry
 
@@ -47,6 +55,21 @@ type RAAcctBal struct {
 	Stmt       RAStmtEntries // these are the actual statement entries
 	ClosingBal float64       // balance at close of period
 	RAID       int64         // which RentalAgreement is this for
+}
+
+// GetNameFromTransactantCache implements a simple cache of Transactants
+func GetNameFromTransactantCache(tcid int64, payorcache map[int64]Transactant) string {
+	p, ok := payorcache[tcid]
+	if ok {
+		return p.GetUserName()
+	}
+	var tr Transactant
+	err := GetTransactant(tcid, &tr)
+	if err == nil {
+		payorcache[tr.TCID] = tr
+		return tr.GetUserName()
+	}
+	return ""
 }
 
 // GetRAIDBalance returns the balance of the account for the supplied
@@ -102,6 +125,8 @@ func GetRAIDBalance(raid int64, dt *time.Time) (float64, error) {
 //     Stmt
 //         is the list of Assessments and ReceiptAllocations that occurred
 //         during the period d1 up to (but not including) d2
+//
+//     RL  is not filled in by this report.
 //
 //=============================================================================
 func GetRAIDStatementInfo(raid int64, d1, d2 *time.Time) (RAAcctBal, error) {

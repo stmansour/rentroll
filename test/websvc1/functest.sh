@@ -102,9 +102,6 @@ dojsonPOST "http://localhost:8270/v1/depmeth/1" "request" "a17"  "WebService--De
 echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22accountForm%22%2C%22LID%22%3A5%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a18"  "WebService--ERROR-VRFY-3"
 
-
-
-
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

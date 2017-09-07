@@ -11,6 +11,8 @@
 </head>
 <body>
 
+
+
 <!--  color Icon images:  icon-page, w2ui-icon-check, ... see below in toptoolbar -->
 <!--
 
@@ -23,9 +25,16 @@ sidebarL1     - w2ui sidebar
 -->
 
 <script>
+/*global
+    createPayorStmtForm, $, console, w2ui, defineDateFmts, buildPageElements, createRentalAgreementForm, createStmtForm,
+    dateControlString, dateMonthFwd, dateControlString, createDepositForm, buildPageElementsWrapper,
+*/
+
+
 "use strict";
 
 // unallocated receipts utility literal object
+
 var _unAllocRcpts = {
     layoutPanels: {
         top: function(unallocFund, person/*, tcid*/) {
@@ -231,6 +240,7 @@ function finishInitialization() {
     buildPageElements();
     createRentalAgreementForm();
     createStmtForm();
+    createPayorStmtForm();
     createDepositForm();
     var d1 = new Date();
     d1.setDate(1);

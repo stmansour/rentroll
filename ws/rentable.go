@@ -106,16 +106,15 @@ func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		g        RentableTypedownResponse
 		err      error
 	)
-	fmt.Printf("Entered %s\n", funcname)
-
-	fmt.Printf("handle typedown: GetRentablesTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("handle typedown: GetRentablesTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	g.Records, err = rlib.GetRentableTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	if err != nil {
 		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-	fmt.Printf("GetRentableTypeDown returned %d matches\n", len(g.Records))
+	rlib.Console("GetRentableTypeDown returned %d matches\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
@@ -178,7 +177,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		g        SearchRentablesResponse
 		// currentTime = time.Now()
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	// fetch records from the database under this limit
 	const (
@@ -253,11 +252,11 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	countQuery := renderSQLQuery(rentablesQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		rlib.Console("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -275,7 +274,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// get formatted query with substitution of select, where, order clause
 	qry := renderSQLQuery(rentablesQueryWithLimit, qc)
-	fmt.Printf("db query = %s\n", qry)
+	rlib.Console("db query = %s\n", qry)
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
@@ -335,14 +334,14 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		funcname = "SvcFormHandlerRentable"
 		err      error
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	if d.RID, err = SvcExtractIDFromURI(r.RequestURI, "RID", 3, w); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
-	fmt.Printf("Request: %s:  BID = %d,  RID = %d\n", d.wsSearchReq.Cmd, d.BID, d.RID)
+	rlib.Console("Request: %s:  BID = %d,  RID = %d\n", d.wsSearchReq.Cmd, d.BID, d.RID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -360,9 +359,9 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 // func dumpRTRList(m []rlib.RentableTypeRef) {
 // 	for i := 0; i < len(m); i++ {
-// 		fmt.Printf("m[%d] range = %s - %s\n", i, m[i].DtStart.Format(rlib.RRDATEINPFMT), m[i].DtStop.Format(rlib.RRDATEINPFMT))
+// 		rlib.Console("m[%d] range = %s - %s\n", i, m[i].DtStart.Format(rlib.RRDATEINPFMT), m[i].DtStop.Format(rlib.RRDATEINPFMT))
 // 	}
-// 	fmt.Printf("----------------------------\n")
+// 	rlib.Console("----------------------------\n")
 // }
 
 // AdjustRTRTimeList determines what edits and/or inserts are needed to
@@ -426,7 +425,7 @@ func AdjustRTRTimeList(rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.Rent
 					if rtr.DtStart.Equal(rtr.DtStop) { // are we finished?
 						rtrAdded = true // we don't need to add rtr now
 					}
-					// fmt.Printf("AdjustRTRTimeList:  add period rtr start to R[%d] start, rtr.DtStop moved forward:  %s\n", i, rtr.DtStart.Format(rlib.RRDATEINPFMT))
+					// rlib.Console("AdjustRTRTimeList:  add period rtr start to R[%d] start, rtr.DtStop moved forward:  %s\n", i, rtr.DtStart.Format(rlib.RRDATEINPFMT))
 					// dumpRTRList(m)
 				} else if rtr.DtStart.After(R[i].DtStart) { // if rtr starts after R[i], adjust R[i] end time
 					rt := R[i]              // start with a copy of rtr
@@ -437,10 +436,10 @@ func AdjustRTRTimeList(rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.Rent
 						rt.DtStart = rtr.DtStop
 						m = append(m, rt)
 					}
-					// fmt.Printf("AdjustRTRTimeList:  different types append:  i = %d\n", i)
+					// rlib.Console("AdjustRTRTimeList:  different types append:  i = %d\n", i)
 					// dumpRTRList(m)
 				} else {
-					// fmt.Printf("AdjustRTRTimeList: rtr is covered.  rtAdded set to true:  i = %d\n", i)
+					// rlib.Console("AdjustRTRTimeList: rtr is covered.  rtAdded set to true:  i = %d\n", i)
 					rtrAdded = true
 				}
 			}
@@ -523,8 +522,8 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		funcname = "saveRentable"
 		err      error
 	)
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	target := `"record":`
 	i := strings.Index(d.data, target)
@@ -567,6 +566,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
+
 	// // StopDate should not be before Today's date
 	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))) {
 	// 	e := fmt.Errorf("RentableTypeRef Stop Date should not be before Start Date")
@@ -581,7 +581,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// }
 
 	if rfRecord.RID > 0 {
-		fmt.Printf("Updating Rentable with RID: %d ...\n", rfRecord.RID)
+		rlib.Console("Updating Rentable with RID: %d ...\n", rfRecord.RID)
 		// get Rentable from RID
 		rt = rlib.GetRentable(rfRecord.RID)
 		if !(rt.RID > 0) {
@@ -603,7 +603,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
-		fmt.Printf("Rentable record has been updated with RID: %d\n", rt.RID)
+		rlib.Console("Rentable record has been updated with RID: %d\n", rt.RID)
 
 		// ---------------- UPDATE RENTABLE TYPE REFERENCE ------------------------
 
@@ -674,7 +674,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		fmt.Println("Inserting new Rentable Record...")
-		fmt.Printf("Given RTID is %d\n", rfRecord.RTID)
+		rlib.Console("Given RTID is %d\n", rfRecord.RTID)
 
 		// --------------------- INSERT RENTABLE RECORD -------------------------
 		rt.BID = requestedBID
@@ -692,7 +692,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		// assign RID for this rentable
 		rt.RID = rid
-		fmt.Printf("New Rentable record has been saved with RID: %d\n", rt.RID)
+		rlib.Console("New Rentable record has been saved with RID: %d\n", rt.RID)
 
 		// ------------------------- INSERT RENTABLE STATUS ---------------------------
 
@@ -707,7 +707,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		fmt.Printf("RentableStatus has been saved for Rentable(%d), RSID: %d\n", rt.RID, rs.RSID)
+		rlib.Console("RentableStatus has been saved for Rentable(%d), RSID: %d\n", rt.RID, rs.RSID)
 
 		// ---------------------------- INSERT RENTABLE TYPE REF ---------------------
 
@@ -727,7 +727,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		fmt.Printf("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)
+		rlib.Console("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)
 	}
 
 	SvcWriteSuccessResponse(w)
@@ -774,7 +774,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g        GetRentableResponse
 		t        = time.Now()
 	)
-	fmt.Printf("entered %s\n", funcname)
+	rlib.Console("entered %s\n", funcname)
 
 	rentableQuery := `
 	SELECT
@@ -795,7 +795,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// get formatted query with substitution of select, where, order clause
 	q := renderSQLQuery(rentableQuery, qc)
-	fmt.Printf("db query = %s\n", q)
+	rlib.Console("db query = %s\n", q)
 
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
