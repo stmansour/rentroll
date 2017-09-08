@@ -291,10 +291,10 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		pe.Description = "*** RECEIPT SUMMARY ***"
 		psdr.Records = append(psdr.Records, pe)
 	}
-	var pe payorStmtEntry
 	if len(m.RL) == 0 {
 	} else {
 		for i := 0; i < len(m.RL); i++ {
+			var pe payorStmtEntry
 			if m.RL[i].R.TCID != d.ID {
 				continue
 			} else {
@@ -358,7 +358,6 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Generate the per-Rental-Agreement information...
 	//------------------------------------------------------
 	for i := 0; i < len(m.RAB); i++ { // for each RA
-		pe.RAID = m.RAB[i].RAID
 		ra, err := rlib.GetRentalAgreement(m.RAB[i].RAID)
 		if err != nil {
 			rlib.LogAndPrintError("PayorStatement", err)
@@ -391,6 +390,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// unapplied := asmts
 
 		for j := 0; j < len(m.RAB[i].Stmt); j++ { // for each line in the statement
+			var pe payorStmtEntry
 			pe.Date = rlib.JSONDate(m.RAB[i].Stmt[j].Dt)
 			pe.RAID = m.RAB[i].RAID
 
@@ -433,7 +433,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					descr += " (" + m.RAB[i].Stmt[j].A.Comment + ")"
 				}
 			case 2: // receipts
-				pe.Balance = amt
+				pe.AppliedAmount = amt
 				rcptid := m.RAB[i].Stmt[j].R.RCPTID
 				pe.RCPTID = rcptid
 				descr += "Receipt allocation"

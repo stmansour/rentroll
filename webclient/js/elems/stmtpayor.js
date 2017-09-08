@@ -178,13 +178,13 @@ function buildPayorStatementElements() {
             {field: 'RentableName',    caption: app.sRentable,     size: '30%',   sortable: true},
             {field: 'Description',     caption: 'Description',     size: '60%',   sortable: true},
             {field: 'UnappliedAmount', caption: 'Unapplied Funds', size: '90px',  sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.AsmtAmount,true); },
+                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.UnappliedAmount,true); },
             },
             {field: 'AppliedAmount',   caption: 'Applied Funds',   size: '95px', sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.RcptAmount,true); },
+                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.AppliedAmount,true); },
             },
-            {field: 'AsmtAmount',      caption: 'Assessment',      size: '90px',  sortable: true, style: 'text-align: right',
-                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.AsmtAmount,true); },
+            {field: 'Assessment',      caption: 'Assessment',      size: '90px',  sortable: true, style: 'text-align: right',
+                    render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.Assessment,true); },
             },
             {field: 'Balance',         caption: 'Balance',         size: '90px', sortable: true, style: 'text-align: right',
                     render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.Balance,false); },
@@ -213,6 +213,18 @@ function buildPayorStatementElements() {
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
+}
+
+function payorstmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
+    var f = w2ui.payorStmtDetailGrid.columns[col_index];
+    if (record.Reverse && f.field == "Balance") { return; }  // don't update balance if it's a reversal
+    if (record.Description.includes("***")) {return;} // blank if it's a header
+    if (Math.abs(amt) < 0.001) {
+        if (record.Description.includes("Closing Balance") || !bRemoveZero) {
+            return '$ 0.00';
+        }
+    }
+    return GridMoneyFormat(amt);
 }
 
 function renderPayorStmtReversal(record /*, index, col_index*/) {
@@ -261,16 +273,6 @@ function renderPayorStmtID(record, index, col_index) {
         return ''+n;
     }
     return '';
-}
-
-function payorstmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
-    if (record.Reverse && col_index == 8) { return; }  // don't update balance if it's a reversal
-    if (Math.abs(amt) < 0.001) {
-        if (record.Description.includes("Closing Balance") || !bRemoveZero) {
-            return '$ 0.00';
-        }
-    }
-    return GridMoneyFormat(amt);
 }
 
 //-----------------------------------------------------------------------------

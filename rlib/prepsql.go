@@ -761,7 +761,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetReceiptAllocations, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPTID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
 	Errcheck(err)
-	RRdb.Prepstmt.GetReceiptAllocationsThroughDate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE RCPTID=? AND Dt <= ? ORDER BY Dt ASC")
+	RRdb.Prepstmt.GetReceiptAllocationsThroughDate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE ASMID>0 AND RCPTID=? AND Dt <= ? ORDER BY Dt ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ReceiptAllocation WHERE ASMID>0 AND RAID=? AND Dt >= ? and Dt < ? ORDER BY Dt ASC")
 	Errcheck(err)
