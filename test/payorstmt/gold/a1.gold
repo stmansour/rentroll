@@ -1,0 +1,14 @@
+{
+    "record": {
+        "BID": 1,
+        "CompanyName": "",
+        "FirstName": "Bill",
+        "LastName": "Williams",
+        "MiddleName": "",
+        "PayorIsCompany": false,
+        "Payors": "",
+        "TCID": 1,
+        "recid": 0
+    },
+    "status": "success"
+}
