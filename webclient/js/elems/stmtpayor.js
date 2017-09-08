@@ -96,47 +96,56 @@ function buildPayorStatementElements() {
         fields: [
             { field: 'recid', type: 'int', required: false, html: {page: 0, column: 0 } },
             { field: 'RAID', type: 'int', required: false, html: {  page: 0, column: 0 } },
+            { field: 'TCID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'Balance', type: 'float', required: false, html: { page: 0, column: 0 }, render: 'money' },
-            { field: 'Payors', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'AgreementStart', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'AgreementStop', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'PossessionStart', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'PossessionStop', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'RentStart', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'RentStop', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'PayorUnalloc', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'FirstName', type: 'float', required: false, html: { page: 0, column: 0 }, render: 'money' },
+            { field: 'MiddleName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastName', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'PayorIsCompany', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'CompanyName', type: 'date', required: false, html: { page: 0, column: 0 } },
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
+                var r = this.record;
                 var x = document.getElementById("bannerTCID");
                 if (x !== null) {
-                    x.innerHTML = '' + this.record.TCID;
+                    var title;
+                    if (r.PayorIsCompany) {
+                        title = r.CompanyName;
+                    } else {
+                        title = r.FirstName + ' ';
+                        if (r.MiddleName.length > 0 ) {
+                            title += r.MiddleName + ' ';
+                        }
+                        title += r.LastName + ' ';
+                    }
+                    title += '(' + r.TCID + ')';
+                    x.innerHTML = title;
                 }
-                x = document.getElementById("bannerRAIDs");
-                if (x !== null) {
-                    x.innerHTML = '' + this.record.Payors;
-                }
-                x = document.getElementById("RentalAgreementDates");
-                if (x !== null) {
-                    x.innerHTML = '' + this.record.AgreementStart + ' - ' + this.record.AgreementStop;
-                }
-                x = document.getElementById("PossessionDates");
-                if (x !== null) {
-                    x.innerHTML = '' + this.record.PossessionStart + ' - ' + this.record.PossessionStop;
-                }
-                x = document.getElementById("RentDates");
-                if (x !== null) {
-                    x.innerHTML = '' + this.record.RentStart + ' - ' + this.record.RentStop;
-                }
-                x = document.getElementById("CurrentStatementBalance");
-                if (x !== null) {
-                    x.innerHTML = '$ ' + number_format(this.record.Balance ,2);
-                }
-                x = document.getElementById("payorunalloc");
-                if (x !== null) {
-                    x.innerHTML = '' + this.record.PayorUnalloc;
-                }
+                // x = document.getElementById("bannerRAIDs");
+                // if (x !== null) {
+                //     x.innerHTML = '' + this.record.Payors;
+                // }
+                // x = document.getElementById("RentalAgreementDates");
+                // if (x !== null) {
+                //     x.innerHTML = '' + this.record.AgreementStart + ' - ' + this.record.AgreementStop;
+                // }
+                // x = document.getElementById("PossessionDates");
+                // if (x !== null) {
+                //     x.innerHTML = '' + this.record.PossessionStart + ' - ' + this.record.PossessionStop;
+                // }
+                // x = document.getElementById("RentDates");
+                // if (x !== null) {
+                //     x.innerHTML = '' + this.record.RentStart + ' - ' + this.record.RentStop;
+                // }
+                // x = document.getElementById("CurrentStatementBalance");
+                // if (x !== null) {
+                //     x.innerHTML = '$ ' + number_format(this.record.Balance ,2);
+                // }
+                // x = document.getElementById("payorunalloc");
+                // if (x !== null) {
+                //     x.innerHTML = '' + this.record.PayorUnalloc;
+                // }
             };
         },
 

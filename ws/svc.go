@@ -159,6 +159,7 @@ var Svcs = []ServiceHandler{
 	{"parentaccounts", SvcParentAccountsList, true},
 	{"payorfund", SvcHandlerTotalUnallocFund, true},
 	{"payorstmt", SvcPayorStmtDispatch, true},
+	{"payorstmtinfo", SvcGetPayorStmInfo, true},
 	{"person", SvcFormHandlerXPerson, true},
 	{"ping", SvcHandlerPing, true},
 	{"pmts", SvcHandlerPaymentType, true},
