@@ -168,13 +168,13 @@ function buildPayorStatementElements() {
         },
         columns: [
             {field: 'recid',           caption: 'recid',           size: '35px',  sortable: true, hidden: true},
-            {field: 'Date',            caption: 'Date',            size: '75px',  sortable: true, render: function(rec) {return renderPayorStmtDate(rec.Date); }},
+            {field: 'Date',            caption: 'Date',            size: '70px',  sortable: true, render: function(rec) {return renderPayorStmtDate(rec.Date); }},
             {field: 'Reverse',         caption: ' ',               size: '12px',  sortable: true, render: renderPayorStmtReversal },
             {field: 'Payor',           caption: 'Payor',           size: '100px', sortable: true},
             {field: 'TCID',            caption: 'TCID',            size: '80px',  sortable: true, hidden: true},
-            {field: 'RAID',            caption: 'RAID',            size: '50px',  sortable: true, render:  renderPayorStmtID},
-            {field: 'ASMID',           caption: 'ASMID',           size: '50px',  sortable: true, render:  renderPayorStmtID},
-            {field: 'RCPTID',          caption: 'RCPTID',          size: '50px',  sortable: true, render:  renderPayorStmtID},
+            {field: 'RAID',            caption: 'RAID',            size: '45px',  sortable: true },
+            {field: 'ASMID',           caption: 'ASMID',           size: '55px',  sortable: true },
+            {field: 'RCPTID',          caption: 'RCPTID',          size: '60px',  sortable: true },
             {field: 'RentableName',    caption: app.sRentable,     size: '30%',   sortable: true},
             {field: 'Description',     caption: 'Description',     size: '60%',   sortable: true},
             {field: 'UnappliedAmount', caption: 'Unapplied Funds', size: '90px',  sortable: true, style: 'text-align: right',
@@ -218,7 +218,7 @@ function buildPayorStatementElements() {
 function payorstmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
     var f = w2ui.payorStmtDetailGrid.columns[col_index];
     if (record.Reverse && f.field == "Balance") { return; }  // don't update balance if it's a reversal
-    if (record.Description.includes("***")) {return;} // blank if it's a header
+    if (record.Description.includes("***") || record.Description.length == 0) {return;} // blank if it's a header or spacer
     if (Math.abs(amt) < 0.001) {
         if (record.Description.includes("Closing Balance") || !bRemoveZero) {
             return '$ 0.00';

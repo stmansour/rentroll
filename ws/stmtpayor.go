@@ -222,9 +222,9 @@ type payorStmtEntry struct {
 	Reverse         bool
 	Payor           string
 	TCID            int64
-	RAID            int64
-	ASMID           int64
-	RCPTID          int64
+	RAID            string
+	ASMID           string
+	RCPTID          string
 	RentableName    string
 	Description     string
 	UnappliedAmount float64
@@ -292,6 +292,9 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		psdr.Records = append(psdr.Records, pe)
 	}
 	if len(m.RL) == 0 {
+		var pe payorStmtEntry
+		pe.Description = "No receipts this period"
+		psdr.Records = append(psdr.Records, pe)
 	} else {
 		for i := 0; i < len(m.RL); i++ {
 			var pe payorStmtEntry
@@ -300,7 +303,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			} else {
 				pe.Date = rlib.JSONDate(m.RL[i].R.Dt)
 				pe.Payor = rlib.GetNameFromTransactantCache(m.RL[i].R.TCID, payorcache)
-				pe.RCPTID = m.RL[i].R.RCPTID
+				pe.RCPTID = rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID)
 				pe.Description = "Receipt " + m.RL[i].R.DocNo
 				pe.UnappliedAmount = m.RL[i].Unallocated
 				pe.AppliedAmount = m.RL[i].Allocated
@@ -316,6 +319,8 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if internal {
 		// Identify section
 		{
+			var pe1 payorStmtEntry
+			psdr.Records = append(psdr.Records, pe1)
 			var pe payorStmtEntry
 			pe.Description = "*** UNAPPLIED FUNDS ***"
 			psdr.Records = append(psdr.Records, pe)
@@ -339,8 +344,8 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				//----------------------------------------------------
 				l1 := rlib.GetRentalAgreementsByPayorRange(d.BID, m.RL[i].R.TCID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 				if len(l1) == 1 {
-					pe.RAID = l1[0].RAID
-					pe.RCPTID = m.RL[i].R.RCPTID
+					pe.RAID = rlib.IDtoShortString("RA", l1[0].RAID)
+					pe.RCPTID = rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID)
 					pe.Description = "Receipt " + m.RL[i].R.DocNo
 					pe.UnappliedAmount = m.RL[i].Unallocated
 					pe.AppliedAmount = m.RL[i].Allocated
@@ -366,6 +371,8 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		// Identify report section
 		{
+			var pe1 payorStmtEntry
+			psdr.Records = append(psdr.Records, pe1)
 			var pe payorStmtEntry
 			pe.Description = fmt.Sprintf("*** RENTAL AGREEMENT %d ***", m.RAB[i].RAID)
 			psdr.Records = append(psdr.Records, pe)
@@ -392,7 +399,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		for j := 0; j < len(m.RAB[i].Stmt); j++ { // for each line in the statement
 			var pe payorStmtEntry
 			pe.Date = rlib.JSONDate(m.RAB[i].Stmt[j].Dt)
-			pe.RAID = m.RAB[i].RAID
+			pe.RAID = rlib.IDtoShortString("RA", m.RAB[i].RAID)
 
 			if m.RAB[i].Stmt[j].TCID > 0 {
 				pe.TCID = m.RAB[i].Stmt[j].TCID
@@ -416,7 +423,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					pe.RentableName = m.RAB[i].Stmt[j].RNT.RentableName
 				}
 				if m.RAB[i].Stmt[j].A.ASMID > 0 {
-					pe.ASMID = m.RAB[i].Stmt[j].A.ASMID
+					pe.ASMID = rlib.IDtoShortString("ASM", m.RAB[i].Stmt[j].A.ASMID)
 				}
 				if m.RAB[i].Stmt[j].A.RAID > 0 { // Payor(s) = all payors associated with RentalAgreement
 					pyrs := rlib.GetRentalAgreementPayorsInRange(m.RAB[i].Stmt[j].A.RAID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
@@ -435,17 +442,17 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			case 2: // receipts
 				pe.AppliedAmount = amt
 				rcptid := m.RAB[i].Stmt[j].R.RCPTID
-				pe.RCPTID = rcptid
+				pe.RCPTID = rlib.IDtoShortString("RCPT", rcptid)
 				descr += "Receipt allocation"
 				if rcptid > 0 {
-					pe.RCPTID = rcptid
+					pe.RCPTID = rlib.IDtoShortString("RCPT", rcptid)
 					rcpt := rlib.GetReceipt(rcptid)
 					if rcpt.RCPTID > 0 {
 						pe.Payor = rlib.GetNameFromTransactantCache(rcpt.TCID, payorcache)
 					}
 				}
 				if m.RAB[i].Stmt[j].A.ASMID > 0 {
-					pe.ASMID = m.RAB[i].Stmt[j].A.ASMID
+					pe.ASMID = rlib.IDtoShortString("ASM", m.RAB[i].Stmt[j].A.ASMID)
 				}
 				if !m.RAB[i].Stmt[j].Reverse {
 					applied += amt
