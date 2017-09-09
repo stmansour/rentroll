@@ -194,7 +194,7 @@ function buildStatementsElements() {
         padding: 0,
         panels: [
             { type: 'left',    size: '30%', hidden: true },
-            { type: 'top',     size: 250,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'top',     size: 240,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
             { type: 'main',    size: '70%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
             { type: 'bottom',  size: 0,     hidden: true },

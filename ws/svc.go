@@ -64,6 +64,7 @@ type WebGridSearchRequestJSON struct {
 	Sort          []ColSort     `json:"sort"`          // sort criteria
 	SearchDtStart rlib.JSONDate `json:"searchDtStart"` // for time-sensitive searches
 	SearchDtStop  rlib.JSONDate `json:"searchDtStop"`  // for time-sensitive searches
+	Bool1         bool          `json:"Bool1"`         // a general purpose bool flag for postData from client
 }
 
 // WebGridSearchRequest is a struct suitable for describing a webservice operation.
@@ -77,6 +78,7 @@ type WebGridSearchRequest struct {
 	Sort          []ColSort   `json:"sort"`          // sort criteria
 	SearchDtStart time.Time   `json:"searchDtStart"` // for time-sensitive searches
 	SearchDtStop  time.Time   `json:"searchDtStop"`  // for time-sensitive searches
+	Bool1         bool        `json:"Bool1"`         // a general purpose bool flag for postData from client
 }
 
 // WebFormRequest is a struct suitable for describing a webservice operation.

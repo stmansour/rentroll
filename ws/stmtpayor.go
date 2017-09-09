@@ -252,9 +252,11 @@ type PayorStmtDetailResponse struct {
 // wsdoc }
 func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "getPayorStmt"
-	internal := true
+	external := d.wsSearchReq.Bool1 // Bool1 is false for internal report, true if external
 	var psdr PayorStmtDetailResponse
 	var xbiz rlib.XBusiness
+
+	rlib.Console("external view = %t\n", external)
 
 	// UGH!
 	//=======================================================================
@@ -316,46 +318,56 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	// Unapplied Funds...
 	//------------------------------------------------------
-	if internal {
-		// Identify section
-		{
-			var pe1 payorStmtEntry
-			psdr.Records = append(psdr.Records, pe1)
+	// Identify section
+	{
+		var pe1 payorStmtEntry
+		psdr.Records = append(psdr.Records, pe1)
+		var pe payorStmtEntry
+		pe.Description = "*** UNAPPLIED FUNDS ***"
+		psdr.Records = append(psdr.Records, pe)
+	}
+	if len(m.RL) == 0 {
+		var pe payorStmtEntry
+		pe.Description = "No unapplied funds from other payors this period"
+		psdr.Records = append(psdr.Records, pe)
+	} else {
+		totUnapplied := float64(0)
+		for i := 0; i < lenmRL; i++ {
+			if m.RL[i].R.TCID == d.ID {
+				continue
+			}
 			var pe payorStmtEntry
-			pe.Description = "*** UNAPPLIED FUNDS ***"
-			psdr.Records = append(psdr.Records, pe)
-		}
-		if len(m.RL) == 0 {
-			var pe payorStmtEntry
-			pe.Description = "No allocations this period"
-			psdr.Records = append(psdr.Records, pe)
-		} else {
-			for i := 0; i < lenmRL; i++ {
-				if m.RL[i].R.TCID == d.ID {
-					continue
-				}
-				var pe payorStmtEntry
-				pe.Date = rlib.JSONDate(m.RL[i].R.Dt)
-				pe.Payor = rlib.GetNameFromTransactantCache(m.RL[i].R.TCID, payorcache)
+			pe.Date = rlib.JSONDate(m.RL[i].R.Dt)
+			pe.Payor = rlib.GetNameFromTransactantCache(m.RL[i].R.TCID, payorcache)
 
-				//----------------------------------------------------
-				// If the payor only has one RAID and it is THIS one
-				// then we can list the details of the receipt
-				//----------------------------------------------------
-				l1 := rlib.GetRentalAgreementsByPayorRange(d.BID, m.RL[i].R.TCID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
-				if len(l1) == 1 {
-					pe.RAID = rlib.IDtoShortString("RA", l1[0].RAID)
-					pe.RCPTID = rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID)
-					pe.Description = "Receipt " + m.RL[i].R.DocNo
-					pe.UnappliedAmount = m.RL[i].Unallocated
-					pe.AppliedAmount = m.RL[i].Allocated
-					pe.Balance = m.RL[i].R.Amount
-
-				} else {
-					pe.Description = "TBD"
-				}
+			//----------------------------------------------------
+			// If the payor only has one RAID and it is THIS one
+			// then we can list the details of the receipt
+			//----------------------------------------------------
+			l1 := rlib.GetRentalAgreementsByPayorRange(d.BID, m.RL[i].R.TCID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			if len(l1) == 1 {
+				pe.RAID = rlib.IDtoShortString("RA", l1[0].RAID)
+				pe.RCPTID = rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID)
+				pe.Description = "Receipt " + m.RL[i].R.DocNo
+				pe.UnappliedAmount = m.RL[i].Unallocated
+				pe.AppliedAmount = m.RL[i].Allocated
+				pe.Balance = m.RL[i].R.Amount
+				totUnapplied += pe.UnappliedAmount
+			} else {
+				pe.Description = "TBD"
+			}
+			if !external { // add this record to the report if it's not an external view
 				psdr.Records = append(psdr.Records, pe)
 			}
+		}
+		if external { // if it is external view, indicate if there are other unapplied funds
+			var pe payorStmtEntry
+			if totUnapplied > float64(0) {
+				pe.Description = "There are unapplied funds from other payors"
+			} else {
+				pe.Description = "No unapplied funds from other payors this period"
+			}
+			psdr.Records = append(psdr.Records, pe)
 		}
 	}
 

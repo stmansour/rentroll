@@ -111,7 +111,21 @@ function genDateRangeNavigator(prefix) {
     return tmp;
 }
 
-
+//-----------------------------------------------------------------------------
+// updateGridPostDataDates
+//          - if searchDtStart and searchDtStop have been defined in
+//            grid.postData then update their values with the current
+//            dates in the datanav controls
+// @params
+//   grid   the grid of interest
+// @return  <no return value>
+//-----------------------------------------------------------------------------
+function updateGridPostDataDates(grid) {
+    if (typeof grid.postData.searchDtStart === "string") {
+        grid.postData.searchDtStart = app.D1;
+        grid.postData.searchDtStop  = app.D2;
+    }
+}
 
 //-----------------------------------------------------------------------------
 // addDateNavToToolbar
@@ -126,14 +140,16 @@ function addDateNavToToolbar(prefix) {
     grid.toolbar.add( genDateRangeNavigator(prefix) );
     grid.toolbar.on('click', function(event) {
         handleDateToolbarAction(event,prefix); // adjusts dates and loads into date controls
-        grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        //grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2}; // doing it this way will destroy any other postData that may have been set up
+        updateGridPostDataDates(grid);
         grid.load(grid.url, function() {
             grid.refresh(); // need to refresh the grid for redraw purpose
         });
     });
     grid.toolbar.on('refresh', function (/*event*/) {
         setDateControlsInToolbar(prefix);
-        grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        //grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2}; // doing it this way will destroy any other postData that may have been set up
+        updateGridPostDataDates(grid);
     });
 
     // bind onchange event for date input control for assessments
@@ -165,7 +181,8 @@ function addDateNavToToolbar(prefix) {
         }
         app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
-        grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        //grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};  // doing it this way will destroy any other postData that may have been set up
+        updateGridPostDataDates(grid);
         grid.load(grid.url, function() {
             grid.refresh();
             // w2ui internally loads date calender on focus event. look at the following link:
@@ -200,7 +217,8 @@ function addDateNavToToolbar(prefix) {
         }
         app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
-        grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        //grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};  // doing it this way will destroy any other postData that may have been set up
+        updateGridPostDataDates(grid);
         grid.load(grid.url, function() {
             grid.refresh();
             // w2ui internally loads date calender on focus event. look at the following link:

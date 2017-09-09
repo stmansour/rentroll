@@ -56,8 +56,8 @@ function buildAccountElements() {
         toolbar: {
             items: [
                 { type: 'break' },
-                { type: 'button', id: 'export', caption: 'Export', icon: 'fa fa-paper-plane' },
-                { type: 'button', id: 'import', caption: 'Import', icon: 'fa fa-file-excel-o' }
+                { type: 'button', id: 'export', caption: 'Export', icon: 'fa fa-download' },
+                { type: 'button', id: 'import', caption: 'Import', icon: 'fa fa-upload' }
             ],
             onClick: function(event) {
                 event.onComplete = function() {

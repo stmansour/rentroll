@@ -329,3 +329,25 @@ func (t *Transactant) GetUserName() string {
 	s += t.LastName
 	return s
 }
+
+// SingleLineAddress returns the transactant's address
+//-----------------------------------------------------------------------------
+func (t *Transactant) SingleLineAddress() string {
+	a := t.Address
+	if len(t.Address2) > 0 {
+		a += ", " + t.Address2
+	}
+	if len(t.City) > 0 {
+		a += ", " + t.City
+	}
+	if len(t.State) > 0 {
+		a += ", " + t.State
+	}
+	if len(t.PostalCode) > 0 {
+		a += " " + t.PostalCode
+	}
+	if len(t.Country) > 0 {
+		a += ", " + t.Country
+	}
+	return a
+}

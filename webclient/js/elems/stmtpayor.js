@@ -1,7 +1,7 @@
 /*global
     GridMoneyFormat, number_format, w2ui, $, app, console,
     form_dirty_alert, addDateNavToToolbar, renderPayorStmtReversal, payorstmtRenderHandler,
-    dateFromString, dateFmtString,
+    dateFromString,
 */
 "use strict";
 
@@ -72,15 +72,21 @@ function buildPayorStatementElements() {
         name: 'payorStmtInfoForm',
         style: 'border: 0px; background-color: transparent;',
         header: 'Payor Statement',
-        url: '/v1/stmtinfo',
+        url: '/v1/payorstmtinfo',
         formURL: '/webclient/html/formpayorstmtdet.html',
         toolbar: {
             items: [
                 { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'bt3', type: 'spacer' },
+                { type: 'break' },
+                { id: 'payorstmtint', type: 'radio', group: '1', text: 'Internal', icon: 'fa fa-file-text-o', checked: true },
+                { id: 'payorstmtext', type: 'radio', group: '1', text: 'External', icon: 'fa fa-file-o' },
+                { type: 'break' },
+                { type: 'spacer' },
                 { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
             ],
             onClick: function (event) {
+                var g = w2ui.payorStmtDetailGrid;
+                var r = w2ui.payorStmtInfoForm.record;
                 switch(event.target) {
                 case 'btnClose':
                     var no_callBack = function() { return false; },
@@ -89,6 +95,18 @@ function buildPayorStatementElements() {
                             w2ui.payorstmtGrid.render();
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
+                    break;
+                case 'payorstmtint':
+                    app.PayorStmtExt = false;
+                    g.postData.Bool1 = false;
+                    g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
+                    g.reload();
+                    break;
+                case 'payorstmtext':
+                    app.PayorStmtExt = true;
+                    g.postData.Bool1 = true;
+                    g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
+                    g.reload();
                     break;
                 }
             },
@@ -103,6 +121,7 @@ function buildPayorStatementElements() {
             { field: 'LastName', type: 'date', required: false, html: { page: 0, column: 0 } },
             { field: 'PayorIsCompany', type: 'date', required: false, html: { page: 0, column: 0 } },
             { field: 'CompanyName', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'Address', type: 'text', required: false, html: { page: 0, column: 0 } },
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -119,13 +138,13 @@ function buildPayorStatementElements() {
                         }
                         title += r.LastName + ' ';
                     }
-                    title += '(' + r.TCID + ')';
+                    // title += '(' + r.TCID + ')';
                     x.innerHTML = title;
                 }
-                // x = document.getElementById("bannerRAIDs");
-                // if (x !== null) {
-                //     x.innerHTML = '' + this.record.Payors;
-                // }
+                x = document.getElementById("payorstmtaddr");
+                if (x !== null) {
+                    x.innerHTML = '' + r.Address;
+                }
                 // x = document.getElementById("RentalAgreementDates");
                 // if (x !== null) {
                 //     x.innerHTML = '' + this.record.AgreementStart + ' - ' + this.record.AgreementStop;
@@ -159,7 +178,7 @@ function buildPayorStatementElements() {
         name: 'payorStmtDetailGrid',
         url: '/v1/payorstmt',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, Bool1: app.PayorStmtExt},
         show: {
             toolbar         : true,
             footer          : true,
@@ -215,7 +234,7 @@ function buildPayorStatementElements() {
         padding: 0,
         panels: [
             { type: 'left',    size: '30%', hidden: true },
-            { type: 'top',     size: 250,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'top',     size: 170,   hidden: false, content: 'top',  resizable: true, style: app.pstyle },
             { type: 'main',    size: '70%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
             { type: 'bottom',  size: 0,     hidden: true },
@@ -299,6 +318,7 @@ function setToPayorStmtForm(bid, tcid, d1,d2) {
         w2ui.payorStmtInfoForm.postData = {
             searchDtStart: d1,
             searchDtStop: d2,
+            Bool1: app.PayorStmtExt,
         };
         w2ui.payorStmtInfoForm.header = 'Payor Statement for TCID ' + tcid;
         w2ui.payorStmtInfoForm.request();

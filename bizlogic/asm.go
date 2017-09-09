@@ -501,7 +501,7 @@ func ValidateAssessment(a *rlib.Assessment) []BizError {
 func createInstancesToDate(a *rlib.Assessment, xbiz *rlib.XBusiness) {
 	now := time.Now()
 	as := time.Date(a.Start.Year(), a.Start.Month(), a.Start.Day(), 0, 0, 0, 0, time.UTC)
-	m := rlib.GetRecurrences(&a.Start, &a.Stop, &as, &now, a.RentCycle) // get all from the begining up to now
+	m := rlib.GetRecurrences(&a.Start, &a.Stop, &as, &now, a.RentCycle) // get all from the beginning up to now
 	for i := 0; i < len(m); i++ {
 		dt1, dt2 := rlib.GetMonthPeriodForDate(&m[i])
 		rlib.ProcessJournalEntry(a, xbiz, &dt1, &dt2, true) // this generates the assessment instances

@@ -1050,7 +1050,7 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// set status
 		strStatus := recs[ri][acctCSVIndexMap["accountstatus"]]
 		for n, s := range acctStatus {
-			if strings.ToLower(s) == strings.ToLower(strStatus) { // if both match as case-insensetive the mark
+			if strings.ToLower(s) == strings.ToLower(strStatus) { // if both match as case-insensitive the mark
 				ngl.Status = n
 			}
 		}

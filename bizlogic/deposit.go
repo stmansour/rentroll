@@ -146,7 +146,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 					break
 				}
 			}
-			current[curDepParts[i].RCPTID]++ // mark that we've acutally processed this entry
+			current[curDepParts[i].RCPTID]++ // mark that we've actually processed this entry
 		}
 		//--------------------------------------------------------
 		// Add the deposit link in the addlist receipts...
@@ -174,7 +174,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}
-			current[newRcpts[i]]++ // mark that we've acutally processed this entry
+			current[newRcpts[i]]++ // mark that we've actually processed this entry
 		}
 	}
 	return e

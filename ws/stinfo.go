@@ -3,7 +3,6 @@ package ws
 import (
 	"fmt"
 	"net/http"
-	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -144,32 +143,34 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		g.Record.RentStart = rlib.JSONDate(p.RentStart)
 		g.Record.RentStop = rlib.JSONDate(p.RentStop)
 	}
-	now := time.Now()
-	g.Record.Balance, err = rlib.GetRAIDBalance(d.ID, &now)
-	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
-	//---------------------
-	// Payor balances
-	//---------------------
-	payors := rlib.GetRentalAgreementPayorsInRange(g.Record.RAID, &d1, &d2)
-	pa := ""
-	for i := 0; i < len(payors); i++ {
-		rlist := rlib.GetUnallocatedReceiptsByPayor(d.BID, payors[i].TCID)
-		var t rlib.Transactant
-		err := rlib.GetTransactant(payors[i].TCID, &t)
-		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
-		tot := float64(0)
-		for j := 0; j < len(rlist); j++ {
-			tot += bizlogic.RemainingReceiptFunds(&rlist[j])
-		}
-		pa += fmt.Sprintf("%s: $ %s<br>", t.GetUserName(), rlib.RRCommaf(tot))
-	}
-	g.Record.PayorUnalloc = pa
+
+	// now := time.Now()
+	// g.Record.Balance, err = rlib.GetRAIDBalance(d.ID, &now)
+	// if err != nil {
+	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	return
+	// }
+	// //---------------------
+	// // Payor balances
+	// //---------------------
+	// payors := rlib.GetRentalAgreementPayorsInRange(g.Record.RAID, &d1, &d2)
+	// pa := ""
+	// for i := 0; i < len(payors); i++ {
+	// 	rlist := rlib.GetUnallocatedReceiptsByPayor(d.BID, payors[i].TCID)
+	// 	var t rlib.Transactant
+	// 	err := rlib.GetTransactant(payors[i].TCID, &t)
+	// 	if err != nil {
+	// 		SvcGridErrorReturn(w, err, funcname)
+	// 		return
+	// 	}
+	// 	tot := float64(0)
+	// 	for j := 0; j < len(rlist); j++ {
+	// 		tot += bizlogic.RemainingReceiptFunds(&rlist[j])
+	// 	}
+	// 	pa += fmt.Sprintf("%s: $ %s<br>", t.GetUserName(), rlib.RRCommaf(tot))
+	// }
+	// g.Record.PayorUnalloc = pa
+
 	g.Status = "success"
 	SvcWriteResponse(&g, w)
 }
