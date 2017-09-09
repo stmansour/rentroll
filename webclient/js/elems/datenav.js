@@ -140,7 +140,6 @@ function addDateNavToToolbar(prefix) {
     grid.toolbar.add( genDateRangeNavigator(prefix) );
     grid.toolbar.on('click', function(event) {
         handleDateToolbarAction(event,prefix); // adjusts dates and loads into date controls
-        //grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2}; // doing it this way will destroy any other postData that may have been set up
         updateGridPostDataDates(grid);
         grid.load(grid.url, function() {
             grid.refresh(); // need to refresh the grid for redraw purpose
@@ -148,7 +147,6 @@ function addDateNavToToolbar(prefix) {
     });
     grid.toolbar.on('refresh', function (/*event*/) {
         setDateControlsInToolbar(prefix);
-        //grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2}; // doing it this way will destroy any other postData that may have been set up
         updateGridPostDataDates(grid);
     });
 
@@ -181,7 +179,6 @@ function addDateNavToToolbar(prefix) {
         }
         app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
-        //grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};  // doing it this way will destroy any other postData that may have been set up
         updateGridPostDataDates(grid);
         grid.load(grid.url, function() {
             grid.refresh();
@@ -217,7 +214,6 @@ function addDateNavToToolbar(prefix) {
         }
         app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
-        //grid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};  // doing it this way will destroy any other postData that may have been set up
         updateGridPostDataDates(grid);
         grid.load(grid.url, function() {
             grid.refresh();
