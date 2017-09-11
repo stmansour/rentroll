@@ -6,13 +6,12 @@
     buildRASelect, buildReceiptElements, buildAssessmentElements, buildExpenseElements, 
     buildARElements, buildPaymentTypeElements, buildDepositoryElements, buildDepositElements, 
     buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElements, 
-    buildDepositMethodElements,buildPayorStatementElements,
+    buildDepositMethodElements, buildPayorStatementElements, buildRentRollElements,
 */
 
 "use strict";
 
 function buildPageElementsWrapper() {
-
     buildAppLayout();
     buildSidebar();
     buildAllocFundsGrid();
@@ -38,4 +37,5 @@ function buildPageElementsWrapper() {
     buildTWSElements();
     buildDepositMethodElements();
     buildPayorStatementElements();
+    buildRentRollElements();
 }

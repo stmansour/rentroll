@@ -301,7 +301,9 @@ function setToForm(sform, url, width, doRequest) {
         doRequest = false;
     }
 
-    f.url = url;
+    if (url.length > 0 ) {
+        f.url = url;
+    }
     if (typeof f.tabs.name == "string") {
         f.tabs.click('tab1');
     }

@@ -81,10 +81,10 @@ function genDateRangeNavigator(prefix) {
         { type: 'html', id: 'D1', html: function() {return html1; },
         onRefresh: function(event) {
                if(event.target == 'D1'){
-                   console.log('Event type: '+ event.type + ' TARGET: '+ event.target, event);
+                   // console.log('Event type: '+ event.type + ' TARGET: '+ event.target, event);
 
                    // w2field in toolbar must be initialized during refresh
-                   // see: https://github.com/vitmalina/w2ui/issues/886
+                   //     see: https://github.com/vitmalina/w2ui/issues/886
                    event.onComplete = function(/*ev*/){
                        $('input[name='+ prefix +'D1]').w2field('date', {format: 'm/d/yyyy'});
                    };
@@ -95,7 +95,7 @@ function genDateRangeNavigator(prefix) {
         { type: 'html', id: 'D2', html: function() {return html2; },
         onRefresh: function(event) {
                if(event.target == 'D2'){
-                   console.log('Event type: '+ event.type + ' TARGET: '+ event.target, event);
+                   // console.log('Event type: '+ event.type + ' TARGET: '+ event.target, event);
 
                    // w2field in toolbar must be initialized during refresh
                    // see: https://github.com/vitmalina/w2ui/issues/886
