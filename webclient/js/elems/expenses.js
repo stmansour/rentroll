@@ -200,7 +200,7 @@ function buildExpenseElements() {
             { field: 'PREXPID',     type: 'int',    required: false },
             { field: 'RName',       type: 'text',   required: false },
             { field: 'RID',         type: 'int',    required: false },
-            { field: 'RAID',        type: 'int',    required: true  },
+            { field: 'RAID',        type: 'int',    required: false },
             { field: 'Amount',      type: 'money',  required: true  },
             { field: 'Dt',          type: 'date',   required: true  },
             { field: 'Comment',     type: 'text',   required: false },

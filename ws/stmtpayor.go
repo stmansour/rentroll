@@ -53,6 +53,17 @@ var payorSelectFields = []string{
 	"Transactant.IsCompany",
 }
 
+// ResponseRecordSelector is a context struct for loading response records.
+// Since the values for this response are not all from the database query
+// we need to deal with offset and limit.
+type ResponseRecordSelector struct {
+	Offset           int // service request offset
+	Limit            int // service request limit
+	Total            int // total number of records (disregarding Offset and Limit)
+	RecordsProcessed int // how many records of the Total have been processed
+	RecordsAdded     int // how many records have been added
+}
+
 // SvcPayorStmtDispatch formats a complete data record for a person suitable for use with the w2ui Form
 // For this call, we expect the URI to contain the BID and the TCID as follows:
 //       0    1       2    3
@@ -284,6 +295,13 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	payorcache := map[int64]rlib.Transactant{}
 	lenmRL := len(m.RL)
 
+	var ctx = ResponseRecordSelector{
+		Offset:           d.wsSearchReq.Offset,
+		Limit:            d.wsSearchReq.Limit,
+		Total:            0,
+		RecordsProcessed: 0,
+	}
+
 	//------------------------------------------------------
 	// Generate the Receipt Summary
 	//------------------------------------------------------
@@ -291,12 +309,12 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	{
 		var pe payorStmtEntry
 		pe.Description = "*** RECEIPT SUMMARY ***"
-		psdr.Records = append(psdr.Records, pe)
+		safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 	}
 	if len(m.RL) == 0 {
 		var pe payorStmtEntry
 		pe.Description = "No receipts this period"
-		psdr.Records = append(psdr.Records, pe)
+		safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 	} else {
 		for i := 0; i < len(m.RL); i++ {
 			var pe payorStmtEntry
@@ -311,7 +329,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				pe.AppliedAmount = m.RL[i].Allocated
 				pe.Balance = m.RL[i].R.Amount
 			}
-			psdr.Records = append(psdr.Records, pe)
+			safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 		}
 	}
 
@@ -324,12 +342,12 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		psdr.Records = append(psdr.Records, pe1)
 		var pe payorStmtEntry
 		pe.Description = "*** UNAPPLIED FUNDS ***"
-		psdr.Records = append(psdr.Records, pe)
+		safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 	}
 	if len(m.RL) == 0 {
 		var pe payorStmtEntry
 		pe.Description = "No unapplied funds from other payors this period"
-		psdr.Records = append(psdr.Records, pe)
+		safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 	} else {
 		totUnapplied := float64(0)
 		for i := 0; i < lenmRL; i++ {
@@ -357,7 +375,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				pe.Description = "TBD"
 			}
 			if !external { // add this record to the report if it's not an external view
-				psdr.Records = append(psdr.Records, pe)
+				safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 			}
 		}
 		if external { // if it is external view, indicate if there are other unapplied funds
@@ -367,7 +385,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			} else {
 				pe.Description = "No unapplied funds from other payors this period"
 			}
-			psdr.Records = append(psdr.Records, pe)
+			safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 		}
 	}
 
@@ -384,10 +402,10 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// Identify report section
 		{
 			var pe1 payorStmtEntry
-			psdr.Records = append(psdr.Records, pe1)
+			safeAddPayorStmtEntry(&pe1, &psdr, &ctx)
 			var pe payorStmtEntry
 			pe.Description = fmt.Sprintf("*** RENTAL AGREEMENT %d ***", m.RAB[i].RAID)
-			psdr.Records = append(psdr.Records, pe)
+			safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 		}
 
 		// Opening Balance
@@ -397,7 +415,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			pe.Date = rlib.JSONDate(m.RAB[i].DtStart)
 			pe.Balance = m.RAB[i].OpeningBal
 			pe.RentableName = ra.GetTheRentableName(&d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
-			psdr.Records = append(psdr.Records, pe)
+			safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 		}
 
 		//------------------------
@@ -478,7 +496,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 			pe.Balance = bal
 			pe.Description = descr
-			psdr.Records = append(psdr.Records, pe)
+			safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 		}
 
 		var epe = payorStmtEntry{
@@ -488,16 +506,35 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			Assessment:    asmts,
 			Balance:       m.RAB[i].ClosingBal,
 		}
-		psdr.Records = append(psdr.Records, epe)
+		safeAddPayorStmtEntry(&epe, &psdr, &ctx)
 	}
 	// write response
 	psdr.Status = "success"
 	for i := 0; i < len(psdr.Records); i++ {
 		psdr.Records[i].Recid = int64(i)
 	}
-	psdr.Total = int64(len(psdr.Records))
+	psdr.Total = int64(ctx.Total)
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&psdr, w)
+}
+
+// safeAddPayorStmtEntry adds pse to psdr.Records provided the total count
+// of entries in psdr.Records does not exceed d.wsSearchReq.Limit.
+//
+// Params
+//	pse  - the new entry to add the Records
+//  psdr - the web service response struct
+//  ctx  - record selector context
+//
+// Returns nothing
+//-----------------------------------------------------------------------------
+func safeAddPayorStmtEntry(pse *payorStmtEntry, psdr *PayorStmtDetailResponse, ctx *ResponseRecordSelector) {
+	ctx.RecordsProcessed++
+	ctx.Total++
+	if ctx.RecordsProcessed > ctx.Offset && ctx.RecordsAdded < ctx.Limit {
+		psdr.Records = append(psdr.Records, *pse)
+		ctx.RecordsAdded++
+	}
 }
 
 func savePayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
