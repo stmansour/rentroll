@@ -162,6 +162,27 @@ function buildStatementsElements() {
             toolbarReload   : false,
             toolbarColumns  : false,
         },
+        toolbar: {
+            onClick: function (event) {
+                if (event.target == "csvexport" || event.target == "pdfexport") {
+                    var f = w2ui.stmtDetailForm;
+                    var d1 = document.getElementsByName("stmtDetailD1")[0].value;
+                    var d2 = document.getElementsByName("stmtDetailD2")[0].value;
+
+                    var url = "";
+                    if (event.target == "csvexport") {
+                        url = exportReportCSV("RPTrastmt", d1, d2, true);
+                    }
+                    if(event.target == "pdfexport") {
+                        url = exportReportPDF("RPTrastmt", d1, d2, true);
+                    }
+                    url += "&raid=" + f.record.RAID;
+
+                    // open url
+                    window.open(url);
+                }
+            }
+        },
         columns: [
             {field: 'recid',        caption: 'recid',        size: '35px',  sortable: true, hidden: true},
             {field: 'Dt',           caption: 'Date',         size: '75px',  sortable: true},
@@ -183,6 +204,12 @@ function buildStatementsElements() {
     });
 
     addDateNavToToolbar('stmtDetail');
+    w2ui.stmtDetailGrid.toolbar.add([
+        { type: 'break',},
+        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+        { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+    ]);
+    w2ui.stmtDetailGrid.toolbar.refresh();
 
     //------------------------------------------------------------------------
     //  stmtlayout - The layout to contain the stmtForm and stmtDetailGrid

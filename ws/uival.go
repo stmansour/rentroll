@@ -7,8 +7,8 @@ import (
 	"rentroll/rlib"
 )
 
-// returns bud from cached list (rlib.RRdb.BUDlist)
-func bidToBud(businessID int64) (string, error) {
+// BIDToBUD returns bud from cached list (rlib.RRdb.BUDlist)
+func BIDToBUD(businessID int64) (string, error) {
 	for bud, bid := range rlib.RRdb.BUDlist {
 		if businessID == bid {
 			return bud, nil
@@ -20,7 +20,7 @@ func bidToBud(businessID int64) (string, error) {
 func getListTypes(bid int64, s string, t int) (map[string][]IDTextMap, error) {
 	list := []IDTextMap{{ID: 0, Text: s}}   // initialize list with 0-id value
 	appData := make(map[string][]IDTextMap) // json response data
-	bud, err := bidToBud(bid)
+	bud, err := BIDToBUD(bid)
 	if err != nil {
 		return appData, err
 	}
@@ -56,7 +56,7 @@ func GetDepositoryList(bid int64) (map[string][]IDTextMap, error) {
 	// json response data
 	appData := make(map[string][]IDTextMap)
 
-	bud, err := bidToBud(bid)
+	bud, err := BIDToBUD(bid)
 	if err != nil {
 		return appData, err
 	}

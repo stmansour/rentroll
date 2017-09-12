@@ -55,7 +55,7 @@ const (
 	CUSTDATE   = 4
 	CUSTLAST   = 4 // this should be maintained as matching the highest index value in the group
 
-	// ledger marker states
+	// LMOPEN etc all are ledger marker states
 	LMOPEN    = 0
 	LMCLOSED  = 1
 	LMLOCKED  = 2

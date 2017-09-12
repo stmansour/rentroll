@@ -49,7 +49,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	var g StmtDetailResponse
 	var xbiz rlib.XBusiness
 
-	bud, err := bidToBud(sd.BID)
+	bud, err := BIDToBUD(sd.BID)
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
