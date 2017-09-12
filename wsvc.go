@@ -74,6 +74,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		{ReportNames: []string{"RPTt", "people"}, TableHandler: rrpt.RRreportPeopleTable},
 		{ReportNames: []string{"RPTtb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable},
 		{ReportNames: []string{"RPTpayorstmt", "payor statements"}, TableHandler: rrpt.RRPayorStatement},
+		{ReportNames: []string{"RPTrastmt", "rental agreement statements"}, TableHandler: rrpt.RRRentalAgreementStatements},
 	}
 
 	// handler for reports which has more than one table
