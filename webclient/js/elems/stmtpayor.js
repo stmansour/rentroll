@@ -1,7 +1,7 @@
 /*global
     GridMoneyFormat, number_format, w2ui, $, app, console,
     form_dirty_alert, addDateNavToToolbar, renderPayorStmtReversal, payorstmtRenderHandler,
-    dateFromString,
+    dateFromString, exportReportCSV, exportReportPDF,
 */
 "use strict";
 
@@ -85,30 +85,32 @@ function buildPayorStatementElements() {
                 { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
             ],
             onClick: function (event) {
-                var g = w2ui.payorStmtDetailGrid;
-                var r = w2ui.payorStmtInfoForm.record;
-                switch(event.target) {
-                case 'btnClose':
-                    var no_callBack = function() { return false; },
-                        yes_callBack = function() {
-                            w2ui.toplayout.hide('right',true);
-                            w2ui.payorstmtGrid.render();
-                        };
-                    form_dirty_alert(yes_callBack, no_callBack);
-                    break;
-                case 'payorstmtint':
-                    app.PayorStmtExt = false;
-                    g.postData.Bool1 = false;
-                    g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
-                    g.reload();
-                    break;
-                case 'payorstmtext':
-                    app.PayorStmtExt = true;
-                    g.postData.Bool1 = true;
-                    g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
-                    g.reload();
-                    break;
-                }
+                event.onComplete = function() {
+                    var g = w2ui.payorStmtDetailGrid;
+                    var r = w2ui.payorStmtInfoForm.record;
+                    switch(event.target) {
+                    case 'btnClose':
+                        var no_callBack = function() { return false; },
+                            yes_callBack = function() {
+                                w2ui.toplayout.hide('right',true);
+                                w2ui.payorstmtGrid.render();
+                            };
+                        form_dirty_alert(yes_callBack, no_callBack);
+                        break;
+                    case 'payorstmtint':
+                        app.PayorStmtExt = false;
+                        g.postData.Bool1 = false;
+                        g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
+                        g.reload();
+                        break;
+                    case 'payorstmtext':
+                        app.PayorStmtExt = true;
+                        g.postData.Bool1 = true;
+                        g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
+                        g.reload();
+                        break;
+                    }
+                };
             },
         },
         fields: [
@@ -116,16 +118,17 @@ function buildPayorStatementElements() {
             { field: 'RAID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'TCID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'FirstName', type: 'float', required: false, html: { page: 0, column: 0 } },
+            { field: 'FirstName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'MiddleName', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastName', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'PayorIsCompany', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'CompanyName', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'PayorIsCompany', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CompanyName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'Address', type: 'text', required: false, html: { page: 0, column: 0 } },
         ],
         onRefresh: function(event) {
+            var f = this;
             event.onComplete = function() {
-                var r = this.record;
+                var r = f.record;
                 var x = document.getElementById("bannerTCID");
                 if (x !== null) {
                     var title;
@@ -138,7 +141,6 @@ function buildPayorStatementElements() {
                         }
                         title += r.LastName + ' ';
                     }
-                    // title += '(' + r.TCID + ')';
                     x.innerHTML = title;
                 }
                 x = document.getElementById("payorstmtaddr");
@@ -194,6 +196,28 @@ function buildPayorStatementElements() {
             toolbarReload   : false,
             toolbarColumns  : false,
         },
+        toolbar: {
+            onClick: function (event) {
+                if (event.target == "csvexport" || event.target == "pdfexport") {
+                    var f = w2ui.payorStmtInfoForm;
+                    var d1 = document.getElementsByName("payorStmtDetailD1")[0].value;
+                    var d2 = document.getElementsByName("payorStmtDetailD2")[0].value;
+
+                    var url = "";
+                    if (event.target == "csvexport") {
+                        url = exportReportCSV("RPTpayorstmt", d1, d2, true);
+                    }
+                    if(event.target == "pdfexport") {
+                        url = exportReportPDF("RPTpayorstmt", d1, d2, true);
+                    }
+                    url += "&internal=" + app.PayorStmtExt;
+                    url += "&tcid=" + f.record.TCID;
+
+                    // open url
+                    window.open(url);
+                }
+            }
+        },
         columns: [
             {field: 'recid',           caption: 'recid',           size: '35px',  sortable: true, hidden: true},
             {field: 'Date',            caption: 'Date',            size: '70px',  sortable: true, render: function(rec) {return renderPayorStmtDate(rec.Date); }},
@@ -223,6 +247,12 @@ function buildPayorStatementElements() {
     });
 
     addDateNavToToolbar('payorStmtDetail');
+    w2ui.payorStmtDetailGrid.toolbar.add([
+        { type: 'break',},
+        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+        { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+    ]);
+    w2ui.payorStmtDetailGrid.toolbar.refresh();
 
     //------------------------------------------------------------------------
     //  payorstmtlayout - The layout to contain the stmtForm and payorStmtDetailGrid
@@ -276,7 +306,7 @@ function renderPayorStmtDate(s) {
 
 //-----------------------------------------------------------------------------
 // renderPayorStmtID - render the ID number for RAID, ASMID, and RCPTID.
-//        If the ID is > 0 return the number, otherwise just return an 
+//        If the ID is > 0 return the number, otherwise just return an
 //        empty string.
 // @params
 //    record = current record being rendered
@@ -295,7 +325,7 @@ function renderPayorStmtID(record, index, col_index) {
         case "ASMID":  n = record.ASMID; break;
         case "RCPTID": n = record.RCPTID; break;
         default:
-            return ''; 
+            return '';
     }
     if (n > 0) {
         return ''+n;

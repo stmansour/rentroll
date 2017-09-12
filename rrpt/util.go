@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gotable"
 	"io"
+	"net/url"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -119,6 +120,7 @@ type ReporterInfo struct {
 	BlankLineAfterRptName bool      // true if a blank line should be added after the Report Name
 	Handler               func(*ReporterInfo) string
 	Xbiz                  *rlib.XBusiness // may not be set in all cases
+	QueryParams           *url.Values
 }
 
 // TableReportHeader returns a title block of text for a report. The format is:
