@@ -116,7 +116,7 @@ function buildPayorStatementElements() {
             { field: 'RAID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'TCID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'FirstName', type: 'float', required: false, html: { page: 0, column: 0 }, render: 'money' },
+            { field: 'FirstName', type: 'float', required: false, html: { page: 0, column: 0 } },
             { field: 'MiddleName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'LastName', type: 'date', required: false, html: { page: 0, column: 0 } },
             { field: 'PayorIsCompany', type: 'date', required: false, html: { page: 0, column: 0 } },

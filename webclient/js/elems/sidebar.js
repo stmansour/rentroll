@@ -31,6 +31,7 @@ function buildSidebar() {
             },
             { id: 'collections', text: 'Collections', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
+                        { id: 'rr',           text: 'Rent Roll',                     icon: 'fa fa-line-chart',   hint: 'Rent Roll' },
                         { id: 'dlnq',         text: 'Delinquency Analysis',          icon: 'fa fa-pie-chart',   hint: 'Delinquency Analysis' },
                         { id: 'stmt',         text: 'RA Statements',                 icon: 'fa fa-star-half-o', hint: 'Rental Agreement Statements' },
                         { id: 'payorstmt',    text: 'Payor Statements',              icon: 'fa fa-star-half-o fa-flip-horizontal', hint: 'Payor Statements' },
@@ -142,6 +143,7 @@ function buildSidebar() {
                     case 'deposit':
                     case 'expense':
                     case 'payorstmt':
+                    case 'rr':
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         switchToGrid(target);
                         break;
