@@ -98,6 +98,8 @@
         "setToNextMonth": true,
         "createStmtForm": true,
         "buildPageElementsWrapper": true,
-        "createDepositForm": true
+        "createDepositForm": true,
+        "exportReportCSV": true,
+        "exportReportPDF": true
     }
 }

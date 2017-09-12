@@ -107,7 +107,7 @@ func RRreportRentalAgreements(ri *ReporterInfo) string {
 }
 
 // RRRentalAgreementStatementTable returns gotable.Table for rental agreement statements
-func RRRentalAgreementStatementTable(BID int64, RAID int64, d1, d2 *time.Time) gotable.Table {
+func RRRentalAgreementStatementTable(BID, RAID int64, d1, d2 *time.Time) gotable.Table {
 	var (
 		funcname = "SvcStatementDetails"
 		xbiz     rlib.XBusiness
@@ -156,7 +156,7 @@ func RRRentalAgreementStatementTable(BID int64, RAID int64, d1, d2 *time.Time) g
 	}
 
 	tbl.Init()
-	tbl.SetTitle("Rental Agreement Statement\n")
+	tbl.SetTitle("Rental Agreement Statement")
 	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("ID", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rentable", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -170,8 +170,6 @@ func RRRentalAgreementStatementTable(BID int64, RAID int64, d1, d2 *time.Time) g
 	//--------------------------------------------
 	var b, c, d float64
 	b = m.OpeningBal
-
-	fmt.Printf("Type: %T, Value: %v\n\n", m.DtStart, m.DtStart)
 
 	tbl.AddRow()
 	tbl.Putd(-1, Date, m.DtStart)
