@@ -129,8 +129,6 @@ function buildPayorStatementElements() {
             var f = this;
             event.onComplete = function() {
                 var r = f.record;
-                console.clear();
-                console.log(r);
                 var x = document.getElementById("bannerTCID");
                 if (x !== null) {
                     var title;
@@ -143,7 +141,6 @@ function buildPayorStatementElements() {
                         }
                         title += r.LastName + ' ';
                     }
-                    console.log(title);
                     x.innerHTML = title;
                 }
                 x = document.getElementById("payorstmtaddr");
