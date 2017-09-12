@@ -85,30 +85,32 @@ function buildPayorStatementElements() {
                 { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
             ],
             onClick: function (event) {
-                var g = w2ui.payorStmtDetailGrid;
-                var r = w2ui.payorStmtInfoForm.record;
-                switch(event.target) {
-                case 'btnClose':
-                    var no_callBack = function() { return false; },
-                        yes_callBack = function() {
-                            w2ui.toplayout.hide('right',true);
-                            w2ui.payorstmtGrid.render();
-                        };
-                    form_dirty_alert(yes_callBack, no_callBack);
-                    break;
-                case 'payorstmtint':
-                    app.PayorStmtExt = false;
-                    g.postData.Bool1 = false;
-                    g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
-                    g.reload();
-                    break;
-                case 'payorstmtext':
-                    app.PayorStmtExt = true;
-                    g.postData.Bool1 = true;
-                    g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
-                    g.reload();
-                    break;
-                }
+                event.onComplete = function() {
+                    var g = w2ui.payorStmtDetailGrid;
+                    var r = w2ui.payorStmtInfoForm.record;
+                    switch(event.target) {
+                    case 'btnClose':
+                        var no_callBack = function() { return false; },
+                            yes_callBack = function() {
+                                w2ui.toplayout.hide('right',true);
+                                w2ui.payorstmtGrid.render();
+                            };
+                        form_dirty_alert(yes_callBack, no_callBack);
+                        break;
+                    case 'payorstmtint':
+                        app.PayorStmtExt = false;
+                        g.postData.Bool1 = false;
+                        g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
+                        g.reload();
+                        break;
+                    case 'payorstmtext':
+                        app.PayorStmtExt = true;
+                        g.postData.Bool1 = true;
+                        g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
+                        g.reload();
+                        break;
+                    }
+                };
             },
         },
         fields: [
@@ -116,16 +118,19 @@ function buildPayorStatementElements() {
             { field: 'RAID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'TCID', type: 'int', required: false, html: {  page: 0, column: 0 } },
             { field: 'BID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'FirstName', type: 'float', required: false, html: { page: 0, column: 0 } },
+            { field: 'FirstName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'MiddleName', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastName', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'PayorIsCompany', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'CompanyName', type: 'date', required: false, html: { page: 0, column: 0 } },
+            { field: 'LastName', type: 'text', required: false, html: { page: 0, column: 0 } },
+            { field: 'PayorIsCompany', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'CompanyName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'Address', type: 'text', required: false, html: { page: 0, column: 0 } },
         ],
         onRefresh: function(event) {
+            var f = this;
             event.onComplete = function() {
-                var r = this.record;
+                var r = f.record;
+                console.clear();
+                console.log(r);
                 var x = document.getElementById("bannerTCID");
                 if (x !== null) {
                     var title;
@@ -138,7 +143,7 @@ function buildPayorStatementElements() {
                         }
                         title += r.LastName + ' ';
                     }
-                    // title += '(' + r.TCID + ')';
+                    console.log(title);
                     x.innerHTML = title;
                 }
                 x = document.getElementById("payorstmtaddr");
