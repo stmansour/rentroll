@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -243,4 +244,22 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 		t.AddRow()
 	}
 	return t
+}
+
+// RRPayorStatement is a report regarding payor statement, used to be download in pdf, csv format
+func RRPayorStatement(ri *ReporterInfo) gotable.Table {
+	// find tcid from query params
+	var (
+		tcid     int64
+		internal bool
+	)
+	tcidStr := ri.QueryParams.Get("tcid")
+	tcid, _ = strconv.ParseInt(tcidStr, 10, 64)
+
+	internalStr := ri.QueryParams.Get("internal")
+	if internalStr == "1" { //only internal if internal=1
+		internal = true
+	}
+
+	return PayorStatement(ri.Bid, tcid, &ri.D1, &ri.D2, internal)
 }
