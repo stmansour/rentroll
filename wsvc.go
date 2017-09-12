@@ -271,15 +271,9 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rlib.Console("r.RequestURL = %s\n", r.URL.String())
-	sa := strings.Split(r.URL.Path, "/") // ["", "wsvc", "<UID>", "<BID>"]
+	sa := strings.Split(r.URL.Path, "/") // ["", "wsvc", "<BID>"]
 	rlib.Console("sa = %#v\n", sa)
-	d.UID, err = rlib.IntFromString(sa[2], "bad request integer value")
-	if err != nil {
-		ui.ReportContent = fmt.Sprintf("Error parsing request URI: %s", err.Error())
-		SendWebSvcPage(w, r, &ui)
-		return
-	}
-	d.BID, err = rlib.IntFromString(sa[3], "bad request integer value")
+	d.BID, err = rlib.IntFromString(sa[2], "bad request integer value")
 	if err != nil {
 		ui.ReportContent = fmt.Sprintf("Error parsing request URI: %s", err.Error())
 		SendWebSvcPage(w, r, &ui)
