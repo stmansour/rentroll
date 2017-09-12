@@ -2,6 +2,10 @@
 	w2ui,console,app,
 */
 
+//
+// NOTE:  w2ui.grid.recordHeight default height is 24.  Change it to 40 or something to show 2 lines of text in a single cell
+//
+
 "use strict";
 
 function buildRentRollElements() {
@@ -31,6 +35,7 @@ function buildRentRollElements() {
         },
         columns: [
             {field: 'recid',            caption: 'recid',                      size: '35px',  sortable: true, hidden: true},
+            {field: 'BID',              caption: 'BID',                        size: '75px',  sortable: true, hidden: true},
             {field: 'RID',              caption: 'RID',                        size: '75px',  sortable: true, hidden: true},
             {field: 'RentableName',     caption: app.sRentable,                size: '150px', sortable: true},
             {field: 'RTID',             caption: 'RTID',                       size: '75px',  sortable: true, hidden: true},
@@ -41,7 +46,14 @@ function buildRentRollElements() {
             {field: 'Payors',           caption: 'Payors',                     size: '150px', sortable: true},
             {field: 'RAID',             caption: app.sRentalAgreement,         size: '150px', sortable: true},
             {field: 'Use',              caption: 'Use',                        size: '200px', sortable: true},
+            {field: 'PossessionStart',  caption: 'PossessionStart',            size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'PossessionStop',   caption: 'PossessionStop',             size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'Rent',             caption: 'Rent',                       size: '200px', sortable: true},
+            {field: 'RentStart',        caption: 'RentStart',                  size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'RentStop',         caption: 'RentStop',                   size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
             {field: 'Agreement',        caption: 'Agreement',                  size: '200px', sortable: true},
+            {field: 'AgreementStart',   caption: 'AgreementStart',             size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'AgreementStop',    caption: 'AgreementStop',              size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
             {field: 'RentCycle',        caption: 'Rent Cycle',                 size: '200px', sortable: true},
             {field: 'GSR',              caption: 'GSR',                        size: '200px', sortable: true, render: 'money'},
             {field: 'PeriodGSR',        caption: 'PeriodGSR',                  size: '200px', sortable: true, render: 'money'},

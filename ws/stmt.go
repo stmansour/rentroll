@@ -66,7 +66,7 @@ func stmtRowScan(rows *sql.Rows, q StmtGrid) (StmtGrid, error) {
 // SvcStatement is the response data for a Stmt Grid search
 func SvcStatement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
-		funcname = "SvcSearchHandlerRentalAgr"
+		funcname = "SvcStatement"
 		err      error
 		g        StmtSearchResponse
 	)
