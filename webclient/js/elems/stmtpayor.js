@@ -1,7 +1,7 @@
 /*global
     GridMoneyFormat, number_format, w2ui, $, app, console,
     form_dirty_alert, addDateNavToToolbar, renderPayorStmtReversal, payorstmtRenderHandler,
-    dateFromString,
+    dateFromString, exportReportCSV, exportReportPDF,
 */
 "use strict";
 
@@ -194,6 +194,28 @@ function buildPayorStatementElements() {
             toolbarReload   : false,
             toolbarColumns  : false,
         },
+        toolbar: {
+            onClick: function (event) {
+                if (event.target == "csvexport" || event.target == "pdfexport") {
+                    var f = w2ui.payorStmtInfoForm;
+                    var d1 = document.getElementsByName("payorStmtDetailD1")[0].value;
+                    var d2 = document.getElementsByName("payorStmtDetailD2")[0].value;
+
+                    var url = "";
+                    if (event.target == "csvexport") {
+                        url = exportReportCSV("RPTpayorstmt", d1, d2, true);
+                    }
+                    if(event.target == "pdfexport") {
+                        url = exportReportPDF("RPTpayorstmt", d1, d2, true);
+                    }
+                    url += "&internal=" + app.PayorStmtExt;
+                    url += "&tcid=" + f.record.TCID;
+
+                    // open url
+                    window.open(url);
+                }
+            }
+        },
         columns: [
             {field: 'recid',           caption: 'recid',           size: '35px',  sortable: true, hidden: true},
             {field: 'Date',            caption: 'Date',            size: '70px',  sortable: true, render: function(rec) {return renderPayorStmtDate(rec.Date); }},
@@ -223,6 +245,12 @@ function buildPayorStatementElements() {
     });
 
     addDateNavToToolbar('payorStmtDetail');
+    w2ui.payorStmtDetailGrid.toolbar.add([
+        { type: 'break',},
+        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+        { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+    ]);
+    w2ui.payorStmtDetailGrid.toolbar.refresh();
 
     //------------------------------------------------------------------------
     //  payorstmtlayout - The layout to contain the stmtForm and payorStmtDetailGrid
@@ -276,7 +304,7 @@ function renderPayorStmtDate(s) {
 
 //-----------------------------------------------------------------------------
 // renderPayorStmtID - render the ID number for RAID, ASMID, and RCPTID.
-//        If the ID is > 0 return the number, otherwise just return an 
+//        If the ID is > 0 return the number, otherwise just return an
 //        empty string.
 // @params
 //    record = current record being rendered
@@ -295,7 +323,7 @@ function renderPayorStmtID(record, index, col_index) {
         case "ASMID":  n = record.ASMID; break;
         case "RCPTID": n = record.RCPTID; break;
         default:
-            return ''; 
+            return '';
     }
     if (n > 0) {
         return ''+n;

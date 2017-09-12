@@ -1,33 +1,31 @@
 /*global
     app, w2ui, w2popup, getCurrentBusiness, $, console, genDateRangeNavigator,
-    handleDateToolbarAction, dateFromString, dateControlString, 
+    handleDateToolbarAction, dateFromString, dateControlString,
 */
 "use strict";
-function exportReportCSV(rptname){
+function exportReportCSV(rptname, dtStart, dtStop, returnURL){
     if (rptname === '') {
         return;
     }
     var x = getCurrentBusiness();
-    var userid = 211;
-    var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname;
-    var y = document.getElementsByName("dateD1");
-    if (y.length === 0) {
-        return; // the toolbar has not been rendered yet.  Just return now, we'll get called back.
+    var url = '/wsvc/' + x.value + '?r=' + rptname;
+
+    // if both dates are available then only append dtstart and dtstop in query params
+    if (dtStart && dtStop) {
+        url += '&dtstart=' + dtStart; // StartDate
+        url += '&dtstop=' + dtStop; // stopDate
     }
-    var d = y[0].value;
-    app.D1 = d;
-    url += '&dtstart=' + d;
-    //console.log('d1 = ' + d);
-    y = document.getElementsByName("dateD2");
-    d = y[0].value;
-    app.D2 = d;
-    // console.log('d2 = ' + d);
-    url += '&dtstop=' + d;
+
     // now append the report output format
     url += '&rof=' + app.rof.csv;
     console.log('url = ' + url);
-    // open separate window
-    window.open(url);
+
+    // open separate window if returnURL is not true
+    if (returnURL) {
+        return url;
+    } else {
+        window.open(url);
+    }
 }
 
 function popupPDFCustomDimensions() {
@@ -62,33 +60,32 @@ function saveCustomDims() {
     w2popup.close();
 }
 
-function exportReportPDF(rptname){
+function exportReportPDF(rptname, dtStart, dtStop, returnURL){
     if (rptname === '') {
         return;
     }
     var x = getCurrentBusiness();
-    var userid = 211;
-    var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname;
-    var y = document.getElementsByName("dateD1");
-    if (y.length === 0) {
-        return; // the toolbar has not been rendered yet.  Just return now, we'll get called back.
+    var url = '/wsvc/' + x.value + '?r=' + rptname;
+
+    // if both dates are available then only append dtstart and dtstop in query params
+    if (dtStart && dtStop) {
+        url += '&dtstart=' + dtStart; // StartDate
+        url += '&dtstop=' + dtStop; // stopDate
     }
-    var d = y[0].value;
-    app.D1 = d;
-    url += '&dtstart=' + d;
-    //console.log('d1 = ' + d);
-    y = document.getElementsByName("dateD2");
-    d = y[0].value;
-    app.D2 = d;
-    // console.log('d2 = ' + d);
-    url += '&dtstop=' + d;
+
     // now append the report output format
     url += '&rof=' + app.rof.pdf;
+
     // need to pass page width and height
     url += '&pw=' + app.pdfPageWidth + "&ph=" + app.pdfPageHeight;
     console.log('url = ' + url);
-    // open separate window
-    window.open(url);
+
+    // open separate window if returnURL is not true
+    if (returnURL) {
+        return url;
+    } else {
+        window.open(url);
+    }
 }
 
 function showReport(rptname, elToFocus) {
@@ -96,8 +93,7 @@ function showReport(rptname, elToFocus) {
         return;
     }
     var x = getCurrentBusiness();
-    var userid = 211;
-    var url = '/wsvc/' + userid + '/' + x.value + '?r=' + rptname;
+    var url = '/wsvc/' + x.value + '?r=' + rptname;
     w2ui.toplayout.content('main', w2ui.reportslayout);
     w2ui.toplayout.hide('right',true);
     var y = document.getElementsByName("dateD1");
@@ -198,6 +194,8 @@ function buildReportElements(){
         name: 'reportstoolbar',
         items: tmp,
         onClick: function (event) {
+            var d1, d2; // start date, stop date
+
             if (event.target == "page_size") {
                 console.log("Page size selected");
             }
@@ -205,10 +203,22 @@ function buildReportElements(){
                 console.log("orientation selected");
             }
             else if (event.target == "csvexport") {
-                exportReportCSV(app.last.report);
+                d1 = document.getElementsByName("dateD1")[0].value;
+                app.D1 = d1;
+                d2 = document.getElementsByName("dateD2")[0].value;
+                app.D2 = d2;
+
+                // now call to export csv report function with start and stop date
+                exportReportCSV(app.last.report, d1, d2);
             }
             else if (event.target == "printreport") {
-                exportReportPDF(app.last.report);
+                d1 = document.getElementsByName("dateD1")[0].value;
+                app.D1 = d1;
+                d2 = document.getElementsByName("dateD2")[0].value;
+                app.D2 = d2;
+
+                // call to export pdf report function with start and stop date
+                exportReportPDF(app.last.report, d1, d2);
             }
             else{
                 handleDateToolbarAction(event,'date');
