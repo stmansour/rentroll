@@ -19,8 +19,8 @@ type RRGrid struct {
 	RentableName    string          // Name of the rentable
 	RTName          string          // Name of the rentable type
 	RentCycle       int64           // Rent Cycle
-	RARID           int64           // Rental Agreement Rentable id where
-	RAID            int64           // Rental Agreement
+	RARID           rlib.NullInt64  // Rental Agreement Rentable id where
+	RAID            rlib.NullInt64  // Rental Agreement
 	AgreementPeriod string          // text representation of Rental Agreement time period
 	AgreementStart  rlib.JSONDate   // start date for RA
 	AgreementStop   rlib.JSONDate   // stop date for RA

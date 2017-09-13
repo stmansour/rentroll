@@ -145,39 +145,39 @@ CREATE TABLE NoteList (
 -- ****                              ****
 -- **************************************
 CREATE TABLE CustomAttr (
-    CID BIGINT NOT NULL AUTO_INCREMENT,        -- unique identifer for this custom attribute
+    CID BIGINT NOT NULL AUTO_INCREMENT,                     -- unique identifer for this custom attribute
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business associated with this NoteType
-    Type SMALLINT NOT NULL DEFAULT 0,          -- 0 = string, 1 = int64, 2 = float64
-    Name VARCHAR (100) NOT NULL DEFAULT '',    -- a name
-    Value VARCHAR (256) NOT NULL DEFAULT '',   -- its value in string form
-    Units VARCHAR (256) NOT NULL DEFAULT '',   -- optional units value
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                     -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,    -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    Type SMALLINT NOT NULL DEFAULT 0,                       -- 0 = string, 1 = int64, 2 = float64
+    Name VARCHAR (100) NOT NULL DEFAULT '',                 -- a name
+    Value VARCHAR (256) NOT NULL DEFAULT '',                -- its value in string form
+    Units VARCHAR (256) NOT NULL DEFAULT '',                -- optional units value
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
     PRIMARY KEY (CID)
 );
 
 CREATE TABLE CustomAttrRef (
-    ElementType BIGINT NOT NULL,                -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
-    BID         BIGINT NOT NULL DEFAULT 0,      -- Business associated with this NoteType
-    ID          BIGINT NOT NULL,                -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
-    CID         BIGINT NOT NULL,                -- uid of the custom attribute
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    ElementType BIGINT NOT NULL,                            -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
+    BID         BIGINT NOT NULL DEFAULT 0,                  -- Business associated with this NoteType
+    ID          BIGINT NOT NULL,                            -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
+    CID         BIGINT NOT NULL,                            -- uid of the custom attribute
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                      -- employee UID (from phonebook) that created this record
 );
 
 -- ===========================================
 --   RENTAL AGREEMENT TEMPLATE
 -- ===========================================
 CREATE TABLE RentalAgreementTemplate (
-    RATID BIGINT NOT NULL AUTO_INCREMENT,       -- internal unique id
-    BID BIGINT NOT NULL DEFAULT 0,              -- BizUnit Reference
-    RATemplateName VARCHAR(100) DEFAULT '',     -- Rental Agreement Template Name
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                      -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,     -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    RATID BIGINT NOT NULL AUTO_INCREMENT,                   -- internal unique id
+    BID BIGINT NOT NULL DEFAULT 0,                          -- BizUnit Reference
+    RATemplateName VARCHAR(100) DEFAULT '',                 -- Rental Agreement Template Name
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RATID)
 );
 
@@ -185,22 +185,22 @@ CREATE TABLE RentalAgreementTemplate (
 --   RENTAL AGREEMENT
 -- ===========================================
 CREATE TABLE RentalAgreement (
-    RAID BIGINT NOT NULL AUTO_INCREMENT,                         -- internal unique id
-    RATID BIGINT NOT NULL DEFAULT 0,                             -- reference to Rental Template (Occupancy Master Agreement)
-    BID BIGINT NOT NULL DEFAULT 0,                               -- Business (so that we can process by Business)
-    NLID BIGINT NOT NULL DEFAULT 0,                              -- NoteList ID
-    AgreementStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when rental starts (may be blank if RA initiated for floating deposit)
-    AgreementStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when rental stops  (may be blank if RA initiated for floating deposit)
-    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00', -- date when usage starts  (may be blank if RA initiated for floating deposit)
-    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- date when usage stops   (may be blank if RA initiated for floating deposit)
-    RentStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when Rent starts   (may be blank if RA initiated for floating deposit)
-    RentStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when Rent stops    (may be blank if RA initiated for floating deposit)
-    RentCycleEpoch DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Date on which rent cycle recurs. Start date for the recurring rent assessment
+    RAID BIGINT NOT NULL AUTO_INCREMENT,                                -- internal unique id
+    RATID BIGINT NOT NULL DEFAULT 0,                                    -- reference to Rental Template (Occupancy Master Agreement)
+    BID BIGINT NOT NULL DEFAULT 0,                                      -- Business (so that we can process by Business)
+    NLID BIGINT NOT NULL DEFAULT 0,                                     -- NoteList ID
+    AgreementStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',         -- date when rental starts (may be blank if RA initiated for floating deposit)
+    AgreementStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',          -- date when rental stops  (may be blank if RA initiated for floating deposit)
+    PossessionStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',        -- date when usage starts  (may be blank if RA initiated for floating deposit)
+    PossessionStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',         -- date when usage stops   (may be blank if RA initiated for floating deposit)
+    RentStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',              -- date when Rent starts   (may be blank if RA initiated for floating deposit)
+    RentStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',               -- date when Rent stops    (may be blank if RA initiated for floating deposit)
+    RentCycleEpoch DATE NOT NULL DEFAULT '1970-01-01 00:00:00',         -- Date on which rent cycle recurs. Start date for the recurring rent assessment
     -- FloatingDepositAssessment DATE NOT NULL DEFAULT '1970-01-01 00:00:00'  -- Date on which floating deposit was assessed.
-    UnspecifiedAdults SMALLINT NOT NULL DEFAULT 0,               -- # of Adults who are NOT accounted for in RentalAgreementPayor and RentableUser entries. Useful in hotels
-    UnspecifiedChildren SMALLINT NOT NULL DEFAULT 0,             -- # of Children who are NOT transactants that will participate in the possession of the rentable
-    Renewal SMALLINT NOT NULL DEFAULT 0,                         -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
-    SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',         -- free-form text
+    UnspecifiedAdults SMALLINT NOT NULL DEFAULT 0,                      -- # of Adults who are NOT accounted for in RentalAgreementPayor and RentableUser entries. Useful in hotels
+    UnspecifiedChildren SMALLINT NOT NULL DEFAULT 0,                    -- # of Children who are NOT transactants that will participate in the possession of the rentable
+    Renewal SMALLINT NOT NULL DEFAULT 0,                                -- 0 = not set, 1 = month to month automatic renewal, 2 = lease extension options
+    SpecialProvisions VARCHAR(1024) NOT NULL DEFAULT '',                -- free-form text
     LeaseType BIGINT NOT NULL DEFAULT 0,                                -- Full Service Gross, Gross, ModifiedGross, Tripple Net
     ExpenseAdjustmentType BIGINT NOT NULL DEFAULT 0,                    -- Base Year, No Base Year, Pass Through
     ExpensesStop DECIMAL(19,4) NOT NULL DEFAULT 0,                      -- cap on the amount of oexpenses that can be passed through to the tenant
@@ -218,10 +218,10 @@ CREATE TABLE RentalAgreement (
     ExpansionOption VARCHAR(128) NOT NULL DEFAULT '',                   -- the right to expand to certanin spaces that are typically contiguous to their primary space
     ExpansionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
     RightOfFirstRefusal VARCHAR(128) NOT NULL DEFAULT '',               -- Tenant may have the right to purchase their premises if LL chooses to sell
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                              -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                                -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                       -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                                 -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RAID)
 );
 
@@ -234,8 +234,8 @@ CREATE TABLE RentalAgreementRentables (
     ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
     RARDtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when this Rentable was added to the agreement
     RARDtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',    -- date when this Rentable was no longer being billed to this agreement
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RARID)
 );
 
@@ -259,8 +259,8 @@ CREATE TABLE RentableUsers (
     TCID BIGINT NOT NULL DEFAULT 0,                           -- the Users of the rentable
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00' ,      -- date when this User was no longer being billed to this agreement
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RUID)
 );
 
@@ -270,8 +270,8 @@ CREATE TABLE RentalAgreementTax (
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this flag went into effect
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this flag was no longer in effect
     FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1 << 0 is the bit that indicates whether or not the rental agreement is taxable
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                        -- employee UID (from phonebook) that created this record
 );
 
 CREATE TABLE RentalAgreementPets (
@@ -285,25 +285,25 @@ CREATE TABLE RentalAgreementPets (
     Name VARCHAR(100) NOT NULL DEFAULT '',                    -- the pet's name
     DtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',      -- date when this User was added to the agreement
     DtStop DATE NOT NULL DEFAULT '1970-01-01 00:00:00',       -- date when this User was no longer being billed to this agreement
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY (PETID)
 );
 
 -- Referenced by a Rentable associated with a RentalAgreement  (RentalAgreementRentables)
 CREATE TABLE CommissionLedger (
-    CLID BIGINT NOT NULL AUTO_INCREMENT,            -- unique id for this Commission Ledger
-    BID BIGINT NOT NULL DEFAULT 0,                  -- Business (so that we can process by Business)
-    RAID BIGINT NOT NULL DEFAULT 0,                 -- associated with this RAID
-    RID BIGINT NOT NULL DEFAULT 0,                  -- associated with this rentable??????
-    Salesperson  VARCHAR(100) NOT NULL DEFAULT '',  -- who referred
-    Percent DECIMAL(19,4) NOT NULL DEFAULT 0,       -- what percent are we paying them. If 0 then we're paying a specific Amount
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0,        -- what amount are we paying them. If 0 then we're paying a percentage
-    PaymentDueDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',     -- enterer will fill it out
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CLID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this Commission Ledger
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
+    RAID BIGINT NOT NULL DEFAULT 0,                           -- associated with this RAID
+    RID BIGINT NOT NULL DEFAULT 0,                            -- associated with this rentable??????
+    Salesperson  VARCHAR(100) NOT NULL DEFAULT '',            -- who referred
+    Percent DECIMAL(19,4) NOT NULL DEFAULT 0,                 -- what percent are we paying them. If 0 then we're paying a specific Amount
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0,                  -- what amount are we paying them. If 0 then we're paying a percentage
+    PaymentDueDate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- enterer will fill it out
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY(CLID)
 );
 
@@ -314,12 +314,12 @@ CREATE TABLE CommissionLedger (
 -- **************************************
 CREATE TABLE RatePlan (
     RPID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,                      -- Business
-    Name VARCHAR(100) NOT NULL DEFAULT '',              -- The name of this RatePlan
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                    -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                   -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business
+    Name VARCHAR(100) NOT NULL DEFAULT '',                    -- The name of this RatePlan
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY(RPID)
 );
     -- these flags are Property-Industry-specific.  IMPLEMENT THESE
@@ -329,66 +329,66 @@ CREATE TABLE RatePlan (
 
 -- RatePlanRef contains the time sensitive attributes of a RatePlan
 CREATE TABLE RatePlanRef (
-    RPRID BIGINT NOT NULL AUTO_INCREMENT,               -- unique id for this rate plan
-    BID BIGINT NOT NULL DEFAULT 0,                      -- Business
-    RPID BIGINT NOT NULL DEFAULT 0,                     -- which rateplan
-    DtStart DATE NULL DEFAULT '1970-01-01 00:00:00',    -- when does it go into effect
-    DtStop DATE NULL DEFAULT '1970-01-01 00:00:00',     -- when does it stop
-    FeeAppliesAge SMALLINT NOT NULL DEFAULT 0,          -- the age at which a user is counted when determining extra user fees or eligibility for rental
-    MaxNoFeeUsers SMALLINT NOT NULL DEFAULT 0,          -- maximum number of users for no fees. Greater than this number means fee applies
-    AdditionalUserFee DECIMAL(19,4) NOT NULL DEFAULT 0, -- extra fee per user when exceeding MaxNoFeeUsers
-    PromoCode VARCHAR(100),                             -- just a string
-    CancellationFee DECIMAL(19,4) NOT NULL DEFAULT 0,    -- charge for cancellation
-    FLAGS BIGINT NOT NULL DEFAULT 0,                    -- 1<<0 -- HideRate
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                              -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    RPRID BIGINT NOT NULL AUTO_INCREMENT,                     -- unique id for this rate plan
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business
+    RPID BIGINT NOT NULL DEFAULT 0,                           -- which rateplan
+    DtStart DATE NULL DEFAULT '1970-01-01 00:00:00',          -- when does it go into effect
+    DtStop DATE NULL DEFAULT '1970-01-01 00:00:00',           -- when does it stop
+    FeeAppliesAge SMALLINT NOT NULL DEFAULT 0,                -- the age at which a user is counted when determining extra user fees or eligibility for rental
+    MaxNoFeeUsers SMALLINT NOT NULL DEFAULT 0,                -- maximum number of users for no fees. Greater than this number means fee applies
+    AdditionalUserFee DECIMAL(19,4) NOT NULL DEFAULT 0,       -- extra fee per user when exceeding MaxNoFeeUsers
+    PromoCode VARCHAR(100),                                   -- just a string
+    CancellationFee DECIMAL(19,4) NOT NULL DEFAULT 0,         -- charge for cancellation
+    FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1<<0 -- HideRate
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY(RPRID)
 );
 
 -- RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
 CREATE TABLE RatePlanRefRTRate (
-    RPRID BIGINT NOT NULL DEFAULT 0,        -- which RatePlanRef is this
-    BID BIGINT NOT NULL DEFAULT 0,          -- Business
-    RTID BIGINT NOT NULL DEFAULT 0,         -- which RentableType
-    FLAGS BIGINT NOT NULL DEFAULT 0,        -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
-    Val DECIMAL(19,4) NOT NULL DEFAULT 0,   -- Val
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    RPRID BIGINT NOT NULL DEFAULT 0,                          -- which RatePlanRef is this
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business
+    RTID BIGINT NOT NULL DEFAULT 0,                           -- which RentableType
+    FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
+    Val DECIMAL(19,4) NOT NULL DEFAULT 0,                     -- Val
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                        -- employee UID (from phonebook) that created this record
 );
 -- RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 CREATE TABLE RatePlanRefSPRate (
-    RPRID BIGINT NOT NULL DEFAULT 0,        -- which RatePlanRef is this
-    BID BIGINT NOT NULL DEFAULT 0,          -- Business
-    RTID BIGINT NOT NULL DEFAULT 0,         -- which RentableType
-    RSPID BIGINT NOT NULL DEFAULT 0,        -- which Specialty
-    FLAGS BIGINT NOT NULL DEFAULT 0,        -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
-    Val DECIMAL(19,4) NOT NULL DEFAULT 0,   -- Val
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    RPRID BIGINT NOT NULL DEFAULT 0,                          -- which RatePlanRef is this
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business
+    RTID BIGINT NOT NULL DEFAULT 0,                           -- which RentableType
+    RSPID BIGINT NOT NULL DEFAULT 0,                          -- which Specialty
+    FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
+    Val DECIMAL(19,4) NOT NULL DEFAULT 0,                     -- Val
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                        -- employee UID (from phonebook) that created this record
 );
 
 -- Rate plans can have other deliverables. These can be things like 2 tickets to SeaWorld, free meal vouchers, etc.
 -- A RatePlan can refer to multiple OtherDeliverables.  SELECT * FROM RatePlanOD WHERE RPID=MyRatePlan will return all
 -- the OtherDeliverables associated with MyRatePlan
 CREATE TABLE RatePlanOD (
-    RPRID BIGINT NOT NULL DEFAULT 0,        -- with which RatePlanRef is this OtherDeliverable associated?
-    BID BIGINT NOT NULL DEFAULT 0,          -- Business
-    ODID BIGINT NOT NULL DEFAULT 0,         -- points to an OtherDeliverables
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                     -- employee UID (from phonebook) that created this record
+    RPRID BIGINT NOT NULL DEFAULT 0,                          -- with which RatePlanRef is this OtherDeliverable associated?
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business
+    ODID BIGINT NOT NULL DEFAULT 0,                           -- points to an OtherDeliverables
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                        -- employee UID (from phonebook) that created this record
 );
 
 -- These are for promotions - like 2 Seaworld tickets, etc.  Referenced by Rate Plan Refs
 -- Multiple rate plans can refer to the same OtherDeliverables.
 CREATE TABLE OtherDeliverables (
-    ODID BIGINT NOT NULL AUTO_INCREMENT,    -- Unique ID for this OtherDeliverables
-    BID BIGINT NOT NULL DEFAULT 0,          -- Business
-    Name VARCHAR(256),                      -- Description of the other deliverables. Ex: 2 Seaworld tickets
-    Active SMALLINT NOT NULL DEFAULT 0,     -- Flag: Is this list still active?  0 = not active, 1 = active
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    ODID BIGINT NOT NULL AUTO_INCREMENT,                      -- Unique ID for this OtherDeliverables
+    BID BIGINT NOT NULL DEFAULT 0,                            -- Business
+    Name VARCHAR(256),                                        -- Description of the other deliverables. Ex: 2 Seaworld tickets
+    Active SMALLINT NOT NULL DEFAULT 0,                       -- Flag: Is this list still active?  0 = not active, 1 = active
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY(ODID)
 );
 
@@ -404,36 +404,36 @@ CREATE TABLE OtherDeliverables (
 
 CREATE TABLE Business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
-    BUD VARCHAR(100) NOT NULL DEFAULT '',               -- Business Unit Designation
-    Name VARCHAR(100) NOT NULL DEFAULT '',
-    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,       -- default for every rentable type - useful to initialize UI
-    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,  -- default for every rentable type - useful to initialize UI
-    DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,           -- default for every rentable type - useful to initialize UI
+    BUD VARCHAR(100) NOT NULL DEFAULT '',                       -- Business Unit Designation
+    Name VARCHAR(100) NOT NULL DEFAULT '',        
+    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,               -- default for every rentable type - useful to initialize UI
+    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,          -- default for every rentable type - useful to initialize UI
+    DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                   -- default for every rentable type - useful to initialize UI
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                              -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,             -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (BID)
-);
---    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,     -- yes/no  0 = no, 1 = yes
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (BID)    
+);    
+--    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,           -- yes/no  0 = no, 1 = yes
 
 -- ===========================================
 --   RENTABLE TYPES
 -- ===========================================
 CREATE TABLE RentableTypes (
     RTID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,                          -- associated Business id
-    Style CHAR(255) NOT NULL DEFAULT '',                    -- need not be unique
-    Name VARCHAR(256) NOT NULL DEFAULT '',                  -- must be unique
-    RentCycle BIGINT NOT NULL DEFAULT 0,                    -- rent accrual frequency
-    Proration BIGINT NOT NULL DEFAULT 0,                    -- prorate frequency
-    GSRPC BIGINT NOT NULL DEFAULT 0,                        -- Increments in which GSR is calculated to account for rate changes
-    ManageToBudget SMALLINT NOT NULL DEFAULT 0,             -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 0=active, 1=inactive
+    BID BIGINT NOT NULL DEFAULT 0,                              -- associated Business id
+    Style CHAR(255) NOT NULL DEFAULT '',                        -- need not be unique
+    Name VARCHAR(256) NOT NULL DEFAULT '',                      -- must be unique
+    RentCycle BIGINT NOT NULL DEFAULT 0,                        -- rent accrual frequency
+    Proration BIGINT NOT NULL DEFAULT 0,                        -- prorate frequency
+    GSRPC BIGINT NOT NULL DEFAULT 0,                            -- Increments in which GSR is calculated to account for rate changes
+    ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 0=active, 1=inactive
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RTID)
 );
 
@@ -475,8 +475,8 @@ CREATE TABLE RentableSpecialty (
     Name VARCHAR(100) NOT NULL DEFAULT '',
     Fee DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     Description VARCHAR(256) NOT NULL DEFAULT '',
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RSPID)
 );
 
@@ -488,10 +488,10 @@ CREATE TABLE PaymentType (
     BID BIGINT NOT NULL,
     Name VARCHAR(100) NOT NULL DEFAULT '',
     Description VARCHAR(256) NOT NULL DEFAULT '',
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that modified it
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     PRIMARY KEY (PMTID)
 );
 
@@ -505,8 +505,8 @@ CREATE TABLE AvailabilityTypes (
     AVAILID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL,
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (AVAILID)
 );
 
