@@ -68,15 +68,29 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 	t.AddColumn("Assessment", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	t.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
-	t.SetTitle("Payor Statement\n\n")
 	payors := []int64{tcid}
+	payorcache := map[int64]rlib.Transactant{}
+
+	t.SetTitle("Payor Statement\n")
+	payorName := rlib.GetNameFromTransactantCache(tcid, payorcache)
+	t.SetSection1(fmt.Sprintf("Statement for: %s", payorName))
+
+	var section2 string // includes address and date range
+	tr := rlib.Transactant{}
+	err := rlib.GetTransactant(tcid, &tr)
+	if err != nil {
+		t.SetSection3("Unable to get Payor info: " + err.Error())
+		return t
+	}
+	addr := tr.SingleLineAddress()
+	section2 += fmt.Sprintf("%s\n%s - %s", addr, d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
+	t.SetSection2(section2)
+
 	m, err := rlib.PayorsStatement(bid, payors, d1, d2)
 	if err != nil {
 		t.SetSection3("Error from PayorsStatement: " + err.Error())
 		return t
 	}
-
-	payorcache := map[int64]rlib.Transactant{}
 
 	//------------------------------------------------------
 	// Generate the Receipt Summary
