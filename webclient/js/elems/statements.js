@@ -73,20 +73,41 @@ function buildStatementsElements() {
         toolbar: {
             items: [
                 { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { type: 'break' },
+                { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+                { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
                 { id: 'bt3', type: 'spacer' },
                 { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
             ],
             onClick: function (event) {
-                switch(event.target) {
-                case 'btnClose':
-                    var no_callBack = function() { return false; },
-                        yes_callBack = function() {
-                            w2ui.toplayout.hide('right',true);
-                            w2ui.stmtGrid.render();
-                        };
-                    form_dirty_alert(yes_callBack, no_callBack);
-                    break;
-                }
+                var r = w2ui.stmtDetailForm.record;
+                event.onComplete = function() {
+                    var d1, d2, url;
+                    switch(event.target) {
+                    case 'btnClose':
+                        var no_callBack = function() { return false; },
+                            yes_callBack = function() {
+                                w2ui.toplayout.hide('right',true);
+                                w2ui.stmtGrid.render();
+                            };
+                        form_dirty_alert(yes_callBack, no_callBack);
+                        break;
+                    case 'csvexport':
+                        d1 = document.getElementsByName("stmtDetailD1")[0].value;
+                        d2 = document.getElementsByName("stmtDetailD2")[0].value;
+                        url = exportReportCSV("RPTrastmt", d1, d2, true);
+                        url += "&raid=" + r.RAID;
+                        window.open(url); // open url
+                        break;
+                    case 'pdfexport':
+                        d1 = document.getElementsByName("stmtDetailD1")[0].value;
+                        d2 = document.getElementsByName("stmtDetailD2")[0].value;
+                        url = exportReportPDF("RPTrastmt", d1, d2, true);
+                        url += "&raid=" + r.RAID;
+                        window.open(url); // open url
+                        break;
+                    }
+                };
             },
         },
         fields: [
@@ -162,27 +183,6 @@ function buildStatementsElements() {
             toolbarReload   : false,
             toolbarColumns  : false,
         },
-        toolbar: {
-            onClick: function (event) {
-                if (event.target == "csvexport" || event.target == "pdfexport") {
-                    var f = w2ui.stmtDetailForm;
-                    var d1 = document.getElementsByName("stmtDetailD1")[0].value;
-                    var d2 = document.getElementsByName("stmtDetailD2")[0].value;
-
-                    var url = "";
-                    if (event.target == "csvexport") {
-                        url = exportReportCSV("RPTrastmt", d1, d2, true);
-                    }
-                    if(event.target == "pdfexport") {
-                        url = exportReportPDF("RPTrastmt", d1, d2, true);
-                    }
-                    url += "&raid=" + f.record.RAID;
-
-                    // open url
-                    window.open(url);
-                }
-            }
-        },
         columns: [
             {field: 'recid',        caption: 'recid',        size: '35px',  sortable: true, hidden: true},
             {field: 'Dt',           caption: 'Date',         size: '75px',  sortable: true},
@@ -204,12 +204,6 @@ function buildStatementsElements() {
     });
 
     addDateNavToToolbar('stmtDetail');
-    w2ui.stmtDetailGrid.toolbar.add([
-        { type: 'break',},
-        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-        { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
-    ]);
-    w2ui.stmtDetailGrid.toolbar.refresh();
 
     //------------------------------------------------------------------------
     //  stmtlayout - The layout to contain the stmtForm and stmtDetailGrid

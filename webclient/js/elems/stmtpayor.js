@@ -81,6 +81,8 @@ function buildPayorStatementElements() {
                 { id: 'payorstmtint', type: 'radio', group: '1', text: 'Internal', icon: 'fa fa-file-text-o', checked: true },
                 { id: 'payorstmtext', type: 'radio', group: '1', text: 'External', icon: 'fa fa-file-o' },
                 { type: 'break' },
+                { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+                { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
                 { type: 'spacer' },
                 { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
             ],
@@ -88,6 +90,7 @@ function buildPayorStatementElements() {
                 event.onComplete = function() {
                     var g = w2ui.payorStmtDetailGrid;
                     var r = w2ui.payorStmtInfoForm.record;
+                    var d1, d2, url;
                     switch(event.target) {
                     case 'btnClose':
                         var no_callBack = function() { return false; },
@@ -108,6 +111,22 @@ function buildPayorStatementElements() {
                         g.postData.Bool1 = true;
                         g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
                         g.reload();
+                        break;
+                    case 'csvexport':
+                        d1 = document.getElementsByName("payorStmtDetailD1")[0].value;
+                        d2 = document.getElementsByName("payorStmtDetailD2")[0].value;
+                        url = exportReportCSV("RPTpayorstmt", d1, d2, true);
+                        url += "&internal=" + app.PayorStmtExt;
+                        url += "&tcid=" + r.TCID;
+                        window.open(url); // open url
+                        break;
+                    case 'pdfexport':
+                        d1 = document.getElementsByName("payorStmtDetailD1")[0].value;
+                        d2 = document.getElementsByName("payorStmtDetailD2")[0].value;
+                        url = exportReportPDF("RPTpayorstmt", d1, d2, true);
+                        url += "&internal=" + app.PayorStmtExt;
+                        url += "&tcid=" + r.TCID;
+                        window.open(url); // open url
                         break;
                     }
                 };
@@ -196,28 +215,6 @@ function buildPayorStatementElements() {
             toolbarReload   : false,
             toolbarColumns  : false,
         },
-        toolbar: {
-            onClick: function (event) {
-                if (event.target == "csvexport" || event.target == "pdfexport") {
-                    var f = w2ui.payorStmtInfoForm;
-                    var d1 = document.getElementsByName("payorStmtDetailD1")[0].value;
-                    var d2 = document.getElementsByName("payorStmtDetailD2")[0].value;
-
-                    var url = "";
-                    if (event.target == "csvexport") {
-                        url = exportReportCSV("RPTpayorstmt", d1, d2, true);
-                    }
-                    if(event.target == "pdfexport") {
-                        url = exportReportPDF("RPTpayorstmt", d1, d2, true);
-                    }
-                    url += "&internal=" + app.PayorStmtExt;
-                    url += "&tcid=" + f.record.TCID;
-
-                    // open url
-                    window.open(url);
-                }
-            }
-        },
         columns: [
             {field: 'recid',           caption: 'recid',           size: '35px',  sortable: true, hidden: true},
             {field: 'Date',            caption: 'Date',            size: '70px',  sortable: true, render: function(rec) {return renderPayorStmtDate(rec.Date); }},
@@ -247,12 +244,6 @@ function buildPayorStatementElements() {
     });
 
     addDateNavToToolbar('payorStmtDetail');
-    w2ui.payorStmtDetailGrid.toolbar.add([
-        { type: 'break',},
-        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-        { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
-    ]);
-    w2ui.payorStmtDetailGrid.toolbar.refresh();
 
     //------------------------------------------------------------------------
     //  payorstmtlayout - The layout to contain the stmtForm and payorStmtDetailGrid
