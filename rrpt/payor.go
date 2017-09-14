@@ -71,11 +71,11 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 	payors := []int64{tcid}
 	payorcache := map[int64]rlib.Transactant{}
 
-	t.SetTitle("Payor Statement\n")
+	// t.SetTitle("Payor Statement\n")
 	payorName := rlib.GetNameFromTransactantCache(tcid, payorcache)
-	t.SetSection1(fmt.Sprintf("Statement for: %s", payorName))
+	t.SetTitle(fmt.Sprintf("%s - Statement", payorName))
 
-	var section2 string // includes address and date range
+	var section1 string // includes address and date range
 	tr := rlib.Transactant{}
 	err := rlib.GetTransactant(tcid, &tr)
 	if err != nil {
@@ -83,8 +83,8 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 		return t
 	}
 	addr := tr.SingleLineAddress()
-	section2 += fmt.Sprintf("%s\n%s - %s", addr, d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
-	t.SetSection2(section2)
+	section1 += fmt.Sprintf("Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT), addr)
+	t.SetSection1(section1)
 
 	m, err := rlib.PayorsStatement(bid, payors, d1, d2)
 	if err != nil {

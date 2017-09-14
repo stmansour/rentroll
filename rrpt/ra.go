@@ -163,15 +163,15 @@ func RRRentalAgreementStatementTable(BID, RAID int64, d1, d2 *time.Time) gotable
 	tbl.AddColumn("Applied Funds", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
-	tbl.SetTitle("Rental Agreement Statement")
-	tbl.SetSection1(fmt.Sprintf("Statement for: Rental Agreement %d", RAID))
+	tbl.SetTitle(fmt.Sprintf("Rental Agreement %d - Statement", RAID))
+	//tbl.SetSection1(fmt.Sprintf("Statement for: Rental Agreement %d", RAID))
 	ra, err := rlib.GetRentalAgreement(RAID)
 	if err != nil {
 		tbl.SetSection3("Unable to get Rental Agreement info: " + err.Error())
 		return tbl
 	}
 	sap := ra.GetPayorNameList(&ra.AgreementStart, &ra.AgreementStop)
-	tbl.SetSection2(fmt.Sprintf("%s", strings.Join(sap, ",")))
+	tbl.SetSection1(fmt.Sprintf("Statement Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3), strings.Join(sap, ", ")))
 
 	//--------------------------------------------
 	// Set the opening balance.

@@ -127,6 +127,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	LEFT JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
 	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
 	WHERE {{.WhereClause}}
+	GROUP BY 
 	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
 
 	// will be substituted as query clauses
