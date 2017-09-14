@@ -440,6 +440,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				descr += "REVERSAL: "
 			}
 			amt := m.RAB[i].Stmt[j].Amt
+			pe.Reverse = m.RAB[i].Stmt[j].Reverse
 
 			switch m.RAB[i].Stmt[j].T {
 			case 1: // assessments
@@ -512,7 +513,9 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	psdr.Status = "success"
 	for i := 0; i < len(psdr.Records); i++ {
 		psdr.Records[i].Recid = int64(i)
+		rlib.Console("%d. Reverse = %t\n", i, psdr.Records[i].Reverse)
 	}
+
 	psdr.Total = int64(ctx.Total)
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&psdr, w)

@@ -1,7 +1,7 @@
 /*global
     GridMoneyFormat, number_format, w2ui, $, app, console,
     form_dirty_alert, addDateNavToToolbar, renderPayorStmtReversal, payorstmtRenderHandler,
-    dateFromString, exportReportCSV, exportReportPDF,
+    dateFromString, exportReportCSV, exportReportPDF,getGridReversalSymbolHTML,
 */
 "use strict";
 
@@ -281,7 +281,7 @@ function renderPayorStmtReversal(record /*, index, col_index*/) {
         return;
     }
     if ( record.Reverse ) { // if reversed then
-        return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+        return getGridReversalSymbolHTML();
     }
     return '';
 }
