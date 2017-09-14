@@ -15,12 +15,9 @@ type PayorStatementInfo struct {
 
 // group payor statement
 // First, collect every Rental Agreement we need to check...
-
 // Next, get all the assessments made to any of those Rental Agreements
 // during the period d1-d2
-
 // Next, get all the receipts that each payor made during d1-d2
-
 // sort the entire list by date
 
 // PayorsStatement returns a slice of RAStmtEntry structs that describe

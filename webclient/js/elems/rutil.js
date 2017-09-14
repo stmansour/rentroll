@@ -67,7 +67,7 @@ function ChangeBusiness() {
 
 //---------------------------------------------------------------------------------
 // getGridReversalSymbolHTML - returns the HTML to insert into a grid cell to
-//          indicat that the record is reversed
+//          indicate that the record is reversed
 //
 // @params  <none>
 // @retunrs a string with HTML
@@ -78,7 +78,7 @@ function getGridReversalSymbolHTML() {
 
 //---------------------------------------------------------------------------------
 // get2XReversalSymbolHTML - returns the HTML to insert into a grid cell to
-//          indicat that the record is reversed
+//          indicate that the record is reversed
 //
 // @params  <none>
 // @retunrs a string with HTML

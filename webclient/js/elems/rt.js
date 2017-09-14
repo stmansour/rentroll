@@ -33,6 +33,7 @@ function buildRentableTypeElements() {
         name: 'rtGrid',
         url: '/v1/rt',
         multiSelect: false,
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
             header: false,
             toolbar: true,
@@ -635,17 +636,21 @@ function buildRentableTypeElements() {
                 ndStart;
 
             // get lastest date among all market rate object's stopDate for new MR's StartDate
-            g.records.forEach(function(rec) {
-                if (ndStart === undefined) {
-                    ndStart = new Date(rec.DtStop);
-                }
-                if (rec.DtStop) {
-                    var rdStop = new Date(rec.DtStop);
-                    if (ndStart < rdStop) {
-                        ndStart = rdStop;
+            if (g.records.length === 0) {
+                ndStart = new Date();
+            } else {
+                g.records.forEach(function(rec) {
+                    if (ndStart === undefined) {
+                        ndStart = new Date(rec.DtStop);
                     }
-                }
-            });
+                    if (rec.DtStop) {
+                        var rdStop = new Date(rec.DtStop);
+                        if (ndStart < rdStop) {
+                            ndStart = rdStop;
+                        }
+                    }
+                });
+            }
 
             var newRec = { recid: g.records.length,
                 BID: BID,

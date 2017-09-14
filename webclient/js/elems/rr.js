@@ -108,5 +108,5 @@ function buildRentRollElements() {
         },
     });
 
-    addDateNavToToolbar('payorstmt');
+    addDateNavToToolbar('rr');
 }

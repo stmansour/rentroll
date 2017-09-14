@@ -172,7 +172,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	LEFT JOIN AR ON AR.ARID=Assessments.ARID
 	WHERE {{.WhereClause}}
 	GROUP BY Assessments.ASMID
-	ORDER BY Assessments.Amount DESC;`
+	ORDER BY {{.OrderClause}};`
 
 	asmRcptQC := queryClauses{
 		"SelectClause": strings.Join(rentableAsmRcptFields, ","),
