@@ -99,7 +99,8 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 	t.Puts(-1, Description, "*** RECEIPT SUMMARY ***")
 	lenmRL := len(m.RL)
 	if len(m.RL) == 0 {
-		t.Puts(-1, Description, "No receipts this period")
+		t.AddRow()
+		t.Puts(-1, Description, "No receipts in this period")
 	} else {
 		for i := 0; i < len(m.RL); i++ {
 			if m.RL[i].R.TCID != tcid {
@@ -124,7 +125,8 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 		t.AddRow()
 		t.Puts(-1, Description, "*** UNAPPLIED FUNDS ***")
 		if len(m.RL) == 0 {
-			t.Puts(-1, Description, "No allocations this period")
+			t.AddRow()
+			t.Puts(-1, Description, "No allocations in this period")
 		} else {
 			for i := 0; i < lenmRL; i++ {
 				if m.RL[i].R.TCID == tcid {
@@ -271,9 +273,7 @@ func RRPayorStatement(ri *ReporterInfo) gotable.Table {
 	tcid, _ = strconv.ParseInt(tcidStr, 10, 64)
 
 	internalStr := ri.QueryParams.Get("internal")
-	if internalStr == "1" { //only internal if internal=1
-		internal = true
-	}
+	internal, _ = strconv.ParseBool(internalStr)
 
 	return PayorStatement(ri.Bid, tcid, &ri.D1, &ri.D2, internal)
 }

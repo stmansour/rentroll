@@ -1,5 +1,5 @@
 /*global
-	w2ui,console,app,
+    w2ui,console,app,
 */
 
 //
@@ -44,7 +44,16 @@ function buildRentRollElements() {
             {field: 'Description',      caption: 'Description',                size: '150px', sortable: true},
             {field: 'Users',            caption: 'Users',                      size: '150px', sortable: true},
             {field: 'Payors',           caption: 'Payors',                     size: '150px', sortable: true},
-            {field: 'RAID',             caption: app.sRentalAgreement,         size: '150px', sortable: true},
+            {field: 'RAID',             caption: app.sRentalAgreement,         size: '150px', sortable: true,
+                render: function(record/*,index, col_index*/) {
+                    if (typeof record === undefined) {
+                        return;
+                    }
+                    if (record.RAID) {
+                        return "RA-" + record.RAID; // return ID with "RA-"
+                    }
+                }
+            },
             {field: 'UsePeriod',        caption: 'Use Period',                 size:  '75px', sortable: true},
             {field: 'PossessionStart',  caption: 'PossessionStart',            size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
             {field: 'PossessionStop',   caption: 'PossessionStop',             size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
@@ -54,18 +63,25 @@ function buildRentRollElements() {
             {field: 'Agreement',        caption: 'Agreement Period',           size: '200px', sortable: true, hidden: true},
             {field: 'AgreementStart',   caption: 'AgreementStart',             size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
             {field: 'AgreementStop',    caption: 'AgreementStop',              size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
-            {field: 'RentCycle',        caption: 'Rent Cycle',                 size: '200px', sortable: true},
+            {field: 'RentCycle',        caption: 'Rent Cycle',                 size: '200px', sortable: true,
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === undefined) {
+                        return;
+                    }
+                    return app.cycleFreq[record.RentCycle];
+                }
+            },
             {field: 'GSR',              caption: 'GSR',                        size: '200px', sortable: true, render: 'money'},
             {field: 'PeriodGSR',        caption: 'PeriodGSR',                  size: '200px', sortable: true, render: 'money'},
             {field: 'IncomeOffsets',    caption: 'IncomeOffsets',              size: '200px', sortable: true, render: 'money'},
             {field: 'AmountDue',        caption: 'AmountDue',                  size: '200px', sortable: true, render: 'money'},
             {field: 'PaymentsApplied',  caption: 'Payments Applied',           size: '200px', sortable: true, render: 'money'},
-			{field: 'BeginningRcv',	    caption: 'Beginning Receivable',       size: '100px', sortable: false, render: 'money'},
-			{field: 'ChangeInRcv',	    caption: 'Change in Receivable',       size: '100px', sortable: false, render: 'money'},
-			{field: 'EndingRcv',	    caption: 'Ending Receivable',          size: '100px', sortable: false, render: 'money'},
-			{field: 'BeginningSecDep',	caption: 'Beginning Security Deposit', size: '100px', sortable: false, render: 'money'},
-			{field: 'ChangeInSecDep',	caption: 'Change in Security Deposit', size: '100px', sortable: false, render: 'money'},
-			{field: 'EndingSecDep',	    caption: 'Ending Security Deposit',    size: '100px', sortable: false, render: 'money'},
+            {field: 'BeginningRcv',	    caption: 'Beginning Receivable',       size: '100px', sortable: false, render: 'money'},
+            {field: 'ChangeInRcv',	    caption: 'Change in Receivable',       size: '100px', sortable: false, render: 'money'},
+            {field: 'EndingRcv',	    caption: 'Ending Receivable',          size: '100px', sortable: false, render: 'money'},
+            {field: 'BeginningSecDep',	caption: 'Beginning Security Deposit', size: '100px', sortable: false, render: 'money'},
+            {field: 'ChangeInSecDep',	caption: 'Change in Security Deposit', size: '100px', sortable: false, render: 'money'},
+            {field: 'EndingSecDep',	    caption: 'Ending Security Deposit',    size: '100px', sortable: false, render: 'money'},
         ],
         onClick: function(event) {
             event.onComplete = function () {

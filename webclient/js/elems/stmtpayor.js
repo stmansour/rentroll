@@ -116,7 +116,7 @@ function buildPayorStatementElements() {
                         d1 = document.getElementsByName("payorStmtDetailD1")[0].value;
                         d2 = document.getElementsByName("payorStmtDetailD2")[0].value;
                         url = exportReportCSV("RPTpayorstmt", d1, d2, true);
-                        url += "&internal=" + app.PayorStmtExt;
+                        url += "&internal=" + !app.PayorStmtExt;
                         url += "&tcid=" + r.TCID;
                         window.open(url); // open url
                         break;
@@ -124,7 +124,7 @@ function buildPayorStatementElements() {
                         d1 = document.getElementsByName("payorStmtDetailD1")[0].value;
                         d2 = document.getElementsByName("payorStmtDetailD2")[0].value;
                         url = exportReportPDF("RPTpayorstmt", d1, d2, true);
-                        url += "&internal=" + app.PayorStmtExt;
+                        url += "&internal=" + !app.PayorStmtExt;
                         url += "&tcid=" + r.TCID;
                         window.open(url); // open url
                         break;

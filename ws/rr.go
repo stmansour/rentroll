@@ -41,7 +41,7 @@ type RRGrid struct {
 	RentStop        rlib.NullDate   // stop date for Rent
 	Payors          rlib.NullString // payors list attached with this RA within same time
 	Users           rlib.NullString // users associated with the rentable
-	Sqft            int64           // rentable sq ft
+	Sqft            rlib.NullInt64  // rentable sq ft
 	Description     rlib.NullString
 	GSR             rlib.NullFloat64
 	PeriodGSR       rlib.NullFloat64
@@ -104,6 +104,12 @@ var rrQuerySelectFields = []string{
 	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END SEPARATOR ', ') AS Users",
 }
 
+var rentableAsmRcptFields = []string{
+	"AR.Name as Description",
+	"Assessments.Amount as AmountDue",
+	"SUM(Receipt.Amount) as PaymentsApplied",
+}
+
 // rrRowScan scans a result from sql row and dump it in a RRGrid struct
 func rrRowScan(rows *sql.Rows, q RRGrid) (RRGrid, error) {
 	err := rows.Scan(&q.BID, &q.RID, &q.RentableName, &q.RTID, &q.RentableType, &q.RentCycle, &q.GSR, &q.RARID, &q.RAID,
@@ -139,7 +145,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rentalAgrQuery := `
-	SELECT {{.SelectClause}}
+	SELECT
+		{{.SelectClause}}
 	FROM Rentable
 	INNER JOIN RentableTypeRef ON RentableTypeRef.RID=Rentable.RID
 	INNER JOIN RentableTypes ON RentableTypes.RTID=RentableTypeRef.RTID
@@ -155,6 +162,26 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	GROUP BY Rentable.RID
 	ORDER BY {{.OrderClause}}`
 
+	asmRcptQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Rentable
+	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
+	LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
+	LEFT JOIN Receipt ON Receipt.RCPTID=ReceiptAllocation.RCPTID
+	LEFT JOIN AR ON AR.ARID=Assessments.ARID
+	WHERE {{.WhereClause}}
+	GROUP BY Assessments.ASMID
+	ORDER BY Assessments.Amount DESC;`
+
+	asmRcptQC := queryClauses{
+		"SelectClause": strings.Join(rentableAsmRcptFields, ","),
+		"OrderClause":  "Assessments.Amount DESC",
+		"WhereClause":  "", // later we'll evaluate it
+		"DtStart":      d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
+		"DtStop":       d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),
+	}
+
 	// will be substituted as query clauses
 	qc := queryClauses{
 		"SelectClause": strings.Join(rrQuerySelectFields, ","),
@@ -164,7 +191,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		"DtStop":       d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),
 	}
 
-	// get TOTAL COUNT First
+	/*// get TOTAL COUNT First
 	countQuery := renderSQLQuery(rentalAgrQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
@@ -172,10 +199,13 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	rlib.Console("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)*/
 
-	limitAndOffsetClause := `LIMIT {{.LimitClause}} OFFSET {{.OffsetClause}};` // FETCH the records WITH LIMIT AND OFFSET
-	rentalAgrQueryWithLimit := rentalAgrQuery + limitAndOffsetClause           // build query with limit and offset clause
+	// FETCH the records WITH LIMIT AND OFFSET
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+	rentalAgrQueryWithLimit := rentalAgrQuery + limitAndOffsetClause // build query with limit and offset clause
 	qc["LimitClause"] = strconv.Itoa(limitClause)
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 	qry := renderSQLQuery(rentalAgrQueryWithLimit, qc) // get formatted query with substitution of select, where, order clause
@@ -193,7 +223,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	count := 0
 	for rows.Next() {
 		var q RRGrid
-		q.Recid = i
 		q.BID = d.BID
 
 		// get records info in struct q
@@ -207,7 +236,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if len(xbiz.RT[q.RTID].CA) > 0 { // if there are custom attributes
 			c, ok := xbiz.RT[q.RTID].CA[custom] // see if Square Feet is among them
 			if ok {                             // if it is...
-				q.Sqft, err = rlib.IntFromString(c.Value, "invalid sqft of custom attribute")
+				sqft, err := rlib.IntFromString(c.Value, "invalid sqft of custom attribute")
+				q.Sqft.Scan(sqft)
 				if err != nil {
 					SvcGridErrorReturn(w, err, funcname)
 					return
@@ -221,7 +251,34 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			q.UsePeriod = q.PossessionStart.Time.Format(rlib.RRDATEFMT3) + " -<br>" + q.PossessionStop.Time.Format(rlib.RRDATEFMT3)
 		}
 
-		g.Records = append(g.Records, q)
+		// now get assessment, receipt related info
+		asmRcptQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID, q.RID)
+		arQry := renderSQLQuery(asmRcptQuery, asmRcptQC) // get formatted query with substitution of select, where, order clause
+		rlib.Console("Rentable : Assessment + Receipt AMOUNT db query = %s\n", arQry)
+		// hold RRGrid in slice
+		var rentableResult = []RRGrid{}
+		// execute the query
+		arRows, err := rlib.RRdb.Dbrr.Query(arQry)
+		arCount := 0
+		if err == nil {
+			for arRows.Next() {
+				if arCount > 0 { // if more than one rows per rentable then create new RRGrid struct
+					var nq = RRGrid{RID: q.RID}
+					_ = arRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied) // ignore error
+					nq.Recid = g.Total
+					rentableResult = append(rentableResult, nq)
+				} else {
+					_ = arRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied) // ignore error
+					q.Recid = g.Total
+					rentableResult = append(rentableResult, q)
+				}
+				arCount++
+				g.Total++ // grid rows count
+			}
+		}
+		arRows.Close()
+
+		g.Records = append(g.Records, rentableResult...)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
 			break // if we've added the max number requested, then exit
