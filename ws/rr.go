@@ -104,6 +104,12 @@ var rrQuerySelectFields = []string{
 	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END SEPARATOR ', ') AS Users",
 }
 
+var rentableAsmRcptFields = []string{
+	"AR.Name as Description",
+	"Assessments.Amount as AmountDue",
+	"SUM(Receipt.Amount) as PaymentsApplied",
+}
+
 // rrRowScan scans a result from sql row and dump it in a RRGrid struct
 func rrRowScan(rows *sql.Rows, q RRGrid) (RRGrid, error) {
 	err := rows.Scan(&q.BID, &q.RID, &q.RentableName, &q.RTID, &q.RentableType, &q.RentCycle, &q.GSR, &q.RARID, &q.RAID,
@@ -139,7 +145,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rentalAgrQuery := `
-	SELECT {{.SelectClause}}
+	SELECT
+		{{.SelectClause}}
 	FROM Rentable
 	INNER JOIN RentableTypeRef ON RentableTypeRef.RID=Rentable.RID
 	INNER JOIN RentableTypes ON RentableTypes.RTID=RentableTypeRef.RTID
@@ -154,6 +161,26 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	WHERE {{.WhereClause}}
 	GROUP BY Rentable.RID
 	ORDER BY {{.OrderClause}}`
+
+	asmRcptQuery := `
+	SELECT
+		{{.SelectClause}}
+	FROM Rentable
+	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
+	LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
+	LEFT JOIN Receipt ON Receipt.RCPTID=ReceiptAllocation.RCPTID
+	LEFT JOIN AR ON AR.ARID=Assessments.ARID
+	WHERE {{.WhereClause}}
+	GROUP BY Assessments.ASMID
+	ORDER BY Assessments.Amount DESC;`
+
+	asmRcptQC := queryClauses{
+		"SelectClause": strings.Join(rentableAsmRcptFields, ","),
+		"OrderClause":  "Assessments.Amount DESC",
+		"WhereClause":  "", // later we'll evaluate it
+		"DtStart":      d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
+		"DtStop":       d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),
+	}
 
 	// will be substituted as query clauses
 	qc := queryClauses{
@@ -174,8 +201,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	rlib.Console("g.Total = %d\n", g.Total)
 
-	limitAndOffsetClause := `LIMIT {{.LimitClause}} OFFSET {{.OffsetClause}};` // FETCH the records WITH LIMIT AND OFFSET
-	rentalAgrQueryWithLimit := rentalAgrQuery + limitAndOffsetClause           // build query with limit and offset clause
+	// FETCH the records WITH LIMIT AND OFFSET
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+	rentalAgrQueryWithLimit := rentalAgrQuery + limitAndOffsetClause // build query with limit and offset clause
 	qc["LimitClause"] = strconv.Itoa(limitClause)
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 	qry := renderSQLQuery(rentalAgrQueryWithLimit, qc) // get formatted query with substitution of select, where, order clause
@@ -220,6 +250,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if q.PossessionStart.Time.Year() > 1970 {
 			q.UsePeriod = q.PossessionStart.Time.Format(rlib.RRDATEFMT3) + " -<br>" + q.PossessionStop.Time.Format(rlib.RRDATEFMT3)
 		}
+
+		// now get assessment, receipt related info
+		asmRcptQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID, q.RID)
+		arQry := renderSQLQuery(asmRcptQuery, asmRcptQC) // get formatted query with substitution of select, where, order clause
+		rlib.Console("Assessment + Receipt AMOUNT db query = %s\n", arQry)
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
