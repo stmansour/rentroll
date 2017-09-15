@@ -1,3 +1,8 @@
+/*global
+    $,w2ui,app,console,refreshUnallocAmtSummaries,unallocAmountRemaining,_unAllocRcpts,
+    parseFloat,getPayorFund,
+
+*/
 "use strict";
 function buildAllocFundsGrid() {
     //------------------------------------------------------------------------

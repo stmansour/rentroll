@@ -237,6 +237,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			c, ok := xbiz.RT[q.RTID].CA[custom] // see if Square Feet is among them
 			if ok {                             // if it is...
 				sqft, err := rlib.IntFromString(c.Value, "invalid sqft of custom attribute")
+				// q.Sqft.Valid = true
 				q.Sqft.Scan(sqft)
 				if err != nil {
 					SvcGridErrorReturn(w, err, funcname)
