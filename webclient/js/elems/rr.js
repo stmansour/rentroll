@@ -8,6 +8,8 @@
 
 "use strict";
 
+var grey_fields = [ "BeginningRcv","ChangeInRcv","EndingRcv","BeginningSecDep","ChangeInSecDep","EndingSecDep"];
+
 function buildRentRollElements() {
     //------------------------------------------------------------------------
     //  rr  -  lists all the assessments and receipts for
@@ -34,10 +36,35 @@ function buildRentRollElements() {
             toolbarColumns  : false,
         },
         columns: [
+            {field: 'IsSubTotalRow',    caption: 'Is SubTotal Row',                           sortable: false, hidden: true},
+            {field: 'IsBlankRow',       caption: 'Is Blank Row',                              sortable: false, hidden: true},
             {field: 'recid',            caption: 'recid',                      size: '35px',  sortable: true, hidden: true},
             {field: 'BID',              caption: 'BID',                        size: '75px',  sortable: true, hidden: true},
             {field: 'RID',              caption: 'RID',                        size: '75px',  sortable: true, hidden: true},
-            {field: 'RentableName',     caption: app.sRentable,                size: '110px', sortable: true},
+            {field: 'RentableName',     caption: app.sRentable,                size: '110px', sortable: true,
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === undefined) {
+                        return;
+                    }
+                    if (record.w2ui === undefined) {
+                        record.w2ui = {class:"", style: {}};
+                    }
+                    // if it is subtotal row then add class to "tr" tag
+                    if (record.IsSubTotalRow) {
+                        record.w2ui.class = "subTotalRow";
+                    }
+                    else if (record.IsBlankRow) {
+                        record.w2ui.class = "blankRow";
+                    } else {
+                        // apply greyish cell backgroud color to some cells
+                        for (var i = 0; i < grey_fields.length; i++) {
+                            var index = w2ui.rrGrid.getColumn(grey_fields[i], true);
+                            record.w2ui.style[index] = "background-color: grey;";
+                        }
+                    }
+                    return record.RentableName;
+                }
+            },
             {field: 'RTID',             caption: 'RTID',                       size: '75px',  sortable: true, hidden: true},
             {field: 'RentableType',     caption: 'Rentable Type',              size: '100px', sortable: true},
             {field: 'Sqft',             caption: 'Sqft',                       size:  '50px', sortable: true, style: 'text-align: right'},

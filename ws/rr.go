@@ -54,6 +54,8 @@ type RRGrid struct {
 	BeginningSecDep rlib.NullFloat64
 	ChangeInSecDep  rlib.NullFloat64
 	EndingSecDep    rlib.NullFloat64
+	IsSubTotalRow   bool
+	IsBlankRow      bool
 }
 
 // RRSearchResponse is the response data for a Rental Agreement Search
@@ -265,6 +267,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------------------
 		var rentableResult = []RRGrid{}
 		var sub RRGrid
+		sub.IsSubTotalRow = true
 		sub.AmountDue.Valid = true
 		sub.PaymentsApplied.Valid = true
 		sub.PeriodGSR.Valid = true
@@ -310,7 +313,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			sub.Recid = g.Total
 			rlib.Console("sub = %#v\n", sub)
 			rentableResult = append(rentableResult, sub)
-			arCount++
+			// arCount++
+			g.Total++ // grid rows count
+			// add new blank row for grid
+			rentableResult = append(rentableResult, RRGrid{IsBlankRow: true, Recid: g.Total})
+			// arCount++
 			g.Total++ // grid rows count
 		}
 		arRows.Close()
