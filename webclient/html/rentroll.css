@@ -99,3 +99,7 @@ textarea.w2ui-input-focus {
 .asmInstRow i.fa {
     color: #888;
 }
+
+.subTotalRow td {
+    border-top: 1px black solid;
+}
