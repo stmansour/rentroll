@@ -245,18 +245,29 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 		if q.RentStart.Time.Year() > 1970 {
-			q.RentPeriod = q.RentStart.Time.Format(rlib.RRDATEFMT3) + " -<br>" + q.RentStop.Time.Format(rlib.RRDATEFMT3)
+			q.RentPeriod = fmt.Sprintf("%s<br> - %s", q.RentStart.Time.Format(rlib.RRDATEFMT3), q.RentStop.Time.Format(rlib.RRDATEFMT3))
 		}
 		if q.PossessionStart.Time.Year() > 1970 {
-			q.UsePeriod = q.PossessionStart.Time.Format(rlib.RRDATEFMT3) + " -<br>" + q.PossessionStop.Time.Format(rlib.RRDATEFMT3)
+			q.UsePeriod = q.PossessionStart.Time.Format(rlib.RRDATEFMT3) + "<br> - " + q.PossessionStop.Time.Format(rlib.RRDATEFMT3)
 		}
 
+		//------------------------------------------------------------
 		// now get assessment, receipt related info
+		//------------------------------------------------------------
 		asmRcptQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID, q.RID)
 		arQry := renderSQLQuery(asmRcptQuery, asmRcptQC) // get formatted query with substitution of select, where, order clause
 		rlib.Console("Rentable : Assessment + Receipt AMOUNT db query = %s\n", arQry)
-		// hold RRGrid in slice
+
+		//------------------------------------------------------------
+		// There may be multiple rows, hold each row RRGrid in slice
+		// Also, compute sobtotals as we go
+		//------------------------------------------------------------
 		var rentableResult = []RRGrid{}
+		var sub RRGrid
+		sub.AmountDue.Valid = true
+		sub.PaymentsApplied.Valid = true
+		sub.PeriodGSR.Valid = true
+		sub.IncomeOffsets.Valid = true
 		// execute the query
 		arRows, err := rlib.RRdb.Dbrr.Query(arQry)
 		arCount := 0
@@ -267,14 +278,39 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					_ = arRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied) // ignore error
 					nq.Recid = g.Total
 					rentableResult = append(rentableResult, nq)
+					updateSubTotals(&sub, &nq)
 				} else {
 					_ = arRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied) // ignore error
 					q.Recid = g.Total
 					rentableResult = append(rentableResult, q)
+					updateSubTotals(&sub, &q)
 				}
 				arCount++
 				g.Total++ // grid rows count
 			}
+
+			//-----------------------------------
+			// Add the receivables totals...
+			//-----------------------------------
+			sub.Description.String = "Subtotal"
+			sub.Description.Valid = true
+			sub.BeginningRcv.Float64, err = rlib.GetRAIDBalance(q.RAID.Int64, &d.wsSearchReq.SearchDtStart)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			sub.BeginningRcv.Valid = true
+			sub.EndingRcv.Float64, err = rlib.GetRAIDBalance(q.RAID.Int64, &d.wsSearchReq.SearchDtStop)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			sub.EndingRcv.Valid = true
+			sub.Recid = g.Total
+			rlib.Console("sub = %#v\n", sub)
+			rentableResult = append(rentableResult, sub)
+			arCount++
+			g.Total++ // grid rows count
 		}
 		arRows.Close()
 
@@ -284,6 +320,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			break // if we've added the max number requested, then exit
 		}
 		i++
+
 	}
 	err = rows.Err()
 	if err != nil {
@@ -294,4 +331,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
+}
+
+// updateSubTotals does all subtotal calculations for the subtotal line
+func updateSubTotals(sub, q *RRGrid) {
+	sub.AmountDue.Float64 += q.AmountDue.Float64
+	sub.PaymentsApplied.Float64 += q.PaymentsApplied.Float64
+	sub.PeriodGSR.Float64 += q.PeriodGSR.Float64
+	sub.IncomeOffsets.Float64 += q.IncomeOffsets.Float64
 }
