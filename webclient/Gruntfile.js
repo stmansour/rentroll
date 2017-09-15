@@ -85,7 +85,7 @@ module.exports = function gruntInit(grunt) {
         watch: {
             scripts: {
                 files: ['<%= distInput %>', '<%= distHTMLs %>', '.jshintrc'],
-                tasks: ['clean', 'jshint', 'concat', 'uglify', 'qunit-instrumented-dir', 'qunit']
+                tasks: ['clean', 'jshint', 'concat', 'uglify'/*, 'qunit-instrumented-dir', 'qunit'*/]
             }
         },
 
