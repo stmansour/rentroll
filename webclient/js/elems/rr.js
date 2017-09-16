@@ -59,7 +59,7 @@ function buildRentRollElements() {
                         // apply greyish cell backgroud color to some cells
                         for (var i = 0; i < grey_fields.length; i++) {
                             var index = w2ui.rrGrid.getColumn(grey_fields[i], true);
-                            record.w2ui.style[index] = "background-color: grey;";
+                            record.w2ui.style[index] = "background-color: #CCC;";
                         }
                     }
                     return record.RentableName;
@@ -98,11 +98,11 @@ function buildRentRollElements() {
                     return app.cycleFreq[record.RentCycle];
                 }
             },
-            {field: 'GSR',              caption: 'GSR',                        size: '200px', sortable: true, render: 'money'},
-            {field: 'PeriodGSR',        caption: 'PeriodGSR',                  size: '200px', sortable: true, render: 'money'},
-            {field: 'IncomeOffsets',    caption: 'IncomeOffsets',              size: '200px', sortable: true, render: 'money'},
-            {field: 'AmountDue',        caption: 'AmountDue',                  size: '200px', sortable: true, render: 'money'},
-            {field: 'PaymentsApplied',  caption: 'Payments Applied',           size: '200px', sortable: true, render: 'money'},
+            {field: 'GSR',              caption: 'GSR',                        size: '100px', sortable: true,  render: 'money'},
+            {field: 'PeriodGSR',        caption: 'PeriodGSR',                  size: '100px', sortable: true,  render: 'money'},
+            {field: 'IncomeOffsets',    caption: 'IncomeOffsets',              size: '100px', sortable: true,  render: 'money'},
+            {field: 'AmountDue',        caption: 'AmountDue',                  size: '100px', sortable: true,  render: 'money'},
+            {field: 'PaymentsApplied',  caption: 'Payments Applied',           size: '100px', sortable: true,  render: 'money'},
             {field: 'BeginningRcv',	    caption: 'Beginning Receivable',       size: '100px', sortable: false, render: 'money'},
             {field: 'ChangeInRcv',	    caption: 'Change in Receivable',       size: '100px', sortable: false, render: 'money'},
             {field: 'EndingRcv',	    caption: 'Ending Receivable',          size: '100px', sortable: false, render: 'money'},

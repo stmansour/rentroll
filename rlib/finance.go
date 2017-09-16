@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+// LiabilitySecDep is the string used to identify a security deposit
+// liability account. It is used in queries.
+const (
+	LiabilitySecDep = "Liability Security Deposit"
+)
+
 // RDateFmt is an array of date / time formats that RentRoll accepts for datetime input
 var RDateFmt = []string{
 	RRDATETIMEINPFMT,
@@ -34,6 +40,7 @@ var QBAcctInfo = []struct {
 	{"Cash", false},                // Asset         D +   C -
 	{"Expense", false},             // Expense Acct  D +   C -
 	{"Liabilities", true},          // Liabilities   D -   C +
+	{LiabilitySecDep, true},        // Liabilities   D -   C +
 	{"Income", true},               // Income Acct   D -   C +
 	{"Income Offsets", true},       // Income Acct   D -   C +
 	{"Other Income", true},         // Income Acct   D -   C +
@@ -105,23 +112,6 @@ func ProrationUnits(a int64) string {
 	}
 	return s
 }
-
-// // StringToDate tries to convert the supplied string to a time.Time value.
-// // It will use the two
-// // formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2
-// func s2d(s string) time.Time {
-// 	var t time.Time
-// 	var err error
-// 	// try the ansi std date format first
-// 	s = strings.TrimSpace(s)
-// 	for i := 0; i < len(RDateFmt); i++ {
-// 		t, err = time.Parse(RDateFmt[i], s)
-// 		if err == nil {
-// 			return t
-// 		}
-// 	}
-// 	return t
-// }
 
 // CycleDuration returns the prorateDuration in microseconds and the units as
 // a string

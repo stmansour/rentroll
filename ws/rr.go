@@ -7,6 +7,7 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND Assessments.Start>="{{.DtStart}}" AND Assessments.Stop<"{{.DtStop}}" AND (Assessments.RentCycle=0 OR (Assessments.RentCycle>0 AND Assessments.PASMID!=0)))
@@ -265,6 +266,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// There may be multiple rows, hold each row RRGrid in slice
 		// Also, compute sobtotals as we go
 		//------------------------------------------------------------
+		d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+
 		var rentableResult = []RRGrid{}
 		var sub RRGrid
 		sub.IsSubTotalRow = true
@@ -310,8 +313,23 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 			sub.EndingRcv.Valid = true
+
+			sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			sub.BeginningSecDep.Valid = true
+			sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			sub.ChangeInSecDep.Valid = true
+			sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
+			sub.EndingSecDep.Valid = true
+
 			sub.Recid = g.Total
-			rlib.Console("sub = %#v\n", sub)
 			rentableResult = append(rentableResult, sub)
 			// arCount++
 			g.Total++ // grid rows count
