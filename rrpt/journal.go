@@ -299,13 +299,12 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 
 func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal) {
 	var r rlib.Rentable
-	rlib.Console("textPrintJournalUnassociated\n")
+	// rlib.Console("textPrintJournalUnassociated\n")
 	rlib.GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
 	tbl.AddRow()
 	tbl.Puts(-1, 0, j.IDtoString())
 	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.RentableName, j.Comment))
 	for i := 0; i < len(j.JA); i++ {
-		rlib.Console("textPrintJournalUnassociated.  j.JA[i].JAID = %d\n", j.JA[i].JAID)
 		processAcctRuleAmount(tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
 	}
 	tbl.AddRow() // separater line
