@@ -61,7 +61,6 @@ function buildRASelect(){
             if (app.RentalAgrFinder.RARentablesNames.length == 1) {
                 w2ui.rentalAgrFinder.record.RentableName = app.RentalAgrFinder.RARentablesNames[0];
             }
-
         },
         actions: {
             save: function () {
@@ -186,7 +185,10 @@ function rentalAgrFinderRender(item) {
         RID: item.RID,
     };
 
-    // we need to get the rentables associated with item.RAID
+    // Try to getget the rentables associated with item.RAID.  There may not
+    // be any rentables, which means they could be taking an application fee
+    // from a potential renter...
+    //------------------------------------------------------------------------
     var url = '/v1/rar/' + app.RentalAgrFinder.BID + '/' + item.RAID;
     $.get(url,function(data /*,status*/) {
         app.RentalAgrFinder.RAR = JSON.parse(data);

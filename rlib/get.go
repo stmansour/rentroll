@@ -1490,7 +1490,9 @@ func GetRentableByID(rid int64, r *Rentable) {
 // GetRentable reads and returns a Rentable structure based on the supplied Rentable id
 func GetRentable(rid int64) Rentable {
 	var r Rentable
-	GetRentableByID(rid, &r)
+	if rid > 0 {
+		GetRentableByID(rid, &r)
+	}
 	return r
 }
 

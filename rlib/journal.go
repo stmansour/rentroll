@@ -105,8 +105,13 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 	pf := float64(0)
 	var num, den int64
 	var start, stop time.Time
-	r := GetRentable(a.RID)
-	status := GetRentableStateForDate(r.RID, d)
+	var r Rentable
+	status := int64(RENTABLESTATUSONLINE) // if RID==0, then it's for an application fee or similar.  Assume rentable is online.
+
+	if a.RID > 0 {
+		r = GetRentable(a.RID)
+		status = GetRentableStateForDate(r.RID, d)
+	}
 	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), status)
 	switch status {
 	case RENTABLESTATUSONLINE:
@@ -158,26 +163,26 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 //		d1-d2 - defines the timerange being covered in this period
 //=================================================================================================
 func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time.Time) (Journal, error) {
-	// funcname := "journalAssessment"
-	// Console("Entered %s\n", funcname)
-	// Console("%s: d = %s, d1 = %s, d2 = %s\n", funcname, d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
+	funcname := "journalAssessment"
+	Console("Entered %s\n", funcname)
+	Console("%s: d = %s, d1 = %s, d2 = %s\n", funcname, d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
 	pf, num, den, start, stop := ProrateAssessment(xbiz, a, &d, d1, d2)
 
-	// Console("%s: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", funcname, a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
-	// Console("%s: pf = %f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
+	Console("%s: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", funcname, a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
+	Console("%s: pf = %f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
 
 	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID}
 	m := ParseAcctRule(xbiz, a.RID, d1, d2, GetAssessmentAccountRule(a), a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 
-	// Console("%s:  m = %#v\n", funcname, m)
+	Console("%s:  m = %#v\n", funcname, m)
 	for i := 0; i < len(m); i++ {
-		// Console("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
+		Console("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
 	}
 
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = RoundToCent(j.Amount)
 
-	// Console("j.Amount = %f\n", j.Amount)
+	Console("j.Amount = %f\n", j.Amount)
 
 	//------------------------------------------------------------------------------------------------------
 	// for non-recurring assessments (the only kind that we should be processing here) the amount may have

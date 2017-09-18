@@ -21,7 +21,7 @@ type AssessmentSendForm struct {
 	BUD            rlib.XJSONBud
 	PASMID         int64
 	RID            int64
-	Rentable       string
+	Rentable       rlib.NullString
 	RAID           int64
 	Amount         float64
 	Start          rlib.JSONDate
@@ -71,13 +71,12 @@ type AssessmentSaveForm struct {
 
 // AssessmentGrid is a structure specifically for the UI Grid.
 type AssessmentGrid struct {
-	Recid    int64  `json:"recid"` // this is to support the w2ui form
-	ASMID    int64  // unique id for this assessment
-	BID      int64  // which business
-	PASMID   int64  // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
-	RID      int64  // the Rentable
-	Rentable string // the RentableName
-	// ATypeLID  int64         // what type of assessment
+	Recid     int64           `json:"recid"` // this is to support the w2ui form
+	ASMID     int64           // unique id for this assessment
+	BID       int64           // which business
+	PASMID    int64           // parent Assessment, if this is non-zero it means this assessment is an instance of the recurring assessment with id PASMID. When non-zero DO NOT process as a recurring assessment, it is an instance
+	RID       int64           // the Rentable
+	Rentable  rlib.NullString // the RentableName
 	RAID      int64           // associated Rental Agreement
 	RentCycle int64           // Rent Cycle
 	Amount    float64         // how much
@@ -197,7 +196,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	SELECT DISTINCT
 		{{.SelectClause}}
 	FROM Assessments
-	INNER JOIN Rentable ON Assessments.RID=Rentable.RID
+	LEFT JOIN Rentable ON Assessments.RID=Rentable.RID
 	LEFT JOIN AR ON Assessments.ARID=AR.ARID
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
@@ -426,7 +425,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SELECT
 		{{.SelectClause}}
 	FROM Assessments
-	INNER JOIN Rentable ON Assessments.RID=Rentable.RID
+	LEFT JOIN Rentable ON Assessments.RID=Rentable.RID
 	WHERE {{.WhereClause}};`
 
 	// will be substituted as query clauses

@@ -40,8 +40,9 @@ func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, 
 		}
 		// ---------------------------------------------------------
 
-		l := rlib.GetLedgerByGLNo(r.BID, m[i].Account)
+		l := rlib.GetLedgerByGLNo(xbiz.P.BID, m[i].Account)
 		if 0 == l.LID {
+			// debug.PrintStack()
 			rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
 			rlib.LogAndPrint("%s: rule = \"%s\"\n", funcname, rule)
 			continue
@@ -59,7 +60,14 @@ func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, 
 }
 
 func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Assessment, r *rlib.Rentable, rentDuration, assessmentDuration int64) {
-	s := rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name
+	var s string
+	var rtid int64
+
+	if a.ARID > 0 {
+		s = rlib.RRdb.BizTypes[xbiz.P.BID].AR[a.ARID].Name
+	} else if a.ATypeLID > 0 {
+		s = rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[a.ATypeLID].Name
+	}
 
 	//-------------------------------------------------------------------------------------
 	// For reporting, we want to show any proration that needs to take place. To determine
@@ -75,46 +83,51 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	// 3. Report the prorate factor numerator and denominator:
 	//           pf = (resulting range duration)/AccrualPeriod (both in units of the ProrationCycle)
 	//-------------------------------------------------------------------------------------
-	_, pro, rtid, err := rlib.GetRentCycleAndProration(r, &a.Start, xbiz)
-	if err != nil {
-		rlib.Ulog("textPrintJournalAssessment: error getting RentCycle and Proration: err = %s\n", err.Error())
-		return
-	}
-	if a.RentCycle > pro && pro != 0 && a.ProrationCycle != 0 { // if accrual > proration then we *may* need to show prorate info
-		d1 := jctx.ReportStart // start with the report range
-		d2 := jctx.ReportStop  // start with the report range
-		if j.Dt.After(d1) {    // if this assessment is later move the start time
-			d1 = j.Dt
+	if r.RID > 0 {
+		_, pro, rti, err := rlib.GetRentCycleAndProration(r, &a.Start, xbiz)
+		rtid = rti
+		if err != nil {
+			rlib.Ulog("textPrintJournalAssessment: error getting RentCycle and Proration: err = %s\n", err.Error())
+			return
 		}
-		tmp := d1.Add(rlib.CycleDuration(a.RentCycle, d1)) // start + accrual duration
-		if tmp.Before(d2) {                                // if this occurs prior to the range end...
-			d2 = tmp // snap the range end
-		}
-		ra, err := rlib.GetRentalAgreement(a.RAID) // need rental agreement to find Possession time
-		rlib.Errlog(err)
-		if ra.RAID > 0 { // if we found the rental agreement
-			if ra.RentStart.After(d1) { // if possession started after d1
-				d1 = ra.RentStart // snap the begin time
+		if a.RentCycle > pro && pro != 0 && a.ProrationCycle != 0 { // if accrual > proration then we *may* need to show prorate info
+			d1 := jctx.ReportStart // start with the report range
+			d2 := jctx.ReportStop  // start with the report range
+			if j.Dt.After(d1) {    // if this assessment is later move the start time
+				d1 = j.Dt
 			}
-			if ra.RentStop.Before(d2) { // if possession ended prior to d2
-				d2 = ra.RentStop // snap the end time
+			tmp := d1.Add(rlib.CycleDuration(a.RentCycle, d1)) // start + accrual duration
+			if tmp.Before(d2) {                                // if this occurs prior to the range end...
+				d2 = tmp // snap the range end
+			}
+			ra, err := rlib.GetRentalAgreement(a.RAID) // need rental agreement to find Possession time
+			rlib.Errlog(err)
+			if ra.RAID > 0 { // if we found the rental agreement
+				if ra.RentStart.After(d1) { // if possession started after d1
+					d1 = ra.RentStart // snap the begin time
+				}
+				if ra.RentStop.Before(d2) { // if possession ended prior to d2
+					d2 = ra.RentStop // snap the end time
+				}
+			}
+
+			units := rlib.CycleDuration(pro, d1) // duration of the unit for proration
+			numerator := d2.Sub(d1)
+			denominator := rlib.GetProrationRange(d1, d2, a.RentCycle, pro)
+
+			if numerator != denominator {
+				s += fmt.Sprintf(" (%d/%d %s)", numerator/units, denominator/units, rlib.ProrationUnits(pro))
 			}
 		}
+	}
 
-		units := rlib.CycleDuration(pro, d1) // duration of the unit for proration
-		numerator := d2.Sub(d1)
-		denominator := rlib.GetProrationRange(d1, d2, a.RentCycle, pro)
-
-		if numerator != denominator {
-			s += fmt.Sprintf(" (%d/%d %s)", numerator/units, denominator/units, rlib.ProrationUnits(pro))
+	if rtid > 0 {
+		s += fmt.Sprintf("  %s", r.RentableName) + " [" + xbiz.RT[rtid].Style
+		if a.RentCycle > rlib.CYCLENORECUR {
+			s += ", " + rlib.RentalPeriodToString(a.RentCycle)
 		}
+		s += "] " + j.Comment
 	}
-
-	s += fmt.Sprintf("  %s", r.RentableName) + " [" + xbiz.RT[rtid].Style
-	if a.RentCycle > rlib.CYCLENORECUR {
-		s += ", " + rlib.RentalPeriodToString(a.RentCycle)
-	}
-	s += "] " + j.Comment
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, j.IDtoString())
@@ -286,11 +299,13 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 
 func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal) {
 	var r rlib.Rentable
+	rlib.Console("textPrintJournalUnassociated\n")
 	rlib.GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
 	tbl.AddRow()
 	tbl.Puts(-1, 0, j.IDtoString())
 	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.RentableName, j.Comment))
 	for i := 0; i < len(j.JA); i++ {
+		rlib.Console("textPrintJournalUnassociated.  j.JA[i].JAID = %d\n", j.JA[i].JAID)
 		processAcctRuleAmount(tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
 	}
 	tbl.AddRow() // separater line
@@ -332,8 +347,8 @@ func textReportJournalEntry(tbl *gotable.Table, ri *ReporterInfo, j *rlib.Journa
 
 	if len(j.JA) > 0 { // is there an associated rental agreement?
 		ra, _ := rlib.GetRentalAgreement(j.JA[0].RAID) // if so, get it
-		if ra.RentStart.After(start) {                 // if possession of rental starts later...
-			start = ra.RentStart // ...then make an adjustment
+		if ra.AgreementStart.After(start) {            // if possession of rental starts later...
+			start = ra.AgreementStart // ...then make an adjustment
 		}
 		stop = ra.AgreementStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges should be NON-INCLUSIVE
 		if stop.After(jctx.ReportStop) {

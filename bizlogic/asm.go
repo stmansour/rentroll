@@ -415,7 +415,7 @@ func InsertAssessment(a *rlib.Assessment, exp int) []BizError {
 		a.FLAGS |= 0x3                // indicate that this is an OFFSET and should not be processd during payment allocation
 	}
 
-	// rlib.Console("B\n")
+	rlib.Console("B:   a = %#v\n", a)
 	_, err := rlib.InsertAssessment(a) // No bizlogic errors, save it
 	if err != nil {
 		return bizErrSys(&err)
