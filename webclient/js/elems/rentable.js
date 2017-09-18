@@ -1,7 +1,10 @@
+/*global
+    setDefaultFormFieldAsPreviousRecord
+*/
 "use strict";
-function getRentableInitRecord(BID, BUD){
+function getRentableInitRecord(BID, BUD, previousFormRecord){
     var y = new Date();
-    return {
+    var defaultFormData = {
         recid: 0,
         BID: BID,
         BUD: BUD,
@@ -22,6 +25,18 @@ function getRentableInitRecord(BID, BUD){
         CurrentDate: y,
         AssignmentTime: 0,
     };
+
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {             
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'RentableName'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );        
+    }   
+
+    return defaultFormData;
 }
 
 function buildRentableElements() {
@@ -114,7 +129,7 @@ function buildRentableElements() {
                         BID=parseInt(x.value),
                         BUD = getBUDfromBID(BID);
 
-                    var record = getRentableInitRecord(BID, BUD);
+                    var record = getRentableInitRecord(BID, BUD, null);
 
                     getRentableTypes(BUD)
                     .done(function(/*data*/){
@@ -208,7 +223,6 @@ function buildRentableElements() {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
-
                     getRentableTypes(BUD)
                     .done(function(/*data*/){
                         w2ui.rentableForm.record = record;
@@ -221,7 +235,7 @@ function buildRentableElements() {
                     // JUST RENDER THE GRID ONLY
                     grid.render();
 
-                    var record = getRentableInitRecord(BID, BUD);
+                    var record = getRentableInitRecord(BID, BUD, f.record);
                     f.record = record;
                     f.header = "Edit {0} ({1}) as of {2}".format(app.sRentable, "new", w2uiDateControlString(r.CurrentDate));
                     f.url = '/v1/rentable/' + BID+'/0';
