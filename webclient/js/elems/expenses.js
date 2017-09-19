@@ -490,8 +490,8 @@ function expOpenRASelect() {
 }
 
 function expFormRASelect() {
-    w2ui.expenseForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
-    w2ui.expenseForm.record.RName = w2ui.rentalAgrFinder.record.RentableName.text;
-    w2ui.expenseForm.record.RID = w2ui.rentalAgrFinder.record.RentableName.id;
+    w2ui.expenseForm.record.RAID = w2ui.rentalAgrPicker.record.RAID;
+    w2ui.expenseForm.record.RName = w2ui.rentalAgrPicker.record.RentableName.text;
+    w2ui.expenseForm.record.RID = w2ui.rentalAgrPicker.record.RentableName.id;
     w2ui.expenseForm.refresh();
 }

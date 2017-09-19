@@ -928,9 +928,9 @@ function asmOpenRASelect() {
 }
 
 function asmFormRASelect() {
-    w2ui.asmEpochForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
-    w2ui.asmEpochForm.record.Rentable = w2ui.rentalAgrFinder.record.RentableName.text;
-    w2ui.asmEpochForm.record.RID = w2ui.rentalAgrFinder.record.RentableName.id;
+    w2ui.asmEpochForm.record.RAID = w2ui.rentalAgrPicker.record.RAID;
+    w2ui.asmEpochForm.record.Rentable = w2ui.rentalAgrPicker.record.RentableName.text;
+    w2ui.asmEpochForm.record.RID = w2ui.rentalAgrPicker.record.RentableName.id;
     w2ui.asmEpochForm.refresh();
 }
 
