@@ -125,6 +125,11 @@ const (
 	RRDATEREPORTFMT  = "Jan 2, 2006"
 )
 
+// TIME0 is the "beginning of time" constant to use when we need
+// to set a time far enough in the past so that there won't be a
+// date prior issue
+var TIME0 = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+
 // StringList is a generic list structure for lists of strings. These could be used to implement things like
 // the list of reasons why an applicant's application was turned down, the list of reasons why a tenant is
 // moving out, etc.
@@ -1467,6 +1472,8 @@ type RRprepSQL struct {
 	GetRALedgerMarkerOnOrAfter              *sql.Stmt
 	GetReceiptAllocationsThroughDate        *sql.Stmt
 	GetInitialLedgerMarkerByRAID            *sql.Stmt
+	GetInitialLedgerMarkerByRID             *sql.Stmt
+	GetRARentableLedgerMarkerOnOrBefore     *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
