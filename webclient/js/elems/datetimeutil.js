@@ -247,3 +247,12 @@ function dateFmtStr(today) {
     var yyyy = today.getFullYear();
     return mm + '/' + dd + '/' + yyyy;
 }
+
+
+
+$(function() {    
+     $(document).on("blur change", "input[type=us-date1], input[type=us-date2]", function(e) {   
+         // replace trailing zero from date using regex   
+         this.value = this.value.replace(/\b0*(?=\d)/g, '');        
+     });
+ });
