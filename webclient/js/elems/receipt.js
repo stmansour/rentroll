@@ -4,11 +4,12 @@
     addDateNavToToolbar, tcidReceiptPayorPickerRender, tcidPickerDropRender, tcidPickerCompare,
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
+    setDefaultFormFieldAsPreviousRecord
 */
 "use strict";
-function getReceiptInitRecord(BID, BUD, ptInit){
+function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
     var y = new Date();
-    return {
+    var defaultFormData = {
         recid: 0,
         RCPTID: 0,
         PRCPTID: 0,
@@ -31,6 +32,18 @@ function getReceiptInitRecord(BID, BUD, ptInit){
         LastModBy: 0,
         CreateBy: 0
     };
+
+        // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'DocNo', 'Payor', 'Amount', 'OtherPayorName', 'Comment'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );        
+    }   
+
+    return defaultFormData;
 }
 
 function buildReceiptElements() {
@@ -164,7 +177,7 @@ function buildReceiptElements() {
 
                             var pmt_options = buildPaymentTypeSelectList(BUD);
                             var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                            var record = getReceiptInitRecord(BID, BUD, ptInit);
+                            var record = getReceiptInitRecord(BID, BUD, ptInit, null);
                             w2ui.receiptForm.fields[0].options.items = pmt_options;
                             w2ui.receiptForm.fields[1].options.items = app.ReceiptRules[BUD];
                             w2ui.receiptForm.record = record;
@@ -503,10 +516,9 @@ function buildReceiptElements() {
                     // add new empty record and just refresh the form, don't need to do CLEAR form
                     var pmt_options = buildPaymentTypeSelectList(BUD);
                     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                    var record = getReceiptInitRecord(BID, BUD, ptInit);
                     f.fields[0].options.items = pmt_options;
                     f.fields[1].options.items = app.ReceiptRules[BUD];
-                    f.record = record;
+                    f.record = getReceiptInitRecord(BID, BUD, ptInit, f.record);
                     f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/receipt/' + BID + '/0';
                     f.refresh();
