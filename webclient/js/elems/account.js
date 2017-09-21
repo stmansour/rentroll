@@ -1,13 +1,13 @@
 /*global
     $, console, w2ui, w2confirm, app, getBUDfromBID, getCurrentBusiness, getParentAccounts,
     setToForm, form_dirty_alert, formRecDiffer, getFormSubmitData, delete_confirm_options,
-    w2utils, formRefreshCallBack,
+    w2utils, formRefreshCallBack, setDefaultFormFieldAsPreviousRecord
 */
 "use strict";
-function getAccountInitRecord(BID, BUD){
+function getAccountInitRecord(BID, BUD, previousFormRecord){
     var y = new Date();
 
-    return {
+    var defaultFormData = {
         recid: 0,
         LID: 0,
         PLID: 0,
@@ -26,6 +26,18 @@ function getAccountInitRecord(BID, BUD){
         LastModTime: y.toISOString(),
         LastModBy: 0,
     };
+
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {          
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'Name', 'Description'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );        
+    }   
+
+    return defaultFormData;
 }
 
 
@@ -174,7 +186,7 @@ function buildAccountElements() {
                             w2ui.toplayout.sizeTo('right', 700);
                             return;
                         } else {
-                            var record = getAccountInitRecord(BID, BUD);
+                            var record = getAccountInitRecord(BID, BUD, null);
 
                             w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
                             w2ui.accountForm.record = record;
@@ -295,7 +307,7 @@ function buildAccountElements() {
                     grid.render();
 
                     // add new empty record and just refresh the form, don't need to do CLEAR form
-                    var record = getAccountInitRecord(BID, BUD);
+                    var record = getAccountInitRecord(BID, BUD, f.record);
 
                     w2ui.accountForm.get("PLID").options.items = app.parent_accounts[BUD];
                     f.record = record;

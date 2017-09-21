@@ -15,8 +15,8 @@ date = Jan 1, 2017, asmt = -4000.00,  bal =   -30.00
 date = Jan 24, 2017, asmt =  -628.45,  bal =  -658.45
 date = Feb 1, 2017, asmt = -4000.00,  bal = -4658.45
 date = Feb 1, 2017, asmt =  -175.00,  bal = -4833.45
-date = Feb 3, 2017, RCPT =   598.45,  bal = -4235.00
-date = Feb 3, 2017, RCPT =    30.00,  bal = -4205.00
+date = Feb 3, 2017, RCPT =    30.00,  bal = -4803.45
+date = Feb 3, 2017, RCPT =   598.45,  bal = -4205.00
 date = Feb 13, 2017, asmt =   -15.00,  bal = -4220.00
 date = Feb 13, 2017, RCPT =  4000.00,  bal =  -220.00
 date = Feb 13, 2017, RCPT =   175.00,  bal =   -45.00

@@ -1,13 +1,13 @@
 /*global
     popupRentalAgrPicker, $, asm, console, w2ui, w2uiDateControlString, app,
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder, get2XReversalSymbolHTML,
-    getGridReversalSymbolHTML,
+    getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord
 */
 "use strict";
-function getAsmsInitRecord(BID, BUD){
+function getAsmsInitRecord(BID, BUD, previousFormRecord){
     var y = new Date();
     var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-    return {
+    var defaultFormData = {
         ARID: 0,
         recid: 0,
         RID: 0,
@@ -24,6 +24,7 @@ function getAsmsInitRecord(BID, BUD){
         ProrationCycle: 'Daily',
         TCID: 0,
         Amount: 0,
+        Rentable: '',
         AcctRule: '',
         Comment: '',
         LastModTime: y.toISOString(),
@@ -34,6 +35,18 @@ function getAsmsInitRecord(BID, BUD){
         FLAGS: 0,
         Mode: 0,
     };
+
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'Amount', 'Comment', 'RAID', 'Rentable'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );        
+    }   
+
+    return defaultFormData;
 }
 
 function renderReversalIcon(record /*, index, col_index*/) {
@@ -182,7 +195,7 @@ function buildAssessmentElements() {
                             var BUD = getBUDfromBID(BID);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var record = getAsmsInitRecord(BID, BUD);
+                            var record = getAsmsInitRecord(BID, BUD, null);
                             // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             w2ui.asmEpochForm.fields[0].options.items = app.AssessmentRules[BUD];
                             w2ui.asmEpochForm.record = record;
@@ -331,13 +344,11 @@ function buildAssessmentElements() {
                     .done( function(data) {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                             app.AssessmentRules = JSON.parse(data);
-                            app.ridRentablePicker.BID = BID; // needed by typedown
-
-                            var record = getAsmsInitRecord(BID, BUD);
+                            app.ridRentablePicker.BID = BID; // needed by typedown                            
 
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             f.fields[0].options.items = app.AssessmentRules[BUD];
-                            f.record = record;
+                            f.record = getAsmsInitRecord(BID, BUD, f.record);
                             f.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             f.url  = "/v1/asm/" + BID + "/0";
                             f.refresh();
@@ -628,7 +639,7 @@ function buildAssessmentElements() {
                             app.AssessmentRules = JSON.parse(data);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var record = getAsmsInitRecord(BID, BUD);
+                            var record = getAsmsInitRecord(BID, BUD, null);
 
                             // epochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             epochForm.fields[0].options.items = app.AssessmentRules[BUD];

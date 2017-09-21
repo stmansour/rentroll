@@ -1011,3 +1011,29 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 // test('1.20',     '1.20', 2);
 // test('1.2000',   '1.20', 4);
 // test('1.200',    '1.2000', 3);
+
+
+//-----------------------------------------------------------------------------
+// Save last form value entered as default for next form record
+// 
+// @params
+//   formFields         : array of form fields which needs to be reset, other fields are kept same as previous form record
+//                        if array is empty then new form record will be same as previous form record
+//                        if array is ['*'] then  new form record will be same as default(reset) form record
+//   defaultFormRecord  : Object
+//   previousFormRecord : Object
+// @returns
+//   defaultFormRecord  : Object
+//-----------------------------------------------------------------------------
+function setDefaultFormFieldAsPreviousRecord(formFields, defaultFormRecord, previousFormRecord) {
+    if (formFields.length === 0) {
+        return previousFormRecord;
+    }
+    if (formFields[0] === '*') {
+        return defaultFormRecord;
+    }
+    for ( var i = 0; i < formFields.length; i++) {
+        previousFormRecord[formFields[i]] = defaultFormRecord[formFields[i]];
+    }
+    return previousFormRecord;
+}
