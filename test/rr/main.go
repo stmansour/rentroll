@@ -95,25 +95,47 @@ func main() {
 
 // DoTest checks Security Deposit Balances
 func DoTest() {
+	funcname := "DoTest"
 	// RentRoll report dates
 	dtStart := time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC)
 	dtStop := time.Date(2017, time.February, 1, 0, 0, 0, 0, time.UTC)
 
-	raid := int64(1) // this is the RAID for the test
-	rid := int64(1)  // this is the RID for the test
 	d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	d2 := dtStart
-	x, err := rlib.GetSecDepBalance(App.Xbiz.P.BID, raid, rid, &d1, &d2)
-	if err != nil {
-		fmt.Printf("err = %s\n", err.Error())
-		os.Exit(1)
-	}
-	rlib.Console("Opening balance on %s  =  %.2f\n", dtStart.Format(rlib.RRDATEFMTSQL), x)
-	x, err = rlib.GetSecDepBalance(App.Xbiz.P.BID, raid, rid, &dtStart, &dtStop)
-	if err != nil {
-		fmt.Printf("err = %s\n", err.Error())
-		os.Exit(1)
-	}
-	rlib.Console("Activity between %s and %s  =  %.2f\n", dtStart.Format(rlib.RRDATEFMTSQL), dtStop.Format(rlib.RRDATEFMTSQL), x)
+	raids := []int64{1, 3, 2, 0, 4, 5, 0, 0}
 
+	lm := rlib.GetRARentableLedgerMarkerOnOrBefore(1, 1, &dtStart)
+	rlib.Console("raid=1, rid=1, Dt=%s, lm = %#v\n", dtStart.Format(rlib.RRDATEFMT3), lm)
+
+	// set the limits for which RA(s) we want to process
+	iStart := int64(2)
+	iStop := int64(3)
+
+	for rid := iStart; rid < iStop; rid++ {
+		if int64(0) == raids[rid-1] {
+			continue
+		}
+		x, err := rlib.GetSecDepBalance(App.Xbiz.P.BID, raids[rid-1], rid, &d1, &d2)
+		if err != nil {
+			fmt.Printf("err = %s\n", err.Error())
+			os.Exit(1)
+		}
+		rlib.Console("SecDep Opening balance on %s  =  %.2f\n\n", dtStart.Format(rlib.RRDATEFMTSQL), x)
+		x, err = rlib.GetSecDepBalance(App.Xbiz.P.BID, raids[rid-1], rid, &dtStart, &dtStop)
+		if err != nil {
+			fmt.Printf("err = %s\n", err.Error())
+			os.Exit(1)
+		}
+		rlib.Console("SecDep Activity between %s and %s  =  %.2f\n",
+			dtStart.Format(rlib.RRDATEFMTSQL), dtStop.Format(rlib.RRDATEFMTSQL), x)
+
+		rlib.Console("before rlib.GetBeginEndRARBalance:  dtStart = %s, dtStop = %s\n", dtStart.Format(rlib.RRDATEFMT3), dtStop.Format(rlib.RRDATEFMT3))
+		openingBal, closingBal, err := rlib.GetBeginEndRARBalance(rid, raids[rid-1], &dtStart, &dtStop)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			os.Exit(1)
+		}
+		rlib.Console("rid=%d, raid=%d, %s - %s:   openingBal = %.2f, closingBal = %.2f\n\n\n",
+			rid, raids[rid-1], d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3), openingBal, closingBal)
+	}
 }

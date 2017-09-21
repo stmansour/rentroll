@@ -1474,6 +1474,8 @@ type RRprepSQL struct {
 	GetInitialLedgerMarkerByRAID            *sql.Stmt
 	GetInitialLedgerMarkerByRID             *sql.Stmt
 	GetRARentableLedgerMarkerOnOrBefore     *sql.Stmt
+	GetAssessmentsByRARRange                *sql.Stmt
+	GetASMReceiptAllocationsInRARDateRange  *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

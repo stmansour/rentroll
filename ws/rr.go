@@ -296,24 +296,22 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				g.Total++ // grid rows count
 			}
 
-			//-----------------------------------
-			// Add the receivables totals...
-			//-----------------------------------
+			//----------------------------------------
+			// Add the Rentable receivables totals...
+			//----------------------------------------
 			sub.Description.String = "Subtotal"
 			sub.Description.Valid = true
-			sub.BeginningRcv.Float64, err = rlib.GetRAIDBalance(q.RAID.Int64, &d.wsSearchReq.SearchDtStart)
-			if err != nil {
-				SvcGridErrorReturn(w, err, funcname)
-				return
-			}
+			sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(q.RID, q.RAID.Int64, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			sub.ChangeInRcv.Float64 = sub.EndingRcv.Float64 - sub.BeginningRcv.Float64
+			rlib.Console("raid=%d, rid=%d, %.2f - %.2f\n", q.RAID.Int64, q.RID, sub.BeginningRcv.Float64, sub.EndingRcv.Float64)
+			rlib.Console("CHANGE = %.2f\n", sub.ChangeInRcv.Float64)
 			sub.BeginningRcv.Valid = true
-			sub.EndingRcv.Float64, err = rlib.GetRAIDBalance(q.RAID.Int64, &d.wsSearchReq.SearchDtStop)
-			if err != nil {
-				SvcGridErrorReturn(w, err, funcname)
-				return
-			}
 			sub.EndingRcv.Valid = true
+			sub.ChangeInRcv.Valid = true
 
+			//----------------------------------------
+			// Add the Security Deposit totals...
+			//----------------------------------------
 			sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)

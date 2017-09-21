@@ -75,7 +75,6 @@ func GetNameFromTransactantCache(tcid int64, payorcache map[int64]Transactant) s
 // GetRAIDBalance returns the balance of the account for the supplied
 // rental agreement on the date requested.
 //
-//
 // Parameters
 //     raid  = Rental Agreement ID
 //       dt  = date for which balance is needed
