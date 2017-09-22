@@ -156,25 +156,3 @@ function buildRentRollElements() {
 
     addDateNavToToolbar('rr');
 }
-
-function getRentRollReportData() {
-    var x = getCurrentBusiness(),
-        BID=parseInt(x.value);
-
-    var g = w2ui.rrGrid,
-        rt_offset = g.last._rt_offset;
-
-    return $.get("http://localhost:8270/v1/rrREST/2/", {
-        "searchDtStart": "2017-09-01",
-        "searchDtStop": "2017-10-01",
-        "rt_offset": rt_offset,
-        "offset": g.offset,
-    }, null, "json")
-    .done(function(data){
-        if (data.status) {
-            g.records = data.records;
-            g.render();
-        }
-    });
-}
-
