@@ -97,10 +97,15 @@ function buildRentRollElements() {
             if (event.status != "success") {
                 return;
             }
+
             if (!("_rt_offset" in g.last)) {
                 g.last._rt_offset = 0; // rentable offset
             }
             if (!("_rrIndexMap" in g.last)) {
+                g.last._rrIndexMap = {};
+            }
+            if (g.last.scrollTop == 0 && records_length == 0) {
+                g.last._rt_offset = 0; // rentable offset
                 g.last._rrIndexMap = {};
             }
 
@@ -110,11 +115,11 @@ function buildRentRollElements() {
                     record.w2ui.class = "";
                     record.w2ui.style = {};
 
-                    // always keep rows expanded
-                    g.expand(record.recid);
-
                     // if it is subtotal row then add class to "tr" tag
                     if (record.IsRentableMainRow) {
+                        // always keep rows expanded, if it is main row then
+                        g.expand(record.recid);
+
                         g.last._rrIndexMap[i] = g.last._rt_offset;
                         g.last._rt_offset++;
                     }
@@ -131,13 +136,14 @@ function buildRentRollElements() {
                         }
                     }
                 }
-                g.refresh();
-                g.offset += g.last._rt_offset;
                 g.total = data.total;
                 setTimeout(function() {
                     calculateRRPagination(); // at last we need to execute this custom pagination mechanism
                 }, 0);
             };
+        },
+        onRequest: function(event) {
+            event.postData.rentableOffset = this.last._rt_offset;
         },
         onRefresh: function(event) {
             var g = this;
@@ -221,3 +227,4 @@ function calculateRRPagination() {
                 (g.offset > 0 ? ', skip ' + w2utils.formatNumber(g.offset) : '') + ')' : '')
     );
 }
+
