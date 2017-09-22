@@ -307,6 +307,7 @@ func SvcRRChild(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					updateSubTotals(&sub, &nq)
 				} else {
 					_ = arRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied) // ignore error
+					q.IsRentableMainRow = true
 					updateSubTotals(&sub, &q)
 				}
 				childCount++
@@ -508,7 +509,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------------------
 		asmRcptQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID, q.RID)
 		arQry := renderSQLQuery(asmRcptQuery, asmRcptQC) // get formatted query with substitution of select, where, order clause
-		rlib.Console("Rentable : Assessment + Receipt AMOUNT db query = %s\n", arQry)
+		// rlib.Console("Rentable : Assessment + Receipt AMOUNT db query = %s\n", arQry)
 
 		//------------------------------------------------------------
 		// There may be multiple rows, hold each row RRGrid in slice

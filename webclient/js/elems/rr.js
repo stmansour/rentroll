@@ -96,6 +96,7 @@ function buildRentRollElements() {
                     g.last._rt_offset = 0; // rentable offset
                 }
                 g.last._total = g.total; // total
+                g.last._rrIndexMap = {};
                 for (var i = 0; i < g.records.length; i++) {
                     var record = g.records[i];
                     record.w2ui.class = "";
@@ -106,6 +107,7 @@ function buildRentRollElements() {
 
                     // if it is subtotal row then add class to "tr" tag
                     if (record.IsRentableMainRow) {
+                        g.last._rrIndexMap[i] = g.last._rt_offset;
                         g.last._rt_offset++;
                     }
                     else if (record.IsSubTotalRow) {
@@ -124,11 +126,19 @@ function buildRentRollElements() {
                 g.refresh();
                 g.total = g.last._total;
                 g.offset += g.last._rt_offset;
+                setTimeout(function() {
+                    calculateRRPagination(); // at last we need to execute this custom pagination mechanism
+                }, 0);
             };
         },
-        /*onRequest: function(event) {
-            event.postData.offset = this.last._rt_offset;
-        },*/
+        onRefresh: function(event) {
+            var g = this;
+            event.onComplete = function() {
+                $("#grid_"+g.name+"_records").on("scroll", function() {
+                    calculateRRPagination();
+                });
+            };
+        },
         onClick: function(event) {
             event.onComplete = function () {
                 var yes_args = [this, event.recid],
@@ -155,4 +165,51 @@ function buildRentRollElements() {
     });
 
     addDateNavToToolbar('rr');
+}
+
+function calculateRRPagination() {
+    // perform virtual scroll
+    var g = w2ui.rrGrid;
+    var url  = (typeof g.url != 'object' ? g.url : g.url.get);
+    var records = $("#grid_" + g.name + "_records");
+    var buffered = g.records.length;
+    if (g.searchData.length != 0 && !url) buffered = g.last.searchIds.length;
+    if (buffered === 0 || records.length === 0 || records.height() === 0) return;
+    if (buffered > g.vs_start) g.last.show_extra = g.vs_extra; else g.last.show_extra = g.vs_start;
+    // need this to enable scrolling when g.limit < then a screen can fit
+    if (records.height() < buffered * g.recordHeight && records.css('overflow-y') == 'hidden') {
+        // TODO: is this needed?
+        // if (g.total > 0) g.refresh();
+        return;
+    }
+    // update footer
+    var t1 = Math.round(records[0].scrollTop / g.recordHeight);
+    var t2 = t1 + (Math.round(records.height() / g.recordHeight));
+    if (t1 > buffered) t1 = buffered - 1;
+    if (t2 >= buffered) t2 = buffered - 1;
+    // custom pagination number start - stop for rentroll report
+    var startPageRec = 0, endPageRec = 0, i;
+    for (i = t1; i >= 0; i--) {
+        if(g.records[i].IsRentableMainRow){
+            startPageRec = i;
+            break;
+        }
+    }
+
+    for (i = t2; i >= t1; i--) {
+        if(g.records[i].IsRentableMainRow){
+            endPageRec = i;
+            break;
+        }
+    }
+
+    var startPageNo = g.last._rrIndexMap[startPageRec] + 1;
+    var endPageNo = g.last._rrIndexMap[endPageRec] + 1;
+
+    $('#grid_'+ g.name + '_footer .w2ui-footer-right').html(
+        (g.show.statusRange ? w2utils.formatNumber(startPageNo) + '-' + w2utils.formatNumber(endPageNo) +
+                (g.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g.total) : '') : '') +
+        (url && g.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) +
+                (g.offset > 0 ? ', skip ' + w2utils.formatNumber(g.offset) : '') + ')' : '')
+    );
 }
