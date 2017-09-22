@@ -1,5 +1,6 @@
 /*global
     w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert,
+    getRentRollReportData
 */
 "use strict";
 function buildSidebar() {
@@ -144,6 +145,9 @@ function buildSidebar() {
                     case 'expense':
                     case 'payorstmt':
                     case 'rr':
+                        // if (target == "rr") {
+                        //     getRentRollReportData();
+                        // }
                         w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         switchToGrid(target);
                         break;
