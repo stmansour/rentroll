@@ -166,7 +166,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		err      error
 		g        SearchReceiptsResponse
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	whr := `Receipt.BID=%d AND Receipt.Dt >= %q and Receipt.Dt < %q`
 	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
@@ -201,11 +201,11 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 	countQuery := renderSQLQuery(receiptsQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		rlib.Console("Error from GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	fmt.Printf("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
@@ -223,11 +223,11 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 
 	// get formatted query with substitution of select, where, order clause
 	qry := renderSQLQuery(receiptsQueryWithLimit, qc)
-	fmt.Printf("db query = %s\n", qry)
+	rlib.Console("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		fmt.Printf("Error from DB Query: %s\n", err.Error())
+		rlib.Console("Error from DB Query: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -278,14 +278,14 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		funcname = "SvcFormHandlerReceipt"
 		err      error
 	)
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	if d.RCPTID, err = SvcExtractIDFromURI(r.RequestURI, "RCPTID", 3, w); err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
 
-	fmt.Printf("Request: %s:  BID = %d,  RCPTID = %d\n", d.wsSearchReq.Cmd, d.BID, d.RCPTID)
+	rlib.Console("Request: %s:  BID = %d,  RCPTID = %d\n", d.wsSearchReq.Cmd, d.BID, d.RCPTID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -323,8 +323,8 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		foo      SaveReceiptInput
 		a        rlib.Receipt
 	)
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	//-------------------------------------------------
 	//  First, parse out the main form data into a...
@@ -337,14 +337,14 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
-	fmt.Printf("saveReceipt - first migrate: a = %#v\n", a)
+	rlib.Console("saveReceipt - first migrate: a = %#v\n", a)
 
 	//------------------------------------------
 	//  Update or Insert as appropriate...
 	//------------------------------------------
 	if a.RCPTID == 0 && d.RCPTID == 0 {
 		// This is a new Receipt
-		fmt.Printf(">>>> NEW RECEIPT IS BEING ADDED\n")
+		rlib.Console(">>>> NEW RECEIPT IS BEING ADDED\n")
 		err = bizlogic.InsertReceipt(&a)
 		if err != nil {
 			e := fmt.Errorf("%s:  Error in rlib.ProcessNewReceipt: %s", funcname, err.Error())
@@ -377,7 +377,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response GetReceiptResponse
 // wsdoc }
 func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Printf("entered getReceipt\n")
+	rlib.Console("entered getReceipt\n")
 	var g GetReceiptResponse
 	a := rlib.GetReceiptNoAllocations(d.RCPTID)
 	if a.RCPTID > 0 {
@@ -428,8 +428,8 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		del      DeleteRcptForm
 	)
 
-	fmt.Printf("Entered %s\n", funcname)
-	fmt.Printf("record data = %s\n", d.data)
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		SvcGridErrorReturn(w, err, funcname)

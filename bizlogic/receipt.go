@@ -30,14 +30,21 @@ import (
 //    err = any error that was encountered.
 //-------------------------------------------------------------------------------
 func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
+	funcname := "bizlogic.UpdateReceipt"
+	rlib.Console("Entered %s\n", funcname)
+
 	if rnew.FLAGS&0x4 != 0 {
 		return fmt.Errorf("This item cannot be edited, it has been reversed") // it's already reversed
 	}
+
+	rlib.Console("\t A\n")
 
 	errlist := ValidateReceipt(rnew)
 	if errlist != nil {
 		return BizErrorListToError(errlist)
 	}
+
+	rlib.Console("\t B\n")
 
 	//-------------------------------
 	// Load existing receipt...
@@ -47,6 +54,8 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 		return fmt.Errorf("Receipt %d not found", rnew.RCPTID)
 	}
 
+	rlib.Console("\t C\n")
+
 	//---------------------------------------------------------------------------------
 	// we need to reverse the old receipt if any of the following fields have changed:
 	//    * Dt
@@ -55,14 +64,17 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 	//---------------------------------------------------------------------------------
 	reverse := (!rold.Dt.Equal(rnew.Dt)) || rold.Amount != rnew.Amount || rold.ARID != rnew.ARID
 	if reverse {
+		rlib.Console("\t D\n")
 		err := ReverseReceipt(&rold, dt) // reverse the receipt itself
 		if err != nil {
 			return err
 		}
+		rlib.Console("\t E\n")
 		err = InsertReceipt(rnew) // Insert the new receipt...
 		if err != nil {
 			return err
 		}
+		rlib.Console("\t F\n")
 		if rnew.DID > 0 { // update DepositPart if necessary
 			var dp = rlib.DepositPart{
 				DID:    rnew.DID,
@@ -73,8 +85,10 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 				return err
 			}
 		}
+		rlib.Console("\t G\n")
 		// the deposit total may have changed...
-		if rold.Amount != rnew.Amount {
+		if rold.Amount != rnew.Amount && rnew.DID > 0 {
+			rlib.Console("\t H\n")
 			dep, err := rlib.GetDeposit(rnew.DID)
 			if err != nil {
 				return err
@@ -82,9 +96,11 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 			dep.Amount = dep.Amount - rold.Amount + rnew.Amount
 			return rlib.UpdateDeposit(&dep)
 		}
+		rlib.Console("\t I\n")
 		return nil
 	}
 
+	rlib.Console("\t J\n")
 	return rlib.UpdateReceipt(rnew) // reversal not needed, just update the receipt
 }
 

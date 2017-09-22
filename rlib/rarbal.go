@@ -90,8 +90,8 @@ func GetRARAcctRange(raid, rid int64, d1, d2 *time.Time) float64 {
 	//----------------------------------------------------------------
 	// Total all assessments in the supplied range that involve RAID.
 	//----------------------------------------------------------------
-	Console("%s: Will QUERY ASSESSMENTS FOR  raid=%d,rid=%d,%s - %s\n", funcname, raid, rid, d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3))
-	Console("q = SELECT * FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=%d AND RID=%d AND Stop>=%q AND Start<%q\n", raid, rid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL))
+	// Console("%s: Will QUERY ASSESSMENTS FOR  raid=%d,rid=%d,%s - %s\n", funcname, raid, rid, d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3))
+	// Console("q = SELECT * FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=%d AND RID=%d AND Stop>=%q AND Start<%q\n", raid, rid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL))
 	rows, err := RRdb.Prepstmt.GetAssessmentsByRARRange.Query(raid, rid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
@@ -101,7 +101,7 @@ func GetRARAcctRange(raid, rid int64, d1, d2 *time.Time) float64 {
 		if 0 == a.FLAGS&0x4 { // if this is not a reversal...
 			bal += a.Amount // ... then add it to the balance
 		}
-		Console("\tASMID = %d\n", a.ASMID)
+		// Console("\tASMID = %d, FLAGS=%x  Amount = %.2f,  bal = %.2f\n", a.ASMID, a.FLAGS, a.Amount, bal)
 
 		//----------------------------------------------------------------
 		// Total all receipts applied toward this ASMID
@@ -112,13 +112,10 @@ func GetRARAcctRange(raid, rid int64, d1, d2 *time.Time) float64 {
 		for innerRows.Next() {
 			var ra ReceiptAllocation
 			ReadReceiptAllocations(innerRows, &ra)
-			a, err := GetAssessment(ra.ASMID)
-			Errcheck(err)
-			if 0 == a.FLAGS&0x4 {
-				bal -= ra.Amount
-			}
+			bal -= ra.Amount
+			// Console("\tRCPAID = %d, Amount = %.2f,  bal = %.2f\n", ra.RCPAID, ra.Amount, bal)
 		}
 	}
-
+	// Console("---------->>>>> RETURNING BALANCE = %.2f\n", bal)
 	return bal
 }
