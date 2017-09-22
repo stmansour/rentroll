@@ -73,8 +73,8 @@ function setDateControlsInToolbar(prefix) {
 // @return  an array of fields that can be passed into toolbar.add()
 //-----------------------------------------------------------------------------
 function genDateRangeNavigator(prefix) {
-    var html1 = '<div class="w2ui-field" style="padding: 0px 5px;">From: <input name="' + prefix + 'D1"></div>';
-    var html2 = '<div class="w2ui-field" style="padding: 0px 5px;">To: <input name="' + prefix + 'D2">' + '</div>';
+    var html1 = '<div class="w2ui-field" style="padding: 0px 5px;">From: <input type="us-dateA" name="' + prefix + 'D1"></div>';
+    var html2 = '<div class="w2ui-field" style="padding: 0px 5px;">To: <input  type="us-dateB" name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
         { type: 'button', id: 'monthback', icon: 'fa fa-backward', tooltip: 'month back' },
         { type: 'button', id: 'dayback', icon: 'fa fa-chevron-circle-left', tooltip: 'day back' },
@@ -152,15 +152,15 @@ function addDateNavToToolbar(prefix) {
 
     // bind onchange event for date input control for assessments
     var nd1 = prefix + "D1";
-    var nd2 = prefix + "D2";
-    $(document).on("keypress change", "input[name="+nd1+"]", function(e) {
+    var nd2 = prefix + "D2";    
+    $(document).on("keypress change", "input[name="+nd1+"]", function(e) {        
         // if event type is keypress then
-        if (e.type == 'keypress'){
+        if (e.type == 'keypress'){            
             // do not procedd further untill user press the Enter key
             if (e.which != 13) {
                 return;
-            }
-        }
+            }            
+        }       
         var xd1 = document.getElementsByName(nd1)[0].value;
         var xd2 = document.getElementsByName(nd2)[0].value;
         var d1 = dateFromString(xd1);
@@ -172,7 +172,7 @@ function addDateNavToToolbar(prefix) {
         // check that year is not behind 2000
         if (d1.getFullYear() < 2000) {
             return;
-        }
+        }        
         // check that from date does not have value greater then To date
         if (d1.getTime() >= d2.getTime()) {
             d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
@@ -180,22 +180,27 @@ function addDateNavToToolbar(prefix) {
         app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
         updateGridPostDataDates(grid);
-        grid.load(grid.url, function() {
-            grid.refresh();
-            // w2ui internally loads date calender on focus event. look at the following link:
-            // https://github.com/mpf82/w2ui/blob/f7f7159af5066b86a4e13bac1c1aa88e2e6b354f/src/w2fields.js#L933
-            // we dont want to show calender overlay while on focus. so make it readonly temporary.
-            // Ref:https://github.com/mpf82/w2ui/blob/f7f7159af5066b86a4e13bac1c1aa88e2e6b354f/src/w2fields.js#L1602
-            $("input[name="+nd1+"]").prop('readonly', true).focus().prop('readonly', false);
+        grid.load(grid.url, function() {           
+            grid.refresh(); 
+            if (app.tabKeyPressed) {
+                setTimeout(function () {
+                    // remove any calender overlay from document
+                    if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                    // move focus on next field, so it will open calender overlay for next field                     
+                    $("input[name="+nd2+"]").focus();
+                    app.tabKeyPressed = false;
+                    app.shiftTabKeyPressed = false;
+                }, 50);                
+            }            
         });
-    }).on("keypress change", "input[name="+nd2+"]", function(e) {
+    }).on("keypress change", "input[name="+nd2+"]", function(e) {        
         // if event type is keypress then
         if (e.type == 'keypress'){
             // do not procedd further untill user press the Enter key
             if (e.which != 13) {
                 return;
             }
-        }
+        }             
         var xd1 = document.getElementsByName(nd1)[0].value;
         var xd2 = document.getElementsByName(nd2)[0].value;
         var d1 = dateFromString(xd1);
@@ -216,12 +221,27 @@ function addDateNavToToolbar(prefix) {
         app.D2 = dateControlString(d2);
         updateGridPostDataDates(grid);
         grid.load(grid.url, function() {
-            grid.refresh();
-            // w2ui internally loads date calender on focus event. look at the following link:
-            // https://github.com/mpf82/w2ui/blob/f7f7159af5066b86a4e13bac1c1aa88e2e6b354f/src/w2fields.js#L933
-            // we dont want to show calender overlay while on focus. so make it readonly temporary.
-            // Ref:https://github.com/mpf82/w2ui/blob/f7f7159af5066b86a4e13bac1c1aa88e2e6b354f/src/w2fields.js#L1602
-            $("input[name="+nd2+"]").prop('readonly', true).focus().prop('readonly', false);
+            grid.refresh();           
+            if (app.shiftTabKeyPressed) {
+                setTimeout(function () {
+                    // remove any calender overlay from document
+                    if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide(); 
+                    // move focus on next field, so it will open calender overlay for last field (defualt shift+tab)
+                    $("input[name="+nd1+"]").focus();
+                    app.tabKeyPressed = false;
+                    app.shiftTabKeyPressed = false;
+                }, 50);    
+            }
         });
+    }).on("keyup keydown", "input[name="+nd1+"], input[name="+nd2+"]", function(e) {
+        // tracking tab key on both date input        
+         if (e.type === 'keydown') {            
+            if(e.which == 9){                
+                app.tabKeyPressed = true;
+                if (e.shiftKey) {
+                    app.shiftTabKeyPressed = true;
+                }                
+            }
+        } 
     });
 }

@@ -1,10 +1,13 @@
+/* global
+setDefaultFormFieldAsPreviousRecord
+*/
 "use strict";
-function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected){
+function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, previousFormRecord){
     var y1 = new Date();
     var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
     var ny = new Date(9999, 11, 31, 0, 0, 0);
 
-    return {
+    var defaultFormData = {
         recid: 0,
         BID: BID,
         BUD: BUD,
@@ -19,6 +22,19 @@ function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected){
         PriorToRAStart: true,
         PriorToRAStop: true
     };
+    
+    
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {             
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'Name', 'Description'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );        
+    }   
+
+    return defaultFormData;
 }
 
 function buildARElements() {
@@ -167,9 +183,9 @@ $().w2grid({
                         w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
                         w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
                         w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
-                        // w2ui.arsForm.refresh();
-                        var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected);
-                        w2ui.arsForm.record = record;
+                        // w2ui.arsForm.refresh();                        
+                        var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, null);
+                        w2ui.arsForm.record = record;                        
                         w2ui.arsForm.refresh();
                         setToForm('arsForm', '/v1/ar/' + BID + '/0', 400);
                     }
@@ -287,10 +303,9 @@ $().w2grid({
                     w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
                     w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
                     w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
-                    w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
-
-                    var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected);
-                    f.record = record;
+                    w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;                   
+                    var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, f.record);
+                    f.record = record;                    
                     f.header = "Edit Account Rule (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/ar/' + BID+'/0';
                     f.refresh();

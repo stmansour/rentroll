@@ -105,8 +105,13 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 	pf := float64(0)
 	var num, den int64
 	var start, stop time.Time
-	r := GetRentable(a.RID)
-	status := GetRentableStateForDate(r.RID, d)
+	var r Rentable
+	status := int64(RENTABLESTATUSONLINE) // if RID==0, then it's for an application fee or similar.  Assume rentable is online.
+
+	if a.RID > 0 {
+		r = GetRentable(a.RID)
+		status = GetRentableStateForDate(r.RID, d)
+	}
 	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), status)
 	switch status {
 	case RENTABLESTATUSONLINE:
@@ -170,9 +175,9 @@ func journalAssessment(xbiz *XBusiness, d time.Time, a *Assessment, d1, d2 *time
 	m := ParseAcctRule(xbiz, a.RID, d1, d2, GetAssessmentAccountRule(a), a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
 
 	// Console("%s:  m = %#v\n", funcname, m)
-	for i := 0; i < len(m); i++ {
-		// Console("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
-	}
+	// for i := 0; i < len(m); i++ {
+	// 	Console("m[%d].Amount = %f,  .Action = %s   .Expr = %s\n", i, m[i].Amount, m[i].Action, m[i].Expr)
+	// }
 
 	_, j.Amount = sumAllocations(&m)
 	j.Amount = RoundToCent(j.Amount)

@@ -31,12 +31,13 @@ function buildPayorStatementElements() {
             toolbarColumns  : false,
         },
         columns: [
-            {field: 'recid',       caption: 'recid',       size: '35px',  sortable: true, hidden: true},
-            {field: 'TCID',        caption: 'TCID',        size: '75px',  sortable: true},
-            {field: 'FirstName',   caption: 'FirstName',   size: '150px',  sortable: true},
-            {field: 'LastName',    caption: 'LastName',    size: '150px',  sortable: true},
-            {field: 'CompanyName', caption: 'CompanyName', size: '200px', sortable: true},
-            {field: 'IsCompany',   caption: 'IsCompany',   size: '200px', sortable: true, hidden: true },
+            {field: 'IsSubTotalRow', caption: 'Is SubTotal Row',                sortable: false, hidden: true},
+            {field: 'recid',         caption: 'recid',           size: '35px',  sortable: true,  hidden: true},
+            {field: 'TCID',          caption: 'TCID',            size: '75px',  sortable: true},
+            {field: 'FirstName',     caption: 'FirstName',       size: '150px', sortable: true},
+            {field: 'LastName',      caption: 'LastName',        size: '150px', sortable: true},
+            {field: 'CompanyName',   caption: 'CompanyName',     size: '200px', sortable: true},
+            {field: 'IsCompany',     caption: 'IsCompany',       size: '200px', sortable: true,  hidden: true },
         ],
         onClick: function(event) {
             event.onComplete = function () {

@@ -371,26 +371,16 @@ func SvcRRChild(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // SvcRR is the response data for a RR Grid search - The Rent Roll View
 func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
-		funcname       = "SvcRR"
-		err            error
-		g              RRSearchResponse
-		xbiz           rlib.XBusiness
-		custom         = "Square Feet"
-		rentableOffset = 0
-		reqData        RRRequeestData
+		funcname = "SvcRR"
+		err      error
+		g        RRSearchResponse
+		xbiz     rlib.XBusiness
+		custom   = "Square Feet"
 	)
 	limitClause := d.wsSearchReq.Limit
 	if limitClause == 0 {
 		limitClause = 100
 	}
-
-	// get rentableOffset first
-	if err = json.Unmarshal([]byte(d.data), &reqData); err != nil {
-		rlib.Console("Error while unmarshalling d.data: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
-	rentableOffset = reqData.RentableOffset
 
 	rlib.Console("Entered %s\n", funcname)
 	rlib.InitBizInternals(d.BID, &xbiz)
@@ -423,15 +413,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	GROUP BY Rentable.RID
 	ORDER BY {{.OrderClause}}`
 
-	// will be substituted as query clauses
-	qc := queryClauses{
-		"SelectClause": strings.Join(rrQuerySelectFields, ","),
-		"WhereClause":  srch,
-		"OrderClause":  order,
-		"DtStart":      d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
-		"DtStop":       d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),
-	}
-
 	asmRcptQuery := `
 	SELECT
 		{{.SelectClause}}
@@ -452,7 +433,16 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		"DtStop":       d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),
 	}
 
-	// get TOTAL COUNT First
+	// will be substituted as query clauses
+	qc := queryClauses{
+		"SelectClause": strings.Join(rrQuerySelectFields, ","),
+		"WhereClause":  srch,
+		"OrderClause":  order,
+		"DtStart":      d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
+		"DtStop":       d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),
+	}
+
+	/*// get TOTAL COUNT First
 	countQuery := renderSQLQuery(rentalAgrQuery, qc)
 	g.Total, err = GetQueryCount(countQuery, qc)
 	if err != nil {
@@ -460,7 +450,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	rlib.Console("g.Total = %d\n", g.Total)
+	rlib.Console("g.Total = %d\n", g.Total)*/
 
 	// FETCH the records WITH LIMIT AND OFFSET
 	limitAndOffsetClause := `
@@ -468,7 +458,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	OFFSET {{.OffsetClause}};`
 	rentalAgrQueryWithLimit := rentalAgrQuery + limitAndOffsetClause // build query with limit and offset clause
 	qc["LimitClause"] = strconv.Itoa(limitClause)
-	qc["OffsetClause"] = strconv.Itoa(rentableOffset)
+	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 	qry := renderSQLQuery(rentalAgrQueryWithLimit, qc) // get formatted query with substitution of select, where, order clause
 	rlib.Console("db query = %s\n", qry)
 
@@ -482,9 +472,9 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	i := int64(d.wsSearchReq.Offset)
 	count := 0
-	recidCount := i
 	for rows.Next() {
-		var q = RRGrid{BID: d.BID, Recid: i}
+		var q RRGrid
+		q.BID = d.BID
 
 		// get records info in struct q
 		q, err = rrRowScan(rows, q)
@@ -524,6 +514,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// There may be multiple rows, hold each row RRGrid in slice
 		// Also, compute sobtotals as we go
 		//------------------------------------------------------------
+		d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+
 		var rentableResult = []RRGrid{}
 		var sub RRGrid
 		sub.IsSubTotalRow = true
@@ -544,41 +536,53 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					updateSubTotals(&sub, &nq)
 				} else {
 					_ = arRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied) // ignore error
-					q.IsRentableMainRow = true
+					q.Recid = g.Total
 					rentableResult = append(rentableResult, q)
 					updateSubTotals(&sub, &q)
 				}
 				arCount++
-				recidCount++
+				g.Total++ // grid rows count
 			}
 
-			//-----------------------------------
-			// Add the receivables totals...
-			//-----------------------------------
+			//----------------------------------------
+			// Add the Rentable receivables totals...
+			//----------------------------------------
 			sub.Description.String = "Subtotal"
 			sub.Description.Valid = true
-			sub.BeginningRcv.Float64, err = rlib.GetRAIDBalance(q.RAID.Int64, &d.wsSearchReq.SearchDtStart)
-			if err != nil {
-				SvcGridErrorReturn(w, err, funcname)
-				return
-			}
+			sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(q.RID, q.RAID.Int64, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			sub.ChangeInRcv.Float64 = sub.EndingRcv.Float64 - sub.BeginningRcv.Float64
+			rlib.Console("raid=%d, rid=%d, %.2f - %.2f\n", q.RAID.Int64, q.RID, sub.BeginningRcv.Float64, sub.EndingRcv.Float64)
+			rlib.Console("CHANGE = %.2f\n", sub.ChangeInRcv.Float64)
 			sub.BeginningRcv.Valid = true
-			sub.EndingRcv.Float64, err = rlib.GetRAIDBalance(q.RAID.Int64, &d.wsSearchReq.SearchDtStop)
+			sub.EndingRcv.Valid = true
+			sub.ChangeInRcv.Valid = true
+
+			//----------------------------------------
+			// Add the Security Deposit totals...
+			//----------------------------------------
+			sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
-			sub.EndingRcv.Valid = true
-			sub.Recid = recidCount
-			rlib.Console("sub = %#v\n", sub)
-			rentableResult = append(rentableResult, sub)
-			recidCount++
+			sub.BeginningSecDep.Valid = true
+			sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			sub.ChangeInSecDep.Valid = true
+			sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
+			sub.EndingSecDep.Valid = true
 
-			//-----------------------------------
-			// Add new blank row...
-			//-----------------------------------
-			rentableResult = append(rentableResult, RRGrid{IsBlankRow: true, Recid: recidCount})
-			recidCount++
+			sub.Recid = g.Total
+			rentableResult = append(rentableResult, sub)
+			// arCount++
+			g.Total++ // grid rows count
+			// add new blank row for grid
+			rentableResult = append(rentableResult, RRGrid{IsBlankRow: true, Recid: g.Total})
+			// arCount++
+			g.Total++ // grid rows count
 		}
 		arRows.Close()
 

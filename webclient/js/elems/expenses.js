@@ -2,11 +2,12 @@
     w2ui, app, $, w2uiDateControlString, addDateNavToToolbar, console, getCurrentBusiness, getBUDfromBID,
     popupRentalAgrPicker, rafinder, form_dirty_alert, setToForm, setDateControlsInToolbar, formRefreshCallBack,
     formRecDiffer, getFormSubmitData, w2confirm, w2utils, get2XReversalSymbolHTML, getGridReversalSymbolHTML, 
+    setDefaultFormFieldAsPreviousRecord
 */
 "use strict";
-function getExpenseInitRecord(BID, BUD){
+function getExpenseInitRecord(BID, BUD, previousFormRecord){
     var y = new Date();
-    return {
+    var defaultFormData = {
         recid: 0,
         EXPID: 0,
         ARID: 0,
@@ -26,6 +27,18 @@ function getExpenseInitRecord(BID, BUD){
         FLAGS: 0,
         Mode: 0,
     };
+
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'RAID', 'Amount', 'Comment', 'RID', 'RName'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );        
+    }   
+
+    return defaultFormData;
 }
 
 function renderExpReversalIcon(record /*, index, col_index*/) {
@@ -138,7 +151,7 @@ function buildExpenseElements() {
                             var BUD = getBUDfromBID(BID);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var record = getExpenseInitRecord(BID, BUD);
+                            var record = getExpenseInitRecord(BID, BUD, null);
                             // w2ui.expenseForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             w2ui.expenseForm.fields[0].options.items = app.ExpenseRules[BUD];
                             w2ui.expenseForm.record = record;
@@ -282,11 +295,11 @@ function buildExpenseElements() {
                             app.ExpenseRules = JSON.parse(data);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var record = getExpenseInitRecord(BID, BUD);
+                            var record = 
 
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             f.fields[0].options.items = app.ExpenseRules[BUD];
-                            f.record = record;
+                            f.record = getExpenseInitRecord(BID, BUD, f.record);
                             f.header = "Edit Expense (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             f.url  = "/v1/expense/" + BID + "/0";
                             f.refresh();
@@ -477,8 +490,8 @@ function expOpenRASelect() {
 }
 
 function expFormRASelect() {
-    w2ui.expenseForm.record.RAID = w2ui.rentalAgrFinder.record.RAID;
-    w2ui.expenseForm.record.RName = w2ui.rentalAgrFinder.record.RentableName.text;
-    w2ui.expenseForm.record.RID = w2ui.rentalAgrFinder.record.RentableName.id;
+    w2ui.expenseForm.record.RAID = w2ui.rentalAgrPicker.record.RAID;
+    w2ui.expenseForm.record.RName = w2ui.rentalAgrPicker.record.RentableName.text;
+    w2ui.expenseForm.record.RID = w2ui.rentalAgrPicker.record.RentableName.id;
     w2ui.expenseForm.refresh();
 }

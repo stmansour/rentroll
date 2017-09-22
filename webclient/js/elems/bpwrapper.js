@@ -3,7 +3,7 @@
     buildAppLayout, buildSidebar, buildAllocFundsGrid, buildAccountElements, 
     buildTransactElements, buildRentableTypeElements, buildRentableElements, 
     buildRAElements, buildRAPayorPicker, buildRUserPicker, buildRentablePicker, 
-    buildRASelect, buildReceiptElements, buildAssessmentElements, buildExpenseElements, 
+    buildRAPicker, buildReceiptElements, buildAssessmentElements, buildExpenseElements, 
     buildARElements, buildPaymentTypeElements, buildDepositoryElements, buildDepositElements, 
     buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElements, 
     buildDepositMethodElements, buildPayorStatementElements, buildRentRollElements,
@@ -23,7 +23,7 @@ function buildPageElementsWrapper() {
     buildRAPayorPicker();
     buildRUserPicker();
     buildRentablePicker();
-    buildRASelect();
+    buildRAPicker();
     buildReceiptElements();
     buildAssessmentElements();
     buildExpenseElements();

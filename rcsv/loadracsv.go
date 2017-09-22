@@ -295,10 +295,30 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 		m[i].RAID = RAID
 		m[i].BID = ra.BID
 		rlib.InsertRentalAgreementRentable(&m[i])
+		//-----------------------------------------------------
+		// Create a Rentable Ledger marker
+		//-----------------------------------------------------
+		var rlm = rlib.LedgerMarker{
+			BID:     ra.BID,
+			RAID:    RAID,
+			RID:     m[i].RID,
+			Dt:      m[i].RARDtStart,
+			Balance: float64(0),
+			State:   rlib.LMINITIAL,
+		}
+		err = rlib.InsertLedgerMarker(&rlm)
+		if nil != err {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting Rentable LedgerMarker = %v", funcname, lineno, err)
+		}
+
+		//------------------------------
+		// Add the users
+		//------------------------------
 		for j := 0; j < len(users); j++ {
 			users[j].RID = m[i].RID
 			users[j].BID = ra.BID
 			rlib.InsertRentableUser(&users[j])
+
 		}
 	}
 

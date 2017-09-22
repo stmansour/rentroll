@@ -62,7 +62,7 @@ mysqlverify "v"  " "                   		"AgreementRentables"	    	"select * fro
 mysqlverify "w"  " "                   		"AgreementPayors"	    		"select * from RentalAgreementPayors;"
 mysqlverify "x"  "-c coa.csv"          		"ChartOfAccounts"	    		"select LID,PLID,BID,RAID,GLNumber,Status,Name,AcctType,AllowPost,LastModBy from GLAccount;"
 mysqlverify "xa"  "-ar ar.csv"          		"AccountRules"	    			"select ARID,BID,Name,ARType,DebitLID,CreditLID,Description,LastModBy from AR;"
-mysqlverify "y"  " "                   		"LedgerMarkers"	            	"select LMID,LID,BID,Dt,Balance,State,LastModBy from LedgerMarker;"
+mysqlverify "y"  " "                   		"LedgerMarkers"	            	"select LMID,LID,BID,RAID,RID,TCID,Dt,Balance,State,LastModBy from LedgerMarker;"
 mysqlverify "z"  "-a rp.csv"           		"RatePlan"	            		"select RPID,BID,Name,LastModBy from RatePlan;"
 mysqlverify "a1" "-f rprefs.csv"       		"RatePlanRef"	                "select RPRID,BID,RPID,DtStart,DtStop,FeeAppliesAge,MaxNoFeeUsers,AdditionalUserFee,PromoCode,CancellationFee,FLAGS,LastModBy from RatePlanRef;"
 mysqlverify "b1" "-n rprtrate.csv"     		"RatePlanRefRTRate"	    		"select * from RatePlanRefRTRate;"
