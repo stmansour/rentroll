@@ -59,11 +59,11 @@ $().w2grid({
         toolbarInput   : false,
         searchAll      : false,
         toolbarReload  : false,
-        toolbarColumns : false,
+        toolbarColumns : true,
     },
     columns: [
         {field: 'recid',  hidden: true,  caption: 'recid', size: '40px',  sortable: true},
-        {field: 'ARID',   hidden: true,  caption: 'COPID', size: '150px', sortable: true, style: 'text-align: center'},
+        {field: 'ARID',   hidden: true,  caption: 'COPID', size: '75px', sortable: true, style: 'text-align: center'},
         {field: 'BID',    hidden: true,  caption: 'BID',   size: '150px', sortable: true, style: 'text-align: center'},
         {field: 'Name',   hidden: false, caption: 'Name',  size: '15%',   sortable: true, style: 'text-align: left'},
         {field: 'ARType', hidden: false, caption: 'ARType',size: '80px',  sortable: true, style: 'text-align: left',

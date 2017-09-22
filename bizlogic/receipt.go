@@ -30,6 +30,8 @@ import (
 //    err = any error that was encountered.
 //-------------------------------------------------------------------------------
 func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
+	// funcname := "bizlogic.UpdateReceipt"
+
 	if rnew.FLAGS&0x4 != 0 {
 		return fmt.Errorf("This item cannot be edited, it has been reversed") // it's already reversed
 	}
@@ -74,7 +76,7 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 			}
 		}
 		// the deposit total may have changed...
-		if rold.Amount != rnew.Amount {
+		if rold.Amount != rnew.Amount && rnew.DID > 0 {
 			dep, err := rlib.GetDeposit(rnew.DID)
 			if err != nil {
 				return err

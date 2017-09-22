@@ -118,7 +118,7 @@ var rrQuerySelectFields = []string{
 var rentableAsmRcptFields = []string{
 	"AR.Name as Description",
 	"Assessments.Amount as AmountDue",
-	"SUM(Receipt.Amount) as PaymentsApplied",
+	"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
 }
 
 // rrRowScan scans a result from sql row and dump it in a RRGrid struct
@@ -428,12 +428,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	ORDER BY {{.OrderClause}}`
 
 	asmRcptQuery := `
-	SELECT
-		{{.SelectClause}}
+	SELECT {{.SelectClause}}
 	FROM Rentable
-	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
+	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
 	LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
-	LEFT JOIN Receipt ON Receipt.RCPTID=ReceiptAllocation.RCPTID
+	LEFT JOIN Receipt ON ( Receipt.RCPTID=ReceiptAllocation.RCPTID AND (Receipt.FLAGS & 4)=0)
 	LEFT JOIN AR ON AR.ARID=Assessments.ARID
 	WHERE {{.WhereClause}}
 	GROUP BY Assessments.ASMID
@@ -544,12 +543,20 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for arRows.Next() {
 				if arCount > 0 { // if more than one rows per rentable then create new RRGrid struct
 					var nq = RRGrid{RID: q.RID}
-					_ = arRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied) // ignore error
+					err = arRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
+					if err != nil {
+						SvcGridErrorReturn(w, err, funcname)
+						return
+					}
 					nq.Recid = g.Total
 					rentableResult = append(rentableResult, nq)
 					updateSubTotals(&sub, &nq)
 				} else {
-					_ = arRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied) // ignore error
+					err = arRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied)
+					if err != nil {
+						SvcGridErrorReturn(w, err, funcname)
+						return
+					}
 					q.Recid = g.Total
 					rentableResult = append(rentableResult, q)
 					updateSubTotals(&sub, &q)
@@ -563,10 +570,10 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			//----------------------------------------
 			sub.Description.String = "Subtotal"
 			sub.Description.Valid = true
-			sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(q.RID, q.RAID.Int64, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(d.BID, q.RID, q.RAID.Int64, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 			sub.ChangeInRcv.Float64 = sub.EndingRcv.Float64 - sub.BeginningRcv.Float64
-			rlib.Console("raid=%d, rid=%d, %.2f - %.2f\n", q.RAID.Int64, q.RID, sub.BeginningRcv.Float64, sub.EndingRcv.Float64)
-			rlib.Console("CHANGE = %.2f\n", sub.ChangeInRcv.Float64)
+			// rlib.Console("raid=%d, rid=%d, %.2f - %.2f\n", q.RAID.Int64, q.RID, sub.BeginningRcv.Float64, sub.EndingRcv.Float64)
+			// rlib.Console("CHANGE = %.2f\n", sub.ChangeInRcv.Float64)
 			sub.BeginningRcv.Valid = true
 			sub.EndingRcv.Valid = true
 			sub.ChangeInRcv.Valid = true
@@ -625,4 +632,6 @@ func updateSubTotals(sub, q *RRGrid) {
 	sub.PaymentsApplied.Float64 += q.PaymentsApplied.Float64
 	sub.PeriodGSR.Float64 += q.PeriodGSR.Float64
 	sub.IncomeOffsets.Float64 += q.IncomeOffsets.Float64
+	// rlib.Console("\t q.Description = %s, q.AmountDue = %.2f, q.PaymentsApplied = %.2f\n", q.Description, q.AmountDue.Float64, q.PaymentsApplied.Float64)
+	// rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
 }

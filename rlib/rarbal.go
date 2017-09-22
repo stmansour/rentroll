@@ -1,6 +1,9 @@
 package rlib
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // RARStmtEntry descriGetRARBalancebes an entry on a statement
 type RARStmtEntry struct {
@@ -27,12 +30,12 @@ type RARStmtEntry struct {
 //             time dt
 //   error   - any error encountered
 //-----------------------------------------------------------------------------
-func GetBeginEndRARBalance(rid, raid int64, d1, d2 *time.Time) (float64, float64, error) {
+func GetBeginEndRARBalance(bid, rid, raid int64, d1, d2 *time.Time) (float64, float64, error) {
 	var err error
 	begin := float64(0)
 	end := float64(0)
-	begin, err = GetRARBalance(rid, raid, d1)
-	end, err = GetRARBalance(rid, raid, d2)
+	begin, err = GetRARBalance(bid, rid, raid, d1)
+	end, err = GetRARBalance(bid, rid, raid, d2)
 	return begin, end, err
 }
 
@@ -50,7 +53,7 @@ func GetBeginEndRARBalance(rid, raid int64, d1, d2 *time.Time) (float64, float64
 //             time dt
 //   error   - any error encountered
 //-----------------------------------------------------------------------------
-func GetRARBalance(rid, raid int64, dt *time.Time) (float64, error) {
+func GetRARBalance(bid, rid, raid int64, dt *time.Time) (float64, error) {
 	funcname := "GetRARBalance"
 	bal := float64(0)
 
@@ -64,7 +67,7 @@ func GetRARBalance(rid, raid int64, dt *time.Time) (float64, error) {
 	//------------------------------------------------------------------
 	// Get all the assessments and payments for this RAID, RID pair...
 	//------------------------------------------------------------------
-	bal = lm.Balance + GetRARAcctRange(raid, rid, &lm.Dt, dt)
+	bal = lm.Balance + GetRARAcctRange(bid, raid, rid, &lm.Dt, dt)
 	return bal, nil
 }
 
@@ -82,26 +85,46 @@ func GetRARBalance(rid, raid int64, dt *time.Time) (float64, error) {
 //             time dt
 //   error   - any error encountered
 //-----------------------------------------------------------------------------
-func GetRARAcctRange(raid, rid int64, d1, d2 *time.Time) float64 {
+func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 	funcname := "GetRARAcctRange"
 	Console("Entered %s\n", funcname)
 	bal := float64(0)
 
-	//----------------------------------------------------------------
-	// Total all assessments in the supplied range that involve RAID.
-	//----------------------------------------------------------------
-	Console("%s: Will QUERY ASSESSMENTS FOR  raid=%d,rid=%d,%s - %s\n", funcname, raid, rid, d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3))
-	Console("q = SELECT * FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=%d AND RID=%d AND Stop>=%q AND Start<%q\n", raid, rid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL))
-	rows, err := RRdb.Prepstmt.GetAssessmentsByRARRange.Query(raid, rid, d1, d2)
+	//------------------------------------------------------------------------
+	// Create a query that selects all Assessments for RAID and RID that
+	// are NOT related to Security Deposit
+	//------------------------------------------------------------------------
+	//rows, err := RRdb.Prepstmt.GetAssessmentsByRARRange.Query(raid, rid, d1, d2)
+	secDepRules := ""
+	secDepAccts, err := SecDepRules(bid)
+	if nil == err {
+		secDepRules = " AND NOT("
+		l := len(secDepAccts)
+		for i := 0; i < l; i++ {
+			secDepRules += fmt.Sprintf("ARID=%d", secDepAccts[i])
+			if i+1 < l {
+				secDepRules += " OR "
+			}
+		}
+		secDepRules += ")"
+	}
+	q := fmt.Sprintf("SELECT %s FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=%d AND RID=%d AND Stop>=%q AND Start<%q %s",
+		RRdb.DBFields["Assessments"], raid, rid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), secDepRules)
+	rows, err := RRdb.Dbrr.Query(q)
 	Errcheck(err)
 	defer rows.Close()
+	Console("GetRARAcctRange: query = %s\n", q)
+
+	//------------------------------------------------------------------------
+	// Total all assessments in the supplied range that involve RID in RAID.
+	//------------------------------------------------------------------------
 	for rows.Next() {
 		var a Assessment
 		ReadAssessments(rows, &a)
 		if 0 == a.FLAGS&0x4 { // if this is not a reversal...
 			bal += a.Amount // ... then add it to the balance
 		}
-		Console("\tASMID = %d\n", a.ASMID)
+		// Console("\tASMID = %d, FLAGS=%x  Amount = %.2f,  bal = %.2f\n", a.ASMID, a.FLAGS, a.Amount, bal)
 
 		//----------------------------------------------------------------
 		// Total all receipts applied toward this ASMID
@@ -112,13 +135,10 @@ func GetRARAcctRange(raid, rid int64, d1, d2 *time.Time) float64 {
 		for innerRows.Next() {
 			var ra ReceiptAllocation
 			ReadReceiptAllocations(innerRows, &ra)
-			a, err := GetAssessment(ra.ASMID)
-			Errcheck(err)
-			if 0 == a.FLAGS&0x4 {
-				bal -= ra.Amount
-			}
+			bal -= ra.Amount
+			// Console("\tRCPAID = %d, Amount = %.2f,  bal = %.2f\n", ra.RCPAID, ra.Amount, bal)
 		}
 	}
-
+	// Console("---------->>>>> RETURNING BALANCE = %.2f\n", bal)
 	return bal
 }

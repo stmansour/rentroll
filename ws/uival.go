@@ -14,6 +14,8 @@ func BIDToBUD(businessID int64) (string, error) {
 			return bud, nil
 		}
 	}
+	rlib.Console("*** ERROR *** Could not find business for bid: %d\n", businessID)
+	rlib.Console("RRdb.BUDlist = %#v\n", rlib.RRdb.BUDlist)
 	return "", fmt.Errorf("Could not find business for bid: %d", businessID)
 }
 
@@ -96,7 +98,7 @@ func SvcUIErrAndVarResponse(w http.ResponseWriter, funcname string, err error, x
 //  @Response JSONResponse
 // wsdoc }
 func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcUIVar"
+	funcname := "SvcUIVal"
 	rlib.Console("Entered %s\n", funcname)
 	switch d.DetVal {
 	case "app.AssessmentRules":
