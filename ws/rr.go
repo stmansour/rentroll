@@ -259,7 +259,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------------------
 		asmRcptQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID, q.RID)
 		arQry := renderSQLQuery(asmRcptQuery, asmRcptQC) // get formatted query with substitution of select, where, order clause
-		rlib.Console("Rentable : Assessment + Receipt AMOUNT db query = %s\n", arQry)
+		// rlib.Console("Rentable : Assessment + Receipt AMOUNT db query = %s\n", arQry)
 
 		//------------------------------------------------------------
 		// There may be multiple rows, hold each row RRGrid in slice
@@ -308,10 +308,10 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			//----------------------------------------
 			sub.Description.String = "Subtotal"
 			sub.Description.Valid = true
-			sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(q.RID, q.RAID.Int64, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(d.BID, q.RID, q.RAID.Int64, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 			sub.ChangeInRcv.Float64 = sub.EndingRcv.Float64 - sub.BeginningRcv.Float64
-			rlib.Console("raid=%d, rid=%d, %.2f - %.2f\n", q.RAID.Int64, q.RID, sub.BeginningRcv.Float64, sub.EndingRcv.Float64)
-			rlib.Console("CHANGE = %.2f\n", sub.ChangeInRcv.Float64)
+			// rlib.Console("raid=%d, rid=%d, %.2f - %.2f\n", q.RAID.Int64, q.RID, sub.BeginningRcv.Float64, sub.EndingRcv.Float64)
+			// rlib.Console("CHANGE = %.2f\n", sub.ChangeInRcv.Float64)
 			sub.BeginningRcv.Valid = true
 			sub.EndingRcv.Valid = true
 			sub.ChangeInRcv.Valid = true
@@ -370,6 +370,6 @@ func updateSubTotals(sub, q *RRGrid) {
 	sub.PaymentsApplied.Float64 += q.PaymentsApplied.Float64
 	sub.PeriodGSR.Float64 += q.PeriodGSR.Float64
 	sub.IncomeOffsets.Float64 += q.IncomeOffsets.Float64
-	rlib.Console("\t q.Description = %s, q.AmountDue = %.2f, q.PaymentsApplied = %.2f\n", q.Description, q.AmountDue.Float64, q.PaymentsApplied.Float64)
-	rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
+	// rlib.Console("\t q.Description = %s, q.AmountDue = %.2f, q.PaymentsApplied = %.2f\n", q.Description, q.AmountDue.Float64, q.PaymentsApplied.Float64)
+	// rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
 }
