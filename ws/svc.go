@@ -133,7 +133,7 @@ type ServiceData struct {
 	wsSearchReq   WebGridSearchRequest // what did the search requester ask for
 	wsTypeDownReq WebTypeDownRequest   // fast for typedown
 	data          string               // the raw unparsed data
-	GetParams     map[string]string    // parameters when HTTP GET is used
+	QueryParams   map[string][]string  // parameters when HTTP GET is used
 	Files         map[string][]*multipart.FileHeader
 	MFValues      map[string][]string
 }
@@ -177,7 +177,8 @@ var Svcs = []ServiceHandler{
 	{"rentalagr", SvcFormHandlerRentalAgreement, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
 	{"rentalagrtd", SvcRentalAgreementTypeDown, true},
-	{"rr", SvcRR, true},
+	{"rr", SvcRRChild, true},
+	// {"rr", SvcRR, true},
 	{"rt", SvcHandlerRentableType, true},
 	{"rmr", SvcHandlerRentableMarketRates, true},
 	{"rtlist", SvcRentableTypesTD, true},
@@ -484,6 +485,8 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		return e
 	}
 	rlib.Console("Unescaped query = %s\n", s)
+	d.QueryParams = r.URL.Query()
+	rlib.Console("Query Parameters: %v\n", d.QueryParams)
 	w2uiPrefix := "request="
 	n := strings.Index(s, w2uiPrefix)
 	rlib.Console("n = %d\n", n)
