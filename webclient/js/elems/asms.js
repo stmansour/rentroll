@@ -1,7 +1,7 @@
 /*global
     popupRentalAgrPicker, $, asm, console, w2ui, w2uiDateControlString, app,
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder, get2XReversalSymbolHTML,
-    getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord
+    getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord, isDatePriorToCurrentDate
 */
 "use strict";
 function getAsmsInitRecord(BID, BUD, previousFormRecord){
@@ -404,7 +404,7 @@ function buildAssessmentElements() {
                     $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    // $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
@@ -471,19 +471,20 @@ function buildAssessmentElements() {
         onChange: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    r = f.record;
-
+                    r = f.record;                
                 if (event.target == "Start") {
                     var x = document.getElementsByName('ExpandPastInst')[0];
                     if (r.RentCycle.text != "Norecur") {
                         var DtStart = dateFromString(event.value_new);
-                        var y = new Date();
-                        x.checked = (DtStart <  y);
+                        // create past instances is marked as true if startdate is prior to current date                            
+                        f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
+                        // $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", false );                   
                     } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
-                        r.Stop = r.Start;
-                        x.checked = false;
+                        r.Stop = r.Start;                        
+                        // $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true );
+                        f.record.ExpandPastInst = false;    
                     }
                 }
                 if (event.target == "RentCycle") {
@@ -492,10 +493,12 @@ function buildAssessmentElements() {
                         r.ProrationCycle = "Norecur";
                         r.Stop = r.Start;
                         // disable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop("disabled", true);
+                        $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
+                        f.record.ExpandPastInst = false;
                     } else {
                         // enable stop date control
                         $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
+                        f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(($("#"+f.name).find("input[name=Start]").val()))); 
                     }
                 }
 
@@ -725,7 +728,7 @@ function buildAssessmentElements() {
                     $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    // $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
@@ -801,12 +804,17 @@ function buildAssessmentElements() {
             event.onComplete = function() {
                 var f = this,
                     r = f.record;
-
                 if (event.target == "Start") {
                     if (r.RentCycle.text == "Norecur") {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
                         r.Stop = r.Start;
+                        f.record.ExpandPastInst = false;                        
+                        // $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", false );    
+                    } else {
+                        var DtStart = dateFromString(event.value_new);
+                        // create past instances is marked as true if startdate is prior to current date                        
+                        f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart); 
                     }
                 }
                 if (event.target == "RentCycle") {
@@ -819,6 +827,7 @@ function buildAssessmentElements() {
                     } else {
                         // enable stop date control
                         $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
+                        console.log($("#"+f.name).find("input[name=Start]").val());
                     }
                 }
 
