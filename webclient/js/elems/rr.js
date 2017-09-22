@@ -90,14 +90,22 @@ function buildRentRollElements() {
             {field: 'EndingSecDep',	    caption: 'Ending Security Deposit',    size: '100px', sortable: false, render: 'money'},
         ],
         onLoad: function(event) {
-            var g = this;
-            event.onComplete = function() {
-                if (!("_rt_offset" in g.last)) {
-                    g.last._rt_offset = 0; // rentable offset
-                }
-                g.last._total = g.total; // total
+            var g = this,
+                records_length = g.records.length,
+                data = JSON.parse(event.xhr.responseText);
+
+            if (event.status != "success") {
+                return;
+            }
+            if (!("_rt_offset" in g.last)) {
+                g.last._rt_offset = 0; // rentable offset
+            }
+            if (!("_rrIndexMap" in g.last)) {
                 g.last._rrIndexMap = {};
-                for (var i = 0; i < g.records.length; i++) {
+            }
+
+            event.onComplete = function() {
+                for (var i = records_length; i < g.records.length; i++) {
                     var record = g.records[i];
                     record.w2ui.class = "";
                     record.w2ui.style = {};
@@ -124,8 +132,8 @@ function buildRentRollElements() {
                     }
                 }
                 g.refresh();
-                g.total = g.last._total;
                 g.offset += g.last._rt_offset;
+                g.total = data.total;
                 setTimeout(function() {
                     calculateRRPagination(); // at last we need to execute this custom pagination mechanism
                 }, 0);
