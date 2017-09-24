@@ -16,6 +16,19 @@ type RARStmtEntry struct {
 	TCID    int64              // IF THIS IS FOR A PAYOR STATEMENT, the TCID of the Payor, otherwise 0
 }
 
+// AcctRcvAccts returns a slice of AccountsReceivable accounts
+//
+// PARAMS
+//     bid - which business
+//
+// RETURNS
+// []int64 - slice of LIDs that are of type Accounts Receivable
+//   error - any error encountered
+//-----------------------------------------------------------------------------
+// func AcctRcvAccts(bid int64) ([]int64, error) {
+// 	return AcctSlice(bid, AccountsReceivable)
+// }
+
 // GetBeginEndRARBalance gets the balance associated with a Rentable and a
 // Rental Agreement at a particular point in time.
 //
@@ -95,24 +108,47 @@ func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 	// are NOT related to Security Deposit
 	//------------------------------------------------------------------------
 	//rows, err := RRdb.Prepstmt.GetAssessmentsByRARRange.Query(raid, rid, d1, d2)
-	secDepRules := ""
-	secDepAccts, err := SecDepRules(bid)
+
+	// secDepRules := ""
+	// secDepAccts, err := SecDepRules(bid)
+	// if nil == err {
+	// 	secDepRules = " AND NOT("
+	// 	l := len(secDepAccts)
+	// 	for i := 0; i < l; i++ {
+	// 		secDepRules += fmt.Sprintf("ARID=%d", secDepAccts[i])
+	// 		if i+1 < l {
+	// 			secDepRules += " OR "
+	// 		}
+	// 	}
+	// 	secDepRules += ")"
+	// }
+
+	acctRules := ""
+	rcvAccts, err := AcctSlice(bid, AccountsReceivable)
+	if err != nil {
+		LogAndPrintError(funcname, err)
+	}
+	qryAccts, err := AcctRulesSlice(rcvAccts)
 	if nil == err {
-		secDepRules = " AND NOT("
-		l := len(secDepAccts)
+		acctRules = " AND ("
+		l := len(qryAccts)
 		for i := 0; i < l; i++ {
-			secDepRules += fmt.Sprintf("ARID=%d", secDepAccts[i])
+			acctRules += fmt.Sprintf("ARID=%d", qryAccts[i])
 			if i+1 < l {
-				secDepRules += " OR "
+				acctRules += " OR "
 			}
 		}
-		secDepRules += ")"
+		acctRules += ")"
+	} else {
+		LogAndPrintError(funcname, err)
 	}
+
 	q := fmt.Sprintf("SELECT %s FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=%d AND RID=%d AND Stop>=%q AND Start<%q %s",
-		RRdb.DBFields["Assessments"], raid, rid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), secDepRules)
+		RRdb.DBFields["Assessments"], raid, rid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), acctRules)
 	rows, err := RRdb.Dbrr.Query(q)
 	Errcheck(err)
 	defer rows.Close()
+
 	Console("GetRARAcctRange: query = %s\n", q)
 
 	//------------------------------------------------------------------------
