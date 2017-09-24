@@ -19,8 +19,7 @@ function buildRentRollElements() {
         name: 'rrGrid',
         url: '/v1/rentroll',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
-        limit: 20,
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 20},
         show: {
             toolbar         : true,
             footer          : true,
@@ -43,7 +42,27 @@ function buildRentRollElements() {
             {field: 'recid',            caption: 'recid',                      size: '35px',  sortable: true, hidden: true},
             {field: 'BID',              caption: 'BID',                        size: '75px',  sortable: true, hidden: true},
             {field: 'RID',              caption: 'RID',                        size: '75px',  sortable: true, hidden: true},
-            {field: 'RentableName',     caption: app.sRentable,                size: '110px', sortable: true},
+            {field: 'RentableName',     caption: app.sRentable,                size: '110px', sortable: true,
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === undefined) {
+                        return;
+                    }
+                    var g = w2ui.rrGrid;
+                    if (record.IsSubTotalRow) {
+                        record.w2ui.class = "subTotalRow";
+                    }
+                    else if (record.IsBlankRow) {
+                        record.w2ui.class = "blankRow";
+                    } else {
+                        // apply greyish cell backgroud color to some cells
+                        for (var i = 0; i < grey_fields.length; i++) {
+                            var colIndex = g.getColumn(grey_fields[i], true);
+                            record.w2ui.style[colIndex] = "background-color: grey;";
+                        }
+                    }
+                    return record.RentableName;
+                }
+            },
             {field: 'RTID',             caption: 'RTID',                       size: '75px',  sortable: true, hidden: true},
             {field: 'RentableType',     caption: 'Rentable Type',              size: '100px', sortable: true},
             {field: 'Sqft',             caption: 'Sqft',                       size:  '50px', sortable: true, style: 'text-align: right'},
@@ -90,68 +109,22 @@ function buildRentRollElements() {
             {field: 'EndingSecDep',	    caption: 'Ending Security Deposit',    size: '100px', sortable: false, render: 'money'},
         ],
         onLoad: function(event) {
-            var g = this,
-                records_length = g.records.length,
-                data = JSON.parse(event.xhr.responseText);
-
-            if (event.status != "success") {
-                return;
-            }
-
+            var g = this;
             if (!("_rt_offset" in g.last)) {
-                g.last._rt_offset = 0; // rentable offset
+                g.last._rt_offset = 0;
             }
-            if (!("_rrIndexMap" in g.last)) {
-                g.last._rrIndexMap = {};
-            }
-            if (g.last.scrollTop == 0 && records_length == 0) {
-                g.last._rt_offset = 0; // rentable offset
-                g.last._rrIndexMap = {};
-            }
-
-            event.onComplete = function() {
-                for (var i = records_length; i < g.records.length; i++) {
-                    var record = g.records[i];
-                    record.w2ui.class = "";
-                    record.w2ui.style = {};
-
-                    // if it is subtotal row then add class to "tr" tag
-                    if (record.IsRentableMainRow) {
-                        // always keep rows expanded, if it is main row then
-                        g.expand(record.recid);
-
-                        g.last._rrIndexMap[i] = g.last._rt_offset;
-                        g.last._rt_offset++;
-                    }
-                    else if (record.IsSubTotalRow) {
-                        record.w2ui.class = "subTotalRow";
-                    }
-                    else if (record.IsBlankRow) {
-                        record.w2ui.class = "blankRow";
-                    } else {
-                        // apply greyish cell backgroud color to some cells
-                        for (var j = 0; j < grey_fields.length; j++) {
-                            var colIndex = g.getColumn(grey_fields[j], true);
-                            record.w2ui.style[colIndex] = "background-color: grey;";
-                        }
-                    }
+            var data = JSON.parse(event.xhr.responseText);
+            for (var i = data.records.length - 1; i >= 0; i--) {
+                if(data.records[i].IsRentableMainRow) {
+                    g.last._rt_offset++;
                 }
-                g.total = data.total;
-                setTimeout(function() {
-                    calculateRRPagination(); // at last we need to execute this custom pagination mechanism
-                }, 0);
-            };
+            }
+            // everytime you have to assign limit here, otherwise you'll get alert message of differed count
+            // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488
+            g.limit = data.records.length;
         },
         onRequest: function(event) {
             event.postData.rentableOffset = this.last._rt_offset;
-        },
-        onRefresh: function(event) {
-            var g = this;
-            event.onComplete = function() {
-                $("#grid_"+g.name+"_records").on("scroll", function() {
-                    calculateRRPagination();
-                });
-            };
         },
         onClick: function(event) {
             event.onComplete = function () {
@@ -180,51 +153,3 @@ function buildRentRollElements() {
 
     addDateNavToToolbar('rr');
 }
-
-function calculateRRPagination() {
-    // perform virtual scroll
-    var g = w2ui.rrGrid;
-    var url  = (typeof g.url != 'object' ? g.url : g.url.get);
-    var records = $("#grid_" + g.name + "_records");
-    var buffered = g.records.length;
-    if (g.searchData.length != 0 && !url) buffered = g.last.searchIds.length;
-    if (buffered === 0 || records.length === 0 || records.height() === 0) return;
-    if (buffered > g.vs_start) g.last.show_extra = g.vs_extra; else g.last.show_extra = g.vs_start;
-    // need this to enable scrolling when g.limit < then a screen can fit
-    if (records.height() < buffered * g.recordHeight && records.css('overflow-y') == 'hidden') {
-        // TODO: is this needed?
-        // if (g.total > 0) g.refresh();
-        return;
-    }
-    // update footer
-    var t1 = Math.round(records[0].scrollTop / g.recordHeight);
-    var t2 = t1 + (Math.round(records.height() / g.recordHeight));
-    if (t1 > buffered) t1 = buffered - 1;
-    if (t2 >= buffered) t2 = buffered - 1;
-    // custom pagination number start - stop for rentroll report
-    var startPageRec = 0, endPageRec = 0, i;
-    for (i = t1; i >= 0; i--) {
-        if(g.records[i].IsRentableMainRow){
-            startPageRec = i;
-            break;
-        }
-    }
-
-    for (i = t2; i >= t1; i--) {
-        if(g.records[i].IsRentableMainRow){
-            endPageRec = i;
-            break;
-        }
-    }
-
-    var startPageNo = g.last._rrIndexMap[startPageRec] + 1;
-    var endPageNo = g.last._rrIndexMap[endPageRec] + 1;
-
-    $('#grid_'+ g.name + '_footer .w2ui-footer-right').html(
-        (g.show.statusRange ? w2utils.formatNumber(startPageNo) + '-' + w2utils.formatNumber(endPageNo) +
-                (g.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g.total) : '') : '') +
-        (url && g.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) +
-                (g.offset > 0 ? ', skip ' + w2utils.formatNumber(g.offset) : '') + ')' : '')
-    );
-}
-
