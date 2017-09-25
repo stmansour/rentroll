@@ -42,36 +42,7 @@ function buildRentRollElements() {
             {field: 'recid',            caption: 'recid',                      size: '35px',  sortable: true, hidden: true},
             {field: 'BID',              caption: 'BID',                        size: '75px',  sortable: true, hidden: true},
             {field: 'RID',              caption: 'RID',                        size: '75px',  sortable: true, hidden: true},
-            {field: 'RentableName',     caption: app.sRentable,                size: '110px', sortable: true,
-                render: function(record/*, index, col_index*/) {
-                    if (typeof record === undefined) {
-                        return;
-                    }
-                    if (!("w2ui" in record)) {
-                        record.w2ui = {}; // init w2ui if not present
-                    }
-                    if (!("class" in record.w2ui)) {
-                        record.w2ui.class = ""; // init class string
-                    }
-                    if (!("style" in record.w2ui)) {
-                        record.w2ui.style = {}; // init style object
-                    }
-                    var g = w2ui.rrGrid;
-                    if (record.IsSubTotalRow) {
-                        record.w2ui.class = "subTotalRow";
-                    }
-                    else if (record.IsBlankRow) {
-                        record.w2ui.class = "blankRow";
-                    } else {
-                        // apply greyish cell backgroud color to some cells
-                        for (var i = 0; i < grey_fields.length; i++) {
-                            var colIndex = g.getColumn(grey_fields[i], true);
-                            record.w2ui.style[colIndex] = "background-color: grey;";
-                        }
-                    }
-                    return record.RentableName;
-                }
-            },
+            {field: 'RentableName',     caption: app.sRentable,                size: '110px', sortable: true},
             {field: 'RTID',             caption: 'RTID',                       size: '75px',  sortable: true, hidden: true},
             {field: 'RentableType',     caption: 'Rentable Type',              size: '100px', sortable: true},
             {field: 'Sqft',             caption: 'Sqft',                       size:  '50px', sortable: true, style: 'text-align: right'},
@@ -118,25 +89,56 @@ function buildRentRollElements() {
             {field: 'EndingSecDep',	    caption: 'Ending<br>Security<br>Deposit',    size: '100px', sortable: false, render: 'money'},
         ],
         onLoad: function(event) {
-            var g = this;
-            if (!("_rt_offset" in g.last)) {
-                g.last._rt_offset = 0;
-            }
-            var data = JSON.parse(event.xhr.responseText);
-            if (data.records) {
-                for (var i = data.records.length - 1; i >= 0; i--) {
-                    if(data.records[i].IsRentableMainRow) {
-                        g.last._rt_offset++;
-                    }
-                }
-                // everytime you have to assign limit here, otherwise you'll get alert message of differed count
-                // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488
-                g.limit = data.records.length;
-            }
             event.onComplete = function() {
+                var g = this;
+                if (!("_rt_offset" in g.last)) {
+                    g.last._rt_offset = 0;
+                }
+                var data = JSON.parse(event.xhr.responseText);
+                if (data.records) {
+                    for (var i = data.records.length - 1; i >= 0; i--) {
+                        // get record from grid to apply css
+                        var record = g.records[data.records[i].recid];
+                        if(record.IsRentableMainRow) {
+                            g.last._rt_offset++;
+                        }
+                        if (!("w2ui" in record)) {
+                            record.w2ui = {}; // init w2ui if not present
+                        }
+                        if (!("class" in record.w2ui)) {
+                            record.w2ui.class = ""; // init class string
+                        }
+                        if (!("style" in record.w2ui)) {
+                            record.w2ui.style = {}; // init style object
+                        }
+                        // var g = w2ui.rrGrid;
+                        if (record.IsSubTotalRow) {
+                            record.w2ui.class = "subTotalRow";
+                        }
+                        else if (record.IsBlankRow) {
+                            record.w2ui.class = "blankRow";
+                        } else {
+                            // apply greyish cell backgroud color to some cells
+                            for (var j = 0; j < grey_fields.length; j++) {
+                                var colIndex = g.getColumn(grey_fields[j], true);
+                                record.w2ui.style[colIndex] = "background-color: grey;";
+                            }
+                        }
+                    }
+                    // everytime you have to assign limit here, otherwise you'll get alert message of differed count
+                    // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488
+                    g.limit = data.records.length;
+                }
+
+                // stop request if all rows have been loaded
                 if(g.total <= g.records.length) {
                     g.last.pull_more = false;
                 }
+
+                // need to redraw grid after loading data
+                setTimeout(function() {
+                    g.refresh();
+                }, 0);
             };
         },
         onRequest: function(event) {
