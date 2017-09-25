@@ -393,13 +393,14 @@ type RentalAgreement struct {
 	ExpansionOption        string      // the right to expand to certanin spaces that are typically contiguous to their primary space
 	ExpansionOptionNotice  time.Time   // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string      // Tenant may have the right to purchase their premises if LL chooses to sell
+	FLAGS                  uint64      // 1<<0 - is application pending approval,
 	LastModTime            time.Time   // when was this record last written
 	LastModBy              int64       // employee UID (from phonebook) that modified it
+	CreateTS               time.Time   // when was this record created
+	CreateBy               int64       // employee UID (from phonebook) that created it
 	R                      []XRentable // all the rentables
 	P                      []XPerson   // all the payors
 	T                      []XPerson   // all the users
-	CreateTS               time.Time   // when was this record created
-	CreateBy               int64       // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementRentable describes a Rentable associated with a rental agreement
@@ -896,7 +897,7 @@ type RentableType struct {
 	Proration      int64                      // frequency for prorating rent if the full rentcycle is not used
 	GSRPC          int64                      // Time increments in which GSR is calculated to account for rate changes
 	ManageToBudget int64                      // 0=no, 1 = yes
-	FLAGS          int64                      // 0=active, 1=inactive
+	FLAGS          uint64                     // 0=active, 1=inactive
 	MR             []RentableMarketRate       // array of time sensitive market rates
 	CA             map[string]CustomAttribute // index by Name of attribute, associated custom attributes
 	MRCurrent      float64                    // the current market rate (historical values are in MR)

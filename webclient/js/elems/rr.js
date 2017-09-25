@@ -76,17 +76,17 @@ function buildRentRollElements() {
                     return app.cycleFreq[record.RentCycle];
                 }
             },
-            {field: 'GSR',              caption: 'GSR',                              size: '85px',  sortable: true,  render: 'float'},
-            {field: 'PeriodGSR',        caption: 'Period<br>GSR',                    size: '85px',  sortable: true,  render: 'money'},
-            {field: 'IncomeOffsets',    caption: 'Income<br>Offsets',                size: '85px',  sortable: true,  render: 'money'},
-            {field: 'AmountDue',        caption: 'Amount<br>Due',                    size: '85px',  sortable: true,  render: 'money'},
-            {field: 'PaymentsApplied',  caption: 'Payments<br>Applied',              size: '85px',  sortable: true,  render: 'money'},
-            {field: 'BeginningRcv',	    caption: 'Beginning<br>Receivable',          size: '100px', sortable: false, render: 'money'},
-            {field: 'ChangeInRcv',	    caption: 'Change in<br>Receivable',          size: '100px', sortable: false, render: 'money'},
-            {field: 'EndingRcv',	    caption: 'Ending<br>Receivable',             size: '100px', sortable: false, render: 'money'},
-            {field: 'BeginningSecDep',	caption: 'Beginning<br>Security<br>Deposit', size: '100px', sortable: false, render: 'money'},
-            {field: 'ChangeInSecDep',	caption: 'Change in<br>Security<br>Deposit', size: '100px', sortable: false, render: 'money'},
-            {field: 'EndingSecDep',	    caption: 'Ending<br>Security<br>Deposit',    size: '100px', sortable: false, render: 'money'},
+            {field: 'GSR',              caption: 'GSR',                              size: '85px',  sortable: true,  render: 'float:2'},
+            {field: 'PeriodGSR',        caption: 'Period<br>GSR',                    size: '85px',  sortable: true,  render: 'float:2'},
+            {field: 'IncomeOffsets',    caption: 'Income<br>Offsets',                size: '85px',  sortable: true,  render: 'float:2'},
+            {field: 'AmountDue',        caption: 'Amount<br>Due',                    size: '85px',  sortable: true,  render: 'float:2'},
+            {field: 'PaymentsApplied',  caption: 'Payments<br>Applied',              size: '85px',  sortable: true,  render: 'float:2'},
+            {field: 'BeginningRcv',	    caption: 'Beginning<br>Receivable',          size: '100px', sortable: false, render: 'float:2'},
+            {field: 'ChangeInRcv',	    caption: 'Change in<br>Receivable',          size: '100px', sortable: false, render: 'float:2'},
+            {field: 'EndingRcv',	    caption: 'Ending<br>Receivable',             size: '100px', sortable: false, render: 'float:2'},
+            {field: 'BeginningSecDep',	caption: 'Beginning<br>Security<br>Deposit', size: '100px', sortable: false, render: 'float:2'},
+            {field: 'ChangeInSecDep',	caption: 'Change in<br>Security<br>Deposit', size: '100px', sortable: false, render: 'float:2'},
+            {field: 'EndingSecDep',	    caption: 'Ending<br>Security<br>Deposit',    size: '100px', sortable: false, render: 'float:2'},
         ],
         onLoad: function(event) {
             event.onComplete = function() {
@@ -121,7 +121,7 @@ function buildRentRollElements() {
                             // apply greyish cell backgroud color to some cells
                             for (var j = 0; j < grey_fields.length; j++) {
                                 var colIndex = g.getColumn(grey_fields[j], true);
-                                record.w2ui.style[colIndex] = "background-color: grey;";
+                                record.w2ui.style[colIndex] = "background-color: #CCC;";
                             }
                         }
                     }
