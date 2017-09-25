@@ -2,3 +2,4 @@ Bud,Name,ARType,    DebitLID,CreditLID,Description
 REX,Rent Non-Taxable,Assessment,"Accounts Receivable","Gross Scheduled Rent-Not Taxable",Rent for non-taxable rooms / properties
 REX,Late Fee,Assessment,"Accounts Receivable","Late Fees",Assessed when payments are 7 days or more overdue
 REX,Payment By Check,Receipt,"Cash BofA","Unapplied Funds","Unapplied Funds"
+REX,Security Deposit Assessment,Assessment,"Accounts Receivable","Security Deposits",Use for security deposits

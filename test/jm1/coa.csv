@@ -2,7 +2,7 @@ BUD,Name,GLNumber,Parent GLNumber,Account Type,Balance,Account Status,Date,Descr
 REX,Cash,10000,,Bank Account,0,active,12/1/15,Main cash account
 REX,Credit Card Clearing,11000,,Current Asset,0,active,12/1/15,
 REX,Accounts Receivable,12000,,Accounts Receivable,0,active,12/1/15,
-REX,Security Deposits,30000,,Security Deposits,0,active,12/1/15,
+REX,Security Deposits,30000,,Liability Security Deposit,0,active,12/1/15,
 REX,Accrued Taxes,30100,,Current Liabilities,0,active,12/1/15,
 REX,Sales Taxes,30101,30100,Current Liabilities,0,active,12/1/15,
 REX,Transient Occupancy Taxes,30102,30100,Current Liabilities,0,active,12/1/15,

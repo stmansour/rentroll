@@ -9,6 +9,7 @@ BUD=ISO
 source ../../../share/base.sh
 
 docsvtest "a" "-b business.csv -L 3" "Business"
+# docsvtest "z" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
 
 # remove all csv files from temp store
 rm -f ${TEMPCSVSTORE}/rentableTypes_*.csv ./rentableTypes_*.csv

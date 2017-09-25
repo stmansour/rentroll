@@ -191,6 +191,24 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	//-----------------------------------------------------
+	// Create a Rentable Ledger marker
+	//-----------------------------------------------------
+	var lm = rlib.LedgerMarker{
+		BID:     a.BID,
+		RAID:    d.RAID,
+		RID:     a.RID,
+		Dt:      a.RARDtStart,
+		Balance: float64(0),
+		State:   rlib.LMINITIAL,
+	}
+	err = rlib.InsertLedgerMarker(&lm)
+	if err != nil {
+		e := fmt.Errorf("Error saving Rentable (RAID=%d): %s", d.RAID, err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
 	SvcWriteSuccessResponseWithID(w, a.RARID) // send the new id back with the status message
 }
 

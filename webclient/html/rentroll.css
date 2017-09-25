@@ -103,3 +103,8 @@ textarea.w2ui-input-focus {
 .subTotalRow td {
     border-top: 2px #BBB solid;
 }
+
+.blankRow td {
+    background-color: #CCEEFF;
+    border: 0px transparent solid;
+}
