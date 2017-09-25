@@ -43,8 +43,8 @@ function getAsmsInitRecord(BID, BUD, previousFormRecord){
             [ 'Amount', 'Comment', 'RAID', 'Rentable'], // Fields to Reset
             defaultFormData,
             previousFormRecord
-        );        
-    }   
+        );
+    }
 
     return defaultFormData;
 }
@@ -67,6 +67,7 @@ function buildAssessmentElements() {
         name: 'asmsGrid',
         url: '/v1/asms',
         multiSelect: false,
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
             toolbar         : true,
             footer          : true,
@@ -215,9 +216,6 @@ function buildAssessmentElements() {
                 // warn user if form content has been changed
                 form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
-        onRequest: function(/*event*/) {
-            w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-        },
         onRefresh: function(event) {
             event.onComplete = function() {
                 if (app.active_grid == this.name) {
@@ -344,7 +342,7 @@ function buildAssessmentElements() {
                     .done( function(data) {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                             app.AssessmentRules = JSON.parse(data);
-                            app.ridRentablePicker.BID = BID; // needed by typedown                            
+                            app.ridRentablePicker.BID = BID; // needed by typedown
 
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             f.fields[0].options.items = app.AssessmentRules[BUD];
