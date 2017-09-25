@@ -439,13 +439,13 @@ function buildAssessmentElements() {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
                     if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLYPAID)) === 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Unpaid");
                     }
                     else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Partially paid");
                     }
                     else if ( (flag & app.asmFLAGS.FULLYPAID) !== 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Fully paid");
                     }
 
                     // show reverse, save button, hide close button
@@ -461,7 +461,7 @@ function buildAssessmentElements() {
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };

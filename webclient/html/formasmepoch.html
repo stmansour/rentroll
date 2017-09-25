@@ -1,6 +1,11 @@
 <div id="asmEpochForm">
     <div class="w2ui-page page-0">  <!-- Assessment -->
-        <div id="AssessmentInfo" style="background-color: white; padding: 8px 12px; border-radius: 4px; margin: 10px 5px;text-align: left;"></div>
+        <div id="AssessmentInfo" class="asmInfoContainer">
+            This is the main instance.
+        </div>
+        <div id="FLAGReport" class="FLAGReportContainer">
+            <p>Assessment FLAG report</p>
+        </div>
 
         <div class="w2ui-field"><input type="hidden" name="recid" /></div>
         <div class="w2ui-field"><input type="hidden" name="BID" /></div>
@@ -64,10 +69,6 @@
         <div class="w2ui-field">
             <label>Comment:</label>
             <div><input name="Comment" type="text" style="width: 100%"/></div>
-        </div>
-
-        <div id="FLAGReport" class="FLAGReportContainer">
-            <p style="margin-bottom: 5px;">Assessment FLAG report</p>
         </div>
     </div>  <!-- end of page 0, Rentable -->
 
