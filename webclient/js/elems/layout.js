@@ -19,11 +19,13 @@ function buildAppLayout(){
                 if (event.target === "right" && event.type === "hide") {
                     // get the form from active_form value
                     var f = w2ui[app.active_form];
-                    // if right panel is being hidden, then make blank everything related with active form
-                    if (f === this.get("right").content) {
-                        app.active_form = "";
-                        app.active_form_original = {};
-                        app.form_is_dirty = false;
+                    if (f) {
+                        // if right panel is being hidden, then make blank everything related with active form
+                        if (f === this.get("right").content || f.name == "rtForm") { // b'coz rtForm has been filled inside a layout
+                            app.active_form = "";
+                            app.active_form_original = {};
+                            app.form_is_dirty = false;
+                        }
                     }
                 }
             };
