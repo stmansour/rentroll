@@ -40,8 +40,8 @@ function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
             [ 'DocNo', 'Payor', 'Amount', 'OtherPayorName', 'Comment'], // Fields to Reset
             defaultFormData,
             previousFormRecord
-        );        
-    }   
+        );
+    }
 
     return defaultFormData;
 }
@@ -386,7 +386,7 @@ function buildReceiptElements() {
 
                 // check if it is reversed or not
                 if ( (flag & app.rcptFLAGS.REVERSED) !== 0 ) { // if reversed then
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    flagHTML += "<p><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save, saveadd button
@@ -405,13 +405,13 @@ function buildReceiptElements() {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
                     if ( (flag | app.rcptFLAGS.UNALLOCATED) === 0 || (flag & (app.rcptFLAGS.PARTIALALLOCATED | app.rcptFLAGS.FULLYALLOCATED)) === 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unallocated");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Unallocated");
                     }
                     else if ( (flag & app.rcptFLAGS.PARTIALALLOCATED) !== 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially allocated");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Partially allocated");
                     }
                     else if ( (flag & app.rcptFLAGS.FULLYALLOCATED) !== 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully allocated");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Fully allocated");
                     }
 
                     // show save, saveadd, reverse button, hide close button
@@ -427,7 +427,7 @@ function buildReceiptElements() {
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };

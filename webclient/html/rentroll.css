@@ -69,7 +69,7 @@ textarea.w2ui-input-focus {
     background-color: white;
     padding: 8px 12px;
     border-radius: 4px;
-    margin: 0 5px 5px 10px;
+    margin: 0 5px 10px 10px;
     text-align: left;
 }
 
@@ -81,7 +81,7 @@ textarea.w2ui-input-focus {
     background-color: #d0e9c6;
     padding: 8px 12px;
     border-radius: 4px;
-    margin: 10px 5px 10px 10px;
+    margin: 0 5px 10px 10px;
     text-align: left;
     position: relative;
 }
