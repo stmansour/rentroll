@@ -103,26 +103,6 @@ func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 	Console("Entered %s\n", funcname)
 	bal := float64(0)
 
-	//------------------------------------------------------------------------
-	// Create a query that selects all Assessments for RAID and RID that
-	// are NOT related to Security Deposit
-	//------------------------------------------------------------------------
-	//rows, err := RRdb.Prepstmt.GetAssessmentsByRARRange.Query(raid, rid, d1, d2)
-
-	// secDepRules := ""
-	// secDepAccts, err := SecDepRules(bid)
-	// if nil == err {
-	// 	secDepRules = " AND NOT("
-	// 	l := len(secDepAccts)
-	// 	for i := 0; i < l; i++ {
-	// 		secDepRules += fmt.Sprintf("ARID=%d", secDepAccts[i])
-	// 		if i+1 < l {
-	// 			secDepRules += " OR "
-	// 		}
-	// 	}
-	// 	secDepRules += ")"
-	// }
-
 	acctRules := ""
 	rcvAccts, err := AcctSlice(bid, AccountsReceivable)
 	if err != nil {
@@ -157,7 +137,7 @@ func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 	Errcheck(err)
 	defer rows.Close()
 
-	Console("GetRARAcctRange: query = %s\n", q)
+	// Console("GetRARAcctRange: query = %s\n", q)
 
 	//------------------------------------------------------------------------
 	// Total all assessments in the supplied range that involve RID in RAID.

@@ -1,0 +1,114 @@
+CreateLedgerMarkers: line 74, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 75, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 76, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 77, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 78, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 79, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 80, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 81, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 82, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 83, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 84, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 85, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 86, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 87, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 88, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 89, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 90, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 91, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 92, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 93, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 94, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 95, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 96, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 97, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 98, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 99, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 100, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 101, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 102, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 103, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 104, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 105, rlib.Business with designation CCC does not exist
+CreateLedgerMarkers: line 106, rlib.Business with designation CCC does not exist
+RKY Chart of Accounts
+Accord/OKC Members, LLC
+6303 NW 63rd Street
+Oklahoma City, OK 73132 USA
+
+GLNumber  Name                                      Parent                               Account Type          Description              
+--------  ----------------------------------------  -----------------------------------  --------------------  -------------------------
+   10000  Cash                                                                           Bank Account          Main cash account        
+   10001  Cash BofA                                                                      Bank Account                                   
+   10100  Unapplied Funds                                                                Holding Account       Holding account          
+   11000  Credit Card Clearing                                                           Current Asset                                  
+   12000  Accounts Receivable                                                            Accounts Receivable                            
+   30000  Security Deposits                                                              Liability Security                             
+                                                                                         Deposit                                        
+   30100  Accrued Taxes                                                                  Current Liabilities                            
+   30101  Sales Taxes                               Accrued Taxes                        Current Liabilities                            
+   30102  Transient Occupancy Taxes                 Accrued Taxes                        Current Liabilities                            
+   30199  Other Accrued Taxes                       Accrued Taxes                        Current Liabilities                            
+   39000  Owners' Equity                                                                 Equity                                         
+   41000  Gross Scheduled Rent-Not Taxable                                               Income                                         
+   41001  Gross Scheduled Rent-Taxable                                                   Income                                         
+   41002  Income Offsets                                                                 Income                                         
+   41003  Other Income                                                                   Other Income                                   
+   41100  Unit Income Offsets                       Income Offsets                       Income Offsets                                 
+   41101  Vacancy                                   Unit Income Offsets                  Income Offsets                                 
+   41102  Loss (Gain) to Lease                      Unit Income Offsets                  Income Offsets                                 
+   41103  Employee Concessions                      Unit Income Offsets                  Income Offsets                                 
+   41104  Resident Concessions                      Unit Income Offsets                  Income Offsets                                 
+   41105  Owner Concession                          Unit Income Offsets                  Income Offsets                                 
+   41106  Administrative Concession                 Unit Income Offsets                  Income Offsets                                 
+   41107  Off Line Renovations                      Unit Income Offsets                  Income Offsets                                 
+   41108  Off Line Maintenance                      Unit Income Offsets                  Income Offsets                                 
+   41199  Othe Income Offsets                       Unit Income Offsets                  Income Offsets                                 
+   41200  Serviced Fees                             Other Income                         Other Income                                   
+   41201  Broadcast and IT Services                 Serviced Fees                        Other Income                                   
+   41202  Food Services                             Serviced Fees                        Other Income                                   
+   41203  Linen Services                            Serviced Fees                        Other Income                                   
+   41204  Wash N Fold Services                      Serviced Fees                        Other Income                                   
+   41299  Other Service Fees                        Serviced Fees                        Other Income                                   
+   41300  Utility Fees                              Other Income                         Other Income                                   
+   41301  Electric Base Fee                         Utility Fees                         Other Income                                   
+   41302  Electric Overage                          Utility Fees                         Other Income                                   
+   41303  Water and Sewer Base Fee                  Utility Fees                         Other Income                                   
+   41304  Water and Sewer Overage                   Utility Fees                         Other Income                                   
+   41305  Gas Base Fee                              Utility Fees                         Other Income                                   
+   41306  Gas Overage                               Utility Fees                         Other Income                                   
+   41307  Trash Collection Base Fee                 Utility Fees                         Other Income                                   
+   41308  Trash Collection Overage                  Utility Fees                         Other Income                                   
+   41399  Other Utility Fee                         Utility Fees                         Other Income                                   
+   41400  Miscellaneous Income                      Other Income                         Other Income                                   
+   41401  Application Fees                          Miscellaneous Income                 Other Income                                   
+   41402  Late Fees                                 Miscellaneous Income                 Other Income                                   
+   41403  Insufficient Funds Fee                    Miscellaneous Income                 Other Income                                   
+   41404  Month to Month Fee                        Miscellaneous Income                 Other Income                                   
+   41405  Premium Upgrades                          Miscellaneous Income                 Other Income                                   
+   41406  No Show or Termination Fee                Miscellaneous Income                 Other Income                                   
+   41407  Pet Fees                                  Miscellaneous Income                 Other Income                                   
+   41408  Pet Rent                                  Miscellaneous Income                 Other Income                                   
+   41409  Expense Reimbursement                     Miscellaneous Income                 Other Income                                   
+   41410  Special Cleaning Fee                      Miscellaneous Income                 Other Income                                   
+   41411  Eviction Fee Reimbursement                Miscellaneous Income                 Other Income                                   
+   41412  Extra Person Charge                       Miscellaneous Income                 Other Income                                   
+   41413  Forfeited SecDep                          Miscellaneous Income                 Other Income                                   
+   41414  Damage Fee                                Miscellaneous Income                 Other Income                                   
+   41415  CAM Fees                                                                       Other Income                                   
+   41499  Other Miscellaneous Income                Miscellaneous Income                 Other Income                                   
+   41500  Taxes Collected in Trust                  Other Income                         Other Income                                   
+   41501  Sales Taxes                               Taxes Collected in Trust             Other Income                                   
+   41502  Transient Occupancy Taxes                 Taxes Collected in Trust             Other Income                                   
+   42000  Business Income                           Other Income                         Other Income                                   
+   42100  Convenience Store                         Business Income                      Other Income                                   
+   42200  Fitness Center Revenue                    Business Income                      Other Income                                   
+   42300  Vending Income                            Business Income                      Other Income                                   
+   42400  Restaurant Sales                          Business Income                      Other Income                                   
+   42500  Bar Sales                                 Business Income                      Other Income                                   
+   42600  Spa Sales                                 Business Income                      Other Income                                   
+   49991  Cash Over/Short                           Business Income                      Other Income                                   
+   49992  Bad Debt                                  Business Income                      Other Income                                   
+   49998  Income Suspense                           Business Income                      Other Income                                   
+   49999  Other Business Income                     Business Income                      Other Income                                   
+
