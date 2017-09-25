@@ -8,7 +8,8 @@ import (
 // LiabilitySecDep is the string used to identify a security deposit
 // liability account. It is used in queries.
 const (
-	LiabilitySecDep = "Liability Security Deposit"
+	LiabilitySecDep    = "Liability Security Deposit"
+	AccountsReceivable = "Accounts Receivable"
 )
 
 // RDateFmt is an array of date / time formats that RentRoll accepts for datetime input
@@ -35,15 +36,15 @@ var QBAcctInfo = []struct {
 	Name   string
 	Negate bool // Indicates whether or not negate an assessment amount if showing it as a debit
 }{
-	{"Asset", false},               // Asset         D +   C -
-	{"Accounts Receivable", false}, // Asset         D +   C -
-	{"Cash", false},                // Asset         D +   C -
-	{"Expense", false},             // Expense Acct  D +   C -
-	{"Liabilities", true},          // Liabilities   D -   C +
-	{LiabilitySecDep, true},        // Liabilities   D -   C +
-	{"Income", true},               // Income Acct   D -   C +
-	{"Income Offsets", true},       // Income Acct   D -   C +
-	{"Other Income", true},         // Income Acct   D -   C +
+	{"Asset", false},            // Asset         D +   C -
+	{AccountsReceivable, false}, // Asset         D +   C -
+	{"Cash", false},             // Asset         D +   C -
+	{"Expense", false},          // Expense Acct  D +   C -
+	{"Liabilities", true},       // Liabilities   D -   C +
+	{LiabilitySecDep, true},     // Liabilities   D -   C +
+	{"Income", true},            // Income Acct   D -   C +
+	{"Income Offsets", true},    // Income Acct   D -   C +
+	{"Other Income", true},      // Income Acct   D -   C +
 }
 
 // AccountTypeNegateFlag returns the Negate flag associated with the supplied account type.
