@@ -141,7 +141,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	)
 	limitClause := d.wsSearchReq.Limit
 	if limitClause == 0 {
-		limitClause = 100
+		limitClause = 20
 	}
 
 	// get rentableOffset first
