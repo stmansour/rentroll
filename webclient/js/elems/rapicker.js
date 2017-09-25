@@ -193,9 +193,14 @@ function rentalAgrPickerRender(item) {
     $.get(url,function(data /*,status*/) {
         app.RentalAgrPicker.RAR = JSON.parse(data);
         app.RentalAgrPicker.RARentablesNames = [];
-        for (var i = 0; i < app.RentalAgrPicker.RAR.records.length; i++) {
+        if (app.RentalAgrPicker.RAR.records) {
+            for (var i = 0; i < app.RentalAgrPicker.RAR.records.length; i++) {
+                app.RentalAgrPicker.RARentablesNames.push(
+                    { id: app.RentalAgrPicker.RAR.records[i].RID, text: app.RentalAgrPicker.RAR.records[i].RentableName} );
+            }
+        } else {
             app.RentalAgrPicker.RARentablesNames.push(
-                { id: app.RentalAgrPicker.RAR.records[i].RID, text: app.RentalAgrPicker.RAR.records[i].RentableName} );
+                    { id: 0, text: ''} );
         }
         console.log('calling rentalAgrPicker.refresh(), app.RentalAgrPicker.RARentablesNames.length = ' + app.RentalAgrPicker.RARentablesNames.length );
         w2ui.rentalAgrPicker.refresh();
