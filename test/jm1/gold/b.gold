@@ -11,7 +11,8 @@ GLNumber  Name                                      Parent                      
    10100  Unapplied Funds                                                                Holding Account       Holding account          
    11000  Credit Card Clearing                                                           Current Asset                                  
    12000  Accounts Receivable                                                            Accounts Receivable                            
-   30000  Security Deposits                                                              Security Deposits                              
+   30000  Security Deposits                                                              Liability Security                             
+                                                                                         Deposit                                        
    30100  Accrued Taxes                                                                  Current Liabilities                            
    30101  Sales Taxes                               Accrued Taxes                        Current Liabilities                            
    30102  Transient Occupancy Taxes                 Accrued Taxes                        Current Liabilities                            

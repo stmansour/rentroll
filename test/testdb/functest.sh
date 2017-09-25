@@ -14,8 +14,8 @@ else
 fi
 
 pushd ../ccc;./functest.sh  -n -f;popd
-pushd ../importers/onesite/onesite_exported_2;./functest.sh -n -f;popd
-pushd ../importers/roomkey/roomkey_exported_guest;./functest.sh -n -f;popd
+pushd ../importers/onesite/onesite_exported_2;./functest.sh -n -f; ../../../../tmp/rentroll/rrloadcsv -c coa.csv -ar ar.csv; popd
+pushd ../importers/roomkey/roomkey_exported_guest;./functest.sh -n -f; ../../../../tmp/rentroll/rrloadcsv -c coa.csv -ar ar.csv; popd
 
 # Import some other things that several of the Businesses are missing
 

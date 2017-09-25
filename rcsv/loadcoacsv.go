@@ -67,13 +67,14 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		// fmt.Printf("Looking for BUD:  %s\n", des)
+		// rlib.Console("Looking for BUD:  %s\n", des)
 		b1 := rlib.GetBusinessByDesignation(des)
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		lm.BID = b1.BID
 		l.BID = b1.BID
+		// rlib.Console("BUD %s  --->  BID = %d\n", des, l.BID)
 	}
 
 	lm.State = rlib.LMINITIAL // Initial marker, no prior records
@@ -83,19 +84,24 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------------
 	l.Name = strings.TrimSpace(sa[Name])
 
-	// fmt.Println("B")
+	// rlib.Console("B\n")
 	//----------------------------------------------------------------------
 	// GLNUMBER
 	// Make sure the account number is unique
 	//----------------------------------------------------------------------
+	// rlib.Console("sa[GLNumber] = %q\n", sa[GLNumber])
 	g := strings.TrimSpace(sa[GLNumber])
+	// rlib.Console("len(g) = %d\n", len(sa[GLNumber]))
 	if len(g) == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - You must supply a GL Number for this entry", funcname, lineno)
 	}
 	if len(g) > 0 {
 		// if we're inserting a record then it must not already exist
+		// rlib.Console("inserting = %t\n", inserting)
 		if inserting {
+			// rlib.Console("lm.BID = %d, getting ledger by GLNo:  %s\n", lm.BID, g)
 			ldg := rlib.GetLedgerByGLNo(lm.BID, g)
+			// rlib.Console("ldg.LID = %d, name = %s\n", ldg.LID, ldg.Name)
 			if ldg.LID > 0 {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Account already exists: %s", funcname, lineno, g)
 			}
@@ -105,10 +111,11 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 			// 	return rs,CsvErrorSensitivity
 			// }
 		}
+
 		l.GLNumber = g
 	}
 
-	// fmt.Println("C")
+	// rlib.Console("C\n")
 	//----------------------------------------------------------------------
 	// PARENT GLNUMBER
 	//----------------------------------------------------------------------
@@ -121,7 +128,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		}
 		l.PLID = parent.LID
 	}
-	// fmt.Println("D")
+	// rlib.Console("D\n")
 
 	//----------------------------------------------------------------------
 	// ACCOUNT TYPE
@@ -140,7 +147,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		}
 		lm.Balance = x
 	}
-	// fmt.Println("E")
+	// rlib.Console("E\n")
 
 	//----------------------------------------------------------------------
 	// GLACCOUNT STATUS
@@ -154,7 +161,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid account status: %s", funcname, lineno, sa[AccountStatus])
 	}
 
-	// fmt.Println("F")
+	// rlib.Console("F\n")
 
 	//----------------------------------------------------------------------
 	// DATE for opening balance
@@ -185,13 +192,14 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 
 	//=======================================================================================
 
-	// fmt.Printf("LOADCSV - SAVE:  Inserting = %v\n", inserting)
-	// fmt.Printf("                 l = %#v\n", l)
+	// rlib.Console("LOADCSV - SAVE:  Inserting = %v\n", inserting)
+	// rlib.Console("                 l = %#v\n", l)
 
 	// Insert / Update the rlib.GLAccount first, we may need the LID
 	if inserting {
 		var lid int64
 		lid, err = rlib.InsertLedger(&l)
+		// rlib.Console("Inserted new account:  BID = %d, LID = %d, Name = %s\n", l.BID, lid, l.Name)
 		lm.LID = lid
 	} else {
 		err = rlib.UpdateLedger(&l)

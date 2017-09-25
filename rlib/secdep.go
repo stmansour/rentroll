@@ -100,30 +100,10 @@ func SecDepRules(bid int64) ([]int64, error) {
 		return m, err
 	}
 	if len(sda) == 0 {
-		return m, fmt.Errorf("There are no accounts of type %s", LiabilitySecDep)
+		return m, fmt.Errorf("There are no accounts of type %s where BID = %d", LiabilitySecDep, bid)
 	}
 
 	return AcctRulesSlice(sda)
-	// //-----------------------------------------------------------
-	// // What Account Rules involve the Security Deposit accounts
-	// //-----------------------------------------------------------
-	// sa := []string{}
-	// for i := 0; i < len(sda); i++ {
-	// 	sa = append(sa, fmt.Sprintf("CreditLID=%d OR DebitLID=%d", sda[i], sda[i]))
-	// }
-	// q := "SELECT ARID FROM AR WHERE (" + strings.Join(sa, " OR ") + ")"
-	// // Console("GetSecDepBalance: q = %s\n", q)
-	// rows, err := RRdb.Dbrr.Query(q)
-	// for rows.Next() {
-	// 	var id int64
-	// 	err := rows.Scan(&id)
-	// 	if err != nil {
-	// 		return m, err
-	// 	}
-	// 	m = append(m, id)
-	// }
-	// err = rows.Err()
-	// return m, err
 }
 
 // GetSecDepBalance returns the amount of security deposit charge and the

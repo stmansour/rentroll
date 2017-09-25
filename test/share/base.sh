@@ -91,7 +91,7 @@ pause() {
 	echo
 	read -p "Press [Enter] to continue, M to move ${2} to gold/${2}.gold, Q or X to quit..." x
 	x=$(echo "${x}" | tr "[:upper:]" "[:lower:]")
-	if [ ${x} == "q" -o ${x} == "x" ]; then
+	if [ "${x}" == "q" -o ${x} == "x" ]; then
 		exit 0
 	elif [[ ${x} == "m" ]]; then
 		echo "********************************************"

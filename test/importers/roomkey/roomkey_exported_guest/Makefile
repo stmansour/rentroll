@@ -4,10 +4,12 @@ roomkey:
 	@echo "*** Completed in test/importers/roomkey_exported_guest ***"
 
 clean:
-	rm -f [a-z] roomkey.log log ${TEMPCSVSTORE}/*.csv *.g ./gold/*.g err.txt fail
+	rm -f [a-z] roomkey.log log ${TEMPCSVSTORE}/*.csv *.g ./gold/*.g err.txt fail coa.csv ar.csv
 	@echo "*** CLEAN completed in test/importers/roomkey_exported_guest ***"
 
 test:
+	if [ ! -f coa.csv ]; then cp ../../../jm1/coa.csv .;cat coa.csv|sed 's/^REX/RKY/' > x; mv x coa.csv; fi
+	if [ ! -f ar.csv ]; then cp ../../../jm1/ar.csv .;cat ar.csv|sed 's/^REX/RKY/' > x; mv x ar.csv; fi
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in test/importers/roomkey_exported_guest ***"

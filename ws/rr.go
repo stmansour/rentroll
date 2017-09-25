@@ -302,7 +302,7 @@ func SvcRRChild(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					_ = arRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied) // ignore error
 					// nq.Recid, _ = strconv.ParseInt(strconv.FormatInt(q.Recid, 10)+""+strconv.Itoa(childCount), 10, 64)
 					q.W2UIChild.Children = append(q.W2UIChild.Children, nq)
-					fmt.Printf("I came here dude!!!!\n\n")
+					// fmt.Printf("I came here dude!!!!\n\n")
 					updateSubTotals(&sub, &nq)
 				} else {
 					_ = arRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied) // ignore error

@@ -127,24 +127,32 @@ func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 	rcvAccts, err := AcctSlice(bid, AccountsReceivable)
 	if err != nil {
 		LogAndPrintError(funcname, err)
+		return bal
+	}
+	if len(rcvAccts) == 0 {
+		LogAndPrintError(funcname, fmt.Errorf("GetRARAcctRange: there are no accounts of type %s", AccountsReceivable))
+		return bal
 	}
 	qryAccts, err := AcctRulesSlice(rcvAccts)
 	if nil == err {
-		acctRules = " AND ("
 		l := len(qryAccts)
-		for i := 0; i < l; i++ {
-			acctRules += fmt.Sprintf("ARID=%d", qryAccts[i])
-			if i+1 < l {
-				acctRules += " OR "
+		if 0 > l {
+			acctRules = " AND ("
+			for i := 0; i < l; i++ {
+				acctRules += fmt.Sprintf("ARID=%d", qryAccts[i])
+				if i+1 < l {
+					acctRules += " OR "
+				}
 			}
+			acctRules += ")"
 		}
-		acctRules += ")"
 	} else {
 		LogAndPrintError(funcname, err)
 	}
 
 	q := fmt.Sprintf("SELECT %s FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=%d AND RID=%d AND Stop>=%q AND Start<%q %s",
 		RRdb.DBFields["Assessments"], raid, rid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), acctRules)
+	// Console("q = %s\n", q)
 	rows, err := RRdb.Dbrr.Query(q)
 	Errcheck(err)
 	defer rows.Close()
