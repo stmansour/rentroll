@@ -408,7 +408,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	g.Total = (rentablesCount * 2) + asmCount
+	g.Total = (rentablesCount * 2)   // subtotal Row and blank Row
+	if asmCount-rentablesCount > 0 { // if could be multiple assessments for some/all rentables
+		g.Total += asmCount
+	} else { // by default, all rentables should be included
+		g.Total += rentablesCount
+	}
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
