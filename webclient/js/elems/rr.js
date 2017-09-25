@@ -47,6 +47,15 @@ function buildRentRollElements() {
                     if (typeof record === undefined) {
                         return;
                     }
+                    if (!("w2ui" in record)) {
+                        record.w2ui = {}; // init w2ui if not present
+                    }
+                    if (!("class" in record.w2ui)) {
+                        record.w2ui.class = ""; // init class string
+                    }
+                    if (!("style" in record.w2ui)) {
+                        record.w2ui.style = {}; // init style object
+                    }
                     var g = w2ui.rrGrid;
                     if (record.IsSubTotalRow) {
                         record.w2ui.class = "subTotalRow";
@@ -114,17 +123,28 @@ function buildRentRollElements() {
                 g.last._rt_offset = 0;
             }
             var data = JSON.parse(event.xhr.responseText);
-            for (var i = data.records.length - 1; i >= 0; i--) {
-                if(data.records[i].IsRentableMainRow) {
-                    g.last._rt_offset++;
+            if (data.records) {
+                for (var i = data.records.length - 1; i >= 0; i--) {
+                    if(data.records[i].IsRentableMainRow) {
+                        g.last._rt_offset++;
+                    }
                 }
+                // everytime you have to assign limit here, otherwise you'll get alert message of differed count
+                // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488
+                g.limit = data.records.length;
             }
-            // everytime you have to assign limit here, otherwise you'll get alert message of differed count
-            // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488
-            g.limit = data.records.length;
+            event.onComplete = function() {
+                if(g.total <= g.records.length) {
+                    g.last.pull_more = false;
+                }
+            };
         },
         onRequest: function(event) {
-            event.postData.rentableOffset = this.last._rt_offset;
+            var g = this;
+            if (g.records.length == 0) { // if grid is empty then reset all flags
+                g.last._rt_offset = 0;
+            }
+            event.postData.rentableOffset = g.last._rt_offset;
         },
         onClick: function(event) {
             event.onComplete = function () {

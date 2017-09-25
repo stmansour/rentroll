@@ -165,13 +165,13 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rentalAgrQuery := `
-	SELECT
+	SELECT DISTINCT
 		{{.SelectClause}}
 	FROM Rentable
-	INNER JOIN RentableTypeRef ON RentableTypeRef.RID=Rentable.RID
-	INNER JOIN RentableTypes ON RentableTypes.RTID=RentableTypeRef.RTID
-	INNER JOIN RentableMarketRate ON (RentableMarketRate.RTID=RentableTypeRef.RTID AND RentableMarketRate.DtStart<"{{.DtStop}}" AND RentableMarketRate.DtStop>"{{.DtStart}}")
-	INNER JOIN RentableStatus ON (RentableStatus.RID=Rentable.RID AND RentableStatus.DtStart<"{{.DtStop}}" AND RentableStatus.DtStop>"{{.DtStart}}")
+	LEFT JOIN RentableTypeRef ON RentableTypeRef.RID=Rentable.RID
+	LEFT JOIN RentableTypes ON RentableTypes.RTID=RentableTypeRef.RTID
+	LEFT JOIN RentableMarketRate ON (RentableMarketRate.RTID=RentableTypeRef.RTID AND RentableMarketRate.DtStart<"{{.DtStop}}" AND RentableMarketRate.DtStop>"{{.DtStart}}")
+	LEFT JOIN RentableStatus ON (RentableStatus.RID=Rentable.RID AND RentableStatus.DtStart<"{{.DtStop}}" AND RentableStatus.DtStop>"{{.DtStart}}")
 	LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RID=Rentable.RID AND RentalAgreementRentables.RARDtStart<"{{.DtStop}}" AND RentalAgreementRentables.RARDtStop>"{{.DtStart}}")
 	LEFT JOIN RentalAgreement ON (RentalAgreement.RAID=RentalAgreementRentables.RAID)
 	LEFT JOIN RentalAgreementPayors ON (RentalAgreementRentables.RAID=RentalAgreementPayors.RAID AND RentalAgreementPayors.DtStart<"{{.DtStop}}" AND RentalAgreementPayors.DtStop>"{{.DtStart}}")
@@ -238,6 +238,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// get assessment count
 	asmcountQ := renderSQLQuery(asmCountQuery, asmCountQC)
+	rlib.Console("asmcountQ db query = %s\n", asmcountQ)
 	err = rlib.RRdb.Dbrr.QueryRow(asmcountQ).Scan(&asmCount)
 	if err != nil {
 		rlib.Console("Error from GetQueryCount: %s\n", err.Error())
@@ -268,7 +269,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	recidCount := i
 	count := 0
 	for rows.Next() {
-		var q = RRGrid{BID: d.BID}
+		var q = RRGrid{BID: d.BID, Recid: recidCount, IsRentableMainRow: true}
 
 		// get records info in struct q
 		q, err = rrRowScan(rows, q)
@@ -310,6 +311,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------------------
 		d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 
+		var rentableASMList = []RRGrid{}
 		var sub RRGrid
 		sub.IsSubTotalRow = true
 		sub.AmountDue.Valid = true
@@ -328,7 +330,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 						SvcGridErrorReturn(w, err, funcname)
 						return
 					}
-					g.Records = append(g.Records, nq)
+					rentableASMList = append(rentableASMList, nq)
 					updateSubTotals(&sub, &nq)
 				} else {
 					err = arRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied)
@@ -336,14 +338,19 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 						SvcGridErrorReturn(w, err, funcname)
 						return
 					}
-					q.Recid = recidCount
-					q.IsRentableMainRow = true
-					g.Records = append(g.Records, q)
+					rentableASMList = append(rentableASMList, q)
 					updateSubTotals(&sub, &q)
 				}
 				childCount++
 				recidCount++
 			}
+
+			if len(rentableASMList) == 0 { // that means no assessments found, then just append rentable info
+				rentableASMList = append(rentableASMList, q)
+			}
+
+			// add list in g.Records field
+			g.Records = append(g.Records, rentableASMList...)
 
 			//----------------------------------------
 			// Add the Rentable receivables totals...
