@@ -209,8 +209,8 @@ function calculateRRPagination() {
         return;
     }
     // update footer
-    var t1 = Math.round(records[0].scrollTop / g.recordHeight);
-    var t2 = t1 + (Math.round(records.height() / g.recordHeight));
+    var t1 = Math.round(records[0].scrollTop / g.recordHeight + 1);
+    var t2 = t1 + (Math.round(records.height() / g.recordHeight) - 1);
     if (t1 > buffered) t1 = buffered - 1;
     if (t2 >= buffered) t2 = buffered - 1;
     // custom pagination number start - stop for rentroll report
@@ -230,12 +230,10 @@ function calculateRRPagination() {
     }
 
     var startPageNo = g.last._rrIndexMap[startPageRec] + 1;
-    var endPageNo = g.last._rrIndexMap[endPageRec];
+    var endPageNo = g.last._rrIndexMap[endPageRec] + 1;
 
     $('#grid_'+ g.name + '_footer .w2ui-footer-right').html(
         (g.show.statusRange ? w2utils.formatNumber(startPageNo) + '-' + w2utils.formatNumber(endPageNo) +
-                (g.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g.total) : '') : '') +
-        (url && g.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) +
-                (g.offset > 0 ? ', skip ' + w2utils.formatNumber(g.offset) : '') + ')' : '')
+        (g.last._rt_offset != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g.last._rt_offset) : '') : '')
     );
 }
