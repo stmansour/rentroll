@@ -104,7 +104,8 @@ function buildRentRollElements() {
                         // get record from grid to apply css
                         var record = g.records[data.records[i].recid];
                         if(record.IsMainRow) {
-                            g.last._rrIndexMap[i] = g.last._rt_offset;
+                            var rec_index = g.get(record.recid, true);
+                            g.last._rrIndexMap[rec_index] = g.last._rt_offset;
                             g.last._rt_offset++;
                         }
                         if (!("w2ui" in record)) {
@@ -129,6 +130,7 @@ function buildRentRollElements() {
                                 record.w2ui.style[colIndex] = "background-color: #CCC;";
                             }
                         }
+                        g.refreshRow(data.records[i].recid); // redraw row
                     }
                     // everytime you have to assign limit here, otherwise you'll get alert message of differed count
                     // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488
@@ -142,10 +144,7 @@ function buildRentRollElements() {
 
                 // need to redraw grid after loading data
                 setTimeout(function() {
-                    g.refresh();
-                    setTimeout(function() {
-                        calculateRRPagination();
-                    }, 0);
+                    calculateRRPagination();
                 }, 0);
             };
         },
