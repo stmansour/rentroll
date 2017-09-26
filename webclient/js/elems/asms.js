@@ -43,8 +43,8 @@ function getAsmsInitRecord(BID, BUD, previousFormRecord){
             [ 'Amount', 'Comment', 'RAID', 'Rentable'], // Fields to Reset
             defaultFormData,
             previousFormRecord
-        );        
-    }   
+        );
+    }
 
     return defaultFormData;
 }
@@ -67,6 +67,7 @@ function buildAssessmentElements() {
         name: 'asmsGrid',
         url: '/v1/asms',
         multiSelect: false,
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
             toolbar         : true,
             footer          : true,
@@ -120,7 +121,7 @@ function buildAssessmentElements() {
             {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
             {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
             {field: 'RID', caption: 'RID',  size: '40px', hidden: true, sortable: false},
-            {field: 'Rentable', caption: app.sRentable,  size: '150px', style: 'text-align: right', sortable: true},
+            {field: 'Rentable', caption: app.sRentable,  size: '150px', sortable: true},
             // {field: 'ATypeLID', caption: 'Type', size: '100px', sortable: true, style: 'text-align: right'},
             // {field: 'RentCycle', caption: app.sRentCycle,  size: '60px', style: 'text-align: right', sortable: true},
             // {field: 'ProrationCycle', caption: sProrationCycle,  size: '60px', style: 'text-align: right', sortable: true},
@@ -214,9 +215,6 @@ function buildAssessmentElements() {
 
                 // warn user if form content has been changed
                 form_dirty_alert(yes_callBack, no_callBack, yes_args);
-        },
-        onRequest: function(/*event*/) {
-            w2ui.asmsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
         },
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -344,7 +342,7 @@ function buildAssessmentElements() {
                     .done( function(data) {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                             app.AssessmentRules = JSON.parse(data);
-                            app.ridRentablePicker.BID = BID; // needed by typedown                            
+                            app.ridRentablePicker.BID = BID; // needed by typedown
 
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             f.fields[0].options.items = app.AssessmentRules[BUD];
@@ -441,13 +439,13 @@ function buildAssessmentElements() {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
                     if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLYPAID)) === 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Unpaid");
                     }
                     else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Partially paid");
                     }
                     else if ( (flag & app.asmFLAGS.FULLYPAID) !== 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Fully paid");
                     }
 
                     // show reverse, save button, hide close button
@@ -463,7 +461,7 @@ function buildAssessmentElements() {
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };

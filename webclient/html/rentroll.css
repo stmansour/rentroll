@@ -65,19 +65,33 @@ textarea.w2ui-input-focus {
     display: none !important;
 }
 
+.asmInfoContainer {
+    background-color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin: 0 5px 10px 10px;
+    text-align: left;
+}
+
+.asmInfoContainer p:not(:last-child) {
+    padding-bottom: 5px;
+}
+
 .FLAGReportContainer {
     background-color: #d0e9c6;
     padding: 8px 12px;
     border-radius: 4px;
-    margin: 10px 0px;
+    margin: 0 5px 10px 10px;
     text-align: left;
-    bottom: 0;
-    position: absolute;
-    width: 94%;
+    position: relative;
 }
 
 .FLAGReportContainer p {
     font-size: 10px;
+}
+
+.FLAGReportContainer p:not(:last-child) {
+    padding-bottom: 5px;
 }
 
 .FLAGReportContainer .reverseIconContainer {
@@ -89,7 +103,9 @@ textarea.w2ui-input-focus {
 
 .FLAGReportContainer .reverseIcon {
     color: #ffa500;
-    margin-top: 40%;
+    transform: translate(-100%, -50%);
+    position: absolute;
+    top: 50%;
 }
 
 .asmEpochRow {

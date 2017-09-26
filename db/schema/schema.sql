@@ -218,6 +218,7 @@ CREATE TABLE RentalAgreement (
     ExpansionOption VARCHAR(128) NOT NULL DEFAULT '',                   -- the right to expand to certanin spaces that are typically contiguous to their primary space
     ExpansionOptionNotice DATE NOT NULL DEFAULT '1970-01-01 00:00:00',  -- the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
     RightOfFirstRefusal VARCHAR(128) NOT NULL DEFAULT '',               -- Tenant may have the right to purchase their premises if LL chooses to sell
+    FLAGS BIGINT NOT NULL DEFAULT 0,                                    -- 1<<0 - is application pending?
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                                -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                       -- when was this record created
