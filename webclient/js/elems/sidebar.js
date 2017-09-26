@@ -21,11 +21,11 @@ function buildSidebar() {
             },
             { id: 'rentagr', text: plural(app.sRentalAgreement), img: 'icon-folder', expanded: true, group: true,
                 nodes: [
+                        { id: 'rentalagrs',   text: plural(app.sRentalAgreement),    icon: 'fa fa-certificate', hint: 'Rental Agreements' },
                         { id: 'transactants', text: plural(app.sTransactant),        icon: 'fa fa-users' },
                         { id: 'assignrnt',    text: 'Assign A ' + app.sRentable,     icon: 'fa fa-check-square-o' },
                         { id: 'movein',       text: app.sTransactant + ' Arrival',   icon: 'fa fa-sign-in' },
                         { id: 'moveout',      text: app.sTransactant + ' Departure', icon: 'fa fa-sign-out' },
-                        { id: 'rentalagrs',   text: plural(app.sRentalAgreement),    icon: 'fa fa-certificate', hint: 'Rental Agreements' },
                         { id: 'updatera',     text: 'Extend ' + app.sRentalAgreement,icon: 'fa fa-pencil' },
                 ]
             },

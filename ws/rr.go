@@ -59,6 +59,7 @@ type RRGrid struct {
 	IsRentableMainRow bool
 	IsSubTotalRow     bool
 	IsBlankRow        bool
+	IsNoRIDRow        bool
 }
 
 // RRSearchResponse is the response data for a Rental Agreement Search
@@ -414,6 +415,21 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else { // by default, all rentables should be included
 		g.Total += rentablesCount
 	}
+
+	//-------------------------------------------------------------------------
+	// Now we need to handle the cases where there are assessments but no
+	// associated Rentables...
+	//-------------------------------------------------------------------------
+	rlib.Console("CHECK TO CALL getNoRentableRows:  g.Total = %d, Limit = %d\n", g.Total, d.wsSearchReq.Limit)
+	queryOffset := int64(0) // need to work out the calculation for this
+	if g.Total < int64(d.wsSearchReq.Limit) {
+		err = getNoRentableRows(&g, recidCount, queryOffset, int64(d.wsSearchReq.Limit)-g.Total, d)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+	}
+
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
@@ -427,4 +443,99 @@ func updateSubTotals(sub, q *RRGrid) {
 	sub.IncomeOffsets.Float64 += q.IncomeOffsets.Float64
 	// rlib.Console("\t q.Description = %s, q.AmountDue = %.2f, q.PaymentsApplied = %.2f\n", q.Description, q.AmountDue.Float64, q.PaymentsApplied.Float64)
 	// rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
+}
+
+// rrGridFieldsMap holds the map of field (to be shown on grid)
+// to actual database fields, multiple db fields means combine those
+var rrNoRIDGridFieldsMap = map[string][]string{
+	"BID":       {"Assessments.BID"},
+	"RAID":      {"Assessments.RAID"},
+	"ASMID":     {"Assessments.ASMID"},
+	"AmountDue": {"Assessments.Amount"},
+	//"Payors": {"Payor.FirstName", "Payor.LastName", "Payor.CompanyName"},
+}
+
+// which fields needs to be fetched for SQL query
+var rrNoRIDQuerySelectFields = []string{
+	"Assessments.BID",
+	"Assessments.ASMID",
+	"Assessments.Amount",
+	"Assessments.RAID",
+}
+
+// getNoRentableRows updates g with all Assessments associated with RAIDs but
+// no Rentable.
+//
+// INPUTS
+//       g - response struct
+//   limit - how many more rows can be added to g
+//  offset - recid starts at this amount
+//       d - service data
+//-----------------------------------------------------------------------------
+func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int64, d *ServiceData) error {
+	funcname := "getNoRentableRows"
+	rlib.Console("Entered %s\n", funcname)
+
+	order := "Assessments.RAID ASC,Assessments.Start ASC"
+	_, orderClause := GetSearchAndSortSQL(d, pmtSearchFieldMap)
+	if len(orderClause) > 0 {
+		order = orderClause
+	}
+	where := fmt.Sprintf("Assessments.BID=%d AND Assessments.FLAGS&4=0 AND Assessments.RID=0 AND %q < Assessments.Stop AND Assessments.Start < %q",
+		d.BID,
+		d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
+		d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+
+	noRIDQuery := `
+	SELECT {{.SelectClause}}
+	FROM Assessments
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}}`
+
+	qc := queryClauses{
+		"SelectClause": strings.Join(rrNoRIDQuerySelectFields, ","),
+		"WhereClause":  where,
+		"OrderClause":  order,
+	}
+
+	// get total of this query
+	countQuery := renderSQLQuery(noRIDQuery, qc)
+	noRIDTotal, err := GetQueryCount(countQuery, qc)
+	if err != nil {
+		return err
+	}
+	rlib.Console("noRIDTotal records = %d,  limit = %d\n", noRIDTotal, limit)
+
+	limitAndOffsetClause := `
+	LIMIT {{.LimitClause}}
+	OFFSET {{.OffsetClause}};`
+	noRIDQueryWithLimit := noRIDQuery + limitAndOffsetClause
+	qc["LimitClause"] = fmt.Sprintf("%d", limit)
+	qc["OffsetClause"] = fmt.Sprintf("%d", queryOffset)
+
+	// get formatted query with substitution of select, where, order clause
+	qry := renderSQLQuery(noRIDQueryWithLimit, qc)
+	rlib.Console("noRID db query = %s\n", qry)
+
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	recidCount := int64(recidoffset)
+	for rows.Next() {
+		var q RRGrid
+		err := rows.Scan(&q.BID, &q.ASMID, &q.AmountDue, &q.RAID /*, &q.Users*/)
+		if err != nil {
+			return err
+		}
+		q.IsNoRIDRow = true
+		q.Recid = recidCount
+		recidCount++
+		g.Records = append(g.Records, q)
+		g.Total++
+		// rlib.Console("added: ASMID=%d, AmountDue=%.2f\n", q.ASMID.Int64, q.AmountDue.Float64)
+	}
+	return nil
 }

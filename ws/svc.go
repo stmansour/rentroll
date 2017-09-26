@@ -581,7 +581,10 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 // SvcWrite is a general write routine for service calls... it is a bottleneck
 // where we can place debug statements as needed.
 func SvcWrite(w http.ResponseWriter, b []byte) {
-	rlib.Console("first 200 chars of response: %-200.200s\n", string(b))
+	charsToPrint := 500
+	format := fmt.Sprintf("First %d chars of response: %%-%d.%ds\n", charsToPrint, charsToPrint, charsToPrint)
+	// rlib.Console("Format string = %q\n", format)
+	rlib.Console(format, string(b))
 	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }

@@ -19,7 +19,7 @@ function buildRentRollElements() {
         name: 'rrGrid',
         url: '/v1/rentroll',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 20},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 40},
         show: {
             toolbar         : true,
             footer          : true,
@@ -38,7 +38,8 @@ function buildRentRollElements() {
         columns: [
             {field: 'IsSubTotalRow',    caption: 'Is SubTotal Row',                           sortable: false, hidden: true},
             {field: 'IsBlankRow',       caption: 'Is Blank Row',                              sortable: false, hidden: true},
-            {field: 'IsRentableMainRow',       caption: 'Is Rentable Main Row',               sortable: false, hidden: true},
+            {field: 'IsRentableMainRow',caption: 'Is Rentable Main Row',                      sortable: false, hidden: true},
+            {field: 'IsNoRIDRow',caption: 'Is Rentable Main Row',                      sortable: false, hidden: true},
             {field: 'recid',            caption: 'recid',                      size: '35px',  sortable: true, hidden: true},
             {field: 'BID',              caption: 'BID',                        size: '75px',  sortable: true, hidden: true},
             {field: 'RID',              caption: 'RID',                        size: '75px',  sortable: true, hidden: true},
@@ -117,7 +118,7 @@ function buildRentRollElements() {
                         }
                         else if (record.IsBlankRow) {
                             record.w2ui.class = "blankRow";
-                        } else {
+                        } else if (!record.IsNoRIDRow) {
                             // apply greyish cell backgroud color to some cells
                             for (var j = 0; j < grey_fields.length; j++) {
                                 var colIndex = g.getColumn(grey_fields[j], true);
