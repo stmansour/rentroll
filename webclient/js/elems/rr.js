@@ -98,7 +98,11 @@ function buildRentRollElements() {
                 if (!("_rrIndexMap" in g.last)) {
                     g.last._rrIndexMap = {};
                 }
+                if (!("_main_row_total" in g)) {
+                    g._main_row_total = 0;
+                }
                 var data = JSON.parse(event.xhr.responseText);
+                g._main_row_total = data.main_row_total;
                 if (data.records) {
                     for (var i = 0; i < data.records.length; i++) {
                         // get record from grid to apply css
@@ -233,6 +237,6 @@ function calculateRRPagination() {
 
     $('#grid_'+ g.name + '_footer .w2ui-footer-right').html(
         (g.show.statusRange ? w2utils.formatNumber(startPageNo) + '-' + w2utils.formatNumber(endPageNo) +
-        (g.last._rt_offset != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g.last._rt_offset) : '') : '')
+        (g._main_row_total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g._main_row_total) : '') : '')
     );
 }
