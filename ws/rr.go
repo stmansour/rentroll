@@ -21,45 +21,45 @@ import (
 // RRGrid is a structure specifically for the Web Services interface to build a
 // Statements grid.
 type RRGrid struct {
-	Recid             int64           `json:"recid"` // this is to support the w2ui form
-	BID               int64           // Business (so that we can process by Business)
-	RID               int64           // The rentable
-	RTID              int64           // The rentable type
-	RARID             rlib.NullInt64  // rental agreement rentable id
-	RentableName      rlib.NullString // Name of the rentable
-	RentableType      rlib.NullString // Name of the rentable type
-	RentCycle         rlib.NullInt64  // Rent Cycle
-	Status            rlib.NullInt64  // Rentable status
-	RAID              rlib.NullInt64  // Rental Agreement
-	ASMID             rlib.NullInt64  // Assessment
-	AgreementPeriod   string          // text representation of Rental Agreement time period
-	AgreementStart    rlib.NullDate   // start date for RA
-	AgreementStop     rlib.NullDate   // stop date for RA
-	UsePeriod         string          // text representation of Occupancy(or use) time period
-	PossessionStart   rlib.NullDate   // start date for Occupancy
-	PossessionStop    rlib.NullDate   // stop date for Occupancy
-	RentPeriod        string          // text representation of Rent time period
-	RentStart         rlib.NullDate   // start date for Rent
-	RentStop          rlib.NullDate   // stop date for Rent
-	Payors            rlib.NullString // payors list attached with this RA within same time
-	Users             rlib.NullString // users associated with the rentable
-	Sqft              rlib.NullInt64  // rentable sq ft
-	Description       rlib.NullString
-	GSR               rlib.NullFloat64
-	PeriodGSR         rlib.NullFloat64
-	IncomeOffsets     rlib.NullFloat64
-	AmountDue         rlib.NullFloat64
-	PaymentsApplied   rlib.NullFloat64
-	BeginningRcv      rlib.NullFloat64
-	ChangeInRcv       rlib.NullFloat64
-	EndingRcv         rlib.NullFloat64
-	BeginningSecDep   rlib.NullFloat64
-	ChangeInSecDep    rlib.NullFloat64
-	EndingSecDep      rlib.NullFloat64
-	IsRentableMainRow bool
-	IsSubTotalRow     bool
-	IsBlankRow        bool
-	IsNoRIDRow        bool
+	Recid           int64           `json:"recid"` // this is to support the w2ui form
+	BID             int64           // Business (so that we can process by Business)
+	RID             int64           // The rentable
+	RTID            int64           // The rentable type
+	RARID           rlib.NullInt64  // rental agreement rentable id
+	RentableName    rlib.NullString // Name of the rentable
+	RentableType    rlib.NullString // Name of the rentable type
+	RentCycle       rlib.NullInt64  // Rent Cycle
+	Status          rlib.NullInt64  // Rentable status
+	RAID            rlib.NullInt64  // Rental Agreement
+	ASMID           rlib.NullInt64  // Assessment
+	AgreementPeriod string          // text representation of Rental Agreement time period
+	AgreementStart  rlib.NullDate   // start date for RA
+	AgreementStop   rlib.NullDate   // stop date for RA
+	UsePeriod       string          // text representation of Occupancy(or use) time period
+	PossessionStart rlib.NullDate   // start date for Occupancy
+	PossessionStop  rlib.NullDate   // stop date for Occupancy
+	RentPeriod      string          // text representation of Rent time period
+	RentStart       rlib.NullDate   // start date for Rent
+	RentStop        rlib.NullDate   // stop date for Rent
+	Payors          rlib.NullString // payors list attached with this RA within same time
+	Users           rlib.NullString // users associated with the rentable
+	Sqft            rlib.NullInt64  // rentable sq ft
+	Description     rlib.NullString
+	GSR             rlib.NullFloat64
+	PeriodGSR       rlib.NullFloat64
+	IncomeOffsets   rlib.NullFloat64
+	AmountDue       rlib.NullFloat64
+	PaymentsApplied rlib.NullFloat64
+	BeginningRcv    rlib.NullFloat64
+	ChangeInRcv     rlib.NullFloat64
+	EndingRcv       rlib.NullFloat64
+	BeginningSecDep rlib.NullFloat64
+	ChangeInSecDep  rlib.NullFloat64
+	EndingSecDep    rlib.NullFloat64
+	IsMainRow       bool
+	IsSubTotalRow   bool
+	IsBlankRow      bool
+	IsNoRIDRow      bool
 }
 
 // RRSearchResponse is the response data for a Rental Agreement Search
@@ -270,7 +270,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	recidCount := i
 	count := 0
 	for rows.Next() {
-		var q = RRGrid{BID: d.BID, Recid: recidCount, IsRentableMainRow: true}
+		var q = RRGrid{BID: d.BID, Recid: recidCount, IsMainRow: true}
 
 		// get records info in struct q
 		q, err = rrRowScan(rows, q)
@@ -534,6 +534,7 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 		if err != nil {
 			return err
 		}
+		q.IsMainRow = true
 		q.IsNoRIDRow = true
 		q.Recid = recidCount
 		recidCount++
