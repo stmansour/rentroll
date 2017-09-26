@@ -93,7 +93,7 @@ func buildPreparedStatements() {
 	//  AccountRule
 	//  AR
 	//===============================
-	flds = "ARID,BID,Name,ARType,DebitLID,CreditLID,Description,RARequired,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "ARID,BID,Name,ARType,DebitLID,CreditLID,Description,RARequired,DtStart,DtStop,FLAGS,DefaultAmount,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["AR"] = flds
 	RRdb.Prepstmt.GetAR, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE ARID=?")
 	Errcheck(err)
