@@ -486,6 +486,10 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 		d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
 		d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 
+	// 	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
+	// LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
+	// LEFT JOIN AR ON AR.ARID=Assessments.ARID
+
 	noRIDQuery := `
 	SELECT {{.SelectClause}}
 	FROM Assessments
