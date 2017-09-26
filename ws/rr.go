@@ -447,24 +447,6 @@ func updateSubTotals(sub, q *RRGrid) {
 	// rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
 }
 
-// rrGridFieldsMap holds the map of field (to be shown on grid)
-// to actual database fields, multiple db fields means combine those
-var rrNoRIDGridFieldsMap = map[string][]string{
-	"BID":       {"Assessments.BID"},
-	"RAID":      {"Assessments.RAID"},
-	"ASMID":     {"Assessments.ASMID"},
-	"AmountDue": {"Assessments.Amount"},
-	//"Payors": {"Payor.FirstName", "Payor.LastName", "Payor.CompanyName"},
-}
-
-// which fields needs to be fetched for SQL query
-var rrNoRIDQuerySelectFields = []string{
-	"Assessments.BID",
-	"Assessments.ASMID",
-	"Assessments.Amount",
-	"Assessments.RAID",
-}
-
 // getNoRentableRows updates g with all Assessments associated with RAIDs but
 // no Rentable.
 //
@@ -478,24 +460,47 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 	funcname := "getNoRentableRows"
 	rlib.Console("Entered %s\n", funcname)
 
-	order := "Assessments.RAID ASC,Assessments.Start ASC"
-	_, orderClause := GetSearchAndSortSQL(d, pmtSearchFieldMap)
-	if len(orderClause) > 0 {
-		order = orderClause
+	//--------------------------------------------------
+	// which fields needs to be fetched for SQL query
+	//--------------------------------------------------
+	var rrNoRIDQuerySelectFields = []string{
+		"Assessments.BID",
+		"Assessments.ASMID",
+		"Assessments.Amount",
+		"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
+		"RentalAgreement.RAID",
+		"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
 	}
+
+	//--------------------------------------------------
+	// Select the appropriate assessments
+	//--------------------------------------------------
 	where := fmt.Sprintf("Assessments.BID=%d AND Assessments.FLAGS&4=0 AND Assessments.RID=0 AND %q < Assessments.Stop AND Assessments.Start < %q",
 		d.BID,
 		d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
 		d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 
-	// 	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
-	// LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
-	// LEFT JOIN AR ON AR.ARID=Assessments.ARID
+	//--------------------------------------------------
+	// How to order
+	//--------------------------------------------------
+	order := "Assessments.RAID ASC,Assessments.Start ASC"
+	_, orderClause := GetSearchAndSortSQL(d, pmtSearchFieldMap)
+	if len(orderClause) > 0 {
+		order = orderClause
+	}
 
+	//--------------------------------------------------
+	// The full query...
+	//--------------------------------------------------
 	noRIDQuery := `
 	SELECT {{.SelectClause}}
 	FROM Assessments
+	LEFT JOIN ReceiptAllocation ON ReceiptAllocation.ASMID=Assessments.ASMID
+	LEFT JOIN RentalAgreement ON RentalAgreement.RAID=Assessments.RAID
+	LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
+	LEFT JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
 	WHERE {{.WhereClause}}
+	GROUP BY Assessments.ASMID
 	ORDER BY {{.OrderClause}}`
 
 	qc := queryClauses{
@@ -523,6 +528,9 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 	qry := renderSQLQuery(noRIDQueryWithLimit, qc)
 	rlib.Console("noRID db query = %s\n", qry)
 
+	//--------------------------------------------------
+	// perform the query and process the results
+	//--------------------------------------------------
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		return err
@@ -532,7 +540,7 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 	recidCount := int64(recidoffset)
 	for rows.Next() {
 		var q RRGrid
-		err := rows.Scan(&q.BID, &q.ASMID, &q.AmountDue, &q.RAID /*, &q.Users*/)
+		err := rows.Scan(&q.BID, &q.ASMID, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.Payors)
 		if err != nil {
 			return err
 		}
