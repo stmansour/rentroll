@@ -608,17 +608,19 @@ function buildRAElements() {
             popupRidRentablePicker(app.sRentable, x.value);
         },
         onChange: function(event) {
+            var g = this;
             event.done(function () {
-                calcRarGridContractRent(this);
-                w2ui[this].save();
+                calcRarGridContractRent(g);
+                g.save();
             });
         },
         onLoad: function(event) {
+            var g = this;
             event.done(function () {
                 if (w2ui.rarGrid.summary.length === 0) {
                     w2ui.rarGrid.add({recid: 's-1', RAID: 0, RID: 0, RentableName: 'Total Rent', ContractRent: 0, RARDtStart: '', RARDtStop: '', w2ui: {summary: true}});
                 }
-                calcRarGridContractRent(this);
+                calcRarGridContractRent(g);
             });
         },
      });
