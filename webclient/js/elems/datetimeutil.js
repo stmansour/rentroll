@@ -248,11 +248,37 @@ function dateFmtStr(today) {
     return mm + '/' + dd + '/' + yyyy;
 }
 
+//-----------------------------------------------------------------------------
+// isDatePriorToCurrentDate - return boolean value
+// @params
+//    date object
+// @return - boolean
+//-----------------------------------------------------------------------------
+function isDatePriorToCurrentDate(date) {
+    var dd = date.getDate();
+    var mm = date.getMonth() + 1; //January is 0!
+    var yyyy = date.getFullYear();
+    var currentDateTime = new Date();
+    if (currentDateTime.getTime() >= date.getTime()) {
+        if (currentDateTime.getDate() == dd && currentDateTime.getMonth() == mm && currentDateTime.getFullYear() == yyyy) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    return false;
+}
 
 
-$(function() {    
+
+$(function() {         
      $(document).on("blur change", "input[type=us-date1], input[type=us-date2]", function(e) {   
          // replace trailing zero from date using regex   
-         this.value = this.value.replace(/\b0*(?=\d)/g, '');        
+         this.value = this.value.replace(/\b0*(?=\d)/g, ''); 
+         if(app.dateFormatRegex.test(this.value)){
+             this.style.borderColor = '#cacaca';           
+         } else {
+            this.style.borderColor = 'red';
+         }
      });
  });
