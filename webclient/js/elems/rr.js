@@ -19,7 +19,7 @@ function buildRentRollElements() {
         name: 'rrGrid',
         url: '/v1/rentroll',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 40},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 10},
         show: {
             toolbar         : true,
             footer          : true,
@@ -92,25 +92,25 @@ function buildRentRollElements() {
         onLoad: function(event) {
             event.onComplete = function() {
                 var g = this;
-                if (!("_rt_offset" in g.last)) {
-                    g.last._rt_offset = 0;
+                if (!("_main_rows_offset" in g.last)) {
+                    g.last._main_rows_offset = 0;
                 }
                 if (!("_rrIndexMap" in g.last)) {
                     g.last._rrIndexMap = {};
                 }
-                if (!("_main_row_total" in g)) {
-                    g._main_row_total = 0;
+                if (!("_total_main_rows" in g)) {
+                    g._total_main_rows = 0;
                 }
                 var data = JSON.parse(event.xhr.responseText);
-                g._main_row_total = data.main_row_total;
+                g._total_main_rows = data.total_main_rows;
                 if (data.records) {
                     for (var i = 0; i < data.records.length; i++) {
                         // get record from grid to apply css
                         var record = g.records[data.records[i].recid];
                         if(record.IsMainRow) {
                             var rec_index = g.get(record.recid, true);
-                            g.last._rrIndexMap[rec_index] = g.last._rt_offset;
-                            g.last._rt_offset++;
+                            g.last._rrIndexMap[rec_index] = g.last._main_rows_offset;
+                            g.last._main_rows_offset++;
                         }
                         if (!("w2ui" in record)) {
                             record.w2ui = {}; // init w2ui if not present
@@ -142,14 +142,16 @@ function buildRentRollElements() {
                 }
 
                 // stop request if all rows have been loaded
-                if(g.total <= g.records.length) {
+                alert("g._total_main_rows: " + g._total_main_rows);
+                alert("g._main_rows_offset: " + g.last._main_rows_offset);
+                if(g._total_main_rows <= g.last._main_rows_offset) {
                     g.last.pull_more = false;
                 }
 
                 // need to redraw grid after loading data
                 setTimeout(function() {
                     calculateRRPagination();
-                }, 0);
+                }, 3000);
             };
         },
         onRefresh: function(event) {
@@ -163,9 +165,9 @@ function buildRentRollElements() {
         onRequest: function(event) {
             var g = this;
             if (g.records.length == 0) { // if grid is empty then reset all flags
-                g.last._rt_offset = 0;
+                g.last._main_rows_offset = 0;
             }
-            event.postData.rentableOffset = g.last._rt_offset;
+            event.postData.rentableOffset = g.last._main_rows_offset;
         },
         onClick: function(event) {
             event.onComplete = function () {
@@ -237,6 +239,6 @@ function calculateRRPagination() {
 
     $('#grid_'+ g.name + '_footer .w2ui-footer-right').html(
         (g.show.statusRange ? w2utils.formatNumber(startPageNo) + '-' + w2utils.formatNumber(endPageNo) +
-        (g._main_row_total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g._main_row_total) : '') : '')
+        (g._total_main_rows != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g._total_main_rows) : '') : '')
     );
 }

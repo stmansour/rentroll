@@ -64,10 +64,10 @@ type RRGrid struct {
 
 // RRSearchResponse is the response data for a Rental Agreement Search
 type RRSearchResponse struct {
-	Status       string   `json:"status"`
-	Total        int64    `json:"total"`
-	Records      []RRGrid `json:"records"`
-	MainRowTotal int64    `json:"main_row_total"`
+	Status        string   `json:"status"`
+	Total         int64    `json:"total"`
+	Records       []RRGrid `json:"records"`
+	TotalMainRows int64    `json:"total_main_rows"`
 }
 
 // rrGridFieldsMap holds the map of field (to be shown on grid)
@@ -416,13 +416,13 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else { // by default, all rentables should be included
 		g.Total += rentablesCount
 	}
-	g.MainRowTotal = rentablesCount
+	g.TotalMainRows = rentablesCount
 
 	//-------------------------------------------------------------------------
 	// Now we need to handle the cases where there are assessments but no
 	// associated Rentables...
 	//-------------------------------------------------------------------------
-	rlib.Console("CHECK TO CALL getNoRentableRows:  g.Total = %d, Limit = %d\n", g.Total, d.wsSearchReq.Limit)
+	rlib.Console("CHECK TO CALL getNoRentableRows: g.TotalMainRows = %d, g.Total = %d, Limit = %d\n", g.TotalMainRows, g.Total, d.wsSearchReq.Limit)
 	queryOffset := int64(0) // need to work out the calculation for this
 	if g.Total < int64(d.wsSearchReq.Limit) {
 		err = getNoRentableRows(&g, recidCount, queryOffset, int64(d.wsSearchReq.Limit)-g.Total, d)
@@ -552,6 +552,6 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 		// rlib.Console("added: ASMID=%d, AmountDue=%.2f\n", q.ASMID.Int64, q.AmountDue.Float64)
 	}
 	g.Total += noRIDTotal
-	g.MainRowTotal += noRIDTotal
+	g.TotalMainRows += noRIDTotal
 	return nil
 }
