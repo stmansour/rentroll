@@ -166,7 +166,7 @@ function addDateNavToToolbar(prefix) {
         var d1 = dateFromString(xd1);
         var d2 = dateFromString(xd2);
         // check that it is valid or not
-        if (isNaN(Date.parse(xd1))) {
+        if (isNaN(Date.parse(xd1)) || isNaN(Date.parse(xd2))) {
             return;
         }
         // check that year is not behind 2000
@@ -177,6 +177,12 @@ function addDateNavToToolbar(prefix) {
         if (d1.getTime() >= d2.getTime()) {
             d1 = new Date(d2.getTime() - 24 * 60 * 60 * 1000); //one day back from To date
         }
+
+        if(!(app.dateFormatRegex.test(xd1))){
+            this.style.borderColor = 'red';
+            return;
+        }
+
         app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
         updateGridPostDataDates(grid);
@@ -188,6 +194,7 @@ function addDateNavToToolbar(prefix) {
                     if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                     // move focus on next field, so it will open calender overlay for next field                     
                     $("input[name="+nd2+"]").focus();
+                    $("input[name="+nd2+"]").select();
                     app.tabKeyPressed = false;
                     app.shiftTabKeyPressed = false;
                 }, 50);                
@@ -206,7 +213,7 @@ function addDateNavToToolbar(prefix) {
         var d1 = dateFromString(xd1);
         var d2 = dateFromString(xd2);
         // check that it is valid or not
-        if (isNaN(Date.parse(xd2))) {
+        if (isNaN(Date.parse(xd1)) || isNaN(Date.parse(xd2))) {
             return;
         }
         // check that year is not behind 2000
@@ -217,6 +224,12 @@ function addDateNavToToolbar(prefix) {
         if (d2.getTime() <= d1.getTime()) {
             d2 = new Date(d1.getTime() + 24 * 60 * 60 * 1000); //one day forward from From date
         }
+
+        if(!(app.dateFormatRegex.test(xd2))){
+            this.style.borderColor = 'red';
+            return;
+        }
+
         app.D1 = dateControlString(d1);
         app.D2 = dateControlString(d2);
         updateGridPostDataDates(grid);
@@ -228,6 +241,7 @@ function addDateNavToToolbar(prefix) {
                     if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide(); 
                     // move focus on next field, so it will open calender overlay for last field (defualt shift+tab)
                     $("input[name="+nd1+"]").focus();
+                    $("input[name="+nd1+"]").select();
                     app.tabKeyPressed = false;
                     app.shiftTabKeyPressed = false;
                 }, 50);    

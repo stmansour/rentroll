@@ -271,9 +271,14 @@ function isDatePriorToCurrentDate(date) {
 
 
 
-$(function() {    
+$(function() {         
      $(document).on("blur change", "input[type=us-date1], input[type=us-date2]", function(e) {   
          // replace trailing zero from date using regex   
-         this.value = this.value.replace(/\b0*(?=\d)/g, '');        
+         this.value = this.value.replace(/\b0*(?=\d)/g, ''); 
+         if(app.dateFormatRegex.test(this.value)){
+             this.style.borderColor = '#cacaca';           
+         } else {
+            this.style.borderColor = 'red';
+         }
      });
  });

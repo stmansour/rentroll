@@ -472,16 +472,17 @@ function buildAssessmentElements() {
                     r = f.record;                
                 if (event.target == "Start") {
                     var x = document.getElementsByName('ExpandPastInst')[0];
-                    if (r.RentCycle.text != "Norecur") {
-                        var DtStart = dateFromString(event.value_new);
+                    var DtStart = dateFromString(event.value_new);
+                    if (r.RentCycle.text != "Norecur") {                        
                         // create past instances is marked as true if startdate is prior to current date                            
                         f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
-                        // $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", false );                   
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );                   
                     } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
-                        r.Stop = r.Start;                        
-                        // $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true );
+                        r.Stop = r.Start;  
+                        // Norecur then disable checkbox for "create past instances"                      
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;    
                     }
                 }
@@ -492,11 +493,15 @@ function buildAssessmentElements() {
                         r.Stop = r.Start;
                         // disable stop date control
                         $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
+                        // Norecur then disable checkbox for "create past instances"                      
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     } else {
                         // enable stop date control
                         $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
-                        f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(($("#"+f.name).find("input[name=Start]").val()))); 
+                        var startDate = $("#"+f.name).find("input[name=Start]").val();
+                        f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(startDate));
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );        
                     }
                 }
 
@@ -803,29 +808,37 @@ function buildAssessmentElements() {
                 var f = this,
                     r = f.record;
                 if (event.target == "Start") {
-                    if (r.RentCycle.text == "Norecur") {
+                    var x = document.getElementsByName('ExpandPastInst')[0];
+                    var DtStart = dateFromString(event.value_new);
+                    if (r.RentCycle.text != "Norecur") {                        
+                        // create past instances is marked as true if startdate is prior to current date                            
+                        f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );                   
+                    } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
-                        r.Stop = r.Start;
-                        f.record.ExpandPastInst = false;                        
-                        // $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", false );    
-                    } else {
-                        var DtStart = dateFromString(event.value_new);
-                        // create past instances is marked as true if startdate is prior to current date                        
-                        f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart); 
+                        r.Stop = r.Start;  
+                        // Norecur then disable checkbox for "create past instances"                      
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        f.record.ExpandPastInst = false;    
                     }
                 }
-                if (event.target == "RentCycle") {
+                if (event.target == "RentCycle") { 
                     if (event.value_new.text == "Norecur") {
                         r.RentCycle = event.value_new;
                         r.ProrationCycle = "Norecur";
                         r.Stop = r.Start;
                         // disable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop("disabled", true);
+                        $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
+                        // Norecur then disable checkbox for "create past instances"                      
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        f.record.ExpandPastInst = false;
                     } else {
                         // enable stop date control
                         $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
-                        console.log($("#"+f.name).find("input[name=Start]").val());
+                        var startDate = $("#"+f.name).find("input[name=Start]").val();
+                        f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(startDate));
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );        
                     }
                 }
 
