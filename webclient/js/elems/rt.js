@@ -21,6 +21,7 @@ function getRTInitRecord(BID, BUD){
         MarketRate: 0.0,
         LastModTime: y.toISOString(),
         LastModBy: 0,
+        FLAGS: 0,
     };
 }
 
@@ -223,11 +224,22 @@ function buildRentableTypeElements() {
         onValidate: function(event) {
             if (this.record.ManageToBudget.id === 1) {
                 var grid = w2ui.rmrGrid;
+                var f = this;
+                var mainPanel = w2ui.rtDetailLayout.get("main");
                 if (grid.records.length < 1) {
+                    var errMsg = "At least one MarketRate should be exist when Mange To Budget is Yes.\n Please checkout MarketRates tab!";
                     event.errors.push({
-                        field: this.get('ManageToBudget'),
-                        error: 'At least one MarketRate should be exist when Mange To Budget is Yes.\n Please checkout MarketRates tab!'
+                        field: f.get('ManageToBudget'),
+                        error: errMsg
                     });
+
+                    if (mainPanel.tabs.active != f.name) {
+                        w2ui.rtDetailLayout.get("main").tabs.click(f.name);
+                        setTimeout(function() {
+                            $($(f.get("ManageToBudget").el).parents("div")[0]).w2tag(errMsg);
+                            $(f.get("ManageToBudget").el).addClass("w2ui-error");
+                        }, 0);
+                    }
                 }
             }
             if (this.record.Style === "") {

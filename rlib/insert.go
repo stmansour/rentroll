@@ -12,7 +12,7 @@ func insertError(err error, n string, a interface{}) error {
 // the ARID field is set to its new value.
 func InsertAR(a *AR) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

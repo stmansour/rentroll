@@ -10,7 +10,7 @@ func updateError(err error, n string, a interface{}) error {
 
 // UpdateAR updates an AR record
 func UpdateAR(a *AR) error {
-	_, err := RRdb.Prepstmt.UpdateAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.LastModBy, a.ARID)
+	_, err := RRdb.Prepstmt.UpdateAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.LastModBy, a.ARID)
 	return updateError(err, "AR", *a)
 }
 

@@ -21,52 +21,53 @@ import (
 // RRGrid is a structure specifically for the Web Services interface to build a
 // Statements grid.
 type RRGrid struct {
-	Recid             int64           `json:"recid"` // this is to support the w2ui form
-	BID               int64           // Business (so that we can process by Business)
-	RID               int64           // The rentable
-	RTID              int64           // The rentable type
-	RARID             rlib.NullInt64  // rental agreement rentable id
-	RentableName      rlib.NullString // Name of the rentable
-	RentableType      rlib.NullString // Name of the rentable type
-	RentCycle         rlib.NullInt64  // Rent Cycle
-	Status            rlib.NullInt64  // Rentable status
-	RAID              rlib.NullInt64  // Rental Agreement
-	ASMID             rlib.NullInt64  // Assessment
-	AgreementPeriod   string          // text representation of Rental Agreement time period
-	AgreementStart    rlib.NullDate   // start date for RA
-	AgreementStop     rlib.NullDate   // stop date for RA
-	UsePeriod         string          // text representation of Occupancy(or use) time period
-	PossessionStart   rlib.NullDate   // start date for Occupancy
-	PossessionStop    rlib.NullDate   // stop date for Occupancy
-	RentPeriod        string          // text representation of Rent time period
-	RentStart         rlib.NullDate   // start date for Rent
-	RentStop          rlib.NullDate   // stop date for Rent
-	Payors            rlib.NullString // payors list attached with this RA within same time
-	Users             rlib.NullString // users associated with the rentable
-	Sqft              rlib.NullInt64  // rentable sq ft
-	Description       rlib.NullString
-	GSR               rlib.NullFloat64
-	PeriodGSR         rlib.NullFloat64
-	IncomeOffsets     rlib.NullFloat64
-	AmountDue         rlib.NullFloat64
-	PaymentsApplied   rlib.NullFloat64
-	BeginningRcv      rlib.NullFloat64
-	ChangeInRcv       rlib.NullFloat64
-	EndingRcv         rlib.NullFloat64
-	BeginningSecDep   rlib.NullFloat64
-	ChangeInSecDep    rlib.NullFloat64
-	EndingSecDep      rlib.NullFloat64
-	IsRentableMainRow bool
-	IsSubTotalRow     bool
-	IsBlankRow        bool
-	IsNoRIDRow        bool
+	Recid           int64           `json:"recid"` // this is to support the w2ui form
+	BID             int64           // Business (so that we can process by Business)
+	RID             int64           // The rentable
+	RTID            int64           // The rentable type
+	RARID           rlib.NullInt64  // rental agreement rentable id
+	RentableName    rlib.NullString // Name of the rentable
+	RentableType    rlib.NullString // Name of the rentable type
+	RentCycle       rlib.NullInt64  // Rent Cycle
+	Status          rlib.NullInt64  // Rentable status
+	RAID            rlib.NullInt64  // Rental Agreement
+	ASMID           rlib.NullInt64  // Assessment
+	AgreementPeriod string          // text representation of Rental Agreement time period
+	AgreementStart  rlib.NullDate   // start date for RA
+	AgreementStop   rlib.NullDate   // stop date for RA
+	UsePeriod       string          // text representation of Occupancy(or use) time period
+	PossessionStart rlib.NullDate   // start date for Occupancy
+	PossessionStop  rlib.NullDate   // stop date for Occupancy
+	RentPeriod      string          // text representation of Rent time period
+	RentStart       rlib.NullDate   // start date for Rent
+	RentStop        rlib.NullDate   // stop date for Rent
+	Payors          rlib.NullString // payors list attached with this RA within same time
+	Users           rlib.NullString // users associated with the rentable
+	Sqft            rlib.NullInt64  // rentable sq ft
+	Description     rlib.NullString
+	GSR             rlib.NullFloat64
+	PeriodGSR       rlib.NullFloat64
+	IncomeOffsets   rlib.NullFloat64
+	AmountDue       rlib.NullFloat64
+	PaymentsApplied rlib.NullFloat64
+	BeginningRcv    rlib.NullFloat64
+	ChangeInRcv     rlib.NullFloat64
+	EndingRcv       rlib.NullFloat64
+	BeginningSecDep rlib.NullFloat64
+	ChangeInSecDep  rlib.NullFloat64
+	EndingSecDep    rlib.NullFloat64
+	IsMainRow       bool
+	IsSubTotalRow   bool
+	IsBlankRow      bool
+	IsNoRIDRow      bool
 }
 
 // RRSearchResponse is the response data for a Rental Agreement Search
 type RRSearchResponse struct {
-	Status  string   `json:"status"`
-	Total   int64    `json:"total"`
-	Records []RRGrid `json:"records"`
+	Status       string   `json:"status"`
+	Total        int64    `json:"total"`
+	Records      []RRGrid `json:"records"`
+	MainRowTotal int64    `json:"main_row_total"`
 }
 
 // rrGridFieldsMap holds the map of field (to be shown on grid)
@@ -270,7 +271,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	recidCount := i
 	count := 0
 	for rows.Next() {
-		var q = RRGrid{BID: d.BID, Recid: recidCount, IsRentableMainRow: true}
+		var q = RRGrid{BID: d.BID, Recid: recidCount, IsMainRow: true}
 
 		// get records info in struct q
 		q, err = rrRowScan(rows, q)
@@ -415,6 +416,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else { // by default, all rentables should be included
 		g.Total += rentablesCount
 	}
+	g.MainRowTotal = rentablesCount
 
 	//-------------------------------------------------------------------------
 	// Now we need to handle the cases where there are assessments but no
@@ -445,24 +447,6 @@ func updateSubTotals(sub, q *RRGrid) {
 	// rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
 }
 
-// rrGridFieldsMap holds the map of field (to be shown on grid)
-// to actual database fields, multiple db fields means combine those
-var rrNoRIDGridFieldsMap = map[string][]string{
-	"BID":       {"Assessments.BID"},
-	"RAID":      {"Assessments.RAID"},
-	"ASMID":     {"Assessments.ASMID"},
-	"AmountDue": {"Assessments.Amount"},
-	//"Payors": {"Payor.FirstName", "Payor.LastName", "Payor.CompanyName"},
-}
-
-// which fields needs to be fetched for SQL query
-var rrNoRIDQuerySelectFields = []string{
-	"Assessments.BID",
-	"Assessments.ASMID",
-	"Assessments.Amount",
-	"Assessments.RAID",
-}
-
 // getNoRentableRows updates g with all Assessments associated with RAIDs but
 // no Rentable.
 //
@@ -476,24 +460,47 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 	funcname := "getNoRentableRows"
 	rlib.Console("Entered %s\n", funcname)
 
-	order := "Assessments.RAID ASC,Assessments.Start ASC"
-	_, orderClause := GetSearchAndSortSQL(d, pmtSearchFieldMap)
-	if len(orderClause) > 0 {
-		order = orderClause
+	//--------------------------------------------------
+	// which fields needs to be fetched for SQL query
+	//--------------------------------------------------
+	var rrNoRIDQuerySelectFields = []string{
+		"Assessments.BID",
+		"Assessments.ASMID",
+		"Assessments.Amount",
+		"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
+		"RentalAgreement.RAID",
+		"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
 	}
+
+	//--------------------------------------------------
+	// Select the appropriate assessments
+	//--------------------------------------------------
 	where := fmt.Sprintf("Assessments.BID=%d AND Assessments.FLAGS&4=0 AND Assessments.RID=0 AND %q < Assessments.Stop AND Assessments.Start < %q",
 		d.BID,
 		d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
 		d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 
-	// 	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
-	// LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
-	// LEFT JOIN AR ON AR.ARID=Assessments.ARID
+	//--------------------------------------------------
+	// How to order
+	//--------------------------------------------------
+	order := "Assessments.RAID ASC,Assessments.Start ASC"
+	_, orderClause := GetSearchAndSortSQL(d, pmtSearchFieldMap)
+	if len(orderClause) > 0 {
+		order = orderClause
+	}
 
+	//--------------------------------------------------
+	// The full query...
+	//--------------------------------------------------
 	noRIDQuery := `
 	SELECT {{.SelectClause}}
 	FROM Assessments
+	LEFT JOIN ReceiptAllocation ON ReceiptAllocation.ASMID=Assessments.ASMID
+	LEFT JOIN RentalAgreement ON RentalAgreement.RAID=Assessments.RAID
+	LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
+	LEFT JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
 	WHERE {{.WhereClause}}
+	GROUP BY Assessments.ASMID
 	ORDER BY {{.OrderClause}}`
 
 	qc := queryClauses{
@@ -521,6 +528,9 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 	qry := renderSQLQuery(noRIDQueryWithLimit, qc)
 	rlib.Console("noRID db query = %s\n", qry)
 
+	//--------------------------------------------------
+	// perform the query and process the results
+	//--------------------------------------------------
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		return err
@@ -530,16 +540,18 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 	recidCount := int64(recidoffset)
 	for rows.Next() {
 		var q RRGrid
-		err := rows.Scan(&q.BID, &q.ASMID, &q.AmountDue, &q.RAID /*, &q.Users*/)
+		err := rows.Scan(&q.BID, &q.ASMID, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.Payors)
 		if err != nil {
 			return err
 		}
+		q.IsMainRow = true
 		q.IsNoRIDRow = true
 		q.Recid = recidCount
 		recidCount++
 		g.Records = append(g.Records, q)
-		g.Total++
 		// rlib.Console("added: ASMID=%d, AmountDue=%.2f\n", q.ASMID.Int64, q.AmountDue.Float64)
 	}
+	g.Total += noRIDTotal
+	g.MainRowTotal += noRIDTotal
 	return nil
 }

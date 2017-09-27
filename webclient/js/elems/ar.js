@@ -1,5 +1,7 @@
 /* global
-setDefaultFormFieldAsPreviousRecord
+    w2ui,console,$,setDefaultFormFieldAsPreviousRecord,w2uiDateControlString,
+    app,getBUDfromBID,getPostAccounts,setToForm,getCurrentBusiness,form_dirty_alert,
+    w2confirm,w2utils,getFormSubmitData,int_to_bool,formRefreshCallBack,formRecDiffer,
 */
 "use strict";
 function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, previousFormRecord){
@@ -20,7 +22,8 @@ function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, previousForm
         DtStart: w2uiDateControlString(y),
         DtStop: w2uiDateControlString(ny),
         PriorToRAStart: true,
-        PriorToRAStop: true
+        PriorToRAStop: true,
+        ApplyRcvAccts: false,
     };
     
     
@@ -224,6 +227,7 @@ $().w2grid({
             { field: 'DtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
             { field: 'PriorToRAStart', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
             { field: 'PriorToRAStop', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
+            { field: 'ApplyRcvAccts', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
             { field: "CreateTS", required: false, type: 'time', html: { caption: "CreateTS", page: 0, column: 0 } },
@@ -363,6 +367,7 @@ $().w2grid({
             // object to value before submit to server
             data.postData.record.PriorToRAStart = int_to_bool(data.postData.record.PriorToRAStart);
             data.postData.record.PriorToRAStop = int_to_bool(data.postData.record.PriorToRAStop);
+            data.postData.record.ApplyRcvAccts = int_to_bool(data.postData.record.ApplyRcvAccts);
             console.log(data.postData.record);
         },
         onRefresh: function(event) {

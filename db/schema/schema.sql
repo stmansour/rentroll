@@ -883,9 +883,11 @@ CREATE TABLE AR (
     DebitLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID of debit part
     CreditLID BIGINT NOT NULL DEFAULT 0,                    -- Ledger ID of crdit part
     Description VARCHAR(1024) NOT NULL DEFAULT '',
-    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- epoch date for recurring assessments; the date/time of the assessment for instances
-    DtStop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00',   -- stop date for recurrent assessments; the date/time of the assessment for instances
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                  -- when was this record last written
+    DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- epoch date for recurring assessments; the date/time of the assessment for instances
+    DtStop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00', -- stop date for recurrent assessments; the date/time of the assessment for instances
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement
+    DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
@@ -946,7 +948,7 @@ CREATE TABLE ReceiptAllocation (
 CREATE TABLE DepositMethod (
     DPMID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                              -- which business
-    Method VARCHAR(50) NOT NULL DEFAULT '',                       -- 0 = not specified, 1 = Hand Delivery, Scanned Batch, US Mail
+    Method VARCHAR(50) NOT NULL DEFAULT '',                     -- 0 = not specified, 1 = Hand Delivery, Scanned Batch, US Mail
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,                                      -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
