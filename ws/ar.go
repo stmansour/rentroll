@@ -31,6 +31,7 @@ type ARSendForm struct {
 	raRequired       int
 	PriorToRAStart   bool // is it ok to charge prior to RA start
 	PriorToRAStop    bool // is it ok to charge after RA stop
+	ApplyRcvAccts    bool // if true, mark the receipt as fully paid based on RcvAccts
 	LastModTime      rlib.JSONDateTime
 	LastModBy        int64
 	CreateTS         rlib.JSONDateTime
@@ -58,7 +59,7 @@ type ARSaveForm struct {
 	DtStop         rlib.JSONDate
 	PriorToRAStart bool // is it ok to charge prior to RA start
 	PriorToRAStop  bool // is it ok to charge after RA stop
-
+	ApplyRcvAccts  bool
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -368,6 +369,12 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
+	a.FLAGS &= ^uint64(1) // assume that it's turned off
+	if foo.Record.ApplyRcvAccts {
+		a.FLAGS |= 0x1 // turn it on if necessary
+	}
+	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
+
 	// Ensure that the supplied data is valid
 	e := bizlogic.ValidateAcctRule(&a)
 	if len(e) > 0 {
@@ -407,6 +414,7 @@ var getARQuerySelectFields = selectQueryFields{
 	"AR.DtStart",
 	"AR.DtStop",
 	"AR.RARequired",
+	"AR.FLAGS",
 	"AR.LastModTime",
 	"AR.LastModBy",
 	"AR.CreateTS",
@@ -441,8 +449,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered %s\n", funcname)
 
 	arQuery := `
-	SELECT
-		{{.SelectClause}}
+	SELECT {{.SelectClause}}
 	FROM AR
 	INNER JOIN GLAccount as debitQuery on AR.DebitLID=debitQuery.LID
 	INNER JOIN GLAccount as creditQuery on AR.CreditLID=creditQuery.LID
@@ -471,7 +478,9 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
-		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop, &gg.raRequired, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
+		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName,
+			&gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop,
+			&gg.raRequired, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -481,6 +490,9 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raReqMappedVal := raRequiredMap[gg.raRequired]
 		gg.PriorToRAStart = raReqMappedVal[0]
 		gg.PriorToRAStop = raReqMappedVal[1]
+		if gg.FLAGS&0x1 != 0 {
+			gg.ApplyRcvAccts = true
+		}
 		g.Record = gg
 	}
 
