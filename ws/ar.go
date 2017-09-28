@@ -32,6 +32,7 @@ type ARSendForm struct {
 	PriorToRAStart   bool // is it ok to charge prior to RA start
 	PriorToRAStop    bool // is it ok to charge after RA stop
 	ApplyRcvAccts    bool // if true, mark the receipt as fully paid based on RcvAccts
+	RAIDrqd          bool // if true, it will require receipts to supply a RAID
 	LastModTime      rlib.JSONDateTime
 	LastModBy        int64
 	CreateTS         rlib.JSONDateTime
@@ -60,6 +61,7 @@ type ARSaveForm struct {
 	PriorToRAStart bool // is it ok to charge prior to RA start
 	PriorToRAStop  bool // is it ok to charge after RA stop
 	ApplyRcvAccts  bool
+	RAIDrqd        bool
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -369,9 +371,12 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	a.FLAGS &= ^uint64(1) // assume that it's turned off
+	a.FLAGS &= ^uint64(0x4 & 0x1) // 1<<0 and 1<<2:  these are the two flags that can be set.  Assume we turn them off
 	if foo.Record.ApplyRcvAccts {
-		a.FLAGS |= 0x1 // turn it on if necessary
+		a.FLAGS |= 0x1
+	}
+	if foo.Record.RAIDrqd && a.ARType == rlib.ARRECEIPT {
+		a.FLAGS |= 0x4
 	}
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
@@ -492,6 +497,9 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.PriorToRAStop = raReqMappedVal[1]
 		if gg.FLAGS&0x1 != 0 {
 			gg.ApplyRcvAccts = true
+		}
+		if gg.FLAGS&0x4 != 0 {
+			gg.RAIDrqd = true
 		}
 		g.Record = gg
 	}

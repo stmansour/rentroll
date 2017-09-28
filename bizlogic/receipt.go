@@ -318,6 +318,26 @@ func ReverseAllocation(r *rlib.Receipt, revRCPTID int64, dt *time.Time) error {
 //-------------------------------------------------------------------------------
 func InsertReceipt(a *rlib.Receipt) error {
 	funcname := "bizlogic.InsertReceipt"
+
+	//------------------------------------------------
+	// Set up context around the Account Rule
+	//------------------------------------------------
+	var xbiz rlib.XBusiness
+	rlib.InitBizInternals(a.BID, &xbiz)
+	ar := rlib.RRdb.BizTypes[a.BID].AR[a.ARID]               // get the AR for this receipt...
+	ard := rlib.RRdb.BizTypes[a.BID].GLAccounts[ar.DebitLID] // get GL Account Info for debits and credits
+	arc := rlib.RRdb.BizTypes[a.BID].GLAccounts[ar.CreditLID]
+
+	//----------------------------------------------------------
+	// FLAGS bit 0,1 (i.e., binary 0011) indicates how the
+	// receipt is allocated: 0 => unallocated, 1 => partially,
+	// 2 => fully.
+	//----------------------------------------------------------
+	a.FLAGS &= ^uint64(0x3) // assume account rule does NOT allocate fully on insert
+	if ar.FLAGS&0x1 != 0 {  // if rule indicate fully-allocate
+		a.FLAGS |= 0x2 // mark the state as fully allocated
+	}
+
 	errlist := ValidateReceipt(a)
 	if errlist != nil {
 		return BizErrorListToError(errlist)
@@ -326,12 +346,6 @@ func InsertReceipt(a *rlib.Receipt) error {
 	if err != nil {
 		return err
 	}
-
-	var xbiz rlib.XBusiness
-	rlib.InitBizInternals(a.BID, &xbiz)
-	ar := rlib.RRdb.BizTypes[a.BID].AR[a.ARID]               // get the AR for this receipt...
-	ard := rlib.RRdb.BizTypes[a.BID].GLAccounts[ar.DebitLID] // get GL Account Info for debits and credits
-	arc := rlib.RRdb.BizTypes[a.BID].GLAccounts[ar.CreditLID]
 
 	//------------------------------------------------
 	// create the receipt allocation
@@ -367,6 +381,7 @@ func InsertReceipt(a *rlib.Receipt) error {
 	rlib.GetJournalAllocations(&jnl)
 	rlib.InitLedgerCache()
 	rlib.GenerateLedgerEntriesFromJournal(&xbiz, &jnl, &d1, &d2)
+
 	return nil
 }
 

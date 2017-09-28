@@ -24,6 +24,7 @@ function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, previousForm
         PriorToRAStart: true,
         PriorToRAStop: true,
         ApplyRcvAccts: false,
+        RAIDrqd: false,
     };
     
     
@@ -214,24 +215,25 @@ $().w2grid({
         url: '/v1/ar',
         formURL: '/webclient/html/formar.html',
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'ARID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
-            { field: 'BUD', type: 'list', required: true, options: { items: app.businesses }, html: { page: 0, column: 0 } },
-            { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
-            { field: 'ARType', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'DebitLID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'CreditLID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            { field: 'Description', type: 'text', required: false, html: { page: 0, column: 0} },
-            { field: 'DtStart', type: 'date', required: true, html: { page: 0, column: 0 } },
-            { field: 'DtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
-            { field: 'PriorToRAStart', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
-            { field: 'PriorToRAStop', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
-            { field: 'ApplyRcvAccts', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
-            { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
-            { field: "LastModBy", required: false, type: 'int', html: { caption: "LastModBy", page: 0, column: 0 } },
-            { field: "CreateTS", required: false, type: 'time', html: { caption: "CreateTS", page: 0, column: 0 } },
-            { field: "CreateBy", required: false, type: 'int', html: { caption: "CreateBy", page: 0, column: 0 } },
+            { field: 'recid',          type: 'int',      required: false, html: { page: 0, column: 0 } },
+            { field: 'ARID',           type: 'int',      required: false, html: { page: 0, column: 0 } },
+            { field: 'BID',            type: 'int',      required: true,  html: { page: 0, column: 0 } },
+            { field: 'BUD',            type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: app.businesses } },
+            { field: 'Name',           type: 'text',     required: true,  html: { page: 0, column: 0 } },
+            { field: 'ARType',         type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'DebitLID',       type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'CreditLID',      type: 'list',     required: true,  html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
+            { field: 'Description',    type: 'text',     required: false, html: { page: 0, column: 0} },
+            { field: 'DtStart',        type: 'date',     required: true,  html: { page: 0, column: 0 } },
+            { field: 'DtStop',         type: 'date',     required: true,  html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStart', type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'PriorToRAStop',  type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'ApplyRcvAccts',  type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: 'RAIDrqd',        type: 'checkbox', required: true,  html: { page: 0, column: 0 } },
+            { field: "LastModTime",    type: 'time',     required: false, html: { caption: "LastModTime", page: 0, column: 0 } },
+            { field: "LastModBy",      type: 'int',      required: false, html: { caption: "LastModBy", page: 0, column: 0 } },
+            { field: "CreateTS",       type: 'time',     required: false, html: { caption: "CreateTS", page: 0, column: 0 } },
+            { field: "CreateBy",       type: 'int',      required: false, html: { caption: "CreateBy", page: 0, column: 0 } },
         ],
         toolbar: {
             items: [
@@ -368,14 +370,16 @@ $().w2grid({
             data.postData.record.PriorToRAStart = int_to_bool(data.postData.record.PriorToRAStart);
             data.postData.record.PriorToRAStop = int_to_bool(data.postData.record.PriorToRAStop);
             data.postData.record.ApplyRcvAccts = int_to_bool(data.postData.record.ApplyRcvAccts);
+            data.postData.record.RAIDrqd = int_to_bool(data.postData.record.RAIDrqd);
             console.log(data.postData.record);
         },
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
                     header = "Edit Account Rule ({0})";
-
                 formRefreshCallBack(f, "ARID", header);
+                var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
+                $("#"+f.name).find("input[name=RAIDrqd]").prop( "disabled", !b);
             };
         },
         onChange: function(event) {
@@ -388,6 +392,9 @@ $().w2grid({
                 } else {
                     app.form_is_dirty = true;
                 }
+                var f = this;
+                var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
+                $("#"+f.name).find("input[name=RAIDrqd]").prop( "disabled", !b);
             };
         },
         onResize: function(event) {

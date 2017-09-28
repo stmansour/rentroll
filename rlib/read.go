@@ -295,13 +295,13 @@ func ReadRatePlanRefSPRates(rows *sql.Rows, a *RatePlanRefSPRate) {
 
 // ReadReceipt reads a full Receipt structure of data from the database based on the supplied Rows pointer.
 func ReadReceipt(row *sql.Row, a *Receipt) {
-	Errcheck(row.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.TCID, &a.PMTID, &a.DEPID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRuleReceive, &a.ARID, &a.AcctRuleApply, &a.FLAGS, &a.Comment,
+	Errcheck(row.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.TCID, &a.PMTID, &a.DEPID, &a.DID, &a.RAID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRuleReceive, &a.ARID, &a.AcctRuleApply, &a.FLAGS, &a.Comment,
 		&a.OtherPayorName, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
 // ReadReceipts reads a full Receipt structure of data from the database based on the supplied Rows pointer.
 func ReadReceipts(rows *sql.Rows, a *Receipt) {
-	Errcheck(rows.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.TCID, &a.PMTID, &a.DEPID, &a.DID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRuleReceive, &a.ARID, &a.AcctRuleApply, &a.FLAGS, &a.Comment,
+	Errcheck(rows.Scan(&a.RCPTID, &a.PRCPTID, &a.BID, &a.TCID, &a.PMTID, &a.DEPID, &a.DID, &a.RAID, &a.Dt, &a.DocNo, &a.Amount, &a.AcctRuleReceive, &a.ARID, &a.AcctRuleApply, &a.FLAGS, &a.Comment,
 		&a.OtherPayorName, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 

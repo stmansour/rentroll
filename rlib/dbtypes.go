@@ -686,7 +686,7 @@ type AR struct {
 	RARequired    int64
 	DtStart       time.Time
 	DtStop        time.Time
-	FLAGS         uint64  // 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement
+	FLAGS         uint64  // 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement, 1<<2 = RAID required
 	DefaultAmount float64 // use this as the default amount in ui for newly created Assessments
 	LastModTime   time.Time
 	LastModBy     int64
@@ -751,6 +751,7 @@ type Receipt struct {
 	PMTID           int64     // what type of payment
 	DEPID           int64     // the depository where this receipt will be deposited
 	DID             int64     // the Deposit ID to which this receipt belongs
+	RAID            int64     // required for special case receipts
 	Dt              time.Time // date payment was received
 	DocNo           string    // check number, money order number, etc.; documents the payment
 	Amount          float64   // amount of the receipt

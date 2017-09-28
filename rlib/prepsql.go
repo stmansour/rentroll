@@ -733,7 +733,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// RECEIPT
 	//==========================================
-	flds = "RCPTID,PRCPTID,BID,TCID,PMTID,DEPID,DID,Dt,DocNo,Amount,AcctRuleReceive,ARID,AcctRuleApply,FLAGS,Comment,OtherPayorName,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "RCPTID,PRCPTID,BID,TCID,PMTID,DEPID,DID,RAID,Dt,DocNo,Amount,AcctRuleReceive,ARID,AcctRuleApply,FLAGS,Comment,OtherPayorName,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Receipt"] = flds
 	RRdb.Prepstmt.GetReceipt, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE RCPTID=?")
 	Errcheck(err)
