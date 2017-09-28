@@ -19,7 +19,7 @@ function buildRentRollElements() {
         name: 'rrGrid',
         url: '/v1/rentroll',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 10},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 20},
         show: {
             toolbar         : true,
             footer          : true,
@@ -92,26 +92,28 @@ function buildRentRollElements() {
         onLoad: function(event) {
             event.onComplete = function() {
                 var g = this;
+                if (!("_total_main_rows" in g)) {
+                    g._total_main_rows = 0;
+                }
                 if (!("_main_rows_offset" in g.last)) {
                     g.last._main_rows_offset = 0;
                 }
                 if (!("_rrIndexMap" in g.last)) {
                     g.last._rrIndexMap = {};
                 }
-                if (!("_total_main_rows" in g)) {
-                    g._total_main_rows = 0;
+                if (!("_rt_offset" in g.last)) {
+                    g.last._rt_offset = 0;
                 }
+                if (!("_no_rid_offset" in g.last)) {
+                    g.last._no_rid_offset = {};
+                }
+
                 var data = JSON.parse(event.xhr.responseText);
                 g._total_main_rows = data.total_main_rows;
                 if (data.records) {
                     for (var i = 0; i < data.records.length; i++) {
                         // get record from grid to apply css
-                        var record = g.records[data.records[i].recid];
-                        if(record.IsMainRow) {
-                            var rec_index = g.get(record.recid, true);
-                            g.last._rrIndexMap[rec_index] = g.last._main_rows_offset;
-                            g.last._main_rows_offset++;
-                        }
+                        var record = g.get(data.records[i].recid);
                         if (!("w2ui" in record)) {
                             record.w2ui = {}; // init w2ui if not present
                         }
@@ -121,18 +123,28 @@ function buildRentRollElements() {
                         if (!("style" in record.w2ui)) {
                             record.w2ui.style = {}; // init style object
                         }
-                        // var g = w2ui.rrGrid;
-                        if (record.IsSubTotalRow) {
-                            record.w2ui.class = "subTotalRow";
+
+                        if(record.IsMainRow) {
+                            var rec_index = g.get(record.recid, true);
+                            g.last._rrIndexMap[rec_index] = g.last._main_rows_offset;
+                            g.last._main_rows_offset++;
                         }
-                        else if (record.IsBlankRow) {
-                            record.w2ui.class = "blankRow";
-                        } else if (!record.IsNoRIDRow) {
+                        if (record.IsRentableRow) {
+                            g.last._rt_offset++;
                             // apply greyish cell backgroud color to some cells
                             for (var j = 0; j < grey_fields.length; j++) {
                                 var colIndex = g.getColumn(grey_fields[j], true);
                                 record.w2ui.style[colIndex] = "background-color: #CCC;";
                             }
+                        }
+                        if (record.IsSubTotalRow) {
+                            record.w2ui.class = "subTotalRow";
+                        }
+                        if (record.IsBlankRow) {
+                            record.w2ui.class = "blankRow";
+                        }
+                        if (record.IsNoRIDRow) {
+                            g.last._no_rid_offset++;
                         }
                         g.refreshRow(data.records[i].recid); // redraw row
                     }
@@ -142,16 +154,14 @@ function buildRentRollElements() {
                 }
 
                 // stop request if all rows have been loaded
-                alert("g._total_main_rows: " + g._total_main_rows);
-                alert("g._main_rows_offset: " + g.last._main_rows_offset);
-                if(g._total_main_rows <= g.last._main_rows_offset) {
+                if(g.total <= g.records.length) {
                     g.last.pull_more = false;
                 }
 
                 // need to redraw grid after loading data
                 setTimeout(function() {
                     calculateRRPagination();
-                }, 3000);
+                }, 0);
             };
         },
         onRefresh: function(event) {
@@ -166,8 +176,12 @@ function buildRentRollElements() {
             var g = this;
             if (g.records.length == 0) { // if grid is empty then reset all flags
                 g.last._main_rows_offset = 0;
+                g._total_main_rows = 0;
+                g.last._rt_offset = 0;
+                g.last._no_rid_offset = 0;
             }
             event.postData.rentableOffset = g.last._main_rows_offset;
+            event.postData.noRIDOffset = g.last._no_rid_offset;
         },
         onClick: function(event) {
             event.onComplete = function () {
