@@ -885,7 +885,7 @@ CREATE TABLE AR (
     Description VARCHAR(1024) NOT NULL DEFAULT '',
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- epoch date for recurring assessments; the date/time of the assessment for instances
     DtStop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00', -- stop date for recurrent assessments; the date/time of the assessment for instances
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement, 1<<2 = RAID required
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
@@ -907,6 +907,7 @@ CREATE TABLE Receipt (
     PMTID BIGINT NOT NULL DEFAULT 0,
     DEPID BIGINT NOT NULL DEFAULT 0,                            -- Depository for this payment
     DID BIGINT NOT NULL DEFAULT 0,                              -- Deposit id to which this receipt belongs
+    RAID BIGINT NOT NULL DEFAULT 0,                             -- RAID - needed for special case receipts
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
     DocNo VARCHAR(50) NOT NULL DEFAULT '',                      -- Check Number, MoneyOrder number, etc., the traceback for the payment
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,

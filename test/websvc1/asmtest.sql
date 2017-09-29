@@ -1336,6 +1336,7 @@ CREATE TABLE `Receipt` (
   `PMTID` bigint(20) NOT NULL DEFAULT '0',
   `DEPID` bigint(20) NOT NULL DEFAULT '0',
   `DID` bigint(20) NOT NULL DEFAULT '0',
+  `RAID` bigint(20) NOT NULL DEFAULT '0',
   `Dt` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DocNo` varchar(50) NOT NULL DEFAULT '',
   `Amount` decimal(19,4) NOT NULL DEFAULT '0.0000',
@@ -1970,7 +1971,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2017-09-20 00:00:00','Steves-MacBook-Pro-2.local',4,'2017-09-19 19:00:37','2017-09-19 19:00:37','2017-07-22 20:25:54','2017-09-19 12:00:37');
+INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2017-09-29 00:00:00','Steves-MacBook-Pro-2.local',4,'2017-09-28 03:48:04','2017-09-28 03:48:04','2017-07-22 20:25:54','2017-09-27 20:48:04');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2169,4 +2170,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-09-26 16:35:43
+-- Dump completed on 2017-09-27 20:48:15

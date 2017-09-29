@@ -21,6 +21,7 @@ type ReceiptSendForm struct {
 	BID            int64
 	DID            int64
 	BUD            rlib.XJSONBud
+	RAID           int64
 	PMTID          int64
 	Payor          string // name of the payor
 	TCID           int64  // TCID of payor
@@ -34,8 +35,8 @@ type ReceiptSendForm struct {
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
 	CreateBy       int64
+	FLAGS          uint64
 	//AcctRule       string
-	FLAGS uint64
 }
 
 // ReceiptSaveForm is a structure specifically for the return value from w2ui.
@@ -51,6 +52,7 @@ type ReceiptSaveForm struct {
 	BID            int64
 	DID            int64
 	BUD            rlib.XJSONBud
+	RAID           int64
 	ARID           int64
 	PRCPTID        int64 // Parent RCPTID, points to RCPT being amended/corrected by this receipt
 	PMTID          int64
@@ -337,14 +339,13 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
-	rlib.Console("saveReceipt - first migrate: a = %#v\n", a)
+	// rlib.Console("saveReceipt - first migrate: a = %#v\n", a)
 
 	//------------------------------------------
 	//  Update or Insert as appropriate...
 	//------------------------------------------
 	if a.RCPTID == 0 && d.RCPTID == 0 {
-		// This is a new Receipt
-		rlib.Console(">>>> NEW RECEIPT IS BEING ADDED\n")
+		// rlib.Console(">>>> NEW RECEIPT IS BEING ADDED\n")
 		err = bizlogic.InsertReceipt(&a)
 		if err != nil {
 			e := fmt.Errorf("%s:  Error in rlib.ProcessNewReceipt: %s", funcname, err.Error())
@@ -353,7 +354,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	} else {
-		// update existing record
+		// rlib.Console(">>>> UPDATE EXISTING RECEIPT\n")
 		now := time.Now() // this is the time we're making the change if a reversal needs to be done
 		err = bizlogic.UpdateReceipt(&a, &now)
 	}
@@ -393,16 +394,8 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			rlib.GetTransactant(a.TCID, &t)
 			if t.TCID > 0 {
 				tcid := strconv.FormatInt(t.TCID, 10)
-				// feed Payor pattern, it may change depend on the pattern
-				// front-end form payor field and this pattern need to be same
-				// pattern: "{{name}} (TCID: {{tcid}})"
-				if t.IsCompany > 0 {
-					gg.Payor = t.CompanyName + " (TCID: " + tcid + ")"
-				} else {
-					gg.Payor = t.FirstName + " " + t.LastName + " (TCID: " + tcid + ")"
-				}
+				gg.Payor = t.GetPayorName() + " (TCID: " + tcid + ")"
 			}
-
 		}
 		g.Record = gg
 	}

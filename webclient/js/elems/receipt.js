@@ -4,7 +4,7 @@
     addDateNavToToolbar, tcidReceiptPayorPickerRender, tcidPickerDropRender, tcidPickerCompare,
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
-    setDefaultFormFieldAsPreviousRecord
+    setDefaultFormFieldAsPreviousRecord, formRecDiffer
 */
 "use strict";
 function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
@@ -15,6 +15,7 @@ function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
         PRCPTID: 0,
         ARID: 0,
         PMTID: 0,
+        RAID: 0,
         PmtTypeName: ptInit,
         BID: BID,
         BUD: BUD,
@@ -206,7 +207,7 @@ function buildReceiptElements() {
     $().w2form({
         name: 'receiptForm',
         style: 'border: 0px; background-color: transparent;',
-        header: app.sRentable + ' Detail',
+        header: 'Receipt Detail',
         url: '/v1/receipt',
         formURL: '/webclient/html/formrcpt.html',
         fields: [
@@ -248,7 +249,8 @@ function buildReceiptElements() {
                     }
                 },
             },
-            { field: 'TCID',           type: 'int64',  required: false },
+            { field: 'TCID',           type: 'w2int',  required: false },
+            { field: 'RAID',           type: 'w2int',  required: false },
             { field: 'Amount',         type: 'money',  required: true },
             { field: 'Comment',        type: 'text',   required: false },
             { field: 'OtherPayorName', type: 'text',   required: false },
@@ -285,6 +287,9 @@ function buildReceiptElements() {
                     x = getCurrentBusiness(),
                     BID=parseInt(x.value);
 
+                // var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
+                // handleReceiptRAID(url,f);
+
                 if (r.TCID < 1) { // if TCID is not greater than 0 then return
                     return;
                 }
@@ -319,7 +324,7 @@ function buildReceiptElements() {
                     x = getCurrentBusiness(),
                     BID=parseInt(x.value);
 
-                if (r.TCID < 1) { // if TCID is not greater than 0 then return
+                if (r.TCID < 1) { // if TCID we don't have a TCID, return now
                     return;
                 }
 
@@ -360,6 +365,9 @@ function buildReceiptElements() {
                 f.get("ARID").options.items = app.ReceiptRules[BUD];
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
+
+                // var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
+                // handleReceiptRAID(url,f);
 
                 formRefreshCallBack(f, "RCPTID", header);
 
@@ -464,12 +472,15 @@ function buildReceiptElements() {
             event.onComplete = function() {
                 var f = this,
                     r = f.record;
-
-                if (event.target == "PmtTypeName") {
+                switch (event.target) {
+                case "PmtTypeName":
                     r.PMTID = event.value_new.id;
-                    console.log('record.PMTID set to ' + r.PMTID);
+                    break;
+                case "ARID":
+                    var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
+                    handleReceiptRAID(url,f);
+                    break;
                 }
-
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(f.record, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
@@ -491,11 +502,15 @@ function buildReceiptElements() {
             },
             saveadd: function() {
                 var f = this,
+                    r = f.record,
                     grid = w2ui.receiptsGrid,
                     x = getCurrentBusiness(),
                     BID=parseInt(x.value),
                     BUD = getBUDfromBID(BID);
 
+                if (typeof r.RAID === "string") {
+                    r.RAID = parseInt(r.RAID);
+                }
                 // clean dirty flag of form
                 app.form_is_dirty = false;
                 // clear the grid select recid
@@ -526,10 +541,14 @@ function buildReceiptElements() {
             },
             save: function () {
                 var f = this,
+                    r = f.record,
                     // x = getCurrentBusiness(),
                     // BID=parseInt(x.value),
                     grid = w2ui.receiptsGrid;
 
+                if (typeof r.RAID === "string") {
+                    r.RAID = parseInt(r.RAID);
+                }
                 grid.selectNone();
 
                 f.save({}, function (data) {
@@ -580,4 +599,21 @@ function buildReceiptElements() {
             };
         },
    });
+}
+
+function handleReceiptRAID(url,f) {
+    var params = {"cmd":"get","recid":0,"name":"receiptForm"};
+    var dat = JSON.stringify(params);
+    $.post(url, dat, null, "json")
+    .done(function(data) {
+        if (data.status === "error") {
+            f.error(w2utils.lang(data.message));
+            return;
+        }
+        var b = (data.record.FLAGS & 4 !== 0);
+        $("#"+f.name).find("input[name=RAID]").prop( "disabled", !b);
+    })
+    .fail(function(/*data*/){
+        f.error(url + " failed to get Receipt Rule details.");
+    });
 }

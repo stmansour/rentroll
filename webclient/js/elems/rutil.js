@@ -746,9 +746,15 @@ function refreshUnallocAmtSummaries() {
 }
 
 
-// int_to_bool converts int to bool. i.e, 0: false, 1: true
+//-----------------------------------------------------------------------------
+// int_to_bool converts int to bool.
+// @params
+//   i = integer to convert
+// @return
+//   boolean:  returns false if i == 0
+//             otherwise it returns true
+//-----------------------------------------------------------------------------
 function int_to_bool(i){
-
     if (i>0) {
         return true;
     } else {
@@ -763,7 +769,6 @@ function int_to_bool(i){
 // @return  the jquery promise
 //-----------------------------------------------------------------------------
 function getPayorFund(BID, TCID) {
-
     return jQuery.ajax({
         type: "GET",
         url: '/v1/payorfund/'+BID+'/'+TCID,
@@ -844,8 +849,6 @@ jQuery(document).on('click', '#alloc_fund_save_btn', function(/*event*/) {
 // item in record has just a value instead of another object
 //-----------------------------------------------------------------------------
 function getFormSubmitData(record) {
-
-
     // check that it is typeof object or not
     if (typeof record !== "object") {
         return;
