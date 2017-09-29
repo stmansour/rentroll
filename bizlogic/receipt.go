@@ -54,8 +54,9 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 	//    * Dt
 	//    * Amount
 	//    * AccountRule
+	//    * RAID
 	//---------------------------------------------------------------------------------
-	reverse := (!rold.Dt.Equal(rnew.Dt)) || rold.Amount != rnew.Amount || rold.ARID != rnew.ARID
+	reverse := (!rold.Dt.Equal(rnew.Dt)) || rold.Amount != rnew.Amount || rold.ARID != rnew.ARID || rold.RAID != rnew.RAID
 	if reverse {
 		err := ReverseReceipt(&rold, dt) // reverse the receipt itself
 		if err != nil {

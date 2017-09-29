@@ -19,7 +19,7 @@ function buildRentRollElements() {
         name: 'rrGrid',
         url: '/v1/rentroll',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 40},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 20},
         show: {
             toolbar         : true,
             footer          : true,
@@ -90,28 +90,38 @@ function buildRentRollElements() {
             {field: 'EndingSecDep',	    caption: 'Ending<br>Security<br>Deposit',    size: '100px', sortable: false, render: 'float:2'},
         ],
         onLoad: function(event) {
+            var g = this;
+            var data = JSON.parse(event.xhr.responseText);
+            if (!("_total_main_rows" in g)) {
+                g._total_main_rows = 0;
+            }
+            if (data.total_main_rows) {
+                g._total_main_rows = data.total_main_rows;
+            }
+
+            // everytime you have to assign limit here, otherwise you'll get alert message of differed count
+            // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488 and 2481
+            if (data.records) {
+                g.limit = data.records.length;
+            }
+
             event.onComplete = function() {
-                var g = this;
-                if (!("_rt_offset" in g.last)) {
-                    g.last._rt_offset = 0;
+                if (!("_main_rows_offset" in g.last)) {
+                    g.last._main_rows_offset = 0;
                 }
                 if (!("_rrIndexMap" in g.last)) {
                     g.last._rrIndexMap = {};
                 }
-                if (!("_main_row_total" in g)) {
-                    g._main_row_total = 0;
+                if (!("_rt_offset" in g.last)) {
+                    g.last._rt_offset = 0;
                 }
-                var data = JSON.parse(event.xhr.responseText);
-                g._main_row_total = data.main_row_total;
+                if (!("_no_rid_offset" in g.last)) {
+                    g.last._no_rid_offset = {};
+                }
                 if (data.records) {
                     for (var i = 0; i < data.records.length; i++) {
                         // get record from grid to apply css
-                        var record = g.records[data.records[i].recid];
-                        if(record.IsMainRow) {
-                            var rec_index = g.get(record.recid, true);
-                            g.last._rrIndexMap[rec_index] = g.last._rt_offset;
-                            g.last._rt_offset++;
-                        }
+                        var record = g.get(data.records[i].recid);
                         if (!("w2ui" in record)) {
                             record.w2ui = {}; // init w2ui if not present
                         }
@@ -121,24 +131,31 @@ function buildRentRollElements() {
                         if (!("style" in record.w2ui)) {
                             record.w2ui.style = {}; // init style object
                         }
-                        // var g = w2ui.rrGrid;
-                        if (record.IsSubTotalRow) {
-                            record.w2ui.class = "subTotalRow";
+
+                        if(record.IsMainRow) {
+                            var rec_index = g.get(record.recid, true);
+                            g.last._rrIndexMap[rec_index] = g.last._main_rows_offset;
+                            g.last._main_rows_offset++;
                         }
-                        else if (record.IsBlankRow) {
-                            record.w2ui.class = "blankRow";
-                        } else if (!record.IsNoRIDRow) {
+                        if (record.IsRentableRow) {
+                            g.last._rt_offset++;
                             // apply greyish cell backgroud color to some cells
                             for (var j = 0; j < grey_fields.length; j++) {
                                 var colIndex = g.getColumn(grey_fields[j], true);
                                 record.w2ui.style[colIndex] = "background-color: #CCC;";
                             }
                         }
+                        if (record.IsSubTotalRow) {
+                            record.w2ui.class = "subTotalRow";
+                        }
+                        if (record.IsBlankRow) {
+                            record.w2ui.class = "blankRow";
+                        }
+                        if (record.IsNoRIDRow) {
+                            g.last._no_rid_offset++;
+                        }
                         g.refreshRow(data.records[i].recid); // redraw row
                     }
-                    // everytime you have to assign limit here, otherwise you'll get alert message of differed count
-                    // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488
-                    g.limit = data.records.length;
                 }
 
                 // stop request if all rows have been loaded
@@ -163,9 +180,13 @@ function buildRentRollElements() {
         onRequest: function(event) {
             var g = this;
             if (g.records.length == 0) { // if grid is empty then reset all flags
+                g.last._main_rows_offset = 0;
+                g._total_main_rows = 0;
                 g.last._rt_offset = 0;
+                g.last._no_rid_offset = 0;
             }
             event.postData.rentableOffset = g.last._rt_offset;
+            event.postData.noRIDOffset = g.last._no_rid_offset;
         },
         onClick: function(event) {
             event.onComplete = function () {
@@ -237,6 +258,6 @@ function calculateRRPagination() {
 
     $('#grid_'+ g.name + '_footer .w2ui-footer-right').html(
         (g.show.statusRange ? w2utils.formatNumber(startPageNo) + '-' + w2utils.formatNumber(endPageNo) +
-        (g._main_row_total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g._main_row_total) : '') : '')
+        (g._total_main_rows != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g._total_main_rows) : '') : '')
     );
 }

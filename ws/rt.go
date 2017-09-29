@@ -391,6 +391,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	g.Status = "success"
+	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
 }
 
@@ -735,6 +736,27 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 		return
 	}
 	fmt.Printf("foo Changes: %v", foo.Changes)
+
+	if len(foo.Changes) == 0 {
+		e := fmt.Errorf("No MarketRate(s) provided for RentableType")
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
+	// first check that, associated RentableType has allowed ManageToBudget field
+	// if not then return with error
+	var rt rlib.RentableType
+	rtid := foo.Changes[0].RTID
+	if err = rlib.GetRentableType(rtid, &rt); err != nil {
+		e := fmt.Errorf("Error while getting RentableType: %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+	if rt.ManageToBudget == 0 {
+		e := fmt.Errorf("ManageToBudget is not enabled at this moment")
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
 
 	var bizErrs []bizlogic.BizError
 	for _, mr := range foo.Changes {
