@@ -185,7 +185,7 @@ function buildRentRollElements() {
                 g.last._rt_offset = 0;
                 g.last._no_rid_offset = 0;
             }
-            event.postData.rentableOffset = g.last._main_rows_offset;
+            event.postData.rentableOffset = g.last._rt_offset;
             event.postData.noRIDOffset = g.last._no_rid_offset;
         },
         onClick: function(event) {
