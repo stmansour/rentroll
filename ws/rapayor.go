@@ -338,6 +338,7 @@ func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.MigrateStructVals(&m[i], &xr)
 		xr1 := time.Time(xr.DtStart)
 		xr2 := time.Time(xr.DtStop)
+		xr.Recid = int64(i)
 		fmt.Printf("after migrate: xr.DtStart = %s, xr.DtStop = %s\n", xr1.Format(rlib.RRDATEFMT3), xr2.Format(rlib.RRDATEFMT3))
 		xr.Recid = m[i].RAPID // must set AFTER MigrateStructVals in case src contains recid
 		gxp.Records = append(gxp.Records, xr)

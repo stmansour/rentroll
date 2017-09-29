@@ -356,6 +356,7 @@ func InsertReceipt(a *rlib.Receipt) error {
 	ra.AcctRule = fmt.Sprintf("d %s _, c %s _", ard.GLNumber, arc.GLNumber)
 	ra.BID = a.BID
 	ra.Dt = a.Dt
+	ra.RAID = a.RAID
 	_, err = rlib.InsertReceiptAllocation(&ra)
 	if err != nil {
 		return err

@@ -198,7 +198,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SELECT {{.SelectClause}}
 	FROM Rentable
 	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
-	LEFT JOIN ReceiptAllocation ON ((ReceiptAllocation.ASMID=Assessments.ASMID OR ReceiptAllocation.ASMID=0) AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
+	LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
 	LEFT JOIN AR ON AR.ARID=Assessments.ARID
 	WHERE {{.WhereClause}}
 	GROUP BY Assessments.ASMID
@@ -270,6 +270,10 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	i := int64(d.wsSearchReq.Offset)
 	recidCount := i
 	count := 0
+
+	//================================================================
+	//   LOOP THROUGH RENTABLES
+	//================================================================
 	for rows.Next() {
 		var q = RRGrid{BID: d.BID, Recid: recidCount, IsMainRow: true}
 
@@ -324,6 +328,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		arRows, err := rlib.RRdb.Dbrr.Query(arQry)
 		childCount := 0
 		if err == nil {
+
+			//================================================================
+			//   LOOP THROUGH RENTABLES
+			//================================================================
+
 			for arRows.Next() {
 				if childCount > 0 { // if more than one rows per rentable then create new RRGrid struct
 					var nq = RRGrid{RID: q.RID, BID: q.BID, Recid: recidCount}
