@@ -90,11 +90,22 @@ function buildRentRollElements() {
             {field: 'EndingSecDep',	    caption: 'Ending<br>Security<br>Deposit',    size: '100px', sortable: false, render: 'float:2'},
         ],
         onLoad: function(event) {
+            var g = this;
+            var data = JSON.parse(event.xhr.responseText);
+            if (!("_total_main_rows" in g)) {
+                g._total_main_rows = 0;
+            }
+            if (data.total_main_rows) {
+                g._total_main_rows = data.total_main_rows;
+            }
+
+            // everytime you have to assign limit here, otherwise you'll get alert message of differed count
+            // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488 and 2481
+            if (data.records) {
+                g.limit = data.records.length;
+            }
+
             event.onComplete = function() {
-                var g = this;
-                if (!("_total_main_rows" in g)) {
-                    g._total_main_rows = 0;
-                }
                 if (!("_main_rows_offset" in g.last)) {
                     g.last._main_rows_offset = 0;
                 }
@@ -107,9 +118,6 @@ function buildRentRollElements() {
                 if (!("_no_rid_offset" in g.last)) {
                     g.last._no_rid_offset = {};
                 }
-
-                var data = JSON.parse(event.xhr.responseText);
-                g._total_main_rows = data.total_main_rows;
                 if (data.records) {
                     for (var i = 0; i < data.records.length; i++) {
                         // get record from grid to apply css
@@ -148,9 +156,6 @@ function buildRentRollElements() {
                         }
                         g.refreshRow(data.records[i].recid); // redraw row
                     }
-                    // everytime you have to assign limit here, otherwise you'll get alert message of differed count
-                    // see: https://github.com/vitmalina/w2ui/blob/master/src/w2grid.js#L2488
-                    g.limit = data.records.length;
                 }
 
                 // stop request if all rows have been loaded
