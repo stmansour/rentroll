@@ -326,13 +326,15 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		sub.IncomeOffsets.Valid = true
 		// execute the query
 		arRows, err := rlib.RRdb.Dbrr.Query(arQry)
+
+		rlib.Console("RID: %d,  arQry:  %s\n", q.RID, arQry)
+
 		childCount := 0
 		if err == nil {
 
 			//================================================================
-			//   LOOP THROUGH RENTABLES
+			//   LOOP THROUGH ASSESSMENTS AND RECEIPTS FOR THIS RENTABLE
 			//================================================================
-
 			for arRows.Next() {
 				if childCount > 0 { // if more than one rows per rentable then create new RRGrid struct
 					var nq = RRGrid{RID: q.RID, BID: q.BID, Recid: recidCount}
