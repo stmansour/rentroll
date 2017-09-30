@@ -119,10 +119,9 @@ var rentablesAsmtFields = []string{
 }
 
 // rrRowScan scans a result from sql row and dump it in a RRGrid struct
-func rrRowScan(rows *sql.Rows, q RRGrid) (RRGrid, error) {
-	err := rows.Scan(&q.BID, &q.RID, &q.RentableName, &q.RTID, &q.RentableType, &q.RentCycle, &q.GSR, &q.RARID, &q.RAID,
+func rrRowScan(rows *sql.Rows, q *RRGrid) error {
+	return rows.Scan(&q.BID, &q.RID, &q.RentableName, &q.RTID, &q.RentableType, &q.RentCycle, &q.GSR, &q.RARID, &q.RAID,
 		&q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Status, &q.Payors, &q.Users)
-	return q, err
 }
 
 // RRRequeestData - struct for request data for parent-child fashioned rentroll report view
@@ -206,6 +205,7 @@ func getRRTotal(BID int64, rentablesQuery string, rentablesQC queryClauses) (
 }
 
 // SvcRR is the response data for a RR Grid search - The Rent Roll View
+//=============================================================================
 func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		funcname    = "SvcRR"
@@ -215,25 +215,23 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		xbiz        rlib.XBusiness
 		custom      = "Square Feet"
 		limitClause = d.wsSearchReq.Limit
+		DtStartStr  = d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL)
+		DtStopStr   = d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL)
 	)
 	if limitClause == 0 {
 		limitClause = 20
 	}
 	rlib.Console("Entered %s\n", funcname)
-
-	// get the request data first
 	if err = json.Unmarshal([]byte(d.data), &reqData); err != nil {
 		rlib.Console("Error while unmarshalling d.data: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+	rlib.InitBizInternals(d.BID, &xbiz) // init some business internals first
 
-	// init some business internals first
-	rlib.InitBizInternals(d.BID, &xbiz)
-
-	// ---------------------
-	// Rentables Query Part
-	// ---------------------
+	//===========================================================
+	// RENTABLES QUERY
+	//===========================================================
 	rentablesQSrch := fmt.Sprintf("Rentable.BID=%d", d.BID)                       // default WHERE clause
 	rentablesQOrder := "Rentable.RentableName ASC "                               // default rentablesQOrder
 	whereClause, rentablesQOrderClause := GetSearchAndSortSQL(d, rrGridFieldsMap) // establish the rentablesQOrder to use in the query
@@ -245,8 +243,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rentablesQuery := `
-	SELECT DISTINCT
-		{{.SelectClause}}
+	SELECT DISTINCT {{.SelectClause}}
 	FROM Rentable
 	LEFT JOIN RentableTypeRef ON RentableTypeRef.RID=Rentable.RID
 	LEFT JOIN RentableTypes ON RentableTypes.RTID=RentableTypeRef.RTID
@@ -262,19 +259,17 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	GROUP BY Rentable.RID
 	ORDER BY {{.OrderClause}}`
 
-	// will be substituted as query clauses
 	rentablesQC := queryClauses{
 		"SelectClause": strings.Join(rrGridSelectFields, ","),
 		"WhereClause":  rentablesQSrch,
 		"OrderClause":  rentablesQOrder,
-		"DtStart":      d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
-		"DtStop":       d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),
+		"DtStart":      DtStartStr,
+		"DtStop":       DtStopStr,
 	}
 
-	// ------------------------------------
-	// Assessments for Rentables Query Part
-	// ------------------------------------
-	// LEFT JOIN Receipt ON ( Receipt.RCPTID=ReceiptAllocation.RCPTID AND (Receipt.FLAGS & 4)=0)
+	//===========================================================
+	// ASSESSMENT QUERY
+	//===========================================================
 	rentablesAsmtQuery := `
 	SELECT {{.SelectClause}}
 	FROM Rentable
@@ -289,13 +284,37 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		"SelectClause": strings.Join(rentablesAsmtFields, ","),
 		"OrderClause":  "Assessments.Amount DESC",
 		"WhereClause":  "", // later we'll evaluate it
-		"DtStart":      d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
-		"DtStop":       d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),
+		"DtStart":      DtStartStr,
+		"DtStop":       DtStopStr,
 	}
 
-	// -------------------
+	//===========================================================
+	// NO-ASSESSMENT QUERY
+	//===========================================================
+	var rentablesNoAsmtFields = []string{
+		"AR.Name as Description",
+		"ReceiptAllocation.RAID as RAID",
+		"ReceiptAllocation.Amount as PaymentsApplied",
+	}
+	rentablesNoAsmtQuery := `
+	SELECT {{.SelectClause}} FROM ReceiptAllocation
+	LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RID={{.RID}} AND "{{.DtStart}}" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "{{.DtStop}}")
+	LEFT JOIN Receipt ON (RentalAgreementRentables.RAID > 0 AND RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0)
+	INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
+	WHERE {{.WhereClause}}
+	ORDER BY {{.OrderClause}};`
+
+	rentablesNoAsmtQC := queryClauses{
+		"SelectClause": strings.Join(rentablesNoAsmtFields, ","),
+		"WhereClause":  "", // dynamic; evaluated below
+		"OrderClause":  "ReceiptAllocation.Amount DESC",
+		"DtStart":      DtStartStr,
+		"DtStop":       DtStopStr,
+	}
+
+	//===========================================================
 	// TOTAL RECORDS COUNT
-	// -------------------
+	//===========================================================
 	rentablesCount, rentablesAsmtCount, noRIDAsmtCount, err := getRRTotal(d.BID, rentablesQuery, rentablesQC)
 	if err != nil {
 		rlib.Console("Error from getRRTotal routine: %s", err.Error())
@@ -303,22 +322,16 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	rlib.Console("rentablesCount = %d, rentablesAsmtCount = %d, noRIDAsmtCount = %d\n", rentablesCount, rentablesAsmtCount, noRIDAsmtCount)
-
-	// for each RENTABLES row we'll add subTotal row and one blank row (another two rows)
-	g.Total = (rentablesCount * 3)
-	// in case if any rentables got multiple Assessments
-	if (rentablesAsmtCount - rentablesCount) > 0 {
+	g.Total = (rentablesCount * 3)                 // for each RENTABLES row we'll add subTotal row and one blank row (another two rows)
+	if (rentablesAsmtCount - rentablesCount) > 0 { // in case if any rentables got multiple Assessments
 		g.Total += (rentablesAsmtCount - rentablesCount)
 	}
-	// addition of count of assessments which are associated with any rentables
-	g.Total += noRIDAsmtCount
-	// main rows count
-	g.TotalMainRows = (rentablesCount + noRIDAsmtCount)
+	g.Total += noRIDAsmtCount                           // addition of count of assessments which are associated with any rentables
+	g.TotalMainRows = (rentablesCount + noRIDAsmtCount) // main rows count
 
-	// ------------------------------------
-	// Start to fetch rentables rows first
-	// WITH LIMIT AND OFFSET
-	// ------------------------------------
+	//===========================================================
+	// Complete RENTABLES query
+	//===========================================================
 	limitAndOffsetClause := `
 	LIMIT {{.LimitClause}}
 	OFFSET {{.OffsetClause}};`
@@ -327,8 +340,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rentablesQC["OffsetClause"] = strconv.Itoa(reqData.RentableOffset)
 	rentablesQ := renderSQLQuery(rentablesQueryWithLimit, rentablesQC) // get formatted query with substitution of select, where, rentablesQOrder clause
 	rlib.Console("db query = %s\n", rentablesQ)
-
-	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(rentablesQ)
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
@@ -336,29 +347,25 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	defer rows.Close()
 
-	i := int64(d.wsSearchReq.Offset)
-	recidCount := i
-	count := 0
-
 	//================================================================
 	//   LOOP THROUGH RENTABLES
 	//================================================================
+	i := int64(d.wsSearchReq.Offset)
+	recidCount := i
+	count := 0
 	for rows.Next() {
+		//------------------------------------------------------------------
+		// load record info into q and fill out what time-based we can...
+		//------------------------------------------------------------------
 		var q = RRGrid{BID: d.BID, Recid: recidCount, IsMainRow: true, IsRentableRow: true}
-
-		// get records info in struct q
-		q, err = rrRowScan(rows, q)
-		if err != nil {
+		if err = rrRowScan(rows, &q); err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-
-		// fill out more...
 		if len(xbiz.RT[q.RTID].CA) > 0 { // if there are custom attributes
 			c, ok := xbiz.RT[q.RTID].CA[custom] // see if Square Feet is among them
 			if ok {                             // if it is...
 				sqft, err := rlib.IntFromString(c.Value, "invalid sqft of custom attribute")
-				// q.Sqft.Valid = true
 				q.Sqft.Scan(sqft)
 				if err != nil {
 					SvcGridErrorReturn(w, err, funcname)
@@ -374,27 +381,24 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		//------------------------------------------------------------
-		// now get assessment, receipt related info
-		//------------------------------------------------------------
-		rentablesAsmtQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID, q.RID)
-		rentablesAsmtQ := renderSQLQuery(rentablesAsmtQuery, rentablesAsmtQC) // get formatted query with substitution of select, where, order clause
-		// rlib.Console("Rentable : Assessment + Receipt AMOUNT db query = %s\n", rentablesAsmtQ)
-
-		//------------------------------------------------------------
-		// There may be multiple rows, hold each row RRGrid in slice
+		// There may be multiple rows for the ASSESSMENTS query and
+		// the NO-ASSESSMENTS query. Hold each row RRGrid in slice
 		// Also, compute sobtotals as we go
 		//------------------------------------------------------------
 		d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
-		rentableASMList := []RRGrid{}
+		subList := []RRGrid{}
 		sub := RRGrid{IsSubTotalRow: true}
 		sub.AmountDue.Valid = true
 		sub.PaymentsApplied.Valid = true
 		sub.PeriodGSR.Valid = true
 		sub.IncomeOffsets.Valid = true
 
-		// execute the query
-		rlib.Console("RID: %d,  rentablesAsmtQ:  %s\n", q.RID, rentablesAsmtQ)
-
+		//================================================================
+		//  ASSESSMENTS QUERY...
+		//================================================================
+		rentablesAsmtQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID, q.RID)
+		rentablesAsmtQ := renderSQLQuery(rentablesAsmtQuery, rentablesAsmtQC) // get formatted query with substitution of select, where, order clause
+		// rlib.Console("RID: %d,  rentablesAsmtQ:  %s\n", q.RID, rentablesAsmtQ)
 		rentablesAsmtRows, err := rlib.RRdb.Dbrr.Query(rentablesAsmtQ)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
@@ -402,83 +406,101 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		defer rentablesAsmtRows.Close()
 
+		//================================================================
+		//   LOOP THROUGH ASSESSMENTS AND RECEIPTS FOR THIS RENTABLE
+		//================================================================
 		childCount := 0
-		if err == nil {
-
-			//================================================================
-			//   LOOP THROUGH ASSESSMENTS AND RECEIPTS FOR THIS RENTABLE
-			//================================================================
-			for rentablesAsmtRows.Next() {
-				if childCount > 0 { // if more than one rows per rentable then create new RRGrid struct
-					var nq = RRGrid{RID: q.RID, BID: q.BID, Recid: recidCount}
-					err = rentablesAsmtRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
-					if err != nil {
-						SvcGridErrorReturn(w, err, funcname)
-						return
-					}
-					rentableASMList = append(rentableASMList, nq)
-					updateSubTotals(&sub, &nq)
-				} else {
-					err = rentablesAsmtRows.Scan(&q.Description, &q.AmountDue, &q.PaymentsApplied)
-					if err != nil {
-						SvcGridErrorReturn(w, err, funcname)
-						return
-					}
-					rentableASMList = append(rentableASMList, q)
-					updateSubTotals(&sub, &q)
-				}
-				childCount++
-				recidCount++
+		for rentablesAsmtRows.Next() {
+			var nq = RRGrid{RID: q.RID, BID: q.BID, Recid: recidCount}
+			if childCount == 0 {
+				nq = q
 			}
-
-			if len(rentableASMList) == 0 { // that means no assessments found, then just append rentable info
-				rentableASMList = append(rentableASMList, q)
-			}
-
-			// add list in g.Records field
-			g.Records = append(g.Records, rentableASMList...)
-
-			//----------------------------------------
-			// Add the Rentable receivables totals...
-			//----------------------------------------
-			sub.Description.String = "Subtotal"
-			sub.Description.Valid = true
-			sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(d.BID, q.RID, q.RAID.Int64, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
-			sub.BeginningRcv.Valid = true
-			sub.ChangeInRcv.Float64 = sub.EndingRcv.Float64 - sub.BeginningRcv.Float64
-			sub.ChangeInRcv.Valid = true
-			// rlib.Console("raid=%d, rid=%d, %.2f - %.2f\n", q.RAID.Int64, q.RID, sub.BeginningRcv.Float64, sub.EndingRcv.Float64)
-			// rlib.Console("CHANGE = %.2f\n", sub.ChangeInRcv.Float64)
-			sub.EndingRcv.Valid = true
-
-			//----------------------------------------
-			// Add the Security Deposit totals...
-			//----------------------------------------
-			sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
+			err = rentablesAsmtRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
-			sub.BeginningSecDep.Valid = true
-			sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
-			if err != nil {
-				SvcGridErrorReturn(w, err, funcname)
-				return
+			if nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
+				subList = addToSubList(subList, &childCount, &recidCount, &nq)
+				updateSubTotals(&sub, &nq)
 			}
-			sub.ChangeInSecDep.Valid = true
-			sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
-			sub.EndingSecDep.Valid = true
-
-			sub.Recid = recidCount
-			g.Records = append(g.Records, sub)
-			childCount++
-			recidCount++
-
-			// add new blank row for grid
-			g.Records = append(g.Records, RRGrid{IsBlankRow: true, Recid: recidCount})
-			childCount++
-			recidCount++
 		}
+
+		//================================================================
+		//  NO-ASSESSMENTS QUERY...
+		//================================================================
+		rentablesNoAsmtQC["WhereClause"] = fmt.Sprintf("ReceiptAllocation.BID = %d AND ReceiptAllocation.RAID = RentalAgreementRentables.RAID", q.BID)
+		rentablesNoAsmtQC["RID"] = fmt.Sprintf("%d", q.RID)
+		rentablesNoAsmtQ := renderSQLQuery(rentablesNoAsmtQuery, rentablesNoAsmtQC)
+		// rlib.Console("RID: %d,  rentablesNoAsmtQ:  %s\n", q.RID, rentablesNoAsmtQ)
+		rentablesNoAsmtRows, err := rlib.RRdb.Dbrr.Query(rentablesNoAsmtQ)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		defer rentablesNoAsmtRows.Close()
+
+		//================================================================
+		//   LOOP THROUGH NO-ASSESSMENTS FOR THIS RENTABLE
+		//================================================================
+		for rentablesNoAsmtRows.Next() {
+			var nq = RRGrid{RID: q.RID, BID: q.BID, Recid: recidCount}
+			if childCount == 0 {
+				nq = q
+			}
+			err = rentablesNoAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PaymentsApplied)
+			if err != nil {
+				SvcGridErrorReturn(w, err, funcname)
+				return
+			}
+			if nq.Description.Valid || nq.RAID.Valid || nq.PaymentsApplied.Valid {
+				subList = addToSubList(subList, &childCount, &recidCount, &nq)
+				updateSubTotals(&sub, &nq)
+			}
+		}
+
+		//----------------------------------------------------------------------
+		// Handle the case where both the Assesments and No-Assessment lists
+		// had no matches... just add what we know...
+		//----------------------------------------------------------------------
+		if len(subList) == 0 {
+			subList = append(subList, q)
+		}
+
+		g.Records = append(g.Records, subList...) // update response record list
+
+		//----------------------------------------
+		// Add the Rentable receivables totals...
+		//----------------------------------------
+		sub.Description.String = "Subtotal"
+		sub.Description.Valid = true
+		sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(d.BID, q.RID, q.RAID.Int64, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+		sub.BeginningRcv.Valid = true
+		sub.ChangeInRcv.Float64 = sub.EndingRcv.Float64 - sub.BeginningRcv.Float64
+		sub.ChangeInRcv.Valid = true
+		sub.EndingRcv.Valid = true
+
+		//----------------------------------------
+		// Add the Security Deposit totals...
+		//----------------------------------------
+		sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		sub.BeginningSecDep.Valid = true
+		sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
+		sub.ChangeInSecDep.Valid = true
+		sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
+		sub.EndingSecDep.Valid = true
+		sub.Recid = recidCount
+
+		g.Records = addToSubList(g.Records, &childCount, &recidCount, &sub)
+		g.Records = addToSubList(g.Records, &childCount, &recidCount, &RRGrid{IsBlankRow: true, Recid: recidCount}) // add new blank before the next rentable
 
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -520,7 +542,25 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(&g, w)
 }
 
+// addToSubList is a convenience function that adds a new RRGrid struct to the
+// supplied grid struct and updates the
+//
+// INPUTS
+//           g = pointer to a slice of RRGrid structs to which p will be added
+//  childCount = pointer to a counter to increment when a record is added
+//  recidCount = pointer to a counter of recid values
+//
+// RETURNS
+//    []RRGrid - RRGrid slice updated with p
+//-----------------------------------------------------------------------------
+func addToSubList(g []RRGrid, childCount *int, recidCount *int64, p *RRGrid) []RRGrid {
+	(*childCount)++
+	(*recidCount)++
+	return append(g, *p)
+}
+
 // updateSubTotals does all subtotal calculations for the subtotal line
+//-----------------------------------------------------------------------------
 func updateSubTotals(sub, q *RRGrid) {
 	sub.AmountDue.Float64 += q.AmountDue.Float64
 	sub.PaymentsApplied.Float64 += q.PaymentsApplied.Float64
@@ -538,6 +578,9 @@ func updateSubTotals(sub, q *RRGrid) {
 //   limit - how many more rows can be added to g
 //  offset - recid starts at this amount
 //       d - service data
+//
+// RETURN
+//   error - any error encountered
 //-----------------------------------------------------------------------------
 func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int64, d *ServiceData) error {
 	funcname := "getNoRentableRows"
