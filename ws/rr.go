@@ -357,7 +357,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------------------------
 		// load record info into q and fill out what time-based we can...
 		//------------------------------------------------------------------
-		var q = RRGrid{BID: d.BID, Recid: recidCount, IsMainRow: true, IsRentableRow: true}
+		var q = RRGrid{BID: d.BID, IsMainRow: true, IsRentableRow: true}
 		if err = rrRowScan(rows, &q); err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -411,7 +411,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//================================================================
 		childCount := 0
 		for rentablesAsmtRows.Next() {
-			var nq = RRGrid{RID: q.RID, BID: q.BID, Recid: recidCount}
+			var nq = RRGrid{RID: q.RID, BID: q.BID}
 			if childCount == 0 {
 				nq = q
 			}
@@ -421,7 +421,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 			if nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
-				subList = addToSubList(subList, &childCount, &recidCount, &nq)
+				addToSubList(&subList, &childCount, &recidCount, &nq)
 				updateSubTotals(&sub, &nq)
 			}
 		}
@@ -454,7 +454,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				return
 			}
 			if nq.Description.Valid || nq.RAID.Valid || nq.PaymentsApplied.Valid {
-				subList = addToSubList(subList, &childCount, &recidCount, &nq)
+				addToSubList(&subList, &childCount, &recidCount, &nq)
 				updateSubTotals(&sub, &nq)
 			}
 		}
@@ -464,7 +464,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// had no matches... just add what we know...
 		//----------------------------------------------------------------------
 		if len(subList) == 0 {
-			subList = append(subList, q)
+			addToSubList(&subList, &childCount, &recidCount, &q)
 		}
 
 		g.Records = append(g.Records, subList...) // update response record list
@@ -497,10 +497,9 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		sub.ChangeInSecDep.Valid = true
 		sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
 		sub.EndingSecDep.Valid = true
-		sub.Recid = recidCount
 
-		g.Records = addToSubList(g.Records, &childCount, &recidCount, &sub)
-		g.Records = addToSubList(g.Records, &childCount, &recidCount, &RRGrid{IsBlankRow: true, Recid: recidCount}) // add new blank before the next rentable
+		addToSubList(&g.Records, &childCount, &recidCount, &sub)
+		addToSubList(&g.Records, &childCount, &recidCount, &RRGrid{IsBlankRow: true}) // add new blank before the next rentable
 
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -549,14 +548,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //           g = pointer to a slice of RRGrid structs to which p will be added
 //  childCount = pointer to a counter to increment when a record is added
 //  recidCount = pointer to a counter of recid values
-//
-// RETURNS
-//    []RRGrid - RRGrid slice updated with p
 //-----------------------------------------------------------------------------
-func addToSubList(g []RRGrid, childCount *int, recidCount *int64, p *RRGrid) []RRGrid {
+func addToSubList(g *[]RRGrid, childCount *int, recidCount *int64, p *RRGrid) {
+	p.Recid = *recidCount // first add Recid to RRGrid struct then update
 	(*childCount)++
 	(*recidCount)++
-	return append(g, *p)
+	*g = append(*g, *p)
 }
 
 // updateSubTotals does all subtotal calculations for the subtotal line
