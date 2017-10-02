@@ -1,3 +1,11 @@
+/*global
+    $, console, w2ui, w2uiDateControlString, app, plural, dateFmtStr,
+    getCurrentBusiness, getBUDfromBID, w2popup, w2utils, w2confirm, form_dirty_alert,
+    delete_confirm_options, formRefreshCallBack, getFormSubmitData,
+    ridRentablePickerRender,ridRentableDropRender,ridRentableCompare,tcidRUserPickerRender,
+    tcidPickerDropRender, tcidPickerCompare, tcidRAPayorPickerRender, calcRarGridContractRent,
+*/
+
 "use strict";
 //-----------------------------------------------------------------------------
 // setToRAForm -  enable the Rental Agreement form in toplayout.  Also, set
@@ -314,9 +322,10 @@ function buildRAElements() {
                         ExpansionOptionNotice: '1/1/1900',
                         RightOfFirstRefusal: '',
                     };
+                    var url = '/v1/rentalagr/' + BUD + '/0';
 
                     var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
-                    $.post('/v1/rentalagr/' + BUD + '/0', JSON.stringify(request))
+                    $.post(url, JSON.stringify(request))
                     .done(function(data) {
                         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
                             var msg = JSON.parse(data);

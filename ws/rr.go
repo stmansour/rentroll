@@ -157,8 +157,7 @@ func getRRTotal(BID int64, rentablesQuery string, rentablesQC queryClauses) (
 	// Get All Assessments Total associated with Rentables
 	// ---------------------------------------------------
 	totalRentablesAsmtQuery := `
-	SELECT
-		COUNT(*)
+	SELECT COUNT(*)
 	FROM Rentable
 	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
 	WHERE {{.WhereClause}};`
@@ -182,8 +181,7 @@ func getRRTotal(BID int64, rentablesQuery string, rentablesQC queryClauses) (
 	// Get All Assessments Total which are NOT associated with ANY Rentables
 	// ---------------------------------------------------------------------
 	totalAsmtQuery := `
-	SELECT
-		COUNT(*)
+	SELECT COUNT(*)
 	FROM Assessments
 	WHERE {{.WhereClause}};`
 

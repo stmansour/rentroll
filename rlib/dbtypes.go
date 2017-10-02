@@ -1601,6 +1601,7 @@ var RRdb struct {
 }
 
 func buildBusinessDesignationMap() map[string]int64 {
+	// Console("Entered buildBusinessDesignationMap\n")
 	var sl = map[string]int64{}
 	bl, err := GetAllBusinesses()
 	if err != nil {
@@ -1608,6 +1609,7 @@ func buildBusinessDesignationMap() map[string]int64 {
 	}
 	for i := 0; i < len(bl); i++ {
 		sl[bl[i].Designation] = bl[i].BID
+		// Console("bizlist[%s]=%d\n", bl[i].Designation, bl[i].BID)
 	}
 	return sl
 }
