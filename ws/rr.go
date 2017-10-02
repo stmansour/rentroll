@@ -548,9 +548,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //           g = pointer to a slice of RRGrid structs to which p will be added
 //  childCount = pointer to a counter to increment when a record is added
 //  recidCount = pointer to a counter of recid values
-//
-// RETURNS
-//    []RRGrid - RRGrid slice updated with p
 //-----------------------------------------------------------------------------
 func addToSubList(g *[]RRGrid, childCount *int, recidCount *int64, p *RRGrid) {
 	p.Recid = *recidCount // first add Recid to RRGrid struct then update
