@@ -738,7 +738,7 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 	}
 
 	// TOTAL is already calculated in getRRTotal routine,
-	// so need to do that here
+	// so NO need to do that here
 
 	limitAndOffsetClause := `
 	LIMIT {{.LimitClause}}
@@ -853,7 +853,7 @@ func getNoRIDNoAsmtRows(g *RRSearchResponse, recidoffset, queryOffset, limit int
 	}
 
 	// TOTAL is already calculated in getRRTotal routine,
-	// so need to do that here
+	// so NO need to do that here
 
 	limitAndOffsetClause := `
 	LIMIT {{.LimitClause}}
