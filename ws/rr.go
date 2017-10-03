@@ -22,7 +22,7 @@ import (
 // Statements grid.
 type RRGrid struct {
 	Recid           int64           `json:"recid"` // this is to support the w2ui form
-	BID             int64           // Business (so that we can process by Business)
+	BID             rlib.NullInt64  // Business (so that we can process by Business)
 	RID             int64           // The rentable
 	RTID            int64           // The rentable type
 	RARID           rlib.NullInt64  // rental agreement rentable id
@@ -355,7 +355,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------------------------
 		// load record info into q and fill out what time-based we can...
 		//------------------------------------------------------------------
-		var q = RRGrid{BID: d.BID, IsMainRow: true, IsRentableRow: true}
+		var q = RRGrid{IsMainRow: true, IsRentableRow: true}
+		if err = q.BID.Scan(d.BID); err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+			return
+		}
 		if err = rrRowScan(rows, &q); err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -394,7 +398,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//================================================================
 		//  ASSESSMENTS QUERY...
 		//================================================================
-		rentablesAsmtQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID, q.RID)
+		rentablesAsmtQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID.Int64, q.RID)
 		rentablesAsmtQ := renderSQLQuery(rentablesAsmtQuery, rentablesAsmtQC) // get formatted query with substitution of select, where, order clause
 		// rlib.Console("RID: %d,  rentablesAsmtQ:  %s\n", q.RID, rentablesAsmtQ)
 		rentablesAsmtRows, err := rlib.RRdb.Dbrr.Query(rentablesAsmtQ)
@@ -427,7 +431,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//================================================================
 		//  NO-ASSESSMENTS QUERY...
 		//================================================================
-		rentablesNoAsmtQC["WhereClause"] = fmt.Sprintf("ReceiptAllocation.BID = %d AND ReceiptAllocation.RAID = RentalAgreementRentables.RAID", q.BID)
+		rentablesNoAsmtQC["WhereClause"] = fmt.Sprintf("ReceiptAllocation.BID = %d AND ReceiptAllocation.RAID = RentalAgreementRentables.RAID", q.BID.Int64)
 		rentablesNoAsmtQC["RID"] = fmt.Sprintf("%d", q.RID)
 		rentablesNoAsmtQ := renderSQLQuery(rentablesNoAsmtQuery, rentablesNoAsmtQC)
 		// rlib.Console("RID: %d,  rentablesNoAsmtQ:  %s\n", q.RID, rentablesNoAsmtQ)
@@ -481,13 +485,13 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//----------------------------------------
 		// Add the Security Deposit totals...
 		//----------------------------------------
-		sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
+		sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID.Int64, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 		sub.BeginningSecDep.Valid = true
-		sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+		sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID.Int64, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -717,12 +721,12 @@ func getNoRIDNoAsmtRows(g *RRSearchResponse, recidoffset, queryOffset, limit int
 	//--------------------------------------------------
 	// which fields needs to be fetched for SQL query
 	//--------------------------------------------------
+	//ReceiptAllocation.BID,ReceiptAllocation.RAID,ReceiptAllocation.Amount,AR.Name
 	var rrNoRIDQuerySelectFields = []string{
 		"ReceiptAllocation.BID",
-		"ReceiptAllocation.ASMID",
-		"AR.Name",
+		"ReceiptAllocation.RAID",
 		"ReceiptAllocation.Amount",
-		"RentalAgreementRentables.RAID",
+		"AR.Name",
 		"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
 	}
 
@@ -740,7 +744,7 @@ func getNoRIDNoAsmtRows(g *RRSearchResponse, recidoffset, queryOffset, limit int
 	//--------------------------------------------------
 	// Select the appropriate assessments
 	//--------------------------------------------------
-	where := fmt.Sprintf("WHERE ReceiptAllocation.BID=%d ReceiptAllocation.ASMID=0 AND ReceiptAllocation.RAID>0 AND %q <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < %q", d.BID, DtStartStr, DtStopStr)
+	where := fmt.Sprintf("ReceiptAllocation.BID=%d AND ReceiptAllocation.ASMID=0 AND ReceiptAllocation.RAID>0 AND %q <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < %q", d.BID, DtStartStr, DtStopStr)
 
 	//--------------------------------------------------
 	// How to order
@@ -757,10 +761,10 @@ func getNoRIDNoAsmtRows(g *RRSearchResponse, recidoffset, queryOffset, limit int
 	noRIDQuery := `
 	SELECT {{.SelectClause}}
 	FROM ReceiptAllocation
-	LEFT JOIN Receipt ON (Receipt.RCPTID = ReceiptAllocation.RCPTID)
-	LEFT JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS = 5)
-	INNER JOIN RentalAgreementRentables ON (RentalAgreementRentables.RAID=Receipt.RAID)
-	LEFT JOIN Transactant ON (Transactant.TCID = Receipt.TCID)
+	INNER JOIN Receipt ON (Receipt.RCPTID = ReceiptAllocation.RCPTID)
+	INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS = 5)
+	INNER JOIN Transactant ON (Transactant.TCID = Receipt.TCID)
+	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
 	qc := queryClauses{
@@ -801,15 +805,12 @@ func getNoRIDNoAsmtRows(g *RRSearchResponse, recidoffset, queryOffset, limit int
 
 	for rows.Next() {
 		q := RRGrid{Recid: recidCount, IsMainRow: true, IsNoRIDRow: true}
-		err := rows.Scan(&q.BID, &q.ASMID, &q.Description, &q.PaymentsApplied, &q.RAID, &q.Payors)
+		err := rows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied, &q.Description, &q.Payors)
 		if err != nil {
 			return recidCount, err
 		}
-		// rlib.Console("noASM noRID:  found ASMID=%d, Descr=%s, PaymentsApplied=%.2f, RAID=%d\n",
-		// 	q.ASMID.Int64, q.Description.String, q.PaymentsApplied.Float64, q.RAID.Int64)
 		g.Records = append(g.Records, q)
 		recidCount++
-		// rlib.Console("added: ASMID=%d, AmountDue=%.2f\n", q.ASMID.Int64, q.AmountDue.Float64)
 	}
 	return recidCount, nil
 }
