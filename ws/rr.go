@@ -708,8 +708,8 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 //       d - service data
 //
 // RETURNS
-//  int64 - recidCount, the recid to be used on the next record added
-//  error = any error encountered
+//   int64 - recidCount, the recid to be used on the next record added
+//   error - any error encountered
 //-----------------------------------------------------------------------------
 func getNoRIDNoAsmtRows(g *RRSearchResponse, recidoffset, queryOffset, limit int64, d *ServiceData) (int64, error) {
 	funcname := "getNoRIDNoAsmtRows"
