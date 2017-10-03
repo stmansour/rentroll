@@ -39,7 +39,8 @@ function buildRentRollElements() {
             {field: 'IsSubTotalRow',    caption: 'Is SubTotal Row',                           sortable: false, hidden: true},
             {field: 'IsBlankRow',       caption: 'Is Blank Row',                              sortable: false, hidden: true},
             {field: 'IsMainRow',        caption: 'Is Main Row',                               sortable: false, hidden: true},
-            {field: 'IsNoRIDRow',       caption: 'Is Non Rentable Row',                       sortable: false, hidden: true},
+            {field: 'IsNoRIDAsmtRow',   caption: 'Is Non Rentable Row',                       sortable: false, hidden: true},
+            {field: 'IsNoRIDNoAsmtRow', caption: 'Is Non Rentable and Non Assessment Row',    sortable: false, hidden: true},
             {field: 'recid',            caption: 'recid',                      size: '35px',  sortable: true, hidden: true},
             {field: 'BID',              caption: 'BID',                        size: '75px',  sortable: true, hidden: true},
             {field: 'RID',              caption: 'RID',                        size: '75px',  sortable: true, hidden: true},
@@ -115,8 +116,11 @@ function buildRentRollElements() {
                 if (!("_rt_offset" in g.last)) {
                     g.last._rt_offset = 0;
                 }
-                if (!("_no_rid_offset" in g.last)) {
-                    g.last._no_rid_offset = {};
+                if (!("_no_rid_asmt_offset" in g.last)) {
+                    g.last._no_rid_asmt_offset = {};
+                }
+                if (!("_no_rid_no_asmt_offset" in g.last)) {
+                    g.last._no_rid_no_asmt_offset = {};
                 }
                 if (data.records) {
                     for (var i = 0; i < data.records.length; i++) {
@@ -151,8 +155,11 @@ function buildRentRollElements() {
                         if (record.IsBlankRow) {
                             record.w2ui.class = "blankRow";
                         }
-                        if (record.IsNoRIDRow) {
-                            g.last._no_rid_offset++;
+                        if (record.IsNoRIDAsmtRow) {
+                            g.last._no_rid_asmt_offset++;
+                        }
+                        if (record.IsNoRIDNoAsmtRow) {
+                            g.last._no_rid_no_asmt_offset++;
                         }
                         g.refreshRow(data.records[i].recid); // redraw row
                     }
@@ -183,10 +190,12 @@ function buildRentRollElements() {
                 g.last._main_rows_offset = 0;
                 g._total_main_rows = 0;
                 g.last._rt_offset = 0;
-                g.last._no_rid_offset = 0;
+                g.last._no_rid_asmt_offset = 0;
+                g.last._no_rid_no_asmt_offset = 0;
             }
             event.postData.rentableOffset = g.last._rt_offset;
-            event.postData.noRIDOffset = g.last._no_rid_offset;
+            event.postData.noRIDAsmtOffset = g.last._no_rid_asmt_offset;
+            event.postData.noRIDNoAsmtOffset = g.last._no_rid_no_asmt_offset;
         },
         onClick: function(event) {
             event.onComplete = function () {
