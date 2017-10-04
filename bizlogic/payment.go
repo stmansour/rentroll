@@ -29,20 +29,25 @@ import (
 // it a rounding error and assume that it's 0.
 const ROUNDINGERR = float64(0.000999)
 
-// GetAllUnpaidAssessmentsForPayor determines all the Rental Agreements for which
-// the supplied Transactant is Payor at time dt, then returns a list of all unpaid
-// assessments associated with these Rental Agreements.
+// GetAllUnpaidAssessmentsForPayor determines all the Rental Agreements for
+// which the supplied Transactant is Payor at time dt, then returns a list
+// of all unpaid assessments associated with these Rental Agreements.
+//-----------------------------------------------------------------------------
 func GetAllUnpaidAssessmentsForPayor(bid, tcid int64, dt *time.Time) []rlib.Assessment {
 	var a []rlib.Assessment
 	m := rlib.GetRentalAgreementsByPayor(bid, tcid, dt) // Determine which Rental Agreements the Payor is responsible for...
-	for i := 0; i < len(m); i++ {                       // build the list of unpaid assessments
+	rlib.Console("GetAllUnpaidAssessmentsForPayor: date = %s, len(m) = %d\n", dt.Format(rlib.RRDATEFMTSQL), len(m))
+	for i := 0; i < len(m); i++ { // build the list of unpaid assessments
 		n := rlib.GetUnpaidAssessmentsByRAID(m[i].RAID) // the list is presorted by Start date ascending
+		rlib.Console("Unpaid assessment count for RA-%d: %d\n", m[i].RAID, len(n))
 		a = append(a, n...)
 	}
 	return a
 }
 
-// RemainingReceiptFunds returns the amount of funds left to be allocated on the supplied receipt
+// RemainingReceiptFunds returns the amount of funds left to be allocated on
+// the supplied receipt
+//-----------------------------------------------------------------------------
 func RemainingReceiptFunds(r *rlib.Receipt) float64 {
 	funcname := "RemainingReceiptFunds"
 	var xbiz1 rlib.XBusiness

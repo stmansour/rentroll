@@ -353,7 +353,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rentablesNoAsmtQuery := `
 	SELECT {{.SelectClause}} FROM ReceiptAllocation
 	LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RID={{.RID}} AND "{{.DtStart}}" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "{{.DtStop}}")
-	LEFT JOIN Receipt ON (RentalAgreementRentables.RAID > 0 AND RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0)
+	LEFT JOIN Receipt ON (RentalAgreementRentables.RAID > 0 AND RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0 AND "{{.DtStart}}" <= Receipt.Dt AND Receipt.Dt < "{{.DtStop}}")
 	INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}};`
@@ -494,7 +494,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rentablesNoAsmtQC["WhereClause"] = fmt.Sprintf("ReceiptAllocation.BID = %d AND ReceiptAllocation.RAID = RentalAgreementRentables.RAID", q.BID.Int64)
 		rentablesNoAsmtQC["RID"] = fmt.Sprintf("%d", q.RID)
 		rentablesNoAsmtQ := renderSQLQuery(rentablesNoAsmtQuery, rentablesNoAsmtQC)
-		// rlib.Console("RID: %d,  rentablesNoAsmtQ:  %s\n", q.RID, rentablesNoAsmtQ)
+		rlib.Console("\n\n************\n\nRID: %d,  rentablesNoAsmtQ:  %s\n\n**********\n\n", q.RID, rentablesNoAsmtQ)
 		rentablesNoAsmtRows, err := rlib.RRdb.Dbrr.Query(rentablesNoAsmtQ)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
@@ -687,7 +687,7 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 		"Assessments.Amount",
 		"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
 		"RentalAgreement.RAID",
-		"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
+		"CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payors",
 	}
 
 	//--------------------------------------------------

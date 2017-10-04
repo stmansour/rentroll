@@ -100,7 +100,7 @@ func GetRARBalance(bid, rid, raid int64, dt *time.Time) (float64, error) {
 //-----------------------------------------------------------------------------
 func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 	funcname := "GetRARAcctRange"
-	Console("Entered %s\n", funcname)
+	// Console("Entered %s\n", funcname)
 	bal := float64(0)
 
 	acctRules := ""
