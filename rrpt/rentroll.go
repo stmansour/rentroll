@@ -405,3 +405,104 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 	}
 	return tbl
 }
+
+// RRReportTable returns the new rentroll report for the given date range.
+//
+// The table rows are categorized by five types.
+// 1. Rentables Row
+//        Basically, it will include static and time base info.
+//        If it has more than one assessment then
+//        there will be separate child rows for that,
+//        including only amount related info.
+// 2. Rentables Row without Assessments
+//        Any Payment/Receipt which are associated with rentables
+//        but has no associated assessments
+//        For ex. vending machine
+// 3. Rentables with some special status code
+//        For ex. under maintainance, vacant, etc..
+// 4. All assessments which are not associated with any rentable
+//        For ex. 'Application Fee' on rental agreement
+// 5. All receipts which are not associated with any rentable nor with any assessment
+//        For ex. I don't know!!
+//
+// As of now, it uses services from ws package to load the data for the report
+func RRReportTable(ri *ReporterInfo) gotable.Table {
+	const funcname = "RRReportTable"
+	var (
+		err error
+		/*startDate        = ri.D1
+		stopDate         = ri.D2*/
+		tbl = getRRTable() // gotable init for this report
+		// totalErrs        = 0
+		// customAttrRTSqft = "Square Feet"
+	)
+	fmt.Printf("Entered in %s", funcname)
+
+	// init some values
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+	ri.BlankLineAfterRptName = true
+
+	// column numbers for gotable report
+	const (
+		RName     = 0
+		RType     = iota
+		SqFt      = iota
+		Descr     = iota
+		Users     = iota
+		Payors    = iota
+		RAgr      = iota
+		UsePeriod = iota
+		// UseStart     = iota
+		// UseStop      = iota
+		RentPeriod = iota
+		// RentStart    = iota
+		// RentStop     = iota
+		RAgrStart = iota
+		RAgrStop  = iota
+		RentCycle = iota
+		GSRRate   = iota
+		GSRAmt    = iota
+		IncOff    = iota
+		AmtDue    = iota
+		// ContractRent = iota
+		// OtherInc     = iota
+		PmtRcvd     = iota
+		BeginRcv    = iota
+		ChgRcv      = iota
+		EndRcv      = iota
+		BeginSecDep = iota
+		ChgSecDep   = iota
+		EndSecDep   = iota
+	)
+
+	// set table title, sections
+	err = TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return tbl
+	}
+
+	// Add columns to the table
+	tbl.AddColumn("Rentable", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // column for the Rentable name
+	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)              // RentableType name
+	tbl.AddColumn("SqFt", 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)                          // the Custom Attribute "Square Feet"
+	tbl.AddColumn("Users", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                      // Users of this rentable
+	tbl.AddColumn("Payors", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                     // Users of this rentable
+	tbl.AddColumn("Rental Agreement", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // the Rental Agreement id
+	tbl.AddColumn("Use Period", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                 // the use period
+	tbl.AddColumn("Rent Period", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)                  // the rent period
+	tbl.AddColumn("Rent Cycle", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                 // the rent cycle
+	tbl.AddColumn("GSR Rate", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                   // gross scheduled rent
+	tbl.AddColumn("Period GSR", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                 // gross scheduled rent
+	tbl.AddColumn(IncomeOffsetGLAccountName, 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)    // GL Account
+	tbl.AddColumn("Payments Applied", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)           // contract rent amounts
+	tbl.AddColumn("Beginning Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)          // account for the associated RentalAgreement
+	tbl.AddColumn("Beginning Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
+
+	return tbl
+}
