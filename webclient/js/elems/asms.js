@@ -170,7 +170,7 @@ function buildAssessmentElements() {
                         })
                         .fail( function() {
                             console.log('Error getting /v1/uival/' + x.value + '/app.AssessmentRules');
-                         });
+                        });
                     };
 
                     // warn user if form content has been changed
@@ -388,6 +388,24 @@ function buildAssessmentElements() {
                     header = "Edit Assessment ({0})";
 
                 formRefreshCallBack(f, "ASMID", header);
+
+                var x = getCurrentBusiness();
+                var Bid = x.value;
+                var Bud = getBUDfromBID(Bid);
+                $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
+                .done( function(data) {
+                    if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+                        app.AssessmentRules = JSON.parse(data);
+                        f.get('ARID').options.items = app.AssessmentRules[Bud];
+                        //f.refresh();
+                    }
+                    if (data.status != 'success') {
+                        console.log(data.message);
+                    }
+                } )
+                .fail( function() {
+                        console.log('Error getting /v1/uival/' + x.value + '/app.AssessmentRules');
+                } );
 
                 // ===========================
                 // SPECIAL CASE

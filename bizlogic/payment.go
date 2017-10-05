@@ -7,26 +7,29 @@ import (
 )
 
 // Receipts are allocated as follows:
-// 1. Produce a list of Payors who have 1 or more Receipts that are not fully allocated
+// 1. Produce a list of Payors who have 1 or more Receipts that are not
+//    fully allocated
 // 2. Select a Payor to handle
-// 3. Produce a list of all unpaid assessments for which the Payor is responsible
-// 4. Get the total amount of unallocated funds that can be applied to these assessments
+// 3. Produce a list of all unpaid assessments for which the Payor is
+//    responsible
+// 4. Get the total amount of unallocated funds that can be applied to
+//    these assessments
 // 5. Apply the total amount towards paying off one of the assessments:
 // 6. For each assessment:
 //        * apply all or part of it to pay an assessment
 //        * update the assessment if it is fully or partially paid off
 //        * update the receipts used as either fully or partially allocated
-// 7. Repeat step 5 until either all funds have been allocated or until there are
-//    no more assessments
-// 8. Any left over funds will be left available in the Unallocated Funds account to
-//    use when more assessments are made.
+// 7. Repeat step 5 until either all funds have been allocated or until
+//    there are no more assessments
+// 8. Any left over funds will be left available in the Unallocated Funds
+//    account to use when more assessments are made.
 //
 // The routines in this file help perform some of these tasks.
 
-// ROUNDINGERR may not be necessary, but if division becomes a part of the floating
-// point calculations below, it is likely that subtracting things that should result
-// in zero will not be exactly zero.  So, if the error is less than $0.001 we just call
-// it a rounding error and assume that it's 0.
+// ROUNDINGERR may not be necessary, but if division becomes a part of the
+// floating point calculations below, it is likely that subtracting things
+// that should result in zero will not be exactly zero.  So, if the error is
+// less than $0.001 we just call it a rounding error and assume that it's 0.
 const ROUNDINGERR = float64(0.000999)
 
 // GetAllUnpaidAssessmentsForPayor determines all the Rental Agreements for
@@ -111,18 +114,25 @@ func AssessmentUnpaidPortion(a *rlib.Assessment) float64 {
 	return float64(0)
 }
 
-// PayAssessment handles paying an assessment, or as much as possible of the assessment
+// PayAssessment handles paying an assessment, or as much as possible of
+// the assessment
+//
 // @params
 //  a      - the assessment being paid
-//  rcpt   - the receipt from which funds will be taken to pay the assessment
-//  needed - the amount needed to fully pay the assessment.  Its value on return is set to
-//           the amount still needed to pay off the assessment.
+//  rcpt   - the receipt from which funds will be taken to pay the
+//           assessment
+//  needed - the amount needed to fully pay the assessment.  Its value on
+//           return is set to the amount still needed to pay off the
+//           assessment.
 //  amt    - pointer to the amount to apply toward the assessment.
-//           This amount may be less than what is needed -- the remaining funds on a receipt may not
-//           always be enough to cover the assessment.  If the supplied receipt has enough funds to
-//           cover *amt, then upon return *amt will be 0.00.  If there were not enough funds, *amt will
-//           contain the amount still needed to be paid by another receipt.
+//           This amount may be less than what is needed -- the remaining
+//           funds on a receipt may not always be enough to cover the
+//           assessment.  If the supplied receipt has enough funds to cover
+//           *amt, then upon return *amt will be 0.00.  If there were not
+//           enough funds, *amt will contain the amount still needed to be
+//           paid by another receipt.
 //  dt     - timestamp to mark on the allocation for this payment
+//--------------------------------------------------------------------------
 func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt *float64, dt *time.Time) error {
 	funcname := "PayAssessment"
 
@@ -283,12 +293,17 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	return nil
 }
 
-// AutoAllocatePayorReceipts applies the amount of the supplied receipt to allocate
-// payments to all unpaid based assessments for which the payor is
+// AutoAllocatePayorReceipts applies the amount of the supplied receipt to
+// allocate payments to all unpaid based assessments for which the payor is
 // responsible.
+//
 // @params:
 //	tcid = TCID of payor
 //  dt   = date to be used for allocations
+//
+// @returns
+//  any error encountered
+//--------------------------------------------------------------------------
 func AutoAllocatePayorReceipts(tcid int64, dt *time.Time) error {
 	funcname := "AutoAllocatePayorReceipts"
 	rlib.Console("Entered %s\n", funcname)

@@ -154,6 +154,7 @@ var rentablesQueryClause = queryClauses{
 // ------- Rentables Assessments Query components -------
 
 var rentablesAsmtFields = []string{
+	"Assessments.RAID",
 	"AR.Name as Description",
 	"Assessments.Amount as AmountDue",
 	"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
@@ -508,12 +509,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if childCount == 0 {
 				nq = q
 			}
-			err = rentablesAsmtRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
+			err = rentablesAsmtRows.Scan(&nq.RAID, &nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
-			if nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
+			if nq.RAID.Valid || nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &recidCount, &nq)
 				updateSubTotals(&sub, &nq)
 			}
