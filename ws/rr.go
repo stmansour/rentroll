@@ -114,6 +114,7 @@ var rrGridSelectFields = []string{
 }
 
 var rentablesAsmtFields = []string{
+	"Assessments.RAID",
 	"AR.Name as Description",
 	"Assessments.Amount as AmountDue",
 	"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
@@ -336,7 +337,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rentablesAsmtQC := queryClauses{
 		"SelectClause": strings.Join(rentablesAsmtFields, ","),
-		"OrderClause":  "Assessments.Amount DESC",
+		"OrderClause":  "Assessments.RAID ASC,Assessments.Amount DESC",
 		"WhereClause":  "", // later we'll evaluate it
 		"DtStart":      DtStartStr,
 		"DtStop":       DtStopStr,
@@ -460,7 +461,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//================================================================
 		rentablesAsmtQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID.Int64, q.RID)
 		rentablesAsmtQ := renderSQLQuery(rentablesAsmtQuery, rentablesAsmtQC) // get formatted query with substitution of select, where, order clause
-		// rlib.Console("RID: %d,  rentablesAsmtQ:  %s\n", q.RID, rentablesAsmtQ)
+		rlib.Console("RID: %d,  rentablesAsmtQ:  %s\n", q.RID, rentablesAsmtQ)
 		rentablesAsmtRows, err := rlib.RRdb.Dbrr.Query(rentablesAsmtQ)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
@@ -477,12 +478,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if childCount == 0 {
 				nq = q
 			}
-			err = rentablesAsmtRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
+			err = rentablesAsmtRows.Scan(&nq.RAID, &nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
-			if nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
+			if nq.RAID.Valid || nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &recidCount, &nq)
 				updateSubTotals(&sub, &nq)
 			}
@@ -494,7 +495,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rentablesNoAsmtQC["WhereClause"] = fmt.Sprintf("ReceiptAllocation.BID = %d AND ReceiptAllocation.RAID = RentalAgreementRentables.RAID", q.BID.Int64)
 		rentablesNoAsmtQC["RID"] = fmt.Sprintf("%d", q.RID)
 		rentablesNoAsmtQ := renderSQLQuery(rentablesNoAsmtQuery, rentablesNoAsmtQC)
-		rlib.Console("\n\n************\n\nRID: %d,  rentablesNoAsmtQ:  %s\n\n**********\n\n", q.RID, rentablesNoAsmtQ)
+		rlib.Console("\n\n************\n\nRID: %d,  rentablesNoAsmtQ:  %s\n", q.RID, rentablesNoAsmtQ)
 		rentablesNoAsmtRows, err := rlib.RRdb.Dbrr.Query(rentablesNoAsmtQ)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
