@@ -15,7 +15,7 @@ import (
 // Statements grid.
 type RRGrid struct {
 	Recid            int64           `json:"recid"` // this is to support the w2ui form
-	BID              rlib.NullInt64  // Business (so that we can process by Business)
+	BID              int64           // Business (so that we can process by Business)
 	RID              int64           // The rentable
 	RTID             int64           // The rentable type
 	RARID            rlib.NullInt64  // rental agreement rentable id
