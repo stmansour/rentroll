@@ -446,10 +446,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// load record info into q and fill out what time-based we can...
 		//------------------------------------------------------------------
 		var q = RRGrid{IsMainRow: true, IsRentableRow: true}
-		if err = q.BID.Scan(d.BID); err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
 		if err = rrRentablesRowScan(rentablesRows, &q); err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -475,7 +471,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------------------
 		// There may be multiple rows for the ASSESSMENTS query and
 		// the NO-ASSESSMENTS query. Hold each row RRGrid in slice
-		// Also, compute sobtotals as we go
+		// Also, compute subtotals as we go
 		//------------------------------------------------------------
 		d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 		subList := []RRGrid{}
@@ -584,13 +580,13 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//----------------------------------------
 		// Add the Security Deposit totals...
 		//----------------------------------------
-		sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID.Int64, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
+		sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 		sub.BeginningSecDep.Valid = true
-		sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID.Int64, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+		sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
