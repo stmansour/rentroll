@@ -564,8 +564,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			addToSubList(&subList, &childCount, &recidCount, &q)
 		}
 
-		g.Records = append(g.Records, subList...) // update response record list
-
 		//----------------------------------------
 		// Add the Rentable receivables totals...
 		//----------------------------------------
@@ -595,8 +593,10 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
 		sub.EndingSecDep.Valid = true
 
-		addToSubList(&g.Records, &childCount, &recidCount, &sub)
-		addToSubList(&g.Records, &childCount, &recidCount, &RRGrid{IsBlankRow: true}) // add new blank before the next rentable
+		addToSubList(&subList, &childCount, &recidCount, &sub)
+		addToSubList(&subList, &childCount, &recidCount, &RRGrid{IsBlankRow: true}) // add new blank before the next rentable
+
+		g.Records = append(g.Records, subList...) // update response record list
 
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
