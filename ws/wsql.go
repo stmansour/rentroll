@@ -72,6 +72,14 @@ import (
 // queryClauses normally holds select, where, order clauses
 type queryClauses map[string]string
 
+func getQueryClauseCopy(qc queryClauses) queryClauses {
+	nQC := make(queryClauses, len(qc))
+	for k, v := range qc {
+		nQC[k] = v
+	}
+	return nQC
+}
+
 // selectQueryFields holds the list of fields, used to get those from sql select query
 type selectQueryFields []string
 
