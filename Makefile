@@ -1,4 +1,4 @@
-DIRS = db rlib rrpt rcsv worker ws bizlogic admin importers webclient tools test
+DIRS = db rlib rrpt rcsv worker bizlogic ws admin importers webclient tools test
 TOP = .
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
