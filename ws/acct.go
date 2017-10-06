@@ -637,11 +637,11 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// VALIDATION 2
 		//-------------------------------------------------------------------
 		existQuery := `SELECT LID FROM GLAccount WHERE {{.WhereClause}};`
-		qc := queryClauses{
+		qc := rlib.QueryClause{
 			"WhereClause": fmt.Sprintf("Name=\"%s\" OR GLNumber=\"%s\"",
 				strings.ToLower(a.Name), strings.ToLower(a.GLNumber)),
 		}
-		q := renderSQLQuery(existQuery, qc)
+		q := rlib.RenderSQLQuery(existQuery, qc)
 		fmt.Printf("db query = %s\n", q)
 		rows, err := rlib.RRdb.Dbrr.Query(q)
 		defer rows.Close()
@@ -692,7 +692,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
-var getAcctQuerySelectFields = selectQueryFields{
+var getAcctQuerySelectFields = rlib.SelectQueryFields{
 	"GLAccount.LID",
 	"GLAccount.PLID",
 	"GLAccount.RAID",
@@ -739,14 +739,14 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}};`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(getAcctQuerySelectFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
 	// get formatted query with substitution of select, where, order clause
-	q := renderSQLQuery(glQuery, qc)
+	q := rlib.RenderSQLQuery(glQuery, qc)
 	fmt.Printf("db query = %s\n", q)
 
 	// execute the query

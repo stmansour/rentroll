@@ -1,3 +1,7 @@
+GetRARAcctRange: err = GetRARAcctRange: there are no accounts of type Accounts Receivable
+
+GetRARAcctRange: err = GetRARAcctRange: there are no accounts of type Accounts Receivable
+
 REX Rentroll
 Feb 1, 2017 - Mar 1, 2017
 BH Rexford Group, Inc.
@@ -6,12 +10,10 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                                                                                                         Rental      Rental                                                                                                                               Beginning   Change In      Ending
-                         Square                                              Rental                              Rental      Rental      Agreement   Agreement                             GSR This      Income    Contract       Other    Payments   Beginning   Change In      Ending    Security    Security    Security
-Rentable  Rentable Type    Feet  Rentable Users             Rentable Payors  Agreement   Use Start   Use Stop    Start       Stop        Start       Stop        Rent Cycle    GSR Rate      Period     Offsets        Rent      Income    Received  Receivable  Receivable  Receivable     Deposit     Deposit     Deposit
---------  -------------  ------  -------------------------  ---------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
-6303-231  A2                  0  Joshua Jones,Joshua Jones  ABC Corporation  RA00000001  02/01/2017  07/01/2017  02/01/2017  07/01/2017  02/01/2017  07/01/2017  monthly       1,000.00    1,000.00        0.00    1,000.00        0.00    1,000.00        0.00   -1,000.00   -1,000.00        0.00        0.00        0.00
-                                                                                                                                                                                                                                                                                                                           
-6323-301  A1                  0  Amanda Smith,Amanda Smith  ABC Corporation  RA00000002  02/01/2017  07/01/2017  02/01/2017  07/01/2017  02/01/2017  07/01/2017  monthly       1,000.00    1,000.00        0.00    1,000.00        0.00        0.00        0.00    1,000.00    1,000.00        0.00        0.00        0.00
---------  -------------  ------  -------------------------  ---------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
-                                                                                                                                                                                           2,000.00        0.00    2,000.00        0.00    1,000.00        0.00        0.00        0.00        0.00        0.00        0.00
+Error in SecDepRules: There are no accounts of type Liability Security Deposit where BID = 1
+                                                                                                                                                                                                                                                                               Beginning   Change In      Ending
+                                                                                                                                    Rental                    Rent                                                    Income    Payments   Beginning   Change In      Ending    Security    Security    Security
+Rentable              Rentable Type     SqFt  Description           Users                           Payors                          Agreement   Use Period    Period        Rent Cycle      GSR Rate  Period GSR     Offsets     Applied  Receivable  Receivable  Receivable     Deposit     Deposit     Deposit
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  ------------  ------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+6303-231              2BR2BA                                        Joshua Jones                    ABC Corporation                 RA-1        2/1/2017<br>  2/1/2017<br>                               Monthly     1000.00        0.00        0.00     1000.00     1000.00        0.00        0.00        0.00
+                                                                                                                                                - 7/1/2017    - 7/1/2017                                                                                                                                        

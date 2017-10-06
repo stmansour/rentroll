@@ -136,9 +136,7 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 
 	totalsRSet := tbl.CreateRowset() // a rowset to sum for totals
 
-	// fmt.Printf("ON WITH THE LOOPS...\n")
 	for rows.Next() {
-		// fmt.Printf("LOOP 1\n")
 		var p rlib.Rentable
 		rlib.Errcheck(rlib.ReadRentables(rows, &p))
 		p.RT = rlib.GetRentableTypeRefsByRange(p.RID, d1, d2) // its RentableType is time sensitive
@@ -168,7 +166,6 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 		//------------------------------------------------------------------------------
 		rra := rlib.GetAgreementsForRentable(p.RID, d1, d2) // get all rental agreements for this period
 		for i := 0; i < len(rra); i++ {                     // for each rental agreement id
-			// fmt.Printf("LOOP 2\n")
 			ra, err := rlib.GetRentalAgreement(rra[i].RAID) // load the agreement
 			if err != nil {
 				totalErrs++

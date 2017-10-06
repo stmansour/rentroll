@@ -309,17 +309,17 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
 
 	// will be substituted as query clauses
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(transactantSelectFields, ","),
 		"WhereClause":  srch,
 		"OrderClause":  order,
 	}
 
 	// GET TOTAL COUNTS of query
-	countQuery := renderSQLQuery(transactantsQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc) // total number of rows that match the criteria
+	countQuery := rlib.RenderSQLQuery(transactantsQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc) // total number of rows that match the criteria
 	if err != nil {
-		fmt.Printf("Error from GetQueryCount: %s\n", err.Error())
+		fmt.Printf("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -340,7 +340,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(transactantsQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(transactantsQueryWithLimit, qc)
 	fmt.Printf("db query = %s\n", qry)
 
 	// execute the query

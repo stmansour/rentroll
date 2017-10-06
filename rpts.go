@@ -94,7 +94,7 @@ func RptLedgerActivity(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusin
 func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
-		tbl := rrpt.RentRollReportTable(&ri)
+		tbl := rrpt.RRReportTable(&ri)
 
 		tout, err := tbl.SprintTable()
 		if err != nil {

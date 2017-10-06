@@ -6,23 +6,15 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"strconv"
-	"strings"
+	"rentroll/rrpt"
 	"time"
 )
-
-// LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND Assessments.Start>="{{.DtStart}}" AND Assessments.Stop<"{{.DtStop}}" AND (Assessments.RentCycle=0 OR (Assessments.RentCycle>0 AND Assessments.PASMID!=0)))
-// LEFT JOIN AR ON (Assessments.ARID=AR.ARID)
-// "ASMID":           {"Assessments.ASMID"},
-// "Description":     {"AR.Name"},
-// "Assessments.ASMID",
-// "AR.Name as Description",
 
 // RRGrid is a structure specifically for the Web Services interface to build a
 // Statements grid.
 type RRGrid struct {
 	Recid            int64           `json:"recid"` // this is to support the w2ui form
-	BID              rlib.NullInt64  // Business (so that we can process by Business)
+	BID              int64           // Business (so that we can process by Business)
 	RID              int64           // The rentable
 	RTID             int64           // The rentable type
 	RARID            rlib.NullInt64  // rental agreement rentable id
@@ -72,70 +64,6 @@ type RRSearchResponse struct {
 	TotalMainRows int64    `json:"total_main_rows"`
 }
 
-// rrGridFieldsMap holds the map of field (to be shown on grid)
-// to actual database fields, multiple db fields means combine those
-var rrGridFieldsMap = map[string][]string{
-	"BID":             {"Rentable.BID"},                   // Rentable
-	"RID":             {"Rentable.RID"},                   // Rentable
-	"RentableName":    {"Rentable.RentableName"},          // Rentable
-	"RTID":            {"RentableTypeRef.RTID"},           // RentableTypeRef
-	"RentableType":    {"RentableTypes.Name"},             // RentableTypes
-	"RentCycle":       {"RentableTypes.RentCycle"},        // Rent Cycle
-	"RARID":           {"RentalAgreementRentables.RARID"}, // RentalAgreementRentables
-	"RAID":            {"RentableMarketRate.MarketRate"},  // GSR
-	"MarketRate":      {"RentalAgreementRentables.RAID"},  // RentalAgreementRentables
-	"Status":          {"RentableStatus.Status"},          // unit status
-	"Payors":          {"Payor.FirstName", "Payor.LastName", "Payor.CompanyName"},
-	"Users":           {"User.FirstName", "User.LastName", "User.CompanyName"},
-	"PossessionStart": {"RentalAgreement.PossessionStart"},
-	"PossessionStop":  {"RentalAgreement.PossessionStop"},
-	"RentStart":       {"RentalAgreement.RentStart"},
-	"RentStop":        {"RentalAgreement.RentStop"},
-}
-
-// which fields needs to be fetched for SQL query
-var rrGridSelectFields = []string{
-	"Rentable.BID",
-	"Rentable.RID",
-	"Rentable.RentableName",
-	"RentableTypeRef.RTID",
-	"RentableTypes.Name as RentableType",
-	"RentableTypes.RentCycle",
-	"RentableMarketRate.MarketRate as MarketRate",
-	"RentalAgreementRentables.RARID",
-	"RentalAgreementRentables.RAID as RAID",
-	"RentalAgreement.PossessionStart",
-	"RentalAgreement.PossessionStop",
-	"RentalAgreement.RentStart",
-	"RentalAgreement.RentStop",
-	"RentableStatus.Status",
-	"GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END SEPARATOR ', ') AS Payors",
-	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END SEPARATOR ', ') AS Users",
-}
-
-var rentablesAsmtFields = []string{
-	"Assessments.RAID",
-
-	// *** updates *****
-	// VVVVVVVVVVVVVVVVV
-	"RentalAgreement.PossessionStart",
-	"RentalAgreement.PossessionStop",
-	"RentalAgreement.RentStart",
-	"RentalAgreement.RentStop",
-	// ^^^^^^^^^^^^^^^^^
-	// *** updates *****
-
-	"AR.Name as Description",
-	"Assessments.Amount as AmountDue",
-	"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
-}
-
-// rrRowScan scans a result from sql row and dump it in a RRGrid struct
-func rrRowScan(rows *sql.Rows, q *RRGrid) error {
-	return rows.Scan(&q.BID, &q.RID, &q.RentableName, &q.RTID, &q.RentableType, &q.RentCycle, &q.GSR, &q.RARID, &q.RAID,
-		&q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Status, &q.Payors, &q.Users)
-}
-
 // RRRequeestData - struct for request data for parent-child fashioned rentroll report view
 type RRRequeestData struct {
 	RentableOffset    int `json:"rentableOffset"`
@@ -143,148 +71,27 @@ type RRRequeestData struct {
 	NoRIDNoAsmtOffset int `json:"noRIDNoAsmtOffset"`
 }
 
-// getRRTotal returns the total of individual total of sections covered by rentroll report
-func getRRTotal(BID int64, rentablesQuery string, rentablesQC queryClauses) (
-	rentablesCount int64,
-	rentablesAsmtCount int64,
-	rentablesNoAsmtCount int64,
-	noRIDAsmtCount int64,
-	noRIDNoAsmtCount int64,
-	err error,
-) {
-	var (
-		funcname = "getRRTotal"
-	)
-	fmt.Printf("Entered %s\n", funcname)
-
-	// ------------------------
-	// Get All Rentables Total
-	// ------------------------
-	rentablesCountQuery := renderSQLQuery(rentablesQuery, rentablesQC)
-	rentablesCount, err = GetQueryCount(rentablesCountQuery, rentablesQC)
-	if err != nil {
-		rlib.Console("Error from rentablesCountQuery: %s\n", err.Error())
-		return
-	}
-	rlib.Console("rentablesCount = %d\n", rentablesCount)
-
-	// ---------------------------------------------------
-	// Get All Assessments Total associated with Rentables
-	// ---------------------------------------------------
-	totalRentablesAsmtQuery := `
-	SELECT COUNT(*)
-	FROM Rentable
-	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
-	WHERE {{.WhereClause}};`
-
-	totalRentablesAsmtQC := queryClauses{
-		"WhereClause": fmt.Sprintf("Rentable.BID=%d", BID), // later we'll evaluate it
-		"DtStart":     rentablesQC["DtStart"],
-		"DtStop":      rentablesQC["DtStop"],
-	}
-
-	rentablesAsmtCountQ := renderSQLQuery(totalRentablesAsmtQuery, totalRentablesAsmtQC)
-	// rlib.Console("rentablesAsmtCountQ db query = %s\n", rentablesAsmtCountQ)
-	err = rlib.RRdb.Dbrr.QueryRow(rentablesAsmtCountQ).Scan(&rentablesAsmtCount)
-	if err != nil {
-		rlib.Console("Error from rentablesAsmtCountQ: %s\n", err.Error())
-		return
-	}
-	rlib.Console("rentablesAsmtCount = %d\n", rentablesAsmtCount)
-
-	// ----------------------------------------------------------------------
-	// Get All Payments associated with Rentables but not with any assessment
-	// ----------------------------------------------------------------------
-	totalRentablesNoAsmtQuery := `
-	SELECT COUNT(*) FROM ReceiptAllocation
-	LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RAID=ReceiptAllocation.RAID AND "{{.DtStart}}" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "{{.DtStop}}")
-	LEFT JOIN Rentable ON (Rentable.RID = RentalAgreementRentables.RID)
-	LEFT JOIN Receipt ON (RentalAgreementRentables.RAID > 0 AND RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0)
-	INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
-	WHERE {{.WhereClause}};`
-
-	totalRentablesNoAsmtQC := queryClauses{
-		"WhereClause": fmt.Sprintf("Rentable.BID=%d", BID), // later we'll evaluate it
-		"DtStart":     rentablesQC["DtStart"],
-		"DtStop":      rentablesQC["DtStop"],
-	}
-
-	rentablesNoAsmtCountQ := renderSQLQuery(totalRentablesNoAsmtQuery, totalRentablesNoAsmtQC)
-	// rlib.Console("rentablesNoAsmtCountQ db query = %s\n", rentablesNoAsmtCountQ)
-	err = rlib.RRdb.Dbrr.QueryRow(rentablesNoAsmtCountQ).Scan(&rentablesNoAsmtCount)
-	if err != nil {
-		rlib.Console("Error from rentablesNoAsmtCountQ: %s\n", err.Error())
-		return
-	}
-	rlib.Console("rentablesNoAsmtCount = %d\n", rentablesNoAsmtCount)
-
-	// ---------------------------------------------------------------------
-	// Get All Assessments Total which are NOT associated with ANY Rentables
-	// ---------------------------------------------------------------------
-	totalnoRIDAsmtQuery := `
-	SELECT COUNT(*)
-	FROM Assessments
-	WHERE {{.WhereClause}};`
-
-	totalnoRIDAsmtQC := queryClauses{
-		"WhereClause": fmt.Sprintf(`Assessments.BID=%d AND Assessments.RID=0 AND Assessments.FLAGS&4=0 AND %q <= Start AND Stop < %q AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0))`,
-			BID, rentablesQC["DtStart"], rentablesQC["DtStop"]),
-	}
-
-	totalnoRIDAsmtCountQ := renderSQLQuery(totalnoRIDAsmtQuery, totalnoRIDAsmtQC)
-	// rlib.Console("totalnoRIDAsmtCountQ db query = %s\n", totalnoRIDAsmtCountQ)
-	err = rlib.RRdb.Dbrr.QueryRow(totalnoRIDAsmtCountQ).Scan(&noRIDAsmtCount)
-	if err != nil {
-		rlib.Console("Error from totalnoRIDAsmtCountQ: %s\n", err.Error())
-		return
-	}
-	rlib.Console("noRIDAsmtCount = %d\n", noRIDAsmtCount)
-
-	// ------------------------------------------------------------------------
-	// Get All Payments which are not associated with any Assessement/Rentables
-	// ------------------------------------------------------------------------
-	totalnoRIDNoAsmtQuery := `
-	SELECT COUNT(*)
-	FROM ReceiptAllocation
-	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RAID=ReceiptAllocation.RAID
-	INNER JOIN Receipt ON (Receipt.RCPTID = ReceiptAllocation.RCPTID)
-	INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS = 5)
-	INNER JOIN Transactant ON (Transactant.TCID = Receipt.TCID)
-	WHERE {{.WhereClause}};`
-
-	totalnoRIDNoAsmtQC := queryClauses{
-		"WhereClause": fmt.Sprintf("ReceiptAllocation.BID=%d AND ReceiptAllocation.ASMID=0 AND ReceiptAllocation.RAID>0 AND %q <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < %q AND RentalAgreementRentables.RID is NULL",
-			BID, rentablesQC["DtStart"], rentablesQC["DtStop"]),
-	}
-
-	totalnoRIDNoAsmtCountQ := renderSQLQuery(totalnoRIDNoAsmtQuery, totalnoRIDNoAsmtQC)
-	// rlib.Console("totalnoRIDNoAsmtCountQ db query = %s\n", totalnoRIDNoAsmtCountQ)
-	err = rlib.RRdb.Dbrr.QueryRow(totalnoRIDNoAsmtCountQ).Scan(&noRIDNoAsmtCount)
-	if err != nil {
-		rlib.Console("Error from totalnoRIDNoAsmtCountQ: %s\n", err.Error())
-		return
-	}
-	rlib.Console("noRIDNoAsmtCount = %d\n", noRIDNoAsmtCount)
-
-	return
+// rrRentablesRowScan scans a result from sql row and dump it in a RRGrid struct
+func rrRentablesRowScan(rows *sql.Rows, q *RRGrid) error {
+	return rows.Scan(&q.BID, &q.RID, &q.RentableName, &q.RTID, &q.RentableType, &q.RentCycle, &q.GSR, &q.RARID, &q.RAID,
+		&q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Status, &q.Payors, &q.Users)
 }
 
 // SvcRR is the response data for a RR Grid search - The Rent Roll View
-//=============================================================================
 func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
-		funcname    = "SvcRR"
-		err         error
-		reqData     RRRequeestData
-		g           RRSearchResponse
-		xbiz        rlib.XBusiness
-		custom      = "Square Feet"
-		limitClause = d.wsSearchReq.Limit
-		DtStartStr  = d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL)
-		DtStopStr   = d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL)
+		funcname = "SvcRR"
+		err      error
+		reqData  RRRequeestData
+		g        RRSearchResponse
+		xbiz     rlib.XBusiness
+		custom   = "Square Feet"
+		limit    = d.wsSearchReq.Limit
+		startDt  = d.wsSearchReq.SearchDtStart
+		stopDt   = d.wsSearchReq.SearchDtStop
 	)
-	if limitClause == 0 {
-		limitClause = 20
+	if limit == 0 {
+		limit = 20
 	}
 	rlib.Console("Entered %s\n", funcname)
 	if err = json.Unmarshal([]byte(d.data), &reqData); err != nil {
@@ -295,104 +102,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.InitBizInternals(d.BID, &xbiz) // init some business internals first
 
 	//===========================================================
-	// RENTABLES QUERY
-	//===========================================================
-	rentablesQSrch := fmt.Sprintf("Rentable.BID=%d", d.BID)                       // default WHERE clause
-	rentablesQOrder := "Rentable.RentableName ASC "                               // default rentablesQOrder
-	whereClause, rentablesQOrderClause := GetSearchAndSortSQL(d, rrGridFieldsMap) // establish the rentablesQOrder to use in the query
-	if len(whereClause) > 0 {
-		rentablesQSrch += " AND (" + whereClause + ")"
-	}
-	if len(rentablesQOrderClause) > 0 {
-		rentablesQOrder = rentablesQOrderClause
-	}
-
-	rentablesQuery := `
-	SELECT DISTINCT {{.SelectClause}}
-	FROM Rentable
-	LEFT JOIN RentableTypeRef ON RentableTypeRef.RID=Rentable.RID
-	LEFT JOIN RentableTypes ON RentableTypes.RTID=RentableTypeRef.RTID
-	LEFT JOIN RentableMarketRate ON (RentableMarketRate.RTID=RentableTypeRef.RTID AND RentableMarketRate.DtStart<"{{.DtStop}}" AND RentableMarketRate.DtStop>"{{.DtStart}}")
-	LEFT JOIN RentableStatus ON (RentableStatus.RID=Rentable.RID AND RentableStatus.DtStart<"{{.DtStop}}" AND RentableStatus.DtStop>"{{.DtStart}}")
-	LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RID=Rentable.RID AND RentalAgreementRentables.RARDtStart<"{{.DtStop}}" AND RentalAgreementRentables.RARDtStop>"{{.DtStart}}")
-	LEFT JOIN RentalAgreement ON (RentalAgreement.RAID=RentalAgreementRentables.RAID)
-	LEFT JOIN RentalAgreementPayors ON (RentalAgreementRentables.RAID=RentalAgreementPayors.RAID AND RentalAgreementPayors.DtStart<"{{.DtStop}}" AND RentalAgreementPayors.DtStop>"{{.DtStart}}")
-	LEFT JOIN Transactant as Payor ON (Payor.TCID=RentalAgreementPayors.TCID AND Payor.BID=Rentable.BID)
-	LEFT JOIN RentableUsers ON (RentableUsers.RID=Rentable.RID AND RentableUsers.DtStart<"{{.DtStop}}" AND RentableUsers.DtStop>"{{.DtStart}}")
-	LEFT JOIN Transactant as User ON (RentableUsers.TCID=User.TCID AND User.BID=Rentable.BID)
-	WHERE {{.WhereClause}}
-	GROUP BY Rentable.RID
-	ORDER BY {{.OrderClause}}`
-
-	rentablesQC := queryClauses{
-		"SelectClause": strings.Join(rrGridSelectFields, ","),
-		"WhereClause":  rentablesQSrch,
-		"OrderClause":  rentablesQOrder,
-		"DtStart":      DtStartStr,
-		"DtStop":       DtStopStr,
-	}
-
-	//===========================================================
-	// ASSESSMENT QUERY
-	//===========================================================
-	rentablesAsmtQuery := `
-	SELECT {{.SelectClause}}
-	FROM Rentable
-	LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
-	LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
-	LEFT JOIN RentalAgreement on (RentalAgreement.RAID=Assessments.RAID)
-	LEFT JOIN AR ON (AR.ARID=Assessments.ARID)
-	WHERE {{.WhereClause}}
-	GROUP BY Assessments.ASMID
-	ORDER BY {{.OrderClause}};`
-
-	rentablesAsmtQC := queryClauses{
-		"SelectClause": strings.Join(rentablesAsmtFields, ","),
-		"OrderClause":  "Assessments.RAID ASC,Assessments.Amount DESC",
-		"WhereClause":  "", // later we'll evaluate it
-		"DtStart":      DtStartStr,
-		"DtStop":       DtStopStr,
-	}
-
-	//===========================================================
-	// NO-ASSESSMENT QUERY
-	//===========================================================
-	var rentablesNoAsmtFields = []string{
-		"AR.Name as Description",
-		"ReceiptAllocation.RAID as RAID",
-
-		// *** updates *****
-		// VVVVVVVVVVVVVVVVV
-		"RentalAgreement.PossessionStart",
-		"RentalAgreement.PossessionStop",
-		"RentalAgreement.RentStart",
-		"RentalAgreement.RentStop",
-		// ^^^^^^^^^^^^^^^^^
-		// *** updates *****
-
-		"ReceiptAllocation.Amount as PaymentsApplied",
-	}
-	rentablesNoAsmtQuery := `
-	SELECT {{.SelectClause}} FROM ReceiptAllocation
-	LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RID={{.RID}} AND "{{.DtStart}}" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "{{.DtStop}}")
-	LEFT JOIN Receipt ON (RentalAgreementRentables.RAID > 0 AND RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0 AND "{{.DtStart}}" <= Receipt.Dt AND Receipt.Dt < "{{.DtStop}}")
-	LEFT JOIN RentalAgreement ON (ReceiptAllocation.RAID=RentalAgreement.RAID)
-	INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
-	WHERE {{.WhereClause}}
-	ORDER BY {{.OrderClause}};`
-
-	rentablesNoAsmtQC := queryClauses{
-		"SelectClause": strings.Join(rentablesNoAsmtFields, ","),
-		"WhereClause":  "", // dynamic; evaluated below
-		"OrderClause":  "ReceiptAllocation.Amount DESC",
-		"DtStart":      DtStartStr,
-		"DtStop":       DtStopStr,
-	}
-
-	//===========================================================
 	// TOTAL RECORDS COUNT
 	//===========================================================
-	rentablesCount, rentablesAsmtCount, rentablesNoAsmtCount, noRIDAsmtCount, noRIDNoAsmtCount, err := getRRTotal(d.BID, rentablesQuery, rentablesQC)
+	rentablesCount, rentablesAsmtCount, rentablesNoAsmtCount, noRIDAsmtCount, noRIDNoAsmtCount, err :=
+		getRRTotal(d.BID, startDt, stopDt)
+
 	if err != nil {
 		rlib.Console("Error from getRRTotal routine: %s", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
@@ -410,23 +124,21 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Total += noRIDNoAsmtCount                                            // addition of count of rows which aren't associated with any asmt/rentables
 	g.TotalMainRows = (rentablesCount + noRIDAsmtCount + noRIDNoAsmtCount) // main rows count
 
-	//===========================================================
-	// Complete RENTABLES query
-	//===========================================================
-	limitAndOffsetClause := `
-	LIMIT {{.LimitClause}}
-	OFFSET {{.OffsetClause}};`
-	rentablesQueryWithLimit := rentablesQuery + limitAndOffsetClause // build query with limit and offset clause
-	rentablesQC["LimitClause"] = strconv.Itoa(limitClause)
-	rentablesQC["OffsetClause"] = strconv.Itoa(reqData.RentableOffset)
-	rentablesQ := renderSQLQuery(rentablesQueryWithLimit, rentablesQC) // get formatted query with substitution of select, where, rentablesQOrder clause
-	rlib.Console("db query = %s\n", rentablesQ)
-	rows, err := rlib.RRdb.Dbrr.Query(rentablesQ)
+	//=============================
+	// RENTABLES QUERY CALCULATION
+	//=============================
+	// establish the rentablesQOrder to use in the query
+	rentablesQWhereClause, rentablesQOrderClause := GetSearchAndSortSQL(d, rrpt.RentablesFieldsMap)
+	rentablesRows, err := rrpt.GetRRReportPartSQLRows("rentables", d.BID,
+		startDt, stopDt,
+		rentablesQWhereClause, rentablesQOrderClause,
+		limit, reqData.RentableOffset)
+
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	defer rows.Close()
+	defer rentablesRows.Close()
 
 	//================================================================
 	//   LOOP THROUGH RENTABLES
@@ -434,16 +146,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	i := int64(d.wsSearchReq.Offset)
 	recidCount := i
 	count := 0
-	for rows.Next() {
+	for rentablesRows.Next() {
 		//------------------------------------------------------------------
 		// load record info into q and fill out what time-based we can...
 		//------------------------------------------------------------------
 		var q = RRGrid{IsMainRow: true, IsRentableRow: true}
-		if err = q.BID.Scan(d.BID); err != nil {
-			SvcGridErrorReturn(w, err, funcname)
-			return
-		}
-		if err = rrRowScan(rows, &q); err != nil {
+		if err = rrRentablesRowScan(rentablesRows, &q); err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
@@ -462,17 +170,13 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			q.RentPeriod = fmt.Sprintf("%s<br> - %s", q.RentStart.Time.Format(rlib.RRDATEFMT3), q.RentStop.Time.Format(rlib.RRDATEFMT3))
 		}
 		if q.PossessionStart.Time.Year() > 1970 {
-			// *** updates *****
-			// VVVVVVVVVVVVVVVVV
-			q.UsePeriod = FmtRRDatePeriod(&q.PossessionStart.Time, &q.PossessionStop.Time)
-			// ^^^^^^^^^^^^^^^^^
-			// *** updates *****
+			q.UsePeriod = rrpt.FmtRRDatePeriod(&q.PossessionStart.Time, &q.PossessionStop.Time)
 		}
 
 		//------------------------------------------------------------
 		// There may be multiple rows for the ASSESSMENTS query and
 		// the NO-ASSESSMENTS query. Hold each row RRGrid in slice
-		// Also, compute sobtotals as we go
+		// Also, compute subtotals as we go
 		//------------------------------------------------------------
 		d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 		subList := []RRGrid{}
@@ -485,10 +189,15 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//================================================================
 		//  ASSESSMENTS QUERY...
 		//================================================================
-		rentablesAsmtQC["WhereClause"] = fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", q.BID.Int64, q.RID)
-		rentablesAsmtQ := renderSQLQuery(rentablesAsmtQuery, rentablesAsmtQC) // get formatted query with substitution of select, where, order clause
-		rlib.Console("\n\n************\n\nRID: %d,  rentablesAsmtQ:  %s\n", q.RID, rentablesAsmtQ)
-		rentablesAsmtRows, err := rlib.RRdb.Dbrr.Query(rentablesAsmtQ)
+		// here we have to apply different whereClause
+		// for the rentables Assessment Query as we're looking
+		// for ALL assessments for specific rentable
+		rentablesAsmtAdditionalWhere := fmt.Sprintf("Rentable.RID=%d", q.RID)
+		rentablesAsmtRows, err := rrpt.GetRRReportPartSQLRows("rentablesAsmt", d.BID,
+			startDt, stopDt,
+			rentablesAsmtAdditionalWhere, "",
+			-1, -1)
+
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -504,31 +213,30 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if childCount == 0 {
 				nq = q
 			}
-
-			// *** updates *****
-			// VVVVVVVVVVVVVVVVV
-			err = rentablesAsmtRows.Scan(&nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
+			err = rentablesAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.AmountDue, &nq.PaymentsApplied)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
-			SetRRDatePeriodString(subList, &nq) // adds dates as needed
+			setRRDatePeriodString(subList, &nq) // adds dates as needed
 			if nq.RAID.Valid || nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &recidCount, &nq)
 				updateSubTotals(&sub, &nq)
 			}
-			// ^^^^^^^^^^^^^^^^^
-			// *** updates *****
 		}
 
 		//================================================================
 		//  NO-ASSESSMENTS QUERY...
 		//================================================================
-		rentablesNoAsmtQC["WhereClause"] = fmt.Sprintf("ReceiptAllocation.BID = %d AND ReceiptAllocation.RAID = RentalAgreementRentables.RAID", q.BID.Int64)
-		rentablesNoAsmtQC["RID"] = fmt.Sprintf("%d", q.RID)
-		rentablesNoAsmtQ := renderSQLQuery(rentablesNoAsmtQuery, rentablesNoAsmtQC)
-		rlib.Console("RID: %d,  rentablesNoAsmtQ:  %s\n", q.RID, rentablesNoAsmtQ)
-		rentablesNoAsmtRows, err := rlib.RRdb.Dbrr.Query(rentablesNoAsmtQ)
+		// we need to change whereClause for the rentables no Assessment query
+		// as we're looking for ALL payments associated with specific rentable
+		// but has no any assessments
+		rentablesNoAsmtAdditionalWhere := fmt.Sprintf("RentalAgreementRentables.RID=%d", q.RID)
+		rentablesNoAsmtRows, err := rrpt.GetRRReportPartSQLRows("rentablesNoAsmt", d.BID,
+			startDt, stopDt,
+			rentablesNoAsmtAdditionalWhere, "",
+			-1, -1)
+
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -543,22 +251,16 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if childCount == 0 {
 				nq = q
 			}
-
-			// *** updates *****
-			// VVVVVVVVVVVVVVVVV
 			err = rentablesNoAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.PaymentsApplied)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
-			SetRRDatePeriodString(subList, &nq) // adds dates as needed
+			setRRDatePeriodString(subList, &nq) // adds dates as needed
 			if nq.Description.Valid || nq.RAID.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &recidCount, &nq)
 				updateSubTotals(&sub, &nq)
 			}
-			// ^^^^^^^^^^^^^^^^^
-			// *** updates *****
-
 		}
 
 		//----------------------------------------------------------------------
@@ -568,8 +270,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if len(subList) == 0 {
 			addToSubList(&subList, &childCount, &recidCount, &q)
 		}
-
-		g.Records = append(g.Records, subList...) // update response record list
 
 		//----------------------------------------
 		// Add the Rentable receivables totals...
@@ -585,13 +285,13 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//----------------------------------------
 		// Add the Security Deposit totals...
 		//----------------------------------------
-		sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID.Int64, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
+		sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &d.wsSearchReq.SearchDtStart)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
 		sub.BeginningSecDep.Valid = true
-		sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID.Int64, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+		sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
@@ -600,8 +300,10 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
 		sub.EndingSecDep.Valid = true
 
-		addToSubList(&g.Records, &childCount, &recidCount, &sub)
-		addToSubList(&g.Records, &childCount, &recidCount, &RRGrid{IsBlankRow: true}) // add new blank before the next rentable
+		addToSubList(&subList, &childCount, &recidCount, &sub)
+		addToSubList(&subList, &childCount, &recidCount, &RRGrid{IsBlankRow: true}) // add new blank before the next rentable
+
+		g.Records = append(g.Records, subList...) // update response record list
 
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -610,7 +312,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		i++
 	}
 
-	err = rows.Err()
+	err = rentablesRows.Err()
 	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
@@ -621,51 +323,62 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Now we need to handle the cases where there are assessments but no
 	// associated Rentables...
 	//-------------------------------------------------------------------------
-	pageRentablesCount := int(i) - d.wsSearchReq.Offset
-	rlib.Console("d.wsSearchReq.Offset: %d, i: %d, pageRentablesCount:%d\n", d.wsSearchReq.Offset, i, pageRentablesCount)
-	rlib.Console("CHECK TO CALL getNoRentableRows: g.TotalMainRows = %d, g.Total = %d, Limit = %d\n", g.TotalMainRows, g.Total, d.wsSearchReq.Limit)
-	if pageRentablesCount < d.wsSearchReq.Limit {
-		queryOffset := int64(reqData.NoRIDAsmtOffset) // need to work out the calculation for this
-		noRIDAsmtQlimit := int64(d.wsSearchReq.Limit - pageRentablesCount)
-		rlib.Console("noRIDAsmtQlimit:%d\n", noRIDAsmtQlimit)
-		if noRIDAsmtQlimit < 0 {
-			noRIDAsmtQlimit = 0
+	var pageRowsCount int
+	pageRowsCount = int(i) - d.wsSearchReq.Offset
+	rlib.Console("d.wsSearchReq.Offset: %d, i: %d, pageRowsCount:%d\n", d.wsSearchReq.Offset, i, pageRowsCount)
+	rlib.Console("CHECK TO CALL getNoRIDAsmtRows: g.TotalMainRows = %d, g.Total = %d, Limit = %d\n", g.TotalMainRows, g.Total, d.wsSearchReq.Limit)
+	if pageRowsCount < d.wsSearchReq.Limit {
+		noRIDAsmtLimit := d.wsSearchReq.Limit - pageRowsCount
+		rlib.Console("noRIDAsmtLimit:%d\n", noRIDAsmtLimit)
+		if noRIDAsmtLimit < 0 {
+			noRIDAsmtLimit = 0
 		}
-		newRecidCount, err := getNoRentableRows(&g, recidCount, queryOffset, noRIDAsmtQlimit, d)
+		newRecidCount, err := getNoRIDAsmtRows(&g, recidCount, reqData.NoRIDAsmtOffset, noRIDAsmtLimit, d)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		i += newRecidCount - recidCount
-		recidCount = newRecidCount
 		rlib.Console("Added %d noRID with Assessment rows\n", newRecidCount)
+
+		// NEED to update this for rows Count, useful for next sections, for pageRowsCount
+		// These are the main rows so we're calculating directly with the recidCount
+		i += newRecidCount - recidCount
+		pageRowsCount = int(i) - d.wsSearchReq.Offset
+
+		// Now override original counter with new count
+		recidCount = newRecidCount
 	}
 
 	//-------------------------------------------------------------------------
 	// Now we need to handle the cases where there are no assessments as well as
 	// no Rentables...
 	//-------------------------------------------------------------------------
-	pageNoRIDRowsCount := int(i) - d.wsSearchReq.Offset
-	rlib.Console("d.wsSearchReq.Offset: %d, i: %d, pageNoRIDRowsCount:%d\n", d.wsSearchReq.Offset, i, pageNoRIDRowsCount)
+	rlib.Console("d.wsSearchReq.Offset: %d, i: %d, pageRowsCount:%d\n", d.wsSearchReq.Offset, i, pageRowsCount)
 	rlib.Console("CHECK TO CALL getNoRIDNoAsmtRows: g.TotalMainRows = %d, g.Total = %d, Limit = %d\n", g.TotalMainRows, g.Total, d.wsSearchReq.Limit)
-	if pageNoRIDRowsCount < d.wsSearchReq.Limit {
-		queryOffset := int64(reqData.NoRIDNoAsmtOffset) // need to work out the calculation for this
-		noRIDNoAsmtQlimit := int64(d.wsSearchReq.Limit - pageNoRIDRowsCount)
-		rlib.Console("noRIDNoAsmtQlimit:%d\n", noRIDNoAsmtQlimit)
-		if noRIDNoAsmtQlimit < 0 {
-			noRIDNoAsmtQlimit = 0
+	if pageRowsCount < d.wsSearchReq.Limit {
+		noRIDNoAsmtlimit := d.wsSearchReq.Limit - pageRowsCount
+		rlib.Console("noRIDNoAsmtlimit:%d\n", noRIDNoAsmtlimit)
+		if noRIDNoAsmtlimit < 0 {
+			noRIDNoAsmtlimit = 0
 		}
 
-		newRecidCount, err := getNoRIDNoAsmtRows(&g, recidCount, queryOffset, noRIDNoAsmtQlimit, d)
+		newRecidCount, err := getNoRIDNoAsmtRows(&g, recidCount, reqData.NoRIDNoAsmtOffset, noRIDNoAsmtlimit, d)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 			return
 		}
-		recidCount = newRecidCount
 		rlib.Console("Added %d noRID noASMID rows\n", newRecidCount)
+
+		// NEED to update this for rows Count, useful for next sections, for pageRowsCount
+		// These are the main rows so we're calculating directly with the recidCount
+		i += newRecidCount - recidCount
+		pageRowsCount = int(i) - d.wsSearchReq.Offset
+
+		// Now override original counter with new count
+		recidCount = newRecidCount
 	}
 
-	fmt.Printf("Total: %d, MainTotalRows: %d\n", g.Total, g.TotalMainRows)
+	rlib.Console("PageRowsCount: %d, Total: %d, MainTotalRows: %d\n", pageRowsCount, g.Total, g.TotalMainRows)
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
@@ -697,7 +410,7 @@ func updateSubTotals(sub, q *RRGrid) {
 	// rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
 }
 
-// getNoRentableRows updates g with all Assessments associated with RAIDs but
+// getNoRIDAsmtRows updates g with all Assessments associated with RAIDs but
 // no Rentable.
 //
 // INPUTS
@@ -710,122 +423,53 @@ func updateSubTotals(sub, q *RRGrid) {
 //   recidCount - id to be used on next record added
 //   error - any error encountered
 //-----------------------------------------------------------------------------
-func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int64, d *ServiceData) (int64, error) {
-	funcname := "getNoRentableRows"
+func getNoRIDAsmtRows(
+	g *RRSearchResponse,
+	recidOffset int64,
+	queryOffset, limit int,
+	d *ServiceData,
+) (int64, error) {
+
+	const funcname = "getNoRIDAsmtRows"
+	var (
+		startDt = d.wsSearchReq.SearchDtStart
+		stopDt  = d.wsSearchReq.SearchDtStop
+	)
 	rlib.Console("Entered %s\n", funcname)
-	DtStartStr := d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL)
-	DtStopStr := d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL)
-	recidCount := int64(recidoffset)
-
-	//--------------------------------------------------
-	// which fields needs to be fetched for SQL query
-	//--------------------------------------------------
-	var rrNoRIDQuerySelectFields = []string{
-		"Assessments.BID",
-		"Assessments.ASMID",
-		"AR.Name",
-		"Assessments.Amount",
-		"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
-		"RentalAgreement.RAID",
-
-		// *** updates *****
-		// VVVVVVVVVVVVVVVVV
-		"RentalAgreement.PossessionStart",
-		"RentalAgreement.PossessionStop",
-		"RentalAgreement.RentStart",
-		"RentalAgreement.RentStop",
-		// ^^^^^^^^^^^^^^^^^
-		// *** updates *****
-
-		"CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payors",
-	}
-
-	//--------------------------------------------------
-	// Map UI Grid Column Variables to Table.Field names
-	//--------------------------------------------------
-	var rrNoRIDQueryFieldMap = selectQueryFieldMap{
-		"Description": {"ARID.Name"},
-		"LastModTime": {"PaymentType.LastModTime"},
-		"LastModBy":   {"PaymentType.LastModBy"},
-		"CreateTS":    {"PaymentType.CreateTS"},
-		"CreateBy":    {"PaymentType.CreateBy"},
-	}
-	//--------------------------------------------------
-	// Select the appropriate assessments
-	//--------------------------------------------------
-	where := fmt.Sprintf("Assessments.BID=%d AND Assessments.FLAGS&4=0 AND Assessments.RID=0 AND %q < Assessments.Stop AND Assessments.Start < %q", d.BID, DtStartStr, DtStopStr)
 
 	//--------------------------------------------------
 	// How to order
 	//--------------------------------------------------
-	order := "Assessments.RAID ASC,Assessments.Start ASC"
-	_, orderClause := GetSearchAndSortSQL(d, rrNoRIDQueryFieldMap)
-	if len(orderClause) > 0 {
-		order = orderClause
-	}
-
-	//--------------------------------------------------
-	// The full query...
-	//--------------------------------------------------
-	noRIDQuery := `
-	SELECT {{.SelectClause}}
-	FROM Assessments
-	LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID)
-	LEFT JOIN AR ON (AR.ARID=Assessments.ARID)
-	LEFT JOIN RentalAgreement ON RentalAgreement.RAID=Assessments.RAID
-	LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
-	LEFT JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
-	WHERE {{.WhereClause}}
-	GROUP BY Assessments.ASMID
-	ORDER BY {{.OrderClause}}`
-
-	qc := queryClauses{
-		"SelectClause": strings.Join(rrNoRIDQuerySelectFields, ","),
-		"WhereClause":  where,
-		"OrderClause":  order,
-		"DtStart":      DtStartStr,
-		"DtStop":       DtStopStr,
-	}
+	_, noRIDAsmtOrder := GetSearchAndSortSQL(d, rrpt.NoRIDAsmtQueryFieldMap)
 
 	// TOTAL is already calculated in getRRTotal routine,
 	// so NO need to do that here
 
-	limitAndOffsetClause := `
-	LIMIT {{.LimitClause}}
-	OFFSET {{.OffsetClause}};`
-	noRIDQueryWithLimit := noRIDQuery + limitAndOffsetClause
-	qc["LimitClause"] = fmt.Sprintf("%d", limit)
-	qc["OffsetClause"] = fmt.Sprintf("%d", queryOffset)
-
-	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(noRIDQueryWithLimit, qc)
-	rlib.Console("noRID db query = %s\n", qry)
-
 	//--------------------------------------------------
 	// perform the query and process the results
 	//--------------------------------------------------
-	rows, err := rlib.RRdb.Dbrr.Query(qry)
-	if err != nil {
-		return recidCount, err
-	}
-	defer rows.Close()
+	noRIDAsmtRows, err := rrpt.GetRRReportPartSQLRows("noRIDAsmt", d.BID,
+		startDt, stopDt,
+		"", noRIDAsmtOrder,
+		limit, queryOffset)
 
-	for rows.Next() {
-		q := RRGrid{Recid: recidCount, IsMainRow: true, IsNoRIDAsmtRow: true}
-		// *** updates *****
-		// VVVVVVVVVVVVVVVVV
-		err := rows.Scan(&q.BID, &q.ASMID, &q.Description, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Payors)
+	if err != nil {
+		return recidOffset, err
+	}
+	defer noRIDAsmtRows.Close()
+
+	for noRIDAsmtRows.Next() {
+		q := RRGrid{Recid: recidOffset, IsMainRow: true, IsNoRIDAsmtRow: true}
+		err := noRIDAsmtRows.Scan(&q.BID, &q.ASMID, &q.Description, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Payors)
 		if err != nil {
-			return recidCount, err
+			return recidOffset, err
 		}
-		SetRRDatePeriodString(g.Records, &q)
-		// ^^^^^^^^^^^^^^^^^
-		// *** updates *****
+		setRRDatePeriodString(g.Records, &q)
 		g.Records = append(g.Records, q)
-		recidCount++
+		recidOffset++
 		// rlib.Console("added: ASMID=%d, AmountDue=%.2f\n", q.ASMID.Int64, q.AmountDue.Float64)
 	}
-	return recidCount, nil
+	return recidOffset, nil
 }
 
 // getNoRIDNoAsmtRows updates g with all Assessments associated with RAIDs but
@@ -841,152 +485,157 @@ func getNoRentableRows(g *RRSearchResponse, recidoffset, queryOffset, limit int6
 //   int64 - recidCount, the recid to be used on the next record added
 //   error - any error encountered
 //-----------------------------------------------------------------------------
-func getNoRIDNoAsmtRows(g *RRSearchResponse, recidoffset, queryOffset, limit int64, d *ServiceData) (int64, error) {
-	funcname := "getNoRIDNoAsmtRows"
+func getNoRIDNoAsmtRows(
+	g *RRSearchResponse,
+	recidOffset int64,
+	queryOffset, limit int,
+	d *ServiceData,
+) (int64, error) {
+	const funcname = "getNoRIDNoAsmtRows"
+	var (
+		startDt = d.wsSearchReq.SearchDtStart
+		stopDt  = d.wsSearchReq.SearchDtStop
+	)
 	rlib.Console("Entered %s\n", funcname)
-	DtStartStr := d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL)
-	DtStopStr := d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL)
-	recidCount := int64(recidoffset)
-
-	//--------------------------------------------------
-	// which fields needs to be fetched for SQL query
-	//--------------------------------------------------
-	//ReceiptAllocation.BID,ReceiptAllocation.RAID,ReceiptAllocation.Amount,AR.Name
-	var rrNoRIDNoAsmtQuerySelectFields = []string{
-		"ReceiptAllocation.BID",
-		"ReceiptAllocation.RAID",
-		"ReceiptAllocation.Amount",
-
-		// *** updates *****
-		// VVVVVVVVVVVVVVVVV
-		"RentalAgreement.PossessionStart",
-		"RentalAgreement.PossessionStop",
-		"RentalAgreement.RentStart",
-		"RentalAgreement.RentStop",
-		// ^^^^^^^^^^^^^^^^^
-		// *** updates *****
-
-		"AR.Name",
-		"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
-	}
-
-	//--------------------------------------------------
-	// Map UI Grid Column Variables to Table.Field names
-	//--------------------------------------------------
-	var rrNoRIDNoAsmQueryFieldMap = selectQueryFieldMap{
-		"Description": {"ARID.Name"},
-		"LastModTime": {"PaymentType.LastModTime"},
-		"LastModBy":   {"PaymentType.LastModBy"},
-		"CreateTS":    {"PaymentType.CreateTS"},
-		"CreateBy":    {"PaymentType.CreateBy"},
-	}
-
-	//--------------------------------------------------
-	// Select the appropriate assessments
-	//--------------------------------------------------
-	where := fmt.Sprintf("ReceiptAllocation.BID=%d AND ReceiptAllocation.ASMID=0 AND ReceiptAllocation.RAID>0 AND %q <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < %q AND RentalAgreementRentables.RID is NULL", d.BID, DtStartStr, DtStopStr)
 
 	//--------------------------------------------------
 	// How to order
 	//--------------------------------------------------
-	order := "ReceiptAllocation.Dt ASC"
-	_, orderClause := GetSearchAndSortSQL(d, rrNoRIDNoAsmQueryFieldMap)
-	if len(orderClause) > 0 {
-		order = orderClause
-	}
-
-	// *** updates *****
-	// VVVVVVVVVVVVVVVVV
-
-	//--------------------------------------------------
-	// The full query...
-	//--------------------------------------------------
-	noRIDNoAsmtQuery := `
-	SELECT {{.SelectClause}}
-	FROM ReceiptAllocation
-	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RAID=ReceiptAllocation.RAID
-	LEFT JOIN RentalAgreement ON RentalAgreement.RAID=ReceiptAllocation.RAID
-	INNER JOIN Receipt ON (Receipt.RCPTID = ReceiptAllocation.RCPTID)
-	INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS = 5)
-	INNER JOIN Transactant ON (Transactant.TCID = Receipt.TCID)
-	WHERE {{.WhereClause}}
-	GROUP BY ReceiptAllocation.RCPAID
-	ORDER BY {{.OrderClause}}`
-
-	// ^^^^^^^^^^^^^^^^^
-	// *** updates *****
-
-	qc := queryClauses{
-		"SelectClause": strings.Join(rrNoRIDNoAsmtQuerySelectFields, ","),
-		"WhereClause":  where,
-		"OrderClause":  order,
-		"DtStart":      DtStartStr,
-		"DtStop":       DtStopStr,
-	}
+	_, noRIDNoAsmtOrder := GetSearchAndSortSQL(d, rrpt.NoRIDNoAsmQueryFieldMap)
 
 	// TOTAL is already calculated in getRRTotal routine,
 	// so NO need to do that here
 
-	limitAndOffsetClause := `
-	LIMIT {{.LimitClause}}
-	OFFSET {{.OffsetClause}};`
-	noRIDNoAsmtQueryWithLimit := noRIDNoAsmtQuery + limitAndOffsetClause
-	qc["LimitClause"] = fmt.Sprintf("%d", limit)
-	qc["OffsetClause"] = fmt.Sprintf("%d", queryOffset)
-
-	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(noRIDNoAsmtQueryWithLimit, qc)
-	rlib.Console("noRID noASM db query = %s\n", qry)
-
 	//--------------------------------------------------
 	// perform the query and process the results
 	//--------------------------------------------------
-	rows, err := rlib.RRdb.Dbrr.Query(qry)
+	noRIDNoAsmtRows, err := rrpt.GetRRReportPartSQLRows("noRIDNoAsmt", d.BID,
+		startDt, stopDt,
+		"", noRIDNoAsmtOrder,
+		limit, queryOffset)
+
 	if err != nil {
-		return recidCount, err
+		return recidOffset, err
 	}
-	defer rows.Close()
+	defer noRIDNoAsmtRows.Close()
 
-	for rows.Next() {
-		q := RRGrid{Recid: recidCount, IsMainRow: true, IsNoRIDNoAsmtRow: true}
-
-		// *** updates *****
-		// VVVVVVVVVVVVVVVVV
-		err := rows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Description, &q.Payors)
+	for noRIDNoAsmtRows.Next() {
+		q := RRGrid{Recid: recidOffset, IsMainRow: true, IsNoRIDNoAsmtRow: true}
+		err := noRIDNoAsmtRows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Description, &q.Payors)
 		if err != nil {
-			return recidCount, err
+			return recidOffset, err
 		}
-		SetRRDatePeriodString(g.Records, &q)
-		// ^^^^^^^^^^^^^^^^^
-		// *** updates *****
-
+		setRRDatePeriodString(g.Records, &q)
 		g.Records = append(g.Records, q)
-		recidCount++
+		recidOffset++
 	}
-	return recidCount, nil
+	return recidOffset, nil
 }
 
-// *** updates *****
-// VVVVVVVVVVVVVVVVV
+// getRRTotal returns the total of individual total of sections covered by rentroll report
+func getRRTotal(
+	BID int64,
+	d1, d2 time.Time,
+) (
+	rentablesCount, rentablesAsmtCount, rentablesNoAsmtCount, noRIDAsmtCount, noRIDNoAsmtCount int64,
+	err error,
+) {
 
-// FmtRRDatePeriod formats a start and end time as needed byt the
-// column headers in the RentRoll view/report
-//
-// INPUT
-// d1 - start of period
-// d2 - end of period
-//
-// RETURN
-// string with formated dates
-//----------------------------------------------------------------------
-func FmtRRDatePeriod(d1, d2 *time.Time) string {
-	if d1.Year() > 1970 && d2.Year() > 1970 {
-		return d1.Format(rlib.RRDATEFMT3) + "<br> - " + d2.Format(rlib.RRDATEFMT3)
+	const funcname = "getRRTotal"
+	rlib.Console("Entered %s\n", funcname)
+
+	// ISSUE: search functionality contains different search scenario, in that case we need to
+	// handle case that if field is presents in query FieldMap,.....
+	// right now just ignore additional where clause
+
+	// ------------------------
+	// Get All Rentables Total
+	// ------------------------
+	rentablesQC := rlib.GetQueryClauseCopy(rrpt.RentablesQueryClause)
+	rentablesQC["WhereClause"] = fmt.Sprintf(rentablesQC["WhereClause"], BID)
+	rentablesQC["DtStart"] = d1.Format(rlib.RRDATEFMTSQL)
+	rentablesQC["DtStop"] = d2.Format(rlib.RRDATEFMTSQL)
+
+	rentablesCountQuery := rlib.RenderSQLQuery(rrpt.RentablesQuery, rentablesQC)
+	rentablesCount, err = rlib.GetQueryCount(rentablesCountQuery, rentablesQC)
+	if err != nil {
+		rlib.Console("Error from rentablesCountQuery: %s\n", err.Error())
+		return
 	}
-	return ""
+	rlib.Console("rentablesCount = %d\n", rentablesCount)
+
+	// ---------------------------------------------------
+	// Get All Assessments Total associated with Rentables
+	// ---------------------------------------------------
+	rentablesAsmtQC := rlib.GetQueryClauseCopy(rrpt.RentablesAsmtQueryClause)
+	rentablesAsmtQC["WhereClause"] = fmt.Sprintf(rentablesAsmtQC["WhereClause"], BID)
+	rentablesAsmtQC["DtStart"] = rentablesQC["DtStart"]
+	rentablesAsmtQC["DtStop"] = rentablesQC["DtStop"]
+
+	rentablesAsmtCountQuery := rlib.RenderSQLQuery(rrpt.RentablesAsmtQuery, rentablesAsmtQC)
+	// rlib.Console("rentablesAsmtCountQuery db query = %s\n", rentablesAsmtCountQuery)
+	rentablesAsmtCount, err = rlib.GetQueryCount(rentablesAsmtCountQuery, rentablesAsmtQC)
+	if err != nil {
+		rlib.Console("Error from rentablesAsmtCountQuery: %s\n", err.Error())
+		return
+	}
+	rlib.Console("rentablesAsmtCount = %d\n", rentablesAsmtCount)
+
+	// ----------------------------------------------------------------------
+	// Get All Payments associated with Rentables but not with any assessment
+	// ----------------------------------------------------------------------
+	rentablesNoAsmtQC := rlib.GetQueryClauseCopy(rrpt.RentablesNoAsmtQueryClause)
+	rentablesNoAsmtQC["WhereClause"] = fmt.Sprintf(rentablesNoAsmtQC["WhereClause"], BID)
+	rentablesNoAsmtQC["DtStart"] = rentablesQC["DtStart"]
+	rentablesNoAsmtQC["DtStop"] = rentablesQC["DtStop"]
+
+	rentablesNoAsmtCountQuery := rlib.RenderSQLQuery(rrpt.RentablesNoAsmtQuery, rentablesNoAsmtQC)
+	// rlib.Console("rentablesNoAsmtCountQuery db query = %s\n", rentablesNoAsmtCountQuery)
+	rentablesNoAsmtCount, err = rlib.GetQueryCount(rentablesNoAsmtCountQuery, rentablesNoAsmtQC)
+	if err != nil {
+		rlib.Console("Error from rentablesNoAsmtCountQuery: %s\n", err.Error())
+		return
+	}
+	rlib.Console("rentablesNoAsmtCount = %d\n", rentablesNoAsmtCount)
+
+	// ---------------------------------------------------------------------
+	// Get All Assessments Total which are NOT associated with ANY Rentables
+	// ---------------------------------------------------------------------
+	noRIDAsmtQC := rlib.GetQueryClauseCopy(rrpt.NoRIDAsmtQueryClause)
+	noRIDAsmtQC["WhereClause"] = fmt.Sprintf(noRIDAsmtQC["WhereClause"], BID, rentablesQC["DtStart"], rentablesQC["DtStop"])
+	noRIDAsmtQC["DtStart"] = rentablesQC["DtStart"]
+	noRIDAsmtQC["DtStop"] = rentablesQC["DtStop"]
+
+	noRIDAsmtCountQuery := rlib.RenderSQLQuery(rrpt.NoRIDAsmtQuery, noRIDAsmtQC)
+	// rlib.Console("noRIDAsmtCountQuery db query = %s\n", noRIDAsmtCountQuery)
+	noRIDAsmtCount, err = rlib.GetQueryCount(noRIDAsmtCountQuery, noRIDAsmtQC)
+	if err != nil {
+		rlib.Console("Error from noRIDAsmtCountQuery: %s\n", err.Error())
+		return
+	}
+	rlib.Console("noRIDAsmtCount = %d\n", noRIDAsmtCount)
+
+	// ------------------------------------------------------------------------
+	// Get All Payments which are not associated with any Assessement/Rentables
+	// ------------------------------------------------------------------------
+	noRIDNoAsmtQC := rlib.GetQueryClauseCopy(rrpt.NoRIDNoAsmtQueryClause)
+	noRIDNoAsmtQC["WhereClause"] = fmt.Sprintf(noRIDNoAsmtQC["WhereClause"], BID, rentablesQC["DtStart"], rentablesQC["DtStop"])
+	noRIDNoAsmtQC["DtStart"] = rentablesQC["DtStart"]
+	noRIDNoAsmtQC["DtStop"] = rentablesQC["DtStop"]
+
+	noRIDNoAsmtCountQuery := rlib.RenderSQLQuery(rrpt.NoRIDNoAsmtQuery, noRIDNoAsmtQC)
+	// rlib.Console("noRIDNoAsmtCountQuery db query = %s\n", noRIDNoAsmtCountQuery)
+	noRIDNoAsmtCount, err = rlib.GetQueryCount(noRIDNoAsmtCountQuery, noRIDNoAsmtQC)
+	if err != nil {
+		rlib.Console("Error from noRIDNoAsmtCountQuery: %s\n", err.Error())
+		return
+	}
+	rlib.Console("noRIDNoAsmtCount = %d\n", noRIDNoAsmtCount)
+
+	return
 }
 
-// SetRRDatePeriodString updates the nq UsePeriod and RentPeriod members
+// setRRDatePeriodString updates the nq UsePeriod and RentPeriod members
 // if it is either the first row in subList or if the RentalAgreement has
 // changed since the last entry in subList.
 //
@@ -997,22 +646,11 @@ func FmtRRDatePeriod(d1, d2 *time.Time) string {
 // RETURN
 // void
 //----------------------------------------------------------------------
-func SetRRDatePeriodString(subList []RRGrid, nq *RRGrid) {
+func setRRDatePeriodString(subList []RRGrid, nq *RRGrid) {
 	showDates := true // only list dates if the rental agreement changed
 	if len(subList) > 0 {
 		showDates = subList[len(subList)-1].RAID != nq.RAID
 	}
-	SetRRDateStrings(showDates, &nq.UsePeriod, &nq.RentPeriod, &nq.PossessionStart.Time, &nq.PossessionStop.Time, &nq.RentStart.Time, &nq.RentStop.Time)
+	rrpt.SetRRDateStrings(showDates, &nq.UsePeriod, &nq.RentPeriod,
+		&nq.PossessionStart.Time, &nq.PossessionStop.Time, &nq.RentStart.Time, &nq.RentStop.Time)
 }
-
-// SetRRDateStrings updates the two supplied date strings if showDates is true
-func SetRRDateStrings(showDates bool, s1, s2 *string, t1, t2, t3, t4 *time.Time) {
-	if showDates {
-		(*s1) = FmtRRDatePeriod(t1, t2)
-		(*s2) = FmtRRDatePeriod(t3, t4)
-	}
-
-}
-
-// ^^^^^^^^^^^^^^^^^
-// *** updates *****

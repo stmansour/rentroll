@@ -118,7 +118,7 @@ func depGridRowScan(rows *sql.Rows, q DepositoryGrid) (DepositoryGrid, error) {
 	return q, err
 }
 
-var depSearchFieldMap = selectQueryFieldMap{
+var depSearchFieldMap = rlib.SelectQueryFieldMap{
 	"DEPID":       {"Depository.DEPID"},
 	"LID":         {"Depository.LID"},
 	"Name":        {"Depository.Name"},
@@ -132,7 +132,7 @@ var depSearchFieldMap = selectQueryFieldMap{
 }
 
 // which fields needs to be fetch to satisfy the struct
-var depSearchSelectQueryFields = selectQueryFields{
+var depSearchSelectQueryFields = rlib.SelectQueryFields{
 	"Depository.DEPID",
 	"Depository.LID",
 	"Depository.Name",
@@ -181,17 +181,17 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(depSearchSelectQueryFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(depSearchQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc)
+	countQuery := rlib.RenderSQLQuery(depSearchQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -212,7 +212,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(depQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(depQueryWithLimit, qc)
 	fmt.Printf("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
@@ -397,12 +397,12 @@ func getDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	LEFT JOIN GLAccount on GLAccount.LID=Depository.LID
 	WHERE {{.WhereClause}};`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(depSearchSelectQueryFields, ","),
 		"WhereClause":  whr,
 	}
 
-	qry := renderSQLQuery(depQuery, qc)
+	qry := rlib.RenderSQLQuery(depQuery, qc)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {

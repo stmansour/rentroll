@@ -67,7 +67,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
 		{ReportNames: []string{"RPTrat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable},
 		{ReportNames: []string{"RPTrcpt", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
-		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RentRollReportTable},
+		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RRReportTable},
 		{ReportNames: []string{"RPTrt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable},
 		{ReportNames: []string{"RPTrcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable},
 		{ReportNames: []string{"RPTsl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable},

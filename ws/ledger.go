@@ -291,7 +291,7 @@ func getLedgerGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // }
 
 // // which fields needs to be fetched for SQL query for receipts grid
-// var getARQuerySelectFields = selectQueryFields{
+// var getARQuerySelectFields = rlib.SelectQueryFields{
 // 	"AR.ARID",
 // 	"AR.Name",
 // 	"AR.ARType",
@@ -340,13 +340,13 @@ func getLedgerGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // 	INNER JOIN GLAccount as creditQuery on AR.CreditLID=creditQuery.LID
 // 	WHERE {{.WhereClause}};`
 
-// 	qc := queryClauses{
+// 	qc := rlib.QueryClause{
 // 		"SelectClause": strings.Join(getARQuerySelectFields, ","),
 // 		"WhereClause":  fmt.Sprintf("AR.BID=%d AND AR.ARID=%d", d.BID, d.ARID),
 // 	}
 
 // 	// get formatted query with substitution of select, where, order clause
-// 	q := renderSQLQuery(arQuery, qc)
+// 	q := rlib.RenderSQLQuery(arQuery, qc)
 // 	fmt.Printf("db query = %s\n", q)
 
 // 	// execute the query

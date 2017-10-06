@@ -41,7 +41,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 	case 3: // INTERNAL ACCT RULE TEST
 		intTest(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
 	case 4: // RENTROLL REPORT
-		rrpt.RentRollTextReport(&ri)
+		rrpt.RRTextReport(&ri)
 	case 6: // available
 	case 7: // RENTABLE COUNT BY TYPE
 		t := rrpt.RentableCountByRentableTypeReportTable(&ri)

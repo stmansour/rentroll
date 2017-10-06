@@ -152,17 +152,17 @@ func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	GROUP BY Transactant.TCID ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
 
 	// will be substituted as query clauses
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(payorSelectFields, ","),
 		"WhereClause":  srch,
 		"OrderClause":  order,
 	}
 
 	// GET TOTAL COUNTS of query
-	countQuery := renderSQLQuery(payorsQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc) // total number of rows that match the criteria
+	countQuery := rlib.RenderSQLQuery(payorsQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc) // total number of rows that match the criteria
 	if err != nil {
-		rlib.Console("Error from GetQueryCount: %s\n", err.Error())
+		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -183,7 +183,7 @@ func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(payorsQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(payorsQueryWithLimit, qc)
 	rlib.Console("db query = %s\n", qry)
 
 	// execute the query

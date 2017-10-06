@@ -326,17 +326,17 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
 
 	// will be substituted as query clauses
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(rentalAgrQuerySelectFields, ","),
 		"WhereClause":  srch,
 		"OrderClause":  order,
 	}
 
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(rentalAgrQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc)
+	countQuery := rlib.RenderSQLQuery(rentalAgrQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc)
 	if err != nil {
-		rlib.Console("Error from GetQueryCount: %s\n", err.Error())
+		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -357,7 +357,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(rentalAgrQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(rentalAgrQueryWithLimit, qc)
 	rlib.Console("db query = %s\n", qry)
 
 	// execute the query
