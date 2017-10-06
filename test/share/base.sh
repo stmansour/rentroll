@@ -27,6 +27,12 @@ SHOWCOMMAND=0
 SCRIPTPATH=$(pwd -P)
 CASPERTEST="casperjs test"
 
+if [ "x${NOCONSOLE}" = "x" ]; then
+	NOCONSOLE="-nocon"
+else
+	NOCONSOLE=""
+fi
+
 if [ "x${MANAGESERVER}" = "x" ]; then
 	MANAGESERVER=1
 fi
@@ -43,7 +49,7 @@ else
 fi
 TREPORT="${RRBIN}/../../test/testreport.txt"
 
-RENTROLL="${RRBIN}/rentroll -A"
+RENTROLL="${RRBIN}/rentroll -A ${NOCONSOLE}"
 CSVLOAD="${RRBIN}/rrloadcsv"
 GOLD="./gold"
 
