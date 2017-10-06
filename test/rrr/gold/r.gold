@@ -1,42 +1,5 @@
-Entered in RRReportTableEntered in : GetRRReportPartSQLRows
-db query for rentables = 
-    SELECT DISTINCT Rentable.BID,Rentable.RID,Rentable.RentableName,RentableTypeRef.RTID,RentableTypes.Name as RentableType,RentableTypes.RentCycle,RentableMarketRate.MarketRate as MarketRate,RentalAgreementRentables.RARID,RentalAgreementRentables.RAID as RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,RentableStatus.Status,GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END SEPARATOR ', ') AS Payors,GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END SEPARATOR ', ') AS Users
-    FROM Rentable
-    LEFT JOIN RentableTypeRef ON RentableTypeRef.RID=Rentable.RID
-    LEFT JOIN RentableTypes ON RentableTypes.RTID=RentableTypeRef.RTID
-    LEFT JOIN RentableMarketRate ON (RentableMarketRate.RTID=RentableTypeRef.RTID AND RentableMarketRate.DtStart<"2016-08-01" AND RentableMarketRate.DtStop>"2016-07-01")
-    LEFT JOIN RentableStatus ON (RentableStatus.RID=Rentable.RID AND RentableStatus.DtStart<"2016-08-01" AND RentableStatus.DtStop>"2016-07-01")
-    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RID=Rentable.RID AND RentalAgreementRentables.RARDtStart<"2016-08-01" AND RentalAgreementRentables.RARDtStop>"2016-07-01")
-    LEFT JOIN RentalAgreement ON (RentalAgreement.RAID=RentalAgreementRentables.RAID)
-    LEFT JOIN RentalAgreementPayors ON (RentalAgreementRentables.RAID=RentalAgreementPayors.RAID AND RentalAgreementPayors.DtStart<"2016-08-01" AND RentalAgreementPayors.DtStop>"2016-07-01")
-    LEFT JOIN Transactant as Payor ON (Payor.TCID=RentalAgreementPayors.TCID AND Payor.BID=Rentable.BID)
-    LEFT JOIN RentableUsers ON (RentableUsers.RID=Rentable.RID AND RentableUsers.DtStart<"2016-08-01" AND RentableUsers.DtStop>"2016-07-01")
-    LEFT JOIN Transactant as User ON (RentableUsers.TCID=User.TCID AND User.BID=Rentable.BID)
-    WHERE Rentable.BID=1
-    GROUP BY Rentable.RID
-    ORDER BY Rentable.RentableName ASC;
-Entered in : GetRRReportPartSQLRows
-db query for rentablesAsmt = 
-    SELECT AR.Name as Description,Assessments.RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,Assessments.Amount as AmountDue,SUM(ReceiptAllocation.Amount) as PaymentsApplied
-    FROM Rentable
-    LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "2016-07-01" <= Start AND Stop < "2016-08-01" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
-    LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "2016-07-01" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "2016-08-01")
-    LEFT JOIN RentalAgreement on (RentalAgreement.RAID=Assessments.RAID)
-    LEFT JOIN AR ON AR.ARID=Assessments.ARID
-    WHERE Rentable.BID=1 AND (Rentable.RID=1)
-    GROUP BY Rentable.RID, Assessments.ASMID
-    ORDER BY Assessments.RAID ASC, Assessments.Amount DESC;
-Entered in : GetRRReportPartSQLRows
-db query for rentablesNoAsmt = 
-    SELECT AR.Name as Description,ReceiptAllocation.RAID as RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,ReceiptAllocation.Amount as PaymentsApplied FROM ReceiptAllocation
-    LEFT JOIN RentalAgreementRentables ON (ReceiptAllocation.RAID=RentalAgreementRentables.RAID AND "2016-07-01" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "2016-08-01")
-    LEFT JOIN Rentable ON (Rentable.RID=RentalAgreementRentables.RID AND Rentable.RID > 0)
-    LEFT JOIN Receipt ON (RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0 AND "2016-07-01" <= Receipt.Dt AND Receipt.Dt < "2016-08-01")
-    LEFT JOIN RentalAgreement ON (ReceiptAllocation.RAID=RentalAgreement.RAID)
-    INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
-    WHERE ReceiptAllocation.BID=1 AND ReceiptAllocation.RAID > 0 AND (RentalAgreementRentables.RID=1)
-    ORDER BY ReceiptAllocation.Amount DESC;
-GetRARBalance: Could not find LedgerMarker for RAID=3, RID=1, on or before 7/1/2016
+GetRARAcctRange: err = GetRARAcctRange: there are no accounts of type Accounts Receivable
+
 GetRARAcctRange: err = GetRARAcctRange: there are no accounts of type Accounts Receivable
 
 REX Rentroll
@@ -52,16 +15,16 @@ Error in SecDepRules: There are no accounts of type Liability Security Deposit w
                                                                                                                                     Rental                     Rent                                                     Income    Payments   Beginning   Change In      Ending    Security    Security    Security
 Rentable              Rentable Type     SqFt  Description           Users                           Payors                          Agreement   Use Period     Period         Rent Cycle      GSR Rate  Period GSR     Offsets     Applied  Receivable  Receivable  Receivable     Deposit     Deposit     Deposit
 --------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
-6303-231              2BR2BA             692                        ABC Corporation, Amanda Smith,  ABC Corporation, Amanda Smith,  RA-1        7/1/2016<br>   7/1/2016<br>                                  Daily       92.00        0.00        0.00       76.00      750.00        0.00        0.00        0.00
+6303-231              2BR2BA             692                        ABC Corporation, Amanda Smith,  ABC Corporation, Amanda Smith,  RA-1        7/1/2016<br>   7/1/2016<br>                                  Daily       76.00        0.00        0.00       76.00      750.00        0.00        0.00        0.00
                                                                     ARC Energy, Christoph Jones,    ARC Energy                                  - 7/4/2016     - 7/4/2016                                                                                                                                         
                                                                     Joshua Jones                                                                                                                                                                                                                                  
                                                                                                                                     RA-1        7/1/2016<br>   7/1/2016<br>                                               0.00        0.00        0.00       76.00      400.00        0.00        0.00        0.00
                                                                                                                                                 - 7/4/2016     - 7/4/2016                                                                                                                                         
                                                                                                                                     RA-1        7/1/2016<br>   7/1/2016<br>                                               0.00        0.00        0.00       76.00        0.00        0.00        0.00        0.00
                                                                                                                                                 - 7/4/2016     - 7/4/2016                                                                                                                                         
-                                                                                                                                    RA-1        7/1/2016<br>   7/1/2016<br>                                               0.00        0.00        0.00       24.00     4200.00        0.00        0.00        0.00
-                                                                                                                                                - 7/4/2016     - 7/4/2016                                                                                                                                         
                                                                                                                                     RA-1        7/1/2016<br>   7/1/2016<br>                                               0.00        0.00        0.00       24.00        0.00        0.00        0.00        0.00
+                                                                                                                                                - 7/4/2016     - 7/4/2016                                                                                                                                         
+                                                                                                                                    RA-1        7/1/2016<br>   7/1/2016<br>                                               0.00        0.00        0.00       24.00     4200.00        0.00        0.00        0.00
                                                                                                                                                 - 7/4/2016     - 7/4/2016                                                                                                                                         
                                                                                                                                     RA-1        7/1/2016<br>   7/1/2016<br>                                               0.00        0.00        0.00       24.00        0.00        0.00        0.00        0.00
                                                                                                                                                 - 7/4/2016     - 7/4/2016                                                                                                                                         
