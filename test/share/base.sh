@@ -50,7 +50,7 @@ fi
 TREPORT="${RRBIN}/../../test/testreport.txt"
 
 RENTROLL="${RRBIN}/rentroll -A ${NOCONSOLE}"
-CSVLOAD="${RRBIN}/rrloadcsv"
+CSVLOAD="${RRBIN}/rrloadcsv  ${NOCONSOLE}"
 GOLD="./gold"
 
 PAUSE=0
