@@ -1002,10 +1002,16 @@ func SetRRDatePeriodString(subList []RRGrid, nq *RRGrid) {
 	if len(subList) > 0 {
 		showDates = subList[len(subList)-1].RAID != nq.RAID
 	}
+	SetRRDateStrings(showDates, &nq.UsePeriod, &nq.RentPeriod, &nq.PossessionStart.Time, &nq.PossessionStop.Time, &nq.RentStart.Time, &nq.RentStop.Time)
+}
+
+// SetRRDateStrings updates the two supplied date strings if showDates is true
+func SetRRDateStrings(showDates bool, s1, s2 *string, t1, t2, t3, t4 *time.Time) {
 	if showDates {
-		nq.UsePeriod = FmtRRDatePeriod(&nq.PossessionStart.Time, &nq.PossessionStop.Time)
-		nq.RentPeriod = FmtRRDatePeriod(&nq.RentStart.Time, &nq.RentStop.Time)
+		(*s1) = FmtRRDatePeriod(t1, t2)
+		(*s2) = FmtRRDatePeriod(t3, t4)
 	}
+
 }
 
 // ^^^^^^^^^^^^^^^^^
