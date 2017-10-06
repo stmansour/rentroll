@@ -81,6 +81,7 @@ func readCommandLineArgs() {
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 	xPtr := flag.Bool("x", false, "if specified, inhibit vacancy checking")
+	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
 	rsd := flag.String("rsd", "./", "Root Static Directory path") // it will pick static content from provided path, default will be current directory
 
 	flag.Parse()
@@ -88,6 +89,12 @@ func readCommandLineArgs() {
 		fmt.Printf("Version:    %s\nBuild Time: %s\nBuild Machine: %s\n", ws.GetVersionNo(), ws.GetBuildTime(), ws.GetBuildMachine())
 		os.Exit(0)
 	}
+	if *noconPtr {
+		rlib.DisableConsole()
+	} else {
+		rlib.EnableConsole()
+	}
+
 	App.DBDir = *dbnmPtr
 	//App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
