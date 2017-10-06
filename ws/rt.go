@@ -172,7 +172,7 @@ func rentableTypeGridRowScan(rows *sql.Rows, q RentableTypeGridRecord) (Rentable
 	return q, err
 }
 
-var rtSearchFieldMap = selectQueryFieldMap{
+var rtSearchFieldMap = rlib.SelectQueryFieldMap{
 	"RTID":           {"RentableTypes.RTID"},
 	"Style":          {"RentableTypes.Style"},
 	"Name":           {"RentableTypes.Name"},
@@ -192,7 +192,7 @@ var rtSearchFieldMap = selectQueryFieldMap{
 }
 
 // which fields needs to be fetch to satisfy the struct
-var rtSearchSelectQueryFields = selectQueryFields{
+var rtSearchSelectQueryFields = rlib.SelectQueryFields{
 	"RentableTypes.RTID",
 	"RentableTypes.Style",
 	"RentableTypes.Name",
@@ -253,17 +253,17 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(rtSearchSelectQueryFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(rentableTypeSearchQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc)
+	countQuery := rlib.RenderSQLQuery(rentableTypeSearchQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -284,7 +284,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(rentableTypeQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(rentableTypeQueryWithLimit, qc)
 	fmt.Printf("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
@@ -355,12 +355,12 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	LEFT JOIN RentableMarketRate on RentableTypes.RTID=RentableMarketRate.RTID
 	WHERE {{.WhereClause}};`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(rtSearchSelectQueryFields, ","),
 		"WhereClause":  whr,
 	}
 
-	qry := renderSQLQuery(rentableTypeQuery, qc)
+	qry := rlib.RenderSQLQuery(rentableTypeQuery, qc)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
@@ -555,7 +555,7 @@ func rmrGridRowScan(rows *sql.Rows, q RentableMarketRateGridRec) (RentableMarket
 	return q, err
 }
 
-var rmrSearchFieldMap = selectQueryFieldMap{
+var rmrSearchFieldMap = rlib.SelectQueryFieldMap{
 	"RTID":       {"RentableMarketRate.RTID"},
 	"RMRID":      {"RentableMarketRate.RMRID"},
 	"MarketRate": {"RentableMarketRate.MarketRate"},
@@ -564,7 +564,7 @@ var rmrSearchFieldMap = selectQueryFieldMap{
 }
 
 // which fields needs to be fetch to satisfy the struct
-var rmrSearchSelectQueryFields = selectQueryFields{
+var rmrSearchSelectQueryFields = rlib.SelectQueryFields{
 	"RentableMarketRate.RTID",
 	"RentableMarketRate.RMRID",
 	"RentableMarketRate.MarketRate",
@@ -633,17 +633,17 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(rmrSearchSelectQueryFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(mrQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc)
+	countQuery := rlib.RenderSQLQuery(mrQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -664,7 +664,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(queryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(queryWithLimit, qc)
 	fmt.Printf("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)

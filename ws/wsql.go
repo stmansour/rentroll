@@ -1,12 +1,10 @@
 package ws
 
 import (
-	"bytes"
 	"fmt"
 	"reflect"
 	"rentroll/rlib"
 	"strings"
-	"text/template"
 )
 
 // Requirements:
@@ -68,29 +66,6 @@ import (
 //     string - the full query
 //     string - the WHERE clause suitable for a COUNT(*) query
 //----------------------------------------------------------------------------------------------
-
-// queryClauses normally holds select, where, order clauses
-type queryClauses map[string]string
-
-func getQueryClauseCopy(qc queryClauses) queryClauses {
-	nQC := make(queryClauses, len(qc))
-	for k, v := range qc {
-		nQC[k] = v
-	}
-	return nQC
-}
-
-// selectQueryFields holds the list of fields, used to get those from sql select query
-type selectQueryFields []string
-
-// selectQueryFieldMap holds the map of one field to list of fields,
-// one field would be mapped to multiple field, e.g, result come from combining those fields
-// ex.
-// Payor is mapped to `Transactant.FirstName, Transactant.LastName`
-// so Payor is being shown as group concat over firstname, lastname
-// also when someone search in payor, ultimately it'll search in firstname, lastname with
-// requested input.
-type selectQueryFieldMap map[string][]string
 
 func gridBuildQuery(table, srch, order string, d *ServiceData, p interface{}) (string, string) {
 	// Handle Search
@@ -189,39 +164,6 @@ func GetRowCount(table, where string) (int64, error) {
 	de := rlib.RRdb.Dbrr.QueryRow(s).Scan(&count)
 	if de != nil {
 		err = fmt.Errorf("GetRowCount: query=\"%s\"    err = %s", s, de.Error())
-	}
-	return count, err
-}
-
-// renderSQLQuery accepets queryForm (text form), queryClauses (map)
-// and executes text template with given map of clause and return
-func renderSQLQuery(queryForm string, qc queryClauses) string {
-	b := &bytes.Buffer{}
-	template.Must(template.New("").Parse(queryForm)).Execute(b, qc)
-	return b.String()
-}
-
-// GetQueryCount returns the number of records fetched by execution of query
-func GetQueryCount(query string, qc queryClauses) (int64, error) {
-
-	// if query ends with ';' then remove it
-	query = strings.TrimSuffix(strings.TrimSpace(query), ";")
-
-	// replace select clause first and get count query
-	queryForm := `
-	SELECT
-		COUNT(*)
-	FROM ({{.query}}) as T;
-	`
-	countQuery := renderSQLQuery(queryForm, map[string]string{"query": query})
-	fmt.Println("Count Query: ", countQuery)
-
-	// hit the query and get count from db
-	count := int64(0)
-	var err error
-	de := rlib.RRdb.Dbrr.QueryRow(countQuery).Scan(&count)
-	if de != nil {
-		err = fmt.Errorf("GetQueryCount: query=\"%s\"    err = %s", countQuery, de.Error())
 	}
 	return count, err
 }

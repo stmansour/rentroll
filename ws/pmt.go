@@ -110,7 +110,7 @@ func SvcHandlerPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	}
 }
 
-var pmtSearchFieldMap = selectQueryFieldMap{
+var pmtSearchFieldMap = rlib.SelectQueryFieldMap{
 	"PMTID":       {"PaymentType.PMTID"},
 	"Name":        {"PaymentType.Name"},
 	"Description": {"PaymentType.Description"},
@@ -121,7 +121,7 @@ var pmtSearchFieldMap = selectQueryFieldMap{
 }
 
 // which fields needs to be fetch to satisfy the struct
-var pmtSearchSelectQueryFields = selectQueryFields{
+var pmtSearchSelectQueryFields = rlib.SelectQueryFields{
 	"PaymentType.PMTID",
 	"PaymentType.Name",
 	"PaymentType.Description",
@@ -166,17 +166,17 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(pmtSearchSelectQueryFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(pmtQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc)
+	countQuery := rlib.RenderSQLQuery(pmtQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -197,7 +197,7 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(pmtQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(pmtQueryWithLimit, qc)
 	fmt.Printf("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)

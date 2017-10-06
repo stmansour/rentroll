@@ -114,7 +114,7 @@ func arGridRowScan(rows *sql.Rows, q PrARGrid) (PrARGrid, error) {
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
-var arFieldsMap = selectQueryFieldMap{
+var arFieldsMap = rlib.SelectQueryFieldMap{
 	"ARID":             {"AR.ARID"},
 	"Name":             {"AR.Name"},
 	"ARType":           {"AR.ARType"},
@@ -128,7 +128,7 @@ var arFieldsMap = selectQueryFieldMap{
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
-var arQuerySelectFields = selectQueryFields{
+var arQuerySelectFields = rlib.SelectQueryFields{
 	"AR.ARID",
 	"AR.Name",
 	"AR.ARType",
@@ -203,17 +203,17 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(arQuerySelectFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(arQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc)
+	countQuery := rlib.RenderSQLQuery(arQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -234,7 +234,7 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(arQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(arQueryWithLimit, qc)
 	fmt.Printf("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
@@ -407,7 +407,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
-var getARQuerySelectFields = selectQueryFields{
+var getARQuerySelectFields = rlib.SelectQueryFields{
 	"AR.ARID",
 	"AR.Name",
 	"AR.ARType",
@@ -460,13 +460,13 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	INNER JOIN GLAccount as creditQuery on AR.CreditLID=creditQuery.LID
 	WHERE {{.WhereClause}};`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(getARQuerySelectFields, ","),
 		"WhereClause":  fmt.Sprintf("AR.BID=%d AND AR.ARID=%d", d.BID, d.ARID),
 	}
 
 	// get formatted query with substitution of select, where, order clause
-	q := renderSQLQuery(arQuery, qc)
+	q := rlib.RenderSQLQuery(arQuery, qc)
 	fmt.Printf("db query = %s\n", q)
 
 	// execute the query

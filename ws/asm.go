@@ -201,17 +201,17 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(asmQuerySelectFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(asmQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc)
+	countQuery := rlib.RenderSQLQuery(asmQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc)
 	if err != nil {
-		rlib.Console("Error from GetQueryCount: %s\n", err.Error())
+		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -232,7 +232,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(asmQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(asmQueryWithLimit, qc)
 	rlib.Console("db query = %s\n", qry)
 
 	// execute the query
@@ -429,13 +429,13 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	WHERE {{.WhereClause}};`
 
 	// will be substituted as query clauses
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(asmFormSelectFields, ","),
 		"WhereClause":  fmt.Sprintf("Assessments.BID=%d AND Assessments.ASMID=%d", d.BID, d.ASMID),
 	}
 
 	// get formatted query with substitution of select, where, order clause
-	q := renderSQLQuery(asmQuery, qc)
+	q := rlib.RenderSQLQuery(asmQuery, qc)
 	rlib.Console("db query = %s\n", q)
 
 	// execute the query

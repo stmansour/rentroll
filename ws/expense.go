@@ -96,7 +96,7 @@ type DeleteExpenseForm struct {
 	ID int64
 }
 
-var expenseMethodSearchFieldMap = selectQueryFieldMap{
+var expenseMethodSearchFieldMap = rlib.SelectQueryFieldMap{
 	"EXPID":        {"Expense.EXPID"},
 	"BID":          {"Expense.BID"},
 	"RID":          {"Expense.RID"},
@@ -115,7 +115,7 @@ var expenseMethodSearchFieldMap = selectQueryFieldMap{
 }
 
 // which fields needs to be fetch to satisfy the struct
-var expenseMethodSearchSelectQueryFields = selectQueryFields{
+var expenseMethodSearchSelectQueryFields = rlib.SelectQueryFields{
 	"Expense.EXPID",
 	"Expense.BID",
 	"Expense.RID",
@@ -223,17 +223,17 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 	WHERE {{.WhereClause}}
 	ORDER BY {{.OrderClause}}`
 
-	qc := queryClauses{
+	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(expenseMethodSearchSelectQueryFields, ","),
 		"WhereClause":  whr,
 		"OrderClause":  order,
 	}
 
 	// get TOTAL COUNT First
-	countQuery := renderSQLQuery(theQuery, qc)
-	g.Total, err = GetQueryCount(countQuery, qc)
+	countQuery := rlib.RenderSQLQuery(theQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery, qc)
 	if err != nil {
-		fmt.Printf("%s: Error from GetQueryCount: %s\n", funcname, err.Error())
+		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
@@ -254,7 +254,7 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
 	// get formatted query with substitution of select, where, order clause
-	qry := renderSQLQuery(theQueryWithLimit, qc)
+	qry := rlib.RenderSQLQuery(theQueryWithLimit, qc)
 	fmt.Printf("db query = %s\n", qry)
 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
