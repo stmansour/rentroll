@@ -111,12 +111,19 @@ func readCommandLineArgs() {
 	vehiclePtr := flag.String("V", "", "add people vehicles via csv file")
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	depositPtr := flag.String("y", "", "add Deposits via csv file")
+	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
 
 	flag.Parse()
 	if *verPtr {
 		fmt.Printf("Version:    %s\nBuild Time: %s\n", GetVersionNo(), GetBuildTime())
 		os.Exit(0)
 	}
+	if *noconPtr {
+		rlib.DisableConsole()
+	} else {
+		rlib.EnableConsole()
+	}
+
 	App.AcctDep = *pAD
 	App.ARFile = *arPtr
 	App.AsmtFile = *asmtPtr
