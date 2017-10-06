@@ -103,7 +103,7 @@ func gridBuildQueryWhereClause(q, table, srch, order string, d *ServiceData, p i
 				case "between":
 					qw = gridHandleField(qw, d.wsSearchReq.SearchLogic, d.wsSearchReq.Search[i].Field, d.wsSearchReq.Search[i].Value, " %s like '%%%s%%'", &count)
 				default:
-					fmt.Printf("Unhandled search operator: %s\n", d.wsSearchReq.Search[i].Operator)
+					rlib.Console("Unhandled search operator: %s\n", d.wsSearchReq.Search[i].Operator)
 				}
 			}
 		}
@@ -210,7 +210,7 @@ func GetSQLWhereClause(fieldMap map[GenSearch][]string, searchLogic string) stri
 		case "between":
 			likeFmt = "%s like '%%%s%%'"
 		default:
-			fmt.Printf("Unhandled search operator: %s\n", gsrch.Operator)
+			rlib.Console("Unhandled search operator: %s\n", gsrch.Operator)
 		}
 
 		for i, mf := range fieldList {

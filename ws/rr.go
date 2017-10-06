@@ -378,7 +378,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		recidCount = newRecidCount
 	}
 
-	fmt.Printf("PageRowsCount: %d, Total: %d, MainTotalRows: %d\n", pageRowsCount, g.Total, g.TotalMainRows)
+	rlib.Console("PageRowsCount: %d, Total: %d, MainTotalRows: %d\n", pageRowsCount, g.Total, g.TotalMainRows)
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)
@@ -542,7 +542,7 @@ func getRRTotal(
 ) {
 
 	const funcname = "getRRTotal"
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 
 	// ISSUE: search functionality contains different search scenario, in that case we need to
 	// handle case that if field is presents in query FieldMap,.....

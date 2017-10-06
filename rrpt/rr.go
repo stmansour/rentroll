@@ -275,7 +275,7 @@ func GetRRReportPartSQLRows(
 		d1Str = d1.Format(rlib.RRDATEFMTSQL)
 		d2Str = d2.Format(rlib.RRDATEFMTSQL)
 	)
-	fmt.Printf("Entered in : %s\n", funcname)
+	rlib.Console("Entered in : %s\n", funcname)
 
 	// based on part, decide query and queryClause
 	switch rrPart {
@@ -432,7 +432,7 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 		customAttrRTSqft = "Square Feet"
 		grandTTL         = rentableRow{}
 	)
-	fmt.Printf("Entered in %s", funcname)
+	rlib.Console("Entered in %s", funcname)
 
 	// use section3 for errors and apply red color
 	cssListSection3 := []*gotable.CSSProperty{
