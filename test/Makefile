@@ -1,5 +1,5 @@
-DIRS = setup newbiz mrr rrr rr1 jm1 gsr notes ccc upd acctbal importers bizdelete testdb bizlogic ws websvc1 websvc2 webclient payorstmt
-
+# DIRS = setup newbiz mrr rrr rr1 jm1 gsr notes ccc upd acctbal importers bizdelete testdb bizlogic ws websvc1 websvc2 webclient payorstmt
+DIRS = setup newbiz rr1 gsr notes ccc upd acctbal importers bizdelete testdb bizlogic ws websvc1 websvc2 webclient payorstmt
 db:
 	for dir in $(DIRS); do make -C $$dir;done
 	@echo "*** MAKE completed in test ***"
