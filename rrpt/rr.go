@@ -348,7 +348,6 @@ type rentableRow struct {
 	Payors          rlib.NullString // payors list attached with this RA within same time
 	Users           rlib.NullString // users associated with the rentable
 	Sqft            rlib.NullInt64  // rentable sq ft
-	SqFtStr         string          // string representation of Sq ft
 	Description     rlib.NullString
 	GSR             rlib.NullFloat64
 	PeriodGSR       rlib.NullFloat64
@@ -409,6 +408,7 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 		tbl     = getRRTable() // gotable init for this report
 		// totalErrs        = 0
 		customAttrRTSqft = "Square Feet"
+		grandTTL         = rentableRow{}
 	)
 	fmt.Printf("Entered in %s", funcname)
 
@@ -423,6 +423,7 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
+	grandTTL.Description.Scan("Grand Total")
 
 	// set table title, sections
 	err = TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
@@ -432,26 +433,26 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	}
 
 	// Add columns to the table
-	tbl.AddColumn("Rentable", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // column for the Rentable name
-	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)              // RentableType name
-	tbl.AddColumn("SqFt", 5, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)                       // the Custom Attribute "Square Feet"
-	tbl.AddColumn("Description", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                // the Custom Attribute "Square Feet"
-	tbl.AddColumn("Users", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                      // Users of this rentable
-	tbl.AddColumn("Payors", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                     // Users of this rentable
-	tbl.AddColumn("Rental Agreement", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // the Rental Agreement id
-	tbl.AddColumn("Use Period", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                 // the use period
-	tbl.AddColumn("Rent Period", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)                  // the rent period
-	tbl.AddColumn("Rent Cycle", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                 // the rent cycle
-	tbl.AddColumn("GSR Rate", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                   // gross scheduled rent
-	tbl.AddColumn("Period GSR", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)                 // gross scheduled rent
-	tbl.AddColumn("Income Offsets", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)             // GL Account
-	tbl.AddColumn("Payments Applied", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)           // contract rent amounts
-	tbl.AddColumn("Beginning Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
-	tbl.AddColumn("Change In Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
-	tbl.AddColumn("Ending Receivable", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)          // account for the associated RentalAgreement
-	tbl.AddColumn("Beginning Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
-	tbl.AddColumn("Change In Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
-	tbl.AddColumn("Ending Security Deposit", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
+	tbl.AddColumn("Rentable", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // column for the Rentable name
+	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)               // RentableType name
+	tbl.AddColumn("SqFt", 5, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)                        // the Custom Attribute "Square Feet"
+	tbl.AddColumn("Description", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                 // the Custom Attribute "Square Feet"
+	tbl.AddColumn("Users", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                       // Users of this rentable
+	tbl.AddColumn("Payors", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                      // Users of this rentable
+	tbl.AddColumn("Rental Agreement", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)            // the Rental Agreement id
+	tbl.AddColumn("Use Period", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                  // the use period
+	tbl.AddColumn("Rent Period", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                 // the rent period
+	tbl.AddColumn("Rent Cycle", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                  // the rent cycle
+	tbl.AddColumn("GSR Rate", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)                   // gross scheduled rent
+	tbl.AddColumn("Period GSR", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)                 // gross scheduled rent
+	tbl.AddColumn("Income Offsets", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)             // GL Account
+	tbl.AddColumn("Payments Applied", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)           // contract rent amounts
+	tbl.AddColumn("Beginning Receivable", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Receivable", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Receivable", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)          // account for the associated RentalAgreement
+	tbl.AddColumn("Beginning Security Deposit", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
+	tbl.AddColumn("Change In Security Deposit", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
+	tbl.AddColumn("Ending Security Deposit", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
 
 	//==========================
 	// RENTABLES QUERY EXECUTION
@@ -501,9 +502,6 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 			if q.RentCycle.Int64 == freqNo {
 				q.RentCycleStr = freqStr
 			}
-		}
-		if q.Sqft.Int64 > 0 {
-			q.SqFtStr = strconv.FormatInt(q.Sqft.Int64, 10)
 		}
 
 		//------------------------------------------------------------
@@ -635,16 +633,22 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 		sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
 		sub.EndingSecDep.Valid = true
 
-		// add line Before the subtotal
+		// =====================
+		// SUBTOTAL LINE
+		// =====================
 		tbl.AddLineAfter(len(tbl.Row) - 1)
 		rrTableAddRow(&tbl, sub)
 		childCount++
-		// SHOULD WE ADD LINE AFTER SUBTOTAL ROW??
+		tbl.AddLineAfter(len(tbl.Row) - 1) // SHOULD WE ADD LINE AFTER SUBTOTAL ROW??
 
-		// Add one blank ROW
-		tbl.AddLineAfter(len(tbl.Row) - 1)
-		/*rrTableAddRow(&tbl, rentableRow{})
-		  childCount++*/
+		// add subTotal amounts to grand total record
+		updateGrandTotals(&grandTTL, &sub)
+
+		// =====================
+		// BLANK LINE
+		// =====================
+		rrTableAddRow(&tbl, rentableRow{})
+		childCount++
 
 		// update the count only after adding the record
 		count++
@@ -683,6 +687,9 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 		}
 		rrTableAddRow(&tbl, q)
 		count++
+
+		// add subTotal amounts to grand total record
+		updateGrandTotals(&grandTTL, &q)
 	}
 	rlib.Console("Added noRID Asmt rows: %d", count)
 
@@ -712,7 +719,14 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 		}
 		rrTableAddRow(&tbl, q)
 		count++
+
+		// add subTotal amounts to grand total record
+		updateGrandTotals(&grandTTL, &q)
 	}
+
+	// at last add grand total row to the table
+	tbl.AddLineAfter(len(tbl.Row) - 1)
+	rrTableAddRow(&tbl, grandTTL)
 
 	return tbl
 }
@@ -738,6 +752,41 @@ func updateSubTotals(sub, q *rentableRow) {
 	sub.IncomeOffsets.Float64 += q.IncomeOffsets.Float64
 	// rlib.Console("\t q.Description = %s, q.AmountDue = %.2f, q.PaymentsApplied = %.2f\n", q.Description, q.AmountDue.Float64, q.PaymentsApplied.Float64)
 	// rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
+}
+
+// updateGrandTotals does grand total from subTotal Rows
+//-----------------------------------------------------------------------------
+func updateGrandTotals(grandTotal, subTotal *rentableRow) {
+	grandTotal.AmountDue.Float64 += subTotal.AmountDue.Float64
+	grandTotal.PaymentsApplied.Float64 += subTotal.PaymentsApplied.Float64
+	grandTotal.PeriodGSR.Float64 += subTotal.PeriodGSR.Float64
+	grandTotal.IncomeOffsets.Float64 += subTotal.IncomeOffsets.Float64
+	// rlib.Console("\t subTotal.Description = %s, subTotal.AmountDue = %.2f, subTotal.PaymentsApplied = %.2f\n", subTotal.Description, subTotal.AmountDue.Float64, subTotal.PaymentsApplied.Float64)
+	// rlib.Console("\t grandTotal.AmountDue = %.2f, grandTotal.PaymentsApplied = %.2f\n", grandTotal.AmountDue.Float64, grandTotal.PaymentsApplied.Float64)
+}
+
+// int64ToStr returns the string represenation of int64 type number
+// if blank is set to true, then it will returns blank string otherwise returns 0
+func int64ToStr(number int64, blank bool) string {
+	if number > 0 {
+		return strconv.FormatInt(number, 10)
+	}
+	if blank {
+		return ""
+	}
+	return strconv.FormatInt(number, 10)
+}
+
+// float64ToStr returns the string represenation of float64 type number
+// if blank is set to true, then it will returns blank string otherwise returns 0.00
+func float64ToStr(number float64, blank bool) string {
+	if number > 0 {
+		return strconv.FormatFloat(number, 'f', 2, 64)
+	}
+	if blank {
+		return ""
+	}
+	return strconv.FormatFloat(number, 'f', 2, 64)
 }
 
 // rrTableAddRow adds row in gotable struct with information
@@ -780,23 +829,28 @@ func rrTableAddRow(tbl *gotable.Table, q rentableRow) {
 	tbl.AddRow()
 	tbl.Puts(-1, RName, q.RentableName.String)
 	tbl.Puts(-1, RType, q.RentableType.String)
-	tbl.Puts(-1, SqFt, q.SqFtStr) // even it has been defined as CELLINT, still you can put string content, STRANGE!!!
+	tbl.Puts(-1, SqFt, int64ToStr(q.Sqft.Int64, true))
 	tbl.Puts(-1, Descr, q.Description.String)
 	tbl.Puts(-1, Users, q.Users.String)
 	tbl.Puts(-1, Payors, q.Payors.String)
-	tbl.Puts(-1, RAgr, fmt.Sprintf("RA-%d", q.RAID.Int64))
+	raidStr := int64ToStr(q.RAID.Int64, true)
+	raStr := ""
+	if len(raidStr) > 0 {
+		raStr = "RA-" + raidStr
+	}
+	tbl.Puts(-1, RAgr, raStr)
 	tbl.Puts(-1, UsePeriod, q.UsePeriod)
 	tbl.Puts(-1, RentPeriod, q.RentPeriod)
 	tbl.Puts(-1, RentCycle, q.RentCycleStr)
-	tbl.Putf(-1, GSRRate, q.GSR.Float64)
-	tbl.Putf(-1, GSRAmt, q.PeriodGSR.Float64)
-	tbl.Putf(-1, IncOff, q.IncomeOffsets.Float64)
-	tbl.Putf(-1, AmtDue, q.AmountDue.Float64)
-	tbl.Putf(-1, PmtRcvd, q.PaymentsApplied.Float64)
-	tbl.Putf(-1, BeginRcv, q.BeginningRcv.Float64)
-	tbl.Putf(-1, ChgRcv, q.ChangeInRcv.Float64)
-	tbl.Putf(-1, EndRcv, q.EndingRcv.Float64)
-	tbl.Putf(-1, BeginSecDep, q.BeginningSecDep.Float64)
-	tbl.Putf(-1, ChgSecDep, q.ChangeInSecDep.Float64)
-	tbl.Putf(-1, EndSecDep, q.EndingSecDep.Float64)
+	tbl.Puts(-1, GSRRate, float64ToStr(q.GSR.Float64, false))
+	tbl.Puts(-1, GSRAmt, float64ToStr(q.PeriodGSR.Float64, false))
+	tbl.Puts(-1, IncOff, float64ToStr(q.IncomeOffsets.Float64, false))
+	tbl.Puts(-1, AmtDue, float64ToStr(q.AmountDue.Float64, false))
+	tbl.Puts(-1, PmtRcvd, float64ToStr(q.PaymentsApplied.Float64, false))
+	tbl.Puts(-1, BeginRcv, float64ToStr(q.BeginningRcv.Float64, false))
+	tbl.Puts(-1, ChgRcv, float64ToStr(q.ChangeInRcv.Float64, false))
+	tbl.Puts(-1, EndRcv, float64ToStr(q.EndingRcv.Float64, false))
+	tbl.Puts(-1, BeginSecDep, float64ToStr(q.BeginningSecDep.Float64, false))
+	tbl.Puts(-1, ChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, false))
+	tbl.Puts(-1, EndSecDep, float64ToStr(q.EndingSecDep.Float64, false))
 }
