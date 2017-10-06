@@ -1,3 +1,130 @@
+Entered in RRReportTableEntered in : GetRRReportPartSQLRows
+db query for rentables = 
+    SELECT DISTINCT Rentable.BID,Rentable.RID,Rentable.RentableName,RentableTypeRef.RTID,RentableTypes.Name as RentableType,RentableTypes.RentCycle,RentableMarketRate.MarketRate as MarketRate,RentalAgreementRentables.RARID,RentalAgreementRentables.RAID as RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,RentableStatus.Status,GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END SEPARATOR ', ') AS Payors,GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END SEPARATOR ', ') AS Users
+    FROM Rentable
+    LEFT JOIN RentableTypeRef ON RentableTypeRef.RID=Rentable.RID
+    LEFT JOIN RentableTypes ON RentableTypes.RTID=RentableTypeRef.RTID
+    LEFT JOIN RentableMarketRate ON (RentableMarketRate.RTID=RentableTypeRef.RTID AND RentableMarketRate.DtStart<"2017-01-01" AND RentableMarketRate.DtStop>"2016-12-01")
+    LEFT JOIN RentableStatus ON (RentableStatus.RID=Rentable.RID AND RentableStatus.DtStart<"2017-01-01" AND RentableStatus.DtStop>"2016-12-01")
+    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RID=Rentable.RID AND RentalAgreementRentables.RARDtStart<"2017-01-01" AND RentalAgreementRentables.RARDtStop>"2016-12-01")
+    LEFT JOIN RentalAgreement ON (RentalAgreement.RAID=RentalAgreementRentables.RAID)
+    LEFT JOIN RentalAgreementPayors ON (RentalAgreementRentables.RAID=RentalAgreementPayors.RAID AND RentalAgreementPayors.DtStart<"2017-01-01" AND RentalAgreementPayors.DtStop>"2016-12-01")
+    LEFT JOIN Transactant as Payor ON (Payor.TCID=RentalAgreementPayors.TCID AND Payor.BID=Rentable.BID)
+    LEFT JOIN RentableUsers ON (RentableUsers.RID=Rentable.RID AND RentableUsers.DtStart<"2017-01-01" AND RentableUsers.DtStop>"2016-12-01")
+    LEFT JOIN Transactant as User ON (RentableUsers.TCID=User.TCID AND User.BID=Rentable.BID)
+    WHERE Rentable.BID=1
+    GROUP BY Rentable.RID
+    ORDER BY Rentable.RentableName ASC;
+Entered in : GetRRReportPartSQLRows
+db query for rentablesAsmt = 
+    SELECT AR.Name as Description,Assessments.RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,Assessments.Amount as AmountDue,SUM(ReceiptAllocation.Amount) as PaymentsApplied
+    FROM Rentable
+    LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "2016-12-01" <= Start AND Stop < "2017-01-01" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
+    LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "2016-12-01" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "2017-01-01")
+    LEFT JOIN RentalAgreement on (RentalAgreement.RAID=Assessments.RAID)
+    LEFT JOIN AR ON AR.ARID=Assessments.ARID
+    WHERE Rentable.BID=1 AND (Rentable.RID=2)
+    GROUP BY Rentable.RID, Assessments.ASMID
+    ORDER BY Assessments.RAID ASC, Assessments.Amount DESC;
+Entered in : GetRRReportPartSQLRows
+db query for rentablesNoAsmt = 
+    SELECT AR.Name as Description,ReceiptAllocation.RAID as RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,ReceiptAllocation.Amount as PaymentsApplied FROM ReceiptAllocation
+    LEFT JOIN RentalAgreementRentables ON (ReceiptAllocation.RAID=RentalAgreementRentables.RAID AND "2016-12-01" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "2017-01-01")
+    LEFT JOIN Rentable ON (Rentable.RID=RentalAgreementRentables.RID AND Rentable.RID > 0)
+    LEFT JOIN Receipt ON (RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0 AND "2016-12-01" <= Receipt.Dt AND Receipt.Dt < "2017-01-01")
+    LEFT JOIN RentalAgreement ON (ReceiptAllocation.RAID=RentalAgreement.RAID)
+    INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
+    WHERE ReceiptAllocation.BID=1 AND ReceiptAllocation.RAID > 0 AND (RentalAgreementRentables.RID=2)
+    ORDER BY ReceiptAllocation.Amount DESC;
+Entered in : GetRRReportPartSQLRows
+db query for rentablesAsmt = 
+    SELECT AR.Name as Description,Assessments.RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,Assessments.Amount as AmountDue,SUM(ReceiptAllocation.Amount) as PaymentsApplied
+    FROM Rentable
+    LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "2016-12-01" <= Start AND Stop < "2017-01-01" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
+    LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "2016-12-01" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "2017-01-01")
+    LEFT JOIN RentalAgreement on (RentalAgreement.RAID=Assessments.RAID)
+    LEFT JOIN AR ON AR.ARID=Assessments.ARID
+    WHERE Rentable.BID=1 AND (Rentable.RID=1)
+    GROUP BY Rentable.RID, Assessments.ASMID
+    ORDER BY Assessments.RAID ASC, Assessments.Amount DESC;
+Entered in : GetRRReportPartSQLRows
+db query for rentablesNoAsmt = 
+    SELECT AR.Name as Description,ReceiptAllocation.RAID as RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,ReceiptAllocation.Amount as PaymentsApplied FROM ReceiptAllocation
+    LEFT JOIN RentalAgreementRentables ON (ReceiptAllocation.RAID=RentalAgreementRentables.RAID AND "2016-12-01" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "2017-01-01")
+    LEFT JOIN Rentable ON (Rentable.RID=RentalAgreementRentables.RID AND Rentable.RID > 0)
+    LEFT JOIN Receipt ON (RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0 AND "2016-12-01" <= Receipt.Dt AND Receipt.Dt < "2017-01-01")
+    LEFT JOIN RentalAgreement ON (ReceiptAllocation.RAID=RentalAgreement.RAID)
+    INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
+    WHERE ReceiptAllocation.BID=1 AND ReceiptAllocation.RAID > 0 AND (RentalAgreementRentables.RID=1)
+    ORDER BY ReceiptAllocation.Amount DESC;
+Entered in : GetRRReportPartSQLRows
+db query for rentablesAsmt = 
+    SELECT AR.Name as Description,Assessments.RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,Assessments.Amount as AmountDue,SUM(ReceiptAllocation.Amount) as PaymentsApplied
+    FROM Rentable
+    LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "2016-12-01" <= Start AND Stop < "2017-01-01" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
+    LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "2016-12-01" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "2017-01-01")
+    LEFT JOIN RentalAgreement on (RentalAgreement.RAID=Assessments.RAID)
+    LEFT JOIN AR ON AR.ARID=Assessments.ARID
+    WHERE Rentable.BID=1 AND (Rentable.RID=4)
+    GROUP BY Rentable.RID, Assessments.ASMID
+    ORDER BY Assessments.RAID ASC, Assessments.Amount DESC;
+Entered in : GetRRReportPartSQLRows
+db query for rentablesNoAsmt = 
+    SELECT AR.Name as Description,ReceiptAllocation.RAID as RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,ReceiptAllocation.Amount as PaymentsApplied FROM ReceiptAllocation
+    LEFT JOIN RentalAgreementRentables ON (ReceiptAllocation.RAID=RentalAgreementRentables.RAID AND "2016-12-01" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "2017-01-01")
+    LEFT JOIN Rentable ON (Rentable.RID=RentalAgreementRentables.RID AND Rentable.RID > 0)
+    LEFT JOIN Receipt ON (RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0 AND "2016-12-01" <= Receipt.Dt AND Receipt.Dt < "2017-01-01")
+    LEFT JOIN RentalAgreement ON (ReceiptAllocation.RAID=RentalAgreement.RAID)
+    INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
+    WHERE ReceiptAllocation.BID=1 AND ReceiptAllocation.RAID > 0 AND (RentalAgreementRentables.RID=4)
+    ORDER BY ReceiptAllocation.Amount DESC;
+GetRARBalance: Could not find LedgerMarker for RAID=0, RID=4, on or before 12/1/2016
+GetRARBalance: Could not find LedgerMarker for RAID=0, RID=4, on or before 1/1/2017
+Entered in : GetRRReportPartSQLRows
+db query for rentablesAsmt = 
+    SELECT AR.Name as Description,Assessments.RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,Assessments.Amount as AmountDue,SUM(ReceiptAllocation.Amount) as PaymentsApplied
+    FROM Rentable
+    LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "2016-12-01" <= Start AND Stop < "2017-01-01" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
+    LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "2016-12-01" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "2017-01-01")
+    LEFT JOIN RentalAgreement on (RentalAgreement.RAID=Assessments.RAID)
+    LEFT JOIN AR ON AR.ARID=Assessments.ARID
+    WHERE Rentable.BID=1 AND (Rentable.RID=3)
+    GROUP BY Rentable.RID, Assessments.ASMID
+    ORDER BY Assessments.RAID ASC, Assessments.Amount DESC;
+Entered in : GetRRReportPartSQLRows
+db query for rentablesNoAsmt = 
+    SELECT AR.Name as Description,ReceiptAllocation.RAID as RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,ReceiptAllocation.Amount as PaymentsApplied FROM ReceiptAllocation
+    LEFT JOIN RentalAgreementRentables ON (ReceiptAllocation.RAID=RentalAgreementRentables.RAID AND "2016-12-01" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "2017-01-01")
+    LEFT JOIN Rentable ON (Rentable.RID=RentalAgreementRentables.RID AND Rentable.RID > 0)
+    LEFT JOIN Receipt ON (RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0 AND "2016-12-01" <= Receipt.Dt AND Receipt.Dt < "2017-01-01")
+    LEFT JOIN RentalAgreement ON (ReceiptAllocation.RAID=RentalAgreement.RAID)
+    INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
+    WHERE ReceiptAllocation.BID=1 AND ReceiptAllocation.RAID > 0 AND (RentalAgreementRentables.RID=3)
+    ORDER BY ReceiptAllocation.Amount DESC;
+Added 4 Rentable rows
+Entered in : GetRRReportPartSQLRows
+db query for noRIDAsmt = 
+    SELECT Assessments.BID,Assessments.ASMID,AR.Name,Assessments.Amount,SUM(ReceiptAllocation.Amount) as PaymentsApplied,RentalAgreement.RAID,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payors
+    FROM Assessments
+    LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID)
+    LEFT JOIN AR ON (AR.ARID=Assessments.ARID)
+    LEFT JOIN RentalAgreement ON RentalAgreement.RAID=Assessments.RAID
+    LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.RAID=RentalAgreement.RAID
+    LEFT JOIN Transactant ON Transactant.TCID=RentalAgreementPayors.TCID
+    WHERE Assessments.BID=1 AND Assessments.FLAGS&4=0 AND Assessments.RID=0 AND "2016-12-01" < Assessments.Stop AND Assessments.Start < "2017-01-01"
+    GROUP BY Assessments.ASMID
+    ORDER BY Assessments.RAID ASC, Assessments.Start ASC;
+Added noRID Asmt rows: 0Entered in : GetRRReportPartSQLRows
+db query for noRIDNoAsmt = 
+    SELECT ReceiptAllocation.BID,ReceiptAllocation.RAID,ReceiptAllocation.Amount,RentalAgreement.PossessionStart,RentalAgreement.PossessionStop,RentalAgreement.RentStart,RentalAgreement.RentStop,AR.Name,CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payors
+    FROM ReceiptAllocation
+    LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RAID=ReceiptAllocation.RAID
+    LEFT JOIN RentalAgreement ON RentalAgreement.RAID=ReceiptAllocation.RAID
+    INNER JOIN Receipt ON (Receipt.RCPTID = ReceiptAllocation.RCPTID)
+    INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS = 5)
+    INNER JOIN Transactant ON (Transactant.TCID = Receipt.TCID)
+    WHERE ReceiptAllocation.BID=1 AND ReceiptAllocation.ASMID=0 AND ReceiptAllocation.RAID>0 AND "2016-12-01" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "2017-01-01" AND RentalAgreementRentables.RID is NULL
+    ORDER BY ReceiptAllocation.Dt ASC
 REX Rentroll
 Dec 1, 2016 - Jan 1, 2017
 BH Rexford Group, Inc.
@@ -6,19 +133,32 @@ Suite 301
 Austin, TX 78738 USA
 
 
-Encountered 1 errors while creating this report. See log.
-                                                                                                                                                                    Rental      Rental                                                                                                                               Beginning   Change In      Ending
-                                Square                                                                  Rental                              Rental      Rental      Agreement   Agreement                             GSR This      Income    Contract       Other    Payments   Beginning   Change In      Ending    Security    Security    Security
-Rentable         Rentable Type    Feet  Rentable Users                  Rentable Payors                 Agreement   Use Start   Use Stop    Start       Stop        Start       Stop        Rent Cycle    GSR Rate      Period     Offsets        Rent      Income    Received  Receivable  Receivable  Receivable     Deposit     Deposit     Deposit
----------------  -------------  ------  ------------------------------  ------------------------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
-309 Rexford      Rex1             1215  Aaron Read,Kirsten Read         Aaron Read, Kirsten Read,       RA00000001  03/01/2014  03/01/2018  03/01/2014  03/01/2018  03/01/2014  03/01/2018  monthly       3,750.00    3,750.00        0.00    3,750.00        0.00        0.00        0.00        0.00        0.00    7,000.00        0.00    7,000.00
-                                                                        Aaron Read, Kirsten Read                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                      
-309 1/2 Rexford  Rex2             1239  Alex Vahabzadeh                 Alex Vahabzadeh                 RA00000005  10/01/2016  04/01/2017  10/01/2016  04/01/2017  10/01/2016  04/01/2017  monthly       4,000.00    4,000.00        0.00    4,000.00        0.00        0.00   -8,000.00    4,000.00   -4,000.00        0.00        0.00        0.00
-                                                                                                                                                                                                                                                                                                                                                      
-311 Rexford      Rex3             1433  Child1 Mills,Child2             Lauren Beck, Kevin Mills        RA00000004  07/01/2016  07/01/2018  07/01/2016  07/01/2018  07/01/2016  07/01/2018  monthly       4,150.00    4,150.00        0.00    4,150.00        0.00        0.00        0.00        0.00        0.00    8,300.00        0.00    8,300.00
-                                        Mills,Kevin Mills,Lauren Beck                                                                                                                                                                                                                                                                                 
-                                                                                                                                                                                                                                                                                                                                                      
-311 1/2 Rexford  Rex4              827  owner occupied                  vacant                          n/a                                 12/01/2016  01/01/2017                                        2,500.00    2,500.00    2,500.00                                                                                                            
----------------  -------------  ------  ------------------------------  ------------------------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
-                                                                                                                                                                                                                     14,400.00    2,500.00   11,900.00        0.00        0.00   -8,000.00    4,000.00   -4,000.00   15,300.00        0.00   15,300.00
+                                                                                                                                                                                                                                                                                 Beginning   Change In      Ending
+                                                                                                                                    Rental                     Rent                                                     Income    Payments   Beginning   Change In      Ending    Security    Security    Security
+Rentable              Rentable Type     SqFt  Description           Users                           Payors                          Agreement   Use Period     Period         Rent Cycle      GSR Rate  Period GSR     Offsets     Applied  Receivable  Receivable  Receivable     Deposit     Deposit     Deposit
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+309 1/2 Rexford       309 1/2 Rexford   1239                        Alex Vahabzadeh                 Alex Vahabzadeh                 RA-5        10/1/2016<br>  10/1/2016<br>                               Monthly     4000.00        0.00        0.00     4000.00        0.00        0.00        0.00        0.00
+                                                                                                                                                - 4/1/2017     - 4/1/2017                                                                                                                                         
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                              Subtotal                                                                                                                                                                    0.00        0.00        0.00     4000.00        0.00     8015.00     4000.00    12015.00
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                                                                                                                                                                                                          0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00
+309 Rexford           309 Rexford       1215                                                        Aaron Read, Kirsten Read        RA-1        3/1/2014<br>   3/1/2014<br>                                Monthly     3750.00        0.00        0.00     3750.00     4150.00        0.00        0.00        0.00
+                                                                                                                                                - 3/1/2018     - 3/1/2018                                                                                                                                         
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                              Subtotal                                                                                                                                                                    0.00        0.00        0.00     3750.00     4150.00    30000.00     3750.00    33750.00
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                                                                                                                                                                                                          0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00
+311 1/2 Rexford       311 1/2 Rexford    827                                                                                                                                                               Monthly     2500.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                              Subtotal                                                                                                                                                                    0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                                                                                                                                                                                                          0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00
+311 Rexford           311 Rexford       1433                        Child1 Mills, Child2 Mills,     Kevin Mills, Lauren Beck        RA-4        7/1/2016<br>   7/1/2016<br>                                Monthly     4150.00        0.00        0.00     4150.00        0.00        0.00        0.00        0.00
+                                                                    Kevin Mills, Lauren Beck                                                    - 7/1/2018     - 7/1/2018                                                                                                                                         
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                              Subtotal                                                                                                                                                                    0.00        0.00        0.00     4150.00        0.00    20750.00     4150.00    24900.00
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                                                                                                                                                                                                          0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00
+--------------------  ---------------  -----  --------------------  ------------------------------  ------------------------------  ----------  -------------  -------------  ------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+                                              Grand Total                                                                                                                                                                 0.00        0.00        0.00    11900.00     4150.00        0.00        0.00        0.00
