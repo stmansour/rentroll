@@ -545,12 +545,12 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 			if childCount == 0 {
 				nq = q
 			}
-			err = rentablesAsmtRows.Scan(&nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
+			err = rentablesAsmtRows.Scan(&nq.RAID, &nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
 			if err != nil {
 				tbl.SetSection3(err.Error())
 				return tbl
 			}
-			if nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
+			if nq.RAID.Valid || nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &nq)
 				updateSubTotals(&sub, &nq)
 			}
