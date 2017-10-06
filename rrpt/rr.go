@@ -80,7 +80,6 @@ var RentablesQueryClause = rlib.QueryClause{
 	"OrderClause":  "Rentable.RentableName ASC",
 	"DtStart":      "",
 	"DtStop":       "",
-	"BID":          "",
 }
 
 // ------- Rentables Assessments Query components -------
@@ -88,8 +87,12 @@ var RentablesQueryClause = rlib.QueryClause{
 // RentablesAsmtFields holds the fields need to be fetched by
 // rentables assessment query
 var RentablesAsmtFields = rlib.SelectQueryFields{
-	"Assessments.RAID",
 	"AR.Name as Description",
+	"Assessments.RAID",
+	"RentalAgreement.PossessionStart",
+	"RentalAgreement.PossessionStop",
+	"RentalAgreement.RentStart",
+	"RentalAgreement.RentStop",
 	"Assessments.Amount as AmountDue",
 	"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
 }
@@ -100,6 +103,7 @@ var RentablesAsmtQuery = `
     FROM Rentable
     LEFT JOIN Assessments ON (Assessments.RID=Rentable.RID AND (Assessments.FLAGS & 4)=0 AND "{{.DtStart}}" <= Start AND Stop < "{{.DtStop}}" AND (RentCycle=0 OR (RentCycle>0 AND PASMID!=0)))
     LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.ASMID=Assessments.ASMID AND "{{.DtStart}}" <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < "{{.DtStop}}")
+    LEFT JOIN RentalAgreement on (RentalAgreement.RAID=Assessments.RAID)
     LEFT JOIN AR ON AR.ARID=Assessments.ARID
     WHERE {{.WhereClause}}
     GROUP BY Rentable.RID, Assessments.ASMID
@@ -109,10 +113,9 @@ var RentablesAsmtQuery = `
 var RentablesAsmtQueryClause = rlib.QueryClause{
 	"SelectClause": strings.Join(RentablesAsmtFields, ","),
 	"WhereClause":  "Rentable.BID=%d", // needs to be replace %d with some BID in query execution plan
-	"OrderClause":  "Rentable.RID ASC, Assessments.Amount DESC",
+	"OrderClause":  "Assessments.RAID ASC, Assessments.Amount DESC",
 	"DtStart":      "",
 	"DtStop":       "",
-	"BID":          "",
 }
 
 // ------- Rentables No Assessments Query components -------
@@ -122,6 +125,10 @@ var RentablesAsmtQueryClause = rlib.QueryClause{
 var RentablesNoAsmtFields = rlib.SelectQueryFields{
 	"AR.Name as Description",
 	"ReceiptAllocation.RAID as RAID",
+	"RentalAgreement.PossessionStart",
+	"RentalAgreement.PossessionStop",
+	"RentalAgreement.RentStart",
+	"RentalAgreement.RentStop",
 	"ReceiptAllocation.Amount as PaymentsApplied",
 }
 
@@ -132,6 +139,7 @@ var RentablesNoAsmtQuery = `
     LEFT JOIN RentalAgreementRentables ON (ReceiptAllocation.RAID=RentalAgreementRentables.RAID AND "{{.DtStart}}" <= RentalAgreementRentables.RARDtStop AND RentalAgreementRentables.RARDtStart < "{{.DtStop}}")
     LEFT JOIN Rentable ON (Rentable.RID=RentalAgreementRentables.RID AND Rentable.RID > 0)
     LEFT JOIN Receipt ON (RentalAgreementRentables.RAID=Receipt.RAID AND Receipt.FLAGS & 4=0 AND "{{.DtStart}}" <= Receipt.Dt AND Receipt.Dt < "{{.DtStop}}")
+    LEFT JOIN RentalAgreement ON (ReceiptAllocation.RAID=RentalAgreement.RAID)
     INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS & 5 = 5)
     WHERE {{.WhereClause}}
     ORDER BY {{.OrderClause}};`
@@ -143,7 +151,6 @@ var RentablesNoAsmtQueryClause = rlib.QueryClause{
 	"OrderClause":  "ReceiptAllocation.Amount DESC",
 	"DtStart":      "",
 	"DtStop":       "",
-	"BID":          "",
 }
 
 // ------- No Rentables Assessments Query components -------
@@ -157,16 +164,24 @@ var NoRIDAsmtQuerySelectFields = rlib.SelectQueryFields{
 	"Assessments.Amount",
 	"SUM(ReceiptAllocation.Amount) as PaymentsApplied",
 	"RentalAgreement.RAID",
+	"RentalAgreement.PossessionStart",
+	"RentalAgreement.PossessionStop",
+	"RentalAgreement.RentStart",
+	"RentalAgreement.RentStop",
 	"CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payors",
 }
 
 // NoRIDAsmtQueryFieldMap fieldsMap for the no rentable assessment query
 var NoRIDAsmtQueryFieldMap = rlib.SelectQueryFieldMap{
-	"Description": {"ARID.Name"},
-	"LastModTime": {"PaymentType.LastModTime"},
-	"LastModBy":   {"PaymentType.LastModBy"},
-	"CreateTS":    {"PaymentType.CreateTS"},
-	"CreateBy":    {"PaymentType.CreateBy"},
+	"Description":     {"ARID.Name"},
+	"PossessionStart": {"RentalAgreement.PossessionStart"},
+	"PossessionStop":  {"RentalAgreement.PossessionStop"},
+	"RentStart":       {"RentalAgreement.RentStart"},
+	"RentStop":        {"RentalAgreement.RentStop"},
+	"LastModTime":     {"PaymentType.LastModTime"},
+	"LastModBy":       {"PaymentType.LastModBy"},
+	"CreateTS":        {"PaymentType.CreateTS"},
+	"CreateBy":        {"PaymentType.CreateBy"},
 }
 
 // NoRIDAsmtQuery - the query execution plan for no rentable assessment
@@ -189,7 +204,6 @@ var NoRIDAsmtQueryClause = rlib.QueryClause{
 	"OrderClause":  "Assessments.RAID ASC, Assessments.Start ASC",
 	"DtStart":      "",
 	"DtStop":       "",
-	"BID":          "",
 }
 
 // ------- No Rentables No Assessments Query components -------
@@ -200,17 +214,25 @@ var NoRIDNoAsmtQuerySelectFields = rlib.SelectQueryFields{
 	"ReceiptAllocation.BID",
 	"ReceiptAllocation.RAID",
 	"ReceiptAllocation.Amount",
+	"RentalAgreement.PossessionStart",
+	"RentalAgreement.PossessionStop",
+	"RentalAgreement.RentStart",
+	"RentalAgreement.RentStop",
 	"AR.Name",
 	"CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payors",
 }
 
 // NoRIDNoAsmQueryFieldMap holds the fieldmap for no rentable no assessment query
 var NoRIDNoAsmQueryFieldMap = rlib.SelectQueryFieldMap{
-	"Description": {"ARID.Name"},
-	"LastModTime": {"PaymentType.LastModTime"},
-	"LastModBy":   {"PaymentType.LastModBy"},
-	"CreateTS":    {"PaymentType.CreateTS"},
-	"CreateBy":    {"PaymentType.CreateBy"},
+	"Description":     {"ARID.Name"},
+	"PossessionStart": {"RentalAgreement.PossessionStart"},
+	"PossessionStop":  {"RentalAgreement.PossessionStop"},
+	"RentStart":       {"RentalAgreement.RentStart"},
+	"RentStop":        {"RentalAgreement.RentStop"},
+	"LastModTime":     {"PaymentType.LastModTime"},
+	"LastModBy":       {"PaymentType.LastModBy"},
+	"CreateTS":        {"PaymentType.CreateTS"},
+	"CreateBy":        {"PaymentType.CreateBy"},
 }
 
 // NoRIDNoAsmtQuery - the query execution plan for no rentables no assessments part
@@ -218,6 +240,7 @@ var NoRIDNoAsmtQuery = `
     SELECT {{.SelectClause}}
     FROM ReceiptAllocation
     LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RAID=ReceiptAllocation.RAID
+    LEFT JOIN RentalAgreement ON RentalAgreement.RAID=ReceiptAllocation.RAID
     INNER JOIN Receipt ON (Receipt.RCPTID = ReceiptAllocation.RCPTID)
     INNER JOIN AR ON (AR.ARID = Receipt.ARID AND AR.FLAGS = 5)
     INNER JOIN Transactant ON (Transactant.TCID = Receipt.TCID)
@@ -231,7 +254,6 @@ var NoRIDNoAsmtQueryClause = rlib.QueryClause{
 	"OrderClause":  "ReceiptAllocation.Dt ASC",
 	"DtStart":      "",
 	"DtStop":       "",
-	"BID":          "",
 }
 
 // GetRRReportPartSQLRows returns the sql.Rows for the given looking part
@@ -496,7 +518,7 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 			q.RentPeriod = fmt.Sprintf("%s\n - %s", q.RentStart.Time.Format(rlib.RRDATEFMT3), q.RentStop.Time.Format(rlib.RRDATEFMT3))
 		}
 		if q.PossessionStart.Time.Year() > 1970 {
-			q.UsePeriod = q.PossessionStart.Time.Format(rlib.RRDATEFMT3) + "\n - " + q.PossessionStop.Time.Format(rlib.RRDATEFMT3)
+			q.UsePeriod = FmtRRDatePeriod(&q.PossessionStart.Time, &q.PossessionStop.Time)
 		}
 		for freqStr, freqNo := range rlib.CycleFreqMap {
 			if q.RentCycle.Int64 == freqNo {
@@ -543,11 +565,12 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 			if childCount == 0 {
 				nq = q
 			}
-			err = rentablesAsmtRows.Scan(&nq.RAID, &nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
+			err = rentablesAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.AmountDue, &nq.PaymentsApplied)
 			if err != nil {
 				tbl.SetSection3(err.Error())
 				return tbl
 			}
+			setRRDatePeriodString(&tbl, &nq) // adds dates as needed
 			if nq.RAID.Valid || nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &nq)
 				updateSubTotals(&sub, &nq)
@@ -580,11 +603,12 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 			if childCount == 0 {
 				nq = q
 			}
-			err = rentablesNoAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PaymentsApplied)
+			err = rentablesNoAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.PaymentsApplied)
 			if err != nil {
 				tbl.SetSection3(err.Error())
 				return tbl
 			}
+			setRRDatePeriodString(&tbl, &nq) // adds dates as needed
 			if nq.Description.Valid || nq.RAID.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &nq)
 				updateSubTotals(&sub, &nq)
@@ -680,11 +704,12 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	count = 0
 	for noRIDAsmtRows.Next() {
 		q := rentableRow{}
-		err := noRIDAsmtRows.Scan(&q.BID, &q.ASMID, &q.Description, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.Payors)
+		err := noRIDAsmtRows.Scan(&q.BID, &q.ASMID, &q.Description, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Payors)
 		if err != nil {
 			tbl.SetSection3(err.Error())
 			return tbl
 		}
+		setRRDatePeriodString(&tbl, &q)
 		rrTableAddRow(&tbl, q)
 		count++
 
@@ -712,11 +737,12 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	count = 0
 	for noRIDNoAsmtRows.Next() {
 		q := rentableRow{}
-		err := noRIDNoAsmtRows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied, &q.Description, &q.Payors)
+		err := noRIDNoAsmtRows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Description, &q.Payors)
 		if err != nil {
 			tbl.SetSection3(err.Error())
 			return tbl
 		}
+		setRRDatePeriodString(&tbl, &q)
 		rrTableAddRow(&tbl, q)
 		count++
 
@@ -789,68 +815,108 @@ func float64ToStr(number float64, blank bool) string {
 	return strconv.FormatFloat(number, 'f', 2, 64)
 }
 
+// column numbers for gotable report
+const (
+	rrRName       = 0
+	rrRType       = iota
+	rrSqFt        = iota
+	rrDescr       = iota
+	rrUsers       = iota
+	rrPayors      = iota
+	rrRAgr        = iota
+	rrUsePeriod   = iota
+	rrRentPeriod  = iota
+	rrRAgrStart   = iota
+	rrRAgrStop    = iota
+	rrRentCycle   = iota
+	rrGSRRate     = iota
+	rrGSRAmt      = iota
+	rrIncOff      = iota
+	rrAmtDue      = iota
+	rrPmtRcvd     = iota
+	rrBeginRcv    = iota
+	rrChgRcv      = iota
+	rrEndRcv      = iota
+	rrBeginSecDep = iota
+	rrChgSecDep   = iota
+	rrEndSecDep   = iota
+)
+
 // rrTableAddRow adds row in gotable struct with information
 // given by rentableRow struct
 func rrTableAddRow(tbl *gotable.Table, q rentableRow) {
 
-	// column numbers for gotable report
-	const (
-		RName     = 0
-		RType     = iota
-		SqFt      = iota
-		Descr     = iota
-		Users     = iota
-		Payors    = iota
-		RAgr      = iota
-		UsePeriod = iota
-		// UseStart     = iota
-		// UseStop      = iota
-		RentPeriod = iota
-		// RentStart    = iota
-		// RentStop     = iota
-		RAgrStart = iota
-		RAgrStop  = iota
-		RentCycle = iota
-		GSRRate   = iota
-		GSRAmt    = iota
-		IncOff    = iota
-		AmtDue    = iota
-		// ContractRent = iota
-		// OtherInc     = iota
-		PmtRcvd     = iota
-		BeginRcv    = iota
-		ChgRcv      = iota
-		EndRcv      = iota
-		BeginSecDep = iota
-		ChgSecDep   = iota
-		EndSecDep   = iota
-	)
-
 	tbl.AddRow()
-	tbl.Puts(-1, RName, q.RentableName.String)
-	tbl.Puts(-1, RType, q.RentableType.String)
-	tbl.Puts(-1, SqFt, int64ToStr(q.Sqft.Int64, true))
-	tbl.Puts(-1, Descr, q.Description.String)
-	tbl.Puts(-1, Users, q.Users.String)
-	tbl.Puts(-1, Payors, q.Payors.String)
+	tbl.Puts(-1, rrRName, q.RentableName.String)
+	tbl.Puts(-1, rrRType, q.RentableType.String)
+	tbl.Puts(-1, rrSqFt, int64ToStr(q.Sqft.Int64, true))
+	tbl.Puts(-1, rrDescr, q.Description.String)
+	tbl.Puts(-1, rrUsers, q.Users.String)
+	tbl.Puts(-1, rrPayors, q.Payors.String)
 	raidStr := int64ToStr(q.RAID.Int64, true)
 	raStr := ""
 	if len(raidStr) > 0 {
 		raStr = "RA-" + raidStr
 	}
-	tbl.Puts(-1, RAgr, raStr)
-	tbl.Puts(-1, UsePeriod, q.UsePeriod)
-	tbl.Puts(-1, RentPeriod, q.RentPeriod)
-	tbl.Puts(-1, RentCycle, q.RentCycleStr)
-	tbl.Puts(-1, GSRRate, float64ToStr(q.GSR.Float64, false))
-	tbl.Puts(-1, GSRAmt, float64ToStr(q.PeriodGSR.Float64, false))
-	tbl.Puts(-1, IncOff, float64ToStr(q.IncomeOffsets.Float64, false))
-	tbl.Puts(-1, AmtDue, float64ToStr(q.AmountDue.Float64, false))
-	tbl.Puts(-1, PmtRcvd, float64ToStr(q.PaymentsApplied.Float64, false))
-	tbl.Puts(-1, BeginRcv, float64ToStr(q.BeginningRcv.Float64, false))
-	tbl.Puts(-1, ChgRcv, float64ToStr(q.ChangeInRcv.Float64, false))
-	tbl.Puts(-1, EndRcv, float64ToStr(q.EndingRcv.Float64, false))
-	tbl.Puts(-1, BeginSecDep, float64ToStr(q.BeginningSecDep.Float64, false))
-	tbl.Puts(-1, ChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, false))
-	tbl.Puts(-1, EndSecDep, float64ToStr(q.EndingSecDep.Float64, false))
+	tbl.Puts(-1, rrRAgr, raStr)
+	tbl.Puts(-1, rrUsePeriod, q.UsePeriod)
+	tbl.Puts(-1, rrRentPeriod, q.RentPeriod)
+	tbl.Puts(-1, rrRentCycle, q.RentCycleStr)
+	tbl.Puts(-1, rrGSRRate, float64ToStr(q.GSR.Float64, false))
+	tbl.Puts(-1, rrGSRAmt, float64ToStr(q.PeriodGSR.Float64, false))
+	tbl.Puts(-1, rrIncOff, float64ToStr(q.IncomeOffsets.Float64, false))
+	tbl.Puts(-1, rrAmtDue, float64ToStr(q.AmountDue.Float64, false))
+	tbl.Puts(-1, rrPmtRcvd, float64ToStr(q.PaymentsApplied.Float64, false))
+	tbl.Puts(-1, rrBeginRcv, float64ToStr(q.BeginningRcv.Float64, false))
+	tbl.Puts(-1, rrChgRcv, float64ToStr(q.ChangeInRcv.Float64, false))
+	tbl.Puts(-1, rrEndRcv, float64ToStr(q.EndingRcv.Float64, false))
+	tbl.Puts(-1, rrBeginSecDep, float64ToStr(q.BeginningSecDep.Float64, false))
+	tbl.Puts(-1, rrChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, false))
+	tbl.Puts(-1, rrEndSecDep, float64ToStr(q.EndingSecDep.Float64, false))
+}
+
+// FmtRRDatePeriod formats a start and end time as needed byt the
+// column headers in the RentRoll view/report
+//
+// INPUT
+// d1 - start of period
+// d2 - end of period
+//
+// RETURN
+// string with formated dates
+//----------------------------------------------------------------------
+func FmtRRDatePeriod(d1, d2 *time.Time) string {
+	if d1.Year() > 1970 && d2.Year() > 1970 {
+		return d1.Format(rlib.RRDATEFMT3) + "<br> - " + d2.Format(rlib.RRDATEFMT3)
+	}
+	return ""
+}
+
+// setRRDatePeriodString updates the nq UsePeriod and RentPeriod members
+// if it is either the first row in subList or if the RentalAgreement has
+// changed since the last entry in subList.
+//
+// INPUT
+// sublist = the slice of rentableRow structs
+// nq = the current entry but not yet added to sublist
+//
+// RETURN
+// void
+//----------------------------------------------------------------------
+func setRRDatePeriodString(tbl *gotable.Table, nq *rentableRow) {
+	showDates := true // only list dates if the rental agreement changed
+	if len(tbl.Row) > 0 {
+		prevRAgr := tbl.Get(len(tbl.Row)-1, rrRAgr)
+		showDates = prevRAgr.Sval != "RA-"+strconv.FormatInt(nq.RAID.Int64, 10)
+	}
+	SetRRDateStrings(showDates, &nq.UsePeriod, &nq.RentPeriod,
+		&nq.PossessionStart.Time, &nq.PossessionStop.Time, &nq.RentStart.Time, &nq.RentStop.Time)
+}
+
+// SetRRDateStrings updates the two supplied date strings if showDates is true
+func SetRRDateStrings(showDates bool, s1, s2 *string, t1, t2, t3, t4 *time.Time) {
+	if showDates {
+		(*s1) = FmtRRDatePeriod(t1, t2)
+		(*s2) = FmtRRDatePeriod(t3, t4)
+	}
 }

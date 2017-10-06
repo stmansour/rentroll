@@ -170,7 +170,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			q.RentPeriod = fmt.Sprintf("%s<br> - %s", q.RentStart.Time.Format(rlib.RRDATEFMT3), q.RentStop.Time.Format(rlib.RRDATEFMT3))
 		}
 		if q.PossessionStart.Time.Year() > 1970 {
-			q.UsePeriod = q.PossessionStart.Time.Format(rlib.RRDATEFMT3) + "<br> - " + q.PossessionStop.Time.Format(rlib.RRDATEFMT3)
+			q.UsePeriod = rrpt.FmtRRDatePeriod(&q.PossessionStart.Time, &q.PossessionStop.Time)
 		}
 
 		//------------------------------------------------------------
@@ -213,11 +213,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if childCount == 0 {
 				nq = q
 			}
-			err = rentablesAsmtRows.Scan(&nq.RAID, &nq.Description, &nq.AmountDue, &nq.PaymentsApplied)
+			err = rentablesAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.AmountDue, &nq.PaymentsApplied)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
+			setRRDatePeriodString(subList, &nq) // adds dates as needed
 			if nq.RAID.Valid || nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &recidCount, &nq)
 				updateSubTotals(&sub, &nq)
@@ -250,11 +251,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if childCount == 0 {
 				nq = q
 			}
-			err = rentablesNoAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PaymentsApplied)
+			err = rentablesNoAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.PaymentsApplied)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
+			setRRDatePeriodString(subList, &nq) // adds dates as needed
 			if nq.Description.Valid || nq.RAID.Valid || nq.PaymentsApplied.Valid {
 				addToSubList(&subList, &childCount, &recidCount, &nq)
 				updateSubTotals(&sub, &nq)
@@ -458,10 +460,11 @@ func getNoRIDAsmtRows(
 
 	for noRIDAsmtRows.Next() {
 		q := RRGrid{Recid: recidOffset, IsMainRow: true, IsNoRIDAsmtRow: true}
-		err := noRIDAsmtRows.Scan(&q.BID, &q.ASMID, &q.Description, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.Payors)
+		err := noRIDAsmtRows.Scan(&q.BID, &q.ASMID, &q.Description, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Payors)
 		if err != nil {
 			return recidOffset, err
 		}
+		setRRDatePeriodString(g.Records, &q)
 		g.Records = append(g.Records, q)
 		recidOffset++
 		// rlib.Console("added: ASMID=%d, AmountDue=%.2f\n", q.ASMID.Int64, q.AmountDue.Float64)
@@ -518,10 +521,11 @@ func getNoRIDNoAsmtRows(
 
 	for noRIDNoAsmtRows.Next() {
 		q := RRGrid{Recid: recidOffset, IsMainRow: true, IsNoRIDNoAsmtRow: true}
-		err := noRIDNoAsmtRows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied, &q.Description, &q.Payors)
+		err := noRIDNoAsmtRows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Description, &q.Payors)
 		if err != nil {
 			return recidOffset, err
 		}
+		setRRDatePeriodString(g.Records, &q)
 		g.Records = append(g.Records, q)
 		recidOffset++
 	}
@@ -629,4 +633,24 @@ func getRRTotal(
 	rlib.Console("noRIDNoAsmtCount = %d\n", noRIDNoAsmtCount)
 
 	return
+}
+
+// setRRDatePeriodString updates the nq UsePeriod and RentPeriod members
+// if it is either the first row in subList or if the RentalAgreement has
+// changed since the last entry in subList.
+//
+// INPUT
+// sublist = the slice of RRGrid structs
+// nq = the current entry but not yet added to sublist
+//
+// RETURN
+// void
+//----------------------------------------------------------------------
+func setRRDatePeriodString(subList []RRGrid, nq *RRGrid) {
+	showDates := true // only list dates if the rental agreement changed
+	if len(subList) > 0 {
+		showDates = subList[len(subList)-1].RAID != nq.RAID
+	}
+	rrpt.SetRRDateStrings(showDates, &nq.UsePeriod, &nq.RentPeriod,
+		&nq.PossessionStart.Time, &nq.PossessionStop.Time, &nq.RentStart.Time, &nq.RentStop.Time)
 }
