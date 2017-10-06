@@ -434,7 +434,7 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	// Add columns to the table
 	tbl.AddColumn("Rentable", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                   // column for the Rentable name
 	tbl.AddColumn("Rentable Type", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)              // RentableType name
-	tbl.AddColumn("SqFt", 5, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)                          // the Custom Attribute "Square Feet"
+	tbl.AddColumn("SqFt", 5, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)                       // the Custom Attribute "Square Feet"
 	tbl.AddColumn("Description", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                // the Custom Attribute "Square Feet"
 	tbl.AddColumn("Users", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                      // Users of this rentable
 	tbl.AddColumn("Payors", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                     // Users of this rentable

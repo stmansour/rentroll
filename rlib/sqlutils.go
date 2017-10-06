@@ -51,7 +51,7 @@ func GetQueryCount(query string, qc QueryClause) (int64, error) {
         COUNT(*)
     FROM ({{.query}}) as T;
     `
-	fmt.Printf("\n\n\n\n\n\ncount queryForm Before: %s\n\n\n\n\n\n\n\n", query)
+
 	countQuery := RenderSQLQuery(queryForm, map[string]string{"query": query})
 	fmt.Println("Count Query: ", countQuery)
 
