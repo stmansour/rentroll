@@ -77,7 +77,7 @@ var RentablesQuery = `
 var RentablesQueryClause = rlib.QueryClause{
 	"SelectClause": strings.Join(RentablesSelectFields, ","),
 	"WhereClause":  "Rentable.BID=%d",
-	"OrderClause":  "Rentable.RentableName ASC",
+	"OrderClause":  "Rentable.RentableName ASC,Payor.LastName ASC,User.LastName ASC",
 	"DtStart":      "",
 	"DtStop":       "",
 }
