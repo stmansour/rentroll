@@ -50,8 +50,8 @@ var RentablesSelectFields = rlib.SelectQueryFields{
 	"RentalAgreement.RentStart",
 	"RentalAgreement.RentStop",
 	"RentableStatus.Status",
-	"GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END SEPARATOR ', ') AS Payors",
-	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END SEPARATOR ', ') AS Users",
+	"GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY Payor.LastName ASC,Payor.FirstName,Payor.CompanyName ASC SEPARATOR ', ') AS Payors",
+	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END ORDER BY User.LastName ASC,User.FirstName ASC SEPARATOR ', ' ) AS Users",
 }
 
 // RentablesQuery pulls out all rentables records for given date range
