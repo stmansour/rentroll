@@ -438,7 +438,7 @@ function buildAssessmentElements() {
 
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    flagHTML += "<p><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button
@@ -487,21 +487,21 @@ function buildAssessmentElements() {
         onChange: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    r = f.record;                
+                    r = f.record;
                 if (event.target == "Start") {
                     var x = document.getElementsByName('ExpandPastInst')[0];
                     var DtStart = dateFromString(event.value_new);
-                    if (r.RentCycle.text != "Norecur") {                        
-                        // create past instances is marked as true if startdate is prior to current date                            
+                    if (r.RentCycle.text != "Norecur") {
+                        // create past instances is marked as true if startdate is prior to current date
                         f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );                   
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
                     } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
-                        r.Stop = r.Start;  
-                        // Norecur then disable checkbox for "create past instances"                      
+                        r.Stop = r.Start;
+                        // Norecur then disable checkbox for "create past instances"
                         $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
-                        f.record.ExpandPastInst = false;    
+                        f.record.ExpandPastInst = false;
                     }
                 }
                 if (event.target == "RentCycle") {
@@ -511,7 +511,7 @@ function buildAssessmentElements() {
                         r.Stop = r.Start;
                         // disable stop date control
                         $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
-                        // Norecur then disable checkbox for "create past instances"                      
+                        // Norecur then disable checkbox for "create past instances"
                         $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     } else {
@@ -519,7 +519,7 @@ function buildAssessmentElements() {
                         $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
                         var startDate = $("#"+f.name).find("input[name=Start]").val();
                         f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(startDate));
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );        
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
                     }
                 }
 
@@ -775,7 +775,7 @@ function buildAssessmentElements() {
 
                 // check if it is reversed or not
                 if ( (flag & app.asmFLAGS.REVERSED) !== 0 ) { // if reversed then
-                    flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
+                    flagHTML += "<p><strong>{0}</strong> ({1})</p>".format("REVERSED", r.Comment);
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button in form
@@ -794,13 +794,13 @@ function buildAssessmentElements() {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
                     // unpaid, partial paid or fully paid
                     if ( (flag | app.asmFLAGS.UNPAID) === 0 || (flag & (app.asmFLAGS.PARTIALPAID | app.asmFLAGS.FULLYPAID)) === 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Unpaid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Unpaid");
                     }
                     else if ( (flag & app.asmFLAGS.PARTIALPAID) !== 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Partially paid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Partially paid");
                     }
                     else if ( (flag & app.asmFLAGS.FULLYPAID) !== 0 ) {
-                        flagHTML += "<p style='margin-bottom: 5px;'><strong>{0}</strong></p>".format("Fully paid");
+                        flagHTML += "<p><strong>{0}</strong></p>".format("Fully paid");
                     }
 
                     // show reverse, save button, hide close button
@@ -816,7 +816,7 @@ function buildAssessmentElements() {
                 }
 
                 // finally append
-                flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
                 $("#"+f.name).find("#FLAGReport").html(flagHTML);
             };
@@ -828,27 +828,27 @@ function buildAssessmentElements() {
                 if (event.target == "Start") {
                     var x = document.getElementsByName('ExpandPastInst')[0];
                     var DtStart = dateFromString(event.value_new);
-                    if (r.RentCycle.text != "Norecur") {                        
-                        // create past instances is marked as true if startdate is prior to current date                            
+                    if (r.RentCycle.text != "Norecur") {
+                        // create past instances is marked as true if startdate is prior to current date
                         f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );                   
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
                     } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
-                        r.Stop = r.Start;  
-                        // Norecur then disable checkbox for "create past instances"                      
+                        r.Stop = r.Start;
+                        // Norecur then disable checkbox for "create past instances"
                         $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
-                        f.record.ExpandPastInst = false;    
+                        f.record.ExpandPastInst = false;
                     }
                 }
-                if (event.target == "RentCycle") { 
+                if (event.target == "RentCycle") {
                     if (event.value_new.text == "Norecur") {
                         r.RentCycle = event.value_new;
                         r.ProrationCycle = "Norecur";
                         r.Stop = r.Start;
                         // disable stop date control
                         $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
-                        // Norecur then disable checkbox for "create past instances"                      
+                        // Norecur then disable checkbox for "create past instances"
                         $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     } else {
@@ -856,7 +856,7 @@ function buildAssessmentElements() {
                         $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
                         var startDate = $("#"+f.name).find("input[name=Start]").val();
                         f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(startDate));
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );        
+                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
                     }
                 }
 
