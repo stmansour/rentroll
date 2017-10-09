@@ -420,7 +420,7 @@ func RRReport(ri *ReporterInfo) string {
 // 4. All assessments which are not associated with any rentable
 //        For ex. 'Application Fee' on rental agreement
 // 5. All receipts which are not associated with any rentable nor with any assessment
-//        For ex. I don't know!!
+//        For ex. Application Fees, Floating Deposits
 func RRReportTable(ri *ReporterInfo) gotable.Table {
 	const funcname = "RRReportTable"
 	var (
@@ -621,6 +621,12 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 		//----------------------------------------------------------------------
 		if len(subList) == 0 {
 			addToSubList(&subList, &childCount, &q)
+		} else {
+			//====================================================
+			//   CHECK FOR GAPS IN COVERAGE
+			//====================================================
+			handleGaps(&subList, &ri.D1, &ri.D2)
+
 		}
 
 		// now add all child rows respected with rentableRow in gotable
@@ -873,6 +879,30 @@ func rrTableAddRow(tbl *gotable.Table, q rentableRow) {
 	tbl.Puts(-1, rrBeginSecDep, float64ToStr(q.BeginningSecDep.Float64, false))
 	tbl.Puts(-1, rrChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, false))
 	tbl.Puts(-1, rrEndSecDep, float64ToStr(q.EndingSecDep.Float64, false))
+}
+
+// handleGaps identifies periods during which the Rentable is not
+// covered by a RentalAgreement. It updates the list with entries
+// describing the gaps
+//----------------------------------------------------------------------
+func handleGaps(sl *[]rentableRow, d1, d2 *time.Time) {
+	var a = []rlib.Period{}
+	for i := 0; i < len(*sl); i++ {
+		var p = rlib.Period{
+			D1: (*sl)[i].PossessionStart.Time,
+			D2: (*sl)[i].PossessionStop.Time,
+		}
+		a = append(a, p)
+	}
+	b := rlib.FindGaps(d1, d2, a)
+	for i := 0; i < len(b); i++ {
+		var r rentableRow
+		r.PossessionStart.Scan(b[i].D1)
+		r.PossessionStop.Scan(b[i].D2)
+		r.Description.Scan("Vacancy")
+		r.UsePeriod = FmtRRDatePeriod(&b[i].D1, &b[i].D2)
+		(*sl) = append((*sl), r)
+	}
 }
 
 // FmtRRDatePeriod formats a start and end time as needed byt the
