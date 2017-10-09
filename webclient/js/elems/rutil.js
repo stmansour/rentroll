@@ -1018,7 +1018,7 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 
 //-----------------------------------------------------------------------------
 // Save last form value entered as default for next form record
-// 
+//
 // @params
 //   formFields         : array of form fields which needs to be reset, other fields are kept same as previous form record
 //                        if array is empty then new form record will be same as previous form record
@@ -1040,3 +1040,115 @@ function setDefaultFormFieldAsPreviousRecord(formFields, defaultFormRecord, prev
     }
     return previousFormRecord;
 }
+
+//-------------------------------------------------------------------------------
+// Download the CSV report for given report name, date range
+//
+// @params
+//   rptname            : report name to be downloaded
+//   dtStart            : Start Date
+//   dtStop             : Stop Date
+//   returnURL          : it true then returns the url otherwise
+//                        downloads the report from built url in separate window
+//-------------------------------------------------------------------------------
+function exportReportCSV(rptname, dtStart, dtStop, returnURL){
+    if (rptname === '') {
+        return;
+    }
+    var x = getCurrentBusiness();
+    var url = '/wsvc/' + x.value + '?r=' + rptname;
+
+    // if both dates are available then only append dtstart and dtstop in query params
+    if (dtStart && dtStop) {
+        url += '&dtstart=' + dtStart; // StartDate
+        url += '&dtstop=' + dtStop; // stopDate
+    }
+
+    // now append the report output format
+    url += '&rof=' + app.rof.csv;
+    console.log('url = ' + url);
+
+    // open separate window if returnURL is not true
+    if (returnURL) {
+        return url;
+    } else {
+        window.open(url);
+    }
+}
+
+//-------------------------------------------------------------------------------
+// Pops up dialog to get custom width and height from user's input
+//-------------------------------------------------------------------------------
+function popupPDFCustomDimensions() {
+    w2popup.open({
+        title     : 'PDF custom width and height',
+        body      : '<div class="w2ui-centered">' +
+            '<div class="w2ui-field"><label>Page Width (inch): </label><div><input type="text" name="custom_pdf_width" class="w2ui-input" value="'+app.pdfPageWidth+'" /></div></div>' +
+            '<div class="w2ui-field"><label>Page Height (inch): </label><div><input type="text" name="custom_pdf_height"  class="w2ui-input" value="'+app.pdfPageHeight+'" /></div></div>' +
+            '</div>',
+        buttons   : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
+                    '<button class="w2ui-btn" onclick="saveCustomDims();" >Save</button>',
+        width     : 500,
+        height    : 200,
+        overflow  : 'hidden',
+        color     : '#333',
+        speed     : '0.3',
+        opacity   : '0.5',
+        modal     : true,
+        showClose : true,
+    });
+}
+
+//-------------------------------------------------------------------------------
+// Remembers custom dimensions set up by user locally in app variable
+//-------------------------------------------------------------------------------
+function saveCustomDims() {
+    var width = parseFloat($("input[name='custom_pdf_width']").val());
+    if (!isNaN(width)) {
+        app.pdfPageWidth = width;
+    }
+    var height = parseFloat($("input[name='custom_pdf_height']").val());
+    if (!isNaN(height)) {
+        app.pdfPageHeight = height;
+    }
+    w2popup.close();
+}
+
+//-------------------------------------------------------------------------------
+// Download the PDF report for given report name, date range
+//
+// @params
+//   rptname            : report name to be downloaded
+//   dtStart            : Start Date
+//   dtStop             : Stop Date
+//   returnURL          : it true then returns the url otherwise
+//                        downloads the report from built url in separate window
+//-------------------------------------------------------------------------------
+function exportReportPDF(rptname, dtStart, dtStop, returnURL){
+    if (rptname === '') {
+        return;
+    }
+    var x = getCurrentBusiness();
+    var url = '/wsvc/' + x.value + '?r=' + rptname;
+
+    // if both dates are available then only append dtstart and dtstop in query params
+    if (dtStart && dtStop) {
+        url += '&dtstart=' + dtStart; // StartDate
+        url += '&dtstop=' + dtStop; // stopDate
+    }
+
+    // now append the report output format
+    url += '&rof=' + app.rof.pdf;
+
+    // need to pass page width and height
+    url += '&pw=' + app.pdfPageWidth + "&ph=" + app.pdfPageHeight;
+    console.log('url = ' + url);
+
+    // open separate window if returnURL is not true
+    if (returnURL) {
+        return url;
+    } else {
+        window.open(url);
+    }
+}
+
