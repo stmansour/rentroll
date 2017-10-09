@@ -269,6 +269,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//----------------------------------------------------------------------
 		if len(subList) == 0 {
 			addToSubList(&subList, &childCount, &recidCount, &q)
+		} else {
+			//====================================================
+			//   CHECK FOR GAPS IN COVERAGE
+			//====================================================
+			handleGaps(&subList, &startDt, &stopDt)
 		}
 
 		//----------------------------------------
@@ -653,4 +658,28 @@ func setRRDatePeriodString(subList []RRGrid, nq *RRGrid) {
 	}
 	rrpt.SetRRDateStrings(showDates, &nq.UsePeriod, &nq.RentPeriod,
 		&nq.PossessionStart.Time, &nq.PossessionStop.Time, &nq.RentStart.Time, &nq.RentStop.Time)
+}
+
+// handleGaps identifies periods during which the Rentable is not
+// covered by a RentalAgreement. It updates the list with entries
+// describing the gaps
+//----------------------------------------------------------------------
+func handleGaps(sl *[]RRGrid, d1, d2 *time.Time) {
+	var a = []rlib.Period{}
+	for i := 0; i < len(*sl); i++ {
+		var p = rlib.Period{
+			D1: (*sl)[i].PossessionStart.Time,
+			D2: (*sl)[i].PossessionStop.Time,
+		}
+		a = append(a, p)
+	}
+	b := rlib.FindGaps(d1, d2, a)
+	for i := 0; i < len(b); i++ {
+		var r RRGrid
+		r.PossessionStart.Scan(b[i].D1)
+		r.PossessionStop.Scan(b[i].D2)
+		r.Description.Scan("Vacancy")
+		r.UsePeriod = rrpt.FmtRRDatePeriod(&b[i].D1, &b[i].D2)
+		(*sl) = append((*sl), r)
+	}
 }

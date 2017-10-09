@@ -95,6 +95,39 @@ func main() {
 
 // DoTest checks Security Deposit Balances
 func DoTest() {
+	test1()
+	test2()
+}
+
+func test2() {
+	var ds = []struct {
+		sd1, sd2 string
+	}{
+		{"2016-10-01", "2016-10-08"},
+		{"2016-10-15", "2016-10-25"},
+		{"2016-10-21", "2016-10-29"},
+	}
+	dtStart, _ := rlib.StringToDate("2016-10-01")
+	dtStop, _ := rlib.StringToDate("2016-11-01")
+	var d []rlib.Period
+	for i := 0; i < len(ds); i++ {
+		var p rlib.Period
+		p.D1, _ = rlib.StringToDate(ds[i].sd1)
+		p.D2, _ = rlib.StringToDate(ds[i].sd2)
+		d = append(d, p)
+	}
+	// dd := rlib.AggregatePeriods(&dtStart, &dtStop, d)
+	// for i := 0; i < len(dd); i++ {
+	// 	fmt.Printf("dd[%d] = %s - %s\n", i, dd[i].D1.Format("2006-01-02"), dd[i].D2.Format("2006-01-02"))
+	// }
+	ddd := rlib.FindGaps(&dtStart, &dtStop, d)
+	for i := 0; i < len(ddd); i++ {
+		fmt.Printf("ddd[%d] = %s - %s\n", i, ddd[i].D1.Format("2006-01-02"), ddd[i].D2.Format("2006-01-02"))
+	}
+
+}
+
+func test1() {
 	funcname := "DoTest"
 	// RentRoll report dates
 	dtStart := time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -130,7 +163,7 @@ func DoTest() {
 			dtStart.Format(rlib.RRDATEFMTSQL), dtStop.Format(rlib.RRDATEFMTSQL), x)
 
 		rlib.Console("before rlib.GetBeginEndRARBalance:  dtStart = %s, dtStop = %s\n", dtStart.Format(rlib.RRDATEFMT3), dtStop.Format(rlib.RRDATEFMT3))
-		openingBal, closingBal, err := rlib.GetBeginEndRARBalance(rid, raids[rid-1], &dtStart, &dtStop)
+		openingBal, closingBal, err := rlib.GetBeginEndRARBalance(App.Xbiz.P.BID, rid, raids[rid-1], &dtStart, &dtStop)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			os.Exit(1)
