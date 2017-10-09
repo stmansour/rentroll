@@ -50,8 +50,8 @@ var RentablesSelectFields = rlib.SelectQueryFields{
 	"RentalAgreement.RentStart",
 	"RentalAgreement.RentStop",
 	"RentableStatus.Status",
-	"GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY Payor.LastName ASC,Payor.FirstName,Payor.CompanyName ASC SEPARATOR ', ') AS Payors",
-	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END ORDER BY User.LastName ASC,User.FirstName ASC SEPARATOR ', ' ) AS Users",
+	"GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY Payor.LastName ASC, Payor.FirstName ASC, Payor.CompanyName ASC SEPARATOR ', ') AS Payors",
+	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END ORDER BY User.LastName ASC, User.FirstName ASC, User.CompanyName ASC SEPARATOR ', ' ) AS Users",
 }
 
 // RentablesQuery pulls out all rentables records for given date range
@@ -77,7 +77,7 @@ var RentablesQuery = `
 var RentablesQueryClause = rlib.QueryClause{
 	"SelectClause": strings.Join(RentablesSelectFields, ","),
 	"WhereClause":  "Rentable.BID=%d",
-	"OrderClause":  "Rentable.RentableName ASC,Payor.LastName ASC,User.LastName ASC",
+	"OrderClause":  "Rentable.RentableName ASC",
 	"DtStart":      "",
 	"DtStop":       "",
 }
