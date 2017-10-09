@@ -100,6 +100,8 @@
         "buildPageElementsWrapper": true,
         "createDepositForm": true,
         "exportReportCSV": true,
-        "exportReportPDF": true
+        "exportReportPDF": true,
+        "popupPDFCustomDimensions": true,
+        "saveCustomDims": true
     }
 }

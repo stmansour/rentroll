@@ -223,6 +223,78 @@ function buildRentRollElements() {
     });
 
     addDateNavToToolbar('rr');
+
+    // now add items for csv/pdf export report options
+    w2ui.rrGrid.toolbar.add([
+        { type: 'spacer',},
+        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+        { type: 'button', id: 'printreport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+        { type: 'break', id: 'break2' },
+        { type: 'menu-radio', id: 'page_size', icon: 'fa fa-print',
+            tooltip: 'exported PDF page size',
+            text: function (item) {
+            //var text = item.selected;
+            var el   = this.get('page_size:' + item.selected);
+            if (item.selected == "Custom") {
+                popupPDFCustomDimensions();
+            }
+            return 'Page Size: ' + el.text;
+            },
+            selected: 'USLetter',
+            items: [
+                { id: 'USLetter', text: 'US Letter (8.5 x 11 in)'},
+                { id: 'Legal', text: 'Legal (8.5 x 14 in)'},
+                { id: 'Ledger', text: 'Ledger (11 x 17 in)'},
+                { id: 'Custom', text: 'Custom'},
+            ]
+        },
+        { type: 'menu-radio', id: 'orientation', icon: 'fa fa-clone',
+            tooltip: 'exported PDF orientation',
+            text: function (item) {
+            //var text = item.selected;
+            var el   = this.get('orientation:' + item.selected);
+            var pageSize = w2ui.reportstoolbar.get('page_size').selected;
+            if (pageSize != "Custom" && item.selected == "Portrait") {
+                app.pdfPageWidth = app.pageSizes[pageSize].w;
+                app.pdfPageHeight = app.pageSizes[pageSize].h;
+            }
+            else if (pageSize != "Custom" && item.selected == "LandScape") {
+                app.pdfPageWidth = app.pageSizes[pageSize].h;
+                app.pdfPageHeight = app.pageSizes[pageSize].w;
+            }
+            return 'Orientation: ' + el.text;
+            },
+            selected: 'LandScape',
+            items: [
+                { id: 'LandScape', text: 'LandScape'},
+                { id: 'Portrait', text: 'Portrait'},
+            ]
+        },
+    ]);
+
+    // handle pdf/csv report download actions
+    w2ui.rrGrid.toolbar.on('click', function(event) {
+        var d1, d2; // start date, stop date
+
+        if (event.target == "csvexport") {
+            d1 = document.getElementsByName("rrD1")[0].value;
+            app.D1 = d1;
+            d2 = document.getElementsByName("rrD2")[0].value;
+            app.D2 = d2;
+
+            // now call to export csv report function with start and stop date
+            exportReportCSV("RPTrr", d1, d2);
+        }
+        else if (event.target == "printreport") {
+            d1 = document.getElementsByName("rrD1")[0].value;
+            app.D1 = d1;
+            d2 = document.getElementsByName("rrD2")[0].value;
+            app.D2 = d2;
+
+            // call to export pdf report function with start and stop date
+            exportReportPDF("RPTrr", d1, d2);
+        }
+    });
 }
 
 
