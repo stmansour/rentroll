@@ -955,6 +955,35 @@ LOCK TABLES `LedgerMarkerAudit` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `MRHistory`
+--
+
+DROP TABLE IF EXISTS `MRHistory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `MRHistory` (
+  `MRHID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `MRStatus` smallint(6) NOT NULL DEFAULT '0',
+  `DtMRStart` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `DtMRStop` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`MRHID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `MRHistory`
+--
+
+LOCK TABLES `MRHistory` WRITE;
+/*!40000 ALTER TABLE `MRHistory` DISABLE KEYS */;
+/*!40000 ALTER TABLE `MRHistory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `NoteList`
 --
 
@@ -1414,6 +1443,8 @@ CREATE TABLE `Rentable` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `RentableName` varchar(100) NOT NULL DEFAULT '',
   `AssignmentTime` smallint(6) NOT NULL DEFAULT '0',
+  `MRStatus` smallint(6) NOT NULL DEFAULT '0',
+  `DtMRStart` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1428,7 +1459,7 @@ CREATE TABLE `Rentable` (
 
 LOCK TABLES `Rentable` WRITE;
 /*!40000 ALTER TABLE `Rentable` DISABLE KEYS */;
-INSERT INTO `Rentable` VALUES (1,1,'Unit 1',2,'2017-08-31 17:53:35',0,'2017-08-31 17:53:35',0),(2,1,'Unit 2',2,'2017-08-31 17:54:09',0,'2017-08-31 17:54:09',0);
+INSERT INTO `Rentable` VALUES (1,1,'Unit 1',2,0,'2017-10-10 05:04:04','2017-08-31 17:53:35',0,'2017-08-31 17:53:35',0),(2,1,'Unit 2',2,0,'2017-10-10 05:04:04','2017-08-31 17:54:09',0,'2017-08-31 17:54:09',0);
 /*!40000 ALTER TABLE `Rentable` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1530,7 +1561,8 @@ CREATE TABLE `RentableStatus` (
   `RSID` bigint(20) NOT NULL AUTO_INCREMENT,
   `RID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
-  `Status` smallint(6) NOT NULL DEFAULT '0',
+  `UseStatus` smallint(6) NOT NULL DEFAULT '0',
+  `LeaseStatus` smallint(6) NOT NULL DEFAULT '0',
   `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtStop` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtNoticeToVacate` date NOT NULL DEFAULT '1970-01-01',
@@ -1548,7 +1580,7 @@ CREATE TABLE `RentableStatus` (
 
 LOCK TABLES `RentableStatus` WRITE;
 /*!40000 ALTER TABLE `RentableStatus` DISABLE KEYS */;
-INSERT INTO `RentableStatus` VALUES (3,1,1,1,'2017-01-01 00:00:00','9999-01-01 00:00:00','0000-00-00','2017-08-31 17:54:28',0,'2017-08-31 17:54:28',0),(4,2,1,1,'2017-01-01 00:00:00','9999-01-01 00:00:00','0000-00-00','2017-08-31 19:18:55',0,'2017-08-31 19:18:55',0);
+INSERT INTO `RentableStatus` VALUES (3,1,1,1,0,'2017-01-01 00:00:00','9999-01-01 00:00:00','0000-00-00','2017-08-31 17:54:28',0,'2017-08-31 17:54:28',0),(4,2,1,1,0,'2017-01-01 00:00:00','9999-01-01 00:00:00','0000-00-00','2017-08-31 19:18:55',0,'2017-08-31 19:18:55',0);
 /*!40000 ALTER TABLE `RentableStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2174,4 +2206,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-09-27 20:45:20
+-- Dump completed on 2017-10-10 12:39:14

@@ -200,7 +200,7 @@ func GetRentableStateForDate(rid int64, dt *time.Time) int64 {
 	d2 := dt.Add(24 * time.Hour)
 	m := GetRentableStatusByRange(rid, dt, &d2)
 	if len(m) > 0 {
-		status = m[0].Status
+		status = m[0].UseStatus
 	}
 	return status
 }

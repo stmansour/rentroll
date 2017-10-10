@@ -338,7 +338,7 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 			}
 
 			m := rlib.GetRentableStatusByRange(p.RID, d1, d2)
-			lastRStat := m[len(m)-1].Status
+			lastRStat := m[len(m)-1].UseStatus
 			tbl.AddRow()
 			tbl.Puts(-1, RName, p.RentableName)
 			tbl.Puts(-1, RType, ri.Xbiz.RT[rtid].Style)

@@ -323,7 +323,7 @@ dorrtest  "m11" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
 dorrtest  "n11" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
 dorrtest  "o11" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p11" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
-dorrtest  "q11" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+#dorrtest  "q11" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 #========================================================================================
 # DECEMBER 2016
@@ -340,6 +340,6 @@ dorrtest  "m12" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
 dorrtest  "n12" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
 dorrtest  "o12" "${RRDATERANGE} -b ${BUD} -r 17" "LedgerBalance"
 dorrtest  "p12" "${RRDATERANGE} -b ${BUD} -r 8" "Statements"
-dorrtest  "q12" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+#dorrtest  "q12" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 logcheck

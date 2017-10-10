@@ -322,12 +322,12 @@ func ReadRentableTypeDown(rows *sql.Rows, a *RentableTypeDown) error {
 
 // ReadRentable reads a full Rentable structure of data from the database based on the supplied Row pointer.
 func ReadRentable(row *sql.Row, a *Rentable) error {
-	return row.Scan(&a.RID, &a.BID, &a.RentableName, &a.AssignmentTime, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return row.Scan(&a.RID, &a.BID, &a.RentableName, &a.AssignmentTime, &a.MRStatus, &a.DtMRStart, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentables reads a full Rentable structure of data from the database based on the supplied Rows pointer.
 func ReadRentables(rows *sql.Rows, a *Rentable) error {
-	return rows.Scan(&a.RID, &a.BID, &a.RentableName, &a.AssignmentTime, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.RID, &a.BID, &a.RentableName, &a.AssignmentTime, &a.MRStatus, &a.DtMRStart, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentableType reads a full RentableType structure of data from the database based on the supplied Row pointer.
@@ -354,13 +354,13 @@ func ReadRentableTypeRefs(rows *sql.Rows, a *RentableTypeRef) error {
 
 // ReadRentableStatus reads a full RentableStatus structure of data from the database based on the supplied Row pointer.
 func ReadRentableStatus(row *sql.Row, a *RentableStatus) error {
-	return row.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status,
+	return row.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.UseStatus, &a.LeaseStatus,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentableStatuss reads a full RentableStatus structure of data from the database based on the supplied Rows pointer.
 func ReadRentableStatuss(rows *sql.Rows, a *RentableStatus) error {
-	return rows.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.Status,
+	return rows.Scan(&a.RSID, &a.RID, &a.BID, &a.DtStart, &a.DtStop, &a.DtNoticeToVacate, &a.UseStatus, &a.LeaseStatus,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

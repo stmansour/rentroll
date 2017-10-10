@@ -492,7 +492,7 @@ func InsertProspect(a *Prospect) (int64, error) {
 // InsertRentable writes a new Rentable record to the database
 func InsertRentable(a *Rentable) (int64, error) {
 	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentable.Exec(a.BID, a.RentableName, a.AssignmentTime, a.CreateBy, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentable.Exec(a.BID, a.RentableName, a.AssignmentTime, a.MRStatus, a.DtMRStart, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {
@@ -658,7 +658,7 @@ func InsertRentableSpecialtyRef(a *RentableSpecialtyRef) error {
 
 // InsertRentableStatus writes a new RentableStatus record to the database
 func InsertRentableStatus(a *RentableStatus) error {
-	res, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.Status, a.CreateBy, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.UseStatus, a.LeaseStatus, a.CreateBy, a.LastModBy)
 	if nil != err {
 		return insertError(err, "RentableStatus", *a)
 	}

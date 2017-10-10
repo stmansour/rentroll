@@ -7,8 +7,9 @@ Austin, TX 78738 USA
 GLNumber  Name                                      Parent                               Account Type          Description              
 --------  ----------------------------------------  -----------------------------------  --------------------  -------------------------
    10000  Cash                                                                           Bank Account                                   
-   12000  Accounts Receivable                                                            Current Asset                                  
-   30000  Security Deposits                                                              Current Liabilities                            
+   12000  Accounts Receivable                                                            Accounts Receivable                            
+   30000  Security Deposits                                                              Liability Security                             
+                                                                                         Deposit                                        
    39000  Owners' Equity                                                                 Equity                                         
    41000  Unit Gross Scheduled Rent-Taxable                                              Income                                         
    41100  Income Offsets                                                                 Income                                         

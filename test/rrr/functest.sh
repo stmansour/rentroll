@@ -29,6 +29,6 @@ dorrtest "n" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest "o" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
 dorrtest "q" "-r 12,11,RA001,2016-07-04 -b ${BUD}" "AccountBalance"
 dorrtest "q1" "-r 12,4,RA001,2016-07-04 -b ${BUD}" "AccountBalance"
-dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+#dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 logcheck

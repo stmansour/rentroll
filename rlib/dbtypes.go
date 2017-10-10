@@ -92,6 +92,20 @@ const (
 	RENTABLESTATUSOFFLINE  = 5
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
+	// Rentable Use Status
+	USESTATUSadmin              = 1
+	USESTATUSinService          = 2
+	USESTATUSemployee           = 3
+	USESTATUSmodel              = 4
+	USESTATUSofflineRenovation  = 5
+	USESTATUSofflineMaintenance = 6
+
+	// Rentable Make Ready Status
+	MRSTATUShouseKeeping = 1
+	MRSTATUSmaintenance  = 2
+	MRSTATUSinspection   = 3
+	MRSTATUSready        = 4
+
 	CREDIT = 0
 	DEBIT  = 1
 
@@ -940,12 +954,27 @@ type Rentable struct {
 	BID            int64             // Business
 	RentableName   string            // name for this rentable
 	AssignmentTime int64             // can we pre-assign or assign only at commencement
+	MRStatus       int64             // Make Ready Status - current value as of DtMR, when this value changes it goes into a MRHistory record
+	DtMRStart      time.Time         // Time that MRStatus was set
 	LastModTime    time.Time         // time of last update to the db record
 	LastModBy      int64             // who made the update (Phonebook UID)
 	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
 	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
 	CreateTS time.Time // when was this record created
 	CreateBy int64     // employee UID (from phonebook) that created it
+}
+
+// MRHistory is the basic structure for Make Ready status history
+type MRHistory struct {
+	MRHID       int64     // unique id
+	BID         int64     // which biz
+	MRStatus    int64     // see definition in Rentable table field
+	DtMRStart   time.Time // when the rentable went into this status
+	DtMRStop    time.Time // when the rentable changed to a different status
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created this record
 }
 
 // RentableTypeRef is the time-based Rentable type attribute
@@ -997,7 +1026,8 @@ type RentableStatus struct {
 	DtStart          time.Time // start of period
 	DtStop           time.Time // end of period
 	DtNoticeToVacate time.Time // user has indicated they will vacate on this date
-	Status           int64     // 0 = online, 1 = administrative unit, 2 = owner occupied, 3 = offline
+	UseStatus        int64     // 1-Administrative, 2=InService, 3=Employee, 4=Model, 5=OfflineRennovation, 6=OfflineMaintenance
+	LeaseStatus      int64     // 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
 	LastModTime      time.Time // time of last update to the db record
 	LastModBy        int64     // who made the update (Phonebook UID)
 	CreateTS         time.Time // when was this record created
@@ -1515,6 +1545,7 @@ var AllTables = []string{
 	"LedgerEntry",
 	"LedgerMarker",
 	"LedgerMarkerAudit",
+	"MRHistory",
 	"NoteList",
 	"NoteType",
 	"Notes",

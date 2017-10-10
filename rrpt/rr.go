@@ -25,7 +25,7 @@ var RentablesFieldsMap = rlib.SelectQueryFieldMap{
 	"RARID":           {"RentalAgreementRentables.RARID"}, // RentalAgreementRentables
 	"RAID":            {"RentableMarketRate.MarketRate"},  // GSR
 	"MarketRate":      {"RentalAgreementRentables.RAID"},  // RentalAgreementRentables
-	"Status":          {"RentableStatus.Status"},          // unit status
+	"Status":          {"RentableStatus.UseStatus"},       // unit status
 	"Payors":          {"Payor.FirstName", "Payor.LastName", "Payor.CompanyName"},
 	"Users":           {"User.FirstName", "User.LastName", "User.CompanyName"},
 	"PossessionStart": {"RentalAgreement.PossessionStart"},
@@ -49,7 +49,7 @@ var RentablesSelectFields = rlib.SelectQueryFields{
 	"RentalAgreement.PossessionStop",
 	"RentalAgreement.RentStart",
 	"RentalAgreement.RentStop",
-	"RentableStatus.Status",
+	"RentableStatus.UseStatus",
 	"GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY Payor.LastName ASC, Payor.FirstName ASC, Payor.CompanyName ASC SEPARATOR ', ') AS Payors",
 	"GROUP_CONCAT(DISTINCT CASE WHEN User.IsCompany > 0 THEN User.CompanyName ELSE CONCAT(User.FirstName, ' ', User.LastName) END ORDER BY User.LastName ASC, User.FirstName ASC, User.CompanyName ASC SEPARATOR ', ' ) AS Users",
 }

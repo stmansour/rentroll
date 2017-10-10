@@ -175,7 +175,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Status value: %s.  Must be in the range %d to %d",
 				funcname, lineno, ss[0], rlib.RENTABLESTATUSONLINE, rlib.RENTABLESTATUSLAST)
 		}
-		rst.Status = int64(ix)
+		rst.UseStatus = int64(ix)
 
 		rst.DtStart, rst.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RentableStatus")
 		if err != nil {

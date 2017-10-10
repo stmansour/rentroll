@@ -71,7 +71,7 @@ func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) []VacancyMar
 		rs := SelectRentableStatusForPeriod(&rsa, dt, dtNext)
 		state = RENTABLESTATUSONLINE // if there is no state info, we'll assume online
 		if len(rs) > 0 {
-			state = rs[0].Status // If this turns out to be a problem, maybe we'll choose the state with the greatest percentage of time
+			state = rs[0].UseStatus // If this turns out to be a problem, maybe we'll choose the state with the greatest percentage of time
 		}
 
 		switch state {

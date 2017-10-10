@@ -53,7 +53,7 @@ mysqlverify "q"  ""			                "Prospects"	            		"select TCID,Emp
 mysqlverify "na"  "-V vehicle.csv"       	"Vehicles"	            		"select VID,TCID,VehicleType,VehicleMake,VehicleModel,VehicleColor,VehicleYear,LicensePlateState,LicensePlateNumber,ParkingPermitNumber,DtStart,DtStop,LastModBy from Vehicle;"
 mysqlverify "k"  "-r rentable.csv"     		"Rentables"	            		"select RID,BID,RentableName,AssignmentTime,LastModBy from Rentable;"
 mysqlverify "l"  " "                   		"RentableTypeRef"	    		"select RID,BID,RTID,OverrideRentCycle,OverrideProrationCycle,DtStart,DtStop,LastModBy from RentableTypeRef;"
-mysqlverify "m"  " "                   		"RentableStatus"	        	"select RID,Status,DtStart,DtStop,LastModBy from RentableStatus;"
+mysqlverify "m"  " "                   		"RentableStatus"	        	"select RID,UseStatus,DtStart,DtStop,LastModBy from RentableStatus;"
 mysqlverify "r"  "-T rat.csv"          		"RentalAgreementTemplates"   	"select RATID,BID,RATemplateName,LastModBy from RentalAgreementTemplate;"
 mysqlverify "s"  "-C ra.csv"           		"RentalAgreements"	    		"select RAID,RATID,BID,AgreementStart,AgreementStop,Renewal,SpecialProvisions,UnspecifiedAdults,UnspecifiedChildren,LastModBy from RentalAgreement;"
 mysqlverify "t"  "-E pets.csv"         		"Pets"	                    	"select PETID,BID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,LastModBy from RentalAgreementPets;"

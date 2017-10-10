@@ -127,7 +127,7 @@ var rentablesGridFieldsMap = map[string][]string{
 	"RentableName":         {"Rentable.RentableName"},
 	"RentableType":         {"RentableTypes.Name"},
 	"RTID":                 {"RentableTypes.RTID"},
-	"RentableStatus":       {"RentableStatus.Status"},
+	"RentableStatus":       {"RentableStatus.UseStatus"},
 	"RARID":                {"RentalAgreementRentables.RARID"},
 	"RAID":                 {"RentalAgreementRentables.RAID"},
 	"RentalAgreementStart": {"RentalAgreementRentables.RARDtStart"},
@@ -140,7 +140,7 @@ var rentablesQuerySelectFields = []string{
 	"Rentable.RentableName",
 	"RentableTypes.Name as RentableType",
 	"RentableTypes.RTID",
-	"RentableStatus.Status as RentableStatus",
+	"RentableStatus.UseStatus as RentableStatus",
 	"RentalAgreementRentables.RARID",
 	"RentalAgreementRentables.RAID",
 	"RentalAgreementRentables.RARDtStart as RentalAgreementStart",
@@ -462,7 +462,7 @@ func AdjustRSTimeList(rs *rlib.RentableStatus, r *rlib.Rentable) ([]rlib.Rentabl
 	rsAdded := false // flag to mark whether rs still needs to be added after loop
 	for i := 0; i < l; i++ {
 		if !rsAdded && rlib.DateRangeOverlap(&rs.DtStart, &rs.DtStop, &R[i].DtStart, &R[i].DtStop) {
-			if rs.Status == R[i].Status { // same rentable status?
+			if rs.UseStatus == R[i].UseStatus { // same rentable status?
 				if rs.DtStart.After(R[i].DtStart) { // adjust start time to the earliest
 					rs.DtStart = R[i].DtStart
 				}
@@ -472,7 +472,7 @@ func AdjustRSTimeList(rs *rlib.RentableStatus, r *rlib.Rentable) ([]rlib.Rentabl
 			} else { // different types
 				if rs.DtStart.Equal(R[i].DtStart) && rs.DtStop.Equal(R[i].DtStop) { // same date range, just a status change
 					rs1 := R[i]
-					rs1.Status = rs.Status
+					rs1.UseStatus = rs.UseStatus
 					m = append(m, rs1)
 					rsAdded = true
 				} else if rs.DtStart.Before(R[i].DtStart) { // if R[i] starts before rs adjust rs start point...
@@ -652,10 +652,10 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rs1 := rs
 		rs1.DtStart = (time.Time)(rfRecord.RSDtStart)
 		rs1.DtStop = (time.Time)(rfRecord.RSDtStop)
-		rs1.Status = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
+		rs1.UseStatus = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
 
 		// if anything changed, remake the list of RTRs
-		if !rs1.DtStart.Equal(rs.DtStart) || !rs1.DtStop.Equal(rs.DtStop) || rs1.Status != rs.Status {
+		if !rs1.DtStart.Equal(rs.DtStart) || !rs1.DtStop.Equal(rs.DtStop) || rs1.UseStatus != rs.UseStatus {
 			m, n := AdjustRSTimeList(&rs1, &rt) // returns current list and new list
 			for i := 0; i < len(m); i++ {       // delete the current list
 				err = rlib.DeleteRentableStatus(m[i].RSID)
@@ -699,7 +699,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// insert rentable status for this Rentable
 		rs.RID = rt.RID
 		rs.BID = rt.BID
-		rs.Status = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
+		rs.UseStatus = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
 		rs.DtStart = currentTime
 		rs.DtStop = (time.Time)(rfRecord.RSDtStop)
 		err = rlib.InsertRentableStatus(&rs)
@@ -747,7 +747,7 @@ var rentableFormSelectFields = []string{
 	"RentableTypeRef.DtStop as RTRefDtStop",
 	"RentableTypes.Name",
 	"RentableStatus.RSID",
-	"RentableStatus.Status as RentableStatus",
+	"RentableStatus.UseStatus as RentableStatus",
 	"RentableStatus.DtStart as RSDtStart",
 	"RentableStatus.DtStop as RSDtStop",
 	"Rentable.AssignmentTime",
