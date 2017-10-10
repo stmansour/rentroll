@@ -27,6 +27,6 @@ dorrtest "l" "${RRDATERANGE} -b ${BUD} -r 11" "GSR"
 dorrtest "m" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest "o" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"
 
-dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
+#dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
 logcheck

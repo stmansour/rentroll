@@ -4,7 +4,7 @@ db:
 	@echo "*** MAKE completed in test ***"
 
 clean:
-	rm -f testreport.txt
+	rm -f testreport.txt dbqqqmods.sql
 	for dir in $(DIRS); do make -C $$dir clean;done
 	cd ./testdb;make clean
 	@echo "*** CLEAN completed in test ***"
