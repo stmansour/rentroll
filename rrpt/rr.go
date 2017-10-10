@@ -222,8 +222,8 @@ var NoRIDNoAsmtQuerySelectFields = rlib.SelectQueryFields{
 	"CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END AS Payors",
 }
 
-// NoRIDNoAsmQueryFieldMap holds the fieldmap for no rentable no assessment query
-var NoRIDNoAsmQueryFieldMap = rlib.SelectQueryFieldMap{
+// NoRIDNoAsmtQueryFieldMap holds the fieldmap for no rentable no assessment query
+var NoRIDNoAsmtQueryFieldMap = rlib.SelectQueryFieldMap{
 	"Description":     {"ARID.Name"},
 	"PossessionStart": {"RentalAgreement.PossessionStart"},
 	"PossessionStop":  {"RentalAgreement.PossessionStop"},
@@ -344,50 +344,67 @@ func GetRRReportPartSQLRows(
 
 	// return the query execution
 	return rlib.RRdb.Dbrr.Query(dbQry)
+
+	// tInit := time.Now()
+	// qExec, err := rlib.RRdb.Dbrr.Query(dbQry)
+	// diff := time.Since(tInit)
+	// rlib.Console("\nQQQQQQuery Time diff for %s is %s\n\n", rrPart, diff.String())
+	// return qExec, err
 }
 
-type rentableRow struct {
-	BID             int64           // Business (so that we can process by Business)
-	RID             int64           // The rentable
-	RTID            int64           // The rentable type
-	RARID           rlib.NullInt64  // rental agreement rentable id
-	RentableName    rlib.NullString // Name of the rentable
-	RentableType    rlib.NullString // Name of the rentable type
-	RentCycle       rlib.NullInt64  // Rent Cycle
-	RentCycleStr    string          //String representation of Rent Cycle
-	Status          rlib.NullInt64  // Rentable status
-	RAID            rlib.NullInt64  // Rental Agreement
-	ASMID           rlib.NullInt64  // Assessment
-	AgreementPeriod string          // text representation of Rental Agreement time period
-	AgreementStart  rlib.NullDate   // start date for RA
-	AgreementStop   rlib.NullDate   // stop date for RA
-	UsePeriod       string          // text representation of Occupancy(or use) time period
-	PossessionStart rlib.NullDate   // start date for Occupancy
-	PossessionStop  rlib.NullDate   // stop date for Occupancy
-	RentPeriod      string          // text representation of Rent time period
-	RentStart       rlib.NullDate   // start date for Rent
-	RentStop        rlib.NullDate   // stop date for Rent
-	Payors          rlib.NullString // payors list attached with this RA within same time
-	Users           rlib.NullString // users associated with the rentable
-	Sqft            rlib.NullInt64  // rentable sq ft
-	Description     rlib.NullString
-	GSR             rlib.NullFloat64
-	PeriodGSR       rlib.NullFloat64
-	IncomeOffsets   rlib.NullFloat64
-	AmountDue       rlib.NullFloat64
-	PaymentsApplied rlib.NullFloat64
-	BeginningRcv    rlib.NullFloat64
-	ChangeInRcv     rlib.NullFloat64
-	EndingRcv       rlib.NullFloat64
-	BeginningSecDep rlib.NullFloat64
-	ChangeInSecDep  rlib.NullFloat64
-	EndingSecDep    rlib.NullFloat64
+// RentRollReportRow represents the row that holds the data for rentroll report
+// it could be used by rentroll webservice view as well as for the gotable report
+type RentRollReportRow struct {
+	Recid            int64            `json:"recid"` // this is to support the w2ui form
+	BID              int64            // Business (so that we can process by Business)
+	RID              int64            // The rentable
+	RTID             int64            // The rentable type
+	RAID             rlib.NullInt64   // Rental Agreement
+	RARID            rlib.NullInt64   // rental agreement rentable id
+	ASMID            rlib.NullInt64   // Assessment
+	RentableName     rlib.NullString  // Name of the rentable
+	RentableType     rlib.NullString  // Name of the rentable type
+	Sqft             rlib.NullInt64   // rentable square feet
+	Description      rlib.NullString  // account rule name
+	RentCycle        rlib.NullInt64   // Rent Cycle
+	RentCycleStr     string           // String representation of Rent Cycle
+	Status           rlib.NullInt64   // Rentable status
+	AgreementStart   rlib.NullDate    // start date for RA
+	AgreementStop    rlib.NullDate    // stop date for RA
+	AgreementPeriod  string           // text representation of Rental Agreement time period
+	PossessionStart  rlib.NullDate    // start date for Occupancy
+	PossessionStop   rlib.NullDate    // stop date for Occupancy
+	UsePeriod        string           // text representation of Occupancy(or use) time period
+	RentStart        rlib.NullDate    // start date for Rent
+	RentStop         rlib.NullDate    // stop date for Rent
+	RentPeriod       string           // text representation of Rent time period
+	Payors           rlib.NullString  // payors list attached with this RA within same time
+	Users            rlib.NullString  // users associated with the rentable
+	GSR              rlib.NullFloat64 // Gross scheduled rate
+	PeriodGSR        rlib.NullFloat64 // Periodic gross scheduled rate
+	IncomeOffsets    rlib.NullFloat64 // Income Offset amount
+	AmountDue        rlib.NullFloat64 // Amount needs to be paid by Payor(s)
+	PaymentsApplied  rlib.NullFloat64 // Amount collected by Payor(s) for Assessments
+	BeginningRcv     rlib.NullFloat64 // Receivable amount at beginning period
+	ChangeInRcv      rlib.NullFloat64 // Change in receivable
+	EndingRcv        rlib.NullFloat64 // Ending receivable
+	BeginningSecDep  rlib.NullFloat64 // Beginning security deposit
+	ChangeInSecDep   rlib.NullFloat64 // Change in security deposit
+	EndingSecDep     rlib.NullFloat64 // Ending security deposit
+	IsMainRow        bool             // is main row
+	IsRentableRow    bool             // is rentable row
+	IsSubTotalRow    bool             // is sustotal row
+	IsBlankRow       bool             // is blank row
+	IsNoRIDAsmtRow   bool             // is "No rentable assessment" row
+	IsNoRIDNoAsmtRow bool             // is "No rentable No assessment" row
 }
 
-// rentableRowScan scans a result from sql row and dump it in a rentableRow struct
-func rentableRowScan(rows *sql.Rows, q *rentableRow) error {
-	return rows.Scan(&q.BID, &q.RID, &q.RentableName, &q.RTID, &q.RentableType, &q.RentCycle, &q.GSR, &q.RARID, &q.RAID,
-		&q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Status, &q.Payors, &q.Users)
+// RentRollReportRowScan scans a result from sql row and dump it in a RentRollReportRow struct
+func RentRollReportRowScan(rows *sql.Rows, q *RentRollReportRow) error {
+	return rows.Scan(&q.BID, &q.RID, &q.RentableName, &q.RTID, &q.RentableType,
+		&q.RentCycle, &q.GSR, &q.RARID, &q.RAID,
+		&q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop,
+		&q.Status, &q.Payors, &q.Users)
 }
 
 // RRTextReport prints a text-based RentRoll report
@@ -403,7 +420,7 @@ func RRReport(ri *ReporterInfo) string {
 	return ReportToString(&tbl, ri)
 }
 
-// RRReportTable returns the new rentroll report for the given date range.
+// RRReportRows returns the new rentroll report for the given date range and business id.
 //
 // The table rows are categorized by five types.
 // 1. Rentables Row
@@ -421,16 +438,381 @@ func RRReport(ri *ReporterInfo) string {
 //        For ex. 'Application Fee' on rental agreement
 // 5. All receipts which are not associated with any rentable nor with any assessment
 //        For ex. Application Fees, Floating Deposits
+// This routine is commonly used by both report and webservice view.
+// So, for webservice view, routine needs be called with additional params
+// such as limit, some offset values.
+func RRReportRows(BID int64,
+	startDt, stopDt time.Time,
+	pageRowsLimit int,
+	rentablesWC, rentablesQC string, rentablesOffset int,
+	noRIDAsmtWC, noRIDAsmtQC string, noRIDAsmtOffset int,
+	noRIDNoAsmtWC, noRIDNoAsmtQC string, noRIDNoAsmtOffset int,
+) ([]RentRollReportRow, error) {
+
+	const funcname = "RRReportRows"
+	var (
+		err                  error
+		customAttrRTSqft     = "Square Feet"                      // custom attribute for all rentables
+		grandTTL             = RentRollReportRow{IsMainRow: true} // grand total row
+		xbiz                 rlib.XBusiness
+		noRIDAsmtRowsLimit   = 0 // limit on "NO rentable assessment" rows
+		noRIDNoAsmtRowsLimit = 0 // limit on "NO rentable NO assessment" rows
+		rptMainRowsCount     = 0 // report main rows count
+	)
+	rlib.Console("Entered in %s\n", funcname)
+
+	// init some structure
+	reportRows := []RentRollReportRow{}
+	rlib.InitBizInternals(BID, &xbiz) // init some business internals first
+
+	//==========================
+	// RENTABLES QUERY EXECUTION
+	//==========================
+	// if there is no limit then it is meaningless having a value for below variables
+	if pageRowsLimit <= 0 {
+		rentablesOffset = -1
+		pageRowsLimit = -1
+	}
+
+	rentablesRows, err := GetRRReportPartSQLRows("rentables", BID,
+		startDt, stopDt,
+		rentablesWC, rentablesQC,
+		pageRowsLimit, rentablesOffset)
+
+	if err != nil {
+		return reportRows, err
+	}
+	defer rentablesRows.Close()
+
+	// ===========================
+	// LOOP THROUGH RENTABLES ROWS
+	// ===========================
+	rentablesCount := 0
+	for rentablesRows.Next() {
+		q := RentRollReportRow{IsMainRow: true, IsRentableRow: true}
+		if err = RentRollReportRowScan(rentablesRows, &q); err != nil {
+			return reportRows, err
+		}
+		if len(xbiz.RT[q.RTID].CA) > 0 { // if there are custom attributes
+			c, ok := xbiz.RT[q.RTID].CA[customAttrRTSqft] // see if Square Feet is among them
+			if ok {                                       // if it is...
+				sqft, err := rlib.IntFromString(c.Value, "invalid customAttrRTSqft attribute")
+				q.Sqft.Scan(sqft)
+				if err != nil {
+					return reportRows, err
+				}
+			}
+		}
+		if q.RentStart.Time.Year() > 1970 {
+			q.RentPeriod = fmt.Sprintf("%s\n - %s", q.RentStart.Time.Format(rlib.RRDATEFMT3), q.RentStop.Time.Format(rlib.RRDATEFMT3))
+		}
+		if q.PossessionStart.Time.Year() > 1970 {
+			q.UsePeriod = fmtRRDatePeriod(&q.PossessionStart.Time, &q.PossessionStop.Time)
+		}
+		for freqStr, freqNo := range rlib.CycleFreqMap {
+			if q.RentCycle.Int64 == freqNo {
+				q.RentCycleStr = freqStr
+			}
+		}
+
+		//------------------------------------------------------------
+		// There may be multiple rows for the ASSESSMENTS query and
+		// the NO-ASSESSMENTS query. Hold each row RentRollReportRow in slice
+		// Also, compute subtotals as we go
+		//------------------------------------------------------------
+		d70 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+		subList := []RentRollReportRow{}
+		subTotalRow := RentRollReportRow{IsSubTotalRow: true}
+		subTotalRow.AmountDue.Valid = true
+		subTotalRow.PaymentsApplied.Valid = true
+		subTotalRow.PeriodGSR.Valid = true
+		subTotalRow.IncomeOffsets.Valid = true
+
+		//========================
+		//  ASSESSMENTS QUERY...
+		//========================
+		// here we have to apply different whereClause
+		// for the rentables Assessment Query as we're looking
+		// for ALL assessments for specific rentable
+		rentablesAsmtAdditionalWhere := fmt.Sprintf("Rentable.RID=%d", q.RID)
+		rentablesAsmtRows, err := GetRRReportPartSQLRows("rentablesAsmt", q.BID,
+			startDt, stopDt,
+			rentablesAsmtAdditionalWhere, "",
+			-1, -1) // we need to fetch all asmt
+
+		if err != nil {
+			return reportRows, err
+		}
+		defer rentablesAsmtRows.Close()
+
+		//============================================================
+		//   LOOP THROUGH ASSESSMENTS AND RECEIPTS FOR THIS RENTABLE
+		//============================================================
+		rentablesChildRowsCount := 0
+		for rentablesAsmtRows.Next() {
+			var nq = RentRollReportRow{RID: q.RID, BID: q.BID}
+			if rentablesChildRowsCount == 0 {
+				nq = q
+			}
+			if err = rentablesAsmtRows.Scan(&nq.Description, &nq.RAID,
+				&nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop,
+				&nq.AmountDue, &nq.PaymentsApplied,
+			); err != nil {
+				return reportRows, err
+			}
+			setRRDatePeriodString(&subList, &nq) // adds dates as needed
+			if nq.RAID.Valid || nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
+				addToSubList(&subList, &rentablesChildRowsCount, &nq)
+				updateSubTotals(&subTotalRow, &nq)
+			}
+		}
+
+		//============================
+		//  NO-ASSESSMENTS QUERY...
+		//============================
+		// we need to change whereClause for the rentables no Assessment query
+		// as we're looking for ALL payments associated with specific rentable
+		// but has no any assessments
+		rentablesNoAsmtAdditionalWhere := fmt.Sprintf("RentalAgreementRentables.RID=%d", q.RID)
+		rentablesNoAsmtRows, err := GetRRReportPartSQLRows("rentablesNoAsmt", q.BID,
+			startDt, stopDt,
+			rentablesNoAsmtAdditionalWhere, "",
+			-1, -1) // need to fetch all receipts
+
+		if err != nil {
+			return reportRows, err
+		}
+		defer rentablesNoAsmtRows.Close()
+
+		//====================================================
+		//   LOOP THROUGH NO-ASSESSMENTS FOR THIS RENTABLE
+		//====================================================
+		for rentablesNoAsmtRows.Next() {
+			var nq = RentRollReportRow{RID: q.RID, BID: q.BID}
+			if rentablesChildRowsCount == 0 {
+				nq = q
+			}
+			err = rentablesNoAsmtRows.Scan(&nq.Description, &nq.RAID,
+				&nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop,
+				&nq.PaymentsApplied)
+
+			if err != nil {
+				return reportRows, err
+			}
+			setRRDatePeriodString(&subList, &nq) // adds dates as needed
+			if nq.Description.Valid || nq.RAID.Valid || nq.PaymentsApplied.Valid {
+				addToSubList(&subList, &rentablesChildRowsCount, &nq)
+				updateSubTotals(&subTotalRow, &nq)
+			}
+		}
+
+		//----------------------------------------------------------------------
+		// Handle the case where both the Assesments and No-Assessment lists
+		// had no matches... just add what we know...
+		//----------------------------------------------------------------------
+		if len(subList) == 0 {
+			addToSubList(&subList, &rentablesChildRowsCount, &q)
+		} else {
+			//====================================================
+			//   CHECK FOR GAPS IN COVERAGE
+			//====================================================
+			handleRentableGaps(&subList, &startDt, &stopDt)
+		}
+
+		// NOW, ADD append all sublist row in main data struture
+		// ------------------------------------------------------
+		reportRows = append(reportRows, subList...)
+
+		//----------------------------------------
+		// Add the Rentable receivables totals...
+		//----------------------------------------
+		subTotalRow.Description.String = "Subtotal"
+		subTotalRow.Description.Valid = true
+		subTotalRow.BeginningRcv.Float64, subTotalRow.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(q.BID, q.RID, q.RAID.Int64, &startDt, &stopDt)
+		subTotalRow.BeginningRcv.Valid = true
+		subTotalRow.ChangeInRcv.Float64 = subTotalRow.EndingRcv.Float64 - subTotalRow.BeginningRcv.Float64
+		subTotalRow.ChangeInRcv.Valid = true
+		subTotalRow.EndingRcv.Valid = true
+
+		//----------------------------------------
+		// Add the Security Deposit totals...
+		//----------------------------------------
+		subTotalRow.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d70, &startDt)
+		if err != nil {
+			return reportRows, err
+		}
+		subTotalRow.BeginningSecDep.Valid = true
+		subTotalRow.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &startDt, &stopDt)
+		if err != nil {
+			return reportRows, err
+		}
+		subTotalRow.ChangeInSecDep.Valid = true
+		subTotalRow.EndingSecDep.Float64 = subTotalRow.BeginningSecDep.Float64 + subTotalRow.ChangeInSecDep.Float64
+		subTotalRow.EndingSecDep.Valid = true
+
+		// NOW ADD SUB TOTAL ROW IN LIST
+		reportRows = append(reportRows, subTotalRow)
+		rentablesChildRowsCount++
+
+		// add subTotal amounts to grand total record
+		updateGrandTotals(&grandTTL, &subTotalRow)
+
+		// ALSO, ADD BLANK ROW
+		reportRows = append(reportRows, RentRollReportRow{IsBlankRow: true})
+		rentablesChildRowsCount++
+
+		// update the rentablesCount only after adding the record
+		rentablesCount++
+	}
+
+	err = rentablesRows.Err()
+	if err != nil {
+		return reportRows, err
+	}
+	rlib.Console("Added %d Rentable rows\n", rentablesCount)
+	rptMainRowsCount += rentablesCount // how many total rows have been added to list
+
+	// if for given limit, rows are feed within page then return
+	if isReportComplete(pageRowsLimit, rptMainRowsCount) {
+		return reportRows, err
+	}
+
+	//====================================
+	// NO-RENTABLE ASSESSMENTS QUERY...
+	//====================================
+
+	// if no limit then reset the values
+	if pageRowsLimit <= 0 {
+		noRIDAsmtWC = ""
+		noRIDAsmtQC = ""
+		noRIDAsmtRowsLimit = -1
+		noRIDAsmtOffset = -1
+	} else {
+		noRIDAsmtRowsLimit = pageRowsLimit - len(reportRows)
+		if noRIDAsmtRowsLimit < 0 {
+			noRIDAsmtRowsLimit = 0 // make sure it doesn't have minus value
+		}
+	}
+
+	noRIDAsmtRows, err := GetRRReportPartSQLRows("noRIDAsmt", BID,
+		startDt, stopDt,
+		noRIDAsmtWC, noRIDAsmtQC,
+		noRIDAsmtRowsLimit, noRIDAsmtOffset)
+
+	if err != nil {
+		return reportRows, err
+	}
+	defer noRIDAsmtRows.Close()
+
+	// ==============================
+	// LOOP THROUGH NO RID ASMT ROWS
+	// ==============================
+	noRIDAsmtRowsCount := 0
+	for noRIDAsmtRows.Next() {
+		q := RentRollReportRow{IsMainRow: true, IsNoRIDAsmtRow: true}
+		err = noRIDAsmtRows.Scan(&q.BID, &q.ASMID, &q.Description,
+			&q.AmountDue, &q.PaymentsApplied, &q.RAID,
+			&q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Payors)
+
+		if err != nil {
+			return reportRows, err
+		}
+		setRRDatePeriodString(&reportRows, &q)
+
+		// APPEND NO-RID-ASMT ROW IN LIST
+		reportRows = append(reportRows, q)
+		noRIDAsmtRowsCount++
+
+		// add subTotal amounts to grand total record
+		updateGrandTotals(&grandTTL, &q)
+	}
+	rlib.Console("Added noRID Asmt rows: %d", noRIDAsmtRowsCount)
+	rptMainRowsCount += noRIDAsmtRowsCount // how many total rows have been added to list
+
+	// if for given limit, rows are feed within page then return
+	if isReportComplete(pageRowsLimit, rptMainRowsCount) {
+		return reportRows, err
+	}
+
+	//=======================================
+	//  NO Rentables No ASSESSMENTS QUERY...
+	//=======================================
+
+	// if no limit then reset the values
+	if pageRowsLimit <= 0 {
+		noRIDNoAsmtWC = ""
+		noRIDNoAsmtQC = ""
+		noRIDNoAsmtRowsLimit = -1
+		noRIDNoAsmtOffset = -1
+	} else {
+		noRIDNoAsmtRowsLimit = pageRowsLimit - len(reportRows)
+		if noRIDNoAsmtRowsLimit < 0 {
+			noRIDNoAsmtRowsLimit = 0 // make sure it doesn't have minus value
+		}
+	}
+
+	noRIDNoAsmtRows, err := GetRRReportPartSQLRows("noRIDNoAsmt", BID,
+		startDt, stopDt,
+		noRIDNoAsmtWC, noRIDNoAsmtQC,
+		noRIDNoAsmtRowsLimit, noRIDNoAsmtOffset)
+
+	if err != nil {
+		return reportRows, err
+	}
+	defer noRIDNoAsmtRows.Close()
+
+	// =================================
+	// LOOP THROUGH NO RID NO ASMT ROWS
+	// =================================
+	noRIDNoAsmtRowsCount := 0
+	for noRIDNoAsmtRows.Next() {
+		q := RentRollReportRow{IsMainRow: true, IsNoRIDNoAsmtRow: true}
+		err = noRIDNoAsmtRows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied,
+			&q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop,
+			&q.Description, &q.Payors)
+
+		if err != nil {
+			return reportRows, err
+		}
+		setRRDatePeriodString(&reportRows, &q)
+
+		// APPEND NO-RID-NO-ASMT ROW IN LIST
+		reportRows = append(reportRows, q)
+		noRIDNoAsmtRowsCount++
+
+		// add subTotal amounts to grand total record
+		updateGrandTotals(&grandTTL, &q)
+	}
+	rlib.Console("Added noRID NoAsmt rows: %d", noRIDNoAsmtRowsCount)
+	rptMainRowsCount += noRIDNoAsmtRowsCount // how many total rows have been added to list
+
+	// ================
+	// GRAND TOTAL ROW
+	// ================
+	grandTTL.Description.Scan("Grand Total")
+	reportRows = append(reportRows, grandTTL)
+
+	return reportRows, err
+}
+
+// isReportComplete checks whether page result rows is filled completely with given limit.
+// only applicable for virtual scrolling.
+func isReportComplete(pageRowsLimit int, mainRowsCount int) bool {
+	if pageRowsLimit > 0 {
+		if mainRowsCount >= pageRowsLimit {
+			return true
+		}
+		return false
+	}
+	return false
+}
+
+// RRReportTable returns the gotable representation for rentroll report
 func RRReportTable(ri *ReporterInfo) gotable.Table {
 	const funcname = "RRReportTable"
 	var (
-		err     error
-		startDt = ri.D1
-		stopDt  = ri.D2
-		tbl     = getRRTable() // gotable init for this report
-		// totalErrs        = 0
-		customAttrRTSqft = "Square Feet"
-		grandTTL         = rentableRow{}
+		err error
+		tbl = getRRTable() // gotable init for this report
 	)
 	rlib.Console("Entered in %s", funcname)
 
@@ -440,12 +822,6 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 		{Name: "font-family", Value: "monospace"},
 	}
 	tbl.SetSection3CSS(cssListSection3)
-
-	// init some values
-	ri.RptHeaderD1 = true
-	ri.RptHeaderD2 = true
-	ri.BlankLineAfterRptName = true
-	grandTTL.Description.Scan("Grand Total")
 
 	// set table title, sections
 	err = TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
@@ -476,308 +852,47 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Change In Security Deposit", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT) // account for the associated RentalAgreement
 	tbl.AddColumn("Ending Security Deposit", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
 
-	//==========================
-	// RENTABLES QUERY EXECUTION
-	//==========================
-	rentablesRows, err := GetRRReportPartSQLRows("rentables", ri.Bid,
-		startDt, stopDt,
-		"", "", -1, -1)
+	// NOW GET THE ROWS FOR RENTROLL ROUTINE
+	rows, err := RRReportRows(
+		ri.Bid, ri.D1, ri.D2, // BID, startDate, stopDate
+		-1,         // limit
+		"", "", -1, // rentables Part
+		"", "", -1, // "No Rentable Assessment" part
+		"", "", -1) // "No Rentable No Assessment" part
 
-	if err != nil {
-		if rlib.IsSQLNoResultsError(err) {
-			tbl.SetSection3(NoRecordsFoundMsg)
-		} else {
-			tbl.SetSection3(err.Error())
-		}
-		return tbl
-	}
-	defer rentablesRows.Close()
-
-	// ===========================
-	// LOOP THROUGH RENTABLES ROWS
-	// ===========================
-	count := 0
-	for rentablesRows.Next() {
-		q := rentableRow{}
-		if err = rentableRowScan(rentablesRows, &q); err != nil {
-			tbl.SetSection3(err.Error())
-			return tbl
-		}
-		if len(ri.Xbiz.RT[q.RTID].CA) > 0 { // if there are custom attributes
-			c, ok := ri.Xbiz.RT[q.RTID].CA[customAttrRTSqft] // see if Square Feet is among them
-			if ok {                                          // if it is...
-				sqft, err := rlib.IntFromString(c.Value, "invalid customAttrRTSqft attribute")
-				q.Sqft.Scan(sqft)
-				if err != nil {
-					tbl.SetSection3(err.Error())
-					return tbl
-				}
-			}
-		}
-		if q.RentStart.Time.Year() > 1970 {
-			q.RentPeriod = fmt.Sprintf("%s\n - %s", q.RentStart.Time.Format(rlib.RRDATEFMT3), q.RentStop.Time.Format(rlib.RRDATEFMT3))
-		}
-		if q.PossessionStart.Time.Year() > 1970 {
-			q.UsePeriod = FmtRRDatePeriod(&q.PossessionStart.Time, &q.PossessionStop.Time)
-		}
-		for freqStr, freqNo := range rlib.CycleFreqMap {
-			if q.RentCycle.Int64 == freqNo {
-				q.RentCycleStr = freqStr
-			}
-		}
-
-		//------------------------------------------------------------
-		// There may be multiple rows for the ASSESSMENTS query and
-		// the NO-ASSESSMENTS query. Hold each row rentableRow in slice
-		// Also, compute subtotals as we go
-		//------------------------------------------------------------
-		d1 := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
-		subList := []rentableRow{}
-		sub := rentableRow{}
-		sub.AmountDue.Valid = true
-		sub.PaymentsApplied.Valid = true
-		sub.PeriodGSR.Valid = true
-		sub.IncomeOffsets.Valid = true
-
-		//========================
-		//  ASSESSMENTS QUERY...
-		//========================
-		// here we have to apply different whereClause
-		// for the rentables Assessment Query as we're looking
-		// for ALL assessments for specific rentable
-		rentablesAsmtAdditionalWhere := fmt.Sprintf("Rentable.RID=%d", q.RID)
-		rentablesAsmtRows, err := GetRRReportPartSQLRows("rentablesAsmt", ri.Bid,
-			startDt, stopDt,
-			rentablesAsmtAdditionalWhere, "", -1, -1)
-
-		if err != nil {
-			tbl.SetSection3(err.Error())
-			return tbl
-		}
-		defer rentablesAsmtRows.Close()
-
-		//============================================================
-		//   LOOP THROUGH ASSESSMENTS AND RECEIPTS FOR THIS RENTABLE
-		//============================================================
-		childCount := 0
-		for rentablesAsmtRows.Next() {
-			var nq = rentableRow{RID: q.RID, BID: q.BID}
-			if childCount == 0 {
-				nq = q
-			}
-			err = rentablesAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.AmountDue, &nq.PaymentsApplied)
-			if err != nil {
-				tbl.SetSection3(err.Error())
-				return tbl
-			}
-			setRRDatePeriodString(&tbl, &nq) // adds dates as needed
-			if nq.RAID.Valid || nq.Description.Valid || nq.AmountDue.Valid || nq.PaymentsApplied.Valid {
-				addToSubList(&subList, &childCount, &nq)
-				updateSubTotals(&sub, &nq)
-			}
-		}
-
-		//============================
-		//  NO-ASSESSMENTS QUERY...
-		//============================
-		// we need to change whereClause for the rentables no Assessment query
-		// as we're looking for ALL payments associated with specific rentable
-		// but has no any assessments
-		rentablesNoAsmtAdditionalWhere := fmt.Sprintf("RentalAgreementRentables.RID=%d", q.RID)
-		rentablesNoAsmtRows, err := GetRRReportPartSQLRows("rentablesNoAsmt", ri.Bid,
-			startDt, stopDt,
-			rentablesNoAsmtAdditionalWhere, "",
-			-1, -1)
-
-		if err != nil {
-			tbl.SetSection3(err.Error())
-			return tbl
-		}
-		defer rentablesNoAsmtRows.Close()
-
-		//====================================================
-		//   LOOP THROUGH NO-ASSESSMENTS FOR THIS RENTABLE
-		//====================================================
-		for rentablesNoAsmtRows.Next() {
-			var nq = rentableRow{RID: q.RID, BID: q.BID}
-			if childCount == 0 {
-				nq = q
-			}
-			err = rentablesNoAsmtRows.Scan(&nq.Description, &nq.RAID, &nq.PossessionStart, &nq.PossessionStop, &nq.RentStart, &nq.RentStop, &nq.PaymentsApplied)
-			if err != nil {
-				tbl.SetSection3(err.Error())
-				return tbl
-			}
-			setRRDatePeriodString(&tbl, &nq) // adds dates as needed
-			if nq.Description.Valid || nq.RAID.Valid || nq.PaymentsApplied.Valid {
-				addToSubList(&subList, &childCount, &nq)
-				updateSubTotals(&sub, &nq)
-			}
-		}
-
-		//----------------------------------------------------------------------
-		// Handle the case where both the Assesments and No-Assessment lists
-		// had no matches... just add what we know...
-		//----------------------------------------------------------------------
-		if len(subList) == 0 {
-			addToSubList(&subList, &childCount, &q)
-		} else {
-			//====================================================
-			//   CHECK FOR GAPS IN COVERAGE
-			//====================================================
-			handleGaps(&subList, &ri.D1, &ri.D2)
-
-		}
-
-		// now add all child rows respected with rentableRow in gotable
-		for _, row := range subList {
-			rrTableAddRow(&tbl, row)
-		}
-
-		//----------------------------------------
-		// Add the Rentable receivables totals...
-		//----------------------------------------
-		sub.Description.String = "Subtotal"
-		sub.Description.Valid = true
-		sub.BeginningRcv.Float64, sub.EndingRcv.Float64, err = rlib.GetBeginEndRARBalance(ri.Bid, q.RID, q.RAID.Int64, &startDt, &stopDt)
-		sub.BeginningRcv.Valid = true
-		sub.ChangeInRcv.Float64 = sub.EndingRcv.Float64 - sub.BeginningRcv.Float64
-		sub.ChangeInRcv.Valid = true
-		sub.EndingRcv.Valid = true
-
-		//----------------------------------------
-		// Add the Security Deposit totals...
-		//----------------------------------------
-		sub.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &d1, &startDt)
-		if err != nil {
-			tbl.SetSection3(err.Error())
-			return tbl
-		}
-		sub.BeginningSecDep.Valid = true
-		sub.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(q.BID, q.RAID.Int64, q.RID, &startDt, &stopDt)
-		if err != nil {
-			tbl.SetSection3(err.Error())
-			return tbl
-		}
-		sub.ChangeInSecDep.Valid = true
-		sub.EndingSecDep.Float64 = sub.BeginningSecDep.Float64 + sub.ChangeInSecDep.Float64
-		sub.EndingSecDep.Valid = true
-
-		// =====================
-		// SUBTOTAL LINE
-		// =====================
-		tbl.AddLineAfter(len(tbl.Row) - 1)
-		rrTableAddRow(&tbl, sub)
-		childCount++
-		tbl.AddLineAfter(len(tbl.Row) - 1) // SHOULD WE ADD LINE AFTER SUBTOTAL ROW??
-
-		// add subTotal amounts to grand total record
-		updateGrandTotals(&grandTTL, &sub)
-
-		// =====================
-		// BLANK LINE
-		// =====================
-		rrTableAddRow(&tbl, rentableRow{})
-		childCount++
-
-		// update the count only after adding the record
-		count++
-	}
-
-	err = rentablesRows.Err()
+	// if any error encountered then just set it to section3
 	if err != nil {
 		tbl.SetSection3(err.Error())
 		return tbl
 	}
-	rlib.Console("Added %d Rentable rows\n", count)
 
-	//====================================
-	//  NO Rentables ASSESSMENTS QUERY...
-	//====================================
-	noRIDAsmtRows, err := GetRRReportPartSQLRows("noRIDAsmt", ri.Bid,
-		startDt, stopDt,
-		"", "", -1, -1)
-
-	if err != nil {
-		tbl.SetSection3(err.Error())
-		return tbl
-	}
-	defer noRIDAsmtRows.Close()
-
-	// ==============================
-	// LOOP THROUGH NO RID ASMT ROWS
-	// ==============================
-	count = 0
-	for noRIDAsmtRows.Next() {
-		q := rentableRow{}
-		err := noRIDAsmtRows.Scan(&q.BID, &q.ASMID, &q.Description, &q.AmountDue, &q.PaymentsApplied, &q.RAID, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Payors)
-		if err != nil {
-			tbl.SetSection3(err.Error())
-			return tbl
+	for index, row := range rows {
+		if row.IsSubTotalRow { // add line before subtotal Row
+			// tbl.AddLineBefore(index) // AddLineBefore is not working
+			tbl.AddLineAfter(index - 1)
 		}
-		setRRDatePeriodString(&tbl, &q)
-		rrTableAddRow(&tbl, q)
-		count++
-
-		// add subTotal amounts to grand total record
-		updateGrandTotals(&grandTTL, &q)
+		rrTableAddRow(&tbl, row)
 	}
-	rlib.Console("Added noRID Asmt rows: %d", count)
-
-	//=======================================
-	//  NO Rentables No ASSESSMENTS QUERY...
-	//=======================================
-	noRIDNoAsmtRows, err := GetRRReportPartSQLRows("noRIDNoAsmt", ri.Bid,
-		startDt, stopDt,
-		"", "", -1, -1)
-
-	if err != nil {
-		tbl.SetSection3(err.Error())
-		return tbl
-	}
-	defer noRIDNoAsmtRows.Close()
-
-	// =================================
-	// LOOP THROUGH NO RID NO ASMT ROWS
-	// =================================
-	count = 0
-	for noRIDNoAsmtRows.Next() {
-		q := rentableRow{}
-		err := noRIDNoAsmtRows.Scan(&q.BID, &q.RAID, &q.PaymentsApplied, &q.PossessionStart, &q.PossessionStop, &q.RentStart, &q.RentStop, &q.Description, &q.Payors)
-		if err != nil {
-			tbl.SetSection3(err.Error())
-			return tbl
-		}
-		setRRDatePeriodString(&tbl, &q)
-		rrTableAddRow(&tbl, q)
-		count++
-
-		// add subTotal amounts to grand total record
-		updateGrandTotals(&grandTTL, &q)
-	}
-
-	// at last add grand total row to the table
-	tbl.AddLineAfter(len(tbl.Row) - 1)
-	rrTableAddRow(&tbl, grandTTL)
+	tbl.AddLineAfter(len(tbl.Row) - 2) // Grand Total line, Rows index start from zero
 
 	return tbl
 }
 
-// addToSubList is a convenience function that adds a new rentableRow struct to the
+// addToSubList is a convenience function that adds a new RentRollReportRow struct to the
 // supplied grid struct and updates the
 //
 // INPUTS
-//           g = pointer to a slice of rentableRow structs to which p will be added
+//           g = pointer to a slice of RentRollReportRow structs to which p will be added
 //  childCount = pointer to a counter to increment when a record is added
 //-----------------------------------------------------------------------------
-func addToSubList(g *[]rentableRow, childCount *int, p *rentableRow) {
+func addToSubList(g *[]RentRollReportRow, childCount *int, p *RentRollReportRow) {
 	(*childCount)++
 	*g = append(*g, *p)
 }
 
 // updateSubTotals does all subtotal calculations for the subtotal line
 //-----------------------------------------------------------------------------
-func updateSubTotals(sub, q *rentableRow) {
+func updateSubTotals(sub, q *RentRollReportRow) {
 	sub.AmountDue.Float64 += q.AmountDue.Float64
 	sub.PaymentsApplied.Float64 += q.PaymentsApplied.Float64
 	sub.PeriodGSR.Float64 += q.PeriodGSR.Float64
@@ -788,7 +903,7 @@ func updateSubTotals(sub, q *rentableRow) {
 
 // updateGrandTotals does grand total from subTotal Rows
 //-----------------------------------------------------------------------------
-func updateGrandTotals(grandTotal, subTotal *rentableRow) {
+func updateGrandTotals(grandTotal, subTotal *RentRollReportRow) {
 	grandTotal.AmountDue.Float64 += subTotal.AmountDue.Float64
 	grandTotal.PaymentsApplied.Float64 += subTotal.PaymentsApplied.Float64
 	grandTotal.PeriodGSR.Float64 += subTotal.PeriodGSR.Float64
@@ -800,92 +915,92 @@ func updateGrandTotals(grandTotal, subTotal *rentableRow) {
 // int64ToStr returns the string represenation of int64 type number
 // if blank is set to true, then it will returns blank string otherwise returns 0
 func int64ToStr(number int64, blank bool) string {
-	if number > 0 {
-		return strconv.FormatInt(number, 10)
+	nStr := strconv.FormatInt(number, 10)
+	if nStr == "0" {
+		if blank {
+			return ""
+		}
 	}
-	if blank {
-		return ""
-	}
-	return strconv.FormatInt(number, 10)
+	return nStr
 }
 
 // float64ToStr returns the string represenation of float64 type number
 // if blank is set to true, then it will returns blank string otherwise returns 0.00
 func float64ToStr(number float64, blank bool) string {
-	if number > 0 {
-		return strconv.FormatFloat(number, 'f', 2, 64)
+	nStr := strconv.FormatFloat(number, 'f', 2, 64)
+	if nStr == "0.00" {
+		if blank {
+			return ""
+		}
 	}
-	if blank {
-		return ""
-	}
-	return strconv.FormatFloat(number, 'f', 2, 64)
+	return nStr
 }
 
-// column numbers for gotable report
-const (
-	rrRName       = 0
-	rrRType       = iota
-	rrSqFt        = iota
-	rrDescr       = iota
-	rrUsers       = iota
-	rrPayors      = iota
-	rrRAgr        = iota
-	rrUsePeriod   = iota
-	rrRentPeriod  = iota
-	rrRAgrStart   = iota
-	rrRAgrStop    = iota
-	rrRentCycle   = iota
-	rrGSRRate     = iota
-	rrGSRAmt      = iota
-	rrIncOff      = iota
-	rrAmtDue      = iota
-	rrPmtRcvd     = iota
-	rrBeginRcv    = iota
-	rrChgRcv      = iota
-	rrEndRcv      = iota
-	rrBeginSecDep = iota
-	rrChgSecDep   = iota
-	rrEndSecDep   = iota
-)
-
 // rrTableAddRow adds row in gotable struct with information
-// given by rentableRow struct
-func rrTableAddRow(tbl *gotable.Table, q rentableRow) {
+// given by RentRollReportRow struct
+func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
+
+	// column numbers for gotable report
+	const (
+		RName       = 0
+		RType       = iota
+		SqFt        = iota
+		Descr       = iota
+		Users       = iota
+		Payors      = iota
+		RAgr        = iota
+		UsePeriod   = iota
+		RentPeriod  = iota
+		RAgrStart   = iota
+		RAgrStop    = iota
+		RentCycle   = iota
+		GSRRate     = iota
+		GSRAmt      = iota
+		IncOff      = iota
+		AmtDue      = iota
+		PmtRcvd     = iota
+		BeginRcv    = iota
+		ChgRcv      = iota
+		EndRcv      = iota
+		BeginSecDep = iota
+		ChgSecDep   = iota
+		EndSecDep   = iota
+	)
 
 	tbl.AddRow()
-	tbl.Puts(-1, rrRName, q.RentableName.String)
-	tbl.Puts(-1, rrRType, q.RentableType.String)
-	tbl.Puts(-1, rrSqFt, int64ToStr(q.Sqft.Int64, true))
-	tbl.Puts(-1, rrDescr, q.Description.String)
-	tbl.Puts(-1, rrUsers, q.Users.String)
-	tbl.Puts(-1, rrPayors, q.Payors.String)
+	tbl.Puts(-1, RName, q.RentableName.String)
+	tbl.Puts(-1, RType, q.RentableType.String)
+	tbl.Puts(-1, SqFt, int64ToStr(q.Sqft.Int64, true))
+	tbl.Puts(-1, Descr, q.Description.String)
+	tbl.Puts(-1, Users, q.Users.String)
+	tbl.Puts(-1, Payors, q.Payors.String)
 	raidStr := int64ToStr(q.RAID.Int64, true)
 	raStr := ""
 	if len(raidStr) > 0 {
 		raStr = "RA-" + raidStr
 	}
-	tbl.Puts(-1, rrRAgr, raStr)
-	tbl.Puts(-1, rrUsePeriod, q.UsePeriod)
-	tbl.Puts(-1, rrRentPeriod, q.RentPeriod)
-	tbl.Puts(-1, rrRentCycle, q.RentCycleStr)
-	tbl.Puts(-1, rrGSRRate, float64ToStr(q.GSR.Float64, false))
-	tbl.Puts(-1, rrGSRAmt, float64ToStr(q.PeriodGSR.Float64, false))
-	tbl.Puts(-1, rrIncOff, float64ToStr(q.IncomeOffsets.Float64, false))
-	tbl.Puts(-1, rrAmtDue, float64ToStr(q.AmountDue.Float64, false))
-	tbl.Puts(-1, rrPmtRcvd, float64ToStr(q.PaymentsApplied.Float64, false))
-	tbl.Puts(-1, rrBeginRcv, float64ToStr(q.BeginningRcv.Float64, false))
-	tbl.Puts(-1, rrChgRcv, float64ToStr(q.ChangeInRcv.Float64, false))
-	tbl.Puts(-1, rrEndRcv, float64ToStr(q.EndingRcv.Float64, false))
-	tbl.Puts(-1, rrBeginSecDep, float64ToStr(q.BeginningSecDep.Float64, false))
-	tbl.Puts(-1, rrChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, false))
-	tbl.Puts(-1, rrEndSecDep, float64ToStr(q.EndingSecDep.Float64, false))
+	tbl.Puts(-1, RAgr, raStr)
+	tbl.Puts(-1, UsePeriod, q.UsePeriod)
+	tbl.Puts(-1, RentPeriod, q.RentPeriod)
+	tbl.Puts(-1, RentCycle, q.RentCycleStr)
+	tbl.Puts(-1, GSRRate, float64ToStr(q.GSR.Float64, false))
+	tbl.Puts(-1, GSRAmt, float64ToStr(q.PeriodGSR.Float64, false))
+	tbl.Puts(-1, IncOff, float64ToStr(q.IncomeOffsets.Float64, false))
+	tbl.Puts(-1, AmtDue, float64ToStr(q.AmountDue.Float64, false))
+	tbl.Puts(-1, PmtRcvd, float64ToStr(q.PaymentsApplied.Float64, false))
+	tbl.Puts(-1, BeginRcv, float64ToStr(q.BeginningRcv.Float64, false))
+	tbl.Puts(-1, ChgRcv, float64ToStr(q.ChangeInRcv.Float64, false))
+	tbl.Puts(-1, EndRcv, float64ToStr(q.EndingRcv.Float64, false))
+	tbl.Puts(-1, BeginSecDep, float64ToStr(q.BeginningSecDep.Float64, false))
+	tbl.Puts(-1, ChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, false))
+	tbl.Puts(-1, EndSecDep, float64ToStr(q.EndingSecDep.Float64, false))
 }
 
-// handleGaps identifies periods during which the Rentable is not
+// handleRentableGaps identifies periods during which the Rentable is not
 // covered by a RentalAgreement. It updates the list with entries
 // describing the gaps
 //----------------------------------------------------------------------
-func handleGaps(sl *[]rentableRow, d1, d2 *time.Time) {
+func handleRentableGaps(sl *[]RentRollReportRow, d1, d2 *time.Time) {
 	var a = []rlib.Period{}
 	for i := 0; i < len(*sl); i++ {
 		var p = rlib.Period{
@@ -896,16 +1011,16 @@ func handleGaps(sl *[]rentableRow, d1, d2 *time.Time) {
 	}
 	b := rlib.FindGaps(d1, d2, a)
 	for i := 0; i < len(b); i++ {
-		var r rentableRow
+		var r RentRollReportRow
 		r.PossessionStart.Scan(b[i].D1)
 		r.PossessionStop.Scan(b[i].D2)
 		r.Description.Scan("Vacancy")
-		r.UsePeriod = FmtRRDatePeriod(&b[i].D1, &b[i].D2)
+		r.UsePeriod = fmtRRDatePeriod(&b[i].D1, &b[i].D2)
 		(*sl) = append((*sl), r)
 	}
 }
 
-// FmtRRDatePeriod formats a start and end time as needed byt the
+// fmtRRDatePeriod formats a start and end time as needed byt the
 // column headers in the RentRoll view/report
 //
 // INPUT
@@ -915,7 +1030,7 @@ func handleGaps(sl *[]rentableRow, d1, d2 *time.Time) {
 // RETURN
 // string with formated dates
 //----------------------------------------------------------------------
-func FmtRRDatePeriod(d1, d2 *time.Time) string {
+func fmtRRDatePeriod(d1, d2 *time.Time) string {
 	if d1.Year() > 1970 && d2.Year() > 1970 {
 		return d1.Format(rlib.RRDATEFMT3) + "<br> - " + d2.Format(rlib.RRDATEFMT3)
 	}
@@ -927,26 +1042,19 @@ func FmtRRDatePeriod(d1, d2 *time.Time) string {
 // changed since the last entry in subList.
 //
 // INPUT
-// sublist = the slice of rentableRow structs
+// sublist = the slice of RentRollReportRow structs
 // nq = the current entry but not yet added to sublist
 //
 // RETURN
 // void
 //----------------------------------------------------------------------
-func setRRDatePeriodString(tbl *gotable.Table, nq *rentableRow) {
+func setRRDatePeriodString(rows *[]RentRollReportRow, nq *RentRollReportRow) {
 	showDates := true // only list dates if the rental agreement changed
-	if len(tbl.Row) > 0 {
-		prevRAgr := tbl.Get(len(tbl.Row)-1, rrRAgr)
-		showDates = prevRAgr.Sval != "RA-"+strconv.FormatInt(nq.RAID.Int64, 10)
+	if len(*rows) > 0 {
+		showDates = (*rows)[len(*rows)-1].RAID.Int64 != nq.RAID.Int64
 	}
-	SetRRDateStrings(showDates, &nq.UsePeriod, &nq.RentPeriod,
-		&nq.PossessionStart.Time, &nq.PossessionStop.Time, &nq.RentStart.Time, &nq.RentStop.Time)
-}
-
-// SetRRDateStrings updates the two supplied date strings if showDates is true
-func SetRRDateStrings(showDates bool, s1, s2 *string, t1, t2, t3, t4 *time.Time) {
 	if showDates {
-		(*s1) = FmtRRDatePeriod(t1, t2)
-		(*s2) = FmtRRDatePeriod(t3, t4)
+		nq.UsePeriod = fmtRRDatePeriod(&nq.PossessionStart.Time, &nq.PossessionStop.Time)
+		nq.RentPeriod = fmtRRDatePeriod(&nq.RentStart.Time, &nq.RentStop.Time)
 	}
 }
