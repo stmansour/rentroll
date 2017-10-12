@@ -92,7 +92,7 @@ const (
 	RENTABLESTATUSOFFLINE  = 5
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
-	// Rentable Use Status
+	// USESTATUSadmin etc all Rentable Use Status
 	USESTATUSadmin              = 1
 	USESTATUSinService          = 2
 	USESTATUSemployee           = 3
@@ -100,7 +100,7 @@ const (
 	USESTATUSofflineRenovation  = 5
 	USESTATUSofflineMaintenance = 6
 
-	// Rentable Make Ready Status
+	// MRSTATUShouseKeeping etc all Rentable Make Ready Status
 	MRSTATUShouseKeeping = 1
 	MRSTATUSmaintenance  = 2
 	MRSTATUSinspection   = 3
