@@ -107,7 +107,7 @@ const (
 	MRSTATUSinspection   = 3
 	MRSTATUSready        = 4
 
-	// Rentable Lease Status
+	// LEASESTATUSvacantRented etc all Rentable Lease Status
 	LEASESTATUSvacantRented      = 1
 	LEASESTATUSvacantNotRented   = 2
 	LEASESTATUSonNoticePreleased = 3
