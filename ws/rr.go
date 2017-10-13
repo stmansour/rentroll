@@ -19,9 +19,8 @@ type RRSearchResponse struct {
 
 // RRRequeestData - struct for request data for parent-child fashioned rentroll report view
 type RRRequeestData struct {
-	RentableOffset    int `json:"rentableOffset"`
-	NoRIDAsmtOffset   int `json:"noRIDAsmtOffset"`
-	NoRIDNoAsmtOffset int `json:"noRIDNoAsmtOffset"`
+	RentableSectionOffset   int `json:"rentableSectionOffset"`
+	NoRentableSectionOffset int `json:"noRentableSectionOffset"`
 }
 
 // SvcRR is the response data for a RR Grid search - The Rent Roll View
@@ -48,43 +47,37 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//===========================================================
 	// TOTAL RECORDS COUNT
 	//===========================================================
-	rentablesCount, rentablesAsmtCount, rentablesNoAsmtCount, noRIDAsmtCount, noRIDNoAsmtCount, err :=
-		getRRTotal(d.BID, startDt, stopDt)
+	rentableSectionCount, noRentableSectionCount, totalRentables, err := getRRTotal(d.BID, startDt, stopDt)
 
 	if err != nil {
 		rlib.Console("Error from getRRTotal routine: %s", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	rlib.Console("rentablesCount = %d, rentablesAsmtCount = %d, rentablesNoAsmtCount = %d, noRIDAsmtCount = %d, noRIDNoAsmtCount = %d\n", rentablesCount, rentablesAsmtCount, rentablesNoAsmtCount, noRIDAsmtCount, noRIDNoAsmtCount)
-	g.Total = (rentablesCount * 3)                 // for each RENTABLES row we'll add subTotal row and one blank row (another two rows)
-	if (rentablesAsmtCount - rentablesCount) > 0 { // in case if any rentables get multiple Assessments
-		g.Total += (rentablesAsmtCount - rentablesCount)
-	}
-	if (rentablesNoAsmtCount - rentablesCount) > 0 { // in case if any rentables get multiple result rows
-		g.Total += (rentablesNoAsmtCount - rentablesCount)
-	}
-	g.Total += noRIDAsmtCount                                              // addition of count of assessments which are associated with any rentables
-	g.Total += noRIDNoAsmtCount                                            // addition of count of rows which aren't associated with any asmt/rentables
-	g.TotalMainRows = (rentablesCount + noRIDAsmtCount + noRIDNoAsmtCount) // main rows count
-	g.Total++                                                              // grand Total row will be added
-	g.TotalMainRows++                                                      // grand Total row will be added
+	rlib.Console("rentableSectionCount = %d, noRentableSectionCount = %d\n", rentableSectionCount, noRentableSectionCount)
+
+	g.Total = rentableSectionCount
+	g.Total += (totalRentables * 2) // for each rentable, we've subtotal and blank row
+	g.Total += noRentableSectionCount
+	g.Total++ // we'll have grand total row
+
+	g.TotalMainRows = totalRentables + noRentableSectionCount
+	g.TotalMainRows++ // we'll have grand total row
 
 	// ===========================
 	// WhereClauses, OrderClauses
-	// for 3 main different parts
+	// for 2 different parts
 	// ===========================
-	rentablesWhereClause, rentablesOrderClause := GetSearchAndSortSQL(d, rrpt.RentablesFieldsMap)
-	_, noRIDAsmtOrderClause := GetSearchAndSortSQL(d, rrpt.NoRIDAsmtQueryFieldMap)
-	_, noRIDNoAsmtOrderClause := GetSearchAndSortSQL(d, rrpt.NoRIDNoAsmtQueryFieldMap)
+	rentableSectionWhereClause, rentableSectionOrderClause := GetSearchAndSortSQL(d, rrpt.RentableSectionFieldsMap)
+	_, noRentableSectionOrderClause := GetSearchAndSortSQL(d, rrpt.NoRentableSectionFieldsMap)
 
 	// NOW GET THE ROWS FOR RENTROLL ROUTINE
 	rows, err := rrpt.RRReportRows(
 		d.BID, startDt, stopDt, // BID, startDate, stopDate
-		limit,                                                              // limit
-		rentablesWhereClause, rentablesOrderClause, reqData.RentableOffset, // rentables Part
-		"", noRIDAsmtOrderClause, reqData.NoRIDAsmtOffset, // "No Rentable Assessment" part
-		"", noRIDNoAsmtOrderClause, reqData.NoRIDNoAsmtOffset) // "No Rentable No Assessment" part
+		limit, // limit
+		rentableSectionWhereClause, rentableSectionOrderClause, reqData.RentableSectionOffset, // rentables Part
+		"", noRentableSectionOrderClause, reqData.NoRentableSectionOffset, // "No Rentable Assessment" part
+	)
 
 	// assign recid and append to g.Records
 	rowCounter := int64(0)
@@ -102,10 +95,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func getRRTotal(
 	BID int64,
 	d1, d2 time.Time,
-) (
-	rentablesCount, rentablesAsmtCount, rentablesNoAsmtCount, noRIDAsmtCount, noRIDNoAsmtCount int64,
-	err error,
-) {
+) (rentableSectionCount, noRentableSectionCount, totalRentables int64, err error) {
 
 	const funcname = "getRRTotal"
 	rlib.Console("Entered %s\n", funcname)
@@ -115,88 +105,44 @@ func getRRTotal(
 	// right now just ignore additional where clause
 
 	// ------------------------
-	// Get All Rentables Total
+	// Get All Rentable Section Total
 	// ------------------------
-	rentablesQC := rlib.GetQueryClauseCopy(rrpt.RentablesQueryClause)
-	rentablesQC["WhereClause"] = fmt.Sprintf(rentablesQC["WhereClause"], BID)
-	rentablesQC["DtStart"] = d1.Format(rlib.RRDATEFMTSQL)
-	rentablesQC["DtStop"] = d2.Format(rlib.RRDATEFMTSQL)
+	rentableSectionQC := rlib.GetQueryClauseCopy(rrpt.RentableSectionQueryClause)
+	rentableSectionQC["WhereClause"] = fmt.Sprintf(rentableSectionQC["WhereClause"], BID)
 
-	rentablesCountQuery := rlib.RenderSQLQuery(rrpt.RentablesQuery, rentablesQC)
-	rentablesCount, err = rlib.GetQueryCount(rentablesCountQuery, rentablesQC)
+	rentableSectionCountQuery := rlib.RenderSQLQuery(rrpt.RentableSectionQuery, rentableSectionQC)
+	rentableSectionCount, err = rlib.GetQueryCount(rentableSectionCountQuery, rentableSectionQC)
 	if err != nil {
-		rlib.Console("Error from rentablesCountQuery: %s\n", err.Error())
+		rlib.Console("Error from rentableSectionCountQuery: %s\n", err.Error())
 		return
 	}
-	rlib.Console("rentablesCount = %d\n", rentablesCount)
+	rlib.Console("%s:: rentableSectionCount = %d\n", funcname, rentableSectionCount)
 
-	// ---------------------------------------------------
-	// Get All Assessments Total associated with Rentables
-	// ---------------------------------------------------
-	rentablesAsmtQC := rlib.GetQueryClauseCopy(rrpt.RentablesAsmtQueryClause)
-	rentablesAsmtQC["WhereClause"] = fmt.Sprintf(rentablesAsmtQC["WhereClause"], BID)
-	rentablesAsmtQC["DtStart"] = rentablesQC["DtStart"]
-	rentablesAsmtQC["DtStop"] = rentablesQC["DtStop"]
+	// ------------------------------
+	// Get NO Rentable Section COUNT
+	// ------------------------------
+	noRentableSectionQC := rlib.GetQueryClauseCopy(rrpt.NoRentableSectionQueryClause)
+	noRentableSectionQC["WhereClause"] = fmt.Sprintf(noRentableSectionQC["WhereClause"], BID)
 
-	rentablesAsmtCountQuery := rlib.RenderSQLQuery(rrpt.RentablesAsmtQuery, rentablesAsmtQC)
-	// rlib.Console("rentablesAsmtCountQuery db query = %s\n", rentablesAsmtCountQuery)
-	rentablesAsmtCount, err = rlib.GetQueryCount(rentablesAsmtCountQuery, rentablesAsmtQC)
+	noRentableSectionCountQuery := rlib.RenderSQLQuery(rrpt.NoRentableSectionQuery, noRentableSectionQC)
+	// rlib.Console("noRentableSectionCountQuery db query = %s\n", noRentableSectionCountQuery)
+	noRentableSectionCount, err = rlib.GetQueryCount(noRentableSectionCountQuery, noRentableSectionQC)
 	if err != nil {
-		rlib.Console("Error from rentablesAsmtCountQuery: %s\n", err.Error())
+		rlib.Console("Error from noRentableSectionCountQuery: %s\n", err.Error())
 		return
 	}
-	rlib.Console("rentablesAsmtCount = %d\n", rentablesAsmtCount)
+	rlib.Console("%s:: noRentableSectionCount = %d\n", funcname, noRentableSectionCount)
 
-	// ----------------------------------------------------------------------
-	// Get All Payments associated with Rentables but not with any assessment
-	// ----------------------------------------------------------------------
-	rentablesNoAsmtQC := rlib.GetQueryClauseCopy(rrpt.RentablesNoAsmtQueryClause)
-	rentablesNoAsmtQC["WhereClause"] = fmt.Sprintf(rentablesNoAsmtQC["WhereClause"], BID)
-	rentablesNoAsmtQC["DtStart"] = rentablesQC["DtStart"]
-	rentablesNoAsmtQC["DtStop"] = rentablesQC["DtStop"]
-
-	rentablesNoAsmtCountQuery := rlib.RenderSQLQuery(rrpt.RentablesNoAsmtQuery, rentablesNoAsmtQC)
-	// rlib.Console("rentablesNoAsmtCountQuery db query = %s\n", rentablesNoAsmtCountQuery)
-	rentablesNoAsmtCount, err = rlib.GetQueryCount(rentablesNoAsmtCountQuery, rentablesNoAsmtQC)
+	// ------------------------------
+	// Main Rows count
+	// ------------------------------
+	qc := make(rlib.QueryClause)
+	totalRentables, err = rlib.GetQueryCount(fmt.Sprintf("SELECT Rentable.RID FROM Rentable WHERE Rentable.BID=%d", BID), qc)
 	if err != nil {
-		rlib.Console("Error from rentablesNoAsmtCountQuery: %s\n", err.Error())
+		rlib.Console("Error while calculation of totalRentables: %s\n", err.Error())
 		return
 	}
-	rlib.Console("rentablesNoAsmtCount = %d\n", rentablesNoAsmtCount)
-
-	// ---------------------------------------------------------------------
-	// Get All Assessments Total which are NOT associated with ANY Rentables
-	// ---------------------------------------------------------------------
-	noRIDAsmtQC := rlib.GetQueryClauseCopy(rrpt.NoRIDAsmtQueryClause)
-	noRIDAsmtQC["WhereClause"] = fmt.Sprintf(noRIDAsmtQC["WhereClause"], BID, rentablesQC["DtStart"], rentablesQC["DtStop"])
-	noRIDAsmtQC["DtStart"] = rentablesQC["DtStart"]
-	noRIDAsmtQC["DtStop"] = rentablesQC["DtStop"]
-
-	noRIDAsmtCountQuery := rlib.RenderSQLQuery(rrpt.NoRIDAsmtQuery, noRIDAsmtQC)
-	// rlib.Console("noRIDAsmtCountQuery db query = %s\n", noRIDAsmtCountQuery)
-	noRIDAsmtCount, err = rlib.GetQueryCount(noRIDAsmtCountQuery, noRIDAsmtQC)
-	if err != nil {
-		rlib.Console("Error from noRIDAsmtCountQuery: %s\n", err.Error())
-		return
-	}
-	rlib.Console("noRIDAsmtCount = %d\n", noRIDAsmtCount)
-
-	// ------------------------------------------------------------------------
-	// Get All Payments which are not associated with any Assessement/Rentables
-	// ------------------------------------------------------------------------
-	noRIDNoAsmtQC := rlib.GetQueryClauseCopy(rrpt.NoRIDNoAsmtQueryClause)
-	noRIDNoAsmtQC["WhereClause"] = fmt.Sprintf(noRIDNoAsmtQC["WhereClause"], BID, rentablesQC["DtStart"], rentablesQC["DtStop"])
-	noRIDNoAsmtQC["DtStart"] = rentablesQC["DtStart"]
-	noRIDNoAsmtQC["DtStop"] = rentablesQC["DtStop"]
-
-	noRIDNoAsmtCountQuery := rlib.RenderSQLQuery(rrpt.NoRIDNoAsmtQuery, noRIDNoAsmtQC)
-	// rlib.Console("noRIDNoAsmtCountQuery db query = %s\n", noRIDNoAsmtCountQuery)
-	noRIDNoAsmtCount, err = rlib.GetQueryCount(noRIDNoAsmtCountQuery, noRIDNoAsmtQC)
-	if err != nil {
-		rlib.Console("Error from noRIDNoAsmtCountQuery: %s\n", err.Error())
-		return
-	}
-	rlib.Console("noRIDNoAsmtCount = %d\n", noRIDNoAsmtCount)
+	rlib.Console("%s:: totalRentables = %d\n", funcname, totalRentables)
 
 	return
 }
