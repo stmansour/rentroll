@@ -53,7 +53,7 @@ func GetQueryCount(query string, qc QueryClause) (int64, error) {
     `
 
 	countQuery := RenderSQLQuery(queryForm, map[string]string{"query": query})
-	fmt.Println("Count Query: ", countQuery)
+	// rlib.Console("Count Query: %s\n", countQuery)
 
 	// hit the query and get count from db
 	count := int64(0)

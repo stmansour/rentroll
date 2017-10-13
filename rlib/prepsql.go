@@ -1014,6 +1014,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? and DtStop>? and DtStart<=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetRentableStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? and DtStart>=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=?")
 	Errcheck(err)
 

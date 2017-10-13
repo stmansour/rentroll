@@ -340,7 +340,7 @@ func GetRRReportPartSQLRows(
 
 	// get formatted query with substitution of select, where, rentablesQOrder clause
 	dbQry := rlib.RenderSQLQuery(qry, qc)
-	rlib.Console("db query for %s = %s\n", rrPart, dbQry)
+	// rlib.Console("db query for %s = %s\n", rrPart, dbQry)
 
 	// return the query execution
 	return rlib.RRdb.Dbrr.Query(dbQry)
@@ -420,7 +420,8 @@ func RRReport(ri *ReporterInfo) string {
 	return ReportToString(&tbl, ri)
 }
 
-// RRReportRows returns the new rentroll report for the given date range and business id.
+// RRReportRows returns the new rentroll report for the given date range
+// and business id.
 //
 // The table rows are categorized by five types.
 // 1. Rentables Row
@@ -436,11 +437,14 @@ func RRReport(ri *ReporterInfo) string {
 //        For ex. under maintainance, vacant, etc..
 // 4. All assessments which are not associated with any rentable
 //        For ex. 'Application Fee' on rental agreement
-// 5. All receipts which are not associated with any rentable nor with any assessment
+// 5. All receipts which are not associated with any rentable nor with any
+//    assessment
 //        For ex. Application Fees, Floating Deposits
-// This routine is commonly used by both report and webservice view.
-// So, for webservice view, routine needs be called with additional params
+//
+// This routine is used by both report and webservice view.
+// For the webservice view, it must be called with additional params
 // such as limit, some offset values.
+//-----------------------------------------------------------------------------
 func RRReportRows(BID int64,
 	startDt, stopDt time.Time,
 	pageRowsLimit int,
@@ -616,7 +620,7 @@ func RRReportRows(BID int64,
 			//====================================================
 			//   CHECK FOR GAPS IN COVERAGE
 			//====================================================
-			handleRentableGaps(&subList, &startDt, &stopDt)
+			handleRentableGaps(BID, q.RID, &subList, &startDt, &stopDt)
 		}
 
 		// NOW, ADD append all sublist row in main data struture
@@ -1000,7 +1004,7 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 // covered by a RentalAgreement. It updates the list with entries
 // describing the gaps
 //----------------------------------------------------------------------
-func handleRentableGaps(sl *[]RentRollReportRow, d1, d2 *time.Time) {
+func handleRentableGaps(bid, rid int64, sl *[]RentRollReportRow, d1, d2 *time.Time) {
 	var a = []rlib.Period{}
 	for i := 0; i < len(*sl); i++ {
 		var p = rlib.Period{
@@ -1011,11 +1015,18 @@ func handleRentableGaps(sl *[]RentRollReportRow, d1, d2 *time.Time) {
 	}
 	b := rlib.FindGaps(d1, d2, a)
 	for i := 0; i < len(b); i++ {
+		rlib.Console("Gap[%d]: %s - %s\n", i, b[i].D1.Format(rlib.RRDATEFMTSQL), b[i].D2.Format(rlib.RRDATEFMTSQL))
+	}
+	rsa := rlib.RStat(bid, rid, b)
+	for i := 0; i < len(rsa); i++ {
+		rlib.Console("rsa[%d]: %s - %s, LeaseStatus=%d, UseStatus=%d\n", i, rsa[i].DtStart.Format(rlib.RRDATEFMTSQL), rsa[i].DtStop.Format(rlib.RRDATEFMTSQL), rsa[i].LeaseStatus, rsa[i].UseStatus)
 		var r RentRollReportRow
-		r.PossessionStart.Scan(b[i].D1)
-		r.PossessionStop.Scan(b[i].D2)
-		r.Description.Scan("Vacancy")
-		r.UsePeriod = fmtRRDatePeriod(&b[i].D1, &b[i].D2)
+		r.PossessionStart.Scan(rsa[i].DtStart)
+		r.PossessionStop.Scan(rsa[i].DtStop)
+		r.Description.Scan("Vacant")
+		r.Users.Scan(rsa[i].UseStatusStringer())
+		r.Payors.Scan(rsa[i].LeaseStatusStringer())
+		r.UsePeriod = fmtRRDatePeriod(&rsa[i].DtStart, &rsa[i].DtStop)
 		(*sl) = append((*sl), r)
 	}
 }
