@@ -99,12 +99,21 @@ const (
 	USESTATUSmodel              = 4
 	USESTATUSofflineRenovation  = 5
 	USESTATUSofflineMaintenance = 6
+	USESTATUSownerOccupied      = 7
 
 	// MRSTATUShouseKeeping etc all Rentable Make Ready Status
 	MRSTATUShouseKeeping = 1
 	MRSTATUSmaintenance  = 2
 	MRSTATUSinspection   = 3
 	MRSTATUSready        = 4
+
+	// Rentable Lease Status
+	LEASESTATUSvacantRented      = 1
+	LEASESTATUSvacantNotRented   = 2
+	LEASESTATUSonNoticePreleased = 3
+	LEASESTATUSonNoticeAvailable = 4
+	LEASESTATUSleased            = 5
+	LEASESTATUSunavailable       = 6
 
 	CREDIT = 0
 	DEBIT  = 1
@@ -1510,6 +1519,7 @@ type RRprepSQL struct {
 	GetRARentableLedgerMarkerOnOrBefore     *sql.Stmt
 	GetAssessmentsByRARRange                *sql.Stmt
 	GetASMReceiptAllocationsInRARDateRange  *sql.Stmt
+	GetRentableStatusOnOrAfter              *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

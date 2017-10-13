@@ -30,7 +30,7 @@ function buildRentRollElements() {
             expandColumn    : false,
             toolbarEdit     : false,
             toolbarSearch   : false,
-            toolbarInput    : true,    // the text area for searches
+            toolbarInput    : false,    // the text area for searches
             searchAll       : false,
             toolbarReload   : false,
             toolbarColumns  : false,

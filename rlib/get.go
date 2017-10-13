@@ -1737,6 +1737,14 @@ func GetRentableStatusRows(rows *sql.Rows) []RentableStatus {
 	return rs
 }
 
+// GetRentableStatusOnOrAfter loads all the RentableStatus records that overlap the supplied time range
+func GetRentableStatusOnOrAfter(RID int64, dt *time.Time) RentableStatus {
+	row := RRdb.Prepstmt.GetRentableStatusOnOrAfter.QueryRow(RID, dt)
+	var a RentableStatus
+	Errcheck(ReadRentableStatus(row, &a))
+	return a
+}
+
 // GetRentableStatusByRange loads all the RentableStatus records that overlap the supplied time range
 func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
 	rows, err := RRdb.Prepstmt.GetRentableStatusByRange.Query(RID, d1, d2)

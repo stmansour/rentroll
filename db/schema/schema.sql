@@ -579,7 +579,7 @@ CREATE TABLE Rentable (
 );
 
 CREATE TABLE MRHistory (
-    MRHID BIGINT NOT NULL AUTO_INCREMENT,                           -- unique id
+    MRHID BIGINT NOT NULL AUTO_INCREMENT,                           -- unique id for MakeReady History
     MRStatus SMALLINT NOT NULL DEFAULT 0,                           -- see definition in Rentable table field
     DtMRStart TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- when the rentable went into this status
     DtMRStop TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when the rentable changed to a differnt status
