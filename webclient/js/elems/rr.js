@@ -61,23 +61,17 @@ function buildRentRollElements() {
                     }
                 }
             },
-            {field: 'UsePeriod',        caption: 'Use Period',                 size: '85px',  sortable: true, style: 'text-align: right'},
-            {field: 'PossessionStart',  caption: 'PossessionStart',            size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
-            {field: 'PossessionStop',   caption: 'PossessionStop',             size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
-            {field: 'RentPeriod',       caption: 'Rent<br>Period',             size: '85px',  sortable: true, style: 'text-align: right'},
-            {field: 'RentStart',        caption: 'RentStart',                  size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
-            {field: 'RentStop',         caption: 'RentStop',                   size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
-            {field: 'Agreement',        caption: 'Agreement Period',           size: '200px', sortable: true, style: 'text-align: right', hidden: true},
-            {field: 'AgreementStart',   caption: 'AgreementStart',             size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
-            {field: 'AgreementStop',    caption: 'AgreementStop',              size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
-            {field: 'RentCycle',        caption: 'Rent Cycle',                 size: '75px',  sortable: true,
-                render: function(record/*, index, col_index*/) {
-                    if (typeof record === undefined) {
-                        return;
-                    }
-                    return app.cycleFreq[record.RentCycle];
-                }
-            },
+            {field: 'UsePeriod',        caption: 'Use Period',                       size: '85px',  sortable: true, style: 'text-align: right'},
+            {field: 'PossessionStart',  caption: 'PossessionStart',                  size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'PossessionStop',   caption: 'PossessionStop',                   size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'RentPeriod',       caption: 'Rent<br>Period',                   size: '85px',  sortable: true, style: 'text-align: right'},
+            {field: 'RentStart',        caption: 'RentStart',                        size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'RentStop',         caption: 'RentStop',                         size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'Agreement',        caption: 'Agreement Period',                 size: '200px', sortable: true, style: 'text-align: right', hidden: true},
+            {field: 'AgreementStart',   caption: 'AgreementStart',                   size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'AgreementStop',    caption: 'AgreementStop',                    size: '80px',  sortable: true, render: 'date', style: 'text-align: right', hidden: true},
+            {field: 'RentCycle',        caption: 'Rent Cycle',                       size: '75px',  sortable: true, hidden: true},
+            {field: 'RentCycleStr',     caption: 'Rent Cycle',                       size: '85px',  sortable: true},
             {field: 'GSR',              caption: 'GSR',                              size: '85px',  sortable: true,  render: 'float:2'},
             {field: 'PeriodGSR',        caption: 'Period<br>GSR',                    size: '85px',  sortable: true,  render: 'float:2'},
             {field: 'IncomeOffsets',    caption: 'Income<br>Offsets',                size: '85px',  sortable: true,  render: 'float:2'},

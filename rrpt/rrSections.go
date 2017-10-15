@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -518,6 +519,7 @@ func RRReportRows(BID int64,
 		xbiz                       rlib.XBusiness
 		noRentableSectionRowsLimit = 0 // limit on "NO rentable Section" rows
 		rptMainRowsCount           = 0 // report main rows count
+		rentableRowsList           = []RentRollReportRow{}
 	)
 	rlib.Console("Entered in %s\n", funcname)
 
@@ -611,6 +613,7 @@ func RRReportRows(BID int64,
 		if len(reportRows) == 0 {
 			rentableSubTotalRow = q
 			reportRows = append(reportRows, q)
+			rentableRowsList = append(rentableRowsList, q)
 			continue
 		}
 
@@ -622,7 +625,22 @@ func RRReportRows(BID int64,
 
 			// format Rentable Row in child row format
 			formatRentableSectionChildRow(&q, &reportRows[len(reportRows)-1])
+
+			// keep object in the list for this rentables
+			rentableRowsList = append(rentableRowsList, q)
 		} else {
+			// new Rentable row detected so, find gaps for rentable
+			handleRentableGaps(BID, q.RID, &rentableRowsList, startDt, stopDt)
+
+			// finally sort the slice
+			sort.Slice(rentableRowsList, func(i, j int) bool {
+				return (rentableRowsList)[i].AgreementStart.Time.Before(
+					(rentableRowsList)[j].AgreementStart.Time)
+			})
+
+			// append sub list to original result row
+			reportRows = append(reportRows, rentableRowsList...)
+
 			// format sub total row from normal rentroll report row
 			rentableSubTotalRow = formatSubTotalRow(rentableSubTotalRow, startDt, stopDt)
 
@@ -637,10 +655,13 @@ func RRReportRows(BID int64,
 
 			// now keep this new rentable Copy to subTotal row
 			rentableSubTotalRow = q
+
+			// assign new list to rentableRowsList
+			rentableRowsList = []RentRollReportRow{}
 		}
 
-		// append new Rentable entry/modified child Row in list
-		reportRows = append(reportRows, q)
+		/*// append new Rentable entry/modified child Row in list
+		reportRows = append(reportRows, q)*/
 
 		// update the rentableSectionCount only after adding the record
 		rentableSectionCount++
@@ -983,7 +1004,7 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 // covered by a RentalAgreement. It updates the list with entries
 // describing the gaps
 //----------------------------------------------------------------------
-func handleRentableGaps(sl *[]RentRollReportRow, d1, d2 *time.Time) {
+func handleRentableGaps(bid, rid int64, sl *[]RentRollReportRow, d1, d2 time.Time) {
 	var a = []rlib.Period{}
 	for i := 0; i < len(*sl); i++ {
 		var p = rlib.Period{
@@ -992,13 +1013,20 @@ func handleRentableGaps(sl *[]RentRollReportRow, d1, d2 *time.Time) {
 		}
 		a = append(a, p)
 	}
-	b := rlib.FindGaps(d1, d2, a)
+	b := rlib.FindGaps(&d1, &d2, a)
 	for i := 0; i < len(b); i++ {
+		rlib.Console("Gap[%d]: %s - %s\n", i, b[i].D1.Format(rlib.RRDATEFMTSQL), b[i].D2.Format(rlib.RRDATEFMTSQL))
+	}
+	rsa := rlib.RStat(bid, rid, b)
+	for i := 0; i < len(rsa); i++ {
+		rlib.Console("rsa[%d]: %s - %s, LeaseStatus=%d, UseStatus=%d\n", i, rsa[i].DtStart.Format(rlib.RRDATEFMTSQL), rsa[i].DtStop.Format(rlib.RRDATEFMTSQL), rsa[i].LeaseStatus, rsa[i].UseStatus)
 		var r RentRollReportRow
-		r.PossessionStart.Scan(b[i].D1)
-		r.PossessionStop.Scan(b[i].D2)
-		r.Description.Scan("Vacancy")
-		r.UsePeriod = fmtRRDatePeriod(&b[i].D1, &b[i].D2)
+		r.PossessionStart.Scan(rsa[i].DtStart)
+		r.PossessionStop.Scan(rsa[i].DtStop)
+		r.Description.Scan("Vacant")
+		r.Users.Scan(rsa[i].UseStatusStringer())
+		r.Payors.Scan(rsa[i].LeaseStatusStringer())
+		r.UsePeriod = fmtRRDatePeriod(&rsa[i].DtStart, &rsa[i].DtStop)
 		(*sl) = append((*sl), r)
 	}
 }
