@@ -660,6 +660,12 @@ func RRReportRows(BID int64,
 
 		// sort the list of all rows per rentable
 		sort.Slice(rentableSubList, func(i, j int) bool {
+			if rentableSubList[i].PossessionStart.Time.Equal(rentableSubList[j].PossessionStart.Time) {
+				if rentableSubList[i].AmountDue.Float64 == rentableSubList[j].AmountDue.Float64 {
+					return rentableSubList[i].PaymentsApplied.Float64 > rentableSubList[j].PaymentsApplied.Float64 // descending order
+				}
+				return rentableSubList[i].AmountDue.Float64 > rentableSubList[j].AmountDue.Float64 // descending order
+			}
 			return rentableSubList[i].PossessionStart.Time.Before(
 				rentableSubList[j].PossessionStart.Time)
 		})
@@ -825,6 +831,7 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("GSR Rate", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)                   // gross scheduled rent
 	tbl.AddColumn("Period GSR", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)                 // gross scheduled rent
 	tbl.AddColumn("Income Offsets", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)             // GL Account
+	tbl.AddColumn("Amount Due", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)                 // Amount due
 	tbl.AddColumn("Payments Applied", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)           // contract rent amounts
 	tbl.AddColumn("Beginning Receivable", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
 	tbl.AddColumn("Change In Receivable", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)       // account for the associated RentalAgreement
