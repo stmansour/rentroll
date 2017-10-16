@@ -40,7 +40,7 @@ func RenderSQLQuery(queryForm string, qc QueryClause) string {
 }
 
 // GetQueryCount returns the number of records fetched by execution of query
-func GetQueryCount(query string, qc QueryClause) (int64, error) {
+func GetQueryCount(query string) (int64, error) {
 
 	// if query ends with ';' then remove it
 	query = strings.TrimSuffix(strings.TrimSpace(query), ";")
@@ -53,7 +53,7 @@ func GetQueryCount(query string, qc QueryClause) (int64, error) {
     `
 
 	countQuery := RenderSQLQuery(queryForm, map[string]string{"query": query})
-	// rlib.Console("Count Query: %s\n", countQuery)
+	// Console("Count Query: %s\n", countQuery)
 
 	// hit the query and get count from db
 	count := int64(0)

@@ -261,7 +261,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(rentableTypeSearchQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
@@ -641,7 +641,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(mrQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)

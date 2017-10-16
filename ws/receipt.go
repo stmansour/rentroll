@@ -201,7 +201,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(receiptsQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)

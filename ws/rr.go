@@ -83,7 +83,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// TOTAL RECORDS COUNT
 	//===========================================================
 	rentableSectionCount, noRentableSectionCount, totalRentables, err := getRRTotal(d.BID, startDt, stopDt)
-
 	if err != nil {
 		rlib.Console("Error from getRRTotal routine: %s", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
@@ -146,7 +145,7 @@ func getRRTotal(
 	rentableSectionQC["WhereClause"] = fmt.Sprintf(rentableSectionQC["WhereClause"], BID)
 
 	rentableSectionCountQuery := rlib.RenderSQLQuery(rrpt.RentableSectionQuery, rentableSectionQC)
-	rentableSectionCount, err = rlib.GetQueryCount(rentableSectionCountQuery, rentableSectionQC)
+	rentableSectionCount, err = rlib.GetQueryCount(rentableSectionCountQuery)
 	if err != nil {
 		rlib.Console("Error from rentableSectionCountQuery: %s\n", err.Error())
 		return
@@ -161,7 +160,7 @@ func getRRTotal(
 
 	noRentableSectionCountQuery := rlib.RenderSQLQuery(rrpt.NoRentableSectionQuery, noRentableSectionQC)
 	// rlib.Console("noRentableSectionCountQuery db query = %s\n", noRentableSectionCountQuery)
-	noRentableSectionCount, err = rlib.GetQueryCount(noRentableSectionCountQuery, noRentableSectionQC)
+	noRentableSectionCount, err = rlib.GetQueryCount(noRentableSectionCountQuery)
 	if err != nil {
 		rlib.Console("Error from noRentableSectionCountQuery: %s\n", err.Error())
 		return
@@ -171,8 +170,8 @@ func getRRTotal(
 	// ------------------------------
 	// Main Rows count
 	// ------------------------------
-	qc := make(rlib.QueryClause)
-	totalRentables, err = rlib.GetQueryCount(fmt.Sprintf("SELECT Rentable.RID FROM Rentable WHERE Rentable.BID=%d", BID), qc)
+	totalRentablesQuery := fmt.Sprintf("SELECT Rentable.RID FROM Rentable WHERE Rentable.BID=%d", BID)
+	totalRentables, err = rlib.GetQueryCount(totalRentablesQuery)
 	if err != nil {
 		rlib.Console("Error while calculation of totalRentables: %s\n", err.Error())
 		return

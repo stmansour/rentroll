@@ -160,7 +160,7 @@ func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// GET TOTAL COUNTS of query
 	countQuery := rlib.RenderSQLQuery(payorsQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc) // total number of rows that match the criteria
+	g.Total, err = rlib.GetQueryCount(countQuery) // total number of rows that match the criteria
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
