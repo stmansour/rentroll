@@ -377,6 +377,9 @@ func formatSubTotalRow(subTotalRow *RentRollReportRow, startDt, stopDt time.Time
 		d70 = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	)
 
+	// mark flag
+	subTotalRow.IsSubTotalRow = true
+
 	// Description
 	subTotalRow.Description.Scan("Subtotal")
 
@@ -871,8 +874,8 @@ func addToSubList(g *[]RentRollReportRow, childCount *int, p *RentRollReportRow)
 // addSubTotals does all subtotal calculations for the subtotal line
 //-----------------------------------------------------------------------------
 func addSubTotals(subRows *[]RentRollReportRow, g *RentRollReportRow, d1, d2 time.Time) {
-	sub := RentRollReportRow{IsSubTotalRow: true}
-	sub.Description.Scan("Subtotal")
+	sub := RentRollReportRow{}
+
 	for _, row := range *subRows {
 		sub.AmountDue.Float64 += row.AmountDue.Float64
 		sub.PaymentsApplied.Float64 += row.PaymentsApplied.Float64
@@ -969,17 +972,31 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 	tbl.Puts(-1, UsePeriod, q.UsePeriod)
 	tbl.Puts(-1, RentPeriod, q.RentPeriod)
 	tbl.Puts(-1, RentCycle, q.RentCycleStr)
-	tbl.Puts(-1, GSRRate, float64ToStr(q.GSR.Float64, false))
-	tbl.Puts(-1, GSRAmt, float64ToStr(q.PeriodGSR.Float64, false))
-	tbl.Puts(-1, IncOff, float64ToStr(q.IncomeOffsets.Float64, false))
-	tbl.Puts(-1, AmtDue, float64ToStr(q.AmountDue.Float64, false))
-	tbl.Puts(-1, PmtRcvd, float64ToStr(q.PaymentsApplied.Float64, false))
-	tbl.Puts(-1, BeginRcv, float64ToStr(q.BeginningRcv.Float64, false))
-	tbl.Puts(-1, ChgRcv, float64ToStr(q.ChangeInRcv.Float64, false))
-	tbl.Puts(-1, EndRcv, float64ToStr(q.EndingRcv.Float64, false))
-	tbl.Puts(-1, BeginSecDep, float64ToStr(q.BeginningSecDep.Float64, false))
-	tbl.Puts(-1, ChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, false))
-	tbl.Puts(-1, EndSecDep, float64ToStr(q.EndingSecDep.Float64, false))
+	if q.IsBlankRow {
+		tbl.Puts(-1, GSRRate, float64ToStr(q.GSR.Float64, true))
+		tbl.Puts(-1, GSRAmt, float64ToStr(q.PeriodGSR.Float64, true))
+		tbl.Puts(-1, IncOff, float64ToStr(q.IncomeOffsets.Float64, true))
+		tbl.Puts(-1, AmtDue, float64ToStr(q.AmountDue.Float64, true))
+		tbl.Puts(-1, PmtRcvd, float64ToStr(q.PaymentsApplied.Float64, true))
+		tbl.Puts(-1, BeginRcv, float64ToStr(q.BeginningRcv.Float64, true))
+		tbl.Puts(-1, ChgRcv, float64ToStr(q.ChangeInRcv.Float64, true))
+		tbl.Puts(-1, EndRcv, float64ToStr(q.EndingRcv.Float64, true))
+		tbl.Puts(-1, BeginSecDep, float64ToStr(q.BeginningSecDep.Float64, true))
+		tbl.Puts(-1, ChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, true))
+		tbl.Puts(-1, EndSecDep, float64ToStr(q.EndingSecDep.Float64, true))
+	} else {
+		tbl.Puts(-1, GSRRate, float64ToStr(q.GSR.Float64, false))
+		tbl.Puts(-1, GSRAmt, float64ToStr(q.PeriodGSR.Float64, false))
+		tbl.Puts(-1, IncOff, float64ToStr(q.IncomeOffsets.Float64, false))
+		tbl.Puts(-1, AmtDue, float64ToStr(q.AmountDue.Float64, false))
+		tbl.Puts(-1, PmtRcvd, float64ToStr(q.PaymentsApplied.Float64, false))
+		tbl.Puts(-1, BeginRcv, float64ToStr(q.BeginningRcv.Float64, false))
+		tbl.Puts(-1, ChgRcv, float64ToStr(q.ChangeInRcv.Float64, false))
+		tbl.Puts(-1, EndRcv, float64ToStr(q.EndingRcv.Float64, false))
+		tbl.Puts(-1, BeginSecDep, float64ToStr(q.BeginningSecDep.Float64, false))
+		tbl.Puts(-1, ChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, false))
+		tbl.Puts(-1, EndSecDep, float64ToStr(q.EndingSecDep.Float64, false))
+	}
 }
 
 // handleRentableGaps identifies periods during which the Rentable is not
