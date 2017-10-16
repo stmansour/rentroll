@@ -59,7 +59,7 @@ function buildRentRollElements() {
             {field: 'RentPeriod',               caption: 'Rent<br>Period',                   size: '85px',  sortable: true,                                    style: 'text-align: right'},
             {field: 'RentStart',                caption: 'RentStart',                        size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
             {field: 'RentStop',                 caption: 'RentStop',                         size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'Agreement',                caption: 'Agreement Period',                 size: '200px', sortable: true,  hidden: true,                     style: 'text-align: right'},
+            {field: 'AgreementPeriod',          caption: 'Agreement Period',                 size: '200px', sortable: true,  hidden: true,                     style: 'text-align: right'},
             {field: 'AgreementStart',           caption: 'AgreementStart',                   size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
             {field: 'AgreementStop',            caption: 'AgreementStop',                    size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
             {field: 'RentCycle',                caption: 'Rent Cycle',                       size: '75px',  sortable: true,  hidden: true},

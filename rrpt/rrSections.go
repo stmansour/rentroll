@@ -945,8 +945,6 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 		RAgr        = iota
 		UsePeriod   = iota
 		RentPeriod  = iota
-		RAgrStart   = iota
-		RAgrStop    = iota
 		RentCycle   = iota
 		GSRRate     = iota
 		GSRAmt      = iota
@@ -985,8 +983,8 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 		tbl.Puts(-1, ChgSecDep, float64ToStr(q.ChangeInSecDep.Float64, true))
 		tbl.Puts(-1, EndSecDep, float64ToStr(q.EndingSecDep.Float64, true))
 	} else {
-		tbl.Puts(-1, GSRRate, float64ToStr(q.GSR.Float64, false))
-		tbl.Puts(-1, GSRAmt, float64ToStr(q.PeriodGSR.Float64, false))
+		tbl.Puts(-1, GSRRate, float64ToStr(q.GSR.Float64, true))
+		tbl.Puts(-1, GSRAmt, float64ToStr(q.PeriodGSR.Float64, true))
 		tbl.Puts(-1, IncOff, float64ToStr(q.IncomeOffsets.Float64, false))
 		tbl.Puts(-1, AmtDue, float64ToStr(q.AmountDue.Float64, false))
 		tbl.Puts(-1, PmtRcvd, float64ToStr(q.PaymentsApplied.Float64, false))
