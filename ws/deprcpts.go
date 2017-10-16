@@ -166,7 +166,7 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(receiptsQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
@@ -295,7 +295,7 @@ func SvcDepositReceiptsAndUndeposited(w http.ResponseWriter, r *http.Request, d 
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(receiptsQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)

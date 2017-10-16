@@ -1,6 +1,6 @@
 package rrpt
 
-import (
+/*import (
 	"database/sql"
 	"fmt"
 	"gotable"
@@ -1069,3 +1069,4 @@ func setRRDatePeriodString(rows *[]RentRollReportRow, nq *RentRollReportRow) {
 		nq.RentPeriod = fmtRRDatePeriod(&nq.RentStart.Time, &nq.RentStop.Time)
 	}
 }
+*/
