@@ -93,13 +93,15 @@ const (
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
 	// Rentable Use Status
-	USESTATUSadmin              = 1
-	USESTATUSinService          = 2
+	USESTATUSunknown            = 0
+	USESTATUSinService          = 1 // essentially, this means "online"
+	USESTATUSadmin              = 2
 	USESTATUSemployee           = 3
-	USESTATUSmodel              = 4
+	USESTATUSownerOccupied      = 4
 	USESTATUSofflineRenovation  = 5
 	USESTATUSofflineMaintenance = 6
-	USESTATUSownerOccupied      = 7
+	USESTATUSmodel              = 7
+	USESTATUSLAST               = 7
 
 	// Rentable Make Ready Status
 	MRSTATUShouseKeeping = 1

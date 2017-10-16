@@ -133,7 +133,7 @@ func FindApplicableMarketRate(dt, start, stop time.Time, mr []RentableMarketRate
 //   GSRPC
 //   err
 //========================================================================================================
-func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz *XBusiness) (int64, int64, int64, error) {
+func GetProrationCycle(dt *time.Time, rid int64, rta *[]RentableTypeRef, xbiz *XBusiness) (int64, int64, int64, error) {
 	rentCycle := int64(-1)
 	prorationCycle := int64(-1)
 	var err error
@@ -151,7 +151,7 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 
 	// determine the rentable type for time dt
 	if rt.RTID == 0 {
-		err = fmt.Errorf("GetProrationCycle:  No valid RTID for rentable R%08d on date: %s", r.RID, dt.Format(RRDATEINPFMT))
+		err = fmt.Errorf("GetProrationCycle:  No valid RTID for rentable R%08d on date: %s", rid, dt.Format(RRDATEINPFMT))
 		return 0, 0, 0, err // this is bad! No RTID for the supplied time range
 	}
 	if prorationCycle < 0 { // if there was no override..
@@ -171,7 +171,7 @@ func GetProrationCycle(dt *time.Time, r *Rentable, rta *[]RentableTypeRef, xbiz 
 //        This array is the MR attribute in the RentableMarketRate struct
 //  rsa = array of rentable specialties that apply to the rentable we're calculating
 //========================================================================================================
-func CalculateGSR(d1, d2 time.Time, r *Rentable, rta *[]RentableTypeRef, rsa []RentableSpecialty, xbiz *XBusiness) float64 {
+func CalculateGSR(d1, d2 time.Time, rid int64, rta *[]RentableTypeRef, rsa []RentableSpecialty, xbiz *XBusiness) float64 {
 	var total = float64(0) // init total
 
 	// Get the first date that overlaps the rta values
@@ -190,7 +190,7 @@ func CalculateGSR(d1, d2 time.Time, r *Rentable, rta *[]RentableTypeRef, rsa []R
 		dt = dt.AddDate(0, 0, 1)
 	}
 
-	rentCycle, _, gsrpc, err := GetProrationCycle(&dt, r, rta, xbiz)
+	rentCycle, _, gsrpc, err := GetProrationCycle(&dt, rid, rta, xbiz)
 	if err != nil {
 		Ulog("CalculateGSR: GetProrationCycle returned error: %s\n", err.Error())
 		return float64(0)
@@ -344,7 +344,7 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 	// fmt.Printf("%s, dtFirst = %s\n", funcname, dtFirst.Format(RRDATETIMEINPFMT))
 
 	// find the Gross Scheduled Rent Proration Cycle - GSRPC - the intervals over which the GSR is calculated
-	_, _, gsrpc, err := GetProrationCycle(&dtFirst, r, &rta, xbiz)
+	_, _, gsrpc, err := GetProrationCycle(&dtFirst, r.RID, &rta, xbiz)
 	if err != nil {
 
 		// fmt.Printf("%s: error from GetProrationCycle: %s\n", funcname, err.Error())
@@ -361,7 +361,7 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		//--------------------------------------------------------------------
 		// Get the RentableSpecialties applicable for this increment...
 		//--------------------------------------------------------------------
-		rsa, nerr := GetRentableSpecialtyTypesForRentableByRange(r, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
+		rsa, nerr := GetRentableSpecialtyTypesForRentableByRange(r.BID, r.RID, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
 		if nerr != nil {
 			err = fmt.Errorf("%s:  error getting specialties for rentable R%08d during period %s to %s.  err = %s",
 				funcname, r.RID, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT), nerr.Error())
@@ -371,7 +371,7 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		//------------------------------------------------------------------
 		// Finally, calculate the GSR for this increment...
 		//------------------------------------------------------------------
-		rentThisPeriod := CalculateGSR(dt, dtNext, r, &rta, rsa, xbiz)
+		rentThisPeriod := CalculateGSR(dt, dtNext, r.RID, &rta, rsa, xbiz)
 
 		// fmt.Printf("rentThisPeriod = %f\n", rentThisPeriod)
 

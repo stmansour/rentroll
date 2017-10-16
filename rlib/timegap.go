@@ -23,6 +23,8 @@ type Period struct {
 // INPUT
 // D1,D2 = time period of interest
 //     a = slice of Periods to examine for gaps between D1 and D2
+//         For the primary usecase, this is the list of RentalAgreements
+//         start & stop times
 //
 // RETURN
 //     a slice of Periods that are gaps between D1 & D2
@@ -38,14 +40,29 @@ func FindGaps(D1, D2 *time.Time, a []Period) []Period {
 
 	//--------------------------------------------
 	// Mark all dates covered by a Period in a[]
+	// (for each rental agreement period)
 	//--------------------------------------------
-	for i := 0; i < len(a); i++ {
-		for j := a[i].D1; j.Before(a[i].D2); j = j.AddDate(0, 0, 1) {
+	for i := 0; i < len(a); i++ { // for each rental agreement period
+		for j := a[i].D1; j.Before(a[i].D2); j = j.AddDate(0, 0, 1) { // for each day during the period
 			b[j.Format(RRDATEFMTSQL)] = false // mark this date as covered
 		}
 	}
 
 	//------------------------------------------------------------
+	// b now looks like this (representative example):
+	//
+	//     b["2017-10-01"] = true
+	//     b["2017-10-02"] = true
+	//     b["2017-10-03"] = true
+	//     ...
+	//     b["2017-10-07"] = true
+	//     b["2017-10-08"] = false      -- start of first gap
+	//     b["2017-10-09"] = false
+	//     ...
+	//     b["2017-10-14"] = false      -- end of first gap
+	//     b["2017-10-15"] = true
+	// etc.
+	//
 	// Now create an array of Periods that describe the gaps...
 	//------------------------------------------------------------
 	var c []Period
@@ -53,27 +70,31 @@ func FindGaps(D1, D2 *time.Time, a []Period) []Period {
 	stop := ""
 	for i := 0; i < len(b); i++ {
 		s := D1.AddDate(0, 0, i).Format(RRDATEFMTSQL)
-		if b[s] {
-			if len(start) == 0 {
-				start = s
-				stop = D1.AddDate(0, 0, i+1).Format(RRDATEFMTSQL)
+		if b[s] { // is this date covered by a rental agreement?
+			if len(start) == 0 { // is this the start of a new Period?
+				start = s // yes: mark the start time
+				stop = s  //      stop & start are the same initially
 			} else {
-				stop = s
+				stop = s // no: start was already set, so set the updated stop date
 			}
-		} else if !b[s] && len(start) > 0 {
-			var p Period
+		} else if !b[s] && len(start) > 0 { // if this date is NOT covered AND we have already started a Period...
+			var p Period // ... then it is time to SET the period that we have
 			p.D1, _ = StringToDate(start)
 			p.D2, _ = StringToDate(stop)
+			p.D2 = p.D2.AddDate(0, 0, 1) // stop date is includes all of D2
+			Console("*** FIND GAPS:  D1 = %s,  D2 = %s\n", p.D1.Format(RRDATEFMTSQL), p.D2.Format(RRDATEFMTSQL))
 			c = append(c, p)
 			start = ""
 			stop = ""
 		}
-		// fmt.Printf("%d. b[%s] = %t\n", i, s, b[s])
+		// Console("%d. b[%s] = %t\n", i, s, b[s])
 	}
-	if len(start) > 0 {
+	if len(start) > 0 { // if we have started a range, we need to add it now
 		var p Period
 		p.D1, _ = StringToDate(start)
 		p.D2, _ = StringToDate(stop)
+		p.D2 = p.D2.AddDate(0, 0, 1) // stop date is includes all of D2
+		Console("*** FIND GAPS:  D1 = %s,  D2 = %s\n", p.D1.Format(RRDATEFMTSQL), p.D2.Format(RRDATEFMTSQL))
 		c = append(c, p)
 	}
 	return c

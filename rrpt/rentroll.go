@@ -323,7 +323,7 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 		//-------------------------------------------------------------------------------------------------------
 		// All rental agreements have been process.  Look for vacancies
 		//-------------------------------------------------------------------------------------------------------
-		v := rlib.VacancyDetect(ri.Xbiz, d1, d2, &p)
+		v := rlib.VacancyDetect(ri.Xbiz, d1, d2, p.RID)
 		for i := 0; i < len(v); i++ {
 			gsr, gsrRate := ComputeGSRandGSRRate(&p, &v[i].DtStart, &v[i].DtStop, ri.Xbiz)
 

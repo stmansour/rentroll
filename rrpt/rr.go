@@ -620,7 +620,7 @@ func RRReportRows(BID int64,
 			//====================================================
 			//   CHECK FOR GAPS IN COVERAGE
 			//====================================================
-			handleRentableGaps(BID, q.RID, &subList, &startDt, &stopDt)
+			handleRentableGaps(&xbiz, q.RID, &subList, &startDt, &stopDt)
 		}
 
 		// NOW, ADD append all sublist row in main data struture
@@ -1004,8 +1004,8 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 // covered by a RentalAgreement. It updates the list with entries
 // describing the gaps
 //----------------------------------------------------------------------
-func handleRentableGaps(bid, rid int64, sl *[]RentRollReportRow, d1, d2 *time.Time) {
-	var a = []rlib.Period{}
+func handleRentableGaps(xbiz *rlib.XBusiness, rid int64, sl *[]RentRollReportRow, d1, d2 *time.Time) {
+	var a = []rlib.Period{} // Rental Agreement periods
 	for i := 0; i < len(*sl); i++ {
 		var p = rlib.Period{
 			D1: (*sl)[i].PossessionStart.Time,
@@ -1017,16 +1017,18 @@ func handleRentableGaps(bid, rid int64, sl *[]RentRollReportRow, d1, d2 *time.Ti
 	for i := 0; i < len(b); i++ {
 		rlib.Console("Gap[%d]: %s - %s\n", i, b[i].D1.Format(rlib.RRDATEFMTSQL), b[i].D2.Format(rlib.RRDATEFMTSQL))
 	}
-	rsa := rlib.RStat(bid, rid, b)
-	for i := 0; i < len(rsa); i++ {
-		rlib.Console("rsa[%d]: %s - %s, LeaseStatus=%d, UseStatus=%d\n", i, rsa[i].DtStart.Format(rlib.RRDATEFMTSQL), rsa[i].DtStop.Format(rlib.RRDATEFMTSQL), rsa[i].LeaseStatus, rsa[i].UseStatus)
+	rsi := rlib.RStat(xbiz, rid, b)
+	for i := 0; i < len(rsi); i++ {
+		rlib.Console("rsi[%d]: %s - %s, LeaseStatus=%d, UseStatus=%d\n", i, rsi[i].RS.DtStart.Format(rlib.RRDATEFMTSQL), rsi[i].RS.DtStop.Format(rlib.RRDATEFMTSQL), rsi[i].RS.LeaseStatus, rsi[i].RS.UseStatus)
 		var r RentRollReportRow
-		r.PossessionStart.Scan(rsa[i].DtStart)
-		r.PossessionStop.Scan(rsa[i].DtStop)
+		r.PossessionStart.Scan(rsi[i].RS.DtStart)
+		r.PossessionStop.Scan(rsi[i].RS.DtStop)
 		r.Description.Scan("Vacant")
-		r.Users.Scan(rsa[i].UseStatusStringer())
-		r.Payors.Scan(rsa[i].LeaseStatusStringer())
-		r.UsePeriod = fmtRRDatePeriod(&rsa[i].DtStart, &rsa[i].DtStop)
+		r.Users.Scan(rsi[i].RS.UseStatusStringer())
+		r.Payors.Scan(rsi[i].RS.LeaseStatusStringer())
+		r.UsePeriod = fmtRRDatePeriod(&rsi[i].RS.DtStart, &rsi[i].RS.DtStop)
+		r.PeriodGSR.Scan(rsi[i].Amount)
+		// r.PeriodGSR.Scan(rlib.VacancyGSR(xbiz, rid, &rsi[i].RS.DtStart, &rsi[i].RS.DtStop))
 		(*sl) = append((*sl), r)
 	}
 }
