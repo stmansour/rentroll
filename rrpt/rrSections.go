@@ -317,6 +317,7 @@ type RentRollReportRow struct {
 	RTID                     int64            // The rentable type
 	RAID                     rlib.NullInt64   // Rental Agreement
 	RARID                    rlib.NullInt64   // rental agreement rentable id
+	RAIDStr                  string           // RentalAgreement representational string
 	ASMID                    rlib.NullInt64   // Assessment
 	RentableName             rlib.NullString  // Name of the rentable
 	RentableType             rlib.NullString  // Name of the rentable type
@@ -451,6 +452,12 @@ func setRRDatePeriodString(r, lastRow *RentRollReportRow) {
 		r.AgreementPeriod = ""
 		r.RentPeriod = ""
 		r.UsePeriod = ""
+		r.Payors.String = ""
+		r.Payors.Valid = false
+		r.Users.String = ""
+		r.Users.Valid = false
+		r.RentCycleStr = ""
+		r.RAIDStr = ""
 	}
 }
 
@@ -468,13 +475,8 @@ func formatRentableSectionChildRow(r, lastRow *RentRollReportRow) {
 	r.Sqft.Valid = false
 	r.Description.String = ""
 	r.Description.Valid = false
-	r.RentCycleStr = ""
 	r.IsRentableSectionMainRow = false
 	r.IsMainRow = false
-	r.Payors.String = ""
-	r.Payors.Valid = false
-	r.Users.String = ""
-	r.Users.Valid = false
 	r.GSR.Float64 = 0
 	r.GSR.Valid = false
 
@@ -514,12 +516,13 @@ func RRReportRows(BID int64,
 		err                        error
 		d1Str                      = startDt.Format(rlib.RRDATEFMTSQL)
 		d2Str                      = stopDt.Format(rlib.RRDATEFMTSQL)
-		customAttrRTSqft           = "Square Feet"                      // custom attribute for all rentables
-		grandTTL                   = RentRollReportRow{IsMainRow: true} // grand total row
+		customAttrRTSqft           = "Square Feet" // custom attribute for all rentables
 		xbiz                       rlib.XBusiness
-		noRentableSectionRowsLimit = 0 // limit on "NO rentable Section" rows
-		rptMainRowsCount           = 0 // report main rows count
-		rentableRowsList           = []RentRollReportRow{}
+		rptMainRowsCount           = 0                                   // report main rows count
+		rentableRowsMap            = make(map[int64][]RentRollReportRow) // per rentable it will hold sublist of rows
+		rentableRowsMapKeys        = []int64{}
+		noRentableSectionRowsLimit = 0                                  // limit on "NO rentable Section" rows
+		grandTTL                   = RentRollReportRow{IsMainRow: true} // grand total row
 	)
 	rlib.Console("Entered in %s\n", funcname)
 
@@ -574,11 +577,6 @@ func RRReportRows(BID int64,
 	// ============================
 	rentableSectionCount := 0
 
-	// rentableSubTotalRow serves the purpose
-	// updating/summing-up Amount info in subtotal row
-	// it is separate global variable for Rentables Rows Iterator
-	rentableSubTotalRow := RentRollReportRow{IsSubTotalRow: true}
-
 	for rentableSectionRows.Next() {
 		// just assume that it is MainRow, if later encountered that it is child row
 		// then "formatRentableSectionChildRow" function would take care of it. :)
@@ -607,61 +605,28 @@ func RRReportRows(BID int64,
 				q.RentCycleStr = freqStr
 			}
 		}
+		raidStr := int64ToStr(q.RAID.Int64, true)
+		raStr := ""
+		if len(raidStr) > 0 {
+			raStr = "RA-" + raidStr
+		}
+		q.RAIDStr = raStr
 
-		// if result list is empty then get latest element in "rentableSubTotalRow"
-		// and append the first scanned row in the list
-		if len(reportRows) == 0 {
-			rentableSubTotalRow = q
-			reportRows = append(reportRows, q)
-			rentableRowsList = append(rentableRowsList, q)
-			continue
+		// get current row RID
+		rowRID := q.RID
+
+		// if key found from map, then it is child row, otherwise it is new rentable
+		if _, ok := rentableRowsMap[rowRID]; ok {
+			// it is child row, first format it
+			formatRentableSectionChildRow(&q, &rentableRowsMap[rowRID][len(rentableRowsMap[rowRID])-1])
+		} else { // new rentable row
+			// store key in the mapKeys list
+			rentableRowsMapKeys = append(rentableRowsMapKeys, rowRID)
+			rptMainRowsCount++
 		}
 
-		// UPDATE SUBTOTALS FOR CURRENT RENTABLE
-		nextRentable := rentableSubTotalRow.RID != q.RID
-		if !nextRentable {
-			// if same rentable then update sub total amounts
-			updateSubTotals(&rentableSubTotalRow, &q)
-
-			// format Rentable Row in child row format
-			formatRentableSectionChildRow(&q, &reportRows[len(reportRows)-1])
-
-			// keep object in the list for this rentables
-			rentableRowsList = append(rentableRowsList, q)
-		} else {
-			// new Rentable row detected so, find gaps for rentable
-			handleRentableGaps(BID, q.RID, &rentableRowsList, startDt, stopDt)
-
-			// finally sort the slice
-			sort.Slice(rentableRowsList, func(i, j int) bool {
-				return (rentableRowsList)[i].AgreementStart.Time.Before(
-					(rentableRowsList)[j].AgreementStart.Time)
-			})
-
-			// append sub list to original result row
-			reportRows = append(reportRows, rentableRowsList...)
-
-			// format sub total row from normal rentroll report row
-			rentableSubTotalRow = formatSubTotalRow(rentableSubTotalRow, startDt, stopDt)
-
-			// append rentable sub total row
-			reportRows = append(reportRows, rentableSubTotalRow)
-
-			// add subTotal amounts to grand total record
-			updateGrandTotals(&grandTTL, &rentableSubTotalRow)
-
-			// append rentable blank row
-			reportRows = append(reportRows, RentRollReportRow{IsBlankRow: true})
-
-			// now keep this new rentable Copy to subTotal row
-			rentableSubTotalRow = q
-
-			// assign new list to rentableRowsList
-			rentableRowsList = []RentRollReportRow{}
-		}
-
-		/*// append new Rentable entry/modified child Row in list
-		reportRows = append(reportRows, q)*/
+		// append new rentable row / formatted child row in map sublist
+		rentableRowsMap[rowRID] = append(rentableRowsMap[rowRID], q)
 
 		// update the rentableSectionCount only after adding the record
 		rentableSectionCount++
@@ -679,23 +644,36 @@ func RRReportRows(BID int64,
 		return reportRows, err
 	}
 
-	// AT LAST, NO MATTER WHAT SUBTOTAL AND BLANK ROW needs to be added
-	if len(reportRows) > 0 {
-		// format sub total row from normal rentroll report row
-		rentableSubTotalRow = formatSubTotalRow(rentableSubTotalRow, startDt, stopDt)
-
-		// append subtotal row
-		reportRows = append(reportRows, rentableSubTotalRow)
-
-		// add subTotal amounts to grand total record
-		updateGrandTotals(&grandTTL, &rentableSubTotalRow)
-
-		// append rentable blank row
-		reportRows = append(reportRows, RentRollReportRow{IsBlankRow: true})
-	}
-
 	rlib.Console("Added %d Rentable Section rows\n", rentableSectionCount)
-	rptMainRowsCount += rentableSectionCount // how many total rows have been added to list
+
+	// sort the map keys first
+	sort.Slice(rentableRowsMapKeys, func(i, j int) bool {
+		return rentableRowsMapKeys[i] < rentableRowsMapKeys[j]
+	})
+
+	// loop through all rentables with map
+	for _, RID := range rentableRowsMapKeys {
+		// get the sublist from map
+		rentableSubList := rentableRowsMap[RID]
+
+		// first handle rentable gaps
+		handleRentableGaps(BID, RID, &rentableSubList, startDt, stopDt)
+
+		// sort the list of all rows per rentable
+		sort.Slice(rentableSubList, func(i, j int) bool {
+			return rentableSubList[i].PossessionStart.Time.Before(
+				rentableSubList[j].PossessionStart.Time)
+		})
+
+		// now add subtotal row
+		addSubTotals(&rentableSubList, &grandTTL)
+
+		// now add blankRow
+		rentableSubList = append(rentableSubList, RentRollReportRow{IsBlankRow: true})
+
+		// now add this rentableRowsList to original result row list
+		reportRows = append(reportRows, rentableSubList...)
+	}
 
 	// if for given limit, rows are feed within page then return
 	if isReportComplete(pageRowsLimit, rptMainRowsCount) {
@@ -894,13 +872,24 @@ func addToSubList(g *[]RentRollReportRow, childCount *int, p *RentRollReportRow)
 	*g = append(*g, *p)
 }
 
-// updateSubTotals does all subtotal calculations for the subtotal line
+// addSubTotals does all subtotal calculations for the subtotal line
 //-----------------------------------------------------------------------------
-func updateSubTotals(sub, q *RentRollReportRow) {
-	sub.AmountDue.Float64 += q.AmountDue.Float64
-	sub.PaymentsApplied.Float64 += q.PaymentsApplied.Float64
-	sub.PeriodGSR.Float64 += q.PeriodGSR.Float64
-	sub.IncomeOffsets.Float64 += q.IncomeOffsets.Float64
+func addSubTotals(subRows *[]RentRollReportRow, g *RentRollReportRow) {
+	sub := RentRollReportRow{IsSubTotalRow: true}
+	sub.Description.Scan("Subtotal")
+	for _, row := range *subRows {
+		sub.AmountDue.Float64 += row.AmountDue.Float64
+		sub.PaymentsApplied.Float64 += row.PaymentsApplied.Float64
+		sub.PeriodGSR.Float64 += row.PeriodGSR.Float64
+		sub.IncomeOffsets.Float64 += row.IncomeOffsets.Float64
+	}
+
+	// append to subRows List
+	(*subRows) = append((*subRows), sub)
+
+	// update grand total
+	updateGrandTotals(g, &sub)
+
 	// rlib.Console("\t q.Description = %s, q.AmountDue = %.2f, q.PaymentsApplied = %.2f\n", q.Description, q.AmountDue.Float64, q.PaymentsApplied.Float64)
 	// rlib.Console("\t sub.AmountDue = %.2f, sub.PaymentsApplied = %.2f\n", sub.AmountDue.Float64, sub.PaymentsApplied.Float64)
 }
@@ -978,12 +967,7 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 	tbl.Puts(-1, Descr, q.Description.String)
 	tbl.Puts(-1, Users, q.Users.String)
 	tbl.Puts(-1, Payors, q.Payors.String)
-	raidStr := int64ToStr(q.RAID.Int64, true)
-	raStr := ""
-	if len(raidStr) > 0 {
-		raStr = "RA-" + raidStr
-	}
-	tbl.Puts(-1, RAgr, raStr)
+	tbl.Puts(-1, RAgr, q.RAIDStr)
 	tbl.Puts(-1, UsePeriod, q.UsePeriod)
 	tbl.Puts(-1, RentPeriod, q.RentPeriod)
 	tbl.Puts(-1, RentCycle, q.RentCycleStr)
@@ -1007,6 +991,11 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 func handleRentableGaps(bid, rid int64, sl *[]RentRollReportRow, d1, d2 time.Time) {
 	var a = []rlib.Period{}
 	for i := 0; i < len(*sl); i++ {
+		// it only make sense when possessionStart or possessionStop falls
+		// into the date range
+		if (*sl)[i].PossessionStart.Time.Before(d1) && (*sl)[i].PossessionStop.Time.After(d2) {
+			continue
+		}
 		var p = rlib.Period{
 			D1: (*sl)[i].PossessionStart.Time,
 			D2: (*sl)[i].PossessionStop.Time,
