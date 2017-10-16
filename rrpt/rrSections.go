@@ -370,32 +370,32 @@ func RRReport(ri *ReporterInfo) string {
 
 // formatSubTotalRow formats subtotal row by picking only meaningful
 // fields from RentRollReportRow struct
-func formatSubTotalRow(row RentRollReportRow, startDt, stopDt time.Time) RentRollReportRow {
+func formatSubTotalRow(subTotalRow *RentRollReportRow, startDt, stopDt time.Time) {
 	const funcname = "formatSubTotalRow"
 	var (
-		err         error
-		d70         = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
-		subTotalRow = RentRollReportRow{IsSubTotalRow: true}
+		err error
+		d70 = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	)
 
 	// Description
 	subTotalRow.Description.Scan("Subtotal")
 
 	// AmountDue
-	subTotalRow.AmountDue.Scan(row.AmountDue.Float64)
+	subTotalRow.AmountDue.Scan(subTotalRow.AmountDue.Float64)
 
 	// PaymentsApplied
-	subTotalRow.PaymentsApplied.Scan(row.PaymentsApplied.Float64)
+	subTotalRow.PaymentsApplied.Scan(subTotalRow.PaymentsApplied.Float64)
 
 	// PeriodGSR
-	subTotalRow.PeriodGSR.Scan(row.PeriodGSR.Float64)
+	subTotalRow.PeriodGSR.Scan(subTotalRow.PeriodGSR.Float64)
 
 	// IncomeOffsets
-	subTotalRow.IncomeOffsets.Scan(row.IncomeOffsets.Float64)
+	subTotalRow.IncomeOffsets.Scan(subTotalRow.IncomeOffsets.Float64)
 
 	// BeginningRcv, EndingRcv
 	subTotalRow.BeginningRcv.Float64, subTotalRow.EndingRcv.Float64, err =
-		rlib.GetBeginEndRARBalance(row.BID, row.RID, row.RAID.Int64, &startDt, &stopDt)
+		rlib.GetBeginEndRARBalance(subTotalRow.BID, subTotalRow.RID,
+			subTotalRow.RAID.Int64, &startDt, &stopDt)
 	if err != nil {
 		rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
 	} else {
@@ -408,7 +408,7 @@ func formatSubTotalRow(row RentRollReportRow, startDt, stopDt time.Time) RentRol
 
 	// BeginningSecDep
 	subTotalRow.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(
-		row.BID, row.RAID.Int64, row.RID, &d70, &startDt)
+		subTotalRow.BID, subTotalRow.RAID.Int64, subTotalRow.RID, &d70, &startDt)
 	if err != nil {
 		rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 	} else {
@@ -417,7 +417,7 @@ func formatSubTotalRow(row RentRollReportRow, startDt, stopDt time.Time) RentRol
 
 	// Change in SecDep
 	subTotalRow.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(
-		row.BID, row.RAID.Int64, row.RID, &startDt, &stopDt)
+		subTotalRow.BID, subTotalRow.RAID.Int64, subTotalRow.RID, &startDt, &stopDt)
 	if err != nil {
 		rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 	} else {
@@ -426,10 +426,6 @@ func formatSubTotalRow(row RentRollReportRow, startDt, stopDt time.Time) RentRol
 
 	// EndingSecDep
 	subTotalRow.EndingSecDep.Scan(subTotalRow.BeginningSecDep.Float64 + subTotalRow.ChangeInSecDep.Float64)
-
-	// Finally assign this new formatted row to original pointing subtotalRow
-	row = subTotalRow
-	return row
 }
 
 // setRRDatePeriodString updates the "r" UsePeriod and RentPeriod members
@@ -666,7 +662,7 @@ func RRReportRows(BID int64,
 		})
 
 		// now add subtotal row
-		addSubTotals(&rentableSubList, &grandTTL)
+		addSubTotals(&rentableSubList, &grandTTL, startDt, stopDt)
 
 		// now add blankRow
 		rentableSubList = append(rentableSubList, RentRollReportRow{IsBlankRow: true})
@@ -874,7 +870,7 @@ func addToSubList(g *[]RentRollReportRow, childCount *int, p *RentRollReportRow)
 
 // addSubTotals does all subtotal calculations for the subtotal line
 //-----------------------------------------------------------------------------
-func addSubTotals(subRows *[]RentRollReportRow, g *RentRollReportRow) {
+func addSubTotals(subRows *[]RentRollReportRow, g *RentRollReportRow, d1, d2 time.Time) {
 	sub := RentRollReportRow{IsSubTotalRow: true}
 	sub.Description.Scan("Subtotal")
 	for _, row := range *subRows {
@@ -883,6 +879,8 @@ func addSubTotals(subRows *[]RentRollReportRow, g *RentRollReportRow) {
 		sub.PeriodGSR.Float64 += row.PeriodGSR.Float64
 		sub.IncomeOffsets.Float64 += row.IncomeOffsets.Float64
 	}
+
+	formatSubTotalRow(&sub, d1, d2)
 
 	// append to subRows List
 	(*subRows) = append((*subRows), sub)
