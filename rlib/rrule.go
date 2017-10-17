@@ -36,6 +36,11 @@ func DateRangeOverlap(a1, a2, s1, s2 *time.Time) bool {
 	return a1.Before(*s2) && a2.After(*s1)
 }
 
+// PeriodOverlap returns true of the two periods overlap, false otherwise.
+func PeriodOverlap(p1, p2 *Period) bool {
+	return DateRangeOverlap(&p1.D1, &p1.D2, &p2.D1, &p2.D2)
+}
+
 // a1 - a2 = time range of the assessment
 // R1 - R2 = time range for the run calculation
 // freq = chunk of time over which to quantize the assessment

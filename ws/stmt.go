@@ -109,7 +109,7 @@ func SvcStatement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(rentalAgrQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
 		SvcGridErrorReturn(w, err, funcname)

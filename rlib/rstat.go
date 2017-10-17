@@ -64,7 +64,7 @@ type RStatInfo struct {
 //               of the rentable during each Period in gaps
 //   error     - any error encountered
 //-----------------------------------------------------------------------------
-func RStat(xbiz *XBusiness, rid int64, gaps []Period) []RStatInfo {
+func RStat(bid, rid int64, gaps []Period) []RStatInfo {
 	var m []RStatInfo
 	for i := 0; i < len(gaps); i++ {
 		//-------------------------------------------------------------
@@ -85,7 +85,7 @@ func RStat(xbiz *XBusiness, rid int64, gaps []Period) []RStatInfo {
 		} else {
 			var rs = RStatInfo{
 				RS: RentableStatus{
-					BID:         xbiz.P.BID,
+					BID:         bid,
 					RID:         rid,
 					DtStart:     gaps[i].D1,
 					DtStop:      gaps[i].D2,

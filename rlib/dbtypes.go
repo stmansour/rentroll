@@ -92,10 +92,10 @@ const (
 	RENTABLESTATUSOFFLINE  = 5
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
-	// Rentable Use Status
+	// USESTATUSadmin etc all Rentable Use Status
 	USESTATUSunknown            = 0
-	USESTATUSinService          = 1 // essentially, this means "online"
-	USESTATUSadmin              = 2
+	USESTATUSadmin              = 1
+	USESTATUSinService          = 2
 	USESTATUSemployee           = 3
 	USESTATUSownerOccupied      = 4
 	USESTATUSofflineRenovation  = 5
@@ -103,13 +103,13 @@ const (
 	USESTATUSmodel              = 7
 	USESTATUSLAST               = 7
 
-	// Rentable Make Ready Status
+	// MRSTATUShouseKeeping etc all Rentable Make Ready Status
 	MRSTATUShouseKeeping = 1
 	MRSTATUSmaintenance  = 2
 	MRSTATUSinspection   = 3
 	MRSTATUSready        = 4
 
-	// Rentable Lease Status
+	// LEASESTATUSvacantRented etc all Rentable Lease Status
 	LEASESTATUSvacantRented      = 1
 	LEASESTATUSvacantNotRented   = 2
 	LEASESTATUSonNoticePreleased = 3
@@ -155,9 +155,17 @@ const (
 // date prior issue
 var TIME0 = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-// StringList is a generic list structure for lists of strings. These could be used to implement things like
-// the list of reasons why an applicant's application was turned down, the list of reasons why a tenant is
-// moving out, etc.
+// Period describes a span of time by specifying a start
+// and end time.
+type Period struct {
+	D1, D2  time.Time
+	Checked bool // used by Period overlap check functions
+}
+
+// StringList is a generic list structure for lists of strings. These could be
+// used to implement things like the list of reasons why an applicant's
+// application was turned down, the list of reasons why a tenant is moving out,
+// etc.
 type StringList struct {
 	SLID        int64      // unique id for this stringlist
 	BID         int64      // the business to which this stringlist belongs

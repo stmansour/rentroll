@@ -231,7 +231,7 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(theQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)

@@ -174,7 +174,7 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 
 	// get TOTAL COUNT First
 	countQuery := rlib.RenderSQLQuery(pmtQuery, qc)
-	g.Total, err = rlib.GetQueryCount(countQuery, qc)
+	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)

@@ -27,11 +27,7 @@ J00000004   Payment - Betty Diddit   #3383  735.35
             Accounts Receivable                                                     07/15/2016  RA00000001  6323-303         12000           -735.35
             Cash                                                                    07/15/2016  RA00000001  6323-303         10000            735.35
                                                                                                                                                     
-J00000005   Unassociated: 6323-303 vacant Jul 4 - Jul 5                                                                                             
-            Unit Gross Scheduled Rent-Taxable                                       07/04/2016  0           6323-303         41000           -100.00
-            Vacancy                                                                 07/04/2016  0           6323-303         41101            100.00
-                                                                                                                                                    
-J00000006   Unassociated: 6323-303 vacant Jul 9 - Jul 11                                                                                            
-            Unit Gross Scheduled Rent-Taxable                                       07/10/2016  0           6323-303         41000           -232.26
-            Vacancy                                                                 07/10/2016  0           6323-303         41101            232.26
+J00000005   Unassociated: 6323-303 vacant Jul 1 - Aug 1                                                                                             
+            Unit Gross Scheduled Rent-Taxable                                       07/31/2016  0           6323-303         41000         -3,316.13
+            Vacancy                                                                 07/31/2016  0           6323-303         41101          3,316.13
                                                                                                                                                     

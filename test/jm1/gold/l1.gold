@@ -35,7 +35,19 @@ J00000012   Payment - Gagik Haroutunian   #258  4400.00
             Accounts Receivable                                                     01/31/2016  RA00000003  311 Rexford      12000         -4,400.00
             Cash                                                                    01/31/2016  RA00000003  311 Rexford      10000          4,400.00
                                                                                                                                                     
-J00000013   Unassociated: 311 1/2 Rexford vacant Jan 1 - Feb 1                                                                                      
+J00000013   Unassociated: 309 Rexford vacant Jan 1 - Feb 1                                                                                          
+            Gross Scheduled Rent-Not Taxable                                        01/31/2016  0           309 Rexford      41000         -3,500.00
+            Vacancy                                                                 01/31/2016  0           309 Rexford      41101          3,500.00
+                                                                                                                                                    
+J00000014   Unassociated: 309 1/2 Rexford vacant Jan 1 - Feb 1                                                                                      
+            Gross Scheduled Rent-Not Taxable                                        01/31/2016  0           309 1/2 Rexford  41000         -3,550.00
+            Vacancy                                                                 01/31/2016  0           309 1/2 Rexford  41101          3,550.00
+                                                                                                                                                    
+J00000015   Unassociated: 311 Rexford vacant Jan 1 - Feb 1                                                                                          
+            Gross Scheduled Rent-Not Taxable                                        01/31/2016  0           311 Rexford      41000         -4,400.00
+            Vacancy                                                                 01/31/2016  0           311 Rexford      41101          4,400.00
+                                                                                                                                                    
+J00000016   Unassociated: 311 1/2 Rexford vacant Jan 1 - Feb 1                                                                                      
             Gross Scheduled Rent-Not Taxable                                        01/31/2016  0           311 1/2 Rexford  41000         -2,500.00
             Vacancy                                                                 01/31/2016  0           311 1/2 Rexford  41101          2,500.00
                                                                                                                                                     
