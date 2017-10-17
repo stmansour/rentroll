@@ -80,6 +80,18 @@ SELECT DISTINCT
 FROM
     Rentable
         LEFT JOIN
+    RentableTypeRef ON RentableTypeRef.RID = Rentable.RID
+        LEFT JOIN
+    RentableTypes ON RentableTypes.RTID = RentableTypeRef.RTID
+        LEFT JOIN
+    RentableStatus ON (RentableStatus.RID = Rentable.RID
+        AND @DtStart <= RentableStatus.DtStop
+        AND @DtStop > RentableStatus.DtStart)
+        LEFT JOIN
+    RentableMarketRate ON (RentableMarketRate.RTID = RentableTypeRef.RTID
+        AND @DtStart <= RentableMarketRate.DtStop
+        AND @DtStop > RentableMarketRate.DtStart)
+        LEFT JOIN
     RentalAgreementRentables ON (RentalAgreementRentables.RID = Rentable.RID
         AND @DtStart <= RentalAgreementRentables.RARDtStop
         AND @DtStop > RentalAgreementRentables.RARDtStart)
@@ -101,18 +113,6 @@ FROM
         LEFT JOIN
     Transactant AS User ON (RentableUsers.TCID = User.TCID
         AND User.BID = Rentable.BID)
-        LEFT JOIN
-    RentableTypeRef ON RentableTypeRef.RID = Rentable.RID
-        LEFT JOIN
-    RentableTypes ON RentableTypes.RTID = RentableTypeRef.RTID
-        LEFT JOIN
-    RentableStatus ON (RentableStatus.RID = Rentable.RID
-        AND @DtStart <= RentableStatus.DtStop
-        AND @DtStop > RentableStatus.DtStart)
-        LEFT JOIN
-    RentableMarketRate ON (RentableMarketRate.RTID = RentableTypeRef.RTID
-        AND @DtStart <= RentableMarketRate.DtStop
-        AND @DtStop > RentableMarketRate.DtStart)
         LEFT JOIN
     Assessments ON (Assessments.RAID = RentalAgreement.RAID
         AND Assessments.RID = Rentable.RID
