@@ -114,6 +114,17 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 	if err := InsertReceipt(&rr); err != nil {
 		return err
 	}
+	//-----------------------------------------------------------
+	// Newly created Receipts will have allocations with 0 FLAGS
+	// We need to have a flag that shows the new allocation is
+	// part of a reversal...
+	//-----------------------------------------------------------
+	for i := 0; i < len(rr.RA); i++ {
+		rr.RA[i].FLAGS |= rlib.RCPTvoid
+		if err := rlib.UpdateReceiptAllocation(&rr.RA[i]); err != nil {
+			return err
+		}
+	}
 
 	//---------------------------------------------------------------------------
 	// If the receipt was part of a deposit, add the reversal to the deposit...
@@ -140,7 +151,16 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 
 	for i := 0; i < len(r.RA); i++ {
 		if r.RA[i].ASMID == 0 {
-			continue // skip entries that are not allocations to an assessment
+			//--------------------------------------------------
+			// This allocation has no associated Assessment.
+			// Could be vending income, or similar.
+			// Just mark the amount as void
+			//--------------------------------------------------
+			r.RA[i].FLAGS |= rlib.RCPTvoid
+			if err := rlib.UpdateReceiptAllocation(&r.RA[i]); err != nil {
+				return err
+			}
+			continue
 		}
 		ra := r.RA[i]          // copy it and make the reversal changes
 		ra.RCPTID = rr.RCPTID  // the reversal receipt id
