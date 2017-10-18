@@ -54,7 +54,7 @@ func FindGaps(D1, D2 *time.Time, a []Period) []Period {
 //   m = list of existing times
 //
 // RETURNS
-//   m     = the new list with x aggregated
+//   n     = the new list with x aggregated
 //-----------------------------------------------------------------------------
 func TimeListAggregate(m []Period) []Period {
 	var n []Period    // the newly aggregated list

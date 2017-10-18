@@ -443,7 +443,7 @@ dorrtest () {
 		UDIFFS=$(diff ${1} ${GOLD}/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			if [ ${SHOWCOMMAND} -eq 1 ]; then
-				echo "PASSED	cmd: ${CSVLOAD} ${2}"
+				echo "PASSED	cmd: ${RENTROLL} ${2}"
 			else
 				echo "PASSED"
 			fi

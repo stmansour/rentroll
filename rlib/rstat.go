@@ -76,7 +76,6 @@ func RStat(bid, rid int64, gaps []Period) []RStatInfo {
 		if len(rsa) > 0 {
 			for j := 0; j < len(rsa); j++ {
 				var rs RStatInfo
-				rs.Amount = float64(177)
 				rsa[j].DtStart = gaps[i].D1
 				rsa[j].DtStop = gaps[i].D2
 				rs.RS = rsa[j]
@@ -100,7 +99,7 @@ func RStat(bid, rid int64, gaps []Period) []RStatInfo {
 			if r.RSID > 0 {
 				rs.RS.LeaseStatus = LEASESTATUSvacantRented
 			}
-			rs.Amount = float64(177)
+
 			m = append(m, rs)
 		}
 	}
@@ -108,7 +107,8 @@ func RStat(bid, rid int64, gaps []Period) []RStatInfo {
 }
 
 // VacancyGSR returns the GSR amount for the rentable during the supplied
-// period
+// period.  This value is used as the Period GSR value in the the RentRoll
+// view / report.
 //
 // INPUT
 //  xbiz  - the business
@@ -120,6 +120,7 @@ func RStat(bid, rid int64, gaps []Period) []RStatInfo {
 //-----------------------------------------------------------------------------
 func VacancyGSR(xbiz *XBusiness, rid int64, d1, d2 *time.Time) float64 {
 	amt := float64(0)
+	// Console("*** Calling VacancyDetect: %s - %s, rid = %d\n", d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), rid)
 	m := VacancyDetect(xbiz, d1, d2, rid)
 	for i := 0; i < len(m); i++ {
 		amt += m[i].Amount
