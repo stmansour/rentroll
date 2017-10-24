@@ -144,8 +144,8 @@ FROM
     Assessments ON (Assessments.RAID = Rentable_CUM_RA.RAID
         AND Assessments.BID = Rentable_CUM_RA.BID
         AND (Assessments.FLAGS & 4) = 0
-        AND @DtStart <= Assessments.Start
-        AND @DtStop > Assessments.Stop
+        AND @DtStart <= Assessments.Stop
+        AND @DtStop > Assessments.Start
         AND (Assessments.RentCycle = 0
         OR (Assessments.RentCycle > 0
         AND Assessments.PASMID != 0))
