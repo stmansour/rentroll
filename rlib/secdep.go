@@ -152,3 +152,37 @@ func GetSecDepBalance(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) 
 	err = rows.Err()
 	return amt, err
 }
+
+// // GetSecDepBalanceOnDate
+// func GetSecDepBalanceOnDate(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) {
+// 	amt := float64(0)
+// 	sa := []string{}
+// 	m, err := SecDepRules(bid)
+// 	if err != nil {
+// 		return amt, fmt.Errorf("Error in SecDepRules: %s", err.Error())
+// 	}
+// 	if len(m) == 0 {
+// 		return amt, fmt.Errorf("There are no account rules that credit a %s account", LiabilitySecDep)
+// 	}
+// 	//-----------------------------------------------------------
+// 	// What Assessments use the account rules found above?
+// 	//-----------------------------------------------------------
+// 	sa = []string{}
+// 	for i := 0; i < len(m); i++ {
+// 		sa = append(sa, fmt.Sprintf("ARID=%d", m[i]))
+// 	}
+// 	q := fmt.Sprintf("SELECT SUM(Amount) AS Amt FROM Assessments WHERE BID=%d AND RID=%d and RAID=%d AND %q<=Start AND Stop<%q AND (%s) GROUP BY RID",
+// 		bid, rid, raid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), strings.Join(sa, " OR "))
+// 	// Console("=======>>>>>>  q:  %s\n", q)
+// 	rows, err := RRdb.Dbrr.Query(q)
+// 	for rows.Next() {
+// 		var x float64
+// 		err := rows.Scan(&x)
+// 		if err != nil {
+// 			return amt, err
+// 		}
+// 		amt += x
+// 	}
+// 	err = rows.Err()
+// 	return amt, err
+// }

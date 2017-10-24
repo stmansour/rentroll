@@ -1,6 +1,6 @@
-Test Name:    Payor Statement Test
-Test Purpose: Test Payor Statements
-Date/Time:    Fri Sep 15 14:12:52 IST 2017
+Test Name:    RR View Use Case Databases
+Test Purpose: Generates separate databases for multiple use cases
+Date/Time:    Mon Oct 23 12:41:20 PDT 2017
 
 Create new database...  successful
-Test completed: Fri Sep 15 14:12:52 IST 2017
+Test completed: Mon Oct 23 12:41:25 PDT 2017

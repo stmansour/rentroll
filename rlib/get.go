@@ -1616,10 +1616,10 @@ func GetAllRentableSpecialtyRefs(bid, rid int64) []int64 {
 
 // GetRentableSpecialtyTypesForRentableByRange returns an array of RentableSpecialty structures that
 // apply for the supplied time range d1,d2
-func GetRentableSpecialtyTypesForRentableByRange(r *Rentable, d1, d2 *time.Time) ([]RentableSpecialty, error) {
+func GetRentableSpecialtyTypesForRentableByRange(bid, rid int64, d1, d2 *time.Time) ([]RentableSpecialty, error) {
 	var err error
 	var rsta []RentableSpecialty
-	rsrefs := GetRentableSpecialtyRefsByRange(r, d1, d2)
+	rsrefs := GetRentableSpecialtyRefsByRange(bid, rid, d1, d2)
 	for i := 0; i < len(rsrefs); i++ {
 		rs, err := GetRentableSpecialtyType(rsrefs[i].RSPID)
 		if err != nil {
@@ -1633,9 +1633,9 @@ func GetRentableSpecialtyTypesForRentableByRange(r *Rentable, d1, d2 *time.Time)
 
 // GetRentableSpecialtyRefsByRange loads all the RentableSpecialtyRef records that overlap the supplied time range
 // and returns them in an array
-func GetRentableSpecialtyRefsByRange(r *Rentable, d1, d2 *time.Time) []RentableSpecialtyRef {
+func GetRentableSpecialtyRefsByRange(bid, rid int64, d1, d2 *time.Time) []RentableSpecialtyRef {
 	var rs []RentableSpecialtyRef
-	rows, err := RRdb.Prepstmt.GetRentableSpecialtyRefsByRange.Query(r.BID, r.RID, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentableSpecialtyRefsByRange.Query(bid, rid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 	for rows.Next() {

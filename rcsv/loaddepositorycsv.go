@@ -8,8 +8,9 @@ import (
 )
 
 // CVS record format:
-// 0    1           2
-// BUD, Name,       AccountNo
+//	                GLAccount can be Account Name, GLNumber, or LID
+// 0    1           2         3
+// BUD, GLAccount,  Name,     AccountNo
 
 // CreateDepositoriesFromCSV reads an assessment type string array and creates a database record for the assessment type
 func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
@@ -26,7 +27,7 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 	// csvCols is an array that defines all the columns that should be in this csv file
 	var csvCols = []CSVColumn{
 		{"BUD", BUD},
-		{"LID", LID},
+		{"GLAccount", LID},
 		{"Name", Name},
 		{"AccountNo", AccountNo},
 	}
@@ -51,15 +52,28 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 	}
 
 	if len(sa[LID]) > 0 {
+		var acct rlib.GLAccount
 		i, err := strconv.Atoi(sa[LID])
 		if err == nil {
 			d.LID = int64(i)
 		}
 		// validate that this is a valid LID
-		acct := rlib.GetLedger(d.LID)
-		if acct.LID != d.LID {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Ledger with ID %d does not exist", funcname, lineno, d.LID)
+		if d.LID > 0 {
+			acct = rlib.GetLedger(d.LID)
 		}
+		if acct.LID == 0 {
+			gl := rlib.GetLedgerByGLNo(d.BID, sa[LID])
+			if gl.LID == 0 {
+				gl = rlib.GetLedgerByName(d.BID, sa[LID]) // see if we can find it by name
+				if gl.LID == 0 {
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No GL Account with Name or AccountNumber = %s", funcname, lineno, sa[LID])
+				}
+			}
+			d.LID = gl.LID
+		}
+	}
+	if d.LID == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No GL Account with Name or AccountNumber = %s", funcname, lineno, sa[LID])
 	}
 
 	//-------------------------------------------------------------------
@@ -77,6 +91,7 @@ func CreateDepositoriesFromCSV(sa []string, lineno int) (int, error) {
 	if len(d.AccountNo) == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - no AccountNo for Depository. Please supply AccountNo", funcname, lineno)
 	}
+
 	dup := rlib.GetDepositoryByAccount(d.BID, d.AccountNo)
 	if dup.DEPID != 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  depository with account number %s already exists", funcname, lineno, d.AccountNo)

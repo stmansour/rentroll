@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"fmt"
 	"gotable"
 	"rentroll/rlib"
 )
@@ -16,6 +17,7 @@ func RRreportDepositoryTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("BID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("AccountNo", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Name", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("GLAccount", 45, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// prepare table title, sections
 	err := TableReportHeaderBlock(&tbl, "Depositories", funcname, ri)
@@ -27,11 +29,18 @@ func RRreportDepositoryTable(ri *ReporterInfo) gotable.Table {
 	// get records from db
 	m := rlib.GetAllDepositories(ri.Bid)
 	for i := 0; i < len(m); i++ {
+		var l rlib.GLAccount
+		if m[i].LID > 0 {
+			l = rlib.GetLedger(m[i].LID)
+		}
 		tbl.AddRow()
 		tbl.Puts(-1, 0, rlib.IDtoString("DEP", m[i].DEPID))
 		tbl.Puts(-1, 1, rlib.IDtoString("B", m[i].BID))
 		tbl.Puts(-1, 2, m[i].AccountNo)
 		tbl.Puts(-1, 3, m[i].Name)
+		if l.LID > 0 {
+			tbl.Puts(-1, 4, fmt.Sprintf("%s (%s)", l.GLNumber, l.Name))
+		}
 	}
 	tbl.TightenColumns()
 	return tbl

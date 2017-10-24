@@ -41,7 +41,7 @@ func temporaryGetLTLAR(bid int64) string {
 //============================================================================================
 func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 	nr := 0
-	m := VacancyDetect(xbiz, d1, d2, r)
+	m := VacancyDetect(xbiz, d1, d2, r.RID)
 	// fmt.Printf("ProcessRentable: r = %s (%d), period=(%s - %s) len(m) = %d\n", r.Name, r.RID, d1.Format("Jan 2"), d2.Format("Jan 2"), len(m))
 	for i := 0; i < len(m); i++ {
 		// the umr rate is in cost/accrualDuration. The duration of the VacancyMarkers

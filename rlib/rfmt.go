@@ -129,9 +129,9 @@ func RoundToCent(x float64) float64 {
 func YesNoToInt(si string) (int64, error) {
 	s := strings.ToUpper(strings.TrimSpace(si))
 	switch {
-	case s == "Y" || s == "YES" || s == "1":
+	case s == "Y" || s == "YES" || s == "1" || s == "T" || s == "TRUE":
 		return YES, nil
-	case s == "N" || s == "NO" || s == "0":
+	case s == "N" || s == "NO" || s == "0" || s == "F" || s == "FALSE":
 		return NO, nil
 	default:
 		err := fmt.Errorf("Unrecognized yes/no string: %s", si)

@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-//                     Ledger NAME or ID works
+//                     Ledger NAME or GLAccountID or LID works
 // 0   1   2           3
-// Bud,Name,ARType,    DebitLID,CreditLID,Description
-// REX,Rent,Assessment,2,       8,        Rent assessment, accrual based, manage to budget
-// REX,FNB, Receipt,   3,       7,        payments that are deposited in First National Bank
+// Bud,Name,ARType,    Debit,       Credit,   Allocated,RAIDRequired,Description
+// REX,Rent,Assessment,2,           8,        No,       No,          Rent assessment, accrual based, manage to budget
+// REX,FNB, Receipt,   Receivables, 7,        Yes,      Yes,         payments that are deposited in First National Bank
 
 // CreateAR creates AR database records from the supplied CSV file lines
 func CreateAR(sa []string, lineno int) (int, error) {
@@ -19,12 +19,15 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	var err error
 
 	const (
-		BUD         = 0
-		Name        = iota
-		ARType      = iota
-		DebitLID    = iota
-		CreditLID   = iota
-		Description = iota
+		BUD          = 0
+		Name         = iota
+		ARType       = iota
+		DebitLID     = iota
+		CreditLID    = iota
+		Allocated    = iota
+		ShowOnRA     = iota
+		RAIDRequired = iota
+		Description  = iota
 	)
 
 	// csvCols is an array that defines all the columns that should be in this csv file
@@ -32,8 +35,11 @@ func CreateAR(sa []string, lineno int) (int, error) {
 		{"BUD", BUD},
 		{"Name", Name},
 		{"ARType", ARType},
-		{"DebitLID", DebitLID},
-		{"CreditLID", CreditLID},
+		{"Debit", DebitLID},
+		{"Credit", CreditLID},
+		{"Allocated", Allocated},
+		{"ShowOnRA", ShowOnRA},
+		{"RAIDRequired", RAIDRequired},
 		{"Description", Description},
 	}
 
@@ -87,18 +93,20 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------
 	// Get the Debit account
 	//----------------------------------------------------------------
+	var gl rlib.GLAccount
+	// rlib.Console("sa[DebitLID] = %s\n", sa[DebitLID])
 	b.DebitLID, err = rlib.IntFromString(sa[DebitLID], "Invalid DebitLID") // first see if it is a LID
-	if err == nil && b.DebitLID > 0 {
-		gl := rlib.GetLedger(b.DebitLID)
+	if err == nil && b.DebitLID > 0 {                                      // try the LID first
+		gl = rlib.GetLedger(b.DebitLID)
+	}
+	if gl.LID == 0 && len(sa[DebitLID]) > 0 {
+		gl = rlib.GetLedgerByName(b.BID, sa[DebitLID]) // if it's not a number, try the Name
 		if gl.LID == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No GL Account with ID = %d", funcname, lineno, b.DebitLID)
-		}
-	} else {
-		l := rlib.GetLedgerByName(b.BID, sa[DebitLID])
-		if l.LID > 0 {
-			b.DebitLID = l.LID
+			gl = rlib.GetLedgerByGLNo(b.BID, sa[DebitLID]) // if not a name, then try GLNumber
 		}
 	}
+	// rlib.Console("DEBIT LID = %s\n", gl.Name)
+	b.DebitLID = gl.LID
 	if b.DebitLID == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not find GLAccount for = %s", funcname, lineno, sa[DebitLID])
 	}
@@ -106,20 +114,61 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------
 	// Get the Credit account
 	//----------------------------------------------------------------
+	var glc rlib.GLAccount
+	// rlib.Console("sa[CreditLID] = %s\n", sa[CreditLID])
 	b.CreditLID, err = rlib.IntFromString(sa[CreditLID], "Invalid CreditLID")
 	if err == nil || b.CreditLID > 0 {
-		gl := rlib.GetLedger(b.CreditLID)
-		if gl.LID == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - No GL Account with ID = %d", funcname, lineno, b.CreditLID)
-		}
-	} else {
-		l := rlib.GetLedgerByName(b.BID, sa[CreditLID])
-		if l.LID > 0 {
-			b.CreditLID = l.LID
+		glc = rlib.GetLedger(b.CreditLID)
+	}
+	if glc.LID == 0 && len(sa[CreditLID]) > 0 {
+		glc = rlib.GetLedgerByName(b.BID, sa[CreditLID])
+		if glc.LID == 0 {
+			glc = rlib.GetLedgerByGLNo(b.BID, sa[CreditLID]) // if not a name, then try GLNumber
 		}
 	}
+	// rlib.Console("CREDIT LID = %s\n", glc.Name)
+	b.CreditLID = glc.LID
 	if b.CreditLID == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid GLAccountID: %s", funcname, lineno, sa[CreditLID])
+	}
+
+	//----------------------------------------------------------------
+	// Set flags
+	//----------------------------------------------------------------
+	var alloc, show, rarqd int64
+	var yn string
+	yn = strings.TrimSpace(sa[Allocated])
+	if len(yn) == 0 {
+		yn = "no"
+	}
+	alloc, err = rlib.YesNoToInt(yn)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid Allocated column value: %s", funcname, lineno, sa[Allocated])
+	}
+	if alloc > 0 {
+		b.FLAGS |= 1 << 0
+	}
+	yn = strings.TrimSpace(sa[ShowOnRA])
+	if len(yn) == 0 {
+		yn = "no"
+	}
+	show, err = rlib.YesNoToInt(yn)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid ShowOnRA column value: %s", funcname, lineno, sa[ShowOnRA])
+	}
+	if show > 0 {
+		b.FLAGS |= 1 << 1
+	}
+	yn = strings.TrimSpace(sa[RAIDRequired])
+	if len(yn) == 0 {
+		yn = "no"
+	}
+	rarqd, err = rlib.YesNoToInt(yn)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - invalid RAIDRequired column value: %s", funcname, lineno, sa[RAIDRequired])
+	}
+	if rarqd > 0 {
+		b.FLAGS |= 1 << 2
 	}
 
 	//----------------------------------------------------------------

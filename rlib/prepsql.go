@@ -957,7 +957,7 @@ func buildPreparedStatements() {
 	RRdb.DBFields["RentableTypeRef"] = flds
 	RRdb.Prepstmt.GetRentableTypeRef, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RTRID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableTypeRefsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RID=? and DtStop>? and DtStart<? ORDER BY DtStart ASC")
+	RRdb.Prepstmt.GetRentableTypeRefsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RID=? AND DtStop>? AND DtStart<? ORDER BY DtStart ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableTypeRefs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableTypeRef WHERE RID=? ORDER BY DtStart ASC")
 	Errcheck(err)
@@ -977,9 +977,9 @@ func buildPreparedStatements() {
 	//===============================
 	flds = "BID,RID,RSPID,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentableSpecialtyRef"] = flds
-	RRdb.Prepstmt.GetRentableSpecialtyRefs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialtyRef WHERE BID=? and RID=?")
+	RRdb.Prepstmt.GetRentableSpecialtyRefs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialtyRef WHERE BID=? AND RID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableSpecialtyRefsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialtyRef WHERE BID=? and RID=? and DtStop>? and DtStart<? ORDER BY DtStart ASC")
+	RRdb.Prepstmt.GetRentableSpecialtyRefsByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialtyRef WHERE BID=? AND RID=? AND DtStop>? AND DtStart<? ORDER BY DtStart ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableSpecialtyRefs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialtyRef WHERE BID=? ORDER BY DtStart ASC")
 	Errcheck(err)
@@ -987,9 +987,9 @@ func buildPreparedStatements() {
 	_, _, s3, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentableSpecialtyRef, err = RRdb.Dbrr.Prepare("INSERT INTO RentableSpecialtyRef (" + s4 + ") VALUES(" + s5 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableSpecialtyRef, err = RRdb.Dbrr.Prepare("UPDATE RentableSpecialtyRef SET " + s3 + " WHERE RID=? and DtStart=? and DtStop=?")
+	RRdb.Prepstmt.UpdateRentableSpecialtyRef, err = RRdb.Dbrr.Prepare("UPDATE RentableSpecialtyRef SET " + s3 + " WHERE RID=? AND DtStart=? AND DtStop=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableSpecialtyRef, err = RRdb.Dbrr.Prepare("DELETE from RentableSpecialtyRef WHERE RID=? and DtStart=? and DtStop=?")
+	RRdb.Prepstmt.DeleteRentableSpecialtyRef, err = RRdb.Dbrr.Prepare("DELETE from RentableSpecialtyRef WHERE RID=? AND DtStart=? AND DtStop=?")
 	Errcheck(err)
 
 	//===============================
@@ -997,7 +997,7 @@ func buildPreparedStatements() {
 	//===============================
 	flds = "RSPID,BID,Name,Fee,Description,CreateTS,CreateBy"
 	RRdb.DBFields["RentableSpecialty"] = flds
-	RRdb.Prepstmt.GetRentableSpecialtyTypeByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialty WHERE BID=? and Name=?")
+	RRdb.Prepstmt.GetRentableSpecialtyTypeByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialty WHERE BID=? AND Name=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentableSpecialtyType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialty WHERE RSPID=?")
 	Errcheck(err)
@@ -1012,9 +1012,9 @@ func buildPreparedStatements() {
 	RRdb.DBFields["RentableStatus"] = flds
 	RRdb.Prepstmt.GetRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RSID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? and DtStop>? and DtStart<=?")
+	RRdb.Prepstmt.GetRentableStatusByRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStop>? AND DtStart<?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentableStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? and DtStart>=?")
+	RRdb.Prepstmt.GetRentableStatusOnOrAfter, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=? AND DtStart>=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentableStatus, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableStatus WHERE RID=?")
 	Errcheck(err)

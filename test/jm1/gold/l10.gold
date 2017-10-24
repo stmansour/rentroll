@@ -8,33 +8,45 @@ Austin, TX 78738 USA
 
 Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J00000070   Gross Scheduled Rent-Not Taxable  309 1/2 Rexford [Rex2, monthly]                                                                       
+J00000090   Gross Scheduled Rent-Not Taxable  309 1/2 Rexford [Rex2, monthly]                                                                       
             Accounts Receivable                                                     10/01/2016  RA00000005  309 1/2 Rexford  12000          4,000.00
             Gross Scheduled Rent-Not Taxable                                        10/01/2016  RA00000005  309 1/2 Rexford  41000         -4,000.00
                                                                                                                                                     
-J00000071   Gross Scheduled Rent-Not Taxable  309 Rexford [Rex1, monthly]                                                                           
+J00000091   Gross Scheduled Rent-Not Taxable  309 Rexford [Rex1, monthly]                                                                           
             Accounts Receivable                                                     10/01/2016  RA00000001  309 Rexford      12000          3,750.00
             Gross Scheduled Rent-Not Taxable                                        10/01/2016  RA00000001  309 Rexford      41000         -3,750.00
                                                                                                                                                     
-J00000072   Gross Scheduled Rent-Not Taxable  311 Rexford [Rex3, monthly]                                                                           
+J00000092   Gross Scheduled Rent-Not Taxable  311 Rexford [Rex3, monthly]                                                                           
             Accounts Receivable                                                     10/01/2016  RA00000004  311 Rexford      12000          4,150.00
             Gross Scheduled Rent-Not Taxable                                        10/01/2016  RA00000004  311 Rexford      41000         -4,150.00
                                                                                                                                                     
-J00000073   Unassociated: 311 1/2 Rexford vacant Oct 1 - Nov 1                                                                                      
+J00000093   Unassociated: 309 Rexford vacant Oct 1 - Nov 1                                                                                          
+            Gross Scheduled Rent-Not Taxable                                        10/31/2016  0           309 Rexford      41000         -3,750.00
+            Vacancy                                                                 10/31/2016  0           309 Rexford      41101          3,750.00
+                                                                                                                                                    
+J00000094   Unassociated: 309 1/2 Rexford vacant Oct 1 - Nov 1                                                                                      
+            Gross Scheduled Rent-Not Taxable                                        10/31/2016  0           309 1/2 Rexford  41000         -4,000.00
+            Vacancy                                                                 10/31/2016  0           309 1/2 Rexford  41101          4,000.00
+                                                                                                                                                    
+J00000095   Unassociated: 311 Rexford vacant Oct 1 - Nov 1                                                                                          
+            Gross Scheduled Rent-Not Taxable                                        10/31/2016  0           311 Rexford      41000         -4,150.00
+            Vacancy                                                                 10/31/2016  0           311 Rexford      41101          4,150.00
+                                                                                                                                                    
+J00000096   Unassociated: 311 1/2 Rexford vacant Oct 1 - Nov 1                                                                                      
             Gross Scheduled Rent-Not Taxable                                        10/31/2016  0           311 1/2 Rexford  41000         -2,500.00
             Vacancy                                                                 10/31/2016  0           311 1/2 Rexford  41101          2,500.00
                                                                                                                                                     
-J00000074   Payment - Aaron Read   #2160  3750.00                                                                                                   
+J00000097   Payment - Aaron Read   #2160  3750.00                                                                                                   
             Gross Scheduled Rent-Not Taxable                                                                                                        
             Accounts Receivable                                                     10/01/2016  RA00000005  309 1/2 Rexford  12000         -3,750.00
             Cash                                                                    10/01/2016  RA00000005  309 1/2 Rexford  10000          3,750.00
                                                                                                                                                     
-J00000075   Payment - Lauren Beck   #8739  4150.00                                                                                                  
+J00000098   Payment - Lauren Beck   #8739  4150.00                                                                                                  
             Gross Scheduled Rent-Not Taxable                                                                                                        
             Accounts Receivable                                                     10/02/2016  RA00000001  309 Rexford      12000         -4,150.00
             Cash                                                                    10/02/2016  RA00000001  309 Rexford      10000          4,150.00
                                                                                                                                                     
-J00000076   Payment - Alex Vahabzadeh   #3274  4000.00                                                                                              
+J00000099   Payment - Alex Vahabzadeh   #3274  4000.00                                                                                              
             Gross Scheduled Rent-Not Taxable                                                                                                        
             Accounts Receivable                                                     10/03/2016  RA00000005  309 1/2 Rexford  12000         -4,000.00
             Cash                                                                    10/03/2016  RA00000005  309 1/2 Rexford  10000          4,000.00

@@ -396,6 +396,10 @@ func formatSubTotalRow(subTotalRow *RentRollReportRow, startDt, stopDt time.Time
 	subTotalRow.IncomeOffsets.Scan(subTotalRow.IncomeOffsets.Float64)
 
 	// BeginningRcv, EndingRcv
+	if subTotalRow.RAID.Int64 == 0 && subTotalRow.RID == 0 {
+		rlib.Console("GetBeginEndRARBalance: BID=%d, RID=%d, RAID=%d, start/stop = %s - %s\n", subTotalRow.BID, subTotalRow.RID,
+			subTotalRow.RAID.Int64, startDt.Format(rlib.RRDATEFMTSQL), stopDt.Format(rlib.RRDATEFMTSQL))
+	}
 	subTotalRow.BeginningRcv.Float64, subTotalRow.EndingRcv.Float64, err =
 		rlib.GetBeginEndRARBalance(subTotalRow.BID, subTotalRow.RID,
 			subTotalRow.RAID.Int64, &startDt, &stopDt)
@@ -579,7 +583,10 @@ func RRReportRows(BID int64,
 	for rentableSectionRows.Next() {
 		// just assume that it is MainRow, if later encountered that it is child row
 		// then "formatRentableSectionChildRow" function would take care of it. :)
-		q := RentRollReportRow{IsMainRow: true, IsRentableSectionMainRow: true}
+		q := RentRollReportRow{
+			BID:                      BID,
+			IsMainRow:                true,
+			IsRentableSectionMainRow: true}
 		if err = RentableSectionRowScan(rentableSectionRows, &q); err != nil {
 			return reportRows, err
 		}
@@ -656,7 +663,7 @@ func RRReportRows(BID int64,
 		rentableSubList := rentableRowsMap[RID]
 
 		// first handle rentable gaps
-		handleRentableGaps(BID, RID, &rentableSubList, startDt, stopDt)
+		handleRentableGaps(&xbiz, RID, &rentableSubList, startDt, stopDt)
 
 		// sort the list of all rows per rentable
 		sort.Slice(rentableSubList, func(i, j int) bool {
@@ -671,7 +678,7 @@ func RRReportRows(BID int64,
 		})
 
 		// now add subtotal row
-		addSubTotals(&rentableSubList, &grandTTL, startDt, stopDt)
+		addSubTotals(BID, &rentableSubList, &grandTTL, startDt, stopDt)
 
 		// now add blankRow
 		rentableSubList = append(rentableSubList, RentRollReportRow{IsBlankRow: true})
@@ -881,8 +888,9 @@ func addToSubList(g *[]RentRollReportRow, childCount *int, p *RentRollReportRow)
 
 // addSubTotals does all subtotal calculations for the subtotal line
 //-----------------------------------------------------------------------------
-func addSubTotals(subRows *[]RentRollReportRow, g *RentRollReportRow, d1, d2 time.Time) {
-	sub := RentRollReportRow{}
+func addSubTotals(BID int64, subRows *[]RentRollReportRow, g *RentRollReportRow, d1, d2 time.Time) {
+	// rlib.Console("Entered addSubTotals. d1/d2 = %s - %s\n", d1.Format(rlib.RRDATEFMTSQL), d2.Format(rlib.RRDATEFMTSQL))
+	sub := RentRollReportRow{BID: BID}
 
 	for _, row := range *subRows {
 		sub.AmountDue.Float64 += row.AmountDue.Float64
@@ -1009,34 +1017,35 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollReportRow) {
 // covered by a RentalAgreement. It updates the list with entries
 // describing the gaps
 //----------------------------------------------------------------------
-func handleRentableGaps(bid, rid int64, sl *[]RentRollReportRow, d1, d2 time.Time) {
+func handleRentableGaps(xbiz *rlib.XBusiness, rid int64, sl *[]RentRollReportRow, d1, d2 time.Time) {
 	var a = []rlib.Period{}
 	for i := 0; i < len(*sl); i++ {
-		// it only make sense when possessionStart or possessionStop falls
-		// into the date range
-		if (*sl)[i].PossessionStart.Time.Before(d1) && (*sl)[i].PossessionStop.Time.After(d2) {
-			continue
-		}
 		var p = rlib.Period{
 			D1: (*sl)[i].PossessionStart.Time,
 			D2: (*sl)[i].PossessionStop.Time,
 		}
 		a = append(a, p)
+		rlib.Console("SEARCH FOR GAPS: added %s - %s\n", p.D1.Format(rlib.RRDATEFMTSQL), p.D2.Format(rlib.RRDATEFMTSQL))
 	}
 	b := rlib.FindGaps(&d1, &d2, a)
 	for i := 0; i < len(b); i++ {
 		rlib.Console("Gap[%d]: %s - %s\n", i, b[i].D1.Format(rlib.RRDATEFMTSQL), b[i].D2.Format(rlib.RRDATEFMTSQL))
 	}
-	rsa := rlib.RStat(bid, rid, b)
+	rsa := rlib.RStat(xbiz.P.BID, rid, b)
 	for i := 0; i < len(rsa); i++ {
-		rlib.Console("rsa[%d]: %s - %s, LeaseStatus=%d, UseStatus=%d\n", i, rsa[i].DtStart.Format(rlib.RRDATEFMTSQL), rsa[i].DtStop.Format(rlib.RRDATEFMTSQL), rsa[i].LeaseStatus, rsa[i].UseStatus)
+		if rsa[i].RS.DtStart.Before(rlib.TIME0) {
+			rsa[i].RS.DtStart = d1
+		}
+		rlib.Console("rsa[%d]: %s - %s, LeaseStatus=%d, UseStatus=%d\n", i, rsa[i].RS.DtStart.Format(rlib.RRDATEFMTSQL), rsa[i].RS.DtStop.Format(rlib.RRDATEFMTSQL), rsa[i].RS.LeaseStatus, rsa[i].RS.UseStatus)
 		var r RentRollReportRow
-		r.PossessionStart.Scan(rsa[i].DtStart)
-		r.PossessionStop.Scan(rsa[i].DtStop)
+		r.PossessionStart.Scan(rsa[i].RS.DtStart)
+		r.PossessionStop.Scan(rsa[i].RS.DtStop)
 		r.Description.Scan("Vacant")
-		r.Users.Scan(rsa[i].UseStatusStringer())
-		r.Payors.Scan(rsa[i].LeaseStatusStringer())
-		r.UsePeriod = fmtRRDatePeriod(&rsa[i].DtStart, &rsa[i].DtStop)
+		r.Users.Scan(rsa[i].RS.UseStatusStringer())
+		r.Payors.Scan(rsa[i].RS.LeaseStatusStringer())
+		r.UsePeriod = fmtRRDatePeriod(&rsa[i].RS.DtStart, &rsa[i].RS.DtStop)
+		r.PeriodGSR.Scan(rlib.VacancyGSR(xbiz, rid, &rsa[i].RS.DtStart, &rsa[i].RS.DtStop))
+		r.IncomeOffsets.Scan(r.PeriodGSR.Float64) // TBD: Validate.  For now, just assume that they're equal
 		(*sl) = append((*sl), r)
 	}
 }

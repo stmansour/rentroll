@@ -303,23 +303,23 @@ J00000072   Payment - School of Construction   #6430  4200.00
             Accounts Receivable                                                     07/04/2016  RA00000001  6303-231         12000         -4,200.00
             Cash                                                                    07/04/2016  RA00000001  6303-231         10000          4,200.00
                                                                                                                                                     
-J00000075   Unassociated: 6303-231 vacant Jul 4 - Jul 5                                                                                             
-            Unit Gross Scheduled Rent-Taxable                                       07/04/2016  0           6303-231         41000            -76.00
-            Vacancy                                                                 07/04/2016  0           6303-231         41101             76.00
+J00000079   Unassociated: 6303-231 vacant Jul 1 - Aug 1                                                                                             
+            Unit Gross Scheduled Rent-Taxable                                       07/31/2016  0           6303-231         41000         -2,015.14
+            Vacancy                                                                 07/31/2016  0           6303-231         41101          2,015.14
                                                                                                                                                     
-J00000076   Unassociated: 6303-231 vacant Jul 7 - Jul 10                                                                                            
-            Unit Gross Scheduled Rent-Taxable                                       07/09/2016  0           6303-231         41000           -276.00
-            Vacancy                                                                 07/09/2016  0           6303-231         41101            276.00
+J00000080   Unassociated: 6323-301 vacant Jul 1 - Aug 1                                                                                             
+            Unit Gross Scheduled Rent-Taxable                                       07/31/2016  0           6323-301         41000           -755.00
+            Vacancy                                                                 07/31/2016  0           6323-301         41101            755.00
                                                                                                                                                     
-J00000077   Unassociated: 6303-231 vacant Jul 31 - Aug 1                                                                                            
-            Unit Gross Scheduled Rent-Taxable                                       07/31/2016  0           6303-231         41000            -56.87
-            Vacancy                                                                 07/31/2016  0           6303-231         41101             56.87
+J00000081   Unassociated: 6323-302 vacant Jul 1 - Aug 1                                                                                             
+            Unit Gross Scheduled Rent-Taxable                                       07/31/2016  0           6323-302         41000         -3,319.35
+            Vacancy                                                                 07/31/2016  0           6323-302         41101          3,319.35
                                                                                                                                                     
-J00000078   Unassociated: 6323-303 vacant Jul 4 - Jul 6                                                                                             
-            Unit Gross Scheduled Rent-Taxable                                       07/05/2016  0           6323-303         41000           -258.06
-            Vacancy                                                                 07/05/2016  0           6323-303         41101            258.06
+J00000082   Unassociated: 6323-303 vacant Jul 1 - Aug 1                                                                                             
+            Unit Gross Scheduled Rent-Taxable                                       07/31/2016  0           6323-303         41000         -3,319.35
+            Vacancy                                                                 07/31/2016  0           6323-303         41101          3,319.35
                                                                                                                                                     
-J00000079   Unassociated: 6323-303 vacant Jul 9 - Jul 12                                                                                            
-            Unit Gross Scheduled Rent-Taxable                                       07/11/2016  0           6323-303         41000           -309.68
-            Vacancy                                                                 07/11/2016  0           6323-303         41101            309.68
+J00000083   Unassociated: 6392-930 vacant Jul 1 - Aug 1                                                                                             
+            Unit Gross Scheduled Rent-Taxable                                       07/31/2016  0           6392-930         41000         -3,875.00
+            Vacancy                                                                 07/31/2016  0           6392-930         41101          3,875.00
                                                                                                                                                     

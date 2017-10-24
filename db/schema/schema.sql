@@ -1,4 +1,3 @@
--- Conventions used:
 --     Table names are all lower case
 --     Field names are camel case
 --     Money values are all stored as DECIMAL(19,4)
@@ -899,7 +898,7 @@ CREATE TABLE AR (
     CreditLID BIGINT NOT NULL DEFAULT 0,                    -- Ledger ID of crdit part
     Description VARCHAR(1024) NOT NULL DEFAULT '',
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- epoch date for recurring assessments; the date/time of the assessment for instances
-    DtStop DATETIME NOT NULL DEFAULT '2066-01-01 00:00:00', -- stop date for recurrent assessments; the date/time of the assessment for instances
+    DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00', -- stop date for recurrent assessments; the date/time of the assessment for instances
     FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement, 1<<2 = RAID required
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
