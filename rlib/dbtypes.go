@@ -92,7 +92,7 @@ const (
 	RENTABLESTATUSOFFLINE  = 5
 	RENTABLESTATUSLAST     = 5 // keep in sync with last
 
-	// USESTATUSadmin etc all Rentable Use Status
+	// USESTATUSunknown etc all Rentable Use Status
 	USESTATUSunknown            = 0
 	USESTATUSadmin              = 1
 	USESTATUSinService          = 2
