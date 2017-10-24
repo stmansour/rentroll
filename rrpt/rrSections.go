@@ -66,8 +66,8 @@ var RentableSectionFields = rlib.SelectQueryFields{
 	"Assessments.ASMID",
 	"Assessments.Amount AS AmountDue",
 	"AR.Name AS Description",
-	// "ReceiptAllocation.RCPAID",
-	"SUM(ReceiptAllocation.Amount) AS PaymentsApplied",
+	// GROUP_CONCAT(DISTINCT ReceiptAllocation.RCPAID SEPARATOR ', ') as ReceiptAllocationList,
+	"SUM(DISTINCT ReceiptAllocation.Amount) AS PaymentsApplied",
 }
 
 // RentableSectionQuery pulls out all rentable section records for given date range
@@ -126,18 +126,19 @@ FROM
     AR ON AR.ARID = Assessments.ARID
         LEFT JOIN
     ReceiptAllocation ON (ReceiptAllocation.RAID = RentalAgreement.RAID
+        AND ReceiptAllocation.ASMID = Assessments.ASMID
         AND @DtStart <= ReceiptAllocation.Dt
         AND ReceiptAllocation.Dt < @DtStop)
 WHERE
     {{.WhereClause}}
-GROUP BY Rentable.RID, RentalAgreement.RAID, Assessments.Amount DESC, ReceiptAllocation.RCPAID
+GROUP BY Rentable.RID, RentalAgreement.RAID, Assessments.ASMID
 ORDER BY {{.OrderClause}};`
 
 // RentableSectionQueryClause -- query clause for the RentableSectionQuery
 var RentableSectionQueryClause = rlib.QueryClause{
 	"SelectClause": strings.Join(RentableSectionFields, ","),
 	"WhereClause":  "Rentable.BID=%d",
-	"OrderClause":  "Rentable.RentableName, RentalAgreement.AgreementStart, RentalAgreement.AgreementStop",
+	"OrderClause":  "Rentable.RentableName, RentalAgreement.AgreementStart, RentalAgreement.AgreementStop, Assessments.Amount DESC, PaymentsApplied DESC",
 }
 
 // RentableSectionRowScan scans a result from sql row and dump it in a RentRollReportRow struct
@@ -183,9 +184,8 @@ var NoRentableSectionFields = rlib.SelectQueryFields{
 	"Assessments.ASMID",
 	"Assessments.Amount AS AmountDue",
 	"AR.Name AS Description",
-	// "ReceiptAllocation.RCPAID",
-	"SUM(ReceiptAllocation.Amount) AS PaymentsApplied",
-	// "GROUP_CONCAT(DISTINCT ReceiptAllocation.RCPAID SEPARATOR ', ') AS RCPAIDList",
+	// GROUP_CONCAT(DISTINCT ReceiptAllocation.RCPAID SEPARATOR ', ') as ReceiptAllocationList,
+	"SUM(DISTINCT ReceiptAllocation.Amount) AS PaymentsApplied",
 }
 
 // NoRentableSectionQuery - query execution plan for noRentable section
@@ -207,6 +207,7 @@ FROM
     RentalAgreementRentables ON (RentalAgreementRentables.RAID = RentalAgreement.RAID)
         LEFT JOIN
     Assessments ON (Assessments.RAID = RentalAgreement.RAID
+        AND Assessments.ASMID = ReceiptAllocation.ASMID
         AND (Assessments.FLAGS & 4) = 0
         AND Assessments.RID = 0
         AND @DtStart <= Assessments.Stop
@@ -218,8 +219,7 @@ FROM
     AR ON (AR.ARID = Assessments.ARID
         OR (AR.ARID = Receipt.ARID AND AR.FLAGS = 5))
 WHERE
-    @DtStart <= ReceiptAllocation.Dt
-        AND ReceiptAllocation.Dt < @DtStop AND Receipt.FLAGS & 4 = 0
+    {{.WhereClause}}
 GROUP BY RentalAgreement.RAID, Assessments.ASMID
 ORDER BY {{.OrderClause}};`
 
@@ -227,7 +227,7 @@ ORDER BY {{.OrderClause}};`
 var NoRentableSectionQueryClause = rlib.QueryClause{
 	"SelectClause": strings.Join(NoRentableSectionFields, ","),
 	"WhereClause":  "ReceiptAllocation.BID=%d AND Receipt.FLAGS&4=0 AND @DtStart <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < @DtStop AND (RentalAgreementRentables.RID=0 OR RentalAgreementRentables.RID IS NULL)",
-	"OrderClause":  "RentalAgreement.RAID, Assessments.Amount DESC",
+	"OrderClause":  "RentalAgreement.AgreementStart, RentalAgreement.AgreementStop, Assessments.Amount DESC, PaymentsApplied DESC",
 }
 
 // NoRentableSectionRowScan scans a result from sql row and dump it in a RentRollReportRow struct
@@ -777,6 +777,7 @@ func RRReportRows(BID int64,
 	if len(reportRows) > 0 {
 		grandTTL.Description.Scan("Grand Total")
 		reportRows = append(reportRows, grandTTL)
+		reportRows = append(reportRows, getGrandTotal(BID, startDt, stopDt))
 	}
 
 	return reportRows, err
@@ -1055,4 +1056,250 @@ func fmtRRDatePeriod(d1, d2 *time.Time) string {
 		return d1.Format(rlib.RRDATEFMT3) + "<br> - " + d2.Format(rlib.RRDATEFMT3)
 	}
 	return ""
+}
+
+// ==================================
+// RENTROLL GRAND TOTAL CALCULATIONS
+// ==================================
+
+// RentablesGrandTotalFields holds the list of fields needs to be
+// fetched by query
+var RentablesGrandTotalFields = rlib.SelectQueryFields{
+	"Rentable.RID",
+	"RentalAgreement.RAID",
+	"RentableMarketRate.MarketRate",
+	"Assessments.Amount",
+	"SUM(DISTINCT ReceiptAllocation.Amount) AS PaymentsApplied",
+}
+
+// RentablesGrandTotalQuery - the query execution plan for to calculate
+// grand total for rentable section
+var RentablesGrandTotalQuery = `
+SELECT
+    {{.SelectClause}}
+FROM Rentable
+        LEFT JOIN
+    RentableTypeRef ON RentableTypeRef.RID = Rentable.RID
+        LEFT JOIN
+    RentableMarketRate ON (RentableMarketRate.RTID = RentableTypeRef.RTID
+        AND @DtStart <= RentableMarketRate.DtStop
+        AND @DtStop > RentableMarketRate.DtStart)
+        LEFT JOIN
+    RentalAgreementRentables ON (RentalAgreementRentables.RID=Rentable.RID
+        AND @DtStart <= RentalAgreementRentables.RARDtStop
+        AND @DtStop > RentalAgreementRentables.RARDtStart)
+        LEFT JOIN
+    RentalAgreement ON (RentalAgreement.RAID = RentalAgreementRentables.RAID
+        AND @DtStart <= RentalAgreement.AgreementStop
+        AND @DtStop > RentalAgreement.AgreementStart)
+        LEFT JOIN
+    Assessments ON (Assessments.RAID = RentalAgreement.RAID
+        AND Assessments.RID = Rentable.RID
+        AND ReceiptAllocation.ASMID = Assessments.ASMID
+        AND (Assessments.FLAGS & 4) = 0
+        AND @DtStart <= Assessments.Start
+        AND @DtStop > Assessments.Stop
+        AND (Assessments.RentCycle = 0
+        OR (Assessments.RentCycle > 0
+        AND Assessments.PASMID != 0)))
+        LEFT JOIN
+    ReceiptAllocation ON (ReceiptAllocation.RAID = RentalAgreement.RAID
+        AND @DtStart <= ReceiptAllocation.Dt
+        AND ReceiptAllocation.Dt < @DtStop)
+WHERE
+    {{.WhereClause}}
+GROUP BY Rentable.RID, RentalAgreement.RAID, Assessments.ASMID
+ORDER BY {{.OrderClause}};`
+
+// RentablesGrandTotalQueryClause - the query clause for rentables Grand total query
+var RentablesGrandTotalQueryClause = rlib.QueryClause{
+	"SelectClause": strings.Join(RentablesGrandTotalFields, ", "),
+	"WhereClause":  "Rentable.BID=%d",
+	"OrderClause":  "Rentable.RID, RentalAgreement.AgreementStart, RentalAgreement.AgreementStop, Assessments.Amount DESC, PaymentsApplied DESC",
+}
+
+// NoRentablesGrandTotalFields holds the list of fields need to be fetched
+// by no rentable grand total query
+var NoRentablesGrandTotalFields = rlib.SelectQueryFields{
+	"RentalAgreement.RAID",
+	"Assessments.Amount",
+	"SUM(DISTINCT ReceiptAllocation.Amount) AS PaymentsApplied",
+}
+
+// NoRentablesGrandTotalQuery - the query for No Rentables Grand total
+var NoRentablesGrandTotalQuery = `
+SELECT DISTINCT
+    {{.SelectClause}}
+FROM
+    ReceiptAllocation
+        INNER JOIN
+    Receipt ON (Receipt.RCPTID = ReceiptAllocation.RCPTID
+        AND @DtStart <= Receipt.Dt
+        AND Receipt.Dt < @DtStop)
+        INNER JOIN
+    RentalAgreement ON (RentalAgreement.RAID = ReceiptAllocation.RAID
+        AND RentalAgreement.RAID > 0)
+        LEFT JOIN
+    RentalAgreementRentables ON (RentalAgreementRentables.RAID = RentalAgreement.RAID)
+        LEFT JOIN
+    Assessments ON (Assessments.RAID = RentalAgreement.RAID
+        AND Assessments.ASMID = ReceiptAllocation.ASMID
+        AND (Assessments.FLAGS & 4) = 0
+        AND Assessments.RID = 0
+        AND @DtStart <= Assessments.Stop
+        AND @DtStop > Assessments.Start
+        AND (Assessments.RentCycle = 0
+        OR (Assessments.RentCycle > 0
+        AND Assessments.PASMID != 0)))
+        LEFT JOIN
+    AR ON (AR.ARID = Assessments.ARID
+        OR (AR.ARID = Receipt.ARID AND AR.FLAGS = 5))
+WHERE
+    {{.WhereClause}}
+GROUP BY RentalAgreement.RAID, Assessments.ASMID
+ORDER BY {{.OrderClause}};`
+
+// NoRentablesGrandTotalQueryClause - query clause for no rentable grand total query
+var NoRentablesGrandTotalQueryClause = rlib.QueryClause{
+	"SelectClause": strings.Join(NoRentablesGrandTotalFields, ", "),
+	"WhereClause":  "ReceiptAllocation.BID=%d AND Receipt.FLAGS&4=0 AND @DtStart <= ReceiptAllocation.Dt AND ReceiptAllocation.Dt < @DtStop AND (RentalAgreementRentables.RID=0 OR RentalAgreementRentables.RID IS NULL)",
+	"OrderClause":  "RentalAgreement.AgreementStart, RentalAgreement.AgreementStop, Assessments.Amount DESC, PaymentsApplied DESC",
+}
+
+// getGrandTotal - calculates the grand total for rentroll report
+// for all rentables covered by start and stop date range
+func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollReportRow) {
+	const funcname = "getGrandTotal"
+	var (
+		err           error
+		d1Str         = startDt.Format(rlib.RRDATEFMTSQL)
+		d2Str         = stopDt.Format(rlib.RRDATEFMTSQL)
+		rentablesQC   = rlib.GetQueryClauseCopy(RentablesGrandTotalQueryClause)
+		noRentablesQC = rlib.GetQueryClauseCopy(NoRentablesGrandTotalQueryClause)
+	)
+
+	// mark some fields as true for grand total row
+	grandTTL.Description.Scan("Grand Total")
+	grandTTL.IsMainRow = true
+	grandTTL.IncomeOffsets.Valid = true // do we need this?
+	grandTTL.PeriodGSR.Valid = true     // do we need this?
+	grandTTL.AmountDue.Valid = true
+	grandTTL.PaymentsApplied.Valid = true
+
+	// -------------------------
+	// RENTABLES GRAND TOTAL
+	// -------------------------
+
+	// get formatted query for rentable grand total
+	rentablesQC["WhereClause"] = fmt.Sprintf(rentablesQC["WhereClause"], BID)
+	rentablesGTFmtQuery := rlib.RenderSQLQuery(RentablesGrandTotalQuery, rentablesQC)
+
+	// start transaction for rentable Grand Total
+	rentableSectionTx, err := rlib.RRdb.Dbrr.Begin()
+	if err != nil {
+		return
+	}
+	// NOW, set mysql variables for date values
+	if _, err = rentableSectionTx.Exec("SET @DtStart:=?", d1Str); err != nil {
+		rentableSectionTx.Rollback()
+		return
+	}
+	if _, err = rentableSectionTx.Exec("SET @DtStop:=?", d2Str); err != nil {
+		rentableSectionTx.Rollback()
+		return
+	}
+	// Now hit the query
+	rentableSectionRows, err := rentableSectionTx.Query(rentablesGTFmtQuery)
+	if err != nil {
+		rentableSectionTx.Rollback()
+		return
+	}
+	defer rentableSectionRows.Close()
+
+	// iterate through all rows
+	for rentableSectionRows.Next() {
+		var RID int64
+		var RAID rlib.NullInt64
+		var MR, AMT, PMT rlib.NullFloat64
+		rentableSectionRows.Scan(&RID, &RAID, &MR, &AMT, &PMT)
+		rlib.Console("\nRID: %d, RAID: %d, MR: %f, AMT: %f, PMT: %f\n", RID, RAID.Int64, MR.Float64, AMT.Float64, PMT.Float64)
+
+		// ===== some basic flat amount calculations ADDITION
+		grandTTL.AmountDue.Float64 += AMT.Float64
+		grandTTL.PaymentsApplied.Float64 += PMT.Float64
+		// grandTTL.PeriodGSR.Float64 += row.PeriodGSR.Float64
+		// grandTTL.IncomeOffsets.Float64 += row.IncomeOffsets.Float64
+	}
+
+	// check for any errors from row results
+	err = rentableSectionRows.Err()
+	if err != nil {
+		rentableSectionTx.Rollback()
+		return
+	}
+
+	// commit rentable Section Transaction, finally
+	if err = rentableSectionTx.Commit(); err != nil {
+		rentableSectionTx.Rollback()
+		return
+	}
+
+	// -------------------------
+	// NO RENTABLES GRAND TOTAL
+	// -------------------------
+
+	// get formatted query for rentable grand total
+	noRentablesQC["WhereClause"] = fmt.Sprintf(noRentablesQC["WhereClause"], BID)
+	noRentablesGTFmtQuery := rlib.RenderSQLQuery(NoRentablesGrandTotalQuery, noRentablesQC)
+
+	// start transaction for rentable Grand Total
+	noRentableSectionTx, err := rlib.RRdb.Dbrr.Begin()
+	if err != nil {
+		return
+	}
+	// NOW, set mysql variables for date values
+	if _, err = noRentableSectionTx.Exec("SET @DtStart:=?", d1Str); err != nil {
+		noRentableSectionTx.Rollback()
+		return
+	}
+	if _, err = noRentableSectionTx.Exec("SET @DtStop:=?", d2Str); err != nil {
+		noRentableSectionTx.Rollback()
+		return
+	}
+	// Now hit the query
+	noRentableSectionRows, err := noRentableSectionTx.Query(noRentablesGTFmtQuery)
+	if err != nil {
+		noRentableSectionTx.Rollback()
+		return
+	}
+	defer noRentableSectionRows.Close()
+
+	// iterate through all rows
+	for noRentableSectionRows.Next() {
+		var RAID rlib.NullInt64
+		var AMT, PMT rlib.NullFloat64
+		noRentableSectionRows.Scan(&RAID, &AMT, &PMT)
+		rlib.Console("\nRAID: %d, AMT: %f, PMT: %f\n", RAID.Int64, AMT.Float64, PMT.Float64)
+
+		// ===== some basic flat amount calculations ADDITION
+		grandTTL.AmountDue.Float64 += AMT.Float64
+		grandTTL.PaymentsApplied.Float64 += PMT.Float64
+		// grandTTL.PeriodGSR.Float64 += row.PeriodGSR.Float64
+		// grandTTL.IncomeOffsets.Float64 += row.IncomeOffsets.Float64
+	}
+
+	// check for any errors from row results
+	err = noRentableSectionRows.Err()
+	if err != nil {
+		noRentableSectionTx.Rollback()
+		return
+	}
+
+	// commit rentable Section Transaction, finally
+	if err = noRentableSectionTx.Commit(); err != nil {
+		noRentableSectionTx.Rollback()
+		return
+	}
+
+	return
 }
