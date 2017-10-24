@@ -582,9 +582,10 @@ func addSubTotalRowANDFormatChildRows(
 	rlib.Console("Entered in %s\n", funcname)
 
 	var (
-		err         error
+		// err         error
 		d70         = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 		subTotalRow = RentRollViewRow{BID: BID, IsSubTotalRow: true}
+		rarMap      = make(map[string]bool) // tells whether rentable and RA covered or not for rcv, secDep calculation
 	)
 
 	// mark some flag as valid (true)
@@ -598,6 +599,9 @@ func addSubTotalRowANDFormatChildRows(
 	subTotalRow.BeginningSecDep.Valid = true
 	subTotalRow.ChangeInSecDep.Valid = true
 	subTotalRow.EndingSecDep.Valid = true
+
+	// Description
+	subTotalRow.Description.Scan("Subtotal")
 
 	// loop through all rows belongs to a rentable
 	for i, rentableRow := range *subRows {
@@ -617,42 +621,57 @@ func addSubTotalRowANDFormatChildRows(
 			rentableRow.IsRentableMainRow = true
 			(*subRows)[0] = rentableRow
 		}
+
+		// balance and secDep calculation for Each Rentable and RA pair
+
+		// if mapKey isn't present in map then calculate bal, secDep calculation
+		mapKey := fmt.Sprintf("RID:%d|RAID:%d", rentableRow.RID.Int64, rentableRow.RAID)
+
+		if marked, ok := rarMap[mapKey]; !ok || !marked {
+			rarMap[mapKey] = true // mark the entry
+
+			// BeginningRcv, EndingRcv
+			if rentableRow.RAID == 0 && rentableRow.RID.Int64 == 0 {
+				rlib.Console("GetBeginEndRARBalance: BID=%d, RID=%d, RAID=%d, start/stop = %s - %s\n",
+					rentableRow.BID, rentableRow.RID, rentableRow.RAID,
+					startDt.Format(rlib.RRDATEFMTSQL), stopDt.Format(rlib.RRDATEFMTSQL))
+			}
+			beginningRcv, endingRcv, err :=
+				rlib.GetBeginEndRARBalance(rentableRow.BID, rentableRow.RID.Int64,
+					rentableRow.RAID, &startDt, &stopDt)
+			if err != nil {
+				rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
+			}
+
+			// ChangeInRcv
+			changeInRcv := (endingRcv - beginningRcv)
+
+			// BeginningSecDep
+			beginningSecDep, err := rlib.GetSecDepBalance(
+				rentableRow.BID, rentableRow.RAID, rentableRow.RID.Int64, &d70, &startDt)
+			if err != nil {
+				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
+			}
+
+			// Change in SecDep
+			changeInSecDep, err := rlib.GetSecDepBalance(
+				rentableRow.BID, rentableRow.RAID, rentableRow.RID.Int64, &startDt, &stopDt)
+			if err != nil {
+				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
+			}
+
+			// EndingSecDep
+			endingSecDep := (beginningSecDep + changeInSecDep)
+
+			// now add the figures to grand total row
+			subTotalRow.BeginningRcv.Float64 += beginningRcv
+			subTotalRow.EndingRcv.Float64 += endingRcv
+			subTotalRow.ChangeInRcv.Float64 += changeInRcv
+			subTotalRow.BeginningSecDep.Float64 += beginningSecDep
+			subTotalRow.EndingSecDep.Float64 += endingSecDep
+			subTotalRow.ChangeInSecDep.Float64 += changeInSecDep
+		}
 	}
-
-	// Description
-	subTotalRow.Description.Scan("Subtotal")
-
-	// BeginningRcv, EndingRcv
-	if subTotalRow.RAID == 0 && subTotalRow.RID.Int64 == 0 {
-		rlib.Console("GetBeginEndRARBalance: BID=%d, RID=%d, RAID=%d, start/stop = %s - %s\n", subTotalRow.BID, subTotalRow.RID,
-			subTotalRow.RAID, startDt.Format(rlib.RRDATEFMTSQL), stopDt.Format(rlib.RRDATEFMTSQL))
-	}
-	subTotalRow.BeginningRcv.Float64, subTotalRow.EndingRcv.Float64, err =
-		rlib.GetBeginEndRARBalance(subTotalRow.BID, subTotalRow.RID.Int64,
-			subTotalRow.RAID, &startDt, &stopDt)
-	if err != nil {
-		rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
-	}
-
-	// ChangeInRcv
-	subTotalRow.ChangeInRcv.Float64 = (subTotalRow.EndingRcv.Float64 - subTotalRow.BeginningRcv.Float64)
-
-	// BeginningSecDep
-	subTotalRow.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(
-		subTotalRow.BID, subTotalRow.RAID, subTotalRow.RID.Int64, &d70, &startDt)
-	if err != nil {
-		rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
-	}
-
-	// Change in SecDep
-	subTotalRow.ChangeInSecDep.Float64, err = rlib.GetSecDepBalance(
-		subTotalRow.BID, subTotalRow.RAID, subTotalRow.RID.Int64, &startDt, &stopDt)
-	if err != nil {
-		rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
-	}
-
-	// EndingSecDep
-	subTotalRow.EndingSecDep.Float64 = (subTotalRow.BeginningSecDep.Float64 + subTotalRow.ChangeInSecDep.Float64)
 
 	// append to subRows List
 	(*subRows) = append((*subRows), subTotalRow)
