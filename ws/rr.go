@@ -36,7 +36,6 @@ package ws
 //-----------------------------------------------------------------------------
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
@@ -53,20 +52,14 @@ type RRSearchResponse struct {
 	TotalMainRows int64                  `json:"total_main_rows"`
 }
 
-// RRRequeestData - struct for request data for parent-child fashioned rentroll report view
-type RRRequeestData struct {
-	RentableSectionOffset   int `json:"rentableSectionOffset"`
-	NoRentableSectionOffset int `json:"noRentableSectionOffset"`
-}
-
 // SvcRR is the response data for a RR Grid search - The Rent Roll View
 func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcRR"
 	var (
 		err     error
-		reqData RRRequeestData
 		g       RRSearchResponse
 		limit   = d.wsSearchReq.Limit
+		offset  = d.wsSearchReq.Offset
 		startDt = d.wsSearchReq.SearchDtStart
 		stopDt  = d.wsSearchReq.SearchDtStop
 	)
@@ -74,11 +67,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		limit = 20
 	}
 	rlib.Console("Entered %s\n", funcname)
-	if err = json.Unmarshal([]byte(d.data), &reqData); err != nil {
-		rlib.Console("Error while unmarshalling d.data: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
 
 	//===========================================================
 	// TOTAL RECORDS COUNT
@@ -93,10 +81,10 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	g.Total = rrViewRowsCount
 	g.Total += (totalRentables * 2) // for each rentable, we've subtotal and blank row
-	g.Total++                       // we'll have grand total row
+	// g.Total++                       // we'll have grand total row
 
 	g.TotalMainRows = rrViewMainRowsCount
-	g.TotalMainRows++ // we'll have grand total row
+	// g.TotalMainRows++ // we'll have grand total row
 
 	// ===========================
 	// WhereClauses, OrderClauses
@@ -107,7 +95,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rows, err := rrpt.GetRentRollViewRows(
 		d.BID, startDt, stopDt, // BID, startDate, stopDate
 		limit, // limit
-		rrWhere, rrOrder, reqData.RentableSectionOffset,
+		rrWhere, rrOrder, offset,
 	)
 
 	// assign recid and append to g.Records

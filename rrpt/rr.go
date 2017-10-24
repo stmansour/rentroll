@@ -11,6 +11,9 @@ import (
 	"time"
 )
 
+// customAttrRTSqft for rentabletypes
+const customAttrRTSqft = "Square Feet" // custom attribute for all rentables
+
 // RentRollViewSectionFieldsMap holds the map of field (alias)
 // to actual database field with table reference
 // It could refer multiple fields
@@ -184,48 +187,48 @@ var RentRollViewQueryClause = rlib.QueryClause{
 
 // RentRollViewRow represents the individual row record in rentroll view/report
 type RentRollViewRow struct {
-	Recid                  int64 `json:"recid"` // support for w2ui web service
-	BID                    int64
-	RID                    rlib.NullInt64
-	RentableName           rlib.NullString
-	RTID                   rlib.NullInt64
-	RentableType           rlib.NullString
-	Sqft                   rlib.NullInt64
-	RARID                  rlib.NullInt64 // rental agreement rentable id
-	RAID                   int64
-	RAIDStr                string // string representation of RAID
-	AgreementStart         rlib.JSONDate
-	AgreementStop          rlib.JSONDate
-	AgreementPeriod        string // string presentation of Agreement period
-	PossessionStart        rlib.JSONDate
-	PossessionStop         rlib.JSONDate
-	UsePeriod              string // string presentation of usage period
-	RentStart              rlib.JSONDate
-	RentStop               rlib.JSONDate
-	RentPeriod             string // string presentation of rent period
-	Status                 rlib.NullInt64
-	RentCycle              rlib.NullInt64
-	RentCycleStr           string // String representation of Rent Cycle
-	Payors                 string
-	Users                  rlib.NullString
-	GSR                    rlib.NullFloat64
-	PeriodGSR              rlib.NullFloat64
-	IncomeOffsets          rlib.NullFloat64
-	ASMID                  rlib.NullInt64
-	AmountDue              rlib.NullFloat64
-	PaymentsApplied        rlib.NullFloat64
-	Description            rlib.NullString  // Account rule Name - referred from Assessments/Receipt
-	BeginningRcv           rlib.NullFloat64 // Receivable amount at beginning period
-	ChangeInRcv            rlib.NullFloat64 // Change in receivable
-	EndingRcv              rlib.NullFloat64 // Ending receivable
-	BeginningSecDep        rlib.NullFloat64 // Beginning security deposit
-	ChangeInSecDep         rlib.NullFloat64 // Change in security deposit
-	EndingSecDep           rlib.NullFloat64 // Ending security deposit
-	IsMainRow              bool             // is main row
-	IsRentableMainRow      bool             // is rentable section main row which holds all static data
-	IsSubTotalRow          bool             // is sustotal row
-	IsBlankRow             bool             // is blank row
-	IsNoRentableSectionRow bool             // is "No Rentable" row
+	Recid             int64 `json:"recid"` // support for w2ui web service
+	BID               int64
+	RID               rlib.NullInt64
+	RentableName      rlib.NullString
+	RTID              rlib.NullInt64
+	RentableType      rlib.NullString
+	Sqft              rlib.NullInt64
+	RARID             rlib.NullInt64 // rental agreement rentable id
+	RAID              int64
+	RAIDStr           string // string representation of RAID
+	AgreementStart    rlib.JSONDate
+	AgreementStop     rlib.JSONDate
+	AgreementPeriod   string // string presentation of Agreement period
+	PossessionStart   rlib.JSONDate
+	PossessionStop    rlib.JSONDate
+	UsePeriod         string // string presentation of usage period
+	RentStart         rlib.JSONDate
+	RentStop          rlib.JSONDate
+	RentPeriod        string // string presentation of rent period
+	Status            rlib.NullInt64
+	RentCycle         rlib.NullInt64
+	RentCycleStr      string // String representation of Rent Cycle
+	Payors            string
+	Users             rlib.NullString
+	GSR               rlib.NullFloat64
+	PeriodGSR         rlib.NullFloat64
+	IncomeOffsets     rlib.NullFloat64
+	ASMID             rlib.NullInt64
+	AmountDue         rlib.NullFloat64
+	PaymentsApplied   rlib.NullFloat64
+	Description       rlib.NullString  // Account rule Name - referred from Assessments/Receipt
+	BeginningRcv      rlib.NullFloat64 // Receivable amount at beginning period
+	ChangeInRcv       rlib.NullFloat64 // Change in receivable
+	EndingRcv         rlib.NullFloat64 // Ending receivable
+	BeginningSecDep   rlib.NullFloat64 // Beginning security deposit
+	ChangeInSecDep    rlib.NullFloat64 // Change in security deposit
+	EndingSecDep      rlib.NullFloat64 // Ending security deposit
+	IsMainRow         bool             // is main row
+	IsRentableMainRow bool             // is rentable main row which holds all static data
+	IsSubTotalRow     bool             // is subtotal row
+	IsBlankRow        bool             // is blank row
+	IsRentRollViewRow bool             // is rentroll normal row fetched from database
 }
 
 // rentrollViewRowScan scans a result from sql row and dump it in a RentRollViewRow struct
@@ -323,20 +326,18 @@ func setRRDatePeriodString(r *RentRollViewRow, viewRows *[]RentRollViewRow) {
 	if len(*viewRows) < 1 {
 		return
 	}
+	/*if len(*viewRows) > 0 {
+		return
+	}*/
 
-	lastRow := &(*viewRows)[len(*viewRows)-1]
-	if lastRow.RAID != r.RAID {
-		r.AgreementPeriod = fmtRRDatePeriod((*time.Time)(&r.AgreementStart), (*time.Time)(&r.AgreementStop))
-		r.UsePeriod = fmtRRDatePeriod((*time.Time)(&r.PossessionStart), (*time.Time)(&r.PossessionStop))
-		r.RentPeriod = fmtRRDatePeriod((*time.Time)(&r.RentStart), (*time.Time)(&r.RentStop))
-	} else {
+	lastRow := (*viewRows)[len(*viewRows)-1]
+	if lastRow.RAID == r.RAID {
 		r.AgreementPeriod = ""
 		r.RentPeriod = ""
 		r.UsePeriod = ""
 		r.Payors = ""
 		r.Users.String = ""
 		r.Users.Valid = false
-		r.RentCycleStr = ""
 		r.RAIDStr = ""
 	}
 }
@@ -355,6 +356,7 @@ func formatRentableChildRow(r *RentRollViewRow) {
 	r.IsMainRow = false
 	r.GSR.Float64 = 0
 	r.GSR.Valid = false
+	r.RentCycleStr = ""
 }
 
 // GetRentRollViewRows - returns the list of rows for given date range with BID
@@ -369,7 +371,6 @@ func GetRentRollViewRows(BID int64,
 		err                 error
 		d1Str               = startDt.Format(rlib.RRDATEFMTSQL)
 		d2Str               = stopDt.Format(rlib.RRDATEFMTSQL)
-		customAttrRTSqft    = "Square Feet" // custom attribute for all rentables
 		xbiz                rlib.XBusiness
 		rrViewRows          = []RentRollViewRow{}               //
 		rentableRowsMap     = make(map[int64][]RentRollViewRow) // per rentable it will hold sublist of rows
@@ -426,11 +427,7 @@ func GetRentRollViewRows(BID int64,
 	for rrRows.Next() {
 		// just assume that it is MainRow, if later encountered that it is child row
 		// then "formatRentableChildRow" function would take care of it. :)
-		q := RentRollViewRow{
-			BID:               BID,
-			IsMainRow:         true,
-			IsRentableMainRow: true,
-		}
+		q := RentRollViewRow{BID: BID, IsRentRollViewRow: true}
 
 		// scan the database row
 		if err = rentrollViewRowScan(rrRows, &q); err != nil {
@@ -438,12 +435,20 @@ func GetRentRollViewRows(BID int64,
 		}
 
 		// format rental agreement
-		raidStr := int64ToStr(q.RAID, true)
-		raStr := ""
-		if len(raidStr) > 0 {
-			raStr = "RA-" + raidStr
+		if q.RAID > 0 {
+			raidStr := int64ToStr(q.RAID, true)
+			q.RAIDStr = "RA-" + raidStr
 		}
-		q.RAIDStr = raStr
+
+		if (time.Time)(q.RentStart).Year() > 1970 {
+			q.RentPeriod = fmtRRDatePeriod((*time.Time)(&q.RentStart), (*time.Time)(&q.RentStop))
+		}
+		if (time.Time)(q.PossessionStart).Year() > 1970 {
+			q.UsePeriod = fmtRRDatePeriod((*time.Time)(&q.PossessionStart), (*time.Time)(&q.PossessionStop))
+		}
+		if (time.Time)(q.AgreementStart).Year() > 1970 {
+			q.AgreementPeriod = fmtRRDatePeriod((*time.Time)(&q.AgreementStart), (*time.Time)(&q.AgreementStop))
+		}
 
 		// get current row RID
 		rowRID := q.RID.Int64
@@ -456,7 +461,8 @@ func GetRentRollViewRows(BID int64,
 					sqft, err := rlib.IntFromString(c.Value, "invalid customAttrRTSqft attribute")
 					q.Sqft.Scan(sqft)
 					if err != nil {
-						return rrViewRows, err
+						rlib.Console("%s: Error while scanning custom attribute sqft: %s\n", funcname, err.Error())
+						// return rrViewRows, err
 					}
 				}
 			}
@@ -530,32 +536,8 @@ func GetRentRollViewRows(BID int64,
 				(time.Time)(rentableSubList[j].PossessionStart))
 		})
 
-		// ------------------------
-		// SUBTOTAL ROW CALCULATION
-		// ------------------------
-
-		// after sorting, calculate subtotal and format RA period dates
-		subTotalRow := RentRollViewRow{BID: BID}
-		for i, rentableRow := range rentableSubList {
-			subTotalRow.AmountDue.Float64 += rentableRow.AmountDue.Float64
-			subTotalRow.PaymentsApplied.Float64 += rentableRow.PaymentsApplied.Float64
-			subTotalRow.PeriodGSR.Float64 += rentableRow.PeriodGSR.Float64
-			subTotalRow.IncomeOffsets.Float64 += rentableRow.IncomeOffsets.Float64
-
-			if i > 0 {
-				// format child row
-				formatRentableChildRow(&rentableRow)
-
-				// format RA period dates
-				setRRDatePeriodString(&rentableRow, &rrViewRows)
-			}
-		}
-
-		// now format sub total row
-		formatSubTotalRow(&subTotalRow, startDt, stopDt)
-
-		// now add calculated subtotal row
-		rentableSubList = append(rentableSubList, subTotalRow)
+		// add subtotal row and format child rows for this rentable
+		addSubTotalRowANDFormatChildRows(BID, &rentableSubList, startDt, stopDt, &rrViewRows)
 
 		// now add blankRow
 		rentableSubList = append(rentableSubList, RentRollViewRow{IsBlankRow: true})
@@ -568,6 +550,7 @@ func GetRentRollViewRows(BID int64,
 	// APPEND ALL NO RENTABLE ROWS
 	// ============================
 	for _, noRentableRow := range noRentableRows {
+		noRentableRow.IsMainRow = true
 		setRRDatePeriodString(&noRentableRow, &rrViewRows)
 		rrViewRows = append(rrViewRows, noRentableRow)
 	}
@@ -582,33 +565,57 @@ func GetRentRollViewRows(BID int64,
 	return rrViewRows, err
 }
 
-// formatSubTotalRow formats subtotal row by picking only meaningful
-// fields from RentRollViewRow struct
-func formatSubTotalRow(subTotalRow *RentRollViewRow, startDt, stopDt time.Time) {
-	const funcname = "formatSubTotalRow"
-	var (
-		err error
-		d70 = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
-	)
+// addSubTotalRowANDFormatChildRows - adds subtotal row for sublist belongs to a rentable
+// also formats child rows for a rentable
+func addSubTotalRowANDFormatChildRows(
+	BID int64,
+	subRows *[]RentRollViewRow,
+	startDt, stopDt time.Time,
+	viewRows *[]RentRollViewRow,
+) {
+	const funcname = "addSubTotalRowANDFormatChildRows"
 	rlib.Console("Entered in %s\n", funcname)
 
-	// mark flag
-	subTotalRow.IsSubTotalRow = true
+	var (
+		err         error
+		d70         = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+		subTotalRow = RentRollViewRow{BID: BID, IsSubTotalRow: true}
+	)
+
+	// mark some flag as valid (true)
+	subTotalRow.AmountDue.Valid = true
+	subTotalRow.PaymentsApplied.Valid = true
+	subTotalRow.PeriodGSR.Valid = true
+	subTotalRow.IncomeOffsets.Valid = true
+	subTotalRow.BeginningRcv.Valid = true
+	subTotalRow.ChangeInRcv.Valid = true
+	subTotalRow.EndingRcv.Valid = true
+	subTotalRow.BeginningSecDep.Valid = true
+	subTotalRow.ChangeInSecDep.Valid = true
+	subTotalRow.EndingSecDep.Valid = true
+
+	// loop through all rows belongs to a rentable
+	for i, rentableRow := range *subRows {
+		subTotalRow.AmountDue.Float64 += rentableRow.AmountDue.Float64
+		subTotalRow.PaymentsApplied.Float64 += rentableRow.PaymentsApplied.Float64
+		subTotalRow.PeriodGSR.Float64 += rentableRow.PeriodGSR.Float64
+		subTotalRow.IncomeOffsets.Float64 += rentableRow.IncomeOffsets.Float64
+
+		if i > 0 {
+			// format child row
+			formatRentableChildRow(&(*subRows)[i])
+
+			// format RA period dates
+			setRRDatePeriodString(&(*subRows)[i], viewRows)
+		} else {
+			rentableRow.IsMainRow = true
+			rentableRow.IsRentableMainRow = true
+			(*subRows)[0] = rentableRow
+		}
+	}
 
 	// Description
 	subTotalRow.Description.Scan("Subtotal")
-
-	// AmountDue
-	subTotalRow.AmountDue.Scan(subTotalRow.AmountDue.Float64)
-
-	// PaymentsApplied
-	subTotalRow.PaymentsApplied.Scan(subTotalRow.PaymentsApplied.Float64)
-
-	// PeriodGSR
-	subTotalRow.PeriodGSR.Scan(subTotalRow.PeriodGSR.Float64)
-
-	// IncomeOffsets
-	subTotalRow.IncomeOffsets.Scan(subTotalRow.IncomeOffsets.Float64)
 
 	// BeginningRcv, EndingRcv
 	if subTotalRow.RAID == 0 && subTotalRow.RID.Int64 == 0 {
@@ -620,21 +627,16 @@ func formatSubTotalRow(subTotalRow *RentRollViewRow, startDt, stopDt time.Time) 
 			subTotalRow.RAID, &startDt, &stopDt)
 	if err != nil {
 		rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
-	} else {
-		subTotalRow.BeginningRcv.Valid = true
-		subTotalRow.EndingRcv.Valid = true
 	}
 
 	// ChangeInRcv
-	subTotalRow.ChangeInRcv.Scan(subTotalRow.EndingRcv.Float64 - subTotalRow.BeginningRcv.Float64)
+	subTotalRow.ChangeInRcv.Float64 = (subTotalRow.EndingRcv.Float64 - subTotalRow.BeginningRcv.Float64)
 
 	// BeginningSecDep
 	subTotalRow.BeginningSecDep.Float64, err = rlib.GetSecDepBalance(
 		subTotalRow.BID, subTotalRow.RAID, subTotalRow.RID.Int64, &d70, &startDt)
 	if err != nil {
 		rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
-	} else {
-		subTotalRow.BeginningSecDep.Valid = true
 	}
 
 	// Change in SecDep
@@ -642,12 +644,13 @@ func formatSubTotalRow(subTotalRow *RentRollViewRow, startDt, stopDt time.Time) 
 		subTotalRow.BID, subTotalRow.RAID, subTotalRow.RID.Int64, &startDt, &stopDt)
 	if err != nil {
 		rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
-	} else {
-		subTotalRow.ChangeInSecDep.Valid = true
 	}
 
 	// EndingSecDep
-	subTotalRow.EndingSecDep.Scan(subTotalRow.BeginningSecDep.Float64 + subTotalRow.ChangeInSecDep.Float64)
+	subTotalRow.EndingSecDep.Float64 = (subTotalRow.BeginningSecDep.Float64 + subTotalRow.ChangeInSecDep.Float64)
+
+	// append to subRows List
+	(*subRows) = append((*subRows), subTotalRow)
 }
 
 // handleRentableGaps identifies periods during which the Rentable is not
@@ -675,6 +678,42 @@ func handleRentableGaps(xbiz *rlib.XBusiness, rid int64, sl *[]RentRollViewRow, 
 		}
 		rlib.Console("rsa[%d]: %s - %s, LeaseStatus=%d, UseStatus=%d\n", i, rsa[i].RS.DtStart.Format(rlib.RRDATEFMTSQL), rsa[i].RS.DtStop.Format(rlib.RRDATEFMTSQL), rsa[i].RS.LeaseStatus, rsa[i].RS.UseStatus)
 		var r RentRollViewRow
+
+		// get and feed rentable info
+		rentable := rlib.GetRentable(rsa[i].RS.RID)
+		r.RID.Scan(rentable.RID)
+		r.RentableName.Scan(rentable.RentableName)
+
+		// get rentabletype info and feed it
+		m := rlib.GetRentableTypeRefsByRange(r.RID.Int64, &d1, &d2)
+		if len(m) > 0 {
+			var rt rlib.RentableType
+			rlib.GetRentableType(m[0].RTID, &rt)
+			r.RTID.Scan(rt.RTID)
+			r.RentableType.Scan(rt.Name)
+			r.RentCycle.Scan(rt.RentCycle) // ? is it required
+			// Rent Cycle formatting
+			for freqStr, freqNo := range rlib.CycleFreqMap {
+				if r.RentCycle.Int64 == freqNo {
+					r.RentCycleStr = freqStr
+				}
+			}
+
+			// sqft
+			if len(rt.CA) > 0 { // if there are custom attributes
+				c, ok := rt.CA[customAttrRTSqft] // see if Square Feet is among them
+				if ok {                          // if it is...
+					sqft, err := rlib.IntFromString(c.Value, "invalid customAttrRTSqft attribute")
+					r.Sqft.Scan(sqft)
+					if err != nil {
+						rlib.Console("%s: Error while scanning sqft: %s\n", err.Error())
+					}
+				}
+			}
+			// market Rate GSR
+			r.GSR.Scan(rlib.GetRentableMarketRate(xbiz, &rentable, &d1, &d2))
+		}
+
 		r.PossessionStart = rlib.JSONDate(rsa[i].RS.DtStart)
 		r.PossessionStop = rlib.JSONDate(rsa[i].RS.DtStop)
 		r.Description.Scan("Vacant")
