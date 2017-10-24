@@ -1014,19 +1014,28 @@ var GrandTotalQueryClause = rlib.QueryClause{
 func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollViewRow, err error) {
 	const funcname = "getGrandTotal"
 	var (
-		d1Str = startDt.Format(rlib.RRDATEFMTSQL)
-		d2Str = stopDt.Format(rlib.RRDATEFMTSQL)
-		qc    = rlib.GetQueryClauseCopy(GrandTotalQueryClause)
+		d70    = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+		d1Str  = startDt.Format(rlib.RRDATEFMTSQL)
+		d2Str  = stopDt.Format(rlib.RRDATEFMTSQL)
+		qc     = rlib.GetQueryClauseCopy(GrandTotalQueryClause)
+		rarMap = make(map[string]bool) // tells whether rentable and RA covered or not for rcv, secDep calculation
 	)
 	rlib.Console("Entered in %s\n", funcname)
 
 	// mark some fields as true for grand total row
+	grandTTL.BID = BID
 	grandTTL.Description.Scan("Grand Total")
 	grandTTL.IsMainRow = true
 	grandTTL.IncomeOffsets.Valid = true // do we need this?
 	grandTTL.PeriodGSR.Valid = true     // do we need this?
 	grandTTL.AmountDue.Valid = true
 	grandTTL.PaymentsApplied.Valid = true
+	grandTTL.BeginningRcv.Valid = true
+	grandTTL.ChangeInRcv.Valid = true
+	grandTTL.EndingRcv.Valid = true
+	grandTTL.BeginningSecDep.Valid = true
+	grandTTL.ChangeInSecDep.Valid = true
+	grandTTL.EndingSecDep.Valid = true
 
 	// get formatted query for rentable grand total
 	fmtQuery := rlib.RenderSQLQuery(GrandTotalQuery, qc)
@@ -1072,6 +1081,46 @@ func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollViewR
 		grandTTL.PaymentsApplied.Float64 += PMT.Float64
 		// grandTTL.PeriodGSR.Float64 += row.PeriodGSR.Float64
 		// grandTTL.IncomeOffsets.Float64 += row.IncomeOffsets.Float64
+
+		// if mapKey isn't present in map then calculate bal, secDep calculation
+		mapKey := fmt.Sprintf("RID:%d|RAID:%d", RID.Int64, RAID)
+
+		if marked, ok := rarMap[mapKey]; !ok || !marked {
+			rarMap[mapKey] = true // mark the entry
+
+			// BeginningRcv, EndingRcv
+			beginningRcv, endingRcv, err :=
+				rlib.GetBeginEndRARBalance(BID, RID.Int64, RAID, &startDt, &stopDt)
+			if err != nil {
+				rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
+			}
+
+			// ChangeInRcv
+			changeInRcv := (endingRcv - beginningRcv)
+
+			// BeginningSecDep
+			beginningSecDep, err := rlib.GetSecDepBalance(BID, RAID, RID.Int64, &d70, &startDt)
+			if err != nil {
+				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
+			}
+
+			// Change in SecDep
+			changeInSecDep, err := rlib.GetSecDepBalance(BID, RAID, RID.Int64, &startDt, &stopDt)
+			if err != nil {
+				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
+			}
+
+			// EndingSecDep
+			endingSecDep := (beginningSecDep + changeInSecDep)
+
+			// now add the figures to grand total row
+			grandTTL.BeginningRcv.Float64 += beginningRcv
+			grandTTL.EndingRcv.Float64 += endingRcv
+			grandTTL.ChangeInRcv.Float64 += changeInRcv
+			grandTTL.BeginningSecDep.Float64 += beginningSecDep
+			grandTTL.EndingSecDep.Float64 += endingSecDep
+			grandTTL.ChangeInSecDep.Float64 += changeInSecDep
+		}
 	}
 
 	// check for any errors from row results
