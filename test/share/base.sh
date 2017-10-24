@@ -1231,6 +1231,21 @@ doCasperUITest () {
 	fi
 }
 
+#############################################################################
+# createDB
+#############################################################################
+function createDB() {
+	${RRBIN}/rrnewdb
+	if [ $? -eq 0 ]; then
+		echo " successful" >> ${LOGFILE} 2>&1
+	else
+		echo " ERROR" >> ${LOGFILE} 2>&1
+		echo "Failed to create new database" > ${ERRFILE}
+		cat ${ERRFILE}
+		failmsg
+		exit 1
+	fi
+}
 
 #--------------------------------------------------------------------------
 #  Handle command line options...
@@ -1281,18 +1296,9 @@ echo -n "Date/Time:    " >>${LOGFILE}
 date >> ${LOGFILE}
 echo >>${LOGFILE}
 
-echo -n "Create new database... " >> ${LOGFILE} 2>&1
 if [ ${CREATENEWDB} -eq 1 ]; then
-	${RRBIN}/rrnewdb
-fi
-if [ $? -eq 0 ]; then
-	echo " successful" >> ${LOGFILE} 2>&1
-else
-	echo " ERROR" >> ${LOGFILE} 2>&1
-	echo "Failed to create new database" > ${ERRFILE}
-	cat ${ERRFILE}
-	failmsg
-	exit 1
+	echo -n "Create new database... " >> ${LOGFILE} 2>&1
+	createDB
 fi
 
 

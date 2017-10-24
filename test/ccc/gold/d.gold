@@ -1,8 +1,8 @@
 CCC Depositories
 California Commerce Centr
 
-DEPID        BID        AccountNo    Name                     
------------  ---------  -----------  -------------------------
-DEP00000001  B00000001  80000171745  FRB Business Checking    
-DEP00000002  B00000001  80001184838  FRB Business Money Market
+DEPID        BID        AccountNo    Name                       GLAccount                           
+-----------  ---------  -----------  -------------------------  ------------------------------------
+DEP00000001  B00000001  80000171745  FRB Business Checking      41001 (Gross Scheduled Regular Dues)
+DEP00000002  B00000001  80001184838  FRB Business Money Market  41001 (Gross Scheduled Regular Dues)
 

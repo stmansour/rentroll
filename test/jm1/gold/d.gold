@@ -4,8 +4,8 @@ BH Rexford Group, Inc.
 Suite 301
 Austin, TX 78738 USA
 
-DEPID        BID        AccountNo  Name           
------------  ---------  ---------  ---------------
-DEP00000001  B00000001  987654321  Wells Fargo    
-DEP00000002  B00000001  012345678  Bank Of America
+DEPID        BID        AccountNo  Name             GLAccount                 
+-----------  ---------  ---------  ---------------  --------------------------
+DEP00000001  B00000001  987654321  Wells Fargo      10000 (Cash)              
+DEP00000002  B00000001  012345678  Bank Of America  41104 (Tenant Concessions)
 

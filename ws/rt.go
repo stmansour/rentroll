@@ -232,7 +232,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 		whr      = fmt.Sprintf(`RentableTypes.BID=%d
 				AND (RentableMarketRate.DtStart <= %q OR RentableMarketRate.DtStart IS NULL)
 				AND (RentableMarketRate.DtStop >%q OR RentableMarketRate.DtStop IS NULL)`,
-			d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
+			d.BID, d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL))
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -246,8 +246,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 	}
 
 	rentableTypeSearchQuery := `
-	SELECT
-		{{.SelectClause}}
+	SELECT {{.SelectClause}}
 	FROM RentableTypes
 	LEFT JOIN RentableMarketRate on RentableTypes.RTID=RentableMarketRate.RTID
 	WHERE {{.WhereClause}}

@@ -1,0 +1,13 @@
+CreateRentableType: line 2 - Stop date (1999-03-01 00:00:00 +0000 UTC) must be after Start date (2014-01-01 00:00:00 +0000 UTC)
+REX Rentable Types
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                                                           Manage                         
+                                Rent     Proration         To                             
+RTID        Style  Name         Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate
+----------  -----  -----------  -------  ---------  -----  ------  -----------------------
+RT00000001  Rex1   309 Rexford  monthly  daily      daily  Yes                            
+

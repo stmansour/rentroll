@@ -1,3 +1,4 @@
-Bud,Name,ARType,    DebitLID,CreditLID,Description
-REX,Rent,Assessment,10,       11,        Rent assessment, accrual based, manage to budget
-REX,FNB, Receipt,   1,        10,        payments that are deposited in First National Bank
+Bud,Name,ARType,    DebitLID,CreditLID,Allocated,RAIDRequired,Description,,
+REX,Rent,Assessment,10,11,FALSE,FALSE,        Rent assessment, accrual based, manage to budget
+REX,FNB, Receipt,1,10,FALSE,FALSE,        payments that are deposited in First National Bank,,
+,,,,,,,,,
