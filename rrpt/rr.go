@@ -72,7 +72,7 @@ var RentRollViewQuery = `
 SELECT
     {{.SelectClause}}
 FROM
-    (SELECT
+    ((SELECT
         RentalAgreement.BID,
             RentalAgreement.RAID,
             RentalAgreement.AgreementStart,
@@ -85,11 +85,17 @@ FROM
             Rentable.RentableName,
             RentalAgreementRentables.RARID
     FROM
-        RentalAgreement
-    RIGHT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RAID = RentalAgreement.RAID
+        Rentable
+    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = Rentable.BID
+        AND RentalAgreementRentables.RID = Rentable.RID
         AND @DtStart <= RentalAgreementRentables.RARDtStop
         AND @DtStop > RentalAgreementRentables.RARDtStart)
-    RIGHT JOIN Rentable ON Rentable.RID = RentalAgreementRentables.RID UNION SELECT
+    LEFT JOIN RentalAgreement ON (RentalAgreement.BID = RentalAgreementRentables.BID
+        AND RentalAgreement.RAID = RentalAgreementRentables.RAID
+        AND @DtStart <= RentalAgreement.AgreementStop
+        AND @DtStop > RentalAgreement.AgreementStart)
+    WHERE
+        Rentable.BID = @BID) UNION (SELECT
         RentalAgreement.BID,
             RentalAgreement.RAID,
             RentalAgreement.AgreementStart,
@@ -98,16 +104,20 @@ FROM
             RentalAgreement.PossessionStop,
             RentalAgreement.RentStart,
             RentalAgreement.RentStop,
-            NULL,
-            NULL,
+            NULL AS RID,
+            NULL AS RentableName,
             RentalAgreementRentables.RARID
     FROM
         RentalAgreement
-    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RAID = RentalAgreement.RAID
+    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = RentalAgreement.BID
+        AND RentalAgreementRentables.RAID = RentalAgreement.RAID
         AND @DtStart <= RentalAgreementRentables.RARDtStop
         AND @DtStop > RentalAgreementRentables.RARDtStart)
     WHERE
-        RentalAgreementRentables.RAID IS NULL) AS Rentable_CUM_RA
+        RentalAgreement.BID = @BID
+            AND RentalAgreementRentables.RAID IS NULL
+            AND @DtStart <= RentalAgreement.AgreementStop
+            AND @DtStop > RentalAgreement.AgreementStart)) AS Rentable_CUM_RA
         LEFT JOIN
     RentalAgreementPayors ON (Rentable_CUM_RA.RAID = RentalAgreementPayors.RAID
         AND Rentable_CUM_RA.BID = RentalAgreementPayors.BID
@@ -118,7 +128,7 @@ FROM
         AND Payor.BID = Rentable_CUM_RA.BID)
         LEFT JOIN
     RentableTypeRef ON (RentableTypeRef.RID = Rentable_CUM_RA.RID
-        AND RentableTypeRef.BID=Rentable_CUM_RA.BID)
+        AND RentableTypeRef.BID = Rentable_CUM_RA.BID)
         LEFT JOIN
     RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
         AND RentableTypes.BID = RentableTypeRef.BID)
@@ -154,7 +164,7 @@ FROM
         ELSE 0
     END)
         LEFT JOIN
-    AR as ASMAR ON (ASMAR.ARID=Assessments.ARID
+    AR AS ASMAR ON (ASMAR.ARID = Assessments.ARID
         AND ASMAR.BID = Assessments.BID)
         LEFT JOIN
     Receipt ON (Receipt.RAID = Rentable_CUM_RA.RAID
@@ -163,24 +173,34 @@ FROM
         AND @DtStart <= Receipt.Dt
         AND Receipt.Dt < @DtStop)
         LEFT JOIN
-    AR as RCPTAR ON (RCPTAR.ARID=Receipt.ARID
+    AR AS RCPTAR ON (RCPTAR.ARID = Receipt.ARID
         AND RCPTAR.BID = Receipt.BID)
         LEFT JOIN
     ReceiptAllocation ON (ReceiptAllocation.RCPTID = Receipt.RCPTID
         AND ReceiptAllocation.BID = Receipt.BID
         AND ReceiptAllocation.RAID = Rentable_CUM_RA.RAID
-        AND (CASE WHEN ReceiptAllocation.ASMID > 0 THEN ReceiptAllocation.ASMID = Assessments.ASMID ELSE 1 END)
+        AND (CASE
+        WHEN ReceiptAllocation.ASMID > 0 THEN ReceiptAllocation.ASMID = Assessments.ASMID
+        ELSE 1
+    END)
         AND @DtStart <= ReceiptAllocation.Dt
         AND ReceiptAllocation.Dt < @DtStop)
-WHERE {{.WhereClause}}
 GROUP BY {{.GroupClause}}
 ORDER BY {{.OrderClause}};`
+
+/*
++------+---------------------------------------------+
+| NOTE | Need to take care about search operation    |
+|      | As currently, we don't have the whereClause |
+|      | (not required) in the viewQuery             |
++------+---------------------------------------------+
+*/
 
 // RentRollViewQueryClause - the query clause for RentRoll View
 // helpful when user wants custom sorting, searching within API
 var RentRollViewQueryClause = rlib.QueryClause{
 	"SelectClause": strings.Join(RentRollViewFields, ","),
-	"WhereClause":  "Rentable_CUM_RA.BID = @BID AND @DtStart <= Rentable_CUM_RA.AgreementStop AND @DtStop > Rentable_CUM_RA.AgreementStart",
+	"WhereClause":  "",
 	"GroupClause":  "Rentable_CUM_RA.RID, Rentable_CUM_RA.RAID, (CASE WHEN Assessments.ASMID > 0 THEN Assessments.ASMID ELSE ReceiptAllocation.RCPAID END)",
 	"OrderClause":  "-Rentable_CUM_RA.RID DESC, -Rentable_CUM_RA.RAID DESC, (CASE WHEN Assessments.ASMID > 0 THEN Assessments.Amount ELSE ReceiptAllocation.Amount END) DESC",
 }
@@ -195,21 +215,21 @@ type RentRollViewRow struct {
 	RentableType      rlib.NullString
 	Sqft              rlib.NullInt64
 	RARID             rlib.NullInt64 // rental agreement rentable id
-	RAID              int64
-	RAIDStr           string // string representation of RAID
-	AgreementStart    rlib.JSONDate
-	AgreementStop     rlib.JSONDate
+	RAID              rlib.NullInt64 // if no RA during time period then
+	RAIDStr           string         // string representation of RAID
+	AgreementStart    rlib.NullDate
+	AgreementStop     rlib.NullDate
 	AgreementPeriod   string // string presentation of Agreement period
-	PossessionStart   rlib.JSONDate
-	PossessionStop    rlib.JSONDate
+	PossessionStart   rlib.NullDate
+	PossessionStop    rlib.NullDate
 	UsePeriod         string // string presentation of usage period
-	RentStart         rlib.JSONDate
-	RentStop          rlib.JSONDate
+	RentStart         rlib.NullDate
+	RentStop          rlib.NullDate
 	RentPeriod        string // string presentation of rent period
 	Status            rlib.NullInt64
 	RentCycle         rlib.NullInt64
-	RentCycleStr      string // String representation of Rent Cycle
-	Payors            string
+	RentCycleStr      string          // String representation of Rent Cycle
+	Payors            rlib.NullString // what happens if during time period, its on vacant
 	Users             rlib.NullString
 	GSR               rlib.NullFloat64
 	PeriodGSR         rlib.NullFloat64
@@ -331,11 +351,12 @@ func setRRDatePeriodString(r *RentRollViewRow, viewRows *[]RentRollViewRow) {
 	}*/
 
 	lastRow := (*viewRows)[len(*viewRows)-1]
-	if lastRow.RAID == r.RAID {
+	if lastRow.RAID.Int64 == r.RAID.Int64 {
 		r.AgreementPeriod = ""
 		r.RentPeriod = ""
 		r.UsePeriod = ""
-		r.Payors = ""
+		r.Payors.String = ""
+		r.Payors.Valid = false
 		r.Users.String = ""
 		r.Users.Valid = false
 		r.RAIDStr = ""
@@ -435,19 +456,19 @@ func GetRentRollViewRows(BID int64,
 		}
 
 		// format rental agreement
-		if q.RAID > 0 {
-			raidStr := int64ToStr(q.RAID, true)
+		if q.RAID.Int64 > 0 && q.RAID.Valid {
+			raidStr := int64ToStr(q.RAID.Int64, true)
 			q.RAIDStr = "RA-" + raidStr
 		}
 
-		if (time.Time)(q.RentStart).Year() > 1970 {
-			q.RentPeriod = fmtRRDatePeriod((*time.Time)(&q.RentStart), (*time.Time)(&q.RentStop))
+		if q.RentStart.Time.Year() > 1970 {
+			q.RentPeriod = fmtRRDatePeriod(&q.RentStart.Time, &q.RentStop.Time)
 		}
-		if (time.Time)(q.PossessionStart).Year() > 1970 {
-			q.UsePeriod = fmtRRDatePeriod((*time.Time)(&q.PossessionStart), (*time.Time)(&q.PossessionStop))
+		if q.PossessionStart.Time.Year() > 1970 {
+			q.UsePeriod = fmtRRDatePeriod(&q.PossessionStart.Time, &q.PossessionStop.Time)
 		}
-		if (time.Time)(q.AgreementStart).Year() > 1970 {
-			q.AgreementPeriod = fmtRRDatePeriod((*time.Time)(&q.AgreementStart), (*time.Time)(&q.AgreementStop))
+		if q.AgreementStart.Time.Year() > 1970 {
+			q.AgreementPeriod = fmtRRDatePeriod(&q.AgreementStart.Time, &q.AgreementStop.Time)
 		}
 
 		// get current row RID
@@ -525,15 +546,15 @@ func GetRentRollViewRows(BID int64,
 
 		// sort the list of all rows per rentable
 		sort.Slice(rentableSubList, func(i, j int) bool {
-			if (time.Time)(rentableSubList[i].PossessionStart).Equal(
-				(time.Time)(rentableSubList[j].PossessionStart)) {
+			if rentableSubList[i].PossessionStart.Time.Equal(
+				rentableSubList[j].PossessionStart.Time) {
 				if rentableSubList[i].AmountDue.Float64 == rentableSubList[j].AmountDue.Float64 {
 					return rentableSubList[i].PaymentsApplied.Float64 > rentableSubList[j].PaymentsApplied.Float64 // descending order
 				}
 				return rentableSubList[i].AmountDue.Float64 > rentableSubList[j].AmountDue.Float64 // descending order
 			}
-			return (time.Time)(rentableSubList[i].PossessionStart).Before(
-				(time.Time)(rentableSubList[j].PossessionStart))
+			return rentableSubList[i].PossessionStart.Time.Before(
+				rentableSubList[j].PossessionStart.Time)
 		})
 
 		// add subtotal row and format child rows for this rentable
@@ -625,20 +646,20 @@ func addSubTotalRowANDFormatChildRows(
 		// balance and secDep calculation for Each Rentable and RA pair
 
 		// if mapKey isn't present in map then calculate bal, secDep calculation
-		mapKey := fmt.Sprintf("RID:%d|RAID:%d", rentableRow.RID.Int64, rentableRow.RAID)
+		mapKey := fmt.Sprintf("RID:%d|RAID:%d", rentableRow.RID.Int64, rentableRow.RAID.Int64)
 
 		if marked, ok := rarMap[mapKey]; !ok || !marked {
 			rarMap[mapKey] = true // mark the entry
 
 			// BeginningRcv, EndingRcv
-			if rentableRow.RAID == 0 && rentableRow.RID.Int64 == 0 {
+			if rentableRow.RAID.Int64 == 0 && rentableRow.RID.Int64 == 0 {
 				rlib.Console("GetBeginEndRARBalance: BID=%d, RID=%d, RAID=%d, start/stop = %s - %s\n",
-					rentableRow.BID, rentableRow.RID, rentableRow.RAID,
+					rentableRow.BID, rentableRow.RID.Int64, rentableRow.RAID.Int64,
 					startDt.Format(rlib.RRDATEFMTSQL), stopDt.Format(rlib.RRDATEFMTSQL))
 			}
 			beginningRcv, endingRcv, err :=
 				rlib.GetBeginEndRARBalance(rentableRow.BID, rentableRow.RID.Int64,
-					rentableRow.RAID, &startDt, &stopDt)
+					rentableRow.RAID.Int64, &startDt, &stopDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
 			}
@@ -648,14 +669,14 @@ func addSubTotalRowANDFormatChildRows(
 
 			// BeginningSecDep
 			beginningSecDep, err := rlib.GetSecDepBalance(
-				rentableRow.BID, rentableRow.RAID, rentableRow.RID.Int64, &d70, &startDt)
+				rentableRow.BID, rentableRow.RAID.Int64, rentableRow.RID.Int64, &d70, &startDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 			}
 
 			// Change in SecDep
 			changeInSecDep, err := rlib.GetSecDepBalance(
-				rentableRow.BID, rentableRow.RAID, rentableRow.RID.Int64, &startDt, &stopDt)
+				rentableRow.BID, rentableRow.RAID.Int64, rentableRow.RID.Int64, &startDt, &stopDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 			}
@@ -685,8 +706,8 @@ func handleRentableGaps(xbiz *rlib.XBusiness, rid int64, sl *[]RentRollViewRow, 
 	var a = []rlib.Period{}
 	for i := 0; i < len(*sl); i++ {
 		var p = rlib.Period{
-			D1: (time.Time)((*sl)[i].PossessionStart),
-			D2: (time.Time)((*sl)[i].PossessionStop),
+			D1: (*sl)[i].PossessionStart.Time,
+			D2: (*sl)[i].PossessionStop.Time,
 		}
 		a = append(a, p)
 		rlib.Console("SEARCH FOR GAPS: added %s - %s\n", p.D1.Format(rlib.RRDATEFMTSQL), p.D2.Format(rlib.RRDATEFMTSQL))
@@ -738,11 +759,11 @@ func handleRentableGaps(xbiz *rlib.XBusiness, rid int64, sl *[]RentRollViewRow, 
 			r.GSR.Scan(rlib.GetRentableMarketRate(xbiz, &rentable, &d1, &d2))
 		}
 
-		r.PossessionStart = rlib.JSONDate(rsa[i].RS.DtStart)
-		r.PossessionStop = rlib.JSONDate(rsa[i].RS.DtStop)
+		r.PossessionStart.Scan(rsa[i].RS.DtStart)
+		r.PossessionStop.Scan(rsa[i].RS.DtStop)
 		r.Description.Scan("Vacant")
 		r.Users.Scan(rsa[i].RS.UseStatusStringer())
-		r.Payors = rsa[i].RS.LeaseStatusStringer()
+		r.Payors.Scan(rsa[i].RS.LeaseStatusStringer())
 		r.UsePeriod = fmtRRDatePeriod(&rsa[i].RS.DtStart, &rsa[i].RS.DtStop)
 		r.PeriodGSR.Scan(rlib.VacancyGSR(xbiz, rid, &rsa[i].RS.DtStart, &rsa[i].RS.DtStop))
 		r.IncomeOffsets.Scan(r.PeriodGSR.Float64) // TBD: Validate.  For now, just assume that they're equal
@@ -869,7 +890,7 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollViewRow) {
 	tbl.Puts(-1, SqFt, int64ToStr(q.Sqft.Int64, true))
 	tbl.Puts(-1, Descr, q.Description.String)
 	tbl.Puts(-1, Users, q.Users.String)
-	tbl.Puts(-1, Payors, q.Payors)
+	tbl.Puts(-1, Payors, q.Payors.String)
 	tbl.Puts(-1, RAgr, q.RAIDStr)
 	tbl.Puts(-1, UsePeriod, q.UsePeriod)
 	tbl.Puts(-1, RentPeriod, q.RentPeriod)
@@ -945,7 +966,7 @@ var GrandTotalQuery = `
 SELECT
     {{.SelectClause}}
 FROM
-    (SELECT
+    ((SELECT
         RentalAgreement.BID,
             RentalAgreement.RAID,
             RentalAgreement.AgreementStart,
@@ -958,11 +979,17 @@ FROM
             Rentable.RentableName,
             RentalAgreementRentables.RARID
     FROM
-        RentalAgreement
-    RIGHT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RAID = RentalAgreement.RAID
+        Rentable
+    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = Rentable.BID
+        AND RentalAgreementRentables.RID = Rentable.RID
         AND @DtStart <= RentalAgreementRentables.RARDtStop
         AND @DtStop > RentalAgreementRentables.RARDtStart)
-    RIGHT JOIN Rentable ON Rentable.RID = RentalAgreementRentables.RID UNION SELECT
+    LEFT JOIN RentalAgreement ON (RentalAgreement.BID = RentalAgreementRentables.BID
+        AND RentalAgreement.RAID = RentalAgreementRentables.RAID
+        AND @DtStart <= RentalAgreement.AgreementStop
+        AND @DtStop > RentalAgreement.AgreementStart)
+    WHERE
+        Rentable.BID = @BID) UNION (SELECT
         RentalAgreement.BID,
             RentalAgreement.RAID,
             RentalAgreement.AgreementStart,
@@ -971,19 +998,23 @@ FROM
             RentalAgreement.PossessionStop,
             RentalAgreement.RentStart,
             RentalAgreement.RentStop,
-            NULL,
-            NULL,
+            NULL AS RID,
+            NULL AS RentableName,
             RentalAgreementRentables.RARID
     FROM
         RentalAgreement
-    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.RAID = RentalAgreement.RAID
+    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = RentalAgreement.BID
+        AND RentalAgreementRentables.RAID = RentalAgreement.RAID
         AND @DtStart <= RentalAgreementRentables.RARDtStop
         AND @DtStop > RentalAgreementRentables.RARDtStart)
     WHERE
-        RentalAgreementRentables.RAID IS NULL) AS Rentable_CUM_RA
+        RentalAgreement.BID = @BID
+            AND RentalAgreementRentables.RAID IS NULL
+            AND @DtStart <= RentalAgreement.AgreementStop
+            AND @DtStop > RentalAgreement.AgreementStart)) AS Rentable_CUM_RA
         LEFT JOIN
     RentableTypeRef ON (RentableTypeRef.RID = Rentable_CUM_RA.RID
-        AND RentableTypeRef.BID=Rentable_CUM_RA.BID)
+        AND RentableTypeRef.BID = Rentable_CUM_RA.BID)
         LEFT JOIN
     RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
         AND RentableTypes.BID = RentableTypeRef.BID)
@@ -1000,7 +1031,10 @@ FROM
         AND (Assessments.RentCycle = 0
         OR (Assessments.RentCycle > 0
         AND Assessments.PASMID != 0))
-        AND (CASE WHEN Rentable_CUM_RA.RID > 0 THEN Assessments.RID = Rentable_CUM_RA.RID ELSE 1 END)
+        AND (CASE
+        WHEN Rentable_CUM_RA.RID > 0 THEN Assessments.RID = Rentable_CUM_RA.RID
+        ELSE 1
+    END)
         AND (Assessments.FLAGS & 4) = 0)
         LEFT JOIN
     Receipt ON (Receipt.RAID = Rentable_CUM_RA.RAID
@@ -1012,18 +1046,19 @@ FROM
     ReceiptAllocation ON (ReceiptAllocation.RCPTID = Receipt.RCPTID
         AND ReceiptAllocation.BID = Receipt.BID
         AND ReceiptAllocation.RAID = Rentable_CUM_RA.RAID
-        AND (CASE WHEN ReceiptAllocation.ASMID > 0 THEN ReceiptAllocation.ASMID = Assessments.ASMID ELSE 1 END)
+        AND (CASE
+        WHEN ReceiptAllocation.ASMID > 0 THEN ReceiptAllocation.ASMID = Assessments.ASMID
+        ELSE 1
+    END)
         AND @DtStart <= ReceiptAllocation.Dt
         AND ReceiptAllocation.Dt < @DtStop)
-WHERE
-    {{.WhereClause}}
 GROUP BY {{.GroupClause}}
 ORDER BY {{.OrderClause}};`
 
 // GrandTotalQueryClause - the query clause for rentables Grand total query
 var GrandTotalQueryClause = rlib.QueryClause{
 	"SelectClause": strings.Join(GrandTotalFields, ", "),
-	"WhereClause":  "Rentable_CUM_RA.BID = @BID AND @DtStart <= Rentable_CUM_RA.AgreementStop AND @DtStop > Rentable_CUM_RA.AgreementStart",
+	"WhereClause":  "",
 	"GroupClause":  "Rentable_CUM_RA.RID , Rentable_CUM_RA.RAID",
 	"OrderClause":  "- Rentable_CUM_RA.RID DESC , - Rentable_CUM_RA.RAID DESC",
 }
@@ -1089,11 +1124,11 @@ func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollViewR
 
 	// iterate through all rows
 	for rows.Next() {
-		var RID rlib.NullInt64
-		var RAID int64
+		var RID, RAID rlib.NullInt64
 		var MR, AMT, PMT rlib.NullFloat64
 		rows.Scan(&RID, &RAID, &MR, &AMT, &PMT)
-		rlib.Console("\nRID: %d, RAID: %d, MR: %f, AMT: %f, PMT: %f\n", RID.Int64, RAID, MR.Float64, AMT.Float64, PMT.Float64)
+		rlib.Console("\nRID: %d, RAID: %d, MR: %f, AMT: %f, PMT: %f\n",
+			RID.Int64, RAID.Int64, MR.Float64, AMT.Float64, PMT.Float64)
 
 		// ===== some basic flat amount calculations ADDITION
 		grandTTL.AmountDue.Float64 += AMT.Float64
@@ -1102,14 +1137,14 @@ func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollViewR
 		// grandTTL.IncomeOffsets.Float64 += row.IncomeOffsets.Float64
 
 		// if mapKey isn't present in map then calculate bal, secDep calculation
-		mapKey := fmt.Sprintf("RID:%d|RAID:%d", RID.Int64, RAID)
+		mapKey := fmt.Sprintf("RID:%d|RAID:%d", RID.Int64, RAID.Int64)
 
 		if marked, ok := rarMap[mapKey]; !ok || !marked {
 			rarMap[mapKey] = true // mark the entry
 
 			// BeginningRcv, EndingRcv
 			beginningRcv, endingRcv, err :=
-				rlib.GetBeginEndRARBalance(BID, RID.Int64, RAID, &startDt, &stopDt)
+				rlib.GetBeginEndRARBalance(BID, RID.Int64, RAID.Int64, &startDt, &stopDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
 			}
@@ -1118,13 +1153,13 @@ func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollViewR
 			changeInRcv := (endingRcv - beginningRcv)
 
 			// BeginningSecDep
-			beginningSecDep, err := rlib.GetSecDepBalance(BID, RAID, RID.Int64, &d70, &startDt)
+			beginningSecDep, err := rlib.GetSecDepBalance(BID, RAID.Int64, RID.Int64, &d70, &startDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 			}
 
 			// Change in SecDep
-			changeInSecDep, err := rlib.GetSecDepBalance(BID, RAID, RID.Int64, &startDt, &stopDt)
+			changeInSecDep, err := rlib.GetSecDepBalance(BID, RAID.Int64, RID.Int64, &startDt, &stopDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 			}
