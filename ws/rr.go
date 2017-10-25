@@ -36,26 +36,20 @@ package ws
 //-----------------------------------------------------------------------------
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
 	"rentroll/rrpt"
+	"strings"
 	"time"
 )
 
 // RRSearchResponse is the response data for a Rental Agreement Search
 type RRSearchResponse struct {
-	Status        string                   `json:"status"`
-	Total         int64                    `json:"total"`
-	Records       []rrpt.RentRollReportRow `json:"records"`
-	TotalMainRows int64                    `json:"total_main_rows"`
-}
-
-// RRRequeestData - struct for request data for parent-child fashioned rentroll report view
-type RRRequeestData struct {
-	RentableSectionOffset   int `json:"rentableSectionOffset"`
-	NoRentableSectionOffset int `json:"noRentableSectionOffset"`
+	Status        string                 `json:"status"`
+	Total         int64                  `json:"total"`
+	Records       []rrpt.RentRollViewRow `json:"records"`
+	TotalMainRows int64                  `json:"total_main_rows"`
 }
 
 // SvcRR is the response data for a RR Grid search - The Rent Roll View
@@ -63,9 +57,9 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcRR"
 	var (
 		err     error
-		reqData RRRequeestData
 		g       RRSearchResponse
 		limit   = d.wsSearchReq.Limit
+		offset  = d.wsSearchReq.Offset
 		startDt = d.wsSearchReq.SearchDtStart
 		stopDt  = d.wsSearchReq.SearchDtStop
 	)
@@ -73,44 +67,35 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		limit = 20
 	}
 	rlib.Console("Entered %s\n", funcname)
-	if err = json.Unmarshal([]byte(d.data), &reqData); err != nil {
-		rlib.Console("Error while unmarshalling d.data: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
-		return
-	}
 
 	//===========================================================
 	// TOTAL RECORDS COUNT
 	//===========================================================
-	rentableSectionCount, noRentableSectionCount, totalRentables, err := getRRTotal(d.BID, startDt, stopDt)
+	rrViewRowsCount, rrViewMainRowsCount, totalRentables, err := getRRTotal(d.BID, startDt, stopDt)
 	if err != nil {
 		rlib.Console("Error from getRRTotal routine: %s", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	rlib.Console("rentableSectionCount = %d, noRentableSectionCount = %d\n", rentableSectionCount, noRentableSectionCount)
+	rlib.Console("rrViewRowsCount = %d, rrViewMainRowsCount = %d\n", rrViewRowsCount, rrViewMainRowsCount)
 
-	g.Total = rentableSectionCount
+	g.Total = rrViewRowsCount
 	g.Total += (totalRentables * 2) // for each rentable, we've subtotal and blank row
-	g.Total += noRentableSectionCount
-	g.Total++ // we'll have grand total row
+	// g.Total++                       // we'll have grand total row
 
-	g.TotalMainRows = totalRentables + noRentableSectionCount
-	g.TotalMainRows++ // we'll have grand total row
+	g.TotalMainRows = rrViewMainRowsCount
+	// g.TotalMainRows++ // we'll have grand total row
 
 	// ===========================
 	// WhereClauses, OrderClauses
-	// for 2 different parts
 	// ===========================
-	rentableSectionWhereClause, rentableSectionOrderClause := GetSearchAndSortSQL(d, rrpt.RentableSectionFieldsMap)
-	_, noRentableSectionOrderClause := GetSearchAndSortSQL(d, rrpt.NoRentableSectionFieldsMap)
+	rrWhere, rrOrder := GetSearchAndSortSQL(d, rrpt.RentRollViewFieldsMap)
 
 	// NOW GET THE ROWS FOR RENTROLL ROUTINE
-	rows, err := rrpt.RRReportRows(
+	rows, err := rrpt.GetRentRollViewRows(
 		d.BID, startDt, stopDt, // BID, startDate, stopDate
 		limit, // limit
-		rentableSectionWhereClause, rentableSectionOrderClause, reqData.RentableSectionOffset, // rentables Part
-		"", noRentableSectionOrderClause, reqData.NoRentableSectionOffset, // "No Rentable Assessment" part
+		rrWhere, rrOrder, offset,
 	)
 
 	// assign recid and append to g.Records
@@ -125,52 +110,88 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(&g, w)
 }
 
-// getRRTotal returns the total of individual total of sections covered by rentroll report
+// getRRTotal returns the total number of rows for rentroll view
 func getRRTotal(
 	BID int64,
 	d1, d2 time.Time,
-) (rentableSectionCount, noRentableSectionCount, totalRentables int64, err error) {
+) (rrViewRowsCount, rrViewMainRowsCount, totalRentables int64, err error) {
 
 	const funcname = "getRRTotal"
+	var (
+		d1Str = d1.Format(rlib.RRDATEFMTSQL)
+		d2Str = d2.Format(rlib.RRDATEFMTSQL)
+	)
 	rlib.Console("Entered %s\n", funcname)
 
 	// ISSUE: search functionality contains different search scenario, in that case we need to
 	// handle case that if field is presents in query FieldMap,.....
 	// right now just ignore additional where clause
 
-	// ------------------------
-	// Get All Rentable Section Total
-	// ------------------------
-	rentableSectionQC := rlib.GetQueryClauseCopy(rrpt.RentableSectionQueryClause)
-	rentableSectionQC["WhereClause"] = fmt.Sprintf(rentableSectionQC["WhereClause"], BID)
+	// ALL report rows
+	rrViewQC := rlib.GetQueryClauseCopy(rrpt.RentRollViewQueryClause)
+	rrViewQC["SelectClause"] = "COUNT(*)"
+	rrViewCountSubQuery := rlib.RenderSQLQuery(rrpt.RentRollViewQuery, rrViewQC)
+	// if rrViewCountSubQuery ends with ';' then remove it
+	rrViewCountSubQuery = strings.TrimSuffix(strings.TrimSpace(rrViewCountSubQuery), ";")
 
-	rentableSectionCountQuery := rlib.RenderSQLQuery(rrpt.RentableSectionQuery, rentableSectionQC)
-	rentableSectionCount, err = rlib.GetQueryCount(rentableSectionCountQuery)
+	// ALL main rows
+	rrViewMainRowsQC := rlib.GetQueryClauseCopy(rrpt.RentRollViewQueryClause)
+	rrViewMainRowsQC["SelectClause"] = "Rentable_CUM_RA.RID"
+	rrViewMainRowsQC["GroupClause"] = "Rentable_CUM_RA.RID"
+	rrViewMainRowsCountSubQuery := rlib.RenderSQLQuery(rrpt.RentRollViewQuery, rrViewMainRowsQC)
+	// if rrViewMainRowsCountSubQuery ends with ';' then remove it
+	rrViewMainRowsCountSubQuery = strings.TrimSuffix(strings.TrimSpace(rrViewMainRowsCountSubQuery), ";")
+
+	// replace select clause first and get count query
+	rrViewRowsTotalQueryForm := `SELECT COUNT(*) FROM ({{.query}}) as T;`
+
+	// Now, start the database transaction
+	tx, err := rlib.RRdb.Dbrr.Begin()
 	if err != nil {
-		rlib.Console("Error from rentableSectionCountQuery: %s\n", err.Error())
 		return
 	}
-	rlib.Console("%s:: rentableSectionCount = %d\n", funcname, rentableSectionCount)
 
-	// ------------------------------
-	// Get NO Rentable Section COUNT
-	// ------------------------------
-	noRentableSectionQC := rlib.GetQueryClauseCopy(rrpt.NoRentableSectionQueryClause)
-	noRentableSectionQC["WhereClause"] = fmt.Sprintf(noRentableSectionQC["WhereClause"], BID)
-
-	noRentableSectionCountQuery := rlib.RenderSQLQuery(rrpt.NoRentableSectionQuery, noRentableSectionQC)
-	// rlib.Console("noRentableSectionCountQuery db query = %s\n", noRentableSectionCountQuery)
-	noRentableSectionCount, err = rlib.GetQueryCount(noRentableSectionCountQuery)
-	if err != nil {
-		rlib.Console("Error from noRentableSectionCountQuery: %s\n", err.Error())
+	// set some mysql variables through `tx`
+	if _, err = tx.Exec("SET @BID:=?", BID); err != nil {
+		tx.Rollback()
 		return
 	}
-	rlib.Console("%s:: noRentableSectionCount = %d\n", funcname, noRentableSectionCount)
+	if _, err = tx.Exec("SET @DtStart:=?", d1Str); err != nil {
+		tx.Rollback()
+		return
+	}
+	if _, err = tx.Exec("SET @DtStop:=?", d2Str); err != nil {
+		tx.Rollback()
+		return
+	}
 
-	// ------------------------------
-	// Main Rows count
-	// ------------------------------
-	totalRentablesQuery := fmt.Sprintf("SELECT Rentable.RID FROM Rentable WHERE Rentable.BID=%d", BID)
+	// Execute query in current transaction for all rows count
+	rrViewRowsTotalQuery := rlib.RenderSQLQuery(rrViewRowsTotalQueryForm,
+		map[string]string{"query": rrViewCountSubQuery})
+	if err = tx.QueryRow(rrViewRowsTotalQuery).Scan(&rrViewRowsCount); err != nil {
+		tx.Rollback()
+		return
+	}
+
+	// Execute query in current transaction for main rows count
+	rrViewMainRowsTotalQuery := rlib.RenderSQLQuery(rrViewRowsTotalQueryForm,
+		map[string]string{"query": rrViewMainRowsCountSubQuery})
+	if err = tx.QueryRow(rrViewMainRowsTotalQuery).Scan(&rrViewMainRowsCount); err != nil {
+		tx.Rollback()
+		return
+	}
+
+	// commit the transaction
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		return
+	}
+	rlib.Console("%s:: rrViewRowsCount = %d\n", funcname, rrViewRowsCount)
+
+	// ----------------
+	// TOTAL RENTABLES
+	// ----------------
+	totalRentablesQuery := fmt.Sprintf("SELECT DISTINCT Rentable.RID FROM Rentable WHERE Rentable.BID=%d", BID)
 	totalRentables, err = rlib.GetQueryCount(totalRentablesQuery)
 	if err != nil {
 		rlib.Console("Error while calculation of totalRentables: %s\n", err.Error())

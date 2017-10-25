@@ -99,11 +99,8 @@ function buildRentRollElements() {
                 if (!("_rrIndexMap" in g.last)) {
                     g.last._rrIndexMap = {};
                 }
-                if (!("_rentable_section_offset" in g.last)) {
-                    g.last._rentable_section_offset = 0;
-                }
-                if (!("_no_rentable_section_offset" in g.last)) {
-                    g.last._no_rentable_section_offset = {};
+                if (!("_offset" in g.last)) {
+                    g.last._offset = 0;
                 }
                 if (data.records) {
                     for (var i = 0; i < data.records.length; i++) {
@@ -124,8 +121,7 @@ function buildRentRollElements() {
                             g.last._rrIndexMap[rec_index] = g.last._main_rows_offset;
                             g.last._main_rows_offset++;
                         }
-                        if (record.IsRentableSectionMainRow) {
-                            g.last._rentable_section_offset++;
+                        if (record.IsRentableMainRow) {
                             // apply greyish cell backgroud color to some cells
                             for (var j = 0; j < grey_fields.length; j++) {
                                 var colIndex = g.getColumn(grey_fields[j], true);
@@ -138,8 +134,8 @@ function buildRentRollElements() {
                         if (record.IsBlankRow) {
                             record.w2ui.class = "blankRow";
                         }
-                        if (record.IsNoRentableSectionRow) {
-                            g.last._no_rentable_section_offset++;
+                        if (record.IsRentRollViewRow) {
+                            g.last._offset++;
                         }
                         g.refreshRow(data.records[i].recid); // redraw row
                     }
@@ -169,11 +165,9 @@ function buildRentRollElements() {
             if (g.records.length == 0) { // if grid is empty then reset all flags
                 g.last._main_rows_offset = 0;
                 g._total_main_rows = 0;
-                g.last._rentable_section_offset = 0;
-                g.last._no_rentable_section_offset = 0;
+                g.last._offset = 0;
             }
-            event.postData.rentableSectionOffset = g.last._rentable_section_offset;
-            event.postData.noRentableSectionOffset = g.last._no_rentable_section_offset;
+            event.postData.offset = g.last._offset;
         },
         onClick: function(event) {
             event.onComplete = function () {
