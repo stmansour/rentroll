@@ -14,7 +14,7 @@ import (
 // customAttrRTSqft for rentabletypes
 const customAttrRTSqft = "Square Feet" // custom attribute for all rentables
 
-// RentRollViewSectionFieldsMap holds the map of field (alias)
+// RentRollViewFieldsMap holds the map of field (alias)
 // to actual database field with table reference
 // It could refer multiple fields
 // It would be helpful in search operation with field values within db from API
