@@ -347,20 +347,25 @@ func setRRDatePeriodString(r *RentRollViewRow, viewRows *[]RentRollViewRow) {
 	if len(*viewRows) < 1 {
 		return
 	}
-	/*if len(*viewRows) > 0 {
-		return
-	}*/
 
 	lastRow := (*viewRows)[len(*viewRows)-1]
 	if lastRow.RAID.Int64 == r.RAID.Int64 {
 		r.AgreementPeriod = ""
 		r.RentPeriod = ""
 		r.UsePeriod = ""
+		r.RAIDStr = ""
+	}
+
+	// it could be possible, someone introduced as payor later/removed
+	if lastRow.Payors.String == r.Payors.String {
 		r.Payors.String = ""
 		r.Payors.Valid = false
+	}
+
+	// it could be possible, someone introduced as user later/removed
+	if lastRow.Users.String == r.Users.String {
 		r.Users.String = ""
 		r.Users.Valid = false
-		r.RAIDStr = ""
 	}
 }
 
@@ -636,7 +641,7 @@ func addSubTotalRowANDFormatChildRows(
 			formatRentableChildRow(&(*subRows)[i])
 
 			// format RA period dates
-			setRRDatePeriodString(&(*subRows)[i], viewRows)
+			setRRDatePeriodString(&(*subRows)[i], subRows)
 		} else {
 			rentableRow.IsMainRow = true
 			rentableRow.IsRentableMainRow = true
