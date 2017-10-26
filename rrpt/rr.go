@@ -343,29 +343,24 @@ func fmtRRDatePeriod(d1, d2 *time.Time) string {
 // RETURN
 // void
 //----------------------------------------------------------------------
-func setRRDatePeriodString(r *RentRollViewRow, viewRows *[]RentRollViewRow) {
-	if len(*viewRows) < 1 {
-		return
-	}
-
-	lastRow := (*viewRows)[len(*viewRows)-1]
-	if lastRow.RAID.Int64 == r.RAID.Int64 {
+func setRRDatePeriodString(r, lastRow *RentRollViewRow) {
+	if lastRow.RAID.Int64 == r.RAID.Int64 && lastRow.RAID.Int64 > 0 && r.RAID.Int64 > 0 {
 		r.AgreementPeriod = ""
 		r.RentPeriod = ""
 		r.UsePeriod = ""
 		r.RAIDStr = ""
-	}
 
-	// it could be possible, someone introduced as payor later/removed
-	if lastRow.Payors.String == r.Payors.String {
-		r.Payors.String = ""
-		r.Payors.Valid = false
-	}
+		// it could be possible, someone introduced as payor later/removed
+		if lastRow.Payors.String == r.Payors.String {
+			r.Payors.String = ""
+			r.Payors.Valid = false
+		}
 
-	// it could be possible, someone introduced as user later/removed
-	if lastRow.Users.String == r.Users.String {
-		r.Users.String = ""
-		r.Users.Valid = false
+		// it could be possible, someone introduced as user later/removed
+		if lastRow.Users.String == r.Users.String {
+			r.Users.String = ""
+			r.Users.Valid = false
+		}
 	}
 }
 
@@ -577,7 +572,9 @@ func GetRentRollViewRows(BID int64,
 	// ============================
 	for _, noRentableRow := range noRentableRows {
 		noRentableRow.IsMainRow = true
-		setRRDatePeriodString(&noRentableRow, &rrViewRows)
+		if len(rrViewRows) > 0 {
+			setRRDatePeriodString(&noRentableRow, &rrViewRows[len(rrViewRows)-1])
+		}
 		rrViewRows = append(rrViewRows, noRentableRow)
 	}
 
@@ -630,7 +627,11 @@ func addSubTotalRowANDFormatChildRows(
 	subTotalRow.Description.Scan("Subtotal")
 
 	// loop through all rows belongs to a rentable
-	for i, rentableRow := range *subRows {
+	for i := 0; i < len(*subRows); i++ {
+
+		// take address of row
+		rentableRow := &(*subRows)[i]
+
 		subTotalRow.AmountDue.Float64 += rentableRow.AmountDue.Float64
 		subTotalRow.PaymentsApplied.Float64 += rentableRow.PaymentsApplied.Float64
 		subTotalRow.PeriodGSR.Float64 += rentableRow.PeriodGSR.Float64
@@ -638,14 +639,13 @@ func addSubTotalRowANDFormatChildRows(
 
 		if i > 0 {
 			// format child row
-			formatRentableChildRow(&(*subRows)[i])
+			formatRentableChildRow(rentableRow)
 
 			// format RA period dates
-			setRRDatePeriodString(&(*subRows)[i], subRows)
+			setRRDatePeriodString(rentableRow, &(*subRows)[i-1])
 		} else {
 			rentableRow.IsMainRow = true
 			rentableRow.IsRentableMainRow = true
-			(*subRows)[0] = rentableRow
 		}
 
 		// balance and secDep calculation for Each Rentable and RA pair
