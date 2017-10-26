@@ -49,6 +49,7 @@ type RRSearchResponse struct {
 	Status        string                 `json:"status"`
 	Total         int64                  `json:"total"`
 	Records       []rrpt.RentRollViewRow `json:"records"`
+	Summary       []rrpt.RentRollViewRow `json:"summary"`
 	TotalMainRows int64                  `json:"total_main_rows"`
 }
 
@@ -81,10 +82,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	g.Total = rrViewRowsCount
 	g.Total += (totalRentables * 2) // for each rentable, we've subtotal and blank row
-	// g.Total++                       // we'll have grand total row
 
 	g.TotalMainRows = rrViewMainRowsCount
-	// g.TotalMainRows++ // we'll have grand total row
 
 	// ===========================
 	// WhereClauses, OrderClauses
@@ -102,7 +101,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rowCounter := int64(0)
 	for _, row := range rows {
 		row.Recid = rowCounter
-		g.Records = append(g.Records, row)
+		if row.IsGrandTotalRow {
+			g.Summary = append(g.Summary, row)
+		} else {
+			g.Records = append(g.Records, row)
+		}
 		rowCounter++
 	}
 	g.Status = "success"

@@ -249,6 +249,7 @@ type RentRollViewRow struct {
 	IsSubTotalRow     bool             // is subtotal row
 	IsBlankRow        bool             // is blank row
 	IsRentRollViewRow bool             // is rentroll normal row fetched from database
+	IsGrandTotalRow   bool             // is grand total row
 }
 
 // rentrollViewRowScan scans a result from sql row and dump it in a RentRollViewRow struct
@@ -342,24 +343,24 @@ func fmtRRDatePeriod(d1, d2 *time.Time) string {
 // RETURN
 // void
 //----------------------------------------------------------------------
-func setRRDatePeriodString(r *RentRollViewRow, viewRows *[]RentRollViewRow) {
-	if len(*viewRows) < 1 {
-		return
-	}
-	/*if len(*viewRows) > 0 {
-		return
-	}*/
-
-	lastRow := (*viewRows)[len(*viewRows)-1]
-	if lastRow.RAID.Int64 == r.RAID.Int64 {
+func setRRDatePeriodString(r, lastRow *RentRollViewRow) {
+	if lastRow.RAID.Int64 == r.RAID.Int64 && lastRow.RAID.Int64 > 0 && r.RAID.Int64 > 0 {
 		r.AgreementPeriod = ""
 		r.RentPeriod = ""
 		r.UsePeriod = ""
-		r.Payors.String = ""
-		r.Payors.Valid = false
-		r.Users.String = ""
-		r.Users.Valid = false
 		r.RAIDStr = ""
+
+		// it could be possible, someone introduced as payor later/removed
+		if lastRow.Payors.String == r.Payors.String {
+			r.Payors.String = ""
+			r.Payors.Valid = false
+		}
+
+		// it could be possible, someone introduced as user later/removed
+		if lastRow.Users.String == r.Users.String {
+			r.Users.String = ""
+			r.Users.Valid = false
+		}
 	}
 }
 
@@ -397,7 +398,6 @@ func GetRentRollViewRows(BID int64,
 		rentableRowsMap     = make(map[int64][]RentRollViewRow) // per rentable it will hold sublist of rows
 		rentableRowsMapKeys = []int64{}
 		noRentableRows      = []RentRollViewRow{}
-		// grandTTL            = RentRollViewRow{IsMainRow: true} // grand total row
 	)
 	rlib.Console("Entered in %s\n", funcname)
 
@@ -572,7 +572,9 @@ func GetRentRollViewRows(BID int64,
 	// ============================
 	for _, noRentableRow := range noRentableRows {
 		noRentableRow.IsMainRow = true
-		setRRDatePeriodString(&noRentableRow, &rrViewRows)
+		if len(rrViewRows) > 0 {
+			setRRDatePeriodString(&noRentableRow, &rrViewRows[len(rrViewRows)-1])
+		}
 		rrViewRows = append(rrViewRows, noRentableRow)
 	}
 
@@ -625,7 +627,11 @@ func addSubTotalRowANDFormatChildRows(
 	subTotalRow.Description.Scan("Subtotal")
 
 	// loop through all rows belongs to a rentable
-	for i, rentableRow := range *subRows {
+	for i := 0; i < len(*subRows); i++ {
+
+		// take address of row
+		rentableRow := &(*subRows)[i]
+
 		subTotalRow.AmountDue.Float64 += rentableRow.AmountDue.Float64
 		subTotalRow.PaymentsApplied.Float64 += rentableRow.PaymentsApplied.Float64
 		subTotalRow.PeriodGSR.Float64 += rentableRow.PeriodGSR.Float64
@@ -633,14 +639,13 @@ func addSubTotalRowANDFormatChildRows(
 
 		if i > 0 {
 			// format child row
-			formatRentableChildRow(&(*subRows)[i])
+			formatRentableChildRow(rentableRow)
 
 			// format RA period dates
-			setRRDatePeriodString(&(*subRows)[i], viewRows)
+			setRRDatePeriodString(rentableRow, &(*subRows)[i-1])
 		} else {
 			rentableRow.IsMainRow = true
 			rentableRow.IsRentableMainRow = true
-			(*subRows)[0] = rentableRow
 		}
 
 		// balance and secDep calculation for Each Rentable and RA pair
@@ -716,58 +721,52 @@ func handleRentableGaps(xbiz *rlib.XBusiness, rid int64, sl *[]RentRollViewRow, 
 	for i := 0; i < len(b); i++ {
 		rlib.Console("Gap[%d]: %s - %s\n", i, b[i].D1.Format(rlib.RRDATEFMTSQL), b[i].D2.Format(rlib.RRDATEFMTSQL))
 	}
+
+	// At least, we do have rentable with at least static information
+	// would be useful to get the static information to feed info to vacant row
+	firstRentableRow := &(*sl)[0]
+
 	rsa := rlib.RStat(xbiz.P.BID, rid, b)
 	for i := 0; i < len(rsa); i++ {
 		if rsa[i].RS.DtStart.Before(rlib.TIME0) {
 			rsa[i].RS.DtStart = d1
 		}
 		rlib.Console("rsa[%d]: %s - %s, LeaseStatus=%d, UseStatus=%d\n", i, rsa[i].RS.DtStart.Format(rlib.RRDATEFMTSQL), rsa[i].RS.DtStop.Format(rlib.RRDATEFMTSQL), rsa[i].RS.LeaseStatus, rsa[i].RS.UseStatus)
-		var r RentRollViewRow
 
-		// get and feed rentable info
-		rentable := rlib.GetRentable(rsa[i].RS.RID)
-		r.RID.Scan(rentable.RID)
-		r.RentableName.Scan(rentable.RentableName)
-
-		// get rentabletype info and feed it
-		m := rlib.GetRentableTypeRefsByRange(r.RID.Int64, &d1, &d2)
-		if len(m) > 0 {
-			var rt rlib.RentableType
-			rlib.GetRentableType(m[0].RTID, &rt)
-			r.RTID.Scan(rt.RTID)
-			r.RentableType.Scan(rt.Name)
-			r.RentCycle.Scan(rt.RentCycle) // ? is it required
-			// Rent Cycle formatting
-			for freqStr, freqNo := range rlib.CycleFreqMap {
-				if r.RentCycle.Int64 == freqNo {
-					r.RentCycleStr = freqStr
-				}
+		// if there is only rentable row "WITHOUT RentalAgreement"
+		// then feed first vacant info inside first rentable row itself
+		if len(*sl) == 1 && i == 0 && !firstRentableRow.RAID.Valid {
+			firstRentableRow.PossessionStart.Scan(rsa[i].RS.DtStart)
+			firstRentableRow.PossessionStop.Scan(rsa[i].RS.DtStop)
+			firstRentableRow.Description.Scan("Vacant") // need to take care of rentableStatus here
+			firstRentableRow.Users.Scan(rsa[i].RS.UseStatusStringer())
+			firstRentableRow.Payors.Scan(rsa[i].RS.LeaseStatusStringer())
+			firstRentableRow.UsePeriod = fmtRRDatePeriod(&rsa[i].RS.DtStart, &rsa[i].RS.DtStop)
+			firstRentableRow.PeriodGSR.Scan(rlib.VacancyGSR(xbiz, rid, &rsa[i].RS.DtStart, &rsa[i].RS.DtStop))
+			firstRentableRow.IncomeOffsets.Scan(firstRentableRow.PeriodGSR.Float64) // TBD: Validate.  For now, just assume that they're equal
+		} else {
+			// create new vacant row and copy info from first rentable row
+			var r = RentRollViewRow{
+				RID:          firstRentableRow.RID,
+				RentableName: firstRentableRow.RentableName,
+				RTID:         firstRentableRow.RTID,
+				RentableType: firstRentableRow.RentableType,
+				RentCycle:    firstRentableRow.RentCycle,
+				RentCycleStr: firstRentableRow.RentCycleStr,
+				Sqft:         firstRentableRow.Sqft,
+				GSR:          firstRentableRow.GSR,
 			}
 
-			// sqft
-			if len(rt.CA) > 0 { // if there are custom attributes
-				c, ok := rt.CA[customAttrRTSqft] // see if Square Feet is among them
-				if ok {                          // if it is...
-					sqft, err := rlib.IntFromString(c.Value, "invalid customAttrRTSqft attribute")
-					r.Sqft.Scan(sqft)
-					if err != nil {
-						rlib.Console("%s: Error while scanning sqft: %s\n", err.Error())
-					}
-				}
-			}
-			// market Rate GSR
-			r.GSR.Scan(rlib.GetRentableMarketRate(xbiz, &rentable, &d1, &d2))
+			r.PossessionStart.Scan(rsa[i].RS.DtStart)
+			r.PossessionStop.Scan(rsa[i].RS.DtStop)
+			r.Description.Scan("Vacant") // need to take care of rentableStatus here
+			r.Users.Scan(rsa[i].RS.UseStatusStringer())
+			r.Payors.Scan(rsa[i].RS.LeaseStatusStringer())
+			r.UsePeriod = fmtRRDatePeriod(&rsa[i].RS.DtStart, &rsa[i].RS.DtStop)
+			r.PeriodGSR.Scan(rlib.VacancyGSR(xbiz, rid, &rsa[i].RS.DtStart, &rsa[i].RS.DtStop))
+			r.IncomeOffsets.Scan(r.PeriodGSR.Float64) // TBD: Validate.  For now, just assume that they're equal
+			(*sl) = append((*sl), r)
 		}
-
-		r.PossessionStart.Scan(rsa[i].RS.DtStart)
-		r.PossessionStop.Scan(rsa[i].RS.DtStop)
-		r.Description.Scan("Vacant")
-		r.Users.Scan(rsa[i].RS.UseStatusStringer())
-		r.Payors.Scan(rsa[i].RS.LeaseStatusStringer())
-		r.UsePeriod = fmtRRDatePeriod(&rsa[i].RS.DtStart, &rsa[i].RS.DtStop)
-		r.PeriodGSR.Scan(rlib.VacancyGSR(xbiz, rid, &rsa[i].RS.DtStart, &rsa[i].RS.DtStop))
-		r.IncomeOffsets.Scan(r.PeriodGSR.Float64) // TBD: Validate.  For now, just assume that they're equal
-		(*sl) = append((*sl), r)
 	}
 }
 
@@ -1078,10 +1077,11 @@ func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollViewR
 
 	// mark some fields as true for grand total row
 	grandTTL.BID = BID
-	grandTTL.Description.Scan("Grand Total")
 	grandTTL.IsMainRow = true
-	grandTTL.IncomeOffsets.Valid = true // do we need this?
-	grandTTL.PeriodGSR.Valid = true     // do we need this?
+	grandTTL.IsGrandTotalRow = true
+	grandTTL.Description.Scan("Grand Total")
+	grandTTL.IncomeOffsets.Valid = true
+	grandTTL.PeriodGSR.Valid = true
 	grandTTL.AmountDue.Valid = true
 	grandTTL.PaymentsApplied.Valid = true
 	grandTTL.BeginningRcv.Valid = true

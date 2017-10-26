@@ -102,10 +102,14 @@ function buildRentRollElements() {
                 if (!("_offset" in g.last)) {
                     g.last._offset = 0;
                 }
+
+                var record, i;
                 if (data.records) {
-                    for (var i = 0; i < data.records.length; i++) {
+                    for (i = 0; i < data.records.length; i++) {
+
                         // get record from grid to apply css
-                        var record = g.get(data.records[i].recid);
+                        record = g.get(data.records[i].recid);
+
                         if (!("w2ui" in record)) {
                             record.w2ui = {}; // init w2ui if not present
                         }
@@ -121,23 +125,52 @@ function buildRentRollElements() {
                             g.last._rrIndexMap[rec_index] = g.last._main_rows_offset;
                             g.last._main_rows_offset++;
                         }
-                        if (record.IsRentableMainRow) {
+
+                        if (record.IsRentRollViewRow) {
                             // apply greyish cell backgroud color to some cells
                             for (var j = 0; j < grey_fields.length; j++) {
                                 var colIndex = g.getColumn(grey_fields[j], true);
                                 record.w2ui.style[colIndex] = "background-color: #CCC;";
                             }
+                            g.last._offset++;
                         }
+
                         if (record.IsSubTotalRow) {
                             record.w2ui.class = "subTotalRow";
                         }
+
                         if (record.IsBlankRow) {
                             record.w2ui.class = "blankRow";
                         }
-                        if (record.IsRentRollViewRow) {
-                            g.last._offset++;
+
+                        // redraw row
+                        g.refreshRow(data.records[i].recid);
+                    }
+                }
+
+                // summary rows
+                if (data.summary) {
+                    for (i = 0; i < data.summary.length; i++) {
+
+                        // get record from grid to apply css
+                        record = g.get(data.summary[i].recid);
+
+                        if (!("w2ui" in record)) {
+                            record.w2ui = {}; // init w2ui if not present
                         }
-                        g.refreshRow(data.records[i].recid); // redraw row
+                        if (!("class" in record.w2ui)) {
+                            record.w2ui.class = ""; // init class string
+                        }
+                        if (!("style" in record.w2ui)) {
+                            record.w2ui.style = {}; // init style object
+                        }
+
+                        if (record.IsGrandTotalRow) {
+                            record.w2ui.class = "grandTotalRow";
+                        }
+
+                        // redraw row
+                        g.refreshRow(data.summary[i].recid);
                     }
                 }
 
