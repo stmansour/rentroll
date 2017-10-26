@@ -1075,8 +1075,8 @@ func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollViewR
 	grandTTL.IsMainRow = true
 	grandTTL.IsGrandTotalRow = true
 	grandTTL.Description.Scan("Grand Total")
-	grandTTL.IncomeOffsets.Valid = true // do we need this?
-	grandTTL.PeriodGSR.Valid = true     // do we need this?
+	grandTTL.IncomeOffsets.Valid = true
+	grandTTL.PeriodGSR.Valid = true
 	grandTTL.AmountDue.Valid = true
 	grandTTL.PaymentsApplied.Valid = true
 	grandTTL.BeginningRcv.Valid = true
