@@ -126,3 +126,7 @@ textarea.w2ui-input-focus {
     background-color: #CCEEFF;
     border: 0px transparent solid;
 }
+
+.grandTotalRow td {
+    font-weight: bold;
+}
