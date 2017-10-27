@@ -61,7 +61,8 @@ var RentRollViewFields = rlib.SelectQueryFields{
 	"Rentable_CUM_RA.RentStop",
 	"RentableTypes.RentCycle",
 	"RentableStatus.UseStatus AS Status",
-	"RentableMarketRate.MarketRate AS GSR",
+	"GROUP_CONCAT(DISTINCT RMRID ORDER BY RMRID ASC SEPARATOR ',') as RMRID_GROUP",
+	// "RentableMarketRate.MarketRate AS GSR",
 	"Assessments.ASMID",
 	"Assessments.Amount AS AmountDue",
 	"(CASE WHEN Assessments.ASMID > 0 THEN SUM(DISTINCT ReceiptAllocation.Amount) ELSE ReceiptAllocation.Amount END) AS PaymentsApplied",
@@ -231,6 +232,7 @@ type RentRollViewRow struct {
 	RentCycleStr      string          // String representation of Rent Cycle
 	Payors            rlib.NullString // what happens if during time period, its on vacant
 	Users             rlib.NullString
+	mrIDs             rlib.NullString // multiple marketRate IDs
 	GSR               rlib.NullFloat64
 	PeriodGSR         rlib.NullFloat64
 	IncomeOffsets     rlib.NullFloat64
@@ -257,7 +259,7 @@ func rentrollViewRowScan(rows *sql.Rows, q *RentRollViewRow) error {
 	return rows.Scan(&q.RID, &q.RentableName, &q.RTID, &q.RentableType,
 		&q.Description, &q.Users, &q.Payors, &q.RARID, &q.RAID,
 		&q.AgreementStart, &q.AgreementStop, &q.PossessionStart, &q.PossessionStop,
-		&q.RentStart, &q.RentStop, &q.RentCycle, &q.Status, &q.GSR,
+		&q.RentStart, &q.RentStop, &q.RentCycle, &q.Status, &q.mrIDs,
 		&q.ASMID, &q.AmountDue, &q.PaymentsApplied)
 }
 
@@ -470,6 +472,16 @@ func GetRentRollViewRows(BID int64,
 		if q.AgreementStart.Time.Year() > 1970 {
 			q.AgreementPeriod = fmtRRDatePeriod(&q.AgreementStart.Time, &q.AgreementStop.Time)
 		}
+
+		// MarketRate calculation
+		mrIDs := []int64{}
+		for _, id := range strings.Split(q.mrIDs.String, ",") {
+			rmrid, _ := strconv.ParseInt(id, 10, 64)
+			mrIDs = append(mrIDs, rmrid)
+		}
+		gsrAmt, _ := rlib.GetMRAmtInDateRange(mrIDs, startDt, stopDt)
+		rlib.Console("gsrAmt: %f\n", gsrAmt)
+		q.GSR.Scan(gsrAmt)
 
 		// get current row RID
 		rowRID := q.RID.Int64
