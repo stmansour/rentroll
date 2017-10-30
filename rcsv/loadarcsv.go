@@ -90,6 +90,8 @@ func CreateAR(sa []string, lineno int) (int, error) {
 		b.ARType = 1
 	case "expense":
 		b.ARType = 2
+	case "sub-assessment":
+		b.ARType = 3
 	default:
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - ARType must be either Assessment or Receipt.  Found: %s", funcname, lineno, s)
 	}
@@ -191,6 +193,9 @@ func CreateAR(sa []string, lineno int) (int, error) {
 			}
 			x.SubARID = subar.ARID
 			b.SubARs = append(b.SubARs, x) // we will need to update these structs with b.ARID after we save it below
+		}
+		if len(b.SubARs) > 0 {
+			b.FLAGS |= (1 << 3) // bit 3 indicates that there are subars on this rule
 		}
 	}
 

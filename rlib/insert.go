@@ -727,7 +727,7 @@ func InsertSLStrings(a *StringList) {
 
 // InsertSubAR writes a SubAR to the database
 func InsertSubAR(a *SubAR) error {
-	res, err := RRdb.Prepstmt.InsertSubAR.Exec(a.ARID, a.SubARID, a.CreateBy, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertSubAR.Exec(a.ARID, a.SubARID, a.BID, a.CreateBy, a.LastModBy)
 	if nil != err {
 		Ulog("InsertSubAR: error:  %v\n", err)
 	}
