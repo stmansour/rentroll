@@ -1979,6 +1979,35 @@ LOCK TABLES `StringList` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `SubAR`
+--
+
+DROP TABLE IF EXISTS `SubAR`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SubAR` (
+  `SARID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ARID` bigint(20) NOT NULL DEFAULT '0',
+  `SubARID` bigint(20) NOT NULL DEFAULT '0',
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`SARID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `SubAR`
+--
+
+LOCK TABLES `SubAR` WRITE;
+/*!40000 ALTER TABLE `SubAR` DISABLE KEYS */;
+/*!40000 ALTER TABLE `SubAR` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `TWS`
 --
 
@@ -2206,4 +2235,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-10 12:39:14
+-- Dump completed on 2017-10-30  0:43:05

@@ -153,7 +153,7 @@ func GetSecDepBalance(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) 
 	return amt, err
 }
 
-// // GetSecDepBalanceOnDate
+// GetSecDepBalanceOnDate
 // func GetSecDepBalanceOnDate(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) {
 // 	amt := float64(0)
 // 	sa := []string{}

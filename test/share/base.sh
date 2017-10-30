@@ -1235,6 +1235,7 @@ doCasperUITest () {
 # createDB
 #############################################################################
 function createDB() {
+	echo -n "Create new database... " >> ${LOGFILE} 2>&1
 	${RRBIN}/rrnewdb
 	if [ $? -eq 0 ]; then
 		echo " successful" >> ${LOGFILE} 2>&1
@@ -1297,7 +1298,6 @@ date >> ${LOGFILE}
 echo >>${LOGFILE}
 
 if [ ${CREATENEWDB} -eq 1 ]; then
-	echo -n "Create new database... " >> ${LOGFILE} 2>&1
 	createDB
 fi
 

@@ -1128,6 +1128,25 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// SubAR
+	//==========================================
+	flds = "SARID,ARID,SubARID,BID,LastModTime,LastModBy,CreateTS,CreateBy"
+	RRdb.DBFields["SubAR"] = flds
+	RRdb.Prepstmt.GetSubAR, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM SubAR WHERE SARID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetSubARs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM SubAR WHERE ARID=?")
+	Errcheck(err)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertSubAR, err = RRdb.Dbrr.Prepare("INSERT INTO SubAR (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateSubAR, err = RRdb.Dbrr.Prepare("UPDATE SubAR SET " + s3 + " WHERE SARID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteSubAR, err = RRdb.Dbrr.Prepare("DELETE from SubAR WHERE SARID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteSubARs, err = RRdb.Dbrr.Prepare("DELETE from SubAR WHERE ARID=?")
+	Errcheck(err)
+
+	//==========================================
 	// TRANSACTANT
 	//==========================================
 	RRdb.DBFields["Transactant"] = TRNSfields

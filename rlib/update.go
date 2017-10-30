@@ -252,6 +252,12 @@ func UpdateSLString(a *SLString) error {
 	return updateError(err, "SLString", *a)
 }
 
+// UpdateSubAR updates a SubAR record in the database
+func UpdateSubAR(a *SubAR) error {
+	_, err := RRdb.Prepstmt.UpdateSubAR.Exec(a.ARID, a.SubARID, a.LastModBy, a.SARID)
+	return updateError(err, "SubAR", *a)
+}
+
 // UpdateTransactant updates a Transactant record in the database
 func UpdateTransactant(a *Transactant) error {
 	_, err := RRdb.Prepstmt.UpdateTransactant.Exec(a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.LastModBy, a.TCID)

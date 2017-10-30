@@ -882,7 +882,6 @@ CREATE TABLE Expense (
     PRIMARY KEY (EXPID)
 );
 
-
 -- **************************************
 -- ****                              ****
 -- ****     AccountRule              ****
@@ -892,6 +891,7 @@ CREATE TABLE AR (
     ARID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     Name VARCHAR(100) NOT NULL DEFAULT '',
+    SubARID BIGINT NOT NULL DEFAULT 0,                      -- 
     ARType SMALLINT NOT NULL DEFAULT 0,                     -- Assessment = 0, Receipt = 1, Expense = 2
     RARequired SMALLINT NOT NULL DEFAULT 0,                 -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
     DebitLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID of debit part
@@ -899,13 +899,30 @@ CREATE TABLE AR (
     Description VARCHAR(1024) NOT NULL DEFAULT '',
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- epoch date for recurring assessments; the date/time of the assessment for instances
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00', -- stop date for recurrent assessments; the date/time of the assessment for instances
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement, 1<<2 = RAID required
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement, 1<<2 = RAID required, 1<<3 = subARIDs apply
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
     PRIMARY KEY(ARID)
+);
+
+-- **************************************
+-- ****                              ****
+-- ****     SubAccountRule           ****
+-- ****                              ****
+-- **************************************
+CREATE TABLE SubAR (
+    SARID BIGINT NOT NULL AUTO_INCREMENT,
+    ARID BIGINT NOT NULL DEFAULT 0,                         -- Which ARID
+    SubARID BIGINT NOT NULL DEFAULT 0,                      -- SubARID
+    BID BIGINT NOT NULL DEFAULT 0,
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    PRIMARY KEY(SARID)
 );
 
 -- **************************************

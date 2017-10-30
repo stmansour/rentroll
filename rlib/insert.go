@@ -716,13 +716,20 @@ func InsertStringList(a *StringList) (int64, error) {
 // InsertSLStrings writes a the list of strings in a StringList to the database
 // THIS SHOULD BE PUT IN A TRANSACTION
 func InsertSLStrings(a *StringList) {
-	// DeleteSLStrings(a.SLID)
 	for i := 0; i < len(a.S); i++ {
 		a.S[i].SLID = a.SLID
 		_, err := RRdb.Prepstmt.InsertSLString.Exec(a.BID, a.SLID, a.S[i].Value, a.CreateBy, a.S[i].LastModBy)
 		if nil != err {
 			Ulog("InsertSLString: error:  %v\n", err)
 		}
+	}
+}
+
+// InsertSubAR writes a SubAR to the database
+func InsertSubAR(a *SubAR) {
+	_, err := RRdb.Prepstmt.InsertSubAR.Exec(a.ARID, a.SubARID, a.CreateBy, a.LastModBy)
+	if nil != err {
+		Ulog("InsertSubAR: error:  %v\n", err)
 	}
 }
 

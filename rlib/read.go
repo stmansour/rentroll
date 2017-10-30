@@ -453,6 +453,16 @@ func ReadStringLists(rows *sql.Rows, a *StringList) {
 	Errcheck(rows.Scan(&a.SLID, &a.BID, &a.Name, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
 }
 
+// ReadSubAR reads a full SubAR structure from the database based on the supplied row object
+func ReadSubAR(row *sql.Row, a *SubAR) {
+	Errcheck(row.Scan(&a.SARID, &a.ARID, &a.SubARID, &a.BID, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
+}
+
+// ReadSubARs reads a full SubAR structure from the database based on the supplied row object
+func ReadSubARs(row *sql.Rows, a *SubAR) {
+	Errcheck(row.Scan(&a.SARID, &a.ARID, &a.SubARID, &a.BID, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
+}
+
 // ReadSLString reads a full SLString structure from the database based on the supplied row object
 func ReadSLString(row *sql.Row, a *SLString) {
 	Errcheck(row.Scan(&a.SLSID, &a.BID, &a.SLID, &a.Value, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
