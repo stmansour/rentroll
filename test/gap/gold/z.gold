@@ -1,0 +1,6 @@
+TimeListAggregate returned aggrlist.  len(aggrlist) = 2
+aggrlist[0] = 2016-10-01 - 2016-10-07
+aggrlist[1] = 2016-10-15 - 2016-10-29
+Gaps
+gaps[0] = 2016-10-07 - 2016-10-15
+gaps[1] = 2016-10-29 - 9999-11-01

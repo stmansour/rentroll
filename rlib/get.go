@@ -2128,6 +2128,30 @@ func GetSLStrings(id int64, a *StringList) {
 }
 
 //=======================================================
+//  SubAR
+//=======================================================
+
+// GetSubAR reads a SubAR structure based on the supplied SubAR id
+func GetSubAR(id int64, a *SubAR) {
+	ReadSubAR(RRdb.Prepstmt.GetSubAR.QueryRow(id), a)
+}
+
+// GetSubARs reads all SubAR structures belonging to the business with the the supplied id
+func GetSubARs(id int64) []SubAR {
+	var m []SubAR
+	rows, err := RRdb.Prepstmt.GetSubARs.Query(id)
+	Errcheck(err)
+	defer rows.Close()
+	for rows.Next() {
+		var a SubAR
+		ReadSubARs(rows, &a)
+		m = append(m, a)
+	}
+	Errcheck(rows.Err())
+	return m
+}
+
+//=======================================================
 //  TRANSACTANT
 //  Transactant, Prospect, User, Payor, XPerson
 //=======================================================

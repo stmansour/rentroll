@@ -7,22 +7,28 @@ TESTSUMMARY="Generates separate databases for multiple use cases"
 
 source ../share/base.sh
 
-docsvtest "a" "-b business.csv -L 3" "Business"
-docsvtest "b" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
-docsvtest "c" "-ar ar.csv" "AccountRules"
-docsvtest "d" "-m depmeth.csv -L 23,${BUD}" "DepositMethods"
-docsvtest "e" "-d depository.csv -L 18,${BUD}" "Depositories"
-docsvtest "f" "-P pmt.csv -L 12,${BUD}" "PaymentTypes"
-docsvtest "t" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
-docsvtest "h" "-p people.csv  -L 7,${BUD}" "People"
+function dbcore() {
+	docsvtest "a" "-b business.csv -L 3" "Business"
+	docsvtest "b" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
+	docsvtest "c" "-ar ar.csv" "AccountRules"
+	docsvtest "d" "-m depmeth.csv -L 23,${BUD}" "DepositMethods"
+	docsvtest "e" "-d depository.csv -L 18,${BUD}" "Depositories"
+	docsvtest "f" "-P pmt.csv -L 12,${BUD}" "PaymentTypes"
+	docsvtest "t" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
+	docsvtest "h" "-p people.csv  -L 7,${BUD}" "People"
+}
 
-#----------------------------------------------------------------
+#------------------------------------------------------------------------------
 #  TEST 1
 #  Floating Deposit -  Receipt where RAID is required. In this
-#      example, Receipt.RAID will be non-zero
-#----------------------------------------------------------------
+#      example, Receipt.RAID will be non-zero.  In this scenario
+#      a $1000 floating deposit is made in October 2017, and $500
+#      more is added to the floating deposit in November. The Ending
+#      Security Deposit amount for November should be $1500
+#------------------------------------------------------------------------------
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
+dbcore
 docsvtest "g1" "-R rt1.csv -L 5,${BUD}" "RentableTypes"
 docsvtest "i1" "-r r1.csv -L 6,${BUD}" "Rentables"
 docsvtest "j1" "-C ra1.csv -L 9,${BUD}" "RentalAgreements"
@@ -35,12 +41,10 @@ mysqldump --no-defaults rentroll >rrFloatingDep.sql
 
 #----------------------------------------------------
 #  TEST 2
-#  Rentable Type Change during vacancy
+#  Rentable Type Change during vacancy.
 #----------------------------------------------------
-# createDB
-# docsvtest "g" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
-# docsvtest "i" "-r rentable.csv -L 6,${BUD}" "Rentables"
-
+createDB
+dbcore
 
 
 stopRentRollServer

@@ -719,12 +719,25 @@ type AR struct {
 	RARequired    int64
 	DtStart       time.Time
 	DtStop        time.Time
-	FLAGS         uint64  // 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement, 1<<2 = RAID required
+	FLAGS         uint64  // 1<<0 = apply funds to Receive accts, 1<<1 - populate on Rental Agreement, 1<<2 = RAID required, 1<<3 = subARIDs apply
 	DefaultAmount float64 // use this as the default amount in ui for newly created Assessments
 	LastModTime   time.Time
 	LastModBy     int64
 	CreateTS      time.Time // when was this record created
 	CreateBy      int64     // employee UID (from phonebook) that created it
+	ARs           []AR      // the SubARs if FLAGS & 1<<3 > 0
+}
+
+// SubAR is the table that defines multiple ARIDs for transactions that require multiple ARIDs
+type SubAR struct {
+	SARID       int64
+	ARID        int64
+	SubARID     int64
+	BID         int64
+	LastModTime time.Time
+	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Business is the set of attributes describing a rental or hotel Business
@@ -1530,6 +1543,12 @@ type RRprepSQL struct {
 	GetAssessmentsByRARRange                *sql.Stmt
 	GetASMReceiptAllocationsInRARDateRange  *sql.Stmt
 	GetRentableStatusOnOrAfter              *sql.Stmt
+	InsertSubAR                             *sql.Stmt
+	GetSubAR                                *sql.Stmt
+	GetSubARs                               *sql.Stmt
+	UpdateSubAR                             *sql.Stmt
+	DeleteSubAR                             *sql.Stmt
+	DeleteSubARs                            *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
@@ -1597,6 +1616,7 @@ var AllTables = []string{
 	"RentalAgreementTemplate",
 	"SLString",
 	"StringList",
+	"SubAR",
 	"Tax",
 	"TaxRate",
 	"Transactant",
