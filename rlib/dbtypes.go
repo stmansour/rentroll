@@ -725,7 +725,7 @@ type AR struct {
 	LastModBy     int64
 	CreateTS      time.Time // when was this record created
 	CreateBy      int64     // employee UID (from phonebook) that created it
-	ARs           []AR      // the SubARs if FLAGS & 1<<3 > 0
+	SubARs        []SubAR   // the SubARs if FLAGS & 1<<3 > 0
 }
 
 // SubAR is the table that defines multiple ARIDs for transactions that require multiple ARIDs

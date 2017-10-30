@@ -6,11 +6,13 @@ import (
 	"strings"
 )
 
-//                     Ledger NAME or GLAccountID or LID works
-// 0   1   2           3
-// Bud,Name,ARType,    Debit,       Credit,   Allocated,RAIDRequired,Description
-// REX,Rent,Assessment,2,           8,        No,       No,          Rent assessment, accrual based, manage to budget
-// REX,FNB, Receipt,   Receivables, 7,        Yes,      Yes,         payments that are deposited in First National Bank
+//                            Ledger NAME or GLAccountID or LID works
+// 0   1                      2             3
+// Bud,Name,                  ARType,       Debit,              Credit,                    Allocated,RAIDRequired,SubARSpec             ,Description
+// REX,Rent,                  Assessment,   2,                  8,                         No,       No,         ,                      ,Rent assessment
+// REX,AutoGenFloatSECDEPAsmt,SubAssessment,RentRollReceivables,BankAcct,                  No,       No,         ,                      ,auto create assessment
+// REX,RCVFloatSecDep,        Receipt,      Undeposited Funds,  Floating Security Deposits,Yes,      Yes,        ,AutoGenFloatSECDEPAsmt,take payment and apply to auto gen'd asmt
+// REX,FNB,                   Receipt,      Receivables,        7,                         Yes,      Yes,        ,                      ,payments that are deposited in First National Bank
 
 // CreateAR creates AR database records from the supplied CSV file lines
 func CreateAR(sa []string, lineno int) (int, error) {
@@ -27,6 +29,7 @@ func CreateAR(sa []string, lineno int) (int, error) {
 		Allocated    = iota
 		ShowOnRA     = iota
 		RAIDRequired = iota
+		SubARSpec    = iota
 		Description  = iota
 	)
 
@@ -40,6 +43,7 @@ func CreateAR(sa []string, lineno int) (int, error) {
 		{"Allocated", Allocated},
 		{"ShowOnRA", ShowOnRA},
 		{"RAIDRequired", RAIDRequired},
+		{"SubARSpec", SubARSpec},
 		{"Description", Description},
 	}
 
@@ -172,6 +176,25 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	}
 
 	//----------------------------------------------------------------
+	// Get SubARs - add the array of subars to b, then update the
+	// subars with this ARID after we've saved b below
+	//----------------------------------------------------------------
+	sars := strings.TrimSpace(sa[SubARSpec])
+	if len(sars) > 0 {
+		sarsa := strings.Split(sars, ",")
+		for i := 0; i < len(sarsa); i++ {
+			var x rlib.SubAR
+			x.BID = b.BID
+			subar, err := rlib.GetARByName(b.BID, sarsa[i])
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not get Account Rule named: %s, err: %s", funcname, lineno, sarsa[i], err.Error())
+			}
+			x.SubARID = subar.ARID
+			b.SubARs = append(b.SubARs, x) // we will need to update these structs with b.ARID after we save it below
+		}
+	}
+
+	//----------------------------------------------------------------
 	// Get the Description
 	//----------------------------------------------------------------
 	b.Description = sa[Description]
@@ -179,6 +202,14 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	_, err = rlib.InsertAR(&b)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: error inserting AR = %v", funcname, err)
+	}
+
+	for i := 0; i < len(b.SubARs); i++ {
+		b.SubARs[i].ARID = b.ARID
+		err = rlib.InsertSubAR(&b.SubARs[i])
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving SubAR[%d]: %s", funcname, lineno, i, err.Error())
+		}
 	}
 
 	return 0, nil
