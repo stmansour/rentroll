@@ -85,13 +85,13 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	s := strings.TrimSpace(strings.ToLower(sa[ARType]))
 	switch s {
 	case "assessment":
-		b.ARType = 0
+		b.ARType = rlib.ARASSESSMENT
 	case "receipt":
-		b.ARType = 1
+		b.ARType = rlib.ARRECEIPT
 	case "expense":
-		b.ARType = 2
+		b.ARType = rlib.AREXPENSE
 	case "sub-assessment":
-		b.ARType = 3
+		b.ARType = rlib.ARSUBASSESSMENT
 	default:
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - ARType must be either Assessment or Receipt.  Found: %s", funcname, lineno, s)
 	}

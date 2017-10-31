@@ -383,7 +383,7 @@ func DeallocateAppliedFunds(a *rlib.Assessment, asmtRevID int64, dt *time.Time) 
 // INPUTS
 //    a = the assessment to insert
 //  exp = if it is a recurring assessment and the start date is in the past, should
-//        past entries be created?  true = yes
+//        past entries be created? 0 = NO, non-zero = YES
 //
 // RETURNS
 //    a slice of BizErrors

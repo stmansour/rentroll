@@ -27,9 +27,10 @@ const (
 	ELEMLAST            = 13 // keep in sync with last one added
 
 	// ARASSESSMENT et al, are Account Rule Types.
-	ARASSESSMENT = 0
-	ARRECEIPT    = 1
-	AREXPENSE    = 2
+	ARASSESSMENT    = 0
+	ARRECEIPT       = 1
+	AREXPENSE       = 2
+	ARSUBASSESSMENT = 3
 
 	// ASMUNPAID et al are flags for assessment
 	ASMUNPAID      = 0
@@ -669,7 +670,7 @@ type Assessment struct {
 	RPASMID        int64     // reversal parent Assessment, if it is non-zero, then the assessment has been reversed.
 	BID            int64     // what Business
 	RID            int64     // the Rentable
-	ATypeLID       int64     // what type of assessment
+	ATypeLID       int64     // DEPRECATED!!!  what type of assessment
 	RAID           int64     // associated Rental Agreement
 	Amount         float64   // how much
 	Start          time.Time // start time
