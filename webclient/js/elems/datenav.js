@@ -40,7 +40,6 @@ function handleDateToolbarAction(event,prefix) {
             app.D2 = dayFwd(xd2);
             break;
     }
-    console.log('handleDateToolbarAction:  D1 = ' + app.D1 + '  D2 = ' + app.D2);
 }
 
 //-----------------------------------------------------------------------------
@@ -122,8 +121,7 @@ function genDateRangeNavigator(prefix) {
 // @return  <no return value>
 //-----------------------------------------------------------------------------
 function updateGridPostDataDates(grid) {
-    var x = typeof grid.postData.searchDtStart;
-    if (x === "string" || x === "undefined") {
+    if (typeof grid.postData.searchDtStart === "string") {
         grid.postData.searchDtStart = app.D1;
         grid.postData.searchDtStop  = app.D2;
     }

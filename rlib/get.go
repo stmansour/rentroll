@@ -20,9 +20,9 @@ func GetAR(id int64) (AR, error) {
 }
 
 // GetARByName reads a AR the structure for the supplied bid and name
-func GetARByName(bid int64, name string) (AR, error) {
+func GetARByName(id int64, name string) (AR, error) {
 	var a AR
-	row := RRdb.Prepstmt.GetARByName.QueryRow(bid, name)
+	row := RRdb.Prepstmt.GetARByName.QueryRow(id, name)
 	err := ReadAR(row, &a)
 	return a, err
 }

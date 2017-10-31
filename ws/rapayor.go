@@ -90,7 +90,7 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		funcname = "SvcRAPayor"
 		err      error
 	)
-	rlib.Console("Entered %s\n", funcname)
+	fmt.Printf("Entered %s\n", funcname)
 
 	now := time.Now()
 	d.Dt = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC) // default to current date
@@ -115,8 +115,8 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	//    Handle the command
 	//------------------------------------------------------
-	rlib.Console("\nCOMMAND:  %s\n\n", d.wsSearchReq.Cmd)
-	rlib.Console("\tRAID = %d\n", d.RAID)
+	fmt.Printf("\nCOMMAND:  %s\n\n", d.wsSearchReq.Cmd)
+	fmt.Printf("\tRAID = %d\n", d.RAID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -149,8 +149,8 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		funcname = "deleteRAPayor"
 	)
 
-	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("record data = %s\n", d.data)
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
 
 	var del DeleteRAPayor
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
@@ -198,8 +198,8 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err      error
 	)
 
-	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("record data = %s\n", d.data)
+	fmt.Printf("Entered %s\n", funcname)
+	fmt.Printf("record data = %s\n", d.data)
 
 	// First determine if it is a new record, or a change...
 	if strings.Contains(d.data, `"changes":`) {
@@ -217,18 +217,18 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var a rlib.RentalAgreementPayor
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
-	rlib.Console("saveRAPayor - first migrate: a = RAID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
+	fmt.Printf("saveRAPayor - first migrate: a = RAID = %d, BID = %d, TCID = %d, DtStart = %s, DtStop = %s\n",
 		a.RAID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
 
 	// Try to read an existing record...
 	m := rlib.GetRentalAgreementPayorsInRange(a.RAID, &a.DtStart, &a.DtStop)
-	rlib.Console("found %d payors for RAID %d during period %s - %s\n", len(m), a.RAID, a.DtStart.Format(rlib.RRDATEFMT4), a.DtStop.Format(rlib.RRDATEFMT4))
+	fmt.Printf("found %d payors for RAID %d during period %s - %s\n", len(m), a.RAID, a.DtStart.Format(rlib.RRDATEFMT4), a.DtStop.Format(rlib.RRDATEFMT4))
 	for i := 0; i < len(m); i++ {
-		rlib.Console("m[i].TCID = %d, a.TCID = %d, %s - %s,  %s - %s\n",
+		fmt.Printf("m[i].TCID = %d, a.TCID = %d, %s - %s,  %s - %s\n",
 			m[i].TCID, a.TCID,
 			a.DtStart.Format(rlib.RRDATEFMT4), a.DtStop.Format(rlib.RRDATEFMT4),
 			m[i].DtStart.Format(rlib.RRDATEFMT4), m[i].DtStop.Format(rlib.RRDATEFMT4))
-		rlib.Console("DateRangeOverlap = %t\n", rlib.DateRangeOverlap(&a.DtStart, &a.DtStop, &m[i].DtStart, &m[i].DtStop))
+		fmt.Printf("DateRangeOverlap = %t\n", rlib.DateRangeOverlap(&a.DtStart, &a.DtStop, &m[i].DtStart, &m[i].DtStop))
 		if m[i].TCID == a.TCID && rlib.DateRangeOverlap(&a.DtStart, &a.DtStop, &m[i].DtStart, &m[i].DtStop) {
 			e := fmt.Errorf("There is already an overlapping record for %s %s from %s to %s",
 				foo.Record.FirstName, foo.Record.LastName,
@@ -257,7 +257,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err      error
 	)
 
-	rlib.Console("Entered: %s\n", funcname)
+	fmt.Printf("Entered: %s\n", funcname)
 	var foo UpdateRAPayorInput
 	data := []byte(d.data)
 	if err = json.Unmarshal(data, &foo); err != nil {
@@ -276,7 +276,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcGridErrorReturn(w, e, funcname)
 			return
 		}
-		rlib.Console("Found rapayor: %#v\n", rapayor)
+		fmt.Printf("Found rapayor: %#v\n", rapayor)
 		dt := time.Time(foo.Changes[i].DtStart)
 		if dt.Year() > 1969 {
 			rapayor.DtStart = dt
@@ -326,23 +326,20 @@ func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		funcname = "SvcGetRAPayor"
 		gxp      RAPayorResponse
 	)
-	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("date = %s\n", d.Dt.Format(rlib.RRDATEFMTSQL))
+	fmt.Printf("Entered %s\n", funcname)
 
 	m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &d.Dt, &d.Dt)
-	rlib.Console("found %d payors in that range\n", len(m))
 	for i := 0; i < len(m); i++ {
 		var p rlib.Transactant
 		rlib.GetTransactant(m[i].TCID, &p)
 		var xr RAPayor
-		rlib.Console("%d. first: %s,  last: %s,  company: %s\n", p.FirstName, p.LastName, p.CompanyName)
-		rlib.Console("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
+		fmt.Printf("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
 		rlib.MigrateStructVals(&p, &xr)
 		rlib.MigrateStructVals(&m[i], &xr)
 		xr1 := time.Time(xr.DtStart)
 		xr2 := time.Time(xr.DtStop)
 		xr.Recid = int64(i)
-		rlib.Console("after migrate: xr.DtStart = %s, xr.DtStop = %s\n", xr1.Format(rlib.RRDATEFMT3), xr2.Format(rlib.RRDATEFMT3))
+		fmt.Printf("after migrate: xr.DtStart = %s, xr.DtStop = %s\n", xr1.Format(rlib.RRDATEFMT3), xr2.Format(rlib.RRDATEFMT3))
 		xr.Recid = m[i].RAPID // must set AFTER MigrateStructVals in case src contains recid
 		gxp.Records = append(gxp.Records, xr)
 	}
