@@ -127,6 +127,7 @@ dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "p"  "WebService-
 # Read RAID Payors
 echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
 dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "q"  "WebService--GetRAIDPayors"
+exit 1
 
 # # Delete a RAID Payor that does not exist for the the specified RAID (it should go to RAID 20 but will go to RAID 16 instead)
 echo "request=%7B%22cmd%22%3A%22delete%22%2C%22selected%22%3A%5B1049%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A367%2C%22DtStop%22%3A%223%2F11%2F2018%22%7D" > request

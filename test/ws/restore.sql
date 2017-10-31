@@ -1,5 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
 --
+-- updated
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.16
@@ -2250,4 +2251,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-30 22:49:43
+-- Dump completed on 2017-10-31  0:55:04
