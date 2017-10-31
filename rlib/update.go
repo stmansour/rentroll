@@ -254,7 +254,7 @@ func UpdateSLString(a *SLString) error {
 
 // UpdateSubAR updates a SubAR record in the database
 func UpdateSubAR(a *SubAR) error {
-	_, err := RRdb.Prepstmt.UpdateSubAR.Exec(a.ARID, a.SubARID, a.BID, a.LastModBy, a.SARID)
+	_, err := RRdb.Prepstmt.UpdateSubAR.Exec(a.ARID, a.SubARID, a.LastModBy, a.SARID)
 	return updateError(err, "SubAR", *a)
 }
 

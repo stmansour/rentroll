@@ -405,7 +405,7 @@ CREATE TABLE OtherDeliverables (
 CREATE TABLE Business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
     BUD VARCHAR(100) NOT NULL DEFAULT '',                       -- Business Unit Designation
-    Name VARCHAR(100) NOT NULL DEFAULT '',        
+    Name VARCHAR(100) NOT NULL DEFAULT '',
     DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,               -- default for every rentable type - useful to initialize UI
     DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,          -- default for every rentable type - useful to initialize UI
     DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                   -- default for every rentable type - useful to initialize UI
@@ -413,8 +413,8 @@ CREATE TABLE Business (
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (BID)    
-);    
+    PRIMARY KEY (BID)
+);
 --    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,           -- yes/no  0 = no, 1 = yes
 
 -- ===========================================
@@ -572,7 +572,7 @@ CREATE TABLE Rentable (
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (RID) 
+    PRIMARY KEY (RID)
     -- RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,             -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
     -- RentCycle SMALLINT NOT NULL DEFAULT 0,                       -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
 );
@@ -586,7 +586,7 @@ CREATE TABLE MRHistory (
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (MRHID) 
+    PRIMARY KEY (MRHID)
 );
 
 CREATE TABLE RentableStatus (
@@ -891,6 +891,7 @@ CREATE TABLE AR (
     ARID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     Name VARCHAR(100) NOT NULL DEFAULT '',
+    SubARID BIGINT NOT NULL DEFAULT 0,                      --
     ARType SMALLINT NOT NULL DEFAULT 0,                     -- Assessment = 0, Receipt = 1, Expense = 2
     RARequired SMALLINT NOT NULL DEFAULT 0,                 -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
     DebitLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID of debit part
@@ -915,7 +916,7 @@ CREATE TABLE AR (
 CREATE TABLE SubAR (
     SARID BIGINT NOT NULL AUTO_INCREMENT,
     ARID BIGINT NOT NULL DEFAULT 0,                         -- Which ARID
-    SubARID BIGINT NOT NULL DEFAULT 0,                      -- SubARID = ARID of the sub-account rule
+    SubARID BIGINT NOT NULL DEFAULT 0,                      -- SubARID
     BID BIGINT NOT NULL DEFAULT 0,
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
@@ -963,7 +964,7 @@ CREATE TABLE ReceiptAllocation (
     Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     ASMID BIGINT NOT NULL DEFAULT 0,                            -- the id of the assessment that caused this payment
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- bit 2:  VOID THIS RECEIPT-ALLOCATION
-    AcctRule VARCHAR(150),
+    AcctRule VARCHAR(150) NOT NULL DEFAULT '',
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
@@ -1183,13 +1184,13 @@ CREATE TABLE GLAccount (
     TCID BIGINT NOT NULL DEFAULT 0,                           -- Payor, only valid if TYPE is 2
     GLNumber VARCHAR(100) NOT NULL DEFAULT '',                -- if not '' then it's a link a QB  GeneralLedger (GL)account
     Status SMALLINT NOT NULL DEFAULT 0,                       -- Whether a GL Account is currently unknown=0, inactive=1, active=2
-    Name VARCHAR(100) NOT NULL DEFAULT '',            
+    Name VARCHAR(100) NOT NULL DEFAULT '',
     AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,
                                                               --    Cost of Goods Sold, Other Income, Other Expense
     AllowPost SMALLINT NOT NULL DEFAULT 0,                    -- 0 - do not allow posts to this ledger. 1 = allow posts
     -- RARequired SMALLINT NOT NULL DEFAULT 0,                -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
-    FLAGS BIGINT NOT NULL DEFAULT 0,                          -- 
+    FLAGS BIGINT NOT NULL DEFAULT 0,                          --
     Description VARCHAR(1024) NOT NULL DEFAULT '',            -- describe the assessment
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it

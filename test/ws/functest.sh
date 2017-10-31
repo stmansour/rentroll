@@ -120,8 +120,8 @@ dojsonPOST "http://localhost:8270/v1/ruser/ISO/16" "request" "n"  "WebService--I
 echo "request%3D%7B%22cmd%22%3A%22delete%22%2C%22selected%22%3A%5B1%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A373%7D" > request
 dojsonPOST "http://localhost:8270/v1/ruser/ISO/16" "request" "o"  "WebService--DeleteARentableUser"
 
-# Create another NEW RAID Payor 
-echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidPicker%22%2C%22record%22%3A%7B%22recid%22%3A1%2C%22BID%22%3A5%2C%22TCID%22%3A373%2C%22RAID%22%3A16%2C%22FirstName%22%3A%22Jason%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Thomas%22%2C%22DtStart%22%3A%223%2F5%2F2017%22%2C%22DtStop%22%3A%223%2F5%2F9999%22%7D%7D" > request
+# Create another NEW RAID Payor -- same TCID
+echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidPicker%22%2C%22record%22%3A%7B%22recid%22%3A1%2C%22BID%22%3A5%2C%22TCID%22%3A367%2C%22RAID%22%3A16%2C%22FirstName%22%3A%22Eric%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Wilson%22%2C%22DtStart%22%3A%223%2F6%2F2017%22%2C%22DtStop%22%3A%223%2F6%2F2018%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/rapayor/ISO/16" "request" "p"  "WebService--InsertARAIDPayor"
 
 # Read RAID Payors

@@ -27,10 +27,9 @@ const (
 	ELEMLAST            = 13 // keep in sync with last one added
 
 	// ARASSESSMENT et al, are Account Rule Types.
-	ARASSESSMENT    = 0
-	ARRECEIPT       = 1
-	AREXPENSE       = 2
-	ARSUBASSESSMENT = 3
+	ARASSESSMENT = 0
+	ARRECEIPT    = 1
+	AREXPENSE    = 2
 
 	// ASMUNPAID et al are flags for assessment
 	ASMUNPAID      = 0
@@ -670,7 +669,7 @@ type Assessment struct {
 	RPASMID        int64     // reversal parent Assessment, if it is non-zero, then the assessment has been reversed.
 	BID            int64     // what Business
 	RID            int64     // the Rentable
-	ATypeLID       int64     // DEPRECATED!!!  what type of assessment
+	ATypeLID       int64     // what type of assessment
 	RAID           int64     // associated Rental Agreement
 	Amount         float64   // how much
 	Start          time.Time // start time
@@ -726,7 +725,7 @@ type AR struct {
 	LastModBy     int64
 	CreateTS      time.Time // when was this record created
 	CreateBy      int64     // employee UID (from phonebook) that created it
-	SubARs        []SubAR   // the SubARs if FLAGS & 1<<3 > 0
+	ARs           []AR      // the SubARs if FLAGS & 1<<3 > 0
 }
 
 // SubAR is the table that defines multiple ARIDs for transactions that require multiple ARIDs

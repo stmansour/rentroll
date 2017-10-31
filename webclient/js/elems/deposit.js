@@ -125,7 +125,6 @@ function buildDepositElements() {
                             var rec = grid.get(recid);
                             var myurl = '/v1/deposit/' + rec.BID + '/' + rec.DID;
                             var urlgrid = '/v1/depositlist/' + rec.BID + '/' + rec.DID;
-
                             setToDepositForm("depositLayout","depositForm",myurl,urlgrid,700,true);
                         })
                         .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
@@ -284,10 +283,6 @@ function buildDepositElements() {
     $().w2grid({
         name: 'depositListGrid',
         url: '/v1/depositlist',
-        postData: {
-            SearchDtStart: app.D1,
-            SearchDtStop: app.D2,
-        },
         multiSelect: false,
         show: {
             toolbar        : true,
@@ -370,7 +365,7 @@ function buildDepositElements() {
                 var form = this;
                 w2confirm(delete_confirm_options)
                 .yes(function() {
-                    // var tgrid = w2ui.depositForm;
+                    var tgrid = w2ui.depositForm;
                     var params = {cmd: 'delete', formname: form.name, DID: w2ui.depositForm.record.DID };
                     var dat = JSON.stringify(params);
                     form.url = '/v1/deposit/' + w2ui.depositForm.record.BID + '/' + w2ui.depositForm.record.DID;
@@ -473,9 +468,7 @@ function calcTotalCheckedReceipts() {
             }
         }
     }
-    if (grid.records.length > 0) {
-        grid.set('s-1', { Amount: t });
-    }
+    grid.set('s-1', { Amount: t });
 }
 
 //-----------------------------------------------------------------------------
@@ -492,7 +485,7 @@ function getCheckedReceipts() {
     var i=0;
     var checkcol=0;
     var rcptidcol=0;
-    //var flagscol=0;
+    var flagscol=0;
     for (i = 0; i < grid.columns.length; i++) {
         if (grid.columns[i].field === "Check") {checkcol = i;}
         if (grid.columns[i].field === "RCPTID") {rcptidcol = i;}

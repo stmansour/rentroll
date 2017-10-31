@@ -483,29 +483,6 @@ func DeleteSLStrings(id int64) error {
 	return err
 }
 
-// DeleteSubAR deletes the SubAR with the specified id from the database
-func DeleteSubAR(sarid int64) error {
-	_, err := RRdb.Prepstmt.DeleteSubAR.Exec(sarid)
-	if err != nil {
-		Ulog("Error deleting SubAR id=%d error: %v\n", sarid, err)
-	}
-	return err
-}
-
-// DeleteSubARs deletes all SubAR with the specified SLID from the database
-func DeleteSubARs(arid int64) error {
-	var err error
-	if arid > 0 {
-		_, err = RRdb.Prepstmt.DeleteSubARs.Exec(arid)
-		if err != nil {
-			if !IsSQLNoResultsError(err) {
-				Ulog("Error deleting ARID=%d error: %v\n", arid, err)
-			}
-		}
-	}
-	return err
-}
-
 // DeleteTransactant deletes the Transactant with the specified id from the database
 func DeleteTransactant(id int64) error {
 	_, err := RRdb.Prepstmt.DeleteTransactant.Exec(id)
