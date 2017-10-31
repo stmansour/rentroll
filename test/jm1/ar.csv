@@ -1,5 +1,5 @@
-Bud,Name,ARType,    Debit,Credit,Allocated,ShowOnRA,RAIDRequired,Description
-REX,Rent Non-Taxable,Assessment,Accounts Receivable,Gross Scheduled Rent-Not Taxable,FALSE,,,Rent for non-taxable rooms / properties
-REX,Late Fee,Assessment,Accounts Receivable,Late Fees,FALSE,,,Assessed when payments are 7 days or more overdue
-REX,Payment By Check,Receipt,Cash BofA,Unapplied Funds,FALSE,,,Unapplied Funds
-REX,Security Deposit Assessment,Assessment,Accounts Receivable,Security Deposits,FALSE,,,Use for security deposits
+Bud,Name,ARType,    Debit,Credit,Allocated,ShowOnRA,RAIDRequired,SubARSpec,Description
+REX,Rent Non-Taxable,Assessment,Accounts Receivable,Gross Scheduled Rent-Not Taxable,FALSE,,,,Rent for non-taxable rooms / properties
+REX,Late Fee,Assessment,Accounts Receivable,Late Fees,FALSE,,,,Assessed when payments are 7 days or more overdue
+REX,Payment By Check,Receipt,Cash BofA,Unapplied Funds,FALSE,,,,Unapplied Funds
+REX,Security Deposit Assessment,Assessment,Accounts Receivable,Security Deposits,FALSE,,,,Use for security deposits

@@ -726,11 +726,16 @@ func InsertSLStrings(a *StringList) {
 }
 
 // InsertSubAR writes a SubAR to the database
-func InsertSubAR(a *SubAR) {
-	_, err := RRdb.Prepstmt.InsertSubAR.Exec(a.ARID, a.SubARID, a.CreateBy, a.LastModBy)
+func InsertSubAR(a *SubAR) error {
+	res, err := RRdb.Prepstmt.InsertSubAR.Exec(a.ARID, a.SubARID, a.BID, a.CreateBy, a.LastModBy)
 	if nil != err {
 		Ulog("InsertSubAR: error:  %v\n", err)
 	}
+	id, err := res.LastInsertId()
+	if err == nil {
+		a.SARID = int64(id)
+	}
+	return err
 }
 
 // InsertTransactant writes a new Transactant record to the database

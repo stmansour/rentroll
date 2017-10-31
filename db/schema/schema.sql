@@ -891,7 +891,6 @@ CREATE TABLE AR (
     ARID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                          -- Business id
     Name VARCHAR(100) NOT NULL DEFAULT '',
-    SubARID BIGINT NOT NULL DEFAULT 0,                      -- 
     ARType SMALLINT NOT NULL DEFAULT 0,                     -- Assessment = 0, Receipt = 1, Expense = 2
     RARequired SMALLINT NOT NULL DEFAULT 0,                 -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
     DebitLID BIGINT NOT NULL DEFAULT 0,                     -- Ledger ID of debit part
@@ -916,7 +915,7 @@ CREATE TABLE AR (
 CREATE TABLE SubAR (
     SARID BIGINT NOT NULL AUTO_INCREMENT,
     ARID BIGINT NOT NULL DEFAULT 0,                         -- Which ARID
-    SubARID BIGINT NOT NULL DEFAULT 0,                      -- SubARID
+    SubARID BIGINT NOT NULL DEFAULT 0,                      -- SubARID = ARID of the sub-account rule
     BID BIGINT NOT NULL DEFAULT 0,
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it

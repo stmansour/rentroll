@@ -33,7 +33,7 @@ DROP TABLE IF EXISTS SubAR;
 CREATE TABLE SubAR (
     SARID BIGINT NOT NULL AUTO_INCREMENT,
     ARID BIGINT NOT NULL DEFAULT 0,                         -- Which ARID
-    SubARID BIGINT NOT NULL DEFAULT 0,                      -- SubARID
+    SubARID BIGINT NOT NULL DEFAULT 0,                      -- ARID of the sub-account rule
     BID BIGINT NOT NULL DEFAULT 0,
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
