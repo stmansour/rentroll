@@ -330,10 +330,12 @@ func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("date = %s\n", d.Dt.Format(rlib.RRDATEFMTSQL))
 
 	m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &d.Dt, &d.Dt)
+	rlib.Console("found %d payors in that range\n", len(m))
 	for i := 0; i < len(m); i++ {
 		var p rlib.Transactant
 		rlib.GetTransactant(m[i].TCID, &p)
 		var xr RAPayor
+		rlib.Console("%d. first: %s,  last: %s,  company: %s\n", p.FirstName, p.LastName, p.CompanyName)
 		rlib.Console("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
 		rlib.MigrateStructVals(&p, &xr)
 		rlib.MigrateStructVals(&m[i], &xr)
