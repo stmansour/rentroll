@@ -21,3 +21,10 @@ pushd ../importers/roomkey/roomkey_exported_guest;./functest.sh -n -f; ../../../
 
 docsvtest "a" "-E cccpets.csv" "Pets"
 docsvtest "b" "-P pmt.csv" "PaymentTypes"
+cat >xyz <<EOF
+UPDATE RentalAgreementPayors SET DtStop='9999-10-31' WHERE RAPID='21';
+UPDATE RentalAgreement SET AgreementStop='9999-10-31', PossessionStop='9999-10-31', RentStop='9999-10-31' WHERE RAID='16';
+UPDATE RentalAgreementPayors SET DtStop='9999-10-31' WHERE RAPID='21';
+EOF
+
+mysql --no-defaults rentroll < xyz 
