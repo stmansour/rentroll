@@ -111,15 +111,18 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	)
 
 	// assign recid and append to g.Records
-	rowCounter := int64(d.wsSearchReq.Offset) // count recid from offset
+	recordCounter := int64(d.wsSearchReq.Offset) // count recid from offset
+	summaryCounter := int64(0)
 	for _, row := range rows {
-		row.Recid = rowCounter
 		if row.IsGrandTotalRow {
+			row.Recid = summaryCounter // reset recid for summary
 			g.Summary = append(g.Summary, row)
+			summaryCounter++
 		} else {
+			row.Recid = recordCounter
 			g.Records = append(g.Records, row)
+			recordCounter++
 		}
-		rowCounter++
 	}
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
