@@ -502,7 +502,7 @@ func GetRentRollViewRows(BID int64,
 
 			// Rent Cycle formatting
 			for freqStr, freqNo := range rlib.CycleFreqMap {
-				if q.RentCycle.Int64 == freqNo && q.RentCycle.Valid {
+				if q.RentCycle.Int64 == freqNo {
 					q.RentCycleStr = freqStr
 				}
 			}

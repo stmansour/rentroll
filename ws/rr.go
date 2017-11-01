@@ -36,7 +36,6 @@ package ws
 //-----------------------------------------------------------------------------
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
@@ -44,11 +43,6 @@ import (
 	"strings"
 	"time"
 )
-
-// RRSearchRequestData is the struct for request data for rentroll webview
-type RRSearchRequestData struct {
-	RowsOffset int `json:"rows_offset"` // rentroll report rows offset
-}
 
 // RRSearchResponse is the response data for a Rental Agreement Search
 type RRSearchResponse struct {
@@ -65,8 +59,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		err     error
 		g       RRSearchResponse
-		reqData RRSearchRequestData
 		limit   = d.wsSearchReq.Limit
+		offset  = d.wsSearchReq.Offset
 		startDt = d.wsSearchReq.SearchDtStart
 		stopDt  = d.wsSearchReq.SearchDtStop
 	)
@@ -74,13 +68,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		limit = 20
 	}
 	rlib.Console("Entered %s\n", funcname)
-
-	if err := json.Unmarshal([]byte(d.data), &reqData); err != nil {
-		rlib.Console("Error while unmarshalling json from reqData: %s", err.Error())
-		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
 
 	//===========================================================
 	// TOTAL RECORDS COUNT
@@ -107,11 +94,11 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rows, err := rrpt.GetRentRollViewRows(
 		d.BID, startDt, stopDt, // BID, startDate, stopDate
 		limit, // limit
-		rrWhere, rrOrder, reqData.RowsOffset,
+		rrWhere, rrOrder, offset,
 	)
 
 	// assign recid and append to g.Records
-	rowCounter := int64(d.wsSearchReq.Offset) // count recid from offset
+	rowCounter := int64(0)
 	for _, row := range rows {
 		row.Recid = rowCounter
 		if row.IsGrandTotalRow {

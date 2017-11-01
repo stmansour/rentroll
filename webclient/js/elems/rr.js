@@ -19,7 +19,7 @@ function buildRentRollElements() {
         name: 'rrGrid',
         url: '/v1/rentroll',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 10},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 20},
         show: {
             toolbar         : true,
             footer          : true,
@@ -99,8 +99,8 @@ function buildRentRollElements() {
                 if (!("_rrIndexMap" in g.last)) {
                     g.last._rrIndexMap = {};
                 }
-                if (!("_rows_offset" in g.last)) {
-                    g.last._rows_offset = 0;
+                if (!("_offset" in g.last)) {
+                    g.last._offset = 0;
                 }
 
                 var record, i;
@@ -132,7 +132,7 @@ function buildRentRollElements() {
                                 var colIndex = g.getColumn(grey_fields[j], true);
                                 record.w2ui.style[colIndex] = "background-color: #CCC;";
                             }
-                            g.last._rows_offset++;
+                            g.last._offset++;
                         }
 
                         if (record.IsSubTotalRow) {
@@ -196,12 +196,11 @@ function buildRentRollElements() {
         onRequest: function(event) {
             var g = this;
             if (g.records.length == 0) { // if grid is empty then reset all flags
-                g._total_main_rows = 0;
                 g.last._main_rows_offset = 0;
-                g.last._rows_offset = 0;
-                g.last._rrIndexMap = {};
+                g._total_main_rows = 0;
+                g.last._offset = 0;
             }
-            event.postData.rows_offset = g.last._rows_offset;
+            event.postData.offset = g.last._offset;
         },
         onClick: function(event) {
             event.onComplete = function () {

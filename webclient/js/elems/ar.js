@@ -70,7 +70,7 @@ $().w2grid({
         {field: 'ARID',   hidden: true,  caption: 'COPID', size: '75px', sortable: true, style: 'text-align: center'},
         {field: 'BID',    hidden: true,  caption: 'BID',   size: '150px', sortable: true, style: 'text-align: center'},
         {field: 'Name',   hidden: false, caption: 'Name',  size: '15%',   sortable: true, style: 'text-align: left'},
-        {field: 'ARType', hidden: false, caption: 'ARType',size: '80px',  sortable: true, style: 'text-align: left',
+        {field: 'ARType', hidden: false, caption: 'ARType',size: '100px',  sortable: true, style: 'text-align: left',
             render: function (record, index, col_index) {
                 return app.ARTypes[this.getCellValue(index, col_index)];
             }
