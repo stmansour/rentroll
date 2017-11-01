@@ -67,7 +67,6 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g       RRSearchResponse
 		reqData RRSearchRequestData
 		limit   = d.wsSearchReq.Limit
-		offset  = d.wsSearchReq.Offset
 		startDt = d.wsSearchReq.SearchDtStart
 		stopDt  = d.wsSearchReq.SearchDtStop
 	)
