@@ -3,7 +3,89 @@ package bizlogic
 import (
 	"fmt"
 	"rentroll/rlib"
+	"time"
 )
+
+// EnsureReceiptFundsToDepositoryAccount looks at the AR used
+// for the Receipt. If the debit is not
+// already the Account associated with the Depository for this
+// deposit, then credit that account and debit the Depository
+// account with the receipt amount.
+//
+// @params
+//  r - the receipt to be deposited in the Depository
+//  a - the assesment that r is for
+//  d - the Depository where the funds will be deposited.
+//--------------------------------------------------------------
+func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, d *rlib.Depository) error {
+	var xbiz rlib.XBusiness
+	var err error
+	funcname := "EnsureReceiptFundsToDepositoryAccount"
+	rlib.InitBizInternals(r.BID, &xbiz)
+	ar := rlib.RRdb.BizTypes[r.BID].AR[r.ARID]
+	if ar.DebitLID != d.LID {
+		//----------------------------------
+		// debit  d.LID r.Amount
+		// credit ar.DebitLID r.Amount
+		//----------------------------------
+		var jnl = rlib.Journal{
+			BID:    r.BID,
+			Amount: r.Amount,
+			Dt:     time.Now(),
+			Type:   rlib.JNLTYPERCPT,
+			ID:     r.RCPTID,
+		}
+		_, err = rlib.InsertJournal(&jnl)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			return err
+		}
+
+		var ja = rlib.JournalAllocation{
+			JID: jnl.JID,
+			AcctRule: fmt.Sprintf("d %s %.4f, c %s %.4f",
+				rlib.RRdb.BizTypes[r.BID].GLAccounts[d.LID].GLNumber, r.Amount,
+				rlib.RRdb.BizTypes[r.BID].GLAccounts[ar.DebitLID].GLNumber, r.Amount),
+			Amount: r.Amount,
+			BID:    r.BID,
+			RAID:   r.RAID,
+			ASMID:  a.ASMID,
+			TCID:   r.TCID,
+			RCPTID: r.RCPTID,
+		}
+		rlib.InsertJournalAllocationEntry(&ja)
+		jnl.JA = append(jnl.JA, ja)
+
+		//-------------------------------------------------------------------------
+		// Update ledgers based on journal entry
+		//-------------------------------------------------------------------------
+		var l = rlib.LedgerEntry{
+			BID:    jnl.BID,
+			JID:    jnl.JID,
+			RID:    ja.RID,
+			JAID:   ja.JAID,
+			RAID:   ja.RAID,
+			TCID:   ja.TCID,
+			Dt:     jnl.Dt,
+			LID:    d.LID,
+			Amount: r.Amount,
+		}
+		_, err = rlib.InsertLedgerEntry(&l)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			return err
+		}
+
+		l.LID = ar.DebitLID
+		l.Amount = -r.Amount
+		_, err = rlib.InsertLedgerEntry(&l)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			return err
+		}
+	}
+	return nil
+}
 
 // SaveDeposit validates that all the information in the deposit
 // meets the business criteria for a deposit and Inserts or Updates
