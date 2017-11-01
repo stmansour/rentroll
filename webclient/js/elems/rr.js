@@ -19,7 +19,7 @@ function buildRentRollElements() {
         name: 'rrGrid',
         url: '/v1/rentroll',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 10},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, limit: 15},
         show: {
             toolbar         : true,
             footer          : true,
