@@ -1072,35 +1072,36 @@ CREATE TABLE InvoicePayor (
 -- ****                              ****
 -- **************************************
 CREATE TABLE Journal (
-    JID BIGINT NOT NULL AUTO_INCREMENT,                            -- a Journal entry
-    BID BIGINT NOT NULL DEFAULT 0,                                 -- Business id
-    -- RAID BIGINT NOT NULL DEFAULT 0,                                -- associated rental agreement
-    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',            -- date when it occurred
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- how much
-    Type SMALLINT NOT NULL DEFAULT 0,                              -- 0 = unassociated with RA, 1 = assessment, 2 = payment/Receipt, 3 = Expense
-    ID BIGINT NOT NULL DEFAULT 0,                                  -- if Type == 0 then it is the RentableID,
-                                                                   -- if Type == 1 then it is the ASMID that caused this entry,
-                                                                   -- if Type == 2 then it is the RCPTID
-                                                                   -- if Type == 3 then it is the EXPID
-    Comment VARCHAR(256) NOT NULL DEFAULT '',                      -- for notes like "prior period adjustment"
+    JID BIGINT NOT NULL AUTO_INCREMENT,                             -- a Journal entry
+    BID BIGINT NOT NULL DEFAULT 0,                                  -- Business id
+    -- RAID BIGINT NOT NULL DEFAULT 0,                                 -- associated rental agreement
+    Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',             -- date when it occurred
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                      -- how much
+    Type SMALLINT NOT NULL DEFAULT 0,                               -- 0 = unassociated with RA, 1 = assessment, 2 = payment/Receipt, 3 = Expense
+    ID BIGINT NOT NULL DEFAULT 0,                                   -- if Type == 0 then it is the RentableID,
+                                                                    -- if Type == 1 then it is the ASMID that caused this entry,
+                                                                    -- if Type == 2 then it is the RCPTID
+                                                                    -- if Type == 3 then it is the EXPID
+    Comment VARCHAR(256) NOT NULL DEFAULT '',                       -- for notes like "prior period adjustment"
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
     PRIMARY KEY (JID)
 );
 
 CREATE TABLE JournalAllocation (
     JAID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,                                 -- Business id
-    JID BIGINT NOT NULL DEFAULT 0,                                 -- sum of all amounts in this table with RCPTID must equal the Receipt with RCPTID in Receipt table
-    RID BIGINT NOT NULL DEFAULT 0,                                 -- associated Rentable
-    RAID BIGINT NOT NULL DEFAULT 0,                                -- associated Rental Agreement
-    TCID BIGINT NOT NULL DEFAULT 0,                                -- if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means it's unallocated funds
-    RCPTID BIGINT NOT NULL DEFAULT 0,                              -- associated receipt if TCID > 0
-    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                     -- Amount transacted
-    ASMID BIGINT NOT NULL DEFAULT 0,                               -- may not be present if assessment records have been backed up and removed.
-    EXPID BIGINT NOT NULL DEFAULT 0,                               -- the associated expense.
+    BID BIGINT NOT NULL DEFAULT 0,                                  -- Business id
+    JID BIGINT NOT NULL DEFAULT 0,                                  -- sum of all amounts in this table with RCPTID must equal the Receipt with RCPTID in Receipt table
+    RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
+    RAID BIGINT NOT NULL DEFAULT 0,                                 -- associated Rental Agreement
+    TCID BIGINT NOT NULL DEFAULT 0,                                 -- if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means it's unallocated funds
+    RCPTID BIGINT NOT NULL DEFAULT 0,                               -- associated receipt if TCID > 0. If both ASMID and RCPTID are > 0, then the assessment was generated as
+                                                                    -- as part of a SubAR rule that binds the two
+    Amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,                      -- Amount transacted
+    ASMID BIGINT NOT NULL DEFAULT 0,                                -- may not be present if assessment records have been backed up and removed.
+    EXPID BIGINT NOT NULL DEFAULT 0,                                -- the associated expense.
     AcctRule VARCHAR(200) NOT NULL DEFAULT '',
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record

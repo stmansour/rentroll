@@ -400,6 +400,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalAllocationsByASMID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE ASMID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE ASMID>0 AND RCPTID=?")
+	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertJournalAllocation, err = RRdb.Dbrr.Prepare("INSERT INTO JournalAllocation (" + s1 + ") VALUES(" + s2 + ")")

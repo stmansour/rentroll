@@ -132,6 +132,7 @@ const (
 	JNLTYPEASMT = 1 // record is the result of an Assessment
 	JNLTYPERCPT = 2 // record is the result of a Receipt
 	JNLTYPEEXP  = 3 // record is the result of an Expense
+	JNLTYPEXFER = 4 // funds transfer between accounts
 
 	JOURNALTYPEASMID  = 1
 	JOURNALTYPERCPTID = 2
@@ -1550,6 +1551,7 @@ type RRprepSQL struct {
 	UpdateSubAR                             *sql.Stmt
 	DeleteSubAR                             *sql.Stmt
 	DeleteSubARs                            *sql.Stmt
+	GetJournalAllocationsByASMandRCPTID     *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

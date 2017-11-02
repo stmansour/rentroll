@@ -32,7 +32,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, 
 			BID:    r.BID,
 			Amount: r.Amount,
 			Dt:     time.Now(),
-			Type:   rlib.JNLTYPERCPT,
+			Type:   rlib.JNLTYPEXFER,
 			ID:     r.RCPTID,
 		}
 		_, err = rlib.InsertJournal(&jnl)
@@ -99,6 +99,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, 
 //	errlist - an array of errors
 //-----------------------------------------------------------------------
 func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
+	rlib.Console("SaveDeposit: 0\n")
 	var e []BizError
 	var rlist []rlib.Receipt
 	tot := float64(0)
@@ -131,6 +132,12 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 		return e
 	}
 
+	dep, err := rlib.GetDepository(a.DEPID) // get the depository for this deposit
+	if err != nil {
+		var be []BizError
+		return AddErrToBizErrlist(err, be)
+	}
+
 	//------------------------------------------------------------
 	// Save the deposit
 	//------------------------------------------------------------
@@ -148,14 +155,39 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			err = rlib.InsertDepositPart(&dp)
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
+				continue
 			}
 			if rlist[i].DID == 0 {
 				rlist[i].DID = a.DID
 				err = rlib.UpdateReceipt(&rlist[i])
 				if err != nil {
 					e = AddErrToBizErrlist(err, e)
+					continue
 				}
 			}
+			//-----------------------------------------------------------------------
+			// We need to make sure at this point that the funds for the receipt
+			// are in the account associated with the depository.
+			//-----------------------------------------------------------------------
+			rlib.Console("DEPOSIT - 1\n")
+			ja := rlib.GetJournalAllocationByASMandRCPTID(newRcpts[i])
+			l := len(ja) // if l == 0 it is a normal receipt -- no associated auto-generated Assessment
+			rlib.Console("DEPOSIT - 2\n")
+			if l > 1 {
+				rlib.Console("DEPOSIT - 3\n")
+				err = fmt.Errorf("Multiple JournalAllocations for auto-generated Assessment. RCPTID = %d", newRcpts[i])
+			} else if l == 1 {
+				rlib.Console("DEPOSIT - 4\n")
+				a, err := rlib.GetAssessment(ja[0].ASMID)
+				if err != nil {
+					rlib.Console("DEPOSIT - 5\n")
+					e = AddErrToBizErrlist(err, e)
+					continue
+				}
+				rlib.Console("DEPOSIT - 6\n")
+				err = EnsureReceiptFundsToDepositoryAccount(&rlist[i], &a, &dep)
+			}
+			rlib.Console("DEPOSIT - 7\n")
 		}
 	} else {
 		err := rlib.UpdateDeposit(a)

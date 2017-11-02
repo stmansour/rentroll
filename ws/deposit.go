@@ -274,7 +274,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 
 }
 
-// GetDeposit returns the requested assessment
+// SaveDeposit returns the requested assessment
 // wsdoc {
 //  @Title  Save Deposit
 //	@URL /v1/deposit/:BUI/:DID
@@ -309,7 +309,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var ok bool
 	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
-		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
+		e := fmt.Errorf("%s: Could not map BUD value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
@@ -336,7 +336,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(w)
 }
 
-// GetDeposit returns the requested assessment
+// DeleteDeposit returns the requested assessment
 // wsdoc {
 //  @Title  Delete Deposit
 //	@URL /v1/deposit/:BUI/DID
