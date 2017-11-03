@@ -147,7 +147,9 @@ FROM
     RentableUsers ON (RentableUsers.RID = Rentable_CUM_RA.RID
         AND RentableUsers.RID = Rentable_CUM_RA.RID
         AND @DtStart <= RentableUsers.DtStop
-        AND @DtStop > RentableUsers.DtStart)
+        AND @DtStop > RentableUsers.DtStart
+        AND RentableUsers.DtStart >= Rentable_CUM_RA.AgreementStart
+        AND RentableUsers.DtStop <= Rentable_CUM_RA.AgreementStop)
         LEFT JOIN
     Transactant AS User ON (RentableUsers.TCID = User.TCID
         AND User.BID = Rentable_CUM_RA.BID)
