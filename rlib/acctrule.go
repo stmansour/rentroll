@@ -55,12 +55,38 @@ func DoAcctSubstitution(bid int64, s string) string {
 	if s[0] == '$' {
 		m := rpnVariable.FindStringSubmatchIndex(s)
 		if m != nil && len(m) > 3 {
-			fmt.Printf("DoAcctSubstitution: s = %s, m[2] = %d, m[3] = %d\n", s, m[2], m[3])
+			// fmt.Printf("DoAcctSubstitution: s = %s, m[2] = %d, m[3] = %d\n", s, m[2], m[3])
 			match := s[m[2]:m[3]]
 			return VarAcctResolve(bid, match)
 		}
 	}
 	return s
+}
+
+// ParseSimpleAcctRule parses an account rule string of the form:
+//      [d|c] GLNumber Amount [, ...]
+// Note that the value of Account is simply the value of GLNumber, no checks
+// are done.
+//
+// INPUT
+//	s = string with account rule. Ex: "d 10104 1000.0000, c 10999 1000.0000"
+//-----------------------------------------------------------------------------
+func ParseSimpleAcctRule(s string) []AcctRule {
+	var m []AcctRule
+	sa := strings.Split(s, ",")
+	for i := 0; i < len(sa); i++ {
+		p := strings.Split(strings.TrimSpace(sa[i]), " ")
+		var a AcctRule
+		x, ok := StringToFloat64(p[2])
+		if !ok {
+			continue
+		}
+		a.Amount = x
+		a.Account = p[1]
+		a.Action = p[0]
+		m = append(m, a)
+	}
+	return m
 }
 
 // ParseAcctRule expands the supplied rule string into an array of AcctRule structs and replaces any variables/formulas

@@ -176,7 +176,7 @@ func printJournalExpense(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 		tbl.Putd(-1, 2, j.Dt)
 		tbl.Puts(-1, 3, raid)
 		tbl.Puts(-1, 4, rn)
-		tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].GLNumber)
+		tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].GLNumber)
 		tbl.Putf(-1, 6, -j.Amount)
 	}
 
@@ -310,6 +310,52 @@ func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx
 	tbl.AddRow() // separater line
 }
 
+func textPrintJournalXfer(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal) {
+	tbl.AddRow()
+	tbl.Puts(-1, 0, j.IDtoString())
+	tbl.Puts(-1, 1, "Transfer")
+
+	if len(j.JA[0].AcctRule) > 0 {
+		var clid, dlid int64
+		m := rlib.ParseSimpleAcctRule(j.JA[0].AcctRule)
+		for i := 0; i < len(m); i++ {
+			var lid int64
+			found := false
+			for _, v := range rlib.RRdb.BizTypes[j.BID].GLAccounts {
+				if m[i].Account == v.GLNumber {
+					lid = v.LID
+					found = true
+				}
+			}
+			if !found {
+				continue
+			}
+			if m[i].Action == "d" {
+				dlid = lid
+			} else {
+				clid = lid
+			}
+		}
+
+		if dlid > 0 && clid > 0 {
+			tbl.AddRow()
+			tbl.Puts(-1, 1, "from "+rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].Name)
+			tbl.Putd(-1, 2, j.Dt)
+			tbl.Puts(-1, 3, rlib.IDtoShortString("RA", j.JA[0].RAID))
+			tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[clid].GLNumber)
+			tbl.Putf(-1, 6, -j.Amount)
+
+			tbl.AddRow()
+			tbl.Puts(-1, 1, "to "+rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].Name)
+			tbl.Putd(-1, 2, j.Dt)
+			tbl.Puts(-1, 3, rlib.IDtoShortString("RA", j.JA[0].RAID))
+			tbl.Puts(-1, 5, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].GLNumber)
+			tbl.Putf(-1, 6, j.Amount)
+		}
+	}
+	tbl.AddRow() // nothing in this line, it's blank
+}
+
 func textPrintJournalEntry(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rentDuration, assessmentDuration int64) {
 	switch j.Type {
 	case rlib.JNLTYPEUNAS:
@@ -321,6 +367,8 @@ func textPrintJournalEntry(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx
 			return
 		}
 		textPrintJournalReceipt(tbl, ri, jctx, j, &rcpt)
+	case rlib.JNLTYPEXFER:
+		textPrintJournalXfer(tbl, ri, jctx, j)
 	case rlib.JNLTYPEASMT:
 		a, _ := rlib.GetAssessment(j.ID)
 		r := rlib.GetRentable(a.RID)

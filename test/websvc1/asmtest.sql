@@ -94,6 +94,7 @@ CREATE TABLE `Assessments` (
   `ASMID` bigint(20) NOT NULL AUTO_INCREMENT,
   `PASMID` bigint(20) NOT NULL DEFAULT '0',
   `RPASMID` bigint(20) NOT NULL DEFAULT '0',
+  `AGRCPTID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `RID` bigint(20) NOT NULL DEFAULT '0',
   `ATypeLID` bigint(20) NOT NULL DEFAULT '0',

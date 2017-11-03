@@ -115,7 +115,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Assessments
 	//===============================
-	flds = "ASMID,PASMID,RPASMID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,FLAGS,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "ASMID,PASMID,RPASMID,AGRCPTID,BID,RID,ATypeLID,RAID,Amount,Start,Stop,RentCycle,ProrationCycle,InvoiceNo,AcctRule,ARID,FLAGS,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Assessments"] = flds
 	RRdb.Prepstmt.GetAssessment, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE ASMID=?")
 	Errcheck(err)
@@ -381,6 +381,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllJournalsInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from Journal WHERE BID=? AND ?<=Dt AND Dt<?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetJournalByTypeAndID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from Journal WHERE Type=? AND ID=?")
+	Errcheck(err)
 
 	s1, s2, _, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertJournal, err = RRdb.Dbrr.Prepare("INSERT INTO Journal (" + s1 + ") VALUES(" + s2 + ")")
@@ -399,6 +401,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetJournalAllocations, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE JID=? ORDER BY Amount DESC, RAID ASC, ASMID ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetJournalAllocationsByASMID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE ASMID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE ASMID>0 AND RCPTID=?")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
