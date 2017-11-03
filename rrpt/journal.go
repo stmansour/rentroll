@@ -317,48 +317,24 @@ func textPrintJournalXfer(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx,
 
 	if len(j.JA[0].AcctRule) > 0 {
 		var clid, dlid int64
-		// if j.JA[0].RCPTID > 0 {
-		// r := rlib.GetReceipt(j.JA[0].RCPTID)
-		// clid = rlib.RRdb.BizTypes[j.BID].AR[r.ARID].DebitLID
-		// if r.DID > 0 {
-		// 	d, err := rlib.GetDeposit(r.DID)
-		// 	if err != nil {
-		// 		return
-		// 	}
-		// 	dep, err := rlib.GetDepository(d.DEPID)
-		// 	if err != nil {
-		// 		return
-		// 	}
-		// 	dlid = dep.LID
-		// }
-		rlib.Console("textPrintJournalXfer: AcctRule=%q\n", j.JA[0].AcctRule)
 		m := rlib.ParseSimpleAcctRule(j.JA[0].AcctRule)
-		rlib.Console("textPrintJournalXfer: 1\n")
 		for i := 0; i < len(m); i++ {
-			rlib.Console("textPrintJournalXfer: 2\n")
 			var lid int64
 			found := false
 			for _, v := range rlib.RRdb.BizTypes[j.BID].GLAccounts {
 				if m[i].Account == v.GLNumber {
 					lid = v.LID
 					found = true
-					rlib.Console("textPrintJournalXfer: 4  FOUND Account:  LID = %d, Name = %s\n", v.LID, v.Name)
 				}
 			}
-			rlib.Console("textPrintJournalXfer: 6\n")
 			if !found {
-				rlib.Console("textPrintJournalXfer: 7  could not find:  %s, %s, %.2f\n", m[i].Action, m[i].Account, m[i].Amount)
 				continue
 			}
-			rlib.Console("textPrintJournalXfer: 8\n")
 			if m[i].Action == "d" {
 				dlid = lid
-				rlib.Console("textPrintJournalXfer: 9,  dlid = %d\n", lid)
 			} else {
 				clid = lid
-				rlib.Console("textPrintJournalXfer: 10,  clid = %d\n", lid)
 			}
-			rlib.Console("textPrintJournalXfer: 11\n")
 		}
 
 		if dlid > 0 && clid > 0 {

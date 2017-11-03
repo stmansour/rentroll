@@ -53,7 +53,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, 
 			TCID:   r.TCID,
 			RCPTID: r.RCPTID,
 		}
-		rlib.InsertJournalAllocationEntry(&ja)
+		err = rlib.InsertJournalAllocationEntry(&ja)
 		jnl.JA = append(jnl.JA, ja)
 
 		//-------------------------------------------------------------------------

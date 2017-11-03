@@ -307,12 +307,20 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 
 	var ok bool
+
 	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
-		e := fmt.Errorf("%s: Could not map BUD value: %s", funcname, foo.Record.BUD)
-		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
+		//-------------------------
+		// one more thing to try:
+		//-------------------------
+		rlib.RRdb.BUDlist = rlib.BuildBusinessDesignationMap()
+		a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
+		if !ok {
+			e := fmt.Errorf("%s: Could not map BUD value: %s", funcname, foo.Record.BUD)
+			rlib.Ulog("%s", e.Error())
+			SvcGridErrorReturn(w, e, funcname)
+			return
+		}
 	}
 
 	if a.DID == 0 && d.ID == 0 {

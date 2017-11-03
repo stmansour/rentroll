@@ -592,6 +592,15 @@ func GetJournalVacancy(id int64, dt1, dt2 *time.Time) Journal {
 	return r
 }
 
+// GetJournalByTypeAndID returns the Journal struct for entries match the supplied
+// Type and ID fields
+func GetJournalByTypeAndID(t, id int64) Journal {
+	var r Journal
+	row := RRdb.Prepstmt.GetJournalByTypeAndID.QueryRow(t, id)
+	ReadJournal(row, &r)
+	return r
+}
+
 // GetJournalByReceiptID returns the Journal struct for a Journal Entry that references the supplied
 // receiptID
 func GetJournalByReceiptID(id int64) Journal {
@@ -640,6 +649,10 @@ func GetLastJournalMarker() JournalMarker {
 	return j
 }
 
+//=======================================================
+//  JOURNAL ALLOCATION
+//=======================================================
+
 // GetJournalAllocation returns the Journal allocation for the supplied JAID
 func GetJournalAllocation(jaid int64) JournalAllocation {
 	var a JournalAllocation
@@ -654,13 +667,6 @@ func GetJournalAllocations(j *Journal) {
 	rows, err := RRdb.Prepstmt.GetJournalAllocations.Query(j.JID)
 	Errcheck(err)
 	j.JA = getJournalAllocationRows(rows)
-	// defer rows.Close()
-	// j.JA = make([]JournalAllocation, 0)
-	// for rows.Next() {
-	// 	var a JournalAllocation
-	// 	ReadJournalAllocations(rows, &a)
-	// 	j.JA = append(j.JA, a)
-	// }
 }
 
 // GetJournalAllocationByASMID returns an array of JournalAllocation records that reference
@@ -669,14 +675,6 @@ func GetJournalAllocationByASMID(id int64) []JournalAllocation {
 	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMID.Query(id)
 	Errcheck(err)
 	return getJournalAllocationRows(rows)
-	// var ja []JournalAllocation
-	// defer rows.Close()
-	// for rows.Next() {
-	// 	var a JournalAllocation
-	// 	ReadJournalAllocations(rows, &a)
-	// 	ja = append(ja, a)
-	// }
-	// return ja
 }
 
 // GetJournalAllocationByASMandRCPTID returns an array of JournalAllocation
@@ -688,14 +686,6 @@ func GetJournalAllocationByASMandRCPTID(id int64) []JournalAllocation {
 	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID.Query(id)
 	Errcheck(err)
 	return getJournalAllocationRows(rows)
-	// var ja []JournalAllocation
-	// defer rows.Close()
-	// for rows.Next() {
-	// 	var a JournalAllocation
-	// 	ReadJournalAllocations(rows, &a)
-	// 	ja = append(ja, a)
-	// }
-	// return ja
 }
 
 func getJournalAllocationRows(rows *sql.Rows) []JournalAllocation {

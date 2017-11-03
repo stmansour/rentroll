@@ -29,18 +29,19 @@ cat >${MODFILE} <<EOF
 # ALTER TABLE Rentable ADD DtMRStart TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER MRStatus;
 # ALTER TABLE RentableStatus CHANGE Status UseStatus SMALLINT NOT NULL DEFAULT 0;
 # ALTER TABLE RentableStatus ADD COLUMN LeaseStatus SMALLINT NOT NULL DEFAULT 0 AFTER UseStatus;
-DROP TABLE IF EXISTS SubAR;
-CREATE TABLE SubAR (
-    SARID BIGINT NOT NULL AUTO_INCREMENT,
-    ARID BIGINT NOT NULL DEFAULT 0,                         -- Which ARID
-    SubARID BIGINT NOT NULL DEFAULT 0,                      -- ARID of the sub-account rule
-    BID BIGINT NOT NULL DEFAULT 0,
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY(SARID)
-);
+# DROP TABLE IF EXISTS SubAR;
+# CREATE TABLE SubAR (
+#     SARID BIGINT NOT NULL AUTO_INCREMENT,
+#     ARID BIGINT NOT NULL DEFAULT 0,                         -- Which ARID
+#     SubARID BIGINT NOT NULL DEFAULT 0,                      -- ARID of the sub-account rule
+#     BID BIGINT NOT NULL DEFAULT 0,
+#     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY(SARID)
+# );
+ALTER TABLE Assessments ADD COLUMN AGRCPTID BIGINT NOT NULL DEFAULT 0 AFTER RPASMID;
 EOF
 
 #=====================================================

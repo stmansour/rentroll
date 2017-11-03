@@ -39,7 +39,7 @@ func InsertAssessment(a *Assessment) (int64, error) {
 	// 	// os.Exit(1)
 	// }
 
-	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.RPASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
+	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
 		if err == nil {

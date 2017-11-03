@@ -38,8 +38,12 @@ echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%
 dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "k1"  "WebService--AddFloatingDeposit"
 
 # Make the bank deposit
-# echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B1%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22DEPID%22%3A1%2C%22DEPName%22%3A1%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2210%2F3%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A1000%2C%22ClearedAmount%22%3A0%7D%7D" > request
-# dojsonPOST "http://localhost:8270/v1/deposit/1/0" "request" "l1"  "WebService--CreateBankDeposit"
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B1%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DEPID%22%3A1%2C%22DEPName%22%3A1%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2210%2F3%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A1000%2C%22ClearedAmount%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/deposit/1/0" "request" "l1"  "WebService--CreateBankDeposit"
+
+# Do a text version of the Journal to make sure all the funds are properly transferred
+RRDATERANGE="-j 2017-10-01 -k 2017-11-01"
+dorrtest "m1" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 
 mysqldump --no-defaults rentroll >rrFloatingDep.sql
 

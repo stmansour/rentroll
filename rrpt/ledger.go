@@ -68,6 +68,8 @@ func getLedgerEntryDescription(l *rlib.LedgerEntry) (string, string, string) {
 			}
 		}
 		return "Expense - " + reason, r.RentableName, sra
+	case rlib.JNLTYPEXFER:
+		return "Transfer", "", sra
 
 	default:
 		fmt.Printf("getLedgerEntryDescription: unrecognized type: %d\n", j.Type)

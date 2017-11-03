@@ -17,7 +17,7 @@ func UpdateAR(a *AR) error {
 // UpdateAssessment updates an Assessment record
 func UpdateAssessment(a *Assessment) error {
 	// debug.PrintStack()
-	_, err := RRdb.Prepstmt.UpdateAssessment.Exec(a.PASMID, a.RPASMID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID)
+	_, err := RRdb.Prepstmt.UpdateAssessment.Exec(a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID)
 	return updateError(err, "Assessment", *a)
 }
 
