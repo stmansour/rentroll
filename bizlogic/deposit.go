@@ -3,7 +3,6 @@ package bizlogic
 import (
 	"fmt"
 	"rentroll/rlib"
-	"time"
 )
 
 // EnsureReceiptFundsToDepositoryAccount looks at the AR used
@@ -17,7 +16,7 @@ import (
 //  a - the assesment that r is for
 //  d - the Depository where the funds will be deposited.
 //--------------------------------------------------------------
-func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, d *rlib.Depository) error {
+func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, d *rlib.Depository, deposit *rlib.Deposit) error {
 	var xbiz rlib.XBusiness
 	var err error
 	funcname := "EnsureReceiptFundsToDepositoryAccount"
@@ -31,7 +30,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, 
 		var jnl = rlib.Journal{
 			BID:    r.BID,
 			Amount: r.Amount,
-			Dt:     time.Now(),
+			Dt:     deposit.Dt,
 			Type:   rlib.JNLTYPEXFER,
 			ID:     r.RCPTID,
 		}
@@ -54,6 +53,10 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, 
 			RCPTID: r.RCPTID,
 		}
 		err = rlib.InsertJournalAllocationEntry(&ja)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			return err
+		}
 		jnl.JA = append(jnl.JA, ja)
 
 		//-------------------------------------------------------------------------
@@ -178,14 +181,14 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 				err = fmt.Errorf("Multiple JournalAllocations for auto-generated Assessment. RCPTID = %d", newRcpts[i])
 			} else if l == 1 {
 				rlib.Console("DEPOSIT - 4\n")
-				a, err := rlib.GetAssessment(ja[0].ASMID)
+				asmt, err := rlib.GetAssessment(ja[0].ASMID)
 				if err != nil {
 					rlib.Console("DEPOSIT - 5\n")
 					e = AddErrToBizErrlist(err, e)
 					continue
 				}
 				rlib.Console("DEPOSIT - 6\n")
-				err = EnsureReceiptFundsToDepositoryAccount(&rlist[i], &a, &dep)
+				err = EnsureReceiptFundsToDepositoryAccount(&rlist[i], &asmt, &dep, a)
 			}
 			rlib.Console("DEPOSIT - 7\n")
 		}

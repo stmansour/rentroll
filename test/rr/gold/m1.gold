@@ -17,3 +17,7 @@ J00000002   Payment - Aaron Read   #234234234  1000.00
             Undeposited Funds                                                       10/02/2017                               10999          1,000.00
             Rent Roll Receivables                                                   10/02/2017                               12001         -1,000.00
                                                                                                                                                     
+J00000003   Transfer                                                                                                                                
+            from Undeposited Funds                                                  10/03/2017  RA-1                         10999         -1,000.00
+            to FRB 54320 (operating account)                                        10/03/2017  RA-1                         10104          1,000.00
+                                                                                                                                                    

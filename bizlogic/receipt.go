@@ -98,11 +98,12 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 //-------------------------------------------------------------------------------
 func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 	var err error
-	funcname := "ReverseReceipt"
 
 	if r.FLAGS&0x04 != 0 {
 		return nil // it's already reversed
 	}
+
+	rlib.Console("\n****  REVERSE RECEIPT  ****\n")
 
 	//------------------------------------------------------
 	// Build the new receipt
@@ -114,7 +115,7 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 	rr.PRCPTID = r.RCPTID     // link to parent
 	rr.FLAGS |= rlib.RCPTvoid // mark that it is voided
 	rr.RA = []rlib.ReceiptAllocation{}
-	if err = InsertReceipt(&rr); err != nil {
+	if err = insertReceiptInternal(&rr, r, dt); err != nil {
 		return err
 	}
 	//-----------------------------------------------------------
@@ -187,62 +188,63 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 	// If the the account rule for this receipt has SubARs, analyze them. If
 	// If there is a funds transfer involved
 	//----------------------------------------------------------------------
-	jx := rlib.GetJournalByTypeAndID(rlib.JNLTYPEXFER, r.RCPTID)
-	if jx.JID > 0 {
-		rlib.GetJournalAllocations(&jx)
-		if len(jx.JA) > 0 {
-			m := rlib.ParseSimpleAcctRule(jx.JA[0].AcctRule)
-			if len(m) < 2 {
-				return fmt.Errorf("ReverseReceipt: invalid account rule in JournalAllocation JAID = %d", jx.JA[0].JAID)
-			}
+	// funcname := "ReverseReceipt"
+	// jx := rlib.GetJournalByTypeAndID(rlib.JNLTYPEXFER, r.RCPTID)
+	// if jx.JID > 0 {
+	// 	rlib.GetJournalAllocations(&jx)
+	// 	if len(jx.JA) > 0 {
+	// 		m := rlib.ParseSimpleAcctRule(jx.JA[0].AcctRule)
+	// 		if len(m) < 2 {
+	// 			return fmt.Errorf("ReverseReceipt: invalid account rule in JournalAllocation JAID = %d", jx.JA[0].JAID)
+	// 		}
 
-			//--------------------
-			// journal
-			//--------------------
-			jnl := rlib.GetJournal(jx.JA[0].JID)
-			jnl.Comment = fmt.Sprintf("Reversal of J-%d", jnl.JID)
-			jnl.JID = 0
-			jnl.Amount = -jnl.Amount
-			_, err = rlib.InsertJournal(&jnl) // this will update jnl.JID
-			if err != nil {
-				rlib.LogAndPrintError(funcname, err)
-				return err
-			}
+	// 		//--------------------
+	// 		// journal
+	// 		//--------------------
+	// 		jnl := rlib.GetJournal(jx.JA[0].JID)
+	// 		jnl.Comment = fmt.Sprintf("Reversal of J-%d", jnl.JID)
+	// 		jnl.JID = 0
+	// 		jnl.Amount = -jnl.Amount
+	// 		_, err = rlib.InsertJournal(&jnl) // this will update jnl.JID
+	// 		if err != nil {
+	// 			rlib.LogAndPrintError(funcname, err)
+	// 			return err
+	// 		}
 
-			//--------------------
-			// journal allocation
-			//--------------------
-			ja := jx.JA[0] // copy of the original we're reversing
-			ja.JID = jnl.JID
-			ja.AcctRule = fmt.Sprintf("%s %s %.4f, %s %s %.4f",
-				m[0].Action, m[0].Account, -m[0].Amount,
-				m[1].Action, m[1].Account, -m[1].Amount)
-			ja.Amount = -ja.Amount
-			err = rlib.InsertJournalAllocationEntry(&ja)
-			if err != nil {
-				rlib.LogAndPrintError(funcname, err)
-				return err
-			}
+	// 		//--------------------
+	// 		// journal allocation
+	// 		//--------------------
+	// 		ja := jx.JA[0] // copy of the original we're reversing
+	// 		ja.JID = jnl.JID
+	// 		ja.AcctRule = fmt.Sprintf("%s %s %.4f, %s %s %.4f",
+	// 			m[0].Action, m[0].Account, -m[0].Amount,
+	// 			m[1].Action, m[1].Account, -m[1].Amount)
+	// 		ja.Amount = -ja.Amount
+	// 		err = rlib.InsertJournalAllocationEntry(&ja)
+	// 		if err != nil {
+	// 			rlib.LogAndPrintError(funcname, err)
+	// 			return err
+	// 		}
 
-			//-------------
-			// ledgers
-			//-------------
-			n := rlib.GetLedgerEntriesByJAID(r.BID, jx.JA[0].JAID)
-			for i := 0; i < len(n); i++ {
-				le := n[i]
-				le.LEID = 0
-				le.Comment = fmt.Sprintf("reversal of LE-%d", n[i].LEID)
-				le.Amount = -le.Amount
-				le.JAID = ja.JAID
-				le.JID = jx.JA[0].JID
-				_, err = rlib.InsertLedgerEntry(&le)
-				if err != nil {
-					rlib.LogAndPrintError(funcname, err)
-					return err
-				}
-			}
-		}
-	}
+	// 		//-------------
+	// 		// ledgers
+	// 		//-------------
+	// 		n := rlib.GetLedgerEntriesByJAID(r.BID, jx.JA[0].JAID)
+	// 		for i := 0; i < len(n); i++ {
+	// 			le := n[i]
+	// 			le.LEID = 0
+	// 			le.Comment = fmt.Sprintf("reversal of LE-%d", n[i].LEID)
+	// 			le.Amount = -le.Amount
+	// 			le.JAID = ja.JAID
+	// 			le.JID = jx.JA[0].JID
+	// 			_, err = rlib.InsertLedgerEntry(&le)
+	// 			if err != nil {
+	// 				rlib.LogAndPrintError(funcname, err)
+	// 				return err
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	//----------------------------------------------------------------------
 	// The old receipt may have been allocated. Load its ReceiptAllocations
@@ -441,6 +443,21 @@ func ReverseAllocation(r *rlib.Receipt, revRCPTID int64, dt *time.Time) error {
 // InsertReceipt adds a new receipt and updates the journal and ledgers
 //-------------------------------------------------------------------------------
 func InsertReceipt(a *rlib.Receipt) error {
+	return insertReceiptInternal(a, nil, nil)
+}
+
+// insertReceiptInternal adds a new receipt and updates the journal and ledgers,
+// It also handles reversal receipts that happen to have SubARs that created
+// associated Assessments. It will find and reverse those assessments as well.
+//
+// INPUT
+//  a      - the receipt to insert
+//  origin - if being called in a reversal, this is the original receipt (the
+//           one being reversed)
+//  dt     - if a reversal is made, use this date for the reversal
+//-------------------------------------------------------------------------------
+func insertReceiptInternal(a, origin *rlib.Receipt, dt *time.Time) error {
+
 	funcname := "bizlogic.InsertReceipt"
 
 	//------------------------------------------------
@@ -472,7 +489,9 @@ func InsertReceipt(a *rlib.Receipt) error {
 	}
 
 	//------------------------------------------------------------
-	// Check to see if the Account Rule has Sub-Account Rules...
+	// Check to see if the Account Rule has Sub-Account Rules.
+	// If this happens to be a Reversal, then do not do anything
+	//
 	//------------------------------------------------------------
 	if ar.FLAGS&(1<<3) > 0 {
 		ar.SubARs = rlib.GetSubARs(ar.ARID)
@@ -483,9 +502,32 @@ func InsertReceipt(a *rlib.Receipt) error {
 			case rlib.ARRECEIPT:
 			case rlib.AREXPENSE:
 			case rlib.ARSUBASSESSMENT:
-				be := CreateSubAssessment(&sub, a)
-				if len(be) > 0 {
-					return BizErrorListToError(be)
+				rlib.Console("%s: 1\n", funcname)
+				if a.FLAGS&(1<<2) != 0 { // this receipt is a reversal. We need to reverse the associated assessment
+					rlib.Console("%s: 2  *** REVERSAL ***\n", funcname)
+					var agasmt rlib.Assessment
+					q := fmt.Sprintf("SELECT %s FROM Assessments WHERE AGRCPTID=%d", rlib.RRdb.DBFields["Assessments"], origin.RCPTID)
+					rlib.Console("%s: q = %q\n", funcname, q)
+					row := rlib.RRdb.Dbrr.QueryRow(q)
+					rlib.ReadAssessment(row, &agasmt)
+					if agasmt.ASMID > 0 {
+						rlib.Console("%s: 3\n", funcname)
+						be := ReverseAssessment(&agasmt, 0, dt)
+						if len(be) > 0 {
+							rlib.Console("%s: 4\n", funcname)
+							return BizErrorListToError(be)
+						}
+						rlib.Console("%s: 5\n", funcname)
+					}
+					rlib.Console("%s: 6\n", funcname)
+				} else {
+					rlib.Console("%s: 7\n", funcname)
+					be := CreateSubAssessment(&sub, a)
+					if len(be) > 0 {
+						rlib.Console("%s: 8\n", funcname)
+						return BizErrorListToError(be)
+					}
+					rlib.Console("%s: 9\n", funcname)
 				}
 			}
 		}
@@ -552,7 +594,7 @@ func CreateSubAssessment(sub *rlib.AR, a *rlib.Receipt) []BizError {
 	b.Start = a.Dt
 	b.Stop = a.Dt
 	b.Comment = "Auto-generated by Account Rule (" + sub.Name + ")"
-	b.FLAGS = 2 // fully paid
+	b.FLAGS = a.FLAGS
 	be := InsertAssessment(&b, 0)
 
 	//--------------------------------------------------------------------

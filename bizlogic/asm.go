@@ -93,10 +93,11 @@ func UpdateAssessment(anew *rlib.Assessment, mode int, dt *time.Time, exp int) [
 func ReverseAssessment(aold *rlib.Assessment, mode int, dt *time.Time) []BizError {
 	funcname := "bizlogic.ReverseAssessment"
 	var errlist []BizError
-	rlib.Console("Entered ReverseAssessment\n")
-	if aold.PASMID == 0 {
+	rlib.Console("Entered ReverseAssessment.  mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
+	if aold.PASMID == 0 && aold.RentCycle > 0 {
 		mode = 2 // force behavior on the epoch
 	}
+	rlib.Console("ReverseAssessment: processing forward with mode = %d,  dt = %s\n", mode, dt.Format(rlib.RRDATEFMTSQL))
 	switch mode {
 	case 0:
 		errlist = ReverseAssessmentInstance(aold, dt)
@@ -112,6 +113,7 @@ func ReverseAssessment(aold *rlib.Assessment, mode int, dt *time.Time) []BizErro
 		if aold.PASMID != 0 {
 			epoch, err = rlib.GetAssessment(aold.PASMID)
 			if err != nil {
+				rlib.Console("EXITING ReverseAssessment.  PT 1\n")
 				return bizErrSys(&err)
 			}
 		} else {
@@ -122,6 +124,7 @@ func ReverseAssessment(aold *rlib.Assessment, mode int, dt *time.Time) []BizErro
 		// If it is not recurring then reverse it and we're done
 		//---------------------------------------------------------
 		if epoch.RentCycle == rlib.RECURNONE {
+			rlib.Console("EXITING ReverseAssessment.  PT 2\n")
 			return ReverseAssessmentInstance(&epoch, dt)
 		}
 
@@ -130,23 +133,28 @@ func ReverseAssessment(aold *rlib.Assessment, mode int, dt *time.Time) []BizErro
 		//---------------------------------------------------------
 		inst, err = rlib.GetAssessmentFirstInstance(epoch.ASMID)
 		if err != nil {
+			rlib.Console("EXITING ReverseAssessment.  PT 3\n")
 			return bizErrSys(&err)
 		}
 		errlist = ReverseAssessmentsGoingForward(&inst, &inst.Start, dt) // reverse from start of recurring instances forward
 		if len(errlist) > 0 {
+			rlib.Console("EXITING ReverseAssessment.  PT 4\n")
 			return errlist
 		}
 		epoch.FLAGS |= 0x4 // mark that this is void
 		err = rlib.UpdateAssessment(&epoch)
 		if err != nil {
+			rlib.Console("EXITING ReverseAssessment.  PT 5\n")
 			return bizErrSys(&err)
 		}
 
 	default:
 		err := fmt.Errorf("%s:  unsupported mode: %d", funcname, mode)
 		rlib.LogAndPrintError(funcname, err)
+		rlib.Console("EXITING ReverseAssessment.  PT 6\n")
 		return bizErrSys(&err)
 	}
+	rlib.Console("EXITING ReverseAssessment\n")
 	return errlist
 }
 
@@ -188,6 +196,7 @@ func ReverseAssessmentsGoingForward(aold *rlib.Assessment, dtStart, dt *time.Tim
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
 func ReverseAssessmentInstance(aold *rlib.Assessment, dt *time.Time) []BizError {
+	// funcname := "ReverseAssessmentInstance"
 	if aold.FLAGS&0x4 != 0 {
 		return nil // it's already reversed
 	}
@@ -211,9 +220,85 @@ func ReverseAssessmentInstance(aold *rlib.Assessment, dt *time.Time) []BizError 
 		return bizErrSys(&err)
 	}
 
-	err = DeallocateAppliedFunds(aold, anew.ASMID, dt)
-	if err != nil {
-		return bizErrSys(&err)
+	if aold.AGRCPTID == 0 {
+		err = DeallocateAppliedFunds(aold, anew.ASMID, dt)
+		if err != nil {
+			return bizErrSys(&err)
+		}
+	} else {
+		//---------------------------------------------------------
+		// handle auto-generated assessments a little different...
+		// See if there was a funds transfer to a bank account...
+		//---------------------------------------------------------
+		return ReverseAutoGenAsmt(aold)
+	}
+	return nil
+}
+
+// ReverseAutoGenAsmt - Removes handles Journal, JournalAllocation, and
+// GLAccount adjustments for auto-generated assessments for things like
+// floating deposits and application fees.
+//
+// INPUTS
+//    aold = the assessment to reverse
+//
+// RETURNS
+//    a slice of BizErrors
+//-------------------------------------------------------------------------------------
+func ReverseAutoGenAsmt(aold *rlib.Assessment) []BizError {
+	funcname := "ReverseAutoGenAsmt"
+	var err error
+	jx := rlib.GetJournalByTypeAndID(rlib.JNLTYPEXFER, aold.AGRCPTID)
+	if jx.JID > 0 {
+		rlib.GetJournalAllocations(&jx)
+		if len(jx.JA) > 0 {
+			m := rlib.ParseSimpleAcctRule(jx.JA[0].AcctRule)
+			//--------------------
+			// journal
+			//--------------------
+			jnl := rlib.GetJournal(jx.JA[0].JID)
+			jnl.Comment = fmt.Sprintf("Reversal of J-%d", jnl.JID)
+			jnl.JID = 0
+			jnl.Amount = -jnl.Amount
+			_, err = rlib.InsertJournal(&jnl) // this will update jnl.JID
+			if err != nil {
+				rlib.LogAndPrintError(funcname, err)
+				return bizErrSys(&err)
+			}
+
+			//--------------------
+			// journal allocation
+			//--------------------
+			ja := jx.JA[0] // copy of the original we're reversing
+			ja.JID = jnl.JID
+			ja.AcctRule = fmt.Sprintf("%s %s %.4f, %s %s %.4f",
+				m[0].Action, m[0].Account, -m[0].Amount,
+				m[1].Action, m[1].Account, -m[1].Amount)
+			ja.Amount = -ja.Amount
+			err = rlib.InsertJournalAllocationEntry(&ja)
+			if err != nil {
+				rlib.LogAndPrintError(funcname, err)
+				return bizErrSys(&err)
+			}
+
+			//-------------
+			// ledgers
+			//-------------
+			n := rlib.GetLedgerEntriesByJAID(aold.BID, jx.JA[0].JAID)
+			for i := 0; i < len(n); i++ {
+				le := n[i]
+				le.LEID = 0
+				le.Comment = fmt.Sprintf("reversal of LE-%d", n[i].LEID)
+				le.Amount = -le.Amount
+				le.JAID = ja.JAID
+				le.JID = jx.JA[0].JID
+				_, err = rlib.InsertLedgerEntry(&le)
+				if err != nil {
+					rlib.LogAndPrintError(funcname, err)
+					return bizErrSys(&err)
+				}
+			}
+		}
 	}
 	return nil
 }
@@ -415,7 +500,7 @@ func InsertAssessment(a *rlib.Assessment, exp int) []BizError {
 		a.FLAGS |= 0x3                // indicate that this is an OFFSET and should not be processd during payment allocation
 	}
 
-	rlib.Console("B:   a = %#v\n", a)
+	// rlib.Console("B:   a = %#v\n", a)
 	_, err := rlib.InsertAssessment(a) // No bizlogic errors, save it
 	if err != nil {
 		return bizErrSys(&err)
