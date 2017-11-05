@@ -17,6 +17,11 @@ function dbcore() {
 	docsvtest "t" "-T ratemplates.csv  -L 8,${BUD}" "RentalAgreementTemplates"
 	docsvtest "h" "-p people.csv  -L 7,${BUD}" "People"
 }
+
+function stop() {
+	pkill rentroll;exit 1
+}
+
 #------------------------------------------------------------------------------
 #  TEST 00
 #  Simple Asmt/Rcpt -  Non recurring assessment, a receipt, apply payments.
@@ -57,39 +62,58 @@ RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
 dorrtest "a04" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest "a05" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
 
+echo "Saving test00.sql"
 mysqldump --no-defaults rentroll >test00.sql
 
 #------------------------------------------------------------------------------
 #  TEST 01
-#  Floating Deposit -  Receipt where RAID is required. In this
-#      example, Receipt.RAID will be non-zero.  In this scenario
-#      a $1000 floating deposit is made in October 2017, and $500
-#      more is added to the floating deposit in November. The Ending
-#      Security Deposit amount for November should be $1500
+#  Floating Deposit -  Test Receipt where RAID is required.
+#
+#  Scenario: In this example, Receipt.RAID will be non-zero.  
+#      A $1000 floating deposit is made in October 2017, and $500 more is
+#      added to the floating deposit in November. A rentroll report is made
+#      for the month of November. The Beginning Security Deposit should be
+#      $500. The Ending Security Deposit amount for November should be $1500.
+#
+#  Notes: 
+#  1.  Since we're using floating deposits, there is no associated rentable.
+#  2.  TBD: should we group entries by RAID in the "no rentable" section?
+#           should we provide a totals row? 
+#               If we do not, then there is nothing that shows the
+#               accumulation of multiple floating deposits.
 #------------------------------------------------------------------------------
-mysql --no-defaults rentroll < empty1.sql
-
 echo "*** TEST 01 ***"
+newDB
+dbcore
+docsvtest "i" "-R rt1.csv -L 5,${BUD}" "RentableTypes"
+docsvtest "j" "-r r1.csv -L 6,${BUD}" "Rentables"
+docsvtest "lf" "-C raPlusFloat.csv -L 9,${BUD}" "RentalAgreements"
+
 
 # Create the October Receipt
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A15%2C%22PMTID%22%3A4%2C%22RAID%22%3A1%2C%22PmtTypeName%22%3A4%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2210%2F2%2F2017%22%2C%22DocNo%22%3A%22234234234%22%2C%22Payor%22%3A%22Aaron%2BRead%2B(TCID%3A%2B1)%22%2C%22TCID%22%3A1%2C%22Amount%22%3A1000%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A15%2C%22PMTID%22%3A2%2C%22RAID%22%3A2%2C%22PmtTypeName%22%3A2%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2210%2F2%2F2017%22%2C%22DocNo%22%3A%2212345%22%2C%22Payor%22%3A%22Kevin+Mills+(TCID%3A+8)%22%2C%22TCID%22%3A8%2C%22Amount%22%3A1000%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "b00"  "WebService--AddFloatingDeposit1"
 
 # Make the October bank deposit
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B1%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DEPID%22%3A1%2C%22DEPName%22%3A1%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2210%2F3%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A1000%2C%22ClearedAmount%22%3A0%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B1%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DEPID%22%3A2%2C%22DEPName%22%3A2%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2211%2F5%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A1000%2C%22ClearedAmount%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/deposit/1/0" "request" "b01"  "WebService--CreateBankDeposit"
 
+
 # Create the November Receipt
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A15%2C%22PMTID%22%3A4%2C%22RAID%22%3A1%2C%22PmtTypeName%22%3A4%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2211%2F3%2F2017%22%2C%22DocNo%22%3A%2223523523%22%2C%22Payor%22%3A%22Aaron+Read+(TCID%3A+1)%22%2C%22TCID%22%3A1%2C%22Amount%22%3A500%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A15%2C%22PMTID%22%3A2%2C%22RAID%22%3A2%2C%22PmtTypeName%22%3A2%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2211%2F2%2F2017%22%2C%22DocNo%22%3A%222345%22%2C%22Payor%22%3A%22Kevin+Mills+(TCID%3A+8)%22%2C%22TCID%22%3A8%2C%22Amount%22%3A500%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "b02"  "WebService--AddFloatingDeposit2"
 
 # Make the November bank deposit
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B2%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DEPID%22%3A2%2C%22DEPName%22%3A2%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2211%2F3%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A500%2C%22ClearedAmount%22%3A0%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B2%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DEPID%22%3A2%2C%22DEPName%22%3A2%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2211%2F4%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A500%2C%22ClearedAmount%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/deposit/1/0" "request" "b03"  "WebService--CreateBankDeposit"
 
 # Do a text version of the Journal to make sure all the funds are properly transferred
 RRDATERANGE="-j 2017-10-01 -k 2017-12-01"
-dorrtest "o01" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+dorrtest "b04" "${RRDATERANGE} -b ${BUD} -r 1" "JournalReport"
+
+# Do a text version of the Rentroll report for November
+RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
+dorrtest "b05" "${RRDATERANGE} -b ${BUD} -r 4" "RentrollReport"
 
 mysqldump --no-defaults rentroll >rrFloatingDep.sql
 

@@ -1,0 +1,34 @@
+REX Journal
+Oct 1, 2017 - Dec 1, 2017
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
+Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
+----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
+J-1         Auto-Generated Floating Deposit Assessment                                                                                              
+            Rent Roll Receivables                                                   10/02/2017  RA-2                         12001          1,000.00
+            Floating Security Deposits                                              10/02/2017  RA-2                         30001         -1,000.00
+                                                                                                                                                    
+J-2         Payment - Kevin Mills   #12345  1000.00                                                                                                 
+            Undeposited Funds                                                       10/02/2017                               10999          1,000.00
+            Rent Roll Receivables                                                   10/02/2017                               12001         -1,000.00
+                                                                                                                                                    
+J-3         Transfer (auto-transfer for deposit DEP-2)                                                                                              
+            from Undeposited Funds                                                  11/05/2017  RA-2                         10999         -1,000.00
+            to FRB 96953 (deposit account)                                          11/05/2017  RA-2                         10105          1,000.00
+                                                                                                                                                    
+J-4         Auto-Generated Floating Deposit Assessment                                                                                              
+            Rent Roll Receivables                                                   11/02/2017  RA-2                         12001            500.00
+            Floating Security Deposits                                              11/02/2017  RA-2                         30001           -500.00
+                                                                                                                                                    
+J-5         Payment - Kevin Mills   #2345  500.00                                                                                                   
+            Undeposited Funds                                                       11/02/2017                               10999            500.00
+            Rent Roll Receivables                                                   11/02/2017                               12001           -500.00
+                                                                                                                                                    
+J-6         Transfer (auto-transfer for deposit DEP-2)                                                                                              
+            from Undeposited Funds                                                  11/04/2017  RA-2                         10999           -500.00
+            to FRB 96953 (deposit account)                                          11/04/2017  RA-2                         10105            500.00
+                                                                                                                                                    

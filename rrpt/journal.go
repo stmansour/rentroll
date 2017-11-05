@@ -266,8 +266,10 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		// if r.BID == 0 {
 		// 	fmt.Printf("r.BID == 0:  r.RID = %d\n", r.RID)
 		// }
-		tbl.AddRow()
-		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
+
+		// tbl.AddRow()
+		// tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
+
 		for k := 0; k < len(m); k++ {
 			l := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if 0 == l.LID {

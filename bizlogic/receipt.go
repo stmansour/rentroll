@@ -399,32 +399,22 @@ func insertReceiptInternal(a, origin *rlib.Receipt, dt *time.Time) error {
 			case rlib.ARRECEIPT:
 			case rlib.AREXPENSE:
 			case rlib.ARSUBASSESSMENT:
-				rlib.Console("%s: 1\n", funcname)
 				if a.FLAGS&(1<<2) != 0 { // this receipt is a reversal. We need to reverse the associated assessment
-					rlib.Console("%s: 2  *** REVERSAL ***\n", funcname)
 					var agasmt rlib.Assessment
 					q := fmt.Sprintf("SELECT %s FROM Assessments WHERE AGRCPTID=%d", rlib.RRdb.DBFields["Assessments"], origin.RCPTID)
-					rlib.Console("%s: q = %q\n", funcname, q)
 					row := rlib.RRdb.Dbrr.QueryRow(q)
 					rlib.ReadAssessment(row, &agasmt)
 					if agasmt.ASMID > 0 {
-						rlib.Console("%s: 3\n", funcname)
 						be := ReverseAssessment(&agasmt, 0, dt)
 						if len(be) > 0 {
-							rlib.Console("%s: 4\n", funcname)
 							return BizErrorListToError(be)
 						}
-						rlib.Console("%s: 5\n", funcname)
 					}
-					rlib.Console("%s: 6\n", funcname)
 				} else {
-					rlib.Console("%s: 7\n", funcname)
 					be := CreateSubAssessment(&sub, a)
 					if len(be) > 0 {
-						rlib.Console("%s: 8\n", funcname)
 						return BizErrorListToError(be)
 					}
-					rlib.Console("%s: 9\n", funcname)
 				}
 			}
 		}

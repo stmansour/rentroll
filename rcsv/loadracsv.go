@@ -208,27 +208,29 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Rentables  -- all remaining columns are rentables
 	//-------------------------------------------------------------------
-	ss := strings.Split(sa[RentableSpec], ";")
-	for i := 0; i < len(ss); i++ {
-		sss := strings.Split(ss[i], ",")
-		if len(sss) != 2 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Badly formatted string: %s . Format for each semicolon delimited part must be RentableName,ContractRent", funcname, lineno, ss)
+	ss := strings.Split(strings.TrimSpace(sa[RentableSpec]), ";")
+	if len(ss) > 0 && len(ss[0]) > 0 {
+		for i := 0; i < len(ss); i++ {
+			sss := strings.Split(ss[i], ",")
+			if len(sss) != 2 {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Badly formatted string: %s . Format for each semicolon delimited part must be RentableName,ContractRent", funcname, lineno, ss)
 
+			}
+			var rar rlib.RentalAgreementRentable
+			rnt, err := rlib.GetRentableByName(sss[0], ra.BID)
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rentable named: %s  err = %s", funcname, lineno, sss[0], err.Error())
+			}
+			x, err := strconv.ParseFloat(strings.TrimSpace(sss[1]), 64)
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid amount:  %s", funcname, lineno, sss[1])
+			}
+			rar.RID = rnt.RID
+			rar.RARDtStart = DtStart
+			rar.RARDtStop = DtStop
+			rar.ContractRent = x
+			m = append(m, rar)
 		}
-		var rar rlib.RentalAgreementRentable
-		rnt, err := rlib.GetRentableByName(sss[0], ra.BID)
-		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rentable named: %s  err = %s", funcname, lineno, sss[0], err.Error())
-		}
-		x, err := strconv.ParseFloat(strings.TrimSpace(sss[1]), 64)
-		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid amount:  %s", funcname, lineno, sss[1])
-		}
-		rar.RID = rnt.RID
-		rar.RARDtStart = DtStart
-		rar.RARDtStop = DtStop
-		rar.ContractRent = x
-		m = append(m, rar)
 	}
 
 	//-------------------------------------------------------------------
