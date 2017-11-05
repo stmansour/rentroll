@@ -16,7 +16,7 @@ import (
 //  a - the assesment that r is for
 //  d - the Depository where the funds will be deposited.
 //--------------------------------------------------------------
-func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, d *rlib.Depository, deposit *rlib.Deposit) error {
+func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib.Depository, deposit *rlib.Deposit) error {
 	var xbiz rlib.XBusiness
 	var err error
 	funcname := "EnsureReceiptFundsToDepositoryAccount"
@@ -28,11 +28,12 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, 
 		// credit ar.DebitLID r.Amount
 		//----------------------------------
 		var jnl = rlib.Journal{
-			BID:    r.BID,
-			Amount: r.Amount,
-			Dt:     deposit.Dt,
-			Type:   rlib.JNLTYPEXFER,
-			ID:     r.RCPTID,
+			BID:     r.BID,
+			Amount:  r.Amount,
+			Dt:      deposit.Dt,
+			Type:    rlib.JNLTYPEXFER,
+			ID:      r.RCPTID,
+			Comment: fmt.Sprintf("auto-transfer for deposit %s", deposit.IDtoShortString()),
 		}
 		_, err = rlib.InsertJournal(&jnl)
 		if err != nil {
@@ -48,7 +49,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, a *rlib.Assessment, 
 			Amount: r.Amount,
 			BID:    r.BID,
 			RAID:   r.RAID,
-			ASMID:  a.ASMID,
+			ASMID:  asmid,
 			TCID:   r.TCID,
 			RCPTID: r.RCPTID,
 		}
@@ -170,27 +171,34 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			}
 			//-----------------------------------------------------------------------
 			// We need to make sure at this point that the funds for the receipt
-			// are in the account associated with the depository.
+			// are in the account associated with the depository.  Basically, this
+			// entails looking at the AccountRule used on the Receipt. If the Debit
+			// account is NOT the same as the Depository's account, then
+			// automatically generate a transfer
 			//-----------------------------------------------------------------------
-			rlib.Console("DEPOSIT - 1\n")
-			ja := rlib.GetJournalAllocationByASMandRCPTID(newRcpts[i])
-			l := len(ja) // if l == 0 it is a normal receipt -- no associated auto-generated Assessment
-			rlib.Console("DEPOSIT - 2\n")
-			if l > 1 {
-				rlib.Console("DEPOSIT - 3\n")
-				err = fmt.Errorf("Multiple JournalAllocations for auto-generated Assessment. RCPTID = %d", newRcpts[i])
-			} else if l == 1 {
-				rlib.Console("DEPOSIT - 4\n")
-				asmt, err := rlib.GetAssessment(ja[0].ASMID)
-				if err != nil {
-					rlib.Console("DEPOSIT - 5\n")
-					e = AddErrToBizErrlist(err, e)
-					continue
+			var xbiz rlib.XBusiness
+			rlib.InitBizInternals(a.BID, &xbiz)
+			debitLID := rlib.RRdb.BizTypes[a.BID].AR[rlist[i].ARID].DebitLID // find the receipt's Account Rule Debit LID
+
+			rlib.Console("debitLID = %d - AcctRule: %s\n", debitLID, rlib.RRdb.BizTypes[a.BID].AR[rlist[i].ARID].Name)
+			rlib.Console("Depostitory LID = %d\n", dep.LID)
+
+			// compare to LID for the Depository
+			if debitLID != dep.LID { // if they're not the same, transfer to the appropriate account
+				asmid := int64(0) // assume no auto-gen Assessment is associated with this receipt
+				ja := rlib.GetJournalAllocationByASMandRCPTID(newRcpts[i])
+				if len(ja) == 1 { // if there is an associated auto-gen'd assessment
+					asmt, err := rlib.GetAssessment(ja[0].ASMID)
+					if err != nil {
+						return AddErrToBizErrlist(err, e)
+					}
+					asmid = asmt.ASMID // use the correct ASMID
 				}
-				rlib.Console("DEPOSIT - 6\n")
-				err = EnsureReceiptFundsToDepositoryAccount(&rlist[i], &asmt, &dep, a)
+				err = EnsureReceiptFundsToDepositoryAccount(&rlist[i], asmid, &dep, a)
+				if err != nil {
+					return AddErrToBizErrlist(err, e)
+				}
 			}
-			rlib.Console("DEPOSIT - 7\n")
 		}
 	} else {
 		err := rlib.UpdateDeposit(a)

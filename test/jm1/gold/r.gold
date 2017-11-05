@@ -8,30 +8,30 @@ Austin, TX 78738 USA
 
 Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J00000001   Security Deposits  309 Rexford [Rex1]                                                                                                   
-            Accounts Receivable                                                     12/01/2015  RA00000001  309 Rexford      12000          7,000.00
-            Security Deposits                                                       12/01/2015  RA00000001  309 Rexford      30000         -7,000.00
+J-1         Security Deposits  309 Rexford [Rex1]                                                                                                   
+            Accounts Receivable                                                     12/01/2015  RA-1        309 Rexford      12000          7,000.00
+            Security Deposits                                                       12/01/2015  RA-1        309 Rexford      30000         -7,000.00
                                                                                                                                                     
-J00000002   Security Deposits  309 1/2 Rexford [Rex2]                                                                                               
-            Accounts Receivable                                                     12/01/2015  RA00000002  309 1/2 Rexford  12000          3,000.00
-            Security Deposits                                                       12/01/2015  RA00000002  309 1/2 Rexford  30000         -3,000.00
+J-2         Security Deposits  309 1/2 Rexford [Rex2]                                                                                               
+            Accounts Receivable                                                     12/01/2015  RA-2        309 1/2 Rexford  12000          3,000.00
+            Security Deposits                                                       12/01/2015  RA-2        309 1/2 Rexford  30000         -3,000.00
                                                                                                                                                     
-J00000003   Security Deposits  311 Rexford [Rex3]                                                                                                   
-            Accounts Receivable                                                     12/01/2015  RA00000003  311 Rexford      12000          3,300.00
-            Security Deposits                                                       12/01/2015  RA00000003  311 Rexford      30000         -3,300.00
+J-3         Security Deposits  311 Rexford [Rex3]                                                                                                   
+            Accounts Receivable                                                     12/01/2015  RA-3        311 Rexford      12000          3,300.00
+            Security Deposits                                                       12/01/2015  RA-3        311 Rexford      30000         -3,300.00
                                                                                                                                                     
-J00000004   Payment - Aaron Read   #1126  7000.00                                                                                                   
+J-4         Payment - Aaron Read   #1126  7000.00                                                                                                   
             Security Deposits                                                                                                                       
-            Accounts Receivable                                                     12/02/2015  RA00000001  309 Rexford      12000         -7,000.00
-            Cash                                                                    12/02/2015  RA00000001  309 Rexford      10000          7,000.00
+            Accounts Receivable                                                     12/02/2015  RA-1        309 Rexford      12000         -7,000.00
+            Cash                                                                    12/02/2015  RA-1        309 Rexford      10000          7,000.00
                                                                                                                                                     
-J00000005   Payment - Rita Costea   #1597  3000.00                                                                                                  
+J-5         Payment - Rita Costea   #1597  3000.00                                                                                                  
             Security Deposits                                                                                                                       
-            Accounts Receivable                                                     12/03/2015  RA00000002  309 1/2 Rexford  12000         -3,000.00
-            Cash                                                                    12/03/2015  RA00000002  309 1/2 Rexford  10000          3,000.00
+            Accounts Receivable                                                     12/03/2015  RA-2        309 1/2 Rexford  12000         -3,000.00
+            Cash                                                                    12/03/2015  RA-2        309 1/2 Rexford  10000          3,000.00
                                                                                                                                                     
-J00000006   Payment - Gagik Haroutunian   #237  3300.00                                                                                             
+J-6         Payment - Gagik Haroutunian   #237  3300.00                                                                                             
             Security Deposits                                                                                                                       
-            Accounts Receivable                                                     12/04/2015  RA00000003  311 Rexford      12000         -3,300.00
-            Cash                                                                    12/04/2015  RA00000003  311 Rexford      10000          3,300.00
+            Accounts Receivable                                                     12/04/2015  RA-3        311 Rexford      12000         -3,300.00
+            Cash                                                                    12/04/2015  RA-3        311 Rexford      10000          3,300.00
                                                                                                                                                     

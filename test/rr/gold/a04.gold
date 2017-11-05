@@ -1,0 +1,28 @@
+REX Journal
+Nov 1, 2017 - Dec 1, 2017
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
+Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
+----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
+J-1         Electric Base Fee  309 Rexford [Rex1]                                                                                                   
+            Rent Roll Receivables                                                   11/03/2017  RA-1        309 Rexford      12001            100.00
+            Electric Base Fee                                                       11/03/2017  RA-1        309 Rexford      41301           -100.00
+                                                                                                                                                    
+J-2         Payment - Aaron Read   #234234234  250.00                                                                                               
+                                                                                                                                                    
+            Undeposited Funds                                                       11/03/2017                               10999            250.00
+            Unapplied Funds                                                         11/03/2017                               12999           -250.00
+                                                                                                                                                    
+J-3         Transfer (auto-transfer for deposit DEP-1)                                                                                              
+            from Undeposited Funds                                                  11/04/2017  RA-1                         10999           -250.00
+            to FRB 54320 (operating account)                                        11/04/2017  RA-1                         10104            250.00
+                                                                                                                                                    
+J-4         Payment - Aaron Read   #234234234  250.00                                                                                               
+                                                                                                                                                    
+            Unapplied Funds                                                         11/03/2017  RA-1        309 Rexford      12999            100.00
+            Rent Roll Receivables                                                   11/03/2017  RA-1        309 Rexford      12001           -100.00
+                                                                                                                                                    

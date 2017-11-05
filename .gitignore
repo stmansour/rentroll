@@ -1,6 +1,7 @@
 *.xlsx
 *.xls
 mdb
+js
 ws/buildno
 tmp
 bkup
@@ -27,4 +28,4 @@ test/irex/rex*
 test/irex/m
 test/irex/statements.txt
 test/irex/tables/
-
+admin/rrloadcsv/buildno

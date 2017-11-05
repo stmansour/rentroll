@@ -103,8 +103,6 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 		return nil // it's already reversed
 	}
 
-	rlib.Console("\n****  REVERSE RECEIPT  ****\n")
-
 	//------------------------------------------------------
 	// Build the new receipt
 	//------------------------------------------------------
@@ -144,107 +142,6 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 			return err
 		}
 	}
-
-	//-------------------------------------------------------------------------
-	// If the the account rule for this receipt has SubARs, analyze them. If
-	// we automatically created an assessment, then reverse that assessment.
-	//-------------------------------------------------------------------------
-	// if r.ARID > 0 {
-	// 	if rlib.RRdb.BizTypes[r.BID].AR[r.ARID].FLAGS&(1<<3) > 0 {
-	// 		m := rlib.GetSubARs(r.ARID)
-	// 		autoGenAsmt := false
-	// 		for j := 0; j < len(m); j++ {
-	// 			if rlib.RRdb.BizTypes[r.BID].AR[m[j].SubARID].ARType == rlib.ARSUBASSESSMENT {
-	// 				autoGenAsmt = true // it generated an assessment
-	// 			}
-	// 		}
-	// 		if autoGenAsmt {
-	// 			var agasmt rlib.Assessment
-	// 			q := fmt.Sprintf("SELECT %s FROM Assessments WHERE AGRCPTID=%d", rlib.RRdb.DBFields["Assessments"], r.RCPTID)
-	// 			row := rlib.RRdb.Dbrr.QueryRow(q)
-	// 			rlib.ReadAssessment(row, &agasmt)
-	// 			if agasmt.ASMID > 0 {
-	// 				be := ReverseAssessment(&agasmt, 0, dt)
-	// 				if len(be) > 0 {
-	// 					return BizErrorListToError(be)
-	// 				}
-	// 			}
-	// 		}
-	// 		// //---------------------------------------------------------
-	// 		// // See if there was a funds transfer to a bank account...
-	// 		// //---------------------------------------------------------
-	// 		// jx := rlib.GetJournalByTypeAndID(rlib.JNLTYPEXFER, r.RCPTID)
-	// 		// if jx.JID > 0 {
-	// 		// 	rlib.GetJournalAllocations(&jx)
-	// 		// 	if len(jx.JA) > 0 {
-	// 		// 		m := rlib.ParseSimpleAcctRule(jx.JA[0].AcctRule)
-
-	// 		// 	}
-	// 		// }
-	// 	}
-	// }
-
-	//----------------------------------------------------------------------
-	// If the the account rule for this receipt has SubARs, analyze them. If
-	// If there is a funds transfer involved
-	//----------------------------------------------------------------------
-	// funcname := "ReverseReceipt"
-	// jx := rlib.GetJournalByTypeAndID(rlib.JNLTYPEXFER, r.RCPTID)
-	// if jx.JID > 0 {
-	// 	rlib.GetJournalAllocations(&jx)
-	// 	if len(jx.JA) > 0 {
-	// 		m := rlib.ParseSimpleAcctRule(jx.JA[0].AcctRule)
-	// 		if len(m) < 2 {
-	// 			return fmt.Errorf("ReverseReceipt: invalid account rule in JournalAllocation JAID = %d", jx.JA[0].JAID)
-	// 		}
-
-	// 		//--------------------
-	// 		// journal
-	// 		//--------------------
-	// 		jnl := rlib.GetJournal(jx.JA[0].JID)
-	// 		jnl.Comment = fmt.Sprintf("Reversal of J-%d", jnl.JID)
-	// 		jnl.JID = 0
-	// 		jnl.Amount = -jnl.Amount
-	// 		_, err = rlib.InsertJournal(&jnl) // this will update jnl.JID
-	// 		if err != nil {
-	// 			rlib.LogAndPrintError(funcname, err)
-	// 			return err
-	// 		}
-
-	// 		//--------------------
-	// 		// journal allocation
-	// 		//--------------------
-	// 		ja := jx.JA[0] // copy of the original we're reversing
-	// 		ja.JID = jnl.JID
-	// 		ja.AcctRule = fmt.Sprintf("%s %s %.4f, %s %s %.4f",
-	// 			m[0].Action, m[0].Account, -m[0].Amount,
-	// 			m[1].Action, m[1].Account, -m[1].Amount)
-	// 		ja.Amount = -ja.Amount
-	// 		err = rlib.InsertJournalAllocationEntry(&ja)
-	// 		if err != nil {
-	// 			rlib.LogAndPrintError(funcname, err)
-	// 			return err
-	// 		}
-
-	// 		//-------------
-	// 		// ledgers
-	// 		//-------------
-	// 		n := rlib.GetLedgerEntriesByJAID(r.BID, jx.JA[0].JAID)
-	// 		for i := 0; i < len(n); i++ {
-	// 			le := n[i]
-	// 			le.LEID = 0
-	// 			le.Comment = fmt.Sprintf("reversal of LE-%d", n[i].LEID)
-	// 			le.Amount = -le.Amount
-	// 			le.JAID = ja.JAID
-	// 			le.JID = jx.JA[0].JID
-	// 			_, err = rlib.InsertLedgerEntry(&le)
-	// 			if err != nil {
-	// 				rlib.LogAndPrintError(funcname, err)
-	// 				return err
-	// 			}
-	// 		}
-	// 	}
-	// }
 
 	//----------------------------------------------------------------------
 	// The old receipt may have been allocated. Load its ReceiptAllocations

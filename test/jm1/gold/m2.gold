@@ -3,13 +3,16 @@ GL Account: 10000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Opening Balance                                                                                                               24,750.00
-Payment #1193 - Gross Scheduled Rent-Not Taxable         02/01/2016  J00000021          1   309 Rexford          3,500.00     28,250.00
-Payment #1652 - Gross Scheduled Rent-Not Taxable         02/02/2016  J00000022          2   309 1/2 Rexford      3,550.00     31,800.00
-Payment #268 - Gross Scheduled Rent-Not Taxable          02/16/2016  J00000023          3   311 Rexford          1,062.07     32,862.07
-Payment #268 - Employee Concessions                      02/16/2016  J00000023          3   311 Rexford            111.26     32,973.33
+Opening Balance                                                                                                               36,200.00
+Payment #1193 - Gross Scheduled Rent-Not Taxable         02/01/2016  J00000024          1   309 Rexford          3,500.00     39,700.00
+Payment #1652 - Gross Scheduled Rent-Not Taxable         02/02/2016  J00000025          2   309 1/2 Rexford      3,550.00     43,250.00
+Payment #268 - Gross Scheduled Rent-Not Taxable          02/16/2016  J00000026          3   311 Rexford          1,062.07     44,312.07
+Payment #268 - Employee Concessions                      02/16/2016  J00000026          3   311 Rexford            111.26     44,423.33
+Transfer                                                 02/20/2016  J00000028                                   3,550.00     47,973.33
+Transfer                                                 02/20/2016  J00000027                                   3,500.00     51,473.33
+Transfer                                                 02/20/2016  J00000029                                   1,173.33     52,646.66
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
-Closing Balance                                          02/29/2016                                                           32,973.33
+Closing Balance                                          02/29/2016                                                           52,646.66
 
 
 Cash BofA
@@ -48,14 +51,14 @@ GL Account: 12000
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000018          2   309 1/2 Rexford      3,550.00      3,550.00
-Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000017          1   309 Rexford          3,500.00      7,050.00
-Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000019          3   311 Rexford          1,062.07      8,112.07
-Assessment - Employee Concessions                        02/01/2016  J00000020          3   311 Rexford            111.26      8,223.33
-Payment #1193 - Gross Scheduled Rent-Not Taxable         02/01/2016  J00000021          1   309 Rexford         -3,500.00      4,723.33
-Payment #1652 - Gross Scheduled Rent-Not Taxable         02/02/2016  J00000022          2   309 1/2 Rexford     -3,550.00      1,173.33
-Payment #268 - Employee Concessions                      02/16/2016  J00000023          3   311 Rexford           -111.26      1,062.07
-Payment #268 - Gross Scheduled Rent-Not Taxable          02/16/2016  J00000023          3   311 Rexford         -1,062.07          0.00
+Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000021          2   309 1/2 Rexford      3,550.00      3,550.00
+Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000020          1   309 Rexford          3,500.00      7,050.00
+Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000022          3   311 Rexford          1,062.07      8,112.07
+Assessment - Employee Concessions                        02/01/2016  J00000023          3   311 Rexford            111.26      8,223.33
+Payment #1193 - Gross Scheduled Rent-Not Taxable         02/01/2016  J00000024          1   309 Rexford         -3,500.00      4,723.33
+Payment #1652 - Gross Scheduled Rent-Not Taxable         02/02/2016  J00000025          2   309 1/2 Rexford     -3,550.00      1,173.33
+Payment #268 - Employee Concessions                      02/16/2016  J00000026          3   311 Rexford           -111.26      1,062.07
+Payment #268 - Gross Scheduled Rent-Not Taxable          02/16/2016  J00000026          3   311 Rexford         -1,062.07          0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          02/29/2016                                                                0.00
 
@@ -126,13 +129,13 @@ GL Account: 41000
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                              -25,400.00
-Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000019          3   311 Rexford         -1,062.07    -26,462.07
-Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000017          1   309 Rexford         -3,500.00    -29,962.07
-Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000018          2   309 1/2 Rexford     -3,550.00    -33,512.07
-Unassociated                                             02/29/2016  J00000027              311 1/2 Rexford     -2,500.00    -36,012.07
-Unassociated                                             02/29/2016  J00000024              309 Rexford         -3,500.00    -39,512.07
-Unassociated                                             02/29/2016  J00000025              309 1/2 Rexford     -3,550.00    -43,062.07
-Unassociated                                             02/29/2016  J00000026              311 Rexford         -4,400.00    -47,462.07
+Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000022          3   311 Rexford         -1,062.07    -26,462.07
+Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000020          1   309 Rexford         -3,500.00    -29,962.07
+Assessment - Gross Scheduled Rent-Not Taxable            02/01/2016  J00000021          2   309 1/2 Rexford     -3,550.00    -33,512.07
+Unassociated                                             02/29/2016  J00000033              311 1/2 Rexford     -2,500.00    -36,012.07
+Unassociated                                             02/29/2016  J00000030              309 Rexford         -3,500.00    -39,512.07
+Unassociated                                             02/29/2016  J00000031              309 1/2 Rexford     -3,550.00    -43,062.07
+Unassociated                                             02/29/2016  J00000032              311 Rexford         -4,400.00    -47,462.07
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          02/29/2016                                                          -47,462.07
 
@@ -183,10 +186,10 @@ GL Account: 41101
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                               13,950.00
-Unassociated                                             02/29/2016  J00000026              311 Rexford          4,400.00     18,350.00
-Unassociated                                             02/29/2016  J00000025              309 1/2 Rexford      3,550.00     21,900.00
-Unassociated                                             02/29/2016  J00000024              309 Rexford          3,500.00     25,400.00
-Unassociated                                             02/29/2016  J00000027              311 1/2 Rexford      2,500.00     27,900.00
+Unassociated                                             02/29/2016  J00000032              311 Rexford          4,400.00     18,350.00
+Unassociated                                             02/29/2016  J00000031              309 1/2 Rexford      3,550.00     21,900.00
+Unassociated                                             02/29/2016  J00000030              309 Rexford          3,500.00     25,400.00
+Unassociated                                             02/29/2016  J00000033              311 1/2 Rexford      2,500.00     27,900.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          02/29/2016                                                           27,900.00
 
@@ -297,7 +300,7 @@ GL Account: 41202
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
-Assessment - Employee Concessions                        02/01/2016  J00000020          3   311 Rexford           -111.26       -111.26
+Assessment - Employee Concessions                        02/01/2016  J00000023          3   311 Rexford           -111.26       -111.26
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          02/29/2016                                                             -111.26
 
