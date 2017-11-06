@@ -33,6 +33,11 @@ func (t *Assessment) IDtoString() string {
 	return IDtoString("ASM", t.ASMID)
 }
 
+// IDtoShortString is the method to produce a consistent printable id string
+func (t *Assessment) IDtoShortString() string {
+	return IDtoShortString("ASM", t.ASMID)
+}
+
 //-------------------------------------------------
 //  BUSINESS
 //-------------------------------------------------
@@ -42,6 +47,11 @@ func (t *Business) IDtoString() string {
 	return IDtoString("B", t.BID)
 }
 
+// IDtoShortString is the method to produce a consistent printable id string
+func (t *Business) IDtoShortString() string {
+	return IDtoShortString("B", t.BID)
+}
+
 //-------------------------------------------------
 //  CUSTOM ATTRIBUTE
 //-------------------------------------------------
@@ -49,6 +59,11 @@ func (t *Business) IDtoString() string {
 // IDtoString is the method to produce a consistent printable id string
 func (t *CustomAttribute) IDtoString() string {
 	return IDtoString("C", t.CID)
+}
+
+// IDtoShortString is the method to produce a consistent printable id string
+func (t *CustomAttribute) IDtoShortString() string {
+	return IDtoShortString("C", t.CID)
 }
 
 // TypeToString returns a string describing the data type of the cell.
@@ -73,14 +88,29 @@ func (t *Deposit) IDtoString() string {
 	return IDtoString("DEP", t.DEPID)
 }
 
+// IDtoShortString is the method to produce a consistent printable id string
+func (t *Deposit) IDtoShortString() string {
+	return IDtoShortString("DEP", t.DEPID)
+}
+
 // IDtoString is the method to produce a consistent printable id string
 func (t *DepositMethod) IDtoString() string {
 	return IDtoString("DPM", t.DPMID)
 }
 
+// IDtoShortString is the method to produce a consistent printable id string
+func (t *DepositMethod) IDtoShortString() string {
+	return IDtoShortString("DPM", t.DPMID)
+}
+
 // IDtoString is the method to produce a consistent printable id string
 func (t *Depository) IDtoString() string {
 	return IDtoString("DEP", t.DEPID)
+}
+
+// IDtoShortString is the method to produce a consistent printable id string
+func (t *Depository) IDtoShortString() string {
+	return IDtoShortString("DEP", t.DEPID)
 }
 
 // IDtoString is the method to produce a consistent printable id string
@@ -98,6 +128,11 @@ func (t *GLAccount) IDtoString() string {
 	return IDtoString("L", t.LID)
 }
 
+// IDtoShortString is the method to produce a consistent printable id string
+func (t *GLAccount) IDtoShortString() string {
+	return IDtoShortString("L", t.LID)
+}
+
 //-------------------------------------------------
 //  INVOICE
 //-------------------------------------------------
@@ -107,9 +142,19 @@ func (a *Invoice) IDtoString() string {
 	return IDtoString("IN", a.InvoiceNo)
 }
 
+// IDtoShortString is the method to produce a consistent printable id string
+func (a *Invoice) IDtoShortString() string {
+	return IDtoShortString("IN", a.InvoiceNo)
+}
+
 // IDtoString is the method to produce a consistent printable id string
 func (a *Journal) IDtoString() string {
 	return IDtoString("J", a.JID)
+}
+
+// IDtoShortString is the method to produce a consistent printable id string
+func (a *Journal) IDtoShortString() string {
+	return IDtoShortString("J", a.JID)
 }
 
 // IDtoString is the method to produce a consistent printable id string
@@ -117,9 +162,19 @@ func (a *LedgerMarker) IDtoString() string {
 	return IDtoString("LM", a.LMID)
 }
 
+// IDtoShortString is the method to produce a consistent printable id string
+func (a *LedgerMarker) IDtoShortString() string {
+	return IDtoShortString("LM", a.LMID)
+}
+
 // IDtoString is the method to produce a consistent printable id string
 func (a *PaymentType) IDtoString() string {
 	return IDtoString("PMT", a.PMTID)
+}
+
+// IDtoShortString is the method to produce a consistent printable id string
+func (a *PaymentType) IDtoShortString() string {
+	return IDtoShortString("PMT", a.PMTID)
 }
 
 //-------------------------------------------------
@@ -131,6 +186,11 @@ func (a *Receipt) IDtoString() string {
 	return IDtoString("RCPT", a.RCPTID)
 }
 
+// IDtoShortString is the method to produce a consistent printable id string
+func (a *Receipt) IDtoShortString() string {
+	return IDtoShortString("RCPT", a.RCPTID)
+}
+
 //-------------------------------------------------
 //  RATE PLAN
 //-------------------------------------------------
@@ -140,14 +200,29 @@ func (t *RatePlan) IDtoString() string {
 	return IDtoString("RP", t.RPID)
 }
 
+// IDtoShortString for RatePlans returns a unique identifier string.
+func (t *RatePlan) IDtoShortString() string {
+	return IDtoShortString("RP", t.RPID)
+}
+
 // IDtoString for RatePlanRefs returns a unique identifier string.
 func (t *RatePlanRef) IDtoString() string {
 	return IDtoString("RPR", t.RPRID)
 }
 
+// IDtoShortString for RatePlanRefs returns a unique identifier string.
+func (t *RatePlanRef) IDtoShortString() string {
+	return IDtoShortString("RPR", t.RPRID)
+}
+
 // IDtoString for Rentables returns a unique identifier string.
 func (t *Rentable) IDtoString() string {
 	return IDtoString("R", t.RID)
+}
+
+// IDtoShortString for Rentables returns a unique identifier string.
+func (t *Rentable) IDtoShortString() string {
+	return IDtoShortString("R", t.RID)
 }
 
 //-------------------------------------------------
@@ -159,9 +234,19 @@ func (t *RentalAgreement) IDtoString() string {
 	return IDtoString("RA", t.RAID)
 }
 
+// IDtoShortString for RentalAgreements returns a unique identifier string.
+func (t *RentalAgreement) IDtoShortString() string {
+	return IDtoShortString("RA", t.RAID)
+}
+
 // IDtoString for RentalAgreementTemplate returns a unique identifier string.
 func (t *RentalAgreementTemplate) IDtoString() string {
 	return IDtoString("RAT", t.RATID)
+}
+
+// IDtoShortString for RentalAgreementTemplate returns a unique identifier string.
+func (t *RentalAgreementTemplate) IDtoShortString() string {
+	return IDtoShortString("RAT", t.RATID)
 }
 
 //-------------------------------------------------
@@ -173,15 +258,31 @@ func (t *RentableSpecialty) IDtoString() string {
 	return IDtoString("RSP", t.RSPID)
 }
 
+// IDtoShortString for RentableSpecialty returns a unique identifier string.
+func (t *RentableSpecialty) IDtoShortString() string {
+	return IDtoShortString("RSP", t.RSPID)
+}
+
 // IDtoString for RentableType returns a unique identifier string.
 func (t *RentableType) IDtoString() string {
 	return IDtoString("RT", t.RTID)
+}
+
+// IDtoShortString for RentableType returns a unique identifier string.
+func (t *RentableType) IDtoShortString() string {
+	return IDtoShortString("RT", t.RTID)
 }
 
 // IDtoString for Vehicle returns a unique identifier string.
 //-----------------------------------------------------------------------------
 func (t *Vehicle) IDtoString() string {
 	return IDtoString("V", t.VID)
+}
+
+// IDtoShortString for Vehicle returns a unique identifier string.
+//-----------------------------------------------------------------------------
+func (t *Vehicle) IDtoShortString() string {
+	return IDtoShortString("V", t.VID)
 }
 
 // GetUserNameList returns an array of strings with all the User names
@@ -319,10 +420,22 @@ func (t *XPerson) IDtoString() string {
 	return IDtoString("TC", t.Trn.TCID)
 }
 
+// IDtoShortString for XPerson returns a unique identifier string.
+//-----------------------------------------------------------------------------
+func (t *XPerson) IDtoShortString() string {
+	return IDtoShortString("TC", t.Trn.TCID)
+}
+
 // IDtoString for XPerson returns a unique identifier string.
 //-----------------------------------------------------------------------------
 func (t *Transactant) IDtoString() string {
 	return IDtoString("TC", t.TCID)
+}
+
+// IDtoShortString for XPerson returns a unique identifier string.
+//-----------------------------------------------------------------------------
+func (t *Transactant) IDtoShortString() string {
+	return IDtoShortString("TC", t.TCID)
 }
 
 // GetUserName returns a string with the user's first, middle, and last name

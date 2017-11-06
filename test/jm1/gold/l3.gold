@@ -8,42 +8,44 @@ Austin, TX 78738 USA
 
 Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J00000028   Gross Scheduled Rent-Not Taxable  309 Rexford [Rex1, monthly]                                                                           
-            Accounts Receivable                                                     03/01/2016  RA00000001  309 Rexford      12000          3,750.00
-            Gross Scheduled Rent-Not Taxable                                        03/01/2016  RA00000001  309 Rexford      41000         -3,750.00
+J-34        Gross Scheduled Rent-Not Taxable  309 Rexford [Rex1, monthly]                                                                           
+            Accounts Receivable                                                     03/01/2016  RA-1        309 Rexford      12000          3,750.00
+            Gross Scheduled Rent-Not Taxable                                        03/01/2016  RA-1        309 Rexford      41000         -3,750.00
                                                                                                                                                     
-J00000029   Security Deposits  311 Rexford [Rex3]                                                                                                   
-            Security Deposits                                                       03/02/2016  RA00000003  311 Rexford      30000          3,300.00
-            Cash                                                                    03/02/2016  RA00000003  311 Rexford      10000           -865.29
-            Forfeited SecDep                                                        03/02/2016  RA00000003  311 Rexford      41413         -2,434.71
+J-35        Security Deposits  311 Rexford [Rex3]                                                                                                   
+            Security Deposits                                                       03/02/2016  RA-3        311 Rexford      30000          3,300.00
+            Cash                                                                    03/02/2016  RA-3        311 Rexford      10000           -865.29
+            Forfeited SecDep                                                        03/02/2016  RA-3        311 Rexford      41413         -2,434.71
                                                                                                                                                     
-J00000030   Gross Scheduled Rent-Not Taxable  309 1/2 Rexford [Rex2, monthly]                                                                       
-            Accounts Receivable                                                     03/01/2016  RA00000002  309 1/2 Rexford  12000          3,550.00
-            Gross Scheduled Rent-Not Taxable                                        03/01/2016  RA00000002  309 1/2 Rexford  41000         -3,550.00
+J-36        Gross Scheduled Rent-Not Taxable  309 1/2 Rexford [Rex2, monthly]                                                                       
+            Accounts Receivable                                                     03/01/2016  RA-2        309 1/2 Rexford  12000          3,550.00
+            Gross Scheduled Rent-Not Taxable                                        03/01/2016  RA-2        309 1/2 Rexford  41000         -3,550.00
                                                                                                                                                     
-J00000031   Payment - Aaron Read   #2003  3750.00                                                                                                   
-            Gross Scheduled Rent-Not Taxable                                                                                                        
-            Accounts Receivable                                                     03/01/2016  RA00000001  309 Rexford      12000         -3,750.00
-            Cash                                                                    03/01/2016  RA00000001  309 Rexford      10000          3,750.00
+J-37        Payment - Aaron Read   #2003  3750.00                                                                                                   
+            Accounts Receivable                                                     03/01/2016  RA-1        309 Rexford      12000         -3,750.00
+            Cash                                                                    03/01/2016  RA-1        309 Rexford      10000          3,750.00
                                                                                                                                                     
-J00000032   Payment - Rita Costea   #1924  3550.00                                                                                                  
-            Gross Scheduled Rent-Not Taxable                                                                                                        
-            Accounts Receivable                                                     03/05/2016  RA00000002  309 1/2 Rexford  12000         -3,550.00
-            Cash                                                                    03/05/2016  RA00000002  309 1/2 Rexford  10000          3,550.00
+J-38        Payment - Rita Costea   #1924  3550.00                                                                                                  
+            Accounts Receivable                                                     03/05/2016  RA-2        309 1/2 Rexford  12000         -3,550.00
+            Cash                                                                    03/05/2016  RA-2        309 1/2 Rexford  10000          3,550.00
                                                                                                                                                     
-J00000033   Unassociated: 309 Rexford vacant Mar 1 - Apr 1                                                                                          
+J-39        Transfer (auto-transfer for deposit DEP-1)                                                                                              
+                                                                                                                                                    
+J-40        Transfer (auto-transfer for deposit DEP-1)                                                                                              
+                                                                                                                                                    
+J-41        Unassociated: 309 Rexford vacant Mar 1 - Apr 1                                                                                          
             Gross Scheduled Rent-Not Taxable                                        03/31/2016  0           309 Rexford      41000         -3,750.00
             Vacancy                                                                 03/31/2016  0           309 Rexford      41101          3,750.00
                                                                                                                                                     
-J00000034   Unassociated: 309 1/2 Rexford vacant Mar 1 - Apr 1                                                                                      
+J-42        Unassociated: 309 1/2 Rexford vacant Mar 1 - Apr 1                                                                                      
             Gross Scheduled Rent-Not Taxable                                        03/31/2016  0           309 1/2 Rexford  41000         -3,550.00
             Vacancy                                                                 03/31/2016  0           309 1/2 Rexford  41101          3,550.00
                                                                                                                                                     
-J00000035   Unassociated: 311 Rexford vacant Mar 1 - Apr 1                                                                                          
+J-43        Unassociated: 311 Rexford vacant Mar 1 - Apr 1                                                                                          
             Gross Scheduled Rent-Not Taxable                                        03/31/2016  0           311 Rexford      41000         -4,400.00
             Vacancy                                                                 03/31/2016  0           311 Rexford      41101          4,400.00
                                                                                                                                                     
-J00000036   Unassociated: 311 1/2 Rexford vacant Mar 1 - Apr 1                                                                                      
+J-44        Unassociated: 311 1/2 Rexford vacant Mar 1 - Apr 1                                                                                      
             Gross Scheduled Rent-Not Taxable                                        03/31/2016  0           311 1/2 Rexford  41000         -2,500.00
             Vacancy                                                                 03/31/2016  0           311 1/2 Rexford  41101          2,500.00
                                                                                                                                                     

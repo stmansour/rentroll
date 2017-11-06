@@ -1,0 +1,62 @@
+FRB 54320 (operating account)
+GL Account: 10104
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Transfer                                                 11/04/2017  J00000003          1                          250.00        250.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2017                                                              250.00
+
+
+Undeposited Funds
+GL Account: 10999
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Payment #234234234 - deposited to 10999 (Undeposited     11/03/2017  J00000002                                     250.00        250.00
+Funds)                                                                                                                                 
+Transfer                                                 11/04/2017  J00000003          1                         -250.00          0.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2017                                                                0.00
+
+
+Rent Roll Receivables
+GL Account: 12001
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Assessment - Electric Base Fee                           11/03/2017  J00000001          1   309 Rexford            100.00        100.00
+Payment #234234234 - deposited to 10999 (Undeposited     11/04/2017  J00000004          1   309 Rexford           -100.00          0.00
+Funds)                                                                                                                                 
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2017                                                                0.00
+
+
+Unapplied Funds
+GL Account: 12999
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Payment #234234234 - deposited to 10999 (Undeposited     11/03/2017  J00000002                                    -250.00       -250.00
+Funds)                                                                                                                                 
+Payment #234234234 - deposited to 10999 (Undeposited     11/04/2017  J00000004          1   309 Rexford            100.00       -150.00
+Funds)                                                                                                                                 
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2017                                                             -150.00
+
+
+Electric Base Fee
+GL Account: 41301
+                                                                     Journal    Rental                                                 
+Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Opening Balance                                                                                                                    0.00
+Assessment - Electric Base Fee                           11/03/2017  J00000001          1   309 Rexford           -100.00       -100.00
+-------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
+Closing Balance                                          11/30/2017                                                             -100.00
+
+

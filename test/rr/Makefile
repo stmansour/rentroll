@@ -8,7 +8,10 @@ rr: *.go config.json
 	@echo "*** Completed in ${THISDIR} ***"
 
 clean:
-	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z1-9] qq? ${THISDIR} fail conf*.json request rr[A-Za-z0-9][A-Za-z0-9]*.sql
+	mv rr.sql keepme
+	rm -f rentroll.log log llog *.g ./gold/*.g err.txt [a-z] [a-z][a-z1-9] [a-z][A-Za-z0-9][A-Za-z0-9] \
+			qq? ${THISDIR} fail conf*.json request *.sql
+	mv keepme rr.sql
 	@echo "*** CLEAN completed in ${THISDIR} ***"
 
 config.json:

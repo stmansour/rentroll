@@ -312,7 +312,7 @@ function buildDepositElements() {
                         if (typeof record === "undefined") {
                             return;
                         }
-                        if ( (record.FLAGS & app.rcptFLAGS.RCPTREVERSED) !== 0 ) { // if reversed then
+                        if ( (record.FLAGS & app.rcptFLAGS.REVERSED) !== 0 ) { // if reversed then
                             return getGridReversalSymbolHTML();
                         }
                         return '';

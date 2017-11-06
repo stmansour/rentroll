@@ -52,7 +52,7 @@ func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, 
 		tbl.AddRow()
 		tbl.Puts(-1, 1, l.Name)
 		tbl.Putd(-1, 2, d)
-		tbl.Puts(-1, 3, rlib.IDtoString("RA", raid))
+		tbl.Puts(-1, 3, rlib.IDtoShortString("RA", raid))
 		tbl.Puts(-1, 4, r.RentableName)
 		tbl.Puts(-1, 5, m[i].Account)
 		tbl.Putf(-1, 6, amt)
@@ -130,7 +130,7 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	}
 
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoString())
+	tbl.Puts(-1, 0, j.IDtoShortString())
 	tbl.Puts(-1, 1, s)
 
 	for i := 0; i < len(j.JA); i++ {
@@ -149,7 +149,7 @@ func printJournalExpense(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 	s += " " + j.Comment
 
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoString())
+	tbl.Puts(-1, 0, j.IDtoShortString())
 	tbl.Puts(-1, 1, s)
 
 	for i := 0; i < len(j.JA); i++ {
@@ -161,7 +161,7 @@ func printJournalExpense(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 		}
 		raid := ""
 		if j.JA[i].RAID > 0 {
-			raid = rlib.IDtoString("RA", j.JA[i].RAID)
+			raid = rlib.IDtoShortString("RA", j.JA[i].RAID)
 		}
 		tbl.AddRow()
 		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[j.BID].GLAccounts[dlid].Name)
@@ -230,7 +230,7 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 
 	s := fmt.Sprintf("Payment - %s   #%s  %.2f", ps, rcpt.DocNo, rcpt.Amount)
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoString())
+	tbl.Puts(-1, 0, j.IDtoShortString())
 	tbl.Puts(-1, 1, s)
 
 	// PROCESS EVERY RECEIPT ALLOCATION IN OUR DATE RANGE...
@@ -266,8 +266,10 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		// if r.BID == 0 {
 		// 	fmt.Printf("r.BID == 0:  r.RID = %d\n", r.RID)
 		// }
-		tbl.AddRow()
-		tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
+
+		// tbl.AddRow()
+		// tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
+
 		for k := 0; k < len(m); k++ {
 			l := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
 			if 0 == l.LID {
@@ -283,7 +285,7 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 			// printDatedJournalEntryRJ(l.Name, rcpt.Dt, s, r.RentableName, m[k].Account, amt)
 			rs := ""
 			if a.RAID > 0 {
-				rs = rlib.IDtoString("RA", a.RAID)
+				rs = rlib.IDtoShortString("RA", a.RAID)
 			}
 			tbl.AddRow()
 			tbl.Puts(-1, 1, l.Name)
@@ -302,7 +304,7 @@ func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx
 	// rlib.Console("textPrintJournalUnassociated\n")
 	rlib.GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoString())
+	tbl.Puts(-1, 0, j.IDtoShortString())
 	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.RentableName, j.Comment))
 	for i := 0; i < len(j.JA); i++ {
 		processAcctRuleAmount(tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
@@ -312,8 +314,12 @@ func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx
 
 func textPrintJournalXfer(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal) {
 	tbl.AddRow()
-	tbl.Puts(-1, 0, j.IDtoString())
-	tbl.Puts(-1, 1, "Transfer")
+	tbl.Puts(-1, 0, j.IDtoShortString())
+	s := "Transfer"
+	if len(j.Comment) > 0 {
+		s += fmt.Sprintf(" (%s)", j.Comment)
+	}
+	tbl.Puts(-1, 1, s)
 
 	if len(j.JA[0].AcctRule) > 0 {
 		var clid, dlid int64

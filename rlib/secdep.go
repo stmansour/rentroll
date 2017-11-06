@@ -137,7 +137,7 @@ func GetSecDepBalance(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) 
 	for i := 0; i < len(m); i++ {
 		sa = append(sa, fmt.Sprintf("ARID=%d", m[i]))
 	}
-	q := fmt.Sprintf("SELECT SUM(Amount) AS Amt FROM Assessments WHERE BID=%d AND RID=%d and RAID=%d AND %q<=Start AND Stop<%q AND (%s) GROUP BY RID",
+	q := fmt.Sprintf("SELECT SUM(Amount) AS Amt FROM Assessments WHERE BID=%d AND RID=%d and RAID=%d AND %q<=Start AND Stop<%q AND (%s)",
 		bid, rid, raid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), strings.Join(sa, " OR "))
 	// Console("=======>>>>>>  q:  %s\n", q)
 	rows, err := RRdb.Dbrr.Query(q)

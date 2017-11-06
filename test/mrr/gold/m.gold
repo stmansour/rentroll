@@ -8,27 +8,25 @@ Austin, TX 78738 USA
 
 Journal ID  Description                                                             Date        RntAgr      Rentable         GLAccount        Amount
 ----------  ----------------------------------------------------------------------  ----------  ----------  ---------------  ---------  ------------
-J00000001   Unit Gross Scheduled Rent-Taxable  6303-231 [A2, monthly]                                                                               
-            Accounts Receivable                                                     02/01/2017  RA00000001  6303-231         12000          1,000.00
-            Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA00000001  6303-231         41000         -1,000.00
+J-1         Unit Gross Scheduled Rent-Taxable  6303-231 [A2, monthly]                                                                               
+            Accounts Receivable                                                     02/01/2017  RA-1        6303-231         12000          1,000.00
+            Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA-1        6303-231         41000         -1,000.00
                                                                                                                                                     
-J00000002   Unit Gross Scheduled Rent-Taxable  6323-301 [A1, monthly]                                                                               
-            Accounts Receivable                                                     02/01/2017  RA00000002  6323-301         12000          1,000.00
-            Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA00000002  6323-301         41000         -1,000.00
+J-2         Unit Gross Scheduled Rent-Taxable  6323-301 [A1, monthly]                                                                               
+            Accounts Receivable                                                     02/01/2017  RA-2        6323-301         12000          1,000.00
+            Unit Gross Scheduled Rent-Taxable                                       02/01/2017  RA-2        6323-301         41000         -1,000.00
                                                                                                                                                     
-J00000003   Payment - ABC Corporation   #2111  2000.00                                                                                              
-            Unit Gross Scheduled Rent-Taxable                                                                                                       
-            Cash                                                                    02/03/2017  RA00000001  6303-231         10000          1,000.00
-            Accounts Receivable                                                     02/03/2017  RA00000001  6303-231         12000         -1,000.00
-            Unit Gross Scheduled Rent-Taxable                                                                                                       
-            Cash                                                                    02/03/2017  RA00000002  6323-301         10000          1,000.00
-            Accounts Receivable                                                     02/03/2017  RA00000002  6323-301         12000         -1,000.00
+J-3         Payment - ABC Corporation   #2111  2000.00                                                                                              
+            Cash                                                                    02/03/2017  RA-1        6303-231         10000          1,000.00
+            Accounts Receivable                                                     02/03/2017  RA-1        6303-231         12000         -1,000.00
+            Cash                                                                    02/03/2017  RA-2        6323-301         10000          1,000.00
+            Accounts Receivable                                                     02/03/2017  RA-2        6323-301         12000         -1,000.00
                                                                                                                                                     
-J00000004   Unassociated: 6303-231 vacant Feb 1 - Mar 1                                                                                             
+J-4         Unassociated: 6303-231 vacant Feb 1 - Mar 1                                                                                             
             Unit Gross Scheduled Rent-Taxable                                       02/28/2017  0           6303-231         41000         -1,000.00
             Vacancy                                                                 02/28/2017  0           6303-231         41101          1,000.00
                                                                                                                                                     
-J00000005   Unassociated: 6323-301 vacant Feb 1 - Mar 1                                                                                             
+J-5         Unassociated: 6323-301 vacant Feb 1 - Mar 1                                                                                             
             Unit Gross Scheduled Rent-Taxable                                       02/28/2017  0           6323-301         41000         -1,000.00
             Vacancy                                                                 02/28/2017  0           6323-301         41101          1,000.00
                                                                                                                                                     

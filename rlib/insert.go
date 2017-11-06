@@ -245,6 +245,7 @@ func InsertInvoicePayor(a *InvoicePayor) error {
 // InsertJournal writes a new Journal entry to the database
 func InsertJournal(j *Journal) (int64, error) {
 	var id = int64(0)
+
 	res, err := RRdb.Prepstmt.InsertJournal.Exec(j.BID, j.Dt, j.Amount, j.Type, j.ID, j.Comment, j.CreateBy, j.LastModBy)
 	if nil == err {
 		nid, err := res.LastInsertId()
