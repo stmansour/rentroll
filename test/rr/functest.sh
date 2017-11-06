@@ -73,7 +73,7 @@ mysqldump --no-defaults rentroll >test00.sql
 #      A $1000 floating deposit is made in October 2017, and $500 more is
 #      added to the floating deposit in November. A rentroll report is made
 #      for the month of November. The Beginning Security Deposit should be
-#      $500. The Ending Security Deposit amount for November should be $1500.
+#      $1000. The Ending Security Deposit amount for November should be $1500.
 #
 #  Notes: 
 #  1.  Since we're using floating deposits, there is no associated rentable.
@@ -137,8 +137,13 @@ mysqldump --no-defaults rentroll >rrFloatingDep.sql
 #  TEST 3
 #  Rentable Type Change during vacancy.
 #----------------------------------------------------
-#createDB
-#dbcore
+createDB
+dbcore
+docsvtest "ii" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
+docsvtest "jj" "-r rentable.csv -L 6,${BUD}" "Rentables"
+docsvtest "kk" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
+
+mysqldump --no-defaults rentroll > deposits.sql
 
 
 stopRentRollServer
