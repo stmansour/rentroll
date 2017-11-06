@@ -1,0 +1,5 @@
+Bud,Name,ARType,    Debit,Credit,Allocated,ShowOnRA,RAIDRequired,SubARSpec,Description
+ISO,Rent Non-Taxable,Assessment,Accounts Receivable,Gross Scheduled Rent-Not Taxable,FALSE,,,,Rent for non-taxable rooms / properties
+ISO,Late Fee,Assessment,Accounts Receivable,Late Fees,FALSE,,,,Assessed when payments are 7 days or more overdue
+ISO,Payment By Check,Receipt,Cash BofA,Unapplied Funds,FALSE,,,,Unapplied Funds
+ISO,Security Deposit Assessment,Assessment,Accounts Receivable,Security Deposits,FALSE,,,,Use for security deposits
