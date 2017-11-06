@@ -28,4 +28,4 @@ UPDATE RentalAgreement SET AgreementStop='9999-10-31', PossessionStop='9999-10-3
 UPDATE RentalAgreementPayors SET DtStop='9999-10-31' WHERE RAPID='21';
 EOF
 
-mysql --no-defaults rentroll < xyz 
+mysql --no-defaults rentroll < xyz

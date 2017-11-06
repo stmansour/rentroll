@@ -147,7 +147,9 @@ FROM
     RentableUsers ON (RentableUsers.RID = Rentable_CUM_RA.RID
         AND RentableUsers.RID = Rentable_CUM_RA.RID
         AND @DtStart <= RentableUsers.DtStop
-        AND @DtStop > RentableUsers.DtStart)
+        AND @DtStop > RentableUsers.DtStart
+        AND RentableUsers.DtStart >= Rentable_CUM_RA.AgreementStart
+        AND RentableUsers.DtStop <= Rentable_CUM_RA.AgreementStop)
         LEFT JOIN
     Transactant AS User ON (RentableUsers.TCID = User.TCID
         AND User.BID = Rentable_CUM_RA.BID)
@@ -392,14 +394,15 @@ func GetRentRollViewRows(BID int64,
 
 	const funcname = "GetRentRollViewRows"
 	var (
-		err                 error
-		d1Str               = startDt.Format(rlib.RRDATEFMTSQL)
-		d2Str               = stopDt.Format(rlib.RRDATEFMTSQL)
-		xbiz                rlib.XBusiness
-		rrViewRows          = []RentRollViewRow{}               //
-		rentableRowsMap     = make(map[int64][]RentRollViewRow) // per rentable it will hold sublist of rows
-		rentableRowsMapKeys = []int64{}
-		noRentableRows      = []RentRollViewRow{}
+		err                   error
+		d1Str                 = startDt.Format(rlib.RRDATEFMTSQL)
+		d2Str                 = stopDt.Format(rlib.RRDATEFMTSQL)
+		xbiz                  rlib.XBusiness
+		rrViewRows            = []RentRollViewRow{}               //
+		rentableRowsMap       = make(map[int64][]RentRollViewRow) // per rentable it will hold sublist of rows
+		rentableRowsMapKeys   = []int64{}
+		noRentableRowsMap     = make(map[int64][]RentRollViewRow)
+		noRentableRowsMapKeys = []int64{}
 	)
 	rlib.Console("Entered in %s\n", funcname)
 
@@ -473,21 +476,23 @@ func GetRentRollViewRows(BID int64,
 			q.AgreementPeriod = fmtRRDatePeriod(&q.AgreementStart.Time, &q.AgreementStop.Time)
 		}
 
-		// MarketRate calculation
-		mrIDs := []int64{}
-		for _, id := range strings.Split(q.mrIDs.String, ",") {
-			rmrid, _ := strconv.ParseInt(id, 10, 64)
-			mrIDs = append(mrIDs, rmrid)
-		}
-		gsrAmt, _ := rlib.GetMRAmtInDateRange(mrIDs, startDt, stopDt)
-		rlib.Console("gsrAmt: %f\n", gsrAmt)
-		q.GSR.Scan(gsrAmt)
-
 		// get current row RID
 		rowRID := q.RID.Int64
 
 		// only applicable if row has Rentable
 		if rowRID > 0 && q.RID.Valid {
+
+			// MarketRate calculation
+			mrIDs := []int64{}
+			for _, id := range strings.Split(q.mrIDs.String, ",") {
+				rmrid, _ := strconv.ParseInt(id, 10, 64)
+				mrIDs = append(mrIDs, rmrid)
+			}
+			gsrAmt, _ := rlib.GetMRAmtInDateRange(mrIDs, startDt, stopDt)
+			rlib.Console("gsrAmt: %f\n", gsrAmt)
+			q.GSR.Scan(gsrAmt)
+
+			// custom attribute
 			if len(xbiz.RT[q.RTID.Int64].CA) > 0 { // if there are custom attributes
 				c, ok := xbiz.RT[q.RTID.Int64].CA[customAttrRTSqft] // see if Square Feet is among them
 				if ok {                                             // if it is...
@@ -502,7 +507,7 @@ func GetRentRollViewRows(BID int64,
 
 			// Rent Cycle formatting
 			for freqStr, freqNo := range rlib.CycleFreqMap {
-				if q.RentCycle.Int64 == freqNo {
+				if q.RentCycle.Int64 == freqNo && q.RentCycle.Valid {
 					q.RentCycleStr = freqStr
 				}
 			}
@@ -517,11 +522,25 @@ func GetRentRollViewRows(BID int64,
 			// append new rentable row / formatted child row in map sublist
 			rentableRowsMap[rowRID] = append(rentableRowsMap[rowRID], q)
 		} else {
-			// append no rentable rows and keep it inside separate slice
-			noRentableRows = append(noRentableRows, q)
+			// get current row RID
+			rowRAID := q.RAID.Int64
+
+			// if valid then only
+			if rowRAID > 0 && q.RAID.Valid {
+
+				// if key found from map, then it is child row, otherwise it is NEW "NO Rentable RAID" row
+				if _, ok := rentableRowsMap[rowRAID]; !ok {
+					// IT IS *NEW* no Rentable RAID row
+					// store key in the mapKeys list
+					noRentableRowsMapKeys = append(noRentableRowsMapKeys, rowRAID)
+				}
+
+				// append no rentable rows and keep it inside separate slice
+				noRentableRowsMap[rowRAID] = append(noRentableRowsMap[rowRAID], q)
+			}
 		}
 
-		// update the rentableSectionCount only after adding the record
+		// update the count only after adding the record
 		count++
 	}
 
@@ -582,13 +601,46 @@ func GetRentRollViewRows(BID int64,
 	// ============================
 	// APPEND ALL NO RENTABLE ROWS
 	// ============================
-	for _, noRentableRow := range noRentableRows {
+	// sort the map keys first
+	sort.Slice(noRentableRowsMapKeys, func(i, j int) bool {
+		return noRentableRowsMapKeys[i] < noRentableRowsMapKeys[j]
+	})
+
+	// loop through all NO rentables with map
+	for _, RAID := range noRentableRowsMapKeys {
+		// get the sublist from map
+		noRentableSubList := noRentableRowsMap[RAID]
+
+		// sort the list of all rows per No Rentables RAID
+		sort.Slice(noRentableSubList, func(i, j int) bool {
+			if noRentableSubList[i].PossessionStart.Time.Equal(
+				noRentableSubList[j].PossessionStart.Time) {
+				if noRentableSubList[i].AmountDue.Float64 == noRentableSubList[j].AmountDue.Float64 {
+					return noRentableSubList[i].PaymentsApplied.Float64 > noRentableSubList[j].PaymentsApplied.Float64 // descending order
+				}
+				return noRentableSubList[i].AmountDue.Float64 > noRentableSubList[j].AmountDue.Float64 // descending order
+			}
+			return noRentableSubList[i].PossessionStart.Time.Before(
+				noRentableSubList[j].PossessionStart.Time)
+		})
+
+		// add subtotal row and format child rows for this RAID
+		addSubTotalRowANDFormatChildRows(BID, &noRentableSubList, startDt, stopDt, &rrViewRows)
+
+		// now add blankRow
+		noRentableSubList = append(noRentableSubList, RentRollViewRow{IsBlankRow: true})
+
+		// now add this noRentableRowsList to original result row list
+		rrViewRows = append(rrViewRows, noRentableSubList...)
+	}
+
+	/*for _, noRentableRow := range noRentableRows {
 		noRentableRow.IsMainRow = true
 		if len(rrViewRows) > 0 {
 			setRRDatePeriodString(&noRentableRow, &rrViewRows[len(rrViewRows)-1])
 		}
 		rrViewRows = append(rrViewRows, noRentableRow)
-	}
+	}*/
 
 	// ================
 	// GRAND TOTAL ROW
@@ -642,41 +694,43 @@ func addSubTotalRowANDFormatChildRows(
 	for i := 0; i < len(*subRows); i++ {
 
 		// take address of row
-		rentableRow := &(*subRows)[i]
+		rrMainRow := &(*subRows)[i]
 
-		subTotalRow.AmountDue.Float64 += rentableRow.AmountDue.Float64
-		subTotalRow.PaymentsApplied.Float64 += rentableRow.PaymentsApplied.Float64
-		subTotalRow.PeriodGSR.Float64 += rentableRow.PeriodGSR.Float64
-		subTotalRow.IncomeOffsets.Float64 += rentableRow.IncomeOffsets.Float64
+		subTotalRow.AmountDue.Float64 += rrMainRow.AmountDue.Float64
+		subTotalRow.PaymentsApplied.Float64 += rrMainRow.PaymentsApplied.Float64
+		subTotalRow.PeriodGSR.Float64 += rrMainRow.PeriodGSR.Float64
+		subTotalRow.IncomeOffsets.Float64 += rrMainRow.IncomeOffsets.Float64
 
 		if i > 0 {
 			// format child row
-			formatRentableChildRow(rentableRow)
+			formatRentableChildRow(rrMainRow)
 
 			// format RA period dates
-			setRRDatePeriodString(rentableRow, &(*subRows)[i-1])
+			setRRDatePeriodString(rrMainRow, &(*subRows)[i-1])
 		} else {
-			rentableRow.IsMainRow = true
-			rentableRow.IsRentableMainRow = true
+			rrMainRow.IsMainRow = true
+			if rrMainRow.RID.Int64 > 0 && rrMainRow.RID.Valid {
+				rrMainRow.IsRentableMainRow = true
+			}
 		}
 
 		// balance and secDep calculation for Each Rentable and RA pair
 
 		// if mapKey isn't present in map then calculate bal, secDep calculation
-		mapKey := fmt.Sprintf("RID:%d|RAID:%d", rentableRow.RID.Int64, rentableRow.RAID.Int64)
+		mapKey := fmt.Sprintf("RID:%d|RAID:%d", rrMainRow.RID.Int64, rrMainRow.RAID.Int64)
 
 		if marked, ok := rarMap[mapKey]; !ok || !marked {
 			rarMap[mapKey] = true // mark the entry
 
 			// BeginningRcv, EndingRcv
-			if rentableRow.RAID.Int64 == 0 && rentableRow.RID.Int64 == 0 {
+			if rrMainRow.RAID.Int64 == 0 && rrMainRow.RID.Int64 == 0 {
 				rlib.Console("GetBeginEndRARBalance: BID=%d, RID=%d, RAID=%d, start/stop = %s - %s\n",
-					rentableRow.BID, rentableRow.RID.Int64, rentableRow.RAID.Int64,
+					rrMainRow.BID, rrMainRow.RID.Int64, rrMainRow.RAID.Int64,
 					startDt.Format(rlib.RRDATEFMTSQL), stopDt.Format(rlib.RRDATEFMTSQL))
 			}
 			beginningRcv, endingRcv, err :=
-				rlib.GetBeginEndRARBalance(rentableRow.BID, rentableRow.RID.Int64,
-					rentableRow.RAID.Int64, &startDt, &stopDt)
+				rlib.GetBeginEndRARBalance(rrMainRow.BID, rrMainRow.RID.Int64,
+					rrMainRow.RAID.Int64, &startDt, &stopDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
 			}
@@ -686,14 +740,14 @@ func addSubTotalRowANDFormatChildRows(
 
 			// BeginningSecDep
 			beginningSecDep, err := rlib.GetSecDepBalance(
-				rentableRow.BID, rentableRow.RAID.Int64, rentableRow.RID.Int64, &d70, &startDt)
+				rrMainRow.BID, rrMainRow.RAID.Int64, rrMainRow.RID.Int64, &d70, &startDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 			}
 
 			// Change in SecDep
 			changeInSecDep, err := rlib.GetSecDepBalance(
-				rentableRow.BID, rentableRow.RAID.Int64, rentableRow.RID.Int64, &startDt, &stopDt)
+				rrMainRow.BID, rrMainRow.RAID.Int64, rrMainRow.RID.Int64, &startDt, &stopDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 			}

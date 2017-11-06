@@ -36,6 +36,7 @@ package ws
 //-----------------------------------------------------------------------------
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
@@ -43,6 +44,11 @@ import (
 	"strings"
 	"time"
 )
+
+// RRSearchRequestData is the struct for request data for rentroll webview
+type RRSearchRequestData struct {
+	RowsOffset int `json:"rows_offset"` // rentroll report rows offset
+}
 
 // RRSearchResponse is the response data for a Rental Agreement Search
 type RRSearchResponse struct {
@@ -59,8 +65,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var (
 		err     error
 		g       RRSearchResponse
+		reqData RRSearchRequestData
 		limit   = d.wsSearchReq.Limit
-		offset  = d.wsSearchReq.Offset
 		startDt = d.wsSearchReq.SearchDtStart
 		stopDt  = d.wsSearchReq.SearchDtStop
 	)
@@ -69,10 +75,17 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	rlib.Console("Entered %s\n", funcname)
 
+	if err := json.Unmarshal([]byte(d.data), &reqData); err != nil {
+		rlib.Console("Error while unmarshalling json from reqData: %s", err.Error())
+		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
+
 	//===========================================================
 	// TOTAL RECORDS COUNT
 	//===========================================================
-	rrViewRowsCount, rrViewMainRowsCount, totalRentables, err := getRRTotal(d.BID, startDt, stopDt)
+	rrViewRowsCount, rrViewMainRowsCount, err := getRRTotal(d.BID, startDt, stopDt)
 	if err != nil {
 		rlib.Console("Error from getRRTotal routine: %s", err.Error())
 		SvcGridErrorReturn(w, err, funcname)
@@ -81,7 +94,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("rrViewRowsCount = %d, rrViewMainRowsCount = %d\n", rrViewRowsCount, rrViewMainRowsCount)
 
 	g.Total = rrViewRowsCount
-	g.Total += (totalRentables * 2) // for each rentable, we've subtotal and blank row
+	g.Total += (rrViewMainRowsCount * 2) // for each rentroll view row, we've subtotal and blank row
 
 	g.TotalMainRows = rrViewMainRowsCount
 
@@ -94,19 +107,22 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rows, err := rrpt.GetRentRollViewRows(
 		d.BID, startDt, stopDt, // BID, startDate, stopDate
 		limit, // limit
-		rrWhere, rrOrder, offset,
+		rrWhere, rrOrder, reqData.RowsOffset,
 	)
 
 	// assign recid and append to g.Records
-	rowCounter := int64(0)
+	recordCounter := int64(d.wsSearchReq.Offset) // count recid from offset
+	summaryCounter := int64(0)
 	for _, row := range rows {
-		row.Recid = rowCounter
 		if row.IsGrandTotalRow {
+			row.Recid = summaryCounter // reset recid for summary
 			g.Summary = append(g.Summary, row)
+			summaryCounter++
 		} else {
+			row.Recid = recordCounter
 			g.Records = append(g.Records, row)
+			recordCounter++
 		}
-		rowCounter++
 	}
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
@@ -117,7 +133,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 func getRRTotal(
 	BID int64,
 	d1, d2 time.Time,
-) (rrViewRowsCount, rrViewMainRowsCount, totalRentables int64, err error) {
+) (rrViewRowsCount, rrViewMainRowsCount /*, totalRentables*/ int64, err error) {
 
 	const funcname = "getRRTotal"
 	var (
@@ -139,8 +155,8 @@ func getRRTotal(
 
 	// ALL main rows
 	rrViewMainRowsQC := rlib.GetQueryClauseCopy(rrpt.RentRollViewQueryClause)
-	rrViewMainRowsQC["SelectClause"] = "Rentable_CUM_RA.RID"
-	rrViewMainRowsQC["GroupClause"] = "Rentable_CUM_RA.RID"
+	rrViewMainRowsQC["SelectClause"] = "DISTINCT Rentable_CUM_RA.RAID"
+	rrViewMainRowsQC["GroupClause"] = "Rentable_CUM_RA.RAID"
 	rrViewMainRowsCountSubQuery := rlib.RenderSQLQuery(rrpt.RentRollViewQuery, rrViewMainRowsQC)
 	// if rrViewMainRowsCountSubQuery ends with ';' then remove it
 	rrViewMainRowsCountSubQuery = strings.TrimSuffix(strings.TrimSpace(rrViewMainRowsCountSubQuery), ";")
@@ -191,7 +207,7 @@ func getRRTotal(
 	}
 	rlib.Console("%s:: rrViewRowsCount = %d\n", funcname, rrViewRowsCount)
 
-	// ----------------
+	/*// ----------------
 	// TOTAL RENTABLES
 	// ----------------
 	totalRentablesQuery := fmt.Sprintf("SELECT DISTINCT Rentable.RID FROM Rentable WHERE Rentable.BID=%d", BID)
@@ -200,7 +216,7 @@ func getRRTotal(
 		rlib.Console("Error while calculation of totalRentables: %s\n", err.Error())
 		return
 	}
-	rlib.Console("%s:: totalRentables = %d\n", funcname, totalRentables)
+	rlib.Console("%s:: totalRentables = %d\n", funcname, totalRentables)*/
 
 	return
 }
