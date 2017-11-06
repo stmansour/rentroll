@@ -142,12 +142,12 @@ func GetSecDepBalance(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) 
 	// Console("=======>>>>>>  q:  %s\n", q)
 	rows, err := RRdb.Dbrr.Query(q)
 	for rows.Next() {
-		var x float64
+		var x NullFloat64
 		err := rows.Scan(&x)
 		if err != nil {
 			return amt, err
 		}
-		amt += x
+		amt += x.Float64
 	}
 	err = rows.Err()
 	return amt, err
