@@ -579,7 +579,8 @@ func GetRentRollViewRows(BID int64,
 		sort.Slice(rentableSubList, func(i, j int) bool {
 			if rentableSubList[i].PossessionStart.Time.Equal(
 				rentableSubList[j].PossessionStart.Time) {
-				if rentableSubList[i].AmountDue.Float64 == rentableSubList[j].AmountDue.Float64 {
+				if rentableSubList[i].AmountDue.Float64 == rentableSubList[j].AmountDue.Float64 &&
+					rentableSubList[i].ASMID.Int64 == rentableSubList[j].ASMID.Int64 {
 					return rentableSubList[i].PaymentsApplied.Float64 > rentableSubList[j].PaymentsApplied.Float64 // descending order
 				}
 				return rentableSubList[i].AmountDue.Float64 > rentableSubList[j].AmountDue.Float64 // descending order
@@ -706,7 +707,7 @@ func addSubTotalRowANDFormatChildRows(
 			formatRentableChildRow(rrMainRow)
 
 			// format RA period dates
-			setRRDatePeriodString(rrMainRow, &(*subRows)[i-1])
+			setRRDatePeriodString(rrMainRow, &(*subRows)[0])
 		} else {
 			rrMainRow.IsMainRow = true
 			if rrMainRow.RID.Int64 > 0 && rrMainRow.RID.Valid {
@@ -1124,8 +1125,8 @@ ORDER BY {{.OrderClause}};`
 var GrandTotalQueryClause = rlib.QueryClause{
 	"SelectClause": strings.Join(GrandTotalFields, ", "),
 	"WhereClause":  "",
-	"GroupClause":  "Rentable_CUM_RA.RID , Rentable_CUM_RA.RAID",
-	"OrderClause":  "- Rentable_CUM_RA.RID DESC , - Rentable_CUM_RA.RAID DESC",
+	"GroupClause":  "Rentable_CUM_RA.RID , Rentable_CUM_RA.RAID, (CASE WHEN Assessments.ASMID > 0 THEN Assessments.ASMID ELSE ReceiptAllocation.RCPAID END)",
+	"OrderClause":  "- Rentable_CUM_RA.RID DESC , - Rentable_CUM_RA.RAID DESC, (CASE WHEN Assessments.ASMID > 0 THEN Assessments.Amount ELSE ReceiptAllocation.Amount END) DESC;",
 }
 
 // getGrandTotal - calculates the grand total for rentroll report
