@@ -89,7 +89,6 @@ docsvtest "i" "-R rt1.csv -L 5,${BUD}" "RentableTypes"
 docsvtest "j" "-r r1.csv -L 6,${BUD}" "Rentables"
 docsvtest "lf" "-C raPlusFloat.csv -L 9,${BUD}" "RentalAgreements"
 
-
 # Create the October Receipt
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A15%2C%22PMTID%22%3A2%2C%22RAID%22%3A2%2C%22PmtTypeName%22%3A2%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2210%2F2%2F2017%22%2C%22DocNo%22%3A%2212345%22%2C%22Payor%22%3A%22Kevin+Mills+(TCID%3A+8)%22%2C%22TCID%22%3A8%2C%22Amount%22%3A1000%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "b00"  "WebService--AddFloatingDeposit1"
@@ -118,23 +117,50 @@ dorrtest "b05" "${RRDATERANGE} -b ${BUD} -r 4" "RentrollReport"
 mysqldump --no-defaults rentroll >rrFloatingDep.sql
 
 #------------------------------------------------------------------------------
-#  TEST 2
-#  Reverse Floating Deposit - This scenario uses the database created in
+#  TEST 02
+#  Reverse Floating Deposit
+#  Scenario: This scenario uses the database created in
 #      TEST 1 and simply reverses the first receipt. The result should be
 #      that the $1000 is removed, but the $500 remains on the books.
 #------------------------------------------------------------------------------
+echo "*** TEST 02 ***"
 
-# # Make the reversal entry
-# echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22receiptForm%22%2C%22RCPTID%22%3A1%7D" > request
-# dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "k02"  "WebService--Reverse Deposit"
+# Make the reversal entry
+echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22receiptForm%22%2C%22RCPTID%22%3A1%7D" > request
+dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "c01"  "WebService--Reverse Deposit"
 
-# # Do a text version of the Journal to make sure all the funds are properly transferred
-# RRDATERANGE="-j 2017-10-01 -k 2017-12-01"
-# dorrtest "m1" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
+# Rentroll report for November should not have a Beginning Balance on
+# for Security Deposits
+RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
+dorrtest "c02" "${RRDATERANGE} -b ${BUD} -r 4" "Journal"
+mysqldump --no-defaults rentroll > test02.sql
 
+#------------------------------------------------------------------------------
+#  TEST 03
+#  Delete A Deposit
+#
+#  Scenario: Here we simply delete the Deposit that was created in TEST 01.
+#      This could happen when you plan to deposit a check into one account
+#      but after creating the deposit in Roller you realize that you makde the
+#      Deposit to the wrong Depository. So, you delete the Deposit you just
+#      created, which means the $500 Receipt is now available to be included
+#      in another deposit. Then you create a new deposit to for correct
+#      Depository
+#------------------------------------------------------------------------------
+echo "*** TEST 03 ***"
+mysql --no-defaults rentroll <rrFloatingDep.sql
+
+# Delete the deposit from the wrong depository
+echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22depositFormBtns%22%2C%22DID%22%3A2%7D" > request
+dojsonPOST "http://localhost:8270/v1/deposit/1/2" "request" "c00"  "WebService--Delete Deposit"
+
+# Create a new Deposit with the Receipt from the deleted deposit
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B2%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DEPID%22%3A1%2C%22DEPName%22%3A1%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2211%2F6%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A500%2C%22ClearedAmount%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/deposit/1/0" "request" "c01"  "WebService--CreateDeposit"
+mysqldump --no-defaults rentroll > test03.sql
 
 #----------------------------------------------------
-#  TEST 3
+#  TEST 04
 #  Rentable Type Change during vacancy.
 #----------------------------------------------------
 createDB

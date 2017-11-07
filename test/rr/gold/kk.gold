@@ -1,0 +1,14 @@
+CreateRentalAgreement: line 4 - RentableAlreadyRented:: Rentable R00000003 is already included in Rental Agreement RA00000002 from 01/01/2017 to 01/01/2019
+REX Rental Agreement
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                                                                Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                           
+RAID        Payor                     User                      Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes
+----------  ------------------------  ------------------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  -----
+RA00000001  Aaron Read, Kirsten Read  Aaron Read, Kirsten Read  01/01/2017  01/01/2019  01/01/2017  01/01/2019  01/01/2017  01/01/2019  01/01/2017  1                  0            0                           
+RA00000002  Gagik Haroutunian         Gagik Haroutunian         01/01/2017  01/01/2019  01/01/2017  01/01/2019  01/01/2017  01/01/2019  01/01/2017  1                  0            0                           
+RA00000003  Alex Vahabzadeh           Alex Vahabzadeh           01/01/2017  01/01/2019  01/01/2017  01/01/2019  01/01/2017  01/01/2019  01/01/2017  1                  0            0                           
+
