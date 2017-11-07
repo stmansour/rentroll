@@ -936,7 +936,7 @@ CREATE TABLE SubAR (
 -- **************************************
 CREATE TABLE Receipt (
     RCPTID BIGINT NOT NULL AUTO_INCREMENT,                      -- unique id for this Receipt
-    PRCPTID BIGINT NOT NULL DEFAULT 0,                          -- Parent RCPT, if non-zero then it is the RCPTID of a receipt with an error that we're correcting in this receipt
+    PRCPTID BIGINT NOT NULL DEFAULT 0,                          -- Parent RCPT, if non-zero then it is the RCPTID of a receipt being reversed
     BID BIGINT NOT NULL DEFAULT 0,
     TCID BIGINT NOT NULL DEFAULT 0,                             -- Payor, even if OtherPayorName is present this field must have the payor for whom the OtherPayorName is paying
     PMTID BIGINT NOT NULL DEFAULT 0,

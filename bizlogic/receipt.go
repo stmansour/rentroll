@@ -411,18 +411,34 @@ func insertReceiptInternal(a, origin *rlib.Receipt, dt *time.Time) error {
 						}
 					}
 				} else {
-					be := CreateSubAssessment(&sub, a)
+					asmt, be := CreateSubAssessment(&sub, a) // create a new assessment that this receipt pays for
 					if len(be) > 0 {
 						return BizErrorListToError(be)
 					}
+					var ra rlib.ReceiptAllocation // creat the apply portion of this receipt
+					ra.RCPTID = a.RCPTID
+					ra.Amount = a.Amount
+					// for this case, we follow the Assessment's debit and credit
+					ra.AcctRule = fmt.Sprintf("ASM(%d) d %s _, c %s _", asmt.ASMID,
+						rlib.RRdb.BizTypes[a.BID].GLAccounts[sub.DebitLID].GLNumber,
+						rlib.RRdb.BizTypes[a.BID].GLAccounts[sub.CreditLID].GLNumber)
+					ra.ASMID = asmt.ASMID
+					ra.BID = a.BID
+					ra.Dt = a.Dt
+					ra.RAID = a.RAID
+					_, err = rlib.InsertReceiptAllocation(&ra)
+					if err != nil {
+						return err
+					}
+
 				}
 			}
 		}
 	}
 
-	//------------------------------------------------
-	// create the receipt allocation
-	//------------------------------------------------
+	//--------------------------------------------------------------------------
+	// create the receive portion of the receipt allocation receipt allocation
+	//--------------------------------------------------------------------------
 	var ra rlib.ReceiptAllocation
 	ra.RCPTID = a.RCPTID
 	ra.Amount = a.Amount
@@ -470,7 +486,7 @@ func insertReceiptInternal(a, origin *rlib.Receipt, dt *time.Time) error {
 // RETURNS:
 //
 //-----------------------------------------------------------------------------
-func CreateSubAssessment(sub *rlib.AR, a *rlib.Receipt) []BizError {
+func CreateSubAssessment(sub *rlib.AR, a *rlib.Receipt) (rlib.Assessment, []BizError) {
 	var b rlib.Assessment
 	// for any value not set below, the default value is correct
 	b.BID = a.BID
@@ -496,7 +512,7 @@ func CreateSubAssessment(sub *rlib.AR, a *rlib.Receipt) []BizError {
 			be = AddErrToBizErrlist(err, be)
 		}
 	}
-	return be
+	return b, be
 }
 
 // ValidateReceipt checks to see whether the assessment violates any

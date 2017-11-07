@@ -145,7 +145,7 @@ mysqldump --no-defaults rentroll > test02.sql
 #      Deposit to the wrong Depository. So, you delete the Deposit you just
 #      created, which means the $500 Receipt is now available to be included
 #      in another deposit. Then you create a new deposit to for correct
-#      Depository
+#      Depository.
 #------------------------------------------------------------------------------
 echo "*** TEST 03 ***"
 mysql --no-defaults rentroll <rrFloatingDep.sql

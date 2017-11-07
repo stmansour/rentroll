@@ -21,8 +21,17 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 	var err error
 	funcname := "EnsureReceiptFundsToDepositoryAccount"
 	rlib.InitBizInternals(r.BID, &xbiz)
-	ar := rlib.RRdb.BizTypes[r.BID].AR[r.ARID]
+	ar := rlib.RRdb.BizTypes[r.BID].AR[r.ARID] // this is the Account Rule for the Receipt
+
+	//-------------------------------------------------------------------------
+	// If we have not already debited the GLAccount associated with the
+	// Depository, this is the place to do so.  CREDIT what the receipt
+	// account rule debited, then DEBIT the Depository GLAccount
+	//-------------------------------------------------------------------------
 	if ar.DebitLID != d.LID {
+		sAcctRule := fmt.Sprintf("d %s _, c %s _",
+			rlib.RRdb.BizTypes[r.BID].GLAccounts[d.LID].GLNumber,
+			rlib.RRdb.BizTypes[r.BID].GLAccounts[ar.DebitLID].GLNumber) // string acct rule for what we're about to do: debit bank, credit UndepFunds
 		//----------------------------------
 		// debit  d.LID r.Amount
 		// credit ar.DebitLID r.Amount
@@ -87,6 +96,22 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 			rlib.LogAndPrintError(funcname, err)
 			return err
 		}
+
+		//-------------------------------------------------------------------------
+		// ReceiptAllocation reflection of what just happened...
+		//-------------------------------------------------------------------------
+		var ra rlib.ReceiptAllocation
+		ra.RCPTID = r.RCPTID
+		ra.Amount = r.Amount
+		ra.AcctRule = sAcctRule
+		ra.BID = r.BID
+		ra.Dt = r.Dt
+		ra.RAID = r.RAID
+		_, err = rlib.InsertReceiptAllocation(&ra)
+		if err != nil {
+			return err
+		}
+
 	}
 	return nil
 }
