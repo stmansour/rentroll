@@ -119,22 +119,17 @@ FROM
             AND RentalAgreementRentables.RAID IS NULL
             AND @DtStart <= RentalAgreement.AgreementStop
             AND @DtStop > RentalAgreement.AgreementStart)) AS Rentable_CUM_RA
-        LEFT JOIN
-    RentalAgreementPayors ON (Rentable_CUM_RA.RAID = RentalAgreementPayors.RAID
+    LEFT JOIN RentalAgreementPayors ON (Rentable_CUM_RA.RAID = RentalAgreementPayors.RAID
         AND Rentable_CUM_RA.BID = RentalAgreementPayors.BID
         AND @DtStart <= RentalAgreementPayors.DtStop
         AND @DtStop > RentalAgreementPayors.DtStart)
-        LEFT JOIN
-    Transactant AS Payor ON (Payor.TCID = RentalAgreementPayors.TCID
+    LEFT JOIN Transactant AS Payor ON (Payor.TCID = RentalAgreementPayors.TCID
         AND Payor.BID = Rentable_CUM_RA.BID)
-        LEFT JOIN
-    RentableTypeRef ON (RentableTypeRef.RID = Rentable_CUM_RA.RID
+    LEFT JOIN RentableTypeRef ON (RentableTypeRef.RID = Rentable_CUM_RA.RID
         AND RentableTypeRef.BID = Rentable_CUM_RA.BID)
-        LEFT JOIN
-    RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
+    LEFT JOIN RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
         AND RentableTypes.BID = RentableTypeRef.BID)
-        LEFT JOIN
-    RentableMarketRate ON (RentableMarketRate.RTID = RentableTypes.RTID
+    LEFT JOIN RentableMarketRate ON (RentableMarketRate.RTID = RentableTypes.RTID
         AND RentableMarketRate.BID = RentableTypes.BID
         AND @DtStart <= RentableMarketRate.DtStop
         AND @DtStop > RentableMarketRate.DtStart)
@@ -178,14 +173,11 @@ FROM
         LEFT JOIN
     AR AS RCPTAR ON (RCPTAR.ARID = Receipt.ARID
         AND RCPTAR.BID = Receipt.BID)
-        LEFT JOIN
-    ReceiptAllocation ON (ReceiptAllocation.RCPTID = Receipt.RCPTID
+    LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.RCPTID = Receipt.RCPTID
         AND ReceiptAllocation.BID = Receipt.BID
         AND ReceiptAllocation.RAID = Rentable_CUM_RA.RAID
-        AND (CASE
-        WHEN ReceiptAllocation.ASMID > 0 THEN ReceiptAllocation.ASMID = Assessments.ASMID
-        ELSE 1
-    END)
+        AND ReceiptAllocation.ASMID > 0
+        AND ReceiptAllocation.ASMID = Assessments.ASMID
         AND @DtStart <= ReceiptAllocation.Dt
         AND ReceiptAllocation.Dt < @DtStop)
 GROUP BY {{.GroupClause}}
@@ -1112,10 +1104,8 @@ FROM
     ReceiptAllocation ON (ReceiptAllocation.RCPTID = Receipt.RCPTID
         AND ReceiptAllocation.BID = Receipt.BID
         AND ReceiptAllocation.RAID = Rentable_CUM_RA.RAID
-        AND (CASE
-        WHEN ReceiptAllocation.ASMID > 0 THEN ReceiptAllocation.ASMID = Assessments.ASMID
-        ELSE 1
-    END)
+        AND ReceiptAllocation.ASMID > 0 
+        AND ReceiptAllocation.ASMID = Assessments.ASMID
         AND @DtStart <= ReceiptAllocation.Dt
         AND ReceiptAllocation.Dt < @DtStop)
 GROUP BY {{.GroupClause}}
