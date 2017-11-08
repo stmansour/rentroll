@@ -127,7 +127,7 @@ echo "*** TEST 02 ***"
 
 # Make the reversal entry
 echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22receiptForm%22%2C%22RCPTID%22%3A1%7D" > request
-dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "c01"  "WebService--Reverse Deposit"
+dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "c01"  "WebService--ReverseDeposit"
 
 # Rentroll report for November should not have a Beginning Balance on
 # for Security Deposits
@@ -152,15 +152,50 @@ mysql --no-defaults rentroll <rrFloatingDep.sql
 
 # Delete the deposit from the wrong depository
 echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22depositFormBtns%22%2C%22DID%22%3A2%7D" > request
-dojsonPOST "http://localhost:8270/v1/deposit/1/2" "request" "c00"  "WebService--Delete Deposit"
+dojsonPOST "http://localhost:8270/v1/deposit/1/2" "request" "c00"  "WebService--DeleteDeposit"
 
 # Create a new Deposit with the Receipt from the deleted deposit
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B2%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DEPID%22%3A1%2C%22DEPName%22%3A1%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2211%2F6%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A500%2C%22ClearedAmount%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/deposit/1/0" "request" "c01"  "WebService--CreateDeposit"
 mysqldump --no-defaults rentroll > test03.sql
 
-#----------------------------------------------------
+#------------------------------------------------------------------------------
 #  TEST 04
+#  Transfer funds from one account to another using an Expense
+#
+#  Scenario: 
+#------------------------------------------------------------------------------
+echo "*** TEST 04 ***"
+mysql --no-defaults rentroll <empty1.sql
+
+# $1000 Deposit
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A28%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%2211%2F7%2F2017%22%2C%22Stop%22%3A%2211%2F7%2F2017%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A1000%2C%22Rentable%22%3A%22309+Rexford%22%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22ExpandPastInst%22%3A0%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "d00"  "WebService--CreateAssessment-1000"
+
+# $25 Application Fee
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A1%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%2211%2F7%2F2017%22%2C%22Stop%22%3A%2211%2F7%2F2017%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A25%2C%22Rentable%22%3A%22309+Rexford%22%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22ExpandPastInst%22%3A0%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "d01"  "WebService--CreateAssessment-25"
+
+# $1025 Receipt for both
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A25%2C%22PMTID%22%3A2%2C%22RAID%22%3A0%2C%22PmtTypeName%22%3A2%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2211%2F7%2F2017%22%2C%22DocNo%22%3A%2223423%22%2C%22Payor%22%3A%22Aaron+Read+(TCID%3A+1)%22%2C%22TCID%22%3A1%2C%22Amount%22%3A1025%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "d02"  "WebService--ReceiveReceipt"
+
+# Deposit to Operating account
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22depositForm%22%2C%22Receipts%22%3A%5B1%5D%2C%22record%22%3A%7B%22recid%22%3A0%2C%22check%22%3A0%2C%22DID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DEPID%22%3A1%2C%22DEPName%22%3A1%2C%22DPMID%22%3A1%2C%22DPMName%22%3A1%2C%22Dt%22%3A%2211%2F7%2F2017%22%2C%22FLAGS%22%3A0%2C%22Amount%22%3A1025%2C%22ClearedAmount%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/deposit/1/0" "request" "d03"  "WebService--CreateDeposit"
+
+# Allocate Funds
+echo "%7B%22cmd%22%3A%22save%22%2C%22TCID%22%3A1%2C%22BID%22%3A1%2C%22records%22%3A%5B%7B%22recid%22%3A0%2C%22Date%22%3A%2211%2F7%2F2017%22%2C%22ASMID%22%3A1%2C%22ARID%22%3A28%2C%22Assessment%22%3A%22Security%20Deposit%20Assessment%22%2C%22Amount%22%3A1000%2C%22AmountPaid%22%3A0%2C%22AmountOwed%22%3A1000%2C%22Dt%22%3A%2211%2F7%2F2017%22%2C%22Allocate%22%3A1000%2C%22Date_%22%3A%222017-11-07T08%3A00%3A00.000Z%22%2C%22Dt_%22%3A%222017-11-07T08%3A00%3A00.000Z%22%7D%2C%7B%22recid%22%3A1%2C%22Date%22%3A%2211%2F7%2F2017%22%2C%22ASMID%22%3A2%2C%22ARID%22%3A1%2C%22Assessment%22%3A%22Application%20Fee%22%2C%22Amount%22%3A25%2C%22AmountPaid%22%3A0%2C%22AmountOwed%22%3A25%2C%22Dt%22%3A%2211%2F7%2F2017%22%2C%22Allocate%22%3A25%2C%22Date_%22%3A%222017-11-07T08%3A00%3A00.000Z%22%2C%22Dt_%22%3A%222017-11-07T08%3A00%3A00.000Z%22%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/allocfunds/1" "request" "d04"  "WebService--allocatefunds"
+
+# $1000 moved from Operating Account to SecurityDeposit Account
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22expenseForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22EXPID%22%3A0%2C%22ARID%22%3A38%2C%22RID%22%3A1%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Dt%22%3A%2211%2F7%2F2017%22%2C%22Amount%22%3A1000%2C%22AcctRule%22%3A%22%22%2C%22RName%22%3A%22309+Rexford%22%2C%22Comment%22%3A%22bank+transfer+SEC+DEP+to+proper+account%22%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%2C%22PREXPID%22%3A%22%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/expense/1/0" "request" "d04"  "WebService--EXPENSE-Transfer"
+
+mysqldump --no-defaults rentroll > test04.sql
+
+#----------------------------------------------------
+#  TEST 05
 #  Rentable Type Change during vacancy.
 #----------------------------------------------------
 createDB
@@ -169,7 +204,7 @@ docsvtest "ii" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
 docsvtest "jj" "-r rentable.csv -L 6,${BUD}" "Rentables"
 docsvtest "kk" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
 
-mysqldump --no-defaults rentroll > deposits.sql
+mysqldump --no-defaults rentroll > test05.sql
 
 
 stopRentRollServer

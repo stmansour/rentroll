@@ -34,3 +34,6 @@ REX,Tenant Expense Chargeback,Assessment,12001,Tenant Expense Chargeback,0,,,,
 REX,Vending Income,Receipt,11000,Vending Income,1,0,1,,
 REX,Water and Sewer Base Fee,Assessment,12001,Water and Sewer Base Fee,0,,,,
 REX,Water and Sewer Overage,Assessment,12001,Water and Sewer Overage,0,,,,
+REX,Auto-gen Application Fee Asmt,Sub-Assessment,Rent Roll Receivables,Application Fees,,,,,
+REX,Receive Application Fee (auto-gen asmt),Receipt,Undeposited Funds,Rent Roll Receivables,1,0,1,Auto-gen Application Fee Asmt,"Application fee taken, autogen asmt"
+REX,XFER  Operating to SecDep,Expense,FRB 96953 (deposit account),FRB 54320 (operating account),,,,,Move money from Operating acct to Sec Dep
