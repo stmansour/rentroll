@@ -1,7 +1,7 @@
 /*global
     w2ui, app, $, w2uiDateControlString, addDateNavToToolbar, console, getCurrentBusiness, getBUDfromBID,
     popupRentalAgrPicker, rafinder, form_dirty_alert, setToForm, setDateControlsInToolbar, formRefreshCallBack,
-    formRecDiffer, getFormSubmitData, w2confirm, w2utils, get2XReversalSymbolHTML, getGridReversalSymbolHTML, 
+    formRecDiffer, getFormSubmitData, w2confirm, w2utils, get2XReversalSymbolHTML, getGridReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord
 */
 "use strict";
@@ -35,8 +35,8 @@ function getExpenseInitRecord(BID, BUD, previousFormRecord){
             [ 'RAID', 'Amount', 'Comment', 'RID', 'RName'], // Fields to Reset
             defaultFormData,
             previousFormRecord
-        );        
-    }   
+        );
+    }
 
     return defaultFormData;
 }
@@ -295,7 +295,7 @@ function buildExpenseElements() {
                             app.ExpenseRules = JSON.parse(data);
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var record = 
+                            var record =
 
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
                             f.fields[0].options.items = app.ExpenseRules[BUD];
@@ -376,7 +376,7 @@ function buildExpenseElements() {
                     $("#"+f.name).find("button[name=save]").removeClass("hidden");
                     $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
                     $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    $("#"+f.name).find("#ExpFLAGReport").addClass("hidden");
                     $("#"+f.name).find("#ExpenseInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
@@ -384,7 +384,7 @@ function buildExpenseElements() {
 
                     return;
                 } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                    $("#"+f.name).find("#ExpFLAGReport").removeClass("hidden");
                     $("#"+f.name).find("#ExpenseInfo").removeClass("hidden");
                 }
 
