@@ -194,15 +194,22 @@ dojsonPOST "http://localhost:8270/v1/expense/1/0" "request" "d04"  "WebService--
 
 mysqldump --no-defaults rentroll > test04.sql
 
-#----------------------------------------------------
+#------------------------------------------------------------------------------
 #  TEST 05
-#  Rentable Type Change during vacancy.
-#----------------------------------------------------
+#  Rentable Type Change.  If the MarketRate for a Rentable Type changes during
+#     the period of a RentRoll view or report, the PeriodGSR must reflect the
+#     change. This RentRoll view/report is for November 2017. The GSR is $3500
+#     per month from Jan 1 to Nov 15, then it changes to $4000.
+#------------------------------------------------------------------------------
 createDB
 dbcore
 docsvtest "ii" "-R rentabletypes.csv -L 5,${BUD}" "RentableTypes"
 docsvtest "jj" "-r rentable.csv -L 6,${BUD}" "Rentables"
 docsvtest "kk" "-C ra.csv -L 9,${BUD}" "RentalAgreements"
+
+# Add a market rate change in the middle of November
+echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B1%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RMRID%22%3A1%2C%22RTID%22%3A1%2C%22MarketRate%22%3A3500%2C%22DtStart%22%3A%221%2F1%2F2014%22%2C%22DtStop%22%3A%2211%2F15%2F2017%22%2C%22w2ui%22%3A%7B%7D%7D%2C%7B%22recid%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RTID%22%3A1%2C%22RMRID%22%3A0%2C%22MarketRate%22%3A4000%2C%22DtStart%22%3A%2211%2F15%2F2017%22%2C%22DtStop%22%3A%2212%2F31%2F9999%22%2C%22w2ui%22%3A%7B%7D%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/rmr/1/1" "request" "e00"  "WebService--ChangeGSR"
 
 mysqldump --no-defaults rentroll > test05.sql
 

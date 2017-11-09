@@ -114,7 +114,7 @@ func varResolve(ctx *RpnCtx, s string) float64 {
 			return ctx.pf * ctx.GSR
 		}
 		rpnLoadRentable(ctx) // make sure it's loaded
-		amt, _, _, err := CalculateLoadedGSR(&ctx.xu.R, ctx.d1, ctx.d2, ctx.xbiz)
+		amt, _, _, err := CalculateLoadedGSR(ctx.xu.R.BID, ctx.xu.R.RID, ctx.d1, ctx.d2, ctx.xbiz)
 		if err == nil {
 			// fmt.Printf("varResolve: amt = %f, d1 = %s, d2 = %s\n", amt, ctx.d1.Format(RRDATEFMT4), ctx.d2.Format(RRDATEFMT4))
 			ctx.GSR = amt

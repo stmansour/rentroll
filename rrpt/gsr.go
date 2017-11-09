@@ -61,8 +61,8 @@ func GSRReportTable(ri *ReporterInfo) gotable.Table {
 		if rtr.OverrideProrationCycle != 0 {
 			pc = rtr.OverrideProrationCycle
 		}
-		dt1 := ri.D1.Add(rlib.CycleDuration(rc, ri.D1))                      // 1 full cycle
-		amt, _, _, err := rlib.CalculateLoadedGSR(&r, &ri.D1, &dt1, ri.Xbiz) // calculate its GSR
+		dt1 := ri.D1.Add(rlib.CycleDuration(rc, ri.D1))                                // 1 full cycle
+		amt, _, _, err := rlib.CalculateLoadedGSR(r.BID, r.RID, &ri.D1, &dt1, ri.Xbiz) // calculate its GSR
 		if err != nil {
 			fmt.Printf("%s: Rentable %d, error calculating GSR: %s\n", funcname, r.RID, err.Error())
 		}

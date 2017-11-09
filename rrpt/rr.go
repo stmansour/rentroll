@@ -475,13 +475,20 @@ func GetRentRollViewRows(BID int64,
 		if rowRID > 0 && q.RID.Valid {
 
 			// MarketRate calculation
-			mrIDs := []int64{}
-			for _, id := range strings.Split(q.mrIDs.String, ",") {
-				rmrid, _ := strconv.ParseInt(id, 10, 64)
-				mrIDs = append(mrIDs, rmrid)
+			var gsrAmt float64
+
+			// mrIDs := []int64{}
+			// for _, id := range strings.Split(q.mrIDs.String, ",") {
+			// 	rmrid, _ := strconv.ParseInt(id, 10, 64)
+			// 	mrIDs = append(mrIDs, rmrid)
+			// }
+			// gsrAmt, _ := rlib.GetMRAmtInDateRange(mrIDs, startDt, stopDt)
+			// rlib.Console("gsrAmt: %f\n", gsrAmt)
+			// q.GSR.Scan(gsrAmt)
+			gsrAmt, _, _, err = rlib.CalculateLoadedGSR(BID, q.RID.Int64, &startDt, &stopDt, &xbiz)
+			if err != nil {
+				return rrViewRows, err
 			}
-			gsrAmt, _ := rlib.GetMRAmtInDateRange(mrIDs, startDt, stopDt)
-			rlib.Console("gsrAmt: %f\n", gsrAmt)
 			q.GSR.Scan(gsrAmt)
 
 			// custom attribute

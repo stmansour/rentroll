@@ -308,19 +308,19 @@ type GSRdata struct {
 //   time.Duration - the GSRPC for this rentable
 //   error - any error returned by the routines looking for data values
 //========================================================================================================
-func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float64, []GSRdata, time.Duration, error) {
+func CalculateLoadedGSR(rBID, rRID int64, d1, d2 *time.Time, xbiz *XBusiness) (float64, []GSRdata, time.Duration, error) {
 	funcname := "CalculateLoadedGSR"
 	var period = time.Duration(0)
 	var m []GSRdata
 	var err error
 	gsr := float64(0) // total rent, to update on each pass through the loop below
 
-	// fmt.Printf("%s, r.RID = %d, d1 = %s, d2 = %s\n", funcname, r.RID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+	// fmt.Printf("%s, rRID = %d, d1 = %s, d2 = %s\n", funcname, r.RID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 
-	rta := GetRentableTypeRefsByRange(r.RID, d1, d2) // get the list
+	rta := GetRentableTypeRefsByRange(rRID, d1, d2) // get the list
 	if len(rta) == 0 {
 		err = fmt.Errorf("%s:  No valid RTID for rentable R%08d during period %s to %s",
-			funcname, r.RID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+			funcname, rRID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 		Ulog("%s", err.Error())
 		return gsr, m, period, err // this is bad! No RTID for the supplied time range
 	}
@@ -344,7 +344,7 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 	// fmt.Printf("%s, dtFirst = %s\n", funcname, dtFirst.Format(RRDATETIMEINPFMT))
 
 	// find the Gross Scheduled Rent Proration Cycle - GSRPC - the intervals over which the GSR is calculated
-	_, _, gsrpc, err := GetProrationCycle(&dtFirst, r.RID, &rta, xbiz)
+	_, _, gsrpc, err := GetProrationCycle(&dtFirst, rRID, &rta, xbiz)
 	if err != nil {
 
 		// fmt.Printf("%s: error from GetProrationCycle: %s\n", funcname, err.Error())
@@ -361,17 +361,17 @@ func CalculateLoadedGSR(r *Rentable, d1, d2 *time.Time, xbiz *XBusiness) (float6
 		//--------------------------------------------------------------------
 		// Get the RentableSpecialties applicable for this increment...
 		//--------------------------------------------------------------------
-		rsa, nerr := GetRentableSpecialtyTypesForRentableByRange(r.BID, r.RID, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
+		rsa, nerr := GetRentableSpecialtyTypesForRentableByRange(rBID, rRID, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
 		if nerr != nil {
 			err = fmt.Errorf("%s:  error getting specialties for rentable R%08d during period %s to %s.  err = %s",
-				funcname, r.RID, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT), nerr.Error())
+				funcname, rRID, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT), nerr.Error())
 			Ulog("%s", err.Error())
 			break
 		}
 		//------------------------------------------------------------------
 		// Finally, calculate the GSR for this increment...
 		//------------------------------------------------------------------
-		rentThisPeriod := CalculateGSR(dt, dtNext, r.RID, &rta, rsa, xbiz)
+		rentThisPeriod := CalculateGSR(dt, dtNext, rRID, &rta, rsa, xbiz)
 
 		// fmt.Printf("rentThisPeriod = %f\n", rentThisPeriod)
 

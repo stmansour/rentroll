@@ -17,7 +17,7 @@ const (
 // ComputeGSRandGSRRate returns the GSR and GSR rate for Rentable over time period dtStart - dtStop
 func ComputeGSRandGSRRate(p *rlib.Rentable, dtStart, dtStop *time.Time, xbiz *rlib.XBusiness) (float64, float64) {
 	// Compute the GSR for this period.
-	x, _, _, _ := rlib.CalculateLoadedGSR(p, dtStart, dtStop, xbiz)
+	x, _, _, _ := rlib.CalculateLoadedGSR(p.BID, p.RID, dtStart, dtStop, xbiz)
 
 	// Compute the GSR Rate
 	var gsrRate float64                                             //initialize
@@ -28,7 +28,7 @@ func ComputeGSRandGSRRate(p *rlib.Rentable, dtStart, dtStop *time.Time, xbiz *rl
 		gsrRate = float64(n2) / float64(n1) * x //  (x: GSR this period)/(n1: this period) = (y: extrapolated GSR)/(n2: rent cycle)
 	} else {
 		dt := dtStart.Add(n2)
-		gsrRate, _, _, _ = rlib.CalculateLoadedGSR(p, dtStart, &dt, xbiz)
+		gsrRate, _, _, _ = rlib.CalculateLoadedGSR(p.BID, p.RID, dtStart, &dt, xbiz)
 	}
 	return x, gsrRate
 }
