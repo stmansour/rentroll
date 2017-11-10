@@ -1,0 +1,7 @@
+Test Name:    Test04 - Multiple Rental Agreements for same Rentable for different user
+Test Purpose: Generates separate databases for multiple rental agreements for different user
+Date/Time:    Fri Nov 10 15:59:29 IST 2017
+
+Create new database...  successful
+Test completed: Fri Nov 10 15:59:41 IST 2017
+ElapsedTime: 0 min 12 sec

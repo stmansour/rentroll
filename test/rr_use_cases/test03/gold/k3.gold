@@ -1,0 +1,16 @@
+REX Rental Agreement
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                                      Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                                                    
+RAID        Payor        User         Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes                         
+----------  -----------  -----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  ------------------------------
+RA00000001  Lauren Beck  Lauren Beck  01/01/2016  07/01/2016  01/01/2016  07/01/2016  01/01/2016  07/01/2016  01/01/2016  1                  0            0  1                   This is a note for Lauren Beck
+                                                                                                                                                                                 (Agreement: 01Jan2016 –       
+                                                                                                                                                                                 01Jul2016)                    
+RA00000002  Lauren Beck  Lauren Beck  08/01/2016  01/01/2017  08/01/2016  01/01/2017  08/01/2016  01/01/2017  08/01/2016  1                  0            0  1                   This is a note for Lauren Beck
+                                                                                                                                                                                 (Agreement: 01Aug2016 –       
+                                                                                                                                                                                 01Jan2017)                    
+
