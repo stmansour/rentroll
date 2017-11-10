@@ -225,7 +225,9 @@ type RentRollViewRow struct {
 	RentCycle         rlib.NullInt64
 	RentCycleStr      string          // String representation of Rent Cycle
 	Payors            rlib.NullString // what happens if during time period, its on vacant
+	PayorsStr         string          // Payors representation
 	Users             rlib.NullString
+	UsersStr          string          // Users representation
 	mrIDs             rlib.NullString // multiple marketRate IDs
 	GSR               rlib.NullFloat64
 	PeriodGSR         rlib.NullFloat64
@@ -348,14 +350,12 @@ func setRRDatePeriodString(r, lastRow *RentRollViewRow) {
 
 		// it could be possible, someone introduced as payor later/removed
 		if lastRow.Payors.String == r.Payors.String {
-			r.Payors.String = ""
-			r.Payors.Valid = false
+			r.PayorsStr = ""
 		}
 
 		// it could be possible, someone introduced as user later/removed
 		if lastRow.Users.String == r.Users.String {
-			r.Users.String = ""
-			r.Users.Valid = false
+			r.UsersStr = ""
 		}
 	}
 }
@@ -467,6 +467,10 @@ func GetRentRollViewRows(BID int64,
 		if q.AgreementStart.Time.Year() > 1970 {
 			q.AgreementPeriod = fmtRRDatePeriod(&q.AgreementStart.Time, &q.AgreementStop.Time)
 		}
+
+		// UsersStr, PayorsStr representation
+		q.UsersStr = q.Users.String
+		q.PayorsStr = q.Payors.String
 
 		// get current row RID
 		rowRID := q.RID.Int64
@@ -686,43 +690,45 @@ func addSubTotalRowANDFormatChildRows(
 	for i := 0; i < len(*subRows); i++ {
 
 		// take address of row
-		rrMainRow := &(*subRows)[i]
+		rrRow := &(*subRows)[i]
 
-		subTotalRow.AmountDue.Float64 += rrMainRow.AmountDue.Float64
-		subTotalRow.PaymentsApplied.Float64 += rrMainRow.PaymentsApplied.Float64
-		subTotalRow.PeriodGSR.Float64 += rrMainRow.PeriodGSR.Float64
-		subTotalRow.IncomeOffsets.Float64 += rrMainRow.IncomeOffsets.Float64
+		subTotalRow.AmountDue.Float64 += rrRow.AmountDue.Float64
+		subTotalRow.PaymentsApplied.Float64 += rrRow.PaymentsApplied.Float64
+		subTotalRow.PeriodGSR.Float64 += rrRow.PeriodGSR.Float64
+		subTotalRow.IncomeOffsets.Float64 += rrRow.IncomeOffsets.Float64
 
-		if i > 0 {
-			// format child row
-			formatRentableChildRow(rrMainRow)
+		if i == 0 { // first main row
+			rrRow.IsMainRow = true
+			if rrRow.RID.Int64 > 0 && rrRow.RID.Valid {
+				rrRow.IsRentableMainRow = true
+			}
+		} else { // following rows
+			if rrRow.RID.Int64 > 0 && rrRow.RID.Valid {
+				// format rentable child row
+				formatRentableChildRow(rrRow)
+			}
 
 			// format RA period dates
-			setRRDatePeriodString(rrMainRow, &(*subRows)[0])
-		} else {
-			rrMainRow.IsMainRow = true
-			if rrMainRow.RID.Int64 > 0 && rrMainRow.RID.Valid {
-				rrMainRow.IsRentableMainRow = true
-			}
+			setRRDatePeriodString(rrRow, &(*subRows)[i-1])
 		}
 
 		// balance and secDep calculation for Each Rentable and RA pair
 
 		// if mapKey isn't present in map then calculate bal, secDep calculation
-		mapKey := fmt.Sprintf("RID:%d|RAID:%d", rrMainRow.RID.Int64, rrMainRow.RAID.Int64)
+		mapKey := fmt.Sprintf("RID:%d|RAID:%d", rrRow.RID.Int64, rrRow.RAID.Int64)
 
 		if marked, ok := rarMap[mapKey]; !ok || !marked {
 			rarMap[mapKey] = true // mark the entry
 
 			// BeginningRcv, EndingRcv
-			if rrMainRow.RAID.Int64 == 0 && rrMainRow.RID.Int64 == 0 {
+			if rrRow.RAID.Int64 == 0 && rrRow.RID.Int64 == 0 {
 				rlib.Console("GetBeginEndRARBalance: BID=%d, RID=%d, RAID=%d, start/stop = %s - %s\n",
-					rrMainRow.BID, rrMainRow.RID.Int64, rrMainRow.RAID.Int64,
+					rrRow.BID, rrRow.RID.Int64, rrRow.RAID.Int64,
 					startDt.Format(rlib.RRDATEFMTSQL), stopDt.Format(rlib.RRDATEFMTSQL))
 			}
 			beginningRcv, endingRcv, err :=
-				rlib.GetBeginEndRARBalance(rrMainRow.BID, rrMainRow.RID.Int64,
-					rrMainRow.RAID.Int64, &startDt, &stopDt)
+				rlib.GetBeginEndRARBalance(rrRow.BID, rrRow.RID.Int64,
+					rrRow.RAID.Int64, &startDt, &stopDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
 			}
@@ -732,14 +738,14 @@ func addSubTotalRowANDFormatChildRows(
 
 			// BeginningSecDep
 			beginningSecDep, err := rlib.GetSecDepBalance(
-				rrMainRow.BID, rrMainRow.RAID.Int64, rrMainRow.RID.Int64, &d70, &startDt)
+				rrRow.BID, rrRow.RAID.Int64, rrRow.RID.Int64, &d70, &startDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 			}
 
 			// Change in SecDep
 			changeInSecDep, err := rlib.GetSecDepBalance(
-				rrMainRow.BID, rrMainRow.RAID.Int64, rrMainRow.RID.Int64, &startDt, &stopDt)
+				rrRow.BID, rrRow.RAID.Int64, rrRow.RID.Int64, &startDt, &stopDt)
 			if err != nil {
 				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
 			}
@@ -798,7 +804,9 @@ func handleRentableGaps(xbiz *rlib.XBusiness, rid int64, sl *[]RentRollViewRow, 
 			firstRentableRow.PossessionStop.Scan(rsa[i].RS.DtStop)
 			firstRentableRow.Description.Scan("Vacant") // need to take care of rentableStatus here
 			firstRentableRow.Users.Scan(rsa[i].RS.UseStatusStringer())
+			firstRentableRow.UsersStr = firstRentableRow.Users.String
 			firstRentableRow.Payors.Scan(rsa[i].RS.LeaseStatusStringer())
+			firstRentableRow.PayorsStr = firstRentableRow.Payors.String
 			firstRentableRow.UsePeriod = fmtRRDatePeriod(&rsa[i].RS.DtStart, &rsa[i].RS.DtStop)
 			firstRentableRow.PeriodGSR.Scan(rlib.VacancyGSR(xbiz, rid, &rsa[i].RS.DtStart, &rsa[i].RS.DtStop))
 			firstRentableRow.IncomeOffsets.Scan(firstRentableRow.PeriodGSR.Float64) // TBD: Validate.  For now, just assume that they're equal
@@ -819,7 +827,9 @@ func handleRentableGaps(xbiz *rlib.XBusiness, rid int64, sl *[]RentRollViewRow, 
 			r.PossessionStop.Scan(rsa[i].RS.DtStop)
 			r.Description.Scan("Vacant") // need to take care of rentableStatus here
 			r.Users.Scan(rsa[i].RS.UseStatusStringer())
+			r.UsersStr = r.Users.String
 			r.Payors.Scan(rsa[i].RS.LeaseStatusStringer())
+			r.PayorsStr = r.Payors.String
 			r.UsePeriod = fmtRRDatePeriod(&rsa[i].RS.DtStart, &rsa[i].RS.DtStop)
 			r.PeriodGSR.Scan(rlib.VacancyGSR(xbiz, rid, &rsa[i].RS.DtStart, &rsa[i].RS.DtStop))
 			r.IncomeOffsets.Scan(r.PeriodGSR.Float64) // TBD: Validate.  For now, just assume that they're equal
@@ -946,8 +956,8 @@ func rrTableAddRow(tbl *gotable.Table, q RentRollViewRow) {
 	tbl.Puts(-1, RType, q.RentableType.String)
 	tbl.Puts(-1, SqFt, int64ToStr(q.Sqft.Int64, true))
 	tbl.Puts(-1, Descr, q.Description.String)
-	tbl.Puts(-1, Users, q.Users.String)
-	tbl.Puts(-1, Payors, q.Payors.String)
+	tbl.Puts(-1, Users, q.UsersStr)
+	tbl.Puts(-1, Payors, q.PayorsStr)
 	tbl.Puts(-1, RAgr, q.RAIDStr)
 	tbl.Puts(-1, UsePeriod, q.UsePeriod)
 	tbl.Puts(-1, RentPeriod, q.RentPeriod)
@@ -1103,7 +1113,7 @@ FROM
     ReceiptAllocation ON (ReceiptAllocation.RCPTID = Receipt.RCPTID
         AND ReceiptAllocation.BID = Receipt.BID
         AND ReceiptAllocation.RAID = Rentable_CUM_RA.RAID
-        AND ReceiptAllocation.ASMID > 0 
+        AND ReceiptAllocation.ASMID > 0
         AND ReceiptAllocation.ASMID = Assessments.ASMID
         AND @DtStart <= ReceiptAllocation.Dt
         AND ReceiptAllocation.Dt < @DtStop)

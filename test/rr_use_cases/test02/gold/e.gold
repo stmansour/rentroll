@@ -1,0 +1,11 @@
+REX Depositories
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+DEPID        BID        AccountNo  Name             GLAccount                            
+-----------  ---------  ---------  ---------------  -------------------------------------
+DEP00000001  B00000001  987654321  Wells Fargo      10104 (FRB 54320 (operating account))
+DEP00000002  B00000001  12345678   Bank Of America  10105 (FRB 96953 (deposit account))  
+
