@@ -1,0 +1,16 @@
+REX Rental Agreement
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                                                          Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                                                    
+RAID        Payor            User                         Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes                         
+----------  ---------------  ---------------------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  ------------------------------
+RA00000001  Alex Vahabzadeh  Alex Vahabzadeh, Chris Depp  01/01/2017  07/01/2017  01/01/2017  07/01/2017  01/01/2017  07/01/2017  01/01/2017  1                  0            0  1                   This is a note for Alex       
+                                                                                                                                                                                                     (Agreement: 1 Jan 2017 – 1    
+                                                                                                                                                                                                     Jul)                          
+RA00000002  Chris Depp       Chris Depp                   07/01/2017  01/01/2018  07/01/2017  01/01/2018  07/01/2017  01/01/2018  07/01/2017  1                  0            0  1                   This is a note for Chris Depp 
+                                                                                                                                                                                                     (Agreement: 1 Jul – 1 Jan     
+                                                                                                                                                                                                     2018)                         
+

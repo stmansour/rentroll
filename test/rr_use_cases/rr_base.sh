@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TESTNAME="RR View Use Case Databases"
-TESTSUMMARY="Generates separate databases for multiple use cases"
+# TESTNAME="RR View Use Case Databases"
+# TESTSUMMARY="Generates separate databases for multiple use cases"
 
 if [ "x${RR_DB_CORE}" = "x" ]; then
     RR_DB_CORE="./"

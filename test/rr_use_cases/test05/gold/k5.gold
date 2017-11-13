@@ -1,0 +1,11 @@
+REX Rental Agreement
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+                                      Agreement   Agreement   Possession  Possession                          Rent Cycle           Unspecified  Unspecified                                                    
+RAID        Payor        User         Start       Stop        Start       Stop        Rent Start  Rent Stop   Epoch       Renewal       Adults     Children  Special Provisions  Notes                         
+----------  -----------  -----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -------  -----------  -----------  ------------------  ------------------------------
+RA00000001  Rita Costea  Rita Costea  01/01/2016  01/01/2017  01/01/2016  01/01/2017  01/01/2016  01/01/2017  01/01/2016  1                  0            0  1                   This is a note for Rita Costea
+
