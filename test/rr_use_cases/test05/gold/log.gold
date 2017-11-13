@@ -1,0 +1,6 @@
+Test Name:    Test05 - New Payor/Users within existing RentalAgreement
+Test Purpose: Generates separate databases for new Payors/Users on existing RA
+Date/Time:    Mon Nov 13 11:51:07 IST 2017
+
+Create new database...  successful
+Test completed: Mon Nov 13 11:51:19 IST 2017

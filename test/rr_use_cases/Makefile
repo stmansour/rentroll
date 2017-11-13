@@ -1,4 +1,4 @@
-DIRS = test01 test02 test03 test04
+DIRS = test01 test02 test03 test04 test05
 
 onesite:
 	for dir in $(DIRS); do make -C $$dir;done
