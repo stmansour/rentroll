@@ -1,0 +1,17 @@
+CreatePaymentTypeFromCSV: line 2 - Skipping because payment type named Cash already exists
+CreatePaymentTypeFromCSV: line 3 - Skipping because payment type named Check already exists
+CreatePaymentTypeFromCSV: line 4 - Skipping because payment type named VISA already exists
+CreatePaymentTypeFromCSV: line 5 - Skipping because payment type named AMEX already exists
+REX Payment Types
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+PMTID        BID        Name   Description                 
+-----------  ---------  -----  ----------------------------
+PMT00000001  B00000001  Cash   Cash                        
+PMT00000002  B00000001  Check  Personal check from payor   
+PMT00000003  B00000001  VISA   Credit card charge          
+PMT00000004  B00000001  AMEX   American Express credit card
+
