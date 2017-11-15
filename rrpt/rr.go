@@ -717,20 +717,25 @@ func addSubTotalRowANDFormatChildRows(
 		// if mapKey isn't present in map then calculate bal, secDep calculation
 		mapKey := fmt.Sprintf("RID:%d|RAID:%d", rrRow.RID.Int64, rrRow.RAID.Int64)
 
-		if marked, ok := rarMap[mapKey]; !ok || !marked {
+		marked, ok := rarMap[mapKey]
+		if !ok || !marked {
 			rarMap[mapKey] = true // mark the entry
 
 			// BeginningRcv, EndingRcv
+			beginningRcv := float64(0)
+			endingRcv := float64(0)
 			if rrRow.RAID.Int64 == 0 && rrRow.RID.Int64 == 0 {
 				rlib.Console("GetBeginEndRARBalance: BID=%d, RID=%d, RAID=%d, start/stop = %s - %s\n",
 					rrRow.BID, rrRow.RID.Int64, rrRow.RAID.Int64,
 					startDt.Format(rlib.RRDATEFMTSQL), stopDt.Format(rlib.RRDATEFMTSQL))
-			}
-			beginningRcv, endingRcv, err :=
-				rlib.GetBeginEndRARBalance(rrRow.BID, rrRow.RID.Int64,
-					rrRow.RAID.Int64, &startDt, &stopDt)
-			if err != nil {
-				rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s", funcname, err.Error())
+			} else {
+				var err error
+				beginningRcv, endingRcv, err =
+					rlib.GetBeginEndRARBalance(rrRow.BID, rrRow.RID.Int64,
+						rrRow.RAID.Int64, &startDt, &stopDt)
+				if err != nil {
+					rlib.Console("%s: Error while calculating BeginningRcv, EndingRcv:: %s\n", funcname, err.Error())
+				}
 			}
 
 			// ChangeInRcv
@@ -740,14 +745,14 @@ func addSubTotalRowANDFormatChildRows(
 			beginningSecDep, err := rlib.GetSecDepBalance(
 				rrRow.BID, rrRow.RAID.Int64, rrRow.RID.Int64, &d70, &startDt)
 			if err != nil {
-				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
+				rlib.Console("%s: Error while calculating BeginningSecDep:: %s\n", funcname, err.Error())
 			}
 
 			// Change in SecDep
 			changeInSecDep, err := rlib.GetSecDepBalance(
 				rrRow.BID, rrRow.RAID.Int64, rrRow.RID.Int64, &startDt, &stopDt)
 			if err != nil {
-				rlib.Console("%s: Error while calculating BeginningSecDep:: %s", funcname, err.Error())
+				rlib.Console("%s: Error while calculating BeginningSecDep:: %s\n", funcname, err.Error())
 			}
 
 			// EndingSecDep
@@ -1193,8 +1198,7 @@ func getGrandTotal(BID int64, startDt, stopDt time.Time) (grandTTL RentRollViewR
 		var RID, RAID rlib.NullInt64
 		var MR, AMT, PMT rlib.NullFloat64
 		rows.Scan(&RID, &RAID, &MR, &AMT, &PMT)
-		rlib.Console("\nRID: %d, RAID: %d, MR: %f, AMT: %f, PMT: %f\n",
-			RID.Int64, RAID.Int64, MR.Float64, AMT.Float64, PMT.Float64)
+		// rlib.Console("\nRID: %d, RAID: %d, MR: %f, AMT: %f, PMT: %f\n", RID.Int64, RAID.Int64, MR.Float64, AMT.Float64, PMT.Float64)
 
 		// ===== some basic flat amount calculations ADDITION
 		grandTTL.AmountDue.Float64 += AMT.Float64

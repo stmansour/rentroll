@@ -107,7 +107,7 @@ func varResolve(ctx *RpnCtx, s string) float64 {
 
 	if s == "UMR" { // Unit MARKET RATE
 		rpnLoadRentable(ctx) // make sure it's loaded
-		return ctx.pf * GetRentableMarketRate(ctx.xbiz, &ctx.xu.R, ctx.d1, ctx.d2)
+		return ctx.pf * GetRentableMarketRate(ctx.xbiz, ctx.xu.R.RID, ctx.d1, ctx.d2)
 	}
 	if s == "GSR" { // Gross Schedule Rent = Market Rate + Specialties
 		if ctx.GSRset { // don't recalculate if already set

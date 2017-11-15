@@ -7,6 +7,18 @@ import (
 	"time"
 )
 
+// GetCountByTableName returns the count of records in table t
+// that belong to business bid
+//------------------------------------------------------------------
+func GetCountByTableName(t string, bid int64) int {
+	var count int
+	q := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE BID=%d", t, bid)
+	row := RRdb.Dbrr.QueryRow(q)
+	err := row.Scan(&count)
+	Errcheck(err)
+	return count
+}
+
 //=======================================================
 //  AR
 //=======================================================
@@ -1843,7 +1855,6 @@ func GetRentableMarketRates(rt *RentableType) {
 	LatestMRDTStart := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
 	for rows.Next() {
 		var a RentableMarketRate
-		// Errcheck(rows.Scan(&a.RTID, &a.MarketRate, &a.DtStart, &a.DtStop))
 		Errcheck(ReadRentableMarketRates(rows, &a))
 		if a.DtStart.After(LatestMRDTStart) {
 			LatestMRDTStart = a.DtStart
@@ -1862,11 +1873,14 @@ func GetRentableMarketRateInstance(rmrid int64) (RentableMarketRate, error) {
 	return rmr, err
 }
 
-// GetRentableMarketRate returns the market-rate rent amount for r during the given time range. If the time range
-// is large and spans multiple price changes, the chronologically earliest price that fits in the time range will be
-// returned. It is best to provide as small a timerange d1-d2 as possible to minimize risk of overlap
-func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) float64 {
-	rtid := GetRTIDForDate(r.RID, d1) // first thing... find the RTID for this time range
+// GetRentableMarketRate returns the market-rate rent amount for r during the
+// given time range. If the time range is large and spans multiple price
+// changes, the chronologically earliest price that fits in the time range
+// will be returned. It is best to provide as small a timerange d1-d2 as
+// possible to minimize risk of overlap
+//-----------------------------------------------------------------------------
+func GetRentableMarketRate(xbiz *XBusiness, RID int64, d1, d2 *time.Time) float64 {
+	rtid := GetRTIDForDate(RID, d1) // first thing... find the RTID for this time range
 	mr := xbiz.RT[rtid].MR
 	// Console("GetRentableMarketRate: len(mr) is %d\n", len(mr))
 	for i := 0; i < len(mr); i++ {
@@ -1877,18 +1891,17 @@ func GetRentableMarketRate(xbiz *XBusiness, r *Rentable, d1, d2 *time.Time) floa
 	return float64(0)
 }
 
-// GetRentableUsersInRange returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
-// during the time range d1-d2
+// GetRentableUsersInRange returns an array of payors (in the form of payors)
+// associated with the supplied RentalAgreement ID during the time range d1-d2
+//-----------------------------------------------------------------------------
 func GetRentableUsersInRange(rid int64, d1, d2 *time.Time) []RentableUser {
 	rows, err := RRdb.Prepstmt.GetRentableUsersInRange.Query(rid, d1, d2)
 	Errcheck(err)
 	defer rows.Close()
 	var t []RentableUser
-	// t = make([]RentableUser, 0)
 	for rows.Next() {
 		var r RentableUser
 		ReadRentableUsers(rows, &r)
-		// Errcheck(rows.Scan(&r.RID, &r.TCID, &r.DtStart, &r.DtStop))
 		t = append(t, r)
 	}
 	return t

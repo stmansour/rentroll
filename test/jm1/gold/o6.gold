@@ -20,12 +20,12 @@ GLNumber  Name                                   Balance       Balance
 30102     Transient Occupancy Taxes                               0.00
 30199     Other Accrued Taxes                                     0.00
 39000     Owners' Equity                                          0.00
-41000     Gross Scheduled Rent-Not Taxable                 -133,712.07
+41000     Gross Scheduled Rent-Not Taxable                  -84,450.00
 41001     Gross Scheduled Rent-Taxable                            0.00
-41002     Income Offsets                       84,450.00              
+41002     Income Offsets                       35,187.93              
 41003     Other Income                         -2,545.97              
-41100     Unit Income Offsets                  84,450.00              
-41101     Vacancy                                            84,450.00
+41100     Unit Income Offsets                  35,187.93              
+41101     Vacancy                                            35,187.93
 41102     Loss (Gain) to Lease                                    0.00
 41103     Employee Concessions                                    0.00
 41104     Resident Concessions                                    0.00

@@ -368,7 +368,7 @@ func (t *RentalAgreement) GetTheRentableName(d1, d2 *time.Time) string {
 	rl := GetRentalAgreementRentables(t.RAID, d1, d2)
 	for i := 0; i < len(rl); i++ {
 		r := GetRentable(rl[i].RID)
-		amt := GetRentableMarketRate(&xbiz, &r, d1, d2)
+		amt := GetRentableMarketRate(&xbiz, r.RID, d1, d2)
 		// Console("Rentable = %d, MarketRate = %.2f\n", r.RID, amt)
 		if amt > max {
 			theRentable = r

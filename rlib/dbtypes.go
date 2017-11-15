@@ -95,8 +95,8 @@ const (
 
 	// USESTATUSunknown etc all Rentable Use Status
 	USESTATUSunknown            = 0
-	USESTATUSadmin              = 1
-	USESTATUSinService          = 2
+	USESTATUSinService          = 1
+	USESTATUSadmin              = 2
 	USESTATUSemployee           = 3
 	USESTATUSownerOccupied      = 4
 	USESTATUSofflineRenovation  = 5
