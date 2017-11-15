@@ -644,6 +644,7 @@ func InsertRentableType(a *RentableType) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
+			a.RTID = rid
 		}
 	} else {
 		Ulog("Error inserting RentableType:  %v\n", err)

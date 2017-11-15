@@ -106,15 +106,18 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 	var num, den int64
 	var start, stop time.Time
 	var r Rentable
-	status := int64(RENTABLESTATUSONLINE) // if RID==0, then it's for an application fee or similar.  Assume rentable is online.
+	useStatus := int64(USESTATUSinService) // if RID==0, then it's for an application fee or similar.  Assume rentable is online.
 
 	if a.RID > 0 {
 		r = GetRentable(a.RID)
-		status = GetRentableStateForDate(r.RID, d)
+		useStatus = GetRentableStateForDate(r.RID, d)
 	}
-	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), status)
-	switch status {
-	case RENTABLESTATUSONLINE:
+
+	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), useStatus)
+	switch useStatus {
+	case USESTATUSemployee:
+		fallthrough
+	case USESTATUSinService:
 		ra, _ := GetRentalAgreement(a.RAID)
 		switch a.RentCycle {
 		case CYCLEDAILY:
@@ -128,13 +131,13 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 		}
 		// Console("Assessment = %d, Rentable = %d, RA = %d, pf = %3.2f\n", a.ASMID, r.RID, ra.RAID, pf)
 
-	case RENTABLESTATUSADMIN:
+	case USESTATUSadmin:
 		fallthrough
-	case RENTABLESTATUSEMPLOYEE:
+	case USESTATUSownerOccupied:
 		fallthrough
-	case RENTABLESTATUSOWNEROCC:
+	case USESTATUSofflineRenovation:
 		fallthrough
-	case RENTABLESTATUSOFFLINE:
+	case USESTATUSofflineMaintenance:
 		ta := GetAllRentableAssessments(r.RID, d1, d2)
 		if len(ta) > 0 {
 			rentcycle, proration, _, err := GetRentCycleAndProration(&r, d1, xbiz)
@@ -143,12 +146,12 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 			}
 			pf, num, den, start, stop = CalcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
 			if len(ta) > 1 {
-				Ulog("%s: %d Assessments affect Rentable %d (%s) in period %s - %s\n",
+				Ulog("%s: %d Assessments affect Rentable %d (%s) with OFFLINE useStatus during %s - %s\n",
 					funcname, len(ta), r.RID, r.RentableName, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 			}
 		}
 	default:
-		Ulog("%s: Rentable %d on %s has unknown status: %d\n", funcname, r.RID, d.Format(RRDATEINPFMT), status)
+		Ulog("%s: Rentable %d on %s has unknown useStatus: %d\n", funcname, r.RID, d.Format(RRDATEINPFMT), useStatus)
 	}
 
 	return pf, num, den, start, stop

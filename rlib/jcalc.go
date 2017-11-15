@@ -173,6 +173,7 @@ func GetProrationCycle(dt *time.Time, rid int64, rta *[]RentableTypeRef, xbiz *X
 //========================================================================================================
 func CalculateGSR(d1, d2 time.Time, rid int64, rta *[]RentableTypeRef, rsa []RentableSpecialty, xbiz *XBusiness) float64 {
 	var total = float64(0) // init total
+	// Console("Entered CalculateGSR: d1 = %s, d2 = %s, rid = %d\n", d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), rid)
 
 	// Get the first date that overlaps the rta values
 	dt := d1
@@ -203,8 +204,8 @@ func CalculateGSR(d1, d2 time.Time, rid int64, rta *[]RentableTypeRef, rsa []Ren
 	rentCycleDur := CycleDuration(rentCycle, dt) // this is the rentcycle expressed as a duration
 	rtr := SelectRentableTypeRefForDate(rta, &dt)
 
-	// fmt.Printf("CalculateGSR: rentCycle = %d (%v), gsrpc = %d (%v)\n", rentCycle, rentCycleDur, gsrpc, inc)
-	// fmt.Printf("rtr = (%s - %s) rtid = %d\n", rtr.DtStart.Format("1/2/06"), rtr.DtStop.Format("1/2/06"), rtr.RTID)
+	// Console("CalculateGSR: rentCycle = %d (%v), gsrpc = %d (%v)\n", rentCycle, rentCycleDur, gsrpc, inc)
+	// Console("rtr = (%s - %s) rtid = %d\n", rtr.DtStart.Format("1/2/06"), rtr.DtStop.Format("1/2/06"), rtr.RTID)
 
 	for d := dt; d.Before(d2); d = d.Add(inc) { // spin through the period in the defined increments
 		rate := FindApplicableMarketRate(d, d1, d2, xbiz.RT[rtr.RTID].MR) // find the rate applicable for this increment
@@ -315,7 +316,7 @@ func CalculateLoadedGSR(rBID, rRID int64, d1, d2 *time.Time, xbiz *XBusiness) (f
 	var err error
 	gsr := float64(0) // total rent, to update on each pass through the loop below
 
-	// fmt.Printf("%s, rRID = %d, d1 = %s, d2 = %s\n", funcname, r.RID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+	// Console("%s, rRID = %d, d1 = %s, d2 = %s\n", funcname, rRID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 
 	rta := GetRentableTypeRefsByRange(rRID, d1, d2) // get the list
 	if len(rta) == 0 {
@@ -341,18 +342,18 @@ func CalculateLoadedGSR(rBID, rRID int64, d1, d2 *time.Time, xbiz *XBusiness) (f
 		dtFirst = dtFirst.AddDate(0, 0, 1)
 	}
 
-	// fmt.Printf("%s, dtFirst = %s\n", funcname, dtFirst.Format(RRDATETIMEINPFMT))
+	// Console("%s, dtFirst = %s\n", funcname, dtFirst.Format(RRDATETIMEINPFMT))
 
 	// find the Gross Scheduled Rent Proration Cycle - GSRPC - the intervals over which the GSR is calculated
 	_, _, gsrpc, err := GetProrationCycle(&dtFirst, rRID, &rta, xbiz)
 	if err != nil {
 
-		// fmt.Printf("%s: error from GetProrationCycle: %s\n", funcname, err.Error())
+		// Console("%s: error from GetProrationCycle: %s\n", funcname, err.Error())
 
 		return gsr, m, period, err
 	}
 
-	// fmt.Printf("%s: gsrpc = %v, dtFirst = %s\n", funcname, gsrpc, dtFirst.Format(RRDATEFMT4))
+	// Console("%s: gsrpc = %v, dtFirst = %s\n", funcname, gsrpc, dtFirst.Format(RRDATEFMT4))
 
 	period = CycleDuration(gsrpc, dtFirst)           // increment of time we'll use to determine gsr in increments between dtFirst & d2
 	dtNext := dtFirst                                // initialize so that the variable is known
@@ -373,11 +374,10 @@ func CalculateLoadedGSR(rBID, rRID int64, d1, d2 *time.Time, xbiz *XBusiness) (f
 		//------------------------------------------------------------------
 		rentThisPeriod := CalculateGSR(dt, dtNext, rRID, &rta, rsa, xbiz)
 
-		// fmt.Printf("rentThisPeriod = %f\n", rentThisPeriod)
-
 		var g = GSRdata{Dt: dt, Amount: rentThisPeriod}
 		m = append(m, g)
 		gsr += rentThisPeriod
+		// Console("%s: rentThisPeriod = %.2f,  cumulative total: %.2f\n", dt.Format(RRDATEFMTSQL), rentThisPeriod, gsr)
 	}
 	gsr = RoundToCent(gsr) // do this to ensure that we avoid the off-by-a-penny errors
 	return gsr, m, period, err

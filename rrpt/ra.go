@@ -74,6 +74,7 @@ func RRreportRentalAgreementsTable(ri *ReporterInfo) gotable.Table {
 				note = nl.N[0].Comment
 			}
 		}
+
 		tbl.AddRow()
 		tbl.Puts(-1, 0, p.IDtoString())
 		tbl.Puts(-1, 1, strings.Join(p.GetPayorNameList(&p.AgreementStart, &p.AgreementStop), ", "))

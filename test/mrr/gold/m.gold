@@ -22,11 +22,3 @@ J-3         Payment - ABC Corporation   #2111  2000.00
             Cash                                                                    02/03/2017  RA-2        6323-301         10000          1,000.00
             Accounts Receivable                                                     02/03/2017  RA-2        6323-301         12000         -1,000.00
                                                                                                                                                     
-J-4         Unassociated: 6303-231 vacant Feb 1 - Mar 1                                                                                             
-            Unit Gross Scheduled Rent-Taxable                                       02/28/2017  0           6303-231         41000         -1,000.00
-            Vacancy                                                                 02/28/2017  0           6303-231         41101          1,000.00
-                                                                                                                                                    
-J-5         Unassociated: 6323-301 vacant Feb 1 - Mar 1                                                                                             
-            Unit Gross Scheduled Rent-Taxable                                       02/28/2017  0           6323-301         41000         -1,000.00
-            Vacancy                                                                 02/28/2017  0           6323-301         41101          1,000.00
-                                                                                                                                                    

@@ -177,6 +177,91 @@ func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration
 	return timerange
 }
 
+// SimpleProrateAmount prorates the supplied amount for the supplied dates.
+//
+// INPUTS:
+//  amt          - unprorated amount for the RentCycle
+//  RentCycle    - 0 = norecur, 1 = secondly, ... 7 = Yearly
+//  ProrateCycle - cycle over which RentCycle is divided to prorate usage
+//  d1           - start time
+//  d2           - stop time
+//  epoch        - used to determine the start of the rent period
+//
+// RETURNS:
+//  the prorated amount
+//  the number of periods during this cycle
+//  the total number of possible periods this cycle
+//---------------------------------------------------------------------------
+func SimpleProrateAmount(amt float64, RentCycle, Prorate int64, d1, d2, epoch *time.Time) (float64, int64, int64) {
+	// Console("Entered SimpleProrateAmount: amt = %.2f, RentCycle = %d, Prorate = %d, d1 = %s, d2 = %s\n", amt, RentCycle, Prorate, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
+	var thisepoch time.Time
+	if RECURNONE == Prorate || RECURNONE == RentCycle {
+		return amt, int64(1), int64(1)
+	}
+	switch RentCycle {
+	case CYCLESECONDLY:
+		fallthrough
+	case CYCLEMINUTELY:
+		fallthrough
+	case CYCLEHOURLY:
+		fallthrough
+	case CYCLEDAILY:
+		thisepoch = *epoch
+	case CYCLEWEEKLY:
+		thisepoch = *epoch
+	case CYCLEMONTHLY:
+		thisepoch = time.Date(d1.Year(), d1.Month(), epoch.Day(), epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
+	case CYCLEQUARTERLY:
+		thisepoch = time.Date(d1.Year(), d1.Month(), epoch.Day(), epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
+	case CYCLEYEARLY:
+		thisepoch = time.Date(d1.Year(), d1.Month(), epoch.Day(), epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
+	}
+
+	cycdur := CycleDuration(RentCycle, thisepoch)
+	proratedur := CycleDuration(Prorate, thisepoch)
+
+	dur := d2.Sub(*d1)
+	numPeriods := int64(dur) / int64(proratedur)
+	totalPeriods := int64(cycdur) / int64(proratedur)
+	// Console("numPeriods = %d, totalPeriods = %d\n", numPeriods, totalPeriods)
+	return amt * float64(numPeriods) / float64(totalPeriods), numPeriods, totalPeriods
+}
+
+// NextPeriod computes the next period start given the current period start
+// and the recur cycle
+//
+// INPUTS:
+//  t     - curren start time
+//  cycle - 0 = norecur, 1 = secondly, ... 7 = Yearly
+//
+// RETURNS:
+//  next instance start time.
+//---------------------------------------------------------------------------
+func NextPeriod(t *time.Time, cycle int64) time.Time {
+	var ret time.Time
+	switch cycle { // if the prorate method is less than a day, select a different duration
+	case RECURNONE:
+		ret = *t
+	case CYCLESECONDLY:
+		ret = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second()+1, t.Nanosecond(), t.Location())
+	case CYCLEMINUTELY:
+		ret = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute()+1, t.Second(), t.Nanosecond(), t.Location())
+	case CYCLEHOURLY:
+		ret = time.Date(t.Year(), t.Month(), t.Day(), t.Hour()+1, t.Minute(), t.Second(), t.Nanosecond(), t.Location())
+	case CYCLEDAILY:
+		ret = t.AddDate(0, 0, 1)
+	case CYCLEWEEKLY:
+		ret = t.AddDate(0, 0, 7)
+	case CYCLEMONTHLY:
+		ret = t.AddDate(0, 1, 0)
+	case CYCLEQUARTERLY:
+		ret = t.AddDate(0, 3, 0)
+	case CYCLEYEARLY:
+		ret = t.AddDate(1, 0, 0)
+	}
+	return ret
+}
+
 // SelectRentableStatusForPeriod returns a subset of Rentable states that
 // overlap the supplied range.
 //=============================================================================

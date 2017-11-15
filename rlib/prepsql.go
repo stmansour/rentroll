@@ -898,7 +898,7 @@ func buildPreparedStatements() {
 	RRdb.DBFields["RentalAgreementPayors"] = flds
 	RRdb.Prepstmt.GetRentalAgreementPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAPID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementPayorsInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>=DtStart")
+	RRdb.Prepstmt.GetRentalAgreementPayorsInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAID=? and ?<DtStop and ?>DtStart")
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)

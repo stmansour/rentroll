@@ -1,0 +1,20 @@
+{
+    "DtStart": "11/13/2017",
+    "DtStop": "11/1/2020",
+    "RT": [
+        {
+            "Count": 10,
+            "MarketRate": 1000,
+            "RentCycle": 6,
+            "ProrateCycle": 4
+        },
+        {
+            "Count": 10,
+            "MarketRate": 1500,
+            "RentCycle": 6,
+            "ProrateCycle": 4
+        }
+    ],
+    "PeopleCount": 10,
+    "RACount": 18
+}
