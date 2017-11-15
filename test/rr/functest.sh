@@ -26,9 +26,12 @@ function stop() {
 #  TEST 00
 #  Simple Asmt/Rcpt -  Non recurring assessment, a receipt, apply payments.
 #
-#  Scenario:  Assess $100 Electric Base Fee, receive a receipt for $250. Apply
-#             the funds toward the $100 assessment. $150 should carry forward
-#             to the next period.
+#  Scenario:  
+#		Assess $100 Electric Base Fee, receive a receipt for $250. Apply
+#       the funds toward the $100 assessment.
+#
+#  Expected Results:
+#	1.	$150 should carry forward to the next period.
 #------------------------------------------------------------------------------
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
@@ -65,20 +68,25 @@ dorrtest "a05" "${RRDATERANGE} -b ${BUD} -r 10" "LedgerActivity"
 echo "Saving test00.sql"
 mysqldump --no-defaults rentroll >test00.sql
 
+
 #------------------------------------------------------------------------------
 #  TEST 01
 #  Floating Deposit -  Test Receipt where RAID is required.
 #
-#  Scenario: In this example, Receipt.RAID will be non-zero.  
+#  Scenario: 
+#      In this example, Receipt.RAID will be non-zero.  
 #      A $1000 floating deposit is made in October 2017, and $500 more is
 #      added to the floating deposit in November. A rentroll report is made
-#      for the month of November. The Beginning Security Deposit should be
-#      $1000. The Ending Security Deposit amount for November should be $1500.
+#      for the month of November.
+#
+#  Expected Results:
+#	1.	The Beginning Security Deposit should be $1000. The Ending Security
+#      Deposit amount for November should be $1500.
 #
 #  Notes: 
-#  1.  Since we're using floating deposits, there is no associated rentable.
-#  2.  TBD: should we group entries by RAID in the "no rentable" section?
-#           should we provide a totals row? 
+#	1.	Since we're using floating deposits, there is no associated rentable.
+#	2.	TBD: should we group entries by RAID in the "no rentable" section?
+#       should we provide a totals row? 
 #               If we do not, then there is nothing that shows the
 #               accumulation of multiple floating deposits.
 #------------------------------------------------------------------------------
@@ -120,8 +128,11 @@ mysqldump --no-defaults rentroll >rrFloatingDep.sql
 #  TEST 02
 #  Reverse Floating Deposit
 #  Scenario: This scenario uses the database created in
-#      TEST 1 and simply reverses the first receipt. The result should be
-#      that the $1000 is removed, but the $500 remains on the books.
+#      TEST 1 and simply reverses the first receipt.
+#
+#  Expected Results:
+#	1.	The result should be that the $1000 is removed, but the $500 remains
+#		on the books and should be seen in the Security Deposits totals.
 #------------------------------------------------------------------------------
 echo "*** TEST 02 ***"
 
@@ -132,20 +143,26 @@ dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "c01"  "WebService--
 # Rentroll report for November should not have a Beginning Balance on
 # for Security Deposits
 RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
-dorrtest "c02" "${RRDATERANGE} -b ${BUD} -r 4" "Journal"
+dorrtest "c02" "${RRDATERANGE} -b ${BUD} -r 4" "RentrollReport"
 mysqldump --no-defaults rentroll > test02.sql
 
 #------------------------------------------------------------------------------
 #  TEST 03
 #  Delete A Deposit
 #
-#  Scenario: Here we simply delete the Deposit that was created in TEST 01.
-#      This could happen when you plan to deposit a check into one account
-#      but after creating the deposit in Roller you realize that you makde the
-#      Deposit to the wrong Depository. So, you delete the Deposit you just
-#      created, which means the $500 Receipt is now available to be included
-#      in another deposit. Then you create a new deposit to for correct
-#      Depository.
+#  Scenario:
+#		Here we simply delete the Deposit that was created in TEST 01.
+#       This could happen when you plan to deposit a check into one account
+#       but after creating the deposit in Roller you realize that you makde the
+#       Deposit to the wrong Depository. So, you delete the Deposit you just
+#       created, which means the $500 Receipt is now available to be included
+#       in another deposit. Then you create a new deposit to for correct
+#       Depository.
+#
+#  Expected Results:
+#	1.	The $500 receipt is available to be deposited after deleting the
+#		first deposit.
+#	2.	We can successfully create a second deposit.
 #------------------------------------------------------------------------------
 echo "*** TEST 03 ***"
 mysql --no-defaults rentroll <rrFloatingDep.sql
@@ -163,7 +180,18 @@ mysqldump --no-defaults rentroll > test03.sql
 #  TEST 04
 #  Transfer funds from one account to another using an Expense
 #
-#  Scenario: 
+#  Scenario:
+#		A payort provides $1025 payment that covers $1000 floating deposit
+#		and $25 Application Fee. The check is deposited into the operating
+#		account. The $1000 must be deposited in a separate bank account, the
+#		security deposits account, using out-of-band capabilities from the
+#		bank. We must reflect the change in Roller. We transfer the $1000
+#		from the operating account to the security deposit account using the
+#		Expense capability.
+#
+#  Expected Results:
+#	1.	We see the $25 in the the operating account and $1000 in the
+#		security deposit account.
 #------------------------------------------------------------------------------
 echo "*** TEST 04 ***"
 mysql --no-defaults rentroll <empty1.sql
@@ -196,10 +224,18 @@ mysqldump --no-defaults rentroll > test04.sql
 
 #------------------------------------------------------------------------------
 #  TEST 05
-#  Rentable Type Change.  If the MarketRate for a Rentable Type changes during
-#     the period of a RentRoll view or report, the PeriodGSR must reflect the
-#     change. This RentRoll view/report is for November 2017. The GSR is $3500
-#     per month from Jan 1 to Nov 15, then it changes to $4000.
+#  Rentable Type Change.
+#
+#  Scenario:
+#		If the MarketRate for a Rentable Type changes during
+#     	the period of a RentRoll view or report, the PeriodGSR must reflect the
+#     	change. This RentRoll view/report is for November 2017. The GSR is $3500
+#     	per month from Jan 1 to Nov 15, then it changes to $4000. So, in Nov,
+#		we have 14 days at $3500 and 16 days at $4000.
+#
+#  Expected Result:
+#	1.	The prorated GSR works out to $3766.67 for the period 11/1/2017 to 
+#		12/1/2017.
 #------------------------------------------------------------------------------
 createDB
 dbcore
@@ -212,6 +248,42 @@ echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B1%5D%2C%22limit%22%3A100%2
 dojsonPOST "http://localhost:8270/v1/rmr/1/1" "request" "e00"  "WebService--ChangeGSR"
 
 mysqldump --no-defaults rentroll > test05.sql
+
+#------------------------------------------------------------------------------
+#  TEST 06
+#  Scenario: Assessment is made in October. The assessment is paid during the
+#  		November. The report range is set to the month of November.
+#
+#  Expected Result:
+#	1.	We should see the payment as a row in the RentRoll view/report.
+#	2.	We should see the Assessment amount due reflected in the Beginning
+#       Receivables subtotal line
+#------------------------------------------------------------------------------
+echo "*** TEST 06 ***"
+newDB
+dbcore
+docsvtest "i" "-R rt1.csv -L 5,${BUD}" "RentableTypes"
+docsvtest "j" "-r r1.csv -L 6,${BUD}" "Rentables"
+docsvtest "lf" "-C raPlusFloat.csv -L 9,${BUD}" "RentalAgreements"
+
+# Create a non-recurring Assessment in October
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A7%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%2210%2F12%2F2017%22%2C%22Stop%22%3A%2210%2F12%2F2017%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A50%2C%22Rentable%22%3A%22309+Rexford%22%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22ExpandPastInst%22%3A0%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "f00"  "WebService--CreateAssessment"
+
+# Create the November Receipt
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A25%2C%22PMTID%22%3A2%2C%22RAID%22%3A0%2C%22PmtTypeName%22%3A2%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2211%2F15%2F2017%22%2C%22DocNo%22%3A%221234%22%2C%22Payor%22%3A%22Aaron+Read+(TCID%3A+1)%22%2C%22TCID%22%3A1%2C%22Amount%22%3A50%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "f01"  "WebService--ReceiveReceipt"
+
+# Apply the payment
+echo "%7B%22cmd%22%3A%22save%22%2C%22TCID%22%3A1%2C%22BID%22%3A1%2C%22records%22%3A%5B%7B%22recid%22%3A0%2C%22Date%22%3A%2210%2F12%2F2017%22%2C%22ASMID%22%3A1%2C%22ARID%22%3A7%2C%22Assessment%22%3A%22Broken%20Window%20charge%22%2C%22Amount%22%3A50%2C%22AmountPaid%22%3A0%2C%22AmountOwed%22%3A50%2C%22Dt%22%3A%2211%2F15%2F2017%22%2C%22Allocate%22%3A50%2C%22Date_%22%3A%222017-10-12T07%3A00%3A00.000Z%22%2C%22Dt_%22%3A%222017-11-15T08%3A00%3A00.000Z%22%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/allocfunds/1/" "request" "f02"  "WebService--ApplyThePayment"
+
+RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
+dorrtest "f03" "${RRDATERANGE} -b ${BUD} -r 4" "Rentroll"
+
+
+mysqldump --no-defaults rentroll > test06.sql
+
 
 
 stopRentRollServer
