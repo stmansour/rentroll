@@ -155,8 +155,8 @@ func getRRTotal(
 
 	// ALL main rows
 	rrViewMainRowsQC := rlib.GetQueryClauseCopy(rrpt.RentRollViewQueryClause)
-	rrViewMainRowsQC["SelectClause"] = "DISTINCT Rentable_CUM_RA.RAID"
-	rrViewMainRowsQC["GroupClause"] = "Rentable_CUM_RA.RAID"
+	rrViewMainRowsQC["SelectClause"] = "DISTINCT Rentable_CUM_RA.RID, Rentable_CUM_RA.RAID"
+	rrViewMainRowsQC["GroupClause"] = "Rentable_CUM_RA.RID, Rentable_CUM_RA.RAID"
 	rrViewMainRowsCountSubQuery := rlib.RenderSQLQuery(rrpt.RentRollViewQuery, rrViewMainRowsQC)
 	// if rrViewMainRowsCountSubQuery ends with ';' then remove it
 	rrViewMainRowsCountSubQuery = strings.TrimSuffix(strings.TrimSpace(rrViewMainRowsCountSubQuery), ";")
