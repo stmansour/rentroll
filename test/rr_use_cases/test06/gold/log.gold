@@ -1,0 +1,6 @@
+Test Name:    Test06 - Different Users/Payors for a RentalAgreement
+Test Purpose: Generates separate databases for different Payors/Users on RA
+Date/Time:    Tue Nov 14 15:08:09 IST 2017
+
+Create new database...  successful
+Test completed: Tue Nov 14 15:08:21 IST 2017
