@@ -492,7 +492,8 @@ func GetRentRollViewRows(BID int64,
 			if err != nil {
 				return rrViewRows, err
 			}
-			q.GSR.Scan(gsrAmt)
+			gsr := rlib.GetRentableMarketRate(&xbiz, q.RID.Int64, &startDt, &stopDt)
+			q.GSR.Scan(gsr)
 			q.PeriodGSR.Scan(gsrAmt)
 
 			// rlib.Console("*** 10\n")

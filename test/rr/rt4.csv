@@ -1,5 +1,5 @@
 BUD,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,MarketRate,DtStart,DtStop
-REX,Rex1,309 Rexford,6,4,4,1,3500,1/1/14,3/1/99
-REX,Rex2,309 1/2 Rexford,6,4,4,1,3550,1/1/14,5/1/99
-REX,Rex3,311 Rexford,6,4,4,1,4400,1/1/14,4/1/99
-REX,Rex4,311 1/2 Rexford,6,4,4,1,2500,1/1/14,1/1/99
+REX,Rex1,309 Rexford,6,4,4,1,3500,2014-01-01,2099-12-31
+REX,Rex2,309 1/2 Rexford,6,4,4,1,3550,2014-01-01,2099-12-31
+REX,Rex3,311 Rexford,6,4,4,1,4400,2014-01-01,2099-12-31
+REX,Rex4,311 1/2 Rexford,6,4,4,1,2500,2014-01-01,2099-12-31

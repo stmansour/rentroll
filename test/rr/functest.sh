@@ -36,6 +36,7 @@ function stop() {
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
 dbcore
+
 docsvtest "i" "-R rt1.csv -L 5,${BUD}" "RentableTypes"
 docsvtest "j" "-r r1.csv -L 6,${BUD}" "Rentables"
 docsvtest "k" "-C ra1.csv -L 9,${BUD}" "RentalAgreements"

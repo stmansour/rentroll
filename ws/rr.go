@@ -88,15 +88,29 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//
 	//#############################################################################
 
-	m, _, err1 := rlib.GetRentRollStaticInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	rlib.Console("END OF NEW CODE TESTING\n")
+	m, rids, err1 := rlib.GetRentRollStaticInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
 	if err1 != nil {
 		fmt.Printf("Error in : %s\n", err1.Error())
 	}
-	n, err2 := rlib.GetRentRollVariableInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, m)
-	if err2 != nil {
-		fmt.Printf("Error in : %s\n", err2.Error())
+	m, err1 = rlib.GetRentRollVariableInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, m)
+	if err1 != nil {
+		fmt.Printf("Error in : %s\n", err1.Error())
 	}
-	rlib.Console("len(m) = %d, len(n) = %d\n", len(m), len(n))
+	for i := 0; i < len(rids); i++ {
+		fmt.Printf("Rentable %d\n", rids[i])
+		for _, v := range m[rids[i]] {
+			fmt.Printf("\tRID: %2d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f, PeriodGSR: %7.2f\n",
+				v.RID.Int64, v.RAID.Int64,
+				v.PossessionStart.Time.Format(rlib.RRDATEFMTSQL),
+				v.PossessionStop.Time.Format(rlib.RRDATEFMTSQL),
+				v.Description.String,
+				v.RentCycleGSR,
+				v.PeriodGSR)
+		}
+	}
+
+	rlib.Console("END OF NEW CODE TESTING\n")
 
 	//#############################################################################
 

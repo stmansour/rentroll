@@ -129,8 +129,10 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 	}
 
 	// rlib.Rentable Market Rates are provided in 3-tuples starting at index 7 - Amount,startdata,enddate
+	// rlib.Console("LoadRTcsv: rtid = %d\n", rtid)
 	if rtid > 0 {
-		for i := 7; i < len(sa); i += 3 {
+		// rlib.Console("LoadRTcsv: preparing to parse market rate.  len(sa) = %d\n", len(sa))
+		for i := MarketRate; i < len(sa); i += 3 {
 			if len(sa[i]) == 0 { // this will happen when programs like excel save the csv file
 				continue
 			}
@@ -156,7 +158,10 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Stop date (%s) must be after Start date (%s)", funcname, lineno, m.DtStop, m.DtStart)
 			}
 			m.BID = a.BID
-			rlib.InsertRentableMarketRates(&m)
+			err = rlib.InsertRentableMarketRates(&m)
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving RentableMarketRate:  %s", funcname, lineno, err.Error())
+			}
 		}
 	}
 	return 0, nil

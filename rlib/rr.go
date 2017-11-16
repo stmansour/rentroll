@@ -7,20 +7,24 @@ import (
 	"time"
 )
 
+// NotRentedString is the default string used
+// to for the description of an unrented Rentable.
+var NotRentedString = string("Unrented")
+
 // This collection of functions implements the raw data-gathering
 // needed to produce a RentRoll report or interface.  These routines
 // are designed to be used as shown in the pseudo code below:
 //
 // func myRentrollReportInterface(BID, d1,d2, iftype) {
 //
-//     m := GetRentRollStaticInfoMap(BID,d1,d2)   // get basic rentable info
-//     n :- GetRentRollVariableInfoMap(BID,d1,d2) // Gaps, IncomeOffsets for entire collection of Rentables
-//     o := GetRentRollSubtotalRows(m,n)          // build subtotals and Grand Total
+//     m := GetRentRollStaticInfoMap(BID,d1,d2)    // get basic rentable info
+//     m = GetRentRollVariableInfoMap(BID,d1,d2,m) // Gaps, IncomeOffsets for entire collection of Rentables
+//     m = GetRentRollSubtotalRows(m)              // build subtotals and Grand Total
 //
 //     if iftype = UIView {
-//         BuildViewInterface(m,n,o, d1,d2)
+//         BuildViewInterface(m, d1,d2)
 //     } else if iftype = Report {
-//         BuildReport(m,n,o, d1,d2)
+//         BuildReport(m, d1,d2)
 //     }
 // }
 
@@ -51,6 +55,16 @@ type RentRollStaticInfo struct {
 	AmountDue       NullFloat64
 	PaymentsApplied NullFloat64
 	Description     NullString
+	RentCycleGSR    float64
+	PeriodGSR       float64
+	IncomeOffsets   float64
+	BeginReceivable float64
+	DeltaReceivable float64
+	EndReceivable   float64
+	BeginSecDep     float64
+	DeltaSecDep     float64
+	EndSecDep       float64
+	FLAGS           uint64
 }
 
 // RentRollVariableData is a struct to hold variable data for a rentroll view
@@ -123,6 +137,7 @@ var RentRollStaticInfoFields = SelectQueryFields{
 }
 
 // RentRollStaticInfoQuery gives the static data for rentroll rows
+//-----------------------------------------------------------------------------
 var RentRollStaticInfoQuery = `
 SELECT
     {{.SelectClause}}
@@ -130,8 +145,9 @@ FROM
     (
         (
         /*
-        Collect All Rentables no matter whether they got any rental agreement or not.
-        */
+         *  Collect All Rentables no matter whether they got any rental agreement
+         *  or not.
+         */
         SELECT
             RentalAgreement.BID,
             RentalAgreement.RAID,
@@ -159,8 +175,9 @@ FROM
         UNION
         (
         /*
-        Collect All Rental Agreements which aren't associated with any rentables.
-        */
+         *  Collect All Rental Agreements which aren't associated with any
+         *  rentables.
+         */
         SELECT
             RentalAgreement.BID,
             RentalAgreement.RAID,
@@ -185,14 +202,18 @@ FROM
             AND @DtStop > RentalAgreement.AgreementStart
         )
     ) AS Rentable_CUM_RA
-        /* to get Payors info through RentalAgreementPayors and Transactant */
+        /*
+         *  Get Payors info through RentalAgreementPayors and Transactant
+         */
         LEFT JOIN RentalAgreementPayors ON (Rentable_CUM_RA.RAID = RentalAgreementPayors.RAID
             AND Rentable_CUM_RA.BID = RentalAgreementPayors.BID
             AND @DtStart <= RentalAgreementPayors.DtStop
             AND @DtStop > RentalAgreementPayors.DtStart)
         LEFT JOIN Transactant AS Payor ON (Payor.TCID = RentalAgreementPayors.TCID
             AND Payor.BID = Rentable_CUM_RA.BID)
-        /* RentableTypes join to get RentableType */
+        /*
+         *  RentableTypes join to get RentableType
+         */
         LEFT JOIN RentableTypeRef ON (RentableTypeRef.RID = Rentable_CUM_RA.RID
             AND RentableTypeRef.BID = Rentable_CUM_RA.BID
             AND @DtStart <= RentableTypeRef.DtStop
@@ -201,14 +222,18 @@ FROM
             AND RentableTypeRef.DtStop <= Rentable_CUM_RA.AgreementStop)
         LEFT JOIN RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
             AND RentableTypes.BID = RentableTypeRef.BID)
-        /* RentableStatus join to get the status */
+        /*
+         *  RentableStatus join to get the status
+         */
         LEFT JOIN RentableStatus ON (RentableStatus.RID = Rentable_CUM_RA.RID
             AND RentableStatus.BID = Rentable_CUM_RA.BID
             AND @DtStart <= RentableStatus.DtStop
             AND @DtStop > RentableStatus.DtStart
             AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
             AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop)
-        /* get Users list through RentableUsers with Transactant join */
+        /*
+         *  get Users list through RentableUsers with Transactant join
+         */
         LEFT JOIN RentableUsers ON (RentableUsers.RID = Rentable_CUM_RA.RID
             AND RentableUsers.RID = Rentable_CUM_RA.RID
             AND @DtStart <= RentableUsers.DtStop
@@ -484,8 +509,9 @@ func formatRentRollStaticInfoQuery(BID int64, d1, d2 time.Time,
 	// return qExec, err
 }
 
-// GetRentRollVariableInfoMap processes static info map, produces a map of
-//  slices of RentRollVariableData indexed by RID
+// GetRentRollVariableInfoMap processes static info map, produces an updated
+//      map. It updates the map with vacancy information for each component
+//      as necessary.
 //
 // INPUTS
 //	BID      - the business
@@ -494,19 +520,40 @@ func formatRentRollStaticInfoQuery(BID int64, d1, d2 time.Time,
 //  m        - map created by GetRentRollStaticInfoMap
 //
 // RETURNS
-//	1:  A map of slices of RentRollVariableData structs.
-//      The map key is: Rentable ID (RID)
+//	1:  An updated map of slices of RentRollStaticInfo structs.
 //  2:  Any error encountered
 //-----------------------------------------------------------------------------
-func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time, m map[int64][]RentRollStaticInfo) (map[int64][]RentRollVariableData, error) {
-	const funcname = "GetRentRollVariableInfoMap"
-	n := map[int64][]RentRollVariableData{}
+func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
+	m map[int64][]RentRollStaticInfo) (map[int64][]RentRollStaticInfo, error) {
 
-	//-------------------------------------------------------------------
-	// for each rentable, look at the aggregated date range covered by
-	// all the rental agreements.  Look for any gaps
-	//-------------------------------------------------------------------
-	for k, v := range m {
+	var xbiz XBusiness
+	var err error
+	InitBizInternals(BID, &xbiz)
+
+	rentrollMapGapHandler(BID, startDt, stopDt, &m)
+	err = rentrollMapGSRHandler(BID, startDt, stopDt, &m, &xbiz)
+	if err != nil {
+		return m, err
+	}
+
+	return m, nil
+}
+
+// rentrollMapGapHandler examines the supplied map and adds entries as needed to
+//     describe vacancies (periods where the rentable is unrented).
+//
+// INPUTS
+//	BID      - the business
+//  startDt  - report/view start time
+//  stopDt   - report/view stop time
+//  m        - pointer to map created by GetRentRollStaticInfoMap
+//
+// RETURNS
+//  no return value
+//-----------------------------------------------------------------------------
+func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
+	m *map[int64][]RentRollStaticInfo) {
+	for k, v := range *m {
 		var a = []Period{}
 		//--------------------------------------
 		// look at all the rows for Rentable k
@@ -517,27 +564,63 @@ func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time, m map[int6
 				D2: v[i].PossessionStop.Time,
 			}
 			a = append(a, p)
-			Console("%s: Gap for Rentable %d,  %s - %s\n", funcname, k, p.D1.Format(RRDATEFMTSQL), p.D2.Format(RRDATEFMTSQL))
 		}
-		Console("FindGaps( %s, %s, len(a)=%d )\n", startDt.Format(RRDATEFMT4), stopDt.Format(RRDATEFMT4), len(a))
 		b := FindGaps(&startDt, &stopDt, a) // look for gaps
-		Console("%s: FindGaps returned slice b.  len(b) = %d\n", funcname, len(b))
-		if len(b) == 0 { // did we find any?
+		if len(b) == 0 {                    // did we find any?
 			continue // NO: move on to the next Rentable
 		}
 		//--------------------------------------------------------------------
 		// Found some gaps, create a slice of RentRollVariableData structs,
 		// and add it to the map.
 		//--------------------------------------------------------------------
-		gaps := []RentRollVariableData{}
 		for i := 0; i < len(b); i++ {
-			var g RentRollVariableData
-			g.RID = k
-			g.Gap = b[i]
-			gaps = append(gaps, g)
-			Console("Gap[%d]: %s - %s\n", i, b[i].D1.Format(RRDATEFMTSQL), b[i].D2.Format(RRDATEFMTSQL))
+			//----------------------------------------------------------------
+			// If the gap start and end time match the report range start and
+			// end time then the Rentable is unrented for the entire period.
+			// So, we will use the existing row rather than adding a new row.
+			//----------------------------------------------------------------
+			if b[i].D1.Equal(startDt) && b[i].D2.Equal(stopDt) {
+				(*m)[k][0].RID.Scan(k)
+				(*m)[k][0].PossessionStart.Scan(b[i].D1) // vacancy ranges is shown in "use" column
+				(*m)[k][0].PossessionStop.Scan(b[i].D2)
+				(*m)[k][0].Description.Scan(NotRentedString)
+				continue
+			}
+			var g RentRollStaticInfo
+			g.BID = BID
+			g.RID.Scan(k)
+			g.PossessionStart.Scan(b[i].D1) // vacancy ranges is shown in "use" column
+			g.PossessionStop.Scan(b[i].D2)
+			g.Description.Scan(NotRentedString)
+			(*m)[k] = append((*m)[k], g)
 		}
-		n[k] = gaps
 	}
-	return n, nil
+}
+
+// rentrollMapGSRHandler examines the supplied map and adds GSR information.
+//
+// INPUTS
+//	BID      - the business
+//  startDt  - report/view start time
+//  stopDt   - report/view stop time
+//  m        - pointer to map created by GetRentRollStaticInfoMap
+//  xbiz     - XBusiness for getting info about RentableType and more
+//
+// RETURNS
+//  any error encountered or nil if no error occurred
+//-----------------------------------------------------------------------------
+func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
+	m *map[int64][]RentRollStaticInfo, xbiz *XBusiness) error {
+	var err error
+	for k, v := range *m { // for every component
+		var gsrAmt float64
+		gsrAmt, _, _, err = CalculateLoadedGSR(BID, k, &startDt, &stopDt, xbiz)
+		if err != nil {
+			return err
+		}
+		gsr := GetRentableMarketRate(xbiz, k, &startDt, &stopDt)
+		v[0].RentCycleGSR = gsr
+		v[0].PeriodGSR = gsrAmt
+	}
+	return nil
 }

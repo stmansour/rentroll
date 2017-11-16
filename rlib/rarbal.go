@@ -69,6 +69,9 @@ func GetBeginEndRARBalance(bid, rid, raid int64, d1, d2 *time.Time) (float64, fl
 func GetRARBalance(bid, rid, raid int64, dt *time.Time) (float64, error) {
 	funcname := "GetRARBalance"
 	bal := float64(0)
+	if raid == 0 {
+		return bal, nil
+	}
 
 	lm := GetRARentableLedgerMarkerOnOrBefore(raid, rid, dt)
 	if lm.LMID == 0 {
