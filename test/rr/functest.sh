@@ -281,10 +281,7 @@ dojsonPOST "http://localhost:8270/v1/allocfunds/1/" "request" "f02"  "WebService
 RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
 dorrtest "f03" "${RRDATERANGE} -b ${BUD} -r 4" "Rentroll"
 
-
 mysqldump --no-defaults rentroll > test06.sql
-
-
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"

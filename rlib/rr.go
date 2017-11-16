@@ -7,6 +7,23 @@ import (
 	"time"
 )
 
+// This collection of functions implements the raw data-gathering
+// needed to produce a RentRoll report or interface.  These routines
+// are designed to be used as shown in the pseudo code below:
+//
+// func myRentrollReportInterface(BID, d1,d2, iftype) {
+//
+//     m := GetRentRollStaticInfoMap(BID,d1,d2)   // get basic rentable info
+//     n :- GetRentRollVariableInfoMap(BID,d1,d2) // Gaps, IncomeOffsets for entire collection of Rentables
+//     o := GetRentRollSubtotalRows(m,n)          // build subtotals and Grand Total
+//
+//     if iftype = UIView {
+//         BuildViewInterface(m,n,o, d1,d2)
+//     } else if iftype = Report {
+//         BuildReport(m,n,o, d1,d2)
+//     }
+// }
+
 // RentRollStaticInfo is a struct to hold the all static data
 // those are received from database per row.
 //
@@ -225,11 +242,20 @@ var RentRollStaticInfoQueryClause = QueryClause{
 	"OrderClause":  "-Rentable_CUM_RA.RID DESC, -Rentable_CUM_RA.RAID DESC, Assessments.Amount DESC",
 }
 
-// GetRentRollStaticInfoMap returns a map of RID -> all structs that holds static info
-// for rentroll report
-func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time,
-) (map[int64][]RentRollStaticInfo, []int64, error) {
-
+// GetRentRollStaticInfoMap returns a map of RID -> all structs that holds
+// static info for rentroll report.
+//
+// INPUTS
+//	BID      - the business
+//  startDt  - report/view start time
+//  stopDt   - report/view stop time
+//
+// RETURNS
+//	1:  a map of slices of static info structs.  map key is Rentable ID (RID)
+//  2:  a slice of RIDs which are present in the map
+//  3:  any error encountered
+//-----------------------------------------------------------------------------
+func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time) (map[int64][]RentRollStaticInfo, []int64, error) {
 	const funcname = "GetRentRollStaticInfoMap"
 	var (
 		err           error
@@ -283,9 +309,7 @@ func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time,
 		// just assume that it is MainRow, if later encountered that it is child row
 		// then "formatRentableChildRow" function would take care of it. :)
 		q := RentRollStaticInfo{BID: BID}
-
-		// scan the database row
-		if err = RentRollStaticInfoRowScan(rrRows, &q); err != nil {
+		if err = RentRollStaticInfoRowScan(rrRows, &q); err != nil { // scan next record
 			return staticInfoMap, mapKeys, err
 		}
 
@@ -298,14 +322,10 @@ func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time,
 
 		// append new rentable row / formatted child row in map sublist
 		staticInfoMap[q.RID.Int64] = append(staticInfoMap[q.RID.Int64], q)
-
-		// update the count only after adding the record
 		count++
 	}
 
-	// check for any errors from row results
-	err = rrRows.Err()
-	if err != nil {
+	if err = rrRows.Err(); err != nil {
 		tx.Rollback()
 		return staticInfoMap, mapKeys, err
 	}
@@ -322,6 +342,7 @@ func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time,
 
 // formatRentRollStaticInfoQuery returns the formatted query
 // with given limit, offset if applicable.
+//-----------------------------------------------------------------------------
 func formatRentRollStaticInfoQuery(BID int64, d1, d2 time.Time,
 	additionalWhere, orderBy string, limit, offset int) string {
 
@@ -369,4 +390,62 @@ func formatRentRollStaticInfoQuery(BID int64, d1, d2 time.Time,
 	// diff := time.Since(tInit)
 	// Console("\nQQQQQQuery Time diff for %s is %s\n\n", rrPart, diff.String())
 	// return qExec, err
+}
+
+// GetRentRollVariableInfoMap processes static info map, produces a map of
+//  slices of RentRollVariableData indexed by RID
+//
+// INPUTS
+//	BID      - the business
+//  startDt  - report/view start time
+//  stopDt   - report/view stop time
+//  m        - map created by GetRentRollStaticInfoMap
+//
+// RETURNS
+//	1:  A map of slices of RentRollVariableData structs.
+//      The map key is: Rentable ID (RID)
+//  2:  Any error encountered
+//-----------------------------------------------------------------------------
+func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time, m map[int64][]RentRollStaticInfo) (map[int64][]RentRollVariableData, error) {
+	const funcname = "GetRentRollVariableInfoMap"
+	n := map[int64][]RentRollVariableData{}
+
+	//-------------------------------------------------------------------
+	// for each rentable, look at the aggregated date range covered by
+	// all the rental agreements.  Look for any gaps
+	//-------------------------------------------------------------------
+	for k, v := range m {
+		var a = []Period{}
+		//--------------------------------------
+		// look at all the rows for Rentable k
+		//--------------------------------------
+		for i := 0; i < len(v); i++ {
+			var p = Period{
+				D1: v[i].PossessionStart.Time,
+				D2: v[i].PossessionStop.Time,
+			}
+			a = append(a, p)
+			Console("%s: Gap for Rentable %d,  %s - %s\n", funcname, k, p.D1.Format(RRDATEFMTSQL), p.D2.Format(RRDATEFMTSQL))
+		}
+		Console("FindGaps( %s, %s, len(a)=%d )\n", startDt.Format(RRDATEFMT4), stopDt.Format(RRDATEFMT4), len(a))
+		b := FindGaps(&startDt, &stopDt, a) // look for gaps
+		Console("%s: FindGaps returned slice b.  len(b) = %d\n", funcname, len(b))
+		if len(b) == 0 { // did we find any?
+			continue // NO: move on to the next Rentable
+		}
+		//--------------------------------------------------------------------
+		// Found some gaps, create a slice of RentRollVariableData structs,
+		// and add it to the map.
+		//--------------------------------------------------------------------
+		gaps := []RentRollVariableData{}
+		for i := 0; i < len(b); i++ {
+			var g RentRollVariableData
+			g.RID = k
+			g.Gap = b[i]
+			gaps = append(gaps, g)
+			Console("Gap[%d]: %s - %s\n", i, b[i].D1.Format(RRDATEFMTSQL), b[i].D2.Format(RRDATEFMTSQL))
+		}
+		n[k] = gaps
+	}
+	return n, nil
 }

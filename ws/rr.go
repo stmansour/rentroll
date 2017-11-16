@@ -82,6 +82,24 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	//#############################################################################
+	//
+	//   JUST TESTING NEW CODE HERE...  THE NEXT FEW LINES SHOULD GO AWAY SOON
+	//
+	//#############################################################################
+
+	m, _, err1 := rlib.GetRentRollStaticInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	if err1 != nil {
+		fmt.Printf("Error in : %s\n", err1.Error())
+	}
+	n, err2 := rlib.GetRentRollVariableInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, m)
+	if err2 != nil {
+		fmt.Printf("Error in : %s\n", err2.Error())
+	}
+	rlib.Console("len(m) = %d, len(n) = %d\n", len(m), len(n))
+
+	//#############################################################################
+
 	//===========================================================
 	// TOTAL RECORDS COUNT
 	//===========================================================

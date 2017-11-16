@@ -75,10 +75,10 @@ func DateTrim(DtStart, DtStop, d1, d2 *time.Time) (time.Time, time.Time) {
 //         	pf:       prorate factor = rentDur/asmtDur
 //=================================================================================================
 func CalcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate int64) (float64, int64, int64, time.Time, time.Time) {
-	// fmt.Printf("CalcProrationInfo\n")
-	// fmt.Printf("DtStart = %s, DtStop = %s\n", DtStart.Format(RRDATEINPFMT), DtStop.Format(RRDATEINPFMT))
-	// fmt.Printf("     d1 = %s,     d2 = %s\n", d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
-	// fmt.Printf("\nrentCycle = %d, prorate = %d\n", rentCycle, prorate)
+	// Console("CalcProrationInfo\n")
+	// Console("DtStart = %s, DtStop = %s\n", DtStart.Format(RRDATEINPFMT), DtStop.Format(RRDATEINPFMT))
+	// Console("     d1 = %s,     d2 = %s\n", d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+	// Console("\nrentCycle = %d, prorate = %d\n", rentCycle, prorate)
 
 	//-------------------------------------------------------------------
 	// over what range of time does this rental apply between d1 & d2
@@ -109,7 +109,7 @@ func CalcProrationInfo(DtStart, DtStop, d1, d2 *time.Time, rentCycle, prorate in
 //    m = array of MarketRate structs
 //========================================================================================================
 func FindApplicableMarketRate(dt, start, stop time.Time, mr []RentableMarketRate) float64 {
-	// fmt.Printf("FindApplicableMarketRate:  dt = %s, start = %s, stop = %s, len(mr) = %d\n",
+	// Console("FindApplicableMarketRate:  dt = %s, start = %s, stop = %s, len(mr) = %d\n",
 	// 	dt.Format(RRDATEINPFMT), start.Format(RRDATEINPFMT), stop.Format(RRDATEINPFMT), len(mr))
 	var rate = float64(0)
 	for i := 0; i < len(mr); i++ {
@@ -139,7 +139,7 @@ func GetProrationCycle(dt *time.Time, rid int64, rta *[]RentableTypeRef, xbiz *X
 	var err error
 	rt := SelectRentableTypeRefForDate(rta, dt)
 
-	// fmt.Printf("GetProrationCycle: rt = (%s - %s) rentcycle=%d, prorate=%d, rtid=%d\n",
+	// Console("GetProrationCycle: rt = (%s - %s) rentcycle=%d, prorate=%d, rtid=%d\n",
 	// 	rt.DtStart.Format("1/2/06"), rt.DtStop.Format("1/2/06"), rt.RentCycle, rt.ProrationCycle, rt.RTID)
 
 	if rt.OverrideProrationCycle > CYCLENORECUR { // if there's an override
@@ -231,7 +231,7 @@ func CalculateGSR(d1, d2 time.Time, rid int64, rta *[]RentableTypeRef, rsa []Ren
 func CalculateNumberOfCycles(d1, d2 *time.Time, c int64) int64 {
 	dur := d2.Sub(*d1)                // duration of the period
 	cycleDur := CycleDuration(c, *d1) // duration of the cycle-time
-	// fmt.Printf("period = %s - %s,  dur = %d, cycleDur = %d\n", d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3), dur, cycleDur)
+	// Console("period = %s - %s,  dur = %d, cycleDur = %d\n", d1.Format(RRDATEFMT3), d2.Format(RRDATEFMT3), dur, cycleDur)
 	n := int64(float64(dur)/float64(cycleDur) + 0.5) // number of cycles
 	return n
 }
@@ -329,9 +329,9 @@ func CalculateLoadedGSR(rBID, rRID int64, d1, d2 *time.Time, xbiz *XBusiness) (f
 	for dtFirst.Before(*d2) {
 		found := false
 		for i := 0; i < len(rta); i++ {
-			// fmt.Printf("rta[%d] - %s - %s\n", i, rta[i].DtStart.Format(RRDATETIMEINPFMT), rta[i].DtStop.Format(RRDATETIMEINPFMT))
+			// Console("rta[%d] - %s - %s\n", i, rta[i].DtStart.Format(RRDATETIMEINPFMT), rta[i].DtStop.Format(RRDATETIMEINPFMT))
 			if DateInRange(&dtFirst, &rta[i].DtStart, &rta[i].DtStop) {
-				// fmt.Printf("FOUND the match at %d\n", i)
+				// Console("FOUND the match at %d\n", i)
 				found = true
 				break
 			}
@@ -354,6 +354,12 @@ func CalculateLoadedGSR(rBID, rRID int64, d1, d2 *time.Time, xbiz *XBusiness) (f
 	}
 
 	// Console("%s: gsrpc = %v, dtFirst = %s\n", funcname, gsrpc, dtFirst.Format(RRDATEFMT4))
+	if gsrpc == int64(0) {
+		err = fmt.Errorf("%s: GSRPC == 0 for BID=%d, RID=%d, d1 = %s, d2 = %s", funcname, rBID, rRID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
+		Ulog(err.Error())
+		// Console(err.Error())
+		return float64(0), m, period, nil
+	}
 
 	period = CycleDuration(gsrpc, dtFirst)           // increment of time we'll use to determine gsr in increments between dtFirst & d2
 	dtNext := dtFirst                                // initialize so that the variable is known

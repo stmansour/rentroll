@@ -396,7 +396,7 @@ func GetRentRollViewRows(BID int64,
 		noRentableRowsMap     = make(map[int64][]RentRollViewRow)
 		noRentableRowsMapKeys = []int64{}
 	)
-	rlib.Console("Entered in %s\n", funcname)
+	// rlib.Console("Entered in %s\n", funcname)
 
 	// initialize some structures and some required things
 	rlib.InitBizInternals(BID, &xbiz)
@@ -409,26 +409,30 @@ func GetRentRollViewRows(BID int64,
 
 	// get formatted query
 	fmtQuery := formatRentRollViewQuery(BID, startDt, stopDt, whr, odr, pageRowsLimit, offset)
-
+	// rlib.Console("*** 1\n")
 	// Now, start the database transaction
 	tx, err := rlib.RRdb.Dbrr.Begin()
 	if err != nil {
 		return rrViewRows, err
 	}
 
+	// rlib.Console("*** 2\n")
 	// set some mysql variables through `tx`
 	if _, err = tx.Exec("SET @BID:=?", BID); err != nil {
 		tx.Rollback()
 		return rrViewRows, err
 	}
+	// rlib.Console("*** 3\n")
 	if _, err = tx.Exec("SET @DtStart:=?", d1Str); err != nil {
 		tx.Rollback()
 		return rrViewRows, err
 	}
+	// rlib.Console("*** 4\n")
 	if _, err = tx.Exec("SET @DtStop:=?", d2Str); err != nil {
 		tx.Rollback()
 		return rrViewRows, err
 	}
+	// rlib.Console("*** 5\n")
 
 	// Execute query in current transaction for Rentable section
 	rrRows, err := tx.Query(fmtQuery)
@@ -438,6 +442,7 @@ func GetRentRollViewRows(BID int64,
 	}
 	defer rrRows.Close()
 
+	// rlib.Console("*** 6\n")
 	// ======================
 	// LOOP THROUGH ALL ROWS
 	// ======================
@@ -446,6 +451,7 @@ func GetRentRollViewRows(BID int64,
 		// just assume that it is MainRow, if later encountered that it is child row
 		// then "formatRentableChildRow" function would take care of it. :)
 		q := RentRollViewRow{BID: BID, IsRentRollViewRow: true}
+		// rlib.Console("*** 7\n")
 
 		// scan the database row
 		if err = rentrollViewRowScan(rrRows, &q); err != nil {
@@ -474,9 +480,11 @@ func GetRentRollViewRows(BID int64,
 
 		// get current row RID
 		rowRID := q.RID.Int64
+		// rlib.Console("*** 8\n")
 
 		// only applicable if row has Rentable
 		if rowRID > 0 && q.RID.Valid {
+			// rlib.Console("*** 9\n")
 
 			// MarketRate calculation
 			var gsrAmt float64
@@ -487,18 +495,21 @@ func GetRentRollViewRows(BID int64,
 			q.GSR.Scan(gsrAmt)
 			q.PeriodGSR.Scan(gsrAmt)
 
+			// rlib.Console("*** 10\n")
 			// custom attribute
 			if len(xbiz.RT[q.RTID.Int64].CA) > 0 { // if there are custom attributes
+				// rlib.Console("*** 11\n")
 				c, ok := xbiz.RT[q.RTID.Int64].CA[customAttrRTSqft] // see if Square Feet is among them
 				if ok {                                             // if it is...
 					sqft, err := rlib.IntFromString(c.Value, "invalid customAttrRTSqft attribute")
 					q.Sqft.Scan(sqft)
 					if err != nil {
-						rlib.Console("%s: Error while scanning custom attribute sqft: %s\n", funcname, err.Error())
+						// rlib.Console("%s: Error while scanning custom attribute sqft: %s\n", funcname, err.Error())
 						// return rrViewRows, err
 					}
 				}
 			}
+			// rlib.Console("*** 12\n")
 
 			// Rent Cycle formatting
 			for freqStr, freqNo := range rlib.CycleFreqMap {
@@ -516,7 +527,9 @@ func GetRentRollViewRows(BID int64,
 
 			// append new rentable row / formatted child row in map sublist
 			rentableRowsMap[rowRID] = append(rentableRowsMap[rowRID], q)
+			// rlib.Console("*** 14\n")
 		} else {
+			// rlib.Console("*** 15\n")
 			// get current row RID
 			rowRAID := q.RAID.Int64
 
@@ -534,10 +547,12 @@ func GetRentRollViewRows(BID int64,
 				noRentableRowsMap[rowRAID] = append(noRentableRowsMap[rowRAID], q)
 			}
 		}
+		// rlib.Console("*** 16\n")
 
 		// update the count only after adding the record
 		count++
 	}
+	// rlib.Console("*** 17\n")
 
 	// check for any errors from row results
 	err = rrRows.Err()
@@ -545,6 +560,7 @@ func GetRentRollViewRows(BID int64,
 		tx.Rollback()
 		return rrViewRows, err
 	}
+	// rlib.Console("*** 18\n")
 
 	// commit the transaction
 	if err = tx.Commit(); err != nil {
