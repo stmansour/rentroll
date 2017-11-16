@@ -91,9 +91,9 @@ var RentRollStaticInfoFieldsMap = SelectQueryFieldMap{
 	"RentStart":       {"Rentable_CUM_RA.RentStart"},
 	"RentStop":        {"Rentable_CUM_RA.RentStop"},
 	"Payors":          {"Payor.FirstName", "Payor.LastName", "Payor.CompanyName"},
-	"ASMID":           {"Assessments.ASMID"},
-	"AmountDue":       {"Assessments.Amount"},
-	"Description":     {"AR.Name"},
+	"ASMID":           {"PaymentInfo.ASMID"},
+	"AmountDue":       {"PaymentInfo.AmountDue"},
+	"Description":     {"PaymentInfo.Description"},
 }
 
 // RentRollStaticInfoFields holds the list of fields need to be fetched
@@ -116,10 +116,10 @@ var RentRollStaticInfoFields = SelectQueryFields{
 	"Rentable_CUM_RA.RentStart",
 	"Rentable_CUM_RA.RentStop",
 	"GROUP_CONCAT(DISTINCT CASE WHEN Payor.IsCompany > 0 THEN Payor.CompanyName ELSE CONCAT(Payor.FirstName, ' ', Payor.LastName) END ORDER BY Payor.LastName ASC, Payor.FirstName ASC, Payor.CompanyName ASC SEPARATOR ', ') AS Payors",
-	"Assessments.ASMID",
-	"Assessments.Amount AS AmountDue",
-	"(CASE WHEN Assessments.ASMID > 0 THEN SUM(DISTINCT ReceiptAllocation.Amount) ELSE ReceiptAllocation.Amount END) AS PaymentsApplied",
-	"(CASE WHEN Assessments.ASMID > 0 THEN ASMAR.Name ELSE RCPTAR.Name END) AS Description",
+	"PaymentInfo.ASMID",
+	"PaymentInfo.AmountDue",
+	"PaymentInfo.PaymentsApplied",
+	"PaymentInfo.Description",
 }
 
 // RentRollStaticInfoQuery gives the static data for rentroll rows
@@ -127,8 +127,13 @@ var RentRollStaticInfoQuery = `
 SELECT
     {{.SelectClause}}
 FROM
-    ((SELECT
-        RentalAgreement.BID,
+    (
+        (
+        /*
+        Collect All Rentables no matter whether they got any rental agreement or not.
+        */
+        SELECT
+            RentalAgreement.BID,
             RentalAgreement.RAID,
             RentalAgreement.AgreementStart,
             RentalAgreement.AgreementStop,
@@ -139,19 +144,25 @@ FROM
             Rentable.RID,
             Rentable.RentableName,
             RentalAgreementRentables.RARID
-    FROM
-        Rentable
-    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = Rentable.BID
-        AND RentalAgreementRentables.RID = Rentable.RID
-        AND @DtStart <= RentalAgreementRentables.RARDtStop
-        AND @DtStop > RentalAgreementRentables.RARDtStart)
-    LEFT JOIN RentalAgreement ON (RentalAgreement.BID = RentalAgreementRentables.BID
-        AND RentalAgreement.RAID = RentalAgreementRentables.RAID
-        AND @DtStart <= RentalAgreement.AgreementStop
-        AND @DtStop > RentalAgreement.AgreementStart)
-    WHERE
-        Rentable.BID = @BID) UNION (SELECT
-        RentalAgreement.BID,
+        FROM Rentable
+            LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = Rentable.BID
+                AND RentalAgreementRentables.RID = Rentable.RID
+                AND @DtStart <= RentalAgreementRentables.RARDtStop
+                AND @DtStop > RentalAgreementRentables.RARDtStart)
+            LEFT JOIN RentalAgreement ON (RentalAgreement.BID = RentalAgreementRentables.BID
+                AND RentalAgreement.RAID = RentalAgreementRentables.RAID
+                AND @DtStart <= RentalAgreement.AgreementStop
+                AND @DtStop > RentalAgreement.AgreementStart)
+        WHERE
+            Rentable.BID = @BID
+        )
+        UNION
+        (
+        /*
+        Collect All Rental Agreements which aren't associated with any rentables.
+        */
+        SELECT
+            RentalAgreement.BID,
             RentalAgreement.RAID,
             RentalAgreement.AgreementStart,
             RentalAgreement.AgreementStop,
@@ -162,68 +173,149 @@ FROM
             NULL AS RID,
             NULL AS RentableName,
             RentalAgreementRentables.RARID
-    FROM
-        RentalAgreement
-    LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = RentalAgreement.BID
-        AND RentalAgreementRentables.RAID = RentalAgreement.RAID
-        AND @DtStart <= RentalAgreementRentables.RARDtStop
-        AND @DtStop > RentalAgreementRentables.RARDtStart)
-    WHERE
-        RentalAgreement.BID = @BID
+        FROM RentalAgreement
+            LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = RentalAgreement.BID
+                AND RentalAgreementRentables.RAID = RentalAgreement.RAID
+                AND @DtStart <= RentalAgreementRentables.RARDtStop
+                AND @DtStop > RentalAgreementRentables.RARDtStart
+            )
+        WHERE RentalAgreement.BID = @BID
             AND RentalAgreementRentables.RAID IS NULL
             AND @DtStart <= RentalAgreement.AgreementStop
-            AND @DtStop > RentalAgreement.AgreementStart)) AS Rentable_CUM_RA
-    LEFT JOIN RentalAgreementPayors ON (Rentable_CUM_RA.BID = RentalAgreementPayors.BID
-        AND Rentable_CUM_RA.RAID = RentalAgreementPayors.RAID
-        AND @DtStart <= RentalAgreementPayors.DtStop
-        AND @DtStop > RentalAgreementPayors.DtStart)
-    LEFT JOIN Transactant AS Payor ON (Payor.BID = Rentable_CUM_RA.BID
-        AND Payor.TCID = RentalAgreementPayors.TCID)
-    LEFT JOIN RentableTypeRef ON (RentableTypeRef.BID = Rentable_CUM_RA.BID
-        AND RentableTypeRef.RID = Rentable_CUM_RA.RID)
-    LEFT JOIN RentableTypes ON (RentableTypes.BID = RentableTypeRef.BID
-        AND RentableTypes.RTID = RentableTypeRef.RTID)
-    LEFT JOIN RentableMarketRate ON (RentableMarketRate.BID = RentableTypes.BID
-        AND RentableMarketRate.RTID = RentableTypes.RTID
-        AND @DtStart <= RentableMarketRate.DtStop
-        AND @DtStop > RentableMarketRate.DtStart)
-    LEFT JOIN RentableStatus ON (RentableStatus.BID = Rentable_CUM_RA.BID
-        AND RentableStatus.RID = Rentable_CUM_RA.RID
-        AND @DtStart <= RentableStatus.DtStop
-        AND @DtStop > RentableStatus.DtStart)
-    LEFT JOIN RentableUsers ON (RentableUsers.BID = Rentable_CUM_RA.BID
-        AND RentableUsers.RID = Rentable_CUM_RA.RID
-        AND RentableUsers.DtStart >= Rentable_CUM_RA.AgreementStart
-        AND RentableUsers.DtStop <= Rentable_CUM_RA.AgreementStop
-        AND @DtStart <= RentableUsers.DtStop
-        AND @DtStop > RentableUsers.DtStart)
-    LEFT JOIN Transactant AS User ON (User.BID = Rentable_CUM_RA.BID
-        AND RentableUsers.TCID = User.TCID)
-    LEFT JOIN Assessments ON (Assessments.BID = Rentable_CUM_RA.BID
-        AND Assessments.RAID = Rentable_CUM_RA.RAID
-        AND (Assessments.RentCycle = 0 OR (Assessments.RentCycle > 0 AND Assessments.PASMID != 0))
-        AND (CASE WHEN Rentable_CUM_RA.RID > 0 THEN Assessments.RID = Rentable_CUM_RA.RID ELSE 1 END)
-        AND (Assessments.FLAGS & 4) = 0
-        AND @DtStart <= Assessments.Stop
-        AND @DtStop > Assessments.Start)
-    LEFT JOIN AR AS ASMAR ON (ASMAR.BID = Assessments.BID
-        AND ASMAR.ARID = Assessments.ARID)
-    LEFT JOIN Receipt ON (Receipt.BID = Rentable_CUM_RA.BID
-        AND Receipt.RAID = Rentable_CUM_RA.RAID
-        AND (Receipt.FLAGS & 4) = 0
-        AND @DtStart <= Receipt.Dt
-        AND Receipt.Dt < @DtStop)
-    LEFT JOIN AR AS RCPTAR ON (RCPTAR.BID = Receipt.BID
-        AND RCPTAR.ARID = Receipt.ARID)
-    LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.BID = Receipt.BID
-        AND ReceiptAllocation.RAID = Rentable_CUM_RA.RAID
-        AND ReceiptAllocation.RCPTID = Receipt.RCPTID
-        AND ReceiptAllocation.ASMID > 0
-        AND ReceiptAllocation.ASMID = Assessments.ASMID
-        AND @DtStart <= ReceiptAllocation.Dt
-        AND ReceiptAllocation.Dt < @DtStop)
+            AND @DtStop > RentalAgreement.AgreementStart
+        )
+    ) AS Rentable_CUM_RA
+        /* to get Payors info through RentalAgreementPayors and Transactant */
+        LEFT JOIN RentalAgreementPayors ON (Rentable_CUM_RA.RAID = RentalAgreementPayors.RAID
+            AND Rentable_CUM_RA.BID = RentalAgreementPayors.BID
+            AND @DtStart <= RentalAgreementPayors.DtStop
+            AND @DtStop > RentalAgreementPayors.DtStart)
+        LEFT JOIN Transactant AS Payor ON (Payor.TCID = RentalAgreementPayors.TCID
+            AND Payor.BID = Rentable_CUM_RA.BID)
+        /* RentableTypes join to get RentableType */
+        LEFT JOIN RentableTypeRef ON (RentableTypeRef.RID = Rentable_CUM_RA.RID
+            AND RentableTypeRef.BID = Rentable_CUM_RA.BID
+            AND @DtStart <= RentableTypeRef.DtStop
+            AND @DtStop > RentableTypeRef.DtStart
+            AND RentableTypeRef.DtStart >= Rentable_CUM_RA.AgreementStart
+            AND RentableTypeRef.DtStop <= Rentable_CUM_RA.AgreementStop)
+        LEFT JOIN RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
+            AND RentableTypes.BID = RentableTypeRef.BID)
+        /* RentableStatus join to get the status */
+        LEFT JOIN RentableStatus ON (RentableStatus.RID = Rentable_CUM_RA.RID
+            AND RentableStatus.BID = Rentable_CUM_RA.BID
+            AND @DtStart <= RentableStatus.DtStop
+            AND @DtStop > RentableStatus.DtStart
+            AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
+            AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop)
+        /* get Users list through RentableUsers with Transactant join */
+        LEFT JOIN RentableUsers ON (RentableUsers.RID = Rentable_CUM_RA.RID
+            AND RentableUsers.RID = Rentable_CUM_RA.RID
+            AND @DtStart <= RentableUsers.DtStop
+            AND @DtStop > RentableUsers.DtStart
+            AND RentableUsers.DtStart >= Rentable_CUM_RA.AgreementStart
+            AND RentableUsers.DtStop <= Rentable_CUM_RA.AgreementStop)
+        LEFT JOIN Transactant AS User ON (RentableUsers.TCID = User.TCID
+            AND User.BID = Rentable_CUM_RA.BID)
+        LEFT JOIN (
+            /***********************************
+            Assessments UNION Receipt Collection
+            - - - - - - - - - - - - - - - - - */
+            SELECT
+                AsmRcptCollection.AmountDue AS AmountDue,
+                AsmRcptCollection.ASMID,
+                AsmRcptCollection.PaymentsApplied,
+                AsmRcptCollection.RCPAID,
+                AsmRcptCollection.RAID,
+                AsmRcptCollection.RID,
+                (CASE
+                    WHEN AsmRcptCollection.ASMID > 0 THEN ASMARName
+                    ELSE RCPTARName
+                END) AS Description
+            FROM
+                ((
+                    /*
+                    Collect All Assessments with ReceiptAllocation info
+                    which fall in the given report dates.
+                    */
+                    SELECT
+                        Assessments.Amount AS AmountDue,
+                        Assessments.ASMID AS ASMID,
+                        SUM(DISTINCT ReceiptAllocation.Amount) as PaymentsApplied,
+                        GROUP_CONCAT(DISTINCT ReceiptAllocation.RCPAID) AS RCPAID,
+                        Assessments.RAID AS RAID,
+                        Assessments.RID AS RID,
+                        ASMAR.Name AS ASMARName,
+                        NULL AS RCPTARName
+                    FROM
+                        Assessments
+                        LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.BID=Assessments.BID
+                            AND ReceiptAllocation.RAID = Assessments.RAID
+                            AND ReceiptAllocation.ASMID = Assessments.ASMID
+                            AND @DtStart <= ReceiptAllocation.Dt
+                            AND ReceiptAllocation.Dt < @DtStop)
+                        LEFT JOIN Receipt ON (Receipt.BID=ReceiptAllocation.BID
+                            -- AND Receipt.RAID = ReceiptAllocation.RAID // Receipt might have not updated with RAID
+                            AND Receipt.RCPTID=ReceiptAllocation.RCPTID
+                            AND (Receipt.FLAGS & 4) = 0
+                            AND @DtStart <= Receipt.Dt
+                            AND Receipt.Dt < @DtStop)
+                        LEFT JOIN AR AS ASMAR ON (ASMAR.BID = Assessments.BID
+                            AND ASMAR.ARID = Assessments.ARID)
+                    WHERE Assessments.BID=@BID
+                        AND (Assessments.RentCycle = 0 OR (Assessments.RentCycle > 0 AND Assessments.PASMID != 0))
+                        AND (Assessments.FLAGS & 4) = 0
+                        AND @DtStart <= Assessments.Stop
+                        AND @DtStop > Assessments.Start
+                ) UNION (
+                    /*
+                    Collect All Receipt/ReceiptAllocation of which associated assessments
+                    those don't fall in the given report dates.
+                    */
+                    SELECT
+                        NULL AS AmountDue,
+                        NULL AS ASMID,
+                        ReceiptAllocation.Amount AS PaymentsApplied,
+                        ReceiptAllocation.RCPAID AS RCPAID,
+                        ReceiptAllocation.RAID AS RAID,
+                        NULL AS RID,
+                        NULL AS ASMARName,
+                        RCPTAR.Name AS RCPTARName
+                    FROM
+                        Receipt
+                        INNER JOIN ReceiptAllocation ON (Receipt.BID=ReceiptAllocation.BID
+                            -- AND ReceiptAllocation.RAID = Receipt.RAID // Receipt might have not updated with RAID
+                            AND Receipt.RCPTID=ReceiptAllocation.RCPTID
+                            AND ReceiptAllocation.ASMID > 0)
+                        LEFT JOIN Assessments ON (Assessments.BID=ReceiptAllocation.BID
+                            AND Assessments.RAID = ReceiptAllocation.RAID
+                            AND Assessments.ASMID=ReceiptAllocation.ASMID
+                            AND (Assessments.RentCycle = 0 OR (Assessments.RentCycle > 0 AND Assessments.PASMID != 0))
+                            AND (Assessments.FLAGS & 4) = 0
+                            AND @DtStart <= Assessments.Stop
+                            AND @DtStop > Assessments.Start)
+                        LEFT JOIN AR AS RCPTAR ON (RCPTAR.BID = Receipt.BID
+                            AND RCPTAR.ARID = Receipt.ARID)
+                    WHERE Receipt.BID=@BID
+                        AND Assessments.ASMID IS NULL
+                        AND (Receipt.FLAGS & 4) = 0
+                        AND @DtStart <= Receipt.Dt
+                        AND Receipt.Dt < @DtStop
+                )) AS AsmRcptCollection
+            -- Avoid any rows in which both Assessment and Receipt parts are Null
+            WHERE COALESCE(AsmRcptCollection.ASMID, AsmRcptCollection.PaymentsApplied) IS NOT NULL
+
+            /* - - - - - - - - - - - - - - - - -
+            Assessments UNION Receipt Collection
+            ************************************/
+            ) PaymentInfo ON (PaymentInfo.RAID = Rentable_CUM_RA.RAID
+                AND (CASE WHEN PaymentInfo.RID > 0 THEN PaymentInfo.RID=Rentable_CUM_RA.RID ELSE 1 END)
+            )
+/* GROUP BY RID, RAID, ASMID, RCPAID (In case ASMID=0)*/
 GROUP BY {{.GroupClause}}
-ORDER BY {{.OrderClause}};`
+/* ORDER BY RID (if null then it would be last otherwise), RAID, AmountDue if ASMID >0 else PaymentsApplied */
+ORDER BY {{.OrderClause}};
+`
 
 /*
 +------+---------------------------------------------+
@@ -238,8 +330,8 @@ ORDER BY {{.OrderClause}};`
 var RentRollStaticInfoQueryClause = QueryClause{
 	"SelectClause": strings.Join(RentRollStaticInfoFields, ","),
 	"WhereClause":  "",
-	"GroupClause":  "Rentable_CUM_RA.RID, Rentable_CUM_RA.RAID, Assessments.ASMID",
-	"OrderClause":  "-Rentable_CUM_RA.RID DESC, -Rentable_CUM_RA.RAID DESC, Assessments.Amount DESC",
+	"GroupClause":  "Rentable_CUM_RA.RID , Rentable_CUM_RA.RAID , (CASE WHEN PaymentInfo.ASMID > 0 THEN PaymentInfo.ASMID ELSE PaymentInfo.RCPAID END)",
+	"OrderClause":  "- Rentable_CUM_RA.RID DESC , - Rentable_CUM_RA.RAID DESC , (CASE WHEN PaymentInfo.ASMID > 0 THEN PaymentInfo.AmountDue ELSE PaymentInfo.PaymentsApplied END) DESC",
 }
 
 // GetRentRollStaticInfoMap returns a map of RID -> all structs that holds
