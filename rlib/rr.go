@@ -10,7 +10,7 @@ import (
 // RentRollStaticInfo is a struct to hold the all static data
 // those are received from database per row.
 //
-// TBD, example/test = washing machine breaks between halfs the period
+// TBD, example/test = washing machine breaks during rental period
 // then offset issue ??
 type RentRollStaticInfo struct {
 	BID             int64

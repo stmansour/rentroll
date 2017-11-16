@@ -110,6 +110,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	//----------------------------------------------------------------
+	// Initialize the empty database. It should contain things like:
+	//   Chart of Accounts
+	//   Account Rules
+	//   Depositories
+	//   Payment Types
+	//   Deposit Methods
+	//----------------------------------------------------------------
+	rc := InitEmptyDB()
+	if rc != 0 {
+		os.Exit(rc)
+	}
+
 	//----------------------------
 	// Build the database
 	//----------------------------
@@ -118,4 +131,5 @@ func main() {
 		fmt.Printf("Error generating database: %s\n", err.Error())
 		os.Exit(1)
 	}
+
 }
