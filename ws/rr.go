@@ -93,9 +93,13 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err1 != nil {
 		fmt.Printf("Error in : %s\n", err1.Error())
 	}
-	m, err1 = rlib.GetRentRollVariableInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, m)
+	err1 = rlib.GetRentRollVariableInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m)
 	if err1 != nil {
-		fmt.Printf("Error in : %s\n", err1.Error())
+		fmt.Printf("Error in GetRentRollVariableInfoMap: %s\n", err1.Error())
+	}
+	err1 = rlib.GetRentRollGenTotals(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m)
+	if err1 != nil {
+		fmt.Printf("Error in GetRentRollGenTotals: %s\n", err1.Error())
 	}
 	for i := 0; i < len(rids); i++ {
 		fmt.Printf("Rentable %d\n", rids[i])

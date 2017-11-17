@@ -19,7 +19,7 @@ var NotRentedString = string("Unrented")
 //
 //     m := GetRentRollStaticInfoMap(BID,d1,d2)    // get basic rentable info
 //     m = GetRentRollVariableInfoMap(BID,d1,d2,m) // Gaps, IncomeOffsets for entire collection of Rentables
-//     m = GetRentRollSubtotalRows(m)              // build subtotals and Grand Total
+//     m = GetRentRollGenTotals(m)                 // build subtotals and Grand Total
 //
 //     if iftype = UIView {
 //         BuildViewInterface(m, d1,d2)
@@ -524,19 +524,19 @@ func formatRentRollStaticInfoQuery(BID int64, d1, d2 time.Time,
 //  2:  Any error encountered
 //-----------------------------------------------------------------------------
 func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
-	m map[int64][]RentRollStaticInfo) (map[int64][]RentRollStaticInfo, error) {
+	m *map[int64][]RentRollStaticInfo) error {
 
 	var xbiz XBusiness
 	var err error
 	InitBizInternals(BID, &xbiz)
 
-	rentrollMapGapHandler(BID, startDt, stopDt, &m)
-	err = rentrollMapGSRHandler(BID, startDt, stopDt, &m, &xbiz)
+	rentrollMapGapHandler(BID, startDt, stopDt, m)
+	err = rentrollMapGSRHandler(BID, startDt, stopDt, m, &xbiz)
 	if err != nil {
-		return m, err
+		return err
 	}
 
-	return m, nil
+	return nil
 }
 
 // rentrollMapGapHandler examines the supplied map and adds entries as needed to
@@ -622,5 +622,23 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 		v[0].RentCycleGSR = gsr
 		v[0].PeriodGSR = gsrAmt
 	}
+	return nil
+}
+
+// GetRentRollGenTotals generates the subtotal rows and grand total rows
+//      of a RentRoll datastructure.
+//
+// INPUTS
+//	BID      - the business
+//  startDt  - report/view start time
+//  stopDt   - report/view stop time
+//  m        - pointer to map created by GetRentRollStaticInfoMap
+//  xbiz     - XBusiness for getting info about RentableType and more
+//
+// RETURNS
+//  any error encountered or nil if no error occurred
+//-----------------------------------------------------------------------------
+func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
+	m *map[int64][]RentRollStaticInfo) error {
 	return nil
 }
