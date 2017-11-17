@@ -292,6 +292,8 @@ FROM
                         AND (Assessments.FLAGS & 4) = 0
                         AND @DtStart <= Assessments.Stop
                         AND @DtStop > Assessments.Start
+                    GROUP BY Assessments.ASMID
+                    ORDER BY Assessments.ASMID
                 ) UNION (
                     /*
                     Collect All Receipt/ReceiptAllocation of which associated assessments
@@ -326,6 +328,8 @@ FROM
                         AND (Receipt.FLAGS & 4) = 0
                         AND @DtStart <= Receipt.Dt
                         AND Receipt.Dt < @DtStop
+                    GROUP BY ReceiptAllocation.RCPAID
+                    ORDER BY ReceiptAllocation.RCPAID
                 )) AS AsmRcptCollection
             -- Avoid any rows in which both Assessment and Receipt parts are Null
             WHERE COALESCE(AsmRcptCollection.ASMID, AsmRcptCollection.PaymentsApplied) IS NOT NULL
@@ -356,7 +360,7 @@ var RentRollStaticInfoQueryClause = QueryClause{
 	"SelectClause": strings.Join(RentRollStaticInfoFields, ","),
 	"WhereClause":  "",
 	"GroupClause":  "Rentable_CUM_RA.RID , Rentable_CUM_RA.RAID , (CASE WHEN PaymentInfo.ASMID > 0 THEN PaymentInfo.ASMID ELSE PaymentInfo.RCPAID END)",
-	"OrderClause":  "- Rentable_CUM_RA.RID DESC , - Rentable_CUM_RA.RAID DESC , (CASE WHEN PaymentInfo.ASMID > 0 THEN PaymentInfo.AmountDue ELSE PaymentInfo.PaymentsApplied END) DESC",
+	"OrderClause":  "- Rentable_CUM_RA.RID DESC , - Rentable_CUM_RA.RAID DESC , (CASE WHEN PaymentInfo.ASMID > 0 THEN PaymentInfo.AmountDue ELSE PaymentInfo.PaymentsApplied END) DESC, PaymentInfo.ASMID, PaymentInfo.RCPAID",
 }
 
 // GetRentRollStaticInfoMap returns a map of RID -> all structs that holds

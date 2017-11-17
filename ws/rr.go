@@ -104,13 +104,15 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for i := 0; i < len(rids); i++ {
 		fmt.Printf("Rentable %d\n", rids[i])
 		for _, v := range m[rids[i]] {
-			fmt.Printf("\tRID: %2d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f, PeriodGSR: %7.2f\n",
+			fmt.Printf("\tRID: %2d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f, PeriodGSR: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n",
 				v.RID.Int64, v.RAID.Int64,
 				v.PossessionStart.Time.Format(rlib.RRDATEFMTSQL),
 				v.PossessionStop.Time.Format(rlib.RRDATEFMTSQL),
 				v.Description.String,
 				v.RentCycleGSR,
-				v.PeriodGSR)
+				v.PeriodGSR,
+				v.AmountDue.Float64,
+				v.PaymentsApplied.Float64)
 		}
 	}
 
