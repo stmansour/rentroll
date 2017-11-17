@@ -614,13 +614,35 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 	var err error
 	for k, v := range *m { // for every component
 		var gsrAmt float64
-		gsrAmt, _, _, err = CalculateLoadedGSR(BID, k, &startDt, &stopDt, xbiz)
-		if err != nil {
-			return err
+		raid := int64(-1)
+		for i := 0; i < len(v); i++ {
+			if raid == v[i].RAID.Int64 {
+				continue
+			}
+			raid = v[i].RAID.Int64
+			//-----------------------------------------------------------------------------
+			// for GSR calculation, set date range as follows...
+			// start with the range of the report
+			// if PossesionStart is after the report start time, then use PossessionStart
+			// if PossesionStop is befor the report stop time, then use PossessionStop
+			//-----------------------------------------------------------------------------
+			d1 := startDt
+			if v[i].PossessionStart.Time.After(d1) {
+				d1 = v[i].PossessionStart.Time
+			}
+			d2 := stopDt
+			if v[i].PossessionStop.Time.Before(d2) {
+				d2 = v[i].PossessionStop.Time
+			}
+			// Console("d1 = %s, d2 = %s\n", d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL))
+			gsrAmt, _, _, err = CalculateLoadedGSR(BID, k, &d1, &d2, xbiz)
+			if err != nil {
+				return err
+			}
+			gsr := GetRentableMarketRate(xbiz, k, &d1, &d2)
+			v[i].RentCycleGSR = gsr
+			v[i].PeriodGSR = gsrAmt
 		}
-		gsr := GetRentableMarketRate(xbiz, k, &startDt, &stopDt)
-		v[0].RentCycleGSR = gsr
-		v[0].PeriodGSR = gsrAmt
 	}
 	return nil
 }
@@ -640,5 +662,9 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 //-----------------------------------------------------------------------------
 func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo) error {
+	// var err error
+	// for k, v := range *m { // for every component
+
+	// }
 	return nil
 }

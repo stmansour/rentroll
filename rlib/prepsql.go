@@ -902,7 +902,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetRentalAgreementsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE BID=? AND TCID=? AND DtStart<=? AND ?<DtStop")
+	// RRdb.Prepstmt.GetRentalAgreementsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE BID=? AND TCID=? AND DtStart<=? AND ?<DtStop")
+	RRdb.Prepstmt.GetRentalAgreementsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE BID=? AND TCID=?")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)

@@ -19,9 +19,12 @@ function dbcore() {
 }
 
 function stop() {
-	pkill rentroll;exit 1
+	pkill rentroll
+	exit 1
 }
 
+echo "STARTING RENTROLL SERVER"
+startRentRollServer
 #------------------------------------------------------------------------------
 #  TEST 00
 #  Simple Asmt/Rcpt -  Non recurring assessment, a receipt, apply payments.
@@ -33,10 +36,8 @@ function stop() {
 #  Expected Results:
 #	1.	$150 should carry forward to the next period.
 #------------------------------------------------------------------------------
-echo "STARTING RENTROLL SERVER"
-startRentRollServer
+newDB
 dbcore
-
 docsvtest "i" "-R rt1.csv -L 5,${BUD}" "RentableTypes"
 docsvtest "j" "-r r1.csv -L 6,${BUD}" "Rentables"
 docsvtest "k" "-C ra1.csv -L 9,${BUD}" "RentalAgreements"
@@ -283,6 +284,58 @@ RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
 dorrtest "f03" "${RRDATERANGE} -b ${BUD} -r 4" "Rentroll"
 
 mysqldump --no-defaults rentroll > test06.sql
+
+
+#------------------------------------------------------------------------------
+#  TEST 07
+#  Scenario: We need a database with several Assessments and Receipts
+#  		during a month to validate that the RentRoll report generates
+#       correctly.  We also want one rental agreement to expire and another
+#       one to start so we can validate that information is handled correctly
+#       between the 2 different rental agreements.
+#
+#  Expected Result:
+#	1.	We should see the payment as a row in the RentRoll view/report.
+#	2.	We should see the Assessment amount due reflected in the Beginning
+#       Receivables subtotal line
+#------------------------------------------------------------------------------
+echo "*** TEST 07 ***"
+newDB
+dbcore
+docsvtest "i" "-R rt1.csv -L 5,${BUD}" "RentableTypes"
+docsvtest "j" "-r r1.csv -L 6,${BUD}" "Rentables"
+docsvtest "lt" "-C ra2on1.csv -L 9,${BUD}" "RentalAgreements"
+
+# Create a non-recurring Assessment for prorated rent in November.  Last rent asmt for RA 1
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A26%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%2211%2F1%2F2017%22%2C%22Stop%22%3A%2211%2F1%2F2017%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A700%2C%22Rentable%22%3A%22%22%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22ExpandPastInst%22%3A0%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "g00"  "WebService--CreateAssessment"
+
+# Create a non-recurring Assessment for prorated rent in November.  First rent asmt for RA 2
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A26%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A2%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%2211%2F15%2F2017%22%2C%22Stop%22%3A%2211%2F15%2F2017%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A2133.33%2C%22Rentable%22%3A%22309%2BRexford%22%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22ExpandPastInst%22%3A0%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "g01"  "WebService--CreateAssessment"
+
+# Create the November Receipt for RA 1
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A25%2C%22PMTID%22%3A2%2C%22RAID%22%3A0%2C%22PmtTypeName%22%3A2%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2211%2F16%2F2017%22%2C%22DocNo%22%3A%221234%22%2C%22Payor%22%3A%22Aaron+Read+(TCID%3A+1)%22%2C%22TCID%22%3A1%2C%22Amount%22%3A700%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "g02"  "WebService--ReceiveReceipt"
+
+# Create the November Receipt for RA 2
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A25%2C%22PMTID%22%3A2%2C%22RAID%22%3A0%2C%22PmtTypeName%22%3A2%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2211%2F16%2F2017%22%2C%22DocNo%22%3A%222352%22%2C%22Payor%22%3A%22Gagik+Haroutunian+(TCID%3A+6)%22%2C%22TCID%22%3A6%2C%22Amount%22%3A2133.33%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "g03"  "WebService--ReceiveReceipt"
+
+# Apply the payments for RA 1
+echo "%7B%22cmd%22%3A%22save%22%2C%22TCID%22%3A1%2C%22BID%22%3A1%2C%22records%22%3A%5B%7B%22recid%22%3A0%2C%22Date%22%3A%2211%2F1%2F2017%22%2C%22ASMID%22%3A1%2C%22ARID%22%3A26%2C%22Assessment%22%3A%22Rent%20Non-Taxable%22%2C%22Amount%22%3A700%2C%22AmountPaid%22%3A0%2C%22AmountOwed%22%3A700%2C%22Dt%22%3A%2211%2F16%2F2017%22%2C%22Allocate%22%3A700%2C%22Date_%22%3A%222017-11-01T07%3A00%3A00.000Z%22%2C%22Dt_%22%3A%222017-11-16T08%3A00%3A00.000Z%22%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/allocfunds/1/" "request" "g04"  "WebService--ApplyThePayment"
+
+# Apply the payments for RA 2
+echo "%7B%22cmd%22%3A%22save%22%2C%22TCID%22%3A6%2C%22BID%22%3A1%2C%22records%22%3A%5B%7B%22recid%22%3A0%2C%22Date%22%3A%2211%2F15%2F2017%22%2C%22ASMID%22%3A2%2C%22ARID%22%3A26%2C%22Assessment%22%3A%22Rent%20Non-Taxable%22%2C%22Amount%22%3A2133.33%2C%22AmountPaid%22%3A0%2C%22AmountOwed%22%3A2133.33%2C%22Dt%22%3A%2211%2F16%2F2017%22%2C%22Allocate%22%3A2133.33%2C%22Date_%22%3A%222017-11-15T08%3A00%3A00.000Z%22%2C%22Dt_%22%3A%222017-11-16T08%3A00%3A00.000Z%22%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/allocfunds/1/" "request" "g04"  "WebService--ApplyThePayment"
+
+# RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
+dorrtest "g05" "${RRDATERANGE} -b ${BUD} -r 4" "Rentroll"
+
+mysqldump --no-defaults rentroll > test07.sql
+
+###################################################
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"

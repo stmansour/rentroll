@@ -2065,7 +2065,7 @@ func GetRentalAgreementPayorsInRange(raid int64, d1, d2 *time.Time) []RentalAgre
 // GetRentalAgreementsByPayor returns an array of RentalAgreementPayor where the supplied
 // TCID is a payor on the specified date
 func GetRentalAgreementsByPayor(bid, tcid int64, dt *time.Time) []RentalAgreementPayor {
-	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid, dt, dt)
+	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
 	Errcheck(err)
 	return GetRentalAgreementPayorsByRows(rows)
 }
@@ -2073,7 +2073,7 @@ func GetRentalAgreementsByPayor(bid, tcid int64, dt *time.Time) []RentalAgreemen
 // GetRentalAgreementsByPayorRange returns an array of RentalAgreementPayor where the supplied
 // TCID is a payor within the supplied range
 func GetRentalAgreementsByPayorRange(bid, tcid int64, d1, d2 *time.Time) []RentalAgreementPayor {
-	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid, d2, d1)
+	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
 	Errcheck(err)
 	return GetRentalAgreementPayorsByRows(rows)
 }

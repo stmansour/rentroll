@@ -88,7 +88,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//
 	//#############################################################################
 
-	rlib.Console("END OF NEW CODE TESTING\n")
+	rlib.Console("\n>>>>>>START OF NEW CODE TESTING\n")
 	m, rids, err1 := rlib.GetRentRollStaticInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
 	if err1 != nil {
 		fmt.Printf("Error in : %s\n", err1.Error())
@@ -114,7 +114,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	rlib.Console("END OF NEW CODE TESTING\n")
+	rlib.Console(">>>>>>>END OF NEW CODE TESTING\n\n")
 
 	//#############################################################################
 
