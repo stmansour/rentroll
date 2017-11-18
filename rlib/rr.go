@@ -38,6 +38,7 @@ type RentRollStaticInfo struct {
 	RID             NullInt64
 	RentableName    NullString
 	RTID            NullInt64
+	SqFt            NullInt64
 	RentableType    NullString
 	RentCycle       NullInt64
 	Status          NullInt64
@@ -218,8 +219,9 @@ FROM
             AND RentableTypeRef.BID = Rentable_CUM_RA.BID
             AND @DtStart <= RentableTypeRef.DtStop
             AND @DtStop > RentableTypeRef.DtStart
-            AND RentableTypeRef.DtStart >= Rentable_CUM_RA.AgreementStart
-            AND RentableTypeRef.DtStop <= Rentable_CUM_RA.AgreementStop)
+            -- Should we consider agreement dates too for comparision?
+            /*AND RentableTypeRef.DtStart >= Rentable_CUM_RA.AgreementStart
+            AND RentableTypeRef.DtStop <= Rentable_CUM_RA.AgreementStop*/)
         LEFT JOIN RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
             AND RentableTypes.BID = RentableTypeRef.BID)
         /*
@@ -229,8 +231,9 @@ FROM
             AND RentableStatus.BID = Rentable_CUM_RA.BID
             AND @DtStart <= RentableStatus.DtStop
             AND @DtStop > RentableStatus.DtStart
-            AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
-            AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop)
+            -- Should we consider agreement dates too for comparision?
+            /*AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
+            AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop*/)
         /*
          *  get Users list through RentableUsers with Transactant join
          */
@@ -530,8 +533,14 @@ func formatRentRollStaticInfoQuery(BID int64, d1, d2 time.Time,
 func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo) error {
 
-	var xbiz XBusiness
-	var err error
+	const funcname = "GetRentRollVariableInfoMap"
+
+	var (
+		err  error
+		xbiz XBusiness
+	)
+	Console("Entered in %s\n", funcname)
+
 	InitBizInternals(BID, &xbiz)
 
 	rentrollMapGapHandler(BID, startDt, stopDt, m)
@@ -540,9 +549,62 @@ func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
 		return err
 	}
 
-	// sqft handler
+	_ = rentrollSqftHandler(BID, m, &xbiz) // ignore errors
 
 	return nil
+}
+
+// rentrollSqftHandler get custom attribute (Square Feet)
+// for each rentable
+//
+// INPUTS
+//  BID      - the business
+//  m        - pointer to map created by GetRentRollStaticInfoMap
+//  xbiz     - XBusiness for getting info about RentableType and more
+//
+// RETURNS
+//  - list of errors
+//-----------------------------------------------------------------------------
+func rentrollSqftHandler(BID int64,
+	m *map[int64][]RentRollStaticInfo, xbiz *XBusiness,
+) []error {
+
+	const (
+		funcname         = "rentrollSqftHandler"
+		customAttrRTSqft = "Square Feet" // customAttrRTSqft for rentabletypes
+	)
+
+	var (
+		errList = []error{}
+	)
+	Console("Entered in %s\n", funcname)
+
+	// feed sqft value in first row only
+	for rid, v := range *m {
+
+		// only get first row from the list
+		rtid := v[0].RTID.Int64
+
+		// RTID should be  > 0
+		if !(rtid > 0) {
+			continue
+		}
+
+		if len(xbiz.RT[rtid].CA) > 0 { // if there are custom attributes
+			c, ok := xbiz.RT[rtid].CA[customAttrRTSqft] // see if Square Feet is among them
+			if ok {                                     // if it is...
+				sqft, err := IntFromString(c.Value, "invalid customAttrRTSqft attribute")
+				v[0].SqFt.Scan(sqft)
+				if err != nil {
+					Console("%s: RID: %d, RTID: %d || Error while scanning custom attribute sqft: %s\n",
+						funcname, rid, rtid, err.Error())
+					errList = append(errList, err)
+				}
+			}
+		}
+	}
+
+	return errList
 }
 
 // rentrollMapGapHandler examines the supplied map and adds entries as needed to
@@ -560,6 +622,11 @@ func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
 func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo) {
 	for k, v := range *m {
+
+		if k == 0 { // skip for no rentable part
+			continue
+		}
+
 		var a = []Period{}
 		//--------------------------------------
 		// look at all the rows for Rentable k
@@ -619,6 +686,11 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo, xbiz *XBusiness) error {
 	var err error
 	for k, v := range *m { // for every component
+
+		if k == 0 { // skip for no rentable part
+			continue
+		}
+
 		var gsrAmt float64
 		raid := int64(-1)
 		for i := 0; i < len(v); i++ {
