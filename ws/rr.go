@@ -89,19 +89,31 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//#############################################################################
 
 	rlib.Console("\n>>>>>>START OF NEW CODE TESTING\n")
-	m, rids, err1 := rlib.GetRentRollStaticInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	/*m, n, err1 := rlib.GetRentRollStaticInfoMap(
+		d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
 	if err1 != nil {
 		fmt.Printf("Error in : %s\n", err1.Error())
 	}
-	err1 = rlib.GetRentRollVariableInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m)
+
+	err1 = rlib.GetRentRollVariableInfoMap(
+		d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m, &n)
 	if err1 != nil {
 		fmt.Printf("Error in GetRentRollVariableInfoMap: %s\n", err1.Error())
 	}
-	totalRows, mainRows, err1 := rlib.GetRentRollGenTotals(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m)
+
+	grandTTL, totalRows, mainRows, err1 := rlib.GetRentRollGenTotals(
+		d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m, &n)
 	if err1 != nil {
 		fmt.Printf("Error in GetRentRollGenTotals: %s\n", err1.Error())
 	}
 	fmt.Printf(">>>>>>>>>>>>>>>>>>>>> totalRows: %d, totalMainRows: %d\n\n\n", totalRows, mainRows)
+
+	// iterate map in sorting order, debugging get easier
+	var rids rlib.Int64Range
+	for rid := range m {
+		rids = append(rids, rid)
+	}
+	sort.Sort(rids)
 	for i := 0; i < len(rids); i++ {
 		fmt.Printf("Rentable %d\n", rids[i])
 		for _, v := range m[rids[i]] {
@@ -124,22 +136,54 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				v.FLAGS)
 		}
 	}
-	fmt.Printf("GrandTotalRow..........\n")
-	fmt.Printf("Rentable %d\n", -1)
-	for _, v := range m[-1] {
-		fmt.Printf("PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
-			"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
-			"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f,\n"+
-			"FLAGS: %d \n\n",
-			v.PeriodGSR,
-			v.IncomeOffsets,
-			v.AmountDue.Float64,
-			v.PaymentsApplied.Float64,
-			v.BeginReceivable, v.DeltaReceivable, v.EndReceivable,
-			v.BeginSecDep, v.DeltaSecDep, v.EndSecDep,
-			v.FLAGS)
+
+	// iterate map in sorting order, debugging get easier
+	var raids rlib.Int64Range
+	for raid := range n {
+		raids = append(raids, raid)
+	}
+	sort.Sort(raids)
+	for i := 0; i < len(raids); i++ {
+		fmt.Printf("Rental Agreement: %d\n", raids[i])
+		for _, v := range n[raids[i]] {
+			fmt.Printf("\tRID: %2d, SqFt: %7d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f\n "+
+				"PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
+				"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
+				"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f,\n"+
+				"FLAGS: %d \n\n",
+				v.RID.Int64, v.SqFt.Int64, v.RAID.Int64,
+				v.PossessionStart.Time.Format(rlib.RRDATEFMTSQL),
+				v.PossessionStop.Time.Format(rlib.RRDATEFMTSQL),
+				v.Description.String,
+				v.RentCycleGSR,
+				v.PeriodGSR,
+				v.IncomeOffsets,
+				v.AmountDue.Float64,
+				v.PaymentsApplied.Float64,
+				v.BeginReceivable, v.DeltaReceivable, v.EndReceivable,
+				v.BeginSecDep, v.DeltaSecDep, v.EndSecDep,
+				v.FLAGS)
+		}
 	}
 
+	fmt.Printf("GrandTotalRow..........\n")
+	fmt.Printf("PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
+		"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
+		"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f,\n"+
+		"FLAGS: %d \n\n",
+		grandTTL.PeriodGSR,
+		grandTTL.IncomeOffsets,
+		grandTTL.AmountDue.Float64,
+		grandTTL.PaymentsApplied.Float64,
+		grandTTL.BeginReceivable, grandTTL.DeltaReceivable, grandTTL.EndReceivable,
+		grandTTL.BeginSecDep, grandTTL.DeltaSecDep, grandTTL.EndSecDep,
+		grandTTL.FLAGS)*/
+
+	rRows, count, mainCount, _ := rlib.GetRentRollRows(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	for _, row := range rRows {
+		rlib.Console("rowRID: %d, rowRAID: %d\n\n", row.RID.Int64, row.RAID.Int64)
+	}
+	rlib.Console("count: %d, mainCount: %d\n\n", count, mainCount)
 	rlib.Console(">>>>>>>END OF NEW CODE TESTING\n\n")
 
 	//#############################################################################
