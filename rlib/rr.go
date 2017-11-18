@@ -540,6 +540,8 @@ func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
 		return err
 	}
 
+	// sqft handler
+
 	return nil
 }
 
@@ -662,13 +664,154 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 //  xbiz     - XBusiness for getting info about RentableType and more
 //
 // RETURNS
-//  any error encountered or nil if no error occurred
+//  - total number of rows count for rentroll report
+//  - total main rows count for rentroll report
+//  - any error encountered or nil if no error occurred
 //-----------------------------------------------------------------------------
 func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
-	m *map[int64][]RentRollStaticInfo) error {
-	// var err error
-	// for k, v := range *m { // for every component
+	m *map[int64][]RentRollStaticInfo) (int64, int64, error) {
 
-	// }
-	return nil
+	const funcname = "GetRentRollGenTotals"
+	var (
+		// err           error
+		grandTotalRow = RentRollStaticInfo{BID: BID}
+		totalRows     int64
+		totalMainRows int64
+	)
+	Console("Entered in %s\n", funcname)
+
+	// mark some flag as true for grand total line
+	grandTotalRow.AmountDue.Valid = true
+	grandTotalRow.PaymentsApplied.Valid = true
+
+	// loop over each component list
+	for rid, ridRows := range *m {
+
+		// collection all RAID list for this component
+		raidMap := make(map[int64]int64)
+
+		// new subtotal row initialization for this component
+		cmptSubTotalRow := RentRollStaticInfo{BID: BID}
+		cmptSubTotalRow.AmountDue.Valid = true
+		cmptSubTotalRow.PaymentsApplied.Valid = true
+
+		// from each row sum-up all required values
+		for _, row := range ridRows {
+			cmptSubTotalRow.PeriodGSR += row.PeriodGSR
+			cmptSubTotalRow.IncomeOffsets += row.IncomeOffsets
+			cmptSubTotalRow.AmountDue.Float64 += row.AmountDue.Float64
+			cmptSubTotalRow.PaymentsApplied.Float64 += row.PaymentsApplied.Float64
+			if _, ok := raidMap[row.RAID.Int64]; !ok && row.RAID.Int64 > 0 {
+				raidMap[row.RAID.Int64] = row.RID.Int64
+			}
+		}
+
+		// get all Receivables (begin, delta, ending), SecDep(begin, delta, ending) amounts
+		_ = getReceivableAndSecDep(BID, startDt, stopDt, &cmptSubTotalRow, &raidMap)
+
+		// now, append subtotal row for the current component at last
+		(*m)[rid] = append((*m)[rid], cmptSubTotalRow)
+
+		// from each subtotal row sum-up all required values for the grand total
+		grandTotalRow.PeriodGSR += cmptSubTotalRow.PeriodGSR
+		grandTotalRow.IncomeOffsets += cmptSubTotalRow.IncomeOffsets
+		grandTotalRow.AmountDue.Float64 += cmptSubTotalRow.AmountDue.Float64
+		grandTotalRow.PaymentsApplied.Float64 += cmptSubTotalRow.PaymentsApplied.Float64
+		grandTotalRow.BeginReceivable += cmptSubTotalRow.BeginReceivable
+		grandTotalRow.DeltaReceivable += cmptSubTotalRow.DeltaReceivable
+		grandTotalRow.EndReceivable += cmptSubTotalRow.EndReceivable
+		grandTotalRow.BeginSecDep += cmptSubTotalRow.BeginSecDep
+		grandTotalRow.DeltaSecDep += cmptSubTotalRow.DeltaSecDep
+		grandTotalRow.EndSecDep += cmptSubTotalRow.EndSecDep
+
+		// --------- total rows count ----------
+		totalRows += int64(len((*m)[rid]))
+
+		// --------- total main rows count -----
+		// RID == 0 means no rentable section
+		// so consider all RA rows as main rows
+		if rid == 0 {
+			totalMainRows += int64(len((*m)[rid]))
+		} else {
+			totalMainRows++
+		}
+	}
+
+	// append grand total row for RID = -1 key, in the map
+	(*m)[-1] = append((*m)[-1], grandTotalRow)
+
+	return totalRows, totalMainRows, nil
+}
+
+// getReceivableAndSecDep calculates beginning, delta, ending receivables
+// for the Receivables and Security Deposits for the given
+// all Rental Agreements covered or not by with Rentables
+// It will feed these amount in the given subtotal row for the component
+// of rentroll report
+//
+// INPUTS
+//  BID      - the business
+//  startDt  - report/view start time
+//  stopDt   - report/view stop time
+//  subTTL   - address of subtotal row for the component of rentroll report
+//  raidMap  - address of map: RAID -> RID
+//
+// RETURNS
+//  any error encountered or nil if no error occurred
+//-----------------------------------------------------------------------------
+func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
+	subTTL *RentRollStaticInfo, raidMap *map[int64]int64) []error {
+
+	const funcname = "getReceivableAndSecDep"
+	var (
+		errList []error
+		d70     = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+	)
+	Console("Entered in %s\n", funcname)
+
+	for raid, rid := range *raidMap {
+		if !(raid > 0 && rid > 0) {
+			continue // if both 0 then continue to next one
+		}
+
+		// BeginningRcv, EndingRcv
+		beginningRcv, endingRcv, err := GetBeginEndRARBalance(BID, rid, raid, &startDt, &stopDt)
+		if err != nil {
+			Console("%s: RAID: %d, RID: %d || Error while calculating BeginningRcv, EndingRcv:: %s\n",
+				funcname, raid, rid, err.Error())
+			errList = append(errList, err)
+		}
+
+		/*// deltaInRcv
+		deltaInRcv := (endingRcv - beginningRcv)*/
+
+		// BeginningSecDep
+		beginningSecDep, err := GetSecDepBalance(BID, raid, rid, &d70, &startDt)
+		if err != nil {
+			Console("%s: RAID: %d, RID: %d || Error while calculating BeginningSecDep:: %s\n",
+				funcname, raid, rid, err.Error())
+			errList = append(errList, err)
+		}
+
+		// Change in SecDep
+		deltaInSecDep, err := GetSecDepBalance(BID, raid, rid, &startDt, &stopDt)
+		if err != nil {
+			Console("%s: RAID: %d, RID: %d || Error while calculating BeginningSecDep:: %s\n",
+				funcname, raid, rid, err.Error())
+			errList = append(errList, err)
+		}
+
+		/*// EndingSecDep
+		endingSecDep := (beginningSecDep + deltaInSecDep)*/
+
+		// now feed all those amount in subtotal row, for each iteration
+		subTTL.BeginReceivable += beginningRcv
+		subTTL.DeltaReceivable += (endingRcv - beginningRcv)
+		subTTL.EndReceivable += endingRcv
+		subTTL.BeginSecDep += beginningSecDep
+		subTTL.DeltaSecDep += deltaInSecDep
+		subTTL.EndSecDep += (beginningSecDep + deltaInSecDep)
+	}
+
+	return errList
 }

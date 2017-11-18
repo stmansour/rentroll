@@ -97,23 +97,43 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err1 != nil {
 		fmt.Printf("Error in GetRentRollVariableInfoMap: %s\n", err1.Error())
 	}
-	err1 = rlib.GetRentRollGenTotals(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m)
+	totalRows, mainRows, err1 := rlib.GetRentRollGenTotals(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m)
 	if err1 != nil {
 		fmt.Printf("Error in GetRentRollGenTotals: %s\n", err1.Error())
 	}
+	fmt.Printf(">>>>>>>>>>>>>>>>>>>>> totalRows: %d, totalMainRows: %d\n\n\n", totalRows, mainRows)
 	for i := 0; i < len(rids); i++ {
 		fmt.Printf("Rentable %d\n", rids[i])
 		for _, v := range m[rids[i]] {
-			fmt.Printf("\tRID: %2d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f, PeriodGSR: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n",
+			fmt.Printf("\tRID: %2d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f, \n "+
+				"PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
+				"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
+				"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f \n\n",
 				v.RID.Int64, v.RAID.Int64,
 				v.PossessionStart.Time.Format(rlib.RRDATEFMTSQL),
 				v.PossessionStop.Time.Format(rlib.RRDATEFMTSQL),
 				v.Description.String,
 				v.RentCycleGSR,
 				v.PeriodGSR,
+				v.IncomeOffsets,
 				v.AmountDue.Float64,
-				v.PaymentsApplied.Float64)
+				v.PaymentsApplied.Float64,
+				v.BeginReceivable, v.DeltaReceivable, v.EndReceivable,
+				v.BeginSecDep, v.DeltaSecDep, v.EndSecDep)
 		}
+	}
+	fmt.Printf("GrandTotalRow..........\n")
+	fmt.Printf("Rentable %d\n", -1)
+	for _, v := range m[-1] {
+		fmt.Printf("PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
+			"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
+			"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f \n\n",
+			v.PeriodGSR,
+			v.IncomeOffsets,
+			v.AmountDue.Float64,
+			v.PaymentsApplied.Float64,
+			v.BeginReceivable, v.DeltaReceivable, v.EndReceivable,
+			v.BeginSecDep, v.DeltaSecDep, v.EndSecDep)
 	}
 
 	rlib.Console(">>>>>>>END OF NEW CODE TESTING\n\n")
