@@ -108,7 +108,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			fmt.Printf("\tRID: %2d, SqFt: %7d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f\n "+
 				"PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
 				"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
-				"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f \n\n",
+				"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f,\n"+
+				"FLAGS: %d \n\n",
 				v.RID.Int64, v.SqFt.Int64, v.RAID.Int64,
 				v.PossessionStart.Time.Format(rlib.RRDATEFMTSQL),
 				v.PossessionStop.Time.Format(rlib.RRDATEFMTSQL),
@@ -119,7 +120,8 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				v.AmountDue.Float64,
 				v.PaymentsApplied.Float64,
 				v.BeginReceivable, v.DeltaReceivable, v.EndReceivable,
-				v.BeginSecDep, v.DeltaSecDep, v.EndSecDep)
+				v.BeginSecDep, v.DeltaSecDep, v.EndSecDep,
+				v.FLAGS)
 		}
 	}
 	fmt.Printf("GrandTotalRow..........\n")
@@ -127,13 +129,15 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for _, v := range m[-1] {
 		fmt.Printf("PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
 			"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
-			"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f \n\n",
+			"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f,\n"+
+			"FLAGS: %d \n\n",
 			v.PeriodGSR,
 			v.IncomeOffsets,
 			v.AmountDue.Float64,
 			v.PaymentsApplied.Float64,
 			v.BeginReceivable, v.DeltaReceivable, v.EndReceivable,
-			v.BeginSecDep, v.DeltaSecDep, v.EndSecDep)
+			v.BeginSecDep, v.DeltaSecDep, v.EndSecDep,
+			v.FLAGS)
 	}
 
 	rlib.Console(">>>>>>>END OF NEW CODE TESTING\n\n")

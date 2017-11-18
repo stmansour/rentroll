@@ -11,6 +11,14 @@ import (
 // to for the description of an unrented Rentable.
 var NotRentedString = string("Unrented")
 
+// RentRollMainRow etc all are flag to indicate types of row
+const (
+	RentRollMainRow       = 1 << 0
+	RentRollSubTotalRow   = 1 << 1
+	RentRollBlankRow      = 1 << 2
+	RentRollGrandTotalRow = 1 << 3
+)
+
 // This collection of functions implements the raw data-gathering
 // needed to produce a RentRoll report or interface.  These routines
 // are designed to be used as shown in the pseudo code below:
@@ -65,7 +73,7 @@ type RentRollStaticInfo struct {
 	BeginSecDep     float64
 	DeltaSecDep     float64
 	EndSecDep       float64
-	FLAGS           uint64
+	FLAGS           uint64 // Bits: 0 (1) = main row, 1 (2) = subtotal, 2 (4) = blank row, 3 (8) = grand total row
 }
 
 // RentRollVariableData is a struct to hold variable data for a rentroll view
@@ -746,7 +754,7 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 	const funcname = "GetRentRollGenTotals"
 	var (
 		// err           error
-		grandTotalRow = RentRollStaticInfo{BID: BID}
+		grandTotalRow = RentRollStaticInfo{BID: BID, FLAGS: RentRollGrandTotalRow}
 		totalRows     int64
 		totalMainRows int64
 	)
@@ -759,11 +767,16 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 	// loop over each component list
 	for rid, ridRows := range *m {
 
+		// ----------------------------------
+		// Mark first row as MainRow HERE !!!
+		// ----------------------------------
+		ridRows[0].FLAGS = RentRollMainRow
+
 		// collection all RAID list for this component
 		raidMap := make(map[int64]int64)
 
 		// new subtotal row initialization for this component
-		cmptSubTotalRow := RentRollStaticInfo{BID: BID}
+		cmptSubTotalRow := RentRollStaticInfo{BID: BID, FLAGS: RentRollSubTotalRow}
 		cmptSubTotalRow.AmountDue.Valid = true
 		cmptSubTotalRow.PaymentsApplied.Valid = true
 
