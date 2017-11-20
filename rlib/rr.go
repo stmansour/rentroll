@@ -913,13 +913,13 @@ func sortAndFormatRentRollSubRows(m *map[int64][]RentRollStaticInfo) {
 			(*m)[k][rowIndex].RentableType.Valid = false
 			(*m)[k][rowIndex].SqFt.Valid = false
 			(*m)[k][rowIndex].RentCycleGSR.Valid = false
-			(*m)[k][rowIndex].PeriodGSR.Valid = false
 
 			// if RAID matches with previous one, then format all subsequent rows
 			// for rental agreement parent-child fashion
 			if (*m)[k][rowIndex].RAID.Int64 == (*m)[k][rowIndex-1].RAID.Int64 &&
 				(*m)[k][rowIndex].RAID.Valid && (*m)[k][rowIndex-1].RAID.Valid {
 
+				(*m)[k][rowIndex].PeriodGSR.Valid = false
 				(*m)[k][rowIndex].RentCycle.Valid = false
 				(*m)[k][rowIndex].AgreementStart.Valid = false
 				(*m)[k][rowIndex].AgreementStop.Valid = false
