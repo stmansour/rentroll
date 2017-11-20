@@ -19,6 +19,14 @@ var manageToBudget = rlib.Str2Int64Map{
 	"Yes (Market Rate required)": 1,
 }
 
+// rentroll report row flags
+var rrFLAGS = rlib.Str2Int64Map{
+	"RentRollMainRow":       rlib.RentRollMainRow,
+	"RentRollSubTotalRow":   rlib.RentRollSubTotalRow,
+	"RentRollBlankRow":      rlib.RentRollBlankRow,
+	"RentRollGrandTotalRow": rlib.RentRollGrandTotalRow,
+}
+
 // EpochInstance is a list of strings that describe a recurring entity.
 // The entity can be either an "epoch", the definition of the recurring
 // series, or an "instance", one of the members of the recurring series.
@@ -158,6 +166,9 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// --------------- LIST DOWN Receipt FLAGS ----------------------
 	appData["rcptFLAGS"] = rlib.RcptFLAGS
+
+	// --------------- LIST DOWN rentroll report FLAGS --------------
+	appData["rrFLAGS"] = rrFLAGS
 
 	// --------------- MAPPING - smapToJS ----------------------
 	for i := 0; i < len(smapToJS); i++ {

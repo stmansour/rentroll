@@ -50,13 +50,22 @@ type RRSearchRequestData struct {
 	RowsOffset int `json:"rows_offset"` // rentroll report rows offset
 }
 
-// RRSearchResponse is the response data for a Rental Agreement Search
+/*// RRSearchResponse is the response data for a Rental Agreement Search
 type RRSearchResponse struct {
 	Status        string                 `json:"status"`
 	Total         int64                  `json:"total"`
 	Records       []rrpt.RentRollViewRow `json:"records"`
 	Summary       []rrpt.RentRollViewRow `json:"summary"`
 	TotalMainRows int64                  `json:"total_main_rows"`
+}*/
+
+// RRSearchResponse is the response data for a Rental Agreement Search
+type RRSearchResponse struct {
+	Status        string                    `json:"status"`
+	Total         int64                     `json:"total"`
+	Records       []rlib.RentRollStaticInfo `json:"records"`
+	Summary       []rlib.RentRollStaticInfo `json:"summary"`
+	TotalMainRows int64                     `json:"total_main_rows"`
 }
 
 // SvcRR is the response data for a RR Grid search - The Rent Roll View
@@ -67,13 +76,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g       RRSearchResponse
 		reqData RRSearchRequestData
 		limit   = d.wsSearchReq.Limit
-		startDt = d.wsSearchReq.SearchDtStart
-		stopDt  = d.wsSearchReq.SearchDtStop
 	)
+	rlib.Console("Entered %s\n", funcname)
+
 	if limit == 0 {
 		limit = 20
 	}
-	rlib.Console("Entered %s\n", funcname)
 
 	if err := json.Unmarshal([]byte(d.data), &reqData); err != nil {
 		rlib.Console("Error while unmarshalling json from reqData: %s", err.Error())
@@ -179,8 +187,25 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		grandTTL.BeginSecDep, grandTTL.DeltaSecDep, grandTTL.EndSecDep,
 		grandTTL.FLAGS)*/
 
-	rRows, count, mainCount, _ := rlib.GetRentRollRows(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	rRows, count, mainCount, err := rlib.GetRentRollRows(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	if err != nil {
+		rlib.Console("%s: Error from GetRentRollRows routine: %s", funcname, err.Error())
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	// assign recid and append to g.Records
+	recordCounter := int64(d.wsSearchReq.Offset) // count recid from offset
+	summaryCounter := int64(0)
 	for _, row := range rRows {
+		if row.FLAGS&rlib.RentRollGrandTotalRow > 0 {
+			row.Recid = summaryCounter // reset recid for summary
+			g.Summary = append(g.Summary, row)
+			summaryCounter++
+		} else {
+			row.Recid = recordCounter
+			g.Records = append(g.Records, row)
+			recordCounter++
+		}
 		rlib.Console("rowRID: %d, rowRAID: %d\n\n", row.RID.Int64, row.RAID.Int64)
 	}
 	rlib.Console("count: %d, mainCount: %d\n\n", count, mainCount)
@@ -188,7 +213,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	//#############################################################################
 
-	//===========================================================
+	/*//===========================================================
 	// TOTAL RECORDS COUNT
 	//===========================================================
 	rrViewRowsCount, rrViewMainRowsCount, err := getRRTotal(d.BID, startDt, stopDt)
@@ -229,7 +254,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			g.Records = append(g.Records, row)
 			recordCounter++
 		}
-	}
+	}*/
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)

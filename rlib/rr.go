@@ -43,6 +43,7 @@ const (
 // TBD, example/test = washing machine breaks during rental period
 // then offset issue ??
 type RentRollStaticInfo struct {
+	Recid           int64 `json:"recid"` // for webservice
 	BID             int64
 	RID             NullInt64
 	RentableName    NullString
@@ -755,6 +756,7 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 			FLAGS:           RentRollGrandTotalRow,
 			AmountDue:       NullFloat64{Valid: true, Float64: 0},
 			PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
+			Description:     NullString{Valid: true, String: "Grant total"},
 		}
 	)
 	Console("Entered in %s\n", funcname)
@@ -777,6 +779,7 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 			FLAGS:           RentRollSubTotalRow,
 			AmountDue:       NullFloat64{Valid: true, Float64: 0},
 			PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
+			Description:     NullString{Valid: true, String: "Subtotal"},
 		}
 
 		// from each row sum-up all required values
@@ -824,6 +827,7 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 				FLAGS:           RentRollSubTotalRow,
 				AmountDue:       NullFloat64{Valid: true, Float64: 0},
 				PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
+				Description:     NullString{Valid: true, String: "Subtotal"},
 			}
 
 			cmptSubTotalRow.PeriodGSR = row.PeriodGSR
