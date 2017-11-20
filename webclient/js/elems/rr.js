@@ -42,46 +42,54 @@ function buildRentRollElements() {
             {field: 'recid',                    caption: 'recid',                            size: '35px',  sortable: true,  hidden: true},
             {field: 'BID',                      caption: 'BID',                              size: '75px',  sortable: true,  hidden: true},
             {field: 'RID',                      caption: 'RID',                              size: '75px',  sortable: true,  hidden: true},
-            {field: 'RentableName',             caption: app.sRentable,                      size: '110px', sortable: true,
-                render: function(record/*, index, col_index*/) {
-                    if (typeof record === "undefined") {
-                        return;
-                    }
-                    if ( (record.FLAGS & app.rrFLAGS.RentRollMainRow) > 0 ) {
-                        return record.RentableName;
-                    }
-                    return '';
-                }
-            },
+            {field: 'RentableName',             caption: app.sRentable,                      size: '110px', sortable: true},
             {field: 'RTID',                     caption: 'RTID',                             size: '75px',  sortable: true,  hidden: true},
-            {field: 'RentableType',             caption: 'Rentable Type',                    size: '100px', sortable: true,
-                render: function(record/*, index, col_index*/) {
-                    if (typeof record === "undefined") {
-                        return;
-                    }
-                    if ( (record.FLAGS & app.rrFLAGS.RentRollMainRow) > 0 ) {
-                        return record.RentableType;
-                    }
-                    return '';
-                }
-            },
+            {field: 'RentableType',             caption: 'Rentable Type',                    size: '100px', sortable: true},
             {field: 'Sqft',                     caption: 'Sqft',                             size:  '50px', sortable: true,                                    style: 'text-align: right'},
             {field: 'Description',              caption: 'Description',                      size: '150px', sortable: true},
             {field: 'Users',                    caption: 'Users',                            size: '150px', sortable: true},
-            {field: 'UsersREP',                 caption: 'Users',                            size: '150px', sortable: true},
             {field: 'Payors',                   caption: 'Payors',                           size: '150px', sortable: true},
-            {field: 'PayorsREP',                caption: 'Payors',                           size: '150px', sortable: true},
             {field: 'RAID',                     caption: app.sRentalAgreement,               size: '85px',  sortable: true,  hidden: true},
             {field: 'RAIDREP',                  caption: app.sRentalAgreement,               size: '85px',  sortable: true},
-            {field: 'UsePeriod',                caption: 'Use Period',                       size: '85px',  sortable: true,                                    style: 'text-align: right'},
-            {field: 'PossessionStart',          caption: 'PossessionStart',                  size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'PossessionStop',           caption: 'PossessionStop',                   size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'RentPeriod',               caption: 'Rent<br>Period',                   size: '85px',  sortable: true,                                    style: 'text-align: right'},
-            {field: 'RentStart',                caption: 'RentStart',                        size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'RentStop',                 caption: 'RentStop',                         size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'AgreementPeriod',          caption: 'Agreement Period',                 size: '200px', sortable: true,  hidden: true,                     style: 'text-align: right'},
-            {field: 'AgreementStart',           caption: 'AgreementStart',                   size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'AgreementStop',            caption: 'AgreementStop',                    size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
+            {field: 'UsePeriod',                caption: 'Use Period',                       size: '85px',  sortable: true,                                    style: 'text-align: right',
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === "undefined") {
+                        return;
+                    }
+                    if (record.PossessionStart && record.PossessionStop) {
+                        return record.PossessionStart + '<br>- ' + record.PossessionStop;
+                    }
+                    return '';
+                }
+            },
+            {field: 'PossessionStart',          caption: 'PossessionStart',                  size: '80px',  sortable: true,  hidden: true},
+            {field: 'PossessionStop',           caption: 'PossessionStop',                   size: '80px',  sortable: true,  hidden: true},
+            {field: 'RentPeriod',               caption: 'Rent<br>Period',                   size: '85px',  sortable: true,                                    style: 'text-align: right',
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === "undefined") {
+                        return;
+                    }
+                    if (record.RentStart && record.RentStop) {
+                        return record.RentStart + '<br>- ' + record.RentStop;
+                    }
+                    return '';
+                }
+            },
+            {field: 'RentStart',                caption: 'RentStart',                        size: '80px',  sortable: true,  hidden: true},
+            {field: 'RentStop',                 caption: 'RentStop',                         size: '80px',  sortable: true,  hidden: true},
+            {field: 'AgreementPeriod',          caption: 'Agreement Period',                 size: '200px', sortable: true,  hidden: true,                     style: 'text-align: right',
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === "undefined") {
+                        return;
+                    }
+                    if (record.AgreementStart && record.AgreementStop) {
+                        return record.AgreementStart + '<br>- ' + record.AgreementStop;
+                    }
+                    return '';
+                }
+            },
+            {field: 'AgreementStart',           caption: 'AgreementStart',                   size: '80px',  sortable: true,  hidden: true},
+            {field: 'AgreementStop',            caption: 'AgreementStop',                    size: '80px',  sortable: true,  hidden: true},
             {field: 'RentCycle',                caption: 'Rent Cycle',                       size: '75px',  sortable: true,  hidden: true},
             {field: 'RentCycleREP',             caption: 'Rent Cycle',                       size: '85px',  sortable: true},
             {field: 'RentCycleGSR',             caption: 'GSR',                              size: '85px',  sortable: true,                render: 'float:2'},

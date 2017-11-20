@@ -187,12 +187,19 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		grandTTL.BeginSecDep, grandTTL.DeltaSecDep, grandTTL.EndSecDep,
 		grandTTL.FLAGS)*/
 
+	tInit := time.Now()
 	rRows, count, mainCount, err := rlib.GetRentRollRows(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
 	if err != nil {
 		rlib.Console("%s: Error from GetRentRollRows routine: %s", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+	diff := time.Since(tInit)
+	rlib.Console("\nGetRentRollRows Time diff is %s\n\n", diff.String())
+
+	g.Total = count
+	g.TotalMainRows = mainCount
+
 	// assign recid and append to g.Records
 	recordCounter := int64(d.wsSearchReq.Offset) // count recid from offset
 	summaryCounter := int64(0)
@@ -206,9 +213,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			g.Records = append(g.Records, row)
 			recordCounter++
 		}
-		rlib.Console("rowRID: %d, rowRAID: %d\n\n", row.RID.Int64, row.RAID.Int64)
 	}
-	rlib.Console("count: %d, mainCount: %d\n\n", count, mainCount)
 	rlib.Console(">>>>>>>END OF NEW CODE TESTING\n\n")
 
 	//#############################################################################
