@@ -831,10 +831,13 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 			Description:     NullString{Valid: true, String: "Subtotal"},
 		}
 
-		cmptSubTotalRow.PeriodGSR.Float64 = (*n)[raid][0].PeriodGSR.Float64
-		cmptSubTotalRow.IncomeOffsets.Float64 = (*n)[raid][0].IncomeOffsets.Float64
-		cmptSubTotalRow.AmountDue.Float64 = (*n)[raid][0].AmountDue.Float64
-		cmptSubTotalRow.PaymentsApplied.Float64 = (*n)[raid][0].PaymentsApplied.Float64
+		// from each row sum-up all required values, at least for AmountDue, PaymentsApplied columns
+		for _, row := range (*n)[raid] {
+			cmptSubTotalRow.PeriodGSR.Float64 += row.PeriodGSR.Float64
+			cmptSubTotalRow.IncomeOffsets.Float64 += row.IncomeOffsets.Float64
+			cmptSubTotalRow.AmountDue.Float64 += row.AmountDue.Float64
+			cmptSubTotalRow.PaymentsApplied.Float64 += row.PaymentsApplied.Float64
+		}
 
 		// get all Receivables (begin, delta, ending), SecDep(begin, delta, ending) amounts
 		_ = getReceivableAndSecDep(BID, startDt, stopDt, &cmptSubTotalRow, &raidMap)
