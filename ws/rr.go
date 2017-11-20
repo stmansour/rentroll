@@ -50,13 +50,22 @@ type RRSearchRequestData struct {
 	RowsOffset int `json:"rows_offset"` // rentroll report rows offset
 }
 
-// RRSearchResponse is the response data for a Rental Agreement Search
+/*// RRSearchResponse is the response data for a Rental Agreement Search
 type RRSearchResponse struct {
 	Status        string                 `json:"status"`
 	Total         int64                  `json:"total"`
 	Records       []rrpt.RentRollViewRow `json:"records"`
 	Summary       []rrpt.RentRollViewRow `json:"summary"`
 	TotalMainRows int64                  `json:"total_main_rows"`
+}*/
+
+// RRSearchResponse is the response data for a Rental Agreement Search
+type RRSearchResponse struct {
+	Status        string                    `json:"status"`
+	Total         int64                     `json:"total"`
+	Records       []rlib.RentRollStaticInfo `json:"records"`
+	Summary       []rlib.RentRollStaticInfo `json:"summary"`
+	TotalMainRows int64                     `json:"total_main_rows"`
 }
 
 // SvcRR is the response data for a RR Grid search - The Rent Roll View
@@ -67,13 +76,12 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g       RRSearchResponse
 		reqData RRSearchRequestData
 		limit   = d.wsSearchReq.Limit
-		startDt = d.wsSearchReq.SearchDtStart
-		stopDt  = d.wsSearchReq.SearchDtStop
 	)
+	rlib.Console("Entered %s\n", funcname)
+
 	if limit == 0 {
 		limit = 20
 	}
-	rlib.Console("Entered %s\n", funcname)
 
 	if err := json.Unmarshal([]byte(d.data), &reqData); err != nil {
 		rlib.Console("Error while unmarshalling json from reqData: %s", err.Error())
@@ -89,36 +97,128 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//#############################################################################
 
 	rlib.Console("\n>>>>>>START OF NEW CODE TESTING\n")
-	m, rids, err1 := rlib.GetRentRollStaticInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	/*m, n, err1 := rlib.GetRentRollStaticInfoMap(
+		d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
 	if err1 != nil {
 		fmt.Printf("Error in : %s\n", err1.Error())
 	}
-	err1 = rlib.GetRentRollVariableInfoMap(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m)
+
+	err1 = rlib.GetRentRollVariableInfoMap(
+		d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m, &n)
 	if err1 != nil {
 		fmt.Printf("Error in GetRentRollVariableInfoMap: %s\n", err1.Error())
 	}
-	err1 = rlib.GetRentRollGenTotals(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m)
+
+	grandTTL, totalRows, mainRows, err1 := rlib.GetRentRollGenTotals(
+		d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop, &m, &n)
 	if err1 != nil {
 		fmt.Printf("Error in GetRentRollGenTotals: %s\n", err1.Error())
 	}
+	fmt.Printf(">>>>>>>>>>>>>>>>>>>>> totalRows: %d, totalMainRows: %d\n\n\n", totalRows, mainRows)
+
+	// iterate map in sorting order, debugging get easier
+	var rids rlib.Int64Range
+	for rid := range m {
+		rids = append(rids, rid)
+	}
+	sort.Sort(rids)
 	for i := 0; i < len(rids); i++ {
 		fmt.Printf("Rentable %d\n", rids[i])
 		for _, v := range m[rids[i]] {
-			fmt.Printf("\tRID: %2d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f, PeriodGSR: %7.2f\n",
-				v.RID.Int64, v.RAID.Int64,
+			fmt.Printf("\tRID: %2d, SqFt: %7d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f\n "+
+				"PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
+				"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
+				"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f,\n"+
+				"FLAGS: %d \n\n",
+				v.RID.Int64, v.SqFt.Int64, v.RAID.Int64,
 				v.PossessionStart.Time.Format(rlib.RRDATEFMTSQL),
 				v.PossessionStop.Time.Format(rlib.RRDATEFMTSQL),
 				v.Description.String,
 				v.RentCycleGSR,
-				v.PeriodGSR)
+				v.PeriodGSR,
+				v.IncomeOffsets,
+				v.AmountDue.Float64,
+				v.PaymentsApplied.Float64,
+				v.BeginReceivable, v.DeltaReceivable, v.EndReceivable,
+				v.BeginSecDep, v.DeltaSecDep, v.EndSecDep,
+				v.FLAGS)
 		}
 	}
 
+	// iterate map in sorting order, debugging get easier
+	var raids rlib.Int64Range
+	for raid := range n {
+		raids = append(raids, raid)
+	}
+	sort.Sort(raids)
+	for i := 0; i < len(raids); i++ {
+		fmt.Printf("Rental Agreement: %d\n", raids[i])
+		for _, v := range n[raids[i]] {
+			fmt.Printf("\tRID: %2d, SqFt: %7d, RAID: %2d, Use: %s - %s, %s, CycleGSR: %7.2f\n "+
+				"PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
+				"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
+				"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f,\n"+
+				"FLAGS: %d \n\n",
+				v.RID.Int64, v.SqFt.Int64, v.RAID.Int64,
+				v.PossessionStart.Time.Format(rlib.RRDATEFMTSQL),
+				v.PossessionStop.Time.Format(rlib.RRDATEFMTSQL),
+				v.Description.String,
+				v.RentCycleGSR,
+				v.PeriodGSR,
+				v.IncomeOffsets,
+				v.AmountDue.Float64,
+				v.PaymentsApplied.Float64,
+				v.BeginReceivable, v.DeltaReceivable, v.EndReceivable,
+				v.BeginSecDep, v.DeltaSecDep, v.EndSecDep,
+				v.FLAGS)
+		}
+	}
+
+	fmt.Printf("GrandTotalRow..........\n")
+	fmt.Printf("PeriodGSR: %7.2f, IncomeOffsets: %7.2f, AmountDue: %7.2f, PaymentsApplied: %7.2f\n"+
+		"BeginningRcv: %7.2f, DeltaReceivable: %7.2f, EndReceivable: %7.2f\n"+
+		"BeginSecDep: %7.2f, DeltaSecDep: %7.2f, EndSecDep: %7.2f,\n"+
+		"FLAGS: %d \n\n",
+		grandTTL.PeriodGSR,
+		grandTTL.IncomeOffsets,
+		grandTTL.AmountDue.Float64,
+		grandTTL.PaymentsApplied.Float64,
+		grandTTL.BeginReceivable, grandTTL.DeltaReceivable, grandTTL.EndReceivable,
+		grandTTL.BeginSecDep, grandTTL.DeltaSecDep, grandTTL.EndSecDep,
+		grandTTL.FLAGS)*/
+
+	tInit := time.Now()
+	rRows, count, mainCount, err := rlib.GetRentRollRows(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	if err != nil {
+		rlib.Console("%s: Error from GetRentRollRows routine: %s", funcname, err.Error())
+		SvcGridErrorReturn(w, err, funcname)
+		return
+	}
+	diff := time.Since(tInit)
+	rlib.Console("\nGetRentRollRows Time diff is %s\n\n", diff.String())
+
+	g.Total = count
+	g.TotalMainRows = mainCount
+
+	// assign recid and append to g.Records
+	recordCounter := int64(d.wsSearchReq.Offset) // count recid from offset
+	summaryCounter := int64(0)
+	for _, row := range rRows {
+		if row.FLAGS&rlib.RentRollGrandTotalRow > 0 {
+			row.Recid = summaryCounter // reset recid for summary
+			g.Summary = append(g.Summary, row)
+			summaryCounter++
+		} else {
+			row.Recid = recordCounter
+			g.Records = append(g.Records, row)
+			recordCounter++
+		}
+	}
 	rlib.Console(">>>>>>>END OF NEW CODE TESTING\n\n")
 
 	//#############################################################################
 
-	//===========================================================
+	/*//===========================================================
 	// TOTAL RECORDS COUNT
 	//===========================================================
 	rrViewRowsCount, rrViewMainRowsCount, err := getRRTotal(d.BID, startDt, stopDt)
@@ -159,7 +259,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			g.Records = append(g.Records, row)
 			recordCounter++
 		}
-	}
+	}*/
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
 	SvcWriteResponse(&g, w)

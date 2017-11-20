@@ -8,7 +8,50 @@
 
 "use strict";
 
-var grey_fields = [ "BeginningRcv","ChangeInRcv","EndingRcv","BeginningSecDep","ChangeInSecDep","EndingSecDep"];
+function getRentRollViewInitRecord(){
+    return {
+        recid: 0,
+        BID: 0,
+        RID: 0,
+        RentableName: "",
+        RTID: 0,
+        RentableType: "",
+        SqFt: "",
+        Description: "",
+        Users: "",
+        Payors: "",
+        RAID: 0,
+        RAIDREP: "",
+        UsePeriod: "",
+        PossessionStart: "",
+        PossessionStop: "",
+        RentPeriod: "",
+        RentStart: "",
+        RentStop: "",
+        AgreementPeriod: "",
+        AgreementStart: "",
+        AgreementStop: "",
+        RentCycle: "",
+        RentCycleREP: "",
+        RentCycleGSR: "",
+        PeriodGSR: "",
+        IncomeOffsets: "",
+        AmountDue: "",
+        PaymentsApplied: "",
+        BeginReceivable: "",
+        DeltaReceivable: "",
+        EndReceivable: "",
+        BeginSecDep: "",
+        DeltaSecDep: "",
+        EndSecDep: "",
+        FLAGS: -1,
+    };
+}
+
+var grey_fields = [
+    "BeginReceivable", "DeltaReceivable", "EndReceivable",
+    "BeginSecDep","DeltaSecDep","EndSecDep"
+];
 
 function buildRentRollElements() {
     //------------------------------------------------------------------------
@@ -36,54 +79,88 @@ function buildRentRollElements() {
             toolbarColumns  : false,
         },
         columns: [
-            {field: 'IsSubTotalRow',            caption: 'Is SubTotal Row',                                 sortable: false, hidden: true},
-            {field: 'IsBlankRow',               caption: 'Is Blank Row',                                    sortable: false, hidden: true},
-            {field: 'IsMainRow',                caption: 'Is Main Row',                                     sortable: false, hidden: true},
-            {field: 'IsRentableSectionMainRow', caption: 'Is Rentable Section Main Row',                    sortable: false, hidden: true},
-            {field: 'IsNoRentableSectionRow',   caption: 'Is No Rentalbe Section Row',                      sortable: false, hidden: true},
             {field: 'recid',                    caption: 'recid',                            size: '35px',  sortable: true,  hidden: true},
             {field: 'BID',                      caption: 'BID',                              size: '75px',  sortable: true,  hidden: true},
             {field: 'RID',                      caption: 'RID',                              size: '75px',  sortable: true,  hidden: true},
             {field: 'RentableName',             caption: app.sRentable,                      size: '110px', sortable: true},
             {field: 'RTID',                     caption: 'RTID',                             size: '75px',  sortable: true,  hidden: true},
             {field: 'RentableType',             caption: 'Rentable Type',                    size: '100px', sortable: true},
-            {field: 'Sqft',                     caption: 'Sqft',                             size:  '50px', sortable: true,                                    style: 'text-align: right'},
+            {field: 'SqFt',                     caption: 'Sqft',                             size:  '50px', sortable: true,                                    style: 'text-align: right'},
             {field: 'Description',              caption: 'Description',                      size: '150px', sortable: true},
-            {field: 'Users',                    caption: 'Users',                            size: '150px',                  hidden: true},
-            {field: 'UsersStr',                 caption: 'Users',                            size: '150px', sortable: true},
-            {field: 'Payors',                   caption: 'Payors',                           size: '150px',                  hidden: true},
-            {field: 'PayorsStr',                caption: 'Payors',                           size: '150px', sortable: true},
+            {field: 'Users',                    caption: 'Users',                            size: '150px', sortable: true},
+            {field: 'Payors',                   caption: 'Payors',                           size: '150px', sortable: true},
             {field: 'RAID',                     caption: app.sRentalAgreement,               size: '85px',  sortable: true,  hidden: true},
-            {field: 'RAIDStr',                  caption: app.sRentalAgreement,               size: '85px',  sortable: true},
-            {field: 'UsePeriod',                caption: 'Use Period',                       size: '85px',  sortable: true,                                    style: 'text-align: right'},
-            {field: 'PossessionStart',          caption: 'PossessionStart',                  size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'PossessionStop',           caption: 'PossessionStop',                   size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'RentPeriod',               caption: 'Rent<br>Period',                   size: '85px',  sortable: true,                                    style: 'text-align: right'},
-            {field: 'RentStart',                caption: 'RentStart',                        size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'RentStop',                 caption: 'RentStop',                         size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'AgreementPeriod',          caption: 'Agreement Period',                 size: '200px', sortable: true,  hidden: true,                     style: 'text-align: right'},
-            {field: 'AgreementStart',           caption: 'AgreementStart',                   size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
-            {field: 'AgreementStop',            caption: 'AgreementStop',                    size: '80px',  sortable: true,  hidden: true, render: 'date',     style: 'text-align: right'},
+            {field: 'RAIDREP',                  caption: app.sRentalAgreement,               size: '85px',  sortable: true},
+            {field: 'UsePeriod',                caption: 'Use Period',                       size: '85px',  sortable: true,                                    style: 'text-align: right',
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === "undefined") {
+                        return;
+                    }
+                    if (record.PossessionStart && record.PossessionStop) {
+                        return record.PossessionStart + '<br>- ' + record.PossessionStop;
+                    }
+                    return '';
+                }
+            },
+            {field: 'PossessionStart',          caption: 'PossessionStart',                  size: '80px',  sortable: true,  hidden: true},
+            {field: 'PossessionStop',           caption: 'PossessionStop',                   size: '80px',  sortable: true,  hidden: true},
+            {field: 'RentPeriod',               caption: 'Rent<br>Period',                   size: '85px',  sortable: true,                                    style: 'text-align: right',
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === "undefined") {
+                        return;
+                    }
+                    if (record.RentStart && record.RentStop) {
+                        return record.RentStart + '<br>- ' + record.RentStop;
+                    }
+                    return '';
+                }
+            },
+            {field: 'RentStart',                caption: 'RentStart',                        size: '80px',  sortable: true,  hidden: true},
+            {field: 'RentStop',                 caption: 'RentStop',                         size: '80px',  sortable: true,  hidden: true},
+            {field: 'AgreementPeriod',          caption: 'Agreement Period',                 size: '200px', sortable: true,  hidden: true,                     style: 'text-align: right',
+                render: function(record/*, index, col_index*/) {
+                    if (typeof record === "undefined") {
+                        return;
+                    }
+                    if (record.AgreementStart && record.AgreementStop) {
+                        return record.AgreementStart + '<br>- ' + record.AgreementStop;
+                    }
+                    return '';
+                }
+            },
+            {field: 'AgreementStart',           caption: 'AgreementStart',                   size: '80px',  sortable: true,  hidden: true},
+            {field: 'AgreementStop',            caption: 'AgreementStop',                    size: '80px',  sortable: true,  hidden: true},
             {field: 'RentCycle',                caption: 'Rent Cycle',                       size: '75px',  sortable: true,  hidden: true},
-            {field: 'RentCycleStr',             caption: 'Rent Cycle',                       size: '85px',  sortable: true},
-            {field: 'GSR',                      caption: 'GSR',                              size: '85px',  sortable: true,                render: 'float:2'},
+            {field: 'RentCycleREP',             caption: 'Rent Cycle',                       size: '85px',  sortable: true},
+            {field: 'RentCycleGSR',             caption: 'GSR',                              size: '85px',  sortable: true,                render: 'float:2'},
             {field: 'PeriodGSR',                caption: 'Period<br>GSR',                    size: '85px',  sortable: true,                render: 'float:2'},
             {field: 'IncomeOffsets',            caption: 'Income<br>Offsets',                size: '85px',  sortable: true,                render: 'float:2'},
             {field: 'AmountDue',                caption: 'Amount<br>Due',                    size: '85px',  sortable: true,                render: 'float:2'},
             {field: 'PaymentsApplied',          caption: 'Payments<br>Applied',              size: '85px',  sortable: true,                render: 'float:2'},
-            {field: 'BeginningRcv',             caption: 'Beginning<br>Receivable',          size: '100px', sortable: false,               render: 'float:2'},
-            {field: 'ChangeInRcv',              caption: 'Change in<br>Receivable',          size: '100px', sortable: false,               render: 'float:2'},
-            {field: 'EndingRcv',                caption: 'Ending<br>Receivable',             size: '100px', sortable: false,               render: 'float:2'},
-            {field: 'BeginningSecDep',          caption: 'Beginning<br>Security<br>Deposit', size: '100px', sortable: false,               render: 'float:2'},
-            {field: 'ChangeInSecDep',           caption: 'Change in<br>Security<br>Deposit', size: '100px', sortable: false,               render: 'float:2'},
-            {field: 'EndingSecDep',             caption: 'Ending<br>Security<br>Deposit',    size: '100px', sortable: false,               render: 'float:2'},
+            {field: 'BeginReceivable',          caption: 'Beginning<br>Receivable',          size: '100px', sortable: false,               render: 'float:2'},
+            {field: 'DeltaReceivable',          caption: 'Change in<br>Receivable',          size: '100px', sortable: false,               render: 'float:2'},
+            {field: 'EndReceivable',            caption: 'Ending<br>Receivable',             size: '100px', sortable: false,               render: 'float:2'},
+            {field: 'BeginSecDep',              caption: 'Beginning<br>Security<br>Deposit', size: '100px', sortable: false,               render: 'float:2'},
+            {field: 'DeltaSecDep',              caption: 'Change in<br>Security<br>Deposit', size: '100px', sortable: false,               render: 'float:2'},
+            {field: 'EndSecDep',                caption: 'Ending<br>Security<br>Deposit',    size: '100px', sortable: false,               render: 'float:2'},
+            {field: 'FLAGS',                    caption: 'FLAGS',                                                             hidden: true}
         ],
         onLoad: function(event) {
             var g = this;
             var data = JSON.parse(event.xhr.responseText);
+
+            // set up some custom flags
             if (!("_total_main_rows" in g)) {
                 g._total_main_rows = 0;
             }
+            if (!("_main_rows_offset" in g.last)) {
+                g.last._main_rows_offset = 0;
+            }
+            if (!("_rrIndexMap" in g.last)) {
+                g.last._rrIndexMap = {};
+            }
+
+            // total main rows count
             if (data.total_main_rows) {
                 g._total_main_rows = data.total_main_rows;
             }
@@ -95,15 +172,7 @@ function buildRentRollElements() {
             }
 
             event.onComplete = function() {
-                if (!("_main_rows_offset" in g.last)) {
-                    g.last._main_rows_offset = 0;
-                }
-                if (!("_rrIndexMap" in g.last)) {
-                    g.last._rrIndexMap = {};
-                }
-                if (!("_rows_offset" in g.last)) {
-                    g.last._rows_offset = 0;
-                }
+                g.records = data.records;
 
                 var record, i;
                 if (data.records) {
@@ -122,27 +191,41 @@ function buildRentRollElements() {
                             record.w2ui.style = {}; // init style object
                         }
 
-                        if(record.IsMainRow) {
+                        // if main row then
+                        if ((record.FLAGS & app.rrFLAGS.RentRollMainRow) > 0) {
                             var rec_index = g.get(record.recid, true);
                             g.last._rrIndexMap[rec_index] = g.last._main_rows_offset;
                             g.last._main_rows_offset++;
                         }
 
-                        if (record.IsRentRollViewRow) {
-                            // apply greyish cell backgroud color to some cells
-                            for (var j = 0; j < grey_fields.length; j++) {
-                                var colIndex = g.getColumn(grey_fields[j], true);
-                                record.w2ui.style[colIndex] = "background-color: #CCC;";
-                            }
-                            g.last._rows_offset++;
-                        }
-
-                        if (record.IsSubTotalRow) {
+                        // if sub total row then
+                        if ((record.FLAGS & app.rrFLAGS.RentRollSubTotalRow) > 0) {
                             record.w2ui.class = "subTotalRow";
                         }
 
-                        if (record.IsBlankRow) {
+                        // if blank row then
+                        console.log(record.FLAGS, app.rrFLAGS.RentRollBlankRow);
+                        console.log((record.FLAGS & app.rrFLAGS.RentRollBlankRow) > 0);
+                        if ((record.FLAGS & app.rrFLAGS.RentRollBlankRow) > 0) {
                             record.w2ui.class = "blankRow";
+                            for (var j = 0; j < grey_fields.length; j++) {
+                                var jColIndex = g.getColumn(grey_fields[j], true);
+                                record[g.columns[jColIndex].field] = "";
+                            }
+                        }
+
+                        // if normal row then
+                        if ( // if not subtotal or not blank row then render grey field
+                            ((record.FLAGS & app.rrFLAGS.RentRollBlankRow) === 0) &&
+                            ((record.FLAGS & app.rrFLAGS.RentRollSubTotalRow) === 0)
+                        ) {
+                            // apply greyish cell backgroud color to some cells
+                            for (var k = 0; k < grey_fields.length; k++) {
+                                var kColIndex = g.getColumn(grey_fields[k], true);
+                                record.w2ui.style[kColIndex] = "background-color: #CCC;";
+                                record[g.columns[kColIndex].field] = "";
+                            }
+                            g.last._rows_offset++;
                         }
 
                         // redraw row
@@ -197,7 +280,7 @@ function buildRentRollElements() {
         },
         onRequest: function(event) {
             var g = this;
-            if (g.records.length == 0) { // if grid is empty then reset all flags
+            if (g.records.length === 0) { // if grid is empty then reset all flags
                 g._total_main_rows = 0;
                 g.last._main_rows_offset = 0;
                 g.last._rows_offset = 0;
@@ -312,7 +395,7 @@ function calculateRRPagination() {
     var url  = (typeof g.url != 'object' ? g.url : g.url.get);
     var records = $("#grid_" + g.name + "_records");
     var buffered = g.records.length;
-    if (g.searchData.length != 0 && !url) buffered = g.last.searchIds.length;
+    if (g.searchData.length !== 0 && !url) buffered = g.last.searchIds.length;
     if (buffered === 0 || records.length === 0 || records.height() === 0) return;
     if (buffered > g.vs_start) g.last.show_extra = g.vs_extra; else g.last.show_extra = g.vs_start;
     // need this to enable scrolling when g.limit < then a screen can fit

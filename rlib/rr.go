@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"database/sql"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -11,15 +12,23 @@ import (
 // to for the description of an unrented Rentable.
 var NotRentedString = string("Unrented")
 
+// RentRollMainRow etc all are flag to indicate types of row
+const (
+	RentRollMainRow       = 1 << 0
+	RentRollSubTotalRow   = 1 << 1
+	RentRollBlankRow      = 1 << 2
+	RentRollGrandTotalRow = 1 << 3
+)
+
 // This collection of functions implements the raw data-gathering
 // needed to produce a RentRoll report or interface.  These routines
 // are designed to be used as shown in the pseudo code below:
 //
 // func myRentrollReportInterface(BID, d1,d2, iftype) {
 //
-//     m := GetRentRollStaticInfoMap(BID,d1,d2)    // get basic rentable info
-//     m = GetRentRollVariableInfoMap(BID,d1,d2,m) // Gaps, IncomeOffsets for entire collection of Rentables
-//     m = GetRentRollGenTotals(m)                 // build subtotals and Grand Total
+//     m, n, err = GetRentRollStaticInfoMap(BID,d1,d2)           // get basic rentable info
+//     m, n, err = GetRentRollVariableInfoMap(BID,d1,d2,m,n)     // Gaps, IncomeOffsets for entire collection of Rentables
+//     m, n, err = GetRentRollGenTotals(BID,d1,d2,m,n)           // build subtotals and Grand Total
 //
 //     if iftype = UIView {
 //         BuildViewInterface(m, d1,d2)
@@ -34,16 +43,20 @@ var NotRentedString = string("Unrented")
 // TBD, example/test = washing machine breaks during rental period
 // then offset issue ??
 type RentRollStaticInfo struct {
+	Recid           int64 `json:"recid"` // for webservice
 	BID             int64
 	RID             NullInt64
 	RentableName    NullString
 	RTID            NullInt64
+	SqFt            NullInt64
 	RentableType    NullString
 	RentCycle       NullInt64
+	RentCycleREP    string // rent cycle representative string
 	Status          NullInt64
 	Users           NullString
 	RARID           NullInt64
 	RAID            NullInt64
+	RAIDREP         string // RAID representative string
 	AgreementStart  NullDate
 	AgreementStop   NullDate
 	PossessionStart NullDate
@@ -55,25 +68,16 @@ type RentRollStaticInfo struct {
 	AmountDue       NullFloat64
 	PaymentsApplied NullFloat64
 	Description     NullString
-	RentCycleGSR    float64
-	PeriodGSR       float64
-	IncomeOffsets   float64
+	RentCycleGSR    NullFloat64
+	PeriodGSR       NullFloat64
+	IncomeOffsets   NullFloat64
 	BeginReceivable float64
 	DeltaReceivable float64
 	EndReceivable   float64
 	BeginSecDep     float64
 	DeltaSecDep     float64
 	EndSecDep       float64
-	FLAGS           uint64
-}
-
-// RentRollVariableData is a struct to hold variable data for a rentroll view
-// per rentable
-type RentRollVariableData struct {
-	RID           int64
-	RAID          NullInt64
-	Gap           Period
-	IncomeOffsets NullFloat64 // should we agreegate this for a rentable?
+	FLAGS           uint64 // Bits: 0 (1) = main row, 1 (2) = subtotal, 2 (4) = blank row, 3 (8) = grand total row
 }
 
 // RentRollStaticInfoRowScan scans a result from sql row and dump it in a RentRollStaticInfo struct
@@ -218,8 +222,9 @@ FROM
             AND RentableTypeRef.BID = Rentable_CUM_RA.BID
             AND @DtStart <= RentableTypeRef.DtStop
             AND @DtStop > RentableTypeRef.DtStart
-            AND RentableTypeRef.DtStart >= Rentable_CUM_RA.AgreementStart
-            AND RentableTypeRef.DtStop <= Rentable_CUM_RA.AgreementStop)
+            -- Should we consider agreement dates too for comparision?
+            /*AND RentableTypeRef.DtStart >= Rentable_CUM_RA.AgreementStart
+            AND RentableTypeRef.DtStop <= Rentable_CUM_RA.AgreementStop*/)
         LEFT JOIN RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
             AND RentableTypes.BID = RentableTypeRef.BID)
         /*
@@ -229,8 +234,9 @@ FROM
             AND RentableStatus.BID = Rentable_CUM_RA.BID
             AND @DtStart <= RentableStatus.DtStop
             AND @DtStop > RentableStatus.DtStart
-            AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
-            AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop)
+            -- Should we consider agreement dates too for comparision?
+            /*AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
+            AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop*/)
         /*
          *  get Users list through RentableUsers with Transactant join
          */
@@ -292,6 +298,8 @@ FROM
                         AND (Assessments.FLAGS & 4) = 0
                         AND @DtStart <= Assessments.Stop
                         AND @DtStop > Assessments.Start
+                    GROUP BY Assessments.ASMID
+                    ORDER BY Assessments.ASMID
                 ) UNION (
                     /*
                     Collect All Receipt/ReceiptAllocation of which associated assessments
@@ -326,6 +334,8 @@ FROM
                         AND (Receipt.FLAGS & 4) = 0
                         AND @DtStart <= Receipt.Dt
                         AND Receipt.Dt < @DtStop
+                    GROUP BY ReceiptAllocation.RCPAID
+                    ORDER BY ReceiptAllocation.RCPAID
                 )) AS AsmRcptCollection
             -- Avoid any rows in which both Assessment and Receipt parts are Null
             WHERE COALESCE(AsmRcptCollection.ASMID, AsmRcptCollection.PaymentsApplied) IS NOT NULL
@@ -356,11 +366,12 @@ var RentRollStaticInfoQueryClause = QueryClause{
 	"SelectClause": strings.Join(RentRollStaticInfoFields, ","),
 	"WhereClause":  "",
 	"GroupClause":  "Rentable_CUM_RA.RID , Rentable_CUM_RA.RAID , (CASE WHEN PaymentInfo.ASMID > 0 THEN PaymentInfo.ASMID ELSE PaymentInfo.RCPAID END)",
-	"OrderClause":  "- Rentable_CUM_RA.RID DESC , - Rentable_CUM_RA.RAID DESC , (CASE WHEN PaymentInfo.ASMID > 0 THEN PaymentInfo.AmountDue ELSE PaymentInfo.PaymentsApplied END) DESC",
+	"OrderClause":  "- Rentable_CUM_RA.RID DESC , - Rentable_CUM_RA.RAID DESC , (CASE WHEN PaymentInfo.ASMID > 0 THEN PaymentInfo.AmountDue ELSE PaymentInfo.PaymentsApplied END) DESC, PaymentInfo.ASMID, PaymentInfo.RCPAID",
 }
 
-// GetRentRollStaticInfoMap returns a map of RID -> all structs that holds
-// static info for rentroll report.
+// GetRentRollStaticInfoMap returns two maps for rentroll report.
+// one is of RID -> all structs that holds
+// second is of RAID -> all norentable RAs staticInfo struct
 //
 // INPUTS
 //	BID      - the business
@@ -368,19 +379,21 @@ var RentRollStaticInfoQueryClause = QueryClause{
 //  stopDt   - report/view stop time
 //
 // RETURNS
-//	1:  a map of slices of static info structs.  map key is Rentable ID (RID)
-//  2:  a slice of RIDs which are present in the map
-//  3:  any error encountered
+//  1: a map of slices of static info structs.  map key is Rentable ID (RID) - for rentable part
+//  2: a map of slices of static info structs.  map key is Rentable ID (RID) - for noRentable part
+//  3: any error encountered
 //-----------------------------------------------------------------------------
-func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time) (map[int64][]RentRollStaticInfo, []int64, error) {
+func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time,
+) (map[int64][]RentRollStaticInfo, map[int64][]RentRollStaticInfo, error) {
+
 	const funcname = "GetRentRollStaticInfoMap"
 	var (
-		err           error
-		staticInfoMap = make(map[int64][]RentRollStaticInfo)
-		xbiz          XBusiness
-		d1Str         = startDt.Format(RRDATEFMTSQL)
-		d2Str         = stopDt.Format(RRDATEFMTSQL)
-		mapKeys       = []int64{}
+		err                     error
+		xbiz                    XBusiness
+		rentableStaticInfoMap   = make(map[int64][]RentRollStaticInfo)
+		noRentableStaticInfoMap = make(map[int64][]RentRollStaticInfo)
+		d1Str                   = startDt.Format(RRDATEFMTSQL)
+		d2Str                   = stopDt.Format(RRDATEFMTSQL)
 	)
 	Console("Entered in %s\n", funcname)
 
@@ -393,68 +406,63 @@ func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time) (map[int64][
 	// Now, start the database transaction
 	tx, err := RRdb.Dbrr.Begin()
 	if err != nil {
-		return staticInfoMap, mapKeys, err
+		return rentableStaticInfoMap, noRentableStaticInfoMap, err
 	}
 
 	// set some mysql variables through `tx`
 	if _, err = tx.Exec("SET @BID:=?", BID); err != nil {
 		tx.Rollback()
-		return staticInfoMap, mapKeys, err
+		return rentableStaticInfoMap, noRentableStaticInfoMap, err
 	}
 	if _, err = tx.Exec("SET @DtStart:=?", d1Str); err != nil {
 		tx.Rollback()
-		return staticInfoMap, mapKeys, err
+		return rentableStaticInfoMap, noRentableStaticInfoMap, err
 	}
 	if _, err = tx.Exec("SET @DtStop:=?", d2Str); err != nil {
 		tx.Rollback()
-		return staticInfoMap, mapKeys, err
+		return rentableStaticInfoMap, noRentableStaticInfoMap, err
 	}
 
 	// Execute query in current transaction for Rentable section
 	rrRows, err := tx.Query(fmtQuery)
 	if err != nil {
 		tx.Rollback()
-		return staticInfoMap, mapKeys, err
+		return rentableStaticInfoMap, noRentableStaticInfoMap, err
 	}
 	defer rrRows.Close()
 
 	// ======================
 	// LOOP THROUGH ALL ROWS
 	// ======================
-	count := 0
 	for rrRows.Next() {
 		// just assume that it is MainRow, if later encountered that it is child row
 		// then "formatRentableChildRow" function would take care of it. :)
 		q := RentRollStaticInfo{BID: BID}
 		if err = RentRollStaticInfoRowScan(rrRows, &q); err != nil { // scan next record
-			return staticInfoMap, mapKeys, err
+			return rentableStaticInfoMap, noRentableStaticInfoMap, err
 		}
 
-		// if key found from map, then it is child row, otherwise it is new rentable
-		if _, ok := staticInfoMap[q.RID.Int64]; !ok {
-			// IT IS *NEW* rentable row
-			// store key in the mapKeys list
-			mapKeys = append(mapKeys, q.RID.Int64)
+		if q.RID.Int64 > 0 && q.RID.Valid { // separate rentable rows in rentable staticInfo map
+			rentableStaticInfoMap[q.RID.Int64] = append(rentableStaticInfoMap[q.RID.Int64], q)
+		} else {
+			if q.RAID.Int64 > 0 && q.RAID.Valid { // separate non rentable rows in noRentable map
+				noRentableStaticInfoMap[q.RAID.Int64] = append(noRentableStaticInfoMap[q.RAID.Int64], q)
+			}
 		}
-
-		// append new rentable row / formatted child row in map sublist
-		staticInfoMap[q.RID.Int64] = append(staticInfoMap[q.RID.Int64], q)
-		count++
 	}
 
 	if err = rrRows.Err(); err != nil {
 		tx.Rollback()
-		return staticInfoMap, mapKeys, err
+		return rentableStaticInfoMap, noRentableStaticInfoMap, err
 	}
 
 	// commit the transaction
 	if err = tx.Commit(); err != nil {
 		tx.Rollback()
-		return staticInfoMap, mapKeys, err
+		return rentableStaticInfoMap, noRentableStaticInfoMap, err
 	}
-	Console("Added %d rows\n", count)
 
-	return staticInfoMap, mapKeys, nil
+	return rentableStaticInfoMap, noRentableStaticInfoMap, nil
 }
 
 // formatRentRollStaticInfoQuery returns the formatted query
@@ -524,10 +532,16 @@ func formatRentRollStaticInfoQuery(BID int64, d1, d2 time.Time,
 //  2:  Any error encountered
 //-----------------------------------------------------------------------------
 func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
-	m *map[int64][]RentRollStaticInfo) error {
+	m *map[int64][]RentRollStaticInfo, n *map[int64][]RentRollStaticInfo) error {
 
-	var xbiz XBusiness
-	var err error
+	const funcname = "GetRentRollVariableInfoMap"
+
+	var (
+		err  error
+		xbiz XBusiness
+	)
+	Console("Entered in %s\n", funcname)
+
 	InitBizInternals(BID, &xbiz)
 
 	rentrollMapGapHandler(BID, startDt, stopDt, m)
@@ -536,7 +550,62 @@ func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
 		return err
 	}
 
+	_ = rentrollSqftHandler(BID, m, &xbiz) // ignore errors
+
 	return nil
+}
+
+// rentrollSqftHandler get custom attribute (Square Feet)
+// for each rentable
+//
+// INPUTS
+//  BID      - the business
+//  m        - pointer to map created by GetRentRollStaticInfoMap
+//  xbiz     - XBusiness for getting info about RentableType and more
+//
+// RETURNS
+//  - list of errors
+//-----------------------------------------------------------------------------
+func rentrollSqftHandler(BID int64,
+	m *map[int64][]RentRollStaticInfo, xbiz *XBusiness,
+) []error {
+
+	const (
+		funcname         = "rentrollSqftHandler"
+		customAttrRTSqft = "Square Feet" // customAttrRTSqft for rentabletypes
+	)
+
+	var (
+		errList = []error{}
+	)
+	Console("Entered in %s\n", funcname)
+
+	// feed sqft value in first row only
+	for rid := range *m {
+
+		// only get first row from the list
+		rtid := (*m)[rid][0].RTID.Int64
+
+		// RTID should be  > 0
+		if !(rtid > 0) {
+			continue
+		}
+
+		if len(xbiz.RT[rtid].CA) > 0 { // if there are custom attributes
+			c, ok := xbiz.RT[rtid].CA[customAttrRTSqft] // see if Square Feet is among them
+			if ok {                                     // if it is...
+				sqft, err := IntFromString(c.Value, "invalid customAttrRTSqft attribute")
+				(*m)[rid][0].SqFt.Scan(sqft)
+				if err != nil {
+					Console("%s: RID: %d, RTID: %d || Error while scanning custom attribute sqft: %s\n",
+						funcname, rid, rtid, err.Error())
+					errList = append(errList, err)
+				}
+			}
+		}
+	}
+
+	return errList
 }
 
 // rentrollMapGapHandler examines the supplied map and adds entries as needed to
@@ -554,6 +623,7 @@ func GetRentRollVariableInfoMap(BID int64, startDt, stopDt time.Time,
 func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo) {
 	for k, v := range *m {
+
 		var a = []Period{}
 		//--------------------------------------
 		// look at all the rows for Rentable k
@@ -613,6 +683,7 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo, xbiz *XBusiness) error {
 	var err error
 	for k, v := range *m { // for every component
+
 		var gsrAmt float64
 		raid := int64(-1)
 		for i := 0; i < len(v); i++ {
@@ -640,8 +711,8 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 				return err
 			}
 			gsr := GetRentableMarketRate(xbiz, k, &d1, &d2)
-			v[i].RentCycleGSR = gsr
-			v[i].PeriodGSR = gsrAmt
+			v[i].RentCycleGSR = NullFloat64{Float64: gsr, Valid: true}
+			v[i].PeriodGSR = NullFloat64{Float64: gsrAmt, Valid: true}
 		}
 	}
 	return nil
@@ -654,17 +725,405 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 //	BID      - the business
 //  startDt  - report/view start time
 //  stopDt   - report/view stop time
-//  m        - pointer to map created by GetRentRollStaticInfoMap
+//  m        - pointer to rentable StaticInfo map created by GetRentRollStaticInfoMap
+//  n        - pointer to noRentable staticInfo map created by GetRentRollStaticInfoMap
 //  xbiz     - XBusiness for getting info about RentableType and more
+//
+// RETURNS
+//  - grand total row
+//  - total number of rows count for rentroll report
+//  - total main rows count for rentroll report
+//  - any error encountered or nil if no error occurred
+//-----------------------------------------------------------------------------
+func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
+	m *map[int64][]RentRollStaticInfo, n *map[int64][]RentRollStaticInfo,
+) (RentRollStaticInfo, int64, int64, error) {
+
+	const funcname = "GetRentRollGenTotals"
+	var (
+		// err           error
+		totalRows     int64
+		totalMainRows int64
+		grandTotalRow = RentRollStaticInfo{
+			BID:             BID,
+			FLAGS:           RentRollGrandTotalRow,
+			PeriodGSR:       NullFloat64{Valid: true, Float64: 0},
+			IncomeOffsets:   NullFloat64{Valid: true, Float64: 0},
+			AmountDue:       NullFloat64{Valid: true, Float64: 0},
+			PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
+			Description:     NullString{Valid: true, String: "Grant total"},
+		}
+	)
+	Console("Entered in %s\n", funcname)
+
+	// sort and then format all rows for rentableStaticInfoMap as well as noRentable map
+	sortAndFormatRentRollSubRows(m) // rentable StaticInfoMap
+	sortAndFormatRentRollSubRows(n) // norentable StaticInfoMap
+
+	// -------------------------
+	// Rentable static info map
+	// -------------------------
+	for rid := range *m {
+
+		// collection all RAID list for this component
+		raidMap := make(map[int64]int64)
+
+		// new subtotal row initialization for this component
+		cmptSubTotalRow := RentRollStaticInfo{
+			BID:             BID,
+			FLAGS:           RentRollSubTotalRow,
+			PeriodGSR:       NullFloat64{Valid: true, Float64: 0},
+			IncomeOffsets:   NullFloat64{Valid: true, Float64: 0},
+			AmountDue:       NullFloat64{Valid: true, Float64: 0},
+			PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
+			Description:     NullString{Valid: true, String: "Subtotal"},
+		}
+
+		// from each row sum-up all required values
+		for _, row := range (*m)[rid] {
+			cmptSubTotalRow.PeriodGSR.Float64 += row.PeriodGSR.Float64
+			cmptSubTotalRow.IncomeOffsets.Float64 += row.IncomeOffsets.Float64
+			cmptSubTotalRow.AmountDue.Float64 += row.AmountDue.Float64
+			cmptSubTotalRow.PaymentsApplied.Float64 += row.PaymentsApplied.Float64
+
+			// raidMap, feed each RAID -> RID pair
+			if _, ok := raidMap[row.RAID.Int64]; !ok && row.RAID.Int64 > 0 {
+				raidMap[row.RAID.Int64] = row.RID.Int64
+			}
+		}
+
+		// get all Receivables (begin, delta, ending), SecDep(begin, delta, ending) amounts
+		_ = getReceivableAndSecDep(BID, startDt, stopDt, &cmptSubTotalRow, &raidMap)
+
+		// now, append subtotal row for the current component before blank row
+		(*m)[rid] = append((*m)[rid], cmptSubTotalRow)
+
+		// add values to grand total row
+		grandTotalCalculation(&grandTotalRow, &cmptSubTotalRow)
+
+		// now, append blank row for the current component at last
+		(*m)[rid] = append((*m)[rid], RentRollStaticInfo{FLAGS: RentRollBlankRow})
+
+		// mark first rentable row as mainRow
+		(*m)[rid][0].FLAGS = RentRollMainRow
+
+		// totalRows, totalMainRows count
+		totalRows += int64(len((*m)[rid]))
+		totalMainRows++
+	}
+
+	// ----------------------------
+	// No Rentable static info map
+	// ----------------------------
+	for raid := range *n {
+
+		// collection all RAID list for this component
+		raidMap := map[int64]int64{raid: 0} // RID = 0
+
+		// new subtotal row initialization for this component
+		cmptSubTotalRow := RentRollStaticInfo{
+			BID:             BID,
+			FLAGS:           RentRollSubTotalRow,
+			PeriodGSR:       NullFloat64{Valid: true, Float64: 0},
+			IncomeOffsets:   NullFloat64{Valid: true, Float64: 0},
+			AmountDue:       NullFloat64{Valid: true, Float64: 0},
+			PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
+			Description:     NullString{Valid: true, String: "Subtotal"},
+		}
+
+		cmptSubTotalRow.PeriodGSR.Float64 = (*n)[raid][0].PeriodGSR.Float64
+		cmptSubTotalRow.IncomeOffsets.Float64 = (*n)[raid][0].IncomeOffsets.Float64
+		cmptSubTotalRow.AmountDue.Float64 = (*n)[raid][0].AmountDue.Float64
+		cmptSubTotalRow.PaymentsApplied.Float64 = (*n)[raid][0].PaymentsApplied.Float64
+
+		// get all Receivables (begin, delta, ending), SecDep(begin, delta, ending) amounts
+		_ = getReceivableAndSecDep(BID, startDt, stopDt, &cmptSubTotalRow, &raidMap)
+
+		// now, append subtotal row for the current component before blank row
+		(*n)[raid] = append((*n)[raid], cmptSubTotalRow)
+
+		// add values to grand total row
+		grandTotalCalculation(&grandTotalRow, &cmptSubTotalRow)
+
+		// now, append blank row for the current componene at last
+		(*n)[raid] = append((*n)[raid], RentRollStaticInfo{FLAGS: RentRollBlankRow})
+
+		// mark first no-rentable RA row as mainRow
+		(*n)[raid][0].FLAGS = RentRollMainRow
+
+		// totalRows, totalMainRows count
+		totalRows += int64(len((*n)[raid]))
+		totalMainRows++
+	}
+
+	return grandTotalRow, totalRows, totalMainRows, nil
+}
+
+// sortAndFormatRentRollSubRows sort all the rows
+// then format the all subsequent rows
+// for each component for the given static info map
+//
+// INPUTS
+//  m        - pointer to static info map created by GetRentRollStaticInfoMap
+//
+// RETURNS
+//  - nothing
+//-----------------------------------------------------------------------------
+func sortAndFormatRentRollSubRows(m *map[int64][]RentRollStaticInfo) {
+	const funcname = "sortAndFormatRentRollSubRows"
+	Console("Entered in %s\n", funcname)
+
+	for k := range *m {
+		// sort the list of all rows per rentable
+		sort.Slice((*m)[k], func(i, j int) bool {
+			if (*m)[k][i].PossessionStart.Time.Equal((*m)[k][j].PossessionStart.Time) {
+				if (*m)[k][i].AmountDue.Float64 == (*m)[k][j].AmountDue.Float64 &&
+					(*m)[k][i].ASMID.Int64 == (*m)[k][j].ASMID.Int64 {
+					return (*m)[k][i].PaymentsApplied.Float64 > (*m)[k][j].PaymentsApplied.Float64 // descending order
+				}
+				return (*m)[k][i].AmountDue.Float64 > (*m)[k][j].AmountDue.Float64 // descending order
+			}
+			return (*m)[k][i].PossessionStart.Time.Before((*m)[k][j].PossessionStart.Time)
+		})
+
+		// ===========================
+		//         FORMATTING
+		// ===========================
+
+		if (*m)[k][0].RAID.Valid && (*m)[k][0].RAID.Int64 > 0 {
+
+			// Rent Cycle formatting for only first rentable Main Row
+			for freqStr, freqNo := range CycleFreqMap {
+				if (*m)[k][0].RentCycle.Int64 == freqNo && (*m)[k][0].RentCycle.Valid {
+					(*m)[k][0].RentCycleREP = freqStr
+				}
+			}
+
+			// Rental Agreement formatting for first row
+			(*m)[k][0].RAIDREP = "RA-" + strconv.FormatInt((*m)[k][0].RAID.Int64, 10)
+		}
+
+		// skip the first row, and start to format all subsequent rows
+		for rowIndex := 1; rowIndex < len((*m)[k]); rowIndex++ {
+			// reset all rentable static info for subsequent rows
+			(*m)[k][rowIndex].RentableName.Valid = false
+			(*m)[k][rowIndex].RentableType.Valid = false
+			(*m)[k][rowIndex].SqFt.Valid = false
+			(*m)[k][rowIndex].RentCycleGSR.Valid = false
+			(*m)[k][rowIndex].PeriodGSR.Valid = false
+
+			// if RAID matches with previous one, then format all subsequent rows
+			// for rental agreement parent-child fashion
+			if (*m)[k][rowIndex].RAID.Int64 == (*m)[k][rowIndex-1].RAID.Int64 &&
+				(*m)[k][rowIndex].RAID.Valid && (*m)[k][rowIndex-1].RAID.Valid {
+
+				(*m)[k][rowIndex].RentCycle.Valid = false
+				(*m)[k][rowIndex].AgreementStart.Valid = false
+				(*m)[k][rowIndex].AgreementStop.Valid = false
+				(*m)[k][rowIndex].PossessionStart.Valid = false
+				(*m)[k][rowIndex].PossessionStop.Valid = false
+				(*m)[k][rowIndex].RentStart.Valid = false
+				(*m)[k][rowIndex].RentStop.Valid = false
+
+				// it could be possible, someone introduced as payor later/removed
+				if (*m)[k][rowIndex].Payors.String == (*m)[k][rowIndex-1].Payors.String {
+					(*m)[k][rowIndex].Payors.Valid = false
+				}
+
+				// it could be possible, someone introduced as user later/removed
+				if (*m)[k][rowIndex].Users.String == (*m)[k][rowIndex-1].Users.String {
+					(*m)[k][rowIndex].Users.Valid = false
+				}
+			} else if (*m)[k][rowIndex].RAID.Valid && (*m)[k][rowIndex-1].RAID.Valid {
+
+				// Rent Cycle formatting
+				for freqStr, freqNo := range CycleFreqMap {
+					if (*m)[k][rowIndex].RentCycle.Int64 == freqNo && (*m)[k][0].RentCycle.Valid {
+						(*m)[k][rowIndex].RentCycleREP = freqStr
+					}
+				}
+
+				// Rental Agreement formatting
+				(*m)[k][rowIndex].RAIDREP = "RA-" + strconv.FormatInt((*m)[k][rowIndex].RAID.Int64, 10)
+			}
+		}
+	}
+}
+
+// grandTotalCalculation get all required field value
+// from subtotal row and sum up those in grand total row
+//
+// INPUTS
+//  grandTotalRow        - pointer to grand total row
+//  subTotalRow          - pointer to sub total row
+//
+// RETURNS
+//  - nothing
+//-----------------------------------------------------------------------------
+func grandTotalCalculation(grandTotalRow, subTotalRow *RentRollStaticInfo) {
+	const funcname = "grandTotalCalculation"
+	Console("Entered in %s\n", funcname)
+
+	grandTotalRow.PeriodGSR.Float64 += subTotalRow.PeriodGSR.Float64
+	grandTotalRow.IncomeOffsets.Float64 += subTotalRow.IncomeOffsets.Float64
+	grandTotalRow.AmountDue.Float64 += subTotalRow.AmountDue.Float64
+	grandTotalRow.PaymentsApplied.Float64 += subTotalRow.PaymentsApplied.Float64
+	grandTotalRow.BeginReceivable += subTotalRow.BeginReceivable
+	grandTotalRow.DeltaReceivable += subTotalRow.DeltaReceivable
+	grandTotalRow.EndReceivable += subTotalRow.EndReceivable
+	grandTotalRow.BeginSecDep += subTotalRow.BeginSecDep
+	grandTotalRow.DeltaSecDep += subTotalRow.DeltaSecDep
+	grandTotalRow.EndSecDep += subTotalRow.EndSecDep
+}
+
+// getReceivableAndSecDep calculates beginning, delta, ending receivables
+// for the Receivables and Security Deposits for the given
+// all Rental Agreements covered or not by with Rentables
+// It will feed these amount in the given subtotal row for the component
+// of rentroll report
+//
+// INPUTS
+//  BID      - the business
+//  startDt  - report/view start time
+//  stopDt   - report/view stop time
+//  subTTL   - address of subtotal row for the component of rentroll report
+//  raidMap  - address of map: RAID -> RID
 //
 // RETURNS
 //  any error encountered or nil if no error occurred
 //-----------------------------------------------------------------------------
-func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
-	m *map[int64][]RentRollStaticInfo) error {
-	// var err error
-	// for k, v := range *m { // for every component
+func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
+	subTTL *RentRollStaticInfo, raidMap *map[int64]int64) []error {
 
-	// }
-	return nil
+	const funcname = "getReceivableAndSecDep"
+	var (
+		errList []error
+		d70     = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+	)
+	Console("Entered in %s\n", funcname)
+
+	for raid, rid := range *raidMap {
+		if !(raid > 0 && rid > 0) {
+			continue // if both 0 then continue to next one
+		}
+
+		// BeginningRcv, EndingRcv
+		beginningRcv, endingRcv, err := GetBeginEndRARBalance(BID, rid, raid, &startDt, &stopDt)
+		if err != nil {
+			Console("%s: RAID: %d, RID: %d || Error while calculating BeginningRcv, EndingRcv:: %s\n",
+				funcname, raid, rid, err.Error())
+			errList = append(errList, err)
+		}
+
+		/*// deltaInRcv
+		deltaInRcv := (endingRcv - beginningRcv)*/
+
+		// BeginningSecDep
+		beginningSecDep, err := GetSecDepBalance(BID, raid, rid, &d70, &startDt)
+		if err != nil {
+			Console("%s: RAID: %d, RID: %d || Error while calculating BeginningSecDep:: %s\n",
+				funcname, raid, rid, err.Error())
+			errList = append(errList, err)
+		}
+
+		// Change in SecDep
+		deltaInSecDep, err := GetSecDepBalance(BID, raid, rid, &startDt, &stopDt)
+		if err != nil {
+			Console("%s: RAID: %d, RID: %d || Error while calculating BeginningSecDep:: %s\n",
+				funcname, raid, rid, err.Error())
+			errList = append(errList, err)
+		}
+
+		/*// EndingSecDep
+		endingSecDep := (beginningSecDep + deltaInSecDep)*/
+
+		// now feed all those amount in subtotal row, for each iteration
+		subTTL.BeginReceivable += beginningRcv
+		subTTL.DeltaReceivable += (endingRcv - beginningRcv)
+		subTTL.EndReceivable += endingRcv
+		subTTL.BeginSecDep += beginningSecDep
+		subTTL.DeltaSecDep += deltaInSecDep
+		subTTL.EndSecDep += (beginningSecDep + deltaInSecDep)
+	}
+
+	return errList
+}
+
+// GetRentRollRows returns the list of all rows for report
+// It collects the rows from rentable and noRentable Maps
+// with the help of three function calls
+// 1. GetRentRollStaticInfoMap, 2. GetRentRollVariableInfoMap, 3. GetRentRollGenTotals
+//
+// INPUTS
+//  BID      - the business
+//  startDt  - report/view start time
+//  stopDt   - report/view stop time
+//
+// RETURNS
+//  - list of rentroll rows
+//  - total rows count
+//  - total main rows count
+//  - error occured during the process
+//-----------------------------------------------------------------------------
+func GetRentRollRows(BID int64, startDt, stopDt time.Time) (
+	[]RentRollStaticInfo, int64, int64, error) {
+
+	const funcname = "GetRentRollRows"
+	var (
+		err                                error
+		totalRowsCount, totalMainRowsCount int64
+		rrRows                             = []RentRollStaticInfo{}
+	)
+	Console("Entered in %s\n", funcname)
+
+	// pass through static field calculation
+	m, n, err := GetRentRollStaticInfoMap(BID, startDt, stopDt)
+	if err != nil {
+		return rrRows, totalRowsCount, totalMainRowsCount, err
+	}
+
+	// go through variable field calculation
+	err = GetRentRollVariableInfoMap(BID, startDt, stopDt, &m, &n)
+	if err != nil {
+		return rrRows, totalRowsCount, totalMainRowsCount, err
+	}
+
+	// go through total calculation
+	grandTTL, totalRowsCount, totalMainRowsCount, err :=
+		GetRentRollGenTotals(BID, startDt, stopDt, &m, &n)
+	if err != nil {
+		return rrRows, totalRowsCount, totalMainRowsCount, err
+	}
+
+	// now start to collect all rows from both map
+	// to rrRows slice in sorted order of both map
+	var rids, raids Int64Range
+
+	for rid := range m { // sort the rentable Map
+		rids = append(rids, rid)
+	}
+	sort.Sort(rids)
+
+	for raid := range n { // sort the non-rentable Map
+		raids = append(raids, raid)
+	}
+	sort.Sort(raids)
+
+	// ------- iterate over rentable Map and collect all rows -----
+	for _, rid := range rids {
+		rrRows = append(rrRows, m[rid]...)
+	}
+
+	// ------- iterate over non-rentable Map and collect all rows -----
+	for _, raid := range raids {
+		rrRows = append(rrRows, n[raid]...)
+	}
+
+	// TODO: cut the slice to send only required data for webservice
+	//       according offset, limit values
+
+	// ------- finally append grand total row -------
+	rrRows = append(rrRows, grandTTL)
+
+	return rrRows, totalRowsCount, totalMainRowsCount, nil
 }
