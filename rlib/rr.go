@@ -747,6 +747,8 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 		grandTotalRow = RentRollStaticInfo{
 			BID:             BID,
 			FLAGS:           RentRollGrandTotalRow,
+			PeriodGSR:       NullFloat64{Valid: true, Float64: 0},
+			IncomeOffsets:   NullFloat64{Valid: true, Float64: 0},
 			AmountDue:       NullFloat64{Valid: true, Float64: 0},
 			PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
 			Description:     NullString{Valid: true, String: "Grant total"},
@@ -770,6 +772,8 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 		cmptSubTotalRow := RentRollStaticInfo{
 			BID:             BID,
 			FLAGS:           RentRollSubTotalRow,
+			PeriodGSR:       NullFloat64{Valid: true, Float64: 0},
+			IncomeOffsets:   NullFloat64{Valid: true, Float64: 0},
 			AmountDue:       NullFloat64{Valid: true, Float64: 0},
 			PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
 			Description:     NullString{Valid: true, String: "Subtotal"},
@@ -791,11 +795,14 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 		// get all Receivables (begin, delta, ending), SecDep(begin, delta, ending) amounts
 		_ = getReceivableAndSecDep(BID, startDt, stopDt, &cmptSubTotalRow, &raidMap)
 
-		// now, append subtotal row for the current component at last
+		// now, append subtotal row for the current component before blank row
 		(*m)[rid] = append((*m)[rid], cmptSubTotalRow)
 
 		// add values to grand total row
 		grandTotalCalculation(&grandTotalRow, &cmptSubTotalRow)
+
+		// now, append blank row for the current component at last
+		(*m)[rid] = append((*m)[rid], RentRollStaticInfo{FLAGS: RentRollBlankRow})
 
 		// mark first rentable row as mainRow
 		(*m)[rid][0].FLAGS = RentRollMainRow
@@ -817,6 +824,8 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 		cmptSubTotalRow := RentRollStaticInfo{
 			BID:             BID,
 			FLAGS:           RentRollSubTotalRow,
+			PeriodGSR:       NullFloat64{Valid: true, Float64: 0},
+			IncomeOffsets:   NullFloat64{Valid: true, Float64: 0},
 			AmountDue:       NullFloat64{Valid: true, Float64: 0},
 			PaymentsApplied: NullFloat64{Valid: true, Float64: 0},
 			Description:     NullString{Valid: true, String: "Subtotal"},
@@ -830,11 +839,14 @@ func GetRentRollGenTotals(BID int64, startDt, stopDt time.Time,
 		// get all Receivables (begin, delta, ending), SecDep(begin, delta, ending) amounts
 		_ = getReceivableAndSecDep(BID, startDt, stopDt, &cmptSubTotalRow, &raidMap)
 
-		// now, append subtotal row for the current component at last
+		// now, append subtotal row for the current component before blank row
 		(*n)[raid] = append((*n)[raid], cmptSubTotalRow)
 
 		// add values to grand total row
 		grandTotalCalculation(&grandTotalRow, &cmptSubTotalRow)
+
+		// now, append blank row for the current componene at last
+		(*n)[raid] = append((*n)[raid], RentRollStaticInfo{FLAGS: RentRollBlankRow})
 
 		// mark first no-rentable RA row as mainRow
 		(*n)[raid][0].FLAGS = RentRollMainRow
