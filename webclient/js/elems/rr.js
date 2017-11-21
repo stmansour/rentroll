@@ -282,6 +282,7 @@ function buildRentRollElements() {
                 g.last._main_rows_offset = 0;
                 g.last._rrIndexMap = {};
             }
+            event.postData.main_rows_offset = g.last._main_rows_offset;
         },
         onClick: function(event) {
             event.onComplete = function () {

@@ -44,7 +44,7 @@ import (
 
 // RRSearchRequestData is the struct for request data for rentroll webview
 type RRSearchRequestData struct {
-	RowsOffset int `json:"rows_offset"` // rentroll report rows offset
+	MainRowsOffset int `json:"main_rows_offset"` // rentroll report main rows offset
 }
 
 // RRSearchResponse is the response data for a Rental Agreement Search
