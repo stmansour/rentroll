@@ -204,8 +204,6 @@ function buildRentRollElements() {
                         }
 
                         // if blank row then
-                        console.log(record.FLAGS, app.rrFLAGS.RentRollBlankRow);
-                        console.log((record.FLAGS & app.rrFLAGS.RentRollBlankRow) > 0);
                         if ((record.FLAGS & app.rrFLAGS.RentRollBlankRow) > 0) {
                             record.w2ui.class = "blankRow";
                             for (var j = 0; j < grey_fields.length; j++) {

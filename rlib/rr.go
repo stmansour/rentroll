@@ -937,11 +937,11 @@ func sortAndFormatRentRollSubRows(m *map[int64][]RentRollStaticInfo) {
 				if (*m)[k][rowIndex].Users.String == (*m)[k][rowIndex-1].Users.String {
 					(*m)[k][rowIndex].Users.Valid = false
 				}
-			} else if (*m)[k][rowIndex].RAID.Valid && (*m)[k][rowIndex-1].RAID.Valid {
+			} else if (*m)[k][rowIndex].RAID.Valid {
 
 				// Rent Cycle formatting
 				for freqStr, freqNo := range CycleFreqMap {
-					if (*m)[k][rowIndex].RentCycle.Int64 == freqNo && (*m)[k][0].RentCycle.Valid {
+					if (*m)[k][rowIndex].RentCycle.Int64 == freqNo && (*m)[k][rowIndex].RentCycle.Valid {
 						(*m)[k][rowIndex].RentCycleREP = freqStr
 					}
 				}
