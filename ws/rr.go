@@ -44,7 +44,7 @@ import (
 
 // RRSearchRequestData is the struct for request data for rentroll webview
 type RRSearchRequestData struct {
-	RowsOffset int `json:"rows_offset"` // rentroll report rows offset
+	MainRowsOffset int `json:"main_rows_offset"` // rentroll report main rows offset
 }
 
 // RRSearchResponse is the response data for a Rental Agreement Search
@@ -85,7 +85,9 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rrWhere, rrOrder := GetSearchAndSortSQL(d, rrpt.RentRollViewFieldsMap)*/
 
 	// get rentroll rows
-	rRows, count, mainCount, err := rlib.GetRentRollRows(d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
+	rRows, count, mainCount, err := rlib.GetRentRollRows(d.BID,
+		d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop,
+		reqData.MainRowsOffset, limit)
 	if err != nil {
 		rlib.Console("%s: Error from GetRentRollRows routine: %s", funcname, err.Error())
 		SvcGridErrorReturn(w, err, funcname)

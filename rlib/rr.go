@@ -438,6 +438,8 @@ func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time,
 		// just assume that it is MainRow, if later encountered that it is child row
 		// then "formatRentableChildRow" function would take care of it. :)
 		q := RentRollStaticInfo{BID: BID}
+
+		// database row scan
 		if err = RentRollStaticInfoRowScan(rrRows, &q); err != nil { // scan next record
 			return rentableStaticInfoMap, noRentableStaticInfoMap, err
 		}
@@ -622,16 +624,19 @@ func rentrollSqftHandler(BID int64,
 //-----------------------------------------------------------------------------
 func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo) {
-	for k, v := range *m {
+
+	const funcname = "rentrollMapGapHandler"
+
+	for rid := range *m {
 
 		var a = []Period{}
 		//--------------------------------------
 		// look at all the rows for Rentable k
 		//--------------------------------------
-		for i := 0; i < len(v); i++ {
+		for i := 0; i < len((*m)[rid]); i++ {
 			var p = Period{
-				D1: v[i].PossessionStart.Time,
-				D2: v[i].PossessionStop.Time,
+				D1: (*m)[rid][i].PossessionStart.Time,
+				D2: (*m)[rid][i].PossessionStop.Time,
 			}
 			a = append(a, p)
 		}
@@ -644,25 +649,48 @@ func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
 		// and add it to the map.
 		//--------------------------------------------------------------------
 		for i := 0; i < len(b); i++ {
+			// --------------------------------------------------------
+			// Get the RentableName and Rentable Type for this Rentable
+			// --------------------------------------------------------
+			var rName, rType string
+
+			r := GetRentable(rid)
+			rName = r.RentableName
+
+			// NOTE: it will list down all RentableTypes, just pick first one as of now
+			rts := GetRentableTypeRefsByRange(r.RID, &startDt, &stopDt)
+
+			var rt RentableType
+			if len(rts) > 0 {
+				if err := GetRentableType(rts[0].RTID, &rt); err != nil {
+					Console("%s: Error while getting RentableType for RID: %d", funcname, r.RID)
+				}
+				rType = rt.Name
+			}
+
 			//----------------------------------------------------------------
 			// If the gap start and end time match the report range start and
 			// end time then the Rentable is unrented for the entire period.
 			// So, we will use the existing row rather than adding a new row.
 			//----------------------------------------------------------------
 			if b[i].D1.Equal(startDt) && b[i].D2.Equal(stopDt) {
-				(*m)[k][0].RID.Scan(k)
-				(*m)[k][0].PossessionStart.Scan(b[i].D1) // vacancy ranges is shown in "use" column
-				(*m)[k][0].PossessionStop.Scan(b[i].D2)
-				(*m)[k][0].Description.Scan(NotRentedString)
+				(*m)[rid][0].RID.Scan(rid)
+				(*m)[rid][0].RentableName.Scan(rName)
+				(*m)[rid][0].RentableType.Scan(rType)
+				(*m)[rid][0].PossessionStart.Scan(b[i].D1) // vacancy ranges is shown in "use" column
+				(*m)[rid][0].PossessionStop.Scan(b[i].D2)
+				(*m)[rid][0].Description.Scan(NotRentedString)
 				continue
 			}
 			var g RentRollStaticInfo
 			g.BID = BID
-			g.RID.Scan(k)
+			g.RID.Scan(rid)
+			g.RentableName.Scan(rName)
+			g.RentableType.Scan(rType)
 			g.PossessionStart.Scan(b[i].D1) // vacancy ranges is shown in "use" column
 			g.PossessionStop.Scan(b[i].D2)
 			g.Description.Scan(NotRentedString)
-			(*m)[k] = append((*m)[k], g)
+			(*m)[rid] = append((*m)[rid], g)
 		}
 	}
 }
@@ -937,11 +965,11 @@ func sortAndFormatRentRollSubRows(m *map[int64][]RentRollStaticInfo) {
 				if (*m)[k][rowIndex].Users.String == (*m)[k][rowIndex-1].Users.String {
 					(*m)[k][rowIndex].Users.Valid = false
 				}
-			} else if (*m)[k][rowIndex].RAID.Valid && (*m)[k][rowIndex-1].RAID.Valid {
+			} else if (*m)[k][rowIndex].RAID.Valid {
 
 				// Rent Cycle formatting
 				for freqStr, freqNo := range CycleFreqMap {
-					if (*m)[k][rowIndex].RentCycle.Int64 == freqNo && (*m)[k][0].RentCycle.Valid {
+					if (*m)[k][rowIndex].RentCycle.Int64 == freqNo && (*m)[k][rowIndex].RentCycle.Valid {
 						(*m)[k][rowIndex].RentCycleREP = freqStr
 					}
 				}
@@ -1061,6 +1089,8 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 //  BID      - the business
 //  startDt  - report/view start time
 //  stopDt   - report/view stop time
+//  offset   - webservice offset of main rows
+//  limit    - limit to send rows in the batch
 //
 // RETURNS
 //  - list of rentroll rows
@@ -1068,7 +1098,8 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 //  - total main rows count
 //  - error occured during the process
 //-----------------------------------------------------------------------------
-func GetRentRollRows(BID int64, startDt, stopDt time.Time) (
+func GetRentRollRows(BID int64, startDt, stopDt time.Time,
+	offset, limit int) (
 	[]RentRollStaticInfo, int64, int64, error) {
 
 	const funcname = "GetRentRollRows"
@@ -1100,33 +1131,49 @@ func GetRentRollRows(BID int64, startDt, stopDt time.Time) (
 
 	// now start to collect all rows from both map
 	// to rrRows slice in sorted order of both map
-	var rids, raids Int64Range
+	var ridList, raidList Int64Range
 
 	for rid := range m { // sort the rentable Map
-		rids = append(rids, rid)
+		ridList = append(ridList, rid)
 	}
-	sort.Sort(rids)
+	sort.Sort(ridList)
 
 	for raid := range n { // sort the non-rentable Map
-		raids = append(raids, raid)
+		raidList = append(raidList, raid)
 	}
-	sort.Sort(raids)
+	sort.Sort(raidList)
 
-	// ------- iterate over rentable Map and collect all rows -----
-	for _, rid := range rids {
-		rrRows = append(rrRows, m[rid]...)
+	if offset >= 0 && limit > 0 {
+		// prepare the result array according to offset, limit values
+		for mainRowsCounter := offset; mainRowsCounter < (offset + limit); mainRowsCounter++ {
+			if mainRowsCounter < len(ridList) {
+				rid := ridList[mainRowsCounter]
+				rrRows = append(rrRows, m[rid]...)
+			} else if mainRowsCounter < (len(raidList) + len(ridList)) {
+				raid := raidList[mainRowsCounter-len(ridList)]
+				rrRows = append(rrRows, n[raid]...)
+			}
+		}
+	} else {
+		// if no offset and limit then start to collect all rows
+
+		// ------- iterate over rentable Map and collect all rows -----
+		for _, rid := range ridList {
+			rrRows = append(rrRows, m[rid]...)
+		}
+
+		// ------- iterate over non-rentable Map and collect all rows -----
+		for _, raid := range raidList {
+			rrRows = append(rrRows, n[raid]...)
+		}
 	}
-
-	// ------- iterate over non-rentable Map and collect all rows -----
-	for _, raid := range raids {
-		rrRows = append(rrRows, n[raid]...)
-	}
-
-	// TODO: cut the slice to send only required data for webservice
-	//       according offset, limit values
 
 	// ------- finally append grand total row -------
-	rrRows = append(rrRows, grandTTL)
+	// NOTE: only for first time, not for virtual scrolling
+	// it might need to be changed later
+	if offset <= 0 {
+		rrRows = append(rrRows, grandTTL)
+	}
 
 	return rrRows, totalRowsCount, totalMainRowsCount, nil
 }
