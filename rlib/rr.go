@@ -438,6 +438,8 @@ func GetRentRollStaticInfoMap(BID int64, startDt, stopDt time.Time,
 		// just assume that it is MainRow, if later encountered that it is child row
 		// then "formatRentableChildRow" function would take care of it. :)
 		q := RentRollStaticInfo{BID: BID}
+
+		// database row scan
 		if err = RentRollStaticInfoRowScan(rrRows, &q); err != nil { // scan next record
 			return rentableStaticInfoMap, noRentableStaticInfoMap, err
 		}
@@ -1087,6 +1089,8 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 //  BID      - the business
 //  startDt  - report/view start time
 //  stopDt   - report/view stop time
+//  offset   - webservice offset of main rows
+//  limit    - limit to send rows in the batch
 //
 // RETURNS
 //  - list of rentroll rows
@@ -1139,13 +1143,27 @@ func GetRentRollRows(BID int64, startDt, stopDt time.Time,
 	}
 	sort.Sort(raidList)
 
-	// prepare the result array according to offset, limit values
-	for mainRowsCounter := offset; mainRowsCounter < (offset + limit); mainRowsCounter++ {
-		if mainRowsCounter < len(ridList) {
-			rid := ridList[mainRowsCounter]
+	if offset >= 0 && limit > 0 {
+		// prepare the result array according to offset, limit values
+		for mainRowsCounter := offset; mainRowsCounter < (offset + limit); mainRowsCounter++ {
+			if mainRowsCounter < len(ridList) {
+				rid := ridList[mainRowsCounter]
+				rrRows = append(rrRows, m[rid]...)
+			} else if mainRowsCounter < (len(raidList) + len(ridList)) {
+				raid := raidList[mainRowsCounter-len(ridList)]
+				rrRows = append(rrRows, n[raid]...)
+			}
+		}
+	} else {
+		// if no offset and limit then start to collect all rows
+
+		// ------- iterate over rentable Map and collect all rows -----
+		for _, rid := range ridList {
 			rrRows = append(rrRows, m[rid]...)
-		} else if mainRowsCounter < (len(raidList) + len(ridList)) {
-			raid := raidList[mainRowsCounter-len(ridList)]
+		}
+
+		// ------- iterate over non-rentable Map and collect all rows -----
+		for _, raid := range raidList {
 			rrRows = append(rrRows, n[raid]...)
 		}
 	}
@@ -1153,7 +1171,7 @@ func GetRentRollRows(BID int64, startDt, stopDt time.Time,
 	// ------- finally append grand total row -------
 	// NOTE: only for first time, not for virtual scrolling
 	// it might need to be changed later
-	if offset == 0 {
+	if offset <= 0 {
 		rrRows = append(rrRows, grandTTL)
 	}
 
