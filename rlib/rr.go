@@ -622,16 +622,19 @@ func rentrollSqftHandler(BID int64,
 //-----------------------------------------------------------------------------
 func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo) {
-	for k, v := range *m {
+
+	const funcname = "rentrollMapGapHandler"
+
+	for rid := range *m {
 
 		var a = []Period{}
 		//--------------------------------------
 		// look at all the rows for Rentable k
 		//--------------------------------------
-		for i := 0; i < len(v); i++ {
+		for i := 0; i < len((*m)[rid]); i++ {
 			var p = Period{
-				D1: v[i].PossessionStart.Time,
-				D2: v[i].PossessionStop.Time,
+				D1: (*m)[rid][i].PossessionStart.Time,
+				D2: (*m)[rid][i].PossessionStop.Time,
 			}
 			a = append(a, p)
 		}
@@ -644,25 +647,48 @@ func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
 		// and add it to the map.
 		//--------------------------------------------------------------------
 		for i := 0; i < len(b); i++ {
+			// --------------------------------------------------------
+			// Get the RentableName and Rentable Type for this Rentable
+			// --------------------------------------------------------
+			var rName, rType string
+
+			r := GetRentable(rid)
+			rName = r.RentableName
+
+			// NOTE: it will list down all RentableTypes, just pick first one as of now
+			rts := GetRentableTypeRefsByRange(r.RID, &startDt, &stopDt)
+
+			var rt RentableType
+			if len(rts) > 0 {
+				if err := GetRentableType(rts[0].RTID, &rt); err != nil {
+					Console("%s: Error while getting RentableType for RID: %d", funcname, r.RID)
+				}
+				rType = rt.Name
+			}
+
 			//----------------------------------------------------------------
 			// If the gap start and end time match the report range start and
 			// end time then the Rentable is unrented for the entire period.
 			// So, we will use the existing row rather than adding a new row.
 			//----------------------------------------------------------------
 			if b[i].D1.Equal(startDt) && b[i].D2.Equal(stopDt) {
-				(*m)[k][0].RID.Scan(k)
-				(*m)[k][0].PossessionStart.Scan(b[i].D1) // vacancy ranges is shown in "use" column
-				(*m)[k][0].PossessionStop.Scan(b[i].D2)
-				(*m)[k][0].Description.Scan(NotRentedString)
+				(*m)[rid][0].RID.Scan(rid)
+				(*m)[rid][0].RentableName.Scan(rName)
+				(*m)[rid][0].RentableType.Scan(rType)
+				(*m)[rid][0].PossessionStart.Scan(b[i].D1) // vacancy ranges is shown in "use" column
+				(*m)[rid][0].PossessionStop.Scan(b[i].D2)
+				(*m)[rid][0].Description.Scan(NotRentedString)
 				continue
 			}
 			var g RentRollStaticInfo
 			g.BID = BID
-			g.RID.Scan(k)
+			g.RID.Scan(rid)
+			g.RentableName.Scan(rName)
+			g.RentableType.Scan(rType)
 			g.PossessionStart.Scan(b[i].D1) // vacancy ranges is shown in "use" column
 			g.PossessionStop.Scan(b[i].D2)
 			g.Description.Scan(NotRentedString)
-			(*m)[k] = append((*m)[k], g)
+			(*m)[rid] = append((*m)[rid], g)
 		}
 	}
 }
