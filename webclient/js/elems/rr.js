@@ -172,7 +172,6 @@ function buildRentRollElements() {
             }
 
             event.onComplete = function() {
-                g.records = data.records;
 
                 var record, i;
                 if (data.records) {

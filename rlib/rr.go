@@ -1094,7 +1094,8 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 //  - total main rows count
 //  - error occured during the process
 //-----------------------------------------------------------------------------
-func GetRentRollRows(BID int64, startDt, stopDt time.Time) (
+func GetRentRollRows(BID int64, startDt, stopDt time.Time,
+	offset, limit int) (
 	[]RentRollStaticInfo, int64, int64, error) {
 
 	const funcname = "GetRentRollRows"
@@ -1126,33 +1127,35 @@ func GetRentRollRows(BID int64, startDt, stopDt time.Time) (
 
 	// now start to collect all rows from both map
 	// to rrRows slice in sorted order of both map
-	var rids, raids Int64Range
+	var ridList, raidList Int64Range
 
 	for rid := range m { // sort the rentable Map
-		rids = append(rids, rid)
+		ridList = append(ridList, rid)
 	}
-	sort.Sort(rids)
+	sort.Sort(ridList)
 
 	for raid := range n { // sort the non-rentable Map
-		raids = append(raids, raid)
+		raidList = append(raidList, raid)
 	}
-	sort.Sort(raids)
+	sort.Sort(raidList)
 
-	// ------- iterate over rentable Map and collect all rows -----
-	for _, rid := range rids {
-		rrRows = append(rrRows, m[rid]...)
+	// prepare the result array according to offset, limit values
+	for mainRowsCounter := offset; mainRowsCounter < (offset + limit); mainRowsCounter++ {
+		if mainRowsCounter < len(ridList) {
+			rid := ridList[mainRowsCounter]
+			rrRows = append(rrRows, m[rid]...)
+		} else if mainRowsCounter < (len(raidList) + len(ridList)) {
+			raid := raidList[mainRowsCounter-len(ridList)]
+			rrRows = append(rrRows, n[raid]...)
+		}
 	}
-
-	// ------- iterate over non-rentable Map and collect all rows -----
-	for _, raid := range raids {
-		rrRows = append(rrRows, n[raid]...)
-	}
-
-	// TODO: cut the slice to send only required data for webservice
-	//       according offset, limit values
 
 	// ------- finally append grand total row -------
-	rrRows = append(rrRows, grandTTL)
+	// NOTE: only for first time, not for virtual scrolling
+	// it might need to be changed later
+	if offset == 0 {
+		rrRows = append(rrRows, grandTTL)
+	}
 
 	return rrRows, totalRowsCount, totalMainRowsCount, nil
 }
