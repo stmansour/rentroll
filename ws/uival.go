@@ -36,7 +36,7 @@ func getListTypes(bid int64, s string, t int) (map[string][]IDTextMap, error) {
 
 // GetAssessmentList returns all assessments for the supplied business
 func GetAssessmentList(bid int64) (map[string][]IDTextMap, error) {
-	return getListTypes(bid, " -- Select Assessment Rule -- ", rlib.ARASSESSMENT)
+	return getListTypes(bid, " -- Select Account Rule -- ", rlib.ARASSESSMENT)
 }
 
 // GetExpenseList returns all assessments for the supplied business

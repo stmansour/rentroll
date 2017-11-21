@@ -964,8 +964,8 @@ func sortAndFormatRentRollSubRows(m *map[int64][]RentRollStaticInfo) {
 //  - nothing
 //-----------------------------------------------------------------------------
 func grandTotalCalculation(grandTotalRow, subTotalRow *RentRollStaticInfo) {
-	const funcname = "grandTotalCalculation"
-	Console("Entered in %s\n", funcname)
+	// const funcname = "grandTotalCalculation"
+	// Console("Entered in %s\n", funcname)
 
 	grandTotalRow.PeriodGSR.Float64 += subTotalRow.PeriodGSR.Float64
 	grandTotalRow.IncomeOffsets.Float64 += subTotalRow.IncomeOffsets.Float64
@@ -1003,7 +1003,7 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 		errList []error
 		d70     = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	)
-	Console("Entered in %s\n", funcname)
+	// Console("Entered in %s\n", funcname)
 
 	for raid, rid := range *raidMap {
 		if !(raid > 0 && rid > 0) {

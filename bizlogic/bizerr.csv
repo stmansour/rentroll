@@ -18,3 +18,4 @@
 17,"Given Rentable Market Rate(RMRID: %d) amount is invalid (Amount: %f)"
 18,"Given Rentable Market Rate(RMRID: %d) StopDate(%s) should not be before StartDate(%s)"
 19,"Given Rentable Market Rate(RMRID: %d) dates are invalid, overlaps with (RMRID: %d)"
+20,"A Rentable with the name %q already exists in business %d"

@@ -40,6 +40,19 @@ func readCommandLineArgs() {
 }
 
 func main() {
+	//----------------------------------------------------------------
+	// Initialize the empty database. It should contain things like:
+	//   Chart of Accounts
+	//   Account Rules
+	//   Depositories
+	//   Payment Types
+	//   Deposit Methods
+	//----------------------------------------------------------------
+	rc := InitEmptyDB()
+	if rc != 0 {
+		os.Exit(rc)
+	}
+
 	var err error
 	readCommandLineArgs()
 	rlib.RRReadConfig()
@@ -108,19 +121,6 @@ func main() {
 	if len(ctx.BIZ) == 0 {
 		fmt.Printf("Error: database contains no businesses\n")
 		os.Exit(1)
-	}
-
-	//----------------------------------------------------------------
-	// Initialize the empty database. It should contain things like:
-	//   Chart of Accounts
-	//   Account Rules
-	//   Depositories
-	//   Payment Types
-	//   Deposit Methods
-	//----------------------------------------------------------------
-	rc := InitEmptyDB()
-	if rc != 0 {
-		os.Exit(rc)
 	}
 
 	//----------------------------

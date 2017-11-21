@@ -498,6 +498,7 @@ func InsertRentable(a *Rentable) (int64, error) {
 		id, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(id)
+			a.RID = rid
 		}
 	} else {
 		err = insertError(err, "Rentable", *a)

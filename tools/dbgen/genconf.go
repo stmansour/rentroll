@@ -21,26 +21,36 @@ type RType struct {
 // Rent Assessments are created based on the Market Rate by default. A future update
 // may enable varying Contract Rent amounts.
 type GenDBConf struct {
-	DtStart     time.Time // default start time for all start time attributes
-	DtStop      time.Time // default stop time for all stop time attributes
-	PeopleCount int       // defines the number of Transactants
-	RACount     int       // defines the number of Rental Agreements to create
-	RT          []RType   // defines the rentable types and the count of Rentables
-	DtBOT       time.Time // Beginning of Time
-	DtEOT       time.Time // End of Time
-	BIZ         []rlib.Business
-	ARIDrent    int64
-	ARIDsecdep  int64
-	xbiz        rlib.XBusiness
+	DtStart              time.Time // default start time for all start time attributes
+	DtStop               time.Time // default stop time for all stop time attributes
+	PeopleCount          int       // defines the number of Transactants
+	RACount              int       // defines the number of Rental Agreements to create
+	RT                   []RType   // defines the rentable types and the count of Rentables
+	DtBOT                time.Time // Beginning of Time
+	DtEOT                time.Time // End of Time
+	BIZ                  []rlib.Business
+	ARIDrent             int64
+	ARIDsecdep           int64
+	ARIDCheckPayment     int64
+	PTypeCheck           int64  // pmtid for checks
+	PTypeCheckName       string // name of pmtid for checks
+	OpDepository         int64  // the operational bank depository
+	SecDepDepository     int64  // the security deposit depository
+	OpDepositoryName     string // the operational bank depository
+	SecDepDepositoryName string // the security deposit depository
+	xbiz                 rlib.XBusiness
 }
 
 // GenDBRead is the preliminary loading point for db generation preferences.
 type GenDBRead struct {
-	DtStart     string  `json:"DtStart"`     // default start time for all start time attributes
-	DtStop      string  `json:"DtStop"`      // default stop time for all stop time attributes
-	PeopleCount int     `json:"PeopleCount"` // defines the number of Transactants
-	RACount     int     `json:"RACount"`     // defines the number of Rental Agreements to create
-	RT          []RType `json:"RT"`          // defines the rentable types and the count of Rentables
+	DtStart              string  `json:"DtStart"`              // default start time for all start time attributes
+	DtStop               string  `json:"DtStop"`               // default stop time for all stop time attributes
+	PeopleCount          int     `json:"PeopleCount"`          // defines the number of Transactants
+	RACount              int     `json:"RACount"`              // defines the number of Rental Agreements to create
+	OpDepositoryName     string  `json:"OpDepositoryName"`     // the operational bank depository
+	SecDepDepositoryName string  `json:"SecDepDepositoryName"` // the security deposit depository
+	PTypeCheckName       string  // name of pmtid for checks
+	RT                   []RType `json:"RT"` // defines the rentable types and the count of Rentables
 }
 
 // ReadConfig will read the configuration file  if
@@ -73,6 +83,9 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	}
 	b.DtBOT = time.Date(b.DtStart.Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
 	b.DtEOT = time.Date(3000, time.December, 31, 0, 0, 0, 0, time.UTC)
+	b.OpDepositoryName = a.OpDepositoryName
+	b.SecDepDepositoryName = a.SecDepDepositoryName
+	b.PTypeCheckName = a.PTypeCheckName
 
 	rlib.Console("DtStart = %s, DtStop = %s\n", b.DtStart.Format(rlib.RRDATEFMT4), b.DtStop.Format(rlib.RRDATEFMT4))
 

@@ -19,6 +19,8 @@ var handlers = []tableMaker{
 	{"People", createTransactants},
 	{"Rentable Types and Rentables", createRentableTypesAndRentables},
 	{"Rental Agreements", createRentalAgreements},
+	{"Receipts", createReceipts},
+	{"ApplyReceipts", applyReceipts},
 }
 
 // GenerateDB is the RentRoll Database generator. It creates a
@@ -65,6 +67,35 @@ func GenerateDB(ctx *GenDBConf) error {
 			return err
 		}
 	}
+	if ctx.ARIDCheckPayment == 0 {
+		ar, err = rlib.GetARByName(BID, "Receive a Payment")
+		ctx.ARIDCheckPayment = ar.ARID
+		if err != nil {
+			return err
+		}
+	}
+	if ctx.OpDepository == 0 {
+		d := rlib.GetDepositoryByName(BID, ctx.OpDepositoryName)
+		if d.DEPID == 0 {
+			return fmt.Errorf("Could not find Depository named %q", ctx.OpDepositoryName)
+		}
+		ctx.OpDepository = d.DEPID
+	}
+	if ctx.SecDepDepository == 0 {
+		d := rlib.GetDepositoryByName(BID, ctx.SecDepDepositoryName)
+		if d.DEPID == 0 {
+			return fmt.Errorf("Could not find Depository named %q", ctx.SecDepDepositoryName)
+		}
+		ctx.SecDepDepository = d.DEPID
+	}
+	if ctx.PTypeCheck == 0 {
+		var pt rlib.PaymentType
+		rlib.GetPaymentTypeByName(BID, ctx.PTypeCheckName, &pt)
+		if pt.PMTID == 0 {
+			return fmt.Errorf("Could not find Payment Type with name %q", ctx.PTypeCheckName)
+		}
+		ctx.PTypeCheck = pt.PMTID
+	}
 	for i := 0; i < len(handlers); i++ {
 		if err := handlers[i].Handler(ctx); err != nil {
 			return err
@@ -101,9 +132,7 @@ func createTransactants(ctx *GenDBConf) error {
 //-----------------------------------------------------------------------------
 func createRentableTypesAndRentables(ctx *GenDBConf) error {
 	var err error
-	fmt.Printf("Rentable Types: %d\n", len(ctx.RT))
 	for i := 0; i < len(ctx.RT); i++ {
-		fmt.Printf("Rentable Type %d.  Rentable Count = %d\n", i, ctx.RT[i].Count)
 		var rt rlib.RentableType
 		rt.BID = 1
 		rt.Style = fmt.Sprintf("ST%03d", i)
@@ -138,12 +167,14 @@ func createRentableTypesAndRentables(ctx *GenDBConf) error {
 func createRentables(ctx *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, RTID int64) error {
 	for i := 0; i < rt.Count; i++ {
 		var r rlib.Rentable
+		var err error
+
 		r.RID = iRID
 		r.BID = ctx.BIZ[0].BID
 		r.RentableName = fmt.Sprintf("Rentable%03d", iRID)
-		_, err := rlib.InsertRentable(&r)
-		if err != nil {
-			return err
+		errlist := bizlogic.InsertRentable(&r)
+		if errlist != nil {
+			return bizlogic.BizErrorListToError(errlist)
 		}
 
 		var rtr rlib.RentableTypeRef
@@ -168,6 +199,85 @@ func createRentables(ctx *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, RTI
 		}
 		iRID++
 	}
+	return nil
+}
+
+// createReceipts reads all assessments and creates a separate receipt for
+// each one.
+//-----------------------------------------------------------------------------
+func createReceipts(ctx *GenDBConf) error {
+	qry := fmt.Sprintf("SELECT %s FROM Assessments WHERE BID=%d AND (PASMID=0 OR RentCycle=0)", rlib.RRdb.DBFields["Assessments"], ctx.BIZ[0].BID)
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
+	rlib.Errcheck(err)
+	defer rows.Close()
+	for i := 0; rows.Next(); i++ {
+		var a rlib.Assessment
+		rlib.ReadAssessments(rows, &a)
+
+		if !((a.RentCycle > rlib.RECURNONE && a.PASMID > 0) || a.RentCycle == rlib.RECURNONE) {
+			continue
+		}
+		depid := ctx.OpDepository
+		if a.ARID == ctx.ARIDsecdep {
+			depid = ctx.SecDepDepository
+		}
+
+		var rcpt rlib.Receipt
+		rcpt.ARID = ctx.ARIDCheckPayment
+		rcpt.BID = ctx.BIZ[0].BID
+		rcpt.PMTID = ctx.PTypeCheck
+		rcpt.DEPID = depid
+		rcpt.RAID = a.RAID
+		rcpt.Dt = a.Start
+		rcpt.DocNo = fmt.Sprintf("%d", rand.Int63n(int64(1000000)))
+		rcpt.Amount = a.Amount
+		rcpt.ARID = ctx.ARIDCheckPayment
+		pa := rlib.GetRentalAgreementPayorsInRange(a.RAID, &rlib.TIME0, &rlib.ENDOFTIME)
+		if len(pa) > 0 {
+			rcpt.TCID = pa[0].TCID
+		}
+
+		err = bizlogic.InsertReceipt(&rcpt)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// applyReceipts reads all transactants and applies all their unallocated
+// funds to unpaid Assessments
+//-----------------------------------------------------------------------------
+func applyReceipts(ctx *GenDBConf) error {
+	// rlib.Console("Entered applyReceipts\n")
+
+	rows, err := rlib.RRdb.Prepstmt.GetUnallocatedReceipts.Query(ctx.BIZ[0].BID)
+	rlib.Errcheck(err)
+	defer rows.Close()
+
+	// We need a list of payors.  Build a map indexed by TCID, that points
+	// to the total number of receipts for that payor which are unallocated.
+	var u = map[int64]int{}
+	for rows.Next() {
+		var r rlib.Receipt
+		rlib.ReadReceipts(rows, &r)
+		// rlib.Console("Unallocated Receipt:  RCPTID = %d, Amount = %8.2f, Payor = %d\n", r.RCPTID, r.Amount, r.TCID)
+		i, ok := u[r.TCID]
+		if ok {
+			u[r.TCID] = i + 1
+		} else {
+			u[r.TCID] = 1
+		}
+	}
+	rlib.Errcheck(rows.Err())
+
+	// rlib.Console("Payors with unallocated receipts:\n")
+	for k := range u {
+		// rlib.Console("Payor with TCID=%d has %d unallocated receipts\n", k, v)
+		dt := ctx.DtStart
+		bizlogic.AutoAllocatePayorReceipts(k, &dt)
+	}
+
 	return nil
 }
 

@@ -250,7 +250,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				continue // move on to the next receipt
 			}
 
-			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt /*&n[j].Dt*/, &dt)
+			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt, &dt)
 			rlib.Console("amt = %.2f .  Amount still owed: %.2f\n", amt, needed)
 			if err != nil {
 				SvcGridErrorReturn(w, err, funcname)

@@ -41,6 +41,7 @@ const (
 	InvalidRentableMarketRateAmount = 17 // the amount of marketRate for rentable is invalid
 	InvalidRentableMRDates          = 18 // market rate dates should not overlap with other market rates
 	RentableMRDatesOverlap          = 19
+	RentableNameExists              = 20 // A rentable with that name already exists
 )
 
 // InitBizLogic loads the error messages needed for validation errors
