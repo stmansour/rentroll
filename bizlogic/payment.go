@@ -63,7 +63,7 @@ func RemainingReceiptFunds(r *rlib.Receipt) float64 {
 		m := rlib.ParseAcctRule(&xbiz1, 0, &dt, &dt, r.AcctRuleApply, 0, 1.0)
 		tot := r.Amount
 		for i := 0; i < len(m); i++ {
-			rlib.Console("%d. %.2f  %s\n", i, m[i].Amount, m[i].Action)
+			// rlib.Console("%d. %.2f  %s\n", i, m[i].Amount, m[i].Action)
 			if "d" == m[i].Action {
 				tot -= m[i].Amount
 			}
