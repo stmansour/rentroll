@@ -223,7 +223,6 @@ function buildRentRollElements() {
                                 record.w2ui.style[kColIndex] = "background-color: #CCC;";
                                 record[g.columns[kColIndex].field] = "";
                             }
-                            g.last._rows_offset++;
                         }
 
                         // redraw row
@@ -281,10 +280,8 @@ function buildRentRollElements() {
             if (g.records.length === 0) { // if grid is empty then reset all flags
                 g._total_main_rows = 0;
                 g.last._main_rows_offset = 0;
-                g.last._rows_offset = 0;
                 g.last._rrIndexMap = {};
             }
-            event.postData.rows_offset = g.last._rows_offset;
         },
         onClick: function(event) {
             event.onComplete = function () {
@@ -410,14 +407,14 @@ function calculateRRPagination() {
     // custom pagination number start - stop for rentroll report
     var startPageRec = 0, endPageRec = 0, i;
     for (i = t1; i >= 0; i--) {
-        if(g.records[i].IsMainRow){
+        if((g.records[i].FLAGS&app.rrFLAGS.RentRollMainRow) > 0){
             startPageRec = i;
             break;
         }
     }
 
     for (i = t2; i >= t1; i--) {
-        if(g.records[i].IsMainRow){
+        if((g.records[i].FLAGS&app.rrFLAGS.RentRollMainRow) > 0){
             endPageRec = i;
             break;
         }
