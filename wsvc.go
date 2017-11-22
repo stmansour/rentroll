@@ -151,7 +151,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
 
 			// pdf props title
-			pdfProps := rrpt.RRpdfProps
+			pdfProps := rrpt.GetReportPDFProps()
 
 			// get page size and orientation, set title
 			pdfProps = rrpt.SetPDFOption(pdfProps, "--header-center", tbl.Title)

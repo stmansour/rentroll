@@ -40,41 +40,50 @@ func SetPDFOption(
 	return pdfProps
 }
 
-// RRpdfProps are the pdf properties values for pdf report for rentroll software
-// pdf properties
-var RRpdfProps = []*gotable.PDFProperty{
-	// disable smart shrinking
-	// {Option: "--disable-smart-shrinking"},
-	// custom dpi setting
-	{Option: "--dpi", Value: "512"},
-	// top margin
-	{Option: "--margin-top", Value: "15"},
-	// header font size
-	{Option: "--header-font-size", Value: "7"},
-	// header font
-	{Option: "--header-font-name", Value: "opensans"},
-	// header spacing
-	{Option: "--header-spacing", Value: "3"},
-	// bottom margin
-	{Option: "--margin-bottom", Value: "15"},
-	// footer spacing
-	{Option: "--footer-spacing", Value: "5"},
-	// footer font
-	{Option: "--footer-font-name", Value: "opensans"},
-	// footer font size
-	{Option: "--footer-font-size", Value: "7"},
-	// footer left content
-	{Option: "--footer-left", Value: time.Now().Format(gotable.DATETIMEFMT)},
-	// footer right content
-	{Option: "--footer-right", Value: "Page [page] of [toPage]"},
-	// // page size
-	// {Option: "--page-size", Value: "Letter"},
-	// // orientation
-	// {Option: "--orientation", Value: "Landscape"},
-	// page width, defaults to US Letter with LandScape
-	{Option: "--page-width", Value: "11in"},
-	// page height, defaults to US Letter with LandScape
-	{Option: "--page-height", Value: "8.5in"},
+// GetReportPDFProps returns the default pdf properties
+// will be used by "wkhtmltopdf" program
+func GetReportPDFProps() []*gotable.PDFProperty {
+	// report generated time, in footer left area
+	rptGenTime := time.Now()
+	zone, _ := rptGenTime.Zone()
+	rptGenTimeREP := rptGenTime.Format(gotable.DATETIMEFMT) + " " + zone
+
+	// rptPDFProps are the pdf properties values for pdf report for rentroll software
+	// pdf properties
+	return []*gotable.PDFProperty{
+		// disable smart shrinking
+		// {Option: "--disable-smart-shrinking"},
+		// custom dpi setting
+		{Option: "--dpi", Value: "512"},
+		// top margin
+		{Option: "--margin-top", Value: "15"},
+		// header font size
+		{Option: "--header-font-size", Value: "7"},
+		// header font
+		{Option: "--header-font-name", Value: "opensans"},
+		// header spacing
+		{Option: "--header-spacing", Value: "3"},
+		// bottom margin
+		{Option: "--margin-bottom", Value: "15"},
+		// footer spacing
+		{Option: "--footer-spacing", Value: "5"},
+		// footer font
+		{Option: "--footer-font-name", Value: "opensans"},
+		// footer font size
+		{Option: "--footer-font-size", Value: "7"},
+		// footer left content
+		{Option: "--footer-left", Value: rptGenTimeREP},
+		// footer right content
+		{Option: "--footer-right", Value: "Page [page] of [toPage]"},
+		// // page size
+		// {Option: "--page-size", Value: "Letter"},
+		// // orientation
+		// {Option: "--orientation", Value: "Landscape"},
+		// page width, defaults to US Letter with LandScape
+		{Option: "--page-width", Value: "11in"},
+		// page height, defaults to US Letter with LandScape
+		{Option: "--page-height", Value: "8.5in"},
+	}
 }
 
 // RReportTableErrorSectionCSS holds css for errors placed in section3 of gotable
@@ -307,7 +316,8 @@ func getRRTable() gotable.Table {
 func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pdfTitle string, pdfPageWidth float64, pdfPageHeight float64, pdfPageSizeUnit string) {
 
 	// pdf props title
-	pdfProps := RRpdfProps
+	pdfProps := GetReportPDFProps()
+
 	pdfProps = SetPDFOption(pdfProps, "--header-center", pdfTitle)
 	pw := rlib.Float64ToString(pdfPageWidth) + pdfPageSizeUnit
 	pdfProps = SetPDFOption(pdfProps, "--page-width", pw)
