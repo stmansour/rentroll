@@ -287,7 +287,7 @@ dorrtest  "q9" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 cat >xxyyzz <<EOF
 use rentroll
 INSERT INTO RentableMarketRate (RTID,BID,MarketRate,DtStart,DtStop) VALUES(2,1,4000,"2016-10-01 00:00:00","2018-01-01 00:00:00");
-INSERT INTO RentalAgreementRentables (RAID,BID,RID,CLID,ContractRent,RARDtStart,RARDtStop) VALUES(2,1,2,0,4000,"2016-10-01 00:00:00","2018-01-01 00:00:00");
+-- INSERT INTO RentalAgreementRentables (RAID,BID,RID,CLID,ContractRent,RARDtStart,RARDtStop) VALUES(2,1,2,0,4000,"2016-10-01 00:00:00","2018-01-01 00:00:00");
 EOF
 ${MYSQL} --no-defaults <xxyyzz
 rm -f xxyyzz
