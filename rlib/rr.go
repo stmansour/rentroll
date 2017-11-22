@@ -1010,7 +1010,7 @@ func grandTotalCalculation(grandTotalRow, subTotalRow *RentRollStaticInfo) {
 // getReceivableAndSecDep calculates beginning, delta, ending receivables
 // for the Receivables and Security Deposits for the given
 // all Rental Agreements covered or not by with Rentables
-// It will feed these amount in the given subtotal row for the component
+// It will feed these amounts in the given subtotal row for the component
 // of rentroll report
 //
 // INPUTS
@@ -1075,6 +1075,8 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 		subTTL.BeginSecDep += beginningSecDep
 		subTTL.DeltaSecDep += deltaInSecDep
 		subTTL.EndSecDep += (beginningSecDep + deltaInSecDep)
+
+		// Console("BeginSecDep = %.2f, Delta = %.2f, End = %.2f\n", subTTL.BeginSecDep, subTTL.DeltaSecDep, subTTL.EndSecDep)
 	}
 
 	return errList

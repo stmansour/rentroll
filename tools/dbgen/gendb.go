@@ -433,10 +433,10 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		asmSecDep.RID = RID
 		asmSecDep.RAID = ra.RAID
 		asmSecDep.Amount = RIDMktRate * float64(2.0)
-		asmSecDep.RentCycle = ctx.xbiz.RT[rtr.RTID].RentCycle
-		asmSecDep.ProrationCycle = ctx.xbiz.RT[rtr.RTID].Proration
-		asmSecDep.Start = epoch
-		asmSecDep.Stop = d2
+		asmSecDep.RentCycle = rlib.RECURNONE
+		asmSecDep.ProrationCycle = rlib.RECURNONE
+		asmSecDep.Start = d1
+		asmSecDep.Stop = d1
 		asmSecDep.ARID = ctx.ARIDsecdep
 		be = bizlogic.InsertAssessment(&asmSecDep, 1)
 		if be != nil {

@@ -42,6 +42,8 @@ const (
 	InvalidRentableMRDates          = 18 // market rate dates should not overlap with other market rates
 	RentableMRDatesOverlap          = 19
 	RentableNameExists              = 20 // A rentable with that name already exists
+	AsmDateRangeNotAllowed          = 21 // Non recur asmts must have equivalent start/stop dates
+	StartDateAfterStopDate          = 22 // Stop date occurs before start date
 )
 
 // InitBizLogic loads the error messages needed for validation errors

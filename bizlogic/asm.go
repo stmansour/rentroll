@@ -21,8 +21,13 @@ func UpdateAssessment(anew *rlib.Assessment, mode int, dt *time.Time, exp int) [
 	var err error
 	var errlist []BizError
 
-	rlib.Console("Entered bizlogic.UpdateAssessment:  anew.ASMID = %d, mode = %d, dt = %s, exp = %d\n", anew.ASMID, mode, dt.Format(rlib.RRDATEREPORTFMT), exp)
-	rlib.Console("anew.FLAGS = %X\n", anew.FLAGS)
+	// rlib.Console("Entered bizlogic.UpdateAssessment:  anew.ASMID = %d, mode = %d, dt = %s, exp = %d\n", anew.ASMID, mode, dt.Format(rlib.RRDATEREPORTFMT), exp)
+	// rlib.Console("anew.FLAGS = %X\n", anew.FLAGS)
+
+	errlist = ValidateAssessment(anew) // make sure it passes simple validation first
+	if len(errlist) > 0 {
+		return errlist
+	}
 
 	if anew.FLAGS&0x4 != 0 {
 		errlist = append(errlist, BizErrors[EditReversal])
@@ -569,6 +574,16 @@ func ValidateAssessment(a *rlib.Assessment) []BizError {
 			}
 		}
 
+		//--------------------------------------------------------------------------
+		//  If the assessment is non-recurring - then start and stop date should
+		//  be the same.
+		//--------------------------------------------------------------------------
+		if a.RentCycle == rlib.RECURNONE && !a.Start.Equal(a.Stop) {
+			e = append(e, BizErrors[AsmDateRangeNotAllowed])
+		}
+		if a.Stop.Before(a.Start) {
+			e = append(e, BizErrors[StartDateAfterStopDate])
+		}
 	}
 	return e
 }

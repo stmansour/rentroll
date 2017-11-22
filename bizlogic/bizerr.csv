@@ -19,3 +19,5 @@
 18,"Given Rentable Market Rate(RMRID: %d) StopDate(%s) should not be before StartDate(%s)"
 19,"Given Rentable Market Rate(RMRID: %d) dates are invalid, overlaps with (RMRID: %d)"
 20,"A Rentable with the name %q already exists in business %d"
+21,"Start and Stop dates must be equal on non-recurring Assessments"
+22,"Assessment Start date must be on or before Stop date."

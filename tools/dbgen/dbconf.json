@@ -3,25 +3,25 @@
     "DtStop": "10/1/2020",
     "RT": [
         {
-            "Count": 30,
+            "Count": 1,
             "MarketRate": 1000,
             "RentCycle": 6,
             "ProrateCycle": 4
         },
         {
-            "Count": 30,
+            "Count": 1,
             "MarketRate": 1500,
             "RentCycle": 6,
             "ProrateCycle": 4
         },
         {
-            "Count": 30,
+            "Count": 1,
             "MarketRate": 1750,
             "RentCycle": 6,
             "ProrateCycle": 4
         },
         {
-            "Count": 20,
+            "Count": 1,
             "MarketRate": 2500,
             "RentCycle": 6,
             "ProrateCycle": 4
