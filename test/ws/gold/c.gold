@@ -79,21 +79,6 @@
             "BID": "1",
             "LastModBy": 0,
             "LastModTime": "1900-01-01T00:00:00Z",
-            "RAID": 2,
-            "RARID": 8,
-            "RID": 2,
-            "RTID": 2,
-            "RentableName": "309 1/2 Rexford",
-            "RentableStatus": "online",
-            "RentableType": "309 1/2 Rexford",
-            "RentalAgreementStart": "10/1/2016",
-            "RentalAgreementStop": "1/1/2018",
-            "recid": 5
-        },
-        {
-            "BID": "1",
-            "LastModBy": 0,
-            "LastModTime": "1900-01-01T00:00:00Z",
             "RAID": 3,
             "RARID": 3,
             "RID": 3,
@@ -103,7 +88,7 @@
             "RentableType": "311 Rexford",
             "RentalAgreementStart": "8/12/2010",
             "RentalAgreementStop": "2/8/2016",
-            "recid": 6
+            "recid": 5
         },
         {
             "BID": "1",
@@ -118,7 +103,7 @@
             "RentableType": "311 Rexford",
             "RentalAgreementStart": "7/1/2016",
             "RentalAgreementStop": "7/1/2018",
-            "recid": 7
+            "recid": 6
         },
         {
             "BID": "1",
@@ -133,9 +118,9 @@
             "RentableType": "311 1/2 Rexford",
             "RentalAgreementStart": null,
             "RentalAgreementStop": null,
-            "recid": 8
+            "recid": 7
         }
     ],
     "status": "success",
-    "total": 9
+    "total": 8
 }
