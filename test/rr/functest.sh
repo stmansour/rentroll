@@ -29,7 +29,7 @@ startRentRollServer
 #  TEST 00
 #  Simple Asmt/Rcpt -  Non recurring assessment, a receipt, apply payments.
 #
-#  Scenario:  
+#  Scenario:
 #		Assess $100 Electric Base Fee, receive a receipt for $250. Apply
 #       the funds toward the $100 assessment.
 #
@@ -49,7 +49,7 @@ echo "*** TEST 00 ***"
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A11%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%2211%2F3%2F2017%22%2C%22Stop%22%3A%2211%2F3%2F2017%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A100%2C%22Rentable%22%3A%22309+Rexford%22%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22ExpandPastInst%22%3A0%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/asm/1/0" "request" "a00"  "WebService--CreateAssessment"
 
-# Receive a Receipt of $250 
+# Receive a Receipt of $250
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A25%2C%22PMTID%22%3A4%2C%22RAID%22%3A1%2C%22PmtTypeName%22%3A4%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22DID%22%3A0%2C%22Dt%22%3A%2211%2F3%2F2017%22%2C%22DocNo%22%3A%22234234234%22%2C%22Payor%22%3A%22Aaron%2BRead%2B(TCID%3A%2B1)%22%2C%22TCID%22%3A1%2C%22Amount%22%3A250%2C%22Comment%22%3A%22%22%2C%22OtherPayorName%22%3A%22%22%2C%22FLAGS%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/receipt/1/0" "request" "a01"  "WebService--ReceiveReceipt"
 
@@ -75,8 +75,8 @@ mysqldump --no-defaults rentroll >test00.sql
 #  TEST 01
 #  Floating Deposit -  Test Receipt where RAID is required.
 #
-#  Scenario: 
-#      In this example, Receipt.RAID will be non-zero.  
+#  Scenario:
+#      In this example, Receipt.RAID will be non-zero.
 #      A $1000 floating deposit is made in October 2017, and $500 more is
 #      added to the floating deposit in November. A rentroll report is made
 #      for the month of November.
@@ -85,10 +85,10 @@ mysqldump --no-defaults rentroll >test00.sql
 #	1.	The Beginning Security Deposit should be $1000. The Ending Security
 #      Deposit amount for November should be $1500.
 #
-#  Notes: 
+#  Notes:
 #	1.	Since we're using floating deposits, there is no associated rentable.
 #	2.	TBD: should we group entries by RAID in the "no rentable" section?
-#       should we provide a totals row? 
+#       should we provide a totals row?
 #               If we do not, then there is nothing that shows the
 #               accumulation of multiple floating deposits.
 #------------------------------------------------------------------------------
@@ -140,12 +140,12 @@ echo "*** TEST 02 ***"
 
 # Make the reversal entry
 echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22receiptForm%22%2C%22RCPTID%22%3A1%7D" > request
-dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "c01"  "WebService--ReverseDeposit"
+dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "ca0"  "WebService--ReverseDeposit"
 
 # Rentroll report for November should not have a Beginning Balance on
 # for Security Deposits
 RRDATERANGE="-j 2017-11-01 -k 2017-12-01"
-dorrtest "c02" "${RRDATERANGE} -b ${BUD} -r 4" "RentrollReport"
+dorrtest "ca1" "${RRDATERANGE} -b ${BUD} -r 4" "RentrollReport"
 mysqldump --no-defaults rentroll > test02.sql
 
 #------------------------------------------------------------------------------
@@ -236,7 +236,7 @@ mysqldump --no-defaults rentroll > test04.sql
 #		we have 14 days at $3500 and 16 days at $4000.
 #
 #  Expected Result:
-#	1.	The prorated GSR works out to $3766.67 for the period 11/1/2017 to 
+#	1.	The prorated GSR works out to $3766.67 for the period 11/1/2017 to
 #		12/1/2017.
 #------------------------------------------------------------------------------
 createDB
