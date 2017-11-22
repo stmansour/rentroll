@@ -710,15 +710,15 @@ func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
 func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo, xbiz *XBusiness) error {
 	var err error
-	for rid, ridRows := range *m { // for every component
+	for k, v := range *m { // for every component
 
 		var gsrAmt float64
 		raid := int64(-1)
-		for i := 0; i < len(ridRows); i++ {
-			if raid == ridRows[i].RAID.Int64 {
+		for i := 0; i < len(v); i++ {
+			if raid == v[i].RAID.Int64 {
 				continue
 			}
-			raid = ridRows[i].RAID.Int64
+			raid = v[i].RAID.Int64
 			//-----------------------------------------------------------------------------
 			// for GSR calculation, set date range as follows...
 			// start with the range of the report
@@ -726,21 +726,21 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 			// if PossesionStop is befor the report stop time, then use PossessionStop
 			//-----------------------------------------------------------------------------
 			d1 := startDt
-			if ridRows[i].PossessionStart.Time.After(d1) && ridRows[i].RAID.Valid { // if RA is valid then only
-				d1 = ridRows[i].PossessionStart.Time
+			if v[i].PossessionStart.Time.After(d1) {
+				d1 = v[i].PossessionStart.Time
 			}
 			d2 := stopDt
-			if ridRows[i].PossessionStop.Time.Before(d2) && ridRows[i].RAID.Valid { // if RA is valid then only
-				d2 = ridRows[i].PossessionStop.Time
+			if v[i].PossessionStop.Time.Before(d2) {
+				d2 = v[i].PossessionStop.Time
 			}
 			// Console("d1 = %s, d2 = %s\n", d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL))
-			gsrAmt, _, _, err = CalculateLoadedGSR(BID, rid, &d1, &d2, xbiz)
+			gsrAmt, _, _, err = CalculateLoadedGSR(BID, k, &d1, &d2, xbiz)
 			if err != nil {
 				return err
 			}
-			gsr := GetRentableMarketRate(xbiz, rid, &d1, &d2)
-			ridRows[i].RentCycleGSR = NullFloat64{Float64: gsr, Valid: true}
-			ridRows[i].PeriodGSR = NullFloat64{Float64: gsrAmt, Valid: true}
+			gsr := GetRentableMarketRate(xbiz, k, &d1, &d2)
+			v[i].RentCycleGSR = NullFloat64{Float64: gsr, Valid: true}
+			v[i].PeriodGSR = NullFloat64{Float64: gsrAmt, Valid: true}
 		}
 	}
 	return nil
