@@ -1,6 +1,9 @@
 package rlib
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // GetRecurrences is a shorthand for assessment variables to get a list
 // of dates on which charges must be assessed for a particular interval of time (d1 - d2)
@@ -39,6 +42,38 @@ func DateRangeOverlap(a1, a2, s1, s2 *time.Time) bool {
 // PeriodOverlap returns true of the two periods overlap, false otherwise.
 func PeriodOverlap(p1, p2 *Period) bool {
 	return DateRangeOverlap(&p1.D1, &p1.D2, &p2.D1, &p2.D2)
+}
+
+// ContainDateRange returns a time range t1,t2 as follows:
+// t1,t2 are initially set to the supplied date range d1,d2
+//     If the initial boundary begins after d1 AND it is before b2
+//     then t1 is snapped to b1
+//     If the ending boundary ends before d2 AND iti is after b1
+//     then t2 is snapped to b2.
+// The net effect is to return a time range
+//
+// INPUTS
+//  d1,d2 - initial date range
+//  b1,b2 - bounds for the initial date range
+//
+// RETURNS
+//  modified date range t1,t2
+//  any errors encountered or nil if no error
+//-----------------------------------------------------------------------------
+func ContainDateRange(d1, d2, b1, b2 *time.Time) (time.Time, time.Time, error) {
+	t1 := *d1
+	t2 := *d2
+	if b2.Before(*b1) || b1.After(*b2) {
+		err := fmt.Errorf("ContainDateRange: invalid boundaries: %s,%s", b1.Format(RRDATEFMTSQL), b2.Format(RRDATEFMTSQL))
+		return t1, t2, err
+	}
+	if b1.After(*d1) && b1.Before(*b2) {
+		t1 = *b1
+	}
+	if b2.Before(*d2) && b2.After(*b1) {
+		t2 = *b2
+	}
+	return t1, t2, nil
 }
 
 // a1 - a2 = time range of the assessment

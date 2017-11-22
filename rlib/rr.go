@@ -709,7 +709,6 @@ func rentrollMapGapHandler(BID int64, startDt, stopDt time.Time,
 //-----------------------------------------------------------------------------
 func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 	m *map[int64][]RentRollStaticInfo, xbiz *XBusiness) error {
-	var err error
 	for k, v := range *m { // for every component
 
 		var gsrAmt float64
@@ -725,14 +724,20 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 			// if PossesionStart is after the report start time, then use PossessionStart
 			// if PossesionStop is befor the report stop time, then use PossessionStop
 			//-----------------------------------------------------------------------------
-			d1 := startDt
-			if v[i].PossessionStart.Time.After(d1) {
-				d1 = v[i].PossessionStart.Time
+			// d1 := startDt
+			// if v[i].PossessionStart.Time.After(d1) {
+			// 	d1 = v[i].PossessionStart.Time
+			// }
+			// d2 := stopDt
+			// if v[i].PossessionStop.Time.Before(d2) {
+			// 	d2 = v[i].PossessionStop.Time
+			// }
+
+			d1, d2, err := ContainDates(&startDt, &stopDt, &v[i].PossessionStart.Time, &v[i].PossessionStop.Time)
+			if err != nil {
+				return err
 			}
-			d2 := stopDt
-			if v[i].PossessionStop.Time.Before(d2) {
-				d2 = v[i].PossessionStop.Time
-			}
+
 			// Console("d1 = %s, d2 = %s\n", d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL))
 			gsrAmt, _, _, err = CalculateLoadedGSR(BID, k, &d1, &d2, xbiz)
 			if err != nil {
