@@ -32,6 +32,8 @@ func readCommandLineArgs() {
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	pFile := flag.String("f", "dbconf.json", "settings that define DB generation")
 
+	flag.Parse()
+
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
@@ -40,6 +42,9 @@ func readCommandLineArgs() {
 }
 
 func main() {
+	var err error
+	readCommandLineArgs()
+
 	//----------------------------------------------------------------
 	// Initialize the empty database. It should contain things like:
 	//   Chart of Accounts
@@ -53,8 +58,6 @@ func main() {
 		os.Exit(rc)
 	}
 
-	var err error
-	readCommandLineArgs()
 	rlib.RRReadConfig()
 
 	//----------------------------
@@ -107,6 +110,7 @@ func main() {
 	//----------------------------
 	// Read initialization
 	//----------------------------
+	rlib.Console("Config file = %s\n", App.ConfFileName)
 	ctx, err := ReadConfig(App.ConfFileName)
 	if err != nil {
 		fmt.Printf("Error loading %s: %s\n", App.ConfFileName, err.Error())
