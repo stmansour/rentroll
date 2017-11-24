@@ -733,7 +733,7 @@ func rentrollMapGSRHandler(BID int64, startDt, stopDt time.Time,
 			// 	d2 = v[i].PossessionStop.Time
 			// }
 
-			d1, d2, err := ContainDates(&startDt, &stopDt, &v[i].PossessionStart.Time, &v[i].PossessionStop.Time)
+			d1, d2, err := ContainDateRange(&startDt, &stopDt, &v[i].PossessionStart.Time, &v[i].PossessionStop.Time)
 			if err != nil {
 				return err
 			}
