@@ -5,6 +5,7 @@ if [ "${BUILD_NUMBER}x" = "x" ]; then
 	BLDNOFILE="./buildno"
 	BUILDNO=$(cat ${BLDNOFILE})
 	BUILDNO=$((BUILDNO + 1))
+	echo "${BUILDNO}" >${BLDNOFILE}
 else
 	BUILDNO=${BUILD_NUMBER}
 fi
@@ -31,4 +32,3 @@ func GetBuildMachine() string { return "${BLD}" }
 func GetBuildTime() string { return "${DAT}" }
 ZZ1EOF
 
-echo "${BUILDNO}" >${BLDNOFILE}
