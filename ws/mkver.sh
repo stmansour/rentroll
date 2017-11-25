@@ -1,9 +1,13 @@
 #!/bin/bash
 MAJVER=1
-MINVER=0
-BLDNOFILE="./buildno"
-BUILDNO=$(cat ${BLDNOFILE})
-BUILDNO=$((BUILDNO + 1))
+MINVER=2
+if [ "${BUILD_NUMBER}x" = "x" ]; then
+	BLDNOFILE="./buildno"
+	BUILDNO=$(cat ${BLDNOFILE})
+	BUILDNO=$((BUILDNO + 1))
+else
+	BUILDNO=${BUILD_NUMBER}
+fi
 FNAME="ver.go"
 VER=$(printf "%d.%d.%06d" ${MAJVER} ${MINVER} ${BUILDNO})
 BLD="${HOSTNAME}"
