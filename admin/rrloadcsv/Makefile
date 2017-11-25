@@ -15,7 +15,11 @@ clean:
 	echo "*** CLEAN completed in rrloadcsv ***"
 
 ver.go:
-	${TOP}/ws/mkver.sh
+	if [ -f ${TOP}/ws/ver.go ]; then
+		cp ${TOP}/ws/ver.gh .
+	else
+		${TOP}/ws/mkver.sh
+	fi
 
 config.json:
 	/usr/local/accord/bin/getfile.sh accord/db/confdev.json
