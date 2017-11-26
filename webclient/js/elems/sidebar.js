@@ -306,6 +306,7 @@ function getAboutInfo() {
     .done( function(data) {
         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
             document.getElementById("appVer").innerHTML = data;
+            //w2ui.toplayout.refresh('main');
         } else {
             console.log('received response of type ' + typeof data + ' : ' + data);
         }

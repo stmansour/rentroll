@@ -21,10 +21,14 @@ function handleDateToolbarAction(event,prefix) {
     switch (event.target) {
         case 'monthback':
             app.D1 = monthBack(xd1);
-            app.D2 = monthBack(xd2);
+            if ( !event.originalEvent.shiftKey ) {
+                app.D2 = monthBack(xd2);
+            }
             break;
         case 'monthfwd':
-            app.D1 = monthFwd(xd1);
+            if ( !event.originalEvent.shiftKey ) {
+                app.D1 = monthFwd(xd1);
+            }
             app.D2 = monthFwd(xd2);
             break;
         case 'today':
@@ -33,10 +37,14 @@ function handleDateToolbarAction(event,prefix) {
             break;
         case 'dayback':
             app.D1 = dayBack(xd1);
-            app.D2 = dayBack(xd2);
+            if ( !event.originalEvent.shiftKey ) {
+                app.D2 = dayBack(xd2);
+            }
             break;
         case 'dayfwd':
-            app.D1 = dayFwd(xd1);
+            if ( !event.originalEvent.shiftKey ) {
+                app.D1 = dayFwd(xd1);
+            }
             app.D2 = dayFwd(xd2);
             break;
     }
