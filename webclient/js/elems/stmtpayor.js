@@ -77,15 +77,15 @@ function buildPayorStatementElements() {
         formURL: '/webclient/html/formpayorstmtdet.html',
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-                { type: 'break' },
+                { id: 'btnNotes',     type: 'button', icon: 'fa fa-sticky-note-o' },
+                {                     type: 'break' },
                 { id: 'payorstmtint', type: 'radio', group: '1', text: 'Internal', icon: 'fa fa-file-text-o', checked: true },
                 { id: 'payorstmtext', type: 'radio', group: '1', text: 'External', icon: 'fa fa-file-o' },
-                { type: 'break' },
-                { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-                { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
-                { type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                {                     type: 'break' },
+                { id: 'csvexport',    type: 'button', icon: 'fa fa-table', tooltip: 'export to CSV' },
+                { id: 'pdfexport',    type: 'button', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+                {                     type: 'spacer' },
+                { id: 'btnClose',     type: 'button', icon: 'fa fa-times' },
             ],
             onClick: function (event) {
                 event.onComplete = function() {

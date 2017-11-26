@@ -94,6 +94,7 @@ function buildSidebar() {
             },
             { id: 'admin', text: 'Administrator', img: 'icon-wrench', expanded: true, group: true,
                 nodes: [
+                        { id: 'about',  text: 'Product Info',        icon: 'fa fa-info' },
                         { id: 'tws',    text: 'Timed Work Schedule', icon: 'fa fa-calendar' },
                         { id: 'ledgers',text: 'Ledgers',             icon: 'fa fa-book' },
                 ]
@@ -144,21 +145,21 @@ function buildSidebar() {
                     case 'expense':
                     case 'payorstmt':
                     case 'rr':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         switchToGrid(target);
                         break;
                     case 'goRatePlan':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Rate Plan...  Not Available</h2><h3>But coming soon!</h3>');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'goServiceMenu':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Service Menu...  Not Available</h2><h3>But coming soon!</h3>');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'mkdep':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formmkdep.html');
                         w2ui.toplayout.hide('right',true);
                         break;
@@ -168,82 +169,82 @@ function buildSidebar() {
                      //     w2ui.toplayout.hide('right',true);
                      //     break;
                     case 'gdssvcs':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formgas.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'assignrnt':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formaar.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'movein':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formmvin.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'moveout':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formmvout.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'updatera':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formraextend.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'dlnq':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formdlnq.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'prepnotice':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formprepnotice.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'close':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formclose.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'adjust':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formadjust.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'svcreq':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formcsr.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'svcreqcmp':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formcmplsr.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'housekpg':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formhskp.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'prvmaint':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formprvm.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'invntory':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/forminv.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'changeRT':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formchgrt.html');
                         w2ui.toplayout.hide('right',true);
                         break;
                     case 'permissions':
-                        w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                         w2ui.toplayout.load('main', '/webclient/html/formperm.html');
                         w2ui.toplayout.hide('right',true);
                         break;
@@ -272,6 +273,12 @@ function buildSidebar() {
                         showReport(target);
                         app.last.report = target;
                         break;
+                    case 'about':
+                        // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                        w2ui.toplayout.load('main', '/webclient/html/about.html');
+                        w2ui.toplayout.hide('right',true);
+                        getAboutInfo();
+                        break;
                     default:
                         console.log('unhandled event target: ' + target);
                 }
@@ -285,4 +292,25 @@ function buildSidebar() {
             form_dirty_alert(yes_callBack, no_callBack, yes_cb_args, nb_cb_args);
         }
     }));
+}
+
+//---------------------------------------------------------------------------------
+// getAboutInfo - contacts the server to get info about its version, and updates
+//          the version (about) html page
+//
+// @params  <none>
+// @retunrs <none>
+//---------------------------------------------------------------------------------
+function getAboutInfo() {
+    $.get('/v1/version/')
+    .done( function(data) {
+        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
+            document.getElementById("appVer").innerHTML = data;
+        } else {
+            console.log('received response of type ' + typeof data + ' : ' + data);
+        }
+    })
+    .fail( function() {
+        console.log('Error getting /v1/version/');
+    });
 }

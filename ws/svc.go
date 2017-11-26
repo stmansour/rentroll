@@ -191,6 +191,7 @@ var Svcs = []ServiceHandler{
 	{"uilists", SvcUILists, false},
 	{"uival", SvcUIVal, false},
 	{"unpaidasms", SvcHandlerGetUnpaidAsms, true},
+	{"version", SvcHandlerVersion, false},
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
@@ -297,6 +298,20 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 // see if it is alive and taking requests. It will return its version number.
 func SvcHandlerPing(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Fprintf(w, "Accord Rentroll - Version %s\n", GetVersionNo())
+}
+
+// SvcHandlerVersion returns the server version number
+//  @Title Verrsion
+//  @URL /v1/version
+//  @Method  POST or GET
+//  @Synopsis Get the current server version
+//  @Description Returns the server build number appended to the major/minor
+//  @Description version number.
+//  @Input
+//  @Response version number
+// wsdoc }
+func SvcHandlerVersion(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	fmt.Fprintf(w, "%s", GetVersionNo())
 }
 
 // SvcTWS returns a grid representation of the TWS table
