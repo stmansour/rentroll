@@ -63,8 +63,13 @@ stopwatchdog() {
     fi      
 }
 
+#--------------------------------------------------------------
+#  If we need to make this installation use the production
+#  database, just invoke:
+#  $ ./activate.sh makeprod
+#--------------------------------------------------------------
 makeProdNode() {
-	${GETFILE} accord/db/config.json  >log.out 2>&1 
+	${GETFILE} accord/db/confprod.json ; mv confprod.json config.json  >log.out 2>&1 
 }
 
 #--------------------------------------------------------------
@@ -326,11 +331,14 @@ for arg do
 		exit 0
 		;;
 	"ready")
-		# ST=$(curl -s http://${HOST}:${PORT}/status/)
-		# echo "${ST}"
-		echo "OK"
-		exit 0
-		;;
+		x=$(curl -s http://localhost:8270/v1/ping | grep "Accord" | wc -l)
+		if (( x == 1 )); then
+	        echo "OK"
+			exit 0
+		fi  
+		echo "UNEXPECTED RESPONSE"
+		exit 1
+		;;  
 	# "status")
 	# 	status
 	# 	;;

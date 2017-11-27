@@ -87,8 +87,10 @@ package: rentroll
 	@tools/bashtools/buildcheck.sh PACKAGE
 
 publish: package
-	cd tmp;tar cvf rentroll.tar rentroll; gzip rentroll.tar
-	cd tmp;/usr/local/accord/bin/deployfile.sh rentroll.tar.gz jenkins-snapshot/rentroll/latest
+        cd tmp;if [ -f ./rentroll/config.json ]; then mv ./rentroll/config.json .; fi
+        cd tmp;tar cvf rentroll.tar rentroll; gzip rentroll.tar
+        cd tmp;/usr/local/accord/bin/deployfile.sh rentroll.tar.gz jenkins-snapshot/rentroll/latest
+        cd tmp;if [ -f ./config.json ]; then mv ./config.json ./rentroll/config.json; fi
 
 pubimages:
 	cd tmp/rentroll;find . -name "*.png" | tar -cf rrimages.tar -T - ;gzip rrimages.tar ;/usr/local/accord/bin/deployfile.sh rrimages.tar.gz jenkins-snapshot/rentroll/latest
