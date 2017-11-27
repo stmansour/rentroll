@@ -173,12 +173,14 @@ start() {
 
 	if [ ! -f "/usr/local/share/man/man1/rentroll.1" ]; then
 		./installman.sh >installman.log 2>&1
-		${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz  >log.out 2>&1 
-		tar xzvf rrimages.tar.gz  >log.out 2>&1 
-		${GETFILE} jenkins-snapshot/rentroll/latest/rrjs.tar.gz  >log.out 2>&1 
-		tar xzvf rrjs.tar.gz  >log.out 2>&1 
-		${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz  >log.out 2>&1 
-		tar xzvf fa.tar.gz  >log.out 2>&1 
+
+		# These are now in the source tree
+		# ${GETFILE} jenkins-snapshot/rentroll/latest/rrimages.tar.gz  >log.out 2>&1 
+		# tar xzvf rrimages.tar.gz  >log.out 2>&1 
+		# ${GETFILE} jenkins-snapshot/rentroll/latest/rrjs.tar.gz  >log.out 2>&1 
+		# tar xzvf rrjs.tar.gz  >log.out 2>&1 
+		# ${GETFILE} jenkins-snapshot/rentroll/latest/fa.tar.gz  >log.out 2>&1 
+		# tar xzvf fa.tar.gz  >log.out 2>&1 
 	fi
 
 	#---------------------------------------------------
