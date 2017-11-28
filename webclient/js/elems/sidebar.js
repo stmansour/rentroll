@@ -33,7 +33,7 @@ function buildSidebar() {
                 nodes: [
                         { id: 'rr',           text: 'Rent Roll',                     icon: 'fa fa-line-chart',   hint: 'Rent Roll' },
                         // { id: 'dlnq',         text: 'Delinquency Analysis',          icon: 'fa fa-pie-chart',   hint: 'Delinquency Analysis' },
-                        // { id: 'stmt',         text: 'RA Statements',                 icon: 'fa fa-star-half-o', hint: 'Rental Agreement Statements' },
+                        { id: 'stmt',         text: 'RA Statements',                 icon: 'fa fa-star-half-o', hint: 'Rental Agreement Statements' },
                         { id: 'payorstmt',    text: 'Payor Statements',              icon: 'fa fa-star-half-o fa-flip-horizontal', hint: 'Payor Statements' },
                         // { id: 'prepnotice',   text: 'Prepare Notices',               icon: 'fa fa-file-text-o', hint: 'Prepare Notices' },
                 ]
