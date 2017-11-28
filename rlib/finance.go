@@ -43,7 +43,7 @@ var QBAcctInfo = []struct {
 	{"Liabilities", true},       // Liabilities   D -   C +
 	{LiabilitySecDep, true},     // Liabilities   D -   C +
 	{"Income", true},            // Income Acct   D -   C +
-	{"Income Offsets", true},    // Income Acct   D -   C +
+	{"Income Offset", true},     // Income Acct   D -   C +
 	{"Other Income", true},      // Income Acct   D -   C +
 }
 
