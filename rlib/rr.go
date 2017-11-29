@@ -1055,6 +1055,8 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 		deltaInRcv := (endingRcv - beginningRcv)*/
 
 		// BeginningSecDep
+		// TODO:  this should be updated to get the value on a specific date: the start date.
+		//        This is only possible after we add the LedgerMarkers
 		beginningSecDep, err := GetSecDepBalance(BID, raid, rid, &d70, &startDt)
 		if err != nil {
 			Console("%s: RAID: %d, RID: %d || Error while calculating BeginningSecDep:: %s\n",
@@ -1063,6 +1065,8 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 		}
 
 		// Change in SecDep
+		// TODO:  this should be updated to get the value on a specific date: the start date.
+		//        This is only possible after we add the LedgerMarkers
 		deltaInSecDep, err := GetSecDepBalance(BID, raid, rid, &startDt, &stopDt)
 		if err != nil {
 			Console("%s: RAID: %d, RID: %d || Error while calculating BeginningSecDep:: %s\n",

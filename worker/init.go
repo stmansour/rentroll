@@ -12,6 +12,7 @@ var workers = []struct {
 	Worker func(*tws.Item)
 }{
 	{"CreateAssessmentInstances", CreateAssessmentInstances},
+	{"CleanRARBalanceCache", CleanRARBalanceCache},
 }
 
 // Init registers the TWS functions needed by RentRoll

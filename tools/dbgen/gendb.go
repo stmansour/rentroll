@@ -444,7 +444,7 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		}
 
 		RID++
-		if RID > MaxRID {
+		if i+1 < ctx.RACount && RID > MaxRID {
 			fmt.Printf("Halting Rental Agreement creation at RAID = %d because all Rentables are rented\n", ra.RAID)
 			break
 		}

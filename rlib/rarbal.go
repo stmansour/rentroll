@@ -16,17 +16,141 @@ type RARStmtEntry struct {
 	TCID    int64              // IF THIS IS FOR A PAYOR STATEMENT, the TCID of the Payor, otherwise 0
 }
 
-// AcctRcvAccts returns a slice of AccountsReceivable accounts
+// BalanceCacheEntry is the data type for balance cache entries.
+type BalanceCacheEntry struct {
+	bid    int64
+	rid    int64
+	raid   int64
+	d1     *time.Time
+	d2     *time.Time
+	begin  float64
+	end    float64
+	expire *time.Time
+}
+
+// RARBalCacheExpiry is the time that entries in the balance cache live
+var RARBalCacheExpiry = time.Duration(time.Minute * 1) // a cached value is good for 1 mins
+
+var balcache = map[string]*BalanceCacheEntry{} // initialize an empty cache
+
+// getCacheKey returns the string used as a key in the map for
+// the supplied input variables.
 //
-// PARAMS
-//     bid - which business
+// INPUTS
+//  bid  - biz id
+//  rid  - retntable id
+//  raid - rental agreement id
+//  d1   - time range start
+//  d2   - time range stop
 //
 // RETURNS
-// []int64 - slice of LIDs that are of type Accounts Receivable
-//   error - any error encountered
+//  a key string
 //-----------------------------------------------------------------------------
-// func AcctRcvAccts(bid int64) ([]int64, error) {
-// 	return AcctSlice(bid, AccountsReceivable)
+func getCacheKey(bid, rid, raid int64, d1, d2 *time.Time) string {
+	return fmt.Sprintf("%d %d %d %s %s", bid, rid, raid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL))
+}
+
+// getCachedBalanceEntry retrieves the balance from the cache if
+// it exists. If it is found, it's expire time is extended.
+//
+// INPUTS
+//  bid  - biz id
+//  rid  - retntable id
+//  raid - rental agreement id
+//  d1   - time range start
+//  d2   - time range stop
+//
+// RETURNS
+//  pointer to the BalanceCacheEntry if it exists otherwise it
+//  returns nil.
+//-----------------------------------------------------------------------------
+func getCachedBalanceEntry(bid, rid, raid int64, d1, d2 *time.Time) *BalanceCacheEntry {
+	k := getCacheKey(bid, rid, raid, d1, d2)
+	// Console("getCachedBalanceEntry: key = %s\n", k)
+	b, ok := balcache[k]
+	if ok {
+		if b == nil {
+			return nil
+		}
+		t := time.Now().Add(RARBalCacheExpiry) // it's life gets extended
+		balcache[k].expire = &t
+		// Console("Expire updated: %s,  key = %s\n", t.Format(RRDATETIMEINPFMT), k)
+		return b
+	}
+	return nil
+}
+
+// storeBalanceInfoToCache stores the supplied cache entry. Since this
+// routine is private, it does not check the cache for an existing
+// entry at this key. It assumes the caller understands how to use it.
+//
+// INPUTS
+//  bid  - biz id
+//  rid  - retntable id
+//  raid - rental agreement id
+//  d1   - time range start
+//  d2   - time range stop
+//
+// RETURNS
+//  nothing
+//-----------------------------------------------------------------------------
+func storeBalanceInfoToCache(bid, rid, raid int64, d1, d2 *time.Time, begin, end float64) {
+	t := time.Now().Add(RARBalCacheExpiry) // it gets this much time
+	b := BalanceCacheEntry{
+		bid:    bid,
+		rid:    rid,
+		raid:   raid,
+		d1:     d1,
+		d2:     d2,
+		begin:  begin,
+		end:    end,
+		expire: &t,
+	}
+	k := getCacheKey(bid, rid, raid, d1, d2)
+	// Console("Expire: %s,  key: %s\n", t.Format(RRDATETIMEINPFMT), k)
+	balcache[k] = &b
+}
+
+// CleanBalanceInfoCache examines all the cache values and essentially
+// removes the ones that have timed out.  If the force flag is true
+// then all entries are removed from the cache
+//
+// INPUTS
+//  force - a boolean where true means remove all entries from the cache
+//
+// RETURNS
+//  nothing
+//-----------------------------------------------------------------------------
+func CleanBalanceInfoCache(force bool) {
+
+	now := time.Now()
+	// Console("Entered Clean, force = %t,  now = %v\n", force, now)
+	i := 0
+	for k, v := range balcache {
+		if v == nil {
+			continue
+		}
+		if force || now.After(*v.expire) {
+			balcache[k] = nil
+		}
+		if nil != balcache[k] {
+			i++
+		}
+	}
+	// Console("BALCACHE After cleaning: %d\n", i)
+}
+
+// PrintRARBalCache is a debug routine to show the contents of the cache
+//-----------------------------------------------------------------------------
+// func PrintRARBalCache() {
+// 	i := 0
+// 	for _, v := range balcache {
+// 		if v != nil {
+// 			i++
+// 			Console("bid: %d, rid: %d, raid: %d,   expire: %v\n", v.bid, v.rid, v.raid, v.expire)
+// 		}
+// 	}
+// 	Console("balcache size = %d\n", i)
 // }
 
 // GetBeginEndRARBalance gets the balance associated with a Rentable and a
@@ -44,11 +168,22 @@ type RARStmtEntry struct {
 //   error   - any error encountered
 //-----------------------------------------------------------------------------
 func GetBeginEndRARBalance(bid, rid, raid int64, d1, d2 *time.Time) (float64, float64, error) {
+	//----------------------------------------
+	// try to get it from the cache first...
+	//----------------------------------------
+	b := getCachedBalanceEntry(bid, rid, raid, d1, d2)
+	if b != nil {
+		return b.begin, b.end, nil
+	}
+
 	var err error
 	begin := float64(0)
 	end := float64(0)
 	begin, err = GetRARBalance(bid, rid, raid, d1)
 	end, err = GetRARBalance(bid, rid, raid, d2)
+
+	storeBalanceInfoToCache(bid, rid, raid, d1, d2, begin, end) // cache this value, maybe we'll hit it again
+
 	return begin, end, err
 }
 
@@ -68,6 +203,7 @@ func GetBeginEndRARBalance(bid, rid, raid int64, d1, d2 *time.Time) (float64, fl
 //-----------------------------------------------------------------------------
 func GetRARBalance(bid, rid, raid int64, dt *time.Time) (float64, error) {
 	funcname := "GetRARBalance"
+
 	bal := float64(0)
 	if raid == 0 {
 		return bal, nil

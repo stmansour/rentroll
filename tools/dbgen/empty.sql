@@ -15,6 +15,12 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+DROP DATABASE IF EXISTS rentroll;
+CREATE DATABASE rentroll;
+USE rentroll;
+GRANT ALL PRIVILEGES ON rentroll.* TO 'ec2-user'@'localhost';
+set GLOBAL sql_mode='ALLOW_INVALID_DATES';
+
 --
 -- Table structure for table `AR`
 --
