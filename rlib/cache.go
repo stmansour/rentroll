@@ -17,4 +17,6 @@ type SimpleCacheCtx struct {
 func InitCaches() {
 	go RARBalCacheController()
 	go SecDepBalCacheController()
+	go GLAcctCacheController()
+	go ARCacheController()
 }

@@ -278,7 +278,7 @@ func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 		LogAndPrintError(funcname, fmt.Errorf("GetRARAcctRange: there are no accounts of type %s", AccountsReceivable))
 		return bal
 	}
-	qryAccts, err := AcctRulesSlice(rcvAccts)
+	qryAccts, err := AcctRulesSlice(rcvAccts, bid, AccountsReceivable)
 	if nil == err {
 		l := len(qryAccts)
 		if 0 > l {

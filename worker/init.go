@@ -14,6 +14,8 @@ var workers = []struct {
 	{"CreateAssessmentInstances", CreateAssessmentInstances},
 	{"CleanRARBalanceCache", CleanRARBalanceCache},
 	{"CleanSecDepBalanceCache", CleanSecDepBalanceCache},
+	{"CleanAcctSliceCache", CleanAcctSliceCache},
+	{"CleanARSliceCache", CleanARSliceCache},
 }
 
 // Init registers the TWS functions needed by RentRoll
