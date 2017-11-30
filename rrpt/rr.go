@@ -234,8 +234,9 @@ func rrTableAddRow(tbl *gotable.Table, q rlib.RentRollStaticInfo) {
 
 		// ------------- LAST SIX COLUMS ----------------
 
-		if (q.FLAGS & rlib.RentRollSubTotalRow) > 0 {
-			// if it is SUBTOTAL row, then get the values
+		// get the values in last six columns for
+		// subtotal as well as grand total row
+		if (q.FLAGS&rlib.RentRollSubTotalRow) > 0 || (q.FLAGS&rlib.RentRollGrandTotalRow) > 0 {
 			BeginReceivableREP = float64ToStr(q.BeginReceivable, false)
 			DeltaReceivableREP = float64ToStr(q.DeltaReceivable, false)
 			EndReceivableREP = float64ToStr(q.EndReceivable, false)
