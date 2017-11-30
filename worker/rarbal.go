@@ -11,9 +11,9 @@ import (
 func CleanRARBalanceCache(item *tws.Item) {
 	tws.ItemWorking(item) // inform the tws system that we're working
 
-	rlib.CleanBalanceInfoCache(false) // false means don't remove everything, remove only if expire time is < Now()
+	rlib.CleanRARBalanceInfoCache(false) // false means don't remove everything, remove only if expire time is < Now()
 
 	// reschedule after the caches default time to live...
-	resched := time.Now().Add(rlib.RARBalCacheExpiry)
+	resched := time.Now().Add(rlib.RARBalCacheCtx.Expiry)
 	tws.RescheduleItem(item, resched)
 }

@@ -6,10 +6,26 @@ import (
 	"time"
 )
 
-// SecDepBalCacheExpiry is the time that entries in the balance cache live
-var SecDepBalCacheExpiry = time.Duration(time.Minute * 1) // a cached value is good for 1 mins
-
+// SecDepBalCacheCtx is the context used for the RAR Balance cache.
+var SecDepBalCacheCtx = SimpleCacheCtx{
+	Expiry: time.Duration(time.Minute * 1),
+}
 var secdepcache = map[string]*BalanceCacheEntry{} // initialize an empty cache
+
+// SecDepBalCacheController is a go routine that will controll access to
+// balcache when multiple routines are trying to write to it.
+//-----------------------------------------------------------------------------
+func SecDepBalCacheController() {
+	SecDepBalCacheCtx.SemAck = make(chan int)
+	SecDepBalCacheCtx.Sem = make(chan int)
+	for {
+		select {
+		case <-SecDepBalCacheCtx.Sem:
+			SecDepBalCacheCtx.SemAck <- 1 // Let the caller know they have it
+			<-SecDepBalCacheCtx.SemAck    // wait until caller is finished
+		}
+	}
+}
 
 // getSecDepCachedBalanceEntry retrieves the balance from the cache if
 // it exists. If it is found, it's expire time is extended.
@@ -33,8 +49,11 @@ func getSecDepCachedBalanceEntry(bid, rid, raid int64, d1, d2 *time.Time) *Balan
 		if b == nil {
 			return nil
 		}
-		t := time.Now().Add(SecDepBalCacheExpiry) // it's life gets extended
-		secdepcache[k].expire = &t
+		t := time.Now().Add(SecDepBalCacheCtx.Expiry) // it's life gets extended
+		SecDepBalCacheCtx.Sem <- 1                    // request write access
+		<-SecDepBalCacheCtx.SemAck                    // pause until we get access
+		secdepcache[k].expire = &t                    // <<<<<<<<<<<<<<<  do the cache update
+		SecDepBalCacheCtx.SemAck <- 1                 // tell the controller we're done
 		// Console("Expire updated: %s,  key = %s\n", t.Format(RRDATETIMEINPFMT), k)
 		return b
 	}
@@ -56,7 +75,7 @@ func getSecDepCachedBalanceEntry(bid, rid, raid int64, d1, d2 *time.Time) *Balan
 //  nothing
 //-----------------------------------------------------------------------------
 func storeSecDepBalanceInfoToCache(bid, rid, raid int64, d1, d2 *time.Time, begin, end float64) {
-	t := time.Now().Add(SecDepBalCacheExpiry) // it gets this much time
+	t := time.Now().Add(SecDepBalCacheCtx.Expiry) // it gets this much time
 	b := BalanceCacheEntry{
 		bid:    bid,
 		rid:    rid,
@@ -69,7 +88,10 @@ func storeSecDepBalanceInfoToCache(bid, rid, raid int64, d1, d2 *time.Time, begi
 	}
 	k := getCacheKey(bid, rid, raid, d1, d2)
 	// Console("Expire: %s,  key: %s\n", t.Format(RRDATETIMEINPFMT), k)
-	secdepcache[k] = &b
+	SecDepBalCacheCtx.Sem <- 1    // request write access
+	<-SecDepBalCacheCtx.SemAck    // pause until we get access
+	secdepcache[k] = &b           // <<<<<<<<<<<<<<<    do the cache update
+	SecDepBalCacheCtx.SemAck <- 1 // tell the controller we're done
 }
 
 // CleanSecDepBalanceInfoCache examines all the cache values and essentially
@@ -83,22 +105,37 @@ func storeSecDepBalanceInfoToCache(bid, rid, raid int64, d1, d2 *time.Time, begi
 //  nothing
 //-----------------------------------------------------------------------------
 func CleanSecDepBalanceInfoCache(force bool) {
-
 	now := time.Now()
 	// Console("Entered Clean, force = %t,  now = %v\n", force, now)
 	i := 0
-	for k, v := range balcache {
+	for k, v := range secdepcache {
 		if v == nil {
 			continue
 		}
 		if force || now.After(*v.expire) {
-			balcache[k] = nil
+			SecDepBalCacheCtx.Sem <- 1    // request write access
+			<-SecDepBalCacheCtx.SemAck    // pause until we get access
+			secdepcache[k] = nil          // <<<<<<<<<<<<<<<  do the cache update
+			SecDepBalCacheCtx.SemAck <- 1 // tell the controller we're done
 		}
-		if nil != balcache[k] {
+		if nil != secdepcache[k] {
 			i++
 		}
 	}
-	// Console("BALCACHE After cleaning: %d\n", i)
+	// Console("SecDepBALCACHE After cleaning: %d\n", i)
+}
+
+// PrintSecDepBalCache is a debug routine to show the contents of the cache
+//-----------------------------------------------------------------------------
+func PrintSecDepBalCache() {
+	i := 0
+	for _, v := range secdepcache {
+		if v != nil {
+			i++
+			// Console("bid: %d, rid: %d, raid: %d,   expire: %v\n", v.bid, v.rid, v.raid, v.expire)
+		}
+	}
+	Console("secdepcache size = %d  at  %v\n", i, time.Now())
 }
 
 // AcctSlice returns a slice of GLAccounts that match the supplied accttype
@@ -216,6 +253,14 @@ func SecDepRules(bid int64) ([]int64, error) {
 //   error - any error encountered
 //-----------------------------------------------------------------------------
 func GetSecDepBalance(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) {
+	//-------------------------------
+	// first, check the cache...
+	//-------------------------------
+	b := getSecDepCachedBalanceEntry(bid, rid, raid, d1, d2)
+	if b != nil {
+		return b.begin, nil
+	}
+
 	amt := float64(0)
 	sa := []string{}
 	m, err := SecDepRules(bid)
@@ -245,7 +290,12 @@ func GetSecDepBalance(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) 
 		amt += x.Float64
 	}
 	err = rows.Err()
-	return amt, err
+	if err != nil {
+		return amt, err
+	}
+	storeSecDepBalanceInfoToCache(bid, rid, raid, d1, d2, amt /* this is the val we'll use */, amt /*placeholder*/) // cache this value, maybe we'll hit it again
+	return amt, nil
+
 }
 
 // GetSecDepBalanceOnDate

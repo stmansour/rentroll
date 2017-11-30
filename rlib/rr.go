@@ -1036,7 +1036,7 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 		errList []error
 		d70     = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 	)
-	// Console("Entered in %s\n", funcname)
+	// Console("Entered in %s.  RARBalCache size: %d\n", funcname, RARBalCacheSize())
 
 	for raid, rid := range *raidMap {
 		if !(raid > 0 && rid > 0) {
@@ -1087,6 +1087,7 @@ func getReceivableAndSecDep(BID int64, startDt, stopDt time.Time,
 
 		// Console("BeginSecDep = %.2f, Delta = %.2f, End = %.2f\n", subTTL.BeginSecDep, subTTL.DeltaSecDep, subTTL.EndSecDep)
 	}
+	// Console("Exiting %s.  RARBalCache size: %d\n", funcname, RARBalCacheSize())
 
 	return errList
 }

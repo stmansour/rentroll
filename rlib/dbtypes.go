@@ -1708,6 +1708,7 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	RRdb.DBFields = map[string]string{}
 	buildPreparedStatements()
 	buildPBPreparedStatements()
+	InitCaches()
 
 	RRdb.BUDlist = BuildBusinessDesignationMap()
 
