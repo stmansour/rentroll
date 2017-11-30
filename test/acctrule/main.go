@@ -42,7 +42,6 @@ func readCommandLineArgs() {
 func main() {
 	var err error
 	readCommandLineArgs()
-	rlib.RRReadConfig()
 
 	//----------------------------
 	// Open RentRoll database
