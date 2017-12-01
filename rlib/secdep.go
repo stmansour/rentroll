@@ -8,7 +8,7 @@ import (
 
 // SecDepBalCacheCtx is the context used for the RAR Balance cache.
 var SecDepBalCacheCtx = SimpleCacheCtx{
-	Expiry: time.Duration(time.Minute * 1),
+	Expiry: time.Duration(time.Minute * 5),
 }
 var secdepcache = map[string]*BalanceCacheEntry{} // initialize an empty cache
 

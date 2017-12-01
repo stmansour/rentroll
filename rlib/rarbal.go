@@ -30,7 +30,7 @@ type BalanceCacheEntry struct {
 
 // RARBalCacheCtx is the context used for the RAR Balance cache.
 var RARBalCacheCtx = SimpleCacheCtx{
-	Expiry: time.Duration(time.Minute * 1),
+	Expiry: time.Duration(time.Minute * 5),
 }
 var balcache = map[string]*BalanceCacheEntry{} // initialize an empty cache
 
