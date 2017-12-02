@@ -170,17 +170,18 @@ function buildDepositElements() {
                 .done( function(dpmArgs,depArgs) {
                     if (typeof dpmArgs[0] == 'string') {
                         app.depmeth = JSON.parse(dpmArgs[0]);
-                        w2ui.depositForm.get('DPMName').options.items = app.depmeth[BUD];
+                        f.get('DPMName').options.items = app.depmeth[BUD];
                     } else if (dpmArgs[0].status != 'success') {
-                        w2ui.depositForm.message(dpmArgs[0].message);
+                        f.message(dpmArgs[0].message);
                     }
 
                     if (typeof depArgs[0] == 'string') {
                         app.Depositories = JSON.parse(depArgs[0]);
-                        w2ui.depositForm.get('DEPName').options.items = app.Depositories[BUD];
+                        f.get('DEPName').options.items = app.Depositories[BUD];
                     } else if (depArgs[0].status != 'success') {
-                        w2ui.depositForm.message(depArgs[0].message);
+                        f.message(depArgs[0].message);
                     }
+
                 })
                 .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
 
