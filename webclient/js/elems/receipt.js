@@ -34,11 +34,11 @@ function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
         CreateBy: 0
     };
 
-        // if it called after 'save and add another' action there previous form record is passed as Object
+    // if it called after 'save and add another' action there previous form record is passed as Object
     // else it is null
     if ( previousFormRecord ) {
         defaultFormData = setDefaultFormFieldAsPreviousRecord(
-            [ 'DocNo', 'Payor', 'Amount', 'OtherPayorName', 'Comment'], // Fields to Reset
+            [ 'DocNo', 'Payor', 'Amount', 'OtherPayorName', 'Comment', 'RAID'], // Fields to Reset
             defaultFormData,
             previousFormRecord
         );
@@ -288,7 +288,7 @@ function buildReceiptElements() {
                     BID=parseInt(x.value);
 
                 // var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
-                // handleReceiptRAID(url,f);
+                // handleReceiptRAID(url, f);
 
                 if (r.TCID < 1) { // if TCID is not greater than 0 then return
                     return;
@@ -344,6 +344,16 @@ function buildReceiptElements() {
                     if ($("#receiptForm").find("input[name=Payor]").length > 0) {
                         $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
                     }
+
+                    // enable/disable RAID based on Account Rule
+                    var arid;
+                    if (typeof r.ARID === "object") {
+                        arid = r.ARID.id;
+                    } else {
+                        arid = r.ARID;
+                    }
+                    var url = '/v1/ar/' + r.BID +'/' + arid;
+                    handleReceiptRAID(url, f);
                 })
                 .fail(function() {
                     f.message("Couldn't get person details for TCID: ", r.TCID);
@@ -365,9 +375,6 @@ function buildReceiptElements() {
                 f.get("ARID").options.items = app.ReceiptRules[BUD];
                 f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
-
-                // var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
-                // handleReceiptRAID(url,f);
 
                 formRefreshCallBack(f, "RCPTID", header);
 
@@ -478,7 +485,7 @@ function buildReceiptElements() {
                     break;
                 case "ARID":
                     var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
-                    handleReceiptRAID(url,f);
+                    handleReceiptRAID(url, f);
                     break;
                 }
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
@@ -527,6 +534,9 @@ function buildReceiptElements() {
 
                     // JUST RENDER THE GRID ONLY
                     grid.render();
+
+                    var url = '/v1/ar/' + r.BID +'/' + f.record.ARID.id;
+                    handleReceiptRAID(url, f);
 
                     // add new empty record and just refresh the form, don't need to do CLEAR form
                     var pmt_options = buildPaymentTypeSelectList(BUD);
@@ -601,7 +611,7 @@ function buildReceiptElements() {
    });
 }
 
-function handleReceiptRAID(url,f) {
+function handleReceiptRAID(url, f) {
     var params = {"cmd":"get","recid":0,"name":"receiptForm"};
     var dat = JSON.stringify(params);
     $.post(url, dat, null, "json")
