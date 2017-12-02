@@ -861,7 +861,7 @@ function formRefreshCallBack(w2frm, id_name, form_header, show_header) {
         header = form_header;
 
     if (id === undefined) {
-        console.log("given id_name does not exist in form's record");
+        console.log("given id_name '"+id_name+"' does not exist in form's record");
         return false;
     }
 

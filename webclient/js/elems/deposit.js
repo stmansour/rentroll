@@ -159,7 +159,7 @@ function buildDepositElements() {
                 BID=parseInt(x.value),
                 BUD = getBUDfromBID(BID),
                 f = w2ui.depositForm;
-                var record = getDepositInitRecord(BID, BUD, f.record);
+                var record = getDepositInitRecord(BID, BUD, null);
                 f.record = record;
                 var getUIInfo = function(bid,x) {
                     return $.get('/v1/uival/' + bid + x );
@@ -250,13 +250,16 @@ function buildDepositElements() {
             event.onComplete = function() {
                 var f = this;
                 var r = f.record;
+                var x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
+
                 var header = "Edit Deposit ({0})";
-                var bud = r.BUD.text;
                 var dpmid = r.DPMID;
                 var depid = r.DEPID;
 
-                f.get("DPMName").options.selected = getDepMeth(bud, dpmid);
-                f.get("DEPName").options.selected = getDepository(bud, depid);
+                f.get("DPMName").options.selected = getDepMeth(BUD, dpmid);
+                f.get("DEPName").options.selected = getDepository(BUD, depid);
                 formRefreshCallBack(f, "DID", header);
             };
         },
