@@ -7,9 +7,9 @@
 
 "use strict";
 
-function getDepositInitRecord(BID, BUD){
+function getDepositInitRecord(BID, BUD, previousFormRecord){
     var y = new Date();
-    return {
+    var defaultFormData = {
         recid:          0,
         check:          0,
         DID:            0,
@@ -28,6 +28,18 @@ function getDepositInitRecord(BID, BUD){
         CreateTS:       y.toISOString(),
         CreateBy:       0,
     };
+
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'FLAGS', 'Amount', 'ClearedAmount', 'LastModTime', 'Comment'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );
+    }
+
+    return defaultFormData;
 }
 
 
@@ -147,7 +159,7 @@ function buildDepositElements() {
                 BID=parseInt(x.value),
                 BUD = getBUDfromBID(BID),
                 f = w2ui.depositForm;
-                var record = getDepositInitRecord(BID, BUD);
+                var record = getDepositInitRecord(BID, BUD, f.record);
                 f.record = record;
                 var getUIInfo = function(bid,x) {
                     return $.get('/v1/uival/' + bid + x );
@@ -234,9 +246,6 @@ function buildDepositElements() {
                 }
             },
         },
-        actions: {
-            save: saveDepositForm,
-         },
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this;
@@ -366,6 +375,7 @@ function buildDepositElements() {
         fields: [],
         actions: {
             save: saveDepositForm,
+            saveadd: saveDepositFormAndAnother,
             delete: function() {
                 var form = this;
                 w2confirm(delete_confirm_options)
@@ -374,7 +384,7 @@ function buildDepositElements() {
                     var params = {cmd: 'delete', formname: form.name, DID: w2ui.depositForm.record.DID };
                     var dat = JSON.stringify(params);
                     form.url = '/v1/deposit/' + w2ui.depositForm.record.BID + '/' + w2ui.depositForm.record.DID;
-                    
+
                     $.post(form.url, dat, null, "json")
                     .done(function(data) {
                         if (data.status === "error") {
@@ -443,6 +453,53 @@ function saveDepositForm() {
         app.form_is_dirty = false;// clean dirty flag of form
         app.last.grid_sel_recid  =-1;// clear the grid select recid
         w2ui.depositGrid.render();
+    });
+}
+
+//-----------------------------------------------------------------------------
+// saveDepositFormAndAnother - pull the checked Receipts, extend the return values
+//      and save the form and add another initial object to depositForm.
+// @params
+//-----------------------------------------------------------------------------
+function saveDepositFormAndAnother() {
+    var rcpts = getCheckedReceipts();
+    var f = w2ui.depositForm,
+        grid = w2ui.receiptsGrid,
+        x = getCurrentBusiness(),
+        BID=parseInt(x.value),
+        BUD = getBUDfromBID(BID);
+
+    f.record.DPMID = f.record.DPMName.id;
+    f.record.DEPID = f.record.DEPName.id;
+    if (typeof f.record.DID == "string" || typeof f.record.DID == "undefined") {
+        f.record.DID = 0;
+    }
+    if (typeof f.record.FLAGS == "string" || typeof f.record.FLAGS == "undefined") {
+        f.record.FLAGS = 0;
+    }
+    if (typeof f.record.ClearedAmount == "string" || typeof f.record.ClearedAmount == "undefined") {
+        f.record.ClearedAmount = 0.0;
+    }
+    f.save({Receipts: rcpts},function (data) {
+        if (data.status == 'error') {
+            console.log('ERROR: '+ data.message);
+            return;
+        }
+        app.form_is_dirty = false;// clean dirty flag of form
+        app.last.grid_sel_recid  =-1;// clear the grid select recid
+        w2ui.depositGrid.render();
+
+        // add new initial record
+        f.record = getDepositInitRecord(BID, BUD, f.record);
+        f.header = "Edit Deposit (new)";
+        f.url = "/v1/deposit/"+BID+"/0";
+        f.refresh();
+
+        /*
+        NO NEED TO CLEAR THIS, I THINK!
+        // as well as clear the records from the grid
+        w2ui.depositListGrid.clear();
+        */
     });
 }
 
