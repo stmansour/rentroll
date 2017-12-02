@@ -747,7 +747,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//  FLAGS bits 0-1:  0 unallocated, 1 = partially allocated, 2 = fully allocated,  bit 2: voided entry
-	RRdb.Prepstmt.GetUnallocatedReceipts, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND (FLAGS & 3)<2 ORDER BY Dt ASC")
+	RRdb.Prepstmt.GetUnallocatedReceipts, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND (FLAGS & 7)<2 ORDER BY Dt ASC")
 	Errcheck(err)
 	RRdb.Prepstmt.GetUnallocatedReceiptsByPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Receipt WHERE BID=? AND TCID=? AND (FLAGS & 3)<2 AND 0=(FLAGS & 4) ORDER BY Dt ASC")
 	Errcheck(err)
