@@ -170,27 +170,6 @@ function getBIDfromBUD(BUD) {
 }
 
 //-----------------------------------------------------------------------------
-// getPaymentType - searches BUD's Payment Types for PMTID.  If found the
-//                  then payment type object is returned, else an empty object is returned.
-// @params  BUD   - the BUD for the business of interest
-//          PMTID - the payment type id for which we want the name
-// @return  the Payment Type (or empty object if not found)
-//-----------------------------------------------------------------------------
-function getPaymentType(BUD, reqPMTID) {
-    var pmt = {};
-    if (typeof BUD === "undefined") {
-        return pmt;
-    }
-    app.pmtTypes[BUD].forEach(function(item) {
-        if (item.PMTID == reqPMTID) {
-            pmt = { id: item.PMTID, text: item.Name };
-            return pmt;
-        }
-    });
-    return pmt;
-}
-
-//-----------------------------------------------------------------------------
 // getDepMeth     - searches BUD's Deposit Methods for id.  If found the
 //                  then Deposit Method object is returned, otherwise an
 //                  empty object is returned.
@@ -882,7 +861,7 @@ function formRefreshCallBack(w2frm, id_name, form_header, show_header) {
         header = form_header;
 
     if (id === undefined) {
-        console.log("given id_name does not exist in form's record");
+        console.log("given id_name '"+id_name+"' does not exist in form's record");
         return false;
     }
 

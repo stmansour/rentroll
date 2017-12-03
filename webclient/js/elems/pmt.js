@@ -1,4 +1,11 @@
 "use strict";
+
+//-----------------------------------------------------------------------------
+// getPmtInitRecord - get initial record for pmtForm
+// @params  BID   - the BID for the business of interest
+//          BUD   - the BUD for the business of interest
+// @return  the initial record for pmtForm
+//-----------------------------------------------------------------------------
 function getPmtInitRecord(BID, BUD){
     return {
         recid: 0,
@@ -8,6 +15,52 @@ function getPmtInitRecord(BID, BUD){
         Name: '',
         Description: '',
     };
+}
+
+//-----------------------------------------------------------------------------
+// getPaymentType - searches BUD's Payment Types for PMTID.  If found the
+//                  then payment type object is returned, else an empty object is returned.
+// @params  BUD   - the BUD for the business of interest
+//          PMTID - the payment type id for which we want the name
+// @return  the Payment Type (or empty object if not found)
+//-----------------------------------------------------------------------------
+function getPaymentType(BUD, reqPMTID) {
+    var pmt = {};
+    if (typeof BUD === "undefined") {
+        return pmt;
+    }
+    app.pmtTypes[BUD].forEach(function(item) {
+        if (item.PMTID == reqPMTID) {
+            pmt = { id: item.PMTID, text: item.Name };
+            return pmt;
+        }
+    });
+    return pmt;
+}
+
+//-----------------------------------------------------------------------------
+// updatePmtTypeList - get the latest payment types from server with requested
+//                     BID and updates app.pmtTypes variable for given BUD
+// @params  BID   - the BID for the business of interest
+//          BUD   - the BUD for the business of interest
+//-----------------------------------------------------------------------------
+function updatePmtTypeList(BID, BUD) {
+    var payload = {"cmd":"get","selected":[],"limit":100,"offset":0};
+
+    $.ajax({
+        type: "POST",
+        url: "/v1/pmts/" + BID,
+        data: JSON.stringify(payload),
+        contentType: "application/json",
+        dataType: "json",
+        success: function(data) {
+            var tempList = [];
+            data.records.forEach(function(item) {
+                tempList.push({PMTID: item.PMTID, Name: item.Name});
+            });
+            app.pmtTypes[BUD] = tempList;
+        }
+    });
 }
 
 function buildPaymentTypeElements() {
@@ -188,6 +241,9 @@ $().w2grid({
                     // JUST RENDER THE GRID ONLY
                     grid.render();
 
+                    // update the payment list for this BUD
+                    updatePmtTypeList(BID, BUD);
+
                     // add new empty record and just refresh the form, don't need to do CLEAR form
                     //var y = new Date();
                     var record = getPmtInitRecord(BID, BUD);
@@ -199,13 +255,20 @@ $().w2grid({
             },
             save: function(/*target, data*/) {
                 var f = this,
-                    tgrid = w2ui.pmtsGrid;
+                    tgrid = w2ui.pmtsGrid,
+                    x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID);
 
                 f.save({}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
                     }
+
+                    // update the payment list for this BUD
+                    updatePmtTypeList(BID, BUD);
+
                     w2ui.toplayout.hide('right',true);
                     tgrid.render();
                 });
@@ -231,14 +294,8 @@ $().w2grid({
                             return;
                         }
 
-                        // remove this from app.pmtTypes[BUD] if successfully removed
-                        var temp_list = [];
-                        app.pmtTypes[BUD].forEach(function(item){
-                            if (item.PMTID != form.record.PMTID) {
-                                temp_list.push({PMTID: item.PMTID, Name: item.Name});
-                            }
-                        });
-                        app.pmtTypes[BUD] = temp_list;
+                        // update the payment list for this BUD
+                        updatePmtTypeList(BID, BUD);
 
                         w2ui.toplayout.hide('right',true);
                         tgrid.remove(app.last.grid_sel_recid);

@@ -102,6 +102,7 @@
         "exportReportCSV": true,
         "exportReportPDF": true,
         "popupPDFCustomDimensions": true,
-        "saveCustomDims": true
+        "saveCustomDims": true,
+        "setDefaultFormFieldAsPreviousRecord": true
     }
 }

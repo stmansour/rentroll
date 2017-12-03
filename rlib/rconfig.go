@@ -14,11 +14,22 @@ var AppConfig extres.ExternalResources
 
 // RRReadConfig will read the configuration file "config.json" if
 // it exists in the current directory
-func RRReadConfig() error {
-	folderPath, err := osext.ExecutableFolder()
-	if err != nil {
-		log.Fatal(err)
+func RRReadConfig(fPath ...string) error {
+	var (
+		folderPath string
+		err        error
+	)
+
+	// as of now, just limit the paramaters upto 1 length only
+	if len(fPath) > 0 {
+		folderPath = fPath[0]
+	} else {
+		folderPath, err = osext.ExecutableFolder()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+
 	fname := folderPath + "/config.json"
 	err = extres.ReadConfig(fname, &AppConfig)
 	if err != nil {
