@@ -98,7 +98,7 @@ func ReceiptSummary(raidlist []int64, d1, d2 *time.Time) ([]ReceiptListEntry, er
 	}
 	q += strings.Join(pl, " OR ")
 	q += fmt.Sprintf(") AND BID=%d AND %q<=Dt AND Dt<%q ORDER BY Dt ASC", bid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL))
-	// Console("Receipt Query:  %s\n", q)
+	// Console("PAYOR STATEMENT Receipt Query:  %s\n", q)
 	rows, err := RRdb.Dbrr.Query(q)
 	Errcheck(err)
 	defer rows.Close()

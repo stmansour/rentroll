@@ -216,13 +216,13 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 			RNT:     &rnt,
 			Amt:     ra.Amount,
 			Dt:      ra.Dt,
-			Reverse: a.FLAGS&0x4 != 0, // bit 2 is the reversal flag
+			Reverse: ra.FLAGS&0x4 != 0, // bit 2 is the reversal flag
 		}
 		(*p) = append((*p), se)
 		if !se.Reverse {
 			bal -= se.Amt
 		}
-		// Console("RCPTID = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t,  ASMID = %3d\n", se.RNT.RID, se.Amt, bal, se.Reverse, se.A.ASMID)
+		// Console("RCPTID = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t (RCPAID=%d),  ASMID = %3d\n", se.R.RCPTID, se.Amt, bal, se.Reverse, ra.RCPAID, se.A.ASMID)
 	}
 	return bal
 }

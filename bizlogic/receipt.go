@@ -103,6 +103,14 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 		return nil // it's already reversed
 	}
 
+	//----------------------------------------------------------------------
+	// The old receipt may have been allocated. Load its ReceiptAllocations
+	// and reverse any allocation that was applied towards an Assessment
+	//----------------------------------------------------------------------
+	if len(r.RA) == 0 { // if RA slice is empty, it could be because they were not loaded
+		rlib.GetReceiptAllocations(r.RCPTID, r) // try to load them just to make sure
+	}
+
 	//------------------------------------------------------
 	// Build the new receipt
 	//------------------------------------------------------
@@ -122,10 +130,12 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 	// part of a reversal...
 	//-----------------------------------------------------------
 	for i := 0; i < len(rr.RA); i++ {
+		rlib.Console("Before FLAGS update, rr.RA[i].FLAGS = %d\n", rr.RA[i].FLAGS)
 		rr.RA[i].FLAGS |= rlib.RCPTvoid
 		if err = rlib.UpdateReceiptAllocation(&rr.RA[i]); err != nil {
 			return err
 		}
+		rlib.Console("Reverse Receipt loc 1: updated ReceiptAllocation: RCPAID = %d, FLAGS = %d\n", rr.RA[i].RCPAID, rr.RA[i].FLAGS)
 	}
 
 	//---------------------------------------------------------------------------
@@ -143,25 +153,22 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 		}
 	}
 
-	//----------------------------------------------------------------------
-	// The old receipt may have been allocated. Load its ReceiptAllocations
-	// and reverse any allocation that was applied towards an Assessment
-	//----------------------------------------------------------------------
-	if len(r.RA) == 0 { // if RA slice is empty, it could be because they were not loaded
-		rlib.GetReceiptAllocations(r.RCPTID, r) // try to load them just to make sure
-	}
-
+	//--------------------------------------------------
+	// Reverse any allocations that have been made...
+	//--------------------------------------------------
 	for i := 0; i < len(r.RA); i++ {
+		rlib.Console("Second Try: Before FLAGS update, rr.RA[i].FLAGS = %d\n", r.RA[i].FLAGS)
+		r.RA[i].FLAGS |= rlib.RCPTvoid
+		if err := rlib.UpdateReceiptAllocation(&r.RA[i]); err != nil {
+			return err
+		}
+		rlib.Console("Reverse Receipt loc 2: updated ReceiptAllocation: RCPAID = %d, FLAGS = %d\n", r.RA[i].RCPAID, r.RA[i].FLAGS)
 		if r.RA[i].ASMID == 0 {
 			//--------------------------------------------------
 			// This allocation has no associated Assessment.
 			// Could be vending income, or similar.
-			// Just mark the amount as void
+			// It's already been marked as void, just continue
 			//--------------------------------------------------
-			r.RA[i].FLAGS |= rlib.RCPTvoid
-			if err := rlib.UpdateReceiptAllocation(&r.RA[i]); err != nil {
-				return err
-			}
 			continue
 		}
 		ra := r.RA[i]          // copy it and make the reversal changes
@@ -181,6 +188,7 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 			}
 		}
 		ra.AcctRule = acctrule
+		rlib.Console("Reverse Receipt loc 3: updated ReceiptAllocation: RCPAID = %d, FLAGS = %d\n", ra.RCPAID, ra.FLAGS)
 		_, err := rlib.InsertReceiptAllocation(&ra)
 		if err != nil {
 			return err
