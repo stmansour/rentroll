@@ -6,3 +6,13 @@ exports.gridConf = {
     capture: "rentalagrsGridRequest.png"
 };
 
+exports.formConf = {
+    grid: "rentalagrsGrid",
+    form: "rentalagrsForm",
+    sidebarID: "rentalagrs",
+    row: "0",
+    capture: "rentalagrsFormRequest.png",
+    captureAfterClosingForm: "rentalagrsFormRequestAfterClosingForm.png",
+    buttonName: ["save", "saveadd", "delete"],
+    buttonClass: "w2ui-btn"
+};

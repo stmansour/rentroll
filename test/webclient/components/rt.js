@@ -6,3 +6,13 @@ exports.gridConf = {
     capture: "rtGridRequest.png"
 };
 
+exports.formConf = {
+    grid: "rtGrid",
+    form: "rtForm",
+    sidebarID: "rt",
+    row: "0",
+    capture: "rtFormRequest.png",
+    captureAfterClosingForm: "rtFormRequestAfterClosingForm.png",
+    buttonName: ["save", "saveadd", "delete"],
+    buttonClass: "w2ui-btn"
+};

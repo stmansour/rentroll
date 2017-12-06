@@ -6,3 +6,13 @@ exports.gridConf = {
     capture: "allocfundsGridRequest.png"
 };
 
+exports.formConf = {
+    grid: "allocfundsGrid",
+    form: "allocfundsForm",
+    sidebarID: "allocfunds",
+    row: "0",
+    capture: "allocfundsFormRequest.png",
+    captureAfterClosingForm: "allocfundsFormRequestAfterClosingForm.png",
+    buttonName: ["save", "saveadd", "delete"],
+    buttonClass: "w2ui-btn"
+};

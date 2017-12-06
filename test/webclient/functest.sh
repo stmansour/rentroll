@@ -7,6 +7,8 @@ RSD="-rsd ${RRBIN}"
 TESTNAME="CasperJS UI Test"
 TESTSUMMARY="UI Testing with casperjs"
 
+CREATENEWDB=0
+
 source ../share/base.sh
 
 # TODO: feed some known data in db server, so that expacted results can be match for each UI testcases
@@ -15,15 +17,13 @@ source ../share/base.sh
 ###################
 # TEMP BASED DB
 ###################
-cp ../ws/restore.sql .
-
-CREATENEWDB=0
+# cp ../ws/restore.sql .
 
 #---------------------------------------------------------------
 #  Use the testdb for these tests...
 #---------------------------------------------------------------
-echo "Create new database..."
-mysql --no-defaults rentroll < restore.sql
+# echo "Create new database..."
+# mysql --no-defaults rentroll < restore.sql
 ###################
 
 echo "STARTING RENTROLL SERVER"
