@@ -50,6 +50,9 @@ var _unAllocRcpts = {
 var app = {
     D1: "2016-02-01",
     D2: "2016-03-01",
+    AssessmentRules: {},
+    ReceiptRules: {},
+    DepMethods: {},
     Depositories: {}, // gets loaded as needed
     uid: 211,
     PayorStmtExt: false, // false = internal, true = external
@@ -103,7 +106,7 @@ var app = {
         report: "",
         BUD: "",
         BID: -1,
-    },    
+    },
     tabKeyPressed : false, // flag to maintain default tab key behaviour
     shiftTabKeyPressed : false, // flag to maintain default tab+shift key behaviour
     dateFormatRegex : /^(0?[1-9]|1[0-2])\/(0?[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/
