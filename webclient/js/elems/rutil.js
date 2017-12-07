@@ -859,14 +859,13 @@ function getFormSubmitData(record) {
 //   id_name  = form's primary Id
 //   form_header = header (title) of form
 //-----------------------------------------------------------------------------
-function formRefreshCallBack(w2frm, id_name, form_header, show_header) {
+function formRefreshCallBack(w2frm, primary_id, form_header, disable_header) {
 
     var record = w2frm.record,
-        id = record[id_name],
-        header = form_header;
+        id = record[primary_id];
 
     if (id === undefined) {
-        console.log("given id_name '{0}' does not exist in form's '{1}' record".format(id_name, w2frm.name));
+        console.log("given id_name '{0}' does not exist in form's '{1}' record".format(primary_id, w2frm.name));
         return false;
     }
 
@@ -878,18 +877,19 @@ function formRefreshCallBack(w2frm, id_name, form_header, show_header) {
 
     // if new record then disable delete button
     // and format the equivalent header
+    var header = "";
     if (id === 0) {
-        if (show_header) {
-            w2frm.header = header.format("new");
-        }
+        header = form_header.format("new");
         $(w2frm.box).find("button[name=delete]").addClass("hidden");
         $(w2frm.box).find("button[name=reverse]").addClass("hidden");
     } else {
-        if (show_header) {
-            w2frm.header = header.format(id);
-        }
+        header = form_header.format(id);
         $(w2frm.box).find("button[name=delete]").removeClass("hidden");
         $(w2frm.box).find("button[name=reverse]").removeClass("hidden");
+    }
+
+    if (!disable_header) {
+        w2frm.header = header;
     }
 }
 
