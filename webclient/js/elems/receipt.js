@@ -302,85 +302,90 @@ function buildReceiptElements() {
                 }
             },
         },
-        onRender: function(event) {
+        onRender: function(event) { // when form is loaded first time in toplayout right panel
             event.onComplete = function() {
                 var f = this,
                     r = f.record,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value);
+                    BID = getCurrentBID();
 
-                // var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
-                // handleReceiptRAID(url, f);
-
-                if (r.TCID < 1) { // if TCID is not greater than 0 then return
-                    return;
+                // enable/disable RAID based on Account Rule
+                var arid;
+                if (typeof r.ARID === "object") {
+                    arid = r.ARID.id;
+                } else {
+                    arid = r.ARID;
                 }
-
-                var record = {};
-                getPersonDetailsByTCID(BID, r.TCID)
-                .done(function(data) {
-                    record = JSON.parse(data).record;
-                    var item = {
-                        CompanyName: record.CompanyName,
-                        IsCompany: record.IsCompany,
-                        FirstName: record.FirstName,
-                        LastName: record.LastName,
-                        MiddleName: record.MiddleName,
-                        TCID: record.TCID,
-                        recid: 0,
-                    };
-                    if ($("#receiptForm").find("input[name=Payor]").length > 0) {
-                        $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                    }
-                })
-                .fail(function() {
-                    f.message("Couldn't get person details for TCID: ", r.TCID);
-                    console.log("couldn't get person details for TCID: ", r.TCID);
-                });
-            };
-        },
-        onLoad: function(event) {
-            event.onComplete = function() {
-                var f = this,
-                    r = f.record,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value);
-
-                if (r.TCID < 1) { // if TCID we don't have a TCID, return now
-                    return;
-                }
-
-                var record = {};
-                getPersonDetailsByTCID(BID, r.TCID)
-                .done(function(data) {
-                    record = JSON.parse(data).record;
-                    var item = {
-                        CompanyName: record.CompanyName,
-                        IsCompany: record.IsCompany,
-                        FirstName: record.FirstName,
-                        LastName: record.LastName,
-                        MiddleName: record.MiddleName,
-                        TCID: record.TCID,
-                        recid: 0,
-                    };
-                    if ($("#receiptForm").find("input[name=Payor]").length > 0) {
-                        $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                    }
-
-                    // enable/disable RAID based on Account Rule
-                    var arid;
-                    if (typeof r.ARID === "object") {
-                        arid = r.ARID.id;
-                    } else {
-                        arid = r.ARID;
-                    }
+                if (arid) { // if it has Account Rule then only
                     var url = '/v1/ar/' + r.BID +'/' + arid;
                     handleReceiptRAID(url, f);
-                })
-                .fail(function() {
-                    f.message("Couldn't get person details for TCID: ", r.TCID);
-                    console.log("couldn't get person details for TCID: ", r.TCID);
-                });
+                }
+
+                if (r.TCID) { // if it has Payor then only
+                    var record = {};
+                    getPersonDetailsByTCID(BID, r.TCID)
+                    .done(function(data) {
+                        record = JSON.parse(data).record;
+                        var item = {
+                            CompanyName: record.CompanyName,
+                            IsCompany: record.IsCompany,
+                            FirstName: record.FirstName,
+                            LastName: record.LastName,
+                            MiddleName: record.MiddleName,
+                            TCID: record.TCID,
+                            recid: 0,
+                        };
+                        if ($(f.box).find("input[name=Payor]").length > 0) {
+                            $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                        }
+                    })
+                    .fail(function() {
+                        f.message("Couldn't get person details for TCID: ", r.TCID);
+                        console.log("couldn't get person details for TCID: ", r.TCID);
+                    });
+                }
+            };
+        },
+        onLoad: function(event) { // when form data is loaded without rendering/refreshing event then
+            event.onComplete = function() {
+                var f = this,
+                    r = f.record,
+                    BID = getCurrentBID();
+
+                // enable/disable RAID based on Account Rule
+                var arid;
+                if (typeof r.ARID === "object") {
+                    arid = r.ARID.id;
+                } else {
+                    arid = r.ARID;
+                }
+                if (arid) { // if it has Account Rule then only
+                    var url = '/v1/ar/' + r.BID +'/' + arid;
+                    handleReceiptRAID(url, f);
+                }
+
+                if (r.TCID) { // if it has Payor then only
+                    var record = {};
+                    getPersonDetailsByTCID(BID, r.TCID)
+                    .done(function(data) {
+                        record = JSON.parse(data).record;
+                        var item = {
+                            CompanyName: record.CompanyName,
+                            IsCompany: record.IsCompany,
+                            FirstName: record.FirstName,
+                            LastName: record.LastName,
+                            MiddleName: record.MiddleName,
+                            TCID: record.TCID,
+                            recid: 0,
+                        };
+                        if ($(f.box).find("input[name=Payor]").length > 0) {
+                            $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                        }
+                    })
+                    .fail(function() {
+                        f.message("Couldn't get person details for TCID: ", r.TCID);
+                        console.log("couldn't get person details for TCID: ", r.TCID);
+                    });
+                }
             };
         },
         onRefresh: function(event) {
