@@ -389,25 +389,25 @@ function buildExpenseElements() {
                 // ===========================
 
                 if (r.EXPID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#ExpFLAGReport").addClass("hidden");
-                    $("#"+f.name).find("#ExpenseInfo").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("#ExpFLAGReport").addClass("hidden");
+                    $(f.box).find("#ExpenseInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $(f.box).find('input,button').prop("disabled", false);
 
                     return;
                 } else {
-                    $("#"+f.name).find("#ExpFLAGReport").removeClass("hidden");
-                    $("#"+f.name).find("#ExpenseInfo").removeClass("hidden");
+                    $(f.box).find("#ExpFLAGReport").removeClass("hidden");
+                    $(f.box).find("#ExpenseInfo").removeClass("hidden");
                 }
 
                 // Expense Info at the top of form in white box
                 var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Expense Series Definition</p>'.format(r.EXPID);
-                $("#"+f.name).find("#ExpenseInfo").html(info);
+                $(f.box).find("#ExpenseInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -419,32 +419,32 @@ function buildExpenseElements() {
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").addClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").addClass("hidden");
+                    $(f.box).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom of form
-                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").removeClass("hidden");
 
                     // *******************************************************************
                     // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS  EXCEPT close button
                     // *******************************************************************
-                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
+                    $(f.box).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // show reverse, save button, hide close button
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").removeClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $(f.box).find('input,button').prop("disabled", false);
                 }
 
                 // finally append
-                // $("#"+f.name).find("#ExpFLAGReport").html(flagHTML);
+                // $(f.box).find("#ExpFLAGReport").html(flagHTML);
                 var z = document.getElementById("ExpFLAGReport");
                 if (z !== null) {
                     if (r.EXPID > 0) {
@@ -477,15 +477,6 @@ function buildExpenseElements() {
                 } else {
                     app.form_is_dirty = true;
                 }
-            };
-        },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
             };
         },
         onSubmit: function(target, data) {

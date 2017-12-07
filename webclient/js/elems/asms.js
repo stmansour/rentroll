@@ -408,25 +408,25 @@ function buildAssessmentElements() {
                 // ===========================
 
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
-                    $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("#FLAGReport").addClass("hidden");
+                    $(f.box).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    // $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    // $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
-                    $("#"+f.name).find("#AssessmentInfo").removeClass("hidden");
+                    $(f.box).find("#FLAGReport").removeClass("hidden");
+                    $(f.box).find("#AssessmentInfo").removeClass("hidden");
                 }
 
                 // Assessment Info at the top of form in white box
                 var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Assessment Series Definition</p>'.format(r.ASMID);
-                $("#"+f.name).find("#AssessmentInfo").html(info);
+                $(f.box).find("#AssessmentInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -438,16 +438,16 @@ function buildAssessmentElements() {
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").addClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").addClass("hidden");
+                    $(f.box).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom of form
-                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").removeClass("hidden");
 
                     // ****************************************
                     // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS  EXCEPT close button
                     // ****************************************
-                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
+                    $(f.box).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
@@ -463,21 +463,21 @@ function buildAssessmentElements() {
                     }
 
                     // show reverse, save button, hide close button
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").removeClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
                 flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
-                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+                $(f.box).find("#FLAGReport").html(flagHTML);
             };
         },
         onChange: function(event) {
@@ -490,13 +490,13 @@ function buildAssessmentElements() {
                     if (r.RentCycle.text != "Norecur") {
                         // create past instances is marked as true if startdate is prior to current date
                         f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
                     } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
                         r.Stop = r.Start;
                         // Norecur then disable checkbox for "create past instances"
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     }
                 }
@@ -506,16 +506,16 @@ function buildAssessmentElements() {
                         r.ProrationCycle = "Norecur";
                         r.Stop = r.Start;
                         // disable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
+                        $(f.box).find("input[name=Stop]").prop( "disabled", true );
                         // Norecur then disable checkbox for "create past instances"
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     } else {
                         // enable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
-                        var startDate = $("#"+f.name).find("input[name=Start]").val();
+                        $(f.box).find("input[name=Stop]").prop("disabled", false);
+                        var startDate = $(f.box).find("input[name=Start]").val();
                         f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(startDate));
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
                     }
                 }
 
@@ -534,15 +534,6 @@ function buildAssessmentElements() {
                 } else {
                     app.form_is_dirty = true;
                 }
-            };
-        },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
             };
         },
         onSubmit: function(target, data) {
@@ -731,20 +722,20 @@ function buildAssessmentElements() {
                 // ==============================
 
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
-                    $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("#FLAGReport").addClass("hidden");
+                    $(f.box).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    // $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    // $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
-                    $("#"+f.name).find("#AssessmentInfo").removeClass("hidden");
+                    $(f.box).find("#FLAGReport").removeClass("hidden");
+                    $(f.box).find("#AssessmentInfo").removeClass("hidden");
                 }
 
                 // Assessment Info at the top of form
@@ -757,7 +748,7 @@ function buildAssessmentElements() {
                     // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
                     info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
                 }
-                $("#"+f.name).find("#AssessmentInfo").html(info);
+                $(f.box).find("#AssessmentInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -769,16 +760,16 @@ function buildAssessmentElements() {
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button in form
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").addClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").addClass("hidden");
+                    $(f.box).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom
-                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").removeClass("hidden");
 
                     // ****************************************
                     // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS  EXCEPT close button
                     // ****************************************
-                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
+                    $(f.box).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
@@ -794,21 +785,21 @@ function buildAssessmentElements() {
                     }
 
                     // show reverse, save button, hide close button
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").removeClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
                 flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
-                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+                $(f.box).find("#FLAGReport").html(flagHTML);
             };
         },
         onChange: function(event) {
@@ -821,13 +812,13 @@ function buildAssessmentElements() {
                     if (r.RentCycle.text != "Norecur") {
                         // create past instances is marked as true if startdate is prior to current date
                         f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
                     } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
                         r.Stop = r.Start;
                         // Norecur then disable checkbox for "create past instances"
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     }
                 }
@@ -837,16 +828,16 @@ function buildAssessmentElements() {
                         r.ProrationCycle = "Norecur";
                         r.Stop = r.Start;
                         // disable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
+                        $(f.box).find("input[name=Stop]").prop( "disabled", true );
                         // Norecur then disable checkbox for "create past instances"
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     } else {
                         // enable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
-                        var startDate = $("#"+f.name).find("input[name=Start]").val();
+                        $(f.box).find("input[name=Stop]").prop("disabled", false);
+                        var startDate = $(f.box).find("input[name=Start]").val();
                         f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(startDate));
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
                     }
                 }
 
@@ -865,15 +856,6 @@ function buildAssessmentElements() {
                 } else {
                     app.form_is_dirty = true;
                 }
-            };
-        },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
             };
         },
         onSubmit: function(target, data) {
