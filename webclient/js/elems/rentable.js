@@ -28,13 +28,13 @@ function getRentableInitRecord(BID, BUD, previousFormRecord){
 
     // if it called after 'save and add another' action there previous form record is passed as Object
     // else it is null
-    if ( previousFormRecord ) {             
+    if ( previousFormRecord ) {
         defaultFormData = setDefaultFormFieldAsPreviousRecord(
             [ 'RentableName'], // Fields to Reset
             defaultFormData,
             previousFormRecord
-        );        
-    }   
+        );
+    }
 
     return defaultFormData;
 }
@@ -314,15 +314,5 @@ function buildRentableElements() {
                 }
             };
         },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
-            };
-        }
     });
-
 }

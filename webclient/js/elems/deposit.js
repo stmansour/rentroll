@@ -311,6 +311,7 @@ function buildDepositElements() {
 
                 f.get("DPMName").options.selected = getDepMeth(BUD, dpmid);
                 f.get("DEPName").options.selected = getDepository(BUD, depid);
+
                 formRefreshCallBack(f, "DID", header);
             };
         },

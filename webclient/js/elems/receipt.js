@@ -404,17 +404,17 @@ function buildReceiptElements() {
                 // SPECIAL CASE
                 // ==================================
                 if (r.RCPTID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("#FLAGReport").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                     return;
                 } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                    $(f.box).find("#FLAGReport").removeClass("hidden");
                 }
                 // this one is a special case, where also have to take care of reverse button
                 // FLAG reports
@@ -427,16 +427,16 @@ function buildReceiptElements() {
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save, saveadd button
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").addClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").addClass("hidden");
+                    $(f.box).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button
-                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").removeClass("hidden");
 
                     // ********************************************************
                     // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS EXCEPT close button
                     // ********************************************************
-                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
+                    $(f.box).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
@@ -452,21 +452,21 @@ function buildReceiptElements() {
                     }
 
                     // show save, saveadd, reverse button, hide close button
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").removeClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ********************************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS, BUTTONS
                     // ********************************************************
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
                 flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
-                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+                $(f.box).find("#FLAGReport").html(flagHTML);
             };
         },
         onValidate: function (event) {
@@ -621,15 +621,6 @@ function buildReceiptElements() {
                 });
             },
         },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
-            };
-        },
    });
 }
 
@@ -643,7 +634,7 @@ function handleReceiptRAID(url, f) {
             return;
         }
         var b = (data.record.FLAGS & 4 !== 0);
-        $("#"+f.name).find("input[name=RAID]").prop( "disabled", !b);
+        $(f.box).find("input[name=RAID]").prop( "disabled", !b);
     })
     .fail(function(/*data*/){
         f.error(url + " failed to get Receipt Rule details.");

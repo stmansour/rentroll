@@ -319,12 +319,6 @@ function setToForm(sform, url, width, doRequest) {
         else{
             // if same form is there then just refresh the form
             f.refresh();
-
-            /*// HACK: set the height of right panel of toplayout box div and form's box div
-            // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-            var h = w2ui.toplayout.get("right").height;
-            $(w2ui.toplayout.get("right").content.box).height(h);
-            $(f.box).find("div.w2ui-form-box").height(h);*/
         }
         // NOTE: remove any error tags bound to field from previous form
         $().w2tag();
@@ -867,46 +861,36 @@ function getFormSubmitData(record) {
 //-----------------------------------------------------------------------------
 function formRefreshCallBack(w2frm, id_name, form_header, show_header) {
 
-    var fname = w2frm.name,
-        record = w2frm.record,
+    var record = w2frm.record,
         id = record[id_name],
         header = form_header;
 
     if (id === undefined) {
-        console.log("given id_name '"+id_name+"' does not exist in form's '"+fname+"' record");
+        console.log("given id_name '{0}' does not exist in form's '{1}' record".format(id_name, w2frm.name));
         return false;
     }
 
     // mark active things of form
-    app.active_form = fname;
+    app.active_form = w2frm.name;
+
     // keep active form original record
     app.active_form_original = $.extend(true, {}, record);
+
     // if new record then disable delete button
     // and format the equivalent header
     if (id === 0) {
         if (show_header) {
             w2frm.header = header.format("new");
         }
-        $("#"+fname).find("button[name=delete]").addClass("hidden");
-        $("#"+fname).find("button[name=reverse]").addClass("hidden");
-    }
-    else {
+        $(w2frm.box).find("button[name=delete]").addClass("hidden");
+        $(w2frm.box).find("button[name=reverse]").addClass("hidden");
+    } else {
         if (show_header) {
             w2frm.header = header.format(id);
         }
-        $("#"+fname).find("button[name=delete]").removeClass("hidden");
-        $("#"+fname).find("button[name=reverse]").removeClass("hidden");
+        $(w2frm.box).find("button[name=delete]").removeClass("hidden");
+        $(w2frm.box).find("button[name=reverse]").removeClass("hidden");
     }
-
-    /*// ============================
-    // HACK: set the height of right panel of toplayout box div and form's box div
-    // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-    // ============================
-    // ALREADY HANDLED IN "setToForm"
-    // ============================
-    var h = w2ui.toplayout.get("right").height;
-    $(w2ui.toplayout.get("right").content.box).height(h);
-    $(w2frm.box).find("div.w2ui-form-box").height(h);*/
 }
 
 
