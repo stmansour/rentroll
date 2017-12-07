@@ -47,6 +47,29 @@ function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
     return defaultFormData;
 }
 
+//-----------------------------------------------------------------------------
+// getBusinessReceiptRules - return the promise object of request to get latest
+//                           receipt rules for given BID.
+//                           It updates the "app.ReceiptRules" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+function getBusinessReceiptRules(BID, BUD) {
+    // if not BUD in app.ReceiptRules then initialize it with blank list
+    if (!(BUD in app.ReceiptRules)) {
+        app.ReceiptRules[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.ReceiptRules", null, null, "json").done(function(data) {
+            // if it doesn't meet this condition, then save the data
+            if (!('status' in data && data.status !== "success")) {
+                app.ReceiptRules[BUD] = data[BUD];
+            }
+        });
+}
+
 function buildReceiptElements() {
     //------------------------------------------------------------------------
     //          receiptsGrid
@@ -113,27 +136,28 @@ function buildReceiptElements() {
                         return false;
                     },
                     yes_callBack = function(grid, recid) {
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
+
                         app.last.grid_sel_recid = parseInt(recid);
                         grid.select(app.last.grid_sel_recid);// keep highlighting current row in any case
 
-                        var rec = grid.get(recid);
-                        var x = getCurrentBusiness();
-                        var Bid = x.value;
-                        var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.ReceiptRules' )
-                        .done( function(data) {
-                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.ReceiptRules = JSON.parse(data);
-                                w2ui.receiptForm.get('ARID').options.items = app.ReceiptRules[Bud];
-                                w2ui.receiptForm.refresh();
-                                setToForm('receiptForm', '/v1/receipt/' + rec.BID + '/' + rec.RCPTID, 400, true);
-                            }
-                            if (data.status != 'success') {
-                                w2ui.receiptForm.message(data.message);
+                        var rec = grid.get(recid),
+                            f = w2ui.receiptForm;
+
+                        // get the latest receipt rules and feed the list in "ARID" form field
+                        getBusinessReceiptRules(BID, BUD)
+                        .done(function(data) {
+                            if ('status' in data && data.status !== 'success') {
+                                f.message(data.message);
+                            } else {
+                                f.get('ARID').options.items = app.ReceiptRules[BUD];
+                                f.refresh();
+                                setToForm('receiptForm', '/v1/receipt/' + BID + '/' + rec.RCPTID, 400, true);
                             }
                         })
                         .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.ReceiptRules');
+                            console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
                          });
                     };
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);  // warn user if form content has been changed
@@ -163,30 +187,28 @@ function buildReceiptElements() {
             var yes_args = [this],
                 no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
                     // reset it
                     app.last.grid_sel_recid = -1;
                     grid.selectNone();
 
-                    // Insert an empty record...
-                    var x = getCurrentBusiness();
-                    var BID=parseInt(x.value);
-                    var BUD = getBUDfromBID(BID);
-                    $.get('/v1/uival/' + x.value + '/app.ReceiptRules' )
-                    .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.ReceiptRules = JSON.parse(data);
+                    var f = w2ui.receiptForm;
 
+                    // get the latest receipt rules
+                    getBusinessReceiptRules(BID, BUD)
+                    .done(function(data) {
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             var pmt_options = buildPaymentTypeSelectList(BUD);
                             var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                            var record = getReceiptInitRecord(BID, BUD, ptInit, null);
-                            w2ui.receiptForm.fields[0].options.items = pmt_options;
-                            w2ui.receiptForm.fields[1].options.items = app.ReceiptRules[BUD];
-                            w2ui.receiptForm.record = record;
-                            w2ui.receiptForm.refresh();
+                            f.get("PmtTypeName").options.items = pmt_options;
+                            f.get("ARID").options.items = app.ReceiptRules[BUD];
+                            f.record = getReceiptInitRecord(BID, BUD, ptInit, null);
+                            f.refresh();
                             setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
-                        }
-                        if (data.status != 'success') {
-                            w2ui.receiptForm.message(data.message);
                         }
                     })
                     .fail( function() {
@@ -541,8 +563,8 @@ function buildReceiptElements() {
                     // add new empty record and just refresh the form, don't need to do CLEAR form
                     var pmt_options = buildPaymentTypeSelectList(BUD);
                     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                    f.fields[0].options.items = pmt_options;
-                    f.fields[1].options.items = app.ReceiptRules[BUD];
+                    f.get("PmtTypeName").options.items = pmt_options;
+                    f.get("ARID").options.items = app.ReceiptRules[BUD];
                     f.record = getReceiptInitRecord(BID, BUD, ptInit, f.record);
                     f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/receipt/' + BID + '/0';
