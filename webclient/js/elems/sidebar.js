@@ -59,7 +59,7 @@ function buildSidebar() {
                        //{ id: 'RPTb',          text: 'Business Units',                  icon: 'fa fa-file-text-o' },
                        { id: 'RPTcoa',          text: 'Chart Of Accounts',               icon: 'fa fa-file-text-o' },
                        //{ id: 'RPTdpm',        text: 'Deposit Methods',                 icon: 'fa fa-file-text-o' },
-                       //{ id: 'RPTdep',        text: 'Depositories',                    icon: 'fa fa-file-text-o' },
+                       //{ id: 'RPTdep',        text: 'Depository Accounts',             icon: 'fa fa-file-text-o' },
                        { id: 'RPTdelinq',       text: 'Delinquency',                     icon: 'fa fa-file-text-o' },
                        { id: 'RPTgsr',          text: 'GSR',                             icon: 'fa fa-file-text-o' },
                        { id: 'RPTj',            text: 'Journal',                         icon: 'fa fa-file-text-o' },
@@ -83,7 +83,7 @@ function buildSidebar() {
                 nodes: [
                         { id: 'accounts',    text: 'Chart Of Accounts',                icon: 'fa fa-list' },
                         { id: 'pmts',        text: 'Payment Types',                    icon: 'fa fa-credit-card' },
-                        { id: 'dep',         text: 'Depositories',                     icon: 'fa fa-university' },
+                        { id: 'dep',         text: 'Depository Accounts',              icon: 'fa fa-university' },
                         { id: 'depmeth',     text: 'Deposit Methods',                  icon: 'fa fa-envelope-o' },
                         { id: 'ars',         text: 'Account Rules',                    icon: 'fa fa-cogs' },
                         { id: 'rt',          text: plural(app.sRentableType),          icon: 'fa fa-asterisk', hint: 'Rentable Types' },

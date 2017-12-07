@@ -513,7 +513,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	psdr.Status = "success"
 	for i := 0; i < len(psdr.Records); i++ {
 		psdr.Records[i].Recid = int64(i)
-		rlib.Console("%d. Reverse = %t\n", i, psdr.Records[i].Reverse)
+		// rlib.Console("%d. Reverse = %t\n", i, psdr.Records[i].Reverse)
 	}
 
 	psdr.Total = int64(ctx.Total)
