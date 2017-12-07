@@ -41,6 +41,30 @@ function getExpenseInitRecord(BID, BUD, previousFormRecord){
     return defaultFormData;
 }
 
+//-----------------------------------------------------------------------------
+// getBusinessExpenseRules - return the promise object of request to get latest
+//                           expense rules for given BID
+//                           It updates the "app.ExpenseRules" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+function getBusinessExpenseRules(BID, BUD) {
+    // if not BUD in app.ExpenseRules then initialize it with blank list
+    if (!(BUD in app.ExpenseRules)) {
+        app.ExpenseRules[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.ExpenseRules", null, null, "json").done(function(data) {
+            // if it doesn't meet this condition, then save the data
+            if (!('status' in data && data.status !== "success")) {
+                app.ExpenseRules[BUD] = data[BUD];
+            }
+        });
+}
+
+
 function renderExpReversalIcon(record /*, index, col_index*/) {
     if (typeof record === "undefined") {
         return;
@@ -101,30 +125,28 @@ function buildExpenseElements() {
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
 
-                        var rec = grid.get(recid);
-                        var form = "expenseForm";
-                        var myurl = '/v1/expense/' + rec.BID + '/' + rec.EXPID;
-                        console.log( 'calling setToForm( '+form+', ' + myurl + ')');
+
+                        var f = w2ui.expenseForm;
 
                         // before setting to the form, get the list of AcctRules...
-                        var x = getCurrentBusiness();
-                        var Bid = x.value;
-                        var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.ExpenseRules' )
-                        .done( function(data) {
-                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.ExpenseRules = JSON.parse(data);
-                                w2ui[form].get('ARID').options.items = app.ExpenseRules[Bud];
-                                w2ui[form].refresh();
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
 
-                                setToForm(form, myurl, 400, true);
-                            }
-                            if (data.status != 'success') {
-                                w2ui.expenseGrid.message(data.message);
+                        getBusinessExpenseRules(BID, BUD)
+                        .done( function(data) {
+                            if ('status' in data && data.status !== 'success') {
+                                f.message(data.message);
+                            } else {
+                                f.get('ARID').options.items = app.ExpenseRules[BUD];
+                                f.refresh();
+                                var rec = grid.get(recid);
+                                var myurl = '/v1/expense/' + BID + '/' + rec.EXPID;
+                                console.log( 'calling setToForm( '+f.name+', ' + myurl + ')');
+                                setToForm(f.name, myurl, 400, true);
                             }
                         })
                         .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.ExpenseRules');
+                            console.log('Error getting /v1/uival/' + BID + '/app.ExpenseRules');
                          });
                     };
 
@@ -136,35 +158,32 @@ function buildExpenseElements() {
             var yes_args = [this],
                 no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
+                    var f = w2ui.expenseForm;
+
                     // reset it
                     app.last.grid_sel_recid = -1;
                     grid.selectNone();
 
-                    var x = getCurrentBusiness();
-                    $.get('/v1/uival/' + x.value + '/app.ExpenseRules' )
-                    .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.ExpenseRules = JSON.parse(data);
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
 
-                            // Insert an empty record...
-                            var BID=parseInt(x.value);
-                            var BUD = getBUDfromBID(BID);
+                    getBusinessExpenseRules(BID, BUD)
+                    .done( function(data) {
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
                             var record = getExpenseInitRecord(BID, BUD, null);
-                            // w2ui.expenseForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            w2ui.expenseForm.fields[0].options.items = app.ExpenseRules[BUD];
-                            w2ui.expenseForm.record = record;
-                            w2ui.expenseForm.refresh();
-
+                            // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+                            f.get("ARID").options.items = app.ExpenseRules[BUD];
+                            f.record = record;
+                            f.refresh();
                             setToForm('expenseForm', '/v1/expense/' + BID + '/0', 400);
-                        }
-                        if (data.status != 'success') {
-                            w2ui.expenseForm.message(data.message);
                         }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.ExpenseRules');
+                        console.log('Error getting /v1/uival/'+BID+'/app.ExpenseRules');
                      });
                 };
 
@@ -205,7 +224,7 @@ function buildExpenseElements() {
         url: '/v1/expense',
         formURL: '/webclient/html/formexpense.html',
         fields: [
-            { field: 'ARID',        type: 'list',   required: true, options: { items: app.ExpenseRules }},
+            { field: 'ARID',        type: 'list',   required: true, options: { items: [] }},
             { field: 'recid',       type: 'int',    required: false },
             { field: 'EXPID',       type: 'int',    required: false },
             { field: 'BID',         type: 'int',    required: true  },
@@ -289,29 +308,27 @@ function buildExpenseElements() {
                     // render the grid only
                     grid.render();
 
-                    $.get('/v1/uival/' + BID + '/app.ExpenseRules' )
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    getBusinessExpenseRules(BID, BUD)
                     .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.ExpenseRules = JSON.parse(data);
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var record =
-
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            f.fields[0].options.items = app.ExpenseRules[BUD];
+                            f.get("ARID").options.items = app.ExpenseRules[BUD];
                             f.record = getExpenseInitRecord(BID, BUD, f.record);
                             f.header = "Edit Expense (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             f.url  = "/v1/expense/" + BID + "/0";
                             f.refresh();
                         }
-                        if (data.status != 'success') {
-                            f.message(data.message);
-                        }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.ExpenseRules');
+                        console.log('Error getting /v1/uival/'+BID+'/app.ExpenseRules');
                      }); //get assessment UI val done
-
                 });
             },
             save: function () {
@@ -372,25 +389,25 @@ function buildExpenseElements() {
                 // ===========================
 
                 if (r.EXPID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#ExpFLAGReport").addClass("hidden");
-                    $("#"+f.name).find("#ExpenseInfo").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("#ExpFLAGReport").addClass("hidden");
+                    $(f.box).find("#ExpenseInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $(f.box).find('input,button').prop("disabled", false);
 
                     return;
                 } else {
-                    $("#"+f.name).find("#ExpFLAGReport").removeClass("hidden");
-                    $("#"+f.name).find("#ExpenseInfo").removeClass("hidden");
+                    $(f.box).find("#ExpFLAGReport").removeClass("hidden");
+                    $(f.box).find("#ExpenseInfo").removeClass("hidden");
                 }
 
                 // Expense Info at the top of form in white box
                 var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Expense Series Definition</p>'.format(r.EXPID);
-                $("#"+f.name).find("#ExpenseInfo").html(info);
+                $(f.box).find("#ExpenseInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -402,32 +419,32 @@ function buildExpenseElements() {
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").addClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").addClass("hidden");
+                    $(f.box).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom of form
-                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").removeClass("hidden");
 
                     // *******************************************************************
                     // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS  EXCEPT close button
                     // *******************************************************************
-                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
+                    $(f.box).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // show reverse, save button, hide close button
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").removeClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').prop("disabled", false);
+                    $(f.box).find('input,button').prop("disabled", false);
                 }
 
                 // finally append
-                // $("#"+f.name).find("#ExpFLAGReport").html(flagHTML);
+                // $(f.box).find("#ExpFLAGReport").html(flagHTML);
                 var z = document.getElementById("ExpFLAGReport");
                 if (z !== null) {
                     if (r.EXPID > 0) {
@@ -460,15 +477,6 @@ function buildExpenseElements() {
                 } else {
                     app.form_is_dirty = true;
                 }
-            };
-        },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
             };
         },
         onSubmit: function(target, data) {

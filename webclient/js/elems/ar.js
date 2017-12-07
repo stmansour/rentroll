@@ -26,17 +26,17 @@ function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, previousForm
         ApplyRcvAccts: false,
         RAIDrqd: false,
     };
-    
-    
+
+
     // if it called after 'save and add another' action there previous form record is passed as Object
     // else it is null
-    if ( previousFormRecord ) {             
+    if ( previousFormRecord ) {
         defaultFormData = setDefaultFormFieldAsPreviousRecord(
             [ 'Name', 'Description'], // Fields to Reset
             defaultFormData,
             previousFormRecord
-        );        
-    }   
+        );
+    }
 
     return defaultFormData;
 }
@@ -187,9 +187,9 @@ $().w2grid({
                         w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
                         w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
                         w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
-                        // w2ui.arsForm.refresh();                        
+                        // w2ui.arsForm.refresh();
                         var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, null);
-                        w2ui.arsForm.record = record;                        
+                        w2ui.arsForm.record = record;
                         w2ui.arsForm.refresh();
                         setToForm('arsForm', '/v1/ar/' + BID + '/0', 400);
                     }
@@ -309,9 +309,9 @@ $().w2grid({
                     w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
                     w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
                     w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
-                    w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;                   
+                    w2ui.arsForm.get('CreditLID').options.selected = post_accounts_pre_selected;
                     var record = getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, f.record);
-                    f.record = record;                    
+                    f.record = record;
                     f.header = "Edit Account Rule (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/ar/' + BID+'/0';
                     f.refresh();
@@ -379,7 +379,7 @@ $().w2grid({
                     header = "Edit Account Rule ({0})";
                 formRefreshCallBack(f, "ARID", header);
                 var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
-                $("#"+f.name).find("input[name=RAIDrqd]").prop( "disabled", !b);
+                $(f.box).find("input[name=RAIDrqd]").prop( "disabled", !b);
             };
         },
         onChange: function(event) {
@@ -394,17 +394,8 @@ $().w2grid({
                 }
                 var f = this;
                 var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
-                $("#"+f.name).find("input[name=RAIDrqd]").prop( "disabled", !b);
+                $(f.box).find("input[name=RAIDrqd]").prop( "disabled", !b);
             };
-        },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
-            };
-        },
+        }
     });
 }

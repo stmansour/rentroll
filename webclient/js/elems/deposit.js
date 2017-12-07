@@ -42,6 +42,52 @@ function getDepositInitRecord(BID, BUD, previousFormRecord){
     return defaultFormData;
 }
 
+//-----------------------------------------------------------------------------
+// getBusinessDepMethods - return the promise object of request to get latest
+//                         deposit methods for given BID
+//                         It updates the "app.DepMethods" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+function getBusinessDepMethods(BID, BUD) {
+    // if not BUD in app.DepMethods then initialize it with blank list
+    if (!(BUD in app.DepMethods)) {
+        app.DepMethods[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.DepMethods", null, null, "json").done(function(data) {
+            // if it doesn't meet this condition, then save the data
+            if (!('status' in data && data.status !== "success")) {
+                app.DepMethods[BUD] = data[BUD];
+            }
+        });
+}
+
+//-----------------------------------------------------------------------------
+// getBusinessDepositories - return the promise object of request to get latest
+//                           depositories for given BID
+//                           It updates the "app.Depositories" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+function getBusinessDepositories(BID, BUD) {
+    // if not BUD in app.Depositories then initialize it with blank list
+    if (!(BUD in app.Depositories)) {
+        app.Depositories[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.Depositories", null, null, "json").done(function(data) {
+            // if it doesn't meet this condition, then save the data
+            if (!('status' in data && data.status !== "success")) {
+                app.Depositories[BUD] = data[BUD];
+            }
+        });
+}
+
 
 //---------------------------------------------------------------------------------
 // buildDepositElements - changes the main view of the program to a grid with
@@ -106,41 +152,41 @@ function buildDepositElements() {
                         return false;
                     };
                 var yes_callBack = function(grid, recid) {
-                        var x = getCurrentBusiness();
-                        var Bid = x.value;
-                        var Bud = getBUDfromBID(Bid);
+                        var f = w2ui.depositForm;
 
-                        var getUIInfo = function(bid,x) {
-                            return $.get('/v1/uival/' + bid + x );
-                        };
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
 
-                        $.when( getUIInfo(Bid,"/app.depmeth"),
-                                getUIInfo(Bid,"/app.Depositories"))
-                        .done( function(dpmArgs,depArgs) {
-                            if (typeof dpmArgs[0] == 'string') {
-                                app.depmeth = JSON.parse(dpmArgs[0]);
-                                w2ui.depositForm.get('DPMName').options.items = app.depmeth[Bud];
-                            } else if (dpmArgs[0].status != 'success') {
-                                w2ui.depositForm.message(dpmArgs[0].message);
+                        // get the latest deposit methods
+                        $.when(
+                            getBusinessDepMethods(BID, BUD),
+                            getBusinessDepositories(BID, BUD)
+                        ).done( function(dpmResp, depResp) {
+
+                            // deposit methods
+                            if ('status' in dpmResp[0] && depResp[0].status !== 'success') {
+                                f.message(dpmResp[0].message);
+                            } else {
+                                f.get('DPMName').options.items = app.DepMethods[BUD];
                             }
 
-                            if (typeof depArgs[0] == 'string') {
-                                app.Depositories = JSON.parse(depArgs[0]);
-                                w2ui.depositForm.get('DEPName').options.items = app.Depositories[Bud];
-                            } else if (depArgs[0].status != 'success') {
-                                w2ui.depositForm.message(depArgs[0].message);
+                            // depositories
+                            if ('status' in depResp[0] && depResp[0].status !== 'success') {
+                                f.message(depResp[0].message);
+                            } else{
+                                f.get('DEPName').options.items = app.Depositories[BUD];
                             }
 
-                            w2ui.depositForm.refresh();
                             app.last.grid_sel_recid = parseInt(recid);
                             grid.select(app.last.grid_sel_recid); // keep highlighting current row in any case
+                            f.refresh();
                             var rec = grid.get(recid);
-                            var myurl = '/v1/deposit/' + rec.BID + '/' + rec.DID;
-                            var urlgrid = '/v1/depositlist/' + rec.BID + '/' + rec.DID;
-
-                            setToDepositForm("depositLayout","depositForm",myurl,urlgrid,700,true);
-                        })
-                        .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
+                            var myurl = '/v1/deposit/' + BID + '/' + rec.DID;
+                            var urlgrid = '/v1/depositlist/' + BID + '/' + rec.DID;
+                            setToDepositForm("depositLayout","depositForm", myurl, urlgrid, 700, true);
+                        }).fail(function() {
+                            console.log('Error getting /v1/uival/' + BID + '/{app.DepMethods | app.Depositories}');
+                        });
                     };
 
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args); // warn user if form content has been changed
@@ -150,43 +196,47 @@ function buildDepositElements() {
             var yes_args = [this];
             var no_callBack = function() { return false; };
             var yes_callBack = function(grid) {
+
                 // reset it
                 app.last.grid_sel_recid = -1;
                 grid.selectNone();
 
                 // Insert an empty record...
-                var x = getCurrentBusiness(),
-                BID=parseInt(x.value),
-                BUD = getBUDfromBID(BID),
-                f = w2ui.depositForm;
+                var BID = getCurrentBID(),
+                    BUD = getBUDfromBID(BID),
+                    f = w2ui.depositForm;
+
+                // get init record and feed it to the form
                 var record = getDepositInitRecord(BID, BUD, null);
                 f.record = record;
-                var getUIInfo = function(bid,x) {
-                    return $.get('/v1/uival/' + bid + x );
-                };
 
-                $.when( getUIInfo(BID,"/app.depmeth"),
-                        getUIInfo(BID,"/app.Depositories"))
-                .done( function(dpmArgs,depArgs) {
-                    if (typeof dpmArgs[0] == 'string') {
-                        app.depmeth = JSON.parse(dpmArgs[0]);
-                        f.get('DPMName').options.items = app.depmeth[BUD];
-                    } else if (dpmArgs[0].status != 'success') {
-                        f.message(dpmArgs[0].message);
+                // get the latest deposit methods
+                $.when(
+                    getBusinessDepMethods(BID, BUD),
+                    getBusinessDepositories(BID, BUD)
+                ).done( function(dpmResp, depResp) {
+
+                    // deposit methods
+                    if ('status' in dpmResp[0] && depResp[0].status !== 'success') {
+                        f.message(dpmResp[0].message);
+                    } else {
+                        f.get('DPMName').options.items = app.DepMethods[BUD];
                     }
 
-                    if (typeof depArgs[0] == 'string') {
-                        app.Depositories = JSON.parse(depArgs[0]);
+                    // depositories
+                    if ('status' in depResp[0] && depResp[0].status !== 'success') {
+                        f.message(depResp[0].message);
+                    } else{
                         f.get('DEPName').options.items = app.Depositories[BUD];
-                    } else if (depArgs[0].status != 'success') {
-                        f.message(depArgs[0].message);
                     }
 
-                })
-                .fail( function() { console.log('Error getting /v1/uival/' + x.value + '/{app.depmeth | app.Depositories}'); });
-
-                f.refresh();
-                setToDepositForm('depositLayout', 'depositForm', '/v1/deposit/' + BID + '/0','/v1/depositlist/'+BID+'/0', 700);
+                    f.refresh();
+                    var myurl = '/v1/deposit/' + BID + '/0';
+                    var urlgrid = '/v1/depositlist/' + BID + '/0';
+                    setToDepositForm("depositLayout","depositForm", myurl, urlgrid, 700);
+                }).fail(function() {
+                    console.log('Error getting /v1/uival/' + BID + '/{app.DepMethods | app.Depositories}');
+                });
             };
 
             // warn user if form content has been changed
@@ -261,6 +311,7 @@ function buildDepositElements() {
 
                 f.get("DPMName").options.selected = getDepMeth(BUD, dpmid);
                 f.get("DEPName").options.selected = getDepository(BUD, depid);
+
                 formRefreshCallBack(f, "DID", header);
             };
         },

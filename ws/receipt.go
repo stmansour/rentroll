@@ -394,7 +394,7 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			rlib.GetTransactant(a.TCID, &t)
 			if t.TCID > 0 {
 				tcid := strconv.FormatInt(t.TCID, 10)
-				gg.Payor = t.GetPayorName() + " (TCID: " + tcid + ")"
+				gg.Payor = t.GetFullTransactantName() + " (TCID: " + tcid + ")"
 			}
 		}
 		g.Record = gg
