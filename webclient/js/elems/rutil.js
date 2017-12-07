@@ -120,25 +120,6 @@ function openInNewTab(url) {
     win.focus();
 }
 
-
-//-----------------------------------------------------------------------------
-// getBUDfromBID  - given the BID return the associated BUD. Returns
-//                  an empty string if BID is not found
-// @params  BUD   - the BUD for the business of interest
-//          PMTID - the payment type id for which we want the name
-// @return  the BUD (or empty string if not found)
-//-----------------------------------------------------------------------------
-function getBUDfromBID(BID) {
-    //
-    var BUD = '';
-    for (var i=0; i<app.BizMap.length; i++) {
-        if (BID == app.BizMap[i].BID) {
-            BUD = app.BizMap[i].BUD;
-        }
-    }
-    return BUD;
-}
-
 //-----------------------------------------------------------------------------
 // GridMoneyFormat  - format comma-delimited money amount.
 // @params  x   - value to be formatted
@@ -239,12 +220,43 @@ function buildPaymentTypeSelectList(BUD) {
 // getCurrentBusiness - return the Business Unit currently slected in the
 //                      main toolbar
 // @params
-// @return  the BUD of the currently selected business
+// @return  the HTML elements of the currently selected business
 //-----------------------------------------------------------------------------
 function getCurrentBusiness() {
-
     var x = document.getElementsByName("BusinessSelect");
     return x[0];
+}
+
+//-----------------------------------------------------------------------------
+// getCurrentBID - return the BID for selected Business Unit currently in the
+//                 main toolbar
+// @params
+// @return  - the BID of the currently selected business | "-1" if not exists
+//-----------------------------------------------------------------------------
+function getCurrentBID() {
+    var x = document.getElementsByName("BusinessSelect");
+    if (x.length > 0) {
+        return parseInt(x[0].value);
+    }
+    return -1;
+}
+
+//-----------------------------------------------------------------------------
+// getBUDfromBID  - given the BID return the associated BUD. Returns
+//                  an empty string if BID is not found
+// @params  BUD   - the BUD for the business of interest
+//          PMTID - the payment type id for which we want the name
+// @return  the BUD (or empty string if not found)
+//-----------------------------------------------------------------------------
+function getBUDfromBID(BID) {
+    //
+    var BUD = '';
+    for (var i=0; i<app.BizMap.length; i++) {
+        if (BID == app.BizMap[i].BID) {
+            BUD = app.BizMap[i].BUD;
+        }
+    }
+    return BUD;
 }
 
 //-----------------------------------------------------------------------------
@@ -861,7 +873,7 @@ function formRefreshCallBack(w2frm, id_name, form_header, show_header) {
         header = form_header;
 
     if (id === undefined) {
-        console.log("given id_name '"+id_name+"' does not exist in form's record");
+        console.log("given id_name '"+id_name+"' does not exist in form's '"+fname+"' record");
         return false;
     }
 

@@ -54,13 +54,13 @@ var form_dirty_alert_options = {
     width        : 480,     // width of the dialog
     height       : 180,     // height of the dialog
     btn_yes      : {
-        text     : 'OK',   // text for yes button (or yes_text)
+        text     : 'Ignore Changes',   // text for yes button (or yes_text)
         class    : 'w2ui-btn w2ui-btn-red',      // class for yes button (or yes_class)
         style    : '',      // style for yes button (or yes_style)
         callBack : null     // callBack for yes button (or yes_callBack)
     },
     btn_no       : {
-        text     : 'Cancel',    // text for no button (or no_text)
+        text     : 'Continue Editing',    // text for no button (or no_text)
         class    : 'w2ui-btn',      // class for no button (or no_class)
         style    : '',      // style for no button (or no_style)
         callBack : null     // callBack for no button (or no_callBack)

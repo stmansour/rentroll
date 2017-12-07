@@ -49,6 +49,29 @@ function getAsmsInitRecord(BID, BUD, previousFormRecord){
     return defaultFormData;
 }
 
+//-----------------------------------------------------------------------------
+// getBusinessAssessmentRules - return the promise object of request to get latest
+//                              assessment rules for given BID.
+//                              It updates the "app.AssessmentRules" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+function getBusinessAssessmentRules(BID, BUD) {
+    // if not BUD in app.AssessmentRules then initialize it with blank list
+    if (!(BUD in app.AssessmentRules)) {
+        app.AssessmentRules[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.AssessmentRules", null, null, "json").done(function(data) {
+            // if it doesn't meet this condition, then save the data
+            if (!('status' in data && data.status !== "success")) {
+                app.AssessmentRules[BUD] = data[BUD];
+            }
+        });
+}
+
 function renderReversalIcon(record /*, index, col_index*/) {
     if (typeof record === "undefined") {
         return;
@@ -141,35 +164,33 @@ function buildAssessmentElements() {
                         return false;
                     },
                     yes_callBack = function(grid, recid) {
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
+
                         app.last.grid_sel_recid = parseInt(recid);
 
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
 
                         var rec = grid.get(recid);
-                        var form = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
-                        var myurl = '/v1/asm/' + rec.BID + '/' + rec.ASMID;
-                        console.log( 'calling setToForm( '+form+', ' + myurl + ')');
+                        var myurl = '/v1/asm/' + BID + '/' + rec.ASMID;
+                        var formName = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
+                        var f = w2ui[formName];
+                        console.log( 'calling setToForm( '+formName+', ' + myurl + ')');
 
                         // before setting to the form, get the list of AcctRules...
-                        var x = getCurrentBusiness();
-                        var Bid = x.value;
-                        var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
+                        getBusinessAssessmentRules(BID, BUD)
                         .done( function(data) {
-                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.AssessmentRules = JSON.parse(data);
-                                w2ui[form].get('ARID').options.items = app.AssessmentRules[Bud];
-                                w2ui[form].refresh();
-
-                                setToForm(form, myurl, 450, true);
-                            }
-                            if (data.status != 'success') {
-                                w2ui.asmsGrid.message(data.message);
+                            if ('status' in data && data.status !== 'success') {
+                                f.message(data.message);
+                            } else {
+                                f.get('ARID').options.items = app.AssessmentRules[BUD];
+                                f.refresh();
+                                setToForm(f.name, myurl, 450, true);
                             }
                         })
                         .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.AssessmentRules');
+                            console.log('Error getting /v1/uival/' + BID + '/app.AssessmentRules');
                         });
                     };
 
@@ -181,35 +202,32 @@ function buildAssessmentElements() {
             var yes_args = [this],
                 no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    // Always create epoch assessment
+                    var f = w2ui.asmEpochForm;
+
                     // reset it
                     app.last.grid_sel_recid = -1;
                     grid.selectNone();
 
-                    var x = getCurrentBusiness();
-                    $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
+                    getBusinessAssessmentRules(BID, BUD)
                     .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.AssessmentRules = JSON.parse(data);
-
-                            // Insert an empty record...
-                            var BID=parseInt(x.value);
-                            var BUD = getBUDfromBID(BID);
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
-
-                            var record = getAsmsInitRecord(BID, BUD, null);
-                            // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            w2ui.asmEpochForm.fields[0].options.items = app.AssessmentRules[BUD];
-                            w2ui.asmEpochForm.record = record;
-                            w2ui.asmEpochForm.refresh();
+                            // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+                            f.get("ARID").options.items = app.AssessmentRules[BUD];
+                            f.record = getAsmsInitRecord(BID, BUD, null);
+                            f.refresh();
 
                             setToForm('asmEpochForm', '/v1/asm/' + BID + '/0', 450);
                         }
-                        if (data.status != 'success') {
-                            w2ui.asmEpochForm.message(data.message);
-                        }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
+                        console.log('Error getting /v1/uival/'+BID+'/app.AssessmentRules');
                      });
                 };
 
@@ -317,8 +335,7 @@ function buildAssessmentElements() {
             saveadd: function() {
                 var f = this,
                     grid = w2ui.asmsGrid,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
+                    BID = getCurrentBID(),
                     BUD = getBUDfromBID(BID);
 
                 // clean dirty flag of form
@@ -338,25 +355,22 @@ function buildAssessmentElements() {
                     // render the grid only
                     grid.render();
 
-                    $.get('/v1/uival/' + BID + '/app.AssessmentRules' )
+                    getBusinessAssessmentRules(BID, BUD)
                     .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.AssessmentRules = JSON.parse(data);
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
-
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            f.fields[0].options.items = app.AssessmentRules[BUD];
+                            f.get("ARID").options.items = app.AssessmentRules[BUD];
                             f.record = getAsmsInitRecord(BID, BUD, f.record);
                             f.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             f.url  = "/v1/asm/" + BID + "/0";
                             f.refresh();
                         }
-                        if (data.status != 'success') {
-                            f.message(data.message);
-                        }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
+                        console.log('Error getting /v1/uival/'+BID+'/app.AssessmentRules');
                      }); //get assessment UI val done
 
                 });
@@ -388,24 +402,6 @@ function buildAssessmentElements() {
                     header = "Edit Assessment ({0})";
 
                 formRefreshCallBack(f, "ASMID", header);
-
-                var x = getCurrentBusiness();
-                var Bid = x.value;
-                var Bud = getBUDfromBID(Bid);
-                $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
-                .done( function(data) {
-                    if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                        app.AssessmentRules = JSON.parse(data);
-                        f.get('ARID').options.items = app.AssessmentRules[Bud];
-                        //f.refresh();
-                    }
-                    if (data.status != 'success') {
-                        console.log(data.message);
-                    }
-                } )
-                .fail( function() {
-                        console.log('Error getting /v1/uival/' + x.value + '/app.AssessmentRules');
-                } );
 
                 // ===========================
                 // SPECIAL CASE
@@ -635,8 +631,7 @@ function buildAssessmentElements() {
                 var f = this,
                     epochForm = w2ui.asmEpochForm,
                     grid = w2ui.asmsGrid,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
+                    BID = getCurrentBID(),
                     BUD = getBUDfromBID(BID);
 
                 // clean dirty flag of form
@@ -657,29 +652,24 @@ function buildAssessmentElements() {
                     // render the grid only
                     grid.render();
 
-                    $.get('/v1/uival/' + BID + '/app.AssessmentRules' )
+                    getBusinessAssessmentRules(BID, BUD)
                     .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.AssessmentRules = JSON.parse(data);
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var record = getAsmsInitRecord(BID, BUD, null);
-
                             // epochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            epochForm.fields[0].options.items = app.AssessmentRules[BUD];
-                            epochForm.record = record;
+                            epochForm.get("ARID").options.items = app.AssessmentRules[BUD];
+                            epochForm.record =  getAsmsInitRecord(BID, BUD, null);
                             // epochForm.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             // f.refresh();
                             setToForm(epochForm.name, '/v1/asm/' + BID + '/0', 400);
                         }
-                        if (data.status != 'success') {
-                            f.message(data.message);
-                        }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
+                        console.log('Error getting /v1/uival/'+BID+'/app.AssessmentRules');
                      }); //get assessment UI val done
-
                 });
             },
             save: function () {

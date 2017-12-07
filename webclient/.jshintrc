@@ -53,6 +53,7 @@
         "buildSidebar": true,
         "setToForm": true,
         "getCurrentBusiness": true,
+        "getCurrentBID": true,
         "dateControlString": true,
         "dateMonthFwd": true,
         "tcidPickerDropRender": true,
