@@ -4,7 +4,7 @@ var common = require("./common.js");
 var w2ui_utils = require("./w2ui_utils.js");
 
 exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
-    var testCount = 9;
+    var testCount = addNewButtonConfig.testCount;
     var testName = "w2ui add new button [{0}] test".format(addNewButtonConfig.form);
 
     casper.test.begin(testName, testCount, {

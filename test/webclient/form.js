@@ -4,7 +4,7 @@ var common = require("./common.js");
 var w2ui_utils = require("./w2ui_utils.js");
 
 exports.w2uiFormTest = function (formConfig) {
-    var testCount = 5;
+    var testCount = formConfig.testCount;
     var testName = "w2ui form [{0}] test".format(formConfig.form);
 
     casper.test.begin(testName, testCount, {
