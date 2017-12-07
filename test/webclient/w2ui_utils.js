@@ -39,8 +39,17 @@ exports.getCloseButtonSelector = function () {
     return '[class="fa fa-times"]';
 };
 
-exports.getInputFieldSelector = function (item) {
-    return 'input[class="w2ui-input"][id="{0}"]'.format(item);
+exports.getInputFieldSelector = function (inputFieldID) {
+    return 'input[class="w2ui-input"][id="{0}"]'.format(inputFieldID);
+};
+
+exports.getBUDSelector = function () {
+    return 'input#BUD.w2ui-input.w2ui-select.w2field';
+};
+
+
+exports.getInputSelectFieldSelector = function (inputSelectFieldID) {
+    return 'input#{0}.w2ui-input.w2ui-select.w2field'.format(inputSelectFieldID);
 };
 
 

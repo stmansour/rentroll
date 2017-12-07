@@ -26,5 +26,6 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "depmethAddNewButton.png",
     inputField: ["Name"],
-    buttonName: ["save", "saveadd"]
+    buttonName: ["save", "saveadd"],
+    inputSelectField: []
 };

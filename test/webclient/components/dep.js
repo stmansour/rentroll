@@ -26,6 +26,7 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "depAddNewButton.png",
     inputField: ["Name", "AccountNo"],
-    buttonName: ["save", "saveadd"]
+    buttonName: ["save", "saveadd"],
+    inputSelectField: [{"fieldID": "LID", "value":" -- Select GL Account -- "}]
 };
 
