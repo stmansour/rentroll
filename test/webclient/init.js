@@ -7,7 +7,7 @@ exports.init = function() {
     casper.options.viewportSize = {width: pageWidth, height: pageHeight};
     casper.options.exitOnError = true;
     // casper.options.colorizerType = 'Dummy';
-    casper.options.clientScripts.push("./extScript.js");
+    casper.options.clientScripts.push("./visibility.js");
     casper.options.onError = function(casper, msg, backtrace) {
         common.capture('onError.png');
         // ------------------------------
