@@ -13,5 +13,6 @@ exports.formConf = {
     row: "0",
     capture: "asmsFormRequest.png",
     captureAfterClosingForm: "asmsFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "reverse"]
+    buttonName: ["save", "saveadd", "reverse"],
+    testCount: 5
 };

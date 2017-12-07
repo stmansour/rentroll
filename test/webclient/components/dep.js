@@ -17,7 +17,8 @@ exports.formConf = {
     row: "0",
     capture: "depFormRequest.png",
     captureAfterClosingForm: "depFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "delete"]
+    buttonName: ["save", "saveadd", "delete"],
+    testCount: 5
 };
 
 exports.addNewConf = {
@@ -27,6 +28,7 @@ exports.addNewConf = {
     capture: "depAddNewButton.png",
     inputField: ["Name", "AccountNo"],
     buttonName: ["save", "saveadd"],
-    inputSelectField: [{"fieldID": "LID", "value":" -- Select GL Account -- "}]
+    inputSelectField: [{"fieldID": "LID", "value":" -- Select GL Account -- "}],
+    testCount: 11
 };
 

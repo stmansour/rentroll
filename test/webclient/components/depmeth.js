@@ -17,7 +17,8 @@ exports.formConf = {
     row: "0",
     capture: "depmethFormRequest.png",
     captureAfterClosingForm: "depmethFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "delete"]
+    buttonName: ["save", "saveadd", "delete"],
+    testCount: 5
 };
 
 exports.addNewConf = {
@@ -27,5 +28,6 @@ exports.addNewConf = {
     capture: "depmethAddNewButton.png",
     inputField: ["Name"],
     buttonName: ["save", "saveadd"],
-    inputSelectField: []
+    inputSelectField: [],
+    testCount: 7
 };

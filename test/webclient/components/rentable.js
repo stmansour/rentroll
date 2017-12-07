@@ -13,6 +13,7 @@ exports.formConf = {
     row: "0",
     capture: "rentablesFormRequest.png",
     captureAfterClosingForm: "rentablesFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "delete"]
+    buttonName: ["save", "saveadd", "delete"],
+    testCount: 5
 };
 

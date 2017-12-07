@@ -17,7 +17,8 @@ exports.formConf = {
     row: "0",
     capture: "pmtsFormRequest.png",
     captureAfterClosingForm: "pmtsFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "delete"]
+    buttonName: ["save", "saveadd", "delete"],
+    testCount: 5
 };
 
 exports.addNewConf = {
@@ -27,7 +28,8 @@ exports.addNewConf = {
   capture: "pmtsAddNewButton.png",
   inputField: ["Name", "Description"],
   buttonName: ["save", "saveadd"],
-  inputSelectField: []
+  inputSelectField: [],
+  testCount: 9
 };
 
 
