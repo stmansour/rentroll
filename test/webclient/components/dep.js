@@ -17,8 +17,7 @@ exports.formConf = {
     row: "0",
     capture: "depFormRequest.png",
     captureAfterClosingForm: "depFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "delete"],
-    buttonClass: "w2ui-btn"
+    buttonName: ["save", "saveadd", "delete"]
 };
 
 exports.addNewConf = {
@@ -27,7 +26,6 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "depAddNewButton.png",
     inputField: ["Name", "AccountNo"],
-    buttonName: ["save", "saveadd"],
-    buttonClass: "w2ui-btn"
+    buttonName: ["save", "saveadd"]
 };
 

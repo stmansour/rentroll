@@ -13,6 +13,5 @@ exports.formConf = {
     row: "0",
     capture: "transactantsFormRequest.png",
     captureAfterClosingForm: "transactantsFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "delete"],
-    buttonClass: "w2ui-btn"
+    buttonName: ["save", "saveadd", "delete"]
 };

@@ -13,6 +13,5 @@ exports.formConf = {
     row: "0",
     capture: "asmsFormRequest.png",
     captureAfterClosingForm: "asmsFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "reverse"],
-    buttonClass: "w2ui-btn"
+    buttonName: ["save", "saveadd", "reverse"]
 };

@@ -17,8 +17,7 @@ exports.formConf = {
     row: "0",
     capture: "pmtsFormRequest.png",
     captureAfterClosingForm: "pmtsFormRequestAfterClosingForm.png",
-    buttonName: ["save", "saveadd", "delete"],
-    buttonClass: "w2ui-btn"
+    buttonName: ["save", "saveadd", "delete"]
 };
 
 exports.addNewConf = {
@@ -27,8 +26,7 @@ exports.addNewConf = {
   sidebarID: SIDEBAR_ID,
   capture: "pmtsAddNewButton.png",
   inputField: ["Name", "Description"],
-  buttonName: ["save", "saveadd"],
-  buttonClass: "w2ui-btn"
+  buttonName: ["save", "saveadd"]
 };
 
 
