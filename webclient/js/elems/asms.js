@@ -49,6 +49,29 @@ function getAsmsInitRecord(BID, BUD, previousFormRecord){
     return defaultFormData;
 }
 
+//-----------------------------------------------------------------------------
+// getBusinessAssessmentRules - return the promise object of request to get latest
+//                              assessment rules for given BID.
+//                              It updates the "app.AssessmentRules" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+function getBusinessAssessmentRules(BID, BUD) {
+    // if not BUD in app.AssessmentRules then initialize it with blank list
+    if (!(BUD in app.AssessmentRules)) {
+        app.AssessmentRules[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.AssessmentRules", null, null, "json").done(function(data) {
+            // if it doesn't meet this condition, then save the data
+            if (!('status' in data && data.status !== "success")) {
+                app.AssessmentRules[BUD] = data[BUD];
+            }
+        });
+}
+
 function renderReversalIcon(record /*, index, col_index*/) {
     if (typeof record === "undefined") {
         return;
@@ -141,35 +164,33 @@ function buildAssessmentElements() {
                         return false;
                     },
                     yes_callBack = function(grid, recid) {
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
+
                         app.last.grid_sel_recid = parseInt(recid);
 
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
 
                         var rec = grid.get(recid);
-                        var form = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
-                        var myurl = '/v1/asm/' + rec.BID + '/' + rec.ASMID;
-                        console.log( 'calling setToForm( '+form+', ' + myurl + ')');
+                        var myurl = '/v1/asm/' + BID + '/' + rec.ASMID;
+                        var formName = (rec.RentCycle !== 0 && rec.PASMID === 0) ? "asmEpochForm" : "asmInstForm";
+                        var f = w2ui[formName];
+                        console.log( 'calling setToForm( '+formName+', ' + myurl + ')');
 
                         // before setting to the form, get the list of AcctRules...
-                        var x = getCurrentBusiness();
-                        var Bid = x.value;
-                        var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
+                        getBusinessAssessmentRules(BID, BUD)
                         .done( function(data) {
-                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.AssessmentRules = JSON.parse(data);
-                                w2ui[form].get('ARID').options.items = app.AssessmentRules[Bud];
-                                w2ui[form].refresh();
-
-                                setToForm(form, myurl, 450, true);
-                            }
-                            if (data.status != 'success') {
-                                w2ui.asmsGrid.message(data.message);
+                            if ('status' in data && data.status !== 'success') {
+                                f.message(data.message);
+                            } else {
+                                f.get('ARID').options.items = app.AssessmentRules[BUD];
+                                f.refresh();
+                                setToForm(f.name, myurl, 450, true);
                             }
                         })
                         .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.AssessmentRules');
+                            console.log('Error getting /v1/uival/' + BID + '/app.AssessmentRules');
                         });
                     };
 
@@ -181,35 +202,32 @@ function buildAssessmentElements() {
             var yes_args = [this],
                 no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    // Always create epoch assessment
+                    var f = w2ui.asmEpochForm;
+
                     // reset it
                     app.last.grid_sel_recid = -1;
                     grid.selectNone();
 
-                    var x = getCurrentBusiness();
-                    $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
+                    getBusinessAssessmentRules(BID, BUD)
                     .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.AssessmentRules = JSON.parse(data);
-
-                            // Insert an empty record...
-                            var BID=parseInt(x.value);
-                            var BUD = getBUDfromBID(BID);
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
-
-                            var record = getAsmsInitRecord(BID, BUD, null);
-                            // w2ui.asmEpochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            w2ui.asmEpochForm.fields[0].options.items = app.AssessmentRules[BUD];
-                            w2ui.asmEpochForm.record = record;
-                            w2ui.asmEpochForm.refresh();
+                            // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
+                            f.get("ARID").options.items = app.AssessmentRules[BUD];
+                            f.record = getAsmsInitRecord(BID, BUD, null);
+                            f.refresh();
 
                             setToForm('asmEpochForm', '/v1/asm/' + BID + '/0', 450);
                         }
-                        if (data.status != 'success') {
-                            w2ui.asmEpochForm.message(data.message);
-                        }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
+                        console.log('Error getting /v1/uival/'+BID+'/app.AssessmentRules');
                      });
                 };
 
@@ -317,8 +335,7 @@ function buildAssessmentElements() {
             saveadd: function() {
                 var f = this,
                     grid = w2ui.asmsGrid,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
+                    BID = getCurrentBID(),
                     BUD = getBUDfromBID(BID);
 
                 // clean dirty flag of form
@@ -338,25 +355,22 @@ function buildAssessmentElements() {
                     // render the grid only
                     grid.render();
 
-                    $.get('/v1/uival/' + BID + '/app.AssessmentRules' )
+                    getBusinessAssessmentRules(BID, BUD)
                     .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.AssessmentRules = JSON.parse(data);
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
-
                             // f.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            f.fields[0].options.items = app.AssessmentRules[BUD];
+                            f.get("ARID").options.items = app.AssessmentRules[BUD];
                             f.record = getAsmsInitRecord(BID, BUD, f.record);
                             f.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             f.url  = "/v1/asm/" + BID + "/0";
                             f.refresh();
                         }
-                        if (data.status != 'success') {
-                            f.message(data.message);
-                        }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
+                        console.log('Error getting /v1/uival/'+BID+'/app.AssessmentRules');
                      }); //get assessment UI val done
 
                 });
@@ -389,48 +403,30 @@ function buildAssessmentElements() {
 
                 formRefreshCallBack(f, "ASMID", header);
 
-                var x = getCurrentBusiness();
-                var Bid = x.value;
-                var Bud = getBUDfromBID(Bid);
-                $.get('/v1/uival/' + x.value + '/app.AssessmentRules' )
-                .done( function(data) {
-                    if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                        app.AssessmentRules = JSON.parse(data);
-                        f.get('ARID').options.items = app.AssessmentRules[Bud];
-                        //f.refresh();
-                    }
-                    if (data.status != 'success') {
-                        console.log(data.message);
-                    }
-                } )
-                .fail( function() {
-                        console.log('Error getting /v1/uival/' + x.value + '/app.AssessmentRules');
-                } );
-
                 // ===========================
                 // SPECIAL CASE
                 // ===========================
 
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
-                    $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("#FLAGReport").addClass("hidden");
+                    $(f.box).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    // $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    // $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
-                    $("#"+f.name).find("#AssessmentInfo").removeClass("hidden");
+                    $(f.box).find("#FLAGReport").removeClass("hidden");
+                    $(f.box).find("#AssessmentInfo").removeClass("hidden");
                 }
 
                 // Assessment Info at the top of form in white box
                 var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Assessment Series Definition</p>'.format(r.ASMID);
-                $("#"+f.name).find("#AssessmentInfo").html(info);
+                $(f.box).find("#AssessmentInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -442,16 +438,16 @@ function buildAssessmentElements() {
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").addClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").addClass("hidden");
+                    $(f.box).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom of form
-                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").removeClass("hidden");
 
                     // ****************************************
                     // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS  EXCEPT close button
                     // ****************************************
-                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
+                    $(f.box).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
@@ -467,21 +463,21 @@ function buildAssessmentElements() {
                     }
 
                     // show reverse, save button, hide close button
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").removeClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
                 flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
-                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+                $(f.box).find("#FLAGReport").html(flagHTML);
             };
         },
         onChange: function(event) {
@@ -494,13 +490,13 @@ function buildAssessmentElements() {
                     if (r.RentCycle.text != "Norecur") {
                         // create past instances is marked as true if startdate is prior to current date
                         f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
                     } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
                         r.Stop = r.Start;
                         // Norecur then disable checkbox for "create past instances"
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     }
                 }
@@ -510,16 +506,16 @@ function buildAssessmentElements() {
                         r.ProrationCycle = "Norecur";
                         r.Stop = r.Start;
                         // disable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
+                        $(f.box).find("input[name=Stop]").prop( "disabled", true );
                         // Norecur then disable checkbox for "create past instances"
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     } else {
                         // enable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
-                        var startDate = $("#"+f.name).find("input[name=Start]").val();
+                        $(f.box).find("input[name=Stop]").prop("disabled", false);
+                        var startDate = $(f.box).find("input[name=Start]").val();
                         f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(startDate));
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
                     }
                 }
 
@@ -538,15 +534,6 @@ function buildAssessmentElements() {
                 } else {
                     app.form_is_dirty = true;
                 }
-            };
-        },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
             };
         },
         onSubmit: function(target, data) {
@@ -635,8 +622,7 @@ function buildAssessmentElements() {
                 var f = this,
                     epochForm = w2ui.asmEpochForm,
                     grid = w2ui.asmsGrid,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
+                    BID = getCurrentBID(),
                     BUD = getBUDfromBID(BID);
 
                 // clean dirty flag of form
@@ -657,29 +643,24 @@ function buildAssessmentElements() {
                     // render the grid only
                     grid.render();
 
-                    $.get('/v1/uival/' + BID + '/app.AssessmentRules' )
+                    getBusinessAssessmentRules(BID, BUD)
                     .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.AssessmentRules = JSON.parse(data);
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             app.ridRentablePicker.BID = BID; // needed by typedown
 
-                            var record = getAsmsInitRecord(BID, BUD, null);
-
                             // epochForm.fields[5].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
-                            epochForm.fields[0].options.items = app.AssessmentRules[BUD];
-                            epochForm.record = record;
+                            epochForm.get("ARID").options.items = app.AssessmentRules[BUD];
+                            epochForm.record =  getAsmsInitRecord(BID, BUD, null);
                             // epochForm.header = "Edit Assessment (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                             // f.refresh();
                             setToForm(epochForm.name, '/v1/asm/' + BID + '/0', 400);
                         }
-                        if (data.status != 'success') {
-                            f.message(data.message);
-                        }
                     })
                     .fail( function() {
-                        console.log('Error getting /v1/uival/'+x.value+'/app.AssessmentRules');
+                        console.log('Error getting /v1/uival/'+BID+'/app.AssessmentRules');
                      }); //get assessment UI val done
-
                 });
             },
             save: function () {
@@ -741,20 +722,20 @@ function buildAssessmentElements() {
                 // ==============================
 
                 if (r.ASMID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
-                    $("#"+f.name).find("#AssessmentInfo").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("#FLAGReport").addClass("hidden");
+                    $(f.box).find("#AssessmentInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    // $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    // $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
-                    $("#"+f.name).find("#AssessmentInfo").removeClass("hidden");
+                    $(f.box).find("#FLAGReport").removeClass("hidden");
+                    $(f.box).find("#AssessmentInfo").removeClass("hidden");
                 }
 
                 // Assessment Info at the top of form
@@ -767,7 +748,7 @@ function buildAssessmentElements() {
                     // INSTANCE has 4 variables: ParentASM, RentCycle, Start, Stop
                     info = app.asmInstanceHeader.format(''+r.PASMID, r.RentCycle.text, f.pasmStart, f.pasmStop);
                 }
-                $("#"+f.name).find("#AssessmentInfo").html(info);
+                $(f.box).find("#AssessmentInfo").html(info);
 
                 // FLAG reports
                 var flag = r.FLAGS,
@@ -779,16 +760,16 @@ function buildAssessmentElements() {
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save button in form
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").addClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").addClass("hidden");
+                    $(f.box).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button at the bottom
-                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").removeClass("hidden");
 
                     // ****************************************
                     // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS  EXCEPT close button
                     // ****************************************
-                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
+                    $(f.box).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
@@ -804,21 +785,21 @@ function buildAssessmentElements() {
                     }
 
                     // show reverse, save button, hide close button
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").removeClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
                 flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
-                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+                $(f.box).find("#FLAGReport").html(flagHTML);
             };
         },
         onChange: function(event) {
@@ -831,13 +812,13 @@ function buildAssessmentElements() {
                     if (r.RentCycle.text != "Norecur") {
                         // create past instances is marked as true if startdate is prior to current date
                         f.record.ExpandPastInst = isDatePriorToCurrentDate(DtStart);
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(DtStart) );
                     } else {
                         // if Start date has been changed, in rentcycle with norecur mode
                         // then we need to set stop date same value of start date
                         r.Stop = r.Start;
                         // Norecur then disable checkbox for "create past instances"
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     }
                 }
@@ -847,16 +828,16 @@ function buildAssessmentElements() {
                         r.ProrationCycle = "Norecur";
                         r.Stop = r.Start;
                         // disable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop( "disabled", true );
+                        $(f.box).find("input[name=Stop]").prop( "disabled", true );
                         // Norecur then disable checkbox for "create past instances"
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", true);
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", true);
                         f.record.ExpandPastInst = false;
                     } else {
                         // enable stop date control
-                        $("#"+f.name).find("input[name=Stop]").prop("disabled", false);
-                        var startDate = $("#"+f.name).find("input[name=Start]").val();
+                        $(f.box).find("input[name=Stop]").prop("disabled", false);
+                        var startDate = $(f.box).find("input[name=Start]").val();
                         f.record.ExpandPastInst  = isDatePriorToCurrentDate(new Date(startDate));
-                        $("#"+f.name).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
+                        $(f.box).find("input[name=ExpandPastInst]").prop( "disabled", !isDatePriorToCurrentDate(new Date(startDate)) );
                     }
                 }
 
@@ -875,15 +856,6 @@ function buildAssessmentElements() {
                 } else {
                     app.form_is_dirty = true;
                 }
-            };
-        },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
             };
         },
         onSubmit: function(target, data) {

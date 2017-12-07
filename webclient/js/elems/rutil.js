@@ -120,25 +120,6 @@ function openInNewTab(url) {
     win.focus();
 }
 
-
-//-----------------------------------------------------------------------------
-// getBUDfromBID  - given the BID return the associated BUD. Returns
-//                  an empty string if BID is not found
-// @params  BUD   - the BUD for the business of interest
-//          PMTID - the payment type id for which we want the name
-// @return  the BUD (or empty string if not found)
-//-----------------------------------------------------------------------------
-function getBUDfromBID(BID) {
-    //
-    var BUD = '';
-    for (var i=0; i<app.BizMap.length; i++) {
-        if (BID == app.BizMap[i].BID) {
-            BUD = app.BizMap[i].BUD;
-        }
-    }
-    return BUD;
-}
-
 //-----------------------------------------------------------------------------
 // GridMoneyFormat  - format comma-delimited money amount.
 // @params  x   - value to be formatted
@@ -239,12 +220,43 @@ function buildPaymentTypeSelectList(BUD) {
 // getCurrentBusiness - return the Business Unit currently slected in the
 //                      main toolbar
 // @params
-// @return  the BUD of the currently selected business
+// @return  the HTML elements of the currently selected business
 //-----------------------------------------------------------------------------
 function getCurrentBusiness() {
-
     var x = document.getElementsByName("BusinessSelect");
     return x[0];
+}
+
+//-----------------------------------------------------------------------------
+// getCurrentBID - return the BID for selected Business Unit currently in the
+//                 main toolbar
+// @params
+// @return  - the BID of the currently selected business | "-1" if not exists
+//-----------------------------------------------------------------------------
+function getCurrentBID() {
+    var x = document.getElementsByName("BusinessSelect");
+    if (x.length > 0) {
+        return parseInt(x[0].value);
+    }
+    return -1;
+}
+
+//-----------------------------------------------------------------------------
+// getBUDfromBID  - given the BID return the associated BUD. Returns
+//                  an empty string if BID is not found
+// @params  BUD   - the BUD for the business of interest
+//          PMTID - the payment type id for which we want the name
+// @return  the BUD (or empty string if not found)
+//-----------------------------------------------------------------------------
+function getBUDfromBID(BID) {
+    //
+    var BUD = '';
+    for (var i=0; i<app.BizMap.length; i++) {
+        if (BID == app.BizMap[i].BID) {
+            BUD = app.BizMap[i].BUD;
+        }
+    }
+    return BUD;
 }
 
 //-----------------------------------------------------------------------------
@@ -307,12 +319,6 @@ function setToForm(sform, url, width, doRequest) {
         else{
             // if same form is there then just refresh the form
             f.refresh();
-
-            /*// HACK: set the height of right panel of toplayout box div and form's box div
-            // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-            var h = w2ui.toplayout.get("right").height;
-            $(w2ui.toplayout.get("right").content.box).height(h);
-            $(f.box).find("div.w2ui-form-box").height(h);*/
         }
         // NOTE: remove any error tags bound to field from previous form
         $().w2tag();
@@ -853,48 +859,38 @@ function getFormSubmitData(record) {
 //   id_name  = form's primary Id
 //   form_header = header (title) of form
 //-----------------------------------------------------------------------------
-function formRefreshCallBack(w2frm, id_name, form_header, show_header) {
+function formRefreshCallBack(w2frm, primary_id, form_header, disable_header) {
 
-    var fname = w2frm.name,
-        record = w2frm.record,
-        id = record[id_name],
-        header = form_header;
+    var record = w2frm.record,
+        id = record[primary_id];
 
     if (id === undefined) {
-        console.log("given id_name '"+id_name+"' does not exist in form's record");
+        console.log("given id_name '{0}' does not exist in form's '{1}' record".format(primary_id, w2frm.name));
         return false;
     }
 
     // mark active things of form
-    app.active_form = fname;
+    app.active_form = w2frm.name;
+
     // keep active form original record
     app.active_form_original = $.extend(true, {}, record);
+
     // if new record then disable delete button
     // and format the equivalent header
+    var header = "";
     if (id === 0) {
-        if (show_header) {
-            w2frm.header = header.format("new");
-        }
-        $("#"+fname).find("button[name=delete]").addClass("hidden");
-        $("#"+fname).find("button[name=reverse]").addClass("hidden");
-    }
-    else {
-        if (show_header) {
-            w2frm.header = header.format(id);
-        }
-        $("#"+fname).find("button[name=delete]").removeClass("hidden");
-        $("#"+fname).find("button[name=reverse]").removeClass("hidden");
+        header = form_header.format("new");
+        $(w2frm.box).find("button[name=delete]").addClass("hidden");
+        $(w2frm.box).find("button[name=reverse]").addClass("hidden");
+    } else {
+        header = form_header.format(id);
+        $(w2frm.box).find("button[name=delete]").removeClass("hidden");
+        $(w2frm.box).find("button[name=reverse]").removeClass("hidden");
     }
 
-    /*// ============================
-    // HACK: set the height of right panel of toplayout box div and form's box div
-    // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-    // ============================
-    // ALREADY HANDLED IN "setToForm"
-    // ============================
-    var h = w2ui.toplayout.get("right").height;
-    $(w2ui.toplayout.get("right").content.box).height(h);
-    $(w2frm.box).find("div.w2ui-form-box").height(h);*/
+    if (!disable_header) {
+        w2frm.header = header;
+    }
 }
 
 

@@ -80,10 +80,16 @@ func SvcUIErrAndVarResponse(w http.ResponseWriter, funcname string, err error, x
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
-	if err := json.NewEncoder(w).Encode(x); err != nil {
+	w.Header().Set("Content-Type", "application/json")
+	b, err := json.Marshal(x)
+	if err != nil {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+	SvcWrite(w, b)
+	// if err := json.NewEncoder(w).Encode(x); err != nil {
+
+	// }
 }
 
 // SvcUIVal returns the requested variable in JSON form
@@ -113,7 +119,7 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "app.Depositories":
 		data, err := GetDepositoryList(d.BID)
 		SvcUIErrAndVarResponse(w, funcname, err, data)
-	case "app.depmeth":
+	case "app.DepMethods":
 		depmeth := GetJSDepositMethods()
 		SvcUIErrAndVarResponse(w, funcname, nil, depmeth)
 	default:

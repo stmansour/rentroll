@@ -47,6 +47,29 @@ function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
     return defaultFormData;
 }
 
+//-----------------------------------------------------------------------------
+// getBusinessReceiptRules - return the promise object of request to get latest
+//                           receipt rules for given BID.
+//                           It updates the "app.ReceiptRules" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+function getBusinessReceiptRules(BID, BUD) {
+    // if not BUD in app.ReceiptRules then initialize it with blank list
+    if (!(BUD in app.ReceiptRules)) {
+        app.ReceiptRules[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.ReceiptRules", null, null, "json").done(function(data) {
+            // if it doesn't meet this condition, then save the data
+            if (!('status' in data && data.status !== "success")) {
+                app.ReceiptRules[BUD] = data[BUD];
+            }
+        });
+}
+
 function buildReceiptElements() {
     //------------------------------------------------------------------------
     //          receiptsGrid
@@ -113,27 +136,28 @@ function buildReceiptElements() {
                         return false;
                     },
                     yes_callBack = function(grid, recid) {
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
+
                         app.last.grid_sel_recid = parseInt(recid);
                         grid.select(app.last.grid_sel_recid);// keep highlighting current row in any case
 
-                        var rec = grid.get(recid);
-                        var x = getCurrentBusiness();
-                        var Bid = x.value;
-                        var Bud = getBUDfromBID(Bid);
-                        $.get('/v1/uival/' + x.value + '/app.ReceiptRules' )
-                        .done( function(data) {
-                            if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                                app.ReceiptRules = JSON.parse(data);
-                                w2ui.receiptForm.get('ARID').options.items = app.ReceiptRules[Bud];
-                                w2ui.receiptForm.refresh();
-                                setToForm('receiptForm', '/v1/receipt/' + rec.BID + '/' + rec.RCPTID, 400, true);
-                            }
-                            if (data.status != 'success') {
-                                w2ui.receiptForm.message(data.message);
+                        var rec = grid.get(recid),
+                            f = w2ui.receiptForm;
+
+                        // get the latest receipt rules and feed the list in "ARID" form field
+                        getBusinessReceiptRules(BID, BUD)
+                        .done(function(data) {
+                            if ('status' in data && data.status !== 'success') {
+                                f.message(data.message);
+                            } else {
+                                f.get('ARID').options.items = app.ReceiptRules[BUD];
+                                f.refresh();
+                                setToForm('receiptForm', '/v1/receipt/' + BID + '/' + rec.RCPTID, 400, true);
                             }
                         })
                         .fail( function() {
-                            console.log('Error getting /v1/uival/' + x.value + '/app.ReceiptRules');
+                            console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
                          });
                     };
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);  // warn user if form content has been changed
@@ -163,30 +187,28 @@ function buildReceiptElements() {
             var yes_args = [this],
                 no_callBack = function() { return false; },
                 yes_callBack = function(grid) {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
                     // reset it
                     app.last.grid_sel_recid = -1;
                     grid.selectNone();
 
-                    // Insert an empty record...
-                    var x = getCurrentBusiness();
-                    var BID=parseInt(x.value);
-                    var BUD = getBUDfromBID(BID);
-                    $.get('/v1/uival/' + x.value + '/app.ReceiptRules' )
-                    .done( function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            app.ReceiptRules = JSON.parse(data);
+                    var f = w2ui.receiptForm;
 
+                    // get the latest receipt rules
+                    getBusinessReceiptRules(BID, BUD)
+                    .done(function(data) {
+                        if ('status' in data && data.status !== 'success') {
+                            f.message(data.message);
+                        } else {
                             var pmt_options = buildPaymentTypeSelectList(BUD);
                             var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                            var record = getReceiptInitRecord(BID, BUD, ptInit, null);
-                            w2ui.receiptForm.fields[0].options.items = pmt_options;
-                            w2ui.receiptForm.fields[1].options.items = app.ReceiptRules[BUD];
-                            w2ui.receiptForm.record = record;
-                            w2ui.receiptForm.refresh();
+                            f.get("PmtTypeName").options.items = pmt_options;
+                            f.get("ARID").options.items = app.ReceiptRules[BUD];
+                            f.record = getReceiptInitRecord(BID, BUD, ptInit, null);
+                            f.refresh();
                             setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
-                        }
-                        if (data.status != 'success') {
-                            w2ui.receiptForm.message(data.message);
                         }
                     })
                     .fail( function() {
@@ -280,85 +302,90 @@ function buildReceiptElements() {
                 }
             },
         },
-        onRender: function(event) {
+        onRender: function(event) { // when form is loaded first time in toplayout right panel
             event.onComplete = function() {
                 var f = this,
                     r = f.record,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value);
+                    BID = getCurrentBID();
 
-                // var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
-                // handleReceiptRAID(url, f);
-
-                if (r.TCID < 1) { // if TCID is not greater than 0 then return
-                    return;
+                // enable/disable RAID based on Account Rule
+                var arid;
+                if (typeof r.ARID === "object") {
+                    arid = r.ARID.id;
+                } else {
+                    arid = r.ARID;
                 }
-
-                var record = {};
-                getPersonDetailsByTCID(BID, r.TCID)
-                .done(function(data) {
-                    record = JSON.parse(data).record;
-                    var item = {
-                        CompanyName: record.CompanyName,
-                        IsCompany: record.IsCompany,
-                        FirstName: record.FirstName,
-                        LastName: record.LastName,
-                        MiddleName: record.MiddleName,
-                        TCID: record.TCID,
-                        recid: 0,
-                    };
-                    if ($("#receiptForm").find("input[name=Payor]").length > 0) {
-                        $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                    }
-                })
-                .fail(function() {
-                    f.message("Couldn't get person details for TCID: ", r.TCID);
-                    console.log("couldn't get person details for TCID: ", r.TCID);
-                });
-            };
-        },
-        onLoad: function(event) {
-            event.onComplete = function() {
-                var f = this,
-                    r = f.record,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value);
-
-                if (r.TCID < 1) { // if TCID we don't have a TCID, return now
-                    return;
-                }
-
-                var record = {};
-                getPersonDetailsByTCID(BID, r.TCID)
-                .done(function(data) {
-                    record = JSON.parse(data).record;
-                    var item = {
-                        CompanyName: record.CompanyName,
-                        IsCompany: record.IsCompany,
-                        FirstName: record.FirstName,
-                        LastName: record.LastName,
-                        MiddleName: record.MiddleName,
-                        TCID: record.TCID,
-                        recid: 0,
-                    };
-                    if ($("#receiptForm").find("input[name=Payor]").length > 0) {
-                        $("#receiptForm").find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                    }
-
-                    // enable/disable RAID based on Account Rule
-                    var arid;
-                    if (typeof r.ARID === "object") {
-                        arid = r.ARID.id;
-                    } else {
-                        arid = r.ARID;
-                    }
+                if (arid) { // if it has Account Rule then only
                     var url = '/v1/ar/' + r.BID +'/' + arid;
                     handleReceiptRAID(url, f);
-                })
-                .fail(function() {
-                    f.message("Couldn't get person details for TCID: ", r.TCID);
-                    console.log("couldn't get person details for TCID: ", r.TCID);
-                });
+                }
+
+                if (r.TCID) { // if it has Payor then only
+                    var record = {};
+                    getPersonDetailsByTCID(BID, r.TCID)
+                    .done(function(data) {
+                        record = JSON.parse(data).record;
+                        var item = {
+                            CompanyName: record.CompanyName,
+                            IsCompany: record.IsCompany,
+                            FirstName: record.FirstName,
+                            LastName: record.LastName,
+                            MiddleName: record.MiddleName,
+                            TCID: record.TCID,
+                            recid: 0,
+                        };
+                        if ($(f.box).find("input[name=Payor]").length > 0) {
+                            $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                        }
+                    })
+                    .fail(function() {
+                        f.message("Couldn't get person details for TCID: ", r.TCID);
+                        console.log("couldn't get person details for TCID: ", r.TCID);
+                    });
+                }
+            };
+        },
+        onLoad: function(event) { // when form data is loaded without rendering/refreshing event then
+            event.onComplete = function() {
+                var f = this,
+                    r = f.record,
+                    BID = getCurrentBID();
+
+                // enable/disable RAID based on Account Rule
+                var arid;
+                if (typeof r.ARID === "object") {
+                    arid = r.ARID.id;
+                } else {
+                    arid = r.ARID;
+                }
+                if (arid) { // if it has Account Rule then only
+                    var url = '/v1/ar/' + r.BID +'/' + arid;
+                    handleReceiptRAID(url, f);
+                }
+
+                if (r.TCID) { // if it has Payor then only
+                    var record = {};
+                    getPersonDetailsByTCID(BID, r.TCID)
+                    .done(function(data) {
+                        record = JSON.parse(data).record;
+                        var item = {
+                            CompanyName: record.CompanyName,
+                            IsCompany: record.IsCompany,
+                            FirstName: record.FirstName,
+                            LastName: record.LastName,
+                            MiddleName: record.MiddleName,
+                            TCID: record.TCID,
+                            recid: 0,
+                        };
+                        if ($(f.box).find("input[name=Payor]").length > 0) {
+                            $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                        }
+                    })
+                    .fail(function() {
+                        f.message("Couldn't get person details for TCID: ", r.TCID);
+                        console.log("couldn't get person details for TCID: ", r.TCID);
+                    });
+                }
             };
         },
         onRefresh: function(event) {
@@ -382,17 +409,17 @@ function buildReceiptElements() {
                 // SPECIAL CASE
                 // ==================================
                 if (r.RCPTID === 0) { // if new record then do not worry about reversed thing
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
-                    $("#"+f.name).find("#FLAGReport").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("#FLAGReport").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                     return;
                 } else {
-                    $("#"+f.name).find("#FLAGReport").removeClass("hidden");
+                    $(f.box).find("#FLAGReport").removeClass("hidden");
                 }
                 // this one is a special case, where also have to take care of reverse button
                 // FLAG reports
@@ -405,16 +432,16 @@ function buildReceiptElements() {
                     // reversed indication icon
                     flagHTML += get2XReversalSymbolHTML();
                     // if reversed then do not show reverse, save, saveadd button
-                    $("#"+f.name).find("button[name=reverse]").addClass("hidden");
-                    $("#"+f.name).find("button[name=save]").addClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").addClass("hidden");
+                    $(f.box).find("button[name=save]").addClass("hidden");
+                    $(f.box).find("button[name=saveadd]").addClass("hidden");
                     // if reversed then we need to show close button
-                    $("#"+f.name).find("button[name=close]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").removeClass("hidden");
 
                     // ********************************************************
                     // IF REVERSED THEN DISABLE ALL INPUTS, BUTTONS EXCEPT close button
                     // ********************************************************
-                    $("#"+f.name).find('input,button:not([name=close])').prop("disabled", true);
+                    $(f.box).find('input,button:not([name=close])').prop("disabled", true);
 
                 } else {
                     // IF NOT REVERSED THEN ONLY SHOW PAID STATUS IN FOOTER
@@ -430,21 +457,21 @@ function buildReceiptElements() {
                     }
 
                     // show save, saveadd, reverse button, hide close button
-                    $("#"+f.name).find("button[name=reverse]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=save]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=saveadd]").removeClass("hidden");
-                    $("#"+f.name).find("button[name=close]").addClass("hidden");
+                    $(f.box).find("button[name=reverse]").removeClass("hidden");
+                    $(f.box).find("button[name=save]").removeClass("hidden");
+                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ********************************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS, BUTTONS
                     // ********************************************************
-                    $("#"+f.name).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
                 flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
                 flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
-                $("#"+f.name).find("#FLAGReport").html(flagHTML);
+                $(f.box).find("#FLAGReport").html(flagHTML);
             };
         },
         onValidate: function (event) {
@@ -541,8 +568,8 @@ function buildReceiptElements() {
                     // add new empty record and just refresh the form, don't need to do CLEAR form
                     var pmt_options = buildPaymentTypeSelectList(BUD);
                     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                    f.fields[0].options.items = pmt_options;
-                    f.fields[1].options.items = app.ReceiptRules[BUD];
+                    f.get("PmtTypeName").options.items = pmt_options;
+                    f.get("ARID").options.items = app.ReceiptRules[BUD];
                     f.record = getReceiptInitRecord(BID, BUD, ptInit, f.record);
                     f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/receipt/' + BID + '/0';
@@ -599,15 +626,6 @@ function buildReceiptElements() {
                 });
             },
         },
-        onResize: function(event) {
-            event.onComplete = function() {
-                // HACK: set the height of right panel of toplayout box div and form's box div
-                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
-                var h = w2ui.toplayout.get("right").height;
-                $(w2ui.toplayout.get("right").content.box).height(h);
-                $(this.box).find("div.w2ui-form-box").height(h);
-            };
-        },
    });
 }
 
@@ -621,7 +639,7 @@ function handleReceiptRAID(url, f) {
             return;
         }
         var b = (data.record.FLAGS & 4 !== 0);
-        $("#"+f.name).find("input[name=RAID]").prop( "disabled", !b);
+        $(f.box).find("input[name=RAID]").prop( "disabled", !b);
     })
     .fail(function(/*data*/){
         f.error(url + " failed to get Receipt Rule details.");
