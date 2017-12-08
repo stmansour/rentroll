@@ -37,12 +37,12 @@ exports.w2uiFormTest = function (formConfig) {
         test: function (test) {
             var that = this;
 
-            casper.wait(500, function () {
+            casper.wait(common.waitTime, function () {
                 casper.click("#" + w2ui_utils.getGridRecordID(that.row, that.grid));
                 casper.log('[FormTest] [{0}] grid record click with id: "{1}"'.format(that.form, that.row), 'debug', logSpace);
             });
 
-            casper.wait(500, function () {
+            casper.wait(common.waitTime, function () {
 
                 // Right panel rendering
                 test.assertExists("#" + w2ui_utils.getRightPanelID());
@@ -61,7 +61,7 @@ exports.w2uiFormTest = function (formConfig) {
 
                 // Right panel after close button
                 this.click(w2ui_utils.getCloseButtonSelector());
-                this.wait(500, function () {
+                this.wait(common.waitTime, function () {
                     common.capture(that.captureAfterClosingForm);
                     test.assertNotVisible("#" + w2ui_utils.getRightPanelID());
                     test.done();

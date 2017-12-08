@@ -16,3 +16,5 @@ exports.capture = function(fname) {
         height: pageHeight
     });
 };
+
+exports.waitTime = 500;

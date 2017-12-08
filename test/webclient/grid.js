@@ -40,7 +40,7 @@ exports.w2uiGridTest = function(gridConfig) {
             // --------------------------------------------------
             // need to wait for some amount of time, so meanwhile w2ui can rendered
             // grid records in DOM
-            casper.wait(500, function() {
+            casper.wait(common.waitTime, function() {
                 var recordsLen = this.evaluate(function gridRecordsLen(a, grid) {
                     return a(grid);
                 }, w2ui_utils.getGridRecordsLength, that.grid);

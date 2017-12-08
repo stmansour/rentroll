@@ -41,18 +41,19 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         test: function (test) {
             var that = this;
 
-            casper.wait(500, function clickAddNewButton() {
+            casper.wait(common.waitTime, function clickAddNewButton() {
                 //It will click table cell with the text 'Add New'
                 casper.clickLabel("Add New", "td");
             });
 
-            casper.wait(500, function testRightPanel() {
+            casper.wait(common.waitTime, function testRightPanel() {
                 // common.capture(that.capture);
 
                 // Right panel rendering
                 test.assertExists("#" + w2ui_utils.getRightPanelID());
 
                 // BUD Field Test
+                //TODO: BUD must be disable
                 test.assertSelectorExists(w2ui_utils.getBUDSelector());
                 var businessUnitValue = casper.evaluate(function getBusinessUnit(bud_selector) {
                     return document.querySelector(bud_selector).value;
