@@ -49,7 +49,7 @@ function getPersonDetailsByTCID(BID, TCID) {
 
 // form dirty alert confirmation dialog box options
 var form_dirty_alert_options = {
-    msg          : '<p>There are unsaved changes.</p><p>Select OK to exit without saving your changes or Cancel to continue editing.</p>',
+    msg          : '<p>There are unsaved changes.</p><p>click Ignore Change to continue without saving your changes or click Continue Editing.</p>',
     title        : '',
     width        : 480,     // width of the dialog
     height       : 180,     // height of the dialog

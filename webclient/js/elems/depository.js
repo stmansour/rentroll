@@ -157,7 +157,7 @@ function buildDepositoryElements() {
     $().w2form({
         name: 'depositoryForm',
         style: 'border: 0px; background-color: transparent;',
-        header: 'Depository Detail',
+        header: 'Deposit Account Detail',
         url: '/v1/dep',
         formURL: '/webclient/html/formdepository.html',
         fields: [
@@ -229,7 +229,7 @@ function buildDepositoryElements() {
                     var record = getDepoInitRecord(BID, BUD);
 
                     f.record = record;
-                    f.header = "Edit Depository (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                    f.header = "Edit Depository Account (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
                     f.url = '/v1/dep/' + BID + '/0';
                     f.refresh();
                 });
@@ -270,7 +270,7 @@ function buildDepositoryElements() {
                         tgrid.render();
                     })
                     .fail(function(/*data*/){
-                        form.error("Delete Depository failed.");
+                        form.error("Delete Depository Account failed.");
                         return;
                     });
                 })
@@ -282,7 +282,7 @@ function buildDepositoryElements() {
         onRefresh: function(event) {
             event.onComplete = function() {
                 var f = this,
-                    header = "Edit Depository ({0})";
+                    header = "Edit Depository Account ({0})";
 
                 formRefreshCallBack(f, "DEPID", header);
             };

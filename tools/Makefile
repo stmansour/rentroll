@@ -1,4 +1,4 @@
-DIRS =
+DIRS = dbgen
 
 tools:
 	for dir in $(DIRS); do make -C $$dir; done
@@ -12,4 +12,3 @@ test:
 
 package:
 	for dir in $(DIRS); do make -C $$dir package;done
-	cp installman.sh ../tmp/rentroll/

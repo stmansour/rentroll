@@ -17,6 +17,7 @@ func UpdateAR(a *AR) error {
 // UpdateAssessment updates an Assessment record
 func UpdateAssessment(a *Assessment) error {
 	// debug.PrintStack()
+	a.Amount = Round(a.Amount, .5, 2)
 	_, err := RRdb.Prepstmt.UpdateAssessment.Exec(a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID)
 	return updateError(err, "Assessment", *a)
 }
@@ -65,6 +66,7 @@ func UpdateDepositPart(a *DepositPart) error {
 
 // UpdateExpense updates a Expense record
 func UpdateExpense(a *Expense) error {
+	a.Amount = Round(a.Amount, .5, 2)
 	_, err := RRdb.Prepstmt.UpdateExpense.Exec(a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.EXPID)
 	return updateError(err, "Expense", *a)
 }
@@ -152,12 +154,14 @@ func UpdateRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 
 // UpdateReceipt updates a Receipt record in the database
 func UpdateReceipt(a *Receipt) error {
+	a.Amount = Round(a.Amount, .5, 2)
 	_, err := RRdb.Prepstmt.UpdateReceipt.Exec(a.PRCPTID, a.BID, a.TCID, a.PMTID, a.DEPID, a.DID, a.RAID, a.Dt, a.DocNo, a.Amount, a.AcctRuleReceive, a.ARID, a.AcctRuleApply, a.FLAGS, a.Comment, a.OtherPayorName, a.LastModBy, a.RCPTID)
 	return updateError(err, "Receipt", *a)
 }
 
 // UpdateReceiptAllocation updates a ReceiptAllocation record in the database
 func UpdateReceiptAllocation(a *ReceiptAllocation) error {
+	a.Amount = Round(a.Amount, .5, 2)
 	_, err := RRdb.Prepstmt.UpdateReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.FLAGS, a.AcctRule, a.LastModBy, a.RCPAID)
 	return updateError(err, "ReceiptAllocation", *a)
 }

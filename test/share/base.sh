@@ -27,6 +27,21 @@ SHOWCOMMAND=0
 SCRIPTPATH=$(pwd -P)
 CASPERTEST="casperjs test"
 
+DBTOOLSDIR="../../dbtools"
+USERSIMDIR="."
+USERSIM="${USERSIMDIR}/usersim"
+
+DBNAME="accordtest"
+DBUSER="ec2-user"
+
+PBHOST="localhost"
+PBPORT="8250"
+
+PHONEBOOKDIR="../.."
+STARTPHONEBOOKCMD="./activate.sh -N ${DBNAME} -T start"
+STOPPHONEBOOKCMD="./activate.sh stop"
+
+
 if [ "x${NOCONSOLE}" = "x" ]; then
 	NOCONSOLE="-nocon"
 else

@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -177,6 +178,34 @@ func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration
 	return timerange
 }
 
+// Round floating point numbers to the specified number of decimal places.
+// Without this kind of routine, adding large list of numbers in something
+// like the Rentroll view's Grand Total can result in being off by $0.01.
+// Adding the Round function to the results of the rounding calculation fixes
+// this kind of problem.
+//
+// INPUTS
+//  val     - value to be rounded
+//  roundOn - the pivot point for rounding
+//  placess - number of decimal places to round to
+//
+// OUTPUT
+//  newVal  - the rounded number
+//-----------------------------------------------------------------------------
+func Round(val float64, roundOn float64, places int) (newVal float64) {
+	var round float64
+	pow := math.Pow(10, float64(places))
+	digit := pow * val
+	_, div := math.Modf(digit)
+	if div >= roundOn {
+		round = math.Ceil(digit)
+	} else {
+		round = math.Floor(digit)
+	}
+	newVal = round / pow
+	return
+}
+
 // SimpleProrateAmount prorates the supplied amount for the supplied dates.
 //
 // INPUTS:
@@ -224,7 +253,8 @@ func SimpleProrateAmount(amt float64, RentCycle, Prorate int64, d1, d2, epoch *t
 	numPeriods := int64(dur) / int64(proratedur)
 	totalPeriods := int64(cycdur) / int64(proratedur)
 	// Console("numPeriods = %d, totalPeriods = %d\n", numPeriods, totalPeriods)
-	return amt * float64(numPeriods) / float64(totalPeriods), numPeriods, totalPeriods
+	rounded := Round(amt*float64(numPeriods)/float64(totalPeriods), .5, 2)
+	return rounded, numPeriods, totalPeriods
 }
 
 // NextPeriod computes the next period start given the current period start
@@ -537,38 +567,38 @@ func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int6
 //      rentdur = duration actually rented
 //      pf      = proration factor, multiply rent/proratcycle * (prorate cycles) to get the prorated rent.
 // ----------------------------------------------------------------------------------------------------------
-func Prorate(RAStart, RAStop, asmtStart, asmtStop time.Time, accrual, prorateMethod int64) (int64, int64, float64) {
-	var asmtDur int64
-	var rentDur int64
-	var pf float64
+// func Prorate(RAStart, RAStop, asmtStart, asmtStop time.Time, accrual, prorateMethod int64) (int64, int64, float64) {
+// 	var asmtDur int64
+// 	var rentDur int64
+// 	var pf float64
 
-	prorateDur := CycleDuration(prorateMethod, asmtStart)
-	//-------------------------------------------------------------------
-	// Scope the Rental Agreement period down to this assessment period.
-	// Overlap the Rental Agreement period (RAStart to RAStop) with the
-	// assessment period (asmtStart - asmtStop)
-	//-------------------------------------------------------------------
-	start := asmtStart
-	if RAStart.After(start) {
-		start = RAStart
-	}
-	stop := RAStop.Add(prorateDur)
-	if stop.After(asmtStop) {
-		stop = asmtStop
-	}
+// 	prorateDur := CycleDuration(prorateMethod, asmtStart)
+// 	//-------------------------------------------------------------------
+// 	// Scope the Rental Agreement period down to this assessment period.
+// 	// Overlap the Rental Agreement period (RAStart to RAStop) with the
+// 	// assessment period (asmtStart - asmtStop)
+// 	//-------------------------------------------------------------------
+// 	start := asmtStart
+// 	if RAStart.After(start) {
+// 		start = RAStart
+// 	}
+// 	stop := RAStop.Add(prorateDur)
+// 	if stop.After(asmtStop) {
+// 		stop = asmtStop
+// 	}
 
-	// fmt.Printf("scoped period:  %s - %s\n", start.Format(RRDATEINPFMT), stop.Format(RRDATEINPFMT))
-	asmtDur = int64(asmtStop.Sub(asmtStart) / prorateDur)
-	rentDur = int64(stop.Sub(start) / prorateDur)
+// 	// fmt.Printf("scoped period:  %s - %s\n", start.Format(RRDATEINPFMT), stop.Format(RRDATEINPFMT))
+// 	asmtDur = int64(asmtStop.Sub(asmtStart) / prorateDur)
+// 	rentDur = int64(stop.Sub(start) / prorateDur)
 
-	// fmt.Printf("rentDur = %d %s\n", rentDur, units)
-	// fmt.Printf("asmtDur = %d %s\n", asmtDur, units)
+// 	// fmt.Printf("rentDur = %d %s\n", rentDur, units)
+// 	// fmt.Printf("asmtDur = %d %s\n", asmtDur, units)
 
-	if CYCLENORECUR == prorateMethod {
-		pf = 1.0
-	} else {
-		pf = float64(rentDur) / float64(asmtDur)
-	}
+// 	if CYCLENORECUR == prorateMethod {
+// 		pf = 1.0
+// 	} else {
+// 		pf = float64(rentDur) / float64(asmtDur)
+// 	}
 
-	return asmtDur, rentDur, pf
-}
+// 	return asmtDur, rentDur, pf
+// }

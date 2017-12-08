@@ -313,7 +313,7 @@ function buildRentableTypeElements() {
                 f.get("ManageToBudget").options.selected = manageToBudgetSel;
                 f.get("FLAGS").options.selected = FLAGSel;
 
-                formRefreshCallBack(f, "RTID", header, false);
+                formRefreshCallBack(f, "RTID", header);
             };
         },
         onChange: function(event) {

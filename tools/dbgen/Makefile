@@ -1,7 +1,7 @@
 TOP=../..
 BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
-THISDIR="dbgen"
+THIS="dbgen"
 
 dbgen: *.go config.json
 	@touch fail
@@ -10,18 +10,18 @@ dbgen: *.go config.json
 	go build
 	if [ ! -f "bizerr.csv" ]; then ln -s ../../bizlogic/bizerr.csv; fi
 	@rm -f fail
-	@echo "*** Completed in ${THISDIR} ***"
+	@echo "*** Completed in ${THIS} ***"
 
 clean:
-	rm -f rentroll.log log llog ${THISDIR} fail
-	@echo "*** CLEAN completed in ${THISDIR} ***"
+	rm -f rentroll.log log llog ${THIS} fail
+	@echo "*** CLEAN completed in ${THIS} ***"
 
 config.json:
 	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
 	@cp confdev.json config.json
 
-test: acctbal
-	@echo "*** TEST completed in ${THISDIR} ***"
+test:
+	@echo "*** TEST completed in ${THIS} ***"
 
 package:
-	@echo "*** PACKAGE completed in ${THISDIR} ***"
+	@echo "*** PACKAGE completed in ${THIS} ***"

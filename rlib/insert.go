@@ -39,6 +39,7 @@ func InsertAssessment(a *Assessment) (int64, error) {
 	// 	// os.Exit(1)
 	// }
 
+	a.Amount = Round(a.Amount, .5, 2)
 	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
@@ -192,6 +193,7 @@ func InsertDepository(a *Depository) (int64, error) {
 // InsertExpense writes a new Expense record to the database
 func InsertExpense(a *Expense) error {
 	var rid = int64(0)
+	a.Amount = Round(a.Amount, .5, 2)
 	res, err := RRdb.Prepstmt.InsertExpense.Exec(a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
@@ -514,6 +516,7 @@ func InsertRentable(a *Rentable) (int64, error) {
 // the RCPTID field is set to its new value.
 func InsertReceipt(r *Receipt) (int64, error) {
 	var tid = int64(0)
+	r.Amount = Round(r.Amount, .5, 2)
 	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.TCID, r.PMTID, r.DEPID, r.DID, r.RAID, r.Dt, r.DocNo, r.Amount, r.AcctRuleReceive, r.ARID, r.AcctRuleApply, r.FLAGS, r.Comment, r.OtherPayorName, r.CreateBy, r.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
@@ -530,6 +533,7 @@ func InsertReceipt(r *Receipt) (int64, error) {
 // InsertReceiptAllocation writes a new ReceiptAllocation record to the database
 func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
 	var tid = int64(0)
+	a.Amount = Round(a.Amount, .5, 2)
 	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.FLAGS, a.AcctRule, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
