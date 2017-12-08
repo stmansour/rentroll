@@ -18,3 +18,5 @@ exports.capture = function(fname) {
 };
 
 exports.waitTime = 500;
+
+exports.businessUnitValue = "REX";

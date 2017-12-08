@@ -58,7 +58,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                     return document.querySelector(bud_selector).value;
                 }, w2ui_utils.getBUDSelector());
 
-                if(businessUnitValue === "REX"){
+                if(businessUnitValue === common.businessUnitValue){
                     test.assert(true, "Business Unit value is {0}.".format(businessUnitValue))
                 }else {
                     test.assert(false, "Wrong Business unit");
@@ -73,7 +73,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 // Input fields test
                 that.inputFields.forEach(function (inputFieldID) {
                     var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputFieldID);
-                    // test.assertExists(inputFieldSelector);
 
                     var isVisible = casper.evaluate(function inputFieldVisibility(inputFieldSelector) {
                         return isVisibleInViewPort(document.querySelector(inputFieldSelector));
@@ -117,7 +116,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 // Form Button rendering test
                 that.buttonName.forEach(function (btnName) {
-                    // test.assertExists(w2ui_utils.getW2UIButtonReferanceSelector(btnName));
 
                     var isVisible = casper.evaluate(function formButtonVisibility(btnNode) {
                         return isVisibleInViewPort(document.querySelector(btnNode));
@@ -125,8 +123,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                     test.assert(isVisible, "[{0}] is visible to remote screen.".format(btnName));
                 });
-
-
 
                 // Form field rendering
                 common.capture(that.capture);
