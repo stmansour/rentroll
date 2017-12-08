@@ -29,6 +29,6 @@ exports.addNewConf = {
     inputField: ["Name", "Description"],
     buttonName: ["save", "saveadd"],
     inputSelectField: [{"fieldID": "ARType", "value":"Assessment"}, {"fieldID": "DebitLID", "value":" -- Select GL Account -- "}, {"fieldID": "CreditLID", "value":" -- Select GL Account -- "}],
-    testCount: 15
+    testCount: 16
 };
 

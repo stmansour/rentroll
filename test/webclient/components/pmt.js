@@ -29,7 +29,7 @@ exports.addNewConf = {
   inputField: ["Name", "Description"],
   buttonName: ["save", "saveadd"],
   inputSelectField: [],
-  testCount: 9
+  testCount: 10
 };
 
 

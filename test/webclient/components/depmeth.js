@@ -29,5 +29,5 @@ exports.addNewConf = {
     inputField: ["Name"],
     buttonName: ["save", "saveadd"],
     inputSelectField: [],
-    testCount: 7
+    testCount: 8
 };
