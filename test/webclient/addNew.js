@@ -53,7 +53,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 test.assertExists("#" + w2ui_utils.getRightPanelID());
 
                 // BUD Field Test
-                //TODO: BUD must be disable
                 test.assertSelectorExists(w2ui_utils.getBUDSelector());
                 var businessUnitValue = casper.evaluate(function getBusinessUnit(bud_selector) {
                     return document.querySelector(bud_selector).value;
@@ -64,6 +63,12 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 }else {
                     test.assert(false, "Wrong Business unit");
                 }
+
+                var isBusinessUnitValueDisabled = casper.evaluate(function (bud_selector) {
+                    return document.querySelector(bud_selector).disabled;
+                }, w2ui_utils.getBUDSelector());
+
+                test.assert(isBusinessUnitValueDisabled, "Disability of business unit field.");
 
                 // Input fields test
                 that.inputFields.forEach(function (inputFieldID) {
@@ -120,6 +125,8 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                     test.assert(isVisible, "[{0}] is visible to remote screen.".format(btnName));
                 });
+
+
 
                 // Form field rendering
                 common.capture(that.capture);
