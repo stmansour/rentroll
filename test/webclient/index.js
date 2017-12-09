@@ -112,14 +112,14 @@ casper.then(function gridTesting() {
 // --------------------------------------------------
 
 casper.then(function formTesting() {
-    // formM.w2uiFormTest(asmM.formConf);
-    // formM.w2uiFormTest(transactantsM.formConf);
-    // formM.w2uiFormTest(acctM.formConf);
+    formM.w2uiFormTest(asmM.formConf);
+    formM.w2uiFormTest(transactantsM.formConf);
+    formM.w2uiFormTest(acctM.formConf);
     formM.w2uiFormTest(pmtM.formConf);
     formM.w2uiFormTest(depM.formConf);
     formM.w2uiFormTest(depmethM.formConf);
     formM.w2uiFormTest(arsM.formConf);
-    // formM.w2uiFormTest(rtM.formConf);
+    formM.w2uiFormTest(rtM.formConf);
 });
 
 // --------------------------------------------------

@@ -29,6 +29,7 @@ exports.addNewConf = {
   inputField: ["Name", "Description"],
   buttonName: ["save", "saveadd"],
   inputSelectField: [],
+  checkboxes: [],
   testCount: 10
 };
 

@@ -34,6 +34,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             //Button name and class
             this.buttonName = addNewButtonConfig.buttonName;
 
+            //Checkboxes list
+            this.checkboxes = addNewButtonConfig.checkboxes;
+
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
         },
@@ -58,9 +61,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                     return document.querySelector(bud_selector).value;
                 }, w2ui_utils.getBUDSelector());
 
-                if(businessUnitValue === common.businessUnitValue){
+                if (businessUnitValue === common.businessUnitValue) {
                     test.assert(true, "Business Unit value is {0}.".format(businessUnitValue))
-                }else {
+                } else {
                     test.assert(false, "Wrong Business unit");
                 }
 
@@ -107,9 +110,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                         return document.querySelector(inputSelectFieldSelector).value;
                     }, inputSelectFieldSelector);
 
-                    if (inputSelectFieldValue === inputSelectField.value){
+                    if (inputSelectFieldValue === inputSelectField.value) {
                         test.assert(true, "{0} have default value {1}".format(inputSelectField.fieldID, inputSelectField.value));
-                    }else {
+                    } else {
                         test.assert(false, "{0} have different default value.".format(inputSelectField.fieldID));
                     }
                 });
@@ -123,6 +126,29 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                     test.assert(isVisible, "[{0}] is visible to remote screen.".format(btnName));
                 });
+
+                // Check box rendering test
+                that.checkboxes.forEach(function (checkbox) {
+                    var isVisible = casper.evaluate(function checkBoxvisibility(checkboxSelector) {
+                        return isVisibleInViewPort(document.querySelector(checkboxSelector));
+                    }, w2ui_utils.getCheckBoxSelector(checkbox.id));
+
+                    test.assert(isVisible, "[{0}] is visible to remote screen.".format(checkbox.id));
+
+                    var isChecked = casper.evaluate(function isChecked(checkboxSelector) {
+                        return document.querySelector(checkboxSelector).checked;
+                    }, w2ui_utils.getCheckBoxSelector(checkbox.id));
+
+                    test.assertEquals(isChecked, checkbox.checked, "{0} checked is {1}".format(checkbox.id, isChecked));
+
+                    var isDisable = casper.evaluate(function isChecked(checkboxSelector) {
+                        return document.querySelector(checkboxSelector).disabled;
+                    }, w2ui_utils.getCheckBoxSelector(checkbox.id));
+
+                    test.assertEquals(isDisable, checkbox.disable, "{0} disabled: {1}".format(checkbox.id, isDisable));
+
+                });
+
 
                 // Form field rendering
                 common.capture(that.capture);

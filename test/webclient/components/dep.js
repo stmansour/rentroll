@@ -29,6 +29,7 @@ exports.addNewConf = {
     inputField: ["Name", "AccountNo"],
     buttonName: ["save", "saveadd"],
     inputSelectField: [{"fieldID": "LID", "value":" -- Select GL Account -- "}],
+    checkboxes: [],
     testCount: 12
 };
 

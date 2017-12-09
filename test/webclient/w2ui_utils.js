@@ -52,4 +52,9 @@ exports.getInputSelectFieldSelector = function (inputSelectFieldID) {
     return 'input#{0}.w2ui-input.w2ui-select.w2field'.format(inputSelectFieldID);
 };
 
+exports.getCheckBoxSelector = function (checkboxID) {
+    console.log(checkboxID);
+    return 'input#{0}.w2ui-input'.format(checkboxID);
+};
+
 
