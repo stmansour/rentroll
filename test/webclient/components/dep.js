@@ -1,7 +1,7 @@
 "use strict";
 
 var GRID = "depGrid";
-var FORM = "depForm";
+var FORM = "depositoryForm";
 var SIDEBAR_ID = "dep";
 
 exports.gridConf = {
@@ -26,7 +26,7 @@ exports.addNewConf = {
     form: FORM,
     sidebarID: SIDEBAR_ID,
     capture: "depAddNewButton.png",
-    inputField: ["Name", "AccountNo"],
+    // inputField: ["Name", "AccountNo"],
     buttonName: ["save", "saveadd"],
     inputSelectField: [{"fieldID": "LID", "value":" -- Select GL Account -- "}],
     checkboxes: [],

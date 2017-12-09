@@ -110,7 +110,7 @@ casper.then(function gridTesting() {
 // --------------------------------------------------
 // 4. Now start all right side panel view UI testing
 // --------------------------------------------------
-
+//
 casper.then(function formTesting() {
     formM.w2uiFormTest(asmM.formConf);
     formM.w2uiFormTest(transactantsM.formConf);

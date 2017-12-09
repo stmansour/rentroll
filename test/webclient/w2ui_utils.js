@@ -53,8 +53,19 @@ exports.getInputSelectFieldSelector = function (inputSelectFieldID) {
 };
 
 exports.getCheckBoxSelector = function (checkboxID) {
-    console.log(checkboxID);
     return 'input#{0}.w2ui-input'.format(checkboxID);
+};
+
+exports.getTextTypeW2UIFields = function (inputField) {
+    if(inputField.type === "text"){
+        return inputField;
+    }
+};
+
+exports.getCheckBoxW2UIFields = function (inputField) {
+    if(inputField.type === "checkbox"){
+        return inputField;
+    }
 };
 
 

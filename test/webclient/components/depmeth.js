@@ -26,7 +26,7 @@ exports.addNewConf = {
     form: FORM,
     sidebarID: SIDEBAR_ID,
     capture: "depmethAddNewButton.png",
-    inputField: ["Name"],
+    // inputField: ["Name"],
     buttonName: ["save", "saveadd"],
     inputSelectField: [],
     checkboxes: [],

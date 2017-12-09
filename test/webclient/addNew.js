@@ -23,7 +23,12 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             this.sidebarID = addNewButtonConfig.sidebarID;
 
             //list of input fields
-            this.inputFields = addNewButtonConfig.inputField;
+            // this.inputFields = addNewButtonConfig.inputField;
+            this.formFields = casper.evaluate(function (form) {
+                return w2ui[form].fields;
+            }, this.form);
+
+            this.inputFields = this.formFields.filter(w2ui_utils.getTextTypeW2UIFields);
 
             //list of input select fields
             this.inputSelectField = addNewButtonConfig.inputSelectField;
@@ -35,19 +40,20 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             this.buttonName = addNewButtonConfig.buttonName;
 
             //Checkboxes list
-            this.checkboxes = addNewButtonConfig.checkboxes;
+            // this.checkboxes = addNewButtonConfig.checkboxes;
+            this.checkboxes = this.formFields.filter(w2ui_utils.getCheckBoxW2UIFields);
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
-        },
-
-        test: function (test) {
-            var that = this;
 
             casper.wait(common.waitTime, function clickAddNewButton() {
                 //It will click table cell with the text 'Add New'
                 casper.clickLabel("Add New", "td");
             });
+        },
+
+        test: function (test) {
+            var that = this;
 
             casper.wait(common.waitTime, function testRightPanel() {
                 // common.capture(that.capture);
@@ -75,23 +81,23 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 // Input fields test
                 that.inputFields.forEach(function (inputFieldID) {
-                    var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputFieldID);
+                    var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputFieldID.field);
 
                     var isVisible = casper.evaluate(function inputFieldVisibility(inputFieldSelector) {
                         return isVisibleInViewPort(document.querySelector(inputFieldSelector));
                     }, inputFieldSelector);
 
-                    test.assert(isVisible, "{0} input field is visible to remote screen.".format(inputFieldID));
+                    test.assert(isVisible, "{0} input field is visible to remote screen.".format(inputFieldID.field));
 
                     var inputFieldValue = casper.evaluate(function (inputFieldSelector) {
                         return document.querySelector(inputFieldSelector).value;
                     }, inputFieldSelector);
 
                     if (inputFieldValue === "") {
-                        test.assert(true, "{0} field is blank".format(inputFieldID));
+                        test.assert(true, "{0} field is blank".format(inputFieldID.field));
                     }
                     else {
-                        test.assert(false, "{0} field is not blank".format(inputFieldID));
+                        test.assert(false, "{0} field is not blank".format(inputFieldID.field));
                     }
                 });
 
@@ -131,24 +137,24 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 that.checkboxes.forEach(function (checkbox) {
                     var isVisible = casper.evaluate(function checkBoxvisibility(checkboxSelector) {
                         return isVisibleInViewPort(document.querySelector(checkboxSelector));
-                    }, w2ui_utils.getCheckBoxSelector(checkbox.id));
+                    }, w2ui_utils.getCheckBoxSelector(checkbox.field));
 
-                    test.assert(isVisible, "[{0}] is visible to remote screen.".format(checkbox.id));
+                    test.assert(isVisible, "[{0}] is visible to remote screen.".format(checkbox.field));
 
-                    var isChecked = casper.evaluate(function isChecked(checkboxSelector) {
-                        return document.querySelector(checkboxSelector).checked;
-                    }, w2ui_utils.getCheckBoxSelector(checkbox.id));
-
-                    test.assertEquals(isChecked, checkbox.checked, "{0} checked is {1}".format(checkbox.id, isChecked));
-
-                    var isDisable = casper.evaluate(function isChecked(checkboxSelector) {
-                        return document.querySelector(checkboxSelector).disabled;
-                    }, w2ui_utils.getCheckBoxSelector(checkbox.id));
-
-                    test.assertEquals(isDisable, checkbox.disable, "{0} disabled: {1}".format(checkbox.id, isDisable));
+                    // var isChecked = casper.evaluate(function isChecked(checkboxSelector) {
+                    //     return document.querySelector(checkboxSelector).checked;
+                    // }, w2ui_utils.getCheckBoxSelector(checkbox.field));
+                    //
+                    //
+                    // test.assertEquals(isChecked, checkbox.el.checked, "{0} checked is {1}".format(checkbox.id, isChecked));
+                    //
+                    // var isDisable = casper.evaluate(function isChecked(checkboxSelector) {
+                    //     return document.querySelector(checkboxSelector).disabled;
+                    // }, w2ui_utils.getCheckBoxSelector(checkbox.field));
+                    //
+                    // test.assertEquals(isDisable, checkbox.el.disable, "{0} disabled: {1}".format(checkbox.id, isDisable));
 
                 });
-
 
                 // Form field rendering
                 common.capture(that.capture);

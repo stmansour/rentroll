@@ -26,9 +26,9 @@ exports.addNewConf = {
     form: FORM,
     sidebarID: SIDEBAR_ID,
     capture: "arsAddNewButton.png",
-    inputField: ["Name", "Description"],
+    // inputField: ["Name", "Description"],
     buttonName: ["save", "saveadd"],
-    inputSelectField: [{"fieldID": "ARType", "value":"Assessment"}, {"fieldID": "DebitLID", "value":" -- Select GL Account -- "}, {"fieldID": "CreditLID", "value":" -- Select GL Account -- "}],
+    inputSelectField: [{"fieldID": "ARType", "value":""}, {"fieldID": "DebitLID", "value":" -- Select GL Account -- "}, {"fieldID": "CreditLID", "value":" -- Select GL Account -- "}],
     checkboxes: [{"id": "ApplyRcvAccts", "checked": false, "disable": false}, {"id": "RAIDrqd", "checked": false, "disable": true}, {"id": "PriorToRAStart", "checked": true, "disable": false}, {"id": "PriorToRAStop", "checked": true, "disable": false}],
     testCount: 28
 };
