@@ -67,7 +67,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                     return document.querySelector(bud_selector).value;
                 }, w2ui_utils.getBUDSelector());
 
-                if (businessUnitValue === common.businessUnitValue) {
+                if (businessUnitValue === testBiz) {
                     test.assert(true, "Business Unit value is {0}.".format(businessUnitValue))
                 } else {
                     test.assert(false, "Wrong Business unit");
@@ -154,6 +154,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                     test.assertEquals(isChecked, isCheckedInW2UI, "{0} checked is {1}".format(checkbox.field, isChecked));
 
 
+                    // TODO: Check that checkboxes are disabled/enabled as per the default value
                     // var isDisable = casper.evaluate(function isChecked(checkboxSelector) {
                     //     return document.querySelector(checkboxSelector).disabled;
                     // }, w2ui_utils.getCheckBoxSelector(checkbox.field));
