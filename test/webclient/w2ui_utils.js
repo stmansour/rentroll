@@ -68,4 +68,10 @@ exports.getCheckBoxW2UIFields = function (inputField) {
     }
 };
 
+exports.getInputListW2UIFields = function (inputField) {
+    if(inputField.type === "list"){
+        return inputField;
+    }
+};
+
 

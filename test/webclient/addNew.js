@@ -31,7 +31,8 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             this.inputFields = this.formFields.filter(w2ui_utils.getTextTypeW2UIFields);
 
             //list of input select fields
-            this.inputSelectField = addNewButtonConfig.inputSelectField;
+            // this.inputSelectField = addNewButtonConfig.inputSelectField;
+            this.inputSelectField = this.formFields.filter(w2ui_utils.getInputListW2UIFields);
 
             //capture name
             this.capture = addNewButtonConfig.capture;
@@ -40,7 +41,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             this.buttonName = addNewButtonConfig.buttonName;
 
             //Checkboxes list
-            // this.checkboxes = addNewButtonConfig.checkboxes;
             this.checkboxes = this.formFields.filter(w2ui_utils.getCheckBoxW2UIFields);
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
@@ -56,7 +56,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             var that = this;
 
             casper.wait(common.waitTime, function testRightPanel() {
-                // common.capture(that.capture);
 
                 // Right panel rendering
                 test.assertExists("#" + w2ui_utils.getRightPanelID());
@@ -103,23 +102,29 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 // Dropdown Input fields test
                 that.inputSelectField.forEach(function (inputSelectField) {
-                    var inputSelectFieldSelector = w2ui_utils.getInputSelectFieldSelector(inputSelectField.fieldID);
+                    var inputSelectFieldSelector = w2ui_utils.getInputSelectFieldSelector(inputSelectField.field);
                     // test.assertExists(inputSelectFieldSelector);
 
                     var isVisible = casper.evaluate(function selectFieldVisibility(selectField) {
                         return isVisibleInViewPort(document.querySelector(selectField));
                     }, inputSelectFieldSelector);
 
-                    test.assert(isVisible, "{0} field is visible to remote screen".format(inputSelectField.fieldID));
+                    test.assert(isVisible, "{0} field is visible to remote screen".format(inputSelectField.field));
 
                     var inputSelectFieldValue = casper.evaluate(function (inputSelectFieldSelector) {
                         return document.querySelector(inputSelectFieldSelector).value;
                     }, inputSelectFieldSelector);
 
-                    if (inputSelectFieldValue === inputSelectField.value) {
-                        test.assert(true, "{0} have default value {1}".format(inputSelectField.fieldID, inputSelectField.value));
+                    // that.formFields.record[inputSelectField.field].text
+
+                    var defaultValueInW2UI = casper.evaluate(function getDefaultValue(form, field) {
+                        return w2ui[form].record[field].text;
+                    }, that.form, inputSelectField.field);
+
+                    if (inputSelectFieldValue === defaultValueInW2UI) {
+                        test.assert(true, "{0} have default value {1}".format(inputSelectField.field, defaultValueInW2UI));
                     } else {
-                        test.assert(false, "{0} have different default value.".format(inputSelectField.fieldID));
+                        test.assert(false, "{0} have different default value {1}.".format(inputSelectField.field, defaultValueInW2UI));
                     }
                 });
 

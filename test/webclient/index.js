@@ -130,7 +130,6 @@ casper.then(function formTesting() {
     formM.w2uiFormTest(arsM.formConf);
     formM.w2uiFormTest(rtM.formConf);
 });
-
 // ========== RUN TEST ==========
 casper.run();
 

@@ -27,7 +27,5 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "depmethAddNewButton.png",
     buttonName: ["save", "saveadd"],
-    inputSelectField: [],
-    checkboxes: [],
-    testCount: 8
+    testCount: 10
 };

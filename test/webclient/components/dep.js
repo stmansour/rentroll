@@ -27,8 +27,6 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "depAddNewButton.png",
     buttonName: ["save", "saveadd"],
-    inputSelectField: [{"fieldID": "LID", "value":" -- Select GL Account -- "}],
-    checkboxes: [],
-    testCount: 12
+    testCount: 14
 };
 
