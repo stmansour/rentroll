@@ -108,28 +108,27 @@ casper.then(function gridTesting() {
 });
 
 // --------------------------------------------------
-// 4. Now start all right side panel view UI testing
-// --------------------------------------------------
-//
-// casper.then(function formTesting() {
-//     formM.w2uiFormTest(asmM.formConf);
-//     formM.w2uiFormTest(transactantsM.formConf);
-//     formM.w2uiFormTest(acctM.formConf);
-//     formM.w2uiFormTest(pmtM.formConf);
-//     formM.w2uiFormTest(depM.formConf);
-//     formM.w2uiFormTest(depmethM.formConf);
-//     formM.w2uiFormTest(arsM.formConf);
-//     formM.w2uiFormTest(rtM.formConf);
-// });
-
-// --------------------------------------------------
-// 5. Now start all add new button test
+// 4. Now start all add new button test
 // --------------------------------------------------
 casper.then(function addNewButtonTesting() {
+    addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
+});
+
+// --------------------------------------------------
+// 5. Now start all right side panel view UI testing
+// --------------------------------------------------
+casper.then(function formTesting() {
+    formM.w2uiFormTest(asmM.formConf);
+    formM.w2uiFormTest(transactantsM.formConf);
+    formM.w2uiFormTest(acctM.formConf);
+    formM.w2uiFormTest(pmtM.formConf);
+    formM.w2uiFormTest(depM.formConf);
+    formM.w2uiFormTest(depmethM.formConf);
+    formM.w2uiFormTest(arsM.formConf);
+    formM.w2uiFormTest(rtM.formConf);
 });
 
 // ========== RUN TEST ==========
