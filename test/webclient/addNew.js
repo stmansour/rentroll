@@ -141,13 +141,19 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                     test.assert(isVisible, "[{0}] is visible to remote screen.".format(checkbox.field));
 
-                    // var isChecked = casper.evaluate(function isChecked(checkboxSelector) {
-                    //     return document.querySelector(checkboxSelector).checked;
-                    // }, w2ui_utils.getCheckBoxSelector(checkbox.field));
-                    //
-                    //
-                    // test.assertEquals(isChecked, checkbox.el.checked, "{0} checked is {1}".format(checkbox.id, isChecked));
-                    //
+                    //Test default value
+                    var isChecked = casper.evaluate(function isChecked(checkboxSelector) {
+                        return document.querySelector(checkboxSelector).checked;
+                    }, w2ui_utils.getCheckBoxSelector(checkbox.field));
+
+                    var isCheckedInW2UI = casper.evaluate(function isChecked(form, field) {
+                        return w2ui[form].record[field];
+                    }, that.form, checkbox.field);
+
+
+                    test.assertEquals(isChecked, isCheckedInW2UI, "{0} checked is {1}".format(checkbox.field, isChecked));
+
+
                     // var isDisable = casper.evaluate(function isChecked(checkboxSelector) {
                     //     return document.querySelector(checkboxSelector).disabled;
                     // }, w2ui_utils.getCheckBoxSelector(checkbox.field));
