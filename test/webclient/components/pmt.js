@@ -5,8 +5,9 @@ var SIDEBAR_ID = "pmts";
 var FORM = "pmtForm";
 
 exports.gridConf = {
-    grid: "pmtsGrid",
-    sidebarID: "pmts",
+    grid: GRID,
+    sidebarID: SIDEBAR_ID,
+    tableName: "PaymentType",
     capture: "pmtsGridRequest.png"
 };
 

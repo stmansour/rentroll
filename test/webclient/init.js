@@ -2,6 +2,8 @@
 
 var common = require("./common.js");
 
+var rentrollDump = require("./rentroll.json");
+
 exports.init = function() {
     // ========== CASPER OPTIONS ==========
     casper.options.viewportSize = {width: pageWidth, height: pageHeight};

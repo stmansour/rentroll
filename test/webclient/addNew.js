@@ -2,6 +2,7 @@
 
 var common = require("./common.js");
 var w2ui_utils = require("./w2ui_utils.js");
+var rentrollDump = require("./rentroll.json");
 
 exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     var testCount = addNewButtonConfig.testCount;
@@ -15,9 +16,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
             //grid name
             this.grid = addNewButtonConfig.grid;
-
-            // //row number
-            // this.row = addNewButtonConfig.row;
 
             //to open a grid
             this.sidebarID = addNewButtonConfig.sidebarID;
@@ -42,6 +40,8 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
             //Checkboxes list
             this.checkboxes = this.formFields.filter(w2ui_utils.getCheckBoxW2UIFields);
+
+            console.log(rentrollDump['PaymentType']);
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
