@@ -303,11 +303,13 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 				e := fmt.Errorf("Could not identify business: %s", sbid)
 				rlib.Console("***ERROR IN URL***  %s\n", e.Error())
 				SvcGridErrorReturn(w, err, funcname)
+				return
 			}
 			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil {
 				e := fmt.Errorf("session required, please log in")
 				rlib.Console("*** ERROR ***  command %s requires a session. SvcCtx.NoAuth = %t\n", Svcs[i].Cmd, SvcCtx.NoAuth)
 				SvcGridErrorReturn(w, e, funcname)
+				return
 			}
 			Svcs[i].Handler(w, r, &d)
 			found = true
