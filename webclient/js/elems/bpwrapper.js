@@ -1,12 +1,12 @@
 /*global
-	app, w2ui, buildDepositElements, buildDepositMethodElements
-    buildAppLayout, buildSidebar, buildAllocFundsGrid, buildAccountElements, 
+	buildDepositElements, buildAppLayout, buildSidebar, buildAllocFundsGrid, buildAccountElements, 
     buildTransactElements, buildRentableTypeElements, buildRentableElements, 
     buildRAElements, buildRAPayorPicker, buildRUserPicker, buildRentablePicker, 
     buildRAPicker, buildReceiptElements, buildAssessmentElements, buildExpenseElements, 
     buildARElements, buildPaymentTypeElements, buildDepositoryElements, buildDepositElements, 
     buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElements, 
-    buildDepositMethodElements, buildPayorStatementElements, buildRentRollElements,
+    buildDepositMethodElements, buildPayorStatementElements, buildRentRollElements, buildLoginForm,
+    buildAppLayout,
 */
 
 "use strict";
@@ -47,4 +47,6 @@ function buildPageElementsWrapper(flag) {
     buildDepositMethodElements();
     buildPayorStatementElements();
     buildRentRollElements();
+    buildLoginForm();
+
 }
