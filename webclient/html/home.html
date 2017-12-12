@@ -227,8 +227,8 @@ function buildPageElements() {
                 case "menuButton:Template-Dflt":  window.location.href = '/home/en-us/default';             break;
                 case "menuButton:Template-Apts":  window.location.href = '/home/en-us/apts';                break;
                 case "moduleMenu:RentRoll":       window.location.href = '/';                               break;
-                case "moduleMenu:Mojo":           window.location.href = 'http://localhost:8275/home/';     break;
-                case "menuButton:Webdocs": openInNewTab('/doc/docs.html'); break;
+                case "moduleMenu:Mojo":           window.location.href = 'https://mojo.airoller.com:8275/'; break;
+                case "menuButton:Webdocs":        openInNewTab('/doc/docs.html'); break;
                 case "msgButton":
                 case "menuButton:Messages":
                         w2ui.toplayout.toggle('top',true);
@@ -239,7 +239,7 @@ function buildPageElements() {
             }
         },
     }));
-    buildPageElementsWrapper();
+    buildPageElementsWrapper(0);
 }  // buildPageElements
 
 

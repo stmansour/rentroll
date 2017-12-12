@@ -60,29 +60,6 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// for now we just show all pets, so no need to parse date
 
 	//------------------------------------------------------
-	// Handle URL parameters
-	//------------------------------------------------------
-	// dt := time.Now()                   // default to current date
-	// if len(s1) > 1 && len(s1[1]) > 0 { // override with whatever was provided
-	// 	parms := strings.Split(s1[1], "&") // parms is an array of indivdual parameters and their values
-	// 	for i := 0; i < len(parms); i++ {
-	// 		param := strings.Split(parms[i], "=") // an individual parameter and its value
-	// 		if len(param) < 2 {
-	// 			continue
-	// 		}
-	// 		fmt.Printf("param[i] value = %s\n", param[1])
-	// 		switch param[0] {
-	// 		case "dt":
-	// 			dt, err = rlib.StringToDate(param[1])
-	// 			if err != nil {
-	// 				SvcGridErrorReturn(w, fmt.Errorf("invalid date:  %s", param[1]))
-	// 				return
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	//------------------------------------------------------
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
 	var gxp RAPets

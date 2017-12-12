@@ -17,8 +17,8 @@ import (
 	"tws"
 )
 
-// SvcGridError is the generalized error structure to return errors to the grid widget
-type SvcGridError struct {
+// SvcStatus is the generalized error structure to return errors to the grid widget
+type SvcStatus struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
@@ -150,6 +150,7 @@ var Svcs = []ServiceHandler{
 	{"ars", SvcSearchHandlerARs, true},
 	{"asm", SvcFormHandlerAssessment, true},
 	{"asms", SvcSearchHandlerAssessments, true},
+	{"authn", SvcAuthenticate, false},
 	{"dep", SvcHandlerDepository, true},
 	{"depmeth", SvcHandlerDepositMethod, true},
 	{"deposit", SvcHandlerDeposit, true},
@@ -203,13 +204,15 @@ var Svcs = []ServiceHandler{
 // Decoded, this message looks something like this:
 //		request={"cmd":"get","selected":[],"limit":100,"offset":0}
 //
-// The leading "request=" is optional. This routine parses the basic information, then contacts an appropriate
-// handler for more detailed processing.  It will set the Cmd member variable.
+// The leading "request=" is optional. This routine parses the basic
+// information, then contacts an appropriate handler for more detailed
+// processing.  It will set the Cmd member variable.
 //
 // W2UI sometimes sends requests that look like this: request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D
-// using HTTP GET (rather than its more typical POST).  The command decodes to this: request={"search":"s","max":250}
+// using HTTP GET (rather than its more typical POST).  The command decodes to
+// this: request={"search":"s","max":250}
 //
-//-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "V1ServiceHandler"
 	svcDebugTxn(funcname, r)
@@ -356,7 +359,7 @@ func getBIDfromBUI(s string) (int64, error) {
 func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
 	// fmt.Printf("<Function>: %s | <Error>: %s\n", funcname, err.Error())
 	fmt.Printf("%s: %s\n", funcname, err.Error())
-	var e SvcGridError
+	var e SvcStatus
 	e.Status = "error"
 	e.Message = fmt.Sprintf("Error: %s\n", err.Error())
 	w.Header().Set("Content-Type", "application/json")

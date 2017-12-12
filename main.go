@@ -136,6 +136,7 @@ func initHTTP() {
 	Chttp.Handle("/", http.FileServer(http.Dir(App.RootStaticDir)))
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/home/", HomeUIHandler)
+	http.HandleFunc("/rhome/", RHomeUIHandler) // special purpose, receipt-only version of roller
 	http.HandleFunc("/v1/", ws.V1ServiceHandler)
 	http.HandleFunc("/wsvc/", webServiceHandler)
 }
@@ -201,6 +202,8 @@ func main() {
 		worker.Init()                             // register Rentroll's TWS workers
 		initHTTP()                                // identify the handlers
 		rlib.Ulog("RentRoll initiating HTTP service on port %d and HTTPS on port %d\n", App.PortRR, App.PortRR+1)
+		rlib.SessionInit(rlib.AppConfig.SessionTimeout)
+		rlib.Ulog("RentRoll sessions timeout is %d minutes\n", rlib.AppConfig.SessionTimeout)
 
 		go http.ListenAndServeTLS(fmt.Sprintf(":%d", App.PortRR+1), App.CertFile, App.KeyFile, nil)
 		err = http.ListenAndServe(fmt.Sprintf(":%d", App.PortRR), nil)
