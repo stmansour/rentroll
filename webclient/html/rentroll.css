@@ -130,3 +130,18 @@ textarea.w2ui-input-focus {
 .grandTotalRow td {
     font-weight: bold;
 }
+
+#LoginMessage {
+    display: block;
+    padding: 8px 0px;
+    margin-left: 130px;
+}
+
+#LoginMessage .errors {
+    color: red;
+}
+
+#forgot_pass_link {
+    display: block;
+    margin: 10px 0px 2px 0px;
+}

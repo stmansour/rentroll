@@ -202,7 +202,7 @@ func SessionNew(token, username, name string, uid int64, rid int64) *Session {
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
 func CreateSession(username string, w http.ResponseWriter, r *http.Request) (*Session, error) {
-	expiration := time.Now().Add(SessionTimeout * time.Minute)
+	expiration := time.Now().Add(SessionTimeout)
 
 	//----------------------------------------------
 	// TODO: lookup username in address book data
@@ -272,7 +272,7 @@ func GetSession(r *http.Request) (*Session, error) {
 func (s *Session) Refresh(w http.ResponseWriter, r *http.Request) int {
 	cookie, err := r.Cookie(sessionCookieName)
 	if nil != cookie && err == nil {
-		cookie.Expires = time.Now().Add(SessionTimeout * time.Minute)
+		cookie.Expires = time.Now().Add(SessionTimeout)
 		ReqSessionMem <- 1        // ask to access the shared mem, blocks until granted
 		<-ReqSessionMemAck        // make sure we got it
 		s.Expire = cookie.Expires // update the Session information

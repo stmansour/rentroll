@@ -243,29 +243,70 @@ function buildPageElements() {
     buildPageElementsWrapper(0);
 }  // buildPageElements
 
+var loginTmplURL = "/webclient/html/formlogin.html";
+
+$(document).ajaxSuccess(function(event, request, settings) {
+    if (settings.url !== loginTmplURL) {
+        var data;
+        try{
+            data = JSON.parse(request.responseText);
+        } catch(e) {
+            // nothing to do
+        }
+        if (data && 'message' in data) {
+            if (data.message.indexOf("session required") > -1) {
+                //------------------------------------------------------------
+                // The user needs to log in before we let them do anything...
+                // IF Session Required...
+                //------------------------------------------------------------
+                $().w2popup('open', loginPopupOptions);
+                setTimeout(function() {
+                    var f = w2ui.passwordform;
+                    $(f.box).find("#LoginMessage").find(".errors").empty();
+                    var message = "Session is expired. Please login again.";
+                    $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+                    $(f.box).find("#LoginMessage").removeClass("hidden");
+                }, 500);
+            }
+        }
+    }
+});
 
 function createLoginForm() {
     $().w2form({
         name: 'passwordform',
-        formURL: '/webclient/html/formlogin.html',
+        formURL: loginTmplURL,
         style: 'border: 0px; background-color: transparent;',
         fields: [{field: 'user', type: 'text',     required: true, html: {caption: 'User Name' /*, attr: 'readonly'*/} },
                  {field: 'pass', type: 'password', required: true, html: {caption: 'Password'} },
                 ],
         actions: {
-            "login": function (/*event*/) {
+            login: function (/*event*/) {
+                var f = this;
                 console.log('User Name = ' + w2ui.passwordform.record.user);
                 app.username = w2ui.passwordform.record.user;
+
+                // request login only username, password entered
+                if (!(app.username && w2ui.passwordform.record.pass)) {
+                    console.log("username and password should not be blank");
+                    return;
+                }
+
                 var params = {user: app.username, pass: w2ui.passwordform.record.pass };
                 var dat = JSON.stringify(params);
                 $.post('/v1/authn/', dat, null, "json")
                 .done(function(data) {
-                    if (data.status == "error") {
-                        w2ui.passwordform.error(w2utils.lang(data.message));
+                    if (data.status === "error") {
+                        $(f.box).find("#LoginMessage").find(".errors").empty();
+                        var message = "Invalid Credentials";
+                        $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+                        $(f.box).find("#LoginMessage").removeClass("hidden");
+                        // w2ui.passwordform.error(w2utils.lang(data.message));
                         return;
                     }
-                    if (data.status === "success") {
+                    else if (data.status === "success") {
                         app.uid = data.uid;
+                        $(f.box).find("#LoginMessage").addClass("hidden");
                         w2popup.close();
                     }
                     console.log("Login service returned unexpected status: " + data.status);
@@ -275,11 +316,31 @@ function createLoginForm() {
                     w2ui.passwordform.error("Login failed");
                     return;
                 });
-                w2popup.close();
             },
-            "cancel": function (/*event*/) {
+            cancel: function (/*event*/) {
+                // w2popup.close();
                 return;
             }
+        },
+        onRefresh: function(event) {
+            var f = this;
+            event.onComplete = function() {
+
+                // handle enter key press event
+                $(f.box).keypress(function(keypressEvent) {
+                    if (keypressEvent.which === 13) {
+                        // need to give time so that w2ui form have data in it's record object
+                        setTimeout(function() {
+                            $(f.box).find("button[name=login]").click();
+                        }, 100);
+                    }
+                });
+
+                // TODO: handle forgot password link
+                $(f.box).find("forgot_pass_link").click(function() {
+                    console.log("forgot password link clicked!");
+                });
+            };
         }
     });
 }
@@ -300,16 +361,17 @@ function finishInitialization() {
 }
 
 var loginPopupOptions = {
-    body: '<div id="form" style="width: 100%; height: 100%;"></div>',
-    style: 'padding: 15px 0px 0px 0px',
-    width: 350,
-    height: 175,
+    body: '<div id="loginPopupForm" style="width: 100%; height: 100%;"></div>',
+    style: 'padding: 15px 0px 0px 0px; overflow: auto;',
+    width: 400,
+    height: 210,
     showMax: true,
+    modal: true,
     onOpen: function (event) {
         event.onComplete = function () {
-            $('#w2ui-popup #form').w2render('passwordform');
+            $('#w2ui-popup #loginPopupForm').w2render('passwordform');
         };
-    }
+    },
 };
 
 $(function () {
