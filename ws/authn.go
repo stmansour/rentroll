@@ -12,8 +12,9 @@ import (
 // AuthenticateData is the struct with the username and password
 // used for authentication
 type AuthenticateData struct {
-	User string `json:"user"`
-	Pass string `json:"pass"`
+	User     string `json:"user"`
+	Pass     string `json:"pass"`
+	ResetPwd bool   `json:"resetPwd"`
 }
 
 // AuthenticateResponse is the reply structure from Accord Directory
@@ -51,6 +52,17 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	//rlib.Console("User = %s, Pass = %s\n", a.User, a.Pass)
+
+	//-----------------------------------------------------------------------
+	// TODO: Implmentate to handle reset/forgot password
+	// if `resetPwd` is true, then user has requested to reset password
+	// OR maybe user forgots their password
+	//-----------------------------------------------------------------------
+	if a.ResetPwd {
+		e := fmt.Errorf("%s: feature is not available at the moment", funcname)
+		SvcGridErrorReturn(w, e, funcname)
+		return
+	}
 
 	//-----------------------------------------------------------------------
 	// There's no need to Marshal the data into JSON format. We already have
