@@ -41,6 +41,7 @@ PHONEBOOKDIR="../.."
 STARTPHONEBOOKCMD="./activate.sh -N ${DBNAME} -T start"
 STOPPHONEBOOKCMD="./activate.sh stop"
 
+RENTROLLSERVERAUTH=""
 
 if [ "x${NOCONSOLE}" = "x" ]; then
 	NOCONSOLE="-nocon"
@@ -858,12 +859,12 @@ genericlogcheck() {
 #   default port of 8270.  If you set RRPORT prior
 #   to including base.sh to override the port number
 #########################################################
-startRentRollServer () {
+startRentRollServer() {
 	if [ ${MANAGESERVER} -eq 1 ]; then
 		stopRentRollServer
 		cmd="${RRBIN}/rentroll -p ${RRPORT} ${RSD} > ${RRBIN}/rrlog 2>&1 &"
 		echo "${cmd}"
-		${RRBIN}/rentroll -p ${RRPORT} ${RSD} > ${RRBIN}/rrlog 2>&1 &
+		${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} > ${RRBIN}/rrlog 2>&1 &
 		sleep 1
 	fi
 }
@@ -872,7 +873,7 @@ startRentRollServer () {
 # stopRentRollServer()
 #	Kills any currently running instances of the server
 #########################################################
-stopRentRollServer () {
+stopRentRollServer() {
 	if [ ${MANAGESERVER} -eq 1 ]; then
 		killall rentroll > /dev/null 2>&1
 		sleep 1

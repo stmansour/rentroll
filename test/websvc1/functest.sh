@@ -21,6 +21,7 @@ mysql --no-defaults rentroll < asmtest.sql
 source ../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
+RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
 # Create a non-recurring assessment

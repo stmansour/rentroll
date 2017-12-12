@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -43,6 +44,17 @@ var sessions map[string]*Session
 
 // SessionTimeout defines how long a session can remain idle before it expires.
 var SessionTimeout time.Duration // in minutes
+
+// sessionCookieName is the name of the Roller cookie where the session
+// token is stored.
+var sessionCookieName = string("airoller")
+
+// GetSessionCookieName simply returns a string containing the session
+// cookie name. We want this to be a private / unchangable name.
+//-----------------------------------------------------------------------------
+func GetSessionCookieName() string {
+	return sessionCookieName
+}
 
 // SessionDispatcher is a Go routine that controls access to shared memory.
 //-----------------------------------------------------------------------------
@@ -210,11 +222,42 @@ func CreateSession(username string, w http.ResponseWriter, r *http.Request) (*Se
 	token := fmt.Sprintf("%x", md5.Sum([]byte(key)))
 
 	s := SessionNew(token, username, name, uid, RoleID)
-	cookie := http.Cookie{Name: "accord", Value: s.Token, Expires: expiration}
+	cookie := http.Cookie{Name: sessionCookieName, Value: s.Token, Expires: expiration}
 	cookie.Path = "/"
 	http.SetCookie(w, &cookie)
 	r.AddCookie(&cookie) // need this so that the redirect to search finds the cookie
 	return s, nil
+}
+
+// GetSession returns the session based on the cookie in the supplied
+// HTTP connection.  It does NOT refresh the cookie. If you want it refreshed
+// you can simply call the Refresh method on the returned pointer.
+//
+// INPUT
+//  r - the request where w should look for the cookie
+//
+// RETURNS
+//  session - pointer to the new session
+//  error   - any error encountered
+//-----------------------------------------------------------------------------
+func GetSession(r *http.Request) (*Session, error) {
+	var ok bool
+	cookie, err := r.Cookie(sessionCookieName)
+	if err != nil {
+		if strings.Contains(err.Error(), "cookie not present") {
+			return nil, nil
+		}
+		return nil, err
+	}
+	err = fmt.Errorf("No session found, please log in")
+	if cookie == nil {
+		return nil, err
+	}
+	sess, ok := sessions[cookie.Value]
+	if !ok || sess == nil {
+		return nil, err
+	}
+	return sess, nil
 }
 
 // Refresh updates the cookie and Session with a new expire time.
@@ -227,7 +270,7 @@ func CreateSession(username string, w http.ResponseWriter, r *http.Request) (*Se
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
 func (s *Session) Refresh(w http.ResponseWriter, r *http.Request) int {
-	cookie, err := r.Cookie("accord")
+	cookie, err := r.Cookie(sessionCookieName)
 	if nil != cookie && err == nil {
 		cookie.Expires = time.Now().Add(SessionTimeout * time.Minute)
 		ReqSessionMem <- 1        // ask to access the shared mem, blocks until granted

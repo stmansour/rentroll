@@ -26,8 +26,9 @@ sidebarL1     - w2ui sidebar
 
 <script>
 /*global
-    createPayorStmtForm, $, console, w2ui, defineDateFmts, buildPageElements, createRentalAgreementForm, createStmtForm,
-    dateControlString, dateMonthFwd, dateControlString, createDepositForm, buildPageElementsWrapper,
+    createPayorStmtForm, $, console, w2ui, defineDateFmts, createRentalAgreementForm, createStmtForm,
+    dateControlString, dateMonthFwd, dateControlString, createDepositForm, buildPageElementsWrapper,w2popup,
+    w2utils, openInNewTab,
 */
 
 
@@ -243,6 +244,46 @@ function buildPageElements() {
 }  // buildPageElements
 
 
+function createLoginForm() {
+    $().w2form({
+        name: 'passwordform',
+        formURL: '/webclient/html/formlogin.html',
+        style: 'border: 0px; background-color: transparent;',
+        fields: [{field: 'user', type: 'text',     required: true, html: {caption: 'User Name' /*, attr: 'readonly'*/} },
+                 {field: 'pass', type: 'password', required: true, html: {caption: 'Password'} },
+                ],
+        actions: {
+            "login": function (/*event*/) {
+                console.log('User Name = ' + w2ui.passwordform.record.user);
+                app.username = w2ui.passwordform.record.user;
+                var params = {user: app.username, pass: w2ui.passwordform.record.pass };
+                var dat = JSON.stringify(params);
+                $.post('/v1/authn/', dat, null, "json")
+                .done(function(data) {
+                    if (data.status == "error") {
+                        w2ui.passwordform.error(w2utils.lang(data.message));
+                        return;
+                    }
+                    if (data.status === "success") {
+                        app.uid = data.uid;
+                        w2popup.close();
+                    }
+                    console.log("Login service returned unexpected status: " + data.status);
+                    return;
+                })
+                .fail(function(/*data*/){
+                    w2ui.passwordform.error("Login failed");
+                    return;
+                });
+                w2popup.close();
+            },
+            "cancel": function (/*event*/) {
+                return;
+            }
+        }
+    });
+}
+
 function finishInitialization() {
     defineDateFmts();
     buildPageElements();
@@ -250,12 +291,26 @@ function finishInitialization() {
     createStmtForm();
     createPayorStmtForm();
     createDepositForm();
+    createLoginForm();
     var d1 = new Date();
-    d1.setDate(1);
+    d1.setDate(0);
     app.D1 = dateControlString(d1);
     var d2 = dateMonthFwd(d1);
     app.D2 = dateControlString(d2);
 }
+
+var loginPopupOptions = {
+    body: '<div id="form" style="width: 100%; height: 100%;"></div>',
+    style: 'padding: 15px 0px 0px 0px',
+    width: 350,
+    height: 175,
+    showMax: true,
+    onOpen: function (event) {
+        event.onComplete = function () {
+            $('#w2ui-popup #form').w2render('passwordform');
+        };
+    }
+};
 
 $(function () {
     $.get('/v1/uilists/' + app.language + '/' + app.template)
@@ -276,6 +331,10 @@ $(function () {
     .fail( function() {
         console.log('Error getting /v1/uilists');
     });
+    //------------------------------------------------------------
+    // The user needs to log in before we let them do anything...
+    //------------------------------------------------------------
+    $().w2popup('open', loginPopupOptions);
 });
 </script>
 

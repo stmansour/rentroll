@@ -15,6 +15,7 @@ source ../share/base.sh
 genericlogcheck "z"  ""  "AcctBal-Checks"
 
 echo "STARTING RENTROLL SERVER"
+RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
 # get Statement

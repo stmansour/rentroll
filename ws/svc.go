@@ -32,9 +32,10 @@ type SvcStatusResponse struct {
 
 // ServiceHandler describes the handler for all services
 type ServiceHandler struct {
-	Cmd     string
-	Handler func(http.ResponseWriter, *http.Request, *ServiceData)
-	NeedBiz bool
+	Cmd         string
+	Handler     func(http.ResponseWriter, *http.Request, *ServiceData)
+	NeedBiz     bool // true if the command requires a BID
+	NeedSession bool // true if this command requires a session
 }
 
 // GenSearch describes a search condition
@@ -133,6 +134,7 @@ type ServiceData struct {
 	wsSearchReq   WebGridSearchRequest // what did the search requester ask for
 	wsTypeDownReq WebTypeDownRequest   // fast for typedown
 	data          string               // the raw unparsed data
+	sess          *rlib.Session        // the caller's session
 	QueryParams   map[string][]string  // parameters when HTTP GET is used
 	Files         map[string][]*multipart.FileHeader
 	MFValues      map[string][]string
@@ -140,59 +142,69 @@ type ServiceData struct {
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
-	{"exportaccounts", SvcExportGLAccounts, true},
-	{"importaccounts", SvcImportGLAccounts, true},
-	{"account", SvcFormHandlerGLAccounts, true},
-	{"accountlist", SvcAccountsList, true},
-	{"accounts", SvcSearchHandlerGLAccounts, true},
-	{"allocfunds", SvcSearchHandlerAllocFunds, true},
-	{"ar", SvcFormHandlerAR, true},
-	{"ars", SvcSearchHandlerARs, true},
-	{"asm", SvcFormHandlerAssessment, true},
-	{"asms", SvcSearchHandlerAssessments, true},
-	{"authn", SvcAuthenticate, false},
-	{"dep", SvcHandlerDepository, true},
-	{"depmeth", SvcHandlerDepositMethod, true},
-	{"deposit", SvcHandlerDeposit, true},
-	{"depositlist", SvcHandlerDepositList, true},
-	{"discon", SvcDisableConsole, false},
-	{"encon", SvcEnableConsole, false},
-	{"expense", SvcHandlerExpense, false},
-	{"ledgers", getLedgerGrid, true},
-	{"parentaccounts", SvcParentAccountsList, true},
-	{"payorfund", SvcHandlerTotalUnallocFund, true},
-	{"payorstmt", SvcPayorStmtDispatch, true},
-	{"payorstmtinfo", SvcGetPayorStmInfo, true},
-	{"person", SvcFormHandlerXPerson, true},
-	{"ping", SvcHandlerPing, true},
-	{"pmts", SvcHandlerPaymentType, true},
-	{"postaccounts", SvcPostAccountsList, true},
-	{"rapayor", SvcRAPayor, true},
-	{"rapets", SvcRAPets, true},
-	{"rar", SvcRARentables, true},
-	{"receipt", SvcFormHandlerReceipt, true},
-	{"receipts", SvcSearchHandlerReceipts, true},
-	{"rentable", SvcFormHandlerRentable, true},
-	{"rentables", SvcSearchHandlerRentables, true},
-	{"rentablestd", SvcRentableTypeDown, true},
-	{"rentalagr", SvcFormHandlerRentalAgreement, true},
-	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
-	{"rentalagrtd", SvcRentalAgreementTypeDown, true},
-	{"rr", SvcRR, true},
-	{"rt", SvcHandlerRentableType, true},
-	{"rmr", SvcHandlerRentableMarketRates, true},
-	{"rtlist", SvcRentableTypesTD, true},
-	{"ruser", SvcRUser, true},
-	{"stmt", SvcStatement, true},
-	{"stmtdetail", SvcStatementDetail, true},
-	{"stmtinfo", SvcGetStatementInfo, true},
-	{"transactants", SvcSearchHandlerTransactants, true},
-	{"transactantstd", SvcTransactantTypeDown, true},
-	{"tws", SvcTWS, true},
-	{"uilists", SvcUILists, false},
-	{"uival", SvcUIVal, false},
-	{"unpaidasms", SvcHandlerGetUnpaidAsms, true},
-	{"version", SvcHandlerVersion, false},
+	{"exportaccounts", SvcExportGLAccounts, true, true},
+	{"importaccounts", SvcImportGLAccounts, true, true},
+	{"account", SvcFormHandlerGLAccounts, true, true},
+	{"accountlist", SvcAccountsList, true, true},
+	{"accounts", SvcSearchHandlerGLAccounts, true, true},
+	{"allocfunds", SvcSearchHandlerAllocFunds, true, true},
+	{"ar", SvcFormHandlerAR, true, true},
+	{"ars", SvcSearchHandlerARs, true, true},
+	{"asm", SvcFormHandlerAssessment, true, true},
+	{"asms", SvcSearchHandlerAssessments, true, true},
+	{"authn", SvcAuthenticate, false, false},
+	{"dep", SvcHandlerDepository, true, true},
+	{"depmeth", SvcHandlerDepositMethod, true, true},
+	{"deposit", SvcHandlerDeposit, true, true},
+	{"depositlist", SvcHandlerDepositList, true, true},
+	{"discon", SvcDisableConsole, false, true},
+	{"encon", SvcEnableConsole, false, true},
+	{"expense", SvcHandlerExpense, false, true},
+	{"ledgers", getLedgerGrid, true, true},
+	{"parentaccounts", SvcParentAccountsList, true, true},
+	{"payorfund", SvcHandlerTotalUnallocFund, true, true},
+	{"payorstmt", SvcPayorStmtDispatch, true, true},
+	{"payorstmtinfo", SvcGetPayorStmInfo, true, true},
+	{"person", SvcFormHandlerXPerson, true, true},
+	{"ping", SvcHandlerPing, false, false},
+	{"pmts", SvcHandlerPaymentType, true, true},
+	{"postaccounts", SvcPostAccountsList, true, true},
+	{"rapayor", SvcRAPayor, true, true},
+	{"rapets", SvcRAPets, true, true},
+	{"rar", SvcRARentables, true, true},
+	{"receipt", SvcFormHandlerReceipt, true, true},
+	{"receipts", SvcSearchHandlerReceipts, true, true},
+	{"rentable", SvcFormHandlerRentable, true, true},
+	{"rentables", SvcSearchHandlerRentables, true, true},
+	{"rentablestd", SvcRentableTypeDown, true, true},
+	{"rentalagr", SvcFormHandlerRentalAgreement, true, true},
+	{"rentalagrs", SvcSearchHandlerRentalAgr, true, true},
+	{"rentalagrtd", SvcRentalAgreementTypeDown, true, true},
+	{"rr", SvcRR, true, true},
+	{"rt", SvcHandlerRentableType, true, true},
+	{"rmr", SvcHandlerRentableMarketRates, true, true},
+	{"rtlist", SvcRentableTypesTD, true, true},
+	{"ruser", SvcRUser, true, true},
+	{"stmt", SvcStatement, true, true},
+	{"stmtdetail", SvcStatementDetail, true, true},
+	{"stmtinfo", SvcGetStatementInfo, true, true},
+	{"transactants", SvcSearchHandlerTransactants, true, true},
+	{"transactantstd", SvcTransactantTypeDown, true, true},
+	{"tws", SvcTWS, true, true},
+	{"uilists", SvcUILists, false, false},
+	{"uival", SvcUIVal, false, false},
+	{"unpaidasms", SvcHandlerGetUnpaidAsms, true, true},
+	{"version", SvcHandlerVersion, false, false},
+}
+
+// SvcCtx contains information global to the Svc handlers
+var SvcCtx struct {
+	NoAuth bool
+}
+
+// SvcInit initializes the service subsystem
+func SvcInit(noauth bool) {
+	SvcCtx.NoAuth = noauth
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
@@ -221,6 +233,16 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 
 	d.ID = -1  // indicates it has not been set
 	d.BID = -1 // indicates it has not been set
+
+	if !SvcCtx.NoAuth {
+		d.sess, err = rlib.GetSession(r)
+		if err != nil {
+			SvcGridErrorReturn(w, err, funcname)
+		}
+		if d.sess != nil {
+			d.sess.Refresh(w, r) // they actively tried to use the session, extend timeout
+		}
+	}
 
 	//-----------------------------------------------------------------------
 	// pathElements:  0   1            2     3
@@ -279,8 +301,13 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 					sbid = d.pathElements[3]
 				}
 				e := fmt.Errorf("Could not identify business: %s", sbid)
-				fmt.Printf("***ERROR IN URL***  %s\n", e.Error())
+				rlib.Console("***ERROR IN URL***  %s\n", e.Error())
 				SvcGridErrorReturn(w, err, funcname)
+			}
+			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil {
+				e := fmt.Errorf("session required, please log in")
+				rlib.Console("*** ERROR ***  command %s requires a session. SvcCtx.NoAuth = %t\n", Svcs[i].Cmd, SvcCtx.NoAuth)
+				SvcGridErrorReturn(w, e, funcname)
 			}
 			Svcs[i].Handler(w, r, &d)
 			found = true
@@ -288,9 +315,9 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !found {
-		fmt.Printf("**** YIPES! **** %s - Handler not found\n", r.RequestURI)
+		rlib.Console("**** YIPES! **** %s - Handler not found\n", r.RequestURI)
 		e := fmt.Errorf("Service not recognized: %s", d.Service)
-		fmt.Printf("***ERROR IN URL***  %s", e.Error())
+		rlib.Console("***ERROR IN URL***  %s", e.Error())
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
@@ -357,8 +384,8 @@ func getBIDfromBUI(s string) (int64, error) {
 
 // SvcGridErrorReturn formats an error return to the grid widget and sends it
 func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
-	// fmt.Printf("<Function>: %s | <Error>: %s\n", funcname, err.Error())
-	fmt.Printf("%s: %s\n", funcname, err.Error())
+	// rlib.Console("<Function>: %s | <Error>: %s\n", funcname, err.Error())
+	rlib.Console("%s: %s\n", funcname, err.Error())
 	var e SvcStatus
 	e.Status = "error"
 	e.Message = fmt.Sprintf("Error: %s\n", err.Error())
@@ -403,14 +430,14 @@ func SvcExtractIDFromURI(uri, errmsg string, pos int, w http.ResponseWriter) (in
 	var funcname = "SvcExtractIDFromURI"
 
 	sa := strings.Split(uri[1:], "/")
-	// fmt.Printf("uri parts:  %v\n", sa)
+	// rlib.Console("uri parts:  %v\n", sa)
 	if len(sa) < pos+1 {
 		err = fmt.Errorf("Expecting at least %d elements in URI: %s, but found only %d", pos+1, uri, len(sa))
-		// fmt.Printf("err = %s\n", err)
+		// rlib.Console("err = %s\n", err)
 		SvcGridErrorReturn(w, err, funcname)
 		return ID, err
 	}
-	// fmt.Printf("sa[pos] = %s\n", sa[pos])
+	// rlib.Console("sa[pos] = %s\n", sa[pos])
 	ID, err = SvcGetInt64(sa[pos], errmsg, w)
 	return ID, err
 }
@@ -603,7 +630,7 @@ func SvcWrite(w http.ResponseWriter, b []byte) {
 	format := fmt.Sprintf("First %d chars of response: %%-%d.%ds\n", charsToPrint, charsToPrint, charsToPrint)
 	// rlib.Console("Format string = %q\n", format)
 	rlib.Console(format, string(b))
-	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
+	// rlib.Console("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }
 

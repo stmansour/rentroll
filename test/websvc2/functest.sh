@@ -21,6 +21,7 @@ mysql --no-defaults rentroll < ../ws/restore.sql
 source ../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
+RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
 # echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22sort%22%3A%5B%7B%22field%22%3A%22DID%22%2C%22direction%22%3A%22asc%22%7D%5D%2C%22searchDtStart%22%3A%221%2F1%2F2016%22%2C%22searchDtStop%22%3A%225%2F1%2F2016%22%7D" > request
