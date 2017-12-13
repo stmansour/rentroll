@@ -41,6 +41,15 @@ exports.w2uiGridRecordTest = function (gridConfig) {
             var that = this;
 
             casper.wait(common.waitTime, function testGridRecords() {
+
+                //Match w2ui record length with list size in JSON
+                var w2uiRecordLength = casper.evaluate(function (gridName) {
+                    return w2ui[gridName].records.length;
+                }, that.grid);
+
+                test.assert(w2uiRecordLength === that.tableRecords.length, "{0} record length matched with JSON list".format(that.grid));
+
+
                 that.tableRecords.forEach(function (tableRecord, rowNo) {
                     // TODO: Match database record with rendered UI
 
@@ -67,7 +76,13 @@ exports.w2uiGridRecordTest = function (gridConfig) {
                         // test.assertEquals(rowColumnData,tableRecord[column], "{0} is matched with DOM".format(tableRecord[column]));
                     });
 
+                    //
+
                 });
+
+                // Check w2ui grid record exists in JSON file
+
+
                 // Capture the rendered image
                 common.capture(that.capture);
 
