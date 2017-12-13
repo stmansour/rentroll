@@ -178,8 +178,6 @@ type StringList struct {
 	LastModTime time.Time  // when was this record last written
 	LastModBy   int64      // employee UID (from phonebook) that modified it
 	S           []SLString // array of SLStrings associated with this SLID
-	LastModTime time.Time  // when was this record last written
-	LastModBy   int64      // employee UID (from phonebook) that modified it
 	CreateTS    time.Time  // when was this record created
 	CreateBy    int64      // employee UID (from phonebook) that created it
 }
