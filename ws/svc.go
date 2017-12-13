@@ -243,6 +243,10 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		if d.sess != nil {
 			d.sess.Refresh(w, r) // they actively tried to use the session, extend timeout
 		}
+		if d.sess.UID == 0 { // validation of UID
+			err := fmt.Errorf("Invalid user for the session, Please login again.")
+			SvcGridErrorReturn(w, err, funcname)
+		}
 	}
 
 	//-----------------------------------------------------------------------
