@@ -5,9 +5,11 @@ var SIDEBAR_ID = "ars";
 var FORM = "arsForm";
 
 exports.gridConf = {
-    grid: "arsGrid",
-    sidebarID: "ars",
-    capture: "arsGridRequest.png"
+    grid: GRID,
+    sidebarID: SIDEBAR_ID,
+    tableName: "AR",
+    capture: "arsGridRequest.png",
+    testCount: 40
 };
 
 exports.formConf = {

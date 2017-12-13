@@ -1,14 +1,14 @@
 "use strict";
 
 var common = require("./common.js");
-var rrJson = require("./rentroll.json");
+var w2ui_utils = require("./w2ui_utils.js");
+
 
 exports.w2uiGridRecordTest = function (gridConfig) {
     var testCount = gridConfig.testCount;
     var testName = "w2ui grid record {0} test".format(gridConfig.grid);
 
-    casper.test.begin(testName, testCount, {
-        // do basic setup first
+    casper.test.begin(testName, testCount, {// do basic setup first
         setUp: function (/*test*/) {
             // grid name
             this.grid = gridConfig.grid;
@@ -25,6 +25,14 @@ exports.w2uiGridRecordTest = function (gridConfig) {
             // records in the table
             this.tableRecords = rrJson[this.tableName];
 
+            //
+            this.gridColumns = casper.evaluate(function (grid) {
+                return w2ui[grid].columns;
+            }, this.grid);
+
+            this.columns = this.gridColumns.filter(w2ui_utils.getVisibleColumnName);
+            // this.columns = gridConfig.columns;
+
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
         },
@@ -33,9 +41,37 @@ exports.w2uiGridRecordTest = function (gridConfig) {
             var that = this;
 
             casper.wait(common.waitTime, function testGridRecords() {
-                that.tableRecords.forEach(function (tableRecord) {
+                that.tableRecords.forEach(function (tableRecord, rowNo) {
                     // TODO: Match database record with rendered UI
+
+                    that.columns.forEach(function (column) {
+
+                        // get coloumn index based on column name/field
+                        var columnNo = casper.evaluate(function (gridName, column) {
+                            return w2ui[gridName].getColumn(column, true);
+                        }, that.grid, column.field);
+
+                        var isVisible = casper.evaluate(function (rowColumnDataSelector) {
+                            return isVisibleInViewPort(document.querySelector(rowColumnDataSelector));
+                        }, w2ui_utils.getRowColumnDataSelector(that.grid, rowNo, columnNo));
+
+                        // get data at specific cell [rowNo][columnNo]
+                        var rowColumnData = casper.evaluate(function (rowColumnDataSelector) {
+                            return $(rowColumnDataSelector).text();
+                        }, w2ui_utils.getRowColumnDataSelector(that.grid, rowNo, columnNo));
+
+                        // Record visibility in viewport
+                        test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
+
+                        // JSON file record comparison with rendered w2uiGrid object
+                        // test.assertEquals(rowColumnData,tableRecord[column], "{0} is matched with DOM".format(tableRecord[column]));
+                    });
+
                 });
+                // Capture the rendered image
+                common.capture(that.capture);
+
+                test.done();
             });
         }
     });

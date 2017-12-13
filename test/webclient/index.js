@@ -5,6 +5,7 @@ var initM = require("./init.js");
 var gridM = require("./grid.js");
 var formM = require("./form.js");
 var addNewButtonM = require("./addNew.js");
+var gridRecordM = require("./gridRecord.js");
 
 // required components
 var asmM = require("./components/asm.js");
@@ -22,6 +23,8 @@ var rtM = require("./components/rt.js");
 var rentableM = require("./components/rentable.js");
 
 var visibleM = require("./visible.js");
+
+var rrJson = require("./rentroll.json");
 
 // ========== UI TEST APP OPTIONS ==========
 var pageURL = "http://localhost:8270/home",
@@ -130,6 +133,16 @@ casper.then(function formTesting() {
     formM.w2uiFormTest(arsM.formConf);
     formM.w2uiFormTest(rtM.formConf);
 });
+
+
+// --------------------------------------------------
+// 6. Now start all grid record check test
+// --------------------------------------------------
+casper.then(function gridRecordTesting() {
+    gridRecordM.w2uiGridRecordTest(pmtM.gridConf);
+    gridRecordM.w2uiGridRecordTest(arsM.gridConf);
+});
+
 // ========== RUN TEST ==========
 casper.run();
 

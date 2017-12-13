@@ -62,6 +62,13 @@ exports.getTextTypeW2UIFields = function (inputField) {
     }
 };
 
+exports.getVisibleColumnName = function (columnName) {
+    if(!columnName.hidden){
+        return columnName;
+    }
+};
+
+
 exports.getCheckBoxW2UIFields = function (inputField) {
     if(inputField.type === "checkbox"){
         return inputField;
@@ -72,6 +79,10 @@ exports.getInputListW2UIFields = function (inputField) {
     if(inputField.type === "list"){
         return inputField;
     }
+};
+
+exports.getRowColumnDataSelector = function (gridName, rowNo, columnNo) {
+  return "#grid_{0}_data_{1}_{2}".format(gridName, rowNo, columnNo);
 };
 
 

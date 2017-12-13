@@ -8,7 +8,8 @@ exports.gridConf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
     tableName: "PaymentType",
-    capture: "pmtsGridRequest.png"
+    capture: "pmtsGridRequest.png",
+    testCount: 20
 };
 
 exports.formConf = {
