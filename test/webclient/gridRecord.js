@@ -8,7 +8,10 @@ exports.w2uiGridRecordTest = function (gridConfig) {
     var testCount = gridConfig.testCount;
     var testName = "w2ui grid record {0} test".format(gridConfig.grid);
 
-    casper.test.begin(testName, testCount, {// do basic setup first
+    casper.test.begin(testName, testCount, {
+
+        // do basic setup first
+
         setUp: function (/*test*/) {
             // grid name
             this.grid = gridConfig.grid;
@@ -76,11 +79,22 @@ exports.w2uiGridRecordTest = function (gridConfig) {
                         // test.assertEquals(rowColumnData,tableRecord[column], "{0} is matched with DOM".format(tableRecord[column]));
                     });
 
-                    //
-
                 });
 
                 // Check w2ui grid record exists in JSON file
+
+                // w2ui.arsGrid.records : It fetches the record as w2ui object
+                // tableRecords: It fetch grid record from the JSON
+                // Iterate through w2ui records and check that it is available in JSON tableRecords
+
+                var w2uiGridRecords = casper.evaluate(function (gridName) {
+                    return w2ui[gridName].records;
+                }, that.grid);
+
+                w2uiGridRecords.forEach(function (w2uiGridRecord) {
+                    console.log(w2uiGridRecord)
+                });
+
 
 
                 // Capture the rendered image
