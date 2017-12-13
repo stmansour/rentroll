@@ -236,7 +236,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	d.BID = -1 // indicates it has not been set
 
 	if !SvcCtx.NoAuth {
-		d.sess, err = rlib.GetSession(r)
+		d.sess, err = rlib.GetSession(w, r)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
 		}

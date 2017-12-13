@@ -229,19 +229,29 @@ func CreateSession(username string, w http.ResponseWriter, r *http.Request) (*Se
 //  session - pointer to the new session
 //  error   - any error encountered
 //-----------------------------------------------------------------------------
-func GetSession(r *http.Request) (*Session, error) {
+func GetSession(w http.ResponseWriter, r *http.Request) (*Session, error) {
 	var ok bool
+	Console("GetSession 1\n")
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
+		Console("GetSession 2\n")
 		if strings.Contains(err.Error(), "cookie not present") {
+			Console("GetSession 3\n")
 			return nil, nil
 		}
+		Console("GetSession 4\n")
 		return nil, err
 	}
+	Console("GetSession 5\n")
 	sess, ok := sessions[cookie.Value]
 	if !ok || sess == nil {
+		Console("GetSession 6\n")
+		cookie.Expires = time.Now()
+		cookie.Path = "/"
+		http.SetCookie(w, cookie)
 		return nil, nil // cookie had a value, but not found in our session table
 	}
+	Console("GetSession 7\n")
 	return sess, nil
 }
 
