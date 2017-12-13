@@ -1,7 +1,7 @@
 "use strict";
 
 /*global
-    $, console, app, w2ui, w2popup, setInterval, 
+    $, console, app, w2ui, w2popup, setInterval,
 */
 var loginTmplURL = "/webclient/html/formlogin.html";
 
@@ -64,6 +64,10 @@ function buildLoginForm() {
                         $(f.box).find("#LoginMessage").addClass("hidden");
                         w2popup.close();
                         w2ui.passwordform.record.pass = ""; // after closing dialog, remove password information.
+
+                        // render the user details in web page
+                        $("#user_menu_container").find("#username").text("UID: "+app.uid);
+                        $("#user_menu_container").find("img").attr("src", app.userActiveImage);
                     }
                     console.log("Login service returned unexpected status: " + data.status);
                     return;
@@ -108,7 +112,7 @@ function buildLoginForm() {
 // @retunrs <none>
 //---------------------------------------------------------------------------------
 function startSessionChecker() {
-    loginSessionChecker = setInterval( 
+    loginSessionChecker = setInterval(
     function() {
         ensureSession();
     }, 5000); // watch out for session expiring
@@ -139,13 +143,15 @@ function ensureSession() {
     }
     // The cookie was not found. We need to authenticate...
     $().w2popup('open', loginPopupOptions);
-    // if (app.uid !== 0) {
-    //     var f = w2ui.passwordform;
-    //     $(f.box).find("#LoginMessage").find(".errors").empty();
-    //     var message = "Your session hass expired. Please login again.";
-    //     $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
-    //     $(f.box).find("#LoginMessage").removeClass("hidden");
-    // }
+    if (app.uid !== 0) {
+        var f = w2ui.passwordform;
+        if (f) {
+            $(f.box).find("#LoginMessage").find(".errors").empty();
+            var message = "Your session hass expired. Please login again.";
+            $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+            $(f.box).find("#LoginMessage").removeClass("hidden");
+        }
+    }
 }
 
 //---------------------------------------------------------------------------------
@@ -167,7 +173,7 @@ function logoff() {
         if (c.indexOf(name) === 0) {
             found = true;
             // return c.substring(name.length, c.length);
-            
+
         }
     }
     if (found) {
