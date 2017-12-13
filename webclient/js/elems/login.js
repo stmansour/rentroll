@@ -122,7 +122,7 @@ function startSessionChecker() {
 // @retunrs <none>
 //---------------------------------------------------------------------------------
 function ensureSession() {
-    console.log('ensureSession');
+    // console.log('ensureSession');
     if (w2popup.status == "open") {return;}
     var name = "airoller=";
     var decodedCookie = decodeURIComponent(document.cookie);
@@ -139,13 +139,16 @@ function ensureSession() {
     }
     // The cookie was not found. We need to authenticate...
     $().w2popup('open', loginPopupOptions);
-    // if (app.uid !== 0) {
-    //     var f = w2ui.passwordform;
-    //     $(f.box).find("#LoginMessage").find(".errors").empty();
-    //     var message = "Your session hass expired. Please login again.";
-    //     $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
-    //     $(f.box).find("#LoginMessage").removeClass("hidden");
-    // }
+    
+    if (app.uid !== 0) {
+        var f = w2ui.passwordform;
+        if (f) {
+            $(f.box).find("#LoginMessage").find(".errors").empty();
+            var message = "Your session hass expired. Please login again.";
+            $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+            $(f.box).find("#LoginMessage").removeClass("hidden");
+        }
+    }
 }
 
 //---------------------------------------------------------------------------------
