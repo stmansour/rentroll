@@ -306,7 +306,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
-			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil {
+			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil && d.sess.UID == 0 {
 				e := fmt.Errorf("session required, please log in")
 				rlib.Console("*** ERROR ***  command %s requires a session. SvcCtx.NoAuth = %t\n", Svcs[i].Cmd, SvcCtx.NoAuth)
 				SvcGridErrorReturn(w, e, funcname)

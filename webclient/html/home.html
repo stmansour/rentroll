@@ -28,7 +28,7 @@ sidebarL1     - w2ui sidebar
 /*global
     createPayorStmtForm, $, console, w2ui, defineDateFmts, createRentalAgreementForm, createStmtForm,
     dateControlString, dateMonthFwd, dateControlString, createDepositForm, buildPageElementsWrapper,
-    openInNewTab, ensureSession, logoff, startSessionChecker, 
+    openInNewTab, ensureSession, logoff, startSessionChecker,
 */
 
 
@@ -56,7 +56,9 @@ var app = {
     DepMethods: {},
     Depositories: {}, // gets loaded as needed
     ExpenseRules: {},
-    uid: 211,
+    userBlankImage: "/webclient/img/user_profile_blank.png" ,
+    userActiveImage: "/webclient/img/user_profile_active.png" ,
+    uid: null,
     PayorStmtExt: false, // false = internal, true = external
     WidestFormWidth: 900,
     sidebarWidth: 215,
@@ -212,7 +214,17 @@ function buildPageElements() {
                 { text: 'Messages',      icon: 'fa fa-folder-o' },
             ]},
             { id: 'bt3', type: 'spacer' },
-            { id: 'logoff', text: 'Sign Out', type: 'button', icon: 'fa fa-sign-out' },
+            { type: 'menu',   id: 'userMenu',
+                caption: '<div id="user_menu_container">'+
+                      '<span id="username"></span>'+
+                      '<img src="" />'+
+                      '</div>',
+                items: [
+                    { id: 'Profile'  , text: 'Profile' , icon: 'fa fa-user' },
+                    { id: 'Settings' , text: 'Settings', icon: 'fa fa-gear' },
+                    { id: 'Signout'  , text: 'Sign Out', icon: 'fa fa-sign-out' },
+                ],
+            },
             { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
         ],
         onRender: function(event) {
@@ -220,6 +232,24 @@ function buildPageElements() {
                 // when this render complete then store default selected business in app.last
                 app.last.BUD = $("select[name=BusinessSelect]").find(":selected").attr("name");
                 app.last.BID = $("select[name=BusinessSelect]").val();
+            };
+        },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                if(app.uid) {
+                    // render the user details in web page
+                    $("#user_menu_container").find("#username").text("UID: " + app.uid);
+                    // set the user profile picture
+                    if (!($("#user_menu_container").find("img").attr("src"))) {
+                        $("#user_menu_container").find("img").attr("src", app.userActiveImage);
+                    }
+                } else {
+                    // if blank profile image is not set then
+                    if ($("#user_menu_container").find("img").attr("src") !== app.userBlankImage) {
+                        $("#user_menu_container").find("img").attr("src", app.userBlankImage);
+                    }
+                    $("#user_menu_container").find("#username").text("");
+                }
             };
         },
         onClick: function (event) {
@@ -238,7 +268,9 @@ function buildPageElements() {
                         w2ui.newsLayout.load('main', '/webclient/html/news.html', 'flip-down', function () {console.log('content loaded');});
                         w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'});
                         break;
-                case "logoff": logoff(); break;
+                case "userMenu:Profile": break;
+                case "userMenu:Settings": break;
+                case "userMenu:Signout": logoff(); break;
             }
         },
     }));

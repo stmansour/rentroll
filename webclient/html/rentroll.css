@@ -145,3 +145,17 @@ textarea.w2ui-input-focus {
     display: block;
     margin: 10px 0px 2px 0px;
 }
+
+#user_menu_container img {
+    width: 28px;
+    height: 28px;
+    margin-top: 1px;
+    vertical-align: middle;
+}
+
+span#username {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin: 0 8px 0 0;
+}
