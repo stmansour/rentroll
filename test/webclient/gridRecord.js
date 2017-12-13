@@ -92,7 +92,7 @@ exports.w2uiGridRecordTest = function (gridConfig) {
                 }, that.grid);
 
                 w2uiGridRecords.forEach(function (w2uiGridRecord) {
-                    console.log(w2uiGridRecord)
+                    console.log(that.tableRecords.indexOf(w2uiGridRecord));
                 });
 
 
