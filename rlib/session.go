@@ -68,8 +68,8 @@ func SessionDispatcher() {
 	}
 }
 
-// SessionCleanup periodically spins through the list of sessions
-// and removes any which have timed out.
+// SessionCleanup a Go routine to periodically spin through the session list
+// and remove any sessions which have timed out.
 //-----------------------------------------------------------------------------
 func SessionCleanup() {
 	for {
@@ -79,8 +79,11 @@ func SessionCleanup() {
 			<-ReqSessionMemAck                 // make sure we got it
 			ss := make(map[string]*Session, 0) // here's the new Session list
 			n := 0                             // total number removed
-			for k, v := range sessions {       // look at every Session
-				if time.Now().After(v.Expire) { // if it's still active...
+			now := time.Now()                  // this is the timestamp we'll compare against
+			// Console("Cleanup time: %s\n", now.Format(RRDATETIMEINPFMT))
+			for k, v := range sessions { // look at every Session
+				// Console("Found session: %s, expire time: %s\n", v.Name, v.Expire.Format(RRDATETIMEINPFMT))
+				if now.After(v.Expire) { // if it's still active...
 					n++ // removed another
 				} else {
 					ss[k] = v // ...copy it to the new list
@@ -88,7 +91,7 @@ func SessionCleanup() {
 			}
 			sessions = ss         // set the new list
 			ReqSessionMemAck <- 1 // tell SessionDispatcher we're done with the data
-			//fmt.Printf("SessionCleanup completed. %d removed. Current Session list size = %d\n", n, len(sessions))
+			// Console("SessionCleanup completed. %d removed. Current Session list size = %d\n", n, len(sessions))
 		}
 	}
 }
@@ -109,6 +112,7 @@ func SessionInit(timeout int) {
 	SessionCleanupTime = time.Duration(1)
 	SessionTimeout = time.Duration(timeout) * time.Minute
 	go SessionDispatcher()
+	go SessionCleanup()
 }
 
 // SessionGet returns the session associated with the supplied token, if it
@@ -167,27 +171,12 @@ func SessionNew(token, username, name string, uid int64, rid int64) *Session {
 	s.Username = username
 	s.Name = name
 	s.UID = uid
-	// s.UIDorig = uid
-	// s.ImageURL = getImageFilename(uid)
-	// s.Breadcrumbs = make([]Crumb, 0)
-	// getRoleInfo(rid, s)
-
-	// var d personDetail
-	// d.UID = uid
-	//getSecurityList(&d)
-
-	// err := .db.QueryRow(fmt.Sprintf("select cocode from people where uid=%d", uid)).Scan(&s.CoCode)
-	// if nil != err {
-	// 	ulog("Unable to read CoCode for userid=%d,  err = %v\n", uid, err)
-	// }
+	s.Expire = time.Now().Add(SessionTimeout)
 
 	ReqSessionMem <- 1 // ask to access the shared mem, blocks until granted
 	<-ReqSessionMemAck // make sure we got it
 	sessions[token] = s
 	ReqSessionMemAck <- 1 // tell SessionDispatcher we're done with the data
-
-	// sulog("New Session: %s\n", s.ToString())
-	// sulog("Session.Urole.perms = %+v\n", s.Urole.Perms)
 
 	return s
 }
@@ -249,13 +238,9 @@ func GetSession(r *http.Request) (*Session, error) {
 		}
 		return nil, err
 	}
-	err = fmt.Errorf("No session found, please log in")
-	if cookie == nil {
-		return nil, err
-	}
 	sess, ok := sessions[cookie.Value]
 	if !ok || sess == nil {
-		return nil, err
+		return nil, nil // cookie had a value, but not found in our session table
 	}
 	return sess, nil
 }
@@ -263,7 +248,7 @@ func GetSession(r *http.Request) (*Session, error) {
 // Refresh updates the cookie and Session with a new expire time.
 //
 // INPUT
-//  w    - where to write the set cookie
+//  w - where to write the set cookie
 //  r - the request where w should look for the cookie
 //
 // RETURNS
@@ -284,22 +269,38 @@ func (s *Session) Refresh(w http.ResponseWriter, r *http.Request) int {
 	return 1
 }
 
+// ExpireCookie expires the cookie associated with this session now
+//
+// INPUT
+//  w - where to write the set cookie
+//  r - the request where w should look for the cookie
+//
+// RETURNS
+//  nothing at this time
+//-----------------------------------------------------------------------------
+func (s *Session) ExpireCookie(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie(sessionCookieName)
+	if nil != cookie && err == nil {
+		cookie.Expires = time.Now()
+		cookie.Path = "/"
+		http.SetCookie(w, cookie)
+	}
+}
+
 // SessionDelete removes the supplied Session.
 // if there is a better idiomatic way to do this, please let me know.
 // INPUT
 //  Session  - pointer to the session to tdelete
 //             list
-//  username - the username from the authentication service
-//  name     - the name to use in the session
-//  uid      - the userid associated with username. From the auth server.
-//  rid      - security role id
+//  w        - where to write the set cookie
+//  r        - the request where w should look for the cookie
 //
 // RETURNS
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
-func SessionDelete(s *Session) {
-	// fmt.Printf("Session being deleted: %s\n", s.ToString())
-	// fmt.Printf("sessions before delete:\n")
+func SessionDelete(s *Session, w http.ResponseWriter, r *http.Request) {
+	// Console("Session being deleted: %s\n", s.ToString())
+	// Console("sessions before delete:\n")
 	// dumpSessions()
 
 	ss := make(map[string]*Session, 0)
@@ -313,6 +314,7 @@ func SessionDelete(s *Session) {
 	}
 	sessions = ss
 	ReqSessionMemAck <- 1 // tell SessionDispatcher we're done with the data
-	// fmt.Printf("sessions after delete:\n")
+	s.ExpireCookie(w, r)
+	// Console("sessions after delete:\n")
 	// dumpSessions()
 }

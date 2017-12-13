@@ -28,7 +28,7 @@ sidebarL1     - w2ui sidebar
 /*global
     createPayorStmtForm, $, console, w2ui, defineDateFmts, createRentalAgreementForm, createStmtForm,
     dateControlString, dateMonthFwd, dateControlString, createDepositForm, buildPageElementsWrapper,
-    openInNewTab, loginPopupOptions, loginPopupOptions, loginTmplURL, 
+    openInNewTab, ensureSession, logoff, startSessionChecker,
 */
 
 
@@ -212,8 +212,9 @@ function buildPageElements() {
             //     { text: 'Template-Apts', icon: 'fa fa-language' },
             //     { text: 'Messages',      icon: 'fa fa-folder-o' },
             // ]},
-            { id: 'bt3', type: 'spacer' },
-            { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
+            { id: 'bt3',                      type: 'spacer' },
+            { id: 'logoff', text: 'Sign Out', type: 'button', icon: 'fa fa-sign-out' },
+            { id: 'help',   text: 'Help',     type: 'button', icon: 'fa fa-question-circle' },
         ],
         onRender: function(event) {
             event.onComplete = function() {
@@ -238,6 +239,7 @@ function buildPageElements() {
                         w2ui.newsLayout.load('main', '/webclient/html/news.html', 'flip-down', function () {console.log('content loaded');});
                         w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'});
                         break;
+                case "logoff": logoff(); break;
             }
         },
     }));
@@ -278,11 +280,8 @@ $(function () {
     .fail( function() {
         console.log('Error getting /v1/uilists');
     });
-
-    //------------------------------------------------------------
-    // The user needs to log in before we let them do anything...
-    //------------------------------------------------------------
-    $().w2popup('open', loginPopupOptions);
+    ensureSession(); // get the user logged in
+    startSessionChecker(); // have the user log in if the session expires
 });
 </script>
 

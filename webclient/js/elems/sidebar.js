@@ -1,5 +1,5 @@
 /*global
-    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert,
+    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions,
 */
 "use strict";
 
@@ -370,6 +370,7 @@ function buildSidebar(flag) {
     }
     w2ui.toplayout.content('left',$().w2sidebar(sbdata));
 }
+
 
 //---------------------------------------------------------------------------------
 // getAboutInfo - contacts the server to get info about its version, and updates
