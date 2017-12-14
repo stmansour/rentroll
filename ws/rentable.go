@@ -111,7 +111,7 @@ func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	g.Records, err = rlib.GetRentableTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	if err != nil {
 		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	rlib.Console("GetRentableTypeDown returned %d matches\n", len(g.Records))
@@ -253,7 +253,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	rlib.Console("g.Total = %d\n", g.Total)
@@ -279,7 +279,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -295,7 +295,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		// get records in q struct
 		q, err = rentablesRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -309,7 +309,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -337,7 +337,7 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	rlib.Console("Entered %s\n", funcname)
 
 	if d.RID, err = SvcExtractIDFromURI(r.RequestURI, "RID", 3, w); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -352,7 +352,7 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -529,7 +529,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	i := strings.Index(d.data, target)
 	if i < 0 {
 		e := fmt.Errorf("saveRentable: cannot find %s in form json", target)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	s := d.data[i+len(target):]
@@ -541,7 +541,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Errcheck(err)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -557,26 +557,26 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	requestedBID, ok := rlib.RRdb.BUDlist[string(rfRecord.BUD)]
 	if !ok {
 		e := fmt.Errorf("Invalid Business ID found. BUD: %s", rfRecord.BUD)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	// check whether rentable type is provided or not
 	if !(rfRecord.RTID > 0) {
 		e := fmt.Errorf("Rentable Type must be provided")
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
 	// // StopDate should not be before Today's date
 	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))) {
 	// 	e := fmt.Errorf("RentableTypeRef Stop Date should not be before Start Date")
-	// 	SvcGridErrorReturn(w, e, funcname)
+	// 	SvcErrorReturn(w, e, funcname)
 	// 	return
 	// }
 	// // StopDate should not be before Today's date
 	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RSDtStart), (time.Time)(rfRecord.RSDtStop))) {
 	// 	e := fmt.Errorf("RentableStatus Stop Date should not be before Start Date")
-	// 	SvcGridErrorReturn(w, e, funcname)
+	// 	SvcErrorReturn(w, e, funcname)
 	// 	return
 	// }
 
@@ -586,7 +586,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rt = rlib.GetRentable(rfRecord.RID)
 		if !(rt.RID > 0) {
 			e := fmt.Errorf("No such Rentable exists, RID: %d", rfRecord.RID)
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
@@ -600,7 +600,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = rlib.UpdateRentable(&rt)
 		if err != nil {
 			e := fmt.Errorf("Error updating rentable: %s", err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		rlib.Console("Rentable record has been updated with RID: %d\n", rt.RID)
@@ -610,7 +610,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// get rental type ref object associated with this rentable
 		rtr, err = rlib.GetRentableTypeRef(rfRecord.RTRID)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -626,14 +626,14 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for i := 0; i < len(m); i++ {         // delete the current list
 				err = rlib.DeleteRentableTypeRef(m[i].RTRID)
 				if err != nil {
-					SvcGridErrorReturn(w, err, funcname)
+					SvcErrorReturn(w, err, funcname)
 					return
 				}
 			}
 			for i := 0; i < len(n); i++ { // insert the new list
 				err = rlib.InsertRentableTypeRef(&n[i])
 				if err != nil {
-					SvcGridErrorReturn(w, err, funcname)
+					SvcErrorReturn(w, err, funcname)
 					return
 				}
 			}
@@ -644,7 +644,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// get rental status record associated with this rentable
 		rs, err := rlib.GetRentableStatus(rfRecord.RSID)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -660,14 +660,14 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			for i := 0; i < len(m); i++ {       // delete the current list
 				err = rlib.DeleteRentableStatus(m[i].RSID)
 				if err != nil {
-					SvcGridErrorReturn(w, err, funcname)
+					SvcErrorReturn(w, err, funcname)
 					return
 				}
 			}
 			for i := 0; i < len(n); i++ { // insert the new list
 				err = rlib.InsertRentableStatus(&n[i])
 				if err != nil {
-					SvcGridErrorReturn(w, err, funcname)
+					SvcErrorReturn(w, err, funcname)
 					return
 				}
 			}
@@ -682,12 +682,12 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rt.AssignmentTime = rfRecord.AssignmentTime
 		rid, err := rlib.InsertRentable(&rt)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		if !(rid > 0) {
 			e := fmt.Errorf("Unable to insert new Rentable record")
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		// assign RID for this rentable
@@ -704,7 +704,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rs.DtStop = (time.Time)(rfRecord.RSDtStop)
 		err = rlib.InsertRentableStatus(&rs)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		rlib.Console("RentableStatus has been saved for Rentable(%d), RSID: %d\n", rt.RID, rs.RSID)
@@ -724,7 +724,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		err = rlib.InsertRentableTypeRef(&rtr)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		rlib.Console("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)
@@ -800,7 +800,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -814,7 +814,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var rStatus int64
 		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &gg.RSID, &rStatus, &gg.RSDtStart, &gg.RSDtStop, &gg.AssignmentTime, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -826,7 +826,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

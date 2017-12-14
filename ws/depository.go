@@ -93,7 +93,7 @@ func SvcHandlerDepository(w http.ResponseWriter, r *http.Request, d *ServiceData
 		} else {
 			if d.ID < 0 {
 				err = fmt.Errorf("DepositoryID is required but was not specified")
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 			getDepository(w, r, d)
@@ -107,7 +107,7 @@ func SvcHandlerDepository(w http.ResponseWriter, r *http.Request, d *ServiceData
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -192,7 +192,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -218,7 +218,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -233,7 +233,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 
 		q, err = depGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -247,7 +247,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -276,12 +276,12 @@ func deleteDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var del DeleteDepForm
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
 	if err := rlib.DeleteDepository(del.ID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -314,7 +314,7 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -326,20 +326,20 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
 	if len(a.Name) == 0 {
 		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
 	adup := rlib.GetDepositoryByName(a.BID, a.Name)
 	if a.Name == adup.Name && a.DEPID != adup.DEPID {
 		e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -347,7 +347,7 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.LID == adup.LID && a.DEPID != adup.DEPID {
 		l := rlib.GetLedger(a.LID)
 		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -363,7 +363,7 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving depository (DEPID=%d\n: %s", funcname, a.DEPID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -407,7 +407,7 @@ func getDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -419,7 +419,7 @@ func getDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		q, err = depGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -428,7 +428,7 @@ func getDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

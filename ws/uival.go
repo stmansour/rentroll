@@ -77,13 +77,13 @@ func GetDepositoryList(bid int64) (map[string][]IDTextMap, error) {
 // it bottlenecks the handling so it is easy to extend or modify.
 func SvcUIErrAndVarResponse(w http.ResponseWriter, funcname string, err error, x interface{}) {
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	b, err := json.Marshal(x)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	SvcWrite(w, b)
@@ -124,7 +124,7 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcUIErrAndVarResponse(w, funcname, nil, depmeth)
 	default:
 		e := fmt.Errorf("Unknown variable requested: %s", d.DetVal)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 }

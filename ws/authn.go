@@ -12,9 +12,8 @@ import (
 // AuthenticateData is the struct with the username and password
 // used for authentication
 type AuthenticateData struct {
-	User     string `json:"user"`
-	Pass     string `json:"pass"`
-	ResetPwd bool   `json:"resetPwd"`
+	User string `json:"user"`
+	Pass string `json:"pass"`
 }
 
 // AuthenticateResponse is the reply structure from Accord Directory
@@ -29,6 +28,7 @@ type AuthenticateResponse struct {
 
 // SvcAuthenticate handles authentication requests from clients.
 //
+// wsdoc {
 //  @Title Authenticate
 //  @URL /v1/authn
 //  @Method  POST
@@ -51,18 +51,7 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err := json.Unmarshal([]byte(d.data), &a); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
-		return
-	}
-
-	//-----------------------------------------------------------------------
-	// TODO: Implmentate to handle reset/forgot password
-	// if `resetPwd` is true, then user has requested to reset password
-	// OR maybe user forgots their password
-	//-----------------------------------------------------------------------
-	if a.ResetPwd {
-		e := fmt.Errorf("%s: feature is not available at the moment", funcname)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -78,7 +67,7 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	resp, err := client.Do(req)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	defer resp.Body.Close()
@@ -91,7 +80,7 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var b AuthenticateResponse
 	if err := json.Unmarshal([]byte(body), &b); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -100,18 +89,18 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.Console("Authentication succeeded\n")
 	case "error":
 		e := fmt.Errorf("%s", b.Message)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	default:
 		e := fmt.Errorf("%s: Unexpected response from authentication service:  %s", funcname, b.Status)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	rlib.Console("Creating session\n")
 	s, err := rlib.CreateSession(a.User, w, r)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	b.ImageURL = s.ImageURL

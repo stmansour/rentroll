@@ -233,7 +233,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// --------------- LIST DOWN LANGUAGE/TEMPLATE STRINGS ----------------------
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fname := folderPath + "/webclient/html/" + language + "/" + template + "/strings.csv"
@@ -241,7 +241,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	_, err = os.Stat(fname)
 	if nil != err {
 		e := fmt.Errorf("Unknown language / template :   %s / %s", language, template)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	m := rlib.LoadCSV(fname)
@@ -263,7 +263,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// send down then json stuff
 	if err := json.NewEncoder(w).Encode(appData); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }

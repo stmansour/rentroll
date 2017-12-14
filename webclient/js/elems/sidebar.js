@@ -377,7 +377,7 @@ function buildSidebar(flag) {
 //          the version (about) html page
 //
 // @params  <none>
-// @retunrs <none>
+// @returns <none>
 //---------------------------------------------------------------------------------
 function getAboutInfo() {
     $.get('/v1/version/')

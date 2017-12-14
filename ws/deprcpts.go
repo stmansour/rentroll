@@ -104,7 +104,7 @@ func SvcHandlerDepositList(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	// 	break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -169,7 +169,7 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("Error from rlib.GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -195,7 +195,7 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("Error from DB Query: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -208,7 +208,7 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 
 		q, err = receiptsGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -230,7 +230,7 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -298,7 +298,7 @@ func SvcDepositReceiptsAndUndeposited(w http.ResponseWriter, r *http.Request, d 
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("Error from rlib.GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -324,7 +324,7 @@ func SvcDepositReceiptsAndUndeposited(w http.ResponseWriter, r *http.Request, d 
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -337,7 +337,7 @@ func SvcDepositReceiptsAndUndeposited(w http.ResponseWriter, r *http.Request, d 
 
 		q, err = receiptsGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -356,7 +356,7 @@ func SvcDepositReceiptsAndUndeposited(w http.ResponseWriter, r *http.Request, d 
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

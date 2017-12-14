@@ -181,6 +181,7 @@ var Svcs = []ServiceHandler{
 	{"rentalagr", SvcFormHandlerRentalAgreement, true, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true, true},
 	{"rentalagrtd", SvcRentalAgreementTypeDown, true, true},
+	{"resetpw", SvcResetPW, false, false},
 	{"rr", SvcRR, true, true},
 	{"rt", SvcHandlerRentableType, true, true},
 	{"rmr", SvcHandlerRentableMarketRates, true, true},
@@ -239,7 +240,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	if !SvcCtx.NoAuth {
 		d.sess, err = rlib.GetSession(w, r)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		if d.sess != nil {
@@ -259,12 +260,12 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		d.BID, err = getBIDfromBUI(d.pathElements[2])
 		if err != nil {
 			e := fmt.Errorf("Could not determine business from %s", d.pathElements[2])
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		if d.BID < 0 {
 			e := fmt.Errorf("Invalid business id: %s", d.pathElements[2])
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -305,13 +306,13 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				e := fmt.Errorf("Could not identify business: %s", sbid)
 				rlib.Console("***ERROR IN URL***  %s\n", e.Error())
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil || (d.sess != nil && d.sess.UID == 0) {
 				e := fmt.Errorf("session required, please log in")
 				rlib.Console("*** ERROR ***  command %s requires a session. SvcCtx.NoAuth = %t\n", Svcs[i].Cmd, SvcCtx.NoAuth)
-				SvcGridErrorReturn(w, e, funcname)
+				SvcErrorReturn(w, e, funcname)
 				return
 			}
 			Svcs[i].Handler(w, r, &d)
@@ -323,7 +324,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		rlib.Console("**** YIPES! **** %s - Handler not found\n", r.RequestURI)
 		e := fmt.Errorf("Service not recognized: %s", d.Service)
 		rlib.Console("***ERROR IN URL***  %s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	svcDebugTxnEnd()
@@ -363,7 +364,7 @@ func SvcTWS(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcTWS"
 	g, err := tws.WSGridData(d.wsSearchReq.Limit, d.wsSearchReq.Offset)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	SvcWriteResponse(&g, w)
@@ -387,8 +388,8 @@ func getBIDfromBUI(s string) (int64, error) {
 	return d, err
 }
 
-// SvcGridErrorReturn formats an error return to the grid widget and sends it
-func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
+// SvcErrorReturn formats an error return to the grid widget and sends it
+func SvcErrorReturn(w http.ResponseWriter, err error, funcname string) {
 	// rlib.Console("<Function>: %s | <Error>: %s\n", funcname, err.Error())
 	rlib.Console("%s: %s\n", funcname, err.Error())
 	var e SvcStatus
@@ -402,7 +403,7 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
 // SvcErrListReturn formats an error return to the grid widget and sends it
 func SvcErrListReturn(w http.ResponseWriter, errlist []bizlogic.BizError, funcname string) {
 	err := bizlogic.BizErrorListToError(errlist)
-	SvcGridErrorReturn(w, err, funcname)
+	SvcErrorReturn(w, err, funcname)
 }
 
 // SvcGetInt64 tries to read an int64 value from the supplied string.
@@ -413,7 +414,7 @@ func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
 	i, err := rlib.IntFromString(s, "not an integer number")
 	if err != nil {
 		err = fmt.Errorf("%s: %s", errmsg, err.Error())
-		SvcGridErrorReturn(w, err, "SvcGetInt64")
+		SvcErrorReturn(w, err, "SvcGetInt64")
 		return i, err
 	}
 	return i, nil
@@ -439,7 +440,7 @@ func SvcExtractIDFromURI(uri, errmsg string, pos int, w http.ResponseWriter) (in
 	if len(sa) < pos+1 {
 		err = fmt.Errorf("Expecting at least %d elements in URI: %s, but found only %d", pos+1, uri, len(sa))
 		// rlib.Console("err = %s\n", err)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return ID, err
 	}
 	// rlib.Console("sa[pos] = %s\n", sa[pos])
@@ -458,7 +459,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	ct, _, err = mime.ParseMediaType(ct)
 	if err != nil {
 		e := fmt.Errorf("%s: Error while parsing content type: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	if ct == "multipart/form-data" {
@@ -466,7 +467,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		err = r.ParseMultipartForm(_1MB)
 		if err != nil {
 			e := fmt.Errorf("%s: Error while parsing multipart form: %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return e
 		}
 
@@ -476,13 +477,13 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 				cd := "Content-Disposition"
 				if _, ok := fh.Header["Content-Disposition"]; !ok {
 					e := fmt.Errorf("%s: Header missing (%s)", funcname, cd)
-					SvcGridErrorReturn(w, e, funcname)
+					SvcErrorReturn(w, e, funcname)
 					return e
 				}
 				ct := "Content-Type"
 				if _, ok := fh.Header["Content-Type"]; !ok {
 					e := fmt.Errorf("%s: Header missing (%s)", funcname, ct)
-					SvcGridErrorReturn(w, e, funcname)
+					SvcErrorReturn(w, e, funcname)
 					return e
 				}
 			}
@@ -495,7 +496,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	htmlData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		e := fmt.Errorf("%s: Error reading message Body: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.Console("\t- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
@@ -507,7 +508,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	u, err := url.QueryUnescape(string(htmlData))
 	if err != nil {
 		e := fmt.Errorf("%s: Error with QueryUnescape: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.Console("\tUnescaped htmlData = %s\n", u)
@@ -518,7 +519,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	err = json.Unmarshal([]byte(u), &wjs)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.MigrateStructVals(&wjs, &d.wsSearchReq)
@@ -530,7 +531,7 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	s, err := url.QueryUnescape(strings.TrimSpace(r.URL.String()))
 	if err != nil {
 		e := fmt.Errorf("%s: Error with url.QueryUnescape:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.Console("Unescaped query = %s\n", s)
@@ -545,7 +546,7 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		rlib.Console("%s: will unmarshal: %s\n", funcname, d.data)
 		if err = json.Unmarshal([]byte(d.data), &d.wsTypeDownReq); err != nil {
 			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return e
 		}
 		d.wsSearchReq.Cmd = "typedown"
@@ -622,7 +623,7 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 	if err != nil {
 		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
 		rlib.Ulog("SvcWriteResponse: %s\n", err.Error())
-		SvcGridErrorReturn(w, e, "SvcWriteResponse")
+		SvcErrorReturn(w, e, "SvcWriteResponse")
 		return
 	}
 	SvcWrite(w, b)

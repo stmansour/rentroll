@@ -46,7 +46,7 @@ func SvcGetPayorStmInfo(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 
 	err := rlib.GetTransactant(d.ID, &t)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	rlib.MigrateStructVals(&t, &g.Record)

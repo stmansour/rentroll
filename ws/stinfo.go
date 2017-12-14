@@ -84,7 +84,7 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	rlib.Console("query = %s\n", qry)
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -97,7 +97,7 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			&p.AgreementStart, &p.AgreementStop, &p.PossessionStart, &p.PossessionStop, &p.RentStart, &p.RentStop)
 		i++
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		name := ""
@@ -110,7 +110,7 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	}
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	g.Record.BID = d.BID
@@ -123,7 +123,7 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		//------------------------------------------------------------------------
 		ra, err := rlib.GetRentalAgreement(d.ID)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		sap := ra.GetPayorNameList(&ra.AgreementStart, &ra.AgreementStop)
@@ -147,7 +147,7 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	// now := time.Now()
 	// g.Record.Balance, err = rlib.GetRAIDBalance(d.ID, &now)
 	// if err != nil {
-	// 	SvcGridErrorReturn(w, err, funcname)
+	// 	SvcErrorReturn(w, err, funcname)
 	// 	return
 	// }
 	// //---------------------
@@ -160,7 +160,7 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	// 	var t rlib.Transactant
 	// 	err := rlib.GetTransactant(payors[i].TCID, &t)
 	// 	if err != nil {
-	// 		SvcGridErrorReturn(w, err, funcname)
+	// 		SvcErrorReturn(w, err, funcname)
 	// 		return
 	// 	}
 	// 	tot := float64(0)

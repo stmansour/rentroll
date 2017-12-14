@@ -1,8 +1,9 @@
 "use strict";
 
 /*global
-    $, console, app, w2ui, w2popup, setInterval, getCookieValue, userProfileToUI,
+    $, console, app, w2ui, w2popup, setInterval, getCookieValue, 
 */
+
 var loginTmplURL = "/webclient/html/formlogin.html";
 
 var loginSessionChecker = {};
@@ -11,7 +12,7 @@ var loginPopupOptions = {
     body: '<div id="loginPopupForm" style="width: 100%; height: 100%;"></div>',
     style: 'padding: 15px 0px 0px 0px; overflow: auto;',
     width: 425,
-    height: 210,
+    height: 300,
     showMax: true,
     modal: true,
     onOpen: function (event) {
@@ -39,8 +40,8 @@ function buildLoginForm() {
         name: 'passwordform',
         formURL: loginTmplURL,
         style: 'border: 0px; background-color: transparent;',
-        fields: [{field: 'user', type: 'text',     required: true, html: {caption: 'User Name' /*, attr: 'readonly'*/} },
-                 {field: 'pass', type: 'password', required: true, html: {caption: 'Password'} },
+        fields: [{field: 'user', type: 'text',     required: false, html: {caption: 'User Name' /*, attr: 'readonly'*/} },
+                 {field: 'pass', type: 'password', required: false, html: {caption: 'Password'} },
                 ],
         actions: {
             login: function (/*event*/) {
@@ -79,13 +80,6 @@ function buildLoginForm() {
                         w2popup.close();
                         w2ui.passwordform.record.pass = ""; // after closing dialog, remove password information.
                         userProfileToUI();
-                        // // render the user details in web page
-                        // var name = app.name;
-                        // if (name.length === 0) { name = "UID: "+app.uid;}
-                        // $("#user_menu_container").find("#username").text(name);
-                        // var imgurl = app.imageurl;
-                        // if (imgurl.length === 0) { imgurl = app.userActiveImage; }
-                        // $("#user_menu_container").find("img").attr("src", imgurl);
                     }
                     console.log("Login service returned unexpected status: " + data.status);
                     return;
@@ -129,7 +123,7 @@ function buildLoginForm() {
 //                 if the session expires
 //
 // @params  <none>
-// @retunrs <none>
+// @returns <none>
 //---------------------------------------------------------------------------------
 function startNewSession() {
     ensureSession(); // get the user logged in
@@ -142,7 +136,7 @@ function startNewSession() {
 //                 if not, log in.
 //
 // @params  <none>
-// @retunrs <none>
+// @returns <none>
 //---------------------------------------------------------------------------------
 function launchSession() {
     var x = getCookieValue("airoller");
@@ -174,7 +168,7 @@ function launchSession() {
 // startSessionChecker - validate the session every 5 seconds
 //
 // @params  <none>
-// @retunrs <none>
+// @returns <none>
 //---------------------------------------------------------------------------------
 function startSessionChecker() {
     loginSessionChecker = setInterval(
@@ -188,7 +182,7 @@ function startSessionChecker() {
 //             authenticate.
 //
 // @params  <none>
-// @retunrs <none>
+// @returns <none>
 //---------------------------------------------------------------------------------
 function ensureSession() {
     // console.log('ensureSession');
@@ -223,7 +217,7 @@ function ensureSession() {
 // logoff - sign out of the current session
 //
 // @params  <none>
-// @retunrs <none>
+// @returns <none>
 //---------------------------------------------------------------------------------
 function logoff() {
     var name = "airoller=";
@@ -262,3 +256,38 @@ function logoff() {
 }
 
 
+//---------------------------------------------------------------------------------
+// resetPW - reset the user's password and send it to the user's inbox
+//
+// @params  <none>
+// @returns <none>
+//---------------------------------------------------------------------------------
+function resetPW() {
+    var f = w2ui.passwordform;
+    var username = f.record.user;
+    var params = {username: username };
+    var dat = JSON.stringify(params);
+    var message = "";
+    $.post('/v1/resetpw/', dat, null, "json")
+    .done(function(data) {
+        if (data.status === "error") {
+            $(f.box).find("#LoginMessage").find(".errors").empty();
+            message = "Error changing password";
+            $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+            $(f.box).find("#LoginMessage").removeClass("hidden");
+            // w2ui.passwordform.error(w2utils.lang(data.message));
+            return;
+        }
+        else if (data.status === "success") {
+            $(f.box).find("#LoginMessage").find(".errors").empty();
+            message = "An updated password has been emailed to you.";
+            $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+            $(f.box).find("#LoginMessage").removeClass("hidden");
+        }
+        return;
+    })
+    .fail(function(/*data*/){
+        w2ui.passwordform.error("Reset password failed");
+        return;
+    });
+}

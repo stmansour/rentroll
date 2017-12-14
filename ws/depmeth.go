@@ -107,7 +107,7 @@ func SvcHandlerDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceD
 		} else {
 			if d.ID < 0 {
 				err = fmt.Errorf("DepositMethodID is required but was not specified")
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 			getDepositMethod(w, r, d)
@@ -118,7 +118,7 @@ func SvcHandlerDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceD
 		deleteDepositMethod(w, r, d)
 	default:
 		err := fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -169,7 +169,7 @@ func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *S
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -195,7 +195,7 @@ func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *S
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -206,7 +206,7 @@ func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *S
 
 		q, err := depositRowScan(rows)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		q.Recid = i
@@ -222,7 +222,7 @@ func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *S
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -253,7 +253,7 @@ func deleteDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	rlib.DeleteDepositMethod(del.ID)
@@ -285,7 +285,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -298,24 +298,24 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	if len(a.Method) == 0 {
 		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
 	var adup rlib.DepositMethod
 	adup, err = rlib.GetDepositMethodByName(a.BID, a.Method)
 	if err != nil && !rlib.IsSQLNoResultsError(err) {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	if a.Method == adup.Method && a.DPMID != adup.DPMID {
 		e := fmt.Errorf("%s: A DepositMethod with the name %s already exists", funcname, a.Method)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -330,7 +330,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving Payment Type : %s", funcname, a.Method)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -358,7 +358,7 @@ func getDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("entered %s\n", funcname)
 	a, err = rlib.GetDepositMethod(d.ID)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	if a.DPMID > 0 {

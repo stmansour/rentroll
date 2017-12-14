@@ -162,7 +162,7 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		break
 	default:
 		err := fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -214,7 +214,7 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -240,7 +240,7 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -255,7 +255,7 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		q, err = arGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -270,7 +270,7 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -295,7 +295,7 @@ func SvcFormHandlerAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	if d.ARID, err = SvcExtractIDFromURI(r.RequestURI, "ARID", 3, w); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -313,7 +313,7 @@ func SvcFormHandlerAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -346,7 +346,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 
 	if err := json.Unmarshal(data, &foo); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -358,7 +358,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -399,7 +399,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	if err != nil {
 		e := fmt.Errorf("Error saving receipt (ARID=%d\n: %s", d.ARID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -472,7 +472,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -487,7 +487,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			&gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop,
 			&gg.raRequired, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -507,7 +507,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -536,12 +536,12 @@ func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	if err := rlib.DeleteAR(del.ARID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

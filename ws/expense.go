@@ -168,7 +168,7 @@ func SvcHandlerExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		} else {
 			if d.ID < 0 {
 				err = fmt.Errorf("ExpenseID is required but was not specified")
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 			getExpense(w, r, d)
@@ -179,7 +179,7 @@ func SvcHandlerExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		deleteExpense(w, r, d)
 	default:
 		err := fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -234,7 +234,7 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -260,7 +260,7 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -271,7 +271,7 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 
 		q, err := expenseRowScan(rows)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		q.Recid = i
@@ -287,7 +287,7 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -317,13 +317,13 @@ func deleteExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	a, err := rlib.GetExpense(del.ID)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -361,7 +361,7 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -373,7 +373,7 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -393,7 +393,7 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving Expense %d: %s", funcname, a.EXPID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -422,7 +422,7 @@ func getExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("entered %s.  Expense ID = %d\n", funcname, d.ID)
 	a, err = rlib.GetExpense(d.ID)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	if a.RID > 0 {

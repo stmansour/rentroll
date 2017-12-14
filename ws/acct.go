@@ -320,7 +320,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 	// set g.Total to the total number of rows of this data...
 	g.Total, err = GetRowCount("GLAccount", qw)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("db query = %s\n", q)
@@ -328,7 +328,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	defer rows.Close()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -349,7 +349,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 	}
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -393,7 +393,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 // 	// set g.Total to the total number of rows of this data...
 // 	g.Total, err = GetRowCount("GLAccount", qw)
 // 	if err != nil {
-// 		SvcGridErrorReturn(w, err, funcname)
+// 		SvcErrorReturn(w, err, funcname)
 // 		return
 // 	}
 // 	fmt.Printf("db query = %s\n", q)
@@ -401,7 +401,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 // 	rows, err := rlib.RRdb.Dbrr.Query(q)
 // 	defer rows.Close()
 // 	if err != nil {
-// 		SvcGridErrorReturn(w, err, funcname)
+// 		SvcErrorReturn(w, err, funcname)
 // 		return
 // 	}
 
@@ -436,7 +436,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 
 // 	err = rows.Err()
 // 	if err != nil {
-// 		SvcGridErrorReturn(w, err, funcname)
+// 		SvcErrorReturn(w, err, funcname)
 // 		return
 // 	}
 
@@ -553,7 +553,7 @@ func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Service
 	case "get":
 		if d.ID < 0 {
 			err = fmt.Errorf("GLAccount ID is required but was not specified")
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		getGLAccount(w, r, d)
@@ -566,7 +566,7 @@ func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Service
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -599,7 +599,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 
 	if err = json.Unmarshal(data, &foo); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -620,12 +620,12 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// data validation
 	if a.Name == "" {
 		err := fmt.Errorf("Provide account name")
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	if a.GLNumber == "" {
 		err := fmt.Errorf("Provide value of GLNumber")
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -646,12 +646,12 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rows, err := rlib.RRdb.Dbrr.Query(q)
 		defer rows.Close()
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		for rows.Next() {
 			err := fmt.Errorf("GLAccount is already exists for given name or GLNumber")
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -676,7 +676,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = rlib.InsertLedgerMarker(&lm)
 		if err != nil {
 			e := fmt.Errorf("Error saving Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	} else {
@@ -753,7 +753,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	defer rows.Close()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -764,7 +764,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		gg.OffsetAccount = int(gg.FLAGS & 0x1)
@@ -775,7 +775,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -804,7 +804,7 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -814,7 +814,7 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	gl := rlib.GetLedger(del.LID)
 	if gl.LID == 0 {
 		err := fmt.Errorf("No such account exists with ID: %d", del.LID)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -835,16 +835,16 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	lm := rlib.GetLatestLedgerMarkerByLID(d.BID, del.LID)
 	if lm.State != rlib.LMINITIAL {
 		e := fmt.Errorf("This account (LID = %d) cannot be deleted because Ledger Markers exist beyond the origin", del.LID)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	if err := rlib.DeleteLedgerMarker(lm.LMID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	if err := rlib.DeleteLedger(del.LID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -953,27 +953,27 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	bid, ok := rlib.RRdb.BUDlist[bud]
 	if !ok {
 		err = fmt.Errorf("Supplied Business (%s) not found", bud)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	fheaders, ok := d.Files["GLAccountFile"]
 	if !ok { // if not found file then just return
 		err = fmt.Errorf("file is missing")
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	fh := fheaders[0]    // get one file
 	inf, err = fh.Open() // get File (multipart.File)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	// check extension/content-type
 	if fh.Header["Content-Type"][0] != "text/csv" {
 		err = fmt.Errorf("Provided file is not type of csv")
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -981,7 +981,7 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	recs, err = cr.ReadAll()
 	if err != nil {
 		err = fmt.Errorf("Unable to read the file")
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -1015,7 +1015,7 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 				}
 			}
 			err = fmt.Errorf("Required fields(%v) are not present in file", missingFields)
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}

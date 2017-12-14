@@ -194,7 +194,7 @@ func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	g.Total = int64(len(g.Records))
 	if err != nil {
 		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	for i := 0; i < len(g.Records); i++ {
@@ -320,7 +320,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	g.Total, err = rlib.GetQueryCount(countQuery) // total number of rows that match the criteria
 	if err != nil {
 		fmt.Printf("Error from rlib.GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -346,7 +346,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -360,7 +360,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 		// get record of transactant
 		t, err = transactantRowScan(rows, t)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -374,7 +374,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -401,7 +401,7 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	fmt.Printf("Entered %s\n", funcname)
 
 	if d.TCID, err = SvcExtractIDFromURI(r.RequestURI, "TCID", 3, w); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -419,7 +419,7 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -447,7 +447,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record is at index = %d\n", i)
 	if i < 0 {
 		e := fmt.Errorf("saveXPerson: cannot find %s in form json", target)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	s := d.data[i+len(target):]
@@ -465,7 +465,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("saveXPersonL Start migration\n")
@@ -483,7 +483,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err != nil {
 		fmt.Printf("Data unmarshal error: %s\n", err.Error())
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	var ok bool
@@ -493,7 +493,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("Could not map EligibleFutureUser value: %s", gxpo.EligibleFutureUser)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	xp.Psp.EmployerState = gxpo.EmployerState
@@ -501,7 +501,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s", gxpo.EligibleFuturePayor)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -514,7 +514,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		tcid, err := rlib.InsertTransactant(&xp.Trn)
 		if err != nil {
 			e := fmt.Errorf("%s: Insert Transactant error:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
@@ -532,21 +532,21 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		_, err = rlib.InsertUser(&xp.Usr)
 		if err != nil {
 			e := fmt.Errorf("%s: Insert User error:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
 		_, err = rlib.InsertProspect(&xp.Psp)
 		if err != nil {
 			e := fmt.Errorf("%s: Insert Prospect error:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
 		_, err = rlib.InsertPayor(&xp.Pay)
 		if err != nil {
 			e := fmt.Errorf("%s: Insert Payor error:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	} else {
@@ -554,28 +554,28 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = rlib.UpdateTransactant(&xp.Trn)
 		if err != nil {
 			e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
 		err = rlib.UpdateUser(&xp.Usr)
 		if err != nil {
 			e := fmt.Errorf("%s: UpdateUser error:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
 		err = rlib.UpdateProspect(&xp.Psp)
 		if err != nil {
 			e := fmt.Errorf("%s: UpdateProspect error:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
 		err = rlib.UpdatePayor(&xp.Pay)
 		if err != nil {
 			e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -634,7 +634,7 @@ func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -642,22 +642,22 @@ func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// delete Prospect
 	if err := rlib.DeleteProspect(del.TCID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	// delete Payor
 	if err := rlib.DeletePayor(del.TCID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	// delete User
 	if err := rlib.DeleteUser(del.TCID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	// finally delete Transactant
 	if err := rlib.DeleteTransactant(del.TCID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

@@ -53,7 +53,7 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	raid, err := rlib.IntFromString(ss[3], "bad RAID value")
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -79,7 +79,7 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	b, err := json.Marshal(&gxp)
 	if err != nil {
 		err = fmt.Errorf("cannot marshal gxp:  %s", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("len(b) = %d\n", len(b))
