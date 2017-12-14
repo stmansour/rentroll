@@ -19,9 +19,12 @@ type AuthenticateData struct {
 
 // AuthenticateResponse is the reply structure from Accord Directory
 type AuthenticateResponse struct {
-	Status  string `json:"status"`  // success or error
-	UID     int64  `json:"uid"`     // only present when Status = "success"
-	Message string `json:"message"` // only present when Status = "error"
+	Status   string `json:"status"`   // success or error
+	UID      int64  `json:"uid"`      // only present when Status = "success"
+	Username string `json:"username"` // user's first or preferred name
+	Name     string `json:"name"`     // user's first or preferred name
+	ImageURL string `json:"imageurl"` // url to user's image
+	Message  string `json:"message"`  // only present when Status = "error"
 }
 
 // SvcAuthenticate handles authentication requests from clients.
@@ -51,7 +54,6 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, e, funcname)
 		return
 	}
-	//rlib.Console("User = %s, Pass = %s\n", a.User, a.Pass)
 
 	//-----------------------------------------------------------------------
 	// TODO: Implmentate to handle reset/forgot password
@@ -112,6 +114,7 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcGridErrorReturn(w, err, funcname)
 		return
 	}
+	b.ImageURL = s.ImageURL
 	rlib.Console("Created session: %s\n", s.Token)
 	SvcWriteResponse(&b, w)
 }

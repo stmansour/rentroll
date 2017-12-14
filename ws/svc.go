@@ -195,6 +195,7 @@ var Svcs = []ServiceHandler{
 	{"uilists", SvcUILists, false, false},
 	{"uival", SvcUIVal, false, false},
 	{"unpaidasms", SvcHandlerGetUnpaidAsms, true, true},
+	{"userprofile", SvcUserProfile, false, true},
 	{"version", SvcHandlerVersion, false, false},
 }
 
@@ -239,6 +240,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		d.sess, err = rlib.GetSession(w, r)
 		if err != nil {
 			SvcGridErrorReturn(w, err, funcname)
+			return
 		}
 		if d.sess != nil {
 			d.sess.Refresh(w, r) // they actively tried to use the session, extend timeout
@@ -306,7 +308,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 				SvcGridErrorReturn(w, err, funcname)
 				return
 			}
-			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil && d.sess.UID == 0 {
+			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil || (d.sess != nil && d.sess.UID == 0) {
 				e := fmt.Errorf("session required, please log in")
 				rlib.Console("*** ERROR ***  command %s requires a session. SvcCtx.NoAuth = %t\n", Svcs[i].Cmd, SvcCtx.NoAuth)
 				SvcGridErrorReturn(w, e, funcname)

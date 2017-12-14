@@ -28,7 +28,7 @@ sidebarL1     - w2ui sidebar
 /*global
     createPayorStmtForm, $, console, w2ui, defineDateFmts, createRentalAgreementForm, createStmtForm,
     dateControlString, dateMonthFwd, dateControlString, createDepositForm, buildPageElementsWrapper,
-    openInNewTab, ensureSession, logoff, startSessionChecker,
+    openInNewTab, ensureSession, logoff, launchSession, userProfileToUI, 
 */
 
 
@@ -58,7 +58,10 @@ var app = {
     ExpenseRules: {},
     userBlankImage: "/webclient/img/user_profile_blank.png" ,
     userActiveImage: "/webclient/img/user_profile_active.png" ,
-    uid: 0,
+    uid: 0,       // this is username's UID (user id)
+    username: "", // this is the logged in user's username
+    name: "",     // first (or preferred) name of logged in user
+    imageurl: "", // pointer to image of logged in user
     PayorStmtExt: false, // false = internal, true = external
     WidestFormWidth: 900,
     sidebarWidth: 215,
@@ -236,20 +239,15 @@ function buildPageElements() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                if(app.uid) {
-                    // render the user details in web page
-                    $("#user_menu_container").find("#username").text("UID: " + app.uid);
-                    // set the user profile picture
-                    if (!($("#user_menu_container").find("img").attr("src"))) {
-                        $("#user_menu_container").find("img").attr("src", app.userActiveImage);
-                    }
-                } else {
-                    // if blank profile image is not set then
-                    if ($("#user_menu_container").find("img").attr("src") !== app.userBlankImage) {
-                        $("#user_menu_container").find("img").attr("src", app.userBlankImage);
-                    }
-                    $("#user_menu_container").find("#username").text("");
-                }
+                userProfileToUI();
+                // if(app.uid) {
+                // } else {
+                //     // if blank profile image is not set then
+                //     if ($("#user_menu_container").find("img").attr("src") !== app.userBlankImage) {
+                //         $("#user_menu_container").find("img").attr("src", app.userBlankImage);
+                //     }
+                //     $("#user_menu_container").find("#username").text("");
+                // }
             };
         },
         onClick: function (event) {
@@ -337,8 +335,7 @@ $(function () {
     .fail( function() {
         console.log('Error getting /v1/uilists');
     });
-    ensureSession(); // get the user logged in
-    startSessionChecker(); // have the user log in if the session expires
+    launchSession();
 });
 
 </script>

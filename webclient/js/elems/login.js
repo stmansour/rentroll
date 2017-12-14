@@ -1,7 +1,7 @@
 "use strict";
 
 /*global
-    $, console, app, w2ui, w2popup, setInterval,
+    $, console, app, w2ui, w2popup, setInterval, getCookieValue, userProfileToUI,
 */
 var loginTmplURL = "/webclient/html/formlogin.html";
 
@@ -21,6 +21,18 @@ var loginPopupOptions = {
     },
 };
 
+function userProfileToUI() {
+    var f = w2ui.passwordform;
+
+    if (f) {
+        var name = app.name;
+        if (name.length === 0 || app.uid === 0) { name = "?";}
+        $("#user_menu_container").find("#username").text(name);
+        var imgurl = app.imageurl;
+        if (imgurl.length === 0) { imgurl = app.userBlankImage; }
+        $("#user_menu_container").find("img").attr("src", imgurl);
+    }
+}
 
 function buildLoginForm() {
     $().w2form({
@@ -61,13 +73,19 @@ function buildLoginForm() {
                     }
                     else if (data.status === "success") {
                         app.uid = data.uid;
+                        app.name = data.name;
+                        app.imageurl = data.imageurl;
                         $(f.box).find("#LoginMessage").addClass("hidden");
                         w2popup.close();
                         w2ui.passwordform.record.pass = ""; // after closing dialog, remove password information.
-
-                        // render the user details in web page
-                        $("#user_menu_container").find("#username").text("UID: "+app.uid);
-                        $("#user_menu_container").find("img").attr("src", app.userActiveImage);
+                        userProfileToUI();
+                        // // render the user details in web page
+                        // var name = app.name;
+                        // if (name.length === 0) { name = "UID: "+app.uid;}
+                        // $("#user_menu_container").find("#username").text(name);
+                        // var imgurl = app.imageurl;
+                        // if (imgurl.length === 0) { imgurl = app.userActiveImage; }
+                        // $("#user_menu_container").find("img").attr("src", imgurl);
                     }
                     console.log("Login service returned unexpected status: " + data.status);
                     return;
@@ -104,6 +122,53 @@ function buildLoginForm() {
         }
     });
 }
+
+//---------------------------------------------------------------------------------
+// startNewSession - encapsulates the steps needed to launch a new login session
+//                 and start up a session checker to have the user log in again
+//                 if the session expires
+//
+// @params  <none>
+// @retunrs <none>
+//---------------------------------------------------------------------------------
+function startNewSession() {
+    ensureSession(); // get the user logged in
+    startSessionChecker(); // have the user log in if the session expires
+
+}
+
+//---------------------------------------------------------------------------------
+// launchSession - if a valid sessionid exists, use it and get user profile info
+//                 if not, log in.
+//
+// @params  <none>
+// @retunrs <none>
+//---------------------------------------------------------------------------------
+function launchSession() {
+    var x = getCookieValue("airoller");
+    if (x !== null && x.length > 0) {
+        $.get('/v1/userprofile/')
+        .done(function(sdata, textStatus, jqXHR) {
+            var data = JSON.parse(sdata);
+            if (data.status == "success") {
+                app.uid = data.uid;
+                app.username = data.username;
+                app.name = data.name;
+                app.imageurl = data.imageurl;
+                startSessionChecker(); // have the user log in if the session expires
+                userProfileToUI();
+            } else {
+                startNewSession();
+            }
+        })
+        .fail( function() {
+            console.log('Error getting /v1/userprofile');
+            startNewSession();
+        });
+    }
+    startNewSession();
+}
+
 
 //---------------------------------------------------------------------------------
 // startSessionChecker - validate the session every 5 seconds
@@ -176,11 +241,14 @@ function logoff() {
 
         }
     }
+    app.uid = 0;
+    app.name = "";
+    app.username = "";
+    app.imageurl = "";
     if (found) {
         $.get('/v1/logoff/')
         .done(function(data, textStatus, jqXHR) {
             if (jqXHR.status == 200) {
-                app.uid = 0;
                 console.log('logoff success, app.uid set to 0.');
                 ensureSession();
             } else {

@@ -29,6 +29,10 @@ type Session struct {
 	// UsernameOrig string         // original username
 }
 
+// UnrecognizedCookie is the error string associated with an
+// unrecognized value for the airoller cookie
+var UnrecognizedCookie = string("unrecognized cookie")
+
 // ReqSessionMem is the channel int used to request write permission to the session list
 var ReqSessionMem chan int
 
@@ -171,6 +175,12 @@ func SessionNew(token, username, name string, uid int64, rid int64) *Session {
 	s.Username = username
 	s.Name = name
 	s.UID = uid
+
+	switch AppConfig.AuthNType {
+	case "Accord Directory":
+		s.ImageURL = fmt.Sprintf("%spictures/%d.png", AppConfig.AuthNHost, s.UID)
+	}
+
 	s.Expire = time.Now().Add(SessionTimeout)
 
 	ReqSessionMem <- 1 // ask to access the shared mem, blocks until granted
@@ -218,6 +228,19 @@ func CreateSession(username string, w http.ResponseWriter, r *http.Request) (*Se
 	return s, nil
 }
 
+// IsUnrecognizedCookieError returns true if the error is UnrecognizedCookie.
+//
+// INPUT
+//  err - the error to check
+//
+// RETURNS
+//  bool - true means it is an UnrecognizedCookie error
+//         false means it is not
+//-----------------------------------------------------------------------------
+func IsUnrecognizedCookieError(err error) bool {
+	return strings.Contains(err.Error(), UnrecognizedCookie)
+}
+
 // GetSession returns the session based on the cookie in the supplied
 // HTTP connection.  It does NOT refresh the cookie. If you want it refreshed
 // you can simply call the Refresh method on the returned pointer.
@@ -249,7 +272,8 @@ func GetSession(w http.ResponseWriter, r *http.Request) (*Session, error) {
 		cookie.Expires = time.Now()
 		cookie.Path = "/"
 		http.SetCookie(w, cookie)
-		return nil, nil // cookie had a value, but not found in our session table
+		err := fmt.Errorf("There is a problem with your session: %s.  Please Sign In again", UnrecognizedCookie)
+		return nil, err // cookie had a value, but not found in our session table
 	}
 	Console("GetSession 7\n")
 	return sess, nil

@@ -17,6 +17,22 @@ String.prototype.format = function() {
     });
 };
 
+
+
+//---------------------------------------------------------------------------------
+// getCookieValue - looks for a cookie with the supplied name. If found it returns
+//          the cookie value. Otherwise it returns null
+//
+// @params  name  - name of the cookie
+// @returns the value of the cookie if found, null if not found
+//---------------------------------------------------------------------------------
+function getCookieValue(name) {
+  var regexp = new RegExp("(?:^" + name + "|;\s*"+ name + ")=(.*?)(?:;|$)", "g");
+  var result = regexp.exec(document.cookie);
+  return (result === null) ? null : result[1];
+}
+
+
 //---------------------------------------------------------------------------------
 // ChangeBusiness updates the UI to the newly selected business.
 // This routine is indeed used, in spite of what JSHint thinks. It
