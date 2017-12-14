@@ -25,9 +25,9 @@ jshint:
 	@${COUNTOL} "jshint --extract=always ./webclient/html/*.html ./webclient/html/test/*.html ./webclient/js/elems/*.js"
 	@rm -rf fail
 
-try: build testdb4
+try: build db4
 
-testdb4:
+db4:
 	cd tools/dbgen;./dbgen -f db4.json
 
 build: clean rentroll package

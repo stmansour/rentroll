@@ -13,7 +13,7 @@ import (
 // ResetPWData is the struct with the username and password
 // used for authentication
 type ResetPWData struct {
-	Username string `json:"user"`
+	Username string `json:"username"`
 }
 
 // SvcResetPW handles authentication requests from clients.
