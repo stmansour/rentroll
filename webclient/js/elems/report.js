@@ -8,7 +8,7 @@ function showReport(rptname, elToFocus) {
         return;
     }
     var x = getCurrentBusiness();
-    var url = '/wsvc/' + x.value + '?r=' + rptname;
+    var url = '/v1/report/' + x.value + '?r=' + rptname;
     w2ui.toplayout.content('main', w2ui.reportslayout);
     w2ui.toplayout.hide('right',true);
     var y = document.getElementsByName("dateD1");

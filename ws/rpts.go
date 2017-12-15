@@ -1,4 +1,4 @@
-package main
+package ws
 
 import (
 	// "fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 // RptDelinq is the HTTP handler for the RentRoll report request
-func RptDelinq(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+func RptDelinq(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *ReportContext) {
 	if xbiz.P.BID > 0 {
 		var ri rrpt.ReporterInfo
 		ri.Xbiz = xbiz
@@ -20,7 +20,7 @@ func RptDelinq(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui 
 }
 
 // RptGSR is the http handler routine for the Trial Balance report.
-func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *ReportContext) {
 	if xbiz.P.BID > 0 {
 		var ri rrpt.ReporterInfo
 		ri.Xbiz = xbiz
@@ -36,7 +36,7 @@ func RptGSR(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RR
 }
 
 // RptJournal is the HTTP handler for the Journal report request
-func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *ReportContext) {
 	if xbiz.P.BID > 0 {
 		var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2, OutputFormat: gotable.TABLEOUTTEXT}
 		ri.OutputFormat = gotable.TABLEOUTTEXT
@@ -47,7 +47,7 @@ func RptJournal(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui
 }
 
 // RptLedgerHandler is the HTTP handler for the Ledger report request
-func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport, sel int) {
+func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *ReportContext, sel int) {
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	var m []gotable.Table
 	var rn string
@@ -81,17 +81,17 @@ func RptLedgerHandler(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusine
 }
 
 // RptLedger is the HTTP handler for the Ledger report request
-func RptLedger(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+func RptLedger(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *ReportContext) {
 	RptLedgerHandler(w, r, xbiz, ui, 0)
 }
 
 // RptLedgerActivity is the HTTP handler for the Ledger report request
-func RptLedgerActivity(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+func RptLedgerActivity(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *ReportContext) {
 	RptLedgerHandler(w, r, xbiz, ui, 1)
 }
 
 // RptRentRoll is the HTTP handler for the RentRoll report request
-func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *ReportContext) {
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {
 		tbl := rrpt.RRReportTable(&ri)
@@ -107,7 +107,7 @@ func RptRentRoll(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, u
 }
 
 // RptTrialBalance is the http handler routine for the Trial Balance report.
-func RptTrialBalance(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *RRuiSupport) {
+func RptTrialBalance(w http.ResponseWriter, r *http.Request, xbiz *rlib.XBusiness, ui *ReportContext) {
 	var err error
 	var ri = rrpt.ReporterInfo{Xbiz: xbiz, D1: ui.D1, D2: ui.D2}
 	if xbiz.P.BID > 0 {

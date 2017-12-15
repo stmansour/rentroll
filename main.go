@@ -59,10 +59,6 @@ var App struct {
 	RootStaticDir string // root directory settings
 }
 
-// RRfuncMap is a map of functions passed to each html page that can be referenced
-// as needed to produce the page
-var RRfuncMap map[string]interface{}
-
 // Chttp is a server mux for handling unprocessed html page requests.
 // For example, a .css file or an image file.
 var Chttp = http.NewServeMux()
@@ -141,7 +137,7 @@ func initHTTP() {
 	http.HandleFunc("/home/", HomeUIHandler)
 	http.HandleFunc("/rhome/", RHomeUIHandler) // special purpose, receipt-only version of roller
 	http.HandleFunc("/v1/", ws.V1ServiceHandler)
-	http.HandleFunc("/wsvc/", webServiceHandler)
+	// http.HandleFunc("/wsvc/", ReportServiceHandler)
 }
 
 func main() {

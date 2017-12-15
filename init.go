@@ -17,12 +17,12 @@ func initRentRoll() {
 	rlib.RpnInit()
 	bizlogic.InitBizLogic()
 
-	RRfuncMap = template.FuncMap{
+	ws.RRfuncMap = template.FuncMap{
 		"DateToString": rlib.DateToString,
 		"GetVersionNo": ws.GetVersionNo,
 		"getBuildTime": ws.GetBuildTime,
 		"RRCommaf":     rlib.RRCommaf,
-		"LMSum":        LMSum,
+		// "LMSum":        LMSum,
 	}
 }
 

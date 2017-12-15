@@ -124,8 +124,8 @@ func RunCommandLine(ctx *DispatchCtx) {
 		}
 		rid := rcsv.CSVLoaderGetRID(sa[1])
 		rrpt.RentableMarketRates(&ctx.xbiz, rid, &ctx.DtStart, &ctx.DtStop)
-	case 21: // backup file list
-		fmt.Print(CreateDBBackupFileList())
+	// case 21: // backup file list
+	// 	fmt.Print(CreateDBBackupFileList())
 	case 22: // delete business
 		ri := rrpt.ReporterInfo{Xbiz: &ctx.xbiz, OutputFormat: gotable.TABLEOUTTEXT}
 		rrpt.RRreportBusiness(&ri)
