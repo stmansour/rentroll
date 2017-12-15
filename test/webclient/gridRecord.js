@@ -54,7 +54,6 @@ exports.w2uiGridRecordTest = function (gridConfig) {
 
 
                 that.tableRecords.forEach(function (tableRecord, rowNo) {
-                    // TODO: Match database record with rendered UI
 
                     that.columns.forEach(function (column) {
 
@@ -81,7 +80,7 @@ exports.w2uiGridRecordTest = function (gridConfig) {
 
                 });
 
-                // Check w2ui grid record exists in JSON file
+                // TODO:Check w2ui grid record exists in JSON file
 
                 // w2ui.arsGrid.records : It fetches the record as w2ui object
                 // tableRecords: It fetch grid record from the JSON

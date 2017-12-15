@@ -26,6 +26,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             }, this.form);
 
             this.inputFields = this.formFields.filter(w2ui_utils.getTextTypeW2UIFields);
+            // ["Name", "Description"]
 
             //list of input select fields
             // this.inputSelectField = addNewButtonConfig.inputSelectField;
@@ -69,6 +70,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                     test.assert(false, "Wrong Business unit");
                 }
 
+                // BUD disability
                 var isBusinessUnitValueDisabled = casper.evaluate(function (bud_selector) {
                     return document.querySelector(bud_selector).disabled;
                 }, w2ui_utils.getBUDSelector());
