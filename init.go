@@ -8,22 +8,12 @@ import (
 	"rentroll/rlib"
 	"rentroll/ws"
 	"strings"
-	"text/template"
 )
 
 func initRentRoll() {
-	// initJFmt()
-	// initTFmt()
 	rlib.RpnInit()
 	bizlogic.InitBizLogic()
-
-	ws.RRfuncMap = template.FuncMap{
-		"DateToString": rlib.DateToString,
-		"GetVersionNo": ws.GetVersionNo,
-		"getBuildTime": ws.GetBuildTime,
-		"RRCommaf":     rlib.RRCommaf,
-		// "LMSum":        LMSum,
-	}
+	ws.InitReports()
 }
 
 func createStartupCtx() DispatchCtx {

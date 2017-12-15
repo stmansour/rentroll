@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"html/template"
 	"rentroll/rlib"
 	"time"
 )
@@ -8,19 +9,6 @@ import (
 // RRfuncMap is a map of functions passed to each html page that can be referenced
 // as needed to produce the page
 var RRfuncMap map[string]interface{}
-
-// // XLedger has ledger fields plus LedgerMarker fields for supplied time range
-// type XLedger struct {
-// 	G  rlib.GLAccount
-// 	LM rlib.LedgerMarker
-// }
-
-// // UILedger contains ledger info for a user interface
-// type UILedger struct {
-// 	Balance float64 // sum of all LM Balances
-// 	BID     int64
-// 	XL      []XLedger // all ledgers in this business
-// }
 
 // ReportContext is a structure of data that will be passed to all html pages.
 // It is the responsibility of the page function to populate the data needed by
@@ -41,6 +29,20 @@ type ReportContext struct {
 	PDFPageHeight      float64 // page height
 	PDFPageSizeUnit    string  // page size unit, default is inch ("in")
 	// LDG                UILedger        // ledgers associated with this report
+}
+
+// InitReports initializes the reports subsystem. Historically it
+// did more than it does today. Currently, it initializes the map
+// of functions that can be used by a startup web page such as home.html
+// or rhome.html
+//-----------------------------------------------------------------------------
+func InitReports() {
+	RRfuncMap = template.FuncMap{
+		"DateToString": rlib.DateToString,
+		"GetVersionNo": GetVersionNo,
+		"getBuildTime": GetBuildTime,
+		"RRCommaf":     rlib.RRCommaf,
+	}
 }
 
 //========================================================================================================
@@ -66,4 +68,15 @@ type ReportContext struct {
 // 	// for i := 0; i < len(ui.BL); i++ {
 // 	// 	fmt.Printf("ui.BL[%d] = %#v\n", i, ui.BL[i])
 // 	// }
+// }
+// // XLedger has ledger fields plus LedgerMarker fields for supplied time range
+// type XLedger struct {
+// 	G  rlib.GLAccount
+// 	LM rlib.LedgerMarker
+// }
+// // UILedger contains ledger info for a user interface
+// type UILedger struct {
+// 	Balance float64 // sum of all LM Balances
+// 	BID     int64
+// 	XL      []XLedger // all ledgers in this business
 // }
