@@ -1,4 +1,7 @@
 CAPTURES_DIR = "CAPTURES"
+TOP = ./../..
+DBGENDIR = ${TOP}/tools/dbgen
+# WEBCLIENTTESTDIR = $(shell pwd)
 
 .PHONY: test
 
@@ -10,7 +13,7 @@ captures:
 package:
 	@echo "*** PACKAGE completed in test/webclient ***"
 
-test: captures
+test: captures db4
 	@touch fail
 	./functest.sh
 	@rm -f fail
@@ -32,4 +35,8 @@ clean:
 all: clean jshint test
 
 link:
-	ln -s 
+	ln -s
+
+db4:
+	@echo "*** loading database with db4.json ***"
+	cd ${DBGENDIR};./dbgen -f db4.json
