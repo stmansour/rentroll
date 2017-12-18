@@ -16,6 +16,8 @@ source ../share/base.sh
 #  Use the testdb for these tests... (dbgen with db4.json, as of now)
 #--------------------------------------------------------------------
 
+# server with noauth
+RENTROLLSERVERAUTH="-noauth"
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
 
