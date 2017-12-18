@@ -207,6 +207,7 @@ function buildReceiptElements() {
                             f.get("PmtTypeName").options.items = pmt_options;
                             f.get("ARID").options.items = app.ReceiptRules[BUD];
                             f.record = getReceiptInitRecord(BID, BUD, ptInit, null);
+                            f.header =  "Edit Receipt (new)";
                             f.refresh();
                             setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
                         }

@@ -6,7 +6,7 @@
     buildARElements, buildPaymentTypeElements, buildDepositoryElements, buildDepositElements, 
     buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElements, 
     buildDepositMethodElements, buildPayorStatementElements, buildRentRollElements, buildLoginForm,
-    buildAppLayout,
+    buildAppLayout, buildROVReceiptElements,
 */
 
 "use strict";
@@ -15,14 +15,14 @@
 // elements.
 //
 // INPUTS:
-//  flag  -  if 0, do nothing special.  If 1, build the Receipt-Only version of Roller.
-//           In this version, the sidebar will reduce the number of commands it exposes.
+//  uitype - 0 - standard, full-featured, Roller interface
+//           1 - the Receipt-Only version of Roller
 //
 // RETURNS:
 //  nothing
-function buildPageElementsWrapper(flag) {
+function buildPageElementsWrapper(uitype) {
     buildAppLayout();
-    buildSidebar(flag);
+    buildSidebar(uitype);
     buildAllocFundsGrid();
     buildAccountElements();
     buildTransactElements();
@@ -33,7 +33,10 @@ function buildPageElementsWrapper(flag) {
     buildRUserPicker();
     buildRentablePicker();
     buildRAPicker();
-    buildReceiptElements();
+    switch (uitype) {
+        case 0: buildReceiptElements(uitype); break;
+        case 1: buildROVReceiptElements(uitype); break;
+    }
     buildAssessmentElements();
     buildExpenseElements();
     buildARElements();

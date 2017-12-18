@@ -44,16 +44,16 @@ function dateMonthFwd(y) {
     // console.log('dateMonthFwd: T1 -    d = ' + d);
 
     // If there is a chance that there is no such date next month, then let's make sure we
-    // do this right. If the date is > than the number of days in month m then snap as follows:
-    // if d is valid in month m then use d, otherwise snap to the end of the month.
-    if (d > 28) {
+    // do this right. If the date is >= 28, then always snap it to the end of the month.
+    if (d >= 28) {
         var d0 = new Date(y.getFullYear() + my, m, 0, 0, 0, 0);
         var daysInCurrentMonth = d0.getDate();
         var m2 = (y.getMonth() + 2) % 12; // used to find # days in month m
         var m2y = (y.getMonth() + 2) / 12; // number of years to add for month m
         var d3 = new Date(y.getFullYear() + m2y, m2, 0, 0, 0, 0);
         var daysInNextMonth = d3.getDate();
-        if (d >= daysInNextMonth || d == daysInCurrentMonth) { d = daysInNextMonth; }
+        //if (d >= daysInNextMonth || d == daysInCurrentMonth) { d = daysInNextMonth; }
+        d = daysInNextMonth;
     }
     // console.log('dateMonthFwd:  m = ' + m + '   d = ' + d);
     var d2 = new Date(y.getFullYear() + my, m, d, 0, 0, 0);
@@ -127,7 +127,8 @@ function dateMonthBack(y) {
         var daysInCurrentMonth = d0.getDate();
         var d3 = new Date(y.getFullYear() - yb, y.getMonth(), 0, 0, 0, 0); // date() is number of days in month y.getMonth()
         var daysInPrevMonth = d3.getDate();
-        if (d == daysInCurrentMonth || d >= daysInPrevMonth) { d = daysInPrevMonth; }
+        //if (d == daysInCurrentMonth || d >= daysInPrevMonth) { d = daysInPrevMonth; }
+        d = daysInPrevMonth;
     }
     return new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
 }

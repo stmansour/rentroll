@@ -7,8 +7,8 @@
 // buildSidebar creates the w2ui sidebar element for the Roller interface.
 //
 // INPUTS:
-//  flag - 0 means build the full interface
-//         1 means build the Receipt-only interface
+//  uitype - 0 means build the full roller interface
+//           1 means build the Receipt-only interface
 //----------------------------------------------------------------------------
 function buildSidebar(flag) {
     var sbdata;
