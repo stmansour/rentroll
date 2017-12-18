@@ -74,7 +74,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if err := json.Unmarshal([]byte(d.data), &reqData); err != nil {
 		rlib.Console("Error while unmarshalling json from reqData: %s", err.Error())
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -90,7 +90,7 @@ func SvcRR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		reqData.MainRowsOffset, limit)
 	if err != nil {
 		rlib.Console("%s: Error from GetRentRollRows routine: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

@@ -212,7 +212,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	rlib.Console("g.Total = %d\n", g.Total)
@@ -238,7 +238,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -251,7 +251,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 
 		q, err = assessmentGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -265,7 +265,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -293,7 +293,7 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 	rlib.Console("Entered %s\n", funcname)
 
 	if d.ASMID, err = SvcExtractIDFromURI(r.RequestURI, "ASMID", 3, w); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -311,7 +311,7 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -341,7 +341,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	err = json.Unmarshal(data, &foo)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -375,7 +375,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	if err != nil {
 		e := fmt.Errorf("Error saving assessment (ASMID=%d): %s", d.ASMID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	SvcWriteSuccessResponse(w)
@@ -441,7 +441,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(q)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -456,7 +456,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy, &gg.FLAGS)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		gg.ExpandPastInst = 1 // assume we don't expand unless told otherwise
@@ -475,7 +475,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -505,13 +505,13 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	a, err := rlib.GetAssessment(del.ASMID)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

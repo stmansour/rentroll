@@ -79,7 +79,7 @@ func SvcPayorStmtDispatch(w http.ResponseWriter, r *http.Request, d *ServiceData
 	rlib.Console("Entered %s\n", funcname)
 	if len(d.pathElements) > 3 {
 		if d.TCID, err = SvcExtractIDFromURI(r.RequestURI, "TCID", 3, w); err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}
@@ -98,7 +98,7 @@ func SvcPayorStmtDispatch(w http.ResponseWriter, r *http.Request, d *ServiceData
 		deletePayorStmt(w, r, d)
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 	}
 }
 
@@ -163,7 +163,7 @@ func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Total, err = rlib.GetQueryCount(countQuery) // total number of rows that match the criteria
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	rlib.Console("g.Total = %d\n", g.Total)
@@ -189,7 +189,7 @@ func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -203,7 +203,7 @@ func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// get record of payor
 		t, err = payorRowScan(rows, t)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -217,7 +217,7 @@ func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -275,12 +275,12 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	_, ok := rlib.RRdb.BizTypes[d.BID]
 	if !ok {
 		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d]", d.BID)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	if len(rlib.RRdb.BizTypes[d.BID].GLAccounts) == 0 {
 		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d].GLAccounts", d.BID)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	//=======================================================================
@@ -289,7 +289,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	payors := []int64{d.ID}
 	m, err := rlib.PayorsStatement(d.BID, payors, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	payorcache := map[int64]rlib.Transactant{}

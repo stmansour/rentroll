@@ -91,7 +91,7 @@ func SvcHandlerPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		} else {
 			if d.ID < 0 {
 				err = fmt.Errorf("PaymentTypeID is required but was not specified")
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 			getPaymentType(w, r, d)
@@ -105,7 +105,7 @@ func SvcHandlerPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		break
 	default:
 		err := fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -177,7 +177,7 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -203,7 +203,7 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -218,7 +218,7 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 
 		q, err = pmtRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -232,7 +232,7 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -264,12 +264,12 @@ func deletePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
 	if err = rlib.DeletePaymentType(del.ID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -301,7 +301,7 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -313,12 +313,12 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	if len(a.Name) == 0 {
 		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -326,7 +326,7 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
 	if a.Name == adup.Name && a.PMTID != adup.PMTID {
 		e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -341,7 +341,7 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving Payment Type : %s", funcname, a.Name)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 

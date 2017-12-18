@@ -11,6 +11,10 @@ func insertError(err error, n string, a interface{}) error {
 // InsertAR writes a new AR record to the database. If the record is successfully written,
 // the ARID field is set to its new value.
 func InsertAR(a *AR) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -28,6 +32,10 @@ func InsertAR(a *AR) (int64, error) {
 // InsertAssessment writes a new assessmenttype record to the database. If the record is successfully written,
 // the ASMID field is set to its new value.
 func InsertAssessment(a *Assessment) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 
 	//
@@ -55,6 +63,10 @@ func InsertAssessment(a *Assessment) (int64, error) {
 
 // InsertBuilding writes a new Building record to the database
 func InsertBuilding(a *Building) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertBuilding.Exec(a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -71,6 +83,10 @@ func InsertBuilding(a *Building) (int64, error) {
 // InsertBuildingWithID writes a new Building record to the database with the supplied bldgid
 // the Building ID must be set in the supplied Building struct ptr (a.BLDGID).
 func InsertBuildingWithID(a *Building) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertBuildingWithID.Exec(a.BLDGID, a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -87,6 +103,10 @@ func InsertBuildingWithID(a *Building) (int64, error) {
 // InsertBusiness writes a new Business record.
 // returns the new Business ID and any associated error
 func InsertBusiness(b *Business) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	b.CreateBy = b.LastModBy
+
 	var bid = int64(0)
 	res, err := RRdb.Prepstmt.InsertBusiness.Exec(b.Designation, b.Name, b.DefaultRentCycle, b.DefaultProrationCycle, b.DefaultGSRPC, b.CreateBy, b.LastModBy)
 	if nil == err {
@@ -102,6 +122,10 @@ func InsertBusiness(b *Business) (int64, error) {
 
 // InsertCustomAttribute writes a new User record to the database
 func InsertCustomAttribute(a *CustomAttribute) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertCustomAttribute.Exec(a.BID, a.Type, a.Name, a.Value, a.Units, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -117,12 +141,20 @@ func InsertCustomAttribute(a *CustomAttribute) (int64, error) {
 
 // InsertCustomAttributeRef writes a new assessmenttype record to the database
 func InsertCustomAttributeRef(a *CustomAttributeRef) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertCustomAttributeRef.Exec(a.ElementType, a.BID, a.ID, a.CID, a.CreateBy)
 	return err
 }
 
 // InsertDemandSource writes a new DemandSource record to the database
 func InsertDemandSource(a *DemandSource) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertDemandSource.Exec(a.BID, a.Name, a.Industry, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -138,6 +170,10 @@ func InsertDemandSource(a *DemandSource) (int64, error) {
 
 // InsertDeposit writes a new Deposit record to the database
 func InsertDeposit(a *Deposit) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertDeposit.Exec(a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.ClearedAmount, a.FLAGS, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -154,6 +190,10 @@ func InsertDeposit(a *Deposit) (int64, error) {
 
 // InsertDepositMethod writes a new DepositMethod record to the database
 func InsertDepositMethod(a *DepositMethod) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertDepositMethod.Exec(a.BID, a.Method, a.CreateBy, a.LastModBy)
 	if nil != err {
 		return insertError(err, "DepositMethod", *a)
@@ -163,6 +203,10 @@ func InsertDepositMethod(a *DepositMethod) error {
 
 // InsertDepositPart writes a new DepositPart record to the database
 func InsertDepositPart(a *DepositPart) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertDepositPart.Exec(a.DID, a.BID, a.RCPTID, a.CreateBy, a.LastModBy)
 	if nil != err {
 		return insertError(err, "DepositPart", *a)
@@ -172,6 +216,10 @@ func InsertDepositPart(a *DepositPart) error {
 
 // InsertDepository writes a new Depository record to the database
 func InsertDepository(a *Depository) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var id = int64(0)
 	res, err := RRdb.Prepstmt.InsertDepository.Exec(a.BID, a.LID, a.Name, a.AccountNo, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -192,6 +240,10 @@ func InsertDepository(a *Depository) (int64, error) {
 
 // InsertExpense writes a new Expense record to the database
 func InsertExpense(a *Expense) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	a.Amount = Round(a.Amount, .5, 2)
 	res, err := RRdb.Prepstmt.InsertExpense.Exec(a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
@@ -213,6 +265,10 @@ func InsertExpense(a *Expense) error {
 
 // InsertInvoice writes a new Invoice record to the database
 func InsertInvoice(a *Invoice) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertInvoice.Exec(a.BID, a.Dt, a.DtDue, a.Amount, a.DeliveredBy, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -228,6 +284,10 @@ func InsertInvoice(a *Invoice) (int64, error) {
 
 // InsertInvoiceAssessment writes a new InvoiceAssessment record to the database
 func InsertInvoiceAssessment(a *InvoiceAssessment) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertInvoiceAssessment.Exec(a.InvoiceNo, a.BID, a.ASMID, a.CreateBy)
 	if nil != err {
 		return insertError(err, "DepositPart", *a)
@@ -237,6 +297,10 @@ func InsertInvoiceAssessment(a *InvoiceAssessment) error {
 
 // InsertInvoicePayor writes a new InvoicePayor record to the database
 func InsertInvoicePayor(a *InvoicePayor) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertInvoicePayor.Exec(a.InvoiceNo, a.BID, a.PID, a.CreateBy)
 	if nil != err {
 		return insertError(err, "DepositPayor", *a)
@@ -246,6 +310,10 @@ func InsertInvoicePayor(a *InvoicePayor) error {
 
 // InsertJournal writes a new Journal entry to the database
 func InsertJournal(j *Journal) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	j.CreateBy = j.LastModBy
+
 	var id = int64(0)
 
 	res, err := RRdb.Prepstmt.InsertJournal.Exec(j.BID, j.Dt, j.Amount, j.Type, j.ID, j.Comment, j.CreateBy, j.LastModBy)
@@ -262,6 +330,10 @@ func InsertJournal(j *Journal) (int64, error) {
 // InsertJournalAllocationEntry writes a new JournalAllocation record to the database. Also sets JAID with its
 // newly assigned id.
 func InsertJournalAllocationEntry(ja *JournalAllocation) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	ja.CreateBy = ja.LastModBy
+
 	// debug.PrintStack()
 	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.TCID, ja.RCPTID, ja.Amount, ja.ASMID, ja.EXPID, ja.AcctRule, ja.CreateBy)
 	if nil == err {
@@ -275,6 +347,10 @@ func InsertJournalAllocationEntry(ja *JournalAllocation) error {
 
 // InsertJournalMarker writes a new JournalMarker record to the database
 func InsertJournalMarker(jm *JournalMarker) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	jm.CreateBy = jm.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertJournalMarker.Exec(jm.BID, jm.State, jm.DtStart, jm.DtStop, jm.CreateBy, jm.LastModBy)
 	return err
 }
@@ -285,6 +361,10 @@ func InsertJournalMarker(jm *JournalMarker) error {
 
 // InsertLedgerMarker writes a new LedgerMarker record to the database
 func InsertLedgerMarker(l *LedgerMarker) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	l.CreateBy = l.LastModBy
+
 	res, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.RAID, l.RID, l.TCID, l.Dt, l.Balance, l.State, l.CreateBy, l.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
@@ -299,6 +379,10 @@ func InsertLedgerMarker(l *LedgerMarker) error {
 
 // InsertLedgerEntry writes a new LedgerEntry to the database
 func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	l.CreateBy = l.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertLedgerEntry.Exec(l.BID, l.JID, l.JAID, l.LID, l.RAID, l.RID, l.TCID, l.Dt, l.Amount, l.Comment, l.CreateBy, l.LastModBy)
 	if nil == err {
@@ -315,6 +399,10 @@ func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
 
 // InsertLedger writes a new GLAccount to the database
 func InsertLedger(l *GLAccount) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	l.CreateBy = l.LastModBy
+
 	var rid = int64(0)
 	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,   Name,   AcctType,   AllowPost,  FLAGS,   Description, CreateBy, LastModBy
 	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.TCID, l.GLNumber, l.Status, l.Name, l.AcctType, l.AllowPost, l.FLAGS, l.Description, l.CreateBy, l.LastModBy)
@@ -336,6 +424,10 @@ func InsertLedger(l *GLAccount) (int64, error) {
 
 // InsertNote writes a new Note to the database
 func InsertNote(a *Note) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertNote.Exec(a.BID, a.NLID, a.PNID, a.NTID, a.RID, a.RAID, a.TCID, a.Comment, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -355,6 +447,10 @@ func InsertNote(a *Note) (int64, error) {
 
 // InsertNoteList inserts a new wrapper for a notelist into the database
 func InsertNoteList(a *NoteList) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertNoteList.Exec(a.BID, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -374,6 +470,10 @@ func InsertNoteList(a *NoteList) (int64, error) {
 
 // InsertNoteType writes a new NoteType to the database
 func InsertNoteType(a *NoteType) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertNoteType.Exec(a.BID, a.Name, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -393,6 +493,10 @@ func InsertNoteType(a *NoteType) (int64, error) {
 
 // InsertRatePlan writes a new RatePlan record to the database
 func InsertRatePlan(a *RatePlan) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRatePlan.Exec(a.BID, a.Name, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -409,6 +513,10 @@ func InsertRatePlan(a *RatePlan) (int64, error) {
 
 // InsertRatePlanRef writes a new RatePlanRef record to the database
 func InsertRatePlanRef(a *RatePlanRef) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRatePlanRef.Exec(a.BID, a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -425,6 +533,10 @@ func InsertRatePlanRef(a *RatePlanRef) (int64, error) {
 
 // InsertRatePlanRefRTRate writes a new RatePlanRefRTRate record to the database
 func InsertRatePlanRefRTRate(a *RatePlanRefRTRate) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertRatePlanRefRTRate.Exec(a.RPRID, a.BID, a.RTID, a.FLAGS, a.Val, a.CreateBy)
 	if nil != err {
 		return insertError(err, "RatePlanRefRTRate", *a)
@@ -434,6 +546,10 @@ func InsertRatePlanRefRTRate(a *RatePlanRefRTRate) error {
 
 // InsertRatePlanRefSPRate writes a new RatePlanRefSPRate record to the database
 func InsertRatePlanRefSPRate(a *RatePlanRefSPRate) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertRatePlanRefSPRate.Exec(a.RPRID, a.BID, a.RTID, a.RSPID, a.FLAGS, a.Val, a.CreateBy)
 	if nil != err {
 		return insertError(err, "RatePlanRefSPRate", *a)
@@ -447,6 +563,10 @@ func InsertRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 
 // InsertPaymentType writes a new assessmenttype record to the database
 func InsertPaymentType(a *PaymentType) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	res, err := RRdb.Prepstmt.InsertPaymentType.Exec(a.BID, a.Name, a.Description, a.CreateBy, a.LastModBy)
 	if nil == err {
 		id, err := res.LastInsertId()
@@ -461,6 +581,10 @@ func InsertPaymentType(a *PaymentType) error {
 
 // InsertPayor writes a new User record to the database
 func InsertPayor(a *Payor) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertPayor.Exec(a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -476,6 +600,10 @@ func InsertPayor(a *Payor) (int64, error) {
 
 // InsertProspect writes a new User record to the database
 func InsertProspect(a *Prospect) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertProspect.Exec(a.TCID, a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
 		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
@@ -494,6 +622,10 @@ func InsertProspect(a *Prospect) (int64, error) {
 
 // InsertRentable writes a new Rentable record to the database
 func InsertRentable(a *Rentable) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRentable.Exec(a.BID, a.RentableName, a.AssignmentTime, a.MRStatus, a.DtMRStart, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -515,6 +647,10 @@ func InsertRentable(a *Rentable) (int64, error) {
 // InsertReceipt writes a new Receipt record to the database. If the record is successfully written,
 // the RCPTID field is set to its new value.
 func InsertReceipt(r *Receipt) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	r.CreateBy = r.LastModBy
+
 	var tid = int64(0)
 	r.Amount = Round(r.Amount, .5, 2)
 	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.TCID, r.PMTID, r.DEPID, r.DID, r.RAID, r.Dt, r.DocNo, r.Amount, r.AcctRuleReceive, r.ARID, r.AcctRuleApply, r.FLAGS, r.Comment, r.OtherPayorName, r.CreateBy, r.LastModBy)
@@ -532,6 +668,10 @@ func InsertReceipt(r *Receipt) (int64, error) {
 
 // InsertReceiptAllocation writes a new ReceiptAllocation record to the database
 func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	a.Amount = Round(a.Amount, .5, 2)
 	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.FLAGS, a.AcctRule, a.CreateBy, a.LastModBy)
@@ -549,6 +689,10 @@ func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
 
 // InsertRentalAgreement writes a new RentalAgreement record to the database
 func InsertRentalAgreement(a *RentalAgreement) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRentalAgreement.Exec(a.RATID, a.BID, a.NLID, a.AgreementStart, a.AgreementStop, a.PossessionStart, a.PossessionStop, a.RentStart, a.RentStop, a.RentCycleEpoch, a.UnspecifiedAdults, a.UnspecifiedChildren, a.Renewal, a.SpecialProvisions, a.LeaseType, a.ExpenseAdjustmentType, a.ExpensesStop, a.ExpenseStopCalculation, a.BaseYearEnd, a.ExpenseAdjustment, a.EstimatedCharges, a.RateChange, a.NextRateChange, a.PermittedUses, a.ExclusiveUses, a.ExtensionOption, a.ExtensionOptionNotice, a.ExpansionOption, a.ExpansionOptionNotice, a.RightOfFirstRefusal, a.FLAGS, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -565,6 +709,10 @@ func InsertRentalAgreement(a *RentalAgreement) (int64, error) {
 
 // InsertRentalAgreementPayor writes a new User record to the database
 func InsertRentalAgreementPayor(a *RentalAgreementPayor) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRentalAgreementPayor.Exec(a.RAID, a.BID, a.TCID, a.DtStart, a.DtStop, a.FLAGS, a.CreateBy)
 	if nil == err {
@@ -581,6 +729,10 @@ func InsertRentalAgreementPayor(a *RentalAgreementPayor) (int64, error) {
 
 // InsertRentalAgreementPet writes a new User record to the database
 func InsertRentalAgreementPet(a *RentalAgreementPet) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRentalAgreementPet.Exec(a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -596,6 +748,10 @@ func InsertRentalAgreementPet(a *RentalAgreementPet) (int64, error) {
 
 // InsertRentalAgreementRentable writes a new User record to the database
 func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRentalAgreementRentable.Exec(a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop, a.CreateBy)
 	if nil == err {
@@ -616,6 +772,10 @@ func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
 
 // InsertRentalAgreementTemplate writes a new User record to the database
 func InsertRentalAgreementTemplate(a *RentalAgreementTemplate) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRentalAgreementTemplate.Exec(a.BID, a.RATemplateName, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -631,18 +791,30 @@ func InsertRentalAgreementTemplate(a *RentalAgreementTemplate) (int64, error) {
 
 // InsertRentableSpecialty writes a new RentableSpecialty record to the database
 func InsertRentableSpecialty(a *RentableSpecialty) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertRentableSpecialtyType.Exec(a.BID, a.Name, a.Fee, a.Description, a.CreateBy)
 	return err
 }
 
 // InsertRentableMarketRates writes a new marketrate record to the database
 func InsertRentableMarketRates(r *RentableMarketRate) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	r.CreateBy = r.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertRentableMarketRates.Exec(r.RTID, r.BID, r.MarketRate, r.DtStart, r.DtStop, r.CreateBy)
 	return err
 }
 
 // InsertRentableType writes a new RentableType record to the database
 func InsertRentableType(a *RentableType) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var rid = int64(0)
 	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -659,12 +831,20 @@ func InsertRentableType(a *RentableType) (int64, error) {
 
 // InsertRentableSpecialtyRef writes a new RentableSpecialty record to the database
 func InsertRentableSpecialtyRef(a *RentableSpecialtyRef) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	_, err := RRdb.Prepstmt.InsertRentableSpecialtyRef.Exec(a.BID, a.RID, a.RSPID, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
 	return err
 }
 
 // InsertRentableStatus writes a new RentableStatus record to the database
 func InsertRentableStatus(a *RentableStatus) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	res, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.UseStatus, a.LeaseStatus, a.CreateBy, a.LastModBy)
 	if nil != err {
 		return insertError(err, "RentableStatus", *a)
@@ -679,6 +859,10 @@ func InsertRentableStatus(a *RentableStatus) error {
 
 // InsertRentableTypeRef writes a new RentableTypeRef record to the database
 func InsertRentableTypeRef(a *RentableTypeRef) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	res, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
 	if nil != err {
 		return insertError(err, "RentableTypeRef", *a)
@@ -692,6 +876,10 @@ func InsertRentableTypeRef(a *RentableTypeRef) error {
 
 // InsertRentableUser writes a new User record to the database
 func InsertRentableUser(a *RentableUser) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	res, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop, a.CreateBy)
 	if nil != err {
 		return insertError(err, "RentableUser", *a)
@@ -705,6 +893,10 @@ func InsertRentableUser(a *RentableUser) error {
 
 // InsertStringList writes a new StringList record to the database
 func InsertStringList(a *StringList) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertStringList.Exec(a.BID, a.Name, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -723,6 +915,10 @@ func InsertStringList(a *StringList) (int64, error) {
 // InsertSLStrings writes a the list of strings in a StringList to the database
 // THIS SHOULD BE PUT IN A TRANSACTION
 func InsertSLStrings(a *StringList) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	for i := 0; i < len(a.S); i++ {
 		a.S[i].SLID = a.SLID
 		_, err := RRdb.Prepstmt.InsertSLString.Exec(a.BID, a.SLID, a.S[i].Value, a.CreateBy, a.S[i].LastModBy)
@@ -734,6 +930,10 @@ func InsertSLStrings(a *StringList) {
 
 // InsertSubAR writes a SubAR to the database
 func InsertSubAR(a *SubAR) error {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	res, err := RRdb.Prepstmt.InsertSubAR.Exec(a.ARID, a.SubARID, a.BID, a.CreateBy, a.LastModBy)
 	if nil != err {
 		Ulog("InsertSubAR: error:  %v\n", err)
@@ -747,6 +947,10 @@ func InsertSubAR(a *SubAR) error {
 
 // InsertTransactant writes a new Transactant record to the database
 func InsertTransactant(a *Transactant) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertTransactant.Exec(a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -763,6 +967,10 @@ func InsertTransactant(a *Transactant) (int64, error) {
 
 // InsertUser writes a new User record to the database
 func InsertUser(a *User) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertUser.Exec(a.TCID, a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.CreateBy, a.LastModBy)
 	if nil == err {
@@ -778,6 +986,10 @@ func InsertUser(a *User) (int64, error) {
 
 // InsertVehicle writes a new Vehicle record to the database
 func InsertVehicle(a *Vehicle) (int64, error) {
+
+	// while creating resource, CreateBy will be same as LastModBy
+	a.CreateBy = a.LastModBy
+
 	var tid = int64(0)
 	res, err := RRdb.Prepstmt.InsertVehicle.Exec(a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
 	if nil == err {

@@ -34,7 +34,7 @@ test:
 	@echo "*** ${THISDIR}: completed testing - ALL TESTS PASS ***"
 
 clean:
-	rm -f ver.go
+	rm -f ver.go buildno
 	go clean
 	rm -f fail GoAnalyzerError.log
 	@echo "*** ${THISDIR}: completed clean ***"

@@ -9,6 +9,16 @@ import (
 // contains of all rlib.Receipt related with business
 func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 	funcname := "RRReceiptsTable"
+	const (
+		Date    = 0
+		RCPTID  = iota
+		PRCPTID = iota
+		PMTID   = iota
+		DocNo   = iota
+		Amount  = iota
+		Comment = iota
+		// AccountRule = iota
+	)
 
 	// init and prepare some values before table init
 	ri.RptHeaderD1 = true
@@ -24,8 +34,8 @@ func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("PMTID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Doc No", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
-	tbl.AddColumn("Account Rule", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Comment", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	// tbl.AddColumn("Account Rule", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set table title, sections
 	err := TableReportHeaderBlock(&tbl, "Receipts", funcname, ri)
@@ -37,16 +47,18 @@ func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 	m := rlib.GetReceipts(ri.Bid, &ri.D1, &ri.D2)
 	for _, a := range m {
 		tbl.AddRow()
-		tbl.Putd(-1, 0, a.Dt)
-		tbl.Puts(-1, 1, a.IDtoString())
-		tbl.Puts(-1, 2, rlib.IDtoString("RCPT", a.PRCPTID))
-		tbl.Puts(-1, 3, rlib.IDtoString("PMT", a.PMTID))
-		tbl.Puts(-1, 4, a.DocNo)
-		tbl.Putf(-1, 5, a.Amount)
-		tbl.Puts(-1, 6, rlib.GetReceiptAccountRuleText(&a))
-		tbl.Puts(-1, 7, a.Comment)
+		tbl.Putd(-1, Date, a.Dt)
+		tbl.Puts(-1, RCPTID, a.IDtoString())
+		tbl.Puts(-1, PRCPTID, rlib.IDtoString("RCPT", a.PRCPTID))
+		tbl.Puts(-1, PMTID, rlib.IDtoString("PMT", a.PMTID))
+		tbl.Puts(-1, DocNo, a.DocNo)
+		tbl.Putf(-1, Amount, a.Amount)
+		tbl.Puts(-1, Comment, a.Comment)
+		// tbl.Puts(-1, 6, rlib.GetReceiptAccountRuleText(&a))
 	}
 	tbl.TightenColumns()
+	tbl.AddLineAfter(len(tbl.Row) - 1)
+	tbl.InsertSumRow(len(tbl.Row), 0, len(tbl.Row)-1, []int{Amount}) // insert @ len essentially adds a row.  Only want to sum Amount column
 	return tbl
 }
 

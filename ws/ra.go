@@ -255,7 +255,7 @@ func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *Servi
 	g.Total = int64(len(g.Records))
 	if err != nil {
 		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	for i := 0; i < len(g.Records); i++ {
@@ -337,7 +337,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	rlib.Console("g.Total = %d\n", g.Total)
@@ -363,7 +363,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -379,7 +379,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		// get records info in struct q
 		q, err = rentalAgrRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -393,7 +393,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	// error check
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -420,7 +420,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 	)
 
 	if d.RAID, err = SvcExtractIDFromURI(r.RequestURI, "RAID", 3, w); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -438,7 +438,7 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -466,7 +466,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	rlib.Console("record is at index = %d\n", i)
 	if i < 0 {
 		e := fmt.Errorf("saveRentalAgreement: cannot find %s in form json", target)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	s := d.data[i+len(target):]
@@ -484,7 +484,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	err = json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	rlib.Console("B\n")
@@ -500,7 +500,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	if !ok {
 		e := fmt.Errorf("could not map %s to a Renewal value", foo.Renewal)
 		rlib.LogAndPrintError(funcname, e)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -513,7 +513,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		err = rlib.UpdateRentalAgreement(&a)
 		if err != nil {
 			e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		//------------------------------------------------------------------------
@@ -523,7 +523,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		lm := rlib.GetInitialLedgerMarkerByRAID(a.RAID)
 		if lm.LMID == 0 {
 			e := fmt.Errorf("Could not find initial LedgerMarker for RAID = %d", a.RAID)
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		rlib.Console("Found initial LedgerMarker for RAID %d\n", a.RAID)
@@ -536,7 +536,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 				err = rlib.UpdateLedgerMarker(&lm)
 				if err != nil {
 					e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
-					SvcGridErrorReturn(w, e, funcname)
+					SvcErrorReturn(w, e, funcname)
 					return
 				}
 			}
@@ -551,7 +551,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			err = rlib.InsertLedgerMarker(&lm)
 			if err != nil {
 				e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
-				SvcGridErrorReturn(w, e, funcname)
+				SvcErrorReturn(w, e, funcname)
 				return
 			}
 		}
@@ -583,7 +583,7 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	a, err := rlib.GetRentalAgreement(d.RAID)
 	if err != nil {
 		e := fmt.Errorf("getRentalAgreement: cannot read RentalAgreement RAID = %d, err = %s", d.RAID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	if a.RAID > 0 {
@@ -617,7 +617,7 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -626,19 +626,19 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	// first get rentalAgreement
 	ra, err := rlib.GetRentalAgreement(delRAID)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// remove all pets associated with this rental Agreement
 	if err = rlib.DeleteAllRentalAgreementPets(delRAID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// remove all payors associated with this rental Agreement
 	if err = rlib.DeleteAllRentalAgreementPayors(delRAID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -648,7 +648,7 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		rUsers := rlib.GetRentableUsersInRange(rar.RID, &rar.RARDtStart, &rar.RARDtStop)
 		for _, ru := range rUsers {
 			if err := rlib.DeleteRentableUser(ru.RUID); err != nil {
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 		}
@@ -656,13 +656,13 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 
 	// remove all references to rentables associated with this rental Agreement
 	if err = rlib.DeleteAllRentalAgreementRentables(delRAID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// finally delete this rental Agreement
 	if err = rlib.DeleteRentalAgreement(delRAID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

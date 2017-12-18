@@ -143,7 +143,7 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		} else {
 			if d.ID < 0 {
 				err = fmt.Errorf("ID for RentableType is required but was not specified")
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 			getRentableType(w, r, d)
@@ -160,7 +160,7 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -263,7 +263,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -289,7 +289,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -304,7 +304,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 
 		q, err = rentableTypeGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -318,7 +318,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -364,7 +364,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -376,7 +376,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		q, err = rentableTypeGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -385,7 +385,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -414,12 +414,12 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	var del DeleteRentableTypeForm
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
 	if err := rlib.DeleteRentableType(del.ID); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	SvcWriteSuccessResponse(w)
@@ -445,13 +445,13 @@ func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	var reActF ReactivateRentableTypeForm
 	if err := json.Unmarshal([]byte(d.data), &reActF); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
 	rt := rlib.RentableType{RTID: reActF.ID}
 	if err := rlib.ReactivateRentableType(&rt); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	SvcWriteSuccessResponse(w)
@@ -483,7 +483,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -496,7 +496,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if !ok {
 		e := fmt.Errorf("%s: Could not map BID value: %s", funcname, foo.Record.BUD)
 		rlib.Ulog("%s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -512,7 +512,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		a.RTID, err = rlib.InsertRentableType(&a)
 		if err != nil {
 			e := fmt.Errorf("%s: unable to save RentableType record: %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	} else {
@@ -521,7 +521,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = rlib.UpdateRentableType(&a)
 		if err != nil {
 			e := fmt.Errorf("%s: unable to update RentableType (RTID=%d\n: %s", funcname, a.RTID, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -584,7 +584,7 @@ func SvcHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request, d *Se
 	// This operation requires RentableType ID
 	if d.ID < 0 {
 		err = fmt.Errorf("ID for RentableType is required but was not specified")
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -600,7 +600,7 @@ func SvcHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request, d *Se
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -643,7 +643,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		fmt.Printf("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	fmt.Printf("g.Total = %d\n", g.Total)
@@ -669,7 +669,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		fmt.Printf("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -684,7 +684,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 
 		q, err = rmrGridRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -698,7 +698,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -731,14 +731,14 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 
 	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	fmt.Printf("foo Changes: %v", foo.Changes)
 
 	if len(foo.Changes) == 0 {
 		e := fmt.Errorf("No MarketRate(s) provided for RentableType")
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -748,12 +748,12 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 	rtid := foo.Changes[0].RTID
 	if err = rlib.GetRentableType(rtid, &rt); err != nil {
 		e := fmt.Errorf("Error while getting RentableType: %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	if rt.ManageToBudget == 0 {
 		e := fmt.Errorf("ManageToBudget is not enabled at this moment")
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -773,14 +773,14 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 			err = rlib.InsertRentableMarketRates(&a)
 			if err != nil {
 				e := fmt.Errorf("Error while inserting market rate:  %s", err.Error())
-				SvcGridErrorReturn(w, e, funcname)
+				SvcErrorReturn(w, e, funcname)
 				return
 			}
 		} else { // else update existing one
 			err = rlib.UpdateRentableMarketRateInstance(&a)
 			if err != nil {
 				e := fmt.Errorf("Error with updating market rate instance (%d), RTID=%d : %s", a.RMRID, a.RTID, err.Error())
-				SvcGridErrorReturn(w, e, funcname)
+				SvcErrorReturn(w, e, funcname)
 				return
 			}
 		}
@@ -814,7 +814,7 @@ func deleteRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Se
 	data := []byte(d.data)
 	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -822,7 +822,7 @@ func deleteRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Se
 		err = rlib.DeleteRentableMarketRateInstance(rmrid)
 		if err != nil {
 			e := fmt.Errorf("Error with deleting MarketRate with ID %d:  %s", rmrid, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	}

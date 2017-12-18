@@ -12,6 +12,19 @@ import (
 	"github.com/kardianos/osext"
 )
 
+// HomeUIHandler is the standard home url handler for Roller
+//------------------------------------------------------------------
+func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
+	internalHomeUIHandler(w, r, "home.html")
+}
+
+// RHomeUIHandler is the special Receipt-only interface for
+// Isola Bella.
+//------------------------------------------------------------------
+func RHomeUIHandler(w http.ResponseWriter, r *http.Request) {
+	internalHomeUIHandler(w, r, "rhome.html")
+}
+
 // HomeUIHandler sends the main UI to the browser
 // The forms of the url that are acceptable:
 //		/home/
@@ -21,11 +34,11 @@ import (
 // <lang> specifies the language.  The default is en-us
 // <tmpl> specifies which template to use. The default is "dflt"
 //------------------------------------------------------------------
-func HomeUIHandler(w http.ResponseWriter, r *http.Request) {
+func internalHomeUIHandler(w http.ResponseWriter, r *http.Request, appPage string) {
 	var ui RRuiSupport
 	var err error
 	funcname := "HomeUIHandler"
-	appPage := "home.html"
+	//appPage := "home.html"
 	lang := "en-us"
 	tmpl := "default"
 

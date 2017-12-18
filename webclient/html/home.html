@@ -26,8 +26,9 @@ sidebarL1     - w2ui sidebar
 
 <script>
 /*global
-    createPayorStmtForm, $, console, w2ui, defineDateFmts, buildPageElements, createRentalAgreementForm, createStmtForm,
+    createPayorStmtForm, $, console, w2ui, defineDateFmts, createRentalAgreementForm, createStmtForm,
     dateControlString, dateMonthFwd, dateControlString, createDepositForm, buildPageElementsWrapper,
+    openInNewTab, ensureSession, logoff, launchSession, userProfileToUI, 
 */
 
 
@@ -55,7 +56,12 @@ var app = {
     DepMethods: {},
     Depositories: {}, // gets loaded as needed
     ExpenseRules: {},
-    uid: 211,
+    userBlankImage: "/webclient/img/user_profile_blank.png" ,
+    userActiveImage: "/webclient/img/user_profile_active.png" ,
+    uid: 0,       // this is username's UID (user id)
+    username: "", // this is the logged in user's username
+    name: "",     // first (or preferred) name of logged in user
+    imageurl: "", // pointer to image of logged in user
     PayorStmtExt: false, // false = internal, true = external
     WidestFormWidth: 900,
     sidebarWidth: 215,
@@ -211,6 +217,17 @@ function buildPageElements() {
                 { text: 'Messages',      icon: 'fa fa-folder-o' },
             ]},
             { id: 'bt3', type: 'spacer' },
+            { type: 'menu',   id: 'userMenu',
+                caption: '<div id="user_menu_container">'+
+                      '<span id="username"></span>'+
+                      '<img src="" />'+
+                      '</div>',
+                items: [
+                    { id: 'Profile'  , text: 'Profile' , icon: 'fa fa-user' },
+                    { id: 'Settings' , text: 'Settings', icon: 'fa fa-gear' },
+                    { id: 'Signout'  , text: 'Sign Out', icon: 'fa fa-sign-out' },
+                ],
+            },
             { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
         ],
         onRender: function(event) {
@@ -220,6 +237,19 @@ function buildPageElements() {
                 app.last.BID = $("select[name=BusinessSelect]").val();
             };
         },
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                userProfileToUI();
+                // if(app.uid) {
+                // } else {
+                //     // if blank profile image is not set then
+                //     if ($("#user_menu_container").find("img").attr("src") !== app.userBlankImage) {
+                //         $("#user_menu_container").find("img").attr("src", app.userBlankImage);
+                //     }
+                //     $("#user_menu_container").find("#username").text("");
+                // }
+            };
+        },
         onClick: function (event) {
             console.log('target = ' + event.target);
             switch(event.target) {
@@ -227,8 +257,8 @@ function buildPageElements() {
                 case "menuButton:Template-Dflt":  window.location.href = '/home/en-us/default';             break;
                 case "menuButton:Template-Apts":  window.location.href = '/home/en-us/apts';                break;
                 case "moduleMenu:RentRoll":       window.location.href = '/';                               break;
-                case "moduleMenu:Mojo":           window.location.href = 'http://localhost:8275/home/';     break;
-                case "menuButton:Webdocs": openInNewTab('/doc/docs.html'); break;
+                case "moduleMenu:Mojo":           window.location.href = 'https://mojo.airoller.com:8275/'; break;
+                case "menuButton:Webdocs":        openInNewTab('/doc/docs.html'); break;
                 case "msgButton":
                 case "menuButton:Messages":
                         w2ui.toplayout.toggle('top',true);
@@ -236,12 +266,41 @@ function buildPageElements() {
                         w2ui.newsLayout.load('main', '/webclient/html/news.html', 'flip-down', function () {console.log('content loaded');});
                         w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'});
                         break;
+                case "userMenu:Profile": break;
+                case "userMenu:Settings": break;
+                case "userMenu:Signout": logoff(); break;
             }
         },
     }));
-    buildPageElementsWrapper();
+    buildPageElementsWrapper(0);
 }  // buildPageElements
 
+// $(document).ajaxSuccess(function(event, request, settings) {
+//     if (settings.url !== loginTmplURL) {
+//         var data;
+//         try{
+//             data = JSON.parse(request.responseText);
+//         } catch(e) {
+//             // nothing to do
+//         }
+//         if (data && 'message' in data) {
+//             if (data.message.indexOf("session required") > -1) {
+//                 //------------------------------------------------------------
+//                 // The user needs to log in before we let them do anything...
+//                 // IF Session Required...
+//                 //------------------------------------------------------------
+//                 $().w2popup('open', loginPopupOptions);
+//                 setTimeout(function() {
+//                     var f = w2ui.passwordform;
+//                     $(f.box).find("#LoginMessage").find(".errors").empty();
+//                     var message = "Your session hass expired. Please login again.";
+//                     $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+//                     $(f.box).find("#LoginMessage").removeClass("hidden");
+//                 }, 500);
+//             }
+//         }
+//     }
+// });
 
 function finishInitialization() {
     defineDateFmts();
@@ -251,7 +310,7 @@ function finishInitialization() {
     createPayorStmtForm();
     createDepositForm();
     var d1 = new Date();
-    d1.setDate(1);
+    d1.setDate(0);
     app.D1 = dateControlString(d1);
     var d2 = dateMonthFwd(d1);
     app.D2 = dateControlString(d2);
@@ -276,7 +335,9 @@ $(function () {
     .fail( function() {
         console.log('Error getting /v1/uilists');
     });
+    launchSession();
 });
+
 </script>
 
 <div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>

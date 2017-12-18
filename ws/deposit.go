@@ -95,7 +95,7 @@ func SvcHandlerDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		} else {
 			if d.ID < 0 {
 				err = fmt.Errorf("DepositID is required but was not specified")
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 			getDeposit(w, r, d)
@@ -107,7 +107,7 @@ func SvcHandlerDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		deleteDeposit(w, r, d)
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 }
@@ -209,7 +209,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		rlib.Console("%s: Error from rlib.GetQueryCount: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	rlib.Console("g.Total = %d\n", g.Total)
@@ -235,7 +235,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -250,7 +250,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 
 		err = depositGridRowScan(rows, &q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -264,7 +264,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -299,7 +299,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -318,7 +318,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if !ok {
 			e := fmt.Errorf("%s: Could not map BUD value: %s", funcname, foo.Record.BUD)
 			rlib.Ulog("%s", e.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -365,7 +365,7 @@ func deleteDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("record data = %s\n", d.data)
 
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -375,7 +375,7 @@ func deleteDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//----------------------------------------
 	m, err := rlib.GetDepositParts(del.DID)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	for i := 0; i < len(m); i++ {
@@ -383,18 +383,18 @@ func deleteDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if r.RCPTID > 0 {
 			r.DID = 0
 			if err = rlib.UpdateReceipt(&r); err != nil {
-				SvcGridErrorReturn(w, err, funcname)
+				SvcErrorReturn(w, err, funcname)
 				return
 			}
 		}
 		if err = rlib.DeleteDepositPart(m[i].DPID); err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}
 	err = rlib.DeleteDeposit(del.DID)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -440,7 +440,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		rlib.Console("%s: Error from DB Query: %s\n", funcname, err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -452,7 +452,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		err = depositGridRowScan(rows, &q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -461,7 +461,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

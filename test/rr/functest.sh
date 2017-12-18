@@ -24,6 +24,7 @@ function stop() {
 }
 
 echo "STARTING RENTROLL SERVER"
+RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 #------------------------------------------------------------------------------
 #  TEST 00

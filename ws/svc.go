@@ -17,8 +17,8 @@ import (
 	"tws"
 )
 
-// SvcGridError is the generalized error structure to return errors to the grid widget
-type SvcGridError struct {
+// SvcStatus is the generalized error structure to return errors to the grid widget
+type SvcStatus struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
@@ -32,9 +32,10 @@ type SvcStatusResponse struct {
 
 // ServiceHandler describes the handler for all services
 type ServiceHandler struct {
-	Cmd     string
-	Handler func(http.ResponseWriter, *http.Request, *ServiceData)
-	NeedBiz bool
+	Cmd         string
+	Handler     func(http.ResponseWriter, *http.Request, *ServiceData)
+	NeedBiz     bool // true if the command requires a BID
+	NeedSession bool // true if this command requires a session
 }
 
 // GenSearch describes a search condition
@@ -133,6 +134,7 @@ type ServiceData struct {
 	wsSearchReq   WebGridSearchRequest // what did the search requester ask for
 	wsTypeDownReq WebTypeDownRequest   // fast for typedown
 	data          string               // the raw unparsed data
+	sess          *rlib.Session        // the caller's session
 	QueryParams   map[string][]string  // parameters when HTTP GET is used
 	Files         map[string][]*multipart.FileHeader
 	MFValues      map[string][]string
@@ -140,58 +142,72 @@ type ServiceData struct {
 
 // Svcs is the table of all service handlers
 var Svcs = []ServiceHandler{
-	{"exportaccounts", SvcExportGLAccounts, true},
-	{"importaccounts", SvcImportGLAccounts, true},
-	{"account", SvcFormHandlerGLAccounts, true},
-	{"accountlist", SvcAccountsList, true},
-	{"accounts", SvcSearchHandlerGLAccounts, true},
-	{"allocfunds", SvcSearchHandlerAllocFunds, true},
-	{"ar", SvcFormHandlerAR, true},
-	{"ars", SvcSearchHandlerARs, true},
-	{"asm", SvcFormHandlerAssessment, true},
-	{"asms", SvcSearchHandlerAssessments, true},
-	{"dep", SvcHandlerDepository, true},
-	{"depmeth", SvcHandlerDepositMethod, true},
-	{"deposit", SvcHandlerDeposit, true},
-	{"depositlist", SvcHandlerDepositList, true},
-	{"discon", SvcDisableConsole, false},
-	{"encon", SvcEnableConsole, false},
-	{"expense", SvcHandlerExpense, false},
-	{"ledgers", getLedgerGrid, true},
-	{"parentaccounts", SvcParentAccountsList, true},
-	{"payorfund", SvcHandlerTotalUnallocFund, true},
-	{"payorstmt", SvcPayorStmtDispatch, true},
-	{"payorstmtinfo", SvcGetPayorStmInfo, true},
-	{"person", SvcFormHandlerXPerson, true},
-	{"ping", SvcHandlerPing, true},
-	{"pmts", SvcHandlerPaymentType, true},
-	{"postaccounts", SvcPostAccountsList, true},
-	{"rapayor", SvcRAPayor, true},
-	{"rapets", SvcRAPets, true},
-	{"rar", SvcRARentables, true},
-	{"receipt", SvcFormHandlerReceipt, true},
-	{"receipts", SvcSearchHandlerReceipts, true},
-	{"rentable", SvcFormHandlerRentable, true},
-	{"rentables", SvcSearchHandlerRentables, true},
-	{"rentablestd", SvcRentableTypeDown, true},
-	{"rentalagr", SvcFormHandlerRentalAgreement, true},
-	{"rentalagrs", SvcSearchHandlerRentalAgr, true},
-	{"rentalagrtd", SvcRentalAgreementTypeDown, true},
-	{"rr", SvcRR, true},
-	{"rt", SvcHandlerRentableType, true},
-	{"rmr", SvcHandlerRentableMarketRates, true},
-	{"rtlist", SvcRentableTypesTD, true},
-	{"ruser", SvcRUser, true},
-	{"stmt", SvcStatement, true},
-	{"stmtdetail", SvcStatementDetail, true},
-	{"stmtinfo", SvcGetStatementInfo, true},
-	{"transactants", SvcSearchHandlerTransactants, true},
-	{"transactantstd", SvcTransactantTypeDown, true},
-	{"tws", SvcTWS, true},
-	{"uilists", SvcUILists, false},
-	{"uival", SvcUIVal, false},
-	{"unpaidasms", SvcHandlerGetUnpaidAsms, true},
-	{"version", SvcHandlerVersion, false},
+	{"exportaccounts", SvcExportGLAccounts, true, true},
+	{"importaccounts", SvcImportGLAccounts, true, true},
+	{"account", SvcFormHandlerGLAccounts, true, true},
+	{"accountlist", SvcAccountsList, true, true},
+	{"accounts", SvcSearchHandlerGLAccounts, true, true},
+	{"allocfunds", SvcSearchHandlerAllocFunds, true, true},
+	{"ar", SvcFormHandlerAR, true, true},
+	{"ars", SvcSearchHandlerARs, true, true},
+	{"asm", SvcFormHandlerAssessment, true, true},
+	{"asms", SvcSearchHandlerAssessments, true, true},
+	{"authn", SvcAuthenticate, false, false},
+	{"dep", SvcHandlerDepository, true, true},
+	{"depmeth", SvcHandlerDepositMethod, true, true},
+	{"deposit", SvcHandlerDeposit, true, true},
+	{"depositlist", SvcHandlerDepositList, true, true},
+	{"discon", SvcDisableConsole, false, true},
+	{"encon", SvcEnableConsole, false, true},
+	{"expense", SvcHandlerExpense, false, true},
+	{"ledgers", getLedgerGrid, true, true},
+	{"logoff", SvcLogoff, false, false},
+	{"parentaccounts", SvcParentAccountsList, true, true},
+	{"payorfund", SvcHandlerTotalUnallocFund, true, true},
+	{"payorstmt", SvcPayorStmtDispatch, true, true},
+	{"payorstmtinfo", SvcGetPayorStmInfo, true, true},
+	{"person", SvcFormHandlerXPerson, true, true},
+	{"ping", SvcHandlerPing, false, false},
+	{"pmts", SvcHandlerPaymentType, true, true},
+	{"postaccounts", SvcPostAccountsList, true, true},
+	{"rapayor", SvcRAPayor, true, true},
+	{"rapets", SvcRAPets, true, true},
+	{"rar", SvcRARentables, true, true},
+	{"receipt", SvcFormHandlerReceipt, true, true},
+	{"receipts", SvcSearchHandlerReceipts, true, true},
+	{"rentable", SvcFormHandlerRentable, true, true},
+	{"rentables", SvcSearchHandlerRentables, true, true},
+	{"rentablestd", SvcRentableTypeDown, true, true},
+	{"rentalagr", SvcFormHandlerRentalAgreement, true, true},
+	{"rentalagrs", SvcSearchHandlerRentalAgr, true, true},
+	{"rentalagrtd", SvcRentalAgreementTypeDown, true, true},
+	{"resetpw", SvcResetPW, false, false},
+	{"rr", SvcRR, true, true},
+	{"rt", SvcHandlerRentableType, true, true},
+	{"rmr", SvcHandlerRentableMarketRates, true, true},
+	{"rtlist", SvcRentableTypesTD, true, true},
+	{"ruser", SvcRUser, true, true},
+	{"stmt", SvcStatement, true, true},
+	{"stmtdetail", SvcStatementDetail, true, true},
+	{"stmtinfo", SvcGetStatementInfo, true, true},
+	{"transactants", SvcSearchHandlerTransactants, true, true},
+	{"transactantstd", SvcTransactantTypeDown, true, true},
+	{"tws", SvcTWS, true, true},
+	{"uilists", SvcUILists, false, false},
+	{"uival", SvcUIVal, false, false},
+	{"unpaidasms", SvcHandlerGetUnpaidAsms, true, true},
+	{"userprofile", SvcUserProfile, false, true},
+	{"version", SvcHandlerVersion, false, false},
+}
+
+// SvcCtx contains information global to the Svc handlers
+var SvcCtx struct {
+	NoAuth bool
+}
+
+// SvcInit initializes the service subsystem
+func SvcInit(noauth bool) {
+	SvcCtx.NoAuth = noauth
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
@@ -203,13 +219,15 @@ var Svcs = []ServiceHandler{
 // Decoded, this message looks something like this:
 //		request={"cmd":"get","selected":[],"limit":100,"offset":0}
 //
-// The leading "request=" is optional. This routine parses the basic information, then contacts an appropriate
-// handler for more detailed processing.  It will set the Cmd member variable.
+// The leading "request=" is optional. This routine parses the basic
+// information, then contacts an appropriate handler for more detailed
+// processing.  It will set the Cmd member variable.
 //
 // W2UI sometimes sends requests that look like this: request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D
-// using HTTP GET (rather than its more typical POST).  The command decodes to this: request={"search":"s","max":250}
+// using HTTP GET (rather than its more typical POST).  The command decodes to
+// this: request={"search":"s","max":250}
 //
-//-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "V1ServiceHandler"
 	svcDebugTxn(funcname, r)
@@ -218,6 +236,17 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 
 	d.ID = -1  // indicates it has not been set
 	d.BID = -1 // indicates it has not been set
+
+	if !SvcCtx.NoAuth {
+		d.sess, err = rlib.GetSession(w, r)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		if d.sess != nil {
+			d.sess.Refresh(w, r) // they actively tried to use the session, extend timeout
+		}
+	}
 
 	//-----------------------------------------------------------------------
 	// pathElements:  0   1            2     3
@@ -231,12 +260,12 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		d.BID, err = getBIDfromBUI(d.pathElements[2])
 		if err != nil {
 			e := fmt.Errorf("Could not determine business from %s", d.pathElements[2])
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		if d.BID < 0 {
 			e := fmt.Errorf("Invalid business id: %s", d.pathElements[2])
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -276,8 +305,15 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 					sbid = d.pathElements[3]
 				}
 				e := fmt.Errorf("Could not identify business: %s", sbid)
-				fmt.Printf("***ERROR IN URL***  %s\n", e.Error())
-				SvcGridErrorReturn(w, err, funcname)
+				rlib.Console("***ERROR IN URL***  %s\n", e.Error())
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil || (d.sess != nil && d.sess.UID == 0) {
+				e := fmt.Errorf("session required, please log in")
+				rlib.Console("*** ERROR ***  command %s requires a session. SvcCtx.NoAuth = %t\n", Svcs[i].Cmd, SvcCtx.NoAuth)
+				SvcErrorReturn(w, e, funcname)
+				return
 			}
 			Svcs[i].Handler(w, r, &d)
 			found = true
@@ -285,10 +321,10 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !found {
-		fmt.Printf("**** YIPES! **** %s - Handler not found\n", r.RequestURI)
+		rlib.Console("**** YIPES! **** %s - Handler not found\n", r.RequestURI)
 		e := fmt.Errorf("Service not recognized: %s", d.Service)
-		fmt.Printf("***ERROR IN URL***  %s", e.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		rlib.Console("***ERROR IN URL***  %s", e.Error())
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	svcDebugTxnEnd()
@@ -328,7 +364,7 @@ func SvcTWS(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcTWS"
 	g, err := tws.WSGridData(d.wsSearchReq.Limit, d.wsSearchReq.Offset)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	SvcWriteResponse(&g, w)
@@ -352,11 +388,11 @@ func getBIDfromBUI(s string) (int64, error) {
 	return d, err
 }
 
-// SvcGridErrorReturn formats an error return to the grid widget and sends it
-func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
-	// fmt.Printf("<Function>: %s | <Error>: %s\n", funcname, err.Error())
-	fmt.Printf("%s: %s\n", funcname, err.Error())
-	var e SvcGridError
+// SvcErrorReturn formats an error return to the grid widget and sends it
+func SvcErrorReturn(w http.ResponseWriter, err error, funcname string) {
+	// rlib.Console("<Function>: %s | <Error>: %s\n", funcname, err.Error())
+	rlib.Console("%s: %s\n", funcname, err.Error())
+	var e SvcStatus
 	e.Status = "error"
 	e.Message = fmt.Sprintf("Error: %s\n", err.Error())
 	w.Header().Set("Content-Type", "application/json")
@@ -367,7 +403,7 @@ func SvcGridErrorReturn(w http.ResponseWriter, err error, funcname string) {
 // SvcErrListReturn formats an error return to the grid widget and sends it
 func SvcErrListReturn(w http.ResponseWriter, errlist []bizlogic.BizError, funcname string) {
 	err := bizlogic.BizErrorListToError(errlist)
-	SvcGridErrorReturn(w, err, funcname)
+	SvcErrorReturn(w, err, funcname)
 }
 
 // SvcGetInt64 tries to read an int64 value from the supplied string.
@@ -378,7 +414,7 @@ func SvcGetInt64(s, errmsg string, w http.ResponseWriter) (int64, error) {
 	i, err := rlib.IntFromString(s, "not an integer number")
 	if err != nil {
 		err = fmt.Errorf("%s: %s", errmsg, err.Error())
-		SvcGridErrorReturn(w, err, "SvcGetInt64")
+		SvcErrorReturn(w, err, "SvcGetInt64")
 		return i, err
 	}
 	return i, nil
@@ -400,14 +436,14 @@ func SvcExtractIDFromURI(uri, errmsg string, pos int, w http.ResponseWriter) (in
 	var funcname = "SvcExtractIDFromURI"
 
 	sa := strings.Split(uri[1:], "/")
-	// fmt.Printf("uri parts:  %v\n", sa)
+	// rlib.Console("uri parts:  %v\n", sa)
 	if len(sa) < pos+1 {
 		err = fmt.Errorf("Expecting at least %d elements in URI: %s, but found only %d", pos+1, uri, len(sa))
-		// fmt.Printf("err = %s\n", err)
-		SvcGridErrorReturn(w, err, funcname)
+		// rlib.Console("err = %s\n", err)
+		SvcErrorReturn(w, err, funcname)
 		return ID, err
 	}
-	// fmt.Printf("sa[pos] = %s\n", sa[pos])
+	// rlib.Console("sa[pos] = %s\n", sa[pos])
 	ID, err = SvcGetInt64(sa[pos], errmsg, w)
 	return ID, err
 }
@@ -423,7 +459,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	ct, _, err = mime.ParseMediaType(ct)
 	if err != nil {
 		e := fmt.Errorf("%s: Error while parsing content type: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	if ct == "multipart/form-data" {
@@ -431,7 +467,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		err = r.ParseMultipartForm(_1MB)
 		if err != nil {
 			e := fmt.Errorf("%s: Error while parsing multipart form: %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return e
 		}
 
@@ -441,13 +477,13 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 				cd := "Content-Disposition"
 				if _, ok := fh.Header["Content-Disposition"]; !ok {
 					e := fmt.Errorf("%s: Header missing (%s)", funcname, cd)
-					SvcGridErrorReturn(w, e, funcname)
+					SvcErrorReturn(w, e, funcname)
 					return e
 				}
 				ct := "Content-Type"
 				if _, ok := fh.Header["Content-Type"]; !ok {
 					e := fmt.Errorf("%s: Header missing (%s)", funcname, ct)
-					SvcGridErrorReturn(w, e, funcname)
+					SvcErrorReturn(w, e, funcname)
 					return e
 				}
 			}
@@ -460,7 +496,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	htmlData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		e := fmt.Errorf("%s: Error reading message Body: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.Console("\t- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
@@ -472,7 +508,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	u, err := url.QueryUnescape(string(htmlData))
 	if err != nil {
 		e := fmt.Errorf("%s: Error with QueryUnescape: %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.Console("\tUnescaped htmlData = %s\n", u)
@@ -483,7 +519,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	err = json.Unmarshal([]byte(u), &wjs)
 	if err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.MigrateStructVals(&wjs, &d.wsSearchReq)
@@ -495,7 +531,7 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	s, err := url.QueryUnescape(strings.TrimSpace(r.URL.String()))
 	if err != nil {
 		e := fmt.Errorf("%s: Error with url.QueryUnescape:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return e
 	}
 	rlib.Console("Unescaped query = %s\n", s)
@@ -510,7 +546,7 @@ func getGETdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		rlib.Console("%s: will unmarshal: %s\n", funcname, d.data)
 		if err = json.Unmarshal([]byte(d.data), &d.wsTypeDownReq); err != nil {
 			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return e
 		}
 		d.wsSearchReq.Cmd = "typedown"
@@ -587,7 +623,7 @@ func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 	if err != nil {
 		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
 		rlib.Ulog("SvcWriteResponse: %s\n", err.Error())
-		SvcGridErrorReturn(w, e, "SvcWriteResponse")
+		SvcErrorReturn(w, e, "SvcWriteResponse")
 		return
 	}
 	SvcWrite(w, b)
@@ -600,7 +636,7 @@ func SvcWrite(w http.ResponseWriter, b []byte) {
 	format := fmt.Sprintf("First %d chars of response: %%-%d.%ds\n", charsToPrint, charsToPrint, charsToPrint)
 	// rlib.Console("Format string = %q\n", format)
 	rlib.Console(format, string(b))
-	// fmt.Printf("\nResponse Data:  %s\n\n", string(b))
+	// rlib.Console("\nResponse Data:  %s\n\n", string(b))
 	w.Write(b)
 }
 

@@ -7,25 +7,17 @@ RSD="-rsd ${RRBIN}"
 TESTNAME="CasperJS UI Test"
 TESTSUMMARY="UI Testing with casperjs"
 
+# do not create new db
 CREATENEWDB=0
 
 source ../share/base.sh
 
-# TODO: feed some known data in db server, so that expacted results can be match for each UI testcases
-# use `rrloadcsv` program
+#--------------------------------------------------------------------
+#  Use the testdb for these tests... (dbgen with db4.json, as of now)
+#--------------------------------------------------------------------
 
-###################
-# TEMP BASED DB
-###################
-# cp ../ws/restore.sql .
-
-#---------------------------------------------------------------
-#  Use the testdb for these tests...
-#---------------------------------------------------------------
-# echo "Create new database..."
-# mysql --no-defaults rentroll < restore.sql
-###################
-
+# server with noauth
+RENTROLLSERVERAUTH="-noauth"
 echo "STARTING RENTROLL SERVER"
 startRentRollServer
 

@@ -112,7 +112,7 @@ func SvcStatement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Total, err = rlib.GetQueryCount(countQuery)
 	if err != nil {
 		rlib.Console("Error from rlib.GetQueryCount: %s\n", err.Error())
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	rlib.Console("g.Total = %d\n", g.Total)
@@ -138,7 +138,7 @@ func SvcStatement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// execute the query
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	defer rows.Close()
@@ -154,7 +154,7 @@ func SvcStatement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// get records info in struct q
 		q, err = stmtRowScan(rows, q)
 		if err != nil {
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
@@ -167,7 +167,7 @@ func SvcStatement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	err = rows.Err()
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 

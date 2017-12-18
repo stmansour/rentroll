@@ -30,6 +30,7 @@ RRDATERANGE="-j 2016-01-01 -k 2017-01-01" # yyyy-mm-dd
 
 # start the web server
 echo "STARTING RENTROLL SERVER"
+RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
 # setup some ready-to-go basic infrastructure

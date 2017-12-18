@@ -16,6 +16,7 @@ dorrtest "c" "-j 2017-03-01 -k 2017-04-01 -b ${BUD} -r 23,1" "PayorStatement-Bil
 dorrtest "d" "-j 2017-04-01 -k 2017-05-01 -b ${BUD} -r 23,1" "PayorStatement-Bill-APR"
 
 echo "STARTING RENTROLL SERVER"
+RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
 # Request a payor detail statment for user 1

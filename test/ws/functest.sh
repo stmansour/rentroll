@@ -21,6 +21,7 @@ mysql --no-defaults rentroll < restore.sql
 source ../share/base.sh
 
 echo "STARTING RENTROLL SERVER"
+RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
 # Get Specificy PaymentType

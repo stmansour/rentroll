@@ -51,7 +51,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 
 	bud, err := BIDToBUD(sd.BID)
 	if err != nil {
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
@@ -63,12 +63,12 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	_, ok := rlib.RRdb.BizTypes[sd.BID]
 	if !ok {
 		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d]", sd.BID)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	if len(rlib.RRdb.BizTypes[sd.BID].GLAccounts) == 0 {
 		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d].GLAccounts", sd.BID)
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 	//=======================================================================
@@ -82,7 +82,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	m, err := rlib.GetRAIDStatementInfo(sd.ID, &d1, &d2)
 	if err != nil {
 		// e := fmt.Errorf("GetRAIDAccountBalance returned error: %s", err.Error())
-		// SvcGridErrorReturn(w, e, funcname)
+		// SvcErrorReturn(w, e, funcname)
 		g.Total = 0
 		g.Status = "success"
 		SvcWriteResponse(&g, w)

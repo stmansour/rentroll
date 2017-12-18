@@ -1,0 +1,17 @@
+{
+    "DtStart": "12/1/2017",
+    "DtStop": "1/1/2020",
+    "RT": [
+        {
+            "Count": 1,
+            "MarketRate": 1000,
+            "RentCycle": 6,
+            "ProrateCycle": 4
+        }
+    ],
+    "OpDepositoryName": "Wells Fargo",
+    "SecDepDepositoryName": "Bank Of America",
+    "PTypeCheckName": "Check",
+    "PeopleCount": 10,
+    "RACount": 1
+}

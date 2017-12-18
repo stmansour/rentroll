@@ -107,7 +107,7 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		d.Dt, err = rlib.StringToDate(f[0])
 		if err != nil {
 			err = fmt.Errorf("invalid date:  %s", f[0])
-			SvcGridErrorReturn(w, err, funcname)
+			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}
@@ -129,7 +129,7 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	default:
 		err = fmt.Errorf("unhandled command:  %s", d.wsSearchReq.Cmd)
-		SvcGridErrorReturn(w, err, funcname)
+		SvcErrorReturn(w, err, funcname)
 	}
 }
 
@@ -155,7 +155,7 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var del DeleteRAPayor
 	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -168,7 +168,7 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		for j := 0; j < len(m); j++ {
 			if m[j].RAPID == del.Selected[i] {
 				if err := rlib.DeleteRentalAgreementPayor(del.Selected[i]); err != nil {
-					SvcGridErrorReturn(w, err, funcname)
+					SvcErrorReturn(w, err, funcname)
 					return
 				}
 				SvcWriteSuccessResponse(w)
@@ -177,7 +177,7 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 	e := fmt.Errorf("%s: Payor is was not listed as a payor for Rental Agreement %d during that time period", funcname, d.RAID)
-	SvcGridErrorReturn(w, e, funcname)
+	SvcErrorReturn(w, e, funcname)
 }
 
 // saveRAPayor saves or adds a new payor to the RentalAgreementsPayor
@@ -210,7 +210,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -234,7 +234,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				foo.Record.FirstName, foo.Record.LastName,
 				time.Time(foo.Record.DtStart).Format(rlib.RRDATEFMT4),
 				time.Time(foo.Record.DtStop).Format(rlib.RRDATEFMT4))
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	}
@@ -243,7 +243,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	_, err = rlib.InsertRentalAgreementPayor(&a)
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving RAPayor (RAID=%d\n: %s", funcname, d.RAID, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -262,7 +262,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	data := []byte(d.data)
 	if err = json.Unmarshal(data, &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcGridErrorReturn(w, e, funcname)
+		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
@@ -273,7 +273,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rapayor, err := rlib.GetRentalAgreementPayor(foo.Changes[i].Recid)
 		if err != nil {
 			e := fmt.Errorf("%s: Error getting RentalAgreementPayor:  %s", funcname, err.Error())
-			SvcGridErrorReturn(w, e, funcname)
+			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		fmt.Printf("Found rapayor: %#v\n", rapayor)
@@ -290,7 +290,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if changes > 0 {
 			if err := rlib.UpdateRentalAgreementPayor(&rapayor); err != nil {
 				e := fmt.Errorf("%s: Error updating RentalAgreementPayor:  %s", funcname, err.Error())
-				SvcGridErrorReturn(w, e, funcname)
+				SvcErrorReturn(w, e, funcname)
 				return
 			}
 		}

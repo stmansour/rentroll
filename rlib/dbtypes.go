@@ -257,6 +257,8 @@ type CustomAttributeRef struct {
 	BID         int64     // business associated with this CustomAttributeRef
 	ID          int64     // the UID of the element type. That is, if ElementType == 5, the ID is the RTID (Rentable type id)
 	CID         int64     // uid of the custom attribute
+	LastModTime time.Time // timestamp of last changed
+	LastModBy   int64     // who changed it last
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
 }
@@ -342,13 +344,15 @@ const (
 
 // RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
 type RatePlanRefRTRate struct {
-	RPRID    int64     // which RatePlanRef is this
-	BID      int64     // Business
-	RTID     int64     // which RentableType
-	FLAGS    uint64    // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
-	Val      float64   // Val
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RPRID       int64     // which RatePlanRef is this
+	BID         int64     // Business
+	RTID        int64     // which RentableType
+	FLAGS       uint64    // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
+	Val         float64   // Val
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // FlRTRpct and the others are bit flags for the RatePlanRefRTRate
@@ -359,14 +363,16 @@ const (
 
 // RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 type RatePlanRefSPRate struct {
-	RPRID    int64     // which RatePlanRef is this
-	BID      int64     // Business
-	RTID     int64     // which RentableType
-	RSPID    int64     // which Specialty
-	FLAGS    uint64    // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
-	Val      float64   // Val
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RPRID       int64     // which RatePlanRef is this
+	BID         int64     // Business
+	RTID        int64     // which RentableType
+	RSPID       int64     // which Specialty
+	FLAGS       uint64    // 1<<0 = percent flag 0 = Val is an absolute price, 1 = percent of MarketRate,
+	Val         float64   // Val
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // FlSPRpct and the others are bit flags for the RatePlanRefSPRate
@@ -378,23 +384,27 @@ const (
 // RatePlanOD defines which other deliverables are associated with a RatePlan.
 // A RatePlan can refer to multiple OtherDeliverables.
 type RatePlanOD struct {
-	RPRID    int64     // with which RatePlan is this OtherDeliverable associated?
-	BID      int64     // Business
-	ODID     int64     // points to an OtherDeliverables
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RPRID       int64     // with which RatePlan is this OtherDeliverable associated?
+	BID         int64     // Business
+	ODID        int64     // points to an OtherDeliverables
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // OtherDeliverables defines special offers associated with RatePlanRefs. These are for promotions. Examples of OtherDeliverables
 // would include things like 2 Seaworld tickets, etc.  Referenced by RatePlanRef
 // Multiple RatePlanRefs can refer to the same OtherDeliverables.
 type OtherDeliverables struct {
-	ODID     int64     // Unique ID for this OtherDeliverables
-	BID      int64     // Business
-	Name     string    // Description of the other deliverables. Ex: 2 Seaworld tickets
-	Active   int64     // Flag: Is this list still active?  dropdown interface lists only the active ones
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	ODID        int64     // Unique ID for this OtherDeliverables
+	BID         int64     // Business
+	Name        string    // Description of the other deliverables. Ex: 2 Seaworld tickets
+	Active      int64     // Flag: Is this list still active?  dropdown interface lists only the active ones
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreement binds one or more payors to one or more rentables
@@ -451,44 +461,52 @@ type RentalAgreementRentable struct {
 	ContractRent float64   // the rent
 	RARDtStart   time.Time // start date/time for this Rentable
 	RARDtStop    time.Time // stop date/time
+	LastModTime  time.Time // when was this record last written
+	LastModBy    int64     // employee UID (from phonebook) that modified it
 	CreateTS     time.Time // when was this record created
 	CreateBy     int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementPayor describes a Payor associated with a rental agreement
 type RentalAgreementPayor struct {
-	RAPID    int64 // unique id
-	RAID     int64
-	BID      int64     // Business
-	TCID     int64     // the payor's transactant id
-	DtStart  time.Time // start date/time for this Payor
-	DtStop   time.Time // stop date/time
-	FLAGS    uint64    // 1<<0 is the bit that indicates this payor is a 'guarantor'
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RAPID       int64 // unique id
+	RAID        int64
+	BID         int64     // Business
+	TCID        int64     // the payor's transactant id
+	DtStart     time.Time // start date/time for this Payor
+	DtStop      time.Time // stop date/time
+	FLAGS       uint64    // 1<<0 is the bit that indicates this payor is a 'guarantor'
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementTax - the time based attribute for whether the rental agreement is taxable
 type RentalAgreementTax struct {
-	RAID     int64     //associated rental agreement
-	BID      int64     // Business
-	DtStart  time.Time // start date/time for this Payor
-	DtStop   time.Time // stop date/time
-	FLAGS    uint64    // 1<<0 is whether the agreement is taxable
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RAID        int64     //associated rental agreement
+	BID         int64     // Business
+	DtStart     time.Time // start date/time for this Payor
+	DtStop      time.Time // stop date/time
+	FLAGS       uint64    // 1<<0 is whether the agreement is taxable
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentableUser describes a User associated with a rental agreement
 type RentableUser struct {
-	RUID     int64     // unique id
-	RID      int64     // associated Rentable
-	BID      int64     // associated business
-	TCID     int64     // pointer to Transactant
-	DtStart  time.Time // start date/time for this User
-	DtStop   time.Time // stop date/time (when this person stopped being a User)
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RUID        int64     // unique id
+	RID         int64     // associated Rentable
+	BID         int64     // associated business
+	TCID        int64     // pointer to Transactant
+	DtStart     time.Time // start date/time for this User
+	DtStop      time.Time // stop date/time (when this person stopped being a User)
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentalAgreementPet describes a pet associated with a rental agreement. There can be as many as needed.
@@ -778,7 +796,7 @@ type Building struct {
 	PostalCode  string
 	Country     string
 	LastModTime time.Time
-	LastModBy   int
+	LastModBy   int64
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
 }
@@ -919,22 +937,26 @@ type Invoice struct {
 // thinking about it is that this query produces the list of all assessments in an invoice:
 //		SELECT ASMID WHERE InvoiceNo=somenumber
 type InvoiceAssessment struct {
-	InvoiceNo int64     // the invoice number
-	BID       int64     // bid
-	ASMID     int64     // assessment
-	CreateTS  time.Time // when was this record created
-	CreateBy  int64     // employee UID (from phonebook) that created it
+	InvoiceNo   int64     // the invoice number
+	BID         int64     // bid
+	ASMID       int64     // assessment
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // InvoicePayor is a reference to a Payor for this invoice.  Another way of
 // thinking about it is that this query produces the list of all payors for an invoice:
 //		SELECT PID WHERE InvoiceNo=somenumber
 type InvoicePayor struct {
-	InvoiceNo int64     // the invoice number
-	BID       int64     // bid
-	PID       int64     // Payor ID
-	CreateTS  time.Time // when was this record created
-	CreateBy  int64     // employee UID (from phonebook) that created it
+	InvoiceNo   int64     // the invoice number
+	BID         int64     // bid
+	PID         int64     // Payor ID
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentableSpecialty is the structure for attributes of a Rentable specialty
@@ -944,6 +966,8 @@ type RentableSpecialty struct {
 	Name        string
 	Fee         float64 // proration inherited from the rentable / rentable type.
 	Description string
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
 }
@@ -970,25 +994,29 @@ type RentableType struct {
 
 // RentableMarketRate describes the market rate rent for a Rentable type over a time period
 type RentableMarketRate struct {
-	RMRID      int64
-	RTID       int64
-	BID        int64 // the business unit
-	MarketRate float64
-	DtStart    time.Time
-	DtStop     time.Time
-	CreateTS   time.Time // when was this record created
-	CreateBy   int64     // employee UID (from phonebook) that created it
+	RMRID       int64
+	RTID        int64
+	BID         int64 // the business unit
+	MarketRate  float64
+	DtStart     time.Time
+	DtStop      time.Time
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentableTypeTax - the time based attribute for whether the rental agreement is taxable
 type RentableTypeTax struct {
-	RAID     int64     //associated rental agreement
-	BID      int64     // Business
-	DtStart  time.Time // start date/time for this Payor
-	DtStop   time.Time // stop date/time
-	TAXID    int64     // which tax in the Tax Table
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	RAID        int64     //associated rental agreement
+	BID         int64     // Business
+	DtStart     time.Time // start date/time for this Payor
+	DtStop      time.Time // stop date/time
+	TAXID       int64     // which tax in the Tax Table
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Rentable is the basic struct for  entities to rent
@@ -1112,19 +1140,21 @@ type Journal struct {
 
 // JournalAllocation describes how the associated Journal amount is allocated
 type JournalAllocation struct {
-	JAID     int64     // unique id for this allocation
-	BID      int64     // unique id of Business
-	JID      int64     // associated Journal entry
-	RID      int64     // associated Rentable
-	RAID     int64     // associated Rental Agreement
-	TCID     int64     // if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means the payment went to the unallocated funds account
-	RCPTID   int64     // associated receipt if TCID > 0
-	Amount   float64   // amount of this allocation
-	ASMID    int64     // associated AssessmentID -- source of the charge
-	EXPID    int64     // associated Expense -- source of the charge
-	AcctRule string    // describes how this amount distributed across the accounts
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	JAID        int64     // unique id for this allocation
+	BID         int64     // unique id of Business
+	JID         int64     // associated Journal entry
+	RID         int64     // associated Rentable
+	RAID        int64     // associated Rental Agreement
+	TCID        int64     // if > 0 this is the payor who made the payment - important if RID and RAID == 0 -- means the payment went to the unallocated funds account
+	RCPTID      int64     // associated receipt if TCID > 0
+	Amount      float64   // amount of this allocation
+	ASMID       int64     // associated AssessmentID -- source of the charge
+	EXPID       int64     // associated Expense -- source of the charge
+	AcctRule    string    // describes how this amount distributed across the accounts
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // JournalMarker describes a period of time where the Journal entries have been locked down

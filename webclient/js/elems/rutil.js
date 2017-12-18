@@ -17,6 +17,22 @@ String.prototype.format = function() {
     });
 };
 
+
+
+//---------------------------------------------------------------------------------
+// getCookieValue - looks for a cookie with the supplied name. If found it returns
+//          the cookie value. Otherwise it returns null
+//
+// @params  name  - name of the cookie
+// @returns the value of the cookie if found, null if not found
+//---------------------------------------------------------------------------------
+function getCookieValue(name) {
+  var regexp = new RegExp("(?:^" + name + "|;\s*"+ name + ")=(.*?)(?:;|$)", "g");
+  var result = regexp.exec(document.cookie);
+  return (result === null) ? null : result[1];
+}
+
+
 //---------------------------------------------------------------------------------
 // ChangeBusiness updates the UI to the newly selected business.
 // This routine is indeed used, in spite of what JSHint thinks. It
@@ -70,7 +86,7 @@ function ChangeBusiness() {
 //          indicate that the record is reversed
 //
 // @params  <none>
-// @retunrs a string with HTML
+// @returns a string with HTML
 //---------------------------------------------------------------------------------
 function getGridReversalSymbolHTML() {
     return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
@@ -81,7 +97,7 @@ function getGridReversalSymbolHTML() {
 //          indicate that the record is reversed
 //
 // @params  <none>
-// @retunrs a string with HTML
+// @returns a string with HTML
 //---------------------------------------------------------------------------------
 function get2XReversalSymbolHTML() {
     return "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";

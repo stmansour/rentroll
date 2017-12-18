@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Desk</title>
+    <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
+    <script src="/webclient/js/jquery.min.js"></script>
+    <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
+    <link rel="stylesheet" href="/webclient/html/fa/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/webclient/html/rentroll.css">
+    <link rel="icon" type="image/png" href="/webclient/html/images/favicon32x32.png">
+</head>
+<body>
+
+<div id="layout" style="width: 100%; height: 400px;"></div>
+
+<script type="text/javascript">
+
+"use strict";
+/*global
+    $, console, w2ui
+*/
+
+function BuildUI() {
+    var pstyle = 'border: 1px solid #dfdfdf; padding: 0px;';
+    // //
+    // // inner layout
+    // //
+    // $('#topLayout').w2layout({
+    //     name: 'innerLayout',
+    //     padding: 0,
+    //     panels: [
+    //         { type: 'left', size: 200, style: pstyle, content: 'inner left' },
+    //         { type: 'main', style: pstyle, content: 'inner main' },
+    //     ]
+    // });
+
+    var stdfmt = 'font-family: "Open Sans","Roboto",sans-serif; font-size: 8pt; border: 1px solid #dfdfdf; border-spacing:0px; padding: 3px; color: #777777;';
+   //
+    // outer layout
+    //
+    $('#main').w2layout({
+        name: 'topLayout',
+        padding: 0,
+        panels: [
+            { type: 'top', size: 55, style: pstyle, content: 'top' },
+            { type: 'left', size: 250, style: pstyle, content: 'left' },
+            { type: 'main', style: pstyle, content: 'main' },
+            { type: 'bottom', size: 20, resizable: false, style: stdfmt, content: '&copy; 2015-2017 Accord Interests' }
+        ]
+    });
+
+    //------------------------------------------------------------------------
+    //          toptoolbar
+    //------------------------------------------------------------------------
+    w2ui.topLayout.content('top', $().w2toolbar({
+        name: 'toptoolbar',
+        items: [
+             { type: 'html',  id: 'logo',
+                html: '<div style="padding: 4px 0px;">'+
+                      '<img src="/webclient/html/images/logo.png">'+
+                      '</div>'
+            },
+            { type: 'break', id: 'break1' },
+            { type: 'html',  id: 'prodid',
+                html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<emphasis>Desk</emphasis>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+            },
+            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
+                { text: 'Directory',          icon: 'fa fa-user' },
+                { text: 'Roller',             icon: 'fa fa-building-o' },
+                { text: 'Mojo',               icon: 'fa fa-envelope-o' },
+            ]},
+            { type: 'html',  id: 'BUD',
+                html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-building-o"></i> &nbsp;Business Unit:&nbsp;&nbsp;' +
+                    '<select name="BusinessSelect" onchange="ChangeBusiness();">'+
+                    '<option value="BID" name="Designation">-- Select Business Unit --</option></select>'
+            },
+            { type: 'html',  id: 'Dept',
+                html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-user-circle"></i> &nbsp;Department:&nbsp;&nbsp;' +
+                    '<select name="Dept"">'+
+                    '<option value="DeptID" name="Department">Department</option></select>'
+            },
+            { type: 'break',  id: 'break2' },
+            { id: 'bt3', type: 'spacer' },
+            { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
+        ],
+        onClick: function (event) {
+            console.log('target = ' + event.target);
+            switch(event.target) {
+                case "moduleMenu:Directory":      window.location.href = 'https://directory.airoller.com/'; break;
+                case "menuButton:Template-Dflt":  window.location.href = '/home/en-us/default';             break;
+                case "menuButton:Template-Apts":  window.location.href = '/home/en-us/apts';                break;
+                case "moduleMenu:RentRoll":       window.location.href = '/';                               break;
+                case "moduleMenu:Mojo":           window.location.href = 'http://localhost:8275/home/';     break;
+                case "menuButton:Webdocs": openInNewTab('/doc/docs.html'); break;
+                case "msgButton":
+                case "menuButton:Messages":
+                        w2ui.toplayout.toggle('top',true);
+                        w2ui.toplayout.set('top',{ content: w2ui.newsLayout});
+                        w2ui.newsLayout.load('main', '/webclient/html/news.html', 'flip-down', function () {console.log('content loaded');});
+                        w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'});
+                        break;
+            }
+        },
+    }));
+    //
+    //  Left sidebar
+    //
+    w2ui.topLayout.content('left', $().w2sidebar({
+        name: 'sidebarL1',
+        nodes: [
+            { id: 'reports', text: 'Reports & Forms', img: 'icon-folder', expanded: true, group: true,
+                nodes: [
+                        { id: 'shiftrpt',             text: 'Shift Report',  icon: 'fa fa-star-o' },
+                        { id: 'RegistrationCard',     text: 'Registration Card',  icon: 'fa fa-star-o' },
+                        { id: 'AutoLease',            text: 'Auto Lease',  icon: 'fa fa-star-o' },
+                        { id: 'IncidentReport',       text: 'Incident Report',  icon: 'fa fa-star-o' },
+                        { id: 'CourtesyCarAgreement', text: 'Courtesy Car Agreement',  icon: 'fa fa-star-o' },
+                        { id: 'SpecialEventForm',     text: 'Special Event Form',  icon: 'fa fa-star-o' },
+                        { id: 'FAAReceiptForm',       text: 'FAA Receipt Form',  icon: 'fa fa-star-o' },
+                        { id: 'PTORequestForm',       text: 'Paid Time Off Request Form',  icon: 'fa fa-star-o' },
+                        { id: 'AssocChangeStatus',    text: 'Associate Change of Status',  icon: 'fa fa-star-o' },
+               ]
+            },
+            { id: 'procman', text: 'Procedures & Manuals', img: 'icon-folder', expanded: true, group: true,
+                nodes: [
+                        { id: 'GuestServicesManual',  text: 'Guest Services Manual',  icon: 'fa fa-star-o' },
+                        { id: 'RoomKeyTrainingManual',text: 'Room Key Training Manual',  icon: 'fa fa-star-o' },
+                        { id: 'OneSiteTrainingManual',text: 'One Site Training Manual',  icon: 'fa fa-star-o' },
+                ]
+            },
+            { id: 'deptinfo', text: 'Department Information', icon: 'fa-book', expanded: true, group: true,
+                nodes: [
+                        { id: 'pricing',          text: 'Pricing',            icon: 'fa fa-line-chart' },
+                        { id: 'passwd',           text: 'Passwords', icon: 'fa fa-pie-chart' },
+                        { id: 'hoursofoperation', text: 'Hours of Operation',        icon: 'fa fa-star-half-o' },
+                        { id: 'shuttleSched',     text: 'Shuttle Schedule',     icon: 'fa fa-star-half-o fa-flip-horizontal' },
+                        { id: 'assocsched', text: 'Associate Schedule', icon: 'fa-calendar'},
+                        { id: 'passdownlog', text: 'Passdown Log', icon: 'fa fa-pie-chart' },
+                ]
+            },
+        ],
+    }));
+
+}
+
+$(function () {
+    BuildUI();
+});
+</script>
+<div id="main" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
+
+</body>
+</html>

@@ -48,6 +48,7 @@ var App struct {
 	LogFile      *os.File // where to log messages
 	BatchMode    bool     // if true, then don't start http, the command line request is for a batch process
 	SkipVacCheck bool     // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
+	NoAuth       bool     // if true then skip authentication
 	CSVLoad      string   // if loading csv, this string will have index,filename
 	sStart       string   // start time
 	sStop        string   // stop time
@@ -82,6 +83,7 @@ func readCommandLineArgs() {
 	bPtr := flag.Bool("A", false, "if specified run as a batch process, do not start http")
 	xPtr := flag.Bool("x", false, "if specified, inhibit vacancy checking")
 	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 	rsd := flag.String("rsd", "./", "Root Static Directory path") // it will pick static content from provided path, default will be current directory
 
 	flag.Parse()
@@ -110,6 +112,7 @@ func readCommandLineArgs() {
 	// fmt.Printf("*pLoad = %s\n", *pLoad)
 	App.CSVLoad = *pLoad
 	App.RootStaticDir = *rsd
+	App.NoAuth = *noauth
 }
 
 func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
@@ -136,6 +139,7 @@ func initHTTP() {
 	Chttp.Handle("/", http.FileServer(http.Dir(App.RootStaticDir)))
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/home/", HomeUIHandler)
+	http.HandleFunc("/rhome/", RHomeUIHandler) // special purpose, receipt-only version of roller
 	http.HandleFunc("/v1/", ws.V1ServiceHandler)
 	http.HandleFunc("/wsvc/", webServiceHandler)
 }
@@ -191,6 +195,7 @@ func main() {
 
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	initRentRoll()
+	ws.SvcInit(App.NoAuth) // currently needed for testing
 
 	if App.BatchMode {
 		ctx := createStartupCtx()
@@ -201,6 +206,8 @@ func main() {
 		worker.Init()                             // register Rentroll's TWS workers
 		initHTTP()                                // identify the handlers
 		rlib.Ulog("RentRoll initiating HTTP service on port %d and HTTPS on port %d\n", App.PortRR, App.PortRR+1)
+		rlib.SessionInit(rlib.AppConfig.SessionTimeout)
+		rlib.Ulog("RentRoll sessions timeout is %d minutes\n", rlib.AppConfig.SessionTimeout)
 
 		go http.ListenAndServeTLS(fmt.Sprintf(":%d", App.PortRR+1), App.CertFile, App.KeyFile, nil)
 		err = http.ListenAndServe(fmt.Sprintf(":%d", App.PortRR), nil)
