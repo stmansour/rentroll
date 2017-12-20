@@ -18,3 +18,7 @@ exports.capture = function(fname) {
 };
 
 exports.waitTime = 500;
+
+exports.apiBaseURL = "http://localhost:8270";
+exports.apiVersion = "v1";
+exports.BID = 1;
