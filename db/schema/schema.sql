@@ -158,6 +158,7 @@ CREATE TABLE CustomAttr (
 );
 
 CREATE TABLE CustomAttrRef (
+    CARID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique identifer for this custom attribute Reference
     ElementType BIGINT NOT NULL,                            -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
     BID         BIGINT NOT NULL DEFAULT 0,                  -- Business associated with this NoteType
     ID          BIGINT NOT NULL,                            -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
@@ -361,6 +362,7 @@ CREATE TABLE RatePlanRef (
 
 -- RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
 CREATE TABLE RatePlanRefRTRate (
+    RPRRTRateID BIGINT NOT NULL AUTO_INCREMENT,                -- unique id for this rate plan ref RT Rate
     RPRID BIGINT NOT NULL DEFAULT 0,                          -- which RatePlanRef is this
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business
     RTID BIGINT NOT NULL DEFAULT 0,                           -- which RentableType
@@ -373,6 +375,7 @@ CREATE TABLE RatePlanRefRTRate (
 );
 -- RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 CREATE TABLE RatePlanRefSPRate (
+    RPRSPRateID BIGINT NOT NULL AUTO_INCREMENT,                -- unique id for this rate plan ref SP Rate
     RPRID BIGINT NOT NULL DEFAULT 0,                          -- which RatePlanRef is this
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business
     RTID BIGINT NOT NULL DEFAULT 0,                           -- which RentableType
@@ -654,6 +657,7 @@ CREATE TABLE RentableTypeRef (
 );
 
 CREATE TABLE RentableSpecialtyRef (
+    RSPRefID BIGINT NOT NULL AUTO_INCREMENT,                        -- unique id for Rentable specialty Reference
     BID BIGINT NOT NULL DEFAULT 0,                                  -- the Business
     RID BIGINT NOT NULL DEFAULT 0,                                  -- unique id of unit
     RSPID BIGINT NOT NULL DEFAULT 0,                                -- unique id of specialty (see Table RentableSpecialties)
@@ -740,7 +744,7 @@ CREATE TABLE Transactant (
 
 -- website
 CREATE TABLE Prospect (
-    -- PRSPID BIGINT NOT NULL DEFAULT 0,                    -- unique id of this Prospect
+    ProspectID BIGINT NOT NULL DEFAULT 0,                    -- unique id of this Prospect
     TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant (has Name and all contact info)
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
@@ -781,6 +785,7 @@ CREATE TABLE Prospect (
 --   USER
 -- ===========================================
 CREATE TABLE User (
+    UserID BIGINT NOT NULL AUTO_INCREMENT,                      -- Unique identifier for vehicle
     TCID BIGINT NOT NULL DEFAULT 0,                             -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                              -- which business
     Points BIGINT NOT NULL DEFAULT 0,                           -- bonus points for this User
@@ -827,7 +832,7 @@ CREATE TABLE Vehicle (
 --   PAYOR
 -- ===========================================
 CREATE TABLE Payor (
-    -- PID BIGINT NOT NULL DEFAULT 0,                       -- unique id of this Payor
+    PayorID BIGINT NOT NULL DEFAULT 0,                       -- unique id of this Payor
     TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
@@ -1088,6 +1093,7 @@ CREATE TABLE Invoice (
 );
 
 CREATE TABLE InvoiceAssessment (
+    InvoiceASMID BIGINT NOT NULL AUTO_INCREMENT,                -- Unique id for this invoice Assessment
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
     BID BIGINT NOT NULL DEFAULT 0,                              -- bid
     ASMID BIGINT NOT NULL DEFAULT 0,                            -- assessment id
@@ -1098,6 +1104,7 @@ CREATE TABLE InvoiceAssessment (
 );
 
 CREATE TABLE InvoicePayor (
+    InvoicePayorID BIGINT NOT NULL AUTO_INCREMENT,              -- Unique id for this invoice Payor
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
     BID BIGINT NOT NULL DEFAULT 0,                              -- bid
     PID BIGINT NOT NULL DEFAULT 0,                              -- Payor id

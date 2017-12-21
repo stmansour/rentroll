@@ -151,7 +151,8 @@ func createRentableTypesAndRentables(ctx *GenDBConf) error {
 		mr.DtStop = ctx.DtEOT
 		mr.MarketRate = ctx.RT[i].MarketRate
 		mr.RTID = rt.RTID
-		if err = rlib.InsertRentableMarketRates(&mr); err != nil {
+		_, err = rlib.InsertRentableMarketRates(&mr)
+		if err != nil {
 			return err
 		}
 
@@ -183,7 +184,8 @@ func createRentables(ctx *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, RTI
 		rtr.BID = ctx.BIZ[0].BID
 		rtr.RTID = RTID
 		rtr.RID = r.RID
-		if err = rlib.InsertRentableTypeRef(&rtr); err != nil {
+		_, err = rlib.InsertRentableTypeRef(&rtr)
+		if err != nil {
 			return err
 		}
 
@@ -194,7 +196,8 @@ func createRentables(ctx *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, RTI
 		rs.RID = r.RID
 		rs.LeaseStatus = rlib.LEASESTATUSleased
 		rs.UseStatus = rlib.USESTATUSinService
-		if err = rlib.InsertRentableStatus(&rs); err != nil {
+		_, err = rlib.InsertRentableStatus(&rs)
+		if err != nil {
 			return err
 		}
 		iRID++
@@ -324,7 +327,7 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		var lm rlib.LedgerMarker
 		lm.RAID = ra.RAID
 		lm.Dt = d1.AddDate(0, 0, -14)
-		err = rlib.InsertLedgerMarker(&lm)
+		_, err = rlib.InsertLedgerMarker(&lm)
 		if err != nil {
 			return err
 		}
@@ -351,7 +354,7 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		// Create the LedgerMarker for this RID, RAID combination
 		//----------------------------------------------------------
 		lm.RID = RID
-		err = rlib.InsertLedgerMarker(&lm)
+		_, err = rlib.InsertLedgerMarker(&lm)
 		if err != nil {
 			return err
 		}
@@ -377,7 +380,7 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		rau.DtStart = d1
 		rau.DtStop = d2
 		rau.TCID = TCID
-		err = rlib.InsertRentableUser(&rau)
+		_, err = rlib.InsertRentableUser(&rau)
 
 		//-------------------------------------
 		// Generate Rent Assessments

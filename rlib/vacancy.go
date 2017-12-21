@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"time"
 )
 
@@ -39,7 +40,9 @@ func temporaryGetLTLAR(bid int64) string {
 // period for which no rent was assessed.
 // The return value is the number of vacancy records added
 //============================================================================================
-func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
+func ProcessRentable(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
+	const funcname = "ProcessRentable"
+
 	nr := 0
 	m := VacancyDetect(xbiz, d1, d2, r.RID)
 	// fmt.Printf("ProcessRentable: r = %s (%d), period=(%s - %s) len(m) = %d\n", r.Name, r.RID, d1.Format("Jan 2"), d2.Format("Jan 2"), len(m))
@@ -68,7 +71,7 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 			continue // then this entry was already generated, keep going
 		}
 
-		jid, err := InsertJournal(&j)
+		jid, err := InsertJournal(ctx, &j)
 		Errlog(err)
 		nr++
 		if jid > 0 {
@@ -81,11 +84,14 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 			ja.RID = r.RID
 			ja.BID = r.BID
 			// fmt.Printf("VACANCY: inserting journalAllocation entry: %#v\n", ja)
-			InsertJournalAllocationEntry(&ja)
+			_, err := InsertJournalAllocationEntry(ctx, &ja)
+			if err != nil {
+				Ulog("%s: Error while inserting journalAllocation entry: %s\n", funcname, err.Error())
+			}
 			j.JA = append(j.JA, ja)
 		}
 		InitLedgerCache()
-		GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
+		GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
 	}
 	return nr
 }
@@ -93,7 +99,7 @@ func ProcessRentable(xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
 // GenVacancyJournals creates Journal entries that cover vacancy for
 // every Rentable where the Rentable type is being managed to budget
 //===============================================================================================
-func GenVacancyJournals(xbiz *XBusiness, d1, d2 *time.Time) int {
+func GenVacancyJournals(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) int {
 	nr := 0
 	rows, err := RRdb.Prepstmt.GetAllRentablesByBusiness.Query(xbiz.P.BID)
 	Errcheck(err)
@@ -101,7 +107,7 @@ func GenVacancyJournals(xbiz *XBusiness, d1, d2 *time.Time) int {
 	for rows.Next() {
 		var r Rentable
 		Errcheck(ReadRentables(rows, &r))
-		nr += ProcessRentable(xbiz, d1, d2, &r)
+		nr += ProcessRentable(ctx, xbiz, d1, d2, &r)
 	}
 	Errcheck(rows.Err())
 	return nr

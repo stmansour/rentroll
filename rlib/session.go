@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -352,3 +353,6 @@ func SessionDelete(s *Session, w http.ResponseWriter, r *http.Request) {
 	// Console("sessions after delete:\n")
 	// dumpSessions()
 }
+
+// ErrSessionRequired session required error
+var ErrSessionRequired = errors.New("Session Required, Please Login")

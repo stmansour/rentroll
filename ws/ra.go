@@ -548,7 +548,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			lm.Dt = a.AgreementStart
 			lm.RAID = a.RAID
 			lm.State = rlib.LMINITIAL
-			err = rlib.InsertLedgerMarker(&lm)
+			_, err = rlib.InsertLedgerMarker(&lm)
 			if err != nil {
 				e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 				SvcErrorReturn(w, e, funcname)

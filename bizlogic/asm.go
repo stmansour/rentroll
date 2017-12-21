@@ -280,7 +280,7 @@ func ReverseAutoGenAsmt(aold *rlib.Assessment) []BizError {
 				m[0].Action, m[0].Account, -m[0].Amount,
 				m[1].Action, m[1].Account, -m[1].Amount)
 			ja.Amount = -ja.Amount
-			err = rlib.InsertJournalAllocationEntry(&ja)
+			_, err = rlib.InsertJournalAllocationEntry(&ja)
 			if err != nil {
 				rlib.LogAndPrintError(funcname, err)
 				return bizErrSys(&err)
@@ -373,7 +373,11 @@ func DeallocateAppliedFunds(a *rlib.Assessment, asmtRevID int64, dt *time.Time) 
 			TCID:     rcpt.TCID,
 			RCPTID:   rcpt.RCPTID,
 		}
-		rlib.InsertJournalAllocationEntry(&ja)
+		_, err = rlib.InsertJournalAllocationEntry(&ja)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			return err
+		}
 		jnl.JA = append(jnl.JA, ja)
 
 		//-------------------------------------------------------------------------

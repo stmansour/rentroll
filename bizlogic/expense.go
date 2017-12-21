@@ -22,7 +22,7 @@ func ReverseExpense(aold *rlib.Expense, dt *time.Time) []BizError {
 	anew.FLAGS |= 0x4 // set bit 2 to mark that this expense is void
 	anew.Comment = fmt.Sprintf("Reversal of %s", aold.IDtoShortString())
 
-	err := rlib.InsertExpense(&anew)
+	_, err := rlib.InsertExpense(&anew)
 	if err != nil {
 		return bizErrSys(&err)
 	}

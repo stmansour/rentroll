@@ -97,7 +97,7 @@ func CreateRatePlans(sa []string, lineno int) (int, error) {
 	cr.ID = rpid
 	cr.BID = rp.BID
 	cr.CID = cid
-	err = rlib.InsertCustomAttributeRef(&cr)
+	_, err = rlib.InsertCustomAttributeRef(&cr)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert CustomAttributeRef. err = %v", funcname, lineno, err)
 	}

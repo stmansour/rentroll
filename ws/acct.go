@@ -673,7 +673,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			Dt:    time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC),
 			State: rlib.LMINITIAL,
 		}
-		err = rlib.InsertLedgerMarker(&lm)
+		_, err = rlib.InsertLedgerMarker(&lm)
 		if err != nil {
 			e := fmt.Errorf("Error saving Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -1085,8 +1085,15 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// now if balance provided, then parse it to float64
 		balStr := recs[ri][acctCSVIndexMap["balance"]]
 		bal, _ := strconv.ParseFloat(balStr, 64)
-		lm.Balance = bal             // don't worry about balance if can't parsed from string, default will be 0
-		rlib.InsertLedgerMarker(&lm) // insert ledger marker
+		lm.Balance = bal                      // don't worry about balance if can't parsed from string, default will be 0
+		_, err = rlib.InsertLedgerMarker(&lm) // insert ledger marker
+		if err != nil {
+			rlib.Ulog("%s: Error while inserting ledger marker: %s\n", funcname, err.Error())
+			// continue to next one, if current one fails
+			// process as much as possible, we can mark failure one in future
+			continue
+
+		}
 	}
 
 	// if all passed then return success response

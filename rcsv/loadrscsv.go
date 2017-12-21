@@ -77,7 +77,7 @@ func CreateRentalSpecialty(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done
 	//-------------------------------------------------------------------
-	err = rlib.InsertRentableSpecialty(&a)
+	_, err = rlib.InsertRentableSpecialty(&a)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RentalSpecialty = %v", funcname, lineno, err)
 	}

@@ -494,11 +494,10 @@ func loadRoomKeyCSV(
 	// ========================================================
 
 	for roomkeyIndex := range traceTCIDMap {
-		// tcid := rlib.GetTCIDByNote(roomkeyNotesPrefix + strconv.Itoa(roomkeyIndex))
 		tcid := rlib.GetTCIDByNote(tracePeopleNote[roomkeyIndex])
 		// for duplicant case, it won't be found so need check here
 		if tcid != 0 {
-			traceTCIDMap[roomkeyIndex] = tcidPrefix + strconv.Itoa(tcid)
+			traceTCIDMap[roomkeyIndex] = tcidPrefix + strconv.Itoa(int(tcid))
 		}
 	}
 

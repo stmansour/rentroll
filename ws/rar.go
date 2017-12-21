@@ -202,7 +202,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		Balance: float64(0),
 		State:   rlib.LMINITIAL,
 	}
-	err = rlib.InsertLedgerMarker(&lm)
+	_, err = rlib.InsertLedgerMarker(&lm)
 	if err != nil {
 		e := fmt.Errorf("Error saving Rentable (RAID=%d): %s", d.RAID, err.Error())
 		SvcErrorReturn(w, e, funcname)

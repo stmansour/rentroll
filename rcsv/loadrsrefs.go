@@ -95,7 +95,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, fmt.Errorf("%s", err.Error())
 	}
 
-	err = rlib.InsertRentableSpecialtyRef(&a)
+	_, err = rlib.InsertRentableSpecialtyRef(&a)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting assessment: %v", funcname, lineno, err)
 	}

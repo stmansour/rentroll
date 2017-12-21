@@ -332,7 +332,7 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if a.PMTID == 0 && d.ID == 0 {
 		// This is a new AR
-		err = rlib.InsertPaymentType(&a)
+		_, err = rlib.InsertPaymentType(&a)
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing Payment Type: %d\n", a.PMTID)

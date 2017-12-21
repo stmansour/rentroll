@@ -211,7 +211,7 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 
 	// Now update the markers
 	if inserting {
-		err = rlib.InsertLedgerMarker(&lm)
+		_, err = rlib.InsertLedgerMarker(&lm)
 	} else {
 		err = rlib.UpdateLedgerMarker(&lm)
 	}

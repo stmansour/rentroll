@@ -148,7 +148,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 		a.InvoiceNo = id
 		a.ASMID = asmts[i]
 		a.BID = inv.BID
-		err = rlib.InsertInvoiceAssessment(&a)
+		_, err = rlib.InsertInvoiceAssessment(&a)
 		if nil != err {
 			rlib.DeleteInvoice(id)
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting invoice part: %v", funcname, lineno, err)
@@ -160,7 +160,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 		a.InvoiceNo = id
 		a.BID = inv.BID
 		a.PID = m[i].TCID
-		err = rlib.InsertInvoicePayor(&a)
+		_, err = rlib.InsertInvoicePayor(&a)
 		if nil != err {
 			rlib.DeleteInvoice(id)
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting invoice payor: %v", funcname, lineno, err)

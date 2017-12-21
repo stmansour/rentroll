@@ -253,6 +253,7 @@ type CustomAttribute struct {
 // CustomAttributeRef is a reference to a Custom Attribute. A query of the form:
 //		SELECT CID FROM CustomAttributeRef
 type CustomAttributeRef struct {
+	CARID       int64     // unique id
 	ElementType int64     // what type of element:  1=person, 2=company, 3=Business-unit, 4 = executable service, 5=RentableType
 	BID         int64     // business associated with this CustomAttributeRef
 	ID          int64     // the UID of the element type. That is, if ElementType == 5, the ID is the RTID (Rentable type id)
@@ -344,6 +345,7 @@ const (
 
 // RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
 type RatePlanRefRTRate struct {
+	RPRRTRateID int64     // unique id
 	RPRID       int64     // which RatePlanRef is this
 	BID         int64     // Business
 	RTID        int64     // which RentableType
@@ -363,6 +365,7 @@ const (
 
 // RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 type RatePlanRefSPRate struct {
+	RPRSPRateID int64     // unique id
 	RPRID       int64     // which RatePlanRef is this
 	BID         int64     // Business
 	RTID        int64     // which RentableType
@@ -572,7 +575,7 @@ type Transactant struct {
 
 // Prospect contains info over and above
 type Prospect struct {
-	// PRSPID                 int64
+	ProspectID             int64
 	TCID                   int64
 	BID                    int64
 	EmployerName           string
@@ -603,7 +606,7 @@ type Prospect struct {
 
 // User contains all info common to a person
 type User struct {
-	// USERID                    int64
+	UserID                    int64
 	TCID                      int64
 	BID                       int64
 	Points                    int64
@@ -664,7 +667,7 @@ type Vehicle struct {
 // Payor is attributes of the person financially responsible
 // for the rent.
 type Payor struct {
-	// PID                 int64
+	PayorID             int64
 	TCID                int64
 	BID                 int64
 	CreditLimit         float64
@@ -937,26 +940,28 @@ type Invoice struct {
 // thinking about it is that this query produces the list of all assessments in an invoice:
 //		SELECT ASMID WHERE InvoiceNo=somenumber
 type InvoiceAssessment struct {
-	InvoiceNo   int64     // the invoice number
-	BID         int64     // bid
-	ASMID       int64     // assessment
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
-	CreateTS    time.Time // when was this record created
-	CreateBy    int64     // employee UID (from phonebook) that created it
+	InvoiceASMID int64     // unique id
+	InvoiceNo    int64     // the invoice number
+	BID          int64     // bid
+	ASMID        int64     // assessment
+	LastModTime  time.Time // when was this record last written
+	LastModBy    int64     // employee UID (from phonebook) that modified it
+	CreateTS     time.Time // when was this record created
+	CreateBy     int64     // employee UID (from phonebook) that created it
 }
 
 // InvoicePayor is a reference to a Payor for this invoice.  Another way of
 // thinking about it is that this query produces the list of all payors for an invoice:
 //		SELECT PID WHERE InvoiceNo=somenumber
 type InvoicePayor struct {
-	InvoiceNo   int64     // the invoice number
-	BID         int64     // bid
-	PID         int64     // Payor ID
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
-	CreateTS    time.Time // when was this record created
-	CreateBy    int64     // employee UID (from phonebook) that created it
+	InvoicePayorID int64     // unique id
+	InvoiceNo      int64     // the invoice number
+	BID            int64     // bid
+	PID            int64     // Payor ID
+	LastModTime    time.Time // when was this record last written
+	LastModBy      int64     // employee UID (from phonebook) that modified it
+	CreateTS       time.Time // when was this record created
+	CreateBy       int64     // employee UID (from phonebook) that created it
 }
 
 // RentableSpecialty is the structure for attributes of a Rentable specialty
@@ -1079,6 +1084,7 @@ type RentCycleRef struct {
 
 // RentableSpecialtyRef is the time-based RentableSpecialty attribute
 type RentableSpecialtyRef struct {
+	RSPRefID    int64     // unique id
 	BID         int64     // associated business
 	RID         int64     // the Rentable to which this record belongs
 	RSPID       int64     // the rentable specialty type associated with the rentable
@@ -1275,7 +1281,6 @@ type RRprepSQL struct {
 	DeleteRentableSpecialtyRef              *sql.Stmt
 	DeleteRentableStatus                    *sql.Stmt
 	DeleteRentableType                      *sql.Stmt
-	ReactivateRentableType                  *sql.Stmt
 	DeleteRentableTypeRef                   *sql.Stmt
 	DeleteRentableTypeRefWithRTID           *sql.Stmt
 	DeleteRentableUser                      *sql.Stmt
@@ -1546,6 +1551,7 @@ type RRprepSQL struct {
 	UpdateRentableSpecialtyRef              *sql.Stmt
 	UpdateRentableStatus                    *sql.Stmt
 	UpdateRentableType                      *sql.Stmt
+	UpdateRentableTypeToActive              *sql.Stmt
 	UpdateRentableTypeRef                   *sql.Stmt
 	UpdateRentableUser                      *sql.Stmt
 	UpdateRentableUserByRBT                 *sql.Stmt
@@ -1713,6 +1719,8 @@ var RRdb struct {
 	BUDlist  Str2Int64Map                 //list of known business Designations
 	DBFields map[string]string            // map of db table fields DBFields[tablename] = field list
 	Zone     *time.Location               // what timezone should the server use?
+	NoAuth   bool                         // if enable that means auth is not required, (should be moved in some common app struct!)
+	// TODO(sudip): NoAuth will be moved to something internal pkg app struct
 }
 
 // BuildBusinessDesignationMap builds a map of biz designations to BIDs

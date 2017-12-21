@@ -68,7 +68,10 @@ func CreateDepositMethod(sa []string, lineno int) (int, error) {
 	}
 
 	a.Method = name
-	rlib.InsertDepositMethod(&a)
+	_, err = rlib.InsertDepositMethod(&a)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert DepositMethod. err = %v", funcname, lineno, err)
+	}
 	return 0, nil
 }
 

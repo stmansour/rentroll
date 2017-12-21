@@ -72,7 +72,8 @@ func UpdateReceipt(rnew *rlib.Receipt, dt *time.Time) error {
 				BID:    rnew.BID,
 				RCPTID: rnew.RCPTID,
 			}
-			if err = rlib.InsertDepositPart(&dp); err != nil {
+			_, err = rlib.InsertDepositPart(&dp)
+			if err != nil {
 				return err
 			}
 		}
@@ -147,7 +148,7 @@ func ReverseReceipt(r *rlib.Receipt, dt *time.Time) error {
 			BID:    rr.BID,
 			RCPTID: rr.RCPTID,
 		}
-		err := rlib.InsertDepositPart(&dp)
+		_, err := rlib.InsertDepositPart(&dp)
 		if err != nil {
 			return err
 		}
@@ -290,7 +291,11 @@ func ReverseAllocation(r *rlib.Receipt, revRCPTID int64, dt *time.Time) error {
 				TCID:     r.TCID,
 				RCPTID:   revRCPTID,
 			}
-			rlib.InsertJournalAllocationEntry(&ja)
+			_, err = rlib.InsertJournalAllocationEntry(&ja)
+			if err != nil {
+				rlib.LogAndPrintError(funcname, err)
+				return err
+			}
 			jnl.JA = append(jnl.JA, ja)
 
 			//-------------------------------------------------------------------------

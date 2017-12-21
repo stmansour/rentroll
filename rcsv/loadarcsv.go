@@ -211,7 +211,7 @@ func CreateAR(sa []string, lineno int) (int, error) {
 
 	for i := 0; i < len(b.SubARs); i++ {
 		b.SubARs[i].ARID = b.ARID
-		err = rlib.InsertSubAR(&b.SubARs[i])
+		_, err = rlib.InsertSubAR(&b.SubARs[i])
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving SubAR[%d]: %s", funcname, lineno, i, err.Error())
 		}

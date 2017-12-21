@@ -81,7 +81,7 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - This reference already exists, no changes made", funcname, lineno)
 	}
 
-	err = rlib.InsertCustomAttributeRef(&c)
+	_, err = rlib.InsertCustomAttributeRef(&c)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert CustomAttributeRef. err = %v", funcname, lineno, err)
 	}

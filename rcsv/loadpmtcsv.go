@@ -62,7 +62,7 @@ func CreatePaymentTypeFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done
 	//-------------------------------------------------------------------
-	err = rlib.InsertPaymentType(&pt)
+	_, err = rlib.InsertPaymentType(&pt)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting PaymentType = %v", funcname, lineno, err)
 	}

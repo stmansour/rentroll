@@ -259,7 +259,11 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 		TCID:     rcpt.TCID,
 		RCPTID:   rcpt.RCPTID,
 	}
-	rlib.InsertJournalAllocationEntry(&ja)
+	_, err = rlib.InsertJournalAllocationEntry(&ja)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return err
+	}
 	jnl.JA = append(jnl.JA, ja)
 
 	//-------------------------------------------------------------------------

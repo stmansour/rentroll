@@ -168,7 +168,7 @@ func updateRUser(biz *rlib.Business) {
 	now := time.Now()
 	nextYear := now.AddDate(1, 0, 0)
 	rap := rlib.RentableUser{RID: rid, BID: biz.BID, TCID: tcid, DtStart: now, DtStop: nextYear}
-	err = rlib.InsertRentableUser(&rap)
+	_, err = rlib.InsertRentableUser(&rap)
 	if err != nil {
 		fmt.Printf("Error inserting RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
