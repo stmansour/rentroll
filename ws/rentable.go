@@ -631,7 +631,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				}
 			}
 			for i := 0; i < len(n); i++ { // insert the new list
-				err = rlib.InsertRentableTypeRef(&n[i])
+				_, err = rlib.InsertRentableTypeRef(&n[i])
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
@@ -665,7 +665,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				}
 			}
 			for i := 0; i < len(n); i++ { // insert the new list
-				err = rlib.InsertRentableStatus(&n[i])
+				_, err = rlib.InsertRentableStatus(&n[i])
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
@@ -702,7 +702,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rs.UseStatus = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
 		rs.DtStart = currentTime
 		rs.DtStop = (time.Time)(rfRecord.RSDtStop)
-		err = rlib.InsertRentableStatus(&rs)
+		_, err = rlib.InsertRentableStatus(&rs)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -722,7 +722,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// rtr.OverrideRentCycle = 0
 		// rtr.OverrideProrationCycle = 0
 
-		err = rlib.InsertRentableTypeRef(&rtr)
+		_, err = rlib.InsertRentableTypeRef(&rtr)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return

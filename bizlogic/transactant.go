@@ -19,7 +19,7 @@ func FinalizeTransactant(a *rlib.Transactant) []BizError {
 		Balance: 0.0,
 		State:   rlib.LMINITIAL,
 	}
-	err := rlib.InsertLedgerMarker(&lm)
+	_, err := rlib.InsertLedgerMarker(&lm)
 	if err != nil {
 		errlist = AddErrToBizErrlist(err, errlist)
 	}

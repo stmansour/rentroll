@@ -321,7 +321,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if a.DPMID == 0 && d.ID == 0 {
 		// This is a new AR
-		err = rlib.InsertDepositMethod(&a)
+		_, err = rlib.InsertDepositMethod(&a)
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing Payment Type: %d\n", a.DPMID)

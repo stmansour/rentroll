@@ -285,7 +285,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 // LoadReceiptsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
 func LoadReceiptsCSV(fname string) []error {
 	var m []error
-	// pmtTypes = rlib.GetPaymentTypes()
+
 	t := rlib.LoadCSV(fname)
 	if len(t) > 1 {
 		//-------------------------------------------------------------------

@@ -288,7 +288,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	lm.Dt = ra.AgreementStart
 	lm.RAID = ra.RAID
 	lm.State = rlib.LMINITIAL
-	err = rlib.InsertLedgerMarker(&lm)
+	_, err = rlib.InsertLedgerMarker(&lm)
 
 	//------------------------------------------------------------
 	// Add the rentables, and the users of those rentables...
@@ -308,7 +308,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 			Balance: float64(0),
 			State:   rlib.LMINITIAL,
 		}
-		err = rlib.InsertLedgerMarker(&rlm)
+		_, err = rlib.InsertLedgerMarker(&rlm)
 		if nil != err {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting Rentable LedgerMarker = %v", funcname, lineno, err)
 		}
@@ -319,8 +319,10 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 		for j := 0; j < len(users); j++ {
 			users[j].RID = m[i].RID
 			users[j].BID = ra.BID
-			rlib.InsertRentableUser(&users[j])
-
+			_, err := rlib.InsertRentableUser(&users[j])
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting RentableUser = %v", funcname, lineno, err)
+			}
 		}
 	}
 

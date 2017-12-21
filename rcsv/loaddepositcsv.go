@@ -125,7 +125,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 	// 	a.DID = id
 	// 	a.BID = d.BID
 	// 	a.RCPTID = rcpts[i]
-	// 	err = rlib.InsertDepositPart(&a)
+	// 	_, err = rlib.InsertDepositPart(&a)
 	// 	if nil != err {
 	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit part: %v", funcname, lineno, err)
 	// 	}

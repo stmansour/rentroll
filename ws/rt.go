@@ -61,12 +61,12 @@ type RentableTypeGetResponse struct {
 	Record RentableTypeGridRecord `json:"record"`
 }
 
-// DeleteRentableTypeForm used to delete form
+// DeleteRentableTypeForm used to inactive Rentable Type
 type DeleteRentableTypeForm struct {
 	ID int64
 }
 
-// ReactivateRentableTypeForm used to delete form
+// ReactivateRentableTypeForm used to reactivate Rentable Type
 type ReactivateRentableTypeForm struct {
 	ID int64
 }
@@ -450,7 +450,7 @@ func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	rt := rlib.RentableType{RTID: reActF.ID}
-	if err := rlib.ReactivateRentableType(&rt); err != nil {
+	if err := rlib.UpdateRentableTypeToActive(&rt); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -770,7 +770,7 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 
 		// insert new marketRate
 		if a.RMRID == 0 {
-			err = rlib.InsertRentableMarketRates(&a)
+			_, err = rlib.InsertRentableMarketRates(&a)
 			if err != nil {
 				e := fmt.Errorf("Error while inserting market rate:  %s", err.Error())
 				SvcErrorReturn(w, e, funcname)

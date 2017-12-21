@@ -158,7 +158,7 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Stop date (%s) must be after Start date (%s)", funcname, lineno, m.DtStop, m.DtStart)
 			}
 			m.BID = a.BID
-			err = rlib.InsertRentableMarketRates(&m)
+			_, err = rlib.InsertRentableMarketRates(&m)
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving RentableMarketRate:  %s", funcname, lineno, err.Error())
 			}

@@ -378,7 +378,7 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if a.EXPID == 0 && d.ID == 0 {
-		err = rlib.InsertExpense(&a)
+		_, err = rlib.InsertExpense(&a)
 		var xbiz rlib.XBusiness
 		rlib.ProcessNewExpense(&a, &xbiz)
 	} else {

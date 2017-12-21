@@ -179,7 +179,8 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err = rlib.InsertRentableUser(&a); err != nil {
+	_, err = rlib.InsertRentableUser(&a)
+	if err != nil {
 		e := fmt.Errorf("%s: Error saving RUser (RID=%d): %s", funcname, d.RID, err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return

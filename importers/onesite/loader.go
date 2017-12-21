@@ -621,7 +621,7 @@ func loadOneSiteCSV(
 				continue
 			}
 
-			err := rlib.InsertCustomAttributeRef(&a)
+			_, err := rlib.InsertCustomAttributeRef(&a)
 			if err != nil {
 				rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", err.Error())
 				csvErrors[refData.RowIndex] = append(csvErrors[refData.RowIndex], errPrefix+"Unable to insert custom attribute")
@@ -654,7 +654,7 @@ func loadOneSiteCSV(
 		tcid := rlib.GetTCIDByNote(getPeopleNoteString(onesiteIndex, currentTimeFormat))
 		// for duplicant case, it won't be found so need check here
 		if tcid != 0 {
-			traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(tcid)
+			traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(int(tcid))
 		}
 	}
 

@@ -62,7 +62,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 			TCID:   r.TCID,
 			RCPTID: r.RCPTID,
 		}
-		err = rlib.InsertJournalAllocationEntry(&ja)
+		_, err = rlib.InsertJournalAllocationEntry(&ja)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			return err
@@ -181,7 +181,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 				BID:    a.BID,
 				RCPTID: newRcpts[i],
 			}
-			err = rlib.InsertDepositPart(&dp)
+			_, err = rlib.InsertDepositPart(&dp)
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 				continue
@@ -320,7 +320,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 				BID:    a.BID,
 				RCPTID: r.RCPTID,
 			}
-			err = rlib.InsertDepositPart(&dp)
+			_, err = rlib.InsertDepositPart(&dp)
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}

@@ -138,7 +138,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 		//-------------------------------------------------------------------
 		// Insert the record
 		//-------------------------------------------------------------------
-		err = rlib.InsertRatePlanRefSPRate(&p)
+		_, err = rlib.InsertRatePlanRefSPRate(&p)
 		if nil != err {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RatePlanRefSPRate = %v", funcname, lineno, err)
 		}
