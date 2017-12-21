@@ -3,17 +3,24 @@
 var GRID = "depmethGrid";
 var SIDEBAR_ID = "depmeth";
 var FORM = "depmethForm";
+var common = require("../common.js");
 
 exports.gridConf = {
-    grid: "depmethGrid",
-    sidebarID: "depmeth",
-    capture: "depmethGridRequest.png"
+    grid: GRID,
+    sidebarID: SIDEBAR_ID,
+    capture: "depmethGridRequest.png",
+    endPoint: common.apiBaseURL + "/"+ common.apiVersion + "/depmeth/" + common.BID,
+    methodType: "POST",
+    requestData: JSON.stringify({
+        'cmd': 'get', 'selected': [], 'limit': 100, 'offset': 0
+    }),
+    testCount: 6
 };
 
 exports.formConf = {
-    grid: "depmethGrid",
-    form: "depmethForm",
-    sidebarID: "depmeth",
+    grid: GRID,
+    form: FORM,
+    sidebarID: SIDEBAR_ID,
     row: "0",
     capture: "depmethFormRequest.png",
     captureAfterClosingForm: "depmethFormRequestAfterClosingForm.png",

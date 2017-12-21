@@ -3,11 +3,18 @@
 var GRID = "rentablesGrid";
 var SIDEBAR_ID = "rentables";
 var FORM = "rentableForm";
+var common = require("../common.js");
 
 exports.gridConf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
-    capture: "rentablesGridRequest.png"
+    capture: "rentablesGridRequest.png",
+    endPoint: common.apiBaseURL + "/"+ common.apiVersion + "/rentables/" + common.BID,
+    methodType: "POST",
+    requestData: JSON.stringify({
+        'cmd': 'get', 'selected': [], 'limit': 100, 'offset': 0
+    }),
+    testCount: 30
 };
 
 exports.formConf = {
