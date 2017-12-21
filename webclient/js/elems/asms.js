@@ -1,7 +1,8 @@
 /*global
     popupRentalAgrPicker, $, asm, console, w2ui, w2uiDateControlString, app,
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder, get2XReversalSymbolHTML,
-    getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord, isDatePriorToCurrentDate
+    getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord, isDatePriorToCurrentDate,
+    getRealEndDate,
 */
 "use strict";
 function getAsmsInitRecord(BID, BUD, previousFormRecord){
@@ -90,7 +91,7 @@ function buildAssessmentElements() {
         name: 'asmsGrid',
         url: '/v1/asms',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2 /*getRealEndDate(app.dateMode)*/},
         show: {
             toolbar         : true,
             footer          : true,

@@ -1,4 +1,8 @@
 "use strict";
+/*global
+  console,
+*/
+
 //-----------------------------------------------------------------------------
 // dayBack - supply the date control and this function will go to the previous
 //           day.
@@ -7,9 +11,7 @@
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function dayBack(dc) {
-
     var x = dateFromString(dc.value);
-    // set date to previous day
     x.setDate(x.getDate() - 1);
     return setDateControl(dc, x);
 }
@@ -21,9 +23,7 @@ function dayBack(dc) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function dayFwd(dc) {
-
     var x = dateFromString(dc.value);
-    // set date to next day
     x.setDate(x.getDate() + 1);
     return setDateControl(dc, x);
 }
@@ -114,7 +114,6 @@ function setToNextMonth(dc) {
 // @return date which is y - 1 month
 //-----------------------------------------------------------------------------
 function dateMonthBack(y) {
-
     var yb = 0; // assume same year
     var m = y.getMonth() - 1;
     if (m < 0) {
@@ -142,7 +141,6 @@ function dateMonthBack(y) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function monthBack(dc) {
-
     var y = dateFromString(dc.value);
     var d2 =  dateMonthBack(y);
     return setDateControl(dc, d2);
@@ -158,7 +156,6 @@ function monthBack(dc) {
 // @return string value m/d/yyyy
 //-----------------------------------------------------------------------------
 function dateControlString(dt) {
-
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
     // if (m < 10) { s += '0'; }
@@ -180,7 +177,6 @@ function dateControlString(dt) {
 // @return string value mm-dd-yyyy
 //-----------------------------------------------------------------------------
 function w2uiDateControlString(dt) {
-
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
     var s = '' + m + '/' + d+'/' + dt.getFullYear();
@@ -199,7 +195,6 @@ function w2uiDateControlString(dt) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function setDateControl(dc, dt) {
-
     var s = w2uiDateControlString(dt);
     dc.value = s;
     return s;
@@ -213,13 +208,12 @@ function setDateControl(dc, dt) {
 // @return - java date value
 //-----------------------------------------------------------------------------
 function dateFromString(ds) {
-
-
     // Strange thing about javascript dates
     // new Date("2017-06-28") gives a date with offset value with local timezone i.e, Wed Jun 28 2017 05:30:00 GMT+0530 (IST)
     // new Date("2017/06/28") gives a date without offset value with local timezone i.e, Wed Jun 28 2017 00:00:00 GMT+0530 (IST)
 
-    ds = ds.replace(/-/g,"\/").replace(/T.+/, ''); // first replace `/` with `-` and also remove `hh:mm:ss` value we don't need it
+    ds = ds.replace(/-/g,"\/");
+    ds = ds.replace(/T.+/, ''); // first replace `/` with `-` and also remove `hh:mm:ss` value we don't need it
     return new Date(ds);
 }
 
@@ -230,7 +224,6 @@ function dateFromString(ds) {
 // @return - formatted date string
 //-----------------------------------------------------------------------------
 function dateTodayStr() {
-
     var today = new Date();
     return dateFmtStr(today);
 }
@@ -242,7 +235,6 @@ function dateTodayStr() {
 // @return - formatted date string
 //-----------------------------------------------------------------------------
 function dateFmtStr(today) {
-
     var dd = today.getDate();
     var mm = today.getMonth() + 1; //January is 0!
     var yyyy = today.getFullYear();
