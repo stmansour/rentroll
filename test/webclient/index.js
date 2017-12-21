@@ -112,12 +112,13 @@ casper.wait(pageLoadWaitTime);
 // --------------------------------------------------
 // 4. Now start all add new button test
 // --------------------------------------------------
-/*casper.then(function addNewButtonTesting() {
-    addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
+casper.then(function addNewButtonTesting() {
     addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
-});*/
+    addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
+});
 
 // --------------------------------------------------
 // 5. Now start all right side panel view UI testing
@@ -142,10 +143,10 @@ casper.wait(pageLoadWaitTime);
     gridRecordM.w2uiGridRecordTest(arsM.gridConf);
 });*/
 
-casper.then(function apiIntegrationTest() {
+/*casper.then(function apiIntegrationTest() {
     apiIntegrationM.apiIntegrationTest(pmtM.gridConf);
     apiIntegrationM.apiIntegrationTest(depM.gridConf);
-});
+});*/
 
 // ========== RUN TEST ==========
 casper.run();

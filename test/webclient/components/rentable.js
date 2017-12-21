@@ -1,19 +1,32 @@
 "use strict";
 
+var GRID = "rentablesGrid";
+var SIDEBAR_ID = "rentables";
+var FORM = "rentableForm";
+
 exports.gridConf = {
-    grid: "rentablesGrid",
-    sidebarID: "rentables",
+    grid: GRID,
+    sidebarID: SIDEBAR_ID,
     capture: "rentablesGridRequest.png"
 };
 
 exports.formConf = {
-    grid: "rentablesGrid",
+    grid: GRID,
     form: "rentableForm",
-    sidebarID: "rentables",
+    sidebarID: SIDEBAR_ID,
     row: "0",
     capture: "rentablesFormRequest.png",
     captureAfterClosingForm: "rentablesFormRequestAfterClosingForm.png",
     buttonName: ["save", "saveadd", "delete"],
     testCount: 5
+};
+
+exports.addNewConf = {
+    grid: GRID,
+    form: FORM,
+    sidebarID: SIDEBAR_ID,
+    capture: "rentablesAddNewButton.png",
+    buttonName: ["save", "saveadd"],
+    testCount: 16
 };
 

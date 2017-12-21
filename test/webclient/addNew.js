@@ -167,10 +167,20 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 });
 
-                // Form field rendering
                 common.capture(that.capture);
 
                 test.done();
+
+                // Close the form and check. It isn't visible after closing the form.
+                //TODO: Below test is not working. Fix it.
+/*                casper.click(w2ui_utils.getCloseButtonSelector(that.form));
+
+                casper.wait(common.waitTime, function closeFromAndTest(){
+                    common.capture(that.capture);
+
+                    test.("#" + w2ui_utils.getRightPanelID());
+                    test.done();
+                });*/
             });
         }
     });
