@@ -99,3 +99,8 @@ exports.getTextTypeW2UIFields = function (inputField) {
         return inputField;
     }
 };
+
+//
+exports.getRecordsParentDivSelector = function (gridName) {
+    return "#grid_{0}_records".format(gridName);
+};

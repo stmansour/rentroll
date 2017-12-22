@@ -123,7 +123,7 @@ casper.then(function addNewButtonTesting() {
 // --------------------------------------------------
 // 5. Now start all right side panel view UI testing
 // --------------------------------------------------
-/*casper.then(function formTesting() {
+casper.then(function formTesting() {
     formM.w2uiFormTest(asmM.formConf);
     formM.w2uiFormTest(transactantsM.formConf);
     formM.w2uiFormTest(acctM.formConf);
@@ -132,7 +132,7 @@ casper.then(function addNewButtonTesting() {
     formM.w2uiFormTest(depmethM.formConf);
     formM.w2uiFormTest(arsM.formConf);
     formM.w2uiFormTest(rtM.formConf);
-});*/
+});
 
 
 // --------------------------------------------------
