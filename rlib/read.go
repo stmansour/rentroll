@@ -31,7 +31,7 @@ func ReadAssessments(rows *sql.Rows, a *Assessment) error {
 
 // ReadBuildingData reads the data for a building object from db based on the supplied pointer
 func ReadBuildingData(row *sql.Row, a *Building) error {
-	return row.Scan(&t.BLDGID, &t.BID, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.CreateTS, &t.CreateBy, &t.LastModTime, &t.LastModBy)
+	return row.Scan(&a.BLDGID, &a.BID, &a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadBusiness reads a full Business structure from the database based on the supplied row object
@@ -209,12 +209,12 @@ func ReadRentableSpecialties(rows *sql.Rows, a *RentableSpecialty) error {
 }
 
 // ReadRentableSpecialtyRef read a full ReadRentableSpecialtyRef structure of data from db based on sql.Row pointer
-func ReadRentableSpecialtyRef(row *sql.Row, a *ReadRentableSpecialtyRef) error {
+func ReadRentableSpecialtyRef(row *sql.Row, a *RentableSpecialtyRef) error {
 	return row.Scan(&a.BID, &a.RID, &a.RSPID, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentableSpecialtyRefs reads a full ReadRentableSpecialtyRef structure of data from db based on sql.Rows pointer
-func ReadRentableSpecialtyRefs(rows *sql.Rows, a *ReadRentableSpecialtyRef) error {
+func ReadRentableSpecialtyRefs(rows *sql.Rows, a *RentableSpecialtyRef) error {
 	return rows.Scan(&a.BID, &a.RID, &a.RSPID, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
@@ -575,10 +575,4 @@ func ReadVehicles(rows *sql.Rows, a *Vehicle) error {
 	return rows.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear,
 		&a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
-}
-
-// ReadCountBusinessRentalAgreements reads total count for RentalAgreements
-// for particular associated business
-func ReadCountBusinessRentalAgreements(rows *sql.Rows, id *int) error {
-	return rows.Scan(id)
 }

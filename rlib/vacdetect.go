@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -20,9 +21,12 @@ type VacancyMarker struct {
 // a VacancyMarker will be added to an array marking the vacant time period. The return value
 // is the list of vacancy markers.
 //========================================================================================================
-func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, rid int64) []VacancyMarker {
-	var m []VacancyMarker
-	var useState int64
+func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid int64) ([]VacancyMarker, error) {
+	var (
+		m        []VacancyMarker
+		useState int64
+		err      error
+	)
 
 	//==================================================================
 	// Whether it's vacant or not depends on its state. For example,
@@ -30,7 +34,10 @@ func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, rid int64) []VacancyMarke
 	// considered vacant. So, the first thing to do is cache the
 	// Rentable state over the period
 	//==================================================================
-	rsa := GetRentableStatusByRange(rid, d1, d2)
+	rsa, err := GetRentableStatusByRange(ctx, rid, d1, d2)
+	if err != nil {
+		return m, err
+	}
 
 	//=========================================================================
 	// In the loop below, we don't want to read the database every iteration
@@ -40,12 +47,17 @@ func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, rid int64) []VacancyMarke
 	// the period that the loop will process first. then select from them as
 	// needed.
 	//=========================================================================
-	rta := GetRentableTypeRefsByRange(rid, d1, d2) // get the list
-	if len(rta) == 0 {
+	rta, err := GetRentableTypeRefsByRange(ctx, rid, d1, d2) // get the list
+	if err != nil {
+		return m, err
+	}
+
+	/*if len(rta) == 0 {
 		Ulog("VacancyDetect:  No valid RTID for rentable R%08d during period %s to %s\n",
 			rid, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
-		return m // this is bad! No RTID for the supplied time range
-	}
+		return m, fmt.Errorf("zero list") // this is bad! No RTID for the supplied time range
+	}*/
+
 	// rtidMulti := len(rta) > 1 // flag to indicate we need to look for a change in rtid in every pass
 	rtid := rta[0].RTID // initialize to the first RTID
 
@@ -56,11 +68,14 @@ func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, rid int64) []VacancyMarke
 	// the RTIDs to the caller and pass the array into this func.
 	//=========================================================================
 	if xbiz.RT[rtid].ManageToBudget == 0 { // if this rentable is not managing to budget...
-		return m // return an empty list now and it will essentially be ignored.
+		return m, err // return an empty list now and it will essentially be ignored.
 	}
 
 	period := CycleDuration(xbiz.RT[rtid].Proration, *d1)
-	t := GetAgreementsForRentable(rid, d1, d2) // t is an array of RentalAgreementRentables
+	t, err := GetAgreementsForRentable(ctx, rid, d1, d2) // t is an array of RentalAgreementRentables
+	if err != nil {
+		return m, err
+	}
 
 	//========================================================
 	// Mark vacancy for each time interval between d1 & d2
@@ -108,12 +123,11 @@ func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, rid int64) []VacancyMarke
 			continue
 		}
 
-		rsa, err := GetRentableSpecialtyTypesForRentableByRange(xbiz.P.BID, rid, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
+		rsa, err := GetRentableSpecialtyTypesForRentableByRange(ctx, xbiz.P.BID, rid, &dt, &dtNext) // this gets an array of rentable specialties that overlap this time period
 		if err != nil {
 			Ulog("VacancyDetect:  Error retrieving rentable specialties for rentable R%08d during period %s to %s\n",
 				rid, dt.Format(RRDATEINPFMT), dtNext.Format(RRDATEINPFMT))
-			return m // this is bad! No RTID for the supplied time range
-
+			return m, err // this is bad! No RTID for the supplied time range
 		}
 
 		// rlib.Console("dt = %s, dtNext = %s, r = %s(%d), len(rta) = %d, len(rsa) = %d\n",
@@ -122,7 +136,10 @@ func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, rid int64) []VacancyMarke
 		// 	rlib.Console("rta[%d] = (%s - %s) RTID = %d\n", iq, rta[iq].DtStart.Format("1/2/06"), rta[iq].DtStop.Format("1/2/06"), rta[iq].RTID)
 		// }
 
-		rentThisPeriod := CalculateGSR(dt, dtNext, rid, &rta, rsa, xbiz)
+		rentThisPeriod, err := CalculateGSR(ctx, dt, dtNext, rid, &rta, rsa, xbiz)
+		if err != nil {
+			return m, err
+		}
 		// rlib.Console("rentThisPeriod = %8.2f\n", rentThisPeriod)
 
 		//------------------------------------------------
@@ -148,5 +165,5 @@ func VacancyDetect(xbiz *XBusiness, d1, d2 *time.Time, rid int64) []VacancyMarke
 		m = append(m, v) // add the new VacancyMarker to the list
 		k++
 	}
-	return m
+	return m, err
 }

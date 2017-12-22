@@ -1,7 +1,9 @@
 package rlib
 
 import (
+	"context"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -193,7 +195,7 @@ func RARBalCacheSize() int {
 //             time dt
 //   error   - any error encountered
 //-----------------------------------------------------------------------------
-func GetBeginEndRARBalance(bid, rid, raid int64, d1, d2 *time.Time) (float64, float64, error) {
+func GetBeginEndRARBalance(ctx context.Context, bid, rid, raid int64, d1, d2 *time.Time) (float64, float64, error) {
 	//----------------------------------------
 	// try to get it from the cache first...
 	//----------------------------------------
@@ -205,8 +207,15 @@ func GetBeginEndRARBalance(bid, rid, raid int64, d1, d2 *time.Time) (float64, fl
 	var err error
 	begin := float64(0)
 	end := float64(0)
-	begin, err = GetRARBalance(bid, rid, raid, d1)
-	end, err = GetRARBalance(bid, rid, raid, d2)
+	begin, err = GetRARBalance(ctx, bid, rid, raid, d1)
+	if err != nil {
+		return b.begin, b.end, nil
+	}
+
+	end, err = GetRARBalance(ctx, bid, rid, raid, d2)
+	if err != nil {
+		return b.begin, b.end, nil
+	}
 
 	storeRARBalanceInfoToCache(bid, rid, raid, d1, d2, begin, end) // cache this value, maybe we'll hit it again
 
@@ -227,26 +236,30 @@ func GetBeginEndRARBalance(bid, rid, raid int64, d1, d2 *time.Time) (float64, fl
 //             time dt
 //   error   - any error encountered
 //-----------------------------------------------------------------------------
-func GetRARBalance(bid, rid, raid int64, dt *time.Time) (float64, error) {
-	funcname := "GetRARBalance"
+func GetRARBalance(ctx context.Context, bid, rid, raid int64, dt *time.Time) (float64, error) {
+	const funcname = "GetRARBalance"
 
-	bal := float64(0)
-	if raid == 0 {
-		return bal, nil
-	}
+	var (
+		bal float64
+		err error
+	)
 
-	lm := GetRARentableLedgerMarkerOnOrBefore(raid, rid, dt)
-	if lm.LMID == 0 {
+	lm, err := GetRARentableLedgerMarkerOnOrBefore(ctx, raid, rid, dt)
+	if err != nil {
 		LogAndPrint("%s: Could not find LedgerMarker for RAID=%d, RID=%d, on or before %s\n",
 			funcname, raid, rid, dt.Format(RRDATEFMT3))
-		return bal, nil
+		return bal, err
 	}
 
 	//------------------------------------------------------------------
 	// Get all the assessments and payments for this RAID, RID pair...
 	//------------------------------------------------------------------
-	bal = lm.Balance + GetRARAcctRange(bid, raid, rid, &lm.Dt, dt)
-	return bal, nil
+	b, err := GetRARAcctRange(ctx, bid, raid, rid, &lm.Dt, dt)
+	if err != nil {
+		return bal, err
+	}
+	bal = lm.Balance + b
+	return bal, err
 }
 
 // GetRARAcctRange returns the change in balance for the supplie RAID,RID
@@ -263,43 +276,65 @@ func GetRARBalance(bid, rid, raid int64, dt *time.Time) (float64, error) {
 //             time dt
 //   error   - any error encountered
 //-----------------------------------------------------------------------------
-func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
-	funcname := "GetRARAcctRange"
+func GetRARAcctRange(ctx context.Context, bid, raid, rid int64, d1, d2 *time.Time) (float64, error) {
+	const funcname = "GetRARAcctRange"
 	// Console("Entered %s\n", funcname)
-	bal := float64(0)
+	var (
+		bal float64
+		err error
+	)
 
 	acctRules := ""
 	rcvAccts, err := AcctSlice(bid, AccountsReceivable)
 	if err != nil {
 		LogAndPrintError(funcname, err)
-		return bal
+		return bal, err
 	}
 	if len(rcvAccts) == 0 {
 		LogAndPrintError(funcname, fmt.Errorf("GetRARAcctRange: there are no accounts of type %s", AccountsReceivable))
-		return bal
+		return bal, err
 	}
 	qryAccts, err := AcctRulesSlice(rcvAccts, bid, AccountsReceivable)
-	if nil == err {
-		l := len(qryAccts)
-		if 0 > l {
-			acctRules = " AND ("
-			for i := 0; i < l; i++ {
-				acctRules += fmt.Sprintf("ARID=%d", qryAccts[i])
-				if i+1 < l {
-					acctRules += " OR "
-				}
-			}
-			acctRules += ")"
-		}
-	} else {
+	if err != nil {
 		LogAndPrintError(funcname, err)
+		return bal, err
 	}
 
-	q := fmt.Sprintf("SELECT %s FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=%d AND RID=%d AND Stop>=%q AND Start<%q %s",
-		RRdb.DBFields["Assessments"], raid, rid, d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), acctRules)
-	// Console("q = %s\n", q)
-	rows, err := RRdb.Dbrr.Query(q)
-	Errcheck(err)
+	l := len(qryAccts)
+	if 0 > l {
+		acctRules = " AND ("
+		for i := 0; i < l; i++ {
+			acctRules += fmt.Sprintf("ARID=%d", qryAccts[i])
+			if i+1 < l {
+				acctRules += " OR "
+			}
+		}
+		acctRules += ")"
+	}
+
+	q := `
+	SELECT
+		{{.SelectClause}}
+	FROM Assessments
+	WHERE
+		(RentCycle=0 OR (RentCycle>0 AND PASMID>0)) AND
+		RAID={{.RAID}} AND RID={{.RID}} AND
+		Stop>={{.d1}} AND Start<{{.d2}} {{.AcctRules}};`
+
+	qc := QueryClause{
+		"SelectClause": RRdb.DBFields["Assessments"],
+		"RAID":         strconv.FormatInt(raid, 10),
+		"RID":          strconv.FormatInt(rid, 10),
+		"d1":           d1.Format(RRDATEFMTSQL),
+		"d2":           d2.Format(RRDATEFMTSQL),
+		"AcctRules":    acctRules,
+	}
+
+	qry := RenderSQLQuery(q, qc)
+	rows, err := RRdb.Dbrr.Query(qry)
+	if err != nil {
+		return bal, err
+	}
 	defer rows.Close()
 
 	// Console("GetRARAcctRange: query = %s\n", q)
@@ -309,7 +344,11 @@ func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 	//------------------------------------------------------------------------
 	for rows.Next() {
 		var a Assessment
-		ReadAssessments(rows, &a)
+		err := ReadAssessments(rows, &a)
+		if err != nil {
+			return bal, err
+		}
+
 		if 0 == a.FLAGS&0x4 { // if this is not a reversal...
 			bal += a.Amount // ... then add it to the balance
 		}
@@ -319,15 +358,27 @@ func GetRARAcctRange(bid, raid, rid int64, d1, d2 *time.Time) float64 {
 		// Total all receipts applied toward this ASMID
 		//----------------------------------------------------------------
 		innerRows, err := RRdb.Prepstmt.GetASMReceiptAllocationsInRARDateRange.Query(raid, a.ASMID, d1, d2)
-		Errcheck(err)
+		if err != nil {
+			return bal, err
+		}
 		defer innerRows.Close()
+
 		for innerRows.Next() {
 			var ra ReceiptAllocation
-			ReadReceiptAllocations(innerRows, &ra)
+			err = ReadReceiptAllocations(innerRows, &ra)
+			if err != nil {
+				return bal, err
+			}
+
 			bal -= ra.Amount
 			// Console("\tRCPAID = %d, Amount = %.2f,  bal = %.2f\n", ra.RCPAID, ra.Amount, bal)
 		}
+
+		err = innerRows.Err()
+		if err != nil {
+			return bal, err
+		}
 	}
 	// Console("---------->>>>> RETURNING BALANCE = %.2f\n", bal)
-	return bal
+	return bal, rows.Err()
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"rentroll/rlib"
+	"strconv"
 	"time"
 )
 
@@ -22,7 +22,7 @@ func GetCountByTableName(ctx context.Context, t string, bid int64) (int, error) 
 	if !RRdb.NoAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
-			return ErrSessionRequired
+			return count, ErrSessionRequired
 		}
 	}
 
@@ -125,7 +125,7 @@ func GetARMap(ctx context.Context, bid int64) (map[int64]AR, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllARs.Query(bid)
+	rows, err := RRdb.Prepstmt.GetAllARs.Query(bid)
 	if err != nil {
 		return t, err
 	}
@@ -159,11 +159,11 @@ func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllARs.Query(id)
+	rows, err := RRdb.Prepstmt.GetAllARs.Query(id)
 	if err != nil {
 		return t, err
 	}
-	return getARsForRows(rows)
+	return getARsForRows(ctx, rows)
 }
 
 // GetARsByType reads all AccountRules for the supplied BID of type artype
@@ -182,11 +182,11 @@ func GetARsByType(ctx context.Context, id int64, artype int) ([]AR, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetARsByType.Query(id, artype)
+	rows, err := RRdb.Prepstmt.GetARsByType.Query(id, artype)
 	if err != nil {
 		return t, err
 	}
-	return getARsForRows(rows)
+	return getARsForRows(ctx, rows)
 }
 
 //=======================================================
@@ -229,7 +229,7 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllRentalAgreementPets.Query(raid)
+	rows, err := RRdb.Prepstmt.GetAllRentalAgreementPets.Query(raid)
 	if err != nil {
 		return t, err
 	}
@@ -293,11 +293,11 @@ func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllRentableAssessments.Query(RID, d1, d2)
+	rows, err := RRdb.Prepstmt.GetAllRentableAssessments.Query(RID, d1, d2)
 	if err != nil {
 		return t, err
 	}
-	return getAssessmentsByRows(rows)
+	return getAssessmentsByRows(ctx, rows)
 }
 
 // GetUnpaidAssessmentsByRAID for the supplied RAID
@@ -316,11 +316,11 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetUnpaidAssessmentsByRAID.Query(RAID)
+	rows, err := RRdb.Prepstmt.GetUnpaidAssessmentsByRAID.Query(RAID)
 	if err != nil {
 		return t, err
 	}
-	return getAssessmentsByRows(rows)
+	return getAssessmentsByRows(ctx, rows)
 }
 
 // GetAssessmentInstancesByParent for the supplied RAID
@@ -345,11 +345,11 @@ func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAssessmentInstancesByParent.Query(id, d1, d2)
+	rows, err := RRdb.Prepstmt.GetAssessmentInstancesByParent.Query(id, d1, d2)
 	if err != nil {
 		return t, err
 	}
-	return getAssessmentsByRows(rows)
+	return getAssessmentsByRows(ctx, rows)
 }
 
 // getAssessmentsByRows for the supplied sql.Rows
@@ -484,7 +484,7 @@ func GetBuilding(ctx context.Context, id int64) (Building, error) {
 		}
 	}
 
-	row = RRdb.Prepstmt.GetBuilding.QueryRow(id)
+	row := RRdb.Prepstmt.GetBuilding.QueryRow(id)
 	return t, ReadBuildingData(row, &t)
 }
 
@@ -508,7 +508,7 @@ func GetAllBusinesses(ctx context.Context) ([]Business, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllBusinesses.Query()
+	rows, err := RRdb.Prepstmt.GetAllBusinesses.Query()
 	if err != nil {
 		return m, err
 	}
@@ -592,7 +592,7 @@ func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
 	}
 
 	xbiz.US = make(map[int64]RentableSpecialty)
-	rows, err = RRdb.Prepstmt.GetAllBusinessSpecialtyTypes.Query(bid)
+	rows, err := RRdb.Prepstmt.GetAllBusinessSpecialtyTypes.Query(bid)
 	if err != nil {
 		return err
 	}
@@ -676,7 +676,7 @@ func GetAllCustomAttributes(ctx context.Context, elemid, id int64) (map[string]C
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetCustomAttributeRefs.Query(elemid, id)
+	rows, err := RRdb.Prepstmt.GetCustomAttributeRefs.Query(elemid, id)
 	if err != nil {
 		return m, err
 	}
@@ -744,7 +744,7 @@ func LoadRentableTypeCustomaAttributes(ctx context.Context, xbiz *XBusiness) err
 
 	for k, v := range xbiz.RT {
 		var tmp = xbiz.RT[k]
-		tmp.CA, err = GetAllCustomAttributes(ELEMRENTABLETYPE, v.RTID)
+		tmp.CA, err = GetAllCustomAttributes(ctx, ELEMRENTABLETYPE, v.RTID)
 		if err != nil {
 			Ulog("LoadRentableTypeCustomaAttributes: error reading custom attributes elementtype=%d, id=%d, err = %s\n", ELEMRENTABLETYPE, v.RTID, err.Error())
 		}
@@ -810,7 +810,7 @@ func GetAllDemandSources(ctx context.Context, id int64) ([]DemandSource, error) 
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllDemandSources.Query(id)
+	rows, err := RRdb.Prepstmt.GetAllDemandSources.Query(id)
 	if err != nil {
 		return m, err
 	}
@@ -869,7 +869,7 @@ func GetAllDepositsInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllDepositsInRange.Query(bid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetAllDepositsInRange.Query(bid, d1, d2)
 	if err != nil {
 		return t, err
 	}
@@ -988,7 +988,7 @@ func GetAllDepositories(ctx context.Context, bid int64) ([]Depository, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllDepositories.Query(bid)
+	rows, err := RRdb.Prepstmt.GetAllDepositories.Query(bid)
 	if err != nil {
 		return t, err
 	}
@@ -1022,7 +1022,7 @@ func GetDepositParts(ctx context.Context, id int64) ([]DepositPart, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetDepositParts.Query(id)
+	rows, err := RRdb.Prepstmt.GetDepositParts.Query(id)
 	if err != nil {
 		return m, err
 	}
@@ -1096,7 +1096,7 @@ func GetAllDepositMethods(ctx context.Context, bid int64) ([]DepositMethod, erro
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllDepositMethods.Query(bid)
+	rows, err := RRdb.Prepstmt.GetAllDepositMethods.Query(bid)
 	if err != nil {
 		return t, err
 	}
@@ -1106,7 +1106,7 @@ func GetAllDepositMethods(ctx context.Context, bid int64) ([]DepositMethod, erro
 		var a DepositMethod
 		err = ReadDepositMethods(rows, &a)
 		if err != nil {
-			return err
+			return t, err
 		}
 		t = append(t, a)
 	}
@@ -1193,7 +1193,7 @@ func GetAllInvoicesInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllInvoicesInRange.Query(bid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetAllInvoicesInRange.Query(bid, d1, d2)
 	if err != nil {
 		return t, err
 	}
@@ -1237,7 +1237,7 @@ func GetInvoiceAssessments(ctx context.Context, id int64) ([]InvoiceAssessment, 
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetInvoiceAssessments.Query(id)
+	rows, err := RRdb.Prepstmt.GetInvoiceAssessments.Query(id)
 	if err != nil {
 		return m, err
 	}
@@ -1271,7 +1271,7 @@ func GetInvoicePayors(ctx context.Context, id int64) ([]InvoicePayor, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetInvoicePayors.Query(id)
+	rows, err := RRdb.Prepstmt.GetInvoicePayors.Query(id)
 	if err != nil {
 		return m, err
 	}
@@ -1406,7 +1406,7 @@ func GetJournalsByReceiptID(ctx context.Context, id int64) ([]Journal, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetJournalByReceiptID.Query(id)
+	rows, err := RRdb.Prepstmt.GetJournalByReceiptID.Query(id)
 	if err != nil {
 		return t, err
 	}
@@ -1440,7 +1440,7 @@ func GetJournalMarkers(ctx context.Context, n int64) ([]JournalMarker, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetJournalMarkers.Query(n)
+	rows, err := RRdb.Prepstmt.GetJournalMarkers.Query(n)
 	if err != nil {
 		return t, err
 	}
@@ -1448,7 +1448,7 @@ func GetJournalMarkers(ctx context.Context, n int64) ([]JournalMarker, error) {
 
 	for rows.Next() {
 		var r JournalMarker
-		err = ReadJournalMarker(rows, &r)
+		err = ReadJournalMarkers(rows, &r)
 		if err != nil {
 			return t, err
 		}
@@ -1474,7 +1474,11 @@ func GetLastJournalMarker(ctx context.Context) (JournalMarker, error) {
 		}
 	}
 
-	t := GetJournalMarkers(ctx, 1)
+	t, err := GetJournalMarkers(ctx, 1)
+	if err != nil {
+		return j, err
+	}
+
 	if len(t) > 0 {
 		j = t[0]
 	}
@@ -1511,27 +1515,26 @@ func GetJournalAllocation(ctx context.Context, jaid int64) (JournalAllocation, e
 func GetJournalAllocations(ctx context.Context, j *Journal) error {
 
 	var (
-		err    error
-		jaRows []JournalAllocation
+		err error
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
-			return jaRows, ErrSessionRequired
+			return ErrSessionRequired
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetJournalAllocations.Query(j.JID)
+	rows, err := RRdb.Prepstmt.GetJournalAllocations.Query(j.JID)
 	if err != nil {
-		return jaRows, err
+		return err
 	}
 
 	// get all journal allocation rows in j.JA field
-	jaRows, err = getJournalAllocationRows(ctx, rows)
+	jaRows, err := getJournalAllocationRows(ctx, rows)
 	if err != nil {
-		return jaRows, err
+		return err
 	}
 
 	j.JA = jaRows
@@ -1555,7 +1558,7 @@ func GetJournalAllocationByASMID(ctx context.Context, id int64) ([]JournalAlloca
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetJournalAllocationsByASMID.Query(id)
+	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMID.Query(id)
 	if err != nil {
 		return jaRows, err
 	}
@@ -1582,11 +1585,11 @@ func GetJournalAllocationByASMandRCPTID(ctx context.Context, id int64) ([]Journa
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID.Query(id)
+	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID.Query(id)
 	if err != nil {
 		return jaRows, err
 	}
-	return getJournalAllocationRows(rows)
+	return getJournalAllocationRows(ctx, rows)
 }
 
 func getJournalAllocationRows(ctx context.Context, rows *sql.Rows) ([]JournalAllocation, error) {
@@ -1954,7 +1957,7 @@ func LoadRALedgerMarker(ctx context.Context, bid, lid, raid int64, dt *time.Time
 		lm.RAID = raid
 		lm.Dt = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 		lm.State = LMINITIAL
-		err = InsertLedgerMarker(ctx, &lm)
+		_, err = InsertLedgerMarker(ctx, &lm)
 		if nil != err {
 			fmt.Printf("LoadRALedgerMarker: Error creating LedgerMarker: %s\n", err.Error())
 		}
@@ -2025,7 +2028,7 @@ func GetAllLedgerMarkersOnOrBefore(ctx context.Context, bid int64, dt *time.Time
 
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore.Query(bid, dt)
+	rows, err :=RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore.Query(bid, dt)
 	if err != nil {
 		return t, err
 	}
@@ -2066,7 +2069,7 @@ func GetLedgerList(ctx context.Context, bid int64) ([]GLAccount, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetLedgerList.Query(bid)
+	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
 	if err != nil {
 		return t, err
 	}
@@ -2100,7 +2103,7 @@ func GetGLAccountMap(ctx context.Context, bid int64) (map[int64]GLAccount, error
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetLedgerList.Query(bid)
+	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
 	if err != nil {
 		return t, err
 	}
@@ -2174,7 +2177,7 @@ func GetLedgerEntriesByJAID(ctx context.Context, bid, jaid int64) ([]LedgerEntry
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetLedgerEntriesByJAID.Query(bid, jaid)
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesByJAID.Query(bid, jaid)
 	if err != nil {
 		return m, err
 	}
@@ -2327,7 +2330,7 @@ func GetDefaultLedgers(ctx context.Context, bid int64) error {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
+	rows, err :=RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
 	if err != nil {
 		return err
 	}
@@ -2392,7 +2395,7 @@ func GetLedgerEntriesInRange(ctx context.Context, d1, d2 *time.Time, bid, lid in
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(bid, lid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(bid, lid, d1, d2)
 	if err != nil {
 		return m, err
 	}
@@ -2417,7 +2420,7 @@ func GetLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid, lid i
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
 	if err != nil {
 		return m, err
 	}
@@ -2442,7 +2445,7 @@ func GetLedgerEntriesForRentable(ctx context.Context, d1, d2 *time.Time, rid, li
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetLedgerEntriesForRentable.Query(d1, d2, rid, lid)
+	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRentable.Query(d1, d2, rid, lid)
 	if err != nil {
 		return m, err
 	}
@@ -2467,7 +2470,7 @@ func GetAllLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid int
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(d1, d2, raid)
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(d1, d2, raid)
 	if err != nil {
 		return m, err
 	}
@@ -2492,7 +2495,7 @@ func GetAllLedgerEntriesForRID(ctx context.Context, d1, d2 *time.Time, rid int64
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllLedgerEntriesForRID.Query(d1, d2, rid)
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRID.Query(d1, d2, rid)
 	if err != nil {
 		return m, err
 	}
@@ -2517,7 +2520,7 @@ func GetAllLedgerEntriesInRange(ctx context.Context, bid int64, d1, d2 *time.Tim
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(bid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(bid, d1, d2)
 	if err != nil {
 		return m, err
 	}
@@ -2542,7 +2545,7 @@ func GetLedgerEntriesInRange(ctx context.Context, bid, lid, raid int64, d1, d2 *
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
+	rows, err :=RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
 	if err != nil {
 		return m, err
 	}
@@ -2596,7 +2599,7 @@ func GetNoteAndChildNotes(ctx context.Context, nid int64) (Note, error) {
 		return n, err
 	}
 
-	rows, err = RRdb.Prepstmt.GetNoteAndChildNotes.Query(nid)
+	rows, err := RRdb.Prepstmt.GetNoteAndChildNotes.Query(nid)
 	if err != nil {
 		return n, err
 	}
@@ -2640,7 +2643,7 @@ func GetNoteList(ctx context.Context, nlid int64) (NoteList, error) {
 		return m, err
 	}
 
-	rows, err = RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
+	rows, err := RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
 	if err != nil {
 		return m, err
 	}
@@ -2702,9 +2705,9 @@ func GetAllNoteTypes(ctx context.Context, bid int64) ([]NoteType, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
+	rows, err := RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
 	if err != nil {
-		return err
+		return m, err
 	}
 	defer rows.Close()
 
@@ -2778,7 +2781,7 @@ func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]Paymen
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetPaymentTypesByBusiness.Query(bid)
+	rows, err := RRdb.Prepstmt.GetPaymentTypesByBusiness.Query(bid)
 	if err != nil {
 		return t, err
 	}
@@ -2854,7 +2857,7 @@ func GetAllRatePlans(ctx context.Context, id int64) ([]RatePlan, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllRatePlans.Query(id)
+	rows, err := RRdb.Prepstmt.GetAllRatePlans.Query(id)
 	if err != nil {
 		return m, err
 	}
@@ -2918,7 +2921,7 @@ func GetRatePlanRefFull(ctx context.Context, id int64, a *RatePlanRef) error {
 	// =====================================
 	// LOAD ALL Rate Plan RT RATES
 	// =====================================
-	rows, err = RRdb.Prepstmt.GetAllRatePlanRefRTRates.Query(id)
+	rows, err := RRdb.Prepstmt.GetAllRatePlanRefRTRates.Query(id)
 	if err != nil {
 		Ulog("GetRatePlanRefFull:   GetAllRatePlanRefRTRates - error = %s\n", err.Error())
 		return err
@@ -2976,7 +2979,7 @@ func GetRatePlanRefsInRange(ctx context.Context, id int64, d1, d2 *time.Time) ([
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRatePlanRefsInRange.Query(id, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRatePlanRefsInRange.Query(id, d1, d2)
 	if err != nil {
 		Ulog("GetRatePlanRefsInRange: error = %s\n", err.Error())
 		return m, err
@@ -3011,7 +3014,7 @@ func GetAllRatePlanRefsInRange(ctx context.Context, d1, d2 *time.Time) ([]RatePl
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllRatePlanRefsInRange.Query(d1, d2)
+	rows, err := RRdb.Prepstmt.GetAllRatePlanRefsInRange.Query(d1, d2)
 	if err != nil {
 		Ulog("GetAllRatePlanRefsInRange: error = %s\n", err.Error())
 		return m, err
@@ -3084,7 +3087,7 @@ func GetAllRatePlanRefSPRates(ctx context.Context, rprid, rtid int64) ([]RatePla
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(rprid, rtid)
+	rows, err := RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(rprid, rtid)
 	if err != nil {
 		Ulog("GetAllRatePlanRefSPRates: error = %s\n", err.Error())
 		return m, err
@@ -3208,7 +3211,7 @@ func GetReceiptAllocations(ctx context.Context, rcptid int64, r *Receipt) error 
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetReceiptAllocations.Query(rcptid)
+	rows, err := RRdb.Prepstmt.GetReceiptAllocations.Query(rcptid)
 	if err != nil {
 		return err
 	}
@@ -3243,7 +3246,7 @@ func GetReceipts(ctx context.Context, bid int64, d1, d2 *time.Time) ([]Receipt, 
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetReceiptsInDateRange.Query(bid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetReceiptsInDateRange.Query(bid, d1, d2)
 	if err != nil {
 		return t, err
 	}
@@ -3315,7 +3318,7 @@ func GetASMReceiptAllocationsInRAIDDateRange(ctx context.Context, raid int64, d1
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(raid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(raid, d1, d2)
 	if err != nil {
 		return t, err
 	}
@@ -3341,7 +3344,7 @@ func GetReceiptAllocationsByASMID(ctx context.Context, bid, asmid int64) ([]Rece
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetReceiptAllocationsByASMID.Query(bid, asmid)
+	rows, err := RRdb.Prepstmt.GetReceiptAllocationsByASMID.Query(bid, asmid)
 	if err != nil {
 		return t, err
 	}
@@ -3369,7 +3372,7 @@ func GetReceiptAllocationsThroughDate(ctx context.Context, id int64, dt *time.Ti
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetReceiptAllocationsThroughDate.Query(id, dt)
+	rows, err := RRdb.Prepstmt.GetReceiptAllocationsThroughDate.Query(id, dt)
 	if err != nil {
 		return t, err
 	}
@@ -3389,9 +3392,9 @@ func GetReceiptAllocationAmountsOnDate(ctx context.Context, id int64, dt *time.T
 
 	var (
 		err     error
-		amt     = float(0)
-		alloc   = float(0)
-		unalloc = float(0)
+		amt     float64
+		alloc   float64
+		unalloc float64
 	)
 
 	// session... context
@@ -3439,7 +3442,7 @@ func GetUnallocatedReceiptsByPayor(ctx context.Context, bid, tcid int64) ([]Rece
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetUnallocatedReceiptsByPayor.Query(bid, tcid)
+	rows, err := RRdb.Prepstmt.GetUnallocatedReceiptsByPayor.Query(bid, tcid)
 	if err != nil {
 		return t, err
 	}
@@ -3566,7 +3569,7 @@ func GetRentableTypeDown(ctx context.Context, bid int64, s string, limit int) ([
 	}
 
 	s = "%" + s + "%"
-	rows, err = RRdb.Prepstmt.GetRentableTypeDown.Query(bid, s, limit)
+	rows, err := RRdb.Prepstmt.GetRentableTypeDown.Query(bid, s, limit)
 	if err != nil {
 		return m, err
 	}
@@ -3667,7 +3670,7 @@ func GetRentableSpecialtyTypeByName(ctx context.Context, bid int64, name string)
 		}
 	}
 
-	row = RRdb.Prepstmt.GetRentableSpecialtyTypeByName.QueryRow(bid, name)
+	row := RRdb.Prepstmt.GetRentableSpecialtyTypeByName.QueryRow(bid, name)
 	return rsp, ReadRentableSpecialty(row, &rsp)
 }
 
@@ -3683,11 +3686,11 @@ func GetRentableSpecialtyType(ctx context.Context, rspid int64) (RentableSpecial
 	if !RRdb.NoAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
-			return ErrSessionRequired
+			return rs, ErrSessionRequired
 		}
 	}
 
-	row = RRdb.Prepstmt.GetRentableSpecialtyType.QueryRow(rspid)
+	row := RRdb.Prepstmt.GetRentableSpecialtyType.QueryRow(rspid)
 	return rs, ReadRentableSpecialty(row, &rs)
 }
 
@@ -3708,9 +3711,9 @@ func GetAllRentableSpecialtyRefs(ctx context.Context, bid, rid int64) ([]int64, 
 	}
 
 	// first, get the specialties for this Rentable
-	rows, err = RRdb.Prepstmt.GetRentableSpecialtyRefs.Query(bid, rid)
+	rows, err := RRdb.Prepstmt.GetRentableSpecialtyRefs.Query(bid, rid)
 	if err != nil {
-		return err
+		return m, err
 	}
 	defer rows.Close()
 
@@ -3773,7 +3776,7 @@ func GetRentableSpecialtyTypesForRentableByRange(ctx context.Context, bid, rid i
 	}
 
 	for i := 0; i < len(rsrefs); i++ {
-		rs, err = GetRentableSpecialtyType(ctx, rsrefs[i].RSPID)
+		rs, err := GetRentableSpecialtyType(ctx, rsrefs[i].RSPID)
 		if err != nil {
 			return rsta, err
 		}
@@ -3800,7 +3803,7 @@ func GetRentableSpecialtyRefsByRange(ctx context.Context, bid, rid int64, d1, d2
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentableSpecialtyRefsByRange.Query(bid, rid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentableSpecialtyRefsByRange.Query(bid, rid, d1, d2)
 	if err != nil {
 		return rs, err
 	}
@@ -3875,7 +3878,7 @@ func getRTRefs(ctx context.Context, rows *sql.Rows) ([]RentableTypeRef, error) {
 	if !RRdb.NoAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
-			return ErrSessionRequired
+			return rs, ErrSessionRequired
 		}
 	}
 	defer rows.Close()
@@ -3909,7 +3912,7 @@ func GetRentableTypeRefsByRange(ctx context.Context, RID int64, d1, d2 *time.Tim
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentableTypeRefsByRange.Query(RID, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentableTypeRefsByRange.Query(RID, d1, d2)
 	if err != nil {
 		return rtr, err
 	}
@@ -3932,7 +3935,7 @@ func GetRentableTypeRefs(ctx context.Context, RID int64) ([]RentableTypeRef, err
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentableTypeRefs.Query(RID)
+	rows, err := RRdb.Prepstmt.GetRentableTypeRefs.Query(RID)
 	if err != nil {
 		return rtr, err
 	}
@@ -4081,7 +4084,7 @@ func GetRentableStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time)
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentableStatusByRange.Query(RID, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentableStatusByRange.Query(RID, d1, d2)
 	if err != nil {
 		return rs, err
 	}
@@ -4104,7 +4107,7 @@ func GetAllRentableStatus(ctx context.Context, RID int64) ([]RentableStatus, err
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllRentableStatus.Query(RID)
+	rows, err := RRdb.Prepstmt.GetAllRentableStatus.Query(RID)
 	if err != nil {
 		return rs, err
 	}
@@ -4182,7 +4185,7 @@ func GetRentableTypeByName(ctx context.Context, name string, bid int64) (Rentabl
 	}
 
 	row := RRdb.Prepstmt.GetRentableTypeByName.QueryRow(name, bid)
-	return ReadRentableType(row, &rt)
+	return rt, ReadRentableType(row, &rt)
 }
 
 // GetBusinessRentableTypes returns a slice of RentableType indexed by the RTID
@@ -4201,7 +4204,7 @@ func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]Rentabl
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
+	rows, err := RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
 	if err != nil {
 		return t, err
 	}
@@ -4240,7 +4243,7 @@ func GetRentableMarketRates(ctx context.Context, rt *RentableType) error {
 	}
 
 	// now get all the MarketRate rent info...
-	rows, err = RRdb.Prepstmt.GetRentableMarketRates.Query(rt.RTID)
+	rows, err := RRdb.Prepstmt.GetRentableMarketRates.Query(rt.RTID)
 	if err != nil {
 		return err
 	}
@@ -4337,7 +4340,7 @@ func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) 
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentableUsersInRange.Query(rid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentableUsersInRange.Query(rid, d1, d2)
 	if err != nil {
 		return t, err
 	}
@@ -4347,7 +4350,7 @@ func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) 
 		var r RentableUser
 		err = ReadRentableUsers(rows, &r)
 		if err != nil {
-			return err
+			return t, err
 		}
 		t = append(t, r)
 	}
@@ -4442,7 +4445,7 @@ func LoadXRentalAgreement(ctx context.Context, raid int64, r *RentalAgreement, d
 		r.T = make([]XPerson, 0)
 		for i := 0; i < len(n); i++ {
 			var xp XPerson
-			err = GetXPerson(n[i].TCID, &xp)
+			err = GetXPerson(ctx, n[i].TCID, &xp)
 			if err != nil {
 				return err
 			}
@@ -4519,7 +4522,7 @@ func GetRentalAgreementsFromList(ctx context.Context, raa *[]RentalAgreementRent
 	}
 
 	for i := 0; i < len(*raa); i++ {
-		ra, err = GetRentalAgreement(ctx, (*raa)[i].RAID)
+		ra, err := GetRentalAgreement(ctx, (*raa)[i].RAID)
 		if err != nil {
 			return t, err
 		}
@@ -4549,7 +4552,7 @@ func GetAgreementsForRentable(ctx context.Context, rid int64, d1, d2 *time.Time)
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentalAgreementsForRentable.Query(rid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentalAgreementsForRentable.Query(rid, d1, d2)
 	if err != nil {
 		return t, err
 	}
@@ -4624,7 +4627,7 @@ func GetRentalAgreementRentables(ctx context.Context, raid int64, d1, d2 *time.T
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentalAgreementRentables.Query(raid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentalAgreementRentables.Query(raid, d1, d2)
 	if err != nil {
 		return t, err
 	}
@@ -4700,7 +4703,7 @@ func GetRentalAgreementPayorsInRange(ctx context.Context, raid int64, d1, d2 *ti
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentalAgreementPayorsInRange.Query(raid, d1, d2)
+	rows, err := RRdb.Prepstmt.GetRentalAgreementPayorsInRange.Query(raid, d1, d2)
 	if err != nil {
 		return t, err
 	}
@@ -4724,7 +4727,7 @@ func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.T
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
+	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
 	if err != nil {
 		return t, err
 	}
@@ -4748,7 +4751,7 @@ func GetRentalAgreementsByPayorRange(ctx context.Context, bid, tcid int64, d1, d
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
+	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
 	if err != nil {
 		return t, err
 	}
@@ -4872,7 +4875,7 @@ func GetAllStringLists(ctx context.Context, id int64) ([]StringList, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetAllStringLists.Query(id)
+	rows, err := RRdb.Prepstmt.GetAllStringLists.Query(id)
 	if err != nil {
 		return m, err
 	}
@@ -4934,7 +4937,7 @@ func getSLStrings(ctx context.Context, id int64, a *StringList) error {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetSLStrings.Query(id)
+	rows, err := RRdb.Prepstmt.GetSLStrings.Query(id)
 	if err != nil {
 		return err
 	}
@@ -4991,7 +4994,7 @@ func GetSubARs(ctx context.Context, id int64) ([]SubAR, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetSubARs.Query(id)
+	rows, err := RRdb.Prepstmt.GetSubARs.Query(id)
 	if err != nil {
 		return m, err
 	}
@@ -5035,7 +5038,7 @@ func GetTransactantTypeDown(ctx context.Context, bid int64, s string, limit int)
 	}
 
 	s = "%" + s + "%"
-	rows, err = RRdb.Prepstmt.GetTransactantTypeDown.Query(bid, s, s, s, s, limit)
+	rows, err := RRdb.Prepstmt.GetTransactantTypeDown.Query(bid, s, s, s, s, limit)
 	if err != nil {
 		return m, err
 	}
@@ -5107,7 +5110,7 @@ func GetTransactantByPhoneOrEmail(ctx context.Context, BID int64, s string) (Tra
 
 	qc := QueryClause{
 		"SelectClause":   TRNSfields,
-		"BID":            BID,
+		"BID":            strconv.FormatInt(BID, 10),
 		"WorkPhone":      s,
 		"CellPhone":      s,
 		"PrimaryEmail":   s,
@@ -5115,7 +5118,7 @@ func GetTransactantByPhoneOrEmail(ctx context.Context, BID int64, s string) (Tra
 	}
 
 	// get formatted query
-	p := rlib.RenderSQLQuery(tq, qc)
+	p := RenderSQLQuery(tq, qc)
 
 	// there could be multiple people with the same identifying number...
 	// to safeguard, we'll read as a query and accept first match
@@ -5217,7 +5220,7 @@ func GetRentalAgreementGridInfo(ctx context.Context, raid int64, d1, d2 *time.Ti
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.UIRAGrid(raid, d1, d2)
+	rows, err :=RRdb.Prepstmt.UIRAGrid(raid, d1, d2)
 	if err != nil {
 		return m, err
 	}
@@ -5297,13 +5300,13 @@ func GetVehiclesByLicensePlate(ctx context.Context, s string) ([]Vehicle, error)
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetVehiclesByLicensePlate.Query(s)
+	rows, err := RRdb.Prepstmt.GetVehiclesByLicensePlate.Query(s)
 	if err != nil {
 		return t, err
 	}
 	defer rows.Close()
 
-	return getVehicleList(rows)
+	return getVehicleList(ctx, rows)
 }
 
 // GetVehiclesByTransactant reads a Vehicle structure based on the supplied Vehicle id
@@ -5322,13 +5325,13 @@ func GetVehiclesByTransactant(ctx context.Context, tcid int64) ([]Vehicle, error
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetVehiclesByTransactant.Query(tcid)
+	rows, err := RRdb.Prepstmt.GetVehiclesByTransactant.Query(tcid)
 	if err != nil {
 		return t, err
 	}
 	defer rows.Close()
 
-	return getVehicleList(rows)
+	return getVehicleList(ctx, rows)
 }
 
 // GetVehiclesByBID reads a Vehicle structure based on the supplied Vehicle id
@@ -5347,13 +5350,13 @@ func GetVehiclesByBID(ctx context.Context, bid int64) ([]Vehicle, error) {
 		}
 	}
 
-	rows, err = RRdb.Prepstmt.GetVehiclesByBID.Query(bid)
+	rows, err := RRdb.Prepstmt.GetVehiclesByBID.Query(bid)
 	if err != nil {
 		return t, err
 	}
 	defer rows.Close()
 
-	return getVehicleList(rows)
+	return getVehicleList(ctx, rows)
 }
 
 // GetXPerson will load a full XPerson given the trid

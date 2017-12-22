@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"time"
@@ -58,18 +59,19 @@ type RAAcctBal struct {
 }
 
 // GetNameFromTransactantCache implements a simple cache of Transactants
-func GetNameFromTransactantCache(tcid int64, payorcache map[int64]Transactant) string {
+func GetNameFromTransactantCache(ctx context.Context, tcid int64, payorcache map[int64]Transactant) string {
 	p, ok := payorcache[tcid]
 	if ok {
 		return p.GetUserName()
 	}
 	var tr Transactant
-	err := GetTransactant(tcid, &tr)
-	if err == nil {
-		payorcache[tr.TCID] = tr
-		return tr.GetUserName()
+	err := GetTransactant(ctx, tcid, &tr)
+	if err != nil {
+		return ""
 	}
-	return ""
+
+	payorcache[tr.TCID] = tr
+	return tr.GetUserName()
 }
 
 // GetRAIDBalance returns the balance of the account for the supplied
@@ -84,18 +86,22 @@ func GetNameFromTransactantCache(tcid int64, payorcache map[int64]Transactant) s
 //      err  = any error that occurred or nil if no errors
 //
 //=============================================================================
-func GetRAIDBalance(raid int64, dt *time.Time) (float64, error) {
+func GetRAIDBalance(ctx context.Context, raid int64, dt *time.Time) (float64, error) {
 	bal := float64(0)
-	lm := GetRALedgerMarkerOnOrBefore(raid, dt)
-	if lm.LMID == 0 {
+	lm, err := GetRALedgerMarkerOnOrBefore(ctx, raid, dt)
+	if err != nil {
 		err := fmt.Errorf("*** ERROR ***  could not find ledger marker for RAID %d on or before %s", raid, dt.Format(RRDATEFMTSQL))
 		return bal, err
 	}
 
 	var rs RAStmtEntries
-	bal = lm.Balance                               // initialize
-	bal += GetRAIDAcctRange(raid, &lm.Dt, dt, &rs) // update with total for this range
-	return bal, nil
+	bal = lm.Balance                                       // initialize
+	b, err := GetRAIDAcctRange(ctx, raid, &lm.Dt, dt, &rs) // update with total for this range
+	if err != nil {
+		return bal, err
+	}
+	bal += b
+	return bal, err
 }
 
 // GetRAIDStatementInfo is written in a way that will work for cash based
@@ -128,9 +134,11 @@ func GetRAIDBalance(raid int64, dt *time.Time) (float64, error) {
 //     RL  is not filled in by this report.
 //
 //=============================================================================
-func GetRAIDStatementInfo(raid int64, d1, d2 *time.Time) (RAAcctBal, error) {
-	var err error
-	var m RAAcctBal
+func GetRAIDStatementInfo(ctx context.Context, raid int64, d1, d2 *time.Time) (RAAcctBal, error) {
+	var (
+		err error
+		m   RAAcctBal
+	)
 
 	m.DtStart = *d1
 	m.DtStop = *d2
@@ -139,9 +147,13 @@ func GetRAIDStatementInfo(raid int64, d1, d2 *time.Time) (RAAcctBal, error) {
 	//----------------------------------------------------------------
 	//  First, find the ledger marker for this RentalAgreement...
 	//----------------------------------------------------------------
-	m.LmStart = GetRALedgerMarkerOnOrBefore(raid, d1)
+	m.LmStart, err = GetRALedgerMarkerOnOrBefore(ctx, raid, d1)
+	if err != nil {
+		return m, err
+	}
 	if m.LmStart.LMID == 0 { // if there's no marker on or prior to d1
-		m.LmStart = GetRALedgerMarkerOnOrAfter(raid, d1) // see where the first marker happens
+		// TODO(Steve): ignore error?
+		m.LmStart, _ = GetRALedgerMarkerOnOrAfter(ctx, raid, d1) // see where the first marker happens
 		if m.LmStart.LMID == 0 {
 			err = fmt.Errorf("*** ERROR ***  could not find ledger marker for RAID %d", raid)
 			return m, err
@@ -152,35 +164,54 @@ func GetRAIDStatementInfo(raid int64, d1, d2 *time.Time) (RAAcctBal, error) {
 	}
 
 	m.OpeningBal = m.LmStart.Balance                                  // initialize
-	m.OpeningBal += GetRAIDAcctRange(raid, &m.LmStart.Dt, d1, &m.Gap) // update with total for this range
+	ob, err := GetRAIDAcctRange(ctx, raid, &m.LmStart.Dt, d1, &m.Gap) // update with total for this range
+	if err != nil {
+		return m, err
+	}
+	m.OpeningBal += ob
 	sort.Sort(m.Gap)
 
 	//----------------------------------------------------------------
 	// Now get the actual Statement data and balance...
 	//----------------------------------------------------------------
 	m.ClosingBal = m.OpeningBal                             // initialize
-	m.ClosingBal += GetRAIDAcctRange(raid, d1, d2, &m.Stmt) // update with total for the statement range
+	cb, err := GetRAIDAcctRange(ctx, raid, d1, d2, &m.Stmt) // update with total for the statement range
+	if err != nil {
+		return m, err
+	}
 	sort.Sort(m.Stmt)
+	m.ClosingBal += cb
 
-	return m, nil
+	return m, err
 }
 
 // GetRAIDAcctRange gets the assessment and receipt allocation entries for the
 // supplied time range and returns the balance of these entries.
 //=============================================================================
-func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
+func GetRAIDAcctRange(ctx context.Context, raid int64, d1, d2 *time.Time, p *RAStmtEntries) (float64, error) {
 	bal := float64(0)
 	//----------------------------------------------------------------
 	// Total all assessments in the supplied range that involve RAID.
 	//----------------------------------------------------------------
 	rows, err := RRdb.Prepstmt.GetAssessmentsByRAIDRange.Query(raid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return bal, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a Assessment
-		ReadAssessments(rows, &a)
+		err := ReadAssessments(rows, &a)
+		if err != nil {
+			return bal, err
+		}
+
 		var rnt Rentable
-		GetRentableByID(a.RID, &rnt)
+		err = GetRentableByID(ctx, a.RID, &rnt)
+		if err != nil {
+			return bal, err
+		}
+
 		se := RAStmtEntry{
 			T:       1,
 			A:       &a,
@@ -200,15 +231,29 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 	// Total all receipts in the supplied range that involve RAID.
 	//----------------------------------------------------------------
 	rows, err = RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(raid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return bal, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var ra ReceiptAllocation
-		ReadReceiptAllocations(rows, &ra)
-		a, err := GetAssessment(ra.ASMID)
-		Errcheck(err)
+		err := ReadReceiptAllocations(rows, &ra)
+		if err != nil {
+			return bal, err
+		}
+
+		a, err := GetAssessment(ctx, ra.ASMID)
+		if err != nil {
+			return bal, err
+		}
+
 		var rnt Rentable
-		GetRentableByID(a.RID, &rnt)
+		err = GetRentableByID(ctx, a.RID, &rnt)
+		if err != nil {
+			return bal, err
+		}
+
 		se := RAStmtEntry{
 			T:       2,
 			R:       &ra,
@@ -224,5 +269,5 @@ func GetRAIDAcctRange(raid int64, d1, d2 *time.Time, p *RAStmtEntries) float64 {
 		}
 		// Console("RCPTID = %3d,  se.Amt = %8.2f,  bal = %8.2f,  Reverse = %t (RCPAID=%d),  ASMID = %3d\n", se.R.RCPTID, se.Amt, bal, se.Reverse, ra.RCPAID, se.A.ASMID)
 	}
-	return bal
+	return bal, err
 }

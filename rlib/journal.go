@@ -22,69 +22,72 @@ func sumAllocations(m *[]AcctRule) (float64, float64) {
 }
 
 // builds the account rule based on an ARID
-func buildRule(id int64) string {
-	if id == 0 {
-		return ""
-	}
-	rule, err := GetAR(id)
+func buildRule(ctx context.Context, id int64) (string, error) {
+	rule, err := GetAR(ctx, id)
 	if err != nil {
 		Ulog("buildRule: Error from getAR(%d):  %s\n", id, err.Error())
-		return ""
+		return "", err
 	}
-	d := GetLedger(rule.DebitLID)
-	c := GetLedger(rule.CreditLID)
+
+	d, err := GetLedger(ctx, rule.DebitLID)
+	if err != nil {
+		return "", err
+	}
+
+	c, err := GetLedger(ctx, rule.CreditLID)
+	if err != nil {
+		return "", err
+	}
+
 	s := fmt.Sprintf("d %s _, c %s _", d.GLNumber, c.GLNumber)
-	return s
+	return s, err
 }
 
 // GetAssessmentAccountRule looks at the supplied Assessment.  If the .AcctRule is present
 // then it is returned. If it is not present, then the ARID is used and an AcctRule is built
 // from the ARID.
-func GetAssessmentAccountRule(a *Assessment) string {
+func GetAssessmentAccountRule(ctx context.Context, a *Assessment) (string, error) {
 	if len(a.AcctRule) > 0 {
-		return a.AcctRule
+		return a.AcctRule, nil
 	}
-	return buildRule(a.ARID)
+	return buildRule(ctx, a.ARID)
 }
 
 // GetReceiptAccountRule looks at the supplied Receipt.  If the .AcctRule is present
 // then it is returned. If it is not present, then the ARID is used and an AcctRule is built
 // from the ARID.
-func GetReceiptAccountRule(a *Receipt) string {
+func GetReceiptAccountRule(ctx context.Context, a *Receipt) (string, error) {
 	if len(a.AcctRuleApply) > 0 {
-		return a.AcctRuleApply
+		return a.AcctRuleApply, nil
 	}
-	return buildRule(a.ARID)
+	return buildRule(ctx, a.ARID)
 }
 
-func getRuleText(id int64) string {
-	if id == 0 {
-		return ""
-	}
-	rule, err := GetAR(id)
+func getRuleText(ctx context.Context, id int64) (string, error) {
+	rule, err := GetAR(ctx, id)
 	if err != nil {
 		Ulog("getRuleText: Error from getAR(%d):  %s\n", id, err.Error())
-		return ""
+		return "", err
 	}
-	return rule.Name
+	return rule.Name, err
 }
 
 // GetAssessmentAccountRuleText returns the text to use in reports or in a UI that describes
 // the assessment
-func GetAssessmentAccountRuleText(a *Assessment) string {
+func GetAssessmentAccountRuleText(ctx context.Context, a *Assessment) (string, error) {
 	if len(a.AcctRule) > 0 {
-		return a.AcctRule
+		return a.AcctRule, nil
 	}
-	return getRuleText(a.ARID)
+	return getRuleText(ctx, a.ARID)
 }
 
 // GetReceiptAccountRuleText returns the text to use in reports or in a UI that describes
 // the Receipt
-func GetReceiptAccountRuleText(a *Receipt) string {
+func GetReceiptAccountRuleText(ctx context.Context, a *Receipt) (string, error) {
 	if len(a.AcctRuleApply) > 0 {
-		return a.AcctRuleApply
+		return a.AcctRuleApply, nil
 	}
-	return getRuleText(a.ARID)
+	return getRuleText(ctx, a.ARID)
 }
 
 // ProrateAssessment - determines the proration factor for this assessment
@@ -101,17 +104,29 @@ func GetReceiptAccountRuleText(a *Receipt) string {
 //       start:	 trimmed start date (latest of RentalAgreement.PossessionStart and d1)
 //        stop:	 trmmed stop date (soonest of RentalAgreement.PossessionStop and d2)
 //=================================================================================================
-func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (float64, int64, int64, time.Time, time.Time) {
-	funcname := "ProrateAssessment"
-	pf := float64(0)
-	var num, den int64
-	var start, stop time.Time
-	var r Rentable
+func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (float64, int64, int64, time.Time, time.Time, error) {
+	const funcname = "ProrateAssessment"
+
+	var (
+		pf          float64
+		num, den    int64
+		start, stop time.Time
+		r           Rentable
+		err         error
+	)
+
 	useStatus := int64(USESTATUSinService) // if RID==0, then it's for an application fee or similar.  Assume rentable is online.
 
 	if a.RID > 0 {
-		r = GetRentable(a.RID)
-		useStatus = GetRentableStateForDate(r.RID, d)
+		r, err = GetRentable(ctx, a.RID)
+		if err != nil {
+			return pf, num, den, start, stop, err
+		}
+
+		useStatus, err = GetRentableStateForDate(ctx, r.RID, d)
+		if err != nil {
+			return pf, num, den, start, stop, err
+		}
 	}
 
 	// Console("GetRentableStateForDate( %d, %s ) = %d\n", r.RID, d.Format(RRDATEINPFMT), useStatus)
@@ -119,7 +134,8 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 	case USESTATUSemployee:
 		fallthrough
 	case USESTATUSinService:
-		ra, _ := GetRentalAgreement(a.RAID)
+		// TODO(Steve): Do we need to ignore error hear?
+		ra, _ := GetRentalAgreement(ctx, a.RAID)
 		switch a.RentCycle {
 		case CYCLEDAILY:
 			pf, num, den, start, stop = CalcProrationInfo(&ra.RentStart, &ra.RentStop, d, d, a.RentCycle, a.ProrationCycle)
@@ -139,12 +155,18 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 	case USESTATUSofflineRenovation:
 		fallthrough
 	case USESTATUSofflineMaintenance:
-		ta := GetAllRentableAssessments(r.RID, d1, d2)
+		ta, err := GetAllRentableAssessments(ctx, r.RID, d1, d2)
+		if err != nil {
+			return pf, num, den, start, stop, nil
+		}
+
 		if len(ta) > 0 {
-			rentcycle, proration, _, err := GetRentCycleAndProration(&r, d1, xbiz)
+			rentcycle, proration, _, err := GetRentCycleAndProration(ctx, &r, d1, xbiz)
 			if err != nil {
+				// TODO(Steve): dont we return error?
 				Ulog("%s: error getting rent cycle for rentable %d. err = %s\n", funcname, r.RID, err.Error())
 			}
+
 			pf, num, den, start, stop = CalcProrationInfo(&(ta[0].Start), &(ta[0].Stop), d1, d2, rentcycle, proration)
 			if len(ta) > 1 {
 				Ulog("%s: %d Assessments affect Rentable %d (%s) with OFFLINE useStatus during %s - %s\n",
@@ -155,7 +177,7 @@ func ProrateAssessment(xbiz *XBusiness, a *Assessment, d, d1, d2 *time.Time) (fl
 		Ulog("%s: Rentable %d on %s has unknown useStatus: %d\n", funcname, r.RID, d.Format(RRDATEINPFMT), useStatus)
 	}
 
-	return pf, num, den, start, stop
+	return pf, num, den, start, stop, err
 }
 
 // journalAssessment processes the assessment, creates a Journal entry, and returns its id
@@ -170,13 +192,27 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 	// funcname := "journalAssessment"
 	// Console("Entered %s\n", funcname)
 	// Console("%s: d = %s, d1 = %s, d2 = %s\n", funcname, d.Format(RRDATEREPORTFMT), d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
-	pf, num, den, start, stop := ProrateAssessment(xbiz, a, &d, d1, d2)
+	var j Journal
+
+	pf, num, den, start, stop, err := ProrateAssessment(ctx, xbiz, a, &d, d1, d2)
+	if err != nil {
+		return j, err
+	}
 
 	// Console("%s: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", funcname, a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// Console("%s: pf = %f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
 
-	var j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID}
-	m := ParseAcctRule(xbiz, a.RID, d1, d2, GetAssessmentAccountRule(a), a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+	j = Journal{BID: a.BID, Dt: d, Type: JNLTYPEASMT, ID: a.ASMID}
+
+	asmRules, err := GetAssessmentAccountRule(ctx, a)
+	if err != nil {
+		return j, err
+	}
+
+	m, err := ParseAcctRule(ctx, xbiz, a.RID, d1, d2, asmRules, a.Amount, pf) // a rule such as "d 11001 1000.0, c 40001 1100.0, d 41004 100.00"
+	if err != nil {
+		return j, err
+	}
 
 	// Console("%s:  m = %#v\n", funcname, m)
 	// for i := 0; i < len(m); i++ {
@@ -289,7 +325,11 @@ func RemoveJournalEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Tim
 	}
 
 	// only delete the marker if it is in this time range and if it is not the origin marker
-	jm := GetLastJournalMarker()
+	jm, err := GetLastJournalMarker(ctx)
+	if err != nil {
+		return err
+	}
+
 	if jm.State == LMOPEN && (jm.DtStart.After(*d1) || jm.DtStart.Equal(*d1)) && (jm.DtStop.Before(*d2) || jm.DtStop.Equal(*d2)) {
 		DeleteJournalMarker(ctx, jm.JMID)
 	}
@@ -351,7 +391,8 @@ func ProcessNewReceipt(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, 
 			ja.ASMID = r.RA[i].ASMID
 			ja.AcctRule = r.RA[i].AcctRule
 			if ja.ASMID > 0 { // there may not be an assessment associated, it could be unallocated funds
-				a, _ := GetAssessment(ja.ASMID) // but if there is an associated assessment, then mark the RID and RAID
+				// TODO(Steve): should we ignore error?
+				a, _ := GetAssessment(ctx, ja.ASMID) // but if there is an associated assessment, then mark the RID and RAID
 				ja.RID = a.RID
 				ja.RAID = r.RA[i].RAID
 			}
@@ -445,8 +486,9 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 
 			// The generation of recurring assessment instances needs to be idempotent.
 			// Check to ensure that this instance does not already exist before generating it
-			a2, _ := GetAssessmentInstance(&a1.Start, a1.PASMID) // if this returns an existing instance (ASMID != 0) then it's already been processed...
-			if a2.ASMID == 0 {                                   // ... otherwise, process this instance
+			// TODO(Steve): Should we ignore error?
+			a2, _ := GetAssessmentInstance(ctx, &a1.Start, a1.PASMID) // if this returns an existing instance (ASMID != 0) then it's already been processed...
+			if a2.ASMID == 0 {                                        // ... otherwise, process this instance
 				// Console("ProcessJournalEntry: 4.0, a1.Amount = %.2f\n", a1.Amount)
 				_, err = InsertAssessment(ctx, &a1)
 				Errlog(err)
@@ -499,30 +541,40 @@ func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.T
 
 // ProcessReceiptRange creates Journal records for Receipts in the supplied date range
 //=================================================================================================
-func ProcessReceiptRange(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) {
-	r := GetReceipts(xbiz.P.BID, d1, d2)
+func ProcessReceiptRange(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) error {
+	r, err := GetReceipts(ctx, xbiz.P.BID, d1, d2)
+	if err != nil {
+		return err
+	}
+
 	for i := 0; i < len(r); i++ {
-		j := GetJournalByReceiptID(r[i].RCPTID)
-		if j.JID == 0 {
-			ProcessNewReceipt(ctx, xbiz, d1, d2, &r[i])
+		j, err := GetJournalByReceiptID(ctx, r[i].RCPTID)
+		if err != nil {
+			_, err = ProcessNewReceipt(ctx, xbiz, d1, d2, &r[i])
+			if err != nil {
+				return err
+			}
 		}
 	}
+
+	return err
 }
 
 // CreateJournalMarker creates a Journal Marker record for the supplied date range
 //=================================================================================================
-func CreateJournalMarker(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) {
+func CreateJournalMarker(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) error {
 	const funcname = "CreateJournalMarker"
 	var jm JournalMarker
 	jm.BID = xbiz.P.BID
 	jm.State = LMOPEN
 	jm.DtStart = *d1
 	jm.DtStop = *d2
-	// TODO(sudip): need to handle error here, PROBABLY!!
+
 	_, err := InsertJournalMarker(ctx, &jm)
 	if err != nil {
 		Ulog("%s: Error while inserting journal marker: %s\n", funcname, err.Error())
 	}
+	return err
 }
 
 // GenerateJournalRecords creates Journal records for Assessments and receipts over the supplied time range.

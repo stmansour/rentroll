@@ -525,7 +525,10 @@ func DeleteNote(ctx context.Context, nid int64) error {
 	}
 
 	var n Note
-	GetNote(nid, &n)
+	err = GetNote(ctx, nid, &n)
+	if err != nil {
+		return err
+	}
 	return DeleteNoteAndChildNotes(ctx, &n)
 }
 

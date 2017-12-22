@@ -1,6 +1,9 @@
 package rlib
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // RSLeaseStatus is a slice of the string meaning of each LeaseStatus
 var RSLeaseStatus = []string{
@@ -54,6 +57,7 @@ type RStatInfo struct {
 //   UseStatus:   InService
 //
 // INPUTS
+//   ctx       - context.Context (sess, sql.Tx etc...)
 //   BID       - which business
 //   RID       - the rentable id
 //   gaps      - slice of Periods of interest
@@ -64,14 +68,21 @@ type RStatInfo struct {
 //               of the rentable during each Period in gaps
 //   error     - any error encountered
 //-----------------------------------------------------------------------------
-func RStat(bid, rid int64, gaps []Period) []RStatInfo {
-	var m []RStatInfo
+func RStat(ctx context.Context, bid, rid int64, gaps []Period) ([]RStatInfo, error) {
+	var (
+		m   []RStatInfo
+		err error
+	)
+
 	for i := 0; i < len(gaps); i++ {
 		//-------------------------------------------------------------
 		// Check for any special rentable status during the gap.
 		// Reflect what's happening if we find anything
 		//-------------------------------------------------------------
-		rsa := GetRentableStatusByRange(rid, &gaps[i].D1, &gaps[i].D2)
+		rsa, err := GetRentableStatusByRange(ctx, rid, &gaps[i].D1, &gaps[i].D2)
+		if err != nil {
+			return m, err
+		}
 
 		if len(rsa) > 0 {
 			for j := 0; j < len(rsa); j++ {
@@ -95,15 +106,18 @@ func RStat(bid, rid int64, gaps []Period) []RStatInfo {
 			//----------------------------------------------------------------
 			// If there is a RentalAgreement in the future, modify the status
 			//----------------------------------------------------------------
-			r := GetRentableStatusOnOrAfter(rid, &gaps[i].D1)
+			r, err := GetRentableStatusOnOrAfter(ctx, rid, &gaps[i].D1)
+			if err != nil {
+				return m, err
+			}
+
 			if r.RSID > 0 {
 				rs.RS.LeaseStatus = LEASESTATUSvacantRented
 			}
-
 			m = append(m, rs)
 		}
 	}
-	return m
+	return m, err
 }
 
 // VacancyGSR returns the GSR amount for the rentable during the supplied
@@ -118,14 +132,20 @@ func RStat(bid, rid int64, gaps []Period) []RStatInfo {
 // RETURN
 //  the amount of GSR for the period
 //-----------------------------------------------------------------------------
-func VacancyGSR(xbiz *XBusiness, rid int64, d1, d2 *time.Time) float64 {
+func VacancyGSR(ctx context.Context, xbiz *XBusiness, rid int64, d1, d2 *time.Time) (float64, error) {
+	var err error
 	amt := float64(0)
 	// Console("*** Calling VacancyDetect: %s - %s, rid = %d\n", d1.Format(RRDATEFMTSQL), d2.Format(RRDATEFMTSQL), rid)
-	m := VacancyDetect(xbiz, d1, d2, rid)
+	m, err := VacancyDetect(ctx, xbiz, d1, d2, rid)
+	if err != nil {
+		return amt, err
+	}
+
 	for i := 0; i < len(m); i++ {
 		amt += m[i].Amount
 	}
-	return amt
+
+	return amt, err
 }
 
 // LeaseStatusStringer returns the string associated with the LeaseStatus

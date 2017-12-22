@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"time"
@@ -310,14 +311,19 @@ func SelectRentableStatusForPeriod(rsa *[]RentableStatus, dt1, dt2 time.Time) []
 // GetRentableStateForDate returns the status of the Rentable on the supplied
 // date
 //=============================================================================
-func GetRentableStateForDate(rid int64, dt *time.Time) int64 {
+func GetRentableStateForDate(ctx context.Context, rid int64, dt *time.Time) (int64, error) {
 	status := int64(RENTABLESTATUSUNKNOWN)
 	d2 := dt.Add(24 * time.Hour)
-	m := GetRentableStatusByRange(rid, dt, &d2)
+
+	m, err := GetRentableStatusByRange(ctx, rid, dt, &d2)
+	if err != nil {
+		return status, err
+	}
+
 	if len(m) > 0 {
 		status = m[0].UseStatus
 	}
-	return status
+	return status, err
 }
 
 // GetLIDFromGLAccountName returns the LID based on the supplied GLAccount
@@ -337,22 +343,25 @@ func GetLIDFromGLAccountName(bid int64, s string) int64 {
 // suppliedbased on the supplied GLAccount name. If there are no child
 // accounts, the list will be empty
 //=============================================================================
-func GetGLAccountChildAccts(bid, lid int64) []int64 {
+func GetGLAccountChildAccts(ctx context.Context, bid, lid int64) ([]int64, error) {
 	var m []int64
 	for _, v := range RRdb.BizTypes[bid].GLAccounts {
 		if v.PLID == lid {
 			m = append(m, v.LID)
 		}
 	}
-	return m
+
+	// TODO(): returning things from the memory cache,
+	// need authorization of user on top of this call/here.
+	return m, nil
 }
 
 // GetAccountActivity returns the summed Amount balance for activity
 // in GLAccount lid associated with RentalAgreement raid
 //=============================================================================
-func GetAccountActivity(bid, lid int64, d1, d2 *time.Time) (float64, error) {
+func GetAccountActivity(ctx context.Context, bid, lid int64, d1, d2 *time.Time) (float64, error) {
 	var bal = float64(0)
-	m, err := GetLedgerEntriesInRange(d1, d2, bid, lid)
+	m, err := GetLedgerEntriesInRange(ctx, d1, d2, bid, lid)
 	if err != nil {
 		return bal, err
 	}
@@ -365,9 +374,9 @@ func GetAccountActivity(bid, lid int64, d1, d2 *time.Time) (float64, error) {
 // GetRAAccountActivity returns the summed Amount balance for activity
 // in GLAccount lid associated with RentalAgreement raid
 //=============================================================================
-func GetRAAccountActivity(bid, lid, raid int64, d1, d2 *time.Time) (float64, error) {
+func GetRAAccountActivity(ctx context.Context, bid, lid, raid int64, d1, d2 *time.Time) (float64, error) {
 	var bal = float64(0)
-	m, err := GetLedgerEntriesForRAID(d1, d2, raid, lid)
+	m, err := GetLedgerEntriesForRAID(ctx, d1, d2, raid, lid)
 	if err != nil {
 		return bal, err
 	}
@@ -380,9 +389,9 @@ func GetRAAccountActivity(bid, lid, raid int64, d1, d2 *time.Time) (float64, err
 // GetRentableAccountActivity returns the summed Amount balance for activity
 // in GLAccount lid associated with Rentable rid
 //=============================================================================
-func GetRentableAccountActivity(bid, lid, rid int64, d1, d2 *time.Time) (float64, error) {
+func GetRentableAccountActivity(ctx context.Context, bid, lid, rid int64, d1, d2 *time.Time) (float64, error) {
 	var bal = float64(0)
-	m, err := GetLedgerEntriesForRentable(d1, d2, rid, lid)
+	m, err := GetLedgerEntriesForRentable(ctx, d1, d2, rid, lid)
 	if err != nil {
 		return bal, err
 	}
@@ -402,7 +411,7 @@ func GetRentableAccountActivity(bid, lid, rid int64, d1, d2 *time.Time) (float64
 //   float64 balance
 //   error or nil
 //=============================================================================
-func GetAccountTypeBalance(a string, bid int64, dt *time.Time) (float64, error) {
+func GetAccountTypeBalance(ctx context.Context, a string, bid int64, dt *time.Time) (float64, error) {
 	bal := float64(0)
 	found := false
 	for i := 0; i < len(QBAcctType); i++ { // make sure we have a valid
@@ -418,33 +427,51 @@ func GetAccountTypeBalance(a string, bid int64, dt *time.Time) (float64, error) 
 	if !ok {
 		return bal, fmt.Errorf("No business found for BID = %d", bid)
 	}
+
 	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
-	Errcheck(err)
+	if err != nil {
+		return bal, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var r GLAccount
 		ReadGLAccounts(rows, &r)
 		if r.AcctType == a && r.AllowPost == 1 {
-			bal += GetAccountBalance(bid, r.LID, dt)
+			b, err := GetAccountBalance(ctx, bid, r.LID, dt)
+			if err != nil {
+				return bal, err
+			}
+			bal += b
 		}
 	}
-	return bal, nil
+
+	return bal, rows.Err()
 }
 
 // GetRAAccountBalance returns the balance of the account with LID lid on date
 // dt. If raid is 0 then all transactions are considered. Otherwise, only
 // transactions involving this RAID are considered.
 //=============================================================================
-func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
+func GetRAAccountBalance(ctx context.Context, bid, lid, raid int64, dt *time.Time) (float64, error) {
 	// fmt.Printf("GetRAAccountBalance: bid = %d, lid = %d, raid = %d, dt = %s ", bid, lid, raid, dt.Format(RRDATEFMT4))
 	bal := float64(0)
 	//--------------------------------------------------------------------------------
 	// First, check and see if this is a Parent to any other GLAccounts. If so, then
 	// compute their totals
 	//--------------------------------------------------------------------------------
-	m := GetGLAccountChildAccts(bid, lid)
+	m, err := GetGLAccountChildAccts(ctx, bid, lid)
+	if err != nil {
+		return bal, err
+	}
+
 	for i := 0; i < len(m); i++ {
-		bal += GetRAAccountBalance(bid, m[i], raid, dt)
+
+		b, err := GetRAAccountBalance(ctx, bid, m[i], raid, dt)
+		if err != nil {
+			return bal, err
+		}
+		bal += b
 		// fmt.Printf("L%08d child %d = L%08d  ==> bal = %8.2f\n", lid, i, m[i], bal)
 	}
 
@@ -452,7 +479,10 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 	// Compute the total for this account. If this ledger does not allow posts, don't
 	// consider its Balance.
 	//--------------------------------------------------------------------------------
-	lm := GetRALedgerMarkerOnOrBeforeDeprecated(bid, lid, raid, dt) // find nearest ledgermarker, use it as a basis
+	lm, err := GetRALedgerMarkerOnOrBeforeDeprecated(ctx, bid, lid, raid, dt) // find nearest ledgermarker, use it as a basis
+	if err != nil {
+		return bal, err
+	}
 	// fmt.Printf("GetRALedgerMarkerOnOrBeforeDeprecated(bid,lid,raid,dt) = lm.LMID = %d, lm.Dt = %s\n", lm.LMID, lm.Dt.Format(RRDATEFMT4))
 	if lm.LMID > 0 && RRdb.BizTypes[bid].GLAccounts[lid].AllowPost != 0 {
 		bal += lm.Balance // we initialize the balance to this amount
@@ -461,40 +491,52 @@ func GetRAAccountBalance(bid, lid, raid int64, dt *time.Time) float64 {
 
 	// Get the sum of the activity between requested date and LedgerMarker
 	var activity float64
+
+	// TODO(Steve): should we really ignore errors from here?
 	if raid != 0 {
-		activity, _ = GetRAAccountActivity(bid, lid, raid, &lm.Dt, dt)
+		activity, _ = GetRAAccountActivity(ctx, bid, lid, raid, &lm.Dt, dt)
 		// fmt.Printf("GetRAAccountActivity(bid, lid, raid, &lm.Dt, dt) = %8.2f\n", activity)
 	} else {
-		activity, _ = GetAccountActivity(bid, lid, &lm.Dt, dt)
+		activity, _ = GetAccountActivity(ctx, bid, lid, &lm.Dt, dt)
 		// fmt.Printf("GetAccountActivity(bid, lid, &lm.Dt, dt) = %8.2f\n", activity)
 	}
 	bal += activity
 	// fmt.Printf("====>  balance = %.2f\n", bal)
-	return bal
+	return bal, err
 }
 
 // GetAccountBalance returns the balance of the account with LID lid on date dt.
 // It's just a wrapper around GetRAAccountBalance with raid set to 0.  This returns
 // the account balance we're after, but with a more obvious function name to call.
 //=============================================================================
-func GetAccountBalance(bid, lid int64, dt *time.Time) float64 {
-	return GetRAAccountBalance(bid, lid, 0, dt)
+func GetAccountBalance(ctx context.Context, bid, lid int64, dt *time.Time) (float64, error) {
+	return GetRAAccountBalance(ctx, bid, lid, 0, dt)
 }
 
 // GetRentableAccountBalance returns the balance of the account with LID lid
 // on date dt. If rid is 0 then all transactions are considered. Otherwise,
 // only transactions involving this RID are considered.
 //=============================================================================
-func GetRentableAccountBalance(bid, lid, rid int64, dt *time.Time) float64 {
+func GetRentableAccountBalance(ctx context.Context, bid, lid, rid int64, dt *time.Time) (float64, error) {
 	// fmt.Printf("GetRAAccountBalance: bid = %d, lid = %d, rid = %d, dt = %s\n", bid, lid, rid, dt.Format(RRDATEFMT4))
 	bal := float64(0)
-	m := GetGLAccountChildAccts(bid, lid) // if parent acct, get info to compute aggregate balance
+	m, err := GetGLAccountChildAccts(ctx, bid, lid) // if parent acct, get info to compute aggregate balance
+	if err != nil {
+		return bal, err
+	}
 	for i := 0; i < len(m); i++ {
-		bal += GetRentableAccountBalance(bid, m[i], rid, dt) // recurse
+		b, err := GetRentableAccountBalance(ctx, bid, m[i], rid, dt) // recurse
+		if err != nil {
+			return bal, err
+		}
+		bal += b
 		// fmt.Printf("L%08d child %d = L%08d  ==> bal = %8.2f\n", lid, i, m[i], bal)
 	}
 	// Compute the total for this account. Start by getting any initial balance
-	lm := GetRentableLedgerMarkerOnOrBefore(bid, lid, rid, dt) // find nearest ledgermarker, use it as a basis
+	lm, err := GetRentableLedgerMarkerOnOrBefore(ctx, bid, lid, rid, dt) // find nearest ledgermarker, use it as a basis
+	if err != nil {
+		return bal, err
+	}
 	// fmt.Printf("GetRentableLedgerMarkerOnOrBefore( bid, lid, rid, dt = %s) --> LM%08d, \n", dt.Format(RRDATEFMT4), lm.LMID)
 	if lm.LMID > 0 {
 		bal += lm.Balance // we initialize the balance to this amount
@@ -502,17 +544,19 @@ func GetRentableAccountBalance(bid, lid, rid int64, dt *time.Time) float64 {
 	}
 	// Get the sum of the activity between requested date and LedgerMarker
 	var activity float64
+
+	// TODO(Steve): should really ignore the errors from here?
 	if rid != 0 {
-		activity, _ = GetRentableAccountActivity(bid, lid, rid, &lm.Dt, dt)
+		activity, _ = GetRentableAccountActivity(ctx, bid, lid, rid, &lm.Dt, dt)
 		// fmt.Printf("GetRentableAccountActivity(bid=%d, lid=%d, rid=%d, &lm.Dt = %s, dt = %s) = %8.2f\n", bid, lid, rid, lm.Dt.Format(RRDATEFMT4), dt.Format(RRDATEFMT4), activity)
 	} else {
-		activity, _ = GetAccountActivity(bid, lid, &lm.Dt, dt)
+		activity, _ = GetAccountActivity(ctx, bid, lid, &lm.Dt, dt)
 		// fmt.Printf("GetAccountActivity(bid=%d, lid=%d, &lm.Dt = %s, dt = %s) = %8.2f\n", bid, lid, lm.Dt.Format(RRDATEFMT4), dt.Format(RRDATEFMT4), activity)
 	}
 
 	bal += activity
 	// fmt.Printf("====>  balance = %.2f\n", bal)
-	return bal
+	return bal, err
 }
 
 // GetRentCycleAndProration returns the RentCycle (and Proration) to use for
@@ -525,15 +569,22 @@ func GetRentableAccountBalance(bid, lid, rid int64, dt *time.Time) float64 {
 //		rtid for the supplied date
 //		error
 //=============================================================================
-func GetRentCycleAndProration(r *Rentable, dt *time.Time, xbiz *XBusiness) (int64, int64, int64, error) {
+func GetRentCycleAndProration(ctx context.Context, r *Rentable, dt *time.Time, xbiz *XBusiness) (int64, int64, int64, error) {
 	var err error
 	var rc, pro, rtid int64
 
-	rrt := GetRentableTypeRefForDate(r.RID, dt)
+	rrt, err := GetRentableTypeRefForDate(ctx, r.RID, dt)
+	if err != nil {
+		return rc, pro, rtid, err
+	}
+
 	if rrt.RID == 0 {
 		return rc, pro, rtid, fmt.Errorf("No RentableTypeRef for %s", dt.Format(RRDATEINPFMT))
 	}
-	rtid = GetRTIDForDate(r.RID, dt)
+	rtid, err = GetRTIDForDate(ctx, r.RID, dt)
+	if err != nil {
+		return rc, pro, rtid, err
+	}
 	if rrt.OverrideRentCycle > CYCLENORECUR { // if there's an override for RentCycle...
 		rc = rrt.OverrideRentCycle // ...set it
 	} else {

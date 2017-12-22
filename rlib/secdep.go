@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -152,7 +153,7 @@ func PrintSecDepBalCache() {
 // float64 - Amount of change in Security Deposit Balance between d1 and d2
 //   error - any error encountered
 //-----------------------------------------------------------------------------
-func GetSecDepBalance(bid, raid, rid int64, d1, d2 *time.Time) (float64, error) {
+func GetSecDepBalance(ctx context.Context, bid, raid, rid int64, d1, d2 *time.Time) (float64, error) {
 	//-------------------------------
 	// first, check the cache...
 	//-------------------------------

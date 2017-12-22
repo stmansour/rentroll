@@ -35,34 +35,48 @@ func InitLedgerCache() {
 // stored in the cache at index s.  If no ledger is found with GLNumber s,
 // then a ledger with LID = 0 is returned.
 //-----------------------------------------------------------------------------
-func GetCachedLedgerByGL(bid int64, s string) GLAccount {
-	var l GLAccount
-	var ok bool
+func GetCachedLedgerByGL(ctx context.Context, bid int64, s string) (GLAccount, error) {
+
+	var (
+		l   GLAccount
+		ok  bool
+		err error
+	)
 
 	l, ok = ledgerCache[s]
 	if ok {
 		if l.BID == bid {
-			return l
+			return l, err
 		}
 	}
-	l = GetLedgerByGLNo(bid, s)
-	if 0 == l.LID {
+
+	l, err = GetLedgerByGLNo(ctx, bid, s)
+
+	if err != nil {
 		Ulog("GetCachedLedgerByGL: error getting ledger %s from business %d. \n", s, bid)
 		l.LID = 0
 	} else {
 		ledgerCache[s] = l
 	}
-	return l
+	return l, err
 }
 
 // GenerateLedgerEntriesFromJournal creates all the LedgerEntries necessary
 // to describe the Journal entry provided. The number of LedgerEntries
 // inserted is returned
 //-----------------------------------------------------------------------------
-func GenerateLedgerEntriesFromJournal(ctx context.Context, xbiz *XBusiness, j *Journal, d1, d2 *time.Time) int {
-	nr := 0
+func GenerateLedgerEntriesFromJournal(ctx context.Context, xbiz *XBusiness, j *Journal, d1, d2 *time.Time) (int, error) {
+	var (
+		nr  int
+		err error
+	)
+
 	for i := 0; i < len(j.JA); i++ {
-		m := ParseAcctRule(xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
+		m, err := ParseAcctRule(ctx, xbiz, j.JA[i].RID, d1, d2, j.JA[i].AcctRule, j.JA[i].Amount, 1.0)
+		if err != nil {
+			return nr, err
+		}
+
 		for k := 0; k < len(m); k++ {
 			var l LedgerEntry
 			l.BID = xbiz.P.BID
@@ -76,18 +90,27 @@ func GenerateLedgerEntriesFromJournal(ctx context.Context, xbiz *XBusiness, j *J
 			if m[k].Action == "c" {
 				l.Amount = -l.Amount
 			}
-			ledger := GetCachedLedgerByGL(l.BID, m[k].Account)
+			ledger, err := GetCachedLedgerByGL(ctx, l.BID, m[k].Account)
+			if err != nil {
+				return nr, err
+			}
+
 			l.LID = ledger.LID
 			if l.Amount >= float64(0.005) || l.Amount < float64(-0.005) { // ignore rounding errors
-				dup := GetLedgerEntryByJAID(l.BID, l.LID, l.JAID) //
-				if dup.LEID == 0 {
-					InsertLedgerEntry(ctx, &l)
+				dup, err := GetLedgerEntryByJAID(ctx, l.BID, l.LID, l.JAID) //
+				if err != nil {
+					_, err = InsertLedgerEntry(ctx, &l)
+					// TODO(Steve): should we return error from here?
+					if err != nil {
+						Ulog("InsertLedgerEntry error: %s", err.Error())
+					}
 					nr++
+					// TODO(Steve): should we return something from here?
 				}
 			}
 		}
 	}
-	return nr
+	return nr, err
 }
 
 // UpdateRentableLedgerMarkers keeps track of the balance associated with a
@@ -169,7 +192,7 @@ func UpdateRentableLedgerMarkers(bid int64, dt *time.Time) error {
 //		bid   - business id
 //		dt    - compute the balance for the subledger on this date
 //-----------------------------------------------------------------------------
-func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) {
+func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) error {
 	funcname := "UpdateSubLedgerMarkers"
 	var lmacct LedgerMarker
 
@@ -180,29 +203,29 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) {
 	// the balance for each ledger marker
 	//--------------------------------------------------------------------
 	for k := range RRdb.BizTypes[bid].GLAccounts {
-		lm := GetLedgerMarkerOnOrBefore(bid, k, d2)
-		if lm.LID == 0 {
-			continue
-		}
+		lm, _ := GetLedgerMarkerOnOrBefore(ctx, bid, k, d2)
 		lmacct = lm
 		break
 	}
 
-	lm := GetLedgerMarkerOnOrBefore(bid, lmacct.LID, d2)
+	lm, _ := GetLedgerMarkerOnOrBefore(ctx, bid, lmacct.LID, d2)
 	d1 := &lm.Dt
 
 	//-------------------------------
 	// For each Rental Agreement
 	//-------------------------------
 	rows, err := RRdb.Prepstmt.GetRentalAgreementByBusiness.Query(bid)
-	Errcheck(err)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var ra RentalAgreement
 		err = ReadRentalAgreements(rows, &ra)
 		if err != nil {
 			Ulog("%s: error reading RentalAgreement: %s\n", funcname, err.Error())
-			return
+			return err
 		}
 
 		// Console("%s\n", Tline(80))
@@ -212,10 +235,10 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) {
 		// get all the ledger activity between d1 and d2 involving the current
 		// RentalAgreement
 		//---------------------------------------------------------------------
-		m, err := GetAllLedgerEntriesForRAID(d1, d2, ra.RAID)
+		m, err := GetAllLedgerEntriesForRAID(ctx, d1, d2, ra.RAID)
 		if err != nil {
 			Ulog("%s: GetLedgerEntriesForRAID returned error: %s\n", funcname, err.Error())
-			return
+			return err
 		}
 
 		// Console("LedgerEntries for RAID = %d between %s - %s:  %d\n", ra.RAID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), len(m))
@@ -238,7 +261,10 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) {
 			// find the previous LedgerMarker for the GLAccount.  Create one
 			// if none exist...
 			//-----------------------------------------------------------------
-			lm := LoadRALedgerMarker(bid, m[i].LID, m[i].RAID, d1)
+			lm, err := LoadRALedgerMarker(ctx, bid, m[i].LID, m[i].RAID, d1)
+			if err != nil {
+				return err
+			}
 
 			// Console("%s\n", Tline(20))
 			// Console("Processing L%08d\n", m[i].LID)
@@ -269,12 +295,13 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) {
 			_, err = InsertLedgerMarker(ctx, &lm2) // lm2.LMID is updated if no error
 			if err != nil {
 				Ulog("%s: InsertLedgerMarker error: %s\n", funcname, err.Error())
-				return
+				return err
 			}
 			// Console("LedgerMarker: RAID = %d, Balance = %8.2f\n", lm2.RAID, lm2.Balance)
 		}
 	}
-	Errcheck(rows.Err())
+
+	return rows.Err()
 }
 
 // // UpdatePayorSubLedgers updates the sub-ledgers by
@@ -335,70 +362,108 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) {
 // 	// }
 // }
 
-func closeLedgerPeriod(ctx context.Context, xbiz *XBusiness, li *GLAccount, lm *LedgerMarker, dt *time.Time, state int64) {
+func closeLedgerPeriod(ctx context.Context, xbiz *XBusiness, li *GLAccount, lm *LedgerMarker, dt *time.Time, state int64) error {
 	const funcname = "closeLedgerPeriod"
 
-	bal := GetRAAccountBalance(li.BID, li.LID, 0, dt)
+	bal, err := GetRAAccountBalance(ctx, li.BID, li.LID, 0, dt)
+	if err != nil {
+		return err
+	}
 
 	var nlm LedgerMarker
 	nlm = *lm
 	nlm.Balance = bal
 	nlm.Dt = *dt
 	nlm.State = state
-	// TODO(sudip): probably need to return handler with error
-	_, err := InsertLedgerMarker(ctx, &nlm) // this is a period close
+
+	_, err = InsertLedgerMarker(ctx, &nlm) // this is a period close
 	if err != nil {
 		Ulog("%s: Error while inserting LedgerMarker: %s\n", funcname, err.Error())
+		return err
 	}
+
+	return err
 }
 
 // GenerateLedgerMarkers creates all ledgermarkers at d2
-func GenerateLedgerMarkers(ctx context.Context, xbiz *XBusiness, d2 *time.Time) {
+func GenerateLedgerMarkers(ctx context.Context, xbiz *XBusiness, d2 *time.Time) error {
 	funcname := "GenerateLedgerMarkers"
 	//----------------------------------------------------------------------------------
 	// Spin through all ledgers and update the LedgerMarkers with the ending balance...
 	//----------------------------------------------------------------------------------
-	t := GetLedgerList(xbiz.P.BID) // this list contains the list of all GLAccount numbers
+	t, err := GetLedgerList(ctx, xbiz.P.BID) // this list contains the list of all GLAccount numbers
+	if err != nil {
+		return err
+	}
+
 	for i := 0; i < len(t); i++ {
-		lm := GetLedgerMarkerOnOrBefore(xbiz.P.BID, t[i].LID, d2)
-		if lm.LMID == 0 {
+		lm, err := GetLedgerMarkerOnOrBefore(ctx, xbiz.P.BID, t[i].LID, d2)
+		if err != nil {
 			LogAndPrint("%s: Could not get GLAccount %d (%s) in business %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
 			continue
 		}
-		closeLedgerPeriod(ctx, xbiz, &t[i], &lm, d2, LMOPEN)
+		err = closeLedgerPeriod(ctx, xbiz, &t[i], &lm, d2, LMOPEN)
+		if err != nil {
+			return err
+		}
 	}
 
 	//----------------------------------------------------------------------------------
 	// Now we need to update the ledger markers for RAIDs and RIDs and TCIDs
 	//----------------------------------------------------------------------------------
-	UpdateSubLedgerMarkers(ctx, xbiz.P.BID, d2)
+	return UpdateSubLedgerMarkers(ctx, xbiz.P.BID, d2)
 	//UpdatePayorSubLedgers(xbiz.P.BID, d1, d2)
 }
 
 // GenerateLedgerEntries creates ledgers records based on the Journal records over the supplied time range.
-func GenerateLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) int {
+func GenerateLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) (int, error) {
 	nr := 0
 	// Console("Generate Ledger Records: BID=%d, d1 = %s, d2 = %s\n", xbiz.P.BID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// funcname := "GenerateLedgerEntries"
 	err := RemoveLedgerEntries(ctx, xbiz, d1, d2)
 	if err != nil {
 		Ulog("Could not remove existing LedgerEntries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
-		return nr
+		return nr, err
 	}
 	InitLedgerCache()
 	//----------------------------------------------------------------------------------
 	// Loop through the Journal records for this time period, update all ledgers...
 	//----------------------------------------------------------------------------------
 	rows, err := RRdb.Prepstmt.GetAllJournalsInRange.Query(xbiz.P.BID, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return nr, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var j Journal
-		ReadJournals(rows, &j)
-		GetJournalAllocations(&j)
-		nr += GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+		err = ReadJournals(rows, &j)
+		if err != nil {
+			return nr, err
+		}
+
+		err = GetJournalAllocations(ctx, &j)
+		if err != nil {
+			return nr, err
+		}
+
+		n, err := GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+		if err != nil {
+			return nr, err
+		}
+
+		nr += n
 	}
-	Errcheck(rows.Err())
-	GenerateLedgerMarkers(ctx, xbiz, d2)
-	return nr
+
+	err = rows.Err()
+	if err != nil {
+		return nr, err
+	}
+
+	err = GenerateLedgerMarkers(ctx, xbiz, d2)
+	if err != nil {
+		return nr, err
+	}
+
+	return nr, err
 }

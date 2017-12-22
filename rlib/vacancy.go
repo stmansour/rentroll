@@ -40,11 +40,19 @@ func temporaryGetLTLAR(bid int64) string {
 // period for which no rent was assessed.
 // The return value is the number of vacancy records added
 //============================================================================================
-func ProcessRentable(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) int {
+func ProcessRentable(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, r *Rentable) (int, error) {
 	const funcname = "ProcessRentable"
 
-	nr := 0
-	m := VacancyDetect(xbiz, d1, d2, r.RID)
+	var (
+		nr  = 0
+		err error
+	)
+
+	m, err := VacancyDetect(ctx, xbiz, d1, d2, r.RID)
+	if err != nil {
+		return nr, err
+	}
+
 	// fmt.Printf("ProcessRentable: r = %s (%d), period=(%s - %s) len(m) = %d\n", r.Name, r.RID, d1.Format("Jan 2"), d2.Format("Jan 2"), len(m))
 	for i := 0; i < len(m); i++ {
 		// the umr rate is in cost/accrualDuration. The duration of the VacancyMarkers
@@ -66,13 +74,21 @@ func ProcessRentable(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, r 
 		//       By convention, the period for Vacancy detection is:  supplied range, date/time of journal entry =
 		//       rentcycle - 1 prorationcycle (or one second whichever is larger)
 		// These entries must be idempotent. Make sure it does not already exist.
-		jv := GetJournalVacancy(r.RID, &j.Dt, &m[i].DtStop)
+		jv, err := GetJournalVacancy(ctx, r.RID, &j.Dt, &m[i].DtStop)
+		if err != nil {
+			return nr, err
+		}
+
 		if jv.JID != 0 { // if the JID >0 ..
 			continue // then this entry was already generated, keep going
 		}
 
 		jid, err := InsertJournal(ctx, &j)
-		Errlog(err)
+		if err != nil {
+			Errlog(err)
+			return nr, err
+		}
+
 		nr++
 		if jid > 0 {
 			var ja JournalAllocation
@@ -87,28 +103,50 @@ func ProcessRentable(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, r 
 			_, err := InsertJournalAllocationEntry(ctx, &ja)
 			if err != nil {
 				Ulog("%s: Error while inserting journalAllocation entry: %s\n", funcname, err.Error())
+				// TODO(Steve): ignore error?
 			}
 			j.JA = append(j.JA, ja)
 		}
 		InitLedgerCache()
-		GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+		_, err = GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+		if err != nil {
+			return nr, err
+		}
 	}
-	return nr
+
+	return nr, err
 }
 
 // GenVacancyJournals creates Journal entries that cover vacancy for
 // every Rentable where the Rentable type is being managed to budget
 //===============================================================================================
-func GenVacancyJournals(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) int {
-	nr := 0
+func GenVacancyJournals(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) (int, error) {
+
+	var (
+		err error
+		nr  = 0
+	)
+
 	rows, err := RRdb.Prepstmt.GetAllRentablesByBusiness.Query(xbiz.P.BID)
-	Errcheck(err)
+	if err != nil {
+		return nr, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var r Rentable
-		Errcheck(ReadRentables(rows, &r))
-		nr += ProcessRentable(ctx, xbiz, d1, d2, &r)
+		err = ReadRentables(rows, &r)
+		if err != nil {
+			return nr, err
+		}
+
+		b, err := ProcessRentable(ctx, xbiz, d1, d2, &r)
+		if err != nil {
+			return nr, err
+		}
+
+		nr += b
 	}
-	Errcheck(rows.Err())
-	return nr
+
+	return nr, rows.Err()
 }
