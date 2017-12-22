@@ -96,13 +96,14 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
     function testCheckBoxes(that, test) {
         that.checkboxes.forEach(function (checkbox) {
+            // Check visibility
             var isVisible = casper.evaluate(function checkBoxvisibility(checkboxSelector) {
                 return isVisibleInViewPort(document.querySelector(checkboxSelector));
             }, w2ui_utils.getCheckBoxSelector(checkbox.field));
 
             test.assert(isVisible, "[{0}] is visible to remote screen.".format(checkbox.field));
 
-            //Test default value
+            // Test default value
             var isChecked = casper.evaluate(function isChecked(checkboxSelector) {
                 return document.querySelector(checkboxSelector).checked;
             }, w2ui_utils.getCheckBoxSelector(checkbox.field));
@@ -125,6 +126,28 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         });
     }
 
+    function testDateFields(that, test) {
+        that.dateFields.forEach(function (dateField) {
+            // Check visibility
+            var isVisible = casper.evaluate(function checkDateFieldVisibility(dateFieldSelector) {
+                return isVisibleInViewPort(document.querySelector(dateFieldSelector));
+            }, w2ui_utils.getCheckBoxSelector(dateField.field));
+
+            test.assert(isVisible, "[{0}] is visible to remote screen.".format(dateField.field));
+
+            // Test default value
+            var defaultValue = casper.evaluate(function getDefaultValue(dateFieldSelector) {
+                return document.querySelector(dateFieldSelector).value;
+            }, w2ui_utils.getCheckBoxSelector(dateField.field));
+
+            var defaultValueInW2UI = casper.evaluate(function getDefaultValue(form, field) {
+                return w2ui[form].record[field];
+            }, that.form, dateField.field);
+
+            test.assertEquals(defaultValue, defaultValueInW2UI, "{0} value is {1}".format(dateField.field, defaultValueInW2UI ));
+        });
+    }
+
     casper.test.begin(testName, testCount, {
         //do basic setup first
         setUp: function (/*test*/) {
@@ -137,7 +160,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             //to open a grid
             this.sidebarID = addNewButtonConfig.sidebarID;
 
-            //list of input fields
+            // list of input fields
             // this.inputFields = addNewButtonConfig.inputField;
             this.formFields = casper.evaluate(function (form) {
                 return w2ui[form].fields;
@@ -146,18 +169,21 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             this.inputFields = this.formFields.filter(w2ui_utils.getTextTypeW2UIFields);
             // ["Name", "Description"]
 
-            //list of input select fields
+            // list of input select fields
             // this.inputSelectField = addNewButtonConfig.inputSelectField;
             this.inputSelectField = this.formFields.filter(w2ui_utils.getInputListW2UIFields);
 
-            //capture name
+            // capture name
             this.capture = addNewButtonConfig.capture;
 
-            //Button name and class
+            // Button name and class
             this.buttonName = addNewButtonConfig.buttonName;
 
-            //Checkboxes list
+            // Checkboxes list
             this.checkboxes = this.formFields.filter(w2ui_utils.getCheckBoxW2UIFields);
+
+            // Date fields list
+            this.dateFields = this.formFields.filter(w2ui_utils.getDateW2UIFields);
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
@@ -190,6 +216,8 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 // Check box rendering test
                 testCheckBoxes(that, test);
+
+                testDateFields(that, test);
 
                 common.capture(that.capture);
 

@@ -67,6 +67,11 @@ exports.getCheckBoxSelector = function (checkboxID) {
     return 'input#{0}.w2ui-input'.format(checkboxID);
 };
 
+// getDateFieldSelector Query selector for date field in w2ui form field
+exports.getDateFieldSelector = function (dateFieldId) {
+    return 'input#{0}.w2ui-input'.format(dateFieldId);
+};
+
 // getRowColumnDataSelector Query selector for cell in the grid
 exports.getRowColumnDataSelector = function (gridName, rowNo, columnNo) {
     return "#grid_{0}_data_{1}_{2}".format(gridName, rowNo, columnNo);
@@ -82,6 +87,13 @@ exports.getVisibleColumnName = function (columnName) {
 // getCheckBoxW2UIFields Return a w2ui form field  object with type 'checkbox'
 exports.getCheckBoxW2UIFields = function (inputField) {
     if(inputField.type === "checkbox"){
+        return inputField;
+    }
+};
+
+// getCheckBoxW2UIFields Return a w2ui form field  object with type 'checkbox'
+exports.getDateW2UIFields = function (inputField) {
+    if(inputField.type === "date"){
         return inputField;
     }
 };
