@@ -536,17 +536,28 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 // GenerateRecurInstances creates Assessment instance records for recurring Assessments and then
 // creates the corresponding journal instances for the new assessment instances
 //=================================================================================================
-func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) {
+func GenerateRecurInstances(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) error {
 	// Console("GetRecurringAssessmentsByBusiness - d1 = %s   d2 = %s\n", d1.Format(RRDATEINPFMT, d2.Format(RRDATEINPFMT)))
 	rows, err := RRdb.Prepstmt.GetRecurringAssessmentsByBusiness.Query(xbiz.P.BID, d2, d1) // only get recurring instances without a parent
-	Errcheck(err)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a Assessment
-		ReadAssessments(rows, &a)
-		ProcessJournalEntry(ctx, &a, xbiz, d1, d2, false)
+		err = ReadAssessments(rows, &a)
+		if err != nil {
+			return err
+		}
+
+		err = ProcessJournalEntry(ctx, &a, xbiz, d1, d2, false)
+		if err != nil {
+			return err
+		}
 	}
-	Errcheck(rows.Err())
+
+	return rows.Err()
 }
 
 // ProcessReceiptRange creates Journal records for Receipts in the supplied date range

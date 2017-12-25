@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"time"
@@ -15,8 +16,19 @@ import (
 func CreateAssessmentInstances(item *tws.Item) {
 	tws.ItemWorking(item)
 
+	// create background context
+	ctx := context.Background()
+
+	// create session and set in the context
+	// TODO(Steve): we should have some pre-defined sessions or something else
+	// and based on that we can define permissions on those pre-defined sessions
+	// so that they can access only required information
+	// For ex. for command line applications we've to do this!
+	s := rlib.SessionNew("workerToken", "tws-worker", "tws-session", -99, -99)
+	ctx = rlib.SetSessionContextKey(ctx, s)
+
 	// add any new recurring instances for this day...
-	m, err := rlib.GetAllBusinesses()
+	m, err := rlib.GetAllBusinesses(ctx)
 	if err != nil {
 		rlib.Ulog("Error with rlib.GetAllBusinesses: %s\n", err.Error())
 	} else {
@@ -26,8 +38,15 @@ func CreateAssessmentInstances(item *tws.Item) {
 			fmt.Printf("PROCESS JOURNAL ENTRIES FOR BIZ: %s - %s\n", m[i].Designation, m[i].Name)
 			fmt.Printf("call rlib.GenerateRecurInstances(xbiz, %s, %s)\n", d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
 			var xbiz rlib.XBusiness
-			rlib.GetXBusiness(m[i].BID, &xbiz)
-			rlib.GenerateRecurInstances(&xbiz, &d1, &d2)
+			err = rlib.GetXBusiness(ctx, m[i].BID, &xbiz)
+			if err != nil {
+				rlib.Ulog("Error with rlib.GetXBusiness: %s\n", err.Error())
+			}
+
+			err = rlib.GenerateRecurInstances(ctx, &xbiz, &d1, &d2)
+			if err != nil {
+				rlib.Ulog("Error with rlib.GenerateRecurInstances: %s\n", err.Error())
+			}
 		}
 	}
 
