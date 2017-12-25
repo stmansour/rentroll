@@ -452,7 +452,7 @@ func ProcessNewExpense(ctx context.Context, a *Expense, xbiz *XBusiness) error {
 // assessments for the time period d1-d2 if they do not already exist. Then
 // creates a journal entry for the assessment.
 //-----------------------------------------------------------------------------
-func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool) {
+func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1, d2 *time.Time, updateLedgers bool) error {
 	funcname := "ProcessJournalEntry"
 	var j Journal
 	var err error
@@ -461,10 +461,15 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 		j, err = ProcessNewAssessmentInstance(ctx, xbiz, d1, d2, a)
 		if err != nil {
 			LogAndPrintError(funcname, err)
-			return
+			return err
 		}
+
 		if updateLedgers {
-			GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+			_, err = GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+			if err != nil {
+				LogAndPrintError(funcname, err)
+				return err
+			}
 		}
 	} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
 		// TBD
@@ -510,10 +515,14 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 				j, err := ProcessNewAssessmentInstance(ctx, xbiz, &dtb, &dte, &a1)
 				if err != nil {
 					LogAndPrintError(funcname, err)
-					return
+					return err
 				}
 				if updateLedgers {
-					GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+					_, err = GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+					if err != nil {
+						LogAndPrintError(funcname, err)
+						return err
+					}
 				}
 			} else if a.RentCycle >= RECURSECONDLY && a.RentCycle <= RECURHOURLY {
 				LogAndPrintError(funcname, fmt.Errorf("Unhandled RentCycle frequency: %d", a.RentCycle))
@@ -521,6 +530,7 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 			// Console("ProcessJournalEntry: 5\n")
 		}
 	}
+	return err
 }
 
 // GenerateRecurInstances creates Assessment instance records for recurring Assessments and then

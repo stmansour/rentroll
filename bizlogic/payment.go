@@ -1,6 +1,7 @@
 package bizlogic
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"time"
@@ -36,12 +37,18 @@ const ROUNDINGERR = float64(0.000999)
 // which the supplied Transactant is Payor at time dt, then returns a list
 // of all unpaid assessments associated with these Rental Agreements.
 //-----------------------------------------------------------------------------
-func GetAllUnpaidAssessmentsForPayor(bid, tcid int64, dt *time.Time) []rlib.Assessment {
-	var a []rlib.Assessment
-	m := rlib.GetRentalAgreementsByPayor(bid, tcid, dt) // Determine which Rental Agreements the Payor is responsible for...
+func GetAllUnpaidAssessmentsForPayor(ctx context.Context, bid, tcid int64, dt *time.Time) []rlib.Assessment {
+	var (
+		a []rlib.Assessment
+		// err error
+	)
+
+	// TODO(Steve): should we ignore error?
+	m, _ := rlib.GetRentalAgreementsByPayor(ctx, bid, tcid, dt) // Determine which Rental Agreements the Payor is responsible for...
 	// rlib.Console("GetAllUnpaidAssessmentsForPayor: date = %s, len(m) = %d\n", dt.Format(rlib.RRDATEFMTSQL), len(m))
 	for i := 0; i < len(m); i++ { // build the list of unpaid assessments
-		n := rlib.GetUnpaidAssessmentsByRAID(m[i].RAID) // the list is presorted by Start date ascending
+		// TODO(Steve): should we ignore error?
+		n, _ := rlib.GetUnpaidAssessmentsByRAID(ctx, m[i].RAID) // the list is presorted by Start date ascending
 		// rlib.Console("Unpaid assessment count for RA-%d: %d\n", m[i].RAID, len(n))
 		a = append(a, n...)
 	}
@@ -51,7 +58,7 @@ func GetAllUnpaidAssessmentsForPayor(bid, tcid int64, dt *time.Time) []rlib.Asse
 // RemainingReceiptFunds returns the amount of funds left to be allocated on
 // the supplied receipt
 //-----------------------------------------------------------------------------
-func RemainingReceiptFunds(r *rlib.Receipt) float64 {
+func RemainingReceiptFunds(ctx context.Context, r *rlib.Receipt) float64 {
 	funcname := "RemainingReceiptFunds"
 	var xbiz1 rlib.XBusiness
 	var dt time.Time
@@ -60,7 +67,8 @@ func RemainingReceiptFunds(r *rlib.Receipt) float64 {
 		return r.Amount
 	case 1:
 		// compute the amount in
-		m := rlib.ParseAcctRule(&xbiz1, 0, &dt, &dt, r.AcctRuleApply, 0, 1.0)
+		// TODO(Steve): should we ignore error?
+		m, _ := rlib.ParseAcctRule(ctx, &xbiz1, 0, &dt, &dt, r.AcctRuleApply, 0, 1.0)
 		tot := r.Amount
 		for i := 0; i < len(m); i++ {
 			// rlib.Console("%d. %.2f  %s\n", i, m[i].Amount, m[i].Action)
@@ -81,8 +89,9 @@ func RemainingReceiptFunds(r *rlib.Receipt) float64 {
 // RemainingReceiptFundsOnDate returns the amount of funds remaining in a
 // receipt on the supplied date
 //--------------------------------------------------------------------------
-func RemainingReceiptFundsOnDate(a *rlib.Receipt, dt *time.Time) float64 {
-	m := rlib.GetReceiptAllocationsThroughDate(a.RCPTID, dt)
+func RemainingReceiptFundsOnDate(ctx context.Context, a *rlib.Receipt, dt *time.Time) float64 {
+	// TODO(Steve): should we ignore error?
+	m, _ := rlib.GetReceiptAllocationsThroughDate(ctx, a.RCPTID, dt)
 	amt := a.Amount
 	for i := 0; i < len(m); i++ {
 		amt -= m[i].Amount
@@ -93,13 +102,14 @@ func RemainingReceiptFundsOnDate(a *rlib.Receipt, dt *time.Time) float64 {
 // AssessmentUnpaidPortion computes and returns the unpaid portion of an
 // assessment.
 //--------------------------------------------------------------------------
-func AssessmentUnpaidPortion(a *rlib.Assessment) float64 {
+func AssessmentUnpaidPortion(ctx context.Context, a *rlib.Assessment) float64 {
 	funcname := "AssessmentUnpaidPortion"
 	switch a.FLAGS & 3 {
 	case 0:
 		return a.Amount
 	case 1:
-		ra := rlib.GetReceiptAllocationsByASMID(a.BID, a.ASMID)
+		// TODO(Steve): should we ignore error?
+		ra, _ := rlib.GetReceiptAllocationsByASMID(ctx, a.BID, a.ASMID)
 		bal := a.Amount
 		for i := 0; i < len(ra); i++ {
 			bal -= ra[i].Amount
@@ -133,7 +143,7 @@ func AssessmentUnpaidPortion(a *rlib.Assessment) float64 {
 //           paid by another receipt.
 //  dt     - timestamp to mark on the allocation for this payment
 //--------------------------------------------------------------------------
-func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt *float64, dt *time.Time) error {
+func PayAssessment(ctx context.Context, a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt *float64, dt *time.Time) error {
 	funcname := "PayAssessment"
 
 	amtToUse := *amt
@@ -141,7 +151,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 		amtToUse = *needed
 	}
 
-	amtAvailableInRcpt := RemainingReceiptFunds(rcpt)
+	amtAvailableInRcpt := RemainingReceiptFunds(ctx, rcpt)
 	if amtAvailableInRcpt < *amt { // if the amount of funds in this receipt is less than what the user asked to pay...
 		amtToUse = amtAvailableInRcpt // ... update the amount to use
 	}
@@ -174,7 +184,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	cacct := rlib.RRdb.BizTypes[a.BID].GLAccounts[car.DebitLID]  // we credit what was debited in the Assessments ARID
 
 	ra.AcctRule = fmt.Sprintf("ASM(%d) d %s %.2f,c %s %.2f", a.ASMID, dacct.GLNumber, amtToUse, cacct.GLNumber, amtToUse)
-	_, err := rlib.InsertReceiptAllocation(&ra)
+	_, err := rlib.InsertReceiptAllocation(ctx, &ra)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return err
@@ -195,7 +205,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 		a.FLAGS |= 1 // 1 = partially paid
 		// rlib.Console("Partially paid assessment %d\n", a.ASMID)
 	}
-	err = rlib.UpdateAssessment(a)
+	err = rlib.UpdateAssessment(ctx, a)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return err
@@ -222,7 +232,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 	} else {
 		rcpt.AcctRuleApply = ra.AcctRule
 	}
-	err = rlib.UpdateReceipt(rcpt)
+	err = rlib.UpdateReceipt(ctx, rcpt)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return err
@@ -242,7 +252,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 		Type:   rlib.JNLTYPERCPT,
 		ID:     rcpt.RCPTID,
 	}
-	_, err = rlib.InsertJournal(&jnl)
+	_, err = rlib.InsertJournal(ctx, &jnl)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return err
@@ -259,7 +269,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 		TCID:     rcpt.TCID,
 		RCPTID:   rcpt.RCPTID,
 	}
-	_, err = rlib.InsertJournalAllocationEntry(&ja)
+	_, err = rlib.InsertJournalAllocationEntry(ctx, &ja)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return err
@@ -280,7 +290,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 		LID:    dacct.LID,
 		Amount: amtToUse,
 	}
-	_, err = rlib.InsertLedgerEntry(&l)
+	_, err = rlib.InsertLedgerEntry(ctx, &l)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return err
@@ -288,7 +298,7 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 
 	l.LID = cacct.LID
 	l.Amount = -amtToUse
-	_, err = rlib.InsertLedgerEntry(&l)
+	_, err = rlib.InsertLedgerEntry(ctx, &l)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return err
@@ -308,16 +318,21 @@ func PayAssessment(a *rlib.Assessment, rcpt *rlib.Receipt, needed *float64, amt 
 // @returns
 //  any error encountered
 //--------------------------------------------------------------------------
-func AutoAllocatePayorReceipts(tcid int64, dt *time.Time) error {
+func AutoAllocatePayorReceipts(ctx context.Context, tcid int64, dt *time.Time) error {
 	// funcname := "AutoAllocatePayorReceipts"
 	// rlib.Console("Entered %s\n", funcname)
 	var t rlib.Transactant
-	if err := rlib.GetTransactant(tcid, &t); err != nil {
+	if err := rlib.GetTransactant(ctx, tcid, &t); err != nil {
 		rlib.Console("error getting GetTransactant(%d): %s\n", tcid, err.Error())
 		return err
 	}
-	m := GetAllUnpaidAssessmentsForPayor(t.BID, tcid, dt)
-	n := rlib.GetUnallocatedReceiptsByPayor(t.BID, tcid)
+
+	m := GetAllUnpaidAssessmentsForPayor(ctx, t.BID, tcid, dt)
+
+	n, err := rlib.GetUnallocatedReceiptsByPayor(ctx, t.BID, tcid)
+	if err != nil {
+		return err
+	}
 
 	// rlib.Console("Unpaid assessments for payor = %s %s: %d\n", t.FirstName, t.LastName, len(m))
 	// rlib.Console("The receipts to be allocated to pay the assessments: %d\n\n", len(n))
@@ -333,16 +348,16 @@ func AutoAllocatePayorReceipts(tcid int64, dt *time.Time) error {
 				continue // move on to the next receipt
 			}
 			// First, determine the amount needed for payment...
-			needed := AssessmentUnpaidPortion(&m[i])
-			amt := RemainingReceiptFunds(&n[j])
+			needed := AssessmentUnpaidPortion(ctx, &m[i])
+			amt := RemainingReceiptFunds(ctx, &n[j])
 			// rlib.Console("Needed for ASMID %d :  %.2f\n", m[i].ASMID, needed)
 			// rlib.Console("Funds remaining in receipt %d:  %.2f\n", n[j].RCPTID, amt)
-			a, err := rlib.GetAssessment(m[i].ASMID)
+			a, err := rlib.GetAssessment(ctx, m[i].ASMID)
 			if err != nil {
 				return err
 			}
 			paymentDate := a.Start
-			err = PayAssessment(&m[i], &n[j], &needed, &amt, &paymentDate)
+			err = PayAssessment(ctx, &m[i], &n[j], &needed, &amt, &paymentDate)
 			if err != nil {
 				return err
 			}

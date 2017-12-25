@@ -1,13 +1,14 @@
 package bizlogic
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 )
 
 // ValidateRentableType does the business logic checks for inserting
 // and updating a Rentable Type
-func ValidateRentableType(rt *rlib.RentableType) []BizError {
+func ValidateRentableType(ctx context.Context, rt *rlib.RentableType) []BizError {
 	var errlist []BizError
 	//--------------------------------------------------------
 	// First, try to load another rentable type with the same
@@ -19,12 +20,12 @@ func ValidateRentableType(rt *rlib.RentableType) []BizError {
 	if len(rt.Style) == 0 {
 		errlist = AddBizErrToList(errlist, MissingStyleName)
 	}
-	dup, err := rlib.GetRentableTypeByName(rt.Name, rt.BID)
+	dup, err := rlib.GetRentableTypeByName(ctx, rt.Name, rt.BID)
 	if err == nil && dup.RTID != rt.RTID && dup.RTID > 0 {
 		errlist = AddBizErrToList(errlist, DuplicateName)
 	}
 
-	dup, err = rlib.GetRentableTypeByStyle(rt.Style, rt.BID)
+	dup, err = rlib.GetRentableTypeByStyle(ctx, rt.Style, rt.BID)
 	if err == nil && dup.RTID != rt.RTID && dup.RTID > 0 {
 		errlist = AddBizErrToList(errlist, DuplicateStyleName)
 	}
@@ -33,7 +34,7 @@ func ValidateRentableType(rt *rlib.RentableType) []BizError {
 
 // ValidateRentableMarketRate checks for validity of a given rentable marketRate
 // while insert and update
-func ValidateRentableMarketRate(rmr *rlib.RentableMarketRate) []BizError {
+func ValidateRentableMarketRate(ctx context.Context, rmr *rlib.RentableMarketRate) []BizError {
 	var errlist []BizError
 	// NOTE: we should probably check everything here
 	// like belonged biz exists or not, RTID exists or not etc...
@@ -56,7 +57,10 @@ func ValidateRentableMarketRate(rmr *rlib.RentableMarketRate) []BizError {
 	// 3. check that DtStart and DtStop don't overlap/fall in with other MarketRate object
 	// associated with the same RTID
 	rt := rlib.RentableType{RTID: rmr.RTID}
-	rlib.GetRentableMarketRates(&rt)
+	err := rlib.GetRentableMarketRates(ctx, &rt)
+	if err != nil {
+		return bizErrSys(&err)
+	}
 
 	for _, mr := range rt.MR {
 		// if same market rate object then continue
