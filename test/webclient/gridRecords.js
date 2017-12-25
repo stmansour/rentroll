@@ -4,6 +4,15 @@ var common = require("./common.js");
 
 var w2ui_utils = require("./w2ui_utils.js");
 
+function jsonEquals(w2uiGridRecords, apiResponseRecords) {
+/*    console.log("---------------------");
+    console.log(JSON.stringify(w2uiGridRecords));*/
+    console.log("---------------------");
+    console.log(JSON.stringify(apiResponseRecords));
+    console.log("---------------------");
+    return JSON.stringify(w2uiGridRecords) === JSON.stringify(apiResponseRecords);
+}
+
 exports.apiIntegrationTest = function (gridConfig) {
     var testCount = gridConfig.testCount;
     var testName = "{0} record tests".format(gridConfig.grid);
@@ -30,8 +39,7 @@ exports.apiIntegrationTest = function (gridConfig) {
         // -----------------------------------------------------
         var recordsParentDivSelector = w2ui_utils.getRecordsParentDivSelector(that.grid);
 
-
-        for (var recordNo = 0; recordNo < that.apiResponse.total; recordNo++) {
+        that.apiResponse.records.forEach(function (record, recordNo) {
 
             that.columns.forEach(function (column) {
 
@@ -67,8 +75,19 @@ exports.apiIntegrationTest = function (gridConfig) {
 
                 // Record visibility in viewport
                 test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
+
+                test.assertEquals(rowColumnData, record[column.field], "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
             });
-        }
+
+        });
+    }
+
+    function testW2UIRecordsInAPIResponse(that, test) {
+        var w2uiGridRecords = casper.evaluate(function (gridName) {
+            return w2ui[gridName].records;
+        }, that.grid);
+
+        var isEqual = jsonEquals(w2uiGridRecords, that.apiResponse.records);
     }
 
     casper.test.begin(testName, testCount, {
@@ -99,7 +118,7 @@ exports.apiIntegrationTest = function (gridConfig) {
             this.recordsInAPI = this.apiResponse.records;
 
 
-            require('utils').dump(this.apiResponse); // Print API Response
+            /*require('utils').dump(this.apiResponse);*/ // Print API Response
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[GridRecordTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
@@ -115,14 +134,10 @@ exports.apiIntegrationTest = function (gridConfig) {
                 // Match w2ui record length with list size in API Response
                 testRecordLength(that, test);
 
+                testW2UIRecordsInAPIResponse(that, test);
+
                 // Check each row exist in DOM and visible in viewport
                 testRowColoumnVisiblity(that, test);
-
-                // TODO: Check w2ui grid record exists in API Response
-                // w2ui.arsGrid.records : It fetches the record as w2ui object
-                // tableRecords: It fetch grid record from the JSON
-                // Iterate through w2ui records and check that it is available in JSON tableRecords
-
 
                 test.done();
             });

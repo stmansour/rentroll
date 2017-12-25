@@ -15,7 +15,7 @@ exports.gridConf = {
     requestData: JSON.stringify({
         'cmd': 'get', 'selected': [], 'limit': 100, 'offset': 0
     }),
-    testCount: 12
+    testCount: 22
 };
 
 exports.formConf = {
