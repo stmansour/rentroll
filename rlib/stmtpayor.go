@@ -132,7 +132,7 @@ func ReceiptSummary(ctx context.Context, raidlist []int64, d1, d2 *time.Time) ([
 	qry := RenderSQLQuery(q, qc)
 
 	// Console("PAYOR STATEMENT Receipt Query:  %s\n", q)
-	rows, err := RRdb.Dbrr.Query(q)
+	rows, err := RRdb.Dbrr.Query(qry)
 	if err != nil {
 		return rl, err
 	}

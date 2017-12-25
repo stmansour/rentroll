@@ -548,7 +548,7 @@ func ProcessReceiptRange(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time
 	}
 
 	for i := 0; i < len(r); i++ {
-		j, err := GetJournalByReceiptID(ctx, r[i].RCPTID)
+		_, err := GetJournalByReceiptID(ctx, r[i].RCPTID)
 		if err != nil {
 			_, err = ProcessNewReceipt(ctx, xbiz, d1, d2, &r[i])
 			if err != nil {

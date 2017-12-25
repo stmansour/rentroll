@@ -1126,7 +1126,7 @@ func GetRentRollRows(ctx context.Context, BID int64, startDt, stopDt time.Time,
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rrRows, totalRowsCount, totalMainRowsCount, ErrSessionRequired
 		}

@@ -20,7 +20,7 @@ func GetCountByTableName(ctx context.Context, t string, bid int64) (int, error) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}
@@ -49,7 +49,7 @@ func GetAR(ctx context.Context, id int64) (AR, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -69,7 +69,7 @@ func GetARByName(ctx context.Context, bid int64, name string) (AR, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -90,7 +90,7 @@ func getARsForRows(ctx context.Context, rows *sql.Rows) ([]AR, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -109,21 +109,13 @@ func getARsForRows(ctx context.Context, rows *sql.Rows) ([]AR, error) {
 	return t, rows.Err()
 }
 
-// GetARMap returns a map of all account rules for the supplied bid
-func GetARMap(ctx context.Context, bid int64) (map[int64]AR, error) {
+// getARMap returns a map of all account rules for the supplied bid
+func getARMap(bid int64) (map[int64]AR, error) {
 
 	var (
 		err error
 		t   = make(map[int64]AR)
 	)
-
-	// session... context
-	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
-	}
 
 	rows, err := RRdb.Prepstmt.GetAllARs.Query(bid)
 	if err != nil {
@@ -143,6 +135,25 @@ func GetARMap(ctx context.Context, bid int64) (map[int64]AR, error) {
 	return t, rows.Err()
 }
 
+// GetARMap returns a map of all account rules for the supplied bid
+func GetARMap(ctx context.Context, bid int64) (map[int64]AR, error) {
+
+	var (
+		// err error
+		t = make(map[int64]AR)
+	)
+
+	// session... context
+	if !RRdb.NoAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	return getARMap(bid)
+}
+
 // GetAllARs reads all AccountRules for the supplied BID
 func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
 
@@ -153,7 +164,7 @@ func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -176,7 +187,7 @@ func GetARsByType(ctx context.Context, id int64, artype int) ([]AR, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -203,7 +214,7 @@ func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -223,7 +234,7 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -261,7 +272,7 @@ func FindAgreementByRentable(ctx context.Context, rid int64, d1, d2 *time.Time) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -287,7 +298,7 @@ func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -310,7 +321,7 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -339,7 +350,7 @@ func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -362,7 +373,7 @@ func getAssessmentsByRows(ctx context.Context, rows *sql.Rows) ([]Assessment, er
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -392,7 +403,7 @@ func GetAssessment(ctx context.Context, asmid int64) (Assessment, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -412,7 +423,7 @@ func GetAssessmentInstance(ctx context.Context, start *time.Time, pasmid int64) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -433,7 +444,7 @@ func GetAssessmentFirstInstance(ctx context.Context, pasmid int64) (Assessment, 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -453,7 +464,7 @@ func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -478,7 +489,7 @@ func GetBuilding(ctx context.Context, id int64) (Building, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -492,21 +503,14 @@ func GetBuilding(ctx context.Context, id int64) (Building, error) {
 //  B U S I N E S S
 //=======================================================
 
-// GetAllBusinesses generates a report of all Businesses defined in the database.
-func GetAllBusinesses(ctx context.Context) ([]Business, error) {
+// GetAllBiz generates a slice of all Businesses defined in the database
+// without authentication
+func GetAllBiz() ([]Business, error) {
 
 	var (
 		err error
 		m   []Business
 	)
-
-	// session... context
-	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return m, ErrSessionRequired
-		}
-	}
 
 	rows, err := RRdb.Prepstmt.GetAllBusinesses.Query()
 	if err != nil {
@@ -526,6 +530,31 @@ func GetAllBusinesses(ctx context.Context) ([]Business, error) {
 	return m, rows.Err()
 }
 
+// GetAllBusinesses generates a report of all Businesses defined in the database.
+func GetAllBusinesses(ctx context.Context) ([]Business, error) {
+
+	var (
+		// err error
+		m []Business
+	)
+
+	// session... context
+	if !RRdb.NoAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
+	return GetAllBiz()
+}
+
+// getBiz loads the Business struct for the supplied Business id
+func getBiz(bid int64, a *Business) error {
+	row := RRdb.Prepstmt.GetBusiness.QueryRow(bid)
+	return ReadBusiness(row, a)
+}
+
 // GetBusiness loads the Business struct for the supplied Business id
 func GetBusiness(ctx context.Context, bid int64, a *Business) error {
 
@@ -535,14 +564,13 @@ func GetBusiness(ctx context.Context, bid int64, a *Business) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
 	}
 
-	row := RRdb.Prepstmt.GetBusiness.QueryRow(bid)
-	return ReadBusiness(row, a)
+	return getBiz(bid, a)
 }
 
 // GetBusinessByDesignation loads the Business struct for the supplied designation
@@ -555,7 +583,7 @@ func GetBusinessByDesignation(ctx context.Context, des string) (Business, error)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -565,28 +593,20 @@ func GetBusinessByDesignation(ctx context.Context, des string) (Business, error)
 	return a, ReadBusiness(row, &a)
 }
 
-// GetXBusiness loads the XBusiness struct for the supplied Business id.
-func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
+// getXBiz loads the XBusiness struct for the supplied Business id.
+func getXBiz(bid int64, xbiz *XBusiness) error {
 
 	var (
 		err error
 	)
 
-	// session... context
-	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-	}
-
 	if xbiz.P.BID == 0 && bid > 0 {
-		err = GetBusiness(ctx, bid, &xbiz.P)
+		err = getBiz(bid, &xbiz.P)
 		if err != nil {
 			return err
 		}
 	}
-	xbiz.RT, err = GetBusinessRentableTypes(ctx, bid)
+	xbiz.RT, err = getBizRentableTypes(bid)
 	if err != nil {
 		return err
 	}
@@ -610,10 +630,39 @@ func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
 	return rows.Err()
 }
 
+// GetXBusiness loads the XBusiness struct for the supplied Business id.
+func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.NoAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	return getXBiz(bid, xbiz)
+}
+
 //=======================================================
 //  C U S T O M   A T T R I B U T E
 //  CustomAttribute, CustomAttributeRef
 //=======================================================
+
+// getCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
+func getCustomAttribute(id int64) (CustomAttribute, error) {
+
+	var (
+		a CustomAttribute
+	)
+
+	row := RRdb.Prepstmt.GetCustomAttribute.QueryRow(id)
+	return a, ReadCustomAttribute(row, &a)
+}
 
 // GetCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
 func GetCustomAttribute(ctx context.Context, id int64) (CustomAttribute, error) {
@@ -625,14 +674,13 @@ func GetCustomAttribute(ctx context.Context, id int64) (CustomAttribute, error) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
 	}
 
-	row := RRdb.Prepstmt.GetCustomAttribute.QueryRow(id)
-	return a, ReadCustomAttribute(row, &a)
+	return getCustomAttribute(id)
 }
 
 // GetCustomAttributeByVals reads a CustomAttribute structure based on the supplied attributes
@@ -649,7 +697,7 @@ func GetCustomAttributeByVals(ctx context.Context, t int64, n, v, u string) (Cus
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -659,22 +707,14 @@ func GetCustomAttributeByVals(ctx context.Context, t int64, n, v, u string) (Cus
 	return a, ReadCustomAttribute(row, &a)
 }
 
-// GetAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
-func GetAllCustomAttributes(ctx context.Context, elemid, id int64) (map[string]CustomAttribute, error) {
+// getAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
+func getAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error) {
 
 	var (
 		err error
 		t   []int64
 		m   = make(map[string]CustomAttribute)
 	)
-
-	// session... context
-	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return m, ErrSessionRequired
-		}
-	}
 
 	rows, err := RRdb.Prepstmt.GetCustomAttributeRefs.Query(elemid, id)
 	if err != nil {
@@ -697,7 +737,7 @@ func GetAllCustomAttributes(ctx context.Context, elemid, id int64) (map[string]C
 	}
 
 	for i := 0; i < len(t); i++ {
-		c, err := GetCustomAttribute(ctx, t[i])
+		c, err := getCustomAttribute(t[i])
 		if err != nil {
 			return m, err
 		}
@@ -705,6 +745,25 @@ func GetAllCustomAttributes(ctx context.Context, elemid, id int64) (map[string]C
 	}
 
 	return m, err
+}
+
+// GetAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
+func GetAllCustomAttributes(ctx context.Context, elemid, id int64) (map[string]CustomAttribute, error) {
+
+	var (
+		// err error
+		m = make(map[string]CustomAttribute)
+	)
+
+	// session... context
+	if !RRdb.NoAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
+	return getAllCustomAttributes(elemid, id)
 }
 
 // GetCustomAttributeRef reads a CustomAttribute structure for the supplied ElementType, ID, and CID
@@ -717,7 +776,7 @@ func GetCustomAttributeRef(ctx context.Context, e, i, c int64) (CustomAttributeR
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -727,24 +786,16 @@ func GetCustomAttributeRef(ctx context.Context, e, i, c int64) (CustomAttributeR
 	return a, ReadCustomAttributeRef(row, &a)
 }
 
-// LoadRentableTypeCustomaAttributes adds all the custom attributes to each RentableType
-func LoadRentableTypeCustomaAttributes(ctx context.Context, xbiz *XBusiness) error {
+// loadRentableTypeCustomaAttributes adds all the custom attributes to each RentableType
+func loadRentableTypeCustomaAttributes(xbiz *XBusiness) error {
 
 	var (
 		err error
 	)
 
-	// session... context
-	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-	}
-
 	for k, v := range xbiz.RT {
 		var tmp = xbiz.RT[k]
-		tmp.CA, err = GetAllCustomAttributes(ctx, ELEMRENTABLETYPE, v.RTID)
+		tmp.CA, err = getAllCustomAttributes(ELEMRENTABLETYPE, v.RTID)
 		if err != nil {
 			Ulog("LoadRentableTypeCustomaAttributes: error reading custom attributes elementtype=%d, id=%d, err = %s\n", ELEMRENTABLETYPE, v.RTID, err.Error())
 		}
@@ -767,7 +818,7 @@ func GetDemandSource(ctx context.Context, id int64, t *DemandSource) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -785,7 +836,7 @@ func GetDemandSourceByName(ctx context.Context, bid int64, name string, t *Deman
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -804,7 +855,7 @@ func GetAllDemandSources(ctx context.Context, id int64) ([]DemandSource, error) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -843,7 +894,7 @@ func GetDeposit(ctx context.Context, id int64) (Deposit, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -863,7 +914,7 @@ func GetAllDepositsInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -902,7 +953,7 @@ func GetDepository(ctx context.Context, id int64) (Depository, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -922,7 +973,7 @@ func GetDepositoryByAccount(ctx context.Context, bid int64, acct string) (Deposi
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -942,7 +993,7 @@ func GetDepositoryByName(ctx context.Context, bid int64, name string) (Depositor
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -962,7 +1013,7 @@ func GetDepositoryByLID(ctx context.Context, bid int64, id int64) (Depository, e
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -982,7 +1033,7 @@ func GetAllDepositories(ctx context.Context, bid int64) ([]Depository, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -1016,7 +1067,7 @@ func GetDepositParts(ctx context.Context, id int64) ([]DepositPart, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -1050,7 +1101,7 @@ func GetDepositMethod(ctx context.Context, id int64) (DepositMethod, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -1070,7 +1121,7 @@ func GetDepositMethodByName(ctx context.Context, bid int64, name string) (Deposi
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -1090,7 +1141,7 @@ func GetAllDepositMethods(ctx context.Context, bid int64) ([]DepositMethod, erro
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -1128,7 +1179,7 @@ func GetExpense(ctx context.Context, id int64) (Expense, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -1152,7 +1203,7 @@ func GetInvoice(ctx context.Context, id int64) (Invoice, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -1187,7 +1238,7 @@ func GetAllInvoicesInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -1231,7 +1282,7 @@ func GetInvoiceAssessments(ctx context.Context, id int64) ([]InvoiceAssessment, 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -1265,7 +1316,7 @@ func GetInvoicePayors(ctx context.Context, id int64) ([]InvoicePayor, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -1303,7 +1354,7 @@ func GetJournal(ctx context.Context, jid int64) (Journal, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1337,7 +1388,7 @@ func GetJournalVacancy(ctx context.Context, id int64, dt1, dt2 *time.Time) (Jour
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1358,7 +1409,7 @@ func GetJournalByTypeAndID(ctx context.Context, t, id int64) (Journal, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1379,7 +1430,7 @@ func GetJournalByReceiptID(ctx context.Context, id int64) (Journal, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1400,7 +1451,7 @@ func GetJournalsByReceiptID(ctx context.Context, id int64) ([]Journal, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -1434,7 +1485,7 @@ func GetJournalMarkers(ctx context.Context, n int64) ([]JournalMarker, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -1468,7 +1519,7 @@ func GetLastJournalMarker(ctx context.Context) (JournalMarker, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return j, ErrSessionRequired
 		}
@@ -1500,7 +1551,7 @@ func GetJournalAllocation(ctx context.Context, jaid int64) (JournalAllocation, e
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -1520,7 +1571,7 @@ func GetJournalAllocations(ctx context.Context, j *Journal) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -1552,7 +1603,7 @@ func GetJournalAllocationByASMID(ctx context.Context, id int64) ([]JournalAlloca
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return jaRows, ErrSessionRequired
 		}
@@ -1579,7 +1630,7 @@ func GetJournalAllocationByASMandRCPTID(ctx context.Context, id int64) ([]Journa
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return jaRows, ErrSessionRequired
 		}
@@ -1601,7 +1652,7 @@ func getJournalAllocationRows(ctx context.Context, rows *sql.Rows) ([]JournalAll
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ja, ErrSessionRequired
 		}
@@ -1635,7 +1686,7 @@ func GetLatestLedgerMarkerByLID(ctx context.Context, bid, lid int64) (LedgerMark
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1655,7 +1706,7 @@ func GetInitialLedgerMarkerByRAID(ctx context.Context, raid int64) (LedgerMarker
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1675,7 +1726,7 @@ func GetInitialLedgerMarkerByRID(ctx context.Context, id int64) (LedgerMarker, e
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -1695,7 +1746,7 @@ func GetLedgerMarkerOnOrBefore(ctx context.Context, bid, lid int64, dt *time.Tim
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1715,7 +1766,7 @@ func GetPayorLedgerMarkerOnOrBefore(ctx context.Context, bid, tcid int64, dt *ti
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1737,7 +1788,7 @@ func GetRALedgerMarkerOnOrBeforeDeprecated(ctx context.Context, bid, lid, raid i
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1759,7 +1810,7 @@ func GetRALedgerMarkerOnOrBefore(ctx context.Context, raid int64, dt *time.Time)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1781,7 +1832,7 @@ func GetRALedgerMarkerOnOrAfter(ctx context.Context, raid int64, dt *time.Time) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1803,7 +1854,7 @@ func GetTCLedgerMarkerOnOrBefore(ctx context.Context, tcid int64, dt *time.Time)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1825,7 +1876,7 @@ func GetTCLedgerMarkerOnOrAfter(ctx context.Context, tcid int64, dt *time.Time) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1846,7 +1897,7 @@ func GetRentableLedgerMarkerOnOrBefore(ctx context.Context, bid, lid, rid int64,
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1867,7 +1918,7 @@ func GetRARentableLedgerMarkerOnOrBefore(ctx context.Context, raid, rid int64, d
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -1900,7 +1951,7 @@ func LoadPayorLedgerMarker(ctx context.Context, bid, tcid int64, dt *time.Time) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return lm, ErrSessionRequired
 		}
@@ -1944,7 +1995,7 @@ func LoadRALedgerMarker(ctx context.Context, bid, lid, raid int64, dt *time.Time
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return lm, ErrSessionRequired
 		}
@@ -1975,7 +2026,7 @@ func GetLatestLedgerMarkerByGLNo(ctx context.Context, bid int64, s string) (Ledg
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return lm, ErrSessionRequired
 		}
@@ -1998,7 +2049,7 @@ func GetLatestLedgerMarkerByType(ctx context.Context, bid int64, t int64) (Ledge
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return lm, ErrSessionRequired
 		}
@@ -2021,7 +2072,7 @@ func GetAllLedgerMarkersOnOrBefore(ctx context.Context, bid int64, dt *time.Time
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -2063,7 +2114,7 @@ func GetLedgerList(ctx context.Context, bid int64) ([]GLAccount, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -2087,21 +2138,13 @@ func GetLedgerList(ctx context.Context, bid int64) ([]GLAccount, error) {
 	return t, rows.Err()
 }
 
-// GetGLAccountMap returns a map of all GLAccounts for the supplied business
-func GetGLAccountMap(ctx context.Context, bid int64) (map[int64]GLAccount, error) {
+// getLedgerMap returns a map of all GLAccounts for the supplied business
+func getLedgerMap(bid int64) (map[int64]GLAccount, error) {
 
 	var (
 		err error
 		t   = make(map[int64]GLAccount)
 	)
-
-	// session... context
-	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
-	}
 
 	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
 	if err != nil {
@@ -2121,6 +2164,25 @@ func GetGLAccountMap(ctx context.Context, bid int64) (map[int64]GLAccount, error
 	return t, rows.Err()
 }
 
+// GetGLAccountMap returns a map of all GLAccounts for the supplied business
+func GetGLAccountMap(ctx context.Context, bid int64) (map[int64]GLAccount, error) {
+
+	var (
+		// err error
+		t = make(map[int64]GLAccount)
+	)
+
+	// session... context
+	if !RRdb.NoAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	return getLedgerMap(bid)
+}
+
 // GetLedger returns the GLAccount struct for the supplied LID
 func GetLedger(ctx context.Context, lid int64) (GLAccount, error) {
 
@@ -2131,7 +2193,7 @@ func GetLedger(ctx context.Context, lid int64) (GLAccount, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -2151,7 +2213,7 @@ func GetLedgerEntryByJAID(ctx context.Context, bid, lid, jaid int64) (LedgerEntr
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -2171,7 +2233,7 @@ func GetLedgerEntriesByJAID(ctx context.Context, bid, jaid int64) ([]LedgerEntry
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2199,13 +2261,13 @@ func GetLedgerEntriesByJAID(ctx context.Context, bid, jaid int64) ([]LedgerEntry
 func GetCountLedgerEntries(ctx context.Context, lid, bid int64) (int64, error) {
 
 	var (
-		err   error
+		// err   error
 		count int64
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}
@@ -2225,7 +2287,7 @@ func GetLedgerByGLNo(ctx context.Context, bid int64, s string) (GLAccount, error
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -2239,13 +2301,13 @@ func GetLedgerByGLNo(ctx context.Context, bid int64, s string) (GLAccount, error
 func GetLedgerByName(ctx context.Context, bid int64, s string) (GLAccount, error) {
 
 	var (
-		err error
-		a   GLAccount
+		// err error
+		a GLAccount
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -2265,7 +2327,7 @@ func GetLedgerByType(ctx context.Context, bid, t int64) (GLAccount, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -2285,7 +2347,7 @@ func GetRABalanceLedger(ctx context.Context, bid, RAID int64) (GLAccount, error)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -2305,7 +2367,7 @@ func GetSecDepBalanceLedger(ctx context.Context, bid, RAID int64) (GLAccount, er
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -2324,7 +2386,7 @@ func GetDefaultLedgers(ctx context.Context, bid int64) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2361,7 +2423,7 @@ func getLedgerEntryArray(ctx context.Context, rows *sql.Rows) ([]LedgerEntry, er
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2389,7 +2451,7 @@ func GetLedgerEntriesInRange(ctx context.Context, d1, d2 *time.Time, bid, lid in
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2414,7 +2476,7 @@ func GetLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid, lid i
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2439,7 +2501,7 @@ func GetLedgerEntriesForRentable(ctx context.Context, d1, d2 *time.Time, rid, li
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2464,7 +2526,7 @@ func GetAllLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid int
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2489,7 +2551,7 @@ func GetAllLedgerEntriesForRID(ctx context.Context, d1, d2 *time.Time, rid int64
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2514,7 +2576,7 @@ func GetAllLedgerEntriesInRange(ctx context.Context, bid int64, d1, d2 *time.Tim
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2539,7 +2601,7 @@ func GetLedgerEntriesInRange(ctx context.Context, bid, lid, raid int64, d1, d2 *
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2567,7 +2629,7 @@ func GetNote(ctx context.Context, tid int64, t *Note) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2588,7 +2650,7 @@ func GetNoteAndChildNotes(ctx context.Context, nid int64) (Note, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return n, ErrSessionRequired
 		}
@@ -2631,7 +2693,7 @@ func GetNoteList(ctx context.Context, nlid int64) (NoteList, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2679,7 +2741,7 @@ func GetNoteType(ctx context.Context, ntid int64, t *NoteType) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2689,21 +2751,13 @@ func GetNoteType(ctx context.Context, ntid int64, t *NoteType) error {
 	return ReadNoteType(row, t)
 }
 
-// GetAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
-func GetAllNoteTypes(ctx context.Context, bid int64) ([]NoteType, error) {
+// getBusinessAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
+func getBusinessAllNoteTypes(bid int64) ([]NoteType, error) {
 
 	var (
 		err error
 		m   []NoteType
 	)
-
-	// session... context
-	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return m, ErrSessionRequired
-		}
-	}
 
 	rows, err := RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
 	if err != nil {
@@ -2723,6 +2777,25 @@ func GetAllNoteTypes(ctx context.Context, bid int64) ([]NoteType, error) {
 	return m, rows.Err()
 }
 
+// GetAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
+func GetAllNoteTypes(ctx context.Context, bid int64) ([]NoteType, error) {
+
+	var (
+		// err error
+		m []NoteType
+	)
+
+	// session... context
+	if !RRdb.NoAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
+	return getBusinessAllNoteTypes(bid)
+}
+
 //=======================================================
 //  P A Y M E N T   T Y P E S
 //=======================================================
@@ -2736,7 +2809,7 @@ func GetPaymentType(ctx context.Context, id int64, a *PaymentType) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2755,7 +2828,7 @@ func GetPaymentTypeByName(ctx context.Context, bid int64, name string, a *Paymen
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2775,7 +2848,7 @@ func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]Paymen
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -2812,7 +2885,7 @@ func GetRatePlan(ctx context.Context, id int64, a *RatePlan) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2831,7 +2904,7 @@ func GetRatePlanByName(ctx context.Context, id int64, s string, a *RatePlan) err
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2851,7 +2924,7 @@ func GetAllRatePlans(ctx context.Context, id int64) ([]RatePlan, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -2884,7 +2957,7 @@ func GetRatePlanRef(ctx context.Context, id int64, a *RatePlanRef) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2904,7 +2977,7 @@ func GetRatePlanRefFull(ctx context.Context, id int64, a *RatePlanRef) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -2973,7 +3046,7 @@ func GetRatePlanRefsInRange(ctx context.Context, id int64, d1, d2 *time.Time) ([
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -3008,7 +3081,7 @@ func GetAllRatePlanRefsInRange(ctx context.Context, d1, d2 *time.Time) ([]RatePl
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -3042,7 +3115,7 @@ func GetRatePlanRefRTRate(ctx context.Context, rprid, rtid int64, a *RatePlanRef
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -3061,7 +3134,7 @@ func GetRatePlanRefSPRate(ctx context.Context, rprid, rtid int64, a *RatePlanRef
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -3081,7 +3154,7 @@ func GetAllRatePlanRefSPRates(ctx context.Context, rprid, rtid int64) ([]RatePla
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -3120,7 +3193,7 @@ func GetReceipt(ctx context.Context, rcptid int64) (Receipt, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3144,7 +3217,7 @@ func GetReceiptAllocation(ctx context.Context, id int64) (ReceiptAllocation, err
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3165,7 +3238,7 @@ func GetReceiptNoAllocations(ctx context.Context, rcptid int64) (Receipt, error)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3185,7 +3258,7 @@ func GetReceiptDuplicate(ctx context.Context, dt *time.Time, amt float64, docno 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3205,7 +3278,7 @@ func GetReceiptAllocations(ctx context.Context, rcptid int64, r *Receipt) error 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -3240,7 +3313,7 @@ func GetReceipts(ctx context.Context, bid int64, d1, d2 *time.Time) ([]Receipt, 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -3280,7 +3353,7 @@ func getReceiptAllocationList(ctx context.Context, rows *sql.Rows) ([]ReceiptAll
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -3312,7 +3385,7 @@ func GetASMReceiptAllocationsInRAIDDateRange(ctx context.Context, raid int64, d1
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -3338,7 +3411,7 @@ func GetReceiptAllocationsByASMID(ctx context.Context, bid, asmid int64) ([]Rece
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -3366,7 +3439,7 @@ func GetReceiptAllocationsThroughDate(ctx context.Context, id int64, dt *time.Ti
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -3399,7 +3472,7 @@ func GetReceiptAllocationAmountsOnDate(ctx context.Context, id int64, dt *time.T
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return amt, alloc, unalloc, ErrSessionRequired
 		}
@@ -3436,7 +3509,7 @@ func GetUnallocatedReceiptsByPayor(ctx context.Context, bid, tcid int64) ([]Rece
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -3470,13 +3543,13 @@ func GetUnallocatedReceiptsByPayor(ctx context.Context, bid, tcid int64) ([]Rece
 func GetPayorUnallocatedReceiptsCount(ctx context.Context, bid, tcid int64) (int, error) {
 
 	var (
-		err   error
+		// err   error
 		count int
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}
@@ -3499,7 +3572,7 @@ func GetRentableByID(ctx context.Context, rid int64, r *Rentable) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -3513,13 +3586,13 @@ func GetRentableByID(ctx context.Context, rid int64, r *Rentable) error {
 func GetRentable(ctx context.Context, rid int64) (Rentable, error) {
 
 	var (
-		err error
-		r   Rentable
+		// err error
+		r Rentable
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3532,13 +3605,13 @@ func GetRentable(ctx context.Context, rid int64) (Rentable, error) {
 func GetRentableByName(ctx context.Context, name string, bid int64) (Rentable, error) {
 
 	var (
-		err error
-		r   Rentable
+		// err error
+		r Rentable
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3562,7 +3635,7 @@ func GetRentableTypeDown(ctx context.Context, bid int64, s string, limit int) ([
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -3596,7 +3669,7 @@ func GetXRentable(ctx context.Context, rid int64, x *XRentable) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -3617,13 +3690,13 @@ func GetXRentable(ctx context.Context, rid int64, x *XRentable) error {
 func GetRentableUser(ctx context.Context, ruid int64) (RentableUser, error) {
 
 	var (
-		err error
-		r   RentableUser
+		// err error
+		r RentableUser
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3638,13 +3711,13 @@ func GetRentableUser(ctx context.Context, ruid int64) (RentableUser, error) {
 func GetRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) (RentableUser, error) {
 
 	var (
-		err error
-		r   RentableUser
+		// err error
+		r RentableUser
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3658,13 +3731,13 @@ func GetRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) (RentableUs
 func GetRentableSpecialtyTypeByName(ctx context.Context, bid int64, name string) (RentableSpecialty, error) {
 
 	var (
-		err error
+		// err error
 		rsp RentableSpecialty
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rsp, ErrSessionRequired
 		}
@@ -3678,13 +3751,13 @@ func GetRentableSpecialtyTypeByName(ctx context.Context, bid int64, name string)
 func GetRentableSpecialtyType(ctx context.Context, rspid int64) (RentableSpecialty, error) {
 
 	var (
-		err error
-		rs  RentableSpecialty
+		// err error
+		rs RentableSpecialty
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
 		}
@@ -3704,7 +3777,7 @@ func GetAllRentableSpecialtyRefs(ctx context.Context, bid, rid int64) ([]int64, 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -3739,7 +3812,7 @@ func SelectRentableTypeRefForDate(ctx context.Context, rsa *[]RentableSpecialty,
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3764,7 +3837,7 @@ func GetRentableSpecialtyTypesForRentableByRange(ctx context.Context, bid, rid i
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rsta, ErrSessionRequired
 		}
@@ -3797,7 +3870,7 @@ func GetRentableSpecialtyRefsByRange(ctx context.Context, bid, rid int64, d1, d2
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
 		}
@@ -3831,7 +3904,7 @@ func GetRentableTypeRef(ctx context.Context, rtrid int64) (RentableTypeRef, erro
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rtr, ErrSessionRequired
 		}
@@ -3851,7 +3924,7 @@ func SelectRentableTypeRefForDate(ctx context.Context, rta *[]RentableTypeRef, d
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -3876,7 +3949,7 @@ func getRTRefs(ctx context.Context, rows *sql.Rows) ([]RentableTypeRef, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
 		}
@@ -3906,7 +3979,7 @@ func GetRentableTypeRefsByRange(ctx context.Context, RID int64, d1, d2 *time.Tim
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rtr, ErrSessionRequired
 		}
@@ -3929,7 +4002,7 @@ func GetRentableTypeRefs(ctx context.Context, RID int64) ([]RentableTypeRef, err
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rtr, ErrSessionRequired
 		}
@@ -3953,7 +4026,7 @@ func GetRTIDForDate(ctx context.Context, RID int64, d1 *time.Time) (int64, error
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rtid, ErrSessionRequired
 		}
@@ -3981,7 +4054,7 @@ func GetRentableTypeRefForDate(ctx context.Context, RID int64, d1 *time.Time) (R
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -4003,13 +4076,13 @@ func GetRentableTypeRefForDate(ctx context.Context, RID int64, d1 *time.Time) (R
 func GetRentableStatus(ctx context.Context, rsid int64) (RentableStatus, error) {
 
 	var (
-		err error
-		rs  RentableStatus
+		// err error
+		rs RentableStatus
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
 		}
@@ -4029,7 +4102,7 @@ func getRentableStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableStatu
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
 		}
@@ -4052,13 +4125,13 @@ func getRentableStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableStatu
 func GetRentableStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (RentableStatus, error) {
 
 	var (
-		err error
-		a   RentableStatus
+		// err error
+		a RentableStatus
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
 		}
@@ -4078,7 +4151,7 @@ func GetRentableStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
 		}
@@ -4101,7 +4174,7 @@ func GetAllRentableStatus(ctx context.Context, RID int64) ([]RentableStatus, err
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
 		}
@@ -4127,7 +4200,7 @@ func GetRentableType(ctx context.Context, rtid int64, rt *RentableType) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -4152,13 +4225,13 @@ func GetRentableType(ctx context.Context, rtid int64, rt *RentableType) error {
 func GetRentableTypeByStyle(ctx context.Context, name string, bid int64) (RentableType, error) {
 
 	var (
-		err error
-		rt  RentableType
+		// err error
+		rt RentableType
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rt, ErrSessionRequired
 		}
@@ -4172,13 +4245,13 @@ func GetRentableTypeByStyle(ctx context.Context, name string, bid int64) (Rentab
 func GetRentableTypeByName(ctx context.Context, name string, bid int64) (RentableType, error) {
 
 	var (
-		err error
-		rt  RentableType
+		// err error
+		rt RentableType
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rt, ErrSessionRequired
 		}
@@ -4188,21 +4261,13 @@ func GetRentableTypeByName(ctx context.Context, name string, bid int64) (Rentabl
 	return rt, ReadRentableType(row, &rt)
 }
 
-// GetBusinessRentableTypes returns a slice of RentableType indexed by the RTID
-func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]RentableType, error) {
+// getBizRentableTypes returns a slice of RentableType indexed by the RTID
+func getBizRentableTypes(bid int64) (map[int64]RentableType, error) {
 
 	var (
 		err error
 		t   = make(map[int64]RentableType)
 	)
-
-	// session... context
-	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
-	}
 
 	rows, err := RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
 	if err != nil {
@@ -4217,7 +4282,7 @@ func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]Rentabl
 			return t, err
 		}
 		a.MR = []RentableMarketRate{}
-		err = GetRentableMarketRates(ctx, &a)
+		err = getRentableMarketRates(&a)
 		if err != nil {
 			return t, err
 		}
@@ -4227,20 +4292,31 @@ func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]Rentabl
 	return t, rows.Err()
 }
 
-// GetRentableMarketRates loads all the MarketRate rent information for this Rentable into an array
-func GetRentableMarketRates(ctx context.Context, rt *RentableType) error {
+// GetBusinessRentableTypes returns a slice of RentableType indexed by the RTID
+func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]RentableType, error) {
 
 	var (
-		err error
+		// err error
+		t = make(map[int64]RentableType)
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
-			return ErrSessionRequired
+			return t, ErrSessionRequired
 		}
 	}
+
+	return getBizRentableTypes(bid)
+}
+
+// getRentableMarketRates loads all the MarketRate rent information for this Rentable into an array
+func getRentableMarketRates(rt *RentableType) error {
+
+	var (
+		err error
+	)
 
 	// now get all the MarketRate rent info...
 	rows, err := RRdb.Prepstmt.GetRentableMarketRates.Query(rt.RTID)
@@ -4266,17 +4342,35 @@ func GetRentableMarketRates(ctx context.Context, rt *RentableType) error {
 	return rows.Err()
 }
 
+// GetRentableMarketRates loads all the MarketRate rent information for this Rentable into an array
+func GetRentableMarketRates(ctx context.Context, rt *RentableType) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.NoAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	return getRentableMarketRates(rt)
+}
+
 // GetRentableMarketRateInstance returns instance of rentableMarketRate for given RMRID
 func GetRentableMarketRateInstance(ctx context.Context, rmrid int64) (RentableMarketRate, error) {
 
 	var (
-		err error
+		// err error
 		rmr RentableMarketRate
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rmr, ErrSessionRequired
 		}
@@ -4301,7 +4395,7 @@ func GetRentableMarketRate(ctx context.Context, xbiz *XBusiness, RID int64, d1, 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return marketRateValue, ErrSessionRequired
 		}
@@ -4334,7 +4428,7 @@ func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) 
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -4366,13 +4460,13 @@ func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) 
 func GetRentalAgreement(ctx context.Context, raid int64) (RentalAgreement, error) {
 
 	var (
-		err error
-		r   RentalAgreement
+		// err error
+		r RentalAgreement
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -4392,7 +4486,7 @@ func LoadXRentalAgreement(ctx context.Context, raid int64, r *RentalAgreement, d
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -4468,7 +4562,7 @@ func GetRentalAgreementEarliestDate(ctx context.Context, a *RentalAgreement) (ti
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return dt, ErrSessionRequired
 		}
@@ -4489,13 +4583,13 @@ func GetRentalAgreementEarliestDate(ctx context.Context, a *RentalAgreement) (ti
 func GetXRentalAgreement(ctx context.Context, raid int64, d1, d2 *time.Time) (RentalAgreement, error) {
 
 	var (
-		err error
-		ra  RentalAgreement
+		// err error
+		ra RentalAgreement
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ra, ErrSessionRequired
 		}
@@ -4515,7 +4609,7 @@ func GetRentalAgreementsFromList(ctx context.Context, raa *[]RentalAgreementRent
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -4546,7 +4640,7 @@ func GetAgreementsForRentable(ctx context.Context, rid int64, d1, d2 *time.Time)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -4580,7 +4674,7 @@ func GetRARentableForDate(ctx context.Context, raid int64, d1 *time.Time, rar *R
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -4594,13 +4688,13 @@ func GetRARentableForDate(ctx context.Context, raid int64, d1 *time.Time, rar *R
 func GetRentalAgreementRentable(ctx context.Context, rarid int64) (RentalAgreementRentable, error) {
 
 	var (
-		err error
-		r   RentalAgreementRentable
+		// err error
+		r RentalAgreementRentable
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -4621,7 +4715,7 @@ func GetRentalAgreementRentables(ctx context.Context, raid int64, d1, d2 *time.T
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -4656,7 +4750,7 @@ func GetRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64) (R
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -4676,7 +4770,7 @@ func GetRentalAgreementPayor(ctx context.Context, id int64) (RentalAgreementPayo
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -4697,7 +4791,7 @@ func GetRentalAgreementPayorsInRange(ctx context.Context, raid int64, d1, d2 *ti
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -4721,7 +4815,7 @@ func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.T
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -4745,7 +4839,7 @@ func GetRentalAgreementsByPayorRange(ctx context.Context, bid, tcid int64, d1, d
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -4769,7 +4863,7 @@ func getRentalAgreementPayorsByRows(ctx context.Context, rows *sql.Rows) ([]Rent
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -4802,7 +4896,7 @@ func GetRentalAgreementTemplate(ctx context.Context, ratid int64) (RentalAgreeme
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -4822,7 +4916,7 @@ func GetRentalAgreementByRATemplateName(ctx context.Context, ref string) (Rental
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
 		}
@@ -4845,7 +4939,7 @@ func GetStringList(ctx context.Context, id int64, a *StringList) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -4869,7 +4963,7 @@ func GetAllStringLists(ctx context.Context, id int64) ([]StringList, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -4907,7 +5001,7 @@ func GetStringListByName(ctx context.Context, bid int64, s string, a *StringList
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -4931,7 +5025,7 @@ func getSLStrings(ctx context.Context, id int64, a *StringList) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -4968,7 +5062,7 @@ func GetSubAR(ctx context.Context, id int64, a *SubAR) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -4988,7 +5082,7 @@ func GetSubARs(ctx context.Context, id int64) ([]SubAR, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -5031,7 +5125,7 @@ func GetTransactantTypeDown(ctx context.Context, bid int64, s string, limit int)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -5067,7 +5161,7 @@ func GetTCIDByNote(ctx context.Context, cmt string) (int64, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return tcid, ErrSessionRequired
 		}
@@ -5083,13 +5177,13 @@ func GetTCIDByNote(ctx context.Context, cmt string) (int64, error) {
 func GetTransactantByPhoneOrEmail(ctx context.Context, BID int64, s string) (Transactant, error) {
 
 	var (
-		err error
-		t   Transactant
+		// err error
+		t Transactant
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -5135,7 +5229,7 @@ func GetTransactant(ctx context.Context, tid int64, t *Transactant) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -5154,7 +5248,7 @@ func GetProspect(ctx context.Context, id int64, p *Prospect) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -5175,7 +5269,7 @@ func GetUser(ctx context.Context, tcid int64, t *User) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -5194,7 +5288,7 @@ func GetPayor(ctx context.Context, pid int64, p *Payor) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -5214,7 +5308,7 @@ func GetRentalAgreementGridInfo(ctx context.Context, raid int64, d1, d2 *time.Ti
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -5247,7 +5341,7 @@ func GetVehicle(ctx context.Context, vid int64, t *Vehicle) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -5266,7 +5360,7 @@ func getVehicleList(ctx context.Context, rows *sql.Rows) ([]Vehicle, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
 		}
@@ -5294,7 +5388,7 @@ func GetVehiclesByLicensePlate(ctx context.Context, s string) ([]Vehicle, error)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -5319,7 +5413,7 @@ func GetVehiclesByTransactant(ctx context.Context, tcid int64) ([]Vehicle, error
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -5344,7 +5438,7 @@ func GetVehiclesByBID(ctx context.Context, bid int64) ([]Vehicle, error) {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
 		}
@@ -5368,7 +5462,7 @@ func GetXPerson(ctx context.Context, tcid int64, x *XPerson) error {
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
 		}
@@ -5417,7 +5511,7 @@ func GetDateOfLedgerMarkerOnOrBefore(ctx context.Context, bid int64, d1 *time.Ti
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return dt, ErrSessionRequired
 		}
@@ -5440,13 +5534,13 @@ func GetDateOfLedgerMarkerOnOrBefore(ctx context.Context, bid int64, d1 *time.Ti
 func GetCountBusinessCustomAttrRefs(ctx context.Context, bid int64) (int, error) {
 
 	var (
-		err   error
+		// err   error
 		count int
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}
@@ -5461,13 +5555,13 @@ func GetCountBusinessCustomAttrRefs(ctx context.Context, bid int64) (int, error)
 func GetCountBusinessCustomAttributes(ctx context.Context, bid int64) (int, error) {
 
 	var (
-		err   error
+		// err   error
 		count int
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}
@@ -5482,13 +5576,13 @@ func GetCountBusinessCustomAttributes(ctx context.Context, bid int64) (int, erro
 func GetCountBusinessRentableTypes(ctx context.Context, bid int64) (int, error) {
 
 	var (
-		err   error
+		// err   error
 		count int
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}
@@ -5503,13 +5597,13 @@ func GetCountBusinessRentableTypes(ctx context.Context, bid int64) (int, error) 
 func GetCountBusinessTransactants(ctx context.Context, bid int64) (int, error) {
 
 	var (
-		err   error
+		// err   error
 		count int
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}
@@ -5524,13 +5618,13 @@ func GetCountBusinessTransactants(ctx context.Context, bid int64) (int, error) {
 func GetCountBusinessRentables(ctx context.Context, bid int64) (int, error) {
 
 	var (
-		err   error
+		// err   error
 		count int
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}
@@ -5545,13 +5639,13 @@ func GetCountBusinessRentables(ctx context.Context, bid int64) (int, error) {
 func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, error) {
 
 	var (
-		err   error
+		// err   error
 		count int
 	)
 
 	// session... context
 	if !RRdb.NoAuth {
-		sess, ok := SessionFromContext(ctx)
+		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
 		}

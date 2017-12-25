@@ -2202,7 +2202,7 @@ func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 	var (
 		rid = int64(0)
 		err error
-		res sql.Result
+		// res sql.Result
 	)
 
 	// session... context
@@ -2211,6 +2211,10 @@ func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 		if !ok {
 			return rid, ErrSessionRequired
 		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
 
 	// SPECIAL CASE

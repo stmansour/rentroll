@@ -1727,7 +1727,7 @@ var RRdb struct {
 func BuildBusinessDesignationMap() map[string]int64 {
 	// Console("Entered BuildBusinessDesignationMap\n")
 	var sl = map[string]int64{}
-	bl, err := GetAllBusinesses()
+	bl, err := GetAllBiz()
 	if err != nil {
 		Ulog("GetAllBusinesses: err = %s\n", err.Error())
 	}
@@ -1774,13 +1774,40 @@ func InitBusinessFields(bid int64) {
 }
 
 // InitBizInternals initializes several internal structures with information about the business.
-func InitBizInternals(bid int64, xbiz *XBusiness) {
+func InitBizInternals(bid int64, xbiz *XBusiness) error {
+	var (
+		err error
+	)
+
 	// fmt.Printf("Entered InitBizInternals\n")
-	GetXBusiness(bid, xbiz) // get its info
+	err = getXBiz(bid, xbiz) // get its info
+	if err != nil {
+		return err
+	}
+
 	InitBusinessFields(bid)
+
 	// GetDefaultLedgers(bid) // Gather its chart of accounts
-	RRdb.BizTypes[bid].GLAccounts = GetGLAccountMap(bid)
-	RRdb.BizTypes[bid].AR = GetARMap(bid)
-	GetAllNoteTypes(bid)
-	LoadRentableTypeCustomaAttributes(xbiz)
+	RRdb.BizTypes[bid].GLAccounts, err = getLedgerMap(bid)
+	if err != nil {
+		return err
+	}
+
+	RRdb.BizTypes[bid].AR, err = getARMap(bid)
+	if err != nil {
+		return err
+	}
+
+	// TODO(Steve): why we're ignoring note types here? shouldnt we store somewhere?
+	_, err = getBusinessAllNoteTypes(bid)
+	if err != nil {
+		return err
+	}
+
+	err = loadRentableTypeCustomaAttributes(xbiz)
+	if err != nil {
+		return err
+	}
+
+	return err
 }

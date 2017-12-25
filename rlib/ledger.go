@@ -97,7 +97,7 @@ func GenerateLedgerEntriesFromJournal(ctx context.Context, xbiz *XBusiness, j *J
 
 			l.LID = ledger.LID
 			if l.Amount >= float64(0.005) || l.Amount < float64(-0.005) { // ignore rounding errors
-				dup, err := GetLedgerEntryByJAID(ctx, l.BID, l.LID, l.JAID) //
+				_, err := GetLedgerEntryByJAID(ctx, l.BID, l.LID, l.JAID) //
 				if err != nil {
 					_, err = InsertLedgerEntry(ctx, &l)
 					// TODO(Steve): should we return error from here?
