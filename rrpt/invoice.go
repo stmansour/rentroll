@@ -1,30 +1,38 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
 )
 
 // InvoiceTextReport generates a text invoice for the supplied InvoiceNo
-func InvoiceTextReport(id int64) error {
-	var noerr error
-	funcname := "InvoiceTextReport"
-	inv, err := rlib.GetInvoice(id)
+func InvoiceTextReport(ctx context.Context, id int64) error {
+	const funcname = "InvoiceTextReport"
+	var (
+		err error
+	)
+
+	inv, err := rlib.GetInvoice(ctx, id)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting invoice - %s", funcname, err.Error())
 		return e
 	}
 
 	var biz rlib.Business
-	rlib.GetBusiness(inv.BID, &biz)
+	err = rlib.GetBusiness(ctx, inv.BID, &biz)
+	if err != nil {
+		e := fmt.Errorf("%s: error getting business - %s", funcname, err.Error())
+		return e
+	}
 
-	bu, err := rlib.GetBusinessUnitByDesignation(biz.Designation)
+	bu, err := rlib.GetBusinessUnitByDesignation(ctx, biz.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
 		return e
 	}
-	c, err := rlib.GetCompany(int64(bu.CoCode))
+	c, err := rlib.GetCompany(ctx, int64(bu.CoCode))
 	if err != nil {
 		e := fmt.Errorf("%s: error getting Company - %s", funcname, err.Error())
 		return e
@@ -54,7 +62,12 @@ func InvoiceTextReport(id int64) error {
 			s = "Due From:"
 		}
 		var p rlib.XPerson
-		rlib.GetTransactant(inv.P[i].PID, &p.Trn)
+		err = rlib.GetTransactant(ctx, inv.P[i].PID, &p.Trn)
+		if err != nil {
+			e := fmt.Errorf("%s: Error while getting Transactant - %s", funcname, err.Error())
+			return e
+		}
+
 		middle := " "
 		if len(p.Trn.MiddleName) > 0 {
 			middle += p.Trn.MiddleName + " "
@@ -84,11 +97,17 @@ func InvoiceTextReport(id int64) error {
 	fmt.Printf("%s\n", sep)
 	var tot = float64(0)
 	for i := 0; i < len(inv.A); i++ {
-		a, err := rlib.GetAssessment(inv.A[i].ASMID)
+		a, err := rlib.GetAssessment(ctx, inv.A[i].ASMID)
 		if err != nil {
 			fmt.Printf("Error getting Assessment %d:  %s\n", inv.A[i].ASMID, err.Error())
+			return err
 		}
-		r := rlib.GetRentable(a.RID)
+
+		r, err := rlib.GetRentable(ctx, a.RID)
+		if err != nil {
+			return err
+		}
+
 		fmt.Printf("%-10s  %-12s  %-15s  %-40.40s  %12s  %20s\n", a.Start.Format(rlib.RRDATEFMT3), a.IDtoString(),
 			r.RentableName, rlib.RRdb.BizTypes[biz.BID].GLAccounts[a.ATypeLID].Name, rlib.RRCommaf(a.Amount), a.Comment)
 		tot += a.Amount
@@ -96,5 +115,5 @@ func InvoiceTextReport(id int64) error {
 	fmt.Printf("%s\n", sep)
 	fmt.Printf("%-10s  %12s  %15s  %-40s  %12s\n", "Total", " ", " ", " ", rlib.RRCommaf(tot))
 
-	return noerr
+	return err
 }

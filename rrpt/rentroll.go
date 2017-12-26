@@ -1,14 +1,6 @@
 package rrpt
 
-import (
-	"fmt"
-	"gotable"
-	"rentroll/rlib"
-	"strings"
-	"time"
-)
-
-// OtherIncomeGLAccountName and the rest will need to become configurable parameters for this report!!
+/*// OtherIncomeGLAccountName and the rest will need to become configurable parameters for this report!!
 const (
 	OtherIncomeGLAccountName  = string("Other Income")
 	IncomeOffsetGLAccountName = string("Income Offsets")
@@ -402,3 +394,4 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 	}
 	return tbl
 }
+*/

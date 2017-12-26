@@ -1,22 +1,26 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"time"
 )
 
 // LdgAcctBalOnDateTextReport generates the balance of a particular ledger for the supplied date filtered by the RentalAgreement ID
-func LdgAcctBalOnDateTextReport(xbiz *rlib.XBusiness, lid, raid int64, dt *time.Time) {
-	bal := rlib.GetRAAccountBalance(xbiz.P.BID, lid, raid, dt)
+func LdgAcctBalOnDateTextReport(ctx context.Context, xbiz *rlib.XBusiness, lid, raid int64, dt *time.Time) {
+	bal, err := rlib.GetRAAccountBalance(ctx, xbiz.P.BID, lid, raid, dt)
+	if err != nil {
+		fmt.Printf("Error while getting balance for RA%08d - %s\n", raid, err.Error())
+	}
 	fmt.Printf("Account Balance of Ledger L%08d (%s) for RA%08d as of %s:  %s\n",
 		lid, rlib.RRdb.BizTypes[xbiz.P.BID].GLAccounts[lid].Name, raid, dt.Format(rlib.RRDATEFMT4), rlib.RRCommaf(bal))
 }
 
 // RAAccountActivityRangeDetail generates a report of the ledger entries that affect the RentalAgreements ledger during d1-d2
-func RAAccountActivityRangeDetail(xbiz *rlib.XBusiness, lid, raid int64, d1, d2 *time.Time) {
+func RAAccountActivityRangeDetail(ctx context.Context, xbiz *rlib.XBusiness, lid, raid int64, d1, d2 *time.Time) {
 	var bal = float64(0)
-	m, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, lid)
+	m, err := rlib.GetLedgerEntriesForRAID(ctx, d1, d2, raid, lid)
 	if err != nil {
 		fmt.Printf("RAAccountActivityRangeDetail: GetLedgerEntriesForRAID returned error: %s\n", err.Error())
 		return
@@ -38,8 +42,18 @@ func RAAccountActivityRangeDetail(xbiz *rlib.XBusiness, lid, raid int64, d1, d2 
 	fmt.Printf("%10s  %8.2f\n", "Total", bal)
 
 	fmt.Println()
-	bal1 := rlib.GetRAAccountBalance(xbiz.P.BID, lid, raid, d1)
-	bal2 := rlib.GetRAAccountBalance(xbiz.P.BID, lid, raid, d2)
+	bal1, err := rlib.GetRAAccountBalance(ctx, xbiz.P.BID, lid, raid, d1)
+	if err != nil {
+		fmt.Printf("RAAccountActivityRangeDetail: GetRAAccountBalance returned error: %s\n", err.Error())
+		return
+	}
+
+	bal2, err := rlib.GetRAAccountBalance(ctx, xbiz.P.BID, lid, raid, d2)
+	if err != nil {
+		fmt.Printf("RAAccountActivityRangeDetail: GetRAAccountBalance returned error: %s\n", err.Error())
+		return
+	}
+
 	fmt.Printf("Account Balance on %10s  -  %10s\n", d1.Format(rlib.RRDATEFMT4), rlib.RRCommaf(bal1))
 	fmt.Printf("Account Balance on %10s  -  %10s\n", d2.Format(rlib.RRDATEFMT4), rlib.RRCommaf(bal2))
 	fmt.Printf("Change ---> %8.2f\n", bal2-bal1)

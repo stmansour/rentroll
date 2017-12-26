@@ -1,14 +1,15 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
 )
 
 // RRreportRentalAgreementTemplatesTable generates a table object for all rental agreement templates
-func RRreportRentalAgreementTemplatesTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportRentalAgreementTemplatesTable"
+func RRreportRentalAgreementTemplatesTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportRentalAgreementTemplatesTable"
 
 	// table init
 	tbl := getRRTable()
@@ -18,37 +19,47 @@ func RRreportRentalAgreementTemplatesTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("RA Template Name", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set table title, sections
-	err := TableReportHeaderBlock(&tbl, "Rental Agreement Templates", funcname, ri)
+	err := TableReportHeaderBlock(ctx, &tbl, "Rental Agreement Templates", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementTemplates.Query()
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
-		// set errors in section3 and return
-		tbl.SetSection3(NoRecordsFoundMsg)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var p rlib.RentalAgreementTemplate
-		rlib.ReadRentalAgreementTemplates(rows, &p)
+		err = rlib.ReadRentalAgreementTemplates(rows, &p)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			tbl.SetSection3(err.Error())
+			return tbl
+		}
 		tbl.AddRow()
 		tbl.Puts(-1, 0, fmt.Sprintf("B%08d", p.BID))
 		tbl.Puts(-1, 1, p.IDtoString())
 		tbl.Puts(-1, 2, p.RATemplateName)
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 	tbl.TightenColumns()
 	return tbl
 }
 
 // RRreportRentalAgreementTemplates generates a report for all rental agreement templates
-func RRreportRentalAgreementTemplates(ri *ReporterInfo) string {
-	tbl := RRreportRentalAgreementTemplatesTable(ri)
+func RRreportRentalAgreementTemplates(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportRentalAgreementTemplatesTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

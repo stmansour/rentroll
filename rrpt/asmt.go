@@ -1,22 +1,21 @@
 package rrpt
 
 import (
+	"context"
 	"gotable"
 	"rentroll/rlib"
 )
 
 // RRAssessmentsTable generates a gotable table object
 // for report of all rlib.Assessment records related with business
-func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRAssessmentsTable"
-
-	// initialize and prepare some ReporterInfo values
-	bid := ri.Bid
-	d1 := ri.D1
-	d2 := ri.D2
-
-	rlib.InitBusinessFields(bid)
-	rlib.RRdb.BizTypes[bid].GLAccounts = rlib.GetGLAccountMap(bid)
+func RRAssessmentsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRAssessmentsTable"
+	var (
+		err error
+		bid = ri.Bid
+		d1  = ri.D1
+		d2  = ri.D2
+	)
 
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
@@ -35,18 +34,27 @@ func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("AR Name", 80, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// prepare table's title, section1, section2, section3 if there are any error
-	err := TableReportHeaderBlock(&tbl, "Assessments", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Assessments", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
+	rlib.InitBusinessFields(bid)
+	rlib.RRdb.BizTypes[bid].GLAccounts, err = rlib.GetGLAccountMap(ctx, bid)
+	if err != nil {
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
+	if err != nil {
 		// set errors in section3 and return
-		tbl.SetSection3(NoRecordsFoundMsg)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 	defer rows.Close()
@@ -54,8 +62,19 @@ func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
 	// fit records in table row one by one
 	for rows.Next() {
 		var a rlib.Assessment
-		rlib.ReadAssessments(rows, &a)
-		r := rlib.GetRentable(a.RID)
+		err = rlib.ReadAssessments(rows, &a)
+		if err != nil {
+			// set errors in section3 and return
+			tbl.SetSection3(err.Error())
+			return tbl
+		}
+
+		r, err := rlib.GetRentable(ctx, a.RID)
+		if err != nil {
+			// set errors in section3 and return
+			tbl.SetSection3(err.Error())
+			return tbl
+		}
 
 		tbl.AddRow()
 		tbl.Puts(-1, 0, a.IDtoString())
@@ -65,15 +84,28 @@ func RRAssessmentsTable(ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 4, rlib.RentalPeriodToString(a.ProrationCycle))
 		tbl.Putf(-1, 5, a.Amount)
 		tbl.Puts(-1, 6, rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID].Name)
-		tbl.Puts(-1, 7, rlib.GetAssessmentAccountRuleText(&a))
+		ar, err := rlib.GetAssessmentAccountRuleText(ctx, &a)
+		if err != nil {
+			// set errors in section3 and return
+			tbl.SetSection3(err.Error())
+			return tbl
+		}
+		tbl.Puts(-1, 7, ar)
 	}
-	rlib.Errcheck(rows.Err())
+
+	err = rows.Err()
+	if err != nil {
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	tbl.TightenColumns()
 	return tbl
 }
 
 // RRreportAssessments generates a text report of all rlib.Assessments records
-func RRreportAssessments(ri *ReporterInfo) string {
-	tbl := RRAssessmentsTable(ri)
+func RRreportAssessments(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRAssessmentsTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

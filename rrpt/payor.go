@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
@@ -18,9 +19,12 @@ import (
 //             from other payors containing unapplied funds)
 //             false = external view (do not show Unapplied Funds section)
 //============================================================================
-func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.Table {
-	var t gotable.Table
-	var xbiz rlib.XBusiness
+func PayorStatement(ctx context.Context, bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.Table {
+	var (
+		err  error
+		t    gotable.Table
+		xbiz rlib.XBusiness
+	)
 
 	const (
 		Date           = 0
@@ -39,7 +43,11 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 	//
 	// UGH!
 	//=======================================================================
-	rlib.InitBizInternals(bid, &xbiz)
+	err = rlib.InitBizInternals(bid, &xbiz)
+	if err != nil {
+		t.SetSection3(err.Error())
+		return t
+	}
 	// rlib.Console("bid = %d\n", bid)
 	_, ok := rlib.RRdb.BizTypes[bid]
 	if !ok {
@@ -72,12 +80,12 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 	payorcache := map[int64]rlib.Transactant{}
 
 	// t.SetTitle("Payor Statement\n")
-	payorName := rlib.GetNameFromTransactantCache(tcid, payorcache)
+	payorName := rlib.GetNameFromTransactantCache(ctx, tcid, payorcache)
 	t.SetTitle(fmt.Sprintf("%s - Statement", payorName))
 
 	var section1 string // includes address and date range
 	tr := rlib.Transactant{}
-	err := rlib.GetTransactant(tcid, &tr)
+	err = rlib.GetTransactant(ctx, tcid, &tr)
 	if err != nil {
 		t.SetSection3("Unable to get Payor info: " + err.Error())
 		return t
@@ -86,7 +94,7 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 	section1 += fmt.Sprintf("Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT), addr)
 	t.SetSection1(section1)
 
-	m, err := rlib.PayorsStatement(bid, payors, d1, d2)
+	m, err := rlib.PayorsStatement(ctx, bid, payors, d1, d2)
 	if err != nil {
 		t.SetSection3("Error from PayorsStatement: " + err.Error())
 		return t
@@ -108,7 +116,7 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 			}
 			t.AddRow()
 			t.Putd(-1, Date, m.RL[i].R.Dt)
-			t.Puts(-1, Payor, rlib.GetNameFromTransactantCache(m.RL[i].R.TCID, payorcache))
+			t.Puts(-1, Payor, rlib.GetNameFromTransactantCache(ctx, m.RL[i].R.TCID, payorcache))
 			t.Puts(-1, RCPTID, rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID))
 			t.Puts(-1, Description, "Receipt "+m.RL[i].R.DocNo)
 			t.Putf(-1, UnappliedFunds, m.RL[i].Unallocated)
@@ -134,13 +142,18 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 				}
 				t.AddRow()
 				t.Putd(-1, Date, m.RL[i].R.Dt)
-				t.Puts(-1, Payor, rlib.GetNameFromTransactantCache(m.RL[i].R.TCID, payorcache))
+				t.Puts(-1, Payor, rlib.GetNameFromTransactantCache(ctx, m.RL[i].R.TCID, payorcache))
 
 				//----------------------------------------------------
 				// If the payor only has one RAID and it is THIS one
 				// then we can list the details of the receipt
 				//----------------------------------------------------
-				l1 := rlib.GetRentalAgreementsByPayorRange(bid, m.RL[i].R.TCID, d1, d2)
+				l1, err := rlib.GetRentalAgreementsByPayorRange(ctx, bid, m.RL[i].R.TCID, d1, d2)
+				if err != nil {
+					rlib.LogAndPrintError("PayorStatement", err)
+					continue
+				}
+
 				if len(l1) == 1 {
 					t.Puts(-1, RAID, rlib.IDtoShortString("RA", l1[0].RAID))
 					t.Puts(-1, RCPTID, rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID))
@@ -161,12 +174,18 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 	//------------------------------------------------------
 	for i := 0; i < len(m.RAB); i++ { // for each RA
 		raidstr := rlib.IDtoShortString("RA", m.RAB[i].RAID)
-		ra, err := rlib.GetRentalAgreement(m.RAB[i].RAID)
+		ra, err := rlib.GetRentalAgreement(ctx, m.RAB[i].RAID)
 		if err != nil {
 			rlib.LogAndPrintError("PayorStatement", err)
 			continue
 		}
-		rentableName := ra.GetTheRentableName(d1, d2)
+		rentableName, err := ra.GetTheRentableName(ctx, d1, d2)
+		if err != nil {
+			rlib.LogAndPrintError("PayorStatement", err)
+			t.SetSection3("Unable to get rentable Name: " + err.Error())
+			return t
+		}
+
 		t.AddRow()
 		t.Puts(-1, Description, fmt.Sprintf("*** RENTAL AGREEMENT %d ***", m.RAB[i].RAID))
 		t.AddRow()
@@ -209,10 +228,16 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 					t.Puts(-1, ASMID, rlib.IDtoShortString("ASM", m.RAB[i].Stmt[j].A.ASMID))
 				}
 				if m.RAB[i].Stmt[j].A.RAID > 0 { // Payor(s) = all payors associated with RentalAgreement
-					pyrs := rlib.GetRentalAgreementPayorsInRange(m.RAB[i].Stmt[j].A.RAID, d1, d2)
+					pyrs, err := rlib.GetRentalAgreementPayorsInRange(ctx, m.RAB[i].Stmt[j].A.RAID, d1, d2)
+					if err != nil {
+						rlib.LogAndPrintError("PayorStatement", err)
+						t.SetSection3(err.Error())
+						return t
+					}
+
 					sa := []string{}
 					for k := 0; k < len(pyrs); k++ {
-						sa = append(sa, rlib.GetNameFromTransactantCache(pyrs[k].TCID, payorcache))
+						sa = append(sa, rlib.GetNameFromTransactantCache(ctx, pyrs[k].TCID, payorcache))
 					}
 					t.Puts(-1, Payor, strings.Join(sa, ","))
 				}
@@ -228,9 +253,14 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 				descr += "Receipt allocation"
 				if rcptid > 0 {
 					t.Puts(-1, RCPTID, rlib.IDtoShortString("RCPT", rcptid))
-					rcpt := rlib.GetReceipt(rcptid)
+					rcpt, err := rlib.GetReceipt(ctx, rcptid)
+					if err != nil {
+						t.SetSection3(err.Error())
+						return t
+					}
+
 					if rcpt.RCPTID > 0 {
-						name := rlib.GetNameFromTransactantCache(rcpt.TCID, payorcache)
+						name := rlib.GetNameFromTransactantCache(ctx, rcpt.TCID, payorcache)
 						t.Puts(-1, Payor, name)
 					}
 				}
@@ -241,7 +271,12 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 					applied += amt
 					bal -= amt
 				} else {
-					rcpt := rlib.GetReceipt(m.RAB[i].Stmt[j].R.RCPTID)
+					rcpt, err := rlib.GetReceipt(ctx, m.RAB[i].Stmt[j].R.RCPTID)
+					if err != nil {
+						t.SetSection3(err.Error())
+						return t
+					}
+
 					if rcpt.RCPTID > 0 && len(rcpt.Comment) > 0 {
 						descr += " (" + rcpt.Comment + ")"
 					}
@@ -263,7 +298,7 @@ func PayorStatement(bid, tcid int64, d1, d2 *time.Time, internal bool) gotable.T
 }
 
 // RRPayorStatement is a report regarding payor statement, used to be download in pdf, csv format
-func RRPayorStatement(ri *ReporterInfo) gotable.Table {
+func RRPayorStatement(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	// find tcid from query params
 	var (
 		tcid     int64
@@ -275,5 +310,5 @@ func RRPayorStatement(ri *ReporterInfo) gotable.Table {
 	internalStr := ri.QueryParams.Get("internal")
 	internal, _ = strconv.ParseBool(internalStr)
 
-	return PayorStatement(ri.Bid, tcid, &ri.D1, &ri.D2, internal)
+	return PayorStatement(ctx, ri.Bid, tcid, &ri.D1, &ri.D2, internal)
 }
