@@ -3,6 +3,7 @@ package rrpt
 import (
 	"context"
 	"fmt"
+	"gotable"
 	"rentroll/rlib"
 	"strings"
 )
@@ -116,4 +117,44 @@ func InvoiceTextReport(ctx context.Context, id int64) error {
 	fmt.Printf("%-10s  %12s  %15s  %-40s  %12s\n", "Total", " ", " ", " ", rlib.RRCommaf(tot))
 
 	return err
+}
+
+// RRreportInvoices generates a report of all rlib.GLAccount accounts
+func RRreportInvoices(ctx context.Context, ri *ReporterInfo) string {
+	const funcname = "RRreportInvoices"
+	var (
+		err error
+		tbl gotable.Table
+	)
+	tbl.Init()
+	err = TableReportHeaderBlock(ctx, &tbl, "Invoices", funcname, ri)
+	if err != nil {
+		return err.Error()
+	}
+
+	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("InvoiceNo", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("BID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Due Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("DeliveredBy", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+
+	// TODO(Steve): should we replce Rcsv.DtStart, DtStop with "ri" dates?
+	m, err := rlib.GetAllInvoicesInRange(ctx, ri.Bid, &ri.D1, &ri.D2)
+	if err != nil {
+		return err.Error()
+	}
+
+	for i := 0; i < len(m); i++ {
+		tbl.AddRow()
+		tbl.Putd(-1, 0, m[i].Dt)
+		tbl.Puts(-1, 1, m[i].IDtoString())
+		tbl.Puts(-1, 2, rlib.IDtoString("B", m[i].BID))
+		tbl.Putd(-1, 3, m[i].DtDue)
+		tbl.Putf(-1, 4, m[i].Amount)
+		tbl.Puts(-1, 5, m[i].DeliveredBy)
+	}
+
+	tbl.TightenColumns()
+	return ReportToString(&tbl, ri)
 }
