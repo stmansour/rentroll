@@ -19,7 +19,8 @@ exports.gridConf = {
         "searchDtStart": "11/30/2017",
         "searchDtStop": "12/31/2017"
     }),
-    testCount: 46
+    excludeGridColumns: ["Active", "RentCycle", "Proration", "GSRPC", "ManageToBudget"],
+    testCount: 50
 };
 
 exports.formConf = {

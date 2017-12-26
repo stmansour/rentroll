@@ -29,6 +29,10 @@ exports.isColumnInExcludedGridColumns = function (column, excludedGridColumns) {
     return isColumnInExcludedGridColumns;
 };
 
+exports.isInArray = function(value, array){
+  return array.indexOf(value) > -1;
+};
+
 exports.waitTime = 500;
 
 exports.apiBaseURL = "http://localhost:8270";

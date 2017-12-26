@@ -46,6 +46,21 @@ function performRowColumnVisiblityTest(that, column, recordNo, test, record) {
     test.assertEquals(rowColumnData, record[column.field], "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
 }
 
+function getColumnsAfterExcludingGridColumns(columns, excludeGridColumns) {
+    var columnList = [];
+    columns.forEach(function (column) {
+        excludeGridColumns.forEach(function (excludeGridColumn) {
+            if (column.field !== excludeGridColumn) {
+                columnList.push(column);
+                console.log(column.field);
+
+            }
+        });
+    });
+    console.log(columnList);
+    return columnList;
+}
+
 exports.apiIntegrationTest = function (gridConfig) {
     var testCount = gridConfig.testCount;
     var testName = "{0} record tests".format(gridConfig.grid);
@@ -75,12 +90,41 @@ exports.apiIntegrationTest = function (gridConfig) {
         that.apiResponse.records.forEach(function (record, recordNo) {
 
             that.columns.forEach(function (column) {
-                //
-                var isColumnInExcludedGridColumns = common.isColumnInExcludedGridColumns(column.field, that.excludeGridColumns);
 
-                if(!isColumnInExcludedGridColumns){
-                    performRowColumnVisiblityTest(that, column, recordNo, test, record);
-                }
+                // get coloumn index based on column name/field
+                var columnNo = casper.evaluate(function (gridName, column) {
+                    return w2ui[gridName].getColumn(column, true);
+                }, that.grid, column.field);
+
+                var rowColumnDataSelector = w2ui_utils.getRowColumnDataSelector(that.grid, recordNo, columnNo);
+
+                // get data at specific cell [recordNo][columnNo]
+                var rowColumnData = casper.evaluate(function (rowColumnDataSelector) {
+                    return $(rowColumnDataSelector).text();
+                }, rowColumnDataSelector);
+
+                // Get height of row
+                /*var height = casper.evaluate(function (rowColumnDataSelector) {
+                                return document.querySelector(rowColumnDataSelector).getBoundingClientRect().height;
+                            }, rowColumnDataSelector);
+
+                            casper.evaluate(function (recordsParentDivSelector, height, rowNo) {
+                                document.querySelector(recordsParentDivSelector).scrollTo(0, height*rowNo);
+                            }, rowColumnDataSelector, height, recordNo);
+
+                            casper.then(function () {
+                                common.capture("ScrollHeight.jpg");
+                            });*/
+
+                // check visibility of data at specific cell [recordNo][columnNo]
+                var isVisible = casper.evaluate(function (rowColumnDataSelector) {
+                    return isVisibleInViewPort(document.querySelector(rowColumnDataSelector));
+                }, rowColumnDataSelector);
+
+                // Record visibility in viewport
+                test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
+
+                test.assert(rowColumnData.indexOf(record[column.field]) > -1, "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
             });
 
         });
@@ -111,11 +155,8 @@ exports.apiIntegrationTest = function (gridConfig) {
                 return w2ui[grid].columns;
             }, this.grid);
 
-            this.columns = this.gridColumns.filter(w2ui_utils.getVisibleColumnName);
             this.excludeGridColumns = gridConfig.excludeGridColumns;
-
-            /*this.columns = this.columns.filter(w2ui_utils.getColumnsAfterRemovingExcludedColumns(gridConfig.excludeGridColumns));*/
-
+            this.columns = this.gridColumns.filter(w2ui_utils.getVisibleColumnName, this.excludeGridColumns);
 
             // Send api request to client and get response
             this.apiResponse = casper.evaluate(function (url, method, data) {

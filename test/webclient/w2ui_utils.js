@@ -6,6 +6,8 @@
     and you can get easily. Analysed from w2ui source code.
 ======================================*/
 
+var common = require("./common.js");
+
 // getGridRecordsDivID
 exports.getGridRecordsDivID = function (gridName) {
     return "grid_" + gridName + "_records";
@@ -78,42 +80,41 @@ exports.getRowColumnDataSelector = function (gridName, rowNo, columnNo) {
 };
 
 // getVisibleColumnName
-exports.getVisibleColumnName = function (columnName) {
-    if(!columnName.hidden){
-        return columnName;
+exports.getVisibleColumnName = function (column) {
+
+    if (!column.hidden) {
+        // check column is in excludeGridColumns
+        // 'this' represents callback argument. That is here excludeGridColumns
+        if(!common.isInArray(column.field, this)){
+            return column;
+        }
     }
 };
 
-/*exports.getColumnsAfterRemovingExcludedColumns = function (column, exludedGrid) {
-    if(!this.exludedGrid.includes(column.field)){
-        return column;
-    }
-};*/
-
 // getCheckBoxW2UIFields Return a w2ui form field  object with type 'checkbox'
 exports.getCheckBoxW2UIFields = function (inputField) {
-    if(inputField.type === "checkbox"){
+    if (inputField.type === "checkbox") {
         return inputField;
     }
 };
 
 // getCheckBoxW2UIFields Return a w2ui form field  object with type 'checkbox'
 exports.getDateW2UIFields = function (inputField) {
-    if(inputField.type === "date"){
+    if (inputField.type === "date") {
         return inputField;
     }
 };
 
 // getInputListW2UIFields Return a w2ui form field object with type 'list'
 exports.getInputListW2UIFields = function (inputField) {
-    if(inputField.type === "list"){
+    if (inputField.type === "list") {
         return inputField;
     }
 };
 
 // getTextTypeW2UIFields Return a w2ui form fields  object with type 'text'
 exports.getTextTypeW2UIFields = function (inputField) {
-    if(inputField.type === "text"){
+    if (inputField.type === "text") {
         return inputField;
     }
 };

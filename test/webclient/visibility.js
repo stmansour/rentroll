@@ -10,7 +10,7 @@ var isVisibleInViewPort = function(el){
             // Check if the element is out of view due to a container scrolling
             if ((top + height) <= rect.top) return false;
             el = el.parentNode;
-        } while (el != document.body);
+        } while (el !== document.body);
         // Check its within the document viewport
         return top <= document.documentElement.clientHeight;
     }
