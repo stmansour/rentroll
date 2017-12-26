@@ -17,6 +17,18 @@ exports.capture = function(fname) {
     });
 };
 
+exports.isColumnInExcludedGridColumns = function (column, excludedGridColumns) {
+    var isColumnInExcludedGridColumns =  false;
+
+    // forEach loop return undefined by default. So variable isColumnInExcludedGridColumns will help to return value.
+    excludedGridColumns.forEach(function (excludedGridColumn) {
+        if (column === excludedGridColumn){
+            isColumnInExcludedGridColumns = true;
+        }
+    });
+    return isColumnInExcludedGridColumns;
+};
+
 exports.waitTime = 500;
 
 exports.apiBaseURL = "http://localhost:8270";

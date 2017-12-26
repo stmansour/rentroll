@@ -47,7 +47,7 @@ casper.wait(pageLoadWaitTime);
 // --------------------------------------------------
 // 1. get the app settings, verify it, change the business to "REX"
 // --------------------------------------------------
-/*casper.then(function afterStartAndWait() {
+casper.then(function afterStartAndWait() {
     appSettings = this.evaluate(function getAppSettings() {
         return app;
     });
@@ -67,7 +67,7 @@ casper.wait(pageLoadWaitTime);
     }, testBizID);
     this.log('Business "REX" => expBizID: "{0}", testBizID: "{1}"'.format(expBizID, testBizID), 'debug', logSpace);
     this.test.assertEquals(expBizID, testBizID, "Business is changed to REX.");
-});*/
+});
 
 // --------------------------------------------------
 // 2. Page basic layout is ready or not
@@ -138,12 +138,12 @@ casper.wait(pageLoadWaitTime);
 // --------------------------------------------------
 
 casper.then(function apiIntegrationTest() {
-    gridRecordM.apiIntegrationTest(pmtM.gridConf);
+/*    gridRecordM.apiIntegrationTest(pmtM.gridConf);
     gridRecordM.apiIntegrationTest(depM.gridConf);
-    gridRecordM.apiIntegrationTest(depmethM.gridConf);
+    gridRecordM.apiIntegrationTest(depmethM.gridConf);*/
     gridRecordM.apiIntegrationTest(arsM.gridConf);
-    gridRecordM.apiIntegrationTest(rtM.gridConf);
-    gridRecordM.apiIntegrationTest(rentableM.gridConf);
+/*    gridRecordM.apiIntegrationTest(rtM.gridConf);
+    gridRecordM.apiIntegrationTest(rentableM.gridConf);*/
 });
 
 // ========== RUN TEST ==========

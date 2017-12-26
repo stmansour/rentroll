@@ -84,6 +84,12 @@ exports.getVisibleColumnName = function (columnName) {
     }
 };
 
+/*exports.getColumnsAfterRemovingExcludedColumns = function (column, exludedGrid) {
+    if(!this.exludedGrid.includes(column.field)){
+        return column;
+    }
+};*/
+
 // getCheckBoxW2UIFields Return a w2ui form field  object with type 'checkbox'
 exports.getCheckBoxW2UIFields = function (inputField) {
     if(inputField.type === "checkbox"){

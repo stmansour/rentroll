@@ -5,12 +5,45 @@ var common = require("./common.js");
 var w2ui_utils = require("./w2ui_utils.js");
 
 function jsonEquals(w2uiGridRecords, apiResponseRecords) {
-/*    console.log("---------------------");
-    console.log(JSON.stringify(w2uiGridRecords));*/
-    console.log("---------------------");
-    console.log(JSON.stringify(apiResponseRecords));
-    console.log("---------------------");
     return JSON.stringify(w2uiGridRecords) === JSON.stringify(apiResponseRecords);
+}
+
+function performRowColumnVisiblityTest(that, column, recordNo, test, record) {
+// get coloumn index based on column name/field
+    var columnNo = casper.evaluate(function (gridName, column) {
+        return w2ui[gridName].getColumn(column, true);
+    }, that.grid, column.field);
+
+    var rowColumnDataSelector = w2ui_utils.getRowColumnDataSelector(that.grid, recordNo, columnNo);
+
+    // get data at specific cell [recordNo][columnNo]
+    var rowColumnData = casper.evaluate(function (rowColumnDataSelector) {
+        return $(rowColumnDataSelector).text();
+    }, rowColumnDataSelector);
+
+    // Get height of row
+    /*var height = casper.evaluate(function (rowColumnDataSelector) {
+                    return document.querySelector(rowColumnDataSelector).getBoundingClientRect().height;
+                }, rowColumnDataSelector);
+
+                casper.evaluate(function (recordsParentDivSelector, height, rowNo) {
+                    document.querySelector(recordsParentDivSelector).scrollTo(0, height*rowNo);
+                }, rowColumnDataSelector, height, recordNo);
+
+                casper.then(function () {
+                    common.capture("ScrollHeight.jpg");
+                });*/
+
+    // check visibility of data at specific cell [recordNo][columnNo]
+    var isVisible = casper.evaluate(function (rowColumnDataSelector) {
+        return isVisibleInViewPort(document.querySelector(rowColumnDataSelector));
+    }, rowColumnDataSelector);
+
+    // Record visibility in viewport
+    test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
+
+    // Match API Response data with DOM cells
+    test.assertEquals(rowColumnData, record[column.field], "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
 }
 
 exports.apiIntegrationTest = function (gridConfig) {
@@ -37,46 +70,17 @@ exports.apiIntegrationTest = function (gridConfig) {
         // Scroll the parent div of records to (0, rowNo * height)
         // Apply scroll only if there are records available
         // -----------------------------------------------------
-        var recordsParentDivSelector = w2ui_utils.getRecordsParentDivSelector(that.grid);
+        // var recordsParentDivSelector = w2ui_utils.getRecordsParentDivSelector(that.grid);
 
         that.apiResponse.records.forEach(function (record, recordNo) {
 
             that.columns.forEach(function (column) {
+                //
+                var isColumnInExcludedGridColumns = common.isColumnInExcludedGridColumns(column.field, that.excludeGridColumns);
 
-                // get coloumn index based on column name/field
-                var columnNo = casper.evaluate(function (gridName, column) {
-                    return w2ui[gridName].getColumn(column, true);
-                }, that.grid, column.field);
-
-                var rowColumnDataSelector = w2ui_utils.getRowColumnDataSelector(that.grid, recordNo, columnNo);
-
-                // get data at specific cell [recordNo][columnNo]
-                var rowColumnData = casper.evaluate(function (rowColumnDataSelector) {
-                    return $(rowColumnDataSelector).text();
-                }, rowColumnDataSelector);
-
-                // Get height of row
-                /*var height = casper.evaluate(function (rowColumnDataSelector) {
-                    return document.querySelector(rowColumnDataSelector).getBoundingClientRect().height;
-                }, rowColumnDataSelector);
-
-                casper.evaluate(function (recordsParentDivSelector, height, rowNo) {
-                    document.querySelector(recordsParentDivSelector).scrollTo(0, height*rowNo);
-                }, rowColumnDataSelector, height, recordNo);
-
-                casper.then(function () {
-                    common.capture("ScrollHeight.jpg");
-                });*/
-
-                // check visibility of data at specific cell [recordNo][columnNo]
-                var isVisible = casper.evaluate(function (rowColumnDataSelector) {
-                    return isVisibleInViewPort(document.querySelector(rowColumnDataSelector));
-                }, rowColumnDataSelector);
-
-                // Record visibility in viewport
-                test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
-
-                test.assertEquals(rowColumnData, record[column.field], "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
+                if(!isColumnInExcludedGridColumns){
+                    performRowColumnVisiblityTest(that, column, recordNo, test, record);
+                }
             });
 
         });
@@ -108,6 +112,10 @@ exports.apiIntegrationTest = function (gridConfig) {
             }, this.grid);
 
             this.columns = this.gridColumns.filter(w2ui_utils.getVisibleColumnName);
+            this.excludeGridColumns = gridConfig.excludeGridColumns;
+
+            /*this.columns = this.columns.filter(w2ui_utils.getColumnsAfterRemovingExcludedColumns(gridConfig.excludeGridColumns));*/
+
 
             // Send api request to client and get response
             this.apiResponse = casper.evaluate(function (url, method, data) {
@@ -134,7 +142,7 @@ exports.apiIntegrationTest = function (gridConfig) {
                 // Match w2ui record length with list size in API Response
                 testRecordLength(that, test);
 
-                testW2UIRecordsInAPIResponse(that, test);
+                //testW2UIRecordsInAPIResponse(that, test);
 
                 // Check each row exist in DOM and visible in viewport
                 testRowColoumnVisiblity(that, test);
