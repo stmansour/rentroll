@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strconv"
@@ -8,16 +9,12 @@ import (
 )
 
 // GetBusinessBID returns the BID for the rlib.Business with the supplied designation
-func GetBusinessBID(des string) int64 {
+func GetBusinessBID(ctx context.Context, des string) (int64, error) {
 	//-------------------------------------------------------------------
 	// Make sure the rlib.Business exists...
 	//-------------------------------------------------------------------
-	b := rlib.GetBusinessByDesignation(des)
-	if b.BID == 0 {
-		rlib.Ulog("GetBusinessBID: rlib.Business with designation %s does not exist or could not be loaded\n", des)
-		return 0
-	}
-	return b.BID
+	b, err := rlib.GetBusinessByDesignation(ctx, des)
+	return b.BID, err
 }
 
 // CreateRentableType reads an rlib.Rentable type string array and creates a database record for the rlib.Rentable type
@@ -32,7 +29,7 @@ func GetBusinessBID(des string) int64 {
 // REH,        "KDS",	"KD Suite",    	6,		       4,      4,     1,             2000.00,   1/1/2015, 1/1/2017
 // REH,        "VEH",	Vehicle,       	3,		       0,      4,     1,             10.0,   1/1/2015, 1/1/2017
 // REH,        "CPT",	Carport,       	6,		       4,      4,     1,             35.0,   1/1/2015, 1/1/2017
-func CreateRentableType(sa []string, lineno int) (int, error) {
+func CreateRentableType(ctx context.Context, sa []string, lineno int) (int, error) {
 	funcname := "CreateRentableType"
 	const (
 		BUD            = 0
@@ -74,7 +71,10 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	des := strings.TrimSpace(sa[0])
 	var a rlib.RentableType
-	bid := GetBusinessBID(des)
+	bid, err := GetBusinessBID(ctx, des)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+	}
 	if bid == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - rlib.Business named %s not found", funcname, lineno, sa[0])
 	}
@@ -82,7 +82,7 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 	a.BID = bid
 	a.Style = strings.TrimSpace(sa[1])
 	if len(a.Style) > 0 {
-		rt, err := rlib.GetRentableTypeByStyle(a.Style, bid)
+		rt, err := rlib.GetRentableTypeByStyle(ctx, a.Style, bid)
 		if nil != err && !rlib.IsSQLNoResultsError(err) {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - err = %v", funcname, lineno, err)
 		}
@@ -123,7 +123,7 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 	}
 	a.ManageToBudget = int64(n64)
 
-	rtid, err := rlib.InsertRentableType(&a)
+	rtid, err := rlib.InsertRentableType(ctx, &a)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error inserting Rentable Type: %s", funcname, lineno, err.Error())
 	}
@@ -158,7 +158,7 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Stop date (%s) must be after Start date (%s)", funcname, lineno, m.DtStop, m.DtStart)
 			}
 			m.BID = a.BID
-			_, err = rlib.InsertRentableMarketRates(&m)
+			_, err = rlib.InsertRentableMarketRates(ctx, &m)
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving RentableMarketRate:  %s", funcname, lineno, err.Error())
 			}
@@ -168,6 +168,6 @@ func CreateRentableType(sa []string, lineno int) (int, error) {
 }
 
 // LoadRentableTypesCSV loads a csv file with rlib.Rentable types and processes each one
-func LoadRentableTypesCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRentableType)
+func LoadRentableTypesCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRentableType)
 }

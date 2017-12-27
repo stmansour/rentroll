@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
@@ -13,10 +14,12 @@ import (
 // REX, 5/21/16, DEP001,       DPM01, "RCPT00001,2"
 
 // CreateDepositsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreateDepositsFromCSV"
-	var err error
-	var d rlib.Deposit
+func CreateDepositsFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateDepositsFromCSV"
+	var (
+		err error
+		d   rlib.Deposit
+	)
 
 	const (
 		BUD             = 0
@@ -50,7 +53,10 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	bud := strings.ToLower(strings.TrimSpace(sa[BUD]))
 	if len(bud) > 0 {
-		b1 := rlib.GetBusinessByDesignation(bud)
+		b1, err := rlib.GetBusinessByDesignation(ctx, bud)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business with designation %s does not exist", funcname, lineno, sa[BUD])
+		}
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business with designation %s does not exist", funcname, lineno, sa[BUD])
 		}
@@ -103,7 +109,10 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 		rcpts = append(rcpts, id)
 
 		// load each receipt so that we can total the amount and see if it matches Amount
-		rc := rlib.GetReceipt(id)
+		rc, err := rlib.GetReceipt(ctx, id)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while getting receipt number: %s, error: %s", funcname, lineno, ssa[i], err.Error())
+		}
 		tot += rc.Amount
 		mm = append(mm, rc) // may need this later
 	}
@@ -130,7 +139,7 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 	// 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting deposit part: %v", funcname, lineno, err)
 	// 	}
 	// }
-	errlist := bizlogic.SaveDeposit(&d, rcpts)
+	errlist := bizlogic.SaveDeposit(ctx, &d, rcpts)
 	if len(errlist) > 0 {
 		srr := ""
 		for i := 0; i < len(errlist); i++ {
@@ -143,6 +152,6 @@ func CreateDepositsFromCSV(sa []string, lineno int) (int, error) {
 }
 
 // LoadDepositCSV loads a csv file with deposits and creates Deposit records
-func LoadDepositCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateDepositsFromCSV)
+func LoadDepositCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateDepositsFromCSV)
 }

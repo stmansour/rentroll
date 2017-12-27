@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -44,13 +45,15 @@ import (
 // REH,  "101",       1,      1200.00,"2015-11-21", "2016-11-21", 2,    6,            4,               739928,    "d ${GLGENRCV} _, c ${GLGSRENT} ${UMR}, d ${GLLTL} ${UMR} ${aval(${GLGENRCV})} -", "Rent Payment Check"
 
 // CreateAssessmentsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreateAssessmentsFromCSV"
-	var a rlib.Assessment
-	var r rlib.Rentable
-	var err error
-	des := strings.ToLower(strings.TrimSpace(sa[0]))
-	var xbiz rlib.XBusiness
+func CreateAssessmentsFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateAssessmentsFromCSV"
+	var (
+		err  error
+		xbiz rlib.XBusiness
+		r    rlib.Rentable
+		a    rlib.Assessment
+		des  = strings.ToLower(strings.TrimSpace(sa[0]))
+	)
 
 	const (
 		BUD            = 0
@@ -95,11 +98,17 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1 := rlib.GetBusinessByDesignation(des)
+		b1, err := rlib.GetBusinessByDesignation(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
+		}
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
-		rlib.InitBizInternals(b1.BID, &xbiz) // this initializes a number of internal variables that the internals need and is efficient if they are already loaded
+		err = rlib.InitBizInternals(b1.BID, &xbiz) // this initializes a number of internal variables that the internals need and is efficient if they are already loaded
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while initializing biz internals. Error: %s", funcname, lineno, err.Error())
+		}
 		Rcsv.Xbiz = &xbiz
 		a.BID = Rcsv.Xbiz.P.BID
 	}
@@ -109,7 +118,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	s := strings.TrimSpace(sa[RentableName])
 	if len(s) > 0 {
-		r, err = rlib.GetRentableByName(s, a.BID)
+		r, err = rlib.GetRentableByName(ctx, s, a.BID)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error loading rlib.Rentable named: %s.  Error = %v", funcname, lineno, s, err)
 		}
@@ -141,7 +150,8 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 		// asmt, ok := (*AsmtTypes)[a.ATypeLID]
 		rlib.InitBusinessFields(a.BID)
 		// rlib.GetDefaultLedgers(a.BID) // Gather its chart of accounts
-		rlib.RRdb.BizTypes[a.BID].GLAccounts = rlib.GetGLAccountMap(a.BID)
+		// TODO(Steve): ignore error?
+		rlib.RRdb.BizTypes[a.BID].GLAccounts, _ = rlib.GetGLAccountMap(ctx, a.BID)
 		/*gla,*/ _, ok = rlib.RRdb.BizTypes[a.BID].GLAccounts[a.ATypeLID]
 		if !ok {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Assessment type is invalid: %s", funcname, lineno, sa[2])
@@ -153,7 +163,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.RAID, _ = rlib.IntFromString(sa[RAID], "Rental Agreement ID is invalid")
 	if a.RAID > 0 {
-		ra, err := rlib.GetRentalAgreement(a.RAID) // for the call to ValidAssessmentDate, we need the entire agreement start/stop period
+		ra, err := rlib.GetRentalAgreement(ctx, a.RAID) // for the call to ValidAssessmentDate, we need the entire agreement start/stop period
 		if err != nil {
 			fmt.Printf("%s: line %d - error loading Rental Agreement with RAID = %s,  error = %s\n", funcname, lineno, sa[6], err.Error())
 		}
@@ -210,7 +220,7 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	s = strings.TrimSpace(sa[AR])
 	if len(s) > 0 {
-		rule, err := rlib.GetARByName(a.BID, s)
+		rule, err := rlib.GetARByName(ctx, a.BID, s)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load AR named %s: %s", funcname, lineno, s, err.Error())
 		}
@@ -237,23 +247,27 @@ func CreateAssessmentsFromCSV(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Skipping this record as the Rental Agreement could not be found", funcname, lineno)
 	}
 
-	adup := rlib.GetAssessmentDuplicate(&a.Start, a.Amount, a.PASMID, a.RID, a.RAID, a.ATypeLID)
+	// TODO(Steve): ignore error?
+	adup, _ := rlib.GetAssessmentDuplicate(ctx, &a.Start, a.Amount, a.PASMID, a.RID, a.RAID, a.ATypeLID)
 	if adup.ASMID != 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - this is a duplicate of an existing assessment: %s", funcname, lineno, adup.IDtoString())
 	}
 
-	_, err = rlib.InsertAssessment(&a)
+	_, err = rlib.InsertAssessment(ctx, &a)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting assessment: %v", funcname, lineno, err)
 	}
 
 	// process this new assessment over the requested time range...
-	rlib.ProcessJournalEntry(&a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, false)
+	err = rlib.ProcessJournalEntry(ctx, &a, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, false)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while processing journal entries. Error: %s", funcname, lineno, err.Error())
+	}
 
 	return 0, nil
 }
 
 // LoadAssessmentsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadAssessmentsCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateAssessmentsFromCSV)
+func LoadAssessmentsCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateAssessmentsFromCSV)
 }

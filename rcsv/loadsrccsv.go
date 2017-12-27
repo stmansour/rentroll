@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -13,10 +14,13 @@ import (
 //    REX, IRS,  Excessive Rules
 
 // CreateSourceCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateSourceCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreateSourceCSV"
-	var a rlib.DemandSource
-	var err error
+func CreateSourceCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateSourceCSV"
+
+	var (
+		err error
+		a   rlib.DemandSource
+	)
 
 	const (
 		BUD     = 0
@@ -46,7 +50,10 @@ func CreateSourceCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	var b rlib.Business
 	if len(des) > 0 {
-		b = rlib.GetBusinessByDesignation(des)
+		b, err = rlib.GetBusinessByDesignation(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+		}
 		if b.BID < 1 {
 			return CsvErrorSensitivity, fmt.Errorf("CreateRentalSpecialtyType: rlib.Business named %s not found", sa[BUD])
 		}
@@ -59,7 +66,8 @@ func CreateSourceCSV(sa []string, lineno int) (int, error) {
 	s := strings.TrimSpace(sa[Name])
 	if len(s) > 0 {
 		var src rlib.DemandSource
-		rlib.GetDemandSourceByName(b.BID, s, &src)
+		// TODO(Steve): ignore error?
+		_ = rlib.GetDemandSourceByName(ctx, b.BID, s, &src)
 		if len(src.Name) > 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - DemandSource named %s already exists", funcname, lineno, s)
 		}
@@ -71,7 +79,7 @@ func CreateSourceCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	a.Industry = strings.TrimSpace(sa[Industy])
 
-	_, err = rlib.InsertDemandSource(&a)
+	_, err = rlib.InsertDemandSource(ctx, &a)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting DemandSource: %v", funcname, lineno, err)
 	}
@@ -80,6 +88,6 @@ func CreateSourceCSV(sa []string, lineno int) (int, error) {
 }
 
 // LoadSourcesCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadSourcesCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateSourceCSV)
+func LoadSourcesCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateSourceCSV)
 }

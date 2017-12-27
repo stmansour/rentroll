@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -15,10 +16,12 @@ import (
 // REX,FNB,                   Receipt,      Receivables,        7,                         Yes,      Yes,        ,                      ,payments that are deposited in First National Bank
 
 // CreateAR creates AR database records from the supplied CSV file lines
-func CreateAR(sa []string, lineno int) (int, error) {
-	funcname := "CreateAR"
-	var b rlib.AR
-	var err error
+func CreateAR(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateAR"
+	var (
+		b   rlib.AR
+		err error
+	)
 
 	const (
 		BUD          = 0
@@ -60,7 +63,10 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	des := strings.TrimSpace(sa[BUD])
 	if len(des) > 0 { // make sure it's not empty
-		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
+		b1, err := rlib.GetBusinessByDesignation(ctx, des) // see if we can find the biz
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business with designation %s does not exist", funcname, lineno, sa[0])
+		}
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
@@ -71,7 +77,7 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	// Get the name
 	//-----------------------------------------
 	b.Name = sa[Name]
-	b2, err := rlib.GetARByName(b.BID, b.Name)
+	b2, err := rlib.GetARByName(ctx, b.BID, b.Name)
 	if err != nil && !rlib.IsSQLNoResultsError(err) {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error attempting to read existing records with name = %s: %s", funcname, lineno, b.Name, err.Error())
 	}
@@ -103,12 +109,18 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	// rlib.Console("sa[DebitLID] = %s\n", sa[DebitLID])
 	b.DebitLID, err = rlib.IntFromString(sa[DebitLID], "Invalid DebitLID") // first see if it is a LID
 	if err == nil && b.DebitLID > 0 {                                      // try the LID first
-		gl = rlib.GetLedger(b.DebitLID)
+		gl, err = rlib.GetLedger(ctx, b.DebitLID)
+		// TODO(Steve): this is ok?
+		if err != nil && !rlib.IsSQLNoResultsError(err) {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while getting ledger. Error: %s", funcname, lineno, err.Error())
+		}
 	}
 	if gl.LID == 0 && len(sa[DebitLID]) > 0 {
-		gl = rlib.GetLedgerByName(b.BID, sa[DebitLID]) // if it's not a number, try the Name
+		// TODO(Steve): ignore error?
+		gl, _ = rlib.GetLedgerByName(ctx, b.BID, sa[DebitLID]) // if it's not a number, try the Name
 		if gl.LID == 0 {
-			gl = rlib.GetLedgerByGLNo(b.BID, sa[DebitLID]) // if not a name, then try GLNumber
+			// TODO(Steve): ignore error?
+			gl, _ = rlib.GetLedgerByGLNo(ctx, b.BID, sa[DebitLID]) // if not a name, then try GLNumber
 		}
 	}
 	// rlib.Console("DEBIT LID = %s\n", gl.Name)
@@ -124,12 +136,15 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	// rlib.Console("sa[CreditLID] = %s\n", sa[CreditLID])
 	b.CreditLID, err = rlib.IntFromString(sa[CreditLID], "Invalid CreditLID")
 	if err == nil || b.CreditLID > 0 {
-		glc = rlib.GetLedger(b.CreditLID)
+		// TODO(Steve): ignore error?
+		glc, _ = rlib.GetLedger(ctx, b.CreditLID)
 	}
 	if glc.LID == 0 && len(sa[CreditLID]) > 0 {
-		glc = rlib.GetLedgerByName(b.BID, sa[CreditLID])
+		// TODO(Steve): ignore error?
+		glc, _ = rlib.GetLedgerByName(ctx, b.BID, sa[CreditLID])
 		if glc.LID == 0 {
-			glc = rlib.GetLedgerByGLNo(b.BID, sa[CreditLID]) // if not a name, then try GLNumber
+			// TODO(Steve): ignore error?
+			glc, _ = rlib.GetLedgerByGLNo(ctx, b.BID, sa[CreditLID]) // if not a name, then try GLNumber
 		}
 	}
 	// rlib.Console("CREDIT LID = %s\n", glc.Name)
@@ -187,7 +202,7 @@ func CreateAR(sa []string, lineno int) (int, error) {
 		for i := 0; i < len(sarsa); i++ {
 			var x rlib.SubAR
 			x.BID = b.BID
-			subar, err := rlib.GetARByName(b.BID, sarsa[i])
+			subar, err := rlib.GetARByName(ctx, b.BID, sarsa[i])
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not get Account Rule named: %s, err: %s", funcname, lineno, sarsa[i], err.Error())
 			}
@@ -204,14 +219,14 @@ func CreateAR(sa []string, lineno int) (int, error) {
 	//----------------------------------------------------------------
 	b.Description = sa[Description]
 
-	_, err = rlib.InsertAR(&b)
+	_, err = rlib.InsertAR(ctx, &b)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: error inserting AR = %v", funcname, err)
 	}
 
 	for i := 0; i < len(b.SubARs); i++ {
 		b.SubARs[i].ARID = b.ARID
-		_, err = rlib.InsertSubAR(&b.SubARs[i])
+		_, err = rlib.InsertSubAR(ctx, &b.SubARs[i])
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving SubAR[%d]: %s", funcname, lineno, i, err.Error())
 		}
@@ -221,6 +236,6 @@ func CreateAR(sa []string, lineno int) (int, error) {
 }
 
 // LoadARCSV loads the values from the supplied csv file and creates AR records.
-func LoadARCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateAR)
+func LoadARCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateAR)
 }

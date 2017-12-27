@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -15,9 +16,12 @@ import (
 // REX, A2-LongTerm,  1/1/2016, 7/1/2016, 12,            2,             75.0,               25.00,                    ,
 
 // CreateRatePlanRef reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRatePlanRef(sa []string, lineno int) (int, error) {
-	funcname := "CreateRatePlanRef"
-	var b rlib.Business
+func CreateRatePlanRef(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateRatePlanRef"
+	var (
+		err error
+		b   rlib.Business
+	)
 
 	const (
 		BUD               = 0
@@ -60,7 +64,10 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	// BUD
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b = rlib.GetBusinessByDesignation(des)
+		b, err = rlib.GetBusinessByDesignation(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+		}
 		if len(b.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
@@ -72,7 +79,10 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	var rp rlib.RatePlan
 	rpname := strings.ToLower(strings.TrimSpace(sa[RPName]))
 	if len(rpname) > 0 {
-		rlib.GetRatePlanByName(b.BID, rpname, &rp)
+		err = rlib.GetRatePlanByName(ctx, b.BID, rpname, &rp)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while getting RatePlan name(%s): %s", funcname, lineno, rpname, err.Error())
+		}
 		if rp.RPID < 1 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found", funcname, lineno, rpname)
 		}
@@ -158,7 +168,7 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 	// Insert the record
 	//-------------------------------------------------------------------
 	a.RPID = rp.RPID
-	_, err = rlib.InsertRatePlanRef(&a)
+	_, err = rlib.InsertRatePlanRef(ctx, &a)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: lineno %d  - error inserting RatePlanRef = %v", funcname, lineno, err)
 	}
@@ -166,6 +176,6 @@ func CreateRatePlanRef(sa []string, lineno int) (int, error) {
 }
 
 // LoadRatePlanRefsCSV loads a csv file with rental specialty types and processes each one
-func LoadRatePlanRefsCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRatePlanRef)
+func LoadRatePlanRefsCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRatePlanRef)
 }

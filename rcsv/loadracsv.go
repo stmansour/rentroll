@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strconv"
@@ -16,11 +17,13 @@ import (
 // 	REH,   "RAT001",       "2015-11-21", "2016-11-21", "866-123-4567,,;bill@x.com,,",              UserSpec,       1,       "",                “U101,2500.00;U102,2350.00”,
 
 // CreateRentalAgreement creates database records for the rental agreement defined in sa[]
-func CreateRentalAgreement(sa []string, lineno int) (int, error) {
-	funcname := "CreateRentalAgreement"
-
-	var ra rlib.RentalAgreement
-	var m []rlib.RentalAgreementRentable
+func CreateRentalAgreement(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateRentalAgreement"
+	var (
+		err error
+		ra  rlib.RentalAgreement
+		m   []rlib.RentalAgreementRentable
+	)
 
 	const (
 		BUD                 = 0
@@ -76,7 +79,10 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	cmpdes := strings.TrimSpace(sa[BUD])
 	if len(cmpdes) > 0 {
-		b2 := rlib.GetBusinessByDesignation(cmpdes)
+		b2, err := rlib.GetBusinessByDesignation(ctx, cmpdes)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, cmpdes, err.Error())
+		}
 		if b2.BID == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find rlib.Business named %s", funcname, lineno, cmpdes)
 		}
@@ -88,9 +94,12 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	des := strings.ToLower(strings.TrimSpace(sa[RATemplateName]))
 	if len(des) > 0 {
-		b1 := rlib.GetRentalAgreementByRATemplateName(des)
+		b1, err := rlib.GetRentalAgreementByRATemplateName(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while getting ra template %s: %s", funcname, lineno, sa[RATemplateName], err.Error())
+		}
 		if len(b1.RATemplateName) == 0 {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, sa[RATemplateName])
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - ra template %s does not exist", funcname, lineno, sa[RATemplateName])
 		}
 		ra.RATID = b1.RATID
 	}
@@ -156,7 +165,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	//  The Payors
 	//-------------------------------------------------------------------
-	payors, err := BuildPayorList(ra.BID, sa[PayorSpec], dfltStart, dfltStop, funcname, lineno)
+	payors, err := BuildPayorList(ctx, ra.BID, sa[PayorSpec], dfltStart, dfltStop, funcname, lineno)
 	if err != nil { // save the full list
 		return CsvErrorSensitivity, err
 	}
@@ -164,7 +173,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	//  The Users
 	//-------------------------------------------------------------------
-	users, err := BuildUserList(ra.BID, sa[UserSpec], dfltStart, dfltStop, funcname, lineno)
+	users, err := BuildUserList(ctx, ra.BID, sa[UserSpec], dfltStart, dfltStop, funcname, lineno)
 	if err != nil { // save the full list
 		return CsvErrorSensitivity, err
 	}
@@ -217,7 +226,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 
 			}
 			var rar rlib.RentalAgreementRentable
-			rnt, err := rlib.GetRentableByName(sss[0], ra.BID)
+			rnt, err := rlib.GetRentableByName(ctx, sss[0], ra.BID)
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rentable named: %s  err = %s", funcname, lineno, sss[0], err.Error())
 			}
@@ -240,7 +249,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	if len(note) > 0 {
 		var nl rlib.NoteList
 		nl.BID = ra.BID
-		nl.NLID, err = rlib.InsertNoteList(&nl)
+		nl.NLID, err = rlib.InsertNoteList(ctx, &nl)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s", funcname, lineno, err.Error())
 		}
@@ -249,7 +258,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 		n.NTID = 1 // first comment type
 		n.BID = nl.BID
 		n.NLID = nl.NLID
-		_, err = rlib.InsertNote(&n)
+		_, err = rlib.InsertNote(ctx, &n)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s", funcname, lineno, err.Error())
 		}
@@ -261,7 +270,8 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	// the rentables referenced in this one...
 	//-------------------------------------------------------------------
 	for i := 0; i < len(m); i++ {
-		rra := rlib.GetAgreementsForRentable(m[i].RID, &ra.AgreementStart, &ra.AgreementStop)
+		// TODO(Steve): ignore error?
+		rra, _ := rlib.GetAgreementsForRentable(ctx, m[i].RID, &ra.AgreementStart, &ra.AgreementStop)
 		for j := 0; j < len(rra); j++ {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Rentable %s is already included in Rental Agreement %s from %s to %s",
 				funcname, lineno, RentableAlreadyRented,
@@ -280,7 +290,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	//------------------------------------
 	// Write the rental agreement record
 	//-----------------------------------
-	RAID, err := rlib.InsertRentalAgreement(&ra)
+	RAID, err := rlib.InsertRentalAgreement(ctx, &ra)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.RentalAgreement = %v", funcname, lineno, err)
 	}
@@ -288,7 +298,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	lm.Dt = ra.AgreementStart
 	lm.RAID = ra.RAID
 	lm.State = rlib.LMINITIAL
-	_, err = rlib.InsertLedgerMarker(&lm)
+	_, err = rlib.InsertLedgerMarker(ctx, &lm)
 
 	//------------------------------------------------------------
 	// Add the rentables, and the users of those rentables...
@@ -296,7 +306,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	for i := 0; i < len(m); i++ {
 		m[i].RAID = RAID
 		m[i].BID = ra.BID
-		rlib.InsertRentalAgreementRentable(&m[i])
+		rlib.InsertRentalAgreementRentable(ctx, &m[i])
 		//-----------------------------------------------------
 		// Create a Rentable Ledger marker
 		//-----------------------------------------------------
@@ -308,7 +318,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 			Balance: float64(0),
 			State:   rlib.LMINITIAL,
 		}
-		_, err = rlib.InsertLedgerMarker(&rlm)
+		_, err = rlib.InsertLedgerMarker(ctx, &rlm)
 		if nil != err {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting Rentable LedgerMarker = %v", funcname, lineno, err)
 		}
@@ -319,7 +329,7 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 		for j := 0; j < len(users); j++ {
 			users[j].RID = m[i].RID
 			users[j].BID = ra.BID
-			_, err := rlib.InsertRentableUser(&users[j])
+			_, err := rlib.InsertRentableUser(ctx, &users[j])
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting RentableUser = %v", funcname, lineno, err)
 			}
@@ -332,12 +342,12 @@ func CreateRentalAgreement(sa []string, lineno int) (int, error) {
 	for i := 0; i < len(payors); i++ {
 		payors[i].RAID = RAID
 		payors[i].BID = ra.BID
-		rlib.InsertRentalAgreementPayor(&payors[i])
+		rlib.InsertRentalAgreementPayor(ctx, &payors[i])
 	}
 	return 0, nil
 }
 
 // LoadRentalAgreementCSV loads a csv file with rental specialty types and processes each one
-func LoadRentalAgreementCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRentalAgreement)
+func LoadRentalAgreementCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRentalAgreement)
 }

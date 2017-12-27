@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -20,9 +21,12 @@ import (
 // REX, FAA-T,  2,       KDS,    	  Lake View,   87%,     Fireplace,
 
 // CreateRatePlanRefSPRate reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
-	funcname := "CreateRatePlanRefSPRate"
-	var b rlib.Business
+func CreateRatePlanRefSPRate(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateRatePlanRefSPRate"
+	var (
+		err error
+		b   rlib.Business
+	)
 
 	const (
 		BUD          = 0
@@ -45,7 +49,10 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 		return 0, nil // this is just the column heading
 	}
 	if len(des) > 0 {
-		b = rlib.GetBusinessByDesignation(des)
+		b, err = rlib.GetBusinessByDesignation(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+		}
 		if len(b.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
@@ -53,7 +60,10 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 
 	// knowing the Business we can get all the specialties and rentable types. The easy way is just to load an XBiz
 	var xbiz rlib.XBusiness
-	rlib.GetXBusiness(b.BID, &xbiz)
+	err = rlib.GetXBusiness(ctx, b.BID, &xbiz)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business BID(%d): %s", funcname, lineno, b.BID, err.Error())
+	}
 
 	//-------------------------------------------------------------------
 	// RatePlan Name
@@ -61,15 +71,19 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 	var rp rlib.RatePlan
 	rpname := strings.ToLower(strings.TrimSpace(sa[1]))
 	if len(rpname) > 0 {
-		rlib.GetRatePlanByName(b.BID, rpname, &rp)
+		err = rlib.GetRatePlanByName(ctx, b.BID, rpname, &rp)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error getting RatePlan name %s: %s", funcname, lineno, rpname, err.Error())
+		}
 		if rp.RPID < 1 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - RatePlan named %s not found", funcname, lineno, rpname)
 		}
 	}
 
-	var a rlib.RatePlanRefSPRate
-	var err error
-	var errmsg string
+	var (
+		a      rlib.RatePlanRefSPRate
+		errmsg string
+	)
 
 	a.BID = b.BID
 
@@ -138,7 +152,7 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 		//-------------------------------------------------------------------
 		// Insert the record
 		//-------------------------------------------------------------------
-		_, err = rlib.InsertRatePlanRefSPRate(&p)
+		_, err = rlib.InsertRatePlanRefSPRate(ctx, &p)
 		if nil != err {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RatePlanRefSPRate = %v", funcname, lineno, err)
 		}
@@ -147,6 +161,6 @@ func CreateRatePlanRefSPRate(sa []string, lineno int) (int, error) {
 }
 
 // LoadRatePlanRefSPRatesCSV loads a csv file with RatePlan rates for specific rentable types
-func LoadRatePlanRefSPRatesCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRatePlanRefSPRate)
+func LoadRatePlanRefSPRatesCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRatePlanRefSPRate)
 }

@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strconv"
@@ -44,10 +45,12 @@ func readTwoDates(s1, s2 string, funcname string, lineno int, col string) (time.
 }
 
 // CreateRentables reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRentables(sa []string, lineno int) (int, error) {
-	funcname := "CreateRentables"
-	var err error
-	var r rlib.Rentable
+func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateRentables"
+	var (
+		err error
+		r   rlib.Rentable
+	)
 
 	const (
 		BUD             = 0
@@ -81,7 +84,10 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
 	if len(des) > 0 {
-		b1 := rlib.GetBusinessByDesignation(des)
+		b1, err := rlib.GetBusinessByDesignation(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+		}
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business with bud %s does not exist", funcname, lineno, des)
 		}
@@ -93,7 +99,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	// with this name...
 	//-------------------------------------------------------------------
 	r.RentableName = strings.TrimSpace(sa[Name])
-	r1, err := rlib.GetRentableByName(r.RentableName, r.BID)
+	r1, err := rlib.GetRentableByName(ctx, r.RentableName, r.BID)
 	if err != nil {
 		s := err.Error()
 		if !strings.Contains(s, "no rows") {
@@ -134,7 +140,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 
 			var ru rlib.RentableUser // struct for the data in this 3-tuple
 			name := strings.TrimSpace(ss[0])
-			n, err := CSVLoaderTransactantList(r.BID, name)
+			n, err := CSVLoaderTransactantList(ctx, r.BID, name)
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error Loading transactant list: %s", funcname, lineno, err.Error())
 			}
@@ -205,8 +211,8 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 				funcname, lineno, len(ss), ss)
 		}
 
-		var rt rlib.RentableTypeRef                                                  // struct for the data in this 3-tuple
-		rstruct, err := rlib.GetRentableTypeByStyle(strings.TrimSpace(ss[0]), r.BID) // find the rlib.RentableType being referenced
+		var rt rlib.RentableTypeRef                                                       // struct for the data in this 3-tuple
+		rstruct, err := rlib.GetRentableTypeByStyle(ctx, strings.TrimSpace(ss[0]), r.BID) // find the rlib.RentableType being referenced
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rentable type with style name: %s  -- error = %s",
 				funcname, lineno, ss[0], err.Error())
@@ -223,7 +229,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and its sub-records and we're done
 	//-------------------------------------------------------------------
-	rid, err := rlib.InsertRentable(&r)
+	rid, err := rlib.InsertRentable(ctx, &r)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.Rentable = %v", funcname, lineno, err)
 	}
@@ -231,7 +237,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		for i := 0; i < len(rul); i++ {
 			rul[i].RID = rid
 			rul[i].BID = r.BID
-			_, err := rlib.InsertRentableUser(&rul[i])
+			_, err := rlib.InsertRentableUser(ctx, &rul[i])
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableUser: %s", funcname, lineno, err.Error())
 			}
@@ -239,7 +245,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		for i := 0; i < len(m); i++ {
 			m[i].RID = rid
 			m[i].BID = r.BID
-			_, err := rlib.InsertRentableStatus(&m[i])
+			_, err := rlib.InsertRentableStatus(ctx, &m[i])
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableStatus: %s", funcname, lineno, err.Error())
 			}
@@ -247,7 +253,7 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 		for i := 0; i < len(n); i++ {
 			n[i].RID = rid
 			n[i].BID = r.BID
-			_, err := rlib.InsertRentableTypeRef(&n[i])
+			_, err := rlib.InsertRentableTypeRef(ctx, &n[i])
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error saving rlib.RentableStatus: %s", funcname, lineno, err.Error())
 			}
@@ -258,6 +264,6 @@ func CreateRentables(sa []string, lineno int) (int, error) {
 }
 
 // LoadRentablesCSV loads a csv file with rental specialty types and processes each one
-func LoadRentablesCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRentables)
+func LoadRentablesCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRentables)
 }

@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strconv"
@@ -21,12 +22,15 @@ import (
 // REH,  Friday Lunch Fund,            11099,     11000,           Accounts Receivable, 0.00,      active,
 
 // CreateLedgerMarkers reads an assessment type string array and creates a database record for the assessment type
-func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
-	funcname := "CreateLedgerMarkers"
-	inserting := true // this may be changed, depends on the value for sa[7]
-	var lm rlib.LedgerMarker
-	var l rlib.GLAccount
-	var parent rlib.GLAccount
+func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateLedgerMarkers"
+	var (
+		err       error
+		inserting = true // this may be changed, depends on the value for sa[7]
+		lm        rlib.LedgerMarker
+		l         rlib.GLAccount
+		parent    rlib.GLAccount
+	)
 
 	const (
 		BUD            = 0
@@ -68,7 +72,8 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
 		// rlib.Console("Looking for BUD:  %s\n", des)
-		b1 := rlib.GetBusinessByDesignation(des)
+		// TODO(Steve): ignore error?
+		b1, _ := rlib.GetBusinessByDesignation(ctx, des)
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
@@ -100,7 +105,8 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 		// rlib.Console("inserting = %t\n", inserting)
 		if inserting {
 			// rlib.Console("lm.BID = %d, getting ledger by GLNo:  %s\n", lm.BID, g)
-			ldg := rlib.GetLedgerByGLNo(lm.BID, g)
+			// TODO(Steve): ignore error?
+			ldg, _ := rlib.GetLedgerByGLNo(ctx, lm.BID, g)
 			// rlib.Console("ldg.LID = %d, name = %s\n", ldg.LID, ldg.Name)
 			if ldg.LID > 0 {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Account already exists: %s", funcname, lineno, g)
@@ -122,7 +128,10 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	l.PLID = int64(0) // assume no parent
 	g = strings.TrimSpace(sa[ParentGLNumber])
 	if len(g) > 0 {
-		parent = rlib.GetLedgerByGLNo(l.BID, g)
+		parent, err = rlib.GetLedgerByGLNo(ctx, l.BID, g)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error getting GLAccount: %s", funcname, lineno, g)
+		}
 		if parent.LID == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error getting GLAccount: %s", funcname, lineno, g)
 		}
@@ -198,11 +207,11 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	// Insert / Update the rlib.GLAccount first, we may need the LID
 	if inserting {
 		var lid int64
-		lid, err = rlib.InsertLedger(&l)
+		lid, err = rlib.InsertLedger(ctx, &l)
 		// rlib.Console("Inserted new account:  BID = %d, LID = %d, Name = %s\n", l.BID, lid, l.Name)
 		lm.LID = lid
 	} else {
-		err = rlib.UpdateLedger(&l)
+		err = rlib.UpdateLedger(ctx, &l)
 		lm.LID = l.LID
 	}
 	if nil != err {
@@ -211,9 +220,9 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 
 	// Now update the markers
 	if inserting {
-		_, err = rlib.InsertLedgerMarker(&lm)
+		_, err = rlib.InsertLedgerMarker(ctx, &lm)
 	} else {
-		err = rlib.UpdateLedgerMarker(&lm)
+		err = rlib.UpdateLedgerMarker(ctx, &lm)
 	}
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save rlib.GLAccount marker, err = %v", funcname, lineno, err)
@@ -226,7 +235,10 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 	if l.PLID > 0 && l.PLID == parent.LID {
 		if parent.AllowPost == 1 {
 			parent.AllowPost = 0
-			rlib.UpdateLedger(&parent)
+			err = rlib.UpdateLedger(ctx, &parent)
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not update rlib.GLAccount marker, err = %s", funcname, lineno, err.Error())
+			}
 		}
 	}
 
@@ -234,6 +246,6 @@ func CreateLedgerMarkers(sa []string, lineno int) (int, error) {
 }
 
 // LoadChartOfAccountsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadChartOfAccountsCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateLedgerMarkers)
+func LoadChartOfAccountsCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateLedgerMarkers)
 }
