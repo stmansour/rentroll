@@ -85,7 +85,10 @@ exports.getVisibleColumnName = function (column) {
     if (!column.hidden) {
         // check column is in excludeGridColumns
         // 'this' represents callback argument. That is here excludeGridColumns
-        if(!common.isInArray(column.field, this)){
+    /*    if(!common.isInArray(column.field, this)){
+            return column;
+        }*/
+        if(!(column.field in this)){
             return column;
         }
     }

@@ -138,12 +138,12 @@ casper.then(function afterStartAndWait() {
 // --------------------------------------------------
 
 casper.then(function apiIntegrationTest() {
-    gridRecordM.apiIntegrationTest(pmtM.gridConf);
+    /*gridRecordM.apiIntegrationTest(pmtM.gridConf);
     gridRecordM.apiIntegrationTest(depM.gridConf);
-    gridRecordM.apiIntegrationTest(depmethM.gridConf);
+    gridRecordM.apiIntegrationTest(depmethM.gridConf);*/
     gridRecordM.apiIntegrationTest(arsM.gridConf);
-    gridRecordM.apiIntegrationTest(rtM.gridConf);
-    gridRecordM.apiIntegrationTest(rentableM.gridConf);
+    // gridRecordM.apiIntegrationTest(rtM.gridConf);
+    // gridRecordM.apiIntegrationTest(rentableM.gridConf);
 });
 
 // ========== RUN TEST ==========

@@ -15,7 +15,7 @@ exports.gridConf = {
     requestData: JSON.stringify({
         'cmd': 'get', 'selected': [], 'limit': 100, 'offset': 0
     }),
-    excludeGridColumns: ["ARType"],
+    excludeGridColumns: {ARType: "ARTypes"},
     testCount: 40
 };
 

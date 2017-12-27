@@ -8,7 +8,7 @@ function jsonEquals(w2uiGridRecords, apiResponseRecords) {
     return JSON.stringify(w2uiGridRecords) === JSON.stringify(apiResponseRecords);
 }
 
-function performRowColumnVisiblityTest(that, column, recordNo, test, record) {
+function performRowColumnVisiblityTest(that, column, recordNo, test) {
 // get coloumn index based on column name/field
     var columnNo = casper.evaluate(function (gridName, column) {
         return w2ui[gridName].getColumn(column, true);
@@ -23,16 +23,16 @@ function performRowColumnVisiblityTest(that, column, recordNo, test, record) {
 
     // Get height of row
     /*var height = casper.evaluate(function (rowColumnDataSelector) {
-                    return document.querySelector(rowColumnDataSelector).getBoundingClientRect().height;
-                }, rowColumnDataSelector);
+                                return document.querySelector(rowColumnDataSelector).getBoundingClientRect().height;
+                            }, rowColumnDataSelector);
 
-                casper.evaluate(function (recordsParentDivSelector, height, rowNo) {
-                    document.querySelector(recordsParentDivSelector).scrollTo(0, height*rowNo);
-                }, rowColumnDataSelector, height, recordNo);
+                            casper.evaluate(function (recordsParentDivSelector, height, rowNo) {
+                                document.querySelector(recordsParentDivSelector).scrollTo(0, height*rowNo);
+                            }, rowColumnDataSelector, height, recordNo);
 
-                casper.then(function () {
-                    common.capture("ScrollHeight.jpg");
-                });*/
+                            casper.then(function () {
+                                common.capture("ScrollHeight.jpg");
+                            });*/
 
     // check visibility of data at specific cell [recordNo][columnNo]
     var isVisible = casper.evaluate(function (rowColumnDataSelector) {
@@ -41,24 +41,7 @@ function performRowColumnVisiblityTest(that, column, recordNo, test, record) {
 
     // Record visibility in viewport
     test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
-
-    // Match API Response data with DOM cells
-    test.assertEquals(rowColumnData, record[column.field], "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
-}
-
-function getColumnsAfterExcludingGridColumns(columns, excludeGridColumns) {
-    var columnList = [];
-    columns.forEach(function (column) {
-        excludeGridColumns.forEach(function (excludeGridColumn) {
-            if (column.field !== excludeGridColumn) {
-                columnList.push(column);
-                console.log(column.field);
-
-            }
-        });
-    });
-    console.log(columnList);
-    return columnList;
+    return rowColumnData;
 }
 
 exports.apiIntegrationTest = function (gridConfig) {
@@ -90,42 +73,16 @@ exports.apiIntegrationTest = function (gridConfig) {
         that.apiResponse.records.forEach(function (record, recordNo) {
 
             that.columns.forEach(function (column) {
-
-                // get coloumn index based on column name/field
-                var columnNo = casper.evaluate(function (gridName, column) {
-                    return w2ui[gridName].getColumn(column, true);
-                }, that.grid, column.field);
-
-                var rowColumnDataSelector = w2ui_utils.getRowColumnDataSelector(that.grid, recordNo, columnNo);
-
-                // get data at specific cell [recordNo][columnNo]
-                var rowColumnData = casper.evaluate(function (rowColumnDataSelector) {
-                    return $(rowColumnDataSelector).text();
-                }, rowColumnDataSelector);
-
-                // Get height of row
-                /*var height = casper.evaluate(function (rowColumnDataSelector) {
-                                return document.querySelector(rowColumnDataSelector).getBoundingClientRect().height;
-                            }, rowColumnDataSelector);
-
-                            casper.evaluate(function (recordsParentDivSelector, height, rowNo) {
-                                document.querySelector(recordsParentDivSelector).scrollTo(0, height*rowNo);
-                            }, rowColumnDataSelector, height, recordNo);
-
-                            casper.then(function () {
-                                common.capture("ScrollHeight.jpg");
-                            });*/
-
-                // check visibility of data at specific cell [recordNo][columnNo]
-                var isVisible = casper.evaluate(function (rowColumnDataSelector) {
-                    return isVisibleInViewPort(document.querySelector(rowColumnDataSelector));
-                }, rowColumnDataSelector);
-
-                // Record visibility in viewport
-                test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
+                var rowColumnData = performRowColumnVisiblityTest(that, column, recordNo, test);
 
                 test.assert(rowColumnData.indexOf(record[column.field]) > -1, "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
             });
+
+/*            that.excludeGridColumns.forEach(function (excludeGridColumn) {
+               // var rowColumnData = performRowColumnVisiblityTest(that, excludeGridColumn, recordNo, test);
+                
+
+            });*/
 
         });
     }
@@ -183,7 +140,7 @@ exports.apiIntegrationTest = function (gridConfig) {
                 // Match w2ui record length with list size in API Response
                 testRecordLength(that, test);
 
-                //testW2UIRecordsInAPIResponse(that, test);
+                // testW2UIRecordsInAPIResponse(that, test);
 
                 // Check each row exist in DOM and visible in viewport
                 testRowColoumnVisiblity(that, test);
