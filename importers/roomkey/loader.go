@@ -1,6 +1,7 @@
 package roomkey
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -43,6 +44,7 @@ func getRoomKeyMapping(RoomKeyFieldMap *CSVFieldMap) error {
 // loadRoomKeyCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
 func loadRoomKeyCSV(
+	ctx context.Context,
 	roomKeyCSV string,
 	guestInfo map[string]*GuestCSVRow,
 	testMode int,
@@ -192,16 +194,17 @@ func loadRoomKeyCSV(
 	// DELETE DATA RELATED TO BUSINESS ID
 	// =================================
 	// detele business related data before starting to import in database
-	rlib.DeleteBusinessFromDB(business.BID)
-	bid, err := rlib.InsertBusiness(business)
+	_, err = rlib.DeleteBusinessFromDB(ctx, business.BID)
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <DELETE BUSINESS>: %s\n", err.Error())
+		return csvErrors, internalErrFlag
+	}
+
+	_, err = rlib.InsertBusiness(ctx, business)
 	if err != nil {
 		rlib.Ulog("INTERNAL ERROR <INSERT BUSINESS>: %s\n", err.Error())
 		return csvErrors, internalErrFlag
 	}
-	// set new BID as we have deleted and inserted it again
-	// TODO:  remove this step after sman's next push
-	// in InsertBusiness it will be set automatically
-	business.BID = bid
 
 	// ========================================================
 	// WRITE DATA FOR RENTABLE TYPE, PEOPLE CSV
@@ -323,8 +326,8 @@ func loadRoomKeyCSV(
 
 	// rrDoLoad is a nested function
 	// used to load data from csv with help of rcsv loaders
-	rrDoLoad := func(fname string, handler func(string) []error, traceDataMapName string, dbType int) bool {
-		Errs := handler(fname)
+	rrDoLoad := func(ctx context.Context, fname string, handler func(context.Context, string) []error, traceDataMapName string, dbType int) bool {
+		Errs := handler(ctx, fname)
 
 		for _, err := range Errs {
 			// skip warnings about already existing records
@@ -354,8 +357,8 @@ func loadRoomKeyCSV(
 	// *****************************************************
 	// rrPeopleDoLoad (SPECIAL METHOD TO LOAD PEOPLE)
 	// *****************************************************
-	rrPeopleDoLoad := func(fname string, handler func(string) []error, traceDataMapName string, dbType int) bool {
-		Errs := handler(fname)
+	rrPeopleDoLoad := func(ctx context.Context, fname string, handler func(context.Context, string) []error, traceDataMapName string, dbType int) bool {
+		Errs := handler(ctx, fname)
 
 		for _, err := range Errs {
 			// handling for duplicant transactant
@@ -383,11 +386,11 @@ func loadRoomKeyCSV(
 				}
 
 				// get tcid from email
-				t := rlib.GetTransactantByPhoneOrEmail(business.BID, pEmail)
+				t, err := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pEmail)
 
-				if t.TCID == 0 {
+				if err != nil /*t.TCID == 0*/ {
 					// t = rlib.GetTransactantByName(business.BID, csvRow.Guest)
-					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
+					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
 					csvErrors[roomkeyIndex] = append(csvErrors[roomkeyIndex], reason)
 				} else {
 					// if duplicate people found
@@ -418,10 +421,10 @@ func loadRoomKeyCSV(
 				}
 
 				// get tcid from cellphonenumber
-				t := rlib.GetTransactantByPhoneOrEmail(business.BID, pCellNo)
-				if t.TCID == 0 {
+				t, err := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pCellNo)
+				if err != nil /*t.TCID == 0*/ {
 					// unable to get TCID
-					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
+					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
 					csvErrors[roomkeyIndex] = append(csvErrors[roomkeyIndex], reason)
 				} else {
 					// if duplicate people found
@@ -462,7 +465,7 @@ func loadRoomKeyCSV(
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
+			if !rrDoLoad(ctx, h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
 				// INTERNAL ERROR
 				rlib.Ulog("INTERNAL ERROR <RENTABLE TYPE CSV>\n")
 				return csvErrors, internalErrFlag
@@ -482,7 +485,7 @@ func loadRoomKeyCSV(
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			if !rrPeopleDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
+			if !rrPeopleDoLoad(ctx, h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
 				// INTERNAL ERROR
 				return csvErrors, internalErrFlag
 			}
@@ -494,7 +497,7 @@ func loadRoomKeyCSV(
 	// ========================================================
 
 	for roomkeyIndex := range traceTCIDMap {
-		tcid := rlib.GetTCIDByNote(tracePeopleNote[roomkeyIndex])
+		tcid, _ := rlib.GetTCIDByNote(ctx, tracePeopleNote[roomkeyIndex])
 		// for duplicant case, it won't be found so need check here
 		if tcid != 0 {
 			traceTCIDMap[roomkeyIndex] = tcidPrefix + strconv.Itoa(int(tcid))
@@ -578,7 +581,7 @@ func loadRoomKeyCSV(
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
+			if !rrDoLoad(ctx, h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
 				// INTERNAL ERROR
 				return csvErrors, internalErrFlag
 			}
@@ -716,6 +719,7 @@ func clearSplittedTempCSVFiles(timestamp string) {
 // CSVHandler is main function to handle user uploaded
 // csv and extract information
 func CSVHandler(
+	ctx context.Context,
 	csvPath string,
 	GuestInfoCSV string,
 	testMode int,
@@ -763,7 +767,8 @@ func CSVHandler(
 	}
 
 	// ---------------------- call roomkey loader ----------------------------------------
-	csvErrs, internalErr := loadRoomKeyCSV(csvPath, guestInfo, testMode, userRRValues,
+	csvErrs, internalErr := loadRoomKeyCSV(ctx,
+		csvPath, guestInfo, testMode, userRRValues,
 		business, currentTime, currentTimeFormat,
 		summaryReportCount)
 
@@ -774,7 +779,7 @@ func CSVHandler(
 
 	// check if there any errors from onesite loader
 	if len(csvErrs) > 0 {
-		csvReport, csvLoaded = errorReporting(business, csvErrs, summaryReportCount, csvPath, GuestInfoCSV, debugMode, currentTime)
+		csvReport, csvLoaded = errorReporting(ctx, business, csvErrs, summaryReportCount, csvPath, GuestInfoCSV, debugMode, currentTime)
 
 		// if not testmode then only do rollback
 		if testMode != 1 {
@@ -785,7 +790,7 @@ func CSVHandler(
 	}
 
 	// ===== 4. Geneate Report =====
-	csvReport = successReport(business, summaryReportCount, csvPath, GuestInfoCSV, debugMode, currentTime)
+	csvReport = successReport(ctx, business, summaryReportCount, csvPath, GuestInfoCSV, debugMode, currentTime)
 
 	// ===== 5. Return =====
 	return csvReport, internalErr, csvLoaded

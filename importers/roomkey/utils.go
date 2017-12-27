@@ -1,6 +1,7 @@
 package roomkey
 
 import (
+	"context"
 	"fmt"
 	"rentroll/importers/core"
 	"rentroll/rlib"
@@ -82,14 +83,14 @@ func parseLineAndErrorFromRCSV(rcsvErr error, dbType int) (int, string, bool) {
 
 // ValidateUserSuppliedValues validates all user supplied values
 // return error list and also business unit
-func ValidateUserSuppliedValues(userValues map[string]string) ([]error, *rlib.Business) {
+func ValidateUserSuppliedValues(ctx context.Context, userValues map[string]string) ([]error, *rlib.Business) {
 	var errorList []error
 	var accrualRateOptText = `| 0: one time only | 1: secondly | 2: minutely | 3: hourly | 4: daily | 5: weekly | 6: monthly | 7: quarterly | 8: yearly |`
 
 	// --------------------- BUD validation ------------------------
 	BUD := userValues["BUD"]
-	business := rlib.GetBusinessByDesignation(BUD)
-	if business.BID == 0 {
+	business, err := rlib.GetBusinessByDesignation(ctx, BUD)
+	if err != nil /*business.BID == 0*/ {
 		errorList = append(errorList,
 			fmt.Errorf("Supplied Business Unit Designation does not exists"))
 	}

@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -1676,7 +1677,9 @@ var AllTables = []string{
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
 // Use this call with extreme caution. There's no recovery.
-func DeleteBusinessFromDB(BID int64) (int64, error) {
+func DeleteBusinessFromDB(ctx context.Context, BID int64) (int64, error) {
+	// Might want to check context values here? like session, transaction?
+
 	noRecs := int64(0)
 	for i := 0; i < len(AllTables); i++ {
 		s := fmt.Sprintf("DELETE FROM %s WHERE BID=%d", AllTables[i], BID)

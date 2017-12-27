@@ -128,7 +128,7 @@ type ReporterInfo struct {
 	RptHeaderD1           bool      // true if the report's header should contain D1
 	RptHeaderD2           bool      // true if the dates should show as a range D1 - D2
 	BlankLineAfterRptName bool      // true if a blank line should be added after the Report Name
-	Handler               func(*ReporterInfo) string
+	Handler               func(context.Context, *ReporterInfo) string
 	Xbiz                  *rlib.XBusiness // may not be set in all cases
 	QueryParams           *url.Values
 }
