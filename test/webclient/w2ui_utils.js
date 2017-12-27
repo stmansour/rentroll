@@ -69,6 +69,11 @@ exports.getCheckBoxSelector = function (checkboxID) {
     return 'input#{0}.w2ui-input'.format(checkboxID);
 };
 
+// getCheckBoxSelector Query selector for checkbox in w2ui form field
+exports.getDisableFieldSelector = function (disableField) {
+    return 'input#{0}'.format(disableField);
+};
+
 // getDateFieldSelector Query selector for date field in w2ui form field
 exports.getDateFieldSelector = function (dateFieldId) {
     return 'input#{0}.w2ui-input'.format(dateFieldId);

@@ -35,6 +35,7 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "rentablesAddNewButton.png",
     buttonName: ["save", "saveadd"],
+    disableFields: ["RAID", "RARDtStart", "RARDtStop"],
     testCount: 16
 };
 

@@ -144,7 +144,26 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 return w2ui[form].record[field];
             }, that.form, dateField.field);
 
-            test.assertEquals(defaultValue, defaultValueInW2UI, "{0} value is {1}".format(dateField.field, defaultValueInW2UI ));
+            test.assertEquals(defaultValue, defaultValueInW2UI, "{0} value is {1}".format(dateField.field, defaultValueInW2UI));
+        });
+    }
+
+    function testDisabledFields(that, test) {
+        // We are expecting these fields must be disabled. Select that fields and check disable attribute
+        that.disableFields.forEach(function (disableField) {
+            var disabilityInDOM = casper.evaluate(function checkDisability(disableFieldSelector) {
+                return document.querySelector(disableFieldSelector).disabled;
+            }, w2ui_utils.getDisableFieldSelector(disableField));
+
+            test.assert(disabilityInDOM, "{0} is disabled.".format(disableField));
+        });
+    }
+
+    function testCloseRightPanel(test) {
+        this.click(w2ui_utils.getCloseButtonSelector());
+        this.wait(common.waitTime, function () {
+            test.assertNotVisible("#" + w2ui_utils.getRightPanelID());
+            test.done();
         });
     }
 
@@ -185,6 +204,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             // Date fields list
             this.dateFields = this.formFields.filter(w2ui_utils.getDateW2UIFields);
 
+            // Disable fields list
+            this.disableFields = addNewButtonConfig.disableFields;
+
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
 
@@ -198,6 +220,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             var that = this;
 
             casper.wait(common.waitTime, function testRightPanel() {
+                common.capture(that.capture);
 
                 // Right panel rendering
                 testRightPanelRendering(test);
@@ -217,22 +240,14 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 // Check box rendering test
                 testCheckBoxes(that, test);
 
+                // Date field rendering test
                 testDateFields(that, test);
 
-                common.capture(that.capture);
+                // Disabled field rendering test
+                testDisabledFields(that, test);
 
-                test.done();
-
-                // Close the form and check. It isn't visible after closing the form.
-                //TODO: Below test is not working. Fix it.
-/*                casper.click(w2ui_utils.getCloseButtonSelector(that.form));
-
-                casper.wait(common.waitTime, function closeFromAndTest(){
-                    common.capture(that.capture);
-
-                    test.("#" + w2ui_utils.getRightPanelID());
-                    test.done();
-                });*/
+                // Right panel after close button
+                testCloseRightPanel.call(this, test);
             });
         }
     });

@@ -35,6 +35,7 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "depAddNewButton.png",
     buttonName: ["save", "saveadd"],
-    testCount: 14
+    disableFields: [],
+    testCount: 15
 };
 

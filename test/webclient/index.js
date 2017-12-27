@@ -72,7 +72,7 @@ casper.then(function afterStartAndWait() {
 // --------------------------------------------------
 // 2. Page basic layout is ready or not
 // --------------------------------------------------
-/*casper.then(function pageBasicLayoutTest() {
+casper.then(function pageBasicLayoutTest() {
     // check that basic layout with w2ui has been loaded in page
     var pageInitiated = this.evaluate(function evaluateBasicLayoutCheck() {
         return (
@@ -85,12 +85,12 @@ casper.then(function afterStartAndWait() {
         );
     });
     this.test.assertEquals(pageInitiated, true, "Page basic layout is ready.");
-});*/
+});
 
 // --------------------------------------------------
 // 3. Now start all grid view UI testing
 // --------------------------------------------------
-/*casper.then(function gridTesting() {
+casper.then(function gridTesting() {
     gridM.w2uiGridTest(asmM.gridConf);
     gridM.w2uiGridTest(receiptsM.gridConf);
     gridM.w2uiGridTest(depositM.gridConf);
@@ -104,33 +104,33 @@ casper.then(function afterStartAndWait() {
     gridM.w2uiGridTest(arsM.gridConf);
     gridM.w2uiGridTest(rtM.gridConf);
     gridM.w2uiGridTest(rentableM.gridConf);
-});*/
+});
 
 // --------------------------------------------------
 // 4. Now start all add new button test
 // --------------------------------------------------
-/*casper.then(function addNewButtonTesting() {
+casper.then(function addNewButtonTesting() {
     addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
-});*/
+});
 
 // --------------------------------------------------
 // 5. Now start all right side panel view UI testing
 // --------------------------------------------------
-/*casper.then(function formTesting() {
-    formM.w2uiFormTest(asmM.formConf);
+casper.then(function formTesting() {
+    /*formM.w2uiFormTest(asmM.formConf);
     formM.w2uiFormTest(transactantsM.formConf);
     formM.w2uiFormTest(acctM.formConf);
     formM.w2uiFormTest(pmtM.formConf);
     formM.w2uiFormTest(depM.formConf);
-    formM.w2uiFormTest(depmethM.formConf);
-    formM.w2uiFormTest(arsM.formConf);
-    formM.w2uiFormTest(rtM.formConf);
-});*/
+    formM.w2uiFormTest(depmethM.formConf);*/
+    /*formM.w2uiFormTest(arsM.formConf);*/
+    /*formM.w2uiFormTest(rtM.formConf);*/
+});
 
 
 // --------------------------------------------------
@@ -138,12 +138,12 @@ casper.then(function afterStartAndWait() {
 // --------------------------------------------------
 
 casper.then(function apiIntegrationTest() {
-    /*gridRecordM.apiIntegrationTest(pmtM.gridConf);
+    gridRecordM.apiIntegrationTest(pmtM.gridConf);
     gridRecordM.apiIntegrationTest(depM.gridConf);
-    gridRecordM.apiIntegrationTest(depmethM.gridConf);*/
+    gridRecordM.apiIntegrationTest(depmethM.gridConf);
     gridRecordM.apiIntegrationTest(arsM.gridConf);
     gridRecordM.apiIntegrationTest(rtM.gridConf);
-    // gridRecordM.apiIntegrationTest(rentableM.gridConf);
+    gridRecordM.apiIntegrationTest(rentableM.gridConf);
 });
 
 // ========== RUN TEST ==========

@@ -36,6 +36,7 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "arsAddNewButton.png",
     buttonName: ["save", "saveadd"],
+    disableFields: ["RAIDrqd"],
     testCount: 24
 };
 

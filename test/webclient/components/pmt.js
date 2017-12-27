@@ -36,7 +36,8 @@ exports.addNewConf = {
   sidebarID: SIDEBAR_ID,
   capture: "pmtsAddNewButton.png",
   buttonName: ["save", "saveadd"],
-  testCount: 12
+  disableFields: [],
+  testCount: 13
 };
 
 

@@ -28,5 +28,6 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "accountAddNewButton.png",
     buttonName: ["save", "saveadd"],
+    disableFields: [],
     testCount: 12
 };
