@@ -19,7 +19,13 @@ exports.gridConf = {
         "searchDtStart": "11/30/2017",
         "searchDtStop": "12/31/2017"
     }),
-    excludeGridColumns: ["Active", "RentCycle", "Proration", "GSRPC", "ManageToBudget"],
+    excludeGridColumns: {
+        Active: "rtActiveFLAGS",
+        RentCycle: "cycleFreq",
+        Proration: "cycleFreq",
+        GSRPC: "cycleFreq",
+        ManageToBudget: "manageToBBudgetList"
+    },
     testCount: 50
 };
 

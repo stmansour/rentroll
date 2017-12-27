@@ -142,7 +142,7 @@ casper.then(function apiIntegrationTest() {
     gridRecordM.apiIntegrationTest(depM.gridConf);
     gridRecordM.apiIntegrationTest(depmethM.gridConf);*/
     gridRecordM.apiIntegrationTest(arsM.gridConf);
-    // gridRecordM.apiIntegrationTest(rtM.gridConf);
+    gridRecordM.apiIntegrationTest(rtM.gridConf);
     // gridRecordM.apiIntegrationTest(rentableM.gridConf);
 });
 

@@ -21,23 +21,12 @@ function performRowColumnVisiblityTest(that, column, recordNo, test) {
         return $(rowColumnDataSelector).text();
     }, rowColumnDataSelector);
 
-    // Get height of row
-    /*var height = casper.evaluate(function (rowColumnDataSelector) {
-                                return document.querySelector(rowColumnDataSelector).getBoundingClientRect().height;
-                            }, rowColumnDataSelector);
-
-                            casper.evaluate(function (recordsParentDivSelector, height, rowNo) {
-                                document.querySelector(recordsParentDivSelector).scrollTo(0, height*rowNo);
-                            }, rowColumnDataSelector, height, recordNo);
-
-                            casper.then(function () {
-                                common.capture("ScrollHeight.jpg");
-                            });*/
-
     // check visibility of data at specific cell [recordNo][columnNo]
     var isVisible = casper.evaluate(function (rowColumnDataSelector) {
         return isVisibleInViewPort(document.querySelector(rowColumnDataSelector));
     }, rowColumnDataSelector);
+
+    console.log(rowColumnDataSelector);
 
     // Record visibility in viewport
     test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
@@ -63,26 +52,22 @@ exports.apiIntegrationTest = function (gridConfig) {
     function testRowColoumnVisiblity(that, test) {
 
         // TODO: Scrolling records
-        // --------- Grid record scrolling Algorithm -----------
-        // Get height of row from the first record.
-        // Scroll the parent div of records to (0, rowNo * height)
-        // Apply scroll only if there are records available
-        // -----------------------------------------------------
-        // var recordsParentDivSelector = w2ui_utils.getRecordsParentDivSelector(that.grid);
 
         that.apiResponse.records.forEach(function (record, recordNo) {
 
             that.columns.forEach(function (column) {
                 var rowColumnData = performRowColumnVisiblityTest(that, column, recordNo, test);
-
                 test.assert(rowColumnData.indexOf(record[column.field]) > -1, "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
             });
 
-/*            that.excludeGridColumns.forEach(function (excludeGridColumn) {
-               // var rowColumnData = performRowColumnVisiblityTest(that, excludeGridColumn, recordNo, test);
-                
+            that.excludeGridColumns.forEach(function (excludeGridColumn) {
+               var rowColumnData = performRowColumnVisiblityTest(that, excludeGridColumn, recordNo, test);
 
-            });*/
+               // TODO: Match rowColumnData value with appSettings object
+                // Making sure that displayed data length is greater than 0. Remove this test after above To do.
+                test.assert(rowColumnData.length > 0, "{0} length is {1}".format(rowColumnData, rowColumnData.length));
+                console.log(rowColumnData.length);
+            });
 
         });
     }
@@ -112,8 +97,9 @@ exports.apiIntegrationTest = function (gridConfig) {
                 return w2ui[grid].columns;
             }, this.grid);
 
-            this.excludeGridColumns = gridConfig.excludeGridColumns;
-            this.columns = this.gridColumns.filter(w2ui_utils.getVisibleColumnName, this.excludeGridColumns);
+            this.excludeGridColumnsKeyValue = gridConfig.excludeGridColumns;
+            this.columns = this.gridColumns.filter(w2ui_utils.getVisibleColumnName, this.excludeGridColumnsKeyValue);
+            this.excludeGridColumns = this.gridColumns.filter(w2ui_utils.getVisibleExcludedColumnName, this.excludeGridColumnsKeyValue);
 
             // Send api request to client and get response
             this.apiResponse = casper.evaluate(function (url, method, data) {
