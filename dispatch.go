@@ -20,26 +20,30 @@ const (
 )
 
 // RunCommandLine runs a series of commands to handle command line run requests
-func RunCommandLine(ctx *DispatchCtx) {
-	rlib.InitBizInternals(ctx.xbiz.P.BID, &ctx.xbiz)
-	rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: ctx.xbiz.P.BID, D1: ctx.DtStart, D2: ctx.DtStop, Xbiz: &ctx.xbiz, BlankLineAfterRptName: true}
+func RunCommandLine(dCtx *DispatchCtx) {
+	err := rlib.InitBizInternals(dCtx.xbiz.P.BID, &dCtx.xbiz)
+	if err != nil {
+		fmt.Printf("Error while InitBizInternals: %s \n", err.Error())
+		os.Exit(1)
+	}
+	rcsv.InitRCSV(&dCtx.DtStart, &dCtx.DtStop, &dCtx.xbiz)
+	var ri = rrpt.ReporterInfo{OutputFormat: gotable.TABLEOUTTEXT, Bid: dCtx.xbiz.P.BID, D1: dCtx.DtStart, D2: dCtx.DtStop, Xbiz: &dCtx.xbiz, BlankLineAfterRptName: true}
 
-	switch ctx.Report {
+	switch dCtx.Report {
 	case 1: // JOURNAL
-		// JournalReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		// JournalReportText(&dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop)
 		tbl := rrpt.JournalReport(&ri)
 		fmt.Print(tbl)
 
 	case 2: // LEDGER
-		// LedgerReportText(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		// LedgerReportText(&dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop)
 		m := rrpt.LedgerReportTable(&ri)
 		for i := 0; i < len(m); i++ {
 			fmt.Print(m[i])
 			fmt.Printf("\n\n")
 		}
 	case 3: // INTERNAL ACCT RULE TEST
-		intTest(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		intTest(&dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop)
 	case 4: // RENTROLL REPORT
 		rrpt.RRTextReport(&ri)
 	case 6: // available
@@ -49,8 +53,8 @@ func RunCommandLine(ctx *DispatchCtx) {
 	case 8: // STATEMENT
 		fmt.Print(rrpt.RptStatementTextReport(&ri))
 	case 9: // Invoice
-		// ctx.Report format:  9,IN0001  or  9,1   -- both say that we want Invoice 1 to be printed
-		sa := strings.Split(ctx.Args, ",")
+		// dCtx.Report format:  9,IN0001  or  9,1   -- both say that we want Invoice 1 to be printed
+		sa := strings.Split(dCtx.Args, ",")
 		if len(sa) < 2 {
 			fmt.Printf("Missing InvoiceNo on report option.  Example:  -r 9,IN000001\n")
 			os.Exit(1)
@@ -66,8 +70,8 @@ func RunCommandLine(ctx *DispatchCtx) {
 	case 11: // RENTABLE GSR
 		rrpt.GSRTextReport(&ri)
 	case 12: // LEDGERBALANCE ON DATE
-		// ctx.Report format:  12,LID,RAID,date
-		sa := strings.Split(ctx.Args, ",")
+		// dCtx.Report format:  12,LID,RAID,date
+		sa := strings.Split(dCtx.Args, ",")
 		if len(sa) < 4 {
 			fmt.Printf("Missing one or more parameters.  Example:  -r 12,L004,RA003,2016-07-04\n")
 			os.Exit(1)
@@ -79,21 +83,21 @@ func RunCommandLine(ctx *DispatchCtx) {
 			fmt.Printf("Bad date string: %s\n", sa[3])
 			os.Exit(1)
 		}
-		rrpt.LdgAcctBalOnDateTextReport(&ctx.xbiz, lid, raid, &dt)
+		rrpt.LdgAcctBalOnDateTextReport(&dCtx.xbiz, lid, raid, &dt)
 	case 13: // RA LEDGER DETAILS OVER RANGE
-		// ctx.Report format: 13,LID,RAID
+		// dCtx.Report format: 13,LID,RAID
 		// date range is from -j , -k
-		sa := strings.Split(ctx.Args, ",")
+		sa := strings.Split(dCtx.Args, ",")
 		if len(sa) < 3 {
 			fmt.Printf("Missing one or more parameters.  Example:  -r 13,L004,RA003\n")
 			os.Exit(1)
 		}
 		lid := rcsv.CSVLoaderGetLedgerNo(sa[1])
 		raid := rcsv.CSVLoaderGetRAID(sa[2])
-		rrpt.RAAccountActivityRangeDetail(&ctx.xbiz, lid, raid, &ctx.DtStart, &ctx.DtStop)
+		rrpt.RAAccountActivityRangeDetail(&dCtx.xbiz, lid, raid, &dCtx.DtStart, &dCtx.DtStop)
 	case 14: // DELINQUENCY REPORT
-		// ctx.Report format:  14,date
-		sa := strings.Split(ctx.Args, ",")
+		// dCtx.Report format:  14,date
+		sa := strings.Split(dCtx.Args, ",")
 		if len(sa) < 2 {
 			fmt.Printf("Missing one or more parameters.  Example:  -r 14,2016-05-25\n")
 			os.Exit(1)
@@ -106,34 +110,34 @@ func RunCommandLine(ctx *DispatchCtx) {
 		ri.D2 = dt
 		rrpt.DelinquencyTextReport(&ri)
 	case 15: // Process Vacancy...
-		rlib.GenVacancyJournals(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		rlib.GenVacancyJournals(&dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop)
 	case 16: // Process LedgerMarkers Only
-		rlib.GenerateLedgerMarkers(&ctx.xbiz, &ctx.DtStop)
+		rlib.GenerateLedgerMarkers(&dCtx.xbiz, &dCtx.DtStop)
 	case 17: // LEDGER BALANCE REPORT
 		rrpt.PrintLedgerBalanceReport(&ri)
 	case 18: // Process Journal Entries only
-		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
+		rlib.GenerateJournalRecords(&dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop, App.SkipVacCheck)
 	case 19: // process Ledgers
-		rlib.GenerateLedgerEntries(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		rlib.GenerateLedgerEntries(&dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop)
 	case 20: // List market rates for rentable over time period
-		// ctx.Report format:  20,RID
-		sa := strings.Split(ctx.Args, ",")
+		// dCtx.Report format:  20,RID
+		sa := strings.Split(dCtx.Args, ",")
 		if len(sa) < 2 {
 			fmt.Printf("Missing parameter(s).  Example:  -r 20,R004\n")
 			os.Exit(1)
 		}
 		rid := rcsv.CSVLoaderGetRID(sa[1])
-		rrpt.RentableMarketRates(&ctx.xbiz, rid, &ctx.DtStart, &ctx.DtStop)
+		rrpt.RentableMarketRates(&dCtx.xbiz, rid, &dCtx.DtStart, &dCtx.DtStop)
 	case 21: // backup file list
 		fmt.Print(CreateDBBackupFileList())
 	case 22: // delete business
-		ri := rrpt.ReporterInfo{Xbiz: &ctx.xbiz, OutputFormat: gotable.TABLEOUTTEXT}
+		ri := rrpt.ReporterInfo{Xbiz: &dCtx.xbiz, OutputFormat: gotable.TABLEOUTTEXT}
 		rrpt.RRreportBusiness(&ri)
-		fmt.Printf("Deleting business: %d\n", ctx.xbiz.P.BID)
-		rlib.DeleteBusinessFromDB(ctx.xbiz.P.BID)
+		fmt.Printf("Deleting business: %d\n", dCtx.xbiz.P.BID)
+		rlib.DeleteBusinessFromDB(dCtx.xbiz.P.BID)
 	case 23: // payor statement internal view
-		// ctx.Report format:  23,TCID
-		sa := strings.Split(ctx.Args, ",")
+		// dCtx.Report format:  23,TCID
+		sa := strings.Split(dCtx.Args, ",")
 		if len(sa) < 2 {
 			fmt.Printf("Missing one or more parameters.  Example:  -r 23,35\n")
 			os.Exit(1)
@@ -142,7 +146,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 		if !ok {
 			fmt.Printf("Bad number: %s\n", sa[1])
 		}
-		tbl := rrpt.PayorStatement(ctx.xbiz.P.BID, tcid, &ctx.DtStart, &ctx.DtStop, true)
+		tbl := rrpt.PayorStatement(dCtx.xbiz.P.BID, tcid, &dCtx.DtStart, &dCtx.DtStop, true)
 		s, err := tbl.SprintTable()
 		if err != nil {
 			rlib.LogAndPrintError("RunCommandLine", err)
@@ -151,7 +155,7 @@ func RunCommandLine(ctx *DispatchCtx) {
 		fmt.Print(s)
 
 	default:
-		rlib.GenerateJournalRecords(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop, App.SkipVacCheck)
-		rlib.GenerateLedgerEntries(&ctx.xbiz, &ctx.DtStart, &ctx.DtStop)
+		rlib.GenerateJournalRecords(&dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop, App.SkipVacCheck)
+		rlib.GenerateLedgerEntries(&dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop)
 	}
 }

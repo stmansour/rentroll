@@ -22,7 +22,7 @@ import (
 
 // DispatchCtx is a type of struct needed for the Dispatch function. It defines
 // everything needed to run a particular command. It is the responsibility of the
-// caller to fill out all the needed ctx information. Not all information is needed
+// caller to fill out all the needed dCtx information. Not all information is needed
 // for all commands.
 type DispatchCtx struct {
 	Cmd          int                 // cmd to execute
@@ -198,9 +198,9 @@ func main() {
 	ws.SvcInit(App.NoAuth) // currently needed for testing
 
 	if App.BatchMode {
-		ctx := createStartupCtx()
-		rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-		RunCommandLine(&ctx)
+		dCtx := createStartupCtx()
+		rcsv.InitRCSV(&dCtx.DtStart, &dCtx.DtStop, &dCtx.xbiz)
+		RunCommandLine(&dCtx)
 	} else {
 		tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir) // starts the scheduler in a go routine. only initialize when we're in server mode
 		worker.Init()                             // register Rentroll's TWS workers
