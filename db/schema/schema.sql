@@ -166,7 +166,8 @@ CREATE TABLE CustomAttrRef (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                      -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (CARID)
 );
 
 -- ===========================================
@@ -371,8 +372,10 @@ CREATE TABLE RatePlanRefRTRate (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                        -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (RPRRTRateID)
 );
+
 -- RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 CREATE TABLE RatePlanRefSPRate (
     RPRSPRateID BIGINT NOT NULL AUTO_INCREMENT,                -- unique id for this rate plan ref SP Rate
@@ -385,7 +388,8 @@ CREATE TABLE RatePlanRefSPRate (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                        -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (RPRSPRateID)
 );
 
 -- Rate plans can have other deliverables. These can be things like 2 tickets to SeaWorld, free meal vouchers, etc.
@@ -666,7 +670,8 @@ CREATE TABLE RentableSpecialtyRef (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                              -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (RSPRefID)
 );
 
 
@@ -744,7 +749,7 @@ CREATE TABLE Transactant (
 
 -- website
 CREATE TABLE Prospect (
-    ProspectID BIGINT NOT NULL DEFAULT 0,                    -- unique id of this Prospect
+    ProspectID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this Prospect
     TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant (has Name and all contact info)
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
@@ -771,7 +776,7 @@ CREATE TABLE Prospect (
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (TCID)
+    PRIMARY KEY (ProspectID)
 );
 
 -- --new  Custom Fields
@@ -802,7 +807,7 @@ CREATE TABLE User (
     LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (TCID)
+    PRIMARY KEY (UserID)
 );
 
 CREATE TABLE Vehicle (
@@ -832,7 +837,7 @@ CREATE TABLE Vehicle (
 --   PAYOR
 -- ===========================================
 CREATE TABLE Payor (
-    PayorID BIGINT NOT NULL DEFAULT 0,                       -- unique id of this Payor
+    PayorID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id of this Payor
     TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
@@ -843,7 +848,7 @@ CREATE TABLE Payor (
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (TCID)
+    PRIMARY KEY (PayorID)
 );
 
 
@@ -1100,7 +1105,8 @@ CREATE TABLE InvoiceAssessment (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (InvoiceASMID)
 );
 
 CREATE TABLE InvoicePayor (
@@ -1111,7 +1117,8 @@ CREATE TABLE InvoicePayor (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (InvoicePayorID)
 );
 
 
