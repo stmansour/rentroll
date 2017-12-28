@@ -86,9 +86,9 @@ type UpdateRAPayorInput struct {
 //       0   1       2    3
 // 		/v1/rapayor/BID/RAID?dt=2017-02-01
 func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRAPayor"
 	var (
-		funcname = "SvcRAPayor"
-		err      error
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -145,9 +145,7 @@ func SvcRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "deleteRAPayor"
-	)
+	const funcname = "deleteRAPayor"
 
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
@@ -164,10 +162,10 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	for i := 0; i < len(del.Selected); i++ {
 		// first validate that the selected ids are part of the supplied raid
-		m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &dtStart, &dtStop)
+		m, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), d.RAID, &dtStart, &dtStop)
 		for j := 0; j < len(m); j++ {
 			if m[j].RAPID == del.Selected[i] {
-				if err := rlib.DeleteRentalAgreementPayor(del.Selected[i]); err != nil {
+				if err := rlib.DeleteRentalAgreementPayor(r.Context(), del.Selected[i]); err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
 				}
@@ -193,9 +191,9 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveRAPayor"
 	var (
-		funcname = "saveRAPayor"
-		err      error
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -221,7 +219,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		a.RAID, a.BID, a.TCID, a.DtStart.Format(rlib.RRDATEFMT3), a.DtStop.Format(rlib.RRDATEFMT3))
 
 	// Try to read an existing record...
-	m := rlib.GetRentalAgreementPayorsInRange(a.RAID, &a.DtStart, &a.DtStop)
+	m, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), a.RAID, &a.DtStart, &a.DtStop)
 	fmt.Printf("found %d payors for RAID %d during period %s - %s\n", len(m), a.RAID, a.DtStart.Format(rlib.RRDATEFMT4), a.DtStop.Format(rlib.RRDATEFMT4))
 	for i := 0; i < len(m); i++ {
 		fmt.Printf("m[i].TCID = %d, a.TCID = %d, %s - %s,  %s - %s\n",
@@ -240,7 +238,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// This is a new RAPayor
-	_, err = rlib.InsertRentalAgreementPayor(&a)
+	_, err = rlib.InsertRentalAgreementPayor(r.Context(), &a)
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving RAPayor (RAID=%d\n: %s", funcname, d.RAID, err.Error())
 		SvcErrorReturn(w, e, funcname)
@@ -252,9 +250,9 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // SvcUpdateRAPayor is called when a Rentable User is updated from the RentableUserGrid
 func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcUpdateRAPayor"
 	var (
-		funcname = "SvcUpdateRAPayor"
-		err      error
+		err error
 	)
 
 	fmt.Printf("Entered: %s\n", funcname)
@@ -270,7 +268,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// From the grid, we only allow the following changes:  DtStart, DtStop
 	for i := 0; i < len(foo.Changes); i++ {
 		changes := 0
-		rapayor, err := rlib.GetRentalAgreementPayor(foo.Changes[i].Recid)
+		rapayor, err := rlib.GetRentalAgreementPayor(r.Context(), foo.Changes[i].Recid)
 		if err != nil {
 			e := fmt.Errorf("%s: Error getting RentalAgreementPayor:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -288,7 +286,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			changes++
 		}
 		if changes > 0 {
-			if err := rlib.UpdateRentalAgreementPayor(&rapayor); err != nil {
+			if err := rlib.UpdateRentalAgreementPayor(r.Context(), &rapayor); err != nil {
 				e := fmt.Errorf("%s: Error updating RentalAgreementPayor:  %s", funcname, err.Error())
 				SvcErrorReturn(w, e, funcname)
 				return
@@ -322,16 +320,21 @@ func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
+	const funcname = "SvcGetRAPayor"
 	var (
-		funcname = "SvcGetRAPayor"
-		gxp      RAPayorResponse
+		gxp RAPayorResponse
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
-	m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &d.Dt, &d.Dt)
+	m, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), d.RAID, &d.Dt, &d.Dt)
 	for i := 0; i < len(m); i++ {
 		var p rlib.Transactant
-		rlib.GetTransactant(m[i].TCID, &p)
+		err = rlib.GetTransactant(r.Context(), m[i].TCID, &p)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 		var xr RAPayor
 		fmt.Printf("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
 		rlib.MigrateStructVals(&p, &xr)

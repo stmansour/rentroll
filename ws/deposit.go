@@ -79,10 +79,9 @@ type DepositGetResponse struct {
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcHandlerDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcHandlerDeposit"
 	var (
-		funcname = "SvcHandlerDeposit"
-		err      error
+		err error
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -172,12 +171,12 @@ var depositSearchSelectQueryFields = rlib.SelectQueryFields{
 //  @Response DepositSearchResponse
 // wsdoc }
 func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcSearchHandlerDeposits"
 	var (
-		funcname = "SvcSearchHandlerDeposits"
-		g        DepositSearchResponse
-		err      error
-		order    = "Deposit.DID ASC" // default ORDER
-		whr      = fmt.Sprintf("Deposit.BID=%d AND %q <= Deposit.Dt AND Deposit.Dt < %q",
+		g     DepositSearchResponse
+		err   error
+		order = "Deposit.DID ASC" // default ORDER
+		whr   = fmt.Sprintf("Deposit.BID=%d AND %q <= Deposit.Dt AND Deposit.Dt < %q",
 			d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
 			d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 	)
@@ -285,10 +284,10 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "saveDeposit"
 	var (
-		funcname = "saveDeposit"
-		foo      DepositGridSave
+		foo DepositGridSave
+		// err error
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -327,7 +326,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// This is a new AR
 		rlib.Console(">>>> NEW DEPOSIT IS BEING ADDED\n")
 		rlib.Console("Receipts[] = %#v\n", foo.Receipts)
-		e := bizlogic.SaveDeposit(&a, foo.Receipts)
+		e := bizlogic.SaveDeposit(r.Context(), &a, foo.Receipts)
 		if len(e) > 0 {
 			SvcErrListReturn(w, e, funcname)
 			return
@@ -335,7 +334,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else {
 		// update existing record
 		rlib.Console("Updating existing Deposit: %d\n", a.DID)
-		e := bizlogic.SaveDeposit(&a, foo.Receipts)
+		e := bizlogic.SaveDeposit(r.Context(), &a, foo.Receipts)
 		if len(e) > 0 {
 			SvcErrListReturn(w, e, funcname)
 			return
@@ -355,10 +354,10 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response DepositGetResponse
 // wsdoc }
 func deleteDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "deleteDeposit"
 	var (
-		funcname = "deleteDeposit"
-		del      DepositDeleteForm
+		del DepositDeleteForm
+		err error
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -373,26 +372,26 @@ func deleteDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Remove the deposit parts and mark each
 	// Receipt as no longer a member of DID
 	//----------------------------------------
-	m, err := rlib.GetDepositParts(del.DID)
+	m, err := rlib.GetDepositParts(r.Context(), del.DID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	for i := 0; i < len(m); i++ {
-		r := rlib.GetReceipt(m[i].RCPTID)
-		if r.RCPTID > 0 {
-			r.DID = 0
-			if err = rlib.UpdateReceipt(&r); err != nil {
+		rcpt, _ := rlib.GetReceipt(r.Context(), m[i].RCPTID)
+		if rcpt.RCPTID > 0 {
+			rcpt.DID = 0
+			if err = rlib.UpdateReceipt(r.Context(), &rcpt); err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
 		}
-		if err = rlib.DeleteDepositPart(m[i].DPID); err != nil {
+		if err = rlib.DeleteDepositPart(r.Context(), m[i].DPID); err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
 	}
-	err = rlib.DeleteDeposit(del.DID)
+	err = rlib.DeleteDeposit(r.Context(), del.DID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

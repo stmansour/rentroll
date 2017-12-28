@@ -75,9 +75,9 @@ type UpdateRARentableInput struct {
 //       0   1   2   3
 // 		/v1/rar/BID/RAID
 func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRARentable"
 	var (
-		funcname = "SvcRARentable"
-		err      error
+		err error
 	)
 	fmt.Printf("entered %s\n", funcname)
 	var rcmd RARPostCmd
@@ -146,9 +146,9 @@ func SvcRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveRARentable"
 	var (
-		funcname = "saveRARentable"
-		err      error
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
@@ -174,7 +174,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	fmt.Printf("saveRARentable: a = RARID = %d, RAID = %d, BID = %d, RID = %d, ContractRent = %8.2f, DtStart = %s, DtStop = %s\n",
 		a.RARID, a.RAID, a.BID, a.RID, a.ContractRent, a.RARDtStart.Format(rlib.RRDATEFMT3), a.RARDtStop.Format(rlib.RRDATEFMT3))
 
-	m := rlib.GetRentalAgreementRentables(d.RAID, &a.RARDtStart, &a.RARDtStop)
+	m, _ := rlib.GetRentalAgreementRentables(r.Context(), d.RAID, &a.RARDtStart, &a.RARDtStop)
 	for i := 0; i < len(m); i++ {
 		if a.RID == m[i].RID {
 			e := fmt.Errorf("That Rentable already exists in RentalAgreement %s and overlaps the time range %s - %s",
@@ -184,7 +184,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 	fmt.Printf(">>>> NEW RARentable IS BEING ADDED\n")
-	_, err = rlib.InsertRentalAgreementRentable(&a)
+	_, err = rlib.InsertRentalAgreementRentable(r.Context(), &a)
 	if err != nil {
 		e := fmt.Errorf("Error saving Rentable (RAID=%d): %s", d.RAID, err.Error())
 		SvcErrorReturn(w, e, funcname)
@@ -202,7 +202,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		Balance: float64(0),
 		State:   rlib.LMINITIAL,
 	}
-	_, err = rlib.InsertLedgerMarker(&lm)
+	_, err = rlib.InsertLedgerMarker(r.Context(), &lm)
 	if err != nil {
 		e := fmt.Errorf("Error saving Rentable (RAID=%d): %s", d.RAID, err.Error())
 		SvcErrorReturn(w, e, funcname)
@@ -214,9 +214,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // SvcUpdateRARentable is called when a Rentable is updated from the RentableUserGrid in the RentalAgreementDialog
 func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "SvcUpdateRARentable"
-	)
+	const funcname = "SvcUpdateRARentable"
 
 	fmt.Printf("Entered: %s\n", funcname)
 	var foo UpdateRARentableInput
@@ -232,7 +230,7 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	// From the grid, we only allow the following changes:  RARDtStart, RARDtStop
 	for i := 0; i < len(foo.Changes); i++ {
 		changes := 0
-		rec, err := rlib.GetRentalAgreementRentable(foo.Changes[i].Recid)
+		rec, err := rlib.GetRentalAgreementRentable(r.Context(), foo.Changes[i].Recid)
 		if err != nil {
 			e := fmt.Errorf("%s: Error getting RentalAgreementRentable:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -254,7 +252,7 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			changes++
 		}
 		if changes > 0 {
-			if err := rlib.UpdateRentalAgreementRentable(&rec); err != nil {
+			if err := rlib.UpdateRentalAgreementRentable(r.Context(), &rec); err != nil {
 				e := fmt.Errorf("%s: Error updating RentalAgreementRentable:  %s", funcname, err.Error())
 				SvcErrorReturn(w, e, funcname)
 				return
@@ -276,9 +274,7 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "deleteRARentable"
-	)
+	const funcname = "deleteRARentable"
 
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
@@ -291,7 +287,7 @@ func deleteRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	for i := 0; i < len(del.Selected); i++ {
-		if err := rlib.DeleteRentalAgreementRentable(del.Selected[i]); err != nil {
+		if err := rlib.DeleteRentalAgreementRentable(r.Context(), del.Selected[i]); err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
@@ -314,20 +310,22 @@ func deleteRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response RAR
 // wsdoc }
 func GetRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "GetRARentables"
-	)
+	const funcname = "GetRARentables"
 	fmt.Printf("Entered %s\n", funcname)
 	var m []rlib.RentalAgreementRentable
 	var rar RARList
 	if d.ID > 0 {
-		m = rlib.GetRentalAgreementRentables(d.ID, &d.Dt, &d.Dt)
+		m, _ = rlib.GetRentalAgreementRentables(r.Context(), d.ID, &d.Dt, &d.Dt)
 		fmt.Printf("d.ID = %d, d.DT = %s, len(m) = %d\n", d.ID, d.Dt.Format(rlib.RRDATEFMT3), len(m))
 		for i := 0; i < len(m); i++ {
 			var xr RAR
-			r := rlib.GetRentable(m[i].RID)
+			rentable, err := rlib.GetRentable(r.Context(), m[i].RID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
 			rlib.MigrateStructVals(&m[i], &xr)
-			xr.RentableName = r.RentableName
+			xr.RentableName = rentable.RentableName
 			xr.Recid = m[i].RARID
 			rar.Records = append(rar.Records, xr)
 		}

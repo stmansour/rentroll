@@ -76,10 +76,9 @@ func pmtRowScan(rows *sql.Rows, q PaymentTypeGrid) (PaymentTypeGrid, error) {
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcHandlerPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcHandlerPaymentType"
 	var (
-		funcname = "SvcHandlerPaymentType"
-		err      error
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("Request: %s:  BID = %d,  PMTID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
@@ -143,12 +142,12 @@ var pmtSearchSelectQueryFields = rlib.SelectQueryFields{
 //  @Response PaymentTypeSearchResponse
 // wsdoc }
 func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcSearchHandlerPaymentTypes"
 	var (
-		funcname = "SvcSearchHandlerPaymentTypes"
-		g        PaymentTypeSearchResponse
-		err      error
-		order    = "PMTID ASC" // default ORDER
-		whr      = fmt.Sprintf("BID=%d", d.BID)
+		g     PaymentTypeSearchResponse
+		err   error
+		order = "PMTID ASC" // default ORDER
+		whr   = fmt.Sprintf("BID=%d", d.BID)
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -253,10 +252,10 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 //  @Response SvcStatusResponse
 // wsdoc }
 func deletePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteDepository"
 	var (
-		funcname = "deleteDepository"
-		del      DeletePmtForm
-		err      error
+		del DeletePmtForm
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -268,7 +267,7 @@ func deletePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err = rlib.DeletePaymentType(del.ID); err != nil {
+	if err = rlib.DeletePaymentType(r.Context(), del.ID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -287,11 +286,10 @@ func deletePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "savePaymentType"
 	var (
-		funcname = "savePaymentType"
-		foo      SavePaymentTypeInput
-		err      error
+		foo SavePaymentTypeInput
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -323,7 +321,7 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	var adup rlib.PaymentType
-	rlib.GetPaymentTypeByName(a.BID, a.Name, &adup)
+	_ = rlib.GetPaymentTypeByName(r.Context(), a.BID, a.Name, &adup)
 	if a.Name == adup.Name && a.PMTID != adup.PMTID {
 		e := fmt.Errorf("%s: A PaymentType with the name %s already exists", funcname, a.Name)
 		SvcErrorReturn(w, e, funcname)
@@ -332,11 +330,11 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if a.PMTID == 0 && d.ID == 0 {
 		// This is a new AR
-		_, err = rlib.InsertPaymentType(&a)
+		_, err = rlib.InsertPaymentType(r.Context(), &a)
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing Payment Type: %d\n", a.PMTID)
-		err = rlib.UpdatePaymentType(&a)
+		err = rlib.UpdatePaymentType(r.Context(), &a)
 	}
 
 	if err != nil {
@@ -359,14 +357,14 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response PaymentTypeGetResponse
 // wsdoc }
 func getPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getPaymentType"
 	var (
-		funcname = "getPaymentType"
-		g        PaymentTypeGetResponse
+		g PaymentTypeGetResponse
 	)
 
 	fmt.Printf("entered %s\n", funcname)
 	var a rlib.PaymentType
-	rlib.GetPaymentType(d.ID, &a)
+	_ = rlib.GetPaymentType(r.Context(), d.ID, &a)
 	if a.PMTID > 0 {
 		var gg PaymentTypeGrid
 		rlib.MigrateStructVals(&a, &gg)

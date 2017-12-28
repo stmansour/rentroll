@@ -208,7 +208,7 @@ var SvcCtx struct {
 // SvcInit initializes the service subsystem
 func SvcInit(noauth bool) {
 	SvcCtx.NoAuth = noauth
-	RRdb.NoAuth = noauth // TODO(sudip): needs to be changed to some internal app struct
+	rlib.RRdb.NoAuth = noauth // TODO(sudip): needs to be changed to some internal app struct
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
@@ -247,6 +247,10 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		if d.sess != nil {
 			d.sess.Refresh(w, r) // they actively tried to use the session, extend timeout
 		}
+
+		// get session in the request context
+		ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
+		r = r.WithContext(ctx)
 	}
 
 	//-----------------------------------------------------------------------

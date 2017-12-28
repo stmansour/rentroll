@@ -92,10 +92,9 @@ func depositRowScan(rows *sql.Rows) (DepositMethodGrid, error) {
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcHandlerDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcHandlerDepositMethod"
 	var (
-		funcname = "SvcHandlerDepositMethod"
-		err      error
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("Request: %s:  BID = %d,  DPMID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
@@ -135,12 +134,12 @@ func SvcHandlerDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceD
 //  @Response DepositMethodSearchResponse
 // wsdoc }
 func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcSearchHandlerDepositMethods"
 	var (
-		funcname = "SvcSearchHandlerDepositMethods"
-		g        DepositMethodSearchResponse
-		err      error
-		order    = "DPMID ASC" // default ORDER
-		whr      = fmt.Sprintf("BID=%d", d.BID)
+		g     DepositMethodSearchResponse
+		err   error
+		order = "DPMID ASC" // default ORDER
+		whr   = fmt.Sprintf("BID=%d", d.BID)
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -243,9 +242,10 @@ func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *S
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteDepository"
 	var (
-		funcname = "deleteDepository"
-		del      DeletePmtForm
+		del DeletePmtForm
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -256,7 +256,11 @@ func deleteDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.DeleteDepositMethod(del.ID)
+	err = rlib.DeleteDepositMethod(r.Context(), del.ID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 	SvcWriteSuccessResponse(w)
 }
 
@@ -271,11 +275,10 @@ func deleteDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "saveDepositMethod"
 	var (
-		funcname = "saveDepositMethod"
-		foo      SaveDepositMethodInput
-		err      error
+		foo SaveDepositMethodInput
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -308,7 +311,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	var adup rlib.DepositMethod
-	adup, err = rlib.GetDepositMethodByName(a.BID, a.Method)
+	adup, err = rlib.GetDepositMethodByName(r.Context(), a.BID, a.Method)
 	if err != nil && !rlib.IsSQLNoResultsError(err) {
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -321,11 +324,11 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if a.DPMID == 0 && d.ID == 0 {
 		// This is a new AR
-		_, err = rlib.InsertDepositMethod(&a)
+		_, err = rlib.InsertDepositMethod(r.Context(), &a)
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing Payment Type: %d\n", a.DPMID)
-		err = rlib.UpdateDepositMethod(&a)
+		err = rlib.UpdateDepositMethod(r.Context(), &a)
 	}
 
 	if err != nil {
@@ -348,15 +351,15 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response DepositMethodGetResponse
 // wsdoc }
 func getDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getDepositMethod"
 	var (
-		funcname = "getDepositMethod"
-		g        DepositMethodGetResponse
-		a        rlib.DepositMethod
-		err      error
+		g   DepositMethodGetResponse
+		a   rlib.DepositMethod
+		err error
 	)
 
 	fmt.Printf("entered %s\n", funcname)
-	a, err = rlib.GetDepositMethod(d.ID)
+	a, err = rlib.GetDepositMethod(r.Context(), d.ID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

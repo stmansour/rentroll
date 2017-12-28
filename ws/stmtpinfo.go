@@ -36,15 +36,15 @@ type PayorStmtInfoGetResponse struct {
 //  @Response StatementInfoGetResponse
 // wsdoc }
 func SvcGetPayorStmInfo(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcGetPayorStmInfo"
 	var (
-		funcname = "SvcGetPayorStmInfo"
-		g        PayorStmtInfoGetResponse
-		t        rlib.Transactant
+		g PayorStmtInfoGetResponse
+		t rlib.Transactant
 	)
 
 	rlib.Console("entered %s\n", funcname)
 
-	err := rlib.GetTransactant(d.ID, &t)
+	err := rlib.GetTransactant(r.Context(), d.ID, &t)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

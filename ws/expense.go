@@ -153,10 +153,9 @@ func expenseRowScan(rows *sql.Rows) (ExpenseGrid, error) {
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcHandlerExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcHandlerExpense"
 	var (
-		funcname = "SvcHandlerExpense"
-		err      error
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("Request: %s:  BID = %d,  EXPID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
@@ -196,12 +195,12 @@ func SvcHandlerExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response ExpenseSearchResponse
 // wsdoc }
 func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcSearchHandlerExpenses"
 	var (
-		funcname = "SvcSearchHandlerExpenses"
-		g        ExpenseSearchResponse
-		err      error
-		order    = "EXPID ASC" // default ORDER
-		whr      = fmt.Sprintf("Expense.BID=%d AND %q <= Dt AND Dt < %q", d.BID,
+		g     ExpenseSearchResponse
+		err   error
+		order = "EXPID ASC" // default ORDER
+		whr   = fmt.Sprintf("Expense.BID=%d AND %q <= Dt AND Dt < %q", d.BID,
 			d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL),
 			d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL))
 	)
@@ -308,9 +307,9 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteExpense"
 	var (
-		funcname = "deleteExpense"
-		del      DeleteExpenseForm
+		del DeleteExpenseForm
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -321,14 +320,14 @@ func deleteExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	a, err := rlib.GetExpense(del.ID)
+	a, err := rlib.GetExpense(r.Context(), del.ID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	now := time.Now() // mark Assessment reversed at this time
-	errlist := bizlogic.ReverseExpense(&a, &now)
+	errlist := bizlogic.ReverseExpense(r.Context(), &a, &now)
 	if len(errlist) > 0 {
 		SvcErrListReturn(w, errlist, funcname)
 	}
@@ -347,11 +346,10 @@ func deleteExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "saveExpense"
 	var (
-		funcname = "saveExpense"
-		foo      SaveExpenseInput
-		err      error
+		foo SaveExpenseInput
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -378,13 +376,17 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if a.EXPID == 0 && d.ID == 0 {
-		_, err = rlib.InsertExpense(&a)
+		_, err = rlib.InsertExpense(r.Context(), &a)
 		var xbiz rlib.XBusiness
-		rlib.ProcessNewExpense(&a, &xbiz)
+		err = rlib.ProcessNewExpense(r.Context(), &a, &xbiz)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	} else {
 		fmt.Printf("Updating existing Expense: %d\n", a.EXPID)
 		now := time.Now() // in case reversal is necessary
-		errlist := bizlogic.UpdateExpense(&a, &now)
+		errlist := bizlogic.UpdateExpense(r.Context(), &a, &now)
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -411,23 +413,23 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response ExpenseGetResponse
 // wsdoc }
 func getExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getExpense"
 	var (
-		funcname = "getExpense"
-		g        ExpenseGetResponse
-		a        rlib.Expense
-		err      error
-		gg       ExpenseGrid
+		g   ExpenseGetResponse
+		a   rlib.Expense
+		err error
+		gg  ExpenseGrid
 	)
 
 	rlib.Console("entered %s.  Expense ID = %d\n", funcname, d.ID)
-	a, err = rlib.GetExpense(d.ID)
+	a, err = rlib.GetExpense(r.Context(), d.ID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	if a.RID > 0 {
-		r := rlib.GetRentable(a.RID)
-		gg.RName = r.RentableName
+		rentable, _ := rlib.GetRentable(r.Context(), a.RID)
+		gg.RName = rentable.RentableName
 	}
 	if a.EXPID > 0 {
 		rlib.MigrateStructVals(&a, &gg)

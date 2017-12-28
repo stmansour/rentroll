@@ -169,11 +169,10 @@ var asmQuerySelectFields = []string{
 //  @Response SearchAssessmentsResponse
 // wsdoc }
 func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcSearchHandlerAssessments"
 	var (
-		funcname = "SvcSearchHandlerAssessments"
-		g        SearchAssessmentsResponse
-		err      error
+		g   SearchAssessmentsResponse
+		err error
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -284,10 +283,9 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcFormHandlerAssessment"
 	var (
-		funcname = "SvcFormHandlerAssessment"
-		err      error
+		err error
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -327,10 +325,10 @@ func SvcFormHandlerAssessment(w http.ResponseWriter, r *http.Request, d *Service
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveAssessment"
 	var (
-		funcname = "saveAssessment"
-		err      error
-		errlist  []bizlogic.BizError
+		err     error
+		errlist []bizlogic.BizError
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -357,7 +355,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Now just update the database
 	if a.ASMID == 0 && d.ASMID == 0 {
-		errlist := bizlogic.InsertAssessment(&a, foo.Record.ExpandPastInst)
+		errlist := bizlogic.InsertAssessment(r.Context(), &a, foo.Record.ExpandPastInst)
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -365,7 +363,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else if a.ASMID > 0 || d.ASMID > 0 {
 		rlib.Console(">>>> UPDATE EXISTING ASSESSMENT  ASMID = %d\n", a.ASMID)
 		now := time.Now() // mark Assessment reversed at this time
-		errlist = bizlogic.UpdateAssessment(&a, foo.Record.Mode, &now, foo.Record.ExpandPastInst)
+		errlist = bizlogic.UpdateAssessment(r.Context(), &a, foo.Record.Mode, &now, foo.Record.ExpandPastInst)
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -412,11 +410,10 @@ var asmFormSelectFields = []string{
 //  @Response GetAssessmentResponse
 // wsdoc }
 func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "getAssessment"
 	var (
-		funcname = "getAssessment"
-		g        GetAssessmentResponse
-		err      error
+		g   GetAssessmentResponse
+		err error
 	)
 
 	rlib.Console("entered %s\n", funcname)
@@ -496,9 +493,9 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcWriteSuccessResponse
 // wsdoc }
 func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteAssessment"
 	var (
-		funcname = "deleteAssessment"
-		del      DeleteAsmForm
+		del DeleteAsmForm
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -509,7 +506,7 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	a, err := rlib.GetAssessment(del.ASMID)
+	a, err := rlib.GetAssessment(r.Context(), del.ASMID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -518,7 +515,7 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("Reversal Mode = %d\n", del.ReverseMode)
 
 	now := time.Now() // mark Assessment reversed at this time
-	errlist := bizlogic.ReverseAssessment(&a, del.ReverseMode, &now)
+	errlist := bizlogic.ReverseAssessment(r.Context(), &a, del.ReverseMode, &now)
 	if len(errlist) > 0 {
 		SvcErrListReturn(w, errlist, funcname)
 	}

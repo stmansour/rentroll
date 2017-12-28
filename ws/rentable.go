@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -101,14 +102,14 @@ type RentableDetails struct {
 //  @Response RentablesTypedownResponse
 // wsdoc }
 func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRentableTypeDown"
 	var (
-		funcname = "SvcRentableTypeDown"
-		g        RentableTypedownResponse
-		err      error
+		g   RentableTypedownResponse
+		err error
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("handle typedown: GetRentablesTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
-	g.Records, err = rlib.GetRentableTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	g.Records, err = rlib.GetRentableTypeDown(r.Context(), d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	if err != nil {
 		e := fmt.Errorf("Error getting typedown matches: %s", err.Error())
 		SvcErrorReturn(w, e, funcname)
@@ -170,11 +171,10 @@ func rentablesRowScan(rows *sql.Rows, q PrRentableOther) (PrRentableOther, error
 //  @Response SearchRentablesResponse
 // wsdoc }
 func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcSearchHandlerRentables"
 	var (
-		funcname = "SvcSearchHandlerRentables"
-		err      error
-		g        SearchRentablesResponse
+		err error
+		g   SearchRentablesResponse
 		// currentTime = time.Now()
 	)
 	rlib.Console("Entered %s\n", funcname)
@@ -329,10 +329,9 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcFormHandlerRentable"
 	var (
-		funcname = "SvcFormHandlerRentable"
-		err      error
+		err error
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -396,9 +395,10 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // @returns
 //	1. existing array of RTRs  (these will need to be deleted)
 //	2. the new set of RTRs     (these will need to be inserted)
-func AdjustRTRTimeList(rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.RentableTypeRef, []rlib.RentableTypeRef) {
+func AdjustRTRTimeList(ctx context.Context, rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.RentableTypeRef, []rlib.RentableTypeRef) {
+	const funcname = "AdjustRTRTimeList"
 	var m []rlib.RentableTypeRef
-	R := rlib.GetRentableTypeRefs(r.RID)
+	R, _ := rlib.GetRentableTypeRefs(ctx, r.RID)
 	l := len(R)
 	rtrAdded := false // flag to mark whether rtr still needs to be added after loop
 	for i := 0; i < l; i++ {
@@ -455,9 +455,10 @@ func AdjustRTRTimeList(rtr *rlib.RentableTypeRef, r *rlib.Rentable) ([]rlib.Rent
 
 // AdjustRSTimeList - just like AdjustRTRTimeList except for RentableStatus records.  There's probably a better
 // way to make both these functions into one.
-func AdjustRSTimeList(rs *rlib.RentableStatus, r *rlib.Rentable) ([]rlib.RentableStatus, []rlib.RentableStatus) {
+func AdjustRSTimeList(ctx context.Context, rs *rlib.RentableStatus, r *rlib.Rentable) ([]rlib.RentableStatus, []rlib.RentableStatus) {
+	const funcname = "AdjustRSTimeList"
 	var m []rlib.RentableStatus
-	R := rlib.GetAllRentableStatus(r.RID)
+	R, _ := rlib.GetAllRentableStatus(ctx, r.RID)
 	l := len(R)
 	rsAdded := false // flag to mark whether rs still needs to be added after loop
 	for i := 0; i < l; i++ {
@@ -518,9 +519,9 @@ func AdjustRSTimeList(rs *rlib.RentableStatus, r *rlib.Rentable) ([]rlib.Rentabl
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveRentable"
 	var (
-		funcname = "saveRentable"
-		err      error
+		err error
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -583,7 +584,11 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if rfRecord.RID > 0 {
 		rlib.Console("Updating Rentable with RID: %d ...\n", rfRecord.RID)
 		// get Rentable from RID
-		rt = rlib.GetRentable(rfRecord.RID)
+		rt, err = rlib.GetRentable(r.Context(), rfRecord.RID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 		if !(rt.RID > 0) {
 			e := fmt.Errorf("No such Rentable exists, RID: %d", rfRecord.RID)
 			SvcErrorReturn(w, e, funcname)
@@ -597,7 +602,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rt.RentableName = rfRecord.RentableName
 		rt.AssignmentTime = rfRecord.AssignmentTime
 		// Now just update the Rentable Record
-		err = rlib.UpdateRentable(&rt)
+		err = rlib.UpdateRentable(r.Context(), &rt)
 		if err != nil {
 			e := fmt.Errorf("Error updating rentable: %s", err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -608,7 +613,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// ---------------- UPDATE RENTABLE TYPE REFERENCE ------------------------
 
 		// get rental type ref object associated with this rentable
-		rtr, err = rlib.GetRentableTypeRef(rfRecord.RTRID)
+		rtr, err = rlib.GetRentableTypeRef(r.Context(), rfRecord.RTRID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -622,16 +627,16 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		// if anything changed, remake the list of RTRs
 		if !rtr1.DtStart.Equal(rtr.DtStart) || !rtr1.DtStop.Equal(rtr.DtStop) || rtr1.RTID != rtr.RTID {
-			m, n := AdjustRTRTimeList(&rtr1, &rt) // returns current list and new list
-			for i := 0; i < len(m); i++ {         // delete the current list
-				err = rlib.DeleteRentableTypeRef(m[i].RTRID)
+			m, n := AdjustRTRTimeList(r.Context(), &rtr1, &rt) // returns current list and new list
+			for i := 0; i < len(m); i++ {                      // delete the current list
+				err = rlib.DeleteRentableTypeRef(r.Context(), m[i].RTRID)
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
 				}
 			}
 			for i := 0; i < len(n); i++ { // insert the new list
-				_, err = rlib.InsertRentableTypeRef(&n[i])
+				_, err = rlib.InsertRentableTypeRef(r.Context(), &n[i])
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
@@ -642,7 +647,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// ---------------- UPDATE RENTABLE STATUS ------------------------
 
 		// get rental status record associated with this rentable
-		rs, err := rlib.GetRentableStatus(rfRecord.RSID)
+		rs, err := rlib.GetRentableStatus(r.Context(), rfRecord.RSID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -656,16 +661,16 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		// if anything changed, remake the list of RTRs
 		if !rs1.DtStart.Equal(rs.DtStart) || !rs1.DtStop.Equal(rs.DtStop) || rs1.UseStatus != rs.UseStatus {
-			m, n := AdjustRSTimeList(&rs1, &rt) // returns current list and new list
-			for i := 0; i < len(m); i++ {       // delete the current list
-				err = rlib.DeleteRentableStatus(m[i].RSID)
+			m, n := AdjustRSTimeList(r.Context(), &rs1, &rt) // returns current list and new list
+			for i := 0; i < len(m); i++ {                    // delete the current list
+				err = rlib.DeleteRentableStatus(r.Context(), m[i].RSID)
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
 				}
 			}
 			for i := 0; i < len(n); i++ { // insert the new list
-				_, err = rlib.InsertRentableStatus(&n[i])
+				_, err = rlib.InsertRentableStatus(r.Context(), &n[i])
 				if err != nil {
 					SvcErrorReturn(w, err, funcname)
 					return
@@ -680,7 +685,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rt.BID = requestedBID
 		rt.RentableName = rfRecord.RentableName
 		rt.AssignmentTime = rfRecord.AssignmentTime
-		rid, err := rlib.InsertRentable(&rt)
+		rid, err := rlib.InsertRentable(r.Context(), &rt)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -702,7 +707,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rs.UseStatus = rlib.RentableStatusToNumber(rfRecord.RentableStatus)
 		rs.DtStart = currentTime
 		rs.DtStop = (time.Time)(rfRecord.RSDtStop)
-		_, err = rlib.InsertRentableStatus(&rs)
+		_, err = rlib.InsertRentableStatus(r.Context(), &rs)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -722,7 +727,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// rtr.OverrideRentCycle = 0
 		// rtr.OverrideProrationCycle = 0
 
-		_, err = rlib.InsertRentableTypeRef(&rtr)
+		_, err = rlib.InsertRentableTypeRef(r.Context(), &rtr)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -768,11 +773,10 @@ var rentableFormSelectFields = []string{
 //  @Response GetRentableResponse
 // wsdoc }
 func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "getRentable"
 	var (
-		funcname = "getRentable"
-		g        GetRentableResponse
-		t        = time.Now()
+		g GetRentableResponse
+		t = time.Now()
 	)
 	rlib.Console("entered %s\n", funcname)
 
