@@ -18,7 +18,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         }, w2ui_utils.getBUDSelector());
 
         if (businessUnitValue === testBiz) {
-            test.assert(true, "Business Unit value is {0}.".format(businessUnitValue))
+            test.assert(true, "Business Unit value is {0}.".format(businessUnitValue));
         } else {
             test.assert(false, "Wrong Business unit");
         }
