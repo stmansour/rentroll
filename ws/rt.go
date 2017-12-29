@@ -94,7 +94,7 @@ func SvcRentableTypesTD(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	var (
 		g RentableTypesTDResponse
 	)
-	fmt.Println("Entered in %s, service handler for SvcRentableTypesList\n", funcname)
+	fmt.Printf("Entered in %s, service handler for SvcRentableTypesList\n", funcname)
 
 	// get rentable types for a business
 	m, _ := rlib.GetBusinessRentableTypes(r.Context(), d.BID)

@@ -61,7 +61,8 @@ var RentableStatusCSV = map[string]string{
 
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
 type csvLoadHandler struct {
-	rcsv.CSVLoadHandler
+	Fname        string
+	Handler      rcsv.CSVLoadHandlerFunc
 	TraceDataMap string
 	DBType       int
 }
