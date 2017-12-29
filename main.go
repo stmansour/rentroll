@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -115,9 +116,9 @@ func readCommandLineArgs() {
 	App.NoAuth = *noauth
 }
 
-func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
+func intTest(ctx context.Context, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	fmt.Printf("INTERNAL TEST\n")
-	m := rlib.ParseAcctRule(xbiz, 1, d1, d2, "d ${GLGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${GLGENRCV})} -", float64(1000), float64(8)/float64(30))
+	m, _ := rlib.ParseAcctRule(ctx, xbiz, 1, d1, d2, "d ${GLGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${GLGENRCV})} -", float64(1000), float64(8)/float64(30))
 
 	for i := 0; i < len(m); i++ {
 		fmt.Printf("m[%d] = %#v\n", i, m[i])
@@ -198,9 +199,13 @@ func main() {
 	ws.SvcInit(App.NoAuth) // currently needed for testing
 
 	if App.BatchMode {
+		// this command line based approach, so no request context
+		// instead create background context and pass it
+		// This should be run under no authentication
+		ctx := context.Background()
 		dCtx := createStartupCtx()
 		rcsv.InitRCSV(&dCtx.DtStart, &dCtx.DtStop, &dCtx.xbiz)
-		RunCommandLine(&dCtx)
+		RunCommandLine(ctx, &dCtx)
 	} else {
 		tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir) // starts the scheduler in a go routine. only initialize when we're in server mode
 		worker.Init()                             // register Rentroll's TWS workers

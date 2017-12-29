@@ -51,10 +51,10 @@ func LMSum(m *[]XLedger) float64 {
 	return bal
 }
 
-// UIInitBizList is used to fill out the array of businesses that can be used in UI forms
+/*// UIInitBizList is used to fill out the array of businesses that can be used in UI forms
 func UIInitBizList(ui *RRuiSupport) {
 	var err error
-	ui.BL, err = rlib.GetAllBusinesses()
+	ui.BL, err = rlib.GetAllBiz()
 	if err != nil {
 		rlib.Ulog("UIInitBizList: err = %s\n", err.Error())
 	}
@@ -63,3 +63,4 @@ func UIInitBizList(ui *RRuiSupport) {
 	// 	fmt.Printf("ui.BL[%d] = %#v\n", i, ui.BL[i])
 	// }
 }
+*/

@@ -79,9 +79,9 @@ func internalHomeUIHandler(w http.ResponseWriter, r *http.Request, appPage strin
 
 	ui.Language = lang
 	ui.Template = tmpl
-	ui.BL, err = rlib.GetAllBusinesses()
+	ui.BL, err = rlib.GetAllBiz()
 	if err != nil {
-		rlib.Ulog("GetAllBusinesses: err = %s\n", err.Error())
+		rlib.Ulog("GetAllBiz: err = %s\n", err.Error())
 	}
 
 	clientDir := filepath.Join(cwd, "webclient")

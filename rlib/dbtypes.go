@@ -1783,7 +1783,7 @@ func InitBizInternals(bid int64, xbiz *XBusiness) error {
 	)
 
 	// fmt.Printf("Entered InitBizInternals\n")
-	err = getXBiz(bid, xbiz) // get its info
+	err = GetXBiz(bid, xbiz) // get its info
 	if err != nil {
 		return err
 	}

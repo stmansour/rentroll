@@ -98,19 +98,23 @@ const (
 	NoRecordsFoundMsg = "no records found"
 )
 
+type singleGoTableHandler func(context.Context, *ReporterInfo) gotable.Table
+
 // SingleTableReportHandler : single table report handler, used to get report from a table in a required output format
 type SingleTableReportHandler struct {
 	Found        bool
 	ReportNames  []string
-	TableHandler func(*ReporterInfo) gotable.Table
+	TableHandler singleGoTableHandler
 }
+
+type multiGoTableHandler func(context.Context, *ReporterInfo) ([]gotable.Table, error)
 
 // MultiTableReportHandler : multi table report handler, used to get report from multiple tables in a required output format
 type MultiTableReportHandler struct {
 	ReportTitle  string
 	Found        bool
 	ReportNames  []string
-	TableHandler func(*ReporterInfo) []gotable.Table
+	TableHandler multiGoTableHandler
 }
 
 // ReporterInfo is for routines that want to table-ize their reporting using

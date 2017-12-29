@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"html/template"
@@ -33,21 +34,31 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *RRuiSupport) {
 	}
 }
 
-func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w http.ResponseWriter, qp *url.Values) {
-	funcname := "v1ReportHandler"
+func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w http.ResponseWriter, qp *url.Values) {
+	const funcname = "v1ReportHandler"
 	rlib.Console("%s: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", funcname, reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 
-	var ri = rrpt.ReporterInfo{
-		OutputFormat: gotable.TABLEOUTHTML,
-		Bid:          xbiz.P.BID,
-		D1:           ui.D1,
-		D2:           ui.D2,
-		Xbiz:         xbiz,
-		BlankLineAfterRptName: true,
-		QueryParams:           qp}
+	var (
+		err error
+		ri  = rrpt.ReporterInfo{
+			OutputFormat: gotable.TABLEOUTHTML,
+			Bid:          xbiz.P.BID,
+			D1:           ui.D1,
+			D2:           ui.D2,
+			Xbiz:         xbiz,
+			BlankLineAfterRptName: true,
+			QueryParams:           qp,
+		}
+	)
 
 	// init business internals first
-	rlib.InitBizInternals(ri.Bid, xbiz)
+	err = rlib.InitBizInternals(ri.Bid, xbiz)
+	if err != nil {
+		s := fmt.Sprintf("Error in InitBizInternals: %s\n", err.Error())
+		fmt.Print(s)
+		fmt.Fprintf(w, "%s\n", s)
+		return
+	}
 
 	// handler for reports which has single table
 	var wsr = []rrpt.SingleTableReportHandler{
@@ -104,7 +115,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 
 	// if found then handle service for request
 	if tsh.Found {
-		tbl := tsh.TableHandler(&ri)
+		tbl := tsh.TableHandler(ctx, &ri)
 
 		// format downloadable report name
 		attachmentName := ri.Xbiz.P.Designation + "-" + strings.Title(tsh.ReportNames[1])
@@ -192,7 +203,13 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 
 	// if found then handle service for request
 	if tmh.Found {
-		m := tmh.TableHandler(&ri)
+		m, err := tmh.TableHandler(ctx, &ri)
+		if err != nil {
+			s := fmt.Sprintf("Error in Multi Table Handler for \"%s\" : %s\n", tmh.ReportTitle, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+			return
+		}
 
 		// format downloadable report name
 		attachmentName := ri.Xbiz.P.Designation + "-" + strings.Title(tmh.ReportNames[1])
@@ -257,13 +274,30 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *RRuiSupport, w
 //    dtstop=<date>
 //
 func webServiceHandler(w http.ResponseWriter, r *http.Request) {
-	funcname := "webServiceHandler"
+	const funcname = "webServiceHandler"
+	var (
+		ui         RRuiSupport
+		d          ws.ServiceData
+		xbiz       rlib.XBusiness
+		reportname string
+		err        error
+	)
 	rlib.Console("Entered %s\n", funcname)
-	var ui RRuiSupport
-	var d ws.ServiceData
-	var xbiz rlib.XBusiness
-	var reportname string
-	var err error
+
+	if !ws.SvcCtx.NoAuth {
+		sess, err := rlib.GetSession(w, r)
+		if err != nil {
+			fmt.Fprintf(w, rlib.ErrSessionRequired.Error())
+			return
+		}
+		if sess != nil {
+			sess.Refresh(w, r) // they actively tried to use the session, extend timeout
+		}
+
+		// get session in the request context
+		ctx := rlib.SetSessionContextKey(r.Context(), sess)
+		r = r.WithContext(ctx)
+	}
 
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -282,7 +316,12 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if d.BID > 0 {
-		rlib.GetXBusiness(d.BID, &xbiz)
+		err = rlib.GetXBusiness(r.Context(), d.BID, &xbiz)
+		if err != nil {
+			ui.ReportContent = fmt.Sprintf("Error while fetching business: %s", err.Error())
+			SendWebSvcPage(w, r, &ui)
+			return
+		}
 	}
 
 	m, err := url.ParseQuery(r.URL.RawQuery)
@@ -360,7 +399,7 @@ func webServiceHandler(w http.ResponseWriter, r *http.Request) {
 	// pdf page size unit, take default `inch` as of now
 	ui.PDFPageSizeUnit = "in"
 
-	v1ReportHandler(reportname, &xbiz, &ui, w, &m)
+	v1ReportHandler(r.Context(), reportname, &xbiz, &ui, w, &m)
 	// ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
 	// SendWebSvcPage(w, r, &ui)
 }

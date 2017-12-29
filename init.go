@@ -27,17 +27,20 @@ func initRentRoll() {
 }
 
 func createStartupCtx() DispatchCtx {
-	var dCtx DispatchCtx
-	var err error
+	var (
+		dCtx DispatchCtx
+		err  error
+	)
 
 	dCtx.DtStart, err = rlib.StringToDate(App.sStart)
 	if err != nil {
+		fmt.Printf("Invalid start date:  %s\n", App.sStart)
 		os.Exit(1)
 	}
 
 	dCtx.DtStop, err = rlib.StringToDate(App.sStop)
 	if err != nil {
-		fmt.Printf("Invalid start date:  %s\n", App.sStop)
+		fmt.Printf("Invalid stop date:  %s\n", App.sStop)
 		os.Exit(1)
 	}
 
@@ -46,12 +49,12 @@ func createStartupCtx() DispatchCtx {
 		fmt.Printf("No BUD specified. A BUD is required for batch mode operation\n")
 		os.Exit(1)
 	}
-	dCtx.xbiz.P = rlib.GetBusinessByDesignation(des) // see if we can find the biz
-	if len(dCtx.xbiz.P.Designation) == 0 {
-		rlib.Ulog("Business Unit with designation %s does not exist\n", des)
+	dCtx.xbiz.P, err = rlib.GetBizByDesignation(des) // see if we can find the biz
+	if err != nil /*len(dCtx.xbiz.P.Designation) == 0*/ {
+		rlib.Ulog("Business Unit with designation %s does not exist: error: %s\n", des, err.Error())
 		os.Exit(1)
 	}
-	rlib.GetXBusiness(dCtx.xbiz.P.BID, &dCtx.xbiz)
+	rlib.GetXBiz(dCtx.xbiz.P.BID, &dCtx.xbiz)
 
 	// App.Report is a string, of the format:
 	//   n[,s1[,s2[...]]]

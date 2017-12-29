@@ -593,8 +593,20 @@ func GetBusinessByDesignation(ctx context.Context, des string) (Business, error)
 	return a, ReadBusiness(row, &a)
 }
 
-// getXBiz loads the XBusiness struct for the supplied Business id.
-func getXBiz(bid int64, xbiz *XBusiness) error {
+// GetBizByDesignation loads the Business struct for the supplied designation
+func GetBizByDesignation(des string) (Business, error) {
+
+	var (
+		// err error
+		a Business
+	)
+
+	row := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des)
+	return a, ReadBusiness(row, &a)
+}
+
+// GetXBiz loads the XBusiness struct for the supplied Business id.
+func GetXBiz(bid int64, xbiz *XBusiness) error {
 
 	var (
 		err error
@@ -645,7 +657,7 @@ func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
 		}
 	}
 
-	return getXBiz(bid, xbiz)
+	return GetXBiz(bid, xbiz)
 }
 
 //=======================================================
