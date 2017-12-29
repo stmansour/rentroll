@@ -24,7 +24,7 @@ func InsertAR(ctx context.Context, a *AR) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -69,7 +69,7 @@ func InsertAssessment(ctx context.Context, a *Assessment) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -116,7 +116,7 @@ func InsertBuilding(ctx context.Context, a *Building) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -161,7 +161,7 @@ func InsertBuildingWithID(ctx context.Context, a *Building) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -206,7 +206,7 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -251,7 +251,7 @@ func InsertCustomAttribute(ctx context.Context, a *CustomAttribute) (int64, erro
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -295,7 +295,7 @@ func InsertCustomAttributeRef(ctx context.Context, a *CustomAttributeRef) (int64
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -339,7 +339,7 @@ func InsertDemandSource(ctx context.Context, a *DemandSource) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -383,7 +383,7 @@ func InsertDeposit(ctx context.Context, a *Deposit) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -427,7 +427,7 @@ func InsertDepositMethod(ctx context.Context, a *DepositMethod) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -471,7 +471,7 @@ func InsertDepositPart(ctx context.Context, a *DepositPart) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -515,7 +515,7 @@ func InsertDepository(ctx context.Context, a *Depository) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -564,7 +564,7 @@ func InsertExpense(ctx context.Context, a *Expense) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -613,7 +613,7 @@ func InsertInvoice(ctx context.Context, a *Invoice) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -657,7 +657,7 @@ func InsertInvoiceAssessment(ctx context.Context, a *InvoiceAssessment) (int64, 
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -701,7 +701,7 @@ func InsertInvoicePayor(ctx context.Context, a *InvoicePayor) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -745,7 +745,7 @@ func InsertJournal(ctx context.Context, a *Journal) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -792,7 +792,7 @@ func InsertJournalAllocationEntry(ctx context.Context, a *JournalAllocation) (in
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -837,7 +837,7 @@ func InsertJournalMarker(ctx context.Context, a *JournalMarker) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -887,7 +887,7 @@ func InsertLedgerMarker(ctx context.Context, a *LedgerMarker) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -930,7 +930,7 @@ func InsertLedgerEntry(ctx context.Context, a *LedgerEntry) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -974,7 +974,7 @@ func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1023,7 +1023,7 @@ func InsertNote(ctx context.Context, a *Note) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1071,7 +1071,7 @@ func InsertNoteList(ctx context.Context, a *NoteList) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1119,7 +1119,7 @@ func InsertNoteType(ctx context.Context, a *NoteType) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1167,7 +1167,7 @@ func InsertRatePlan(ctx context.Context, a *RatePlan) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1211,7 +1211,7 @@ func InsertRatePlanRef(ctx context.Context, a *RatePlanRef) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1255,7 +1255,7 @@ func InsertRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) (int64, 
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1299,7 +1299,7 @@ func InsertRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) (int64, 
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1347,7 +1347,7 @@ func InsertPaymentType(ctx context.Context, a *PaymentType) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1391,7 +1391,7 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1435,7 +1435,7 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1482,7 +1482,7 @@ func InsertRentable(ctx context.Context, a *Rentable) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1531,7 +1531,7 @@ func InsertReceipt(ctx context.Context, a *Receipt) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1576,7 +1576,7 @@ func InsertReceiptAllocation(ctx context.Context, a *ReceiptAllocation) (int64, 
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1621,7 +1621,7 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1665,7 +1665,7 @@ func InsertRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) (i
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1709,7 +1709,7 @@ func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1753,7 +1753,7 @@ func InsertRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentab
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1801,7 +1801,7 @@ func InsertRentalAgreementTemplate(ctx context.Context, a *RentalAgreementTempla
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1845,7 +1845,7 @@ func InsertRentableSpecialty(ctx context.Context, a *RentableSpecialty) (int64, 
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1889,7 +1889,7 @@ func InsertRentableMarketRates(ctx context.Context, a *RentableMarketRate) (int6
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1933,7 +1933,7 @@ func InsertRentableType(ctx context.Context, a *RentableType) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -1977,7 +1977,7 @@ func InsertRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) (i
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2021,7 +2021,7 @@ func InsertRentableStatus(ctx context.Context, a *RentableStatus) (int64, error)
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2066,7 +2066,7 @@ func InsertRentableTypeRef(ctx context.Context, a *RentableTypeRef) (int64, erro
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2110,7 +2110,7 @@ func InsertRentableUser(ctx context.Context, a *RentableUser) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2154,7 +2154,7 @@ func InsertStringList(ctx context.Context, a *StringList) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2206,7 +2206,7 @@ func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2273,7 +2273,7 @@ func InsertSubAR(ctx context.Context, a *SubAR) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2317,7 +2317,7 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2361,7 +2361,7 @@ func InsertUser(ctx context.Context, a *User) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
@@ -2405,7 +2405,7 @@ func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
 	)
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired

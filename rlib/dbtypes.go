@@ -1722,8 +1722,13 @@ var RRdb struct {
 	BUDlist  Str2Int64Map                 //list of known business Designations
 	DBFields map[string]string            // map of db table fields DBFields[tablename] = field list
 	Zone     *time.Location               // what timezone should the server use?
-	NoAuth   bool                         // if enable that means auth is not required, (should be moved in some common app struct!)
+	noAuth   bool                         // if enable that means auth is not required, (should be moved in some common app struct!)
 	// TODO(sudip): NoAuth will be moved to something internal pkg app struct
+}
+
+// SetAuthFlag enable/disable authentication in RRdb
+func SetAuthFlag(noauth bool) {
+	RRdb.noAuth = noauth
 }
 
 // BuildBusinessDesignationMap builds a map of biz designations to BIDs

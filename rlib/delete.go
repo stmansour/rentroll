@@ -10,7 +10,7 @@ func DeleteAR(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -36,7 +36,7 @@ func DeleteAssessment(ctx context.Context, asmid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -62,7 +62,7 @@ func DeleteCustomAttribute(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -88,7 +88,7 @@ func DeleteCustomAttributeRef(ctx context.Context, elemid, id, cid int64) error 
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -114,7 +114,7 @@ func DeleteDemandSource(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -142,7 +142,7 @@ func DeleteDeposit(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -168,7 +168,7 @@ func DeleteDepository(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -194,7 +194,7 @@ func DeleteDepositMethod(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -221,7 +221,7 @@ func DeleteDepositPart(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -247,7 +247,7 @@ func DeleteExpense(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -277,7 +277,7 @@ func DeleteInvoice(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -304,7 +304,7 @@ func DeleteInvoiceAssessments(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -330,7 +330,7 @@ func DeleteJournalAllocation(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -357,7 +357,7 @@ func DeleteJournalAllocations(ctx context.Context, jid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -384,7 +384,7 @@ func DeleteJournal(ctx context.Context, jid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -411,7 +411,7 @@ func DeleteJournalMarker(ctx context.Context, jmid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -438,7 +438,7 @@ func DeleteLedgerEntry(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -464,7 +464,7 @@ func DeleteLedger(ctx context.Context, lid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -490,7 +490,7 @@ func DeleteLedgerMarker(ctx context.Context, lmid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -517,7 +517,7 @@ func DeleteNote(ctx context.Context, nid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -537,7 +537,7 @@ func DeleteNoteAndChildNotes(ctx context.Context, p *Note) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -559,7 +559,7 @@ func DeleteNoteInternal(ctx context.Context, nid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -585,7 +585,7 @@ func DeleteNoteList(ctx context.Context, nl *NoteList) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -617,7 +617,7 @@ func DeleteNoteType(ctx context.Context, nid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -643,7 +643,7 @@ func DeleteRatePlan(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -669,7 +669,7 @@ func DeletePaymentType(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -695,7 +695,7 @@ func DeleteRatePlanRef(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -721,7 +721,7 @@ func DeleteRatePlanRefRTRate(ctx context.Context, rtrid, rtid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -747,7 +747,7 @@ func DeleteRatePlanRefSPRate(ctx context.Context, rtrid, rspid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -773,7 +773,7 @@ func DeleteReceipt(ctx context.Context, rcptid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -799,7 +799,7 @@ func DeleteReceiptAllocation(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -825,7 +825,7 @@ func DeleteReceiptAllocations(ctx context.Context, rcptid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -851,7 +851,7 @@ func DeleteRentableType(ctx context.Context, rtid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -877,7 +877,7 @@ func DeleteRentableTypeRefWithRTID(ctx context.Context, rtid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -903,7 +903,7 @@ func DeleteRentableTypeRef(ctx context.Context, rtrid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -929,7 +929,7 @@ func DeleteRentableMarketRateInstance(ctx context.Context, rmrid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -955,7 +955,7 @@ func DeleteRentableSpecialtyRef(ctx context.Context, rid int64, dtstart, dtstop 
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -982,7 +982,7 @@ func DeleteRentableStatus(ctx context.Context, rsid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1008,7 +1008,7 @@ func DeleteRentalAgreementPayor(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1034,7 +1034,7 @@ func DeleteRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64)
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1060,7 +1060,7 @@ func DeleteRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1086,7 +1086,7 @@ func DeleteRentalAgreementPet(ctx context.Context, petid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1112,7 +1112,7 @@ func DeleteRentalAgreementRentable(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1138,7 +1138,7 @@ func DeleteRentalAgreement(ctx context.Context, raid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1164,7 +1164,7 @@ func DeleteAllRentalAgreementRentables(ctx context.Context, raid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1190,7 +1190,7 @@ func DeleteAllRentalAgreementPayors(ctx context.Context, raid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1216,7 +1216,7 @@ func DeleteAllRentalAgreementPets(ctx context.Context, raid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1242,7 +1242,7 @@ func DeleteRentableUser(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1268,7 +1268,7 @@ func DeleteStringList(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1300,7 +1300,7 @@ func DeleteSLString(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1326,7 +1326,7 @@ func DeleteSLStrings(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1356,7 +1356,7 @@ func DeleteSubAR(ctx context.Context, sarid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1382,7 +1382,7 @@ func DeleteSubARs(ctx context.Context, arid int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1412,7 +1412,7 @@ func DeleteTransactant(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1438,7 +1438,7 @@ func DeleteUser(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1464,7 +1464,7 @@ func DeleteProspect(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1490,7 +1490,7 @@ func DeletePayor(ctx context.Context, id int64) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired

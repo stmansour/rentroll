@@ -15,7 +15,7 @@ func UpdateAR(ctx context.Context, a *AR) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -40,7 +40,7 @@ func UpdateAssessment(ctx context.Context, a *Assessment) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -67,7 +67,7 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -92,7 +92,7 @@ func UpdateCustomAttribute(ctx context.Context, a *CustomAttribute) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -117,7 +117,7 @@ func UpdateDemandSource(ctx context.Context, a *DemandSource) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -142,7 +142,7 @@ func UpdateDeposit(ctx context.Context, a *Deposit) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -167,7 +167,7 @@ func UpdateDepository(ctx context.Context, a *Depository) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -192,7 +192,7 @@ func UpdateDepositMethod(ctx context.Context, a *DepositMethod) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -217,7 +217,7 @@ func UpdateDepositPart(ctx context.Context, a *DepositPart) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -242,7 +242,7 @@ func UpdateExpense(ctx context.Context, a *Expense) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -268,7 +268,7 @@ func UpdateInvoice(ctx context.Context, a *Invoice) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -293,7 +293,7 @@ func UpdateLedgerMarker(ctx context.Context, a *LedgerMarker) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -318,7 +318,7 @@ func UpdateLedger(ctx context.Context, a *GLAccount) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -343,7 +343,7 @@ func UpdateJournalAllocation(ctx context.Context, a *JournalAllocation) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -368,7 +368,7 @@ func UpdatePaymentType(ctx context.Context, a *PaymentType) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -393,7 +393,7 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -418,7 +418,7 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -446,7 +446,7 @@ func UpdateRentable(ctx context.Context, a *Rentable) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -471,7 +471,7 @@ func UpdateRentableStatus(ctx context.Context, a *RentableStatus) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -496,7 +496,7 @@ func UpdateRatePlan(ctx context.Context, a *RatePlan) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -521,7 +521,7 @@ func UpdateRatePlanRef(ctx context.Context, a *RatePlanRef) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -546,7 +546,7 @@ func UpdateRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -571,7 +571,7 @@ func UpdateRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -596,7 +596,7 @@ func UpdateReceipt(ctx context.Context, a *Receipt) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -622,7 +622,7 @@ func UpdateReceiptAllocation(ctx context.Context, a *ReceiptAllocation) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -648,7 +648,7 @@ func UpdateRentalAgreement(ctx context.Context, a *RentalAgreement) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -674,7 +674,7 @@ func UpdateRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) er
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -699,7 +699,7 @@ func UpdateRentalAgreementPayorByRBT(ctx context.Context, a *RentalAgreementPayo
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -724,7 +724,7 @@ func UpdateRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) error 
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -749,7 +749,7 @@ func UpdateRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentab
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -774,7 +774,7 @@ func UpdateRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) er
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -799,7 +799,7 @@ func UpdateRentableMarketRateInstance(ctx context.Context, a *RentableMarketRate
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -824,7 +824,7 @@ func UpdateRentableType(ctx context.Context, a *RentableType) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -849,7 +849,7 @@ func UpdateRentableTypeToActive(ctx context.Context, a *RentableType) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -873,7 +873,7 @@ func UpdateRentableTypeRef(ctx context.Context, a *RentableTypeRef) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -899,7 +899,7 @@ func UpdateRentableUser(ctx context.Context, a *RentableUser) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -924,7 +924,7 @@ func UpdateRentableUserByRBT(ctx context.Context, a *RentableUser) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -950,7 +950,7 @@ func UpdateStringList(ctx context.Context, a *StringList) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -978,7 +978,7 @@ func UpdateSLString(ctx context.Context, a *SLString) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1003,7 +1003,7 @@ func UpdateSubAR(ctx context.Context, a *SubAR) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1028,7 +1028,7 @@ func UpdateTransactant(ctx context.Context, a *Transactant) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1053,7 +1053,7 @@ func UpdateUser(ctx context.Context, a *User) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1078,7 +1078,7 @@ func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 	var err error
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired

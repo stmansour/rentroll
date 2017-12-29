@@ -208,7 +208,7 @@ var SvcCtx struct {
 // SvcInit initializes the service subsystem
 func SvcInit(noauth bool) {
 	SvcCtx.NoAuth = noauth
-	rlib.RRdb.NoAuth = noauth // TODO(sudip): needs to be changed to some internal app struct
+	rlib.SetAuthFlag(noauth)
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests

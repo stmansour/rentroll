@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -23,6 +24,7 @@ var App struct {
 	Bud          string         // Biz Unit Descriptor
 	Xbiz         rlib.XBusiness // lots of info about this biz
 	ConfFileName string         // configuration file
+	NoAuth       bool
 }
 
 func readCommandLineArgs() {
@@ -31,6 +33,7 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	pFile := flag.String("f", "dbconf.json", "settings that define DB generation")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	flag.Parse()
 
@@ -39,6 +42,7 @@ func readCommandLineArgs() {
 	App.DBUser = *dbuPtr
 	App.Bud = *pBud
 	App.ConfFileName = *pFile
+	App.NoAuth = *noauth
 }
 
 func main() {
@@ -98,31 +102,39 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SetAuthFlag(App.NoAuth)
 
-	biz := rlib.GetBusinessByDesignation(App.Bud)
-	if biz.BID == 0 {
+	// create background context
+	ctx := context.Background()
+
+	biz, err := rlib.GetBusinessByDesignation(ctx, App.Bud)
+	if err != nil /*biz.BID == 0*/ {
 		fmt.Printf("Could not find Business Unit named %s\n", App.Bud)
 		os.Exit(1)
 	}
-	rlib.InitBizInternals(biz.BID, &App.Xbiz)
+	err = rlib.InitBizInternals(biz.BID, &App.Xbiz)
+	if err != nil {
+		fmt.Printf("Error in InitBizInternals: %s\n", err.Error())
+		os.Exit(1)
+	}
 	bizlogic.InitBizLogic()
 
 	//----------------------------
 	// Read initialization
 	//----------------------------
 	rlib.Console("Config file = %s\n", App.ConfFileName)
-	ctx, err := ReadConfig(App.ConfFileName)
+	dbConf, err := ReadConfig(App.ConfFileName)
 	if err != nil {
 		fmt.Printf("Error loading %s: %s\n", App.ConfFileName, err.Error())
 		os.Exit(1)
 	}
 
-	ctx.BIZ, err = rlib.GetAllBusinesses()
+	dbConf.BIZ, err = rlib.GetAllBusinesses(ctx)
 	if err != nil {
 		fmt.Printf("Error loading businesses: %s\n", err.Error())
 		os.Exit(1)
 	}
-	if len(ctx.BIZ) == 0 {
+	if len(dbConf.BIZ) == 0 {
 		fmt.Printf("Error: database contains no businesses\n")
 		os.Exit(1)
 	}
@@ -130,10 +142,9 @@ func main() {
 	//----------------------------
 	// Build the database
 	//----------------------------
-	err = GenerateDB(&ctx)
+	err = GenerateDB(ctx, &dbConf)
 	if err != nil {
 		fmt.Printf("Error generating database: %s\n", err.Error())
 		os.Exit(1)
 	}
-
 }

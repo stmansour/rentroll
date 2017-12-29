@@ -8,7 +8,7 @@ func GetCompanyByDesignation(ctx context.Context, des string) (Company, error) {
 	var c Company
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return c, ErrSessionRequired
@@ -28,7 +28,7 @@ func GetCompany(ctx context.Context, n int64) (Company, error) {
 	var c Company
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return c, ErrSessionRequired
@@ -48,7 +48,7 @@ func GetBusinessUnitByDesignation(ctx context.Context, des string) (BusinessUnit
 	var c BusinessUnit
 
 	// session... context
-	if !RRdb.NoAuth {
+	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return c, ErrSessionRequired

@@ -210,7 +210,7 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
-	core.SvcInit(App.NoAuth) // currently needed for testing
+	rlib.SetAuthFlag(App.NoAuth) // currently needed for testing
 
 	// create background context
 	ctx := context.Background()

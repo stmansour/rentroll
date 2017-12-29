@@ -192,11 +192,6 @@ func bizErrCheck(sa []string) {
 	}
 }
 
-// svcInit initializes the service subsystem
-func svcInit(noauth bool) {
-	rlib.RRdb.NoAuth = noauth // TODO(sudip): needs to be changed to some internal app struct
-}
-
 func loaderGetBiz(ctx context.Context, s string) int64 {
 	bid, err := rcsv.GetBusinessBID(ctx, s)
 	if /*bid == 0*/ err != nil {
@@ -262,7 +257,7 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
-	svcInit(App.NoAuth) // currently needed for testing
+	rlib.SetAuthFlag(App.NoAuth) // currently needed for testing
 
 	// create background context
 	ctx := context.Background()
@@ -271,12 +266,12 @@ func main() {
 	// initialize the CSV infrastructure
 	//----------------------------------------------------
 	if len(App.BUD) > 0 {
-		b2, err := rlib.GetBizByDesignation(App.BUD)
+		b2, err := rlib.GetBusinessByDesignation(ctx, App.BUD)
 		if err != nil /*b2.BID == 0*/ {
 			fmt.Printf("Could not find Business Unit named %s, Error=%s\n", App.BUD, err.Error())
 			os.Exit(1)
 		}
-		err = rlib.GetXBiz(b2.BID, &App.Xbiz)
+		err = rlib.GetXBusiness(ctx, b2.BID, &App.Xbiz)
 		if err != nil /*b2.BID == 0*/ {
 			fmt.Printf("Could not load Business with BID(%d), Error=%s\n", b2.BID, err.Error())
 			os.Exit(1)
@@ -295,7 +290,7 @@ func main() {
 	}
 
 	if len(App.RcptFile) > 0 && App.Xbiz.P.BID > 0 {
-		App.PmtTypes, err = rlib.GetPaymentTypesByBiz(App.Xbiz.P.BID)
+		App.PmtTypes, err = rlib.GetPaymentTypesByBusiness(ctx, App.Xbiz.P.BID)
 		if err != nil {
 			fmt.Printf("error while get payment types for BID(%d): %s\n", App.Xbiz.P.BID, err.Error())
 			os.Exit(1)
@@ -398,7 +393,7 @@ func main() {
 			bizErrCheck(sa)
 			r[idx].Bid = loaderGetBiz(ctx, sa[1])
 			var xbiz rlib.XBusiness
-			err = rlib.GetXBiz(r[idx].Bid, &xbiz)
+			err = rlib.GetXBusiness(ctx, r[idx].Bid, &xbiz)
 			if err != nil {
 				fmt.Printf("error while loading business for BID(%d): %s\n", r[idx].Bid, err.Error())
 				os.Exit(1)
