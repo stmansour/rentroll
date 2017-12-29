@@ -42,14 +42,13 @@ type CSVLoadHandler struct {
 	Handler CSVLoadHandlerFunc
 }
 
+type csvHandlerFunc func(context.Context, []string, int) (int, error)
+
 // LoadRentRollCSV performs a general purpose load.  It opens the supplied file name, and processes
 // it line-by-line by calling the supplied handler function.
 // Return Values
 //		[]error  -  an array of errors encountered by the handler function during the load
 //--------------------------------------------------------------------------------------------------
-
-type csvHandlerFunc func(context.Context, []string, int) (int, error)
-
 func LoadRentRollCSV(ctx context.Context, fname string, handler csvHandlerFunc) []error {
 	var m []error
 	t := rlib.LoadCSV(fname)
