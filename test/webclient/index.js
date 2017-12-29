@@ -6,6 +6,7 @@ var gridM = require("./grid.js");
 var formM = require("./form.js");
 var addNewButtonM = require("./addNew.js");
 var gridRecordM = require("./gridRecords.js");
+var common = require("common.js");
 
 // required components
 var asmM = require("./components/asm.js");
@@ -66,7 +67,12 @@ casper.then(function afterStartAndWait() {
         return parseInt(document.getElementsByName("BusinessSelect")[0].value);
     }, testBizID);
     this.log('Business "REX" => expBizID: "{0}", testBizID: "{1}"'.format(expBizID, testBizID), 'debug', logSpace);
+
+    // TODO(Akshay): If this test get fail than don't take other test cases in consideration
     this.test.assertEquals(expBizID, testBizID, "Business is changed to REX.");
+
+    // onSuccessful test set BID value
+    common.BID = testBizID;
 });
 
 // --------------------------------------------------
@@ -138,12 +144,12 @@ casper.then(function formTesting() {
 // --------------------------------------------------
 
 casper.then(function apiIntegrationTest() {
-    gridRecordM.apiIntegrationTest(pmtM.gridConf);
-    gridRecordM.apiIntegrationTest(depM.gridConf);
-    gridRecordM.apiIntegrationTest(depmethM.gridConf);
-    gridRecordM.apiIntegrationTest(arsM.gridConf);
-    gridRecordM.apiIntegrationTest(rtM.gridConf);
-    gridRecordM.apiIntegrationTest(rentableM.gridConf);
+    gridRecordM.gridRecordsTest(pmtM.gridConf);
+    gridRecordM.gridRecordsTest(depM.gridConf);
+    gridRecordM.gridRecordsTest(depmethM.gridConf);
+    gridRecordM.gridRecordsTest(arsM.gridConf);
+    gridRecordM.gridRecordsTest(rtM.gridConf);
+    gridRecordM.gridRecordsTest(rentableM.gridConf);
 });
 
 // ========== RUN TEST ==========

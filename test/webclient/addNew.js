@@ -7,112 +7,131 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     var testCount = addNewButtonConfig.testCount;
     var testName = "w2ui add new button [{0}] test".format(addNewButtonConfig.form);
 
+    // Test Right panel rendering
     function testRightPanelRendering(test) {
         test.assertExists("#" + w2ui_utils.getRightPanelID());
     }
 
+    // Test BUD Field in form
     function testBUDField(test) {
+
+        // Check BUD field is exists in DOM
         test.assertSelectorExists(w2ui_utils.getBUDSelector());
+
+        // Get BUD value from the DOM
         var businessUnitValue = casper.evaluate(function getBusinessUnit(bud_selector) {
             return document.querySelector(bud_selector).value;
         }, w2ui_utils.getBUDSelector());
 
-        if (businessUnitValue === testBiz) {
-            test.assert(true, "Business Unit value is {0}.".format(businessUnitValue));
-        } else {
-            test.assert(false, "Wrong Business unit");
-        }
+        // Match DOM's BUD value with testBiz
+        test.assert(businessUnitValue === testBiz, "Business Unit value is {0}.".format(businessUnitValue));
 
-        // BUD disability
+        // Get disable attribute of BUD from the DOM.
         var isBusinessUnitValueDisabled = casper.evaluate(function (bud_selector) {
             return document.querySelector(bud_selector).disabled;
         }, w2ui_utils.getBUDSelector());
 
+        // Check BUD disability
         test.assert(isBusinessUnitValueDisabled, "Disability of business unit field.");
     }
 
+    // Test visible input fields of the form
     function testInputFields(that, test) {
+
         that.inputFields.forEach(function (inputFieldID) {
+
+            // get selector for the input field
             var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputFieldID.field);
 
+            // get visibility status  of input field in viewport
             var isVisible = casper.evaluate(function inputFieldVisibility(inputFieldSelector) {
                 return isVisibleInViewPort(document.querySelector(inputFieldSelector));
             }, inputFieldSelector);
 
+            // Check visibility of input field
             test.assert(isVisible, "{0} input field is visible to remote screen.".format(inputFieldID.field));
 
+            // get value of input field from the DOM
             var inputFieldValue = casper.evaluate(function (inputFieldSelector) {
                 return document.querySelector(inputFieldSelector).value;
             }, inputFieldSelector);
 
-            if (inputFieldValue === "") {
-                test.assert(true, "{0} field is blank".format(inputFieldID.field));
-            }
-            else {
-                test.assert(false, "{0} field is not blank".format(inputFieldID.field));
-            }
+            // Check default value must be blank
+            test.assert(inputFieldValue === "", "{0} field is blank".format(inputFieldID.field));
         });
     }
 
+    // Test visible input select fields of the form
     function testInputSelectField(that, test) {
-        that.inputSelectField.forEach(function (inputSelectField) {
-            var inputSelectFieldSelector = w2ui_utils.getInputSelectFieldSelector(inputSelectField.field);
-            // test.assertExists(inputSelectFieldSelector);
 
+        that.inputSelectField.forEach(function (inputSelectField) {
+
+            // get selector for the input select field
+            var inputSelectFieldSelector = w2ui_utils.getInputSelectFieldSelector(inputSelectField.field);
+
+            // get visibility status  of input select field in viewport
             var isVisible = casper.evaluate(function selectFieldVisibility(selectField) {
                 return isVisibleInViewPort(document.querySelector(selectField));
             }, inputSelectFieldSelector);
 
+            // Check visibility of input select field
             test.assert(isVisible, "{0} field is visible to remote screen".format(inputSelectField.field));
 
+            // get value of input select field from the DOM
             var inputSelectFieldValue = casper.evaluate(function (inputSelectFieldSelector) {
                 return document.querySelector(inputSelectFieldSelector).value;
             }, inputSelectFieldSelector);
 
-            // that.formFields.record[inputSelectField.field].text
-
+            // get value of input select field from W2UI form record
             var defaultValueInW2UI = casper.evaluate(function getDefaultValue(form, field) {
                 return w2ui[form].record[field].text;
             }, that.form, inputSelectField.field);
 
-            if (inputSelectFieldValue === defaultValueInW2UI) {
-                test.assert(true, "{0} have default value {1}".format(inputSelectField.field, defaultValueInW2UI));
-            } else {
-                test.assert(false, "{0} have different default value {1}.".format(inputSelectField.field, defaultValueInW2UI));
-            }
+            // match default value with input field value in DOM
+            test.assert(inputSelectFieldValue === defaultValueInW2UI, "{0} have default value {1}".format(inputSelectField.field, defaultValueInW2UI));
         });
     }
 
+
+    // Test buttons in form
     function testButtons(that, test) {
+
         that.buttonName.forEach(function (btnName) {
 
+            // get visibility status of button in viewport
             var isVisible = casper.evaluate(function formButtonVisibility(btnNode) {
                 return isVisibleInViewPort(document.querySelector(btnNode));
             }, w2ui_utils.getW2UIButtonReferanceSelector(btnName));
 
+            // Check visibility of button
             test.assert(isVisible, "[{0}] is visible to remote screen.".format(btnName));
         });
     }
 
+    // Test checkboxes in form
     function testCheckBoxes(that, test) {
+
         that.checkboxes.forEach(function (checkbox) {
-            // Check visibility
+
+            // get visibility status of checkbox in viewport
             var isVisible = casper.evaluate(function checkBoxvisibility(checkboxSelector) {
                 return isVisibleInViewPort(document.querySelector(checkboxSelector));
             }, w2ui_utils.getCheckBoxSelector(checkbox.field));
 
+            // Check visibility of checkbox
             test.assert(isVisible, "[{0}] is visible to remote screen.".format(checkbox.field));
 
-            // Test default value
+            // get status of checkbox from the DOM
             var isChecked = casper.evaluate(function isChecked(checkboxSelector) {
                 return document.querySelector(checkboxSelector).checked;
             }, w2ui_utils.getCheckBoxSelector(checkbox.field));
 
+            // get default status of checkbox from the W2UI
             var isCheckedInW2UI = casper.evaluate(function isChecked(form, field) {
                 return w2ui[form].record[field];
             }, that.form, checkbox.field);
 
-
+            // Match default value of checkbox with value in DOM
             test.assertEquals(isChecked, isCheckedInW2UI, "{0} checked is {1}".format(checkbox.field, isChecked));
 
 

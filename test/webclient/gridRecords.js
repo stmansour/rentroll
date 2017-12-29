@@ -29,7 +29,7 @@ function performRowColumnVisiblityTest(that, column, recordNo, test) {
     return rowColumnData;
 }
 
-exports.apiIntegrationTest = function (gridConfig) {
+exports.gridRecordsTest = function (gridConfig) {
     var testCount = gridConfig.testCount;
     var testName = "{0} record tests".format(gridConfig.grid);
 
