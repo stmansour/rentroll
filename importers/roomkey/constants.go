@@ -1,7 +1,6 @@
 package roomkey
 
 import (
-	"context"
 	"rentroll/rcsv"
 )
 
@@ -36,8 +35,7 @@ var RoomKeyOnlineRentableStatus = "1"
 
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
 type csvLoadHandler struct {
-	Fname        string
-	Handler      func(context.Context, string) []error
+	rcsv.CSVLoadHandler
 	TraceDataMap string
 	DBType       int
 }

@@ -12,6 +12,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -71,6 +72,7 @@ var App struct {
 	DtStart        time.Time                  // range start time
 	DtStop         time.Time                  // range stop time
 	Xbiz           rlib.XBusiness             // xbusiness associated with -G  (BUD)
+	NoAuth         bool                       // if true then skip authentication
 }
 
 func readCommandLineArgs() {
@@ -112,6 +114,7 @@ func readCommandLineArgs() {
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	depositPtr := flag.String("y", "", "add Deposits via csv file")
 	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	flag.Parse()
 	if *verPtr {
@@ -158,6 +161,8 @@ func readCommandLineArgs() {
 	App.SLFile = *slPtr
 	App.SrcFile = *src
 	App.VehicleFile = *vehiclePtr
+	App.NoAuth = *noauth
+
 	var err error
 	s := *pDates
 	if len(s) > 0 {
@@ -187,9 +192,14 @@ func bizErrCheck(sa []string) {
 	}
 }
 
-func loaderGetBiz(s string) int64 {
-	bid := rcsv.GetBusinessBID(s)
-	if bid == 0 {
+// svcInit initializes the service subsystem
+func svcInit(noauth bool) {
+	rlib.RRdb.NoAuth = noauth // TODO(sudip): needs to be changed to some internal app struct
+}
+
+func loaderGetBiz(ctx context.Context, s string) int64 {
+	bid, err := rcsv.GetBusinessBID(ctx, s)
+	if /*bid == 0*/ err != nil {
 		fmt.Printf("unrecognized Business designator: %s\n", s)
 		os.Exit(1)
 	}
@@ -202,9 +212,9 @@ type csvimporter struct {
 	Handler func(string) []error
 }
 
-func rrDoLoad(fname string, handler func(string) []error) {
+func rrDoLoad(ctx context.Context, fname string, handler rcsv.CSVLoadHandlerFunc) {
 	// fmt.Printf("calling handler for: %q\n", fname)
-	m := handler(fname)
+	m := handler(ctx, fname)
 	fmt.Print(rcsv.ErrlistToString(&m))
 }
 
@@ -252,28 +262,44 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	svcInit(App.NoAuth) // currently needed for testing
+
+	// create background context
+	ctx := context.Background()
 
 	//----------------------------------------------------
 	// initialize the CSV infrastructure
 	//----------------------------------------------------
 	if len(App.BUD) > 0 {
-		b2 := rlib.GetBusinessByDesignation(App.BUD)
-		if b2.BID == 0 {
-			fmt.Printf("Could not find Business Unit named %s\n", App.BUD)
+		b2, err := rlib.GetBizByDesignation(App.BUD)
+		if err != nil /*b2.BID == 0*/ {
+			fmt.Printf("Could not find Business Unit named %s, Error=%s\n", App.BUD, err.Error())
 			os.Exit(1)
 		}
-		rlib.GetXBusiness(b2.BID, &App.Xbiz)
+		err = rlib.GetXBiz(b2.BID, &App.Xbiz)
+		if err != nil /*b2.BID == 0*/ {
+			fmt.Printf("Could not load Business with BID(%d), Error=%s\n", b2.BID, err.Error())
+			os.Exit(1)
+		}
 	} else if len(App.AsmtFile) > 0 || len(App.RcptFile) > 0 {
 		fmt.Printf("To load Assessments or Receipts you must provide a business unit\n")
 		os.Exit(1)
 	}
 	if App.Xbiz.P.BID > 0 {
 		rcsv.InitRCSV(&App.DtStart, &App.DtStop, &App.Xbiz)
-		rlib.InitBizInternals(App.Xbiz.P.BID, &App.Xbiz)
+		err = rlib.InitBizInternals(App.Xbiz.P.BID, &App.Xbiz)
+		if err != nil /*b2.BID == 0*/ {
+			fmt.Printf("error while InitBizInternals call: %s\n", err.Error())
+			os.Exit(1)
+		}
 	}
 
 	if len(App.RcptFile) > 0 && App.Xbiz.P.BID > 0 {
-		App.PmtTypes = rlib.GetPaymentTypesByBusiness(App.Xbiz.P.BID)
+		App.PmtTypes, err = rlib.GetPaymentTypesByBiz(App.Xbiz.P.BID)
+		if err != nil {
+			fmt.Printf("error while get payment types for BID(%d): %s\n", App.Xbiz.P.BID, err.Error())
+			os.Exit(1)
+		}
 	}
 
 	//----------------------------------------------------
@@ -313,7 +339,7 @@ func main() {
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			rrDoLoad(h[i].Fname, h[i].Handler)
+			rrDoLoad(ctx, h[i].Fname, h[i].Handler)
 		}
 	}
 
@@ -370,9 +396,13 @@ func main() {
 		r[idx].D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC) // init
 		if r[idx].NeedsBID {
 			bizErrCheck(sa)
-			r[idx].Bid = loaderGetBiz(sa[1])
+			r[idx].Bid = loaderGetBiz(ctx, sa[1])
 			var xbiz rlib.XBusiness
-			rlib.GetXBusiness(r[idx].Bid, &xbiz)
+			err = rlib.GetXBiz(r[idx].Bid, &xbiz)
+			if err != nil {
+				fmt.Printf("error while loading business for BID(%d): %s\n", r[idx].Bid, err.Error())
+				os.Exit(1)
+			}
 			r[idx].Xbiz = &xbiz
 		}
 		if r[idx].NeedsDt {
@@ -382,6 +412,6 @@ func main() {
 		if r[idx].NeedsRAID {
 			r[idx].Raid = rcsv.CSVLoaderGetRAID(sa[1])
 		}
-		fmt.Printf("%s\n", r[idx].Handler(&r[idx]))
+		fmt.Printf("%s\n", r[idx].Handler(ctx, &r[idx]))
 	}
 }

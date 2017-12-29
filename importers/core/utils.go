@@ -87,3 +87,8 @@ func GetImportedCount(ctx context.Context, summaryCount map[int]map[string]int, 
 	}
 	return nil
 }
+
+// SvcInit initializes the service subsystem
+func SvcInit(noauth bool) {
+	rlib.RRdb.NoAuth = noauth // TODO(sudip): needs to be changed to some internal app struct
+}

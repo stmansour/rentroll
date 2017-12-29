@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -29,6 +30,7 @@ var App struct {
 	CSV          string   // csv filename that needs to be load
 	GuestInfoCSV string   // csv filename containing guest info
 	debug        int      // debug records
+	NoAuth       bool     // noauth flag
 }
 
 // userRRValues holds the values passed by user for rentroll attributes
@@ -80,6 +82,7 @@ func readCommandLineArgs() []string {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	// ================================
 	// check for values which must be required
@@ -110,6 +113,7 @@ func readCommandLineArgs() []string {
 	App.CSV = *fp
 	App.GuestInfoCSV = *guestInfoFp
 	App.debug = *debug
+	App.NoAuth = *noauth
 
 	// get user values
 	userRRValues["RentCycle"] = *frequency
@@ -206,6 +210,10 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	core.SvcInit(App.NoAuth) // currently needed for testing
+
+	// create background context
+	ctx := context.Background()
 
 	// ==================================
 	// AFTER DB SETUP DO VALIDATION OVER
@@ -216,7 +224,7 @@ func main() {
 	MergeSuppliedAndDefaultValues()
 
 	// now validation on user supplied values
-	validateErrs, business := roomkey.ValidateUserSuppliedValues(userRRValues)
+	validateErrs, business := roomkey.ValidateUserSuppliedValues(ctx, userRRValues)
 	if len(validateErrs) > 0 {
 		for _, err := range validateErrs {
 			fmt.Println(err.Error())
@@ -230,6 +238,7 @@ func main() {
 
 	// call roomkey loader
 	report, internalErr, done := roomkey.CSVHandler(
+		ctx,
 		App.CSV,
 		App.GuestInfoCSV,
 		App.TestMode,

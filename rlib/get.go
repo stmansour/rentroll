@@ -2850,21 +2850,12 @@ func GetPaymentTypeByName(ctx context.Context, bid int64, name string, a *Paymen
 	return ReadPaymentType(row, a)
 }
 
-// GetPaymentTypesByBusiness returns a slice of payment types indexed by the PMTID for the supplied Business
-func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]PaymentType, error) {
-
+// GetPaymentTypesByBiz returns a slice of payment types indexed by the PMTID for the supplied Business
+func GetPaymentTypesByBiz(bid int64) (map[int64]PaymentType, error) {
 	var (
 		err error
 		t   = make(map[int64]PaymentType)
 	)
-
-	// session... context
-	if !RRdb.NoAuth {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
-	}
 
 	rows, err := RRdb.Prepstmt.GetPaymentTypesByBusiness.Query(bid)
 	if err != nil {
@@ -2882,6 +2873,25 @@ func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]Paymen
 	}
 
 	return t, rows.Err()
+}
+
+// GetPaymentTypesByBusiness returns a slice of payment types indexed by the PMTID for the supplied Business
+func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]PaymentType, error) {
+
+	var (
+		// err error
+		t = make(map[int64]PaymentType)
+	)
+
+	// session... context
+	if !RRdb.NoAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	return GetPaymentTypesByBiz(bid)
 }
 
 //=======================================================
