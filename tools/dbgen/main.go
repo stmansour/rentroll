@@ -109,9 +109,10 @@ func main() {
 
 	biz, err := rlib.GetBusinessByDesignation(ctx, App.Bud)
 	if err != nil /*biz.BID == 0*/ {
-		fmt.Printf("Could not find Business Unit named %s\n", App.Bud)
+		fmt.Printf("Could not find Business Unit named %s: error: %s\n", App.Bud, err.Error())
 		os.Exit(1)
 	}
+
 	err = rlib.InitBizInternals(biz.BID, &App.Xbiz)
 	if err != nil {
 		fmt.Printf("Error in InitBizInternals: %s\n", err.Error())

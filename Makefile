@@ -28,7 +28,7 @@ jshint:
 try: build db4
 
 db4:
-	cd tools/dbgen;./dbgen -f db4.json
+	cd tools/dbgen;./dbgen -f db4.json -noauth
 
 build: clean rentroll package
 
