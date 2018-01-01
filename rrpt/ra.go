@@ -98,7 +98,7 @@ func RRreportRentalAgreementsTable(ctx context.Context, ri *ReporterInfo) gotabl
 			rlib.Ulog("%s: p.GetPayorNameList returned err = %s\n", funcname, err.Error())
 			continue
 		}
-		tbl.Puts(-1, 1, strings.Join(payors, ","))
+		tbl.Puts(-1, 1, strings.Join(payors, ", "))
 
 		users, err := p.GetUserNameList(ctx, &p.AgreementStart, &p.AgreementStop)
 		if err != nil {
