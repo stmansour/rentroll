@@ -65,8 +65,11 @@ casper.then(function afterStartAndWait() {
     }, testBizID);
     this.log('Business "REX" => expBizID: "{0}", testBizID: "{1}"'.format(expBizID, testBizID), 'debug', common.logSpace);
 
-    // TODO(Akshay): If this test get fail than don't take other test cases in consideration
+    // If this test get fail than don't take other test cases in consideration. And exit casperJS
     this.test.assertEquals(expBizID, testBizID, "Business is changed to REX.");
+    if (expBizID !== testBizID){
+        casper.exit();
+    }
 
     // onSuccessful test set BID value
     common.BID = testBizID;
