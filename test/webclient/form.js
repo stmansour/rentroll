@@ -30,7 +30,7 @@ exports.w2uiFormTest = function (formConfig) {
             this.buttonName = formConfig.buttonName;
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
-            casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
+            casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
         },
 
         // run all the form test cases
@@ -39,7 +39,7 @@ exports.w2uiFormTest = function (formConfig) {
 
             casper.wait(common.waitTime, function () {
                 casper.click("#" + w2ui_utils.getGridRecordID(that.row, that.grid));
-                casper.log('[FormTest] [{0}] grid record click with id: "{1}"'.format(that.form, that.row), 'debug', logSpace);
+                casper.log('[FormTest] [{0}] grid record click with id: "{1}"'.format(that.form, that.row), 'debug', common.logSpace);
             });
 
             casper.wait(common.waitTime, function () {

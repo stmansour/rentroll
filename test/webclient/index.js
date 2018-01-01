@@ -30,9 +30,7 @@ var pageURL = "http://localhost:8270/home",
     pageLoadWaitTime = 2000;
 var testBiz = "REX",
     testBizID = -1;
-var logSpace = "rrLog" ;
 var appSettings;
-
 
 // ========== INIT CALL ==========
 initM.init();
@@ -56,7 +54,7 @@ casper.then(function afterStartAndWait() {
     // TODO: verification pending for appsettings variable, how to do it?
 
     appSettings.BizMap.forEach(function(item) {
-        if (item.BUD == testBiz) {
+        if (item.BUD === testBiz) {
             testBizID = item.BID;
         }
     });
@@ -66,7 +64,7 @@ casper.then(function afterStartAndWait() {
         document.getElementsByName("BusinessSelect")[0].value = bizID;
         return parseInt(document.getElementsByName("BusinessSelect")[0].value);
     }, testBizID);
-    this.log('Business "REX" => expBizID: "{0}", testBizID: "{1}"'.format(expBizID, testBizID), 'debug', logSpace);
+    this.log('Business "REX" => expBizID: "{0}", testBizID: "{1}"'.format(expBizID, testBizID), 'debug', common.logSpace);
 
     // TODO(Akshay): If this test get fail than don't take other test cases in consideration
     this.test.assertEquals(expBizID, testBizID, "Business is changed to REX.");
@@ -81,13 +79,17 @@ casper.then(function afterStartAndWait() {
 casper.then(function pageBasicLayoutTest() {
     // check that basic layout with w2ui has been loaded in page
     var pageInitiated = this.evaluate(function evaluateBasicLayoutCheck() {
+
+        var topToolBarSelector = "div[name=toptoolbar]";
+        var sideBarSelector = "div[name=sidebarL1]";
+        var topLayoutSelector = "div[name=toplayout]";
         return (
-            $("#layout").attr("name") == "mainlayout" &&
-            $("div[name=toptoolbar]").length > 0 &&
-            $("div[name=toptoolbar]").hasClass("w2ui-toolbar") &&
-            $("div[name=toplayout]").length > 0 &&
-            $("div[name=sidebarL1]").length > 0 &&
-            $("div[name=sidebarL1]").hasClass("w2ui-sidebar")
+            $("#layout").attr("name") === "mainlayout" &&
+            $(topToolBarSelector).length > 0 &&
+            $(topToolBarSelector).hasClass("w2ui-toolbar") &&
+            $(topLayoutSelector).length > 0 &&
+            $(sideBarSelector).length > 0 &&
+            $(sideBarSelector).hasClass("w2ui-sidebar")
         );
     });
     this.test.assertEquals(pageInitiated, true, "Page basic layout is ready.");

@@ -37,7 +37,6 @@ exports.gridRecordsTest = function (gridConfig) {
 
     // Check status in API Response
     function testAPIResponseStatus(that, test) {
-        console.log(that.apiResponse.status);
         test.assertEquals(that.apiResponse.status, common.successFlag, "API Response status is {0}".format(common.successFlag));
     }
 
@@ -57,7 +56,7 @@ exports.gridRecordsTest = function (gridConfig) {
             w2ui_utils.getGridTableRowsLength,
             that.grid
         );
-        casper.log('[GridTest] [{0}] table rows length: {1}'.format(that.grid, trsLen), 'debug', logSpace);
+        casper.log('[GridTest] [{0}] table rows length: {1}'.format(that.grid, trsLen), 'debug', common.logSpace);
 
         // match api response record length with records length in DOM
         test.assertEquals(trsLen, that.apiResponse.total, "Grid [{0}] records (table rows) loaded in DOM".format(that.grid));
@@ -131,7 +130,7 @@ exports.gridRecordsTest = function (gridConfig) {
             require('utils').dump(this.apiResponse); // Print API Response
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
-            casper.log('[GridRecordTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
+            casper.log('[GridRecordTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
         },
 
         test: function (test) {

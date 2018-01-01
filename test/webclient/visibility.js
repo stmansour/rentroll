@@ -1,7 +1,9 @@
-var isVisibleInViewPort = function(el){
+"use strict";
+
+var isVisibleInViewPort = function (el) {
 
     //Check element exists in DOM
-    if(el){
+    if (el) {
         var rect = el.getBoundingClientRect(), top = rect.top, height = rect.height,
             el = el.parentNode;
         do {

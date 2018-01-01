@@ -186,9 +186,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     // test Right panel after close button
     function testCloseRightPanel(test) {
 
-        this.click(w2ui_utils.getCloseButtonSelector());
+        casper.click(w2ui_utils.getCloseButtonSelector());
 
-        this.wait(common.waitTime, function () {
+        casper.wait(common.waitTime, function () {
             test.assertNotVisible("#" + w2ui_utils.getRightPanelID());
             test.done();
         });
@@ -237,7 +237,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             this.disableFields = addNewButtonConfig.disableFields;
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
-            casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
+            casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
 
             // Click add new button in toolbar
             casper.wait(common.waitTime, function clickAddNewButton() {

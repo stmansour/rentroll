@@ -40,3 +40,5 @@ exports.apiVersion = "v1";
 exports.BID = -1;
 
 exports.successFlag = 'success';
+
+exports.logSpace = "rrLog";

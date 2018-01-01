@@ -23,7 +23,7 @@ exports.w2uiGridTest = function(gridConfig) {
             // first click on sidebar node labeled tab with provided sidebarID so that
             // client request to load data in grid
             casper.click('div[name=sidebarL1] #' + w2ui_utils.getSidebarID(this.sidebarID));
-            casper.log('[GridTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
+            casper.log('[GridTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
         },
 
         // run all the grid test cases
@@ -42,7 +42,7 @@ exports.w2uiGridTest = function(gridConfig) {
                 var recordsLen = this.evaluate(function gridRecordsLen(a, grid) {
                     return a(grid);
                 }, w2ui_utils.getGridRecordsLength, that.grid);
-                casper.log('[GridTest] [{0}] records length: {1}'.format(that.grid, recordsLen), 'debug', logSpace);
+                casper.log('[GridTest] [{0}] records length: {1}'.format(that.grid, recordsLen), 'debug', common.logSpace);
 
                 // check that all rows loaded in w2ui grid object, has been rendered in DOM
                 // => w2ui[grid].records.length === DOM's rendered grid table rows length
@@ -53,7 +53,7 @@ exports.w2uiGridTest = function(gridConfig) {
                     w2ui_utils.getGridTableRowsLength,
                     that.grid
                 );
-                casper.log('[GridTest] [{0}] table rows length: {1}'.format(that.grid, trsLen), 'debug', logSpace);
+                casper.log('[GridTest] [{0}] table rows length: {1}'.format(that.grid, trsLen), 'debug', common.logSpace);
                 test.assertEquals(recordsLen, trsLen, "Grid [{0}] records (table rows) loaded in DOM".format(that.grid));
 
                 // capture grid view at this moment
