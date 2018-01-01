@@ -4,12 +4,15 @@ var common = require("./common.js");
 
 var w2ui_utils = require("./w2ui_utils.js");
 
+// Check cell's visibility in viewport
 function performRowColumnVisiblityTest(that, column, recordNo, test) {
-// get coloumn index based on column name/field
+
+    // get coloumn index based on column name/field
     var columnNo = casper.evaluate(function (gridName, column) {
         return w2ui[gridName].getColumn(column, true);
     }, that.grid, column.field);
 
+    // get selector for the cell in the grid
     var rowColumnDataSelector = w2ui_utils.getRowColumnDataSelector(that.grid, recordNo, columnNo);
 
     // get data at specific cell [recordNo][columnNo]
@@ -22,10 +25,9 @@ function performRowColumnVisiblityTest(that, column, recordNo, test) {
         return isVisibleInViewPort(document.querySelector(rowColumnDataSelector));
     }, rowColumnDataSelector);
 
-    console.log(rowColumnDataSelector);
-
     // Record visibility in viewport
     test.assert(isVisible, "{0} is visible in viewport".format(rowColumnData));
+
     return rowColumnData;
 }
 
@@ -33,33 +35,46 @@ exports.gridRecordsTest = function (gridConfig) {
     var testCount = gridConfig.testCount;
     var testName = "{0} record tests".format(gridConfig.grid);
 
+    // Check status in API Response
     function testAPIResponseStatus(that, test) {
-        var isSuccess = that.apiResponse.status === 'success';
-        test.assert(isSuccess, "API Response status is {0}".format(isSuccess));
+        // var isSuccess = that.apiResponse.status === common.successFlag;
+        // test.assert(isSuccess, "API Response status is {0}".format(isSuccess));
+        test.assertEquals(that.apiResponse.status, common.successFlag, "API Response status is {0}".format(isSuccess));
     }
 
+    // Match total number of records with total number of records with W2UI object
     function testRecordLength(that, test) {
         var w2uiRecordLength = casper.evaluate(function (gridName) {
             return w2ui[gridName].records.length;
         }, that.grid);
-        test.assert(w2uiRecordLength === that.apiResponse.total, "{0} record length matched with response list".format(that.grid));
+        test.assertEquals(w2uiRecordLength, that.apiResponse.total, "{0} record length matched with response list".format(that.grid));
     }
 
-    function testRowColoumnVisiblity(that, test) {
+    // Perform test on row column's data
+    function testRowColoumnData(that, test) {
 
         // TODO: Scrolling records
 
         that.apiResponse.records.forEach(function (record, recordNo) {
 
             that.columns.forEach(function (column) {
+
+                // Check cell's visibility in viewport
                 var rowColumnData = performRowColumnVisiblityTest(that, column, recordNo, test);
+
+                // Check cell's data exists in API Response
                 test.assert(rowColumnData.indexOf(record[column.field]) > -1, "{0} DOM value matched with API response {1}".format(rowColumnData, record[column.field]));
             });
 
             that.excludeGridColumns.forEach(function (excludeGridColumn) {
+
+                // Check cell's visibility in viewport
                 var rowColumnData = performRowColumnVisiblityTest(that, excludeGridColumn, recordNo, test);
+
                 // TODO: Match rowColumnData value with appSettings object
+
                 // Making sure that displayed data length is greater than 0. Remove this test after above To do.
+                // Check cell's data exists in API Response
                 test.assert(rowColumnData.length > 0, "{0} length is {1}".format(rowColumnData, rowColumnData.length));
             });
 
@@ -69,21 +84,26 @@ exports.gridRecordsTest = function (gridConfig) {
     casper.test.begin(testName, testCount, {
         setUp: function (test) {
 
+            // Grid name
             this.grid = gridConfig.grid;
 
+            // Sidebar/Node id
             this.sidebarID = gridConfig.sidebarID;
 
+            // Captured file name
             this.capture = gridConfig.capture;
 
             // table name
             this.tableName = gridConfig.tableName;
 
-            //
+            // list of visible columns
             this.gridColumns = casper.evaluate(function (grid) {
                 return w2ui[grid].columns;
             }, this.grid);
 
+            // list of columns which have value in appSettings
             this.excludeGridColumnsKeyValue = gridConfig.excludeGridColumns;
+
             this.columns = this.gridColumns.filter(w2ui_utils.getVisibleColumnName, this.excludeGridColumnsKeyValue);
             this.excludeGridColumns = this.gridColumns.filter(w2ui_utils.getVisibleExcludedColumnName, this.excludeGridColumnsKeyValue);
 
@@ -105,14 +125,17 @@ exports.gridRecordsTest = function (gridConfig) {
             testAPIResponseStatus(that, test);
 
             casper.wait(common.waitTime, function testGridRecords() {
+
                 // Match w2ui record length with list size in API Response
                 testRecordLength(that, test);
 
                 // Check each row exist in DOM and visible in viewport
-                testRowColoumnVisiblity(that, test);
+                testRowColoumnData(that, test);
 
                 test.done();
             });
+
+            // Take screen shot of viewport
             common.capture(this.capture);
         }
     });

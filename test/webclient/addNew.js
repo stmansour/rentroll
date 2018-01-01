@@ -24,7 +24,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         }, w2ui_utils.getBUDSelector());
 
         // Match DOM's BUD value with testBiz
-        test.assert(businessUnitValue === testBiz, "Business Unit value is {0}.".format(businessUnitValue));
+        test.assertEquals(businessUnitValue, testBiz, "Business Unit value is {0}.".format(businessUnitValue));
 
         // Get disable attribute of BUD from the DOM.
         var isBusinessUnitValueDisabled = casper.evaluate(function (bud_selector) {
@@ -57,7 +57,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             }, inputFieldSelector);
 
             // Check default value must be blank
-            test.assert(inputFieldValue === "", "{0} field is blank".format(inputFieldID.field));
+            test.assertEquals(inputFieldValue, "", "{0} field is blank".format(inputFieldID.field));
         });
     }
 
@@ -88,7 +88,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             }, that.form, inputSelectField.field);
 
             // match default value with input field value in DOM
-            test.assert(inputSelectFieldValue === defaultValueInW2UI, "{0} have default value {1}".format(inputSelectField.field, defaultValueInW2UI));
+            test.assertEquals(inputSelectFieldValue, defaultValueInW2UI, "{0} have default value {1}".format(inputSelectField.field, defaultValueInW2UI));
         });
     }
 
@@ -145,8 +145,10 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         });
     }
 
+    // Date field rendering test
     function testDateFields(that, test) {
         that.dateFields.forEach(function (dateField) {
+
             // Check visibility
             var isVisible = casper.evaluate(function checkDateFieldVisibility(dateFieldSelector) {
                 return isVisibleInViewPort(document.querySelector(dateFieldSelector));
@@ -167,9 +169,12 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         });
     }
 
+    // Disabled field rendering test
     function testDisabledFields(that, test) {
+
         // We are expecting these fields must be disabled. Select that fields and check disable attribute
         that.disableFields.forEach(function (disableField) {
+
             var disabilityInDOM = casper.evaluate(function checkDisability(disableFieldSelector) {
                 return document.querySelector(disableFieldSelector).disabled;
             }, w2ui_utils.getDisableFieldSelector(disableField));
@@ -178,17 +183,23 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         });
     }
 
+    // test Right panel after close button
     function testCloseRightPanel(test) {
+
         this.click(w2ui_utils.getCloseButtonSelector());
+
         this.wait(common.waitTime, function () {
             test.assertNotVisible("#" + w2ui_utils.getRightPanelID());
             test.done();
         });
+
     }
 
     casper.test.begin(testName, testCount, {
+
         //do basic setup first
         setUp: function (/*test*/) {
+
             //form name
             this.form = addNewButtonConfig.form;
 
@@ -204,11 +215,10 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 return w2ui[form].fields;
             }, this.form);
 
+            // list of input fields
             this.inputFields = this.formFields.filter(w2ui_utils.getTextTypeW2UIFields);
-            // ["Name", "Description"]
 
             // list of input select fields
-            // this.inputSelectField = addNewButtonConfig.inputSelectField;
             this.inputSelectField = this.formFields.filter(w2ui_utils.getInputListW2UIFields);
 
             // capture name
@@ -229,6 +239,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
 
+            // Click add new button in toolbar
             casper.wait(common.waitTime, function clickAddNewButton() {
                 //It will click table cell with the text 'Add New'
                 casper.clickLabel("Add New", "td");
@@ -236,10 +247,10 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         },
 
         test: function (test) {
+
             var that = this;
 
             casper.wait(common.waitTime, function testRightPanel() {
-                common.capture(that.capture);
 
                 // Right panel rendering
                 testRightPanelRendering(test);
@@ -267,6 +278,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 // Right panel after close button
                 testCloseRightPanel.call(this, test);
+
+                // Capture the screen shot of viewport
+                common.capture(that.capture);
             });
         }
     });

@@ -22,9 +22,6 @@ exports.w2uiGridTest = function(gridConfig) {
 
             // first click on sidebar node labeled tab with provided sidebarID so that
             // client request to load data in grid
-            // casper.evaluate(function sidebarNodeClick(a, id) {
-            //     $("div[name=sidebarL1]").find("#"+a(id)).click();
-            // }, w2ui_utils.getSidebarID, this.sidebarID);
             casper.click('div[name=sidebarL1] #' + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[GridTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
         },
@@ -41,6 +38,7 @@ exports.w2uiGridTest = function(gridConfig) {
             // need to wait for some amount of time, so meanwhile w2ui can rendered
             // grid records in DOM
             casper.wait(common.waitTime, function() {
+
                 var recordsLen = this.evaluate(function gridRecordsLen(a, grid) {
                     return a(grid);
                 }, w2ui_utils.getGridRecordsLength, that.grid);

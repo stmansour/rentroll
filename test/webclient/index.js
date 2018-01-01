@@ -96,7 +96,7 @@ casper.then(function pageBasicLayoutTest() {
 // --------------------------------------------------
 // 3. Now start all grid view UI testing
 // --------------------------------------------------
-casper.then(function gridTesting() {
+/*casper.then(function gridTesting() {
     gridM.w2uiGridTest(asmM.gridConf);
     gridM.w2uiGridTest(receiptsM.gridConf);
     gridM.w2uiGridTest(depositM.gridConf);
@@ -110,7 +110,7 @@ casper.then(function gridTesting() {
     gridM.w2uiGridTest(arsM.gridConf);
     gridM.w2uiGridTest(rtM.gridConf);
     gridM.w2uiGridTest(rentableM.gridConf);
-});
+});*/
 
 // --------------------------------------------------
 // 4. Now start all add new button test
