@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.20-0ubuntu0.16.04.1
+-- Server version	5.7.20-0ubuntu0.16.04.1-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -141,6 +141,8 @@ CREATE TABLE `AvailabilityTypes` (
   `Name` varchar(100) NOT NULL DEFAULT '',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`AVAILID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -230,7 +232,9 @@ CREATE TABLE `BusinessAssessments` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `ATypeLID` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -254,7 +258,9 @@ CREATE TABLE `BusinessPaymentTypes` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `PMTID` mediumint(9) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -285,6 +291,8 @@ CREATE TABLE `CommissionLedger` (
   `PaymentDueDate` date NOT NULL DEFAULT '1970-01-01',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`CLID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -342,7 +350,11 @@ CREATE TABLE `CustomAttrRef` (
   `ID` bigint(20) NOT NULL,
   `CID` bigint(20) NOT NULL,
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `CARID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`CARID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -625,7 +637,11 @@ CREATE TABLE `InvoiceAssessment` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `ASMID` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `InvoiceASMID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`InvoiceASMID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -650,7 +666,11 @@ CREATE TABLE `InvoicePayor` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `PID` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `InvoicePayorID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`InvoicePayorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -717,6 +737,8 @@ CREATE TABLE `JournalAllocation` (
   `AcctRule` varchar(200) NOT NULL DEFAULT '',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`JAID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -727,7 +749,7 @@ CREATE TABLE `JournalAllocation` (
 
 LOCK TABLES `JournalAllocation` WRITE;
 /*!40000 ALTER TABLE `JournalAllocation` DISABLE KEYS */;
-INSERT INTO `JournalAllocation` VALUES (1,1,1,1,1,0,0,3500.0000,2,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(2,1,2,1,1,0,0,3500.0000,3,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(3,1,3,1,1,0,0,3500.0000,4,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(4,1,4,1,1,0,0,3500.0000,5,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(5,1,5,1,1,0,0,3500.0000,6,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(6,1,6,1,1,0,0,3500.0000,7,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(7,1,7,1,1,0,0,3500.0000,8,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(8,1,8,1,1,0,0,3500.0000,9,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(9,1,9,1,1,0,0,3500.0000,10,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(10,1,10,1,1,0,0,3500.0000,11,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(11,1,11,1,1,0,0,3500.0000,12,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0),(12,1,12,0,0,1,0,3500.0000,0,0,'d 10999 _, c 12999 _','2017-11-07 10:09:15',0),(13,1,13,0,1,1,1,3500.0000,0,0,'d 10104 3500.0000, c 10999 3500.0000','2017-11-07 10:09:16',0),(14,1,14,1,1,1,1,3500.0000,10,0,'ASM(10) d 12999 3500.00,c 12001 3500.00','2017-11-07 10:09:16',0);
+INSERT INTO `JournalAllocation` VALUES (1,1,1,1,1,0,0,3500.0000,2,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(2,1,2,1,1,0,0,3500.0000,3,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(3,1,3,1,1,0,0,3500.0000,4,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(4,1,4,1,1,0,0,3500.0000,5,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(5,1,5,1,1,0,0,3500.0000,6,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(6,1,6,1,1,0,0,3500.0000,7,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(7,1,7,1,1,0,0,3500.0000,8,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(8,1,8,1,1,0,0,3500.0000,9,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(9,1,9,1,1,0,0,3500.0000,10,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(10,1,10,1,1,0,0,3500.0000,11,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(11,1,11,1,1,0,0,3500.0000,12,0,'d 12001 3500.00, c 41001 3500.00','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(12,1,12,0,0,1,0,3500.0000,0,0,'d 10999 _, c 12999 _','2017-11-07 10:09:15',0,'2018-01-01 10:12:46',0),(13,1,13,0,1,1,1,3500.0000,0,0,'d 10104 3500.0000, c 10999 3500.0000','2017-11-07 10:09:16',0,'2018-01-01 10:12:46',0),(14,1,14,1,1,1,1,3500.0000,10,0,'ASM(10) d 12999 3500.00,c 12001 3500.00','2017-11-07 10:09:16',0,'2018-01-01 10:12:46',0);
 /*!40000 ALTER TABLE `JournalAllocation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -742,7 +764,9 @@ CREATE TABLE `JournalAudit` (
   `JID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UID` mediumint(9) NOT NULL DEFAULT '0',
-  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -796,7 +820,9 @@ CREATE TABLE `JournalMarkerAudit` (
   `JMID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UID` mediumint(9) NOT NULL DEFAULT '0',
-  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -849,7 +875,9 @@ CREATE TABLE `LedgerAudit` (
   `LEID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UID` mediumint(9) NOT NULL DEFAULT '0',
-  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -945,7 +973,9 @@ CREATE TABLE `LedgerMarkerAudit` (
   `LMID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UID` mediumint(9) NOT NULL DEFAULT '0',
-  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1092,6 +1122,8 @@ CREATE TABLE `OtherDeliverables` (
   `Active` smallint(6) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ODID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1143,7 +1175,6 @@ DROP TABLE IF EXISTS `Payor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Payor` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `TaxpayorID` varchar(25) NOT NULL DEFAULT '',
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
@@ -1153,8 +1184,9 @@ CREATE TABLE `Payor` (
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`TCID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `PayorID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`PayorID`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1163,7 +1195,7 @@ CREATE TABLE `Payor` (
 
 LOCK TABLES `Payor` WRITE;
 /*!40000 ALTER TABLE `Payor` DISABLE KEYS */;
-INSERT INTO `Payor` VALUES (1,1,'',0.0000,1,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(2,1,'',0.0000,2,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(3,1,'',0.0000,3,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(4,1,'',0.0000,4,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(5,1,'',0.0000,5,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(6,1,'',0.0000,6,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(7,1,'',0.0000,7,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(8,1,'',0.0000,8,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(9,1,'',0.0000,9,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(10,1,'',0.0000,10,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(11,1,'',0.0000,11,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0);
+INSERT INTO `Payor` VALUES (1,'',0.0000,1,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,1),(1,'',0.0000,2,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,2),(1,'',0.0000,3,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,3),(1,'',0.0000,4,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,4),(1,'',0.0000,5,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,5),(1,'',0.0000,6,0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,6),(1,'',0.0000,7,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,7),(1,'',0.0000,8,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,8),(1,'',0.0000,9,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,9),(1,'',0.0000,10,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,10),(1,'',0.0000,11,0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,11);
 /*!40000 ALTER TABLE `Payor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1175,7 +1207,6 @@ DROP TABLE IF EXISTS `Prospect`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Prospect` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `EmployerName` varchar(100) NOT NULL DEFAULT '',
   `EmployerStreetAddress` varchar(100) NOT NULL DEFAULT '',
@@ -1201,8 +1232,9 @@ CREATE TABLE `Prospect` (
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`TCID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `ProspectID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`ProspectID`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1211,7 +1243,7 @@ CREATE TABLE `Prospect` (
 
 LOCK TABLES `Prospect` WRITE;
 /*!40000 ALTER TABLE `Prospect` DISABLE KEYS */;
-INSERT INTO `Prospect` VALUES (1,1,'','','','','','','','',1000.7500,'0000-00-00',0,0,1,0,'','0000-00-00',0,0,0.0000,1,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(2,1,'','','','','','','','',0.0000,'0000-00-00',0,0,2,0,'','0000-00-00',0,0,0.0000,2,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(3,1,'','','','','','','','',1100.7500,'0000-00-00',0,0,3,0,'','0000-00-00',0,0,0.0000,3,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(4,1,'','','','','','','','',0.0000,'0000-00-00',0,0,4,0,'','0000-00-00',0,0,0.0000,4,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(5,1,'','','','','','','','',0.0000,'0000-00-00',0,0,5,0,'','0000-00-00',0,0,0.0000,5,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(6,1,'','','','','','','','',1200.7500,'0000-00-00',0,0,6,0,'','0000-00-00',0,0,0.0000,6,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(7,1,'','','','','','','','',1300.7500,'0000-00-00',0,0,7,0,'','0000-00-00',0,0,0.0000,7,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(8,1,'','','','','','','','',0.0000,'0000-00-00',0,0,8,0,'','0000-00-00',0,0,0.0000,8,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(9,1,'','','','','','','','',0.0000,'0000-00-00',0,0,9,0,'','0000-00-00',0,0,0.0000,9,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(10,1,'','','','','','','','',0.0000,'0000-00-00',0,0,10,0,'','0000-00-00',0,0,0.0000,10,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(11,1,'','','','','','','','',0.0000,'0000-00-00',0,0,11,0,'','0000-00-00',0,0,0.0000,11,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0);
+INSERT INTO `Prospect` VALUES (1,'','','','','','','','',1000.7500,'0000-00-00',0,0,1,0,'','0000-00-00',0,0,0.0000,1,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,1),(1,'','','','','','','','',0.0000,'0000-00-00',0,0,2,0,'','0000-00-00',0,0,0.0000,2,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,2),(1,'','','','','','','','',1100.7500,'0000-00-00',0,0,3,0,'','0000-00-00',0,0,0.0000,3,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,3),(1,'','','','','','','','',0.0000,'0000-00-00',0,0,4,0,'','0000-00-00',0,0,0.0000,4,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,4),(1,'','','','','','','','',0.0000,'0000-00-00',0,0,5,0,'','0000-00-00',0,0,0.0000,5,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,5),(1,'','','','','','','','',1200.7500,'0000-00-00',0,0,6,0,'','0000-00-00',0,0,0.0000,6,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,6),(1,'','','','','','','','',1300.7500,'0000-00-00',0,0,7,0,'','0000-00-00',0,0,0.0000,7,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,7),(1,'','','','','','','','',0.0000,'0000-00-00',0,0,8,0,'','0000-00-00',0,0,0.0000,8,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,8),(1,'','','','','','','','',0.0000,'0000-00-00',0,0,9,0,'','0000-00-00',0,0,0.0000,9,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,9),(1,'','','','','','','','',0.0000,'0000-00-00',0,0,10,0,'','0000-00-00',0,0,0.0000,10,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,10),(1,'','','','','','','','',0.0000,'0000-00-00',0,0,11,0,'','0000-00-00',0,0,0.0000,11,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,11);
 /*!40000 ALTER TABLE `Prospect` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1255,7 +1287,9 @@ CREATE TABLE `RatePlanOD` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `ODID` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1318,7 +1352,11 @@ CREATE TABLE `RatePlanRefRTRate` (
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `Val` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RPRRTRateID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`RPRRTRateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1346,7 +1384,11 @@ CREATE TABLE `RatePlanRefSPRate` (
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `Val` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RPRSPRateID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`RPRSPRateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1485,6 +1527,8 @@ CREATE TABLE `RentableMarketRate` (
   `DtStop` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RMRID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1495,7 +1539,7 @@ CREATE TABLE `RentableMarketRate` (
 
 LOCK TABLES `RentableMarketRate` WRITE;
 /*!40000 ALTER TABLE `RentableMarketRate` DISABLE KEYS */;
-INSERT INTO `RentableMarketRate` VALUES (1,1,1,3500.0000,'2017-01-01 00:00:00','9999-12-31 00:00:00','2017-11-07 10:09:15',0);
+INSERT INTO `RentableMarketRate` VALUES (1,1,1,3500.0000,'2017-01-01 00:00:00','9999-12-31 00:00:00','2017-11-07 10:09:15',0,'2018-01-01 10:12:47',0);
 /*!40000 ALTER TABLE `RentableMarketRate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1514,6 +1558,8 @@ CREATE TABLE `RentableSpecialty` (
   `Description` varchar(256) NOT NULL DEFAULT '',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RSPID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1543,7 +1589,9 @@ CREATE TABLE `RentableSpecialtyRef` (
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RSPRefID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`RSPRefID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1638,7 +1686,9 @@ CREATE TABLE `RentableTypeTax` (
   `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtStop` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1702,6 +1752,8 @@ CREATE TABLE `RentableUsers` (
   `DtStop` date NOT NULL DEFAULT '1970-01-01',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RUID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1712,7 +1764,7 @@ CREATE TABLE `RentableUsers` (
 
 LOCK TABLES `RentableUsers` WRITE;
 /*!40000 ALTER TABLE `RentableUsers` DISABLE KEYS */;
-INSERT INTO `RentableUsers` VALUES (1,1,1,1,'2017-01-01','2018-01-01','2017-11-07 10:09:15',0),(2,1,1,2,'2017-01-01','2018-01-01','2017-11-07 10:09:15',0);
+INSERT INTO `RentableUsers` VALUES (1,1,1,1,'2017-01-01','2018-01-01','2017-11-07 10:09:15',0,'2018-01-01 10:12:47',0),(2,1,1,2,'2017-01-01','2018-01-01','2017-11-07 10:09:15',0,'2018-01-01 10:12:47',0);
 /*!40000 ALTER TABLE `RentableUsers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1792,6 +1844,8 @@ CREATE TABLE `RentalAgreementPayors` (
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RAPID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1802,7 +1856,7 @@ CREATE TABLE `RentalAgreementPayors` (
 
 LOCK TABLES `RentalAgreementPayors` WRITE;
 /*!40000 ALTER TABLE `RentalAgreementPayors` DISABLE KEYS */;
-INSERT INTO `RentalAgreementPayors` VALUES (1,1,1,1,'2017-01-01','2018-01-01',0,'2017-11-07 10:09:15',0),(2,1,1,2,'2017-01-01','2018-01-01',0,'2017-11-07 10:09:15',0);
+INSERT INTO `RentalAgreementPayors` VALUES (1,1,1,1,'2017-01-01','2018-01-01',0,'2017-11-07 10:09:15',0,'2018-01-01 10:12:48',0),(2,1,1,2,'2017-01-01','2018-01-01',0,'2017-11-07 10:09:15',0,'2018-01-01 10:12:48',0);
 /*!40000 ALTER TABLE `RentalAgreementPayors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1859,6 +1913,8 @@ CREATE TABLE `RentalAgreementRentables` (
   `RARDtStop` date NOT NULL DEFAULT '1970-01-01',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RARID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1869,7 +1925,7 @@ CREATE TABLE `RentalAgreementRentables` (
 
 LOCK TABLES `RentalAgreementRentables` WRITE;
 /*!40000 ALTER TABLE `RentalAgreementRentables` DISABLE KEYS */;
-INSERT INTO `RentalAgreementRentables` VALUES (1,1,1,1,0,3500.0000,'2017-01-01','2018-01-01','2017-11-07 10:09:15',0);
+INSERT INTO `RentalAgreementRentables` VALUES (1,1,1,1,0,3500.0000,'2017-01-01','2018-01-01','2017-11-07 10:09:15',0,'2018-01-01 10:12:48',0);
 /*!40000 ALTER TABLE `RentalAgreementRentables` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1887,7 +1943,9 @@ CREATE TABLE `RentalAgreementTax` (
   `DtStop` date NOT NULL DEFAULT '1970-01-01',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2045,7 +2103,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2017-11-07 10:09:12','sudip',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2017-11-07 15:39:12','2017-11-07 15:39:12');
+INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2017-11-07 10:09:12','sudip',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2017-11-07 15:39:12','2017-11-07 15:39:12','2018-01-01 10:12:48',0);
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2167,7 +2225,6 @@ DROP TABLE IF EXISTS `User`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `User` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Points` bigint(20) NOT NULL DEFAULT '0',
   `DateofBirth` date NOT NULL DEFAULT '1970-01-01',
@@ -2183,8 +2240,9 @@ CREATE TABLE `User` (
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`TCID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `UserID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`UserID`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2193,7 +2251,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,1,10,'0000-00-00','','','','','',0,'',1,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(2,1,20,'0000-00-00','','','','','',0,'',2,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(3,1,30,'0000-00-00','','','','','',0,'',3,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(4,1,40,'0000-00-00','','','','','',0,'',4,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(5,1,50,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(6,1,60,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0),(7,1,70,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(8,1,80,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(9,1,90,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(10,1,100,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0),(11,1,110,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0);
+INSERT INTO `User` VALUES (1,10,'0000-00-00','','','','','',0,'',1,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,1),(1,20,'0000-00-00','','','','','',0,'',2,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,2),(1,30,'0000-00-00','','','','','',0,'',3,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,3),(1,40,'0000-00-00','','','','','',0,'',4,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,4),(1,50,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,5),(1,60,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:14',0,'2017-11-07 10:09:14',0,6),(1,70,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,7),(1,80,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,8),(1,90,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,9),(1,100,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,10),(1,110,'0000-00-00','','','','','',0,'',0,'2017-11-07 10:09:15',0,'2017-11-07 10:09:15',0,11);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2244,4 +2302,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-07 15:39:16
+-- Dump completed on 2018-01-01 15:43:07
