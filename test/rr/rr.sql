@@ -2099,7 +2099,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2017-09-09 00:00:00','ip-172-31-51-141.ec2.internal',4,'2017-09-08 00:00:06','2017-09-08 00:00:06','2017-08-16 06:07:23','2017-09-08 00:00:05','2018-01-01 10:09:58',0),(2,'CreateAssessmentInstances','','CreateAssessmentInstances','2017-10-18 00:00:00','Steves-MacBook-Pro-2.local',4,'2017-10-17 18:31:53','2017-10-17 18:31:53','2017-09-14 14:12:38','2017-10-17 11:31:53','2018-01-01 10:09:58',0);
+INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2017-09-09 00:00:00','ip-172-31-51-141.ec2.internal',4,'2017-09-08 00:00:06','2017-09-08 00:00:06','2017-08-16 06:07:23','2017-09-08 00:00:05'),(2,'CreateAssessmentInstances','','CreateAssessmentInstances','2017-10-18 00:00:00','Steves-MacBook-Pro-2.local',4,'2017-10-17 18:31:53','2017-10-17 18:31:53','2017-09-14 14:12:38','2017-10-17 11:31:53');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2298,4 +2298,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-01 15:40:33
+-- Dump completed on 2018-01-01 16:32:28
