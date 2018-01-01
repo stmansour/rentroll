@@ -139,8 +139,10 @@ func CSVLoaderTransactantList(ctx context.Context, BID int64, s string) ([]rlib.
 			}
 		} else {
 			a, err = rlib.GetTransactantByPhoneOrEmail(ctx, BID, s)
-			rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)
-			return m, rerr
+			if err != nil {
+				rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)
+				return m, rerr
+			}
 		}
 		if 0 == a.TCID {
 			rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)

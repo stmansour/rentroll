@@ -5208,7 +5208,7 @@ func GetTransactantByPhoneOrEmail(ctx context.Context, BID int64, s string) (Tra
 	WHERE
 		BID={{.BID}} AND (
 			WorkPhone="{{.WorkPhone}}" OR
-			CellPhone="{{.CellPhone}})" OR
+			CellPhone="{{.CellPhone}}" OR
 			PrimaryEmail="{{.PrimaryEmail}}" OR
 			SecondaryEmail="{{.SecondaryEmail}}"
 		);`
