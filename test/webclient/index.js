@@ -2,7 +2,6 @@
 
 // required modules
 var initM = require("./init.js");
-var gridM = require("./grid.js");
 var formM = require("./form.js");
 var addNewButtonM = require("./addNew.js");
 var gridRecordM = require("./gridRecords.js");
@@ -96,26 +95,7 @@ casper.then(function pageBasicLayoutTest() {
 });
 
 // --------------------------------------------------
-// 3. Now start all grid view UI testing
-// --------------------------------------------------
-/*casper.then(function gridTesting() {
-    gridM.w2uiGridTest(asmM.gridConf);
-    gridM.w2uiGridTest(receiptsM.gridConf);
-    gridM.w2uiGridTest(depositM.gridConf);
-    gridM.w2uiGridTest(allocfundsM.gridConf);
-    gridM.w2uiGridTest(transactantsM.gridConf);
-    gridM.w2uiGridTest(raM.gridConf);
-    gridM.w2uiGridTest(acctM.gridConf);
-    gridM.w2uiGridTest(pmtM.gridConf);
-    gridM.w2uiGridTest(depM.gridConf);
-    gridM.w2uiGridTest(depmethM.gridConf);
-    gridM.w2uiGridTest(arsM.gridConf);
-    gridM.w2uiGridTest(rtM.gridConf);
-    gridM.w2uiGridTest(rentableM.gridConf);
-});*/
-
-// --------------------------------------------------
-// 4. Now start all add new button test
+// 3. Now start all add new button test
 // --------------------------------------------------
 casper.then(function addNewButtonTesting() {
     addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
@@ -127,7 +107,7 @@ casper.then(function addNewButtonTesting() {
 });
 
 // --------------------------------------------------
-// 5. Now start all right side panel view UI testing
+// 4. Now start all right side panel view UI testing
 // --------------------------------------------------
 casper.then(function formTesting() {
     /*formM.w2uiFormTest(asmM.formConf);
@@ -142,7 +122,7 @@ casper.then(function formTesting() {
 
 
 // --------------------------------------------------
-// 6. Now start all grid record check test
+// 5. Now start all grid record check test
 // --------------------------------------------------
 
 casper.then(function apiIntegrationTest() {
