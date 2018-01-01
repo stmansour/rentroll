@@ -319,7 +319,7 @@ func GetRARAcctRange(ctx context.Context, bid, raid, rid int64, d1, d2 *time.Tim
 	WHERE
 		(RentCycle=0 OR (RentCycle>0 AND PASMID>0)) AND
 		RAID={{.RAID}} AND RID={{.RID}} AND
-		Stop>={{.d1}} AND Start<{{.d2}} {{.AcctRules}};`
+		Stop>="{{.d1}}" AND Start<"{{.d2}}" {{.AcctRules}};`
 
 	qc := QueryClause{
 		"SelectClause": RRdb.DBFields["Assessments"],
