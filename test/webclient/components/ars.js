@@ -10,7 +10,7 @@ exports.gridConf = {
     sidebarID: SIDEBAR_ID,
     tableName: "AR",
     capture: "arsGridRequest.png",
-    endPoint: common.apiBaseURL + "/"+ common.apiVersion + "/ars/" + common.BID,
+    endPoint: common.apiBaseURL + "/{0}/ars/{1}",
     methodType: "POST",
     requestData: JSON.stringify({
         'cmd': 'get', 'selected': [], 'limit': 100, 'offset': 0

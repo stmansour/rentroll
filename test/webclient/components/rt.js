@@ -9,7 +9,7 @@ exports.gridConf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
     capture: "rtGridRequest.png",
-    endPoint: common.apiBaseURL + "/" + common.apiVersion + "/rt/" + common.BID,
+    endPoint: common.apiBaseURL + "/{0}/rt/{1}",
     methodType: "POST",
     requestData: JSON.stringify({
         "cmd": "get",
@@ -26,7 +26,7 @@ exports.gridConf = {
         GSRPC: "cycleFreq",
         ManageToBudget: "manageToBBudgetList"
     },
-    testCount: 50
+    testCount: 91
 };
 
 exports.formConf = {

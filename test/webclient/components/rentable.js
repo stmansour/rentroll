@@ -9,13 +9,13 @@ exports.gridConf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
     capture: "rentablesGridRequest.png",
-    endPoint: common.apiBaseURL + "/"+ common.apiVersion + "/rentables/" + common.BID,
+    endPoint: common.apiBaseURL + "/{0}/rentables/{1}",
     methodType: "POST",
     requestData: JSON.stringify({
         'cmd': 'get', 'selected': [], 'limit': 100, 'offset': 0
     }),
     excludeGridColumns: [],
-    testCount: 58
+    testCount: 59
 };
 
 exports.formConf = {

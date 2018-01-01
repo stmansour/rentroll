@@ -37,9 +37,8 @@ exports.gridRecordsTest = function (gridConfig) {
 
     // Check status in API Response
     function testAPIResponseStatus(that, test) {
-        // var isSuccess = that.apiResponse.status === common.successFlag;
-        // test.assert(isSuccess, "API Response status is {0}".format(isSuccess));
-        test.assertEquals(that.apiResponse.status, common.successFlag, "API Response status is {0}".format(isSuccess));
+        console.log(that.apiResponse.status);
+        test.assertEquals(that.apiResponse.status, common.successFlag, "API Response status is {0}".format(common.successFlag));
     }
 
     // Match total number of records with total number of records with W2UI object
@@ -48,6 +47,20 @@ exports.gridRecordsTest = function (gridConfig) {
             return w2ui[gridName].records.length;
         }, that.grid);
         test.assertEquals(w2uiRecordLength, that.apiResponse.total, "{0} record length matched with response list".format(that.grid));
+
+
+        // get record length from the DOM
+        var trsLen = casper.evaluate(function gridTableRowsLen(a, b, grid) {
+                return b(a(grid));
+            },
+            w2ui_utils.getGridRecordsDivID,
+            w2ui_utils.getGridTableRowsLength,
+            that.grid
+        );
+        casper.log('[GridTest] [{0}] table rows length: {1}'.format(that.grid, trsLen), 'debug', logSpace);
+
+        // match api response record length with records length in DOM
+        test.assertEquals(trsLen, that.apiResponse.total, "Grid [{0}] records (table rows) loaded in DOM".format(that.grid));
     }
 
     // Perform test on row column's data
@@ -107,12 +120,15 @@ exports.gridRecordsTest = function (gridConfig) {
             this.columns = this.gridColumns.filter(w2ui_utils.getVisibleColumnName, this.excludeGridColumnsKeyValue);
             this.excludeGridColumns = this.gridColumns.filter(w2ui_utils.getVisibleExcludedColumnName, this.excludeGridColumnsKeyValue);
 
+            // get api end point for grid
+            this.gridEndPoint = gridConfig.endPoint.format(common.apiVersion, common.BID);
+
             // Send api request to client and get response
             this.apiResponse = casper.evaluate(function (url, method, data) {
                 return JSON.parse(__utils__.sendAJAX(url, method, data, false));
-            }, gridConfig.endPoint, gridConfig.methodType, gridConfig.requestData);
+            }, this.gridEndPoint, gridConfig.methodType, gridConfig.requestData);
 
-            /*require('utils').dump(this.apiResponse);*/ // Print API Response
+            require('utils').dump(this.apiResponse); // Print API Response
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[GridRecordTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', logSpace);
@@ -126,7 +142,7 @@ exports.gridRecordsTest = function (gridConfig) {
 
             casper.wait(common.waitTime, function testGridRecords() {
 
-                // Match w2ui record length with list size in API Response
+                // Match w2ui/DOM record length with list size in API Response
                 testRecordLength(that, test);
 
                 // Check each row exist in DOM and visible in viewport

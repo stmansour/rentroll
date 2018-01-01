@@ -10,13 +10,13 @@ exports.gridConf = {
     sidebarID: SIDEBAR_ID,
     tableName: "PaymentType",
     capture: "pmtsGridRequest.png",
-    endPoint: common.apiBaseURL + "/"+ common.apiVersion + "/pmts/" + common.BID,
+    endPoint: common.apiBaseURL + "/{0}/pmts/{1}",
     methodType: "POST",
     requestData: JSON.stringify({
         'cmd': 'get', 'selected': [], 'limit': 100, 'offset': 0
     }),
     excludeGridColumns: [],
-    testCount: 22
+    testCount: 23
 };
 
 exports.formConf = {
