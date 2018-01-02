@@ -47,9 +47,9 @@ func InsertAR(ctx context.Context, a *AR) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.ARID = rid
 		}
 	} else {
@@ -95,9 +95,9 @@ func InsertAssessment(ctx context.Context, a *Assessment) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.ASMID = rid
 		}
 	} else {
@@ -139,9 +139,9 @@ func InsertBuilding(ctx context.Context, a *Building) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.BLDGID = rid
 		}
 	} else {
@@ -184,9 +184,9 @@ func InsertBuildingWithID(ctx context.Context, a *Building) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.BLDGID = rid
 		}
 	} else {
@@ -229,9 +229,9 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.BID = rid
 		}
 
@@ -274,9 +274,9 @@ func InsertCustomAttribute(ctx context.Context, a *CustomAttribute) (int64, erro
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.CID = rid
 		}
 	} else {
@@ -318,9 +318,9 @@ func InsertCustomAttributeRef(ctx context.Context, a *CustomAttributeRef) (int64
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.CARID = rid
 		}
 	} else {
@@ -362,9 +362,9 @@ func InsertDemandSource(ctx context.Context, a *DemandSource) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.SourceSLSID = rid
 		}
 	} else {
@@ -406,9 +406,9 @@ func InsertDeposit(ctx context.Context, a *Deposit) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.DID = rid
 		}
 	} else {
@@ -450,9 +450,9 @@ func InsertDepositMethod(ctx context.Context, a *DepositMethod) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.DPMID = rid
 		}
 	} else {
@@ -494,9 +494,9 @@ func InsertDepositPart(ctx context.Context, a *DepositPart) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.DPID = rid
 		}
 	} else {
@@ -526,7 +526,6 @@ func InsertDepository(ctx context.Context, a *Depository) (int64, error) {
 		a.LastModBy = a.CreateBy
 	}
 
-	var id = int64(0)
 	// transaction... context
 	fields := []interface{}{a.BID, a.LID, a.Name, a.AccountNo, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -541,13 +540,13 @@ func InsertDepository(ctx context.Context, a *Depository) (int64, error) {
 	if nil == err {
 		x, err := res.LastInsertId()
 		if err == nil {
-			id = int64(x)
-			a.DEPID = id
+			rid = int64(x)
+			a.DEPID = rid
 		}
 	} else {
 		err = insertError(err, "Depository", *a)
 	}
-	return id, err
+	return rid, err
 }
 
 //======================================
@@ -588,9 +587,9 @@ func InsertExpense(ctx context.Context, a *Expense) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.EXPID = rid
 		}
 	} else {
@@ -636,9 +635,9 @@ func InsertInvoice(ctx context.Context, a *Invoice) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.InvoiceNo = rid
 		}
 	} else {
@@ -680,9 +679,9 @@ func InsertInvoiceAssessment(ctx context.Context, a *InvoiceAssessment) (int64, 
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.InvoiceASMID = rid
 		}
 	} else {
@@ -724,9 +723,9 @@ func InsertInvoicePayor(ctx context.Context, a *InvoicePayor) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.InvoicePayorID = rid
 		}
 	} else {
@@ -756,8 +755,6 @@ func InsertJournal(ctx context.Context, a *Journal) (int64, error) {
 		a.LastModBy = a.CreateBy
 	}
 
-	var id = int64(0)
-
 	// transaction... context
 	fields := []interface{}{a.BID, a.Dt, a.Amount, a.Type, a.ID, a.Comment, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -770,9 +767,9 @@ func InsertJournal(ctx context.Context, a *Journal) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.JID = rid
 		}
 	} else {
@@ -816,9 +813,9 @@ func InsertJournalAllocationEntry(ctx context.Context, a *JournalAllocation) (in
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.JAID = rid
 		}
 	} else {
@@ -860,9 +857,9 @@ func InsertJournalMarker(ctx context.Context, a *JournalMarker) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.JMID = rid
 		}
 	} else {
@@ -910,9 +907,9 @@ func InsertLedgerMarker(ctx context.Context, a *LedgerMarker) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			a.LMID = int64(id)
+			a.LMID = int64(x)
 		}
 	} else {
 		err = insertError(err, "LedgerMarker", *a)
@@ -953,9 +950,9 @@ func InsertLedgerEntry(ctx context.Context, a *LedgerEntry) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.LEID = rid
 		}
 	} else {
@@ -998,9 +995,9 @@ func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.LID = rid
 		}
 	} else {
@@ -1046,9 +1043,9 @@ func InsertNote(ctx context.Context, a *Note) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.NID = rid
 		}
 	} else {
@@ -1094,9 +1091,9 @@ func InsertNoteList(ctx context.Context, a *NoteList) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.NLID = rid
 		}
 	} else {
@@ -1142,9 +1139,9 @@ func InsertNoteType(ctx context.Context, a *NoteType) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.NTID = rid
 		}
 	} else {
@@ -1190,9 +1187,9 @@ func InsertRatePlan(ctx context.Context, a *RatePlan) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RPID = rid
 		}
 	} else {
@@ -1234,9 +1231,9 @@ func InsertRatePlanRef(ctx context.Context, a *RatePlanRef) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RPRID = rid
 		}
 	} else {
@@ -1278,9 +1275,9 @@ func InsertRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) (int64, 
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RPRRTRateID = rid
 		}
 	} else {
@@ -1322,9 +1319,9 @@ func InsertRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) (int64, 
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RPRSPRateID = rid
 		}
 	} else {
@@ -1370,9 +1367,9 @@ func InsertPaymentType(ctx context.Context, a *PaymentType) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.PMTID = rid
 		}
 	} else {
@@ -1414,9 +1411,9 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.PayorID = rid
 		}
 	} else {
@@ -1461,9 +1458,9 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.ProspectID = rid
 		}
 	} else {
@@ -1505,9 +1502,9 @@ func InsertRentable(ctx context.Context, a *Rentable) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RID = rid
 		}
 	} else {
@@ -1555,9 +1552,9 @@ func InsertReceipt(ctx context.Context, a *Receipt) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RCPTID = rid
 		}
 	} else {
@@ -1600,9 +1597,9 @@ func InsertReceiptAllocation(ctx context.Context, a *ReceiptAllocation) (int64, 
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RCPAID = rid
 		}
 	} else {
@@ -1644,9 +1641,9 @@ func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, erro
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RAID = rid
 		}
 	} else {
@@ -1688,9 +1685,9 @@ func InsertRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) (i
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RAPID = rid
 		}
 	} else {
@@ -1732,9 +1729,9 @@ func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.PETID = rid
 		}
 	} else {
@@ -1776,9 +1773,9 @@ func InsertRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentab
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RARID = rid
 		}
 	} else {
@@ -1824,9 +1821,9 @@ func InsertRentalAgreementTemplate(ctx context.Context, a *RentalAgreementTempla
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RATID = rid
 		}
 	} else {
@@ -1868,9 +1865,9 @@ func InsertRentableSpecialty(ctx context.Context, a *RentableSpecialty) (int64, 
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RSPID = rid
 		}
 	} else {
@@ -1912,9 +1909,9 @@ func InsertRentableMarketRates(ctx context.Context, a *RentableMarketRate) (int6
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RMRID = rid
 		}
 	} else {
@@ -1956,9 +1953,9 @@ func InsertRentableType(ctx context.Context, a *RentableType) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RTID = rid
 		}
 	} else {
@@ -2000,9 +1997,9 @@ func InsertRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) (i
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RSPRefID = rid
 		}
 	} else {
@@ -2044,9 +2041,9 @@ func InsertRentableStatus(ctx context.Context, a *RentableStatus) (int64, error)
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RSID = rid
 		}
 	} else {
@@ -2089,9 +2086,9 @@ func InsertRentableTypeRef(ctx context.Context, a *RentableTypeRef) (int64, erro
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RTRID = rid
 		}
 	} else {
@@ -2133,9 +2130,9 @@ func InsertRentableUser(ctx context.Context, a *RentableUser) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RUID = rid
 		}
 	} else {
@@ -2177,9 +2174,9 @@ func InsertStringList(ctx context.Context, a *StringList) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.SLID = rid
 		}
 	} else {
@@ -2296,9 +2293,9 @@ func InsertSubAR(ctx context.Context, a *SubAR) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.SARID = rid
 		}
 	} else {
@@ -2340,9 +2337,9 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.TCID = rid
 		}
 	} else {
@@ -2384,9 +2381,9 @@ func InsertUser(ctx context.Context, a *User) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.UserID = rid
 		}
 	} else {
@@ -2428,9 +2425,9 @@ func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
 
 	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.VID = rid
 		}
 	} else {
