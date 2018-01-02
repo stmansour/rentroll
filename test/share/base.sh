@@ -65,8 +65,8 @@ else
 fi
 TREPORT="${RRBIN}/../../test/testreport.txt"
 
-RENTROLL="${RRBIN}/rentroll -A ${NOCONSOLE}"
-CSVLOAD="${RRBIN}/rrloadcsv  ${NOCONSOLE}"
+RENTROLL="${RRBIN}/rentroll -A ${NOCONSOLE} -noauth"
+CSVLOAD="${RRBIN}/rrloadcsv ${NOCONSOLE} -noauth"
 GOLD="./gold"
 
 PAUSE=0
