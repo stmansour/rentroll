@@ -117,6 +117,7 @@ type MultiTableReportHandler struct {
 type ReporterInfo struct {
 	ReportNo              int       // index number of the report
 	OutputFormat          int       // text, html, maybe more in the future
+	EDI                   int       // end date inclusive -- 0 = no, 1 = yes
 	Bid                   int64     // associated business
 	Raid                  int64     // associated Rental Agreement if needed
 	D1                    time.Time // associated date if needed
@@ -130,6 +131,28 @@ type ReporterInfo struct {
 	Handler               func(*ReporterInfo) string
 	Xbiz                  *rlib.XBusiness // may not be set in all cases
 	QueryParams           *url.Values
+}
+
+// GetDisplayD2 returns the appropriate display date for the end date of a period.
+//     Some people like to see the last date as up-to-and-including.  But from a
+//     code perspective, we always set the end date to a value which
+//     is up-to-but-not-including.  If ri.EDI == 0, then we display the date as
+//     up-to-and-including.  If EDI == 1, we display the up-to-but-not-including
+//     value.
+//
+// INPUT
+//   ri - Report context
+//
+// RETURNS - the display date
+//-----------------------------------------------------------------------------
+func GetDisplayD2(ri *ReporterInfo) time.Time {
+	// Adjust d2 depending on the mode...  0 = no adjustment needed, 1 = inclusive last date, so subtract 1 day
+	// rlib.Console("*** GetDisplayD2:  ri.EDI = %d\n", ri.EDI)
+	d2 := ri.D2
+	if ri.EDI == 1 {
+		d2 = d2.AddDate(0, 0, -1)
+	}
+	return d2
 }
 
 // TableReportHeader returns a title block of text for a report. The format is:
@@ -151,12 +174,14 @@ func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo
 	tbl.SetTitle(ri.Xbiz.P.Designation + " " + rn)
 
 	var s string
+	d2 := GetDisplayD2(ri)
+	// rlib.Console("*** Table Report Header:  d2 = %s\n", d2.Format(rlib.RRDATEREPORTFMT))
 	if ri.RptHeaderD1 && ri.RptHeaderD2 {
-		s = ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + ri.D2.Format(rlib.RRDATEREPORTFMT)
+		s = ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + d2.Format(rlib.RRDATEREPORTFMT)
 	} else if ri.RptHeaderD1 {
 		s = ri.D1.Format(rlib.RRDATEREPORTFMT)
 	} else if ri.RptHeaderD2 {
-		s = ri.D2.Format(rlib.RRDATEREPORTFMT)
+		s = d2.Format(rlib.RRDATEREPORTFMT)
 	}
 	tbl.SetSection1(s)
 
@@ -245,12 +270,16 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 	if ri.BlankLineAfterRptName {
 		s += "\n"
 	}
+
+	d2 := GetDisplayD2(ri)
+	rlib.Console("*** Report Header:  d2 = %s\n", d2.Format(rlib.RRDATEREPORTFMT))
+
 	if ri.RptHeaderD1 && ri.RptHeaderD2 {
-		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + ri.D2.Format(rlib.RRDATEREPORTFMT) + "\n"
+		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + d2.Format(rlib.RRDATEREPORTFMT) + "\n"
 	} else if ri.RptHeaderD1 {
 		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + "\n"
 	} else if ri.RptHeaderD2 {
-		s += ri.D2.Format(rlib.RRDATEREPORTFMT) + "\n"
+		s += d2.Format(rlib.RRDATEREPORTFMT) + "\n"
 	}
 	s += "\n"
 	return s, nil

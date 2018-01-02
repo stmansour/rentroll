@@ -935,7 +935,7 @@ CREATE TABLE AR (
     FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts,
                                                             -- 1<<1 - populate on Rental Agreement,
                                                             -- 1<<2 = RAID required,
-                                                            -- 1<<3 = subARIDs apply
+                                                            -- 1<<3 = subARIDs apply (i.e., there are other ar rules that apply to this AR Rule)
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it

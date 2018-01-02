@@ -1,8 +1,8 @@
 /*global
-    popupRentalAgrPicker, $, asm, console, w2ui, w2uiDateControlString, app,
+    popupRentalAgrPicker, $, console, w2ui, w2uiDateControlString, app,
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder, get2XReversalSymbolHTML,
     getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord, isDatePriorToCurrentDate,
-    getRealEndDate,
+    form_dirty_alert,setToForm,addDateNavToToolbar,getCurrentBID,formRefreshCallBack,
 */
 "use strict";
 function getAsmsInitRecord(BID, BUD, previousFormRecord){

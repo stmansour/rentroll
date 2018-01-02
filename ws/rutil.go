@@ -24,10 +24,11 @@ type ReportContext struct {
 	BL                 []rlib.Business // array of all businesses, for initializing dropdown selections
 	ReportContent      string          // text report content
 	PageTitle          string          // set page title via software
-	ReportOutputFormat int
-	PDFPageWidth       float64 // page width
-	PDFPageHeight      float64 // page height
-	PDFPageSizeUnit    string  // page size unit, default is inch ("in")
+	ReportOutputFormat int             // indicates text, html, or pdf
+	PDFPageWidth       float64         // page width
+	PDFPageHeight      float64         // page height
+	PDFPageSizeUnit    string          // page size unit, default is inch ("in")
+	EDI                int             // end date inclusive - 0 = end date is not inclusive, 1 = end date is inclusive
 	// LDG                UILedger        // ledgers associated with this report
 }
 

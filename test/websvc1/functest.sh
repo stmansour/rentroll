@@ -67,7 +67,7 @@ echo "%7B%22cmd%22%3A%22save%22%2C%22TCID%22%3A1%2C%22BID%22%3A1%2C%22records%22
 dojsonPOST "http://localhost:8270/v1/allocfunds/1/" "request" "a9"  "WebService--Allocate_Funds"
 
 # Look at a LedgerBalance report to make sure all the accounts are correct...
-$(curl -s "http://localhost:8270/wsvc/1?r=RPTla&dtstart=2017-01-01&dtstop=2017-08-01" >a10)
+$(curl -s "http://localhost:8270/v1/report/1?r=RPTla&dtstart=2017-01-01&dtstop=2017-08-01" >a10)
 doValidateFile "a10" "WebService--Ledger_Activity_Report"
 
 # Reverse receipt #1
@@ -75,7 +75,7 @@ echo "%7B%22cmd%22%3A%22delete%22%2C%22formname%22%3A%22receiptForm%22%2C%22RCPT
 dojsonPOST "http://localhost:8270/v1/receipt/1/1" "request" "a11"  "WebService--Reverse_Receipt_1"
 
 # Look at a LedgerBalance after reversing the receipt to make sure all the accounts are correct...
-$(curl -s "http://localhost:8270/wsvc/1?r=RPTla&dtstart=2017-01-01&dtstop=2017-08-01" >a12)
+$(curl -s "http://localhost:8270/v1/report/1?r=RPTla&dtstart=2017-01-01&dtstop=2017-08-01" >a12)
 doValidateFile "a12" "WebService--Ledger_Activity_Report"
 
 # Force an error on Account Update. Try to make an account (Accounts Receivable - 11000) a summary

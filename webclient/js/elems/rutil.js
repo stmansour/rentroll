@@ -1,7 +1,7 @@
 /*global
-    app, w2ui, $, form_dirty_alert,
-
+    app, w2ui, $, form_dirty_alert, jQuery, console, w2popup,
 */
+
 "use strict";
 // ---------------------------------------------------------------------------------
 // String format: https://gist.github.com/tbranyen/1049426 (if want to format object, array as well)

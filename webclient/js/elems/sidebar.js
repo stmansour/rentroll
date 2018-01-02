@@ -19,7 +19,7 @@ function buildSidebar(flag) {
                 { id: 'workflowreceipts', text: plural(app.sAssessment)+' / '+plural(app.sReceipt), img: 'icon-folder', expanded: true, group: true,
                     nodes: [
                             { id: 'asms',         text: 'Assess Charges',                icon: 'fa fa-star-o',      hint: plural(app.sAssessment) },
-                            { id: 'receipts',     text: 'Receive '+plural(app.sReceipt), icon: 'fa fa-star',        hint: plural(app.sReceipt) },
+                            { id: 'receipts',     text: 'Tendered Payment ' + app.sReceipt, icon: 'fa fa-star',        hint: plural(app.sReceipt) },
                             { id: 'expense',      text: plural(app.sExpense),            icon: 'fa fa-minus-circle',hint: plural(app.sExpense) },
                             { id: 'deposit',      text: 'Deposits',                      icon: 'fa fa-plus-circle', hint: 'Make Deposit' },
                             { id: 'allocfunds',   text: 'Apply '+plural(app.sReceipt),   icon: 'fa fa-check-circle-o' },
@@ -305,12 +305,12 @@ function buildSidebar(flag) {
             nodes: [
                 { id: 'workflowreceipts', text: plural(app.sAssessment)+' / '+plural(app.sReceipt), img: 'icon-folder', expanded: true, group: true,
                     nodes: [
-                            { id: 'receipts',     text: 'Receive '+plural(app.sReceipt), icon: 'fa fa-star',        hint: plural(app.sReceipt) },
+                            { id: 'receipts',     text: 'Tendered Payment '+app.sReceipt, icon: 'fa fa-star',        hint: plural(app.sReceipt) },
                    ]
                 },
                 { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
                     nodes: [
-                          { id: 'RPTrcpt',       text: 'Receipts',                        icon: 'fa fa-file-text-o' },
+                          { id: 'RPTrcpt',       text: 'Tendered Payment Log',           icon: 'fa fa-file-text-o' },
                     ]
                 },
             ],

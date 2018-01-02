@@ -1,6 +1,6 @@
 /*global
     app, w2ui, $, monthBack, monthFwd, dayBack, dayFwd, setToCurrentMonth, setToNextMonth,
-    console, dateFromString, dateControlString, w2uiDateControlString, 
+    console, dateFromString, dateControlString, w2uiDateControlString, setDateControl
 */
 "use strict";
 
@@ -51,7 +51,13 @@ function handleDateToolbarAction(event,prefix) {
             break;
         case 'today':
             app.D1 = setToCurrentMonth(xd1);
-            app.D2 = setToNextMonth(xd2);
+            if ( event.originalEvent.shiftKey ) {
+                var dt = dateFromString(app.D1);
+                dt.setDate(dt.getDate());
+                app.D2 = setDateControl(xd2, dt);
+            } else {
+                app.D2 = setToNextMonth(xd2);
+            }
             adjustD2();
             break;
         case 'dayback':
@@ -71,31 +77,6 @@ function handleDateToolbarAction(event,prefix) {
     }
     console.log('handleDateToolbarAction:  D1 = ' + app.D1 + '  D2 = ' + app.D2);
 }
-
-//-----------------------------------------------------------------------------
-// getRealEndDate
-//          - based on mode, return the actual end date.  If mode==0 then the
-//            end date is app.D1.  If mode == 1 then the end date is 
-//            (app.D1 + 1day)
-// @params
-//          mode - 0 means date viewing is up-to-but-not-includeing
-//               - 1 means date viewing is up-to-and-including
-//
-// @return  the return date needed by the server (up-to-but-not-including)
-//-----------------------------------------------------------------------------
-// function getRealEndDate(mode) {
-//     switch (mode) {
-//     case 0:
-//         return app.D2;
-//     case 1:
-//         var x = app.D2;
-//         x.setDate(x.getDate() + 1);
-//         return x;
-//     default:
-//         console.log("ERROR: getRealEndDate - invalid mode = " + mode);
-//         return app.D2;
-//     }
-// }
 
 //-----------------------------------------------------------------------------
 // setDateControlsInToolbar
@@ -189,6 +170,7 @@ function updateGridPostDataDates(grid) {
     }
 }
 
+
 //-----------------------------------------------------------------------------
 // addDateNavToToolbar
 //          - Utility routine create add a date navigator to a toolbar
@@ -218,7 +200,7 @@ function addDateNavToToolbar(prefix) {
     $(document).on("keypress change", "input[name="+nd1+"]", function(e) {        
         // if event type is keypress then
         if (e.type == 'keypress'){            
-            // do not procedd further untill user press the Enter key
+            // do not proceed further until the user presses the Enter key
             if (e.which != 13) {
                 return;
             }            

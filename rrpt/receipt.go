@@ -38,7 +38,7 @@ func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 	// tbl.AddColumn("Account Rule", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set table title, sections
-	err := TableReportHeaderBlock(&tbl, "Receipts", funcname, ri)
+	err := TableReportHeaderBlock(&tbl, "Tendered Payment Log", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		return tbl
