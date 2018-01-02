@@ -479,10 +479,12 @@ func GetRAAccountBalance(ctx context.Context, bid, lid, raid int64, dt *time.Tim
 	// Compute the total for this account. If this ledger does not allow posts, don't
 	// consider its Balance.
 	//--------------------------------------------------------------------------------
+	// TODO(Steve): if no ledger marker found then should we raise the error?
 	lm, err := GetRALedgerMarkerOnOrBeforeDeprecated(ctx, bid, lid, raid, dt) // find nearest ledgermarker, use it as a basis
-	if err != nil {
+	if !IsSQLNoResultsError(err) {                                            // if no rows then ignore
 		return bal, err
 	}
+
 	// fmt.Printf("GetRALedgerMarkerOnOrBeforeDeprecated(bid,lid,raid,dt) = lm.LMID = %d, lm.Dt = %s\n", lm.LMID, lm.Dt.Format(RRDATEFMT4))
 	if lm.LMID > 0 && RRdb.BizTypes[bid].GLAccounts[lid].AllowPost != 0 {
 		bal += lm.Balance // we initialize the balance to this amount
@@ -501,8 +503,9 @@ func GetRAAccountBalance(ctx context.Context, bid, lid, raid int64, dt *time.Tim
 		// fmt.Printf("GetAccountActivity(bid, lid, &lm.Dt, dt) = %8.2f\n", activity)
 	}
 	bal += activity
+
 	// fmt.Printf("====>  balance = %.2f\n", bal)
-	return bal, err
+	return bal, nil
 }
 
 // GetAccountBalance returns the balance of the account with LID lid on date dt.
