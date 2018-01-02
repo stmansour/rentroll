@@ -778,7 +778,7 @@ func InsertJournal(ctx context.Context, a *Journal) (int64, error) {
 	} else {
 		err = insertError(err, "Journal", *a)
 	}
-	return id, err
+	return rid, err
 }
 
 // InsertJournalAllocationEntry writes a new JournalAllocation record to the database. Also sets JAID with its
