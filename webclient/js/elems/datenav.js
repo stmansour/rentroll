@@ -50,12 +50,15 @@ function handleDateToolbarAction(event,prefix) {
             adjustD2();
             break;
         case 'today':
-            app.D1 = setToCurrentMonth(xd1);
             if ( event.originalEvent.shiftKey ) {
-                var dt = dateFromString(app.D1);
-                dt.setDate(dt.getDate());
-                app.D2 = setDateControl(xd2, dt);
+                var y = new Date();
+                var d1 = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 0, 0, 0, 0);
+                app.D1 = setDateControl(xd1, d1);
+                var d2 = dateFromString(app.D1);
+                d2.setDate(d2.getDate());
+                app.D2 = setDateControl(xd2, d2);
             } else {
+                app.D1 = setToCurrentMonth(xd1);
                 app.D2 = setToNextMonth(xd2);
             }
             adjustD2();
