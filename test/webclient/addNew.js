@@ -38,10 +38,10 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     // Test visible input fields of the form
     function testInputFields(that, test) {
 
-        that.inputFields.forEach(function (inputFieldID) {
+        that.inputFields.forEach(function (inputField) {
 
             // get selector for the input field
-            var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputFieldID.field);
+            var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputField.field);
 
             // get visibility status  of input field in viewport
             var isVisible = casper.evaluate(function inputFieldVisibility(inputFieldSelector) {
@@ -49,15 +49,22 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             }, inputFieldSelector);
 
             // Check visibility of input field
-            test.assert(isVisible, "{0} input field is visible to remote screen.".format(inputFieldID.field));
+            test.assert(isVisible, "{0} input field is visible to remote screen.".format(inputField.field));
 
             // get value of input field from the DOM
             var inputFieldValue = casper.evaluate(function (inputFieldSelector) {
                 return document.querySelector(inputFieldSelector).value;
             }, inputFieldSelector);
 
+            // Update inpurFieldValue of input field type is money. Because default value of money type field is $0.00.
+            // Here money prefix can be any thing $, Rs, etc.
+            // To make generic replace $,.,0 with blank string ""
+            if (inputField.type === "money") {
+                inputFieldValue = inputFieldValue.replace(/[$.0]/g, "");
+            }
+
             // Check default value must be blank
-            test.assertEquals(inputFieldValue, "", "{0} field is blank".format(inputFieldID.field));
+            test.assertEquals(inputFieldValue, "", "{0} field is blank".format(inputField.field));
         });
     }
 

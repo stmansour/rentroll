@@ -10,6 +10,7 @@ var common = require("common.js");
 // required components
 var asmM = require("./components/asm.js");
 var receiptsM = require("./components/receipts.js");
+var expensesM = require("./components/expenses");
 var depositM = require("./components/deposit.js");
 var allocfundsM = require("./components/allocfunds.js");
 var transactantsM = require("./components/transactants.js");
@@ -101,6 +102,13 @@ casper.then(function pageBasicLayoutTest() {
 // 3. Now start all add new button test
 // --------------------------------------------------
 casper.then(function addNewButtonTesting() {
+    // Assessments / Receipts Module
+    addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(expensesM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(depositM.addNewConf);
+
+    // Setup Module
     addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
@@ -118,9 +126,9 @@ casper.then(function formTesting() {
     formM.w2uiFormTest(acctM.formConf);
     formM.w2uiFormTest(pmtM.formConf);
     formM.w2uiFormTest(depM.formConf);
-    formM.w2uiFormTest(depmethM.formConf);*/
-    /*formM.w2uiFormTest(arsM.formConf);*/
-    /*formM.w2uiFormTest(rtM.formConf);*/
+    formM.w2uiFormTest(depmethM.formConf);
+    formM.w2uiFormTest(arsM.formConf);
+    formM.w2uiFormTest(rtM.formConf);*/
 });
 
 

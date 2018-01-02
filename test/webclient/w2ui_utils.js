@@ -51,7 +51,8 @@ exports.getCloseButtonSelector = function () {
 
 // getInputFieldSelector Query selector for input box in w2ui form field
 exports.getInputFieldSelector = function (inputFieldID) {
-    return 'input[class="w2ui-input"][id="{0}"]'.format(inputFieldID);
+    // return 'input[class="w2ui-input"][id="{0}"]'.format(inputFieldID);
+    return '#{0}'.format(inputFieldID);
 };
 
 // getBUDSelector Query selector for input Business Unit Description list
@@ -129,9 +130,9 @@ exports.getInputListW2UIFields = function (inputField) {
     }
 };
 
-// getTextTypeW2UIFields Return a w2ui form fields  object with type 'text'
+// getTextTypeW2UIFields Return a w2ui form fields  object with type 'text' or 'enum' or 'money'
 exports.getTextTypeW2UIFields = function (inputField) {
-    if (inputField.type === "text") {
+    if (inputField.type === "text" || inputField.type === "enum" || inputField.type === "money") {
         return inputField;
     }
 };
