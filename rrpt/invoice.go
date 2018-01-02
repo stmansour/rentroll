@@ -129,7 +129,8 @@ func RRreportInvoices(ctx context.Context, ri *ReporterInfo) string {
 	tbl.Init()
 	err = TableReportHeaderBlock(ctx, &tbl, "Invoices", funcname, ri)
 	if err != nil {
-		return err.Error()
+		tbl.SetSection3(err.Error())
+		return tbl.String()
 	}
 
 	tbl.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
@@ -142,7 +143,8 @@ func RRreportInvoices(ctx context.Context, ri *ReporterInfo) string {
 	// TODO(Steve): should we replce Rcsv.DtStart, DtStop with "ri" dates?
 	m, err := rlib.GetAllInvoicesInRange(ctx, ri.Bid, &ri.D1, &ri.D2)
 	if err != nil {
-		return err.Error()
+		tbl.SetSection3(err.Error())
+		return tbl.String()
 	}
 
 	for i := 0; i < len(m); i++ {

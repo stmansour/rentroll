@@ -19,13 +19,15 @@ func RRreportDeposits(ctx context.Context, ri *ReporterInfo) string {
 	// TODO(Steve): this routine moved from rcsv/report.go, should we replace Rcsv.DtStart, Rcsv.DtStop with "ri" dates
 	m, err := rlib.GetAllDepositsInRange(ctx, ri.Bid, &ri.D1, &ri.D2)
 	if err != nil {
-		return err.Error()
+		t.SetSection3(err.Error())
+		return t.String()
 	}
 
 	err = TableReportHeaderBlock(ctx, &t, "Deposit", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
-		return err.Error()
+		t.SetSection3(err.Error())
+		return t.String()
 	}
 
 	t.AddColumn("Date", 10, gotable.CELLDATE, gotable.COLJUSTIFYLEFT)
