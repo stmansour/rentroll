@@ -39,3 +39,13 @@ exports.formConf = {
     buttonName: ["save", "saveadd", "delete"],
     testCount: 5
 };
+
+exports.addNewConf = {
+    grid: GRID,
+    form: FORM,
+    sidebarID: SIDEBAR_ID,
+    capture: "rtAddNewButton.png",
+    buttonName: ["save", "saveadd"],
+    disableFields: [],
+    testCount: 23
+};
