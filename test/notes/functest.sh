@@ -6,6 +6,6 @@ source ../share/base.sh
 
 docsvtest "a" "-b business.csv -O nt.csv -L 17,${BUD}" "Notes"
 
-./notes > ${LOGFILE}
+./notes -noauth > ${LOGFILE}
 
 logcheck
