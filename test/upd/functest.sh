@@ -31,7 +31,7 @@ docsvtest "e" "-p people.csv  -L 7,${BUD}" "People"
 #dorrtest "q1" "-r 12,9,RA001,2016-07-04 -b ${BUD}" "AccountBalance"
 #dorrtest "r" "${RRDATERANGE} -b ${BUD} -r 4" "RentRoll"
 
-./upd > z
+./upd -noauth > z
 genericlogcheck "z"  ""  "DBUpdaterChecks"
 
 logcheck
