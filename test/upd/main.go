@@ -36,6 +36,8 @@ func readCommandLineArgs() {
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
 	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
+	flag.Parse()
+
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
