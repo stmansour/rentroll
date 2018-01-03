@@ -617,13 +617,14 @@ func GetXBiz(bid int64, xbiz *XBusiness) error {
 			return err
 		}
 	}
+
 	xbiz.RT, err = getBizRentableTypes(bid)
 	if err != nil {
 		return err
 	}
 
 	xbiz.US = make(map[int64]RentableSpecialty)
-	rows, err := RRdb.Prepstmt.GetAllBusinessSpecialtyTypes.Query(bid)
+	rows, err := RRdb.Prepstmt.GetAllBusinessRentableSpecialtyTypes.Query(bid)
 	if err != nil {
 		return err
 	}

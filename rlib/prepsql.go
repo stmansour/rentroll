@@ -183,7 +183,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateBusiness, err = RRdb.Dbrr.Prepare("UPDATE Business SET " + s3 + " WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllBusinessSpecialtyTypes, err = RRdb.Dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM RentableSpecialty WHERE BID=?")
+	RRdb.Prepstmt.GetAllBusinessRentableSpecialtyTypes, err = RRdb.Dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description,CreateTS,CreateBy,LastModTime,LastModBy FROM RentableSpecialty WHERE BID=?")
 	Errcheck(err)
 
 	//==========================================

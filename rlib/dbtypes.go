@@ -1309,7 +1309,7 @@ type RRprepSQL struct {
 	GetAssessmentsByRAIDRange               *sql.Stmt
 	GetAllBusinesses                        *sql.Stmt
 	GetAllBusinessRentableTypes             *sql.Stmt
-	GetAllBusinessSpecialtyTypes            *sql.Stmt
+	GetAllBusinessRentableSpecialtyTypes    *sql.Stmt
 	GetAllCustomAttributeRefs               *sql.Stmt
 	GetAllCustomAttributes                  *sql.Stmt
 	GetAllDemandSources                     *sql.Stmt
