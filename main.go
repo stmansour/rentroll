@@ -199,7 +199,7 @@ func main() {
 	ws.SvcInit(App.NoAuth) // currently needed for testing
 
 	if App.BatchMode {
-		// this command line based approach, so no request context
+		// this is command line based approach, so no request context
 		// instead create background context and pass it
 		// This should be run under no authentication
 		ctx := context.Background()

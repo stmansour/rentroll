@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -113,20 +114,19 @@ func ReceiptSummary(ctx context.Context, raidlist []int64, d1, d2 *time.Time) ([
 		return rl, err
 	}
 
-	q := `
-	SELECT
+	q := `SELECT
 		{{.SelectClause}}
 	FROM Receipt
 	WHERE
-		((FLAGS & 4)=0) AND BID={{.BID}} AND
-		"{{.d1}}" <= Dt AND Dt < "{{.d2}}" AND ({{.Payors}})
+		((FLAGS & 4)=0) AND BID={{.BID}} AND "{{.d1}}" <= Dt AND Dt < "{{.d2}}" AND ({{.Payors}})
 	ORDER BY Dt ASC;`
 
 	qc := QueryClause{
+		"SelectClause": RRdb.DBFields["Receipt"],
 		"BID":          strconv.FormatInt(bid, 10),
 		"d1":           d1.Format(RRDATEFMTSQL),
 		"d2":           d2.Format(RRDATEFMTSQL),
-		"SelectClause": RRdb.DBFields["Receipts"],
+		"Payors":       strings.Join(pl, " OR "),
 	}
 
 	qry := RenderSQLQuery(q, qc)
