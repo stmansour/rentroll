@@ -7,8 +7,6 @@ RRDATERANGE="-j 2016-07-01 -k 2016-08-01"
 
 source ../share/base.sh
 
-cp ../../conf.json .
-
 docsvtest "a" "-b business.csv -L 3" "Business"
 docsvtest "b" "-u custom.csv -L 14,${BUD}" "CustomAttributes"
 #docsvtest "c" "-c coa.csv -L 10,${BUD}" "ChartOfAccounts"
