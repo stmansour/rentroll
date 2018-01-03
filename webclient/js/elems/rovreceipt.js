@@ -57,7 +57,7 @@ function buildROVReceiptElements() {
         name: 'receiptsGrid',
         url: '/v1/receipts',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, client: app.client},
         show: {
             toolbar        : true,
             footer         : true,
@@ -86,23 +86,24 @@ function buildROVReceiptElements() {
                         return '';
                     },
             },
-            {field: 'RCPTID',      caption: 'Receipt ID',     size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
-            {field: 'Dt',          caption: 'Date',           size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
-            {field: 'ARID',        caption: 'ARID',           size: '150px', hidden: true,  sortable: false},
-            {field: 'DID',         caption: 'DID',            size: '150px', hidden: false, sortable: false},
-            {field: 'AcctRule',    caption: 'Account Rule',   size: '150px', hidden: false, sortable: true},
-            {field: 'Amount',      caption: 'Amount',         size: '100px', hidden: false, sortable: true, render: 'money', style: 'text-align: right'},
-            {field: 'BID',         caption: 'BUD',            size: '40px',  hidden: true,  sortable: false},
-            {field: 'TCID',        caption: 'TCID',           size: '40px',  hidden: true,  sortable: false},
-            {field: 'PMTID',       caption: 'PMTID',                         hidden: true,  sortable: false},
-            {field: 'PmtTypeName', caption: 'Payment Type',   size: '100px', hidden: false, sortable: true},
-            {field: 'DocNo',       caption: 'Document Number',size: '150px', hidden: false, sortable: true, style: 'text-align: right'},
-            {field: 'Payor',       caption: 'Payor',          size: '150px', hidden: false, sortable: true},
+            {field: 'RCPTID',        caption: 'Receipt ID',     size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'Dt',            caption: 'Date',           size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'ARID',          caption: 'ARID',           size: '150px', hidden: true,  sortable: false},
+            {field: 'DID',           caption: 'DID',            size: '150px', hidden: true,  sortable: false},
+            {field: 'AcctRule',      caption: 'Account Rule',   size: '150px', hidden: true,  sortable: true},
+            {field: 'Amount',        caption: 'Amount',         size: '100px', hidden: false, sortable: true, render: 'money', style: 'text-align: right'},
+            {field: 'BID',           caption: 'BUD',            size: '40px',  hidden: true,  sortable: false},
+            {field: 'TCID',          caption: 'TCID',           size: '40px',  hidden: true,  sortable: false},
+            {field: 'PMTID',         caption: 'PMTID',                         hidden: true,  sortable: false},
+            {field: 'PmtTypeName',   caption: 'Payment Type',   size: '100px', hidden: false, sortable: true},
+            {field: 'DocNo',         caption: 'Document Number',size: '150px', hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'OtherPayorName',caption: 'Payor',          size: '150px', hidden: false,  sortable: true},
+            {field: 'Comment',       caption: 'Comment',        size: '150px', hidden: false, sortable: true},
         ],
         searches : [
             { field: 'Amount', caption: 'Amount', type: 'string' },
             // { field: 'DocNo', caption: 'Document Number', type: 'string' },
-            { field: 'Payor', caption: 'Payor', type: 'string' },
+            { field: 'OtherPayorName', caption: 'Payor', type: 'string' },
             { field: 'PmtTypeName', caption: 'Payment Type', type: 'string' },
             { field: 'AcctRule', caption: 'Account Rule', type: 'string' },
         ],
@@ -180,6 +181,7 @@ function buildROVReceiptElements() {
                     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
                     f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
                     f.header = "Edit Receipt (new)";
+                    f.postData = {client: app.client};
 
                     // get the latest receipt rules
                     // getBusinessReceiptRules(BID, BUD)
@@ -492,6 +494,7 @@ function buildROVReceiptElements() {
             delete data.postData.record.CreateTS;
             delete data.postData.record.CreateBy;
             // modify form data for server request
+            w2ui.receiptForm.postData = {client: app.client};
             getFormSubmitData(data.postData.record);
         },
         onChange: function(event) {
@@ -544,8 +547,8 @@ function buildROVReceiptElements() {
 
                 // select none if you're going to add new record
                 grid.selectNone();
-
-                f.save({}, function (data) {
+                f.postData = {client: app.client};
+                f.save(null, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
@@ -580,7 +583,8 @@ function buildROVReceiptElements() {
                 }
                 grid.selectNone();
 
-                f.save({}, function (data) {
+                f.postData = {client: app.client};
+                f.save(null, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
@@ -595,7 +599,7 @@ function buildROVReceiptElements() {
                 w2confirm(reverse_confirm_options)
                 .yes(function() {
                     var tgrid = w2ui.receiptsGrid;
-                    var params = {cmd: 'delete', formname: form.name, RCPTID: form.record.RCPTID };
+                    var params = {cmd: 'delete', formname: form.name, RCPTID: form.record.RCPTID, client: app.client };
                     var dat = JSON.stringify(params);
                     // Reverse receipt request
                     $.post(form.url, dat, null, "json")
@@ -622,7 +626,7 @@ function buildROVReceiptElements() {
 }
 
 function handleReceiptRAID(url, f) {
-    var params = {"cmd":"get","recid":0,"name":"receiptForm"};
+    var params = {"cmd":"get","recid":0,"name":"receiptForm","client": app.client};
     var dat = JSON.stringify(params);
     $.post(url, dat, null, "json")
     .done(function(data) {

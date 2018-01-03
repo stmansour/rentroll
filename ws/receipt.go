@@ -69,20 +69,22 @@ type ReceiptSaveForm struct {
 
 // PrReceiptGrid is a structure specifically for the UI Grid.
 type PrReceiptGrid struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	RCPTID      int64
-	BID         int64
-	DID         int64
-	TCID        int64 // TCID of payor
-	PMTID       int64
-	PmtTypeName string
-	Dt          rlib.JSONDate
-	DocNo       string // check number, money order number, etc.; documents the payment
-	Amount      float64
-	Payor       rlib.NullString // name of the payor
-	ARID        int64           // which account rule
-	AcctRule    rlib.NullString // expression showing how to account for the amount
-	FLAGS       uint64
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	RCPTID         int64
+	BID            int64
+	DID            int64
+	TCID           int64 // TCID of payor
+	PMTID          int64
+	PmtTypeName    string
+	Dt             rlib.JSONDate
+	DocNo          string // check number, money order number, etc.; documents the payment
+	Amount         float64
+	Payor          rlib.NullString // name of the payor
+	ARID           int64           // which account rule
+	AcctRule       rlib.NullString // expression showing how to account for the amount
+	FLAGS          uint64
+	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
+	Comment        string
 }
 
 // SaveReceiptInput is the input data format for a Save command
@@ -113,25 +115,27 @@ type DeleteRcptForm struct {
 
 // receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
 func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) (PrReceiptGrid, error) {
-	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS, &q.DID)
+	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS, &q.DID, &q.OtherPayorName, &q.Comment)
 	return q, err
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
 var receiptsFieldsMap = map[string][]string{
-	"RCPTID":      {"Receipt.RCPTID"},
-	"BID":         {"Receipt.BID"},
-	"TCID":        {"Receipt.TCID"},
-	"PMTID":       {"Receipt.PMTID"},
-	"PmtTypeName": {"PaymentType.Name"},
-	"Dt":          {"Receipt.Dt"},
-	"DocNo":       {"Receipt.DocNo"},
-	"Amount":      {"Receipt.Amount"},
-	"Payor":       {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
-	"ARID":        {"Receipt.ARID"},
-	"AcctRule":    {"AR.Name"},
-	"FLAGS":       {"Receipt.FLAGS"},
-	"DID":         {"Receipt.DID"},
+	"RCPTID":         {"Receipt.RCPTID"},
+	"BID":            {"Receipt.BID"},
+	"TCID":           {"Receipt.TCID"},
+	"PMTID":          {"Receipt.PMTID"},
+	"PmtTypeName":    {"PaymentType.Name"},
+	"Dt":             {"Receipt.Dt"},
+	"DocNo":          {"Receipt.DocNo"},
+	"Amount":         {"Receipt.Amount"},
+	"Payor":          {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
+	"ARID":           {"Receipt.ARID"},
+	"AcctRule":       {"AR.Name"},
+	"FLAGS":          {"Receipt.FLAGS"},
+	"DID":            {"Receipt.DID"},
+	"OtherPayorName": {"Receipt.OtherPayorName"},
+	"Comment":        {"Receipt.Comment"},
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -149,6 +153,8 @@ var receiptsQuerySelectFields = []string{
 	"AR.Name as AcctRule",
 	"Receipt.FLAGS",
 	"Receipt.DID",
+	"Receipt.OtherPayorName",
+	"Receipt.Comment",
 }
 
 // SvcSearchHandlerReceipts generates a report of all Receipts defined business d.BID
@@ -345,8 +351,18 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//  Update or Insert as appropriate...
 	//------------------------------------------
 	if a.RCPTID == 0 && d.RCPTID == 0 {
-		// rlib.Console(">>>> NEW RECEIPT IS BEING ADDED\n")
-		err = bizlogic.InsertReceipt(&a)
+		//-------------------------------------------------------------------
+		// there is one special case: if the client is the receipt-only
+		// client for Isola Bella, we skip the business checks because only
+		// the receipts are being saved, nothing else.  This will go away
+		// in the future when we're able to keep the payors up-to-date for
+		// Isola Bella.
+		//-------------------------------------------------------------------
+		if d.wsSearchReq.Client == "receipts" {
+			_, err = rlib.InsertReceipt(&a)
+		} else {
+			err = bizlogic.InsertReceipt(&a)
+		}
 		if err != nil {
 			e := fmt.Errorf("%s:  Error in rlib.ProcessNewReceipt: %s", funcname, err.Error())
 			rlib.Ulog("%s", e.Error())
@@ -354,9 +370,19 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	} else {
-		// rlib.Console(">>>> UPDATE EXISTING RECEIPT\n")
-		now := time.Now() // this is the time we're making the change if a reversal needs to be done
-		err = bizlogic.UpdateReceipt(&a, &now)
+		//-------------------------------------------------------------------
+		// there is one special case: if the client is the receipt-only
+		// client for Isola Bella, we skip the business checks because only
+		// the receipts are being saved, nothing else.  This will go away
+		// in the future when we're able to keep the payors up-to-date for
+		// Isola Bella.
+		//-------------------------------------------------------------------
+		if d.wsSearchReq.Client == "receipts" {
+			err = rlib.UpdateReceipt(&a)
+		} else {
+			now := time.Now() // this is the time we're making the change if a reversal needs to be done
+			err = bizlogic.UpdateReceipt(&a, &now)
+		}
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d)\n: %s", funcname, d.RCPTID, err.Error())

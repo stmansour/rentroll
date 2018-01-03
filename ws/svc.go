@@ -66,6 +66,7 @@ type WebGridSearchRequestJSON struct {
 	SearchDtStart rlib.JSONDate `json:"searchDtStart"` // for time-sensitive searches
 	SearchDtStop  rlib.JSONDate `json:"searchDtStop"`  // for time-sensitive searches
 	Bool1         bool          `json:"Bool1"`         // a general purpose bool flag for postData from client
+	Client        string        `json:"client"`        // name of requesting client
 }
 
 // WebGridSearchRequest is a struct suitable for describing a webservice operation.
@@ -80,6 +81,7 @@ type WebGridSearchRequest struct {
 	SearchDtStart time.Time   `json:"searchDtStart"` // for time-sensitive searches
 	SearchDtStop  time.Time   `json:"searchDtStop"`  // for time-sensitive searches
 	Bool1         bool        `json:"Bool1"`         // a general purpose bool flag for postData from client
+	Client        string      `json:"client"`        // name of requesting client.  ex: "roller", "receipts"
 }
 
 // WebFormRequest is a struct suitable for describing a webservice operation.
@@ -524,6 +526,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		return e
 	}
 	rlib.MigrateStructVals(&wjs, &d.wsSearchReq)
+	rlib.Console("Client = %s\n", d.wsSearchReq.Client)
 	return err
 }
 

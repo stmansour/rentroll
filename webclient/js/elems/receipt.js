@@ -233,6 +233,7 @@ function buildReceiptElements() {
         header: 'Receipt Detail',
         url: '/v1/receipt',
         formURL: '/webclient/html/formrcpt.html',
+        postData: {client: app.client},
         fields: [
             { field: 'PmtTypeName',    type: 'list', required: true, options: { items: [], selected: {} }, html: { caption: "BUD", page: 0 } }, // keep this at position 0 as the list changes and we need to update it
             { field: 'ARID',           type: 'list',  required: true, options:  {items: app.ReceiptRules} },  // 1
@@ -501,6 +502,7 @@ function buildReceiptElements() {
             delete data.postData.record.CreateTS;
             delete data.postData.record.CreateBy;
             // modify form data for server request
+            w2ui.receiptForm.postData = {client: app.client};
             getFormSubmitData(data.postData.record);
         },
         onChange: function(event) {
@@ -554,7 +556,7 @@ function buildReceiptElements() {
                 // select none if you're going to add new record
                 grid.selectNone();
 
-                f.save({}, function (data) {
+                f.save({client: app.client}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
@@ -589,7 +591,7 @@ function buildReceiptElements() {
                 }
                 grid.selectNone();
 
-                f.save({}, function (data) {
+                f.save({client: app.client}, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);
                         return;
@@ -631,7 +633,7 @@ function buildReceiptElements() {
 }
 
 function handleReceiptRAID(url, f) {
-    var params = {"cmd":"get","recid":0,"name":"receiptForm"};
+    var params = {"cmd":"get","recid":0,"name":"receiptForm","client": app.client};
     var dat = JSON.stringify(params);
     $.post(url, dat, null, "json")
     .done(function(data) {
