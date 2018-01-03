@@ -57,7 +57,7 @@ dorrtest "a2a" "${RRDATERANGE} -x -b ${BUD} -r 19" "Process-LEDGERS-2017-FEB"
 # ${MYSQLDUMP} --no-defaults rentroll >unalloc.sql
 
 # Run the checker...
-./gsr
+./gsr -noauth
 
 logcheck
 
