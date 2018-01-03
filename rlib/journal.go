@@ -600,16 +600,30 @@ func CreateJournalMarker(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time
 
 // GenerateJournalRecords creates Journal records for Assessments and receipts over the supplied time range.
 //=================================================================================================
-func GenerateJournalRecords(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, skipVac bool) {
+func GenerateJournalRecords(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, skipVac bool) error {
 	// err := RemoveJournalEntries(xbiz, d1, d2)
 	// if err != nil {
 	// 	Ulog("Could not remove existing Journal entries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
 	// 	return
 	// }
-	GenerateRecurInstances(ctx, xbiz, d1, d2)
-	if !skipVac {
-		GenVacancyJournals(ctx, xbiz, d1, d2)
+	var (
+		err error
+	)
+
+	err = GenerateRecurInstances(ctx, xbiz, d1, d2)
+	if err != nil {
+		return err
 	}
-	ProcessReceiptRange(ctx, xbiz, d1, d2)
-	CreateJournalMarker(ctx, xbiz, d1, d2)
+	if !skipVac {
+		_, err = GenVacancyJournals(ctx, xbiz, d1, d2)
+		if err != nil {
+			return err
+		}
+	}
+	err = ProcessReceiptRange(ctx, xbiz, d1, d2)
+	if err != nil {
+		return err
+	}
+	return CreateJournalMarker(ctx, xbiz, d1, d2)
+	// return err
 }

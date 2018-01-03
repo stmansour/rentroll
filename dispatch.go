@@ -161,12 +161,23 @@ func RunCommandLine(ctx context.Context, dCtx *DispatchCtx) {
 		s, err := tbl.SprintTable()
 		if err != nil {
 			rlib.LogAndPrintError("RunCommandLine", err)
-			return
+			os.Exit(1)
 		}
 		fmt.Print(s)
 
 	default:
-		rlib.GenerateJournalRecords(ctx, &dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop, App.SkipVacCheck)
-		rlib.GenerateLedgerEntries(ctx, &dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop)
+		err := rlib.GenerateJournalRecords(ctx, &dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop, App.SkipVacCheck)
+		if err != nil {
+			rlib.DebugPrint("Error from GenerateJournalRecords: %s\n", err.Error())
+			rlib.LogAndPrintError("RunCommandLine", err)
+			return
+		}
+
+		_, err = rlib.GenerateLedgerEntries(ctx, &dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop)
+		if err != nil {
+			rlib.DebugPrint("Error from GenerateLedgerEntries: %s\n", err.Error())
+			rlib.LogAndPrintError("RunCommandLine", err)
+			return
+		}
 	}
 }
