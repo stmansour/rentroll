@@ -352,7 +352,7 @@ func UpdateJournalAllocation(ctx context.Context, a *JournalAllocation) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.JID, a.RID, a.RAID, a.TCID, a.RCPTID, a.Amount, a.ASMID, a.EXPID, a.AcctRule, a.JAID}
+	fields := []interface{}{a.BID, a.JID, a.RID, a.RAID, a.TCID, a.RCPTID, a.Amount, a.ASMID, a.EXPID, a.AcctRule, a.LastModBy, a.JAID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateJournalAllocation)
 		defer stmt.Close()
@@ -427,10 +427,7 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
-		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
-		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
-		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy, a.TCID}
+	fields := []interface{}{a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity, a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee, a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences, a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateProspect)
 		defer stmt.Close()
@@ -555,7 +552,7 @@ func UpdateRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.FLAGS, a.Val, a.RPRID, a.RTID}
+	fields := []interface{}{a.BID, a.FLAGS, a.Val, a.LastModBy, a.RPRID, a.RTID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRatePlanRefRTRate)
 		defer stmt.Close()
@@ -580,7 +577,7 @@ func UpdateRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.FLAGS, a.Val, a.RPRID, a.RTID, a.RSPID}
+	fields := []interface{}{a.BID, a.FLAGS, a.Val, a.LastModBy, a.RPRID, a.RTID, a.RSPID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRatePlanRefSPRate)
 		defer stmt.Close()
@@ -683,7 +680,7 @@ func UpdateRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) er
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.RAID, a.BID, a.TCID, a.DtStart, a.DtStop, a.FLAGS, a.RAPID}
+	fields := []interface{}{a.RAID, a.BID, a.TCID, a.DtStart, a.DtStop, a.FLAGS, a.LastModBy, a.RAPID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentalAgreementPayor)
 		defer stmt.Close()
@@ -708,7 +705,7 @@ func UpdateRentalAgreementPayorByRBT(ctx context.Context, a *RentalAgreementPayo
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.DtStart, a.DtStop, a.FLAGS, a.RAID, a.BID, a.TCID}
+	fields := []interface{}{a.DtStart, a.DtStop, a.FLAGS, a.LastModBy, a.RAID, a.BID, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentalAgreementPayorByRBT)
 		defer stmt.Close()
@@ -758,7 +755,7 @@ func UpdateRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentab
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop, a.RARID}
+	fields := []interface{}{a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop, a.LastModBy, a.RARID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentalAgreementRentable)
 		defer stmt.Close()
@@ -783,7 +780,7 @@ func UpdateRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) er
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.RSPID, a.LastModBy, a.RID, a.DtStart, a.DtStop}
+	fields := []interface{}{a.BID, a.RID, a.RSPID, a.DtStart, a.DtStop, a.LastModBy, a.RID, a.DtStart, a.DtStop}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableSpecialtyRef)
 		defer stmt.Close()
@@ -808,7 +805,7 @@ func UpdateRentableMarketRateInstance(ctx context.Context, a *RentableMarketRate
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.RTID, a.BID, a.MarketRate, a.DtStart, a.DtStop, a.RMRID}
+	fields := []interface{}{a.RTID, a.BID, a.MarketRate, a.DtStart, a.DtStop, a.LastModBy, a.RMRID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableMarketRateInstance)
 		defer stmt.Close()
@@ -857,7 +854,7 @@ func UpdateRentableTypeToActive(ctx context.Context, a *RentableType) error {
 		// user from session, CreateBy, LastModBy
 		a.LastModBy = sess.UID
 	}
-	fields := []interface{}{a.RTID}
+	fields := []interface{}{a.LastModBy, a.RTID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableTypeToActive)
 		defer stmt.Close()
@@ -908,7 +905,7 @@ func UpdateRentableUser(ctx context.Context, a *RentableUser) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.RID, a.BID, a.TCID, a.DtStart, a.DtStop, a.RUID}
+	fields := []interface{}{a.RID, a.BID, a.TCID, a.DtStart, a.DtStop, a.LastModBy, a.RUID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableUser)
 		defer stmt.Close()
@@ -933,7 +930,7 @@ func UpdateRentableUserByRBT(ctx context.Context, a *RentableUser) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.DtStart, a.DtStop, a.RID, a.BID, a.TCID}
+	fields := []interface{}{a.DtStart, a.DtStop, a.LastModBy, a.RID, a.BID, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableUserByRBT)
 		defer stmt.Close()
