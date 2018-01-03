@@ -75,13 +75,15 @@ func ProcessRentable(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, r 
 		//       rentcycle - 1 prorationcycle (or one second whichever is larger)
 		// These entries must be idempotent. Make sure it does not already exist.
 		jv, err := GetJournalVacancy(ctx, r.RID, &j.Dt, &m[i].DtStop)
-		if !IsSQLNoResultsError(err) {
-			return nr, err
-		}
+		if err != nil {
+			if !IsSQLNoResultsError(err) {
+				return nr, err
+			}
 
-		// ignore the error, as we don't want to consider no rows result as in error
-		// TODO(Steve): should we suppress the error here?
-		err = nil
+			// if no rows error then re-assign nil to err variable
+			// as we're not considering this as an error
+			err = nil
+		}
 
 		if jv.JID != 0 { // if the JID >0 ..
 			continue // then this entry was already generated, keep going

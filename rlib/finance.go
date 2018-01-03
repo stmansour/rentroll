@@ -481,8 +481,14 @@ func GetRAAccountBalance(ctx context.Context, bid, lid, raid int64, dt *time.Tim
 	//--------------------------------------------------------------------------------
 	// TODO(Steve): if no ledger marker found then should we raise the error?
 	lm, err := GetRALedgerMarkerOnOrBeforeDeprecated(ctx, bid, lid, raid, dt) // find nearest ledgermarker, use it as a basis
-	if !IsSQLNoResultsError(err) {                                            // if no rows then ignore
-		return bal, err
+	if err != nil {
+		if !IsSQLNoResultsError(err) { // if no rows then ignore
+			return bal, err
+		}
+
+		// if no rows error then re-assign nil to err variable
+		// as we're not considering this as an error
+		err = nil
 	}
 
 	// fmt.Printf("GetRALedgerMarkerOnOrBeforeDeprecated(bid,lid,raid,dt) = lm.LMID = %d, lm.Dt = %s\n", lm.LMID, lm.Dt.Format(RRDATEFMT4))
