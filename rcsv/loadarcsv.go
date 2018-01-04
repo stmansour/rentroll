@@ -78,7 +78,7 @@ func CreateAR(ctx context.Context, sa []string, lineno int) (int, error) {
 	//-----------------------------------------
 	b.Name = sa[Name]
 	b2, err := rlib.GetARByName(ctx, b.BID, b.Name)
-	if err != nil && !rlib.IsSQLNoResultsError(err) {
+	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error attempting to read existing records with name = %s: %s", funcname, lineno, b.Name, err.Error())
 	}
 	if b2.Name == b.Name {
@@ -110,8 +110,7 @@ func CreateAR(ctx context.Context, sa []string, lineno int) (int, error) {
 	b.DebitLID, err = rlib.IntFromString(sa[DebitLID], "Invalid DebitLID") // first see if it is a LID
 	if err == nil && b.DebitLID > 0 {                                      // try the LID first
 		gl, err = rlib.GetLedger(ctx, b.DebitLID)
-		// TODO(Steve): this is ok?
-		if err != nil && !rlib.IsSQLNoResultsError(err) {
+		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while getting ledger. Error: %s", funcname, lineno, err.Error())
 		}
 	}

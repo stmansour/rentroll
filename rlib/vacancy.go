@@ -76,13 +76,7 @@ func ProcessRentable(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, r 
 		// These entries must be idempotent. Make sure it does not already exist.
 		jv, err := GetJournalVacancy(ctx, r.RID, &j.Dt, &m[i].DtStop)
 		if err != nil {
-			if !IsSQLNoResultsError(err) {
-				return nr, err
-			}
-
-			// if no rows error then re-assign nil to err variable
-			// as we're not considering this as an error
-			err = nil
+			return nr, err
 		}
 
 		if jv.JID != 0 { // if the JID >0 ..

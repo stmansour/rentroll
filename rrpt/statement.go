@@ -49,11 +49,11 @@ func GetRentableCountByRentableType(ctx context.Context, xbiz *rlib.XBusiness, d
 		rc.RT = v
 		var cerr error
 		rc.RT.CA, cerr = rlib.GetAllCustomAttributes(ctx, rlib.ELEMRENTABLETYPE, v.RTID)
+		// it's not really an error if we don't find any custom attributes
+		// and that thing is already handled during read operation after QueryRow operation
 		if cerr != nil {
-			if !rlib.IsSQLNoResultsError(cerr) { // it's not really an error if we don't find any custom attributes
-				err = cerr
-				break
-			}
+			err = cerr
+			break
 		}
 
 		m = append(m, rc)

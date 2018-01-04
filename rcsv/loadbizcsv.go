@@ -78,10 +78,8 @@ func CreatePhonebookLinkedBusiness(ctx context.Context, sa []string, lineno int)
 	//-------------------------------------------------------------------
 	if !found && len(des) > 0 {
 		bu, err := rlib.GetBusinessUnitByDesignation(ctx, des)
-		if nil != err {
-			if !rlib.IsSQLNoResultsError(err) { // if the error is something other than "no match" then report and return CsvErrorSensitivity
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rlib.Business Unit with Designation %s from Accord Directory: error = %v", funcname, lineno, des, err)
-			}
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rlib.Business Unit with Designation %s from Accord Directory: error = %v", funcname, lineno, des, err)
 		} else {
 			found = true
 		}

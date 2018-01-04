@@ -1277,9 +1277,7 @@ func DeleteStringList(ctx context.Context, id int64) error {
 
 	err = DeleteSLStrings(ctx, id)
 	if err != nil {
-		if !IsSQLNoResultsError(err) {
-			return err
-		}
+		return err
 	}
 	fields := []interface{}{id}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -1343,9 +1341,7 @@ func DeleteSLStrings(ctx context.Context, id int64) error {
 			_, err = RRdb.Prepstmt.DeleteSLStrings.Exec(fields...)
 		}
 		if err != nil {
-			if !IsSQLNoResultsError(err) {
-				Ulog("Error deleting id=%d error: %v\n", id, err)
-			}
+			Ulog("Error deleting id=%d error: %v\n", id, err)
 		}
 	}
 	return err
@@ -1399,9 +1395,7 @@ func DeleteSubARs(ctx context.Context, arid int64) error {
 			_, err = RRdb.Prepstmt.DeleteSubARs.Exec(fields...)
 		}
 		if err != nil {
-			if !IsSQLNoResultsError(err) {
-				Ulog("Error deleting ARID=%d error: %v\n", arid, err)
-			}
+			Ulog("Error deleting ARID=%d error: %v\n", arid, err)
 		}
 	}
 	return err

@@ -414,7 +414,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 	//-------------------------------------------------------------------
 	if len(tr.PrimaryEmail) > 0 {
 		t1, err := rlib.GetTransactantByPhoneOrEmail(ctx, tr.BID, tr.PrimaryEmail)
-		if !rlib.IsSQLNoResultsError(err) { // if not "no rows error" then MUST return
+		if err != nil { // if not "no rows error" then MUST return
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error while verifying Transactant with PrimaryEmail address = %s: %s", funcname, lineno, tr.PrimaryEmail, err.Error())
 		}
 		if t1.TCID > 0 {
@@ -423,7 +423,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 	}
 	if len(tr.CellPhone) > 0 && !ignoreDupPhone {
 		t1, err := rlib.GetTransactantByPhoneOrEmail(ctx, tr.BID, tr.CellPhone)
-		if !rlib.IsSQLNoResultsError(err) { // if not "no rows error" then MUST return
+		if err != nil { // if not "no rows error" then MUST return
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error verifying Transactant with CellPhone number = %s: %s", funcname, lineno, tr.CellPhone, err.Error())
 		}
 		if t1.TCID > 0 {

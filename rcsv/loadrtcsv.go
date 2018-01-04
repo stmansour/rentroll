@@ -83,7 +83,7 @@ func CreateRentableType(ctx context.Context, sa []string, lineno int) (int, erro
 	a.Style = strings.TrimSpace(sa[1])
 	if len(a.Style) > 0 {
 		rt, err := rlib.GetRentableTypeByStyle(ctx, a.Style, bid)
-		if nil != err && !rlib.IsSQLNoResultsError(err) {
+		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - err = %v", funcname, lineno, err)
 		}
 		if rt.RTID > 0 {

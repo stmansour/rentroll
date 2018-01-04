@@ -112,7 +112,7 @@ func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, err
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Account already exists: %s", funcname, lineno, g)
 			}
 			// // was there an error in finding an account with this GLNo?
-			// if !rlib.IsSQLNoResultsError(err) {
+			// if err != nil {
 			// 	return CsvErrorSensitivity, fmt.Errorf("%s: line %d, GL Account %s already exists", funcname, lineno, g)
 			// 	return rs,CsvErrorSensitivity
 			// }

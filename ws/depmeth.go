@@ -312,7 +312,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var adup rlib.DepositMethod
 	adup, err = rlib.GetDepositMethodByName(r.Context(), a.BID, a.Method)
-	if err != nil && !rlib.IsSQLNoResultsError(err) {
+	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}

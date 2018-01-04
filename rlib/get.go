@@ -4226,7 +4226,7 @@ func GetRentableType(ctx context.Context, rtid int64, rt *RentableType) error {
 
 	var cerr error
 	rt.CA, cerr = GetAllCustomAttributes(ctx, ELEMRENTABLETYPE, rtid)
-	if !IsSQLNoResultsError(cerr) { // it's not really an error if we don't find any custom attributes
+	if cerr != nil { // it's not really an error if we don't find any custom attributes
 		err = cerr
 	}
 

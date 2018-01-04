@@ -119,7 +119,7 @@ func RentRollReportTable(ri *ReporterInfo) gotable.Table {
 	// loop through the Rentables...
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentablesByBusiness.Query(ri.Xbiz.P.BID)
 	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
+	if err != nil {
 		// set errors in section3 and return
 		tbl.SetSection3(NoRecordsFoundMsg)
 		return tbl
