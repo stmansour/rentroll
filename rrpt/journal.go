@@ -51,8 +51,12 @@ func processAcctRuleAmount(ctx context.Context, tbl *gotable.Table, xbiz *rlib.X
 
 		l, err := rlib.GetLedgerByGLNo(ctx, xbiz.P.BID, m[i].Account)
 		if err != nil {
+			// TODO(Steve): in case of error do we want to continue?
 			rlib.LogAndPrintError(funcname, err)
-			return err
+			// debug.PrintStack()
+			rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
+			rlib.LogAndPrint("%s: rule = \"%s\"\n", funcname, rule)
+			continue
 		}
 
 		if 0 == l.LID {
@@ -331,6 +335,8 @@ func textPrintJournalReceipt(ctx context.Context, tbl *gotable.Table, ri *Report
 			l, err := rlib.GetLedgerByGLNo(ctx, j.BID, m[k].Account)
 			if err != nil {
 				rlib.LogAndPrintError(funcname, err)
+				rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
+				rlib.LogAndPrint("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
 				continue
 			}
 			if 0 == l.LID {

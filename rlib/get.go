@@ -2071,6 +2071,9 @@ func GetLatestLedgerMarkerByType(ctx context.Context, bid int64, t int64) (Ledge
 	if err != nil {
 		return lm, err
 	}
+	if 0 == l.LID {
+		return lm, err
+	}
 	return GetLatestLedgerMarkerByLID(ctx, bid, l.LID)
 }*/
 

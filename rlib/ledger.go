@@ -51,8 +51,8 @@ func GetCachedLedgerByGL(ctx context.Context, bid int64, s string) (GLAccount, e
 	}
 
 	l, err = GetLedgerByGLNo(ctx, bid, s)
-
-	if err != nil {
+	if err != nil || 0 == l.LID {
+		// if you want to log the error then separate the above if clause condition
 		Ulog("GetCachedLedgerByGL: error getting ledger %s from business %d. \n", s, bid)
 		l.LID = 0
 	} else {
