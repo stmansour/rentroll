@@ -119,7 +119,7 @@ func reportTextProcessLedgerMarker(ctx context.Context, tbl *gotable.Table, xbiz
 		return
 	}
 	if 0 == l.LID {
-		tbl.SetSection3("Ledger not found for LID: %d", lm.LID)
+		tbl.SetSection3(fmt.Sprintf("Ledger not found for LID: %d", lm.LID))
 		return
 	}
 	bal := lm.Balance
