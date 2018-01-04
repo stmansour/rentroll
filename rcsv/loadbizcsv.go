@@ -80,9 +80,8 @@ func CreatePhonebookLinkedBusiness(ctx context.Context, sa []string, lineno int)
 		bu, err := rlib.GetBusinessUnitByDesignation(ctx, des)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rlib.Business Unit with Designation %s from Accord Directory: error = %v", funcname, lineno, des, err)
-		} else {
-			found = true
 		}
+		found = true
 		b.Name = bu.Name    // Phonebook rlib.Business Unit name
 		b.Designation = des // rlib.Business unit designator
 	}
