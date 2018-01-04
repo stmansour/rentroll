@@ -47,5 +47,6 @@ exports.addNewConf = {
     capture: "rtAddNewButton.png",
     buttonName: ["save", "saveadd"],
     disableFields: [],
+    tabs: [],
     testCount: 23
 };

@@ -36,9 +36,12 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     }
 
     // Test visible input fields of the form
-    function testInputFields(that, test) {
+    function testInputFields(formName, inputFields, test) {
 
-        that.inputFields.forEach(function (inputField) {
+        inputFields.forEach(function (inputField) {
+
+            // console.log(JSON.stringify(inputField));
+            console.log("In testInputFields");
 
             // get selector for the input field
             var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputField.field);
@@ -56,22 +59,27 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 return document.querySelector(inputFieldSelector).value;
             }, inputFieldSelector);
 
+            // get default value of input field from the W2UI object
+            var inputFieldValueInW2UI = casper.evaluate(function (formName, field) {
+                return w2ui[formName].record[field];
+            }, formName, inputField.field);
+
             // Update inpurFieldValue of input field type is money. Because default value of money type field is $0.00.
             // Here money prefix can be any thing $, Rs, etc.
             // To make generic replace $,.,0 with blank string ""
             if (inputField.type === "money") {
-                inputFieldValue = inputFieldValue.replace(/[$.0]/g, "");
+                inputFieldValue = inputFieldValue.replace(/[$.]/g, "");
             }
 
             // Check default value must be blank
-            test.assertEquals(inputFieldValue, "", "{0} field is blank".format(inputField.field));
+            test.assertEquals(inputFieldValue, inputFieldValueInW2UI.toString(), "{0} field is blank".format(inputField.field));
         });
     }
 
     // Test visible input select fields of the form
-    function testInputSelectField(that, test) {
+    function testInputSelectField(formName, inputSelectField, test) {
 
-        that.inputSelectField.forEach(function (inputSelectField) {
+        inputSelectField.forEach(function (inputSelectField) {
 
             // get selector for the input select field
             var inputSelectFieldSelector = w2ui_utils.getInputSelectFieldSelector(inputSelectField.field);
@@ -92,7 +100,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             // get value of input select field from W2UI form record
             var defaultValueInW2UI = casper.evaluate(function getDefaultValue(form, field) {
                 return w2ui[form].record[field].text;
-            }, that.form, inputSelectField.field);
+            }, formName, inputSelectField.field);
 
             // match default value with input field value in DOM
             test.assertEquals(inputSelectFieldValue, defaultValueInW2UI, "{0} have default value {1}".format(inputSelectField.field, defaultValueInW2UI));
@@ -101,9 +109,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
 
     // Test buttons in form
-    function testButtons(that, test) {
+    function testButtons(buttonNames, test) {
 
-        that.buttonName.forEach(function (btnName) {
+        buttonNames.forEach(function (btnName) {
 
             // get visibility status of button in viewport
             var isVisible = casper.evaluate(function formButtonVisibility(btnNode) {
@@ -116,9 +124,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     }
 
     // Test checkboxes in form
-    function testCheckBoxes(that, test) {
+    function testCheckBoxes(formName, checkboxes, test) {
 
-        that.checkboxes.forEach(function (checkbox) {
+        checkboxes.forEach(function (checkbox) {
 
             // get visibility status of checkbox in viewport
             var isVisible = casper.evaluate(function checkBoxvisibility(checkboxSelector) {
@@ -136,7 +144,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             // get default status of checkbox from the W2UI
             var isCheckedInW2UI = casper.evaluate(function isChecked(form, field) {
                 return w2ui[form].record[field];
-            }, that.form, checkbox.field);
+            }, formName, checkbox.field);
 
             // Match default value of checkbox with value in DOM
             test.assertEquals(isChecked, isCheckedInW2UI, "{0} checked is {1}".format(checkbox.field, isChecked));
@@ -153,8 +161,8 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     }
 
     // Date field rendering test
-    function testDateFields(that, test) {
-        that.dateFields.forEach(function (dateField) {
+    function testDateFields(formName, dateFields, test) {
+        dateFields.forEach(function (dateField) {
 
             // Check visibility
             var isVisible = casper.evaluate(function checkDateFieldVisibility(dateFieldSelector) {
@@ -170,17 +178,17 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
             var defaultValueInW2UI = casper.evaluate(function getDefaultValue(form, field) {
                 return w2ui[form].record[field];
-            }, that.form, dateField.field);
+            }, formName, dateField.field);
 
             test.assertEquals(defaultValue, defaultValueInW2UI, "{0} value is {1}".format(dateField.field, defaultValueInW2UI));
         });
     }
 
     // Disabled field rendering test
-    function testDisabledFields(that, test) {
+    function testDisabledFields(disableFields, test) {
 
         // We are expecting these fields must be disabled. Select that fields and check disable attribute
-        that.disableFields.forEach(function (disableField) {
+        disableFields.forEach(function (disableField) {
 
             var disabilityInDOM = casper.evaluate(function checkDisability(disableFieldSelector) {
                 return document.querySelector(disableFieldSelector).disabled;
@@ -193,7 +201,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     // test Right panel after close button
     function testCloseRightPanel(test) {
 
-        casper.click(w2ui_utils.getCloseButtonSelector());
+        casper.thenClick(w2ui_utils.getCloseButtonSelector());
 
         casper.wait(common.waitTime, function () {
             test.assertNotVisible("#" + w2ui_utils.getRightPanelID());
@@ -222,6 +230,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 return w2ui[form].fields;
             }, this.form);
 
+            // list of tabs in form
+            this.tabs = addNewButtonConfig.tabs;
+
             // list of input fields
             this.inputFields = this.formFields.filter(w2ui_utils.getTextTypeW2UIFields);
 
@@ -232,7 +243,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             this.capture = addNewButtonConfig.capture;
 
             // Button name and class
-            this.buttonName = addNewButtonConfig.buttonName;
+            this.buttonNames = addNewButtonConfig.buttonName;
 
             // Checkboxes list
             this.checkboxes = this.formFields.filter(w2ui_utils.getCheckBoxW2UIFields);
@@ -242,6 +253,8 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
             // Disable fields list
             this.disableFields = addNewButtonConfig.disableFields;
+
+            // updateFieldsMemberInList()
 
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
@@ -262,26 +275,78 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 // Right panel rendering
                 testRightPanelRendering(test);
 
+                // var tabSelector = w2ui_utils.getW2UITabSelector(that.form, );
+
                 // BUD Field Test
                 testBUDField(test);
 
-                // Input fields test
-                testInputFields(that, test);
+                that.tabs.forEach(function (tab, pageNo) {
 
-                // Dropdown Input fields test
-                testInputSelectField(that, test);
+                    // pageNo += 1;
+
+                    // If there are tabs in form than approach to perform test on form will be difference.
+                    // W2UI Form fields have html page number. Filter records based on page number and use it to perform tests
+                    // Update members in inputFields, inputSelectFields, checkBoxes, dateFields, and other fields list
+
+                    var inputFields = that.inputFields.filter(w2ui_utils.getFieldsForPage, pageNo);
+                    var inputSelectField = that.inputSelectField.filter(w2ui_utils.getFieldsForPage, pageNo);
+                    var checkboxes = that.checkboxes.filter(w2ui_utils.getFieldsForPage, pageNo);
+                    var dateFields = that.dateFields.filter(w2ui_utils.getFieldsForPage, pageNo);
+                    var disableFields = that.disableFields.filter(w2ui_utils.getFieldsForPage, pageNo);
+
+
+                    // First tab has been opened already. So don't click on first tab.
+                    if (pageNo !== 0){
+                        casper.clickLabel(tab, "div");
+                    }
+
+                    casper.wait(common.waitTime, function testTabs(inputFields, tab, pageNo) {
+
+                        common.capture("tab_{0}_{1}.jpg".format(tab, pageNo));
+
+                        // Input fields test
+                        testInputFields(that.form, inputFields, test);
+
+                        // Drop down Input fields test
+                        testInputSelectField(that.form, inputSelectField, test);
+
+                        // Check box rendering test
+                        testCheckBoxes(that.form, checkboxes, test);
+
+                        // Date field rendering test
+                        testDateFields(that.form, dateFields, test);
+
+                        // Disabled field rendering test
+                        testDisabledFields(disableFields, test);
+
+                    }(inputFields, tab, pageNo));
+
+                });
+
+                // If there are no tabs but there is only one form than perform tests on fields of the form.
+                if (that.tabs.length === 0){
+
+                    console.log("No tabs!");
+
+                    // Input fields test
+                    testInputFields(that.form, that.inputFields, test);
+
+                    // Dropdown Input fields test
+                    testInputSelectField(that.form, that.inputSelectField, test);
+
+                    // Check box rendering test
+                    testCheckBoxes(that.form, that.checkboxes, test);
+
+                    // Date field rendering test
+                    testDateFields(that.form, that.dateFields, test);
+
+                    // Disabled field rendering test
+                    testDisabledFields(that.disableFields, test);
+                }
+
 
                 // Form Button rendering test
-                testButtons(that, test);
-
-                // Check box rendering test
-                testCheckBoxes(that, test);
-
-                // Date field rendering test
-                testDateFields(that, test);
-
-                // Disabled field rendering test
-                testDisabledFields(that, test);
+                testButtons(that.buttonNames, test);
 
                 // Right panel after close button
                 testCloseRightPanel.call(this, test);

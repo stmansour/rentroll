@@ -29,5 +29,6 @@ exports.addNewConf = {
     capture: "asmsAddNewButton.png",
     buttonName: ["save", "saveadd"],
     disableFields: [],
+    tabs: [],
     testCount: 27
 };

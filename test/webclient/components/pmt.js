@@ -37,6 +37,7 @@ exports.addNewConf = {
   capture: "pmtsAddNewButton.png",
   buttonName: ["save", "saveadd"],
   disableFields: [],
+  tabs: [],
   testCount: 13
 };
 

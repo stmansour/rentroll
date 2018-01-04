@@ -4,7 +4,7 @@ var isVisibleInViewPort = function (el) {
 
     //Check element exists in DOM
     if (el) {
-        var rect = el.getBoundingClientRect(), top = rect.top, height = rect.height,
+        var rect = el.getBoundingClientRect(), top = rect.top, height = rect.height;
             el = el.parentNode;
         do {
             rect = el.getBoundingClientRect();

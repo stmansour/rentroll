@@ -36,6 +36,7 @@ exports.addNewConf = {
     capture: "rentablesAddNewButton.png",
     buttonName: ["save", "saveadd"],
     disableFields: ["RAID", "RARDtStart", "RARDtStop"],
+    tabs: [],
     testCount: 16
 };
 

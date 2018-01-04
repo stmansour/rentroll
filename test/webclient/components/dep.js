@@ -36,6 +36,7 @@ exports.addNewConf = {
     capture: "depAddNewButton.png",
     buttonName: ["save", "saveadd"],
     disableFields: [],
+    tabs: [],
     testCount: 15
 };
 

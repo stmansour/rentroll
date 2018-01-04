@@ -12,5 +12,6 @@ exports.addNewConf = {
     capture: "expensesAddNewButton.png",
     buttonName: ["save", "saveadd"],
     disableFields: [],
+    tabs: [],
     testCount: 13
 };

@@ -18,6 +18,7 @@ exports.addNewConf = {
     capture: "receiptsAddNewButton.png",
     buttonName: ["save", "saveadd"],
     disableFields: [],
+    tabs: [],
     testCount: 25
 };
 

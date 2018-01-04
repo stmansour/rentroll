@@ -29,5 +29,6 @@ exports.addNewConf = {
     capture: "depositAddNewButton.png",
     buttonName: ["save", "saveadd"],
     disableFields: [],
+    tabs: [],
     testCount: 13
 };

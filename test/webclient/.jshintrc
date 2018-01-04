@@ -11,10 +11,10 @@
         "pageWidth": true,
         "pageHeight": true,
         "logspace": true,
-        "el": true,
         "w2ui": true,
         "patchRequire": true,
         "testBiz": true,
-        "__utils__": true
+        "__utils__": true,
+        "console": true
     }
 }

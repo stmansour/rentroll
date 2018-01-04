@@ -75,6 +75,11 @@ exports.getDisableFieldSelector = function (disableField) {
     return 'input#{0}'.format(disableField);
 };
 
+// getW2UITabSelector Query selector for tabs in w2ui
+exports.getW2UITabSelector = function (formName, tabId) {
+    return '#tabs_{0}_tabs_tab_{1}'.format(formName, tabId);
+};
+
 // getDateFieldSelector Query selector for date field in w2ui form field
 exports.getDateFieldSelector = function (dateFieldId) {
     return 'input#{0}.w2ui-input'.format(dateFieldId);
@@ -106,6 +111,14 @@ exports.getVisibleExcludedColumnName = function (column) {
         if(column.field in this){
             return column;
         }
+    }
+};
+
+// getFieldsForPage Return a w2ui form field  object with html page no
+exports.getFieldsForPage = function (field) {
+    if (field.html.page === this) {
+        // console.log(field.field);
+        return field;
     }
 };
 

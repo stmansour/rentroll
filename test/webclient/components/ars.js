@@ -37,6 +37,7 @@ exports.addNewConf = {
     capture: "arsAddNewButton.png",
     buttonName: ["save", "saveadd"],
     disableFields: ["RAIDrqd"],
+    tabs: [],
     testCount: 24
 };
 
