@@ -386,9 +386,8 @@ func loadRoomKeyCSV(
 				}
 
 				// get tcid from email
-				t, err := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pEmail)
-
-				if err != nil {
+				t, tErr := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pEmail)
+				if tErr != nil {
 					// t = rlib.GetTransactantByName(business.BID, csvRow.Guest)
 					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
 					csvErrors[roomkeyIndex] = append(csvErrors[roomkeyIndex], reason)
@@ -425,8 +424,8 @@ func loadRoomKeyCSV(
 				}
 
 				// get tcid from cellphonenumber
-				t, err := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pCellNo)
-				if err != nil {
+				t, tErr := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pCellNo)
+				if tErr != nil {
 					// unable to get TCID
 					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
 					csvErrors[roomkeyIndex] = append(csvErrors[roomkeyIndex], reason)
