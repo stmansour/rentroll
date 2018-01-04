@@ -168,12 +168,12 @@ FROM
         FROM Rentable
             LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = Rentable.BID
                 AND RentalAgreementRentables.RID = Rentable.RID
-                AND {{.DtStart}} <= RentalAgreementRentables.RARDtStop
-                AND {{.DtStop}} > RentalAgreementRentables.RARDtStart)
+                AND "{{.DtStart}}" <= RentalAgreementRentables.RARDtStop
+                AND "{{.DtStop}}" > RentalAgreementRentables.RARDtStart)
             LEFT JOIN RentalAgreement ON (RentalAgreement.BID = RentalAgreementRentables.BID
                 AND RentalAgreement.RAID = RentalAgreementRentables.RAID
-                AND {{.DtStart}} <= RentalAgreement.AgreementStop
-                AND {{.DtStop}} > RentalAgreement.AgreementStart)
+                AND "{{.DtStart}}" <= RentalAgreement.AgreementStop
+                AND "{{.DtStop}}" > RentalAgreement.AgreementStart)
         WHERE
             Rentable.BID = {{.BID}}
         )
@@ -198,13 +198,13 @@ FROM
         FROM RentalAgreement
             LEFT JOIN RentalAgreementRentables ON (RentalAgreementRentables.BID = RentalAgreement.BID
                 AND RentalAgreementRentables.RAID = RentalAgreement.RAID
-                AND {{.DtStart}} <= RentalAgreementRentables.RARDtStop
-                AND {{.DtStop}} > RentalAgreementRentables.RARDtStart
+                AND "{{.DtStart}}" <= RentalAgreementRentables.RARDtStop
+                AND "{{.DtStop}}" > RentalAgreementRentables.RARDtStart
             )
         WHERE RentalAgreement.BID = {{.BID}}
             AND RentalAgreementRentables.RAID IS NULL
-            AND {{.DtStart}} <= RentalAgreement.AgreementStop
-            AND {{.DtStop}} > RentalAgreement.AgreementStart
+            AND "{{.DtStart}}" <= RentalAgreement.AgreementStop
+            AND "{{.DtStop}}" > RentalAgreement.AgreementStart
         )
     ) AS Rentable_CUM_RA
         /*
@@ -212,8 +212,8 @@ FROM
          */
         LEFT JOIN RentalAgreementPayors ON (Rentable_CUM_RA.RAID = RentalAgreementPayors.RAID
             AND Rentable_CUM_RA.BID = RentalAgreementPayors.BID
-            AND {{.DtStart}} <= RentalAgreementPayors.DtStop
-            AND {{.DtStop}} > RentalAgreementPayors.DtStart)
+            AND "{{.DtStart}}" <= RentalAgreementPayors.DtStop
+            AND "{{.DtStop}}" > RentalAgreementPayors.DtStart)
         LEFT JOIN Transactant AS Payor ON (Payor.TCID = RentalAgreementPayors.TCID
             AND Payor.BID = Rentable_CUM_RA.BID)
         /*
@@ -221,8 +221,8 @@ FROM
          */
         LEFT JOIN RentableTypeRef ON (RentableTypeRef.RID = Rentable_CUM_RA.RID
             AND RentableTypeRef.BID = Rentable_CUM_RA.BID
-            AND {{.DtStart}} <= RentableTypeRef.DtStop
-            AND {{.DtStop}} > RentableTypeRef.DtStart
+            AND "{{.DtStart}}" <= RentableTypeRef.DtStop
+            AND "{{.DtStop}}" > RentableTypeRef.DtStart
             -- Should we consider agreement dates too for comparision?
             /*AND RentableTypeRef.DtStart >= Rentable_CUM_RA.AgreementStart
             AND RentableTypeRef.DtStop <= Rentable_CUM_RA.AgreementStop*/)
@@ -233,8 +233,8 @@ FROM
          */
         LEFT JOIN RentableStatus ON (RentableStatus.RID = Rentable_CUM_RA.RID
             AND RentableStatus.BID = Rentable_CUM_RA.BID
-            AND {{.DtStart}} <= RentableStatus.DtStop
-            AND {{.DtStop}} > RentableStatus.DtStart
+            AND "{{.DtStart}}" <= RentableStatus.DtStop
+            AND "{{.DtStop}}" > RentableStatus.DtStart
             -- Should we consider agreement dates too for comparision?
             /*AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
             AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop*/)
@@ -243,8 +243,8 @@ FROM
          */
         LEFT JOIN RentableUsers ON (RentableUsers.RID = Rentable_CUM_RA.RID
             AND RentableUsers.RID = Rentable_CUM_RA.RID
-            AND {{.DtStart}} <= RentableUsers.DtStop
-            AND {{.DtStop}} > RentableUsers.DtStart
+            AND "{{.DtStart}}" <= RentableUsers.DtStop
+            AND "{{.DtStop}}" > RentableUsers.DtStart
             AND RentableUsers.DtStart >= Rentable_CUM_RA.AgreementStart
             AND RentableUsers.DtStop <= Rentable_CUM_RA.AgreementStop)
         LEFT JOIN Transactant AS User ON (RentableUsers.TCID = User.TCID
@@ -284,21 +284,21 @@ FROM
                         LEFT JOIN ReceiptAllocation ON (ReceiptAllocation.BID=Assessments.BID
                             AND ReceiptAllocation.RAID = Assessments.RAID
                             AND ReceiptAllocation.ASMID = Assessments.ASMID
-                            AND {{.DtStart}} <= ReceiptAllocation.Dt
-                            AND ReceiptAllocation.Dt < {{.DtStop}})
+                            AND "{{.DtStart}}" <= ReceiptAllocation.Dt
+                            AND ReceiptAllocation.Dt < "{{.DtStop}}")
                         LEFT JOIN Receipt ON (Receipt.BID=ReceiptAllocation.BID
                             -- AND Receipt.RAID = ReceiptAllocation.RAID // Receipt might have not updated with RAID
                             AND Receipt.RCPTID=ReceiptAllocation.RCPTID
                             AND (Receipt.FLAGS & 4) = 0
-                            AND {{.DtStart}} <= Receipt.Dt
-                            AND Receipt.Dt < {{.DtStop}})
+                            AND "{{.DtStart}}" <= Receipt.Dt
+                            AND Receipt.Dt < "{{.DtStop}}")
                         LEFT JOIN AR AS ASMAR ON (ASMAR.BID = Assessments.BID
                             AND ASMAR.ARID = Assessments.ARID)
                     WHERE Assessments.BID={{.BID}}
                         AND (Assessments.RentCycle = 0 OR (Assessments.RentCycle > 0 AND Assessments.PASMID != 0))
                         AND (Assessments.FLAGS & 4) = 0
-                        AND {{.DtStart}} <= Assessments.Stop
-                        AND {{.DtStop}} > Assessments.Start
+                        AND "{{.DtStart}}" <= Assessments.Stop
+                        AND "{{.DtStop}}" > Assessments.Start
                     GROUP BY Assessments.ASMID
                     ORDER BY Assessments.ASMID
                 ) UNION (
@@ -326,15 +326,15 @@ FROM
                             AND Assessments.ASMID=ReceiptAllocation.ASMID
                             AND (Assessments.RentCycle = 0 OR (Assessments.RentCycle > 0 AND Assessments.PASMID != 0))
                             AND (Assessments.FLAGS & 4) = 0
-                            AND {{.DtStart}} <= Assessments.Stop
-                            AND {{.DtStop}} > Assessments.Start)
+                            AND "{{.DtStart}}" <= Assessments.Stop
+                            AND "{{.DtStop}}" > Assessments.Start)
                         LEFT JOIN AR AS RCPTAR ON (RCPTAR.BID = Receipt.BID
                             AND RCPTAR.ARID = Receipt.ARID)
                     WHERE Receipt.BID={{.BID}}
                         AND Assessments.ASMID IS NULL
                         AND (Receipt.FLAGS & 4) = 0
-                        AND {{.DtStart}} <= Receipt.Dt
-                        AND Receipt.Dt < {{.DtStop}}
+                        AND "{{.DtStart}}" <= Receipt.Dt
+                        AND Receipt.Dt < "{{.DtStop}}"
                     GROUP BY ReceiptAllocation.RCPAID
                     ORDER BY ReceiptAllocation.RCPAID
                 )) AS AsmRcptCollection
@@ -521,7 +521,10 @@ func getRentRollVariableInfoMap(ctx context.Context, BID int64, startDt, stopDt 
 	)
 	Console("Entered in %s\n", funcname)
 
-	InitBizInternals(BID, &xbiz)
+	err = InitBizInternals(BID, &xbiz)
+	if err != nil {
+		return err
+	}
 
 	err = rentrollMapGapHandler(ctx, BID, startDt, stopDt, m)
 	if err != nil {
