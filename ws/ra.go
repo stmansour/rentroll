@@ -522,7 +522,8 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// then we need to move the initial LedgerMarker's date back.
 		//------------------------------------------------------------------------
 		lm, err := rlib.GetInitialLedgerMarkerByRAID(r.Context(), a.RAID)
-		if /*lm.LMID == 0*/ err != nil {
+		if lm.LMID == 0 || err != nil {
+			// if you want to log err then separate above if clause condition
 			e := fmt.Errorf("Could not find initial LedgerMarker for RAID = %d", a.RAID)
 			SvcErrorReturn(w, e, funcname)
 			return

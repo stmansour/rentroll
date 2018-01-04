@@ -95,7 +95,11 @@ func main() {
 	ctx := context.Background()
 
 	biz, err := rlib.GetBusinessByDesignation(ctx, App.Bud)
-	if /*biz.BID == 0*/ err != nil {
+	if err != nil {
+		fmt.Printf("Could not find Business Unit named %s, Error: %s\n", App.Bud, err.Error())
+		os.Exit(1)
+	}
+	if biz.BID == 0 {
 		fmt.Printf("Could not find Business Unit named %s\n", App.Bud)
 		os.Exit(1)
 	}

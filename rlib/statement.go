@@ -89,6 +89,10 @@ func GetNameFromTransactantCache(ctx context.Context, tcid int64, payorcache map
 func GetRAIDBalance(ctx context.Context, raid int64, dt *time.Time) (float64, error) {
 	bal := float64(0)
 	lm, err := GetRALedgerMarkerOnOrBefore(ctx, raid, dt)
+	if lm.LMID == 0 {
+		err := fmt.Errorf("*** ERROR ***  could not find ledger marker for RAID %d on or before %s", raid, dt.Format(RRDATEFMTSQL))
+		return bal, err
+	}
 	if err != nil {
 		err := fmt.Errorf("*** ERROR ***  could not find ledger marker for RAID %d on or before %s", raid, dt.Format(RRDATEFMTSQL))
 		return bal, err

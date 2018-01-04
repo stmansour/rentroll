@@ -569,8 +569,9 @@ func ProcessReceiptRange(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time
 	}
 
 	for i := 0; i < len(r); i++ {
-		_, err := GetJournalByReceiptID(ctx, r[i].RCPTID)
-		if err != nil {
+		j, err := GetJournalByReceiptID(ctx, r[i].RCPTID)
+		if err != nil || j.JID == 0 { // TODO(Steve): are we sure that we want to proceed if err != nil?
+			// if you want log the error then separate this condition in two if clauses
 			_, err = ProcessNewReceipt(ctx, xbiz, d1, d2, &r[i])
 			if err != nil {
 				return err

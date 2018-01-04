@@ -207,7 +207,15 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) error
 	// the balance for each ledger marker
 	//--------------------------------------------------------------------
 	for k := range RRdb.BizTypes[bid].GLAccounts {
-		lm, _ := GetLedgerMarkerOnOrBefore(ctx, bid, k, d2)
+		lm, err := GetLedgerMarkerOnOrBefore(ctx, bid, k, d2)
+		if err != nil {
+			Ulog("%s: Error from GetLedgerMarkerOnOrBefore: %s\n", err.Error())
+			continue
+		}
+
+		if lm.LID == 0 {
+			continue
+		}
 		lmacct = lm
 		break
 	}
@@ -403,6 +411,10 @@ func GenerateLedgerMarkers(ctx context.Context, xbiz *XBusiness, d2 *time.Time) 
 	for i := 0; i < len(t); i++ {
 		lm, err := GetLedgerMarkerOnOrBefore(ctx, xbiz.P.BID, t[i].LID, d2)
 		if err != nil {
+			LogAndPrint("%s: Could not get GLAccount %d (%s) in business %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
+			continue
+		}
+		if lm.LMID == 0 {
 			LogAndPrint("%s: Could not get GLAccount %d (%s) in business %d\n", funcname, t[i].LID, t[i].GLNumber, xbiz.P.BID)
 			continue
 		}

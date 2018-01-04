@@ -300,11 +300,10 @@ func SaveDeposit(ctx context.Context, a *rlib.Deposit, newRcpts []int64) []BizEr
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}
-			/*if r.RCPTID == 0 {
+			if r.RCPTID == 0 {
 				err := fmt.Errorf("could not load receipt %d", removelist[i])
 				e = AddErrToBizErrlist(err, e)
-			}*/
-
+			}
 			r.DID = 0
 			err = rlib.UpdateReceipt(ctx, &r)
 			if err != nil {
@@ -332,10 +331,10 @@ func SaveDeposit(ctx context.Context, a *rlib.Deposit, newRcpts []int64) []BizEr
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}
-			/*if r.RCPTID == 0 {
+			if r.RCPTID == 0 { // if resource not found then also raise the error
 				err := fmt.Errorf("could not load receipt %d", addlist[i])
 				e = AddErrToBizErrlist(err, e)
-			}*/
+			}
 			r.DID = a.DID
 			err = rlib.UpdateReceipt(ctx, &r)
 			if err != nil {

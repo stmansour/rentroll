@@ -490,6 +490,10 @@ func loadOneSiteCSV(
 					// unable to get TCID
 					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
 					csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
+				} else if t.TCID == 0 {
+					// unable to get TCID
+					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
+					csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
 				} else {
 					// if duplicate people found
 					rlib.Ulog("DUPLICATE RECORD ERROR <%s>: %s", fname, err.Error())
@@ -535,6 +539,10 @@ func loadOneSiteCSV(
 					if err != nil {
 						// unable to get TCID
 						reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
+						csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
+					} else if t.TCID == 0{
+						// unable to get TCID
+						reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
 						csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
 					} else {
 						// if duplicate people found
@@ -601,6 +609,12 @@ func loadOneSiteCSV(
 			u := customAttributeConfig["Units"]
 			ca, err := rlib.GetCustomAttributeByVals(ctx, t, n, v, u)
 			if err != nil {
+				rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", "CUSTOM ATTRIBUTE NOT FOUND IN DB")
+				csvErrors[refData.RowIndex] = append(csvErrors[refData.RowIndex], errPrefix+"Unable to insert custom attribute")
+				continue
+			}
+			// if resource not found then continue
+			if ca.CID == 0 {
 				rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", "CUSTOM ATTRIBUTE NOT FOUND IN DB")
 				csvErrors[refData.RowIndex] = append(csvErrors[refData.RowIndex], errPrefix+"Unable to insert custom attribute")
 				continue

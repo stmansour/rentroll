@@ -94,7 +94,12 @@ func ValidateUserSuppliedValues(ctx context.Context, userValues map[string]strin
 	// --------------------- BUD validation ------------------------
 	BUD := userValues["BUD"]
 	business, err := rlib.GetBusinessByDesignation(ctx, BUD)
-	if err != nil /*business.BID == 0*/ {
+	if err != nil {
+		errorList = append(errorList,
+			fmt.Errorf("Supplied Business Unit Designation does not exists"))
+	}
+	// resource not found then consider it's as an error
+	if business.BID == 0 {
 		errorList = append(errorList,
 			fmt.Errorf("Supplied Business Unit Designation does not exists"))
 	}

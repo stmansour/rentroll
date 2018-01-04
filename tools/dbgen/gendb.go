@@ -84,17 +84,16 @@ func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
 		}
 	}
 	if dbConf.OpDepository == 0 {
-		d, _ := rlib.GetDepositoryByName(ctx, BID, dbConf.OpDepositoryName)
-		/*if err != nil {
-			return fmt.Errorf("Could not find Depository named %q", dbConf.OpDepositoryName)
-		}*/
+		d, err := rlib.GetDepositoryByName(ctx, BID, dbConf.OpDepositoryName)
+		rlib.Errcheck(err)
 		if d.DEPID == 0 {
 			return fmt.Errorf("Could not find Depository named %q", dbConf.OpDepositoryName)
 		}
 		dbConf.OpDepository = d.DEPID
 	}
 	if dbConf.SecDepDepository == 0 {
-		d, _ := rlib.GetDepositoryByName(ctx, BID, dbConf.SecDepDepositoryName)
+		d, err := rlib.GetDepositoryByName(ctx, BID, dbConf.SecDepDepositoryName)
+		rlib.Errcheck(err)
 		if d.DEPID == 0 {
 			return fmt.Errorf("Could not find Depository named %q", dbConf.SecDepDepositoryName)
 		}
@@ -102,7 +101,8 @@ func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
 	}
 	if dbConf.PTypeCheck == 0 {
 		var pt rlib.PaymentType
-		_ = rlib.GetPaymentTypeByName(ctx, BID, dbConf.PTypeCheckName, &pt)
+		err = rlib.GetPaymentTypeByName(ctx, BID, dbConf.PTypeCheckName, &pt)
+		rlib.Errcheck(err)
 		if pt.PMTID == 0 {
 			return fmt.Errorf("Could not find Payment Type with name %q", dbConf.PTypeCheckName)
 		}

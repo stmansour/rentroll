@@ -267,13 +267,24 @@ func main() {
 	//----------------------------------------------------
 	if len(App.BUD) > 0 {
 		b2, err := rlib.GetBusinessByDesignation(ctx, App.BUD)
-		if err != nil /*b2.BID == 0*/ {
+		if err != nil {
 			fmt.Printf("Could not find Business Unit named %s, Error=%s\n", App.BUD, err.Error())
 			os.Exit(1)
 		}
+		if b2.BID == 0 {
+			// If resource not found then also raise the Error
+			fmt.Printf("Could not find Business Unit named %s\n", App.BUD)
+			os.Exit(1)
+		}
+
 		err = rlib.GetXBusiness(ctx, b2.BID, &App.Xbiz)
-		if err != nil /*b2.BID == 0*/ {
+		if err != nil {
 			fmt.Printf("Could not load Business with BID(%d), Error=%s\n", b2.BID, err.Error())
+			os.Exit(1)
+		}
+		if b2.BID == 0 {
+			// If resource not found then also raise the Error
+			fmt.Printf("Could not load Business with BID(%d)\n", b2.BID)
 			os.Exit(1)
 		}
 	} else if len(App.AsmtFile) > 0 || len(App.RcptFile) > 0 {

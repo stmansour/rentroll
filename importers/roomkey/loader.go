@@ -388,9 +388,13 @@ func loadRoomKeyCSV(
 				// get tcid from email
 				t, err := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pEmail)
 
-				if err != nil /*t.TCID == 0*/ {
+				if err != nil {
 					// t = rlib.GetTransactantByName(business.BID, csvRow.Guest)
 					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
+					csvErrors[roomkeyIndex] = append(csvErrors[roomkeyIndex], reason)
+				} else if t.TCID == 0 {
+					// t = rlib.GetTransactantByName(business.BID, csvRow.Guest)
+					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
 					csvErrors[roomkeyIndex] = append(csvErrors[roomkeyIndex], reason)
 				} else {
 					// if duplicate people found
@@ -422,9 +426,13 @@ func loadRoomKeyCSV(
 
 				// get tcid from cellphonenumber
 				t, err := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pCellNo)
-				if err != nil /*t.TCID == 0*/ {
+				if err != nil {
 					// unable to get TCID
 					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
+					csvErrors[roomkeyIndex] = append(csvErrors[roomkeyIndex], reason)
+				} else if t.TCID == 0 {
+					// unable to get TCID
+					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
 					csvErrors[roomkeyIndex] = append(csvErrors[roomkeyIndex], reason)
 				} else {
 					// if duplicate people found

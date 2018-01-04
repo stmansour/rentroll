@@ -245,9 +245,14 @@ func GetRARBalance(ctx context.Context, bid, rid, raid int64, dt *time.Time) (fl
 	)
 
 	lm, err := GetRARentableLedgerMarkerOnOrBefore(ctx, raid, rid, dt)
-	if err != nil {
+	if lm.LMID == 0 {
 		LogAndPrint("%s: Could not find LedgerMarker for RAID=%d, RID=%d, on or before %s\n",
 			funcname, raid, rid, dt.Format(RRDATEFMT3))
+		return bal, err
+	}
+	if err != nil {
+		LogAndPrint("%s: Could not find LedgerMarker for RAID=%d, RID=%d, on or before %s, error: %s\n",
+			funcname, raid, rid, dt.Format(RRDATEFMT3), err.Error())
 		return bal, err
 	}
 

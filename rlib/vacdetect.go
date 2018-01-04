@@ -51,12 +51,11 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 	if err != nil {
 		return m, err
 	}
-
-	/*if len(rta) == 0 {
+	if len(rta) == 0 {
 		Ulog("VacancyDetect:  No valid RTID for rentable R%08d during period %s to %s\n",
 			rid, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 		return m, fmt.Errorf("zero list") // this is bad! No RTID for the supplied time range
-	}*/
+	}
 
 	// rtidMulti := len(rta) > 1 // flag to indicate we need to look for a change in rtid in every pass
 	rtid := rta[0].RTID // initialize to the first RTID

@@ -824,8 +824,9 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//----------------------------------------
 	// First check, account exists or not
 	//----------------------------------------
-	_, err := rlib.GetLedger(r.Context(), del.LID)
-	if err != nil /*gl.LID == 0*/ {
+	gl, err := rlib.GetLedger(r.Context(), del.LID)
+	if err != nil || gl.LID == 0 {
+		// if you want to log error then separate this if clause condition
 		err := fmt.Errorf("No such account exists with ID: %d", del.LID)
 		SvcErrorReturn(w, err, funcname)
 		return

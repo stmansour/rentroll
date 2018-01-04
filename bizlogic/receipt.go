@@ -49,9 +49,9 @@ func UpdateReceipt(ctx context.Context, rnew *rlib.Receipt, dt *time.Time) error
 	if err != nil {
 		return err
 	}
-	/*if rold.RCPTID == 0 {
+	if rold.RCPTID == 0 { // if resource not found then raise the error
 		return fmt.Errorf("Receipt %d not found", rnew.RCPTID)
-	}*/
+	}
 
 	//---------------------------------------------------------------------------------
 	// we need to reverse the old receipt if any of the following fields have changed:

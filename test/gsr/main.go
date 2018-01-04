@@ -147,7 +147,11 @@ func createReceipt(ctx context.Context, bid int64, amt float64, docno string, dt
 	ra.AcctRule = fmt.Sprintf("d %s _, c %s _", d.GLNumber, c.GLNumber)
 	ra.BID = r.BID
 	ra.Dt = r.Dt
-	rlib.InsertReceiptAllocation(ctx, &ra)
+	_, err = rlib.InsertReceiptAllocation(ctx, &ra)
+	if err != nil {
+		rlib.Ulog("Error inserting receipt: %s\n", err.Error())
+		return r
+	}
 	r.RA = append(r.RA, ra)
 
 	return r
