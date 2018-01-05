@@ -36,7 +36,7 @@ type ReceiptSendForm struct {
 	CreateTS       rlib.JSONDateTime
 	CreateBy       int64
 	FLAGS          uint64
-	//AcctRule       string
+	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
 }
 
 // ReceiptSaveForm is a structure specifically for the return value from w2ui.
@@ -69,20 +69,23 @@ type ReceiptSaveForm struct {
 
 // PrReceiptGrid is a structure specifically for the UI Grid.
 type PrReceiptGrid struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	RCPTID      int64
-	BID         int64
-	DID         int64
-	TCID        int64 // TCID of payor
-	PMTID       int64
-	PmtTypeName string
-	Dt          rlib.JSONDate
-	DocNo       string // check number, money order number, etc.; documents the payment
-	Amount      float64
-	Payor       rlib.NullString // name of the payor
-	ARID        int64           // which account rule
-	AcctRule    rlib.NullString // expression showing how to account for the amount
-	FLAGS       uint64
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	RCPTID         int64
+	BID            int64
+	DID            int64
+	TCID           int64 // TCID of payor
+	PMTID          int64
+	PmtTypeName    string
+	Dt             rlib.JSONDate
+	DocNo          string // check number, money order number, etc.; documents the payment
+	Amount         float64
+	Payor          rlib.NullString // name of the payor
+	ARID           int64           // which account rule
+	AcctRule       rlib.NullString // expression showing how to account for the amount
+	FLAGS          uint64
+	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
+	Comment        string
+	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
 }
 
 // SaveReceiptInput is the input data format for a Save command
@@ -113,25 +116,27 @@ type DeleteRcptForm struct {
 
 // receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
 func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) (PrReceiptGrid, error) {
-	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS, &q.DID)
+	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS, &q.DID, &q.OtherPayorName, &q.Comment)
 	return q, err
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
 var receiptsFieldsMap = map[string][]string{
-	"RCPTID":      {"Receipt.RCPTID"},
-	"BID":         {"Receipt.BID"},
-	"TCID":        {"Receipt.TCID"},
-	"PMTID":       {"Receipt.PMTID"},
-	"PmtTypeName": {"PaymentType.Name"},
-	"Dt":          {"Receipt.Dt"},
-	"DocNo":       {"Receipt.DocNo"},
-	"Amount":      {"Receipt.Amount"},
-	"Payor":       {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
-	"ARID":        {"Receipt.ARID"},
-	"AcctRule":    {"AR.Name"},
-	"FLAGS":       {"Receipt.FLAGS"},
-	"DID":         {"Receipt.DID"},
+	"RCPTID":         {"Receipt.RCPTID"},
+	"BID":            {"Receipt.BID"},
+	"TCID":           {"Receipt.TCID"},
+	"PMTID":          {"Receipt.PMTID"},
+	"PmtTypeName":    {"PaymentType.Name"},
+	"Dt":             {"Receipt.Dt"},
+	"DocNo":          {"Receipt.DocNo"},
+	"Amount":         {"Receipt.Amount"},
+	"Payor":          {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
+	"ARID":           {"Receipt.ARID"},
+	"AcctRule":       {"AR.Name"},
+	"FLAGS":          {"Receipt.FLAGS"},
+	"DID":            {"Receipt.DID"},
+	"OtherPayorName": {"Receipt.OtherPayorName"},
+	"Comment":        {"Receipt.Comment"},
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -149,6 +154,8 @@ var receiptsQuerySelectFields = []string{
 	"AR.Name as AcctRule",
 	"Receipt.FLAGS",
 	"Receipt.DID",
+	"Receipt.OtherPayorName",
+	"Receipt.Comment",
 }
 
 // SvcSearchHandlerReceipts generates a report of all Receipts defined business d.BID
@@ -245,6 +252,14 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
+		}
+
+		//---------------------------------------------------------------
+		// RECEIPT-ONLY CLIENT UPDATE...
+		// extract the RentableName from the comment if it is present...
+		//---------------------------------------------------------------
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			q.RentableName, q.Comment = rlib.ROCExtractRentableName(q.Comment)
 		}
 
 		g.Records = append(g.Records, q)
@@ -345,8 +360,25 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//  Update or Insert as appropriate...
 	//------------------------------------------
 	if a.RCPTID == 0 && d.RCPTID == 0 {
-		// rlib.Console(">>>> NEW RECEIPT IS BEING ADDED\n")
-		err = bizlogic.InsertReceipt(r.Context(), &a)
+		//-------------------------------------------------------------------
+		// there is one special case: if the client is the receipt-only
+		//-------------------------------------------------------------------
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			//----------------------------------------------------------------
+			// There is no field for the RentableName in a receipt. But we
+			// need one for the Receipt-Only client. We will encode it onto
+			// the comment field with double-braces.  We will remove the
+			// double braces and RentableName when the Read-Only client reads
+			// back these receipts.  They will be transferred to the client
+			// in a RentableName field.
+			//----------------------------------------------------------------
+			if len(d.wsSearchReq.RentableName) > 0 {
+				a.Comment += rlib.ROCPRE + d.wsSearchReq.RentableName + rlib.ROCPOST
+			}
+			_, err = rlib.InsertReceipt(r.Context(), &a)
+		} else {
+			err = bizlogic.InsertReceipt(r.Context(), &a)
+		}
 		if err != nil {
 			e := fmt.Errorf("%s:  Error in rlib.ProcessNewReceipt: %s", funcname, err.Error())
 			rlib.Ulog("%s", e.Error())
@@ -354,9 +386,22 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	} else {
-		// rlib.Console(">>>> UPDATE EXISTING RECEIPT\n")
-		now := time.Now() // this is the time we're making the change if a reversal needs to be done
-		err = bizlogic.UpdateReceipt(r.Context(), &a, &now)
+		//-------------------------------------------------------------------
+		// there is one special case: if the client is the receipt-only
+		// client for Isola Bella, we skip the business checks because only
+		// the receipts are being saved, nothing else.  This will go away
+		// in the future when we're able to keep the payors up-to-date for
+		// Isola Bella.
+		//-------------------------------------------------------------------
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			if len(d.wsSearchReq.RentableName) > 0 {
+				a.Comment += rlib.ROCPRE + d.wsSearchReq.RentableName + rlib.ROCPOST
+			}
+			err = rlib.UpdateReceipt(r.Context(), &a)
+		} else {
+			now := time.Now() // this is the time we're making the change if a reversal needs to be done
+			err = bizlogic.UpdateReceipt(r.Context(), &a, &now)
+		}
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d)\n: %s", funcname, d.RCPTID, err.Error())
@@ -398,6 +443,12 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				gg.Payor = t.GetFullTransactantName() + " (TCID: " + tcid + ")"
 			}
 		}
+
+		// RECEIPT-ONLY CLIENT - Remove when this client is no longer needed
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			gg.RentableName, gg.Comment = rlib.ROCExtractRentableName(gg.Comment)
+		}
+
 		g.Record = gg
 	}
 	g.Status = "success"
@@ -435,6 +486,20 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+
+	//---------------------------------------------------------------
+	// RECEIPT-ONLY CLIENT UPDATE...
+	// extract the RentableName from the comment if it is present...
+	//---------------------------------------------------------------
+	if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+		i1 := strings.Index(rcpt.Comment, rlib.ROCPRE)
+		i2 := strings.Index(rcpt.Comment, rlib.ROCPOST)
+		if i1 >= 0 && i2 > i1 {
+			rcpt.RentableName = rcpt.Comment[i1+rlib.ROCOFFSET : i2]
+			rcpt.Comment = rcpt.Comment[:i1]
+		}
+	}
+
 	dt := time.Now()
 	err = bizlogic.ReverseReceipt(r.Context(), &rcpt, &dt)
 	if err != nil {

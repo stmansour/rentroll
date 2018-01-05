@@ -77,3 +77,6 @@ func RRreportReceipts(ctx context.Context, ri *ReporterInfo) string {
 	tbl := RRReceiptsTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }
+
+// RRReceipt prints a formatted receipt.
+// Currently it assumes the

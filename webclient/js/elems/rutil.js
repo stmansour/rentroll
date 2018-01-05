@@ -375,7 +375,6 @@ function setToForm(sform, url, width, doRequest) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function ridRentablePickerRender(item) {
-
     w2ui.ridRentablePicker.record.RID = item.recid;
     return item.RentableName + '  (RID: ' + item.recid + ')';
 }
@@ -387,7 +386,6 @@ function ridRentablePickerRender(item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function asmFormRentablePickerRender(item) {
-
     w2ui.asmEpochForm.record.RID = item.recid;
     return item.RentableName + '  (RID: ' + item.recid + ')';
 }
@@ -399,8 +397,6 @@ function asmFormRentablePickerRender(item) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 function ridRentableDropRender (item) {
-
-    // w2ui.ridRentablePicker.RID = item.RID;
     return item.RentableName + '  (RID: ' + item.recid + ')';
 }
 
@@ -411,7 +407,6 @@ function ridRentableDropRender (item) {
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
 function ridRentableCompare(item, search) {
-
     var s = item.RentableName.toLowerCase();
     return s.includes(search.toLowerCase());
 }
@@ -1047,7 +1042,7 @@ function exportReportCSV(rptname, dtStart, dtStop, returnURL){
         return;
     }
     var x = getCurrentBusiness();
-    var url = '/wsvc/' + x.value + '?r=' + rptname;
+    var url = '/v1/report/' + x.value + '?r=' + rptname + '&edi=' + app.dateMode;
 
     // if both dates are available then only append dtstart and dtstop in query params
     if (dtStart && dtStop) {
@@ -1120,7 +1115,7 @@ function exportReportPDF(rptname, dtStart, dtStop, returnURL){
         return;
     }
     var x = getCurrentBusiness();
-    var url = '/wsvc/' + x.value + '?r=' + rptname;
+    var url = '/v1/report/' + x.value + '?r=' + rptname + '&edi=' + app.dateMode;
 
     // if both dates are available then only append dtstart and dtstop in query params
     if (dtStart && dtStop) {

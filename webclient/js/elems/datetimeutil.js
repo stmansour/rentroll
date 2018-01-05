@@ -69,7 +69,6 @@ function dateMonthFwd(y) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function monthFwd(dc) {
-
     var y = dateFromString(dc.value);
     var d2 = dateMonthFwd(y);
     return setDateControl(dc, d2);
@@ -84,7 +83,6 @@ function monthFwd(dc) {
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function setToCurrentMonth(dc) {
-
     var y = new Date();
     var d2 = new Date(y.getFullYear(), y.getMonth(), 1, 0, 0, 0, 0);
     return setDateControl(dc, d2);
