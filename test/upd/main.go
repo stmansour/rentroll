@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"rentroll/rlib"
-	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -144,12 +143,12 @@ func updateRAR(ctx context.Context, biz *rlib.Business) {
 func updateRUser(ctx context.Context, biz *rlib.Business) {
 	tcid := int64(14)
 	rid := int64(1)
-	_, err := rlib.GetRentableUserByRBT(ctx, rid, biz.BID, tcid)
-	if err == nil {
-		fmt.Printf("The database is messed up.  There should not be any RentalAgreementPayors\n")
+	ru, err := rlib.GetRentableUserByRBT(ctx, rid, biz.BID, tcid)
+	if err != nil {
+		fmt.Printf("The database is messed up.  Error = %s\n", err.Error())
 		os.Exit(1)
 	}
-	if !strings.Contains(err.Error(), "no rows") {
+	if ru.RUID > 0 {
 		fmt.Printf("The database is messed up.  There should not be any RentalAgreementPayors\n")
 		os.Exit(1)
 	}
@@ -182,13 +181,13 @@ func updateRUser(ctx context.Context, biz *rlib.Business) {
 func updateRAPayor(ctx context.Context, biz *rlib.Business) {
 	tcid := int64(14)
 	raid := int64(1)
-	_, err := rlib.GetRentalAgreementPayorByRBT(ctx, raid, biz.BID, tcid)
-	if err == nil {
-		fmt.Printf("A. The database is messed up.  There should not be any RentalAgreementPayors\n")
+	rap1, err := rlib.GetRentalAgreementPayorByRBT(ctx, raid, biz.BID, tcid)
+	if err != nil {
+		fmt.Printf("A. The database is messed up. Error = %s\n", err.Error())
 		os.Exit(1)
 	}
-	if !strings.Contains(err.Error(), "no rows") {
-		fmt.Printf("B. The database is messed up.  There should not be any RentalAgreementPayors\n")
+	if rap1.RAPID > 0 {
+		fmt.Printf("A. The database is messed up.  There should not be any RentalAgreementPayors\n")
 		os.Exit(1)
 	}
 	now, _ := rlib.StringToDate("10/24/2016")
