@@ -1,6 +1,7 @@
 package bizlogic
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"sort"
@@ -96,7 +97,7 @@ func PossiblePostAccounts(bid int64) []rlib.GLAccount {
 //    [] BizError - List of errors encountered, explains why the account
 //                  cannot be deleted
 //-----------------------------------------------------------------------------
-func OKToDelete(l *rlib.GLAccount) (bool, []BizError) {
+func OKToDelete(ctx context.Context, l *rlib.GLAccount) (bool, []BizError) {
 	var errlist []BizError
 	ok := true // start out positive, change it if problems are encountered
 
@@ -104,7 +105,11 @@ func OKToDelete(l *rlib.GLAccount) (bool, []BizError) {
 	// Are there any Ledger Entries?  If so, we cannot allow
 	// the ledger to be deleted.
 	//----------------------------------------------------------
-	n := rlib.GetCountLedgerEntries(l.LID, l.BID)
+	n, err := rlib.GetCountLedgerEntries(ctx, l.LID, l.BID)
+	if err != nil {
+		return false, bizErrSys(&err)
+	}
+
 	if n > 0 {
 		errlist = append(errlist, BizErrors[AcctHasLedgerEntries])
 		ok = false
@@ -148,12 +153,22 @@ func OKToDelete(l *rlib.GLAccount) (bool, []BizError) {
 // INPUTS
 //    l  =  ledger (gl account) to save
 //-----------------------------------------------------------------------------
-func SaveGLAccount(l *rlib.GLAccount) []BizError {
+func SaveGLAccount(ctx context.Context, l *rlib.GLAccount) []BizError {
 	//	p1 := int64(0)
-	var errlist []BizError
-	var err error
-	accts := rlib.GetGLAccountMap(l.BID)
-	rules := rlib.GetARMap(l.BID)
+	var (
+		err     error
+		errlist []BizError
+	)
+
+	accts, err := rlib.GetGLAccountMap(ctx, l.BID)
+	if err != nil {
+		return bizErrSys(&err)
+	}
+
+	rules, err := rlib.GetARMap(ctx, l.BID)
+	if err != nil {
+		return bizErrSys(&err)
+	}
 
 	//-------------------------------------------------------------------------
 	// First, ensure that AllowPosts is in the correct state:
@@ -248,13 +263,13 @@ func SaveGLAccount(l *rlib.GLAccount) []BizError {
 	// OK, we've made all the checks we know about.  Now we can save it
 	//-----------------------------------------------------------------
 	if l.LID == 0 {
-		_, err = rlib.InsertLedger(l)
+		_, err = rlib.InsertLedger(ctx, l)
 		if err != nil {
 			e := fmt.Errorf("Error saving Account %s, Error:= %s", l.Name, err.Error())
 			return bizErrSys(&e)
 		}
 	} else {
-		err = rlib.UpdateLedger(l)
+		err = rlib.UpdateLedger(ctx, l)
 		if err != nil {
 			e := fmt.Errorf("Error updating account %s, Error:= %s", l.Name, err.Error())
 			return bizErrSys(&e)

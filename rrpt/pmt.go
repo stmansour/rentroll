@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
@@ -8,8 +9,11 @@ import (
 )
 
 // RRreportPaymentTypesTable generates a table object of all rlib.PaymentType for BID
-func RRreportPaymentTypesTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportPaymentTypesTable"
+func RRreportPaymentTypesTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportPaymentTypesTable"
+	var (
+		err error
+	)
 
 	// table init
 	tbl := getRRTable()
@@ -20,13 +24,20 @@ func RRreportPaymentTypesTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Description", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set table title, sections
-	err := TableReportHeaderBlock(&tbl, "Payment Types", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Payment Types", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
-	m := rlib.GetPaymentTypesByBusiness(ri.Bid)
+	m, err := rlib.GetPaymentTypesByBusiness(ctx, ri.Bid)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
@@ -47,7 +58,7 @@ func RRreportPaymentTypesTable(ri *ReporterInfo) gotable.Table {
 }
 
 // RRreportPaymentTypes generates a report of all rlib.GLAccount accounts
-func RRreportPaymentTypes(ri *ReporterInfo) string {
-	tbl := RRreportPaymentTypesTable(ri)
+func RRreportPaymentTypes(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportPaymentTypesTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

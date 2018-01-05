@@ -1,14 +1,16 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
 	"fmt"
 	"os"
 	"rentroll/rlib"
+
+	_ "github.com/go-sql-driver/mysql"
 )
-import _ "github.com/go-sql-driver/mysql"
 
 // App is the global application structure
 var App struct {
@@ -18,23 +20,28 @@ var App struct {
 	DBRR   string  //rentroll database
 	DBUser string  // user for all databases
 	BID    int64   //business
+	NoAuth bool
 }
 
 func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	flag.Parse()
 	App.DBUser = *dbuPtr
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
+	App.NoAuth = *noauth
 }
 
-func initApp() {
+func initApp(ctx context.Context) {
+	var err error
 	App.BID = 1 // known to be the only business
 	rlib.InitBusinessFields(App.BID)
-	rlib.RRdb.BizTypes[App.BID].NoteTypes = rlib.GetAllNoteTypes(App.BID) // we initialized to 1 business
+	rlib.RRdb.BizTypes[App.BID].NoteTypes, err = rlib.GetAllNoteTypes(ctx, App.BID) // we initialized to 1 business
+	rlib.Errcheck(err)
 }
 
 func printNote(n *rlib.Note, indent int) {
@@ -49,7 +56,7 @@ func printNote(n *rlib.Note, indent int) {
 	fmt.Printf("%s%s\n\n", ind, n.Comment)
 }
 
-func testNotes() {
+func testNotes(ctx context.Context) {
 	// funcname := "testNotes"
 
 	// Create a notelist with a couple of child notes
@@ -57,7 +64,8 @@ func testNotes() {
 	var err error
 
 	nl.LastModBy = 128
-	nl.NLID, err = rlib.InsertNoteList(&nl)
+	nl.NLID, err = rlib.InsertNoteList(ctx, &nl)
+	rlib.Errcheck(err)
 
 	// add some notes to the NoteList
 
@@ -66,7 +74,7 @@ func testNotes() {
 	n.LastModBy = 211
 	n.NTID = 1 // first comment type
 	n.NLID = nl.NLID
-	nid, err := rlib.InsertNote(&n)
+	nid, err := rlib.InsertNote(ctx, &n)
 	rlib.Errcheck(err)
 
 	n1.PNID = nid
@@ -74,7 +82,7 @@ func testNotes() {
 	n1.Comment = "I am a note that was added to the parent note"
 	n1.LastModBy = 198
 	n1.NTID = 2 // second comment type
-	_, err = rlib.InsertNote(&n1)
+	_, err = rlib.InsertNote(ctx, &n1)
 	rlib.Errcheck(err)
 
 	n2.PNID = nid
@@ -82,7 +90,7 @@ func testNotes() {
 	n2.Comment = "I am also a note that was added to the parent note. I'm the last note"
 	n2.LastModBy = 207
 	n2.NTID = 3 // third comment type
-	_, err = rlib.InsertNote(&n2)
+	_, err = rlib.InsertNote(ctx, &n2)
 	rlib.Errcheck(err)
 
 	// this one is the second not in the nlist
@@ -90,13 +98,14 @@ func testNotes() {
 	n3.Comment = "I should be the second note in the NoteList"
 	n3.LastModBy = 211
 	n3.NTID = 1 // third comment type
-	_, err = rlib.InsertNote(&n3)
+	_, err = rlib.InsertNote(ctx, &n3)
 	if err != nil {
 		fmt.Printf("Error inserting note: %s\n", err.Error())
 	}
 
 	// Now readback the notelist
-	d := rlib.GetNoteList(nl.NLID)
+	d, _ := rlib.GetNoteList(ctx, nl.NLID)
+	rlib.Errcheck(err)
 	fmt.Printf("NoteList: %d  created by uid %d\n", d.NLID, d.LastModBy)
 	for i := 0; i < len(d.N); i++ {
 		printNote(&d.N[i], 0)
@@ -148,7 +157,12 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
-	initApp()
+	rlib.SetAuthFlag(App.NoAuth)
 
-	testNotes()
+	// create background context
+	ctx := context.Background()
+
+	initApp(ctx)
+
+	testNotes(ctx)
 }

@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
@@ -8,8 +9,8 @@ import (
 )
 
 // RRreportRentableTypesTable generates a table object of all Rentable Types defined in the database, for all businesses.
-func RRreportRentableTypesTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportRentableTypesTable"
+func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportRentableTypesTable"
 
 	// table init
 	tbl := getRRTable()
@@ -24,13 +25,20 @@ func RRreportRentableTypesTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Dt1 - Dt2 : Market Rate", 96, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 7
 
 	// set table title, sections
-	err := TableReportHeaderBlock(&tbl, "Rentable Types", funcname, ri)
+	err := TableReportHeaderBlock(ctx, &tbl, "Rentable Types", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
-	m := rlib.GetBusinessRentableTypes(ri.Bid)
+	m, err := rlib.GetBusinessRentableTypes(ctx, ri.Bid)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	var keys []int
 	for k := range m {
 		keys = append(keys, int(k))
@@ -63,15 +71,15 @@ func RRreportRentableTypesTable(ri *ReporterInfo) gotable.Table {
 }
 
 // RRreportRentableTypes generates a report of all Rentable Types defined in the database, for all businesses.
-func RRreportRentableTypes(ri *ReporterInfo) string {
-	tbl := RRreportRentableTypesTable(ri)
+func RRreportRentableTypes(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportRentableTypesTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }
 
 // RentableCountByRentableTypeReportTable returns an gotable.Table containing the count of Rentables for each RentableType
 // in the specified time range
-func RentableCountByRentableTypeReportTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RentableCountByRentableTypeReportTable"
+func RentableCountByRentableTypeReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RentableCountByRentableTypeReportTable"
 
 	// init and prepare some values before table init
 	ri.RptHeaderD1 = true
@@ -86,18 +94,20 @@ func RentableCountByRentableTypeReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Custom Attributes", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set table title, sections
-	err := TableReportHeaderBlock(&tbl, "Rentable Counts By Rentable Type", funcname, ri)
+	err := TableReportHeaderBlock(ctx, &tbl, "Rentable Counts By Rentable Type", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// RentableCountByRentableTypeReport returns a structure containing the count of Rentables for each RentableType
 	// in the specified time range
-	m, err := GetRentableCountByRentableType(ri.Xbiz, &ri.D1, &ri.D2)
+	m, err := GetRentableCountByRentableType(ctx, ri.Xbiz, &ri.D1, &ri.D2)
 	if err != nil {
 		errMsg := fmt.Sprintf("%s: GetRentableCountByRentableType returned error: %s\n", funcname, err.Error())
 		tbl.SetSection3(errMsg)
+		return tbl
 	}
 
 	// need to sort these into a predictable order... they are messing up the tests as they
@@ -139,7 +149,7 @@ func RentableCountByRentableTypeReportTable(ri *ReporterInfo) gotable.Table {
 
 // RentableCountByRentableTypeReport returns a string report containing the count of Rentables for each RentableType
 // in the specified time range
-func RentableCountByRentableTypeReport(ri *ReporterInfo) string {
-	tbl := RentableCountByRentableTypeReportTable(ri)
+func RentableCountByRentableTypeReport(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RentableCountByRentableTypeReportTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

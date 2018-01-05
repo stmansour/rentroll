@@ -1,6 +1,6 @@
 Test Name:    CSV Loader Test
 Test Purpose: Load all csv files through loader and validate the database after loading
-Date/Time:    Wed Dec 13 17:05:14 IST 2017
+Date/Time:    Fri Jan  5 11:47:03 IST 2018
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
@@ -8,7 +8,6 @@ CreatePhonebookLinkedBusiness: line 5 - Invalid Proration Cycle: nyet
 CreateLedgerMarkers: line 29 - Account already exists: 42999
 CreateLedgerMarkers: line 30 - Account already exists: 42999
 CreateLedgerMarkers: line 31 - Invalid account status: re45gg5
-2017/12/13 17:05:20 GetBusinessBID: rlib.Business with designation QQQ does not exist or could not be loaded
 CreateRentableType: line 8  - rlib.Business named QQQ not found
 CreateRentableType: line 9 - DuplicateRentableType:: rlib.RentableType named CPT already exists
 CreateRentableType: line 10 - Invalid rental frequency: 99
@@ -28,13 +27,13 @@ CreatePeopleFromCSV: line 12 - DuplicateTransactant:: Transactant with PrimaryEm
 CreatePeopleFromCSV: line 13 - DuplicateTransactant:: Transactant with PrimaryEmail address = sskinner@sfelementary.com 
 CreatePeopleFromCSV: line 14 - IsCompany value is invalid: 99
 CreateRentables: line 2 - Business with bud aaa does not exist
-CreateRentables: line 3 - Could not load rentable type with style name: QYX  -- error = sql: no rows in result set
+CreateRentables: line 3 - Could not load rentable type with style name: QYX
 CreateRentables: line 14 - invalid AssignmentTime number: 9
 CreateRentables: line 15 - invalid AssignmentTime number: 9
 CreateRentables: line 16 - invalid AssignmentTime number: 9
 CreateRentables: line 17 - DuplicateRentable:: Rentable with name "107" already exists. Skipping. 
-CreateRentables: line 18 - Could not load rentable type with style name: XXX  -- error = sql: no rows in result set
-CreateRentalAgreement: line 10 - rlib.Business with designation RATQQQ does not exist
+CreateRentables: line 18 - Could not load rentable type with style name: XXX
+CreateRentalAgreement: line 10 - ra template RATQQQ does not exist
 CreateRentalAgreement: line 11 - could not find rlib.Business named QWQ
 CreateRentalAgreement:  line 12 - could not find rlib.Transactant with contact information billybob@springfield.com
 CreateRentalAgreement: line 13 - Required Payor field is blank
@@ -51,10 +50,9 @@ CreateAssessmentsFromCSV: line 17 - rlib.Business with designation XXX does not 
 CreateAssessmentsFromCSV: line 18 - Skipping this record as the Amount is 0
 CreateAssessmentsFromCSV: line 19 - Skipping this record as the Amount is 0
 CreateReceiptsFromCSV: line 4 - rlib.Business with designation QQQ does not exist
-CreateReceiptsFromCSV: line 5 -  error loading Rental Agreement RA00099991, err = sql: no rows in result set
+CreateReceiptsFromCSV: line 5 -  error loading Rental Agreement RA00099991
 CreateReceiptsFromCSV: line 6 -  Payment type is invalid: 999
 CreateReceiptsFromCSV: line 7 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 1999 does not exist
 CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 ElementType value must be a number from 5 to 13
-Createrlib.CustomAttributeRefs: line 7 - Could not load rlib.RentableType with id 999:  error = sql: no rows in result set
-Test completed: Wed Dec 13 17:05:28 IST 2017
+Test completed: Fri Jan  5 11:47:15 IST 2018

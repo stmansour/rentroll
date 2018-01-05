@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -30,6 +31,7 @@ var App struct {
 	BUD       string         // business unit designator
 	GenDbOnly bool           // if true, just set up the db with unallocated funds and exit
 	Xbiz      rlib.XBusiness // xbusiness associated with -G  (BUD)
+	NoAuth    bool
 }
 
 func bizErrCheck(sa []string) {
@@ -39,8 +41,8 @@ func bizErrCheck(sa []string) {
 	}
 }
 
-func loaderGetBiz(s string) int64 {
-	bid := rcsv.GetBusinessBID(s)
+func loaderGetBiz(ctx context.Context, s string) int64 {
+	bid, _ := rcsv.GetBusinessBID(ctx, s)
 	if bid == 0 {
 		fmt.Printf("unrecognized Business designator: %s\n", s)
 		os.Exit(1)
@@ -52,10 +54,13 @@ func readCommandLineArgs() {
 	pBUD := flag.String("G", "", "BUD - business unit designator")
 	pBal := flag.String("funds", "eq", "less: less funds than needed, eq: exactly what is needed,  more: than what is needed")
 	pDB := flag.Bool("db", false, "Just generate the db with unallocated funds and exit. Do not apply unallocated funds.")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	flag.Parse()
 	App.BUD = strings.TrimSpace(*pBUD)
 	App.GenDbOnly = *pDB
+	App.NoAuth = *noauth
+
 	var err error
 	s := *pDates
 	if len(s) > 0 {
@@ -86,30 +91,35 @@ func readCommandLineArgs() {
 	}
 }
 
+type csvImporteFunc func(context.Context, string) []error
+
 type csvimporter struct {
 	Name    string
 	CmdOpt  string
-	Handler func(string) []error
+	Handler csvImporteFunc
 }
 
-func rrDoLoad(fname string, handler func(string) []error) {
+func rrDoLoad(ctx context.Context, fname string, handler csvImporteFunc) {
 	// fmt.Printf("calling handler for: %q\n", fname)
-	m := handler(fname)
+	m := handler(ctx, fname)
 	fmt.Print(rcsv.ErrlistToString(&m))
 }
 
-func createReceipt(bid int64, amt float64, docno string, dt *time.Time) rlib.Receipt {
-	var err error
-	var r rlib.Receipt
-	r.BID = bid
-	r.Dt = *dt
-	r.TCID = 2 // for test purposes, this is the payor for all receipts
-	r.Amount = amt
-	r.DocNo = docno
-	r.PMTID = 2
+func createReceipt(ctx context.Context, bid int64, amt float64, docno string, dt *time.Time) rlib.Receipt {
+	var (
+		err error
+		r   = rlib.Receipt{
+			BID:    bid,
+			Dt:     *dt,
+			TCID:   2, // for test purposes, this is the payor for all receipts
+			Amount: amt,
+			DocNo:  docno,
+			PMTID:  2,
+		}
+	)
 
 	arname := "Payment By Check"
-	arule, err := rlib.GetARByName(bid, arname)
+	arule, err := rlib.GetARByName(ctx, bid, arname)
 	if err != nil {
 		rlib.Ulog("Error getting Account Rule by name(%s): %s\n", arname, err.Error())
 		return r
@@ -117,7 +127,7 @@ func createReceipt(bid int64, amt float64, docno string, dt *time.Time) rlib.Rec
 	r.ARID = arule.ARID
 
 	// create the receipt
-	_, err = rlib.InsertReceipt(&r)
+	_, err = rlib.InsertReceipt(ctx, &r)
 	if err != nil {
 		rlib.Ulog("Error inserting receipt: %s\n", err.Error())
 		return r
@@ -137,19 +147,23 @@ func createReceipt(bid int64, amt float64, docno string, dt *time.Time) rlib.Rec
 	ra.AcctRule = fmt.Sprintf("d %s _, c %s _", d.GLNumber, c.GLNumber)
 	ra.BID = r.BID
 	ra.Dt = r.Dt
-	rlib.InsertReceiptAllocation(&ra)
+	_, err = rlib.InsertReceiptAllocation(ctx, &ra)
+	if err != nil {
+		rlib.Ulog("Error inserting receipt: %s\n", err.Error())
+		return r
+	}
 	r.RA = append(r.RA, ra)
 
 	return r
 }
 
-func createJournalAndLedgerEntries(xbiz *rlib.XBusiness, r *rlib.Receipt, d1, d2, dt1, dt2 *time.Time) error {
+func createJournalAndLedgerEntries(ctx context.Context, xbiz *rlib.XBusiness, r *rlib.Receipt, d1, d2, dt1, dt2 *time.Time) error {
 	//----------------------------------------------------------
 	// Add a journal entry for it.  Note that at this stage
 	// we simply move the funds into a bank and credit the
 	// available funds account.
 	//----------------------------------------------------------
-	j, err := rlib.ProcessNewReceipt(xbiz, d1, d2, r)
+	j, err := rlib.ProcessNewReceipt(ctx, xbiz, d1, d2, r)
 	if err != nil {
 		rlib.Ulog("Error from rlib.ProcessNewReceipt: %s\n", err.Error())
 		return err
@@ -158,17 +172,20 @@ func createJournalAndLedgerEntries(xbiz *rlib.XBusiness, r *rlib.Receipt, d1, d2
 	// update the ledgers
 	//--------------------------------------------------------------
 	fmt.Printf("GENERATING LEDGER ENTRIES...\n")
-	rlib.GenerateLedgerEntriesFromJournal(xbiz, &j, d1, d2)
+	_, err = rlib.GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
+	if err != nil {
+		return err
+	}
 
 	//----------------------------------------------
 	// force the LedgerMarkers to be generated...
 	//----------------------------------------------
-	rlib.GenerateLedgerMarkers(xbiz, d2)
-	return nil
+	return rlib.GenerateLedgerMarkers(ctx, xbiz, d2)
 }
 
-func addUnallocatedReceipts(xbiz *rlib.XBusiness, bid int64) {
-	rlib.InitBizInternals(1, xbiz)
+func addUnallocatedReceipts(ctx context.Context, xbiz *rlib.XBusiness, bid int64) {
+	err := rlib.InitBizInternals(1, xbiz)
+	rlib.Errcheck(err)
 	rlib.InitLedgerCache()
 	dt2 := time.Now()
 	dt1 := dt2.AddDate(0, 0, -6)
@@ -184,26 +201,26 @@ func addUnallocatedReceipts(xbiz *rlib.XBusiness, bid int64) {
 	//----------------------------------------------------
 	// We'll create 2 receipts; for $4000 and $3500
 	//----------------------------------------------------
-	r1 := createReceipt(bid, float64(4000), "9846", &dt1)
-	r2 := createReceipt(bid, App.Chk2, "9859", &dt2)
+	r1 := createReceipt(ctx, bid, float64(4000), "9846", &dt1)
+	r2 := createReceipt(ctx, bid, App.Chk2, "9859", &dt2)
 	if r1.RCPTID == 0 || r2.RCPTID == 0 {
 		fmt.Printf("Could not create receipts\n")
 		return
 	}
 
-	if nil != createJournalAndLedgerEntries(xbiz, &r1, &d1, &d2, &dt1, &dt2) {
+	if nil != createJournalAndLedgerEntries(ctx, xbiz, &r1, &d1, &d2, &dt1, &dt2) {
 		return
 	}
-	if nil != createJournalAndLedgerEntries(xbiz, &r2, &d1, &d2, &dt1, &dt2) {
+	if nil != createJournalAndLedgerEntries(ctx, xbiz, &r2, &d1, &d2, &dt1, &dt2) {
 		return
 	}
 }
 
-func doTest() {
+func doTest(ctx context.Context) {
 	// INITIALIZE...
 	var xbiz rlib.XBusiness
 	bid := int64(1) // Business ID = 1 = REX
-	addUnallocatedReceipts(&xbiz, bid)
+	addUnallocatedReceipts(ctx, &xbiz, bid)
 	if App.GenDbOnly {
 		return
 	}
@@ -224,7 +241,8 @@ func doTest() {
 	var u = map[int64]int{}
 	for rows.Next() {
 		var r rlib.Receipt
-		rlib.ReadReceipts(rows, &r)
+		err = rlib.ReadReceipts(rows, &r)
+		rlib.Errcheck(err)
 		// fmt.Printf("Unallocated Receipt:  RCPTID = %d, Amount = %8.2f, Payor = %d\n", r.RCPTID, r.Amount, r.TCID)
 		i, ok := u[r.TCID]
 		if ok {
@@ -244,18 +262,20 @@ func doTest() {
 	// We assume the user chose to work on Payor with TCID = 2
 	tcid := int64(2)
 	dt := time.Now()
-	bizlogic.AutoAllocatePayorReceipts(tcid, &dt)
+	err = bizlogic.AutoAllocatePayorReceipts(ctx, tcid, &dt)
+	rlib.Errcheck(err)
 
 	// print remaining unpaid assessments, and remaining receipts with unallocated funds
-	m := bizlogic.GetAllUnpaidAssessmentsForPayor(bid, tcid, &dt)
+	m := bizlogic.GetAllUnpaidAssessmentsForPayor(ctx, bid, tcid, &dt)
 	fmt.Printf("\n\nRemaining unpaid assessments for payor %d:  %d\n", tcid, len(m))
 	for i := 0; i < len(m); i++ {
-		fmt.Printf("%d. Assessment %d, amount still owed: %.2f\n", i, m[i].ASMID, bizlogic.AssessmentUnpaidPortion(&m[i]))
+		fmt.Printf("%d. Assessment %d, amount still owed: %.2f\n", i, m[i].ASMID, bizlogic.AssessmentUnpaidPortion(ctx, &m[i]))
 	}
-	n := rlib.GetUnallocatedReceiptsByPayor(bid, tcid)
+	n, err := rlib.GetUnallocatedReceiptsByPayor(ctx, bid, tcid)
+	rlib.Errcheck(err)
 	fmt.Printf("\nRemaining unallocated funds for payor %d:  %d\n", tcid, len(n))
 	for i := 0; i < len(n); i++ {
-		fmt.Printf("%d. Receipt %d, amount remaining: %.2f\n", i, n[i].RCPTID, bizlogic.RemainingReceiptFunds(&n[i]))
+		fmt.Printf("%d. Receipt %d, amount remaining: %.2f\n", i, n[i].RCPTID, bizlogic.RemainingReceiptFunds(ctx, &n[i]))
 	}
 	fmt.Printf("-------------------------------------------------------------\n")
 }
@@ -304,19 +324,25 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SetAuthFlag(App.NoAuth)
+
+	// create background context
+	ctx := context.Background()
 
 	if len(App.BUD) > 0 {
-		b2 := rlib.GetBusinessByDesignation(App.BUD)
+		b2, err := rlib.GetBusinessByDesignation(ctx, App.BUD)
+		rlib.Errcheck(err)
 		if b2.BID == 0 {
 			fmt.Printf("Could not find Business Unit named %s\n", App.BUD)
 			os.Exit(1)
 		}
-		rlib.GetXBusiness(b2.BID, &App.Xbiz)
+		rlib.GetXBusiness(ctx, b2.BID, &App.Xbiz)
 	}
 	if App.Xbiz.P.BID > 0 {
 		rcsv.InitRCSV(&App.DtStart, &App.DtStop, &App.Xbiz)
-		rlib.InitBizInternals(App.Xbiz.P.BID, &App.Xbiz)
+		err = rlib.InitBizInternals(App.Xbiz.P.BID, &App.Xbiz)
+		rlib.Errcheck(err)
 	}
 
-	doTest()
+	doTest(ctx)
 }

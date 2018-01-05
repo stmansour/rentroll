@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -22,7 +23,7 @@ import (
 
 // DispatchCtx is a type of struct needed for the Dispatch function. It defines
 // everything needed to run a particular command. It is the responsibility of the
-// caller to fill out all the needed ctx information. Not all information is needed
+// caller to fill out all the needed dCtx information. Not all information is needed
 // for all commands.
 type DispatchCtx struct {
 	Cmd          int                 // cmd to execute
@@ -111,9 +112,9 @@ func readCommandLineArgs() {
 	App.NoAuth = *noauth
 }
 
-func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
+func intTest(ctx context.Context, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	fmt.Printf("INTERNAL TEST\n")
-	m := rlib.ParseAcctRule(xbiz, 1, d1, d2, "d ${GLGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${GLGENRCV})} -", float64(1000), float64(8)/float64(30))
+	m, _ := rlib.ParseAcctRule(ctx, xbiz, 1, d1, d2, "d ${GLGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${GLGENRCV})} -", float64(1000), float64(8)/float64(30))
 
 	for i := 0; i < len(m); i++ {
 		fmt.Printf("m[%d] = %#v\n", i, m[i])
@@ -194,9 +195,13 @@ func main() {
 	ws.SvcInit(App.NoAuth) // currently needed for testing
 
 	if App.BatchMode {
-		ctx := createStartupCtx()
-		rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-		RunCommandLine(&ctx)
+		// this is command line based approach, so no request context
+		// instead create background context and pass it
+		// This should be run under no authentication
+		ctx := context.Background()
+		dCtx := createStartupCtx()
+		rcsv.InitRCSV(&dCtx.DtStart, &dCtx.DtStop, &dCtx.xbiz)
+		RunCommandLine(ctx, &dCtx)
 	} else {
 		tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir) // starts the scheduler in a go routine. only initialize when we're in server mode
 		worker.Init()                             // register Rentroll's TWS workers

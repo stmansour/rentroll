@@ -163,10 +163,10 @@ var receiptsQuerySelectFields = []string{
 //  @Response SearchReceiptsResponse
 // wsdoc }
 func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcSearchHandlerReceipts"
 	var (
-		funcname = "SvcSearchHandlerReceipts"
-		err      error
-		g        SearchReceiptsResponse
+		err error
+		g   SearchReceiptsResponse
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -276,9 +276,9 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcFormHandlerReceipt"
 	var (
-		funcname = "SvcFormHandlerReceipt"
-		err      error
+		err error
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -319,11 +319,11 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveReceipt"
 	var (
-		funcname = "saveReceipt"
-		err      error
-		foo      SaveReceiptInput
-		a        rlib.Receipt
+		err error
+		foo SaveReceiptInput
+		a   rlib.Receipt
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -346,7 +346,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------
 	if a.RCPTID == 0 && d.RCPTID == 0 {
 		// rlib.Console(">>>> NEW RECEIPT IS BEING ADDED\n")
-		err = bizlogic.InsertReceipt(&a)
+		err = bizlogic.InsertReceipt(r.Context(), &a)
 		if err != nil {
 			e := fmt.Errorf("%s:  Error in rlib.ProcessNewReceipt: %s", funcname, err.Error())
 			rlib.Ulog("%s", e.Error())
@@ -356,7 +356,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else {
 		// rlib.Console(">>>> UPDATE EXISTING RECEIPT\n")
 		now := time.Now() // this is the time we're making the change if a reversal needs to be done
-		err = bizlogic.UpdateReceipt(&a, &now)
+		err = bizlogic.UpdateReceipt(r.Context(), &a, &now)
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d)\n: %s", funcname, d.RCPTID, err.Error())
@@ -378,9 +378,10 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response GetReceiptResponse
 // wsdoc }
 func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	rlib.Console("entered getReceipt\n")
+	const funcname = "getReceipt"
+	rlib.Console("entered %s\n", funcname)
 	var g GetReceiptResponse
-	a := rlib.GetReceiptNoAllocations(d.RCPTID)
+	a, _ := rlib.GetReceiptNoAllocations(r.Context(), d.RCPTID)
 	if a.RCPTID > 0 {
 		var gg ReceiptSendForm
 		gg.BID = d.BID
@@ -391,7 +392,7 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		if a.TCID > 0 {
 			var t rlib.Transactant
-			rlib.GetTransactant(a.TCID, &t)
+			_ = rlib.GetTransactant(r.Context(), a.TCID, &t)
 			if t.TCID > 0 {
 				tcid := strconv.FormatInt(t.TCID, 10)
 				gg.Payor = t.GetFullTransactantName() + " (TCID: " + tcid + ")"
@@ -416,9 +417,9 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcWriteSuccessResponse
 // wsdoc }
 func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteReceipt"
 	var (
-		funcname = "deleteReceipt"
-		del      DeleteRcptForm
+		del DeleteRcptForm
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -429,9 +430,13 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	rcpt := rlib.GetReceipt(del.RCPTID)
+	rcpt, err := rlib.GetReceipt(r.Context(), del.RCPTID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 	dt := time.Now()
-	err := bizlogic.ReverseReceipt(&rcpt, &dt)
+	err = bizlogic.ReverseReceipt(r.Context(), &rcpt, &dt)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

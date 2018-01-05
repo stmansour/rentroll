@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -11,10 +12,13 @@ import (
 // REX,  8,    Santa's Little Helper,Dog,  Greyhound,gray,  34.5,  2014-01-01,
 
 // CreateRentalAgreementPetsFromCSV reads an assessment type string array and creates a database record for a pet
-func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreateRentalAgreementPetsFromCSV"
-	var pet rlib.RentalAgreementPet
-	var errmsg string
+func CreateRentalAgreementPetsFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateRentalAgreementPetsFromCSV"
+	var (
+		err    error
+		pet    rlib.RentalAgreementPet
+		errmsg string
+	)
 
 	const (
 		BUD    = 0
@@ -54,7 +58,10 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	cmpdes := strings.TrimSpace(sa[BUD])
 	if len(cmpdes) > 0 {
-		b2 := rlib.GetBusinessByDesignation(cmpdes)
+		b2, err := rlib.GetBusinessByDesignation(ctx, cmpdes)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, cmpdes, err.Error())
+		}
 		if b2.BID == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find rlib.Business named %s", funcname, lineno, cmpdes)
 		}
@@ -65,7 +72,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	// Find Rental Agreement
 	//-------------------------------------------------------------------
 	pet.RAID = CSVLoaderGetRAID(sa[RAID])
-	_, err = rlib.GetRentalAgreement(pet.RAID)
+	_, err = rlib.GetRentalAgreement(ctx, pet.RAID)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error loading Rental Agreement %s, err = %v", funcname, lineno, sa[0], err)
 	}
@@ -104,7 +111,7 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 	}
 	pet.DtStop = DtStop
 
-	_, err = rlib.InsertRentalAgreementPet(&pet)
+	_, err = rlib.InsertRentalAgreementPet(ctx, &pet)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not save pet, err = %v", funcname, lineno, err)
 	}
@@ -112,6 +119,6 @@ func CreateRentalAgreementPetsFromCSV(sa []string, lineno int) (int, error) {
 }
 
 // LoadPetsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadPetsCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRentalAgreementPetsFromCSV)
+func LoadPetsCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRentalAgreementPetsFromCSV)
 }

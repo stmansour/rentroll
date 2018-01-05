@@ -1,17 +1,36 @@
 package rrpt
 
 import (
+	"context"
 	"gotable"
 	"rentroll/rlib"
 )
 
 // VehicleReportTable returns a table containing a report of all
 // vehicles in the supplied business
-func VehicleReportTable(bid int64) gotable.Table {
-	m := rlib.GetVehiclesByBID(bid)
+func VehicleReportTable(ctx context.Context, bid int64) gotable.Table {
+	const funcname = "VehicleReportTable"
+	var (
+		err error
+	)
+
+	// table init
+	tbl := getRRTable()
+
+	m, err := rlib.GetVehiclesByBID(ctx, bid)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 
 	var b rlib.Business
-	rlib.GetBusiness(bid, &b)
+	err = rlib.GetBusiness(ctx, bid, &b)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 
 	const (
 		VID                 = 0
@@ -31,9 +50,6 @@ func VehicleReportTable(bid int64) gotable.Table {
 		DtStart             = iota
 		DtStop              = iota
 	)
-
-	// table init
-	tbl := getRRTable()
 
 	tbl.AddColumn("VID", 12, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("BUD", 5, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
@@ -55,7 +71,7 @@ func VehicleReportTable(bid int64) gotable.Table {
 	for i := 0; i < len(m); i++ {
 		var t rlib.Transactant
 		if m[i].TCID > 0 {
-			rlib.GetTransactant(m[i].TCID, &t)
+			err = rlib.GetTransactant(ctx, m[i].TCID, &t)
 		}
 		tbl.AddRow()
 		tbl.Puts(-1, VID, m[i].IDtoString())
@@ -84,8 +100,8 @@ func VehicleReportTable(bid int64) gotable.Table {
 
 // VehicleReport returns a text report for vehicles
 // ri contains the BID needed by this report
-func VehicleReport(ri *ReporterInfo) string {
-	t := VehicleReportTable(ri.Bid)
+func VehicleReport(ctx context.Context, ri *ReporterInfo) string {
+	t := VehicleReportTable(ctx, ri.Bid)
 	s, err := t.SprintTable()
 	if err != nil {
 		rlib.Ulog("VehicleReport: error = %s", err.Error())

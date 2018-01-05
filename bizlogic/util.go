@@ -15,7 +15,7 @@ func bizErrSys(err *error) []BizError {
 	var errlist []BizError
 	berr := BizError{
 		Errno:   0, // system error
-		Message: "Error inserting assessment = " + (*err).Error(),
+		Message: (*err).Error(),
 	}
 	errlist = append(errlist, berr)
 	return errlist

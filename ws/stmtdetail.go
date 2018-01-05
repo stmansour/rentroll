@@ -44,7 +44,7 @@ type StmtDetailResponse struct {
 //  @Response StmtDetailResponse
 // wsdoc }
 func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData) {
-	funcname := "SvcStatementDetails"
+	const funcname = "SvcStatementDetails"
 	rlib.Console("Entered %s\n", funcname)
 	var g StmtDetailResponse
 	var xbiz rlib.XBusiness
@@ -58,7 +58,12 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	//
 	// UGH!
 	//=======================================================================
-	rlib.InitBizInternals(sd.BID, &xbiz)
+	err = rlib.InitBizInternals(sd.BID, &xbiz)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 	rlib.Console("sd.BID = %d\n", sd.BID)
 	_, ok := rlib.RRdb.BizTypes[sd.BID]
 	if !ok {
@@ -79,7 +84,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	//--------------------------------------------
 	d1 := sd.wsSearchReq.SearchDtStart
 	d2 := sd.wsSearchReq.SearchDtStop
-	m, err := rlib.GetRAIDStatementInfo(sd.ID, &d1, &d2)
+	m, err := rlib.GetRAIDStatementInfo(r.Context(), sd.ID, &d1, &d2)
 	if err != nil {
 		// e := fmt.Errorf("GetRAIDAccountBalance returned error: %s", err.Error())
 		// SvcErrorReturn(w, e, funcname)
@@ -158,7 +163,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 				d += amt
 				b -= amt
 			} else {
-				rcpt := rlib.GetReceipt(m.Stmt[i].R.RCPTID)
+				rcpt, _ := rlib.GetReceipt(r.Context(), m.Stmt[i].R.RCPTID)
 				comment := ""
 				if rcpt.RCPTID > 0 {
 					comment += rcpt.Comment

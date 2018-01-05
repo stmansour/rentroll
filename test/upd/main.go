@@ -2,13 +2,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
 	"fmt"
 	"os"
 	"rentroll/rlib"
-	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -24,6 +24,7 @@ var App struct {
 	PortRR int            // rentroll port
 	Bud    string         // Biz Unit Descriptor
 	Xbiz   rlib.XBusiness // lots of info about this biz
+	NoAuth bool
 }
 
 func readCommandLineArgs() {
@@ -32,12 +33,16 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
+
+	flag.Parse()
 
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.PortRR = *portPtr
 	App.Bud = *pBud
+	App.NoAuth = *noauth
 }
 
 func main() {
@@ -45,30 +50,6 @@ func main() {
 	readCommandLineArgs()
 	rlib.RRReadConfig()
 
-	// s := rlib.RRGetSQLOpenString(App.DBRR)
-	// App.dbrr, err = sql.Open("mysql", s)
-	// if nil != err {
-	// 	fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
-	// 	os.Exit(1)
-	// }
-	// defer App.dbrr.Close()
-	// err = App.dbrr.Ping()
-	// if nil != err {
-	// 	fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
-	// 	os.Exit(1)
-	// }
-
-	// s = rlib.RRGetSQLOpenString(App.DBDir)
-	// App.dbdir, err = sql.Open("mysql", s)
-	// if nil != err {
-	// 	fmt.Printf("sql.Open: Error = %v\n", err)
-	// 	os.Exit(1)
-	// }
-	// err = App.dbdir.Ping()
-	// if nil != err {
-	// 	fmt.Printf("dbdir.Ping: Error = %v\n", err)
-	// 	os.Exit(1)
-	// }
 	//----------------------------
 	// Open RentRoll database
 	//----------------------------
@@ -107,38 +88,44 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SetAuthFlag(App.NoAuth)
 
-	biz := rlib.GetBusinessByDesignation(App.Bud)
+	// create background context
+	ctx := context.Background()
+
+	biz, err := rlib.GetBusinessByDesignation(ctx, App.Bud)
+	rlib.Errcheck(err)
 	if biz.BID == 0 {
 		fmt.Printf("Could not find Business Unit named %s\n", App.Bud)
 		os.Exit(1)
 	}
-	rlib.GetXBusiness(biz.BID, &App.Xbiz)
+	err = rlib.GetXBusiness(ctx, biz.BID, &App.Xbiz)
+	rlib.Errcheck(err)
 
-	updatePerson(&biz)
-	updateCustomAttr(&biz)
-	updateReceipt(&biz)
-	updateRAPayor(&biz)
-	updateRUser(&biz)
-	updateRAR(&biz)
+	updatePerson(ctx, &biz)
+	updateCustomAttr(ctx, &biz)
+	updateReceipt(ctx, &biz)
+	updateRAPayor(ctx, &biz)
+	updateRUser(ctx, &biz)
+	updateRAR(ctx, &biz)
 }
 
-func updateRAR(biz *rlib.Business) {
+func updateRAR(ctx context.Context, biz *rlib.Business) {
 	var rar = rlib.RentalAgreementRentable{BID: 1, RAID: 2, RID: 3, ContractRent: float64(4500.00),
 		RARDtStart: time.Date(2017, time.March, 7, 0, 0, 0, 0, time.UTC),
 		RARDtStop:  time.Date(2018, time.March, 7, 0, 0, 0, 0, time.UTC)}
-	rarid, err := rlib.InsertRentalAgreementRentable(&rar)
+	rarid, err := rlib.InsertRentalAgreementRentable(ctx, &rar)
 	if err != nil {
 		fmt.Printf("Error inserting Rental Agreement Rentable: %s\n", err.Error())
 		os.Exit(1)
 	}
 	rar.RARDtStop = rar.RARDtStop.AddDate(0, 4, 1)
-	err = rlib.UpdateRentalAgreementRentable(&rar)
+	err = rlib.UpdateRentalAgreementRentable(ctx, &rar)
 	if err != nil {
 		fmt.Printf("Error inserting Rental Agreement Rentable: %s\n", err.Error())
 		os.Exit(1)
 	}
-	rar2, err := rlib.GetRentalAgreementRentable(rarid)
+	rar2, err := rlib.GetRentalAgreementRentable(ctx, rarid)
 	if err != nil {
 		fmt.Printf("Error getting Rental Agreement Rentable: %s\n", err.Error())
 		os.Exit(1)
@@ -153,33 +140,33 @@ func updateRAR(biz *rlib.Business) {
 	}
 }
 
-func updateRUser(biz *rlib.Business) {
+func updateRUser(ctx context.Context, biz *rlib.Business) {
 	tcid := int64(14)
 	rid := int64(1)
-	_, err := rlib.GetRentableUserByRBT(rid, biz.BID, tcid)
-	if err == nil {
-		fmt.Printf("The database is messed up.  There should not be any RentalAgreementPayors\n")
+	ru, err := rlib.GetRentableUserByRBT(ctx, rid, biz.BID, tcid)
+	if err != nil {
+		fmt.Printf("The database is messed up.  Error = %s\n", err.Error())
 		os.Exit(1)
 	}
-	if !strings.Contains(err.Error(), "no rows") {
+	if ru.RUID > 0 {
 		fmt.Printf("The database is messed up.  There should not be any RentalAgreementPayors\n")
 		os.Exit(1)
 	}
 	now := time.Now()
 	nextYear := now.AddDate(1, 0, 0)
 	rap := rlib.RentableUser{RID: rid, BID: biz.BID, TCID: tcid, DtStart: now, DtStop: nextYear}
-	err = rlib.InsertRentableUser(&rap)
+	_, err = rlib.InsertRentableUser(ctx, &rap)
 	if err != nil {
 		fmt.Printf("Error inserting RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
 	}
 	nextYear = nextYear.AddDate(0, 11, 0)
 	rap.DtStop = nextYear
-	if err = rlib.UpdateRentableUserByRBT(&rap); err != nil {
+	if err = rlib.UpdateRentableUserByRBT(ctx, &rap); err != nil {
 		fmt.Printf("Error updating RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
 	}
-	r1, err := rlib.GetRentableUserByRBT(rid, biz.BID, tcid)
+	r1, err := rlib.GetRentableUserByRBT(ctx, rid, biz.BID, tcid)
 	if err != nil {
 		fmt.Printf("Error getting RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
@@ -191,22 +178,22 @@ func updateRUser(biz *rlib.Business) {
 	fmt.Printf("UpdateRentableUserByRBT: successful\n")
 }
 
-func updateRAPayor(biz *rlib.Business) {
+func updateRAPayor(ctx context.Context, biz *rlib.Business) {
 	tcid := int64(14)
 	raid := int64(1)
-	_, err := rlib.GetRentalAgreementPayorByRBT(raid, biz.BID, tcid)
-	if err == nil {
-		fmt.Printf("A. The database is messed up.  There should not be any RentalAgreementPayors\n")
+	rap1, err := rlib.GetRentalAgreementPayorByRBT(ctx, raid, biz.BID, tcid)
+	if err != nil {
+		fmt.Printf("A. The database is messed up. Error = %s\n", err.Error())
 		os.Exit(1)
 	}
-	if !strings.Contains(err.Error(), "no rows") {
-		fmt.Printf("B. The database is messed up.  There should not be any RentalAgreementPayors\n")
+	if rap1.RAPID > 0 {
+		fmt.Printf("A. The database is messed up.  There should not be any RentalAgreementPayors\n")
 		os.Exit(1)
 	}
 	now, _ := rlib.StringToDate("10/24/2016")
 	next, _ := rlib.StringToDate("11/14/2016")
 	rap := rlib.RentalAgreementPayor{RAID: raid, BID: biz.BID, TCID: tcid, DtStart: now, DtStop: next, FLAGS: uint64(0)}
-	_, err = rlib.InsertRentalAgreementPayor(&rap)
+	_, err = rlib.InsertRentalAgreementPayor(ctx, &rap)
 	if err != nil {
 		fmt.Printf("C. Error inserting RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
@@ -215,11 +202,11 @@ func updateRAPayor(biz *rlib.Business) {
 	rapid := rap.RAPID
 	rap.DtStop, _ = rlib.StringToDate("1/14/2017")
 	// fmt.Printf("Before update, rapid = %d,  rap.DtStop = %s\n", rapid, rap.DtStop.Format(rlib.RRDATEFMT4))
-	if err = rlib.UpdateRentalAgreementPayor(&rap); err != nil {
+	if err = rlib.UpdateRentalAgreementPayor(ctx, &rap); err != nil {
 		fmt.Printf("D. Error updating RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
 	}
-	r1, err := rlib.GetRentalAgreementPayor(rapid)
+	r1, err := rlib.GetRentalAgreementPayor(ctx, rapid)
 	if err != nil {
 		fmt.Printf("E. Error getting RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
@@ -230,11 +217,11 @@ func updateRAPayor(biz *rlib.Business) {
 		os.Exit(1)
 	}
 	r1.DtStop, _ = rlib.StringToDate("2/14/2017")
-	if err = rlib.UpdateRentalAgreementPayor(&r1); err != nil {
+	if err = rlib.UpdateRentalAgreementPayor(ctx, &r1); err != nil {
 		fmt.Printf("G. Error updating RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
 	}
-	r2, err := rlib.GetRentalAgreementPayor(r1.RAPID)
+	r2, err := rlib.GetRentalAgreementPayor(ctx, r1.RAPID)
 	if err != nil {
 		fmt.Printf("H. Error getting RentalAgreementPayor: %s\n", err.Error())
 		os.Exit(1)
@@ -246,25 +233,26 @@ func updateRAPayor(biz *rlib.Business) {
 	fmt.Printf("UpdateRentalAgreementPayorByRBT: successful\n")
 }
 
-func updateReceipt(biz *rlib.Business) {
+func updateReceipt(ctx context.Context, biz *rlib.Business) {
 	var r rlib.Receipt
 	r.BID = biz.BID
 	r.Amount = float64(42.17)
 	r.Dt = time.Date(2017, time.February, 14, 0, 0, 0, 0, time.UTC)
 	r.DocNo = "12345"
 	r.PMTID = 1
-	_, err := rlib.InsertReceipt(&r)
+	_, err := rlib.InsertReceipt(ctx, &r)
 	if err != nil {
 		fmt.Printf("Error inserting Receipt: %s\n", err.Error())
 		os.Exit(1)
 	}
 	r.Amount = 4217000.00
-	err = rlib.UpdateReceipt(&r)
+	err = rlib.UpdateReceipt(ctx, &r)
 	if err != nil {
 		fmt.Printf("Error updating Receipt: %s\n", err.Error())
 		os.Exit(1)
 	}
-	r1 := rlib.GetReceiptNoAllocations(r.RCPTID)
+	r1, err := rlib.GetReceiptNoAllocations(ctx, r.RCPTID)
+	rlib.Errcheck(err)
 	if r1.Amount != r.Amount {
 		if err != nil {
 			fmt.Printf("Updated Receipt (%d) amount error. Expected %12.2f, found %12.2f\n", r.RCPTID, r.Amount, r1.Amount)
@@ -274,28 +262,31 @@ func updateReceipt(biz *rlib.Business) {
 	fmt.Printf("UpdateReceipt: successful\n")
 }
 
-func updateCustomAttr(biz *rlib.Business) {
-	ca := rlib.GetCustomAttribute(1)
+func updateCustomAttr(ctx context.Context, biz *rlib.Business) {
+	ca, err := rlib.GetCustomAttribute(ctx, 1)
+	rlib.Errcheck(err)
 	ca.Value = "5000"
-	err := rlib.UpdateCustomAttribute(&ca)
+	err = rlib.UpdateCustomAttribute(ctx, &ca)
 	if err != nil {
 		fmt.Printf("Error updating CustomAttribute: %s\n", err.Error())
 		os.Exit(1)
 	}
-	ca1 := rlib.GetCustomAttribute(1)
+	ca1, err := rlib.GetCustomAttribute(ctx, 1)
+	rlib.Errcheck(err)
 	if ca.Value != ca1.Value {
 		fmt.Printf("CustomAttribute update failed.  Expected %s, found %s\n", ca.Value, ca1.Value)
 	}
 	fmt.Print("CustomAttribute updates successful\n")
 }
 
-func updatePerson(biz *rlib.Business) {
+func updatePerson(ctx context.Context, biz *rlib.Business) {
 	// Update a person...
 	//----------------------------------------------------
 	var xp rlib.XPerson
 	var err error
 	TCID := int64(1)
-	rlib.GetXPerson(TCID, &xp)
+	err = rlib.GetXPerson(ctx, TCID, &xp)
+	rlib.Errcheck(err)
 
 	if len(xp.Trn.PreferredName) > 0 ||
 		len(xp.Trn.MiddleName) > 0 ||
@@ -310,13 +301,14 @@ func updatePerson(biz *rlib.Business) {
 	xp.Trn.PreferredName = pn
 	xp.Trn.MiddleName = mn
 	xp.Trn.SecondaryEmail = se
-	err = rlib.UpdateTransactant(&xp.Trn)
+	err = rlib.UpdateTransactant(ctx, &xp.Trn)
 	if err != nil {
 		fmt.Printf("Error updating Transactant: %s\n", err.Error())
 		os.Exit(1)
 	}
 
-	rlib.GetTransactant(TCID, &xp.Trn)
+	err = rlib.GetTransactant(ctx, TCID, &xp.Trn)
+	rlib.Errcheck(err)
 	if xp.Trn.PreferredName != pn || xp.Trn.MiddleName != mn || xp.Trn.SecondaryEmail != se {
 		fmt.Printf("Transactant update failed\n")
 		os.Exit(1)
@@ -337,13 +329,14 @@ func updatePerson(biz *rlib.Business) {
 	xp.Usr.EmergencyContactName = ecn
 	xp.Usr.EmergencyContactAddress = eca
 	xp.Usr.EmergencyContactTelephone = ecp
-	err = rlib.UpdateUser(&xp.Usr)
+	err = rlib.UpdateUser(ctx, &xp.Usr)
 	if err != nil {
 		fmt.Printf("Error updating Transactant: %s\n", err.Error())
 		os.Exit(1)
 	}
 
-	rlib.GetTransactant(TCID, &xp.Trn)
+	err = rlib.GetTransactant(ctx, TCID, &xp.Trn)
+	rlib.Errcheck(err)
 	if xp.Usr.EmergencyContactName != ecn || xp.Usr.EmergencyContactAddress != eca || xp.Usr.EmergencyContactTelephone != ecp {
 		fmt.Printf("User update failed\n")
 		os.Exit(1)

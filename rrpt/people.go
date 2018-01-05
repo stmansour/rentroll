@@ -1,13 +1,17 @@
 package rrpt
 
 import (
+	"context"
 	"gotable"
 	"rentroll/rlib"
 )
 
 // RRreportPeopleTable generates a table object of all transactants relavant to BID in the database.
-func RRreportPeopleTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportPeopleTable"
+func RRreportPeopleTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportPeopleTable"
+	var (
+		err error
+	)
 
 	// table init
 	tbl := getRRTable()
@@ -22,26 +26,38 @@ func RRreportPeopleTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Primary Email", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set title, sections
-	err := TableReportHeaderBlock(&tbl, "People", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "People", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllTransactantsForBID.Query(ri.Bid)
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
-		// set errors in section3 and return
-		tbl.SetSection3(NoRecordsFoundMsg)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var p rlib.XPerson
-		rlib.ReadTransactants(rows, &p.Trn)
-		rlib.GetXPerson(p.Trn.TCID, &p)
+		err = rlib.ReadTransactants(rows, &p.Trn)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			tbl.SetSection3(err.Error())
+			return tbl
+		}
+
+		err = rlib.GetXPerson(ctx, p.Trn.TCID, &p)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			tbl.SetSection3(err.Error())
+			return tbl
+		}
+
 		tbl.AddRow()
 		tbl.Puts(-1, 0, p.IDtoString())
 		tbl.Puts(-1, 1, p.Trn.FirstName)
@@ -52,13 +68,19 @@ func RRreportPeopleTable(ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 6, p.Trn.CellPhone)
 		tbl.Puts(-1, 7, p.Trn.PrimaryEmail)
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	tbl.TightenColumns()
 	return tbl
 }
 
 // RRreportPeople generates a report of all Businesses defined in the database.
-func RRreportPeople(ri *ReporterInfo) string {
-	tbl := RRreportPeopleTable(ri)
+func RRreportPeople(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportPeopleTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

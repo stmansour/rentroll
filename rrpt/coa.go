@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
@@ -14,6 +15,7 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 	if p.PLID > 0 {
 		Pldgr = rlib.RRdb.BizTypes[p.BID].GLAccounts[p.PLID].Name
 	}
+
 	const (
 		GLNo = iota
 		Name = iota
@@ -30,16 +32,33 @@ func ReportCOA(p rlib.GLAccount, tbl *gotable.Table, totalErrs *int) {
 }
 
 // RRreportChartOfAccountsTable generates a table of all rlib.GLAccount accounts
-func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportChartOfAccountsTable"
+func RRreportChartOfAccountsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportChartOfAccountsTable"
+	var (
+		err       error
+		totalErrs = 0
+	)
 
 	// init and prepare some values before table init
-	totalErrs := 0
 	ri.RptHeaderD1 = false
 	ri.RptHeaderD2 = false
 
+	// table initialization
+	tbl := getRRTable()
+
+	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Name", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Parent", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Account Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Description", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+
 	rlib.InitBusinessFields(ri.Bid)
-	rlib.RRdb.BizTypes[ri.Bid].GLAccounts = rlib.GetGLAccountMap(ri.Bid)
+	rlib.RRdb.BizTypes[ri.Bid].GLAccounts, err = rlib.GetGLAccountMap(ctx, ri.Bid)
+	if err != nil {
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 
 	var a []int64                                          // Sort the map so test output will be the same every time. Sort by GLNumber.
 	for k := range rlib.RRdb.BizTypes[ri.Bid].GLAccounts { // First make an array of all the LIDs
@@ -57,19 +76,12 @@ func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
 		}
 	}
 
-	// table initialization
-	tbl := getRRTable()
-
-	tbl.AddColumn("GLNumber", 8, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)
-	tbl.AddColumn("Name", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Parent", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Account Type", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Description", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-
 	// prepare table's title, sections
-	err := TableReportHeaderBlock(&tbl, "Chart of Accounts", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Chart of Accounts", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
@@ -84,7 +96,7 @@ func RRreportChartOfAccountsTable(ri *ReporterInfo) gotable.Table {
 }
 
 // RRreportChartOfAccounts generates a report of all rlib.GLAccount accounts
-func RRreportChartOfAccounts(ri *ReporterInfo) string {
-	tbl := RRreportChartOfAccountsTable(ri)
+func RRreportChartOfAccounts(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportChartOfAccountsTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

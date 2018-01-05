@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
@@ -19,9 +20,17 @@ type jprintctx struct {
 // 	tbl.SetTitle(s)
 // }
 
-func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) {
-	funcname := "processAcctRuleAmount"
-	m := rlib.ParseAcctRule(xbiz, rid, &d, &d, rule, amt, float64(1))
+func processAcctRuleAmount(ctx context.Context, tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, d time.Time, rule string, raid int64, r *rlib.Rentable, amt float64) error {
+	const funcname = "processAcctRuleAmount"
+	var (
+		err error
+	)
+
+	m, err := rlib.ParseAcctRule(ctx, xbiz, rid, &d, &d, rule, amt, float64(1))
+	if err != nil {
+		return err
+	}
+
 	for i := 0; i < len(m); i++ {
 		amt := m[i].Amount
 		if m[i].Action == "c" {
@@ -40,7 +49,16 @@ func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, 
 		}
 		// ---------------------------------------------------------
 
-		l := rlib.GetLedgerByGLNo(xbiz.P.BID, m[i].Account)
+		l, err := rlib.GetLedgerByGLNo(ctx, xbiz.P.BID, m[i].Account)
+		if err != nil {
+			// TODO(Steve): in case of error do we want to continue?
+			rlib.LogAndPrintError(funcname, err)
+			// debug.PrintStack()
+			rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
+			rlib.LogAndPrint("%s: rule = \"%s\"\n", funcname, rule)
+			continue
+		}
+
 		if 0 == l.LID {
 			// debug.PrintStack()
 			rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
@@ -57,11 +75,18 @@ func processAcctRuleAmount(tbl *gotable.Table, xbiz *rlib.XBusiness, rid int64, 
 		tbl.Puts(-1, 5, m[i].Account)
 		tbl.Putf(-1, 6, amt)
 	}
+
+	return err
 }
 
-func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Assessment, r *rlib.Rentable, rentDuration, assessmentDuration int64) {
-	var s string
-	var rtid int64
+func textPrintJournalAssessment(ctx context.Context, tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Assessment, r *rlib.Rentable, rentDuration, assessmentDuration int64) {
+	const funcname = "textPrintJournalAssessment"
+
+	var (
+		err  error
+		s    string
+		rtid int64
+	)
 
 	if a.ARID > 0 {
 		s = rlib.RRdb.BizTypes[xbiz.P.BID].AR[a.ARID].Name
@@ -84,7 +109,7 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	//           pf = (resulting range duration)/AccrualPeriod (both in units of the ProrationCycle)
 	//-------------------------------------------------------------------------------------
 	if r.RID > 0 {
-		_, pro, rti, err := rlib.GetRentCycleAndProration(r, &a.Start, xbiz)
+		_, pro, rti, err := rlib.GetRentCycleAndProration(ctx, r, &a.Start, xbiz)
 		rtid = rti
 		if err != nil {
 			rlib.Ulog("textPrintJournalAssessment: error getting RentCycle and Proration: err = %s\n", err.Error())
@@ -100,8 +125,12 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 			if tmp.Before(d2) {                                // if this occurs prior to the range end...
 				d2 = tmp // snap the range end
 			}
-			ra, err := rlib.GetRentalAgreement(a.RAID) // need rental agreement to find Possession time
-			rlib.Errlog(err)
+			ra, err := rlib.GetRentalAgreement(ctx, a.RAID) // need rental agreement to find Possession time
+			if err != nil {
+				rlib.LogAndPrintError(funcname, err)
+				return
+			}
+
 			if ra.RAID > 0 { // if we found the rental agreement
 				if ra.RentStart.After(d1) { // if possession started after d1
 					d1 = ra.RentStart // snap the begin time
@@ -134,16 +163,30 @@ func textPrintJournalAssessment(tbl *gotable.Table, jctx *jprintctx, xbiz *rlib.
 	tbl.Puts(-1, 1, s)
 
 	for i := 0; i < len(j.JA); i++ {
-		processAcctRuleAmount(tbl, xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.JA[i].RAID, r, j.JA[i].Amount)
+		err = processAcctRuleAmount(ctx, tbl, xbiz, r.RID, j.Dt, j.JA[i].AcctRule, j.JA[i].RAID, r, j.JA[i].Amount)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			continue
+		}
 	}
 
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func printJournalExpense(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Expense, r *rlib.Rentable) {
+func printJournalExpense(ctx context.Context, tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journal, a *rlib.Expense, r *rlib.Rentable) {
+	const funcname = "printJournalExpense"
+	var (
+	// err error
+	)
+
 	s := rlib.RRdb.BizTypes[xbiz.P.BID].AR[a.ARID].Name
 	if a.RID > 0 {
-		rtr := rlib.GetRentableTypeRefForDate(r.RID, &j.Dt)
+		rtr, err := rlib.GetRentableTypeRefForDate(ctx, r.RID, &j.Dt)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			return
+		}
+
 		s += fmt.Sprintf("  %s [%s]", r.RentableName, xbiz.RT[rtr.RTID].Style)
 	}
 	s += " " + j.Comment
@@ -183,13 +226,16 @@ func printJournalExpense(tbl *gotable.Table, xbiz *rlib.XBusiness, j *rlib.Journ
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt) {
-	funcname := "textPrintJournalReceipt"
+func textPrintJournalReceipt(ctx context.Context, tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rcpt *rlib.Receipt) {
+	const funcname = "textPrintJournalReceipt"
 	// fmt.Printf("Entered: %s,   JID = %d, RCPTID = %d\n", funcname, j.JID, rcpt.RCPTID)
 	// The receipt has the payor TCID.  We get the payor name from the receipt
-	var t rlib.Transactant
-	var ps string
-	if err := rlib.GetTransactant(rcpt.TCID, &t); err != nil {
+	var (
+		t  rlib.Transactant
+		ps string
+	)
+
+	if err := rlib.GetTransactant(ctx, rcpt.TCID, &t); err != nil {
 		// fmt.Printf("<< rcpt.TCID = %d   db err = %s>>\n", rcpt.TCID, err.Error())
 		// No transactant ID.  See if there is an OtherPayor. If so use it, if not, get the payors associated with this journal entry...
 		if len(rcpt.OtherPayorName) > 0 {
@@ -204,11 +250,16 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 				if !ok {
 					// fmt.Printf("mm[raid] was not found. Will search RAID %d for payors on %s\n", raid, j.Dt.Format(rlib.RRDATEFMT4))
 					mm[raid] = raid
-					n := rlib.GetRentalAgreementPayorsInRange(raid, &j.Dt, &j.Dt)
+					n, err := rlib.GetRentalAgreementPayorsInRange(ctx, raid, &j.Dt, &j.Dt)
+					if err != nil {
+						rlib.LogAndPrintError(funcname, err)
+						continue
+					}
+
 					// fmt.Printf("found %d payors\n", len(n))
 					for j := 0; j < len(n); j++ {
 						var t rlib.Transactant
-						if err := rlib.GetTransactant(n[j].TCID, &t); err != nil {
+						if err := rlib.GetTransactant(ctx, n[j].TCID, &t); err != nil {
 							rlib.LogAndPrintError(funcname, err)
 							continue
 						}
@@ -250,13 +301,23 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		if !((ri.D1.Equal(rdt) || ri.D1.Before(rdt)) && ri.D2.After(rdt)) {
 			continue
 		}
-		a, _ := rlib.GetAssessment(rcpt.RA[i].ASMID)
-		r := rlib.GetRentable(a.RID)
+		// TODO(Steve): should we ignore error?
+		a, _ := rlib.GetAssessment(ctx, rcpt.RA[i].ASMID)
+		r, err := rlib.GetRentable(ctx, a.RID)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			continue
+		}
+
 		// if r.RID == 0 {
 		// 	rlib.LogAndPrint("%s: rcpt.RA[%d].RCPAID = %d, r.RID = 0, rcpt.RA[i].ASMID = %d, a.RID = %d\n", funcname, i, rcpt.RA[i].RCPAID, rcpt.RA[i].ASMID, a.RID)
 		// 	continue
 		// }
-		m := rlib.ParseAcctRule(ri.Xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
+		m, err := rlib.ParseAcctRule(ctx, ri.Xbiz, r.RID, &jctx.ReportStart, &jctx.ReportStop, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount, 1.0)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			continue
+		}
 		// fmt.Printf("%s: acctrule = %s     Amount = %.2f\n", funcname, rcpt.RA[i].AcctRule, rcpt.RA[i].Amount)
 		// for k := 0; k < len(m); k++ {
 		// 	fmt.Printf("%d. .Account = %s, .Amount = %.2f   .ASMID = %d\n", k, m[k].Account, m[k].Amount, m[k].ASMID)
@@ -271,7 +332,13 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 		// tbl.Puts(-1, 1, rlib.RRdb.BizTypes[ri.Xbiz.P.BID].GLAccounts[a.ATypeLID].Name)
 
 		for k := 0; k < len(m); k++ {
-			l := rlib.GetLedgerByGLNo(j.BID, m[k].Account)
+			l, err := rlib.GetLedgerByGLNo(ctx, j.BID, m[k].Account)
+			if err != nil {
+				rlib.LogAndPrintError(funcname, err)
+				rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
+				rlib.LogAndPrint("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
+				continue
+			}
 			if 0 == l.LID {
 				rlib.LogAndPrint("%s: Could not get GLAccount named %s in Business %d\n", funcname, m[i].Account, r.BID)
 				rlib.LogAndPrint("%s: rule = \"%s\"\n", funcname, rcpt.RA[i].AcctRule)
@@ -299,15 +366,28 @@ func textPrintJournalReceipt(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintc
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func textPrintJournalUnassociated(tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal) {
-	var r rlib.Rentable
+func textPrintJournalUnassociated(ctx context.Context, tbl *gotable.Table, xbiz *rlib.XBusiness, jctx *jprintctx, j *rlib.Journal) {
+	const funcname = "textPrintJournalUnassociated"
+
+	var (
+		r   rlib.Rentable
+		err error
+	)
 	// rlib.Console("textPrintJournalUnassociated\n")
-	rlib.GetRentableByID(j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
+	err = rlib.GetRentableByID(ctx, j.ID, &r) // j.ID is RID when it is unassociated (RAID == 0)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return
+	}
 	tbl.AddRow()
 	tbl.Puts(-1, 0, j.IDtoShortString())
 	tbl.Puts(-1, 1, fmt.Sprintf("Unassociated: %s %s", r.RentableName, j.Comment))
 	for i := 0; i < len(j.JA); i++ {
-		processAcctRuleAmount(tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
+		err = processAcctRuleAmount(ctx, tbl, xbiz, j.JA[i].RID, j.Dt, j.JA[i].AcctRule, 0, &r, j.JA[i].Amount)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			continue
+		}
 	}
 	tbl.AddRow() // separater line
 }
@@ -362,33 +442,46 @@ func textPrintJournalXfer(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx,
 	tbl.AddRow() // nothing in this line, it's blank
 }
 
-func textPrintJournalEntry(tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rentDuration, assessmentDuration int64) {
+func textPrintJournalEntry(ctx context.Context, tbl *gotable.Table, ri *ReporterInfo, jctx *jprintctx, j *rlib.Journal, rentDuration, assessmentDuration int64) {
 	switch j.Type {
 	case rlib.JNLTYPEUNAS:
-		textPrintJournalUnassociated(tbl, ri.Xbiz, jctx, j)
+		textPrintJournalUnassociated(ctx, tbl, ri.Xbiz, jctx, j)
 	case rlib.JNLTYPERCPT:
-		rcpt := rlib.GetReceipt(j.ID)
+		rcpt, err := rlib.GetReceipt(ctx, j.ID)
+		if err != nil {
+			rlib.LogAndPrint("Failed to get receipt for j.ID = %d,  j.JID = %d\n", j.ID, j.JID)
+			return
+		}
 		if rcpt.RCPTID == 0 {
 			rlib.LogAndPrint("Failed to get receipt for j.ID = %d,  j.JID = %d\n", j.ID, j.JID)
 			return
 		}
-		textPrintJournalReceipt(tbl, ri, jctx, j, &rcpt)
+		textPrintJournalReceipt(ctx, tbl, ri, jctx, j, &rcpt)
 	case rlib.JNLTYPEXFER:
 		textPrintJournalXfer(tbl, ri, jctx, j)
 	case rlib.JNLTYPEASMT:
-		a, _ := rlib.GetAssessment(j.ID)
-		r := rlib.GetRentable(a.RID)
-		textPrintJournalAssessment(tbl, jctx, ri.Xbiz, j, &a, &r, rentDuration, assessmentDuration)
+		a, _ := rlib.GetAssessment(ctx, j.ID) // TODO(Steve): ignore error?
+		r, err := rlib.GetRentable(ctx, a.RID)
+		if err != nil {
+			rlib.LogAndPrint("Failed to get rentable for j.ID = %d,  a.RID = %d\n", j.ID, a.RID)
+			return
+		}
+		textPrintJournalAssessment(ctx, tbl, jctx, ri.Xbiz, j, &a, &r, rentDuration, assessmentDuration)
 	case rlib.JNLTYPEEXP:
-		a, _ := rlib.GetExpense(j.ID)
-		r := rlib.GetRentable(a.RID)
-		printJournalExpense(tbl, ri.Xbiz, j, &a, &r)
+		a, _ := rlib.GetExpense(ctx, j.ID) // TODO(Steve): ignore error?
+		r, err := rlib.GetRentable(ctx, a.RID)
+		if err != nil {
+			rlib.LogAndPrint("Failed to get rentable for j.ID = %d,  a.RID = %d\n", j.ID, a.RID)
+			return
+		}
+
+		printJournalExpense(ctx, tbl, ri.Xbiz, j, &a, &r)
 	default:
 		rlib.LogAndPrint("printJournalEntry: unrecognized type: %d\n", j.Type)
 	}
 }
 
-func textReportJournalEntry(tbl *gotable.Table, ri *ReporterInfo, j *rlib.Journal, jctx *jprintctx) {
+func textReportJournalEntry(ctx context.Context, tbl *gotable.Table, ri *ReporterInfo, j *rlib.Journal, jctx *jprintctx) {
 	//-------------------------------------------------------------------------------------
 	// over what range of time does this rental apply between jctx.ReportStart & jctx.ReportStop?
 	// the rental possession dates may be different than the report range...
@@ -399,8 +492,9 @@ func textReportJournalEntry(tbl *gotable.Table, ri *ReporterInfo, j *rlib.Journa
 	// TODO:  THIS NEEDS TO BE BETTER GENERALIZED...
 
 	if len(j.JA) > 0 { // is there an associated rental agreement?
-		ra, _ := rlib.GetRentalAgreement(j.JA[0].RAID) // if so, get it
-		if ra.AgreementStart.After(start) {            // if possession of rental starts later...
+		// TODO(Steve): ignore error?
+		ra, _ := rlib.GetRentalAgreement(ctx, j.JA[0].RAID) // if so, get it
+		if ra.AgreementStart.After(start) {                 // if possession of rental starts later...
 			start = ra.AgreementStart // ...then make an adjustment
 		}
 		stop = ra.AgreementStop // .Add(24 * 60 * time.Minute) -- removing this as all ranges should be NON-INCLUSIVE
@@ -416,13 +510,16 @@ func textReportJournalEntry(tbl *gotable.Table, ri *ReporterInfo, j *rlib.Journa
 	thisAccrualPeriod := int64(stop.Sub(start).Hours() / 24)
 
 	// fmt.Printf("start = %s, stop = %s, fullAccrualPeriod, thisAccrualPeriod =  %d, %d\n", start.Format(rlib.RRDATEINPFMT), stop.Format(rlib.RRDATEINPFMT), fullAccrualPeriod, thisAccrualPeriod)
-	textPrintJournalEntry(tbl, ri, jctx, j, thisAccrualPeriod, fullAccrualPeriod)
+	textPrintJournalEntry(ctx, tbl, ri, jctx, j, thisAccrualPeriod, fullAccrualPeriod)
 
 }
 
 // JournalReportTable returns a Journal report in a gotable.Table for the supplied Business and time range
-func JournalReportTable(ri *ReporterInfo) gotable.Table {
-	funcname := "JournalReportTable"
+func JournalReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "JournalReportTable"
+	var (
+		err error
+	)
 
 	// init and prepare some values before table init
 	ri.RptHeaderD1 = true
@@ -440,17 +537,17 @@ func JournalReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Amount", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)      // 6
 
 	// prepare table's title, sections
-	err := TableReportHeaderBlock(&tbl, "Journal", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Journal", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllJournalsInRange.Query(ri.Xbiz.P.BID, &ri.D1, &ri.D2)
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
-		// set errors in section3 and return
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
 		tbl.SetSection3(NoRecordsFoundMsg)
 		return tbl
 	}
@@ -461,16 +558,34 @@ func JournalReportTable(ri *ReporterInfo) gotable.Table {
 
 	for rows.Next() {
 		var j rlib.Journal
-		rlib.ReadJournals(rows, &j)
-		rlib.GetJournalAllocations(&j)
-		textReportJournalEntry(&tbl, ri, &j, &jctx)
+		err = rlib.ReadJournals(rows, &j)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			tbl.SetSection3(NoRecordsFoundMsg)
+			return tbl
+		}
+
+		err = rlib.GetJournalAllocations(ctx, &j)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			tbl.SetSection3(NoRecordsFoundMsg)
+			return tbl
+		}
+
+		textReportJournalEntry(ctx, &tbl, ri, &j, &jctx)
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return tbl
+	}
+
 	return tbl
 }
 
 // JournalReport generates a text-based report based on JournalReportTable table object
-func JournalReport(ri *ReporterInfo) string {
-	tbl := JournalReportTable(ri)
+func JournalReport(ctx context.Context, ri *ReporterInfo) string {
+	tbl := JournalReportTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"io"
@@ -97,19 +98,23 @@ const (
 	NoRecordsFoundMsg = "no records found"
 )
 
+type singleGoTableHandler func(context.Context, *ReporterInfo) gotable.Table
+
 // SingleTableReportHandler : single table report handler, used to get report from a table in a required output format
 type SingleTableReportHandler struct {
 	Found        bool
 	ReportNames  []string
-	TableHandler func(*ReporterInfo) gotable.Table
+	TableHandler singleGoTableHandler
 }
+
+type multiGoTableHandler func(context.Context, *ReporterInfo) ([]gotable.Table, error)
 
 // MultiTableReportHandler : multi table report handler, used to get report from multiple tables in a required output format
 type MultiTableReportHandler struct {
 	ReportTitle  string
 	Found        bool
 	ReportNames  []string
-	TableHandler func(*ReporterInfo) []gotable.Table
+	TableHandler multiGoTableHandler
 }
 
 // ReporterInfo is for routines that want to table-ize their reporting using
@@ -128,7 +133,7 @@ type ReporterInfo struct {
 	RptHeaderD1           bool      // true if the report's header should contain D1
 	RptHeaderD2           bool      // true if the dates should show as a range D1 - D2
 	BlankLineAfterRptName bool      // true if a blank line should be added after the Report Name
-	Handler               func(*ReporterInfo) string
+	Handler               func(context.Context, *ReporterInfo) string
 	Xbiz                  *rlib.XBusiness // may not be set in all cases
 	QueryParams           *url.Values
 }
@@ -170,7 +175,7 @@ func GetDisplayD2(ri *ReporterInfo) time.Time {
 // @return
 //		string = title string
 //         err = any problem that occurred
-func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
+func TableReportHeader(ctx context.Context, tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
 	tbl.SetTitle(ri.Xbiz.P.Designation + " " + rn)
 
 	var s string
@@ -186,7 +191,7 @@ func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo
 	tbl.SetSection1(s)
 
 	var s1 string
-	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
+	bu, err := rlib.GetBusinessUnitByDesignation(ctx, ri.Xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
 		tbl.SetSection3(e.Error())
@@ -195,7 +200,7 @@ func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo
 	if bu.CoCode == 0 {
 		s1 = bu.Name + "\n\n"
 	} else {
-		c, err := rlib.GetCompany(int64(bu.CoCode))
+		c, err := rlib.GetCompany(ctx, int64(bu.CoCode))
 		if err != nil {
 			e := fmt.Errorf("%s: error getting Company - %s\nBusinessUnit = %s, bu = %#v", funcname, err.Error(), ri.Xbiz.P.Designation, bu)
 			tbl.SetSection3(e.Error())
@@ -227,12 +232,14 @@ func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo
 //
 // @return
 //		string = title string
-func TableReportHeaderBlock(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
+func TableReportHeaderBlock(ctx context.Context, tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
 	if ri.Xbiz == nil {
 		ri.Xbiz = new(rlib.XBusiness)
-		rlib.GetXBusiness(ri.Bid, ri.Xbiz)
+		if err := rlib.GetXBusiness(ctx, ri.Bid, ri.Xbiz); err != nil {
+			return err
+		}
 	}
-	return TableReportHeader(tbl, rn, funcname, ri)
+	return TableReportHeader(ctx, tbl, rn, funcname, ri)
 }
 
 // ReportHeader returns a title block of text for a report.
@@ -244,9 +251,9 @@ func TableReportHeaderBlock(tbl *gotable.Table, rn, funcname string, ri *Reporte
 // @return
 //		string = title string
 //         err = any problem that occurred
-func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
+func ReportHeader(ctx context.Context, rn, funcname string, ri *ReporterInfo) (string, error) {
 	s := ri.Xbiz.P.Designation + "\n"
-	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
+	bu, err := rlib.GetBusinessUnitByDesignation(ctx, ri.Xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
 		return s, e
@@ -254,7 +261,7 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 	if bu.CoCode == 0 {
 		s += bu.Name + "\n\n"
 	} else {
-		c, err := rlib.GetCompany(int64(bu.CoCode))
+		c, err := rlib.GetCompany(ctx, int64(bu.CoCode))
 		if err != nil {
 			e := fmt.Errorf("%s: error getting Company - %s\nBusinessUnit = %s, bu = %#v", funcname, err.Error(), ri.Xbiz.P.Designation, bu)
 			return s, e
@@ -285,7 +292,7 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 	return s, nil
 }
 
-// ReportHeaderBlock is a wrapper for Report header. It ensures that ri.Xbiz is valid
+/*// ReportHeaderBlock is a wrapper for Report header. It ensures that ri.Xbiz is valid
 //		and will append any error messages to the title.
 //
 // @params
@@ -295,17 +302,20 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 //
 // @return
 //		string = title string
-func ReportHeaderBlock(rn, funcname string, ri *ReporterInfo) string {
+func ReportHeaderBlock(ctx context.Context, rn, funcname string, ri *ReporterInfo) string {
 	if ri.Xbiz == nil {
 		ri.Xbiz = new(rlib.XBusiness)
-		rlib.GetXBusiness(ri.Bid, ri.Xbiz)
+		err = rlib.GetXBusiness(ctx, ri.Bid, ri.Xbiz)
+		if err != nil {
+			return err.Error() // should return error from here!!!
+		}
 	}
 	s, err := ReportHeader(rn, funcname, ri)
 	if err != nil {
 		s += "\n" + err.Error() + "\n"
 	}
 	return s
-}
+}*/
 
 // ReportToString returns a string version of the report. It uses information in
 // 		ri for the output format and whether or not to include the title.

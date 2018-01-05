@@ -1,22 +1,38 @@
 package rlib
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	"strings"
+	"strconv"
 	"time"
 )
 
 // GetCountByTableName returns the count of records in table t
 // that belong to business bid
 //------------------------------------------------------------------
-func GetCountByTableName(t string, bid int64) int {
-	var count int
+func GetCountByTableName(ctx context.Context, t string, bid int64) (int, error) {
+
+	var (
+		err   error
+		count int
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
+	}
+
 	q := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE BID=%d", t, bid)
 	row := RRdb.Dbrr.QueryRow(q)
-	err := row.Scan(&count)
-	Errcheck(err)
-	return count
+	err = row.Scan(&count)
+	if err != nil {
+		return count, err
+	}
+	return count, err
 }
 
 //=======================================================
@@ -24,61 +40,164 @@ func GetCountByTableName(t string, bid int64) int {
 //=======================================================
 
 // GetAR reads a AR the structure for the supplied id
-func GetAR(id int64) (AR, error) {
-	var a AR
+func GetAR(ctx context.Context, id int64) (AR, error) {
+
+	var (
+		// err error
+		a AR
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetAR.QueryRow(id)
-	err := ReadAR(row, &a)
-	return a, err
+	return a, ReadAR(row, &a)
 }
 
 // GetARByName reads a AR the structure for the supplied bid and name
-func GetARByName(bid int64, name string) (AR, error) {
-	var a AR
+func GetARByName(ctx context.Context, bid int64, name string) (AR, error) {
+
+	var (
+		// err error
+		a AR
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetARByName.QueryRow(bid, name)
-	err := ReadAR(row, &a)
-	return a, err
+	return a, ReadAR(row, &a)
 }
 
-// GetARsForRows uses the supplied rows param, gets all the AR records
+// getARsForRows uses the supplied rows param, gets all the AR records
 // and returns them in a slice of AR structs
-func GetARsForRows(rows *sql.Rows) []AR {
+func getARsForRows(ctx context.Context, rows *sql.Rows) ([]AR, error) {
+
+	var (
+		err error
+		t   []AR
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
 	defer rows.Close()
-	var t []AR
+
 	for i := 0; rows.Next(); i++ {
 		var a AR
-		ReadARs(rows, &a)
+		err = ReadARs(rows, &a)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, a)
 	}
-	return t
+
+	return t, rows.Err()
+}
+
+// getARMap returns a map of all account rules for the supplied bid
+func getARMap(bid int64) (map[int64]AR, error) {
+
+	var (
+		err error
+		t   = make(map[int64]AR)
+	)
+
+	rows, err := RRdb.Prepstmt.GetAllARs.Query(bid)
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var a AR
+		err = ReadARs(rows, &a)
+		if err != nil {
+			return t, err
+		}
+		t[a.ARID] = a
+	}
+
+	return t, rows.Err()
 }
 
 // GetARMap returns a map of all account rules for the supplied bid
-func GetARMap(bid int64) map[int64]AR {
-	rows, err := RRdb.Prepstmt.GetAllARs.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	var t map[int64]AR
-	t = make(map[int64]AR)
-	for rows.Next() {
-		var a AR
-		ReadARs(rows, &a)
-		t[a.ARID] = a
+func GetARMap(ctx context.Context, bid int64) (map[int64]AR, error) {
+
+	var (
+		// err error
+		t = make(map[int64]AR)
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
 	}
-	return t
+
+	return getARMap(bid)
 }
 
 // GetAllARs reads all AccountRules for the supplied BID
-func GetAllARs(id int64) []AR {
+func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
+
+	var (
+		err error
+		t   []AR
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllARs.Query(id)
-	Errcheck(err)
-	return GetARsForRows(rows)
+	if err != nil {
+		return t, err
+	}
+	return getARsForRows(ctx, rows)
 }
 
 // GetARsByType reads all AccountRules for the supplied BID of type artype
-func GetARsByType(id int64, artype int) []AR {
+func GetARsByType(ctx context.Context, id int64, artype int) ([]AR, error) {
+
+	var (
+		err error
+		t   []AR
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetARsByType.Query(id, artype)
-	Errcheck(err)
-	return GetARsForRows(rows)
+	if err != nil {
+		return t, err
+	}
+	return getARsForRows(ctx, rows)
 }
 
 //=======================================================
@@ -86,25 +205,57 @@ func GetARsByType(id int64, artype int) []AR {
 //=======================================================
 
 // GetRentalAgreementPet reads a Pet the structure for the supplied PETID
-func GetRentalAgreementPet(petid int64) (RentalAgreementPet, error) {
-	var a RentalAgreementPet
+func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet, error) {
+
+	var (
+		// err error
+		a RentalAgreementPet
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentalAgreementPet.QueryRow(petid)
-	err := ReadRentalAgreementPet(row, &a)
-	return a, err
+	return a, ReadRentalAgreementPet(row, &a)
 }
 
 // GetAllRentalAgreementPets reads all Pet records for the supplied rental agreement id
-func GetAllRentalAgreementPets(raid int64) []RentalAgreementPet {
+func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreementPet, error) {
+
+	var (
+		err error
+		t   []RentalAgreementPet
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllRentalAgreementPets.Query(raid)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t []RentalAgreementPet
+
 	for i := 0; rows.Next(); i++ {
 		var a RentalAgreementPet
-		ReadRentalAgreementPets(rows, &a)
+		err = ReadRentalAgreementPets(rows, &a)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, a)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 //=======================================================
@@ -112,14 +263,25 @@ func GetAllRentalAgreementPets(raid int64) []RentalAgreementPet {
 //=======================================================
 
 // FindAgreementByRentable reads a Prospect structure based on the supplied Transactant id
-func FindAgreementByRentable(rid int64, d1, d2 *time.Time) (RentalAgreementRentable, error) {
-	var a RentalAgreementRentable
+func FindAgreementByRentable(ctx context.Context, rid int64, d1, d2 *time.Time) (RentalAgreementRentable, error) {
+
+	var (
+		// err error
+		a RentalAgreementRentable
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
 
 	// SELECT RAID,BID,RID,DtStart,DtStop from RentalAgreementRentables where RID=? and DtStop>=? and DtStart<=?
 
 	row := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2)
-	err := ReadRentalAgreementRentable(row, &a)
-	return a, err
+	return a, ReadRentalAgreementRentable(row, &a)
 }
 
 //=======================================================
@@ -127,17 +289,49 @@ func FindAgreementByRentable(rid int64, d1, d2 *time.Time) (RentalAgreementRenta
 //=======================================================
 
 // GetAllRentableAssessments for the supplied RID and date range
-func GetAllRentableAssessments(RID int64, d1, d2 *time.Time) []Assessment {
+func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time) ([]Assessment, error) {
+
+	var (
+		err error
+		t   []Assessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllRentableAssessments.Query(RID, d1, d2)
-	Errcheck(err)
-	return GetAssessmentsByRows(rows)
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
 }
 
 // GetUnpaidAssessmentsByRAID for the supplied RAID
-func GetUnpaidAssessmentsByRAID(RAID int64) []Assessment {
+func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, error) {
+
+	var (
+		err error
+		t   []Assessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetUnpaidAssessmentsByRAID.Query(RAID)
-	Errcheck(err)
-	return GetAssessmentsByRows(rows)
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
 }
 
 // GetAssessmentInstancesByParent for the supplied RAID
@@ -147,55 +341,137 @@ func GetUnpaidAssessmentsByRAID(RAID int64) []Assessment {
 //
 // RETURNS
 //    array of matching assessments
-func GetAssessmentInstancesByParent(id int64, d1, d2 *time.Time) []Assessment {
+func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.Time) ([]Assessment, error) {
+
+	var (
+		err error
+		t   []Assessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAssessmentInstancesByParent.Query(id, d1, d2)
-	Errcheck(err)
-	return GetAssessmentsByRows(rows)
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
 }
 
-// GetAssessmentsByRows for the supplied sql.Rows
-func GetAssessmentsByRows(rows *sql.Rows) []Assessment {
+// getAssessmentsByRows for the supplied sql.Rows
+func getAssessmentsByRows(ctx context.Context, rows *sql.Rows) ([]Assessment, error) {
+
+	var (
+		err error
+		t   []Assessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	defer rows.Close()
-	var t []Assessment
+
 	for i := 0; rows.Next(); i++ {
 		var a Assessment
-		ReadAssessments(rows, &a)
+		err = ReadAssessments(rows, &a)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, a)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 // GetAssessment returns the Assessment struct for the account with the supplied asmid
-func GetAssessment(asmid int64) (Assessment, error) {
-	var a Assessment
+func GetAssessment(ctx context.Context, asmid int64) (Assessment, error) {
+
+	var (
+		// err error
+		a Assessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetAssessment.QueryRow(asmid)
-	ReadAssessment(row, &a)
-	return a, nil
+	return a, ReadAssessment(row, &a)
 }
 
 // GetAssessmentInstance returns the Assessment struct for the account with the supplied asmid
-func GetAssessmentInstance(start *time.Time, pasmid int64) (Assessment, error) {
-	var a Assessment
+func GetAssessmentInstance(ctx context.Context, start *time.Time, pasmid int64) (Assessment, error) {
+
+	var (
+		// err error
+		a Assessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetAssessmentInstance.QueryRow(start, pasmid)
-	ReadAssessment(row, &a)
-	return a, nil
+	return a, ReadAssessment(row, &a)
 }
 
 // GetAssessmentFirstInstance returns the Assessment struct for the first instance of the
 // recurring series with PASMID = pasmid
-func GetAssessmentFirstInstance(pasmid int64) (Assessment, error) {
-	var a Assessment
+func GetAssessmentFirstInstance(ctx context.Context, pasmid int64) (Assessment, error) {
+
+	var (
+		// err error
+		a Assessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetAssessmentFirstInstance.QueryRow(pasmid)
-	ReadAssessment(row, &a)
-	return a, nil
+	return a, ReadAssessment(row, &a)
 }
 
 // GetAssessmentDuplicate returns the Assessment struct for the account with the supplied asmid
-func GetAssessmentDuplicate(start *time.Time, amt float64, pasmid, rid, raid, atypelid int64) Assessment {
-	var a Assessment
+func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, pasmid, rid, raid, atypelid int64) (Assessment, error) {
+
+	var (
+		// err error
+		a Assessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetAssessmentDuplicate.QueryRow(start, amt, pasmid, rid, raid, atypelid)
-	ReadAssessment(row, &a)
-	return a
+	return a, ReadAssessment(row, &a)
 }
 
 //=======================================================
@@ -204,64 +480,184 @@ func GetAssessmentDuplicate(start *time.Time, amt float64, pasmid, rid, raid, at
 
 // GetBuilding returns the record for supplied bldg id. If no such record exists or a database error occurred,
 // the return structure will be empty
-func GetBuilding(id int64) Building {
-	var t Building
-	err := RRdb.Prepstmt.GetBuilding.QueryRow(id).Scan(&t.BLDGID, &t.BID, &t.Address, &t.Address2, &t.City, &t.State, &t.PostalCode, &t.Country, &t.CreateTS, &t.CreateBy, &t.LastModTime, &t.LastModBy)
-	if err != nil {
-		Ulog("GetBuilding: err = %v\n", err)
+func GetBuilding(ctx context.Context, id int64) (Building, error) {
+
+	var (
+		// err error
+		t Building
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
 	}
-	return t
+
+	row := RRdb.Prepstmt.GetBuilding.QueryRow(id)
+	return t, ReadBuildingData(row, &t)
 }
 
 //=======================================================
 //  B U S I N E S S
 //=======================================================
 
-// GetAllBusinesses generates a report of all Businesses defined in the database.
-func GetAllBusinesses() ([]Business, error) {
-	var m []Business
+// GetAllBiz generates a slice of all Businesses defined in the database
+// without authentication
+func GetAllBiz() ([]Business, error) {
+
+	var (
+		err error
+		m   []Business
+	)
+
 	rows, err := RRdb.Prepstmt.GetAllBusinesses.Query()
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var p Business
-		ReadBusinesses(rows, &p)
+		err = ReadBusinesses(rows, &p)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, p)
 	}
-	Errcheck(rows.Err())
-	return m, err
+
+	return m, rows.Err()
+}
+
+// GetAllBusinesses generates a report of all Businesses defined in the database.
+func GetAllBusinesses(ctx context.Context) ([]Business, error) {
+
+	var (
+		// err error
+		m []Business
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
+	return GetAllBiz()
+}
+
+// getBiz loads the Business struct for the supplied Business id
+func getBiz(bid int64, a *Business) error {
+	row := RRdb.Prepstmt.GetBusiness.QueryRow(bid)
+	return ReadBusiness(row, a)
 }
 
 // GetBusiness loads the Business struct for the supplied Business id
-func GetBusiness(bid int64, a *Business) {
-	row := RRdb.Prepstmt.GetBusiness.QueryRow(bid)
-	ReadBusiness(row, a)
+func GetBusiness(ctx context.Context, bid int64, a *Business) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	return getBiz(bid, a)
+}
+
+// GetBizByDesignation loads the Business struct for the supplied designation
+func GetBizByDesignation(des string) (Business, error) {
+
+	var (
+		// err error
+		a Business
+	)
+
+	row := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des)
+	return a, ReadBusiness(row, &a)
 }
 
 // GetBusinessByDesignation loads the Business struct for the supplied designation
-func GetBusinessByDesignation(des string) Business {
-	var a Business
-	row := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des)
-	ReadBusiness(row, &a)
-	return a
+func GetBusinessByDesignation(ctx context.Context, des string) (Business, error) {
+
+	var (
+		// err error
+		a Business
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
+	return GetBizByDesignation(des)
+}
+
+// GetXBiz loads the XBusiness struct for the supplied Business id.
+func GetXBiz(bid int64, xbiz *XBusiness) error {
+
+	var (
+		err error
+	)
+
+	if xbiz.P.BID == 0 && bid > 0 {
+		err = getBiz(bid, &xbiz.P)
+		if err != nil {
+			return err
+		}
+	}
+
+	xbiz.RT, err = getBizRentableTypes(bid)
+	if err != nil {
+		return err
+	}
+
+	xbiz.US = make(map[int64]RentableSpecialty)
+	rows, err := RRdb.Prepstmt.GetAllBusinessRentableSpecialtyTypes.Query(bid)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var a RentableSpecialty
+		err = ReadRentableSpecialties(rows, &a)
+		if err != nil {
+			return err
+		}
+		xbiz.US[a.RSPID] = a
+	}
+
+	return rows.Err()
 }
 
 // GetXBusiness loads the XBusiness struct for the supplied Business id.
-func GetXBusiness(bid int64, xbiz *XBusiness) {
-	if xbiz.P.BID == 0 && bid > 0 {
-		GetBusiness(bid, &xbiz.P)
+func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
 	}
-	xbiz.RT = GetBusinessRentableTypes(bid)
-	xbiz.US = make(map[int64]RentableSpecialty)
-	rows, err := RRdb.Prepstmt.GetAllBusinessSpecialtyTypes.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var a RentableSpecialty
-		Errcheck(rows.Scan(&a.RSPID, &a.BID, &a.Name, &a.Fee, &a.Description))
-		xbiz.US[a.RSPID] = a
-	}
-	Errcheck(rows.Err())
+
+	return GetXBiz(bid, xbiz)
 }
 
 //=======================================================
@@ -269,12 +665,34 @@ func GetXBusiness(bid int64, xbiz *XBusiness) {
 //  CustomAttribute, CustomAttributeRef
 //=======================================================
 
-// GetCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
-func GetCustomAttribute(id int64) CustomAttribute {
-	var a CustomAttribute
+// getCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
+func getCustomAttribute(id int64) (CustomAttribute, error) {
+
+	var (
+		a CustomAttribute
+	)
+
 	row := RRdb.Prepstmt.GetCustomAttribute.QueryRow(id)
-	ReadCustomAttribute(row, &a)
-	return a
+	return a, ReadCustomAttribute(row, &a)
+}
+
+// GetCustomAttribute reads a CustomAttribute structure based on the supplied CustomAttribute id
+func GetCustomAttribute(ctx context.Context, id int64) (CustomAttribute, error) {
+
+	var (
+		// err error
+		a CustomAttribute
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
+	return getCustomAttribute(id)
 }
 
 // GetCustomAttributeByVals reads a CustomAttribute structure based on the supplied attributes
@@ -282,56 +700,121 @@ func GetCustomAttribute(id int64) CustomAttribute {
 // n = name of this custom attribute
 // v = the value of this attribute
 // u = units (if not applicable then "")
-func GetCustomAttributeByVals(t int64, n, v, u string) CustomAttribute {
-	var a CustomAttribute
+func GetCustomAttributeByVals(ctx context.Context, t int64, n, v, u string) (CustomAttribute, error) {
+
+	var (
+		// err error
+		a CustomAttribute
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetCustomAttributeByVals.QueryRow(t, n, v, u)
-	ReadCustomAttribute(row, &a)
-	return a
+	return a, ReadCustomAttribute(row, &a)
 }
 
-// GetAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
-func GetAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error) {
-	var t []int64
-	var m map[string]CustomAttribute
-	m = make(map[string]CustomAttribute)
+// getAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
+func getAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error) {
+
+	var (
+		err error
+		t   []int64
+		m   = make(map[string]CustomAttribute)
+	)
+
 	rows, err := RRdb.Prepstmt.GetCustomAttributeRefs.Query(elemid, id)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var cid int64
-		Errcheck(rows.Scan(&cid))
+		err = rows.Scan(&cid)
+		if err != nil {
+			return m, err
+		}
 		t = append(t, cid)
 	}
-	Errcheck(rows.Err())
+
+	err = rows.Err()
+	if err != nil {
+		return m, err
+	}
 
 	for i := 0; i < len(t); i++ {
-		c := GetCustomAttribute(t[i])
+		c, err := getCustomAttribute(t[i])
+		if err != nil {
+			return m, err
+		}
 		m[c.Name] = c
 	}
 
 	return m, err
 }
 
-// GetCustomAttributeRef reads a CustomAttribute structure for the supplied ElementType, ID, and CID
-func GetCustomAttributeRef(e, i, c int64) CustomAttributeRef {
-	var a CustomAttributeRef
-	row := RRdb.Prepstmt.GetCustomAttributeRef.QueryRow(e, i, c)
-	ReadCustomAttributeRef(row, &a)
-	return a
+// GetAllCustomAttributes returns a list of CustomAttributes for the supplied elementid and instanceid
+func GetAllCustomAttributes(ctx context.Context, elemid, id int64) (map[string]CustomAttribute, error) {
+
+	var (
+		// err error
+		m = make(map[string]CustomAttribute)
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
+	return getAllCustomAttributes(elemid, id)
 }
 
-// LoadRentableTypeCustomaAttributes adds all the custom attributes to each RentableType
-func LoadRentableTypeCustomaAttributes(xbiz *XBusiness) {
-	var err error
+// GetCustomAttributeRef reads a CustomAttribute structure for the supplied ElementType, ID, and CID
+func GetCustomAttributeRef(ctx context.Context, e, i, c int64) (CustomAttributeRef, error) {
+
+	var (
+		// err error
+		a CustomAttributeRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetCustomAttributeRef.QueryRow(e, i, c)
+	return a, ReadCustomAttributeRef(row, &a)
+}
+
+// loadRentableTypeCustomaAttributes adds all the custom attributes to each RentableType
+func loadRentableTypeCustomaAttributes(xbiz *XBusiness) error {
+
+	var (
+		err error
+	)
+
 	for k, v := range xbiz.RT {
 		var tmp = xbiz.RT[k]
-		tmp.CA, err = GetAllCustomAttributes(ELEMRENTABLETYPE, v.RTID)
+		tmp.CA, err = getAllCustomAttributes(ELEMRENTABLETYPE, v.RTID)
 		if err != nil {
 			Ulog("LoadRentableTypeCustomaAttributes: error reading custom attributes elementtype=%d, id=%d, err = %s\n", ELEMRENTABLETYPE, v.RTID, err.Error())
 		}
 		xbiz.RT[k] = tmp // this workaround (assigning to tmp) instead of just directly assigning the .CA member is a known issue in go
 	}
+
+	return err
 }
 
 //=======================================================
@@ -339,29 +822,73 @@ func LoadRentableTypeCustomaAttributes(xbiz *XBusiness) {
 //=======================================================
 
 // GetDemandSource reads a DemandSource structure based on the supplied DemandSource id
-func GetDemandSource(id int64, t *DemandSource) {
-	ReadDemandSource(RRdb.Prepstmt.GetDemandSource.QueryRow(id), t)
+func GetDemandSource(ctx context.Context, id int64, t *DemandSource) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	return ReadDemandSource(RRdb.Prepstmt.GetDemandSource.QueryRow(id), t)
 }
 
 // GetDemandSourceByName reads a DemandSource structure based on the supplied DemandSource id
-func GetDemandSourceByName(bid int64, name string, t *DemandSource) {
-	ReadDemandSource(RRdb.Prepstmt.GetDemandSourceByName.QueryRow(bid, name), t)
+func GetDemandSourceByName(ctx context.Context, bid int64, name string, t *DemandSource) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	return ReadDemandSource(RRdb.Prepstmt.GetDemandSourceByName.QueryRow(bid, name), t)
 }
 
 // GetAllDemandSources returns an array of DemandSource structures containing all sources for the supplied BID
-func GetAllDemandSources(id int64) ([]DemandSource, error) {
-	var m []DemandSource
+func GetAllDemandSources(ctx context.Context, id int64) ([]DemandSource, error) {
+
+	var (
+		err error
+		m   []DemandSource
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllDemandSources.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var s DemandSource
-		ReadDemandSources(rows, &s)
+		err = ReadDemandSources(rows, &s)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, s)
 	}
-	Errcheck(rows.Err())
-	return m, err
+
+	return m, rows.Err()
 }
 
 //=======================================================
@@ -370,123 +897,284 @@ func GetAllDemandSources(id int64) ([]DemandSource, error) {
 //=======================================================
 
 // GetDeposit reads a Deposit structure based on the supplied Deposit id
-func GetDeposit(id int64) (Deposit, error) {
-	var a Deposit
+func GetDeposit(ctx context.Context, id int64) (Deposit, error) {
+
+	var (
+		// err error
+		a Deposit
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetDeposit.QueryRow(id)
-	err := ReadDeposit(row, &a)
-	return a, err
+	return a, ReadDeposit(row, &a)
 }
 
 // GetAllDepositsInRange returns an array of all Deposits for bid between the supplied dates
-func GetAllDepositsInRange(bid int64, d1, d2 *time.Time) []Deposit {
-	var t []Deposit
+func GetAllDepositsInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([]Deposit, error) {
+
+	var (
+		err error
+		t   []Deposit
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllDepositsInRange.Query(bid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a Deposit
-		ReadDeposits(rows, &a)
-		a.DP, err = GetDepositParts(a.DID)
-		Errcheck(err)
+		err = ReadDeposits(rows, &a)
+		if err != nil {
+			return t, err
+		}
+		a.DP, err = GetDepositParts(ctx, a.DID)
+		if err != nil {
+			return t, err
+		}
 		//Console("GetAllDepositsInRange: a.DID = %d, len(a.DP) =  %d\n", a.DID, len(a.DP))
 		t = append(t, a)
 	}
-	Errcheck(rows.Err())
-	return t
+
+	return t, rows.Err()
 }
 
 // GetDepository reads a Depository structure based on the supplied Depository id
-func GetDepository(id int64) (Depository, error) {
-	var a Depository
+func GetDepository(ctx context.Context, id int64) (Depository, error) {
+
+	var (
+		// err error
+		a Depository
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetDepository.QueryRow(id)
-	err := ReadDepository(row, &a)
-	return a, err
+	return a, ReadDepository(row, &a)
 }
 
 // GetDepositoryByAccount reads a Depository structure based on the supplied Account id
-func GetDepositoryByAccount(bid int64, acct string) Depository {
-	var a Depository
+func GetDepositoryByAccount(ctx context.Context, bid int64, acct string) (Depository, error) {
+
+	var (
+		// err error
+		a Depository
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetDepositoryByAccount.QueryRow(bid, acct)
-	ReadDepository(row, &a)
-	return a
+	return a, ReadDepository(row, &a)
 }
 
 // GetDepositoryByName reads a Depository structure based on the supplied Name id
-func GetDepositoryByName(bid int64, name string) Depository {
-	var a Depository
+func GetDepositoryByName(ctx context.Context, bid int64, name string) (Depository, error) {
+
+	var (
+		// err error
+		a Depository
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetDepositoryByName.QueryRow(bid, name)
-	ReadDepository(row, &a)
-	return a
+	return a, ReadDepository(row, &a)
 }
 
 // GetDepositoryByLID reads a Depository structure based on the supplied LID id
-func GetDepositoryByLID(bid int64, id int64) Depository {
-	var a Depository
+func GetDepositoryByLID(ctx context.Context, bid int64, id int64) (Depository, error) {
+
+	var (
+		// err error
+		a Depository
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetDepositoryByLID.QueryRow(bid, id)
-	ReadDepository(row, &a)
-	return a
+	return a, ReadDepository(row, &a)
 }
 
 // GetAllDepositories returns an array of all Depositories for the supplied business
-func GetAllDepositories(bid int64) []Depository {
-	var t []Depository
+func GetAllDepositories(ctx context.Context, bid int64) ([]Depository, error) {
+
+	var (
+		err error
+		t   []Depository
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllDepositories.Query(bid)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var r Depository
-		Errcheck(ReadDepositories(rows, &r))
+		err = ReadDepositories(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	Errcheck(rows.Err())
-	return t
+
+	return t, rows.Err()
 }
 
 // GetDepositParts reads a DepositPart structure based on the supplied DepositPart DID
-func GetDepositParts(id int64) ([]DepositPart, error) {
-	var m []DepositPart
+func GetDepositParts(ctx context.Context, id int64) ([]DepositPart, error) {
+
+	var (
+		err error
+		m   []DepositPart
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetDepositParts.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var a DepositPart
-		Errcheck(ReadDepositParts(rows, &a))
+		err = ReadDepositParts(rows, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	Errcheck(rows.Err())
-	return m, err
+
+	return m, rows.Err()
 }
 
 // GetDepositMethod reads a DepositMethod structure based on the supplied Deposit id
-func GetDepositMethod(id int64) (DepositMethod, error) {
-	var a DepositMethod
+func GetDepositMethod(ctx context.Context, id int64) (DepositMethod, error) {
+
+	var (
+		// err error
+		a DepositMethod
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetDepositMethod.QueryRow(id)
-	err := ReadDepositMethod(row, &a)
-	return a, err
+	return a, ReadDepositMethod(row, &a)
 }
 
 // GetDepositMethodByName reads a DepositMethod structure based on the supplied BID and Name
-func GetDepositMethodByName(bid int64, name string) (DepositMethod, error) {
-	var a DepositMethod
+func GetDepositMethodByName(ctx context.Context, bid int64, name string) (DepositMethod, error) {
+
+	var (
+		// err error
+		a DepositMethod
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetDepositMethodByName.QueryRow(bid, name)
-	err := ReadDepositMethod(row, &a)
-	return a, err
+	return a, ReadDepositMethod(row, &a)
 }
 
 // GetAllDepositMethods returns an array of all DepositMethods for the supplied business
-func GetAllDepositMethods(bid int64) []DepositMethod {
-	var t []DepositMethod
+func GetAllDepositMethods(ctx context.Context, bid int64) ([]DepositMethod, error) {
+
+	var (
+		err error
+		t   []DepositMethod
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllDepositMethods.Query(bid)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a DepositMethod
-		Errcheck(ReadDepositMethods(rows, &a))
+		err = ReadDepositMethods(rows, &a)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, a)
 	}
-	Errcheck(rows.Err())
-	return t
+
+	return t, rows.Err()
 }
 
 //=======================================================
@@ -494,12 +1182,23 @@ func GetAllDepositMethods(bid int64) []DepositMethod {
 //=======================================================
 
 // GetExpense reads a Expense structure based on the supplied Expense id
-func GetExpense(id int64) (Expense, error) {
-	var a Expense
-	var err error
+func GetExpense(ctx context.Context, id int64) (Expense, error) {
+
+	var (
+		// err error
+		a Expense
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetExpense.QueryRow(id)
-	err = ReadExpense(row, &a)
-	return a, err
+	return a, ReadExpense(row, &a)
 }
 
 //=======================================================
@@ -507,69 +1206,150 @@ func GetExpense(id int64) (Expense, error) {
 //=======================================================
 
 // GetInvoice reads a Invoice structure based on the supplied Invoice id
-func GetInvoice(id int64) (Invoice, error) {
-	var a Invoice
-	var err error
-	row := RRdb.Prepstmt.GetInvoice.QueryRow(id)
-	ReadInvoice(row, &a)
-	if err == nil {
-		a.A, err = GetInvoiceAssessments(id)
-		if err == nil {
-			a.P, err = GetInvoicePayors(id)
+func GetInvoice(ctx context.Context, id int64) (Invoice, error) {
+
+	var (
+		err error
+		a   Invoice
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
 		}
 	}
+
+	row := RRdb.Prepstmt.GetInvoice.QueryRow(id)
+	err = ReadInvoice(row, &a)
+	if err != nil {
+		return a, err
+	}
+
+	a.A, err = GetInvoiceAssessments(ctx, id)
+	if err != nil {
+		return a, err
+	}
+
+	a.P, err = GetInvoicePayors(ctx, id)
+	if err != nil {
+		return a, err
+	}
+
 	return a, err
 }
 
 // GetAllInvoicesInRange returns an array of all Invoices for bid between the supplied dates
-func GetAllInvoicesInRange(bid int64, d1, d2 *time.Time) []Invoice {
-	var t []Invoice
+func GetAllInvoicesInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([]Invoice, error) {
+
+	var (
+		err error
+		t   []Invoice
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllInvoicesInRange.Query(bid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a Invoice
-		ReadInvoices(rows, &a)
-		a.A, err = GetInvoiceAssessments(a.InvoiceNo)
-		Errcheck(err)
-		a.P, err = GetInvoicePayors(a.InvoiceNo)
+		err = ReadInvoices(rows, &a)
+		if err != nil {
+			return t, err
+		}
+
+		a.A, err = GetInvoiceAssessments(ctx, a.InvoiceNo)
+		if err != nil {
+			return t, err
+		}
+
+		a.P, err = GetInvoicePayors(ctx, a.InvoiceNo)
 		t = append(t, a)
-		Errcheck(err)
+		if err != nil {
+			return t, err
+		}
 	}
-	Errcheck(rows.Err())
-	return t
+
+	return t, rows.Err()
 }
 
 // GetInvoiceAssessments reads a InvoiceAssessment structure based on the supplied InvoiceAssessment DID
-func GetInvoiceAssessments(id int64) ([]InvoiceAssessment, error) {
-	var m []InvoiceAssessment
+func GetInvoiceAssessments(ctx context.Context, id int64) ([]InvoiceAssessment, error) {
+
+	var (
+		err error
+		m   []InvoiceAssessment
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetInvoiceAssessments.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var a InvoiceAssessment
-		ReadInvoiceAssessments(rows, &a)
+		err = ReadInvoiceAssessments(rows, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	Errcheck(rows.Err())
-	return m, err
+
+	return m, rows.Err()
 }
 
 // GetInvoicePayors reads an InvoicePayor structure based on the supplied InvoiceNo (id)
-func GetInvoicePayors(id int64) ([]InvoicePayor, error) {
-	var m []InvoicePayor
+func GetInvoicePayors(ctx context.Context, id int64) ([]InvoicePayor, error) {
+
+	var (
+		err error
+		m   []InvoicePayor
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetInvoicePayors.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var a InvoicePayor
-		ReadInvoicePayors(rows, &a)
+		err = ReadInvoicePayors(rows, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	Errcheck(rows.Err())
-	return m, err
+
+	return m, rows.Err()
 }
 
 //=======================================================
@@ -577,88 +1357,196 @@ func GetInvoicePayors(id int64) ([]InvoicePayor, error) {
 //=======================================================
 
 // GetJournal returns the Journal struct for the journal entry with the supplied id
-func GetJournal(jid int64) Journal {
-	var r Journal
+func GetJournal(ctx context.Context, jid int64) (Journal, error) {
+
+	var (
+		// err error
+		r Journal
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetJournal.QueryRow(jid)
-	ReadJournal(row, &r)
-	return r
+	return r, ReadJournal(row, &r)
 }
 
-// // GetJournalInstance returns the Journal struct for entries that were created with the assumption that
-// // they are idempotent -- essentially: instances of recurring assessments and vacancy instances.  This call
-// // is made prior to generating new ones to ensure that we don't have double entries for the same thing.
-// func GetJournalInstance(id int64, dt1, dt2 *time.Time) Journal {
-// 	var r Journal
-// 	row := RRdb.Prepstmt.GetJournalInstance.QueryRow(id, dt1, dt2)
-// 	ReadJournal(row, &r)
-// 	return r
-// }
+/*// GetJournalInstance returns the Journal struct for entries that were created with the assumption that
+// they are idempotent -- essentially: instances of recurring assessments and vacancy instances.  This call
+// is made prior to generating new ones to ensure that we don't have double entries for the same thing.
+func GetJournalInstance(ctx context.Context, id int64, dt1, dt2 *time.Time) (Journal, error) {
+	var (
+		// err error
+		r Journal
+	)
+	row := RRdb.Prepstmt.GetJournalInstance.QueryRow(id, dt1, dt2)
+	return r, ReadJournal(row, &r)
+}*/
 
 // GetJournalVacancy returns the Journal struct for entries that were created with the assumption that
 // they are idempotent -- essentially: instances of recurring assessments and vacancy instances.  This call
 // is made prior to generating new ones to ensure that we don't have double entries for the same thing.
-func GetJournalVacancy(id int64, dt1, dt2 *time.Time) Journal {
-	var r Journal
+func GetJournalVacancy(ctx context.Context, id int64, dt1, dt2 *time.Time) (Journal, error) {
+
+	var (
+		// err error
+		r Journal
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetJournalVacancy.QueryRow(id, dt1, dt2)
-	ReadJournal(row, &r)
-	return r
+	return r, ReadJournal(row, &r)
 }
 
 // GetJournalByTypeAndID returns the Journal struct for entries match the supplied
 // Type and ID fields
-func GetJournalByTypeAndID(t, id int64) Journal {
-	var r Journal
+func GetJournalByTypeAndID(ctx context.Context, t, id int64) (Journal, error) {
+
+	var (
+		// err error
+		r Journal
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetJournalByTypeAndID.QueryRow(t, id)
-	ReadJournal(row, &r)
-	return r
+	return r, ReadJournal(row, &r)
 }
 
 // GetJournalByReceiptID returns the Journal struct for a Journal Entry that references the supplied
 // receiptID
-func GetJournalByReceiptID(id int64) Journal {
-	var r Journal
+func GetJournalByReceiptID(ctx context.Context, id int64) (Journal, error) {
+
+	var (
+		// err error
+		r Journal
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetJournalByReceiptID.QueryRow(id)
-	ReadJournal(row, &r)
-	return r
+	return r, ReadJournal(row, &r)
 }
 
 // GetJournalsByReceiptID returns a slice of Journal structs where it references the supplied
 // receiptID
-func GetJournalsByReceiptID(id int64) []Journal {
+func GetJournalsByReceiptID(ctx context.Context, id int64) ([]Journal, error) {
+
+	var (
+		err error
+		t   []Journal
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetJournalByReceiptID.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t = []Journal{}
+
 	for rows.Next() {
 		var r Journal
-		ReadJournals(rows, &r)
+		err = ReadJournals(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 // GetJournalMarkers loads the last n Journal markers
-func GetJournalMarkers(n int64) []JournalMarker {
+func GetJournalMarkers(ctx context.Context, n int64) ([]JournalMarker, error) {
+
+	var (
+		err error
+		t   []JournalMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetJournalMarkers.Query(n)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t = []JournalMarker{}
+
 	for rows.Next() {
 		var r JournalMarker
-		Errcheck(rows.Scan(&r.JMID, &r.BID, &r.State, &r.DtStart, &r.DtStop, &r.CreateTS, &r.CreateBy))
+		err = ReadJournalMarkers(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 // GetLastJournalMarker returns the last Journal marker or nil if no Journal markers exist
-func GetLastJournalMarker() JournalMarker {
-	t := GetJournalMarkers(1)
-	if len(t) > 0 {
-		return t[0]
+func GetLastJournalMarker(ctx context.Context) (JournalMarker, error) {
+
+	var (
+		err error
+		j   JournalMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return j, ErrSessionRequired
+		}
 	}
-	var j JournalMarker
-	return j
+
+	t, err := GetJournalMarkers(ctx, 1)
+	if err != nil {
+		return j, err
+	}
+
+	if len(t) > 0 {
+		j = t[0]
+	}
+
+	return j, err
 }
 
 //=======================================================
@@ -666,27 +1554,78 @@ func GetLastJournalMarker() JournalMarker {
 //=======================================================
 
 // GetJournalAllocation returns the Journal allocation for the supplied JAID
-func GetJournalAllocation(jaid int64) JournalAllocation {
-	var a JournalAllocation
+func GetJournalAllocation(ctx context.Context, jaid int64) (JournalAllocation, error) {
+
+	var (
+		// err error
+		a JournalAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetJournalAllocation.QueryRow(jaid)
-	ReadJournalAllocation(row, &a)
-	return a
+	return a, ReadJournalAllocation(row, &a)
 }
 
 // GetJournalAllocations loads all Journal allocations associated with the supplied Journal id into
 // the RA array within a Journal structure
-func GetJournalAllocations(j *Journal) {
+func GetJournalAllocations(ctx context.Context, j *Journal) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetJournalAllocations.Query(j.JID)
-	Errcheck(err)
-	j.JA = getJournalAllocationRows(rows)
+	if err != nil {
+		return err
+	}
+
+	// get all journal allocation rows in j.JA field
+	jaRows, err := getJournalAllocationRows(ctx, rows)
+	if err != nil {
+		return err
+	}
+
+	j.JA = jaRows
+	return err
 }
 
 // GetJournalAllocationByASMID returns an array of JournalAllocation records that reference
 // the supplied ASMID.
-func GetJournalAllocationByASMID(id int64) []JournalAllocation {
+func GetJournalAllocationByASMID(ctx context.Context, id int64) ([]JournalAllocation, error) {
+
+	var (
+		err    error
+		jaRows []JournalAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return jaRows, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMID.Query(id)
-	Errcheck(err)
-	return getJournalAllocationRows(rows)
+	if err != nil {
+		return jaRows, err
+	}
+	return getJournalAllocationRows(ctx, rows)
 }
 
 // GetJournalAllocationByASMandRCPTID returns an array of JournalAllocation
@@ -694,21 +1633,55 @@ func GetJournalAllocationByASMID(id int64) []JournalAllocation {
 // These are the JournalAllocation entries created for Receipts that had
 // SubARs automatically generate an associated Assessment.
 //----------------------------------------------------------------------------
-func GetJournalAllocationByASMandRCPTID(id int64) []JournalAllocation {
+func GetJournalAllocationByASMandRCPTID(ctx context.Context, id int64) ([]JournalAllocation, error) {
+
+	var (
+		err    error
+		jaRows []JournalAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return jaRows, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID.Query(id)
-	Errcheck(err)
-	return getJournalAllocationRows(rows)
+	if err != nil {
+		return jaRows, err
+	}
+	return getJournalAllocationRows(ctx, rows)
 }
 
-func getJournalAllocationRows(rows *sql.Rows) []JournalAllocation {
-	var ja []JournalAllocation
+func getJournalAllocationRows(ctx context.Context, rows *sql.Rows) ([]JournalAllocation, error) {
+
+	var (
+		err error
+		ja  []JournalAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ja, ErrSessionRequired
+		}
+	}
+
 	defer rows.Close()
+
 	for rows.Next() {
 		var a JournalAllocation
-		ReadJournalAllocations(rows, &a)
+		err = ReadJournalAllocations(rows, &a)
+		if err != nil {
+			return ja, err
+		}
 		ja = append(ja, a)
 	}
-	return ja
+
+	return ja, rows.Err()
 }
 
 //=======================================================
@@ -716,141 +1689,299 @@ func getJournalAllocationRows(rows *sql.Rows) []JournalAllocation {
 //=======================================================
 
 // GetLatestLedgerMarkerByLID returns the LedgerMarker struct for the GLAccount with the supplied LID
-func GetLatestLedgerMarkerByLID(bid, lid int64) LedgerMarker {
-	var r LedgerMarker
+func GetLatestLedgerMarkerByLID(ctx context.Context, bid, lid int64) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetLatestLedgerMarkerByLID.QueryRow(bid, lid)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
 // GetInitialLedgerMarkerByRAID returns the LedgerMarker struct for the GLAccount with the supplied LID
-func GetInitialLedgerMarkerByRAID(raid int64) LedgerMarker {
-	var r LedgerMarker
+func GetInitialLedgerMarkerByRAID(ctx context.Context, raid int64) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetInitialLedgerMarkerByRAID.QueryRow(raid)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
 // GetInitialLedgerMarkerByRID returns the LedgerMarker struct for the GLAccount with the supplied LID
-func GetInitialLedgerMarkerByRID(id int64) LedgerMarker {
-	var a LedgerMarker
+func GetInitialLedgerMarkerByRID(ctx context.Context, id int64) (LedgerMarker, error) {
+
+	var (
+		// err error
+		a LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetInitialLedgerMarkerByRID.QueryRow(id)
-	ReadLedgerMarker(row, &a)
-	return a
+	return a, ReadLedgerMarker(row, &a)
 }
 
 // GetLedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with the supplied LID
-func GetLedgerMarkerOnOrBefore(bid, lid int64, dt *time.Time) LedgerMarker {
-	var r LedgerMarker
+func GetLedgerMarkerOnOrBefore(ctx context.Context, bid, lid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetLedgerMarkerOnOrBefore.QueryRow(bid, lid, dt)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
-// // GetPayorLedgerMarkerOnOrBefore returns the LedgerMarker struct for the TCID
-// func GetPayorLedgerMarkerOnOrBefore(bid, tcid int64, dt *time.Time) LedgerMarker {
-// 	var r LedgerMarker
-// 	row := RRdb.Prepstmt.GetPayorLedgerMarkerOnOrBefore.QueryRow(bid, tcid, dt)
-// 	ReadLedgerMarker(row, &r)
-// 	return r
-// }
+/*// GetPayorLedgerMarkerOnOrBefore returns the LedgerMarker struct for the TCID
+func GetPayorLedgerMarkerOnOrBefore(ctx context.Context, bid, tcid int64, dt *time.Time) LedgerMarker {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetPayorLedgerMarkerOnOrBefore.QueryRow(bid, tcid, dt)
+	return r, ReadLedgerMarker(row, &r)
+}*/
 
 // GetRALedgerMarkerOnOrBeforeDeprecated returns the LedgerMarker struct for the GLAccount with
 // the supplied LID filtered for the supplied RentalAgreement raid
 // THIS HAS BEEN DEPRECATED  7/27/2017
-func GetRALedgerMarkerOnOrBeforeDeprecated(bid, lid, raid int64, dt *time.Time) LedgerMarker {
-	var r LedgerMarker
+func GetRALedgerMarkerOnOrBeforeDeprecated(ctx context.Context, bid, lid, raid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBeforeDeprecated.QueryRow(bid, lid, raid, dt)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
 // GetRALedgerMarkerOnOrBefore returns the LedgerMarker struct for the RAID with
 // the supplied LID filtered for the supplied RentalAgreement raid
 //=============================================================================
-func GetRALedgerMarkerOnOrBefore(raid int64, dt *time.Time) LedgerMarker {
-	var r LedgerMarker
+func GetRALedgerMarkerOnOrBefore(ctx context.Context, raid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore.QueryRow(raid, dt)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
 // GetRALedgerMarkerOnOrAfter returns the LedgerMarker struct for the RAID with
 // the supplied LID filtered for the supplied RentalAgreement raid
 //=============================================================================
-func GetRALedgerMarkerOnOrAfter(raid int64, dt *time.Time) LedgerMarker {
-	var r LedgerMarker
+func GetRALedgerMarkerOnOrAfter(ctx context.Context, raid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrAfter.QueryRow(raid, dt)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
 // GetTCLedgerMarkerOnOrBefore returns the LedgerMarker struct for the TCID
 // filtered for the supplied date
 //=============================================================================
-func GetTCLedgerMarkerOnOrBefore(tcid int64, dt *time.Time) LedgerMarker {
-	var r LedgerMarker
+func GetTCLedgerMarkerOnOrBefore(ctx context.Context, tcid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetTCLedgerMarkerOnOrBefore.QueryRow(tcid, dt)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
 // GetTCLedgerMarkerOnOrAfter returns the LedgerMarker struct for the TCID
 // filtered for the supplied date
 //=============================================================================
-func GetTCLedgerMarkerOnOrAfter(tcid int64, dt *time.Time) LedgerMarker {
-	var r LedgerMarker
+func GetTCLedgerMarkerOnOrAfter(ctx context.Context, tcid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetTCLedgerMarkerOnOrAfter.QueryRow(tcid, dt)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
 // GetRentableLedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with
 // the supplied LID filtered for the supplied Rentable rid
-func GetRentableLedgerMarkerOnOrBefore(bid, lid, rid int64, dt *time.Time) LedgerMarker {
-	var r LedgerMarker
+func GetRentableLedgerMarkerOnOrBefore(ctx context.Context, bid, lid, rid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableLedgerMarkerOnOrBefore.QueryRow(bid, lid, rid, dt)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
 // GetRARentableLedgerMarkerOnOrBefore returns the LedgerMarker struct for the GLAccount with
 // the supplied LID filtered for the supplied Rentable rid
-func GetRARentableLedgerMarkerOnOrBefore(raid, rid int64, dt *time.Time) LedgerMarker {
-	var r LedgerMarker
+func GetRARentableLedgerMarkerOnOrBefore(ctx context.Context, raid, rid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		// err error
+		r LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRARentableLedgerMarkerOnOrBefore.QueryRow(raid, rid, dt)
-	ReadLedgerMarker(row, &r)
-	return r
+	return r, ReadLedgerMarker(row, &r)
 }
 
-// // LoadPayorLedgerMarker returns the LedgerMarker for the supplied bid,tcid
-// // values. It loads the marker on-or-before dt.  If no such LedgerMarker exists,
-// // then one will be created.
-// //
-// // TODO:  If a subsequent LedgerMarker exists and it is marked as the epoch (3) then
-// // then it will be updated to normal status as the LedgerMarker just being will
-// // created will be the new epoch.
-// //
-// // INPUTS
-// //		bid  - business id
-// //		tcid - which payor
-// //		dt   - the ledger marker on this date, or the first prior LedgerMarker
-// //			   will be loaded and returned.
-// //-----------------------------------------------------------------------------
-// func LoadPayorLedgerMarker(bid, tcid int64, dt *time.Time) LedgerMarker {
-// 	lm := GetPayorLedgerMarkerOnOrBefore(bid, tcid, dt)
-// 	if lm.LMID == 0 {
-// 		lm.BID = bid
-// 		lm.TCID = tcid
-// 		lm.Dt = *dt
-// 		lm.State = LMINITIAL
-// 		err := InsertLedgerMarker(&lm)
-// 		if nil != err {
-// 			fmt.Printf("LoadRALedgerMarker: Error creating LedgerMarker: %s\n", err.Error())
-// 		}
-// 	}
-// 	return lm
-// }
+/*// LoadPayorLedgerMarker returns the LedgerMarker for the supplied bid,tcid
+// values. It loads the marker on-or-before dt.  If no such LedgerMarker exists,
+// then one will be created.
+//
+// TODO:  If a subsequent LedgerMarker exists and it is marked as the epoch (3) then
+// then it will be updated to normal status as the LedgerMarker just being will
+// created will be the new epoch.
+//
+// INPUTS
+//		bid  - business id
+//		tcid - which payor
+//		dt   - the ledger marker on this date, or the first prior LedgerMarker
+//			   will be loaded and returned.
+//-----------------------------------------------------------------------------
+func LoadPayorLedgerMarker(ctx context.Context, bid, tcid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		err error
+		lm LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return lm, ErrSessionRequired
+		}
+	}
+
+	lm, err = GetPayorLedgerMarkerOnOrBefore(ctx, bid, tcid, dt)
+	if err != nil {
+		lm.BID = bid
+		lm.TCID = tcid
+		lm.Dt = *dt
+		lm.State = LMINITIAL
+		err = InsertLedgerMarker(ctx, &lm)
+		if nil != err {
+			fmt.Printf("LoadRALedgerMarker: Error creating LedgerMarker: %s\n", err.Error())
+		}
+	}
+	return lm, err
+}*/
 
 // LoadRALedgerMarker returns the LedgerMarker for the supplied bid,lid,raid
 // values. It loads the marker on-or-before dt.  If no such LedgerMarker exists,
@@ -867,59 +1998,121 @@ func GetRARentableLedgerMarkerOnOrBefore(raid, rid int64, dt *time.Time) LedgerM
 //		dt   - the ledger marker on this date, or the first prior LedgerMarker
 //			   will be loaded and returned.
 //-----------------------------------------------------------------------------
-func LoadRALedgerMarker(bid, lid, raid int64, dt *time.Time) LedgerMarker {
-	lm := GetRALedgerMarkerOnOrBeforeDeprecated(bid, lid, raid, dt)
-	if lm.LMID == 0 {
+func LoadRALedgerMarker(ctx context.Context, bid, lid, raid int64, dt *time.Time) (LedgerMarker, error) {
+
+	var (
+		err error
+		lm  LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return lm, ErrSessionRequired
+		}
+	}
+
+	lm, err = GetRALedgerMarkerOnOrBeforeDeprecated(ctx, bid, lid, raid, dt)
+	if err != nil {
 		lm.LID = lid
 		lm.BID = bid
 		lm.RAID = raid
 		lm.Dt = time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
 		lm.State = LMINITIAL
-		err := InsertLedgerMarker(&lm)
+		_, err = InsertLedgerMarker(ctx, &lm)
 		if nil != err {
 			fmt.Printf("LoadRALedgerMarker: Error creating LedgerMarker: %s\n", err.Error())
 		}
 	}
-	return lm
+	return lm, err
 }
 
 // GetLatestLedgerMarkerByGLNo returns the LedgerMarker struct for the GLNo with the supplied name
-func GetLatestLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
-	l := GetLedgerByGLNo(bid, s)
-	if l.LID == 0 {
-		var r LedgerMarker
-		return r
+func GetLatestLedgerMarkerByGLNo(ctx context.Context, bid int64, s string) (LedgerMarker, error) {
+
+	var (
+		err error
+		lm  LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return lm, ErrSessionRequired
+		}
 	}
-	return GetLatestLedgerMarkerByLID(bid, l.LID)
+
+	l, err := GetLedgerByGLNo(ctx, bid, s)
+	if err != nil {
+		return lm, err
+	}
+	return GetLatestLedgerMarkerByLID(ctx, bid, l.LID)
 }
 
-// // GetLatestLedgerMarkerByType returns the LedgerMarker struct for the supplied type
-// func GetLatestLedgerMarkerByType(bid int64, t int64) LedgerMarker {
-// 	var r LedgerMarker
-// 	l := GetLedgerByType(bid, t)
-// 	if 0 == l.LID {
-// 		return r
-// 	}
-// 	return GetLatestLedgerMarkerByLID(bid, l.LID)
-// }
+/*// GetLatestLedgerMarkerByType returns the LedgerMarker struct for the supplied type
+func GetLatestLedgerMarkerByType(ctx context.Context, bid int64, t int64) (LedgerMarker, error) {
 
-// // GetAllLedgerMarkersOnOrBefore returns a map of all ledgermarkers for the supplied business and dat
-// func GetAllLedgerMarkersOnOrBefore(bid int64, dt *time.Time) map[int64]LedgerMarker {
-// 	var t map[int64]LedgerMarker
-// 	t = make(map[int64]LedgerMarker) // this line is absolutely necessary
-// 	rows, err := RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore.Query(bid, dt)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	// fmt.Printf("%4s  %4s  %4s  %5s  %10s  %8s\n", "LMID", "LID", "BID", "State", "Dt", "Balance")
-// 	for rows.Next() {
-// 		var r LedgerMarker
-// 		ReadLedgerMarkers(rows, &r)
-// 		t[r.LID] = r
-// 		// fmt.Printf("%4d  %4d  %4d  %5d  %10s  %8.2f\n", r.LMID, r.LID, r.BID, r.State, r.Dt, r.Balance)
-// 	}
-// 	Errcheck(rows.Err())
-// 	return t
-// }
+	var (
+		err error
+		lm LedgerMarker
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return lm, ErrSessionRequired
+		}
+	}
+
+	l, err := GetLedgerByType(ctx, bid, t)
+	if err != nil {
+		return lm, err
+	}
+	if 0 == l.LID {
+		return lm, err
+	}
+	return GetLatestLedgerMarkerByLID(ctx, bid, l.LID)
+}*/
+
+/*// GetAllLedgerMarkersOnOrBefore returns a map of all ledgermarkers for the supplied business and dat
+func GetAllLedgerMarkersOnOrBefore(ctx context.Context, bid int64, dt *time.Time) (map[int64]LedgerMarker, error) {
+
+	var (
+		err error
+		t   = make(map[int64]LedgerMarker)
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+
+	}
+
+	rows, err :=RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore.Query(bid, dt)
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	// fmt.Printf("%4s  %4s  %4s  %5s  %10s  %8s\n", "LMID", "LID", "BID", "State", "Dt", "Balance")
+	for rows.Next() {
+		var r LedgerMarker
+		err = ReadLedgerMarkers(rows, &r)
+		if err != nil {
+			return t, err
+		}
+		t[r.LID] = r
+		// fmt.Printf("%4d  %4d  %4d  %5d  %10s  %8.2f\n", r.LMID, r.LID, r.BID, r.State, r.Dt, r.Balance)
+	}
+
+	return t, rows.Err()
+}*/
 
 //=======================================================
 //  L E D G E R
@@ -927,227 +2120,578 @@ func GetLatestLedgerMarkerByGLNo(bid int64, s string) LedgerMarker {
 
 // GetLedgerList returns an array of all GLAccount
 // this is essentially a way to get the exhaustive list of GLAccount numbers for a Business
-func GetLedgerList(bid int64) []GLAccount {
+func GetLedgerList(ctx context.Context, bid int64) ([]GLAccount, error) {
+
+	var (
+		err error
+		t   []GLAccount
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t []GLAccount
+
 	for rows.Next() {
 		var r GLAccount
-		ReadGLAccounts(rows, &r)
+		err = ReadGLAccounts(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
+}
+
+// getLedgerMap returns a map of all GLAccounts for the supplied business
+func getLedgerMap(bid int64) (map[int64]GLAccount, error) {
+
+	var (
+		err error
+		t   = make(map[int64]GLAccount)
+	)
+
+	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r GLAccount
+		err = ReadGLAccounts(rows, &r)
+		if err != nil {
+			return t, err
+		}
+		t[r.LID] = r
+	}
+
+	return t, rows.Err()
 }
 
 // GetGLAccountMap returns a map of all GLAccounts for the supplied business
-func GetGLAccountMap(bid int64) map[int64]GLAccount {
-	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	var t map[int64]GLAccount
-	t = make(map[int64]GLAccount)
-	for rows.Next() {
-		var r GLAccount
-		ReadGLAccounts(rows, &r)
-		t[r.LID] = r
+func GetGLAccountMap(ctx context.Context, bid int64) (map[int64]GLAccount, error) {
+
+	var (
+		// err error
+		t = make(map[int64]GLAccount)
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
 	}
-	return t
+
+	return getLedgerMap(bid)
 }
 
 // GetLedger returns the GLAccount struct for the supplied LID
-func GetLedger(lid int64) GLAccount {
-	var a GLAccount
+func GetLedger(ctx context.Context, lid int64) (GLAccount, error) {
+
+	var (
+		// err error
+		a GLAccount
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetLedger.QueryRow(lid)
-	ReadGLAccount(row, &a)
-	return a
+	return a, ReadGLAccount(row, &a)
 }
 
 // GetLedgerEntryByJAID returns the GLAccount struct for the supplied LID
-func GetLedgerEntryByJAID(bid, lid, jaid int64) LedgerEntry {
-	var a LedgerEntry
+func GetLedgerEntryByJAID(ctx context.Context, bid, lid, jaid int64) (LedgerEntry, error) {
+
+	var (
+		// err error
+		a LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetLedgerEntryByJAID.QueryRow(bid, lid, jaid)
-	ReadLedgerEntry(row, &a)
-	return a
+	return a, ReadLedgerEntry(row, &a)
 }
 
 // GetLedgerEntriesByJAID returns the GLAccount struct for the supplied LID
-func GetLedgerEntriesByJAID(bid, jaid int64) []LedgerEntry {
+func GetLedgerEntriesByJAID(ctx context.Context, bid, jaid int64) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetLedgerEntriesByJAID.Query(bid, jaid)
-	Errcheck(err)
-	var m []LedgerEntry
+	if err != nil {
+		return m, err
+	}
+
 	for rows.Next() {
 		var le LedgerEntry
-		ReadLedgerEntries(rows, &le)
+		err = ReadLedgerEntries(rows, &le)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, le)
 	}
-	return m
+
+	return m, rows.Err()
 }
 
 // GetCountLedgerEntries get total count for RentableTypes
 // with particular associated business
-func GetCountLedgerEntries(lid, bid int64) int64 {
-	var id int64
-	rows, err := RRdb.Prepstmt.CountLedgerEntries.Query(lid, bid)
-	Errcheck(err)
-	defer rows.Close()
+func GetCountLedgerEntries(ctx context.Context, lid, bid int64) (int64, error) {
 
-	for rows.Next() {
-		rows.Scan(&id)
-		return id
+	var (
+		// err   error
+		count int64
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
 	}
-	return id
+
+	row := RRdb.Prepstmt.CountLedgerEntries.QueryRow(lid, bid)
+	return count, row.Scan(&count)
 }
 
 // GetLedgerByGLNo returns the GLAccount struct for the supplied GLNo
-func GetLedgerByGLNo(bid int64, s string) GLAccount {
-	var a GLAccount
+func GetLedgerByGLNo(ctx context.Context, bid int64, s string) (GLAccount, error) {
+
+	var (
+		// err error
+		a GLAccount
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s)
-	ReadGLAccount(row, &a)
-	return a
+	return a, ReadGLAccount(row, &a)
 }
 
 // GetLedgerByName returns the GLAccount struct for the supplied Name
-func GetLedgerByName(bid int64, s string) GLAccount {
-	var a GLAccount
+func GetLedgerByName(ctx context.Context, bid int64, s string) (GLAccount, error) {
+
+	var (
+		// err error
+		a GLAccount
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetLedgerByName.QueryRow(bid, s)
-	ReadGLAccount(row, &a)
-	return a
+	return a, ReadGLAccount(row, &a)
 }
 
-// // GetLedgerByType returns the GLAccount struct for the supplied Type
-// func GetLedgerByType(bid, t int64) GLAccount {
-// 	var a GLAccount
-// 	row := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t)
-// 	ReadGLAccount(row, &a)
-// 	return a
-// }
+/*// GetLedgerByType returns the GLAccount struct for the supplied Type
+func GetLedgerByType(ctx context.Context, bid, t int64) (GLAccount, error) {
 
-// // GetRABalanceLedger returns the GLAccount struct for the supplied Type
-// func GetRABalanceLedger(bid, RAID int64) GLAccount {
-// 	var a GLAccount
-// 	var err error
-// 	row := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid)
-// 	ReadGLAccount(row, &a)
-// 	return a
-// }
+	var (
+		// err error
+		a GLAccount
+	)
 
-// // GetSecDepBalanceLedger returns the GLAccount struct for the supplied Type
-// func GetSecDepBalanceLedger(bid, RAID int64) GLAccount {
-// 	var a GLAccount
-// 	var err error
-// 	row := RRdb.Prepstmt.GetSecDepBalanceLedger.QueryRow(bid, RAID)
-// 	ReadGLAccount(row, &a)
-// 	return a
-// }
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
 
-// // GetDefaultLedgers loads the default GLAccount for the supplied Business bid
-// func GetDefaultLedgers(bid int64) {
-// 	rows, err := RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var r GLAccount
-// 		ReadGLAccounts(rows, &r)
-// 		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
-// 	}
-// }
+	row := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t)
+	return a, ReadGLAccount(row, &a)
+}*/
+
+/*// GetRABalanceLedger returns the GLAccount struct for the supplied Type
+func GetRABalanceLedger(ctx context.Context, bid, RAID int64) (GLAccount, error) {
+
+	var (
+		// err error
+		a   GLAccount
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid)
+	return a, ReadGLAccount(row, &a)
+}*/
+
+/*// GetSecDepBalanceLedger returns the GLAccount struct for the supplied Type
+func GetSecDepBalanceLedger(ctx context.Context, bid, RAID int64) (GLAccount, error) {
+
+	var (
+		// err error
+		a   GLAccount
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetSecDepBalanceLedger.QueryRow(bid, RAID)
+	return a, ReadGLAccount(row, &a)
+}*/
+
+/*// GetDefaultLedgers loads the default GLAccount for the supplied Business bid
+func GetDefaultLedgers(ctx context.Context, bid int64) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	rows, err :=RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var r GLAccount
+		err = ReadGLAccounts(rows, &r)
+		if err != nil {
+			return err
+		}
+		RRdb.BizTypes[bid].DefaultAccts[r.Type] = &r
+	}
+
+	return err
+}*/
 
 //=======================================================
 //  LEDGER ENTRY
 //=======================================================
 
-// GetLedgerEntryArray returns a list of Ledger Entries for the supplied rows value
-func GetLedgerEntryArray(rows *sql.Rows) ([]LedgerEntry, error) {
-	var m []LedgerEntry
+// getLedgerEntryArray returns a list of Ledger Entries for the supplied rows value
+func getLedgerEntryArray(ctx context.Context, rows *sql.Rows) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	for rows.Next() {
 		var le LedgerEntry
-		ReadLedgerEntries(rows, &le)
+		err = ReadLedgerEntries(rows, &le)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, le)
 	}
+
 	return m, rows.Err()
 }
 
 // GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied Ledger during the supplied range
-func GetLedgerEntriesInRange(d1, d2 *time.Time, bid, lid int64) ([]LedgerEntry, error) {
+func GetLedgerEntriesInRange(ctx context.Context, d1, d2 *time.Time, bid, lid int64) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(bid, lid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
-	return GetLedgerEntryArray(rows)
+
+	return getLedgerEntryArray(ctx, rows)
 }
 
 // GetLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement and Ledger
-func GetLedgerEntriesForRAID(d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry, error) {
+func GetLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid, lid int64) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
-	return GetLedgerEntryArray(rows)
+
+	return getLedgerEntryArray(ctx, rows)
 }
 
 // GetLedgerEntriesForRentable returns a list of Ledger Entries for the supplied Rentable (rid) and Ledger (lid)
-func GetLedgerEntriesForRentable(d1, d2 *time.Time, rid, lid int64) ([]LedgerEntry, error) {
+func GetLedgerEntriesForRentable(ctx context.Context, d1, d2 *time.Time, rid, lid int64) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRentable.Query(d1, d2, rid, lid)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
-	return GetLedgerEntryArray(rows)
+
+	return getLedgerEntryArray(ctx, rows)
 }
 
 // GetAllLedgerEntriesForRAID returns a list of Ledger Entries for the supplied RentalAgreement
-func GetAllLedgerEntriesForRAID(d1, d2 *time.Time, raid int64) ([]LedgerEntry, error) {
+func GetAllLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid int64) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(d1, d2, raid)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
-	return GetLedgerEntryArray(rows)
+
+	return getLedgerEntryArray(ctx, rows)
 }
 
 // GetAllLedgerEntriesForRID returns a list of Ledger Entries for the supplied Rentable ID
-func GetAllLedgerEntriesForRID(d1, d2 *time.Time, rid int64) ([]LedgerEntry, error) {
+func GetAllLedgerEntriesForRID(ctx context.Context, d1, d2 *time.Time, rid int64) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRID.Query(d1, d2, rid)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
-	return GetLedgerEntryArray(rows)
+
+	return getLedgerEntryArray(ctx, rows)
 }
 
 // GetAllLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
-func GetAllLedgerEntriesInRange(bid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
+func GetAllLedgerEntriesInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(bid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
-	return GetLedgerEntryArray(rows)
+
+	return getLedgerEntryArray(ctx, rows)
 }
 
-// // GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
-// func GetLedgerEntriesInRange(bid, lid, raid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
-// 	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	return GetLedgerEntryArray(rows)
-// }
+/*// GetLedgerEntriesInRange returns a list of Ledger Entries for the supplied business and time period
+func GetLedgerEntriesInRange(ctx context.Context, bid, lid, raid int64, d1, d2 *time.Time) ([]LedgerEntry, error) {
+
+	var (
+		err error
+		m   []LedgerEntry
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
+	rows, err :=RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+
+	return getLedgerEntryArray(ctx, rows)
+}*/
 
 //=======================================================
 //  NOTES
 //=======================================================
 
 // GetNote reads a Note structure based on the supplied Note id
-func GetNote(tid int64, t *Note) {
-	ReadNote(RRdb.Prepstmt.GetNote.QueryRow(tid), t)
+func GetNote(ctx context.Context, tid int64, t *Note) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetNote.QueryRow(tid)
+	return ReadNote(row, t)
 }
 
 // GetNoteAndChildNotes reads a Note structure based on the supplied Note id, then it reads all its child notes, organizes them by Date
 // and returns them in an array
-func GetNoteAndChildNotes(nid int64) Note {
-	var n Note
-	GetNote(nid, &n)
+func GetNoteAndChildNotes(ctx context.Context, nid int64) (Note, error) {
+
+	var (
+		err error
+		n   Note
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return n, ErrSessionRequired
+		}
+	}
+
+	err = GetNote(ctx, nid, &n)
+	if err != nil {
+		return n, err
+	}
+
 	rows, err := RRdb.Prepstmt.GetNoteAndChildNotes.Query(nid)
-	Errcheck(err)
+	if err != nil {
+		return n, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var p Note
-		ReadNotes(rows, &p)
+		err = ReadNotes(rows, &p)
+		if err != nil {
+			return n, err
+		}
 		n.CN = append(n.CN, p)
 	}
-	Errcheck(rows.Err())
-	return n
+
+	return n, rows.Err()
 }
 
 //=======================================================
@@ -1155,20 +2699,48 @@ func GetNoteAndChildNotes(nid int64) Note {
 //=======================================================
 
 // GetNoteList reads a NoteList structure based on the supplied NoteList id
-func GetNoteList(nlid int64) NoteList {
-	var m NoteList
-	Errcheck(RRdb.Prepstmt.GetNoteList.QueryRow(nlid).Scan(&m.NLID, &m.BID, &m.CreateTS, &m.CreateBy, &m.LastModTime, &m.LastModBy))
+func GetNoteList(ctx context.Context, nlid int64) (NoteList, error) {
+
+	var (
+		err error
+		m   NoteList
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetNoteList.QueryRow(nlid)
+	err = ReadNoteList(row, &m)
+	if err != nil {
+		return m, err
+	}
+
 	rows, err := RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var nid int64
-		Errcheck(rows.Scan(&nid))
-		p := GetNoteAndChildNotes(nid)
+
+		err = rows.Scan(&nid)
+		if err != nil {
+			return m, err
+		}
+		p, err := GetNoteAndChildNotes(ctx, nid)
+		if err != nil {
+			return m, err
+		}
 		m.N = append(m.N, p)
 	}
-	Errcheck(rows.Err())
-	return m
+
+	return m, rows.Err()
 }
 
 //=======================================================
@@ -1176,71 +2748,143 @@ func GetNoteList(nlid int64) NoteList {
 //=======================================================
 
 // GetNoteType reads a NoteType structure based on the supplied NoteType id
-func GetNoteType(ntid int64, t *NoteType) {
-	Errcheck(RRdb.Prepstmt.GetNoteType.QueryRow(ntid).Scan(&t.NTID, &t.BID, &t.Name, &t.CreateTS, &t.CreateBy, &t.LastModTime, &t.LastModBy))
+func GetNoteType(ctx context.Context, ntid int64, t *NoteType) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetNoteType.QueryRow(ntid)
+	return ReadNoteType(row, t)
+}
+
+// getBusinessAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
+func getBusinessAllNoteTypes(bid int64) ([]NoteType, error) {
+
+	var (
+		err error
+		m   []NoteType
+	)
+
+	rows, err := RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var p NoteType
+		err = ReadNoteTypes(rows, &p)
+		if err != nil {
+			return m, err
+		}
+		m = append(m, p)
+	}
+
+	return m, rows.Err()
 }
 
 // GetAllNoteTypes reads a NoteType structure based for all NoteTypes in the supplied bid
-func GetAllNoteTypes(bid int64) []NoteType {
-	var m []NoteType
-	rows, err := RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var p NoteType
-		Errcheck(rows.Scan(&p.NTID, &p.BID, &p.Name, &p.CreateTS, &p.CreateBy, &p.LastModTime, &p.LastModBy))
-		m = append(m, p)
+func GetAllNoteTypes(ctx context.Context, bid int64) ([]NoteType, error) {
+
+	var (
+		// err error
+		m []NoteType
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
 	}
-	Errcheck(rows.Err())
-	return m
+
+	return getBusinessAllNoteTypes(bid)
 }
 
 //=======================================================
 //  P A Y M E N T   T Y P E S
 //=======================================================
 
-// // GetPaymentTypes returns a slice of payment types indexed by the PMTID
-// func GetPaymentTypes() map[int64]PaymentType {
-// 	var t map[int64]PaymentType
-// 	t = make(map[int64]PaymentType)
-// 	rows, err := RRdb.Dbrr.Query("SELECT PMTID,BID,Name,Description,LastModTime,LastModBy FROM PaymentType")
-// 	Errcheck(err)
-// 	defer rows.Close()
-
-// 	for rows.Next() {
-// 		var a PaymentType
-// 		ReadPaymentTypes(rows, &a)
-// 		t[a.PMTID] = a
-// 	}
-// 	Errcheck(rows.Err())
-// 	return t
-// }
-
 // GetPaymentType reads a PaymentType structure based on the supplied bid and na
-func GetPaymentType(id int64, a *PaymentType) {
-	ReadPaymentType(RRdb.Prepstmt.GetPaymentType.QueryRow(id), a)
+func GetPaymentType(ctx context.Context, id int64, a *PaymentType) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetPaymentType.QueryRow(id)
+	return ReadPaymentType(row, a)
 }
 
 // GetPaymentTypeByName reads a PaymentType structure based on the supplied bid and na
-func GetPaymentTypeByName(bid int64, name string, a *PaymentType) {
-	ReadPaymentType(RRdb.Prepstmt.GetPaymentTypeByName.QueryRow(bid, name), a)
+func GetPaymentTypeByName(ctx context.Context, bid int64, name string, a *PaymentType) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetPaymentTypeByName.QueryRow(bid, name)
+	return ReadPaymentType(row, a)
 }
 
 // GetPaymentTypesByBusiness returns a slice of payment types indexed by the PMTID for the supplied Business
-func GetPaymentTypesByBusiness(bid int64) map[int64]PaymentType {
-	var t map[int64]PaymentType
-	t = make(map[int64]PaymentType)
+func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]PaymentType, error) {
+
+	var (
+		// err error
+		t = make(map[int64]PaymentType)
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetPaymentTypesByBusiness.Query(bid)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var a PaymentType
-		ReadPaymentTypes(rows, &a)
+		err = ReadPaymentTypes(rows, &a)
+		if err != nil {
+			return t, err
+		}
 		t[a.PMTID] = a
 	}
-	Errcheck(rows.Err())
-	return t
+
+	return t, rows.Err()
 }
 
 //=======================================================
@@ -1248,123 +2892,306 @@ func GetPaymentTypesByBusiness(bid int64) map[int64]PaymentType {
 //=======================================================
 
 // GetRatePlan reads a RatePlan structure based on the supplied RatePlan id
-func GetRatePlan(id int64, a *RatePlan) {
-	ReadRatePlan(RRdb.Prepstmt.GetRatePlan.QueryRow(id), a)
+func GetRatePlan(ctx context.Context, id int64, a *RatePlan) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetRatePlan.QueryRow(id)
+	return ReadRatePlan(row, a)
 }
 
 // GetRatePlanByName reads a RatePlan structure based on the supplied RatePlan id
-func GetRatePlanByName(id int64, s string, a *RatePlan) {
-	ReadRatePlan(RRdb.Prepstmt.GetRatePlanByName.QueryRow(id, s), a)
+func GetRatePlanByName(ctx context.Context, id int64, s string, a *RatePlan) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetRatePlanByName.QueryRow(id, s)
+	return ReadRatePlan(row, a)
 }
 
 // GetAllRatePlans reads all RatePlan structures based on the supplied bid
-func GetAllRatePlans(id int64) []RatePlan {
-	var m []RatePlan
+func GetAllRatePlans(ctx context.Context, id int64) ([]RatePlan, error) {
+
+	var (
+		err error
+		m   []RatePlan
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllRatePlans.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var p RatePlan
-		ReadRatePlans(rows, &p)
+		err = ReadRatePlans(rows, &p)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, p)
 	}
-	Errcheck(rows.Err())
-	return m
+
+	return m, rows.Err()
 }
 
 // GetRatePlanRef reads a RatePlanRef structure based on the supplied RatePlanRef id
-func GetRatePlanRef(id int64, a *RatePlanRef) {
-	ReadRatePlanRef(RRdb.Prepstmt.GetRatePlanRef.QueryRow(id), a)
+func GetRatePlanRef(ctx context.Context, id int64, a *RatePlanRef) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetRatePlanRef.QueryRow(id)
+	return ReadRatePlanRef(row, a)
 }
 
 // GetRatePlanRefFull reads a RatePlanRef structure based on the supplied RatePlanRef id and
 // pulls in all the RTRate and SPRate structure arrays
-func GetRatePlanRefFull(id int64, a *RatePlanRef) {
-	if a.RPRID == 0 {
-		ReadRatePlanRef(RRdb.Prepstmt.GetRatePlanRef.QueryRow(id), a)
+func GetRatePlanRefFull(ctx context.Context, id int64, a *RatePlanRef) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
 	}
-	// now load all its rates
+
+	if a.RPRID == 0 {
+		row := RRdb.Prepstmt.GetRatePlanRef.QueryRow(id)
+		err = ReadRatePlanRef(row, a)
+		if err != nil {
+			return err
+		}
+	}
+
+	// =====================================
+	// LOAD ALL Rate Plan RT RATES
+	// =====================================
 	rows, err := RRdb.Prepstmt.GetAllRatePlanRefRTRates.Query(id)
 	if err != nil {
 		Ulog("GetRatePlanRefFull:   GetAllRatePlanRefRTRates - error = %s\n", err.Error())
-		return
+		return err
 	}
+
 	for rows.Next() {
 		var p RatePlanRefRTRate
-		ReadRatePlanRefRTRates(rows, &p)
+		err = ReadRatePlanRefRTRates(rows, &p)
+		if err != nil {
+			return err
+		}
 		a.RT = append(a.RT, p)
 	}
-	// now load all Specialty rates
+
+	err = rows.Err()
+	if err != nil {
+		return err
+	}
+	rows.Close() // REMEMBER TO CLOSE IT HERE, Before re-assinging something new in rows itself
+
+	// =====================================
+	// LOAD ALL Rate Plan SPECIALTY RATES
+	// =====================================
 	rows, err = RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(a.RPRID, a.RPID)
 	if err != nil {
 		Ulog("GetRatePlanRefFull: GetAllRatePlanRefSPRates - error = %s\n", err.Error())
-		return
+		return err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var p RatePlanRefSPRate
-		ReadRatePlanRefSPRates(rows, &p)
+		err = ReadRatePlanRefSPRates(rows, &p)
+		if err != nil {
+			return err
+		}
 		a.SP = append(a.SP, p)
 	}
+	return rows.Err()
 }
 
 // GetRatePlanRefsInRange reads a RatePlanRef structure based on the supplied RatePlan id and the date.
-func GetRatePlanRefsInRange(id int64, d1, d2 *time.Time) []RatePlanRef {
-	var m []RatePlanRef
+func GetRatePlanRefsInRange(ctx context.Context, id int64, d1, d2 *time.Time) ([]RatePlanRef, error) {
+
+	var (
+		err error
+		m   []RatePlanRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRatePlanRefsInRange.Query(id, d1, d2)
 	if err != nil {
 		Ulog("GetRatePlanRefsInRange: error = %s\n", err.Error())
-		return m
+		return m, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var a RatePlanRef
-		ReadRatePlanRefs(rows, &a)
+		err = ReadRatePlanRefs(rows, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	return m
+
+	return m, rows.Err()
 }
 
 // GetAllRatePlanRefsInRange reads all RatePlanRef structure based on the supplied date range
-func GetAllRatePlanRefsInRange(d1, d2 *time.Time) []RatePlanRef {
-	var m []RatePlanRef
+func GetAllRatePlanRefsInRange(ctx context.Context, d1, d2 *time.Time) ([]RatePlanRef, error) {
+
+	var (
+		err error
+		m   []RatePlanRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllRatePlanRefsInRange.Query(d1, d2)
 	if err != nil {
 		Ulog("GetAllRatePlanRefsInRange: error = %s\n", err.Error())
-		return m
+		return m, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var a RatePlanRef
-		ReadRatePlanRefs(rows, &a)
+		err = ReadRatePlanRefs(rows, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	return m
+
+	return m, rows.Err()
 }
 
 // GetRatePlanRefRTRate reads the RatePlanRefRTRate struct for the supplied rprid and rtid
-func GetRatePlanRefRTRate(rprid, rtid int64, a *RatePlanRefRTRate) {
+func GetRatePlanRefRTRate(ctx context.Context, rprid, rtid int64, a *RatePlanRefRTRate) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRatePlanRefRTRate.QueryRow(rprid, rtid)
-	ReadRatePlanRefRTRate(row, a)
+	return ReadRatePlanRefRTRate(row, a)
 }
 
 // GetRatePlanRefSPRate reads the RatePlanRefSPRate struct for the supplied rprid and rtid
-func GetRatePlanRefSPRate(rprid, rtid int64, a *RatePlanRefSPRate) {
+func GetRatePlanRefSPRate(ctx context.Context, rprid, rtid int64, a *RatePlanRefSPRate) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRatePlanRefSPRate.QueryRow(rprid, rtid)
-	ReadRatePlanRefSPRate(row, a)
+	return ReadRatePlanRefSPRate(row, a)
 }
 
 // GetAllRatePlanRefSPRates reads all RatePlanRefSPRate structures based on the supplied RatePlan id and the date.
-func GetAllRatePlanRefSPRates(rprid, rtid int64) []RatePlanRefSPRate {
-	var m []RatePlanRefSPRate
+func GetAllRatePlanRefSPRates(ctx context.Context, rprid, rtid int64) ([]RatePlanRefSPRate, error) {
+
+	var (
+		err error
+		m   []RatePlanRefSPRate
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(rprid, rtid)
 	if err != nil {
 		Ulog("GetAllRatePlanRefSPRates: error = %s\n", err.Error())
-		return m
+		return m, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var a RatePlanRefSPRate
-		ReadRatePlanRefSPRates(rows, &a)
+		err = ReadRatePlanRefSPRates(rows, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	return m
+
+	return m, rows.Err()
 }
 
 //=======================================================
@@ -1372,96 +3199,244 @@ func GetAllRatePlanRefSPRates(rprid, rtid int64) []RatePlanRefSPRate {
 //=======================================================
 
 // GetReceipt returns a Receipt structure for the supplied RCPTID
-func GetReceipt(rcptid int64) Receipt {
-	r := GetReceiptNoAllocations(rcptid)
-	GetReceiptAllocations(rcptid, &r)
-	return r
+func GetReceipt(ctx context.Context, rcptid int64) (Receipt, error) {
+
+	var (
+		err error
+		r   Receipt
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
+	r, err = GetReceiptNoAllocations(ctx, rcptid)
+	if err != nil {
+		return r, err
+	}
+
+	return r, GetReceiptAllocations(ctx, rcptid, &r)
 }
 
 // GetReceiptAllocation returns a ReceiptAllocation structure for the supplied RCPTID
-func GetReceiptAllocation(id int64) ReceiptAllocation {
-	var r ReceiptAllocation
+func GetReceiptAllocation(ctx context.Context, id int64) (ReceiptAllocation, error) {
+
+	var (
+		// err error
+		r ReceiptAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetReceiptAllocation.QueryRow(id)
-	ReadReceiptAllocation(row, &r)
-	return r
+	return r, ReadReceiptAllocation(row, &r)
 }
 
 // GetReceiptNoAllocations returns a Receipt structure for the supplied RCPTID.
 // It does not get the receipt allocations
-func GetReceiptNoAllocations(rcptid int64) Receipt {
-	var r Receipt
+func GetReceiptNoAllocations(ctx context.Context, rcptid int64) (Receipt, error) {
+
+	var (
+		// err error
+		r Receipt
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetReceipt.QueryRow(rcptid)
-	ReadReceipt(row, &r)
-	return r
+	return r, ReadReceipt(row, &r)
 }
 
 // GetReceiptDuplicate returns a Receipt structure for the supplied RCPTID
-func GetReceiptDuplicate(dt *time.Time, amt float64, docno string) Receipt {
-	var r Receipt
+func GetReceiptDuplicate(ctx context.Context, dt *time.Time, amt float64, docno string) (Receipt, error) {
+
+	var (
+		// err error
+		r Receipt
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetReceiptDuplicate.QueryRow(dt, amt, docno)
-	ReadReceipt(row, &r)
-	return r
+	return r, ReadReceipt(row, &r)
 }
 
 // GetReceiptAllocations loads all Receipt allocations associated with the supplied Receipt id into
 // the RA array within a Receipt structure
-func GetReceiptAllocations(rcptid int64, r *Receipt) {
+func GetReceiptAllocations(ctx context.Context, rcptid int64, r *Receipt) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetReceiptAllocations.Query(rcptid)
-	Errcheck(err)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
+
 	r.RA = make([]ReceiptAllocation, 0)
 	for rows.Next() {
 		var a ReceiptAllocation
-		ReadReceiptAllocations(rows, &a)
+		err = ReadReceiptAllocations(rows, &a)
+		if err != nil {
+			return err
+		}
 		r.RA = append(r.RA, a)
 	}
+
+	return rows.Err()
 }
 
 // GetReceipts for the supplied Business (bid) in date range [d1 - d2)
-func GetReceipts(bid int64, d1, d2 *time.Time) []Receipt {
+func GetReceipts(ctx context.Context, bid int64, d1, d2 *time.Time) ([]Receipt, error) {
+
+	var (
+		err error
+		t   []Receipt
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetReceiptsInDateRange.Query(bid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t []Receipt
-	t = make([]Receipt, 0)
+
 	for rows.Next() {
 		var r Receipt
-		ReadReceipts(rows, &r)
+		err = ReadReceipts(rows, &r)
+		if err != nil {
+			return t, err
+		}
+
 		r.RA = make([]ReceiptAllocation, 0)
-		GetReceiptAllocations(r.RCPTID, &r)
+		err = GetReceiptAllocations(ctx, r.RCPTID, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
-// GetReceiptAllocationList for the supplied rows variable
-func GetReceiptAllocationList(rows *sql.Rows) []ReceiptAllocation {
+// getReceiptAllocationList for the supplied rows variable
+func getReceiptAllocationList(ctx context.Context, rows *sql.Rows) ([]ReceiptAllocation, error) {
+
+	var (
+		err error
+		t   []ReceiptAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	defer rows.Close()
-	var t = []ReceiptAllocation{}
+
 	for rows.Next() {
 		var r ReceiptAllocation
-		ReadReceiptAllocations(rows, &r)
+		err = ReadReceiptAllocations(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 // GetASMReceiptAllocationsInRAIDDateRange for the supplied RentalAgreement in date range [d1 - d2).
 // To do this we select all the ReceiptAllocations that occurred during d1-d2 that involved
 // raid.
-func GetASMReceiptAllocationsInRAIDDateRange(raid int64, d1, d2 *time.Time) []ReceiptAllocation {
+func GetASMReceiptAllocationsInRAIDDateRange(ctx context.Context, raid int64, d1, d2 *time.Time) ([]ReceiptAllocation, error) {
+
+	var (
+		err error
+		t   []ReceiptAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(raid, d1, d2)
-	Errcheck(err)
-	return GetReceiptAllocationList(rows)
+	if err != nil {
+		return t, err
+	}
+
+	return getReceiptAllocationList(ctx, rows)
 }
 
 // GetReceiptAllocationsByASMID returns any payment allocation on targeted at the supplied ASMID.
 // This call is used primarily to determine how much payment is left to make on a partially paid
 // assessment.
-func GetReceiptAllocationsByASMID(bid, asmid int64) []ReceiptAllocation {
+func GetReceiptAllocationsByASMID(ctx context.Context, bid, asmid int64) ([]ReceiptAllocation, error) {
+
+	var (
+		err error
+		t   []ReceiptAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetReceiptAllocationsByASMID.Query(bid, asmid)
-	Errcheck(err)
-	return GetReceiptAllocationList(rows)
+	if err != nil {
+		return t, err
+	}
+	return getReceiptAllocationList(ctx, rows)
 }
 
 // GetReceiptAllocationsThroughDate selects the ReceiptAllocations associated with receipt id
@@ -1470,10 +3445,26 @@ func GetReceiptAllocationsByASMID(bid, asmid int64) []ReceiptAllocation {
 //	 id = RCPTID of desired allocations
 //   dt = date for all allocations to be on or prior to
 // @returns  []ReceiptAllocation
-func GetReceiptAllocationsThroughDate(id int64, dt *time.Time) []ReceiptAllocation {
+func GetReceiptAllocationsThroughDate(ctx context.Context, id int64, dt *time.Time) ([]ReceiptAllocation, error) {
+
+	var (
+		err error
+		t   []ReceiptAllocation
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetReceiptAllocationsThroughDate.Query(id, dt)
-	Errcheck(err)
-	return GetReceiptAllocationList(rows)
+	if err != nil {
+		return t, err
+	}
+	return getReceiptAllocationList(ctx, rows)
 }
 
 // GetReceiptAllocationAmountsOnDate returns the amount of unallocated funds in id on the
@@ -1485,47 +3476,102 @@ func GetReceiptAllocationsThroughDate(id int64, dt *time.Time) []ReceiptAllocati
 //   receipt amount
 //   amount allocated as of dt
 //   amount unallocated as of dt
-func GetReceiptAllocationAmountsOnDate(id int64, dt *time.Time) (float64, float64, float64) {
-	amt := float64(0)
-	alloc := amt
-	unalloc := amt
-	rcpt := GetReceipt(id)
-	if rcpt.RCPTID == 0 {
-		return amt, alloc, unalloc
+func GetReceiptAllocationAmountsOnDate(ctx context.Context, id int64, dt *time.Time) (float64, float64, float64, error) {
+
+	var (
+		err     error
+		amt     float64
+		alloc   float64
+		unalloc float64
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return amt, alloc, unalloc, ErrSessionRequired
+		}
+	}
+
+	// get receipt
+	rcpt, err := GetReceipt(ctx, id)
+	if err != nil {
+		return amt, alloc, unalloc, err
 	}
 	amt = rcpt.Amount
 	unalloc = rcpt.Amount
-	m := GetReceiptAllocationsThroughDate(id, dt)
+
+	m, err := GetReceiptAllocationsThroughDate(ctx, id, dt)
+	if err != nil {
+		return amt, alloc, unalloc, err
+	}
+
 	for i := 0; i < len(m); i++ {
 		unalloc -= m[i].Amount
 		alloc += m[i].Amount
 	}
-	return amt, alloc, unalloc
+	return amt, alloc, unalloc, err
 }
 
 // GetUnallocatedReceiptsByPayor returns the receipts paid by the supplied payor tcid that
 // have not yet been fully allocated.
-func GetUnallocatedReceiptsByPayor(bid, tcid int64) []Receipt {
+func GetUnallocatedReceiptsByPayor(ctx context.Context, bid, tcid int64) ([]Receipt, error) {
+
+	var (
+		err error
+		t   []Receipt
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetUnallocatedReceiptsByPayor.Query(bid, tcid)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t = []Receipt{}
+
 	for rows.Next() {
 		var r Receipt
-		ReadReceipts(rows, &r)
+		err = ReadReceipts(rows, &r)
+		if err != nil {
+			return t, err
+		}
+
 		r.RA = make([]ReceiptAllocation, 0) // the receipt may be partially allocated
-		GetReceiptAllocations(r.RCPTID, &r)
+		err = GetReceiptAllocations(ctx, r.RCPTID, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 // GetPayorUnallocatedReceiptsCount returns a count of unallocated receipts for the supplied bid & tcid
-func GetPayorUnallocatedReceiptsCount(bid, tcid int64) int {
-	var i int
+func GetPayorUnallocatedReceiptsCount(ctx context.Context, bid, tcid int64) (int, error) {
+
+	var (
+		// err   error
+		count int
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetPayorUnallocatedReceiptsCount.QueryRow(bid, tcid)
-	row.Scan(&i)
-	return i
+	return count, row.Scan(&count)
 }
 
 //=======================================================
@@ -1533,26 +3579,61 @@ func GetPayorUnallocatedReceiptsCount(bid, tcid int64) int {
 //=======================================================
 
 // GetRentableByID reads a Rentable structure based on the supplied Rentable id
-func GetRentableByID(rid int64, r *Rentable) {
+func GetRentableByID(ctx context.Context, rid int64, r *Rentable) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentable.QueryRow(rid)
-	Errcheck(ReadRentable(row, r))
+	return ReadRentable(row, r)
 }
 
 // GetRentable reads and returns a Rentable structure based on the supplied Rentable id
-func GetRentable(rid int64) Rentable {
-	var r Rentable
-	if rid > 0 {
-		GetRentableByID(rid, &r)
+func GetRentable(ctx context.Context, rid int64) (Rentable, error) {
+
+	var (
+		// err error
+		r Rentable
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
 	}
-	return r
+
+	return r, GetRentableByID(ctx, rid, &r)
 }
 
 // GetRentableByName reads and returns a Rentable structure based on the supplied Rentable id
-func GetRentableByName(name string, bid int64) (Rentable, error) {
-	var r Rentable
+func GetRentableByName(ctx context.Context, name string, bid int64) (Rentable, error) {
+
+	var (
+		// err error
+		r Rentable
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid)
-	err := ReadRentable(row, &r)
-	return r, err
+	return r, ReadRentable(row, &r)
 }
 
 // GetRentableTypeDown returns the values needed for typedown controls:
@@ -1560,237 +3641,565 @@ func GetRentableByName(name string, bid int64) (Rentable, error) {
 //            s - string or substring to search for
 //        limit - return no more than this many matches
 // return a slice of RentableTypeDowns and an error.
-func GetRentableTypeDown(bid int64, s string, limit int) ([]RentableTypeDown, error) {
-	var m []RentableTypeDown
+func GetRentableTypeDown(ctx context.Context, bid int64, s string, limit int) ([]RentableTypeDown, error) {
+
+	var (
+		err error
+		m   []RentableTypeDown
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	s = "%" + s + "%"
 	rows, err := RRdb.Prepstmt.GetRentableTypeDown.Query(bid, s, limit)
 	if err != nil {
 		return m, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var t RentableTypeDown
-		ReadRentableTypeDown(rows, &t)
+		err = ReadRentableTypeDown(rows, &t)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, t)
 	}
-	return m, nil
+
+	return m, rows.Err()
 }
 
 // GetXRentable reads an XRentable structure based on the RID.
-func GetXRentable(rid int64, x *XRentable) {
-	if x.R.RID == 0 && rid > 0 {
-		GetRentableByID(rid, &x.R)
+func GetXRentable(ctx context.Context, rid int64, x *XRentable) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
 	}
-	x.S = GetAllRentableSpecialtyRefs(x.R.BID, x.R.RID)
+
+	if x.R.RID == 0 && rid > 0 {
+		err = GetRentableByID(ctx, rid, &x.R)
+		if err != nil {
+			return err
+		}
+	}
+
+	x.S, err = GetAllRentableSpecialtyRefs(ctx, x.R.BID, x.R.RID)
+	return err
 }
 
 // GetRentableUser returns a Rentable User record with the supplied RUID
-func GetRentableUser(ruid int64) (RentableUser, error) {
+func GetRentableUser(ctx context.Context, ruid int64) (RentableUser, error) {
+
+	var (
+		// err error
+		r RentableUser
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableUser.QueryRow(ruid)
-	var r RentableUser
-	err := ReadRentableUser(row, &r)
-	return r, err
+	return r, ReadRentableUser(row, &r)
 }
 
 // GetRentableUserByRBT returns a Rentable User record matching the supplied
 // RID, BID, TCID
-func GetRentableUserByRBT(rid, bid, tcid int64) (RentableUser, error) {
+func GetRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) (RentableUser, error) {
+
+	var (
+		// err error
+		r RentableUser
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableUserByRBT.QueryRow(rid, bid, tcid)
-	var r RentableUser
-	err := ReadRentableUser(row, &r)
-	return r, err
+	return r, ReadRentableUser(row, &r)
 }
 
 // GetRentableSpecialtyTypeByName returns a list of specialties associated with the supplied Rentable
-func GetRentableSpecialtyTypeByName(bid int64, name string) RentableSpecialty {
-	var rsp RentableSpecialty
-	err := RRdb.Prepstmt.GetRentableSpecialtyTypeByName.QueryRow(bid, name).Scan(&rsp.RSPID, &rsp.BID, &rsp.Name, &rsp.Fee, &rsp.Description, &rsp.CreateTS, &rsp.CreateBy)
-	if err != nil {
-		s := err.Error()
-		if !strings.Contains(s, "no rows") {
-			fmt.Printf("GetRentableSpecialtyTypeByName: err = %v\n", err)
+func GetRentableSpecialtyTypeByName(ctx context.Context, bid int64, name string) (RentableSpecialty, error) {
+
+	var (
+		// err error
+		rsp RentableSpecialty
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rsp, ErrSessionRequired
 		}
 	}
-	return rsp
+
+	row := RRdb.Prepstmt.GetRentableSpecialtyTypeByName.QueryRow(bid, name)
+	return rsp, ReadRentableSpecialty(row, &rsp)
 }
 
 // GetRentableSpecialtyType returns the RentableSpecialty record for the supplied RSPID
-func GetRentableSpecialtyType(rspid int64) (RentableSpecialty, error) {
-	var rs RentableSpecialty
-	err := RRdb.Prepstmt.GetRentableSpecialtyType.QueryRow(rspid).Scan(&rs.RSPID, &rs.BID, &rs.Name, &rs.Fee, &rs.Description, &rs.CreateTS, &rs.CreateBy)
-	return rs, err
+func GetRentableSpecialtyType(ctx context.Context, rspid int64) (RentableSpecialty, error) {
+
+	var (
+		// err error
+		rs RentableSpecialty
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rs, ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetRentableSpecialtyType.QueryRow(rspid)
+	return rs, ReadRentableSpecialty(row, &rs)
 }
 
 // GetAllRentableSpecialtyRefs returns a list of specialties associated with the supplied Rentable
-func GetAllRentableSpecialtyRefs(bid, rid int64) []int64 {
+func GetAllRentableSpecialtyRefs(ctx context.Context, bid, rid int64) ([]int64, error) {
+
+	var (
+		err error
+		m   []int64
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	// first, get the specialties for this Rentable
-	var m []int64
 	rows, err := RRdb.Prepstmt.GetRentableSpecialtyRefs.Query(bid, rid)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var uspid int64
-		Errcheck(rows.Scan(&uspid))
+		err = rows.Scan(&uspid)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, uspid)
 	}
-	Errcheck(rows.Err())
-	return m
+
+	return m, rows.Err()
 }
 
-// // SelectRentableTypeRefForDate returns the first RTID of the list where the supplied date falls in range
-// func SelectRentableTypeRefForDate(rsa *[]RentableSpecialty, dt *time.Time) RentableSpecialty {
-// 	for i := 0; i < len(*rsa); i++ {
-// 		if DateInRange(dt, &(*rsa)[i]. , &(*rsa)[i].DtStop) {
-// 			return (*rsa)[i]
-// 		}
-// 	}
-// 	var r RentableSpecialty
-// 	return r // nothing matched
-// }
+/*// SelectRentableTypeRefForDate returns the first RTID of the list where the supplied date falls in range
+func SelectRentableTypeRefForDate(ctx context.Context, rsa *[]RentableSpecialty, dt *time.Time) (RentableSpecialty, error) {
+
+	var (
+		err error
+		r RentableSpecialty
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
+	for i := 0; i < len(*rsa); i++ {
+		if DateInRange(dt, &(*rsa)[i].DtStart, &(*rsa)[i].DtStop) {
+			return (*rsa)[i], err
+		}
+	}
+	return r, err // nothing matched
+}*/
 
 // GetRentableSpecialtyTypesForRentableByRange returns an array of RentableSpecialty structures that
 // apply for the supplied time range d1,d2
-func GetRentableSpecialtyTypesForRentableByRange(bid, rid int64, d1, d2 *time.Time) ([]RentableSpecialty, error) {
-	var err error
-	var rsta []RentableSpecialty
-	rsrefs := GetRentableSpecialtyRefsByRange(bid, rid, d1, d2)
+func GetRentableSpecialtyTypesForRentableByRange(ctx context.Context, bid, rid int64, d1, d2 *time.Time) ([]RentableSpecialty, error) {
+
+	var (
+		err  error
+		rsta []RentableSpecialty
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rsta, ErrSessionRequired
+		}
+	}
+
+	rsrefs, err := GetRentableSpecialtyRefsByRange(ctx, bid, rid, d1, d2)
+	if err != nil {
+		return rsta, err
+	}
+
 	for i := 0; i < len(rsrefs); i++ {
-		rs, err := GetRentableSpecialtyType(rsrefs[i].RSPID)
+		rs, err := GetRentableSpecialtyType(ctx, rsrefs[i].RSPID)
 		if err != nil {
-			Ulog(err.Error())
 			return rsta, err
 		}
 		rsta = append(rsta, rs)
 	}
+
 	return rsta, err
 }
 
 // GetRentableSpecialtyRefsByRange loads all the RentableSpecialtyRef records that overlap the supplied time range
 // and returns them in an array
-func GetRentableSpecialtyRefsByRange(bid, rid int64, d1, d2 *time.Time) []RentableSpecialtyRef {
-	var rs []RentableSpecialtyRef
+func GetRentableSpecialtyRefsByRange(ctx context.Context, bid, rid int64, d1, d2 *time.Time) ([]RentableSpecialtyRef, error) {
+
+	var (
+		err error
+		rs  []RentableSpecialtyRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rs, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentableSpecialtyRefsByRange.Query(bid, rid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return rs, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a RentableSpecialtyRef
-		Errcheck(rows.Scan(&a.BID, &a.RID, &a.RSPID, &a.DtStart, &a.DtStop, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy))
+		err = ReadRentableSpecialtyRefs(rows, &a)
+		if err != nil {
+			return rs, err
+		}
 		rs = append(rs, a)
 	}
-	Errcheck(rows.Err())
-	return rs
+
+	return rs, rows.Err()
 }
 
 // GetRentableTypeRef gets RentableTypeRef record for given RTRID -- RentableTypeRef ID (unique ID)
-func GetRentableTypeRef(rtrid int64) (RentableTypeRef, error) {
-	var rtr RentableTypeRef
+func GetRentableTypeRef(ctx context.Context, rtrid int64) (RentableTypeRef, error) {
+
+	var (
+		// err error
+		rtr RentableTypeRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rtr, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableTypeRef.QueryRow(rtrid)
-	err := ReadRentableTypeRef(row, &rtr)
-	return rtr, err
+	return rtr, ReadRentableTypeRef(row, &rtr)
 }
 
 // SelectRentableTypeRefForDate returns the first RTID of the list where the supplied date falls in range
-func SelectRentableTypeRefForDate(rta *[]RentableTypeRef, dt *time.Time) RentableTypeRef {
-	for i := 0; i < len(*rta); i++ {
-		if DateInRange(dt, &(*rta)[i].DtStart, &(*rta)[i].DtStop) {
-			return (*rta)[i]
+func SelectRentableTypeRefForDate(ctx context.Context, rta *[]RentableTypeRef, dt *time.Time) (RentableTypeRef, error) {
+
+	var (
+		err error
+		r   RentableTypeRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
 		}
 	}
-	var r RentableTypeRef
-	return r // nothing matched
+
+	for i := 0; i < len(*rta); i++ {
+		if DateInRange(dt, &(*rta)[i].DtStart, &(*rta)[i].DtStop) {
+			return (*rta)[i], err
+		}
+	}
+
+	return r, err // nothing matched
 }
 
-// GetRTRefs performs the query over the supplied rows and returns a slice of result records
-func GetRTRefs(rows *sql.Rows) []RentableTypeRef {
-	var rs []RentableTypeRef
+// getRTRefs performs the query over the supplied rows and returns a slice of result records
+func getRTRefs(ctx context.Context, rows *sql.Rows) ([]RentableTypeRef, error) {
+
+	var (
+		err error
+		rs  []RentableTypeRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rs, ErrSessionRequired
+		}
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a RentableTypeRef
-		Errcheck(ReadRentableTypeRefs(rows, &a))
+		err = ReadRentableTypeRefs(rows, &a)
+		if err != nil {
+			return rs, err
+		}
 		rs = append(rs, a)
 	}
-	Errcheck(rows.Err())
-	return rs
+
+	return rs, rows.Err()
 }
 
 // GetRentableTypeRefsByRange loads all the RentableTypeRef records that overlap the supplied time range
 // and returns them in an array
-func GetRentableTypeRefsByRange(RID int64, d1, d2 *time.Time) []RentableTypeRef {
+func GetRentableTypeRefsByRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]RentableTypeRef, error) {
+
+	var (
+		err error
+		rtr []RentableTypeRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rtr, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentableTypeRefsByRange.Query(RID, d1, d2)
-	Errcheck(err)
-	return GetRTRefs(rows)
+	if err != nil {
+		return rtr, err
+	}
+	return getRTRefs(ctx, rows)
 }
 
 // GetRentableTypeRefs loads all the RentableTypeRef records for a particular
-func GetRentableTypeRefs(RID int64) []RentableTypeRef {
+func GetRentableTypeRefs(ctx context.Context, RID int64) ([]RentableTypeRef, error) {
+
+	var (
+		err error
+		rtr []RentableTypeRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rtr, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentableTypeRefs.Query(RID)
-	Errcheck(err)
-	return GetRTRefs(rows)
+	if err != nil {
+		return rtr, err
+	}
+
+	return getRTRefs(ctx, rows)
 }
 
 // GetRTIDForDate returns the RTID in effect on the supplied date
-func GetRTIDForDate(RID int64, d1 *time.Time) int64 {
-	rtid := int64(0)
+func GetRTIDForDate(ctx context.Context, RID int64, d1 *time.Time) (int64, error) {
+
+	var (
+		err  error
+		rtid int64
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rtid, ErrSessionRequired
+		}
+	}
+
 	DtStop, _ := StringToDate("1/1/9999")
-	m := GetRentableTypeRefsByRange(RID, d1, &DtStop)
+	m, err := GetRentableTypeRefsByRange(ctx, RID, d1, &DtStop)
+	if err != nil {
+		return rtid, err
+	}
+
 	if len(m) > 0 {
 		rtid = m[0].RTID
 	}
-	return rtid
+	return rtid, err
 }
 
 // GetRentableTypeRefForDate returns the RTID in effect on the supplied date
-func GetRentableTypeRefForDate(RID int64, d1 *time.Time) RentableTypeRef {
-	DtStop, _ := StringToDate("1/1/9999")
-	m := GetRentableTypeRefsByRange(RID, d1, &DtStop)
-	if len(m) > 0 {
-		return m[0]
+func GetRentableTypeRefForDate(ctx context.Context, RID int64, d1 *time.Time) (RentableTypeRef, error) {
+
+	var (
+		err error
+		r   RentableTypeRef
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
 	}
-	var r RentableTypeRef
-	return r
+
+	DtStop, _ := StringToDate("1/1/9999")
+	m, err := GetRentableTypeRefsByRange(ctx, RID, d1, &DtStop)
+	if err != nil {
+		return r, err
+	}
+
+	if len(m) > 0 {
+		r = m[0]
+	}
+	return r, err
 }
 
 // GetRentableStatus gets RentableStatus record for given RSID -- RentableStatus ID (unique ID)
-func GetRentableStatus(rsid int64) (RentableStatus, error) {
-	var rs RentableStatus
+func GetRentableStatus(ctx context.Context, rsid int64) (RentableStatus, error) {
+
+	var (
+		// err error
+		rs RentableStatus
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rs, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableStatus.QueryRow(rsid)
-	err := ReadRentableStatus(row, &rs)
-	return rs, err
+	return rs, ReadRentableStatus(row, &rs)
 }
 
-// GetRentableStatusRows loads all the RentableStatus records for rows
-func GetRentableStatusRows(rows *sql.Rows) []RentableStatus {
-	var rs []RentableStatus
+// getRentableStatusRows loads all the RentableStatus records for rows
+func getRentableStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableStatus, error) {
+
+	var (
+		err error
+		rs  []RentableStatus
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rs, ErrSessionRequired
+		}
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a RentableStatus
-		ReadRentableStatuss(rows, &a)
+		err = ReadRentableStatuss(rows, &a)
+		if err != nil {
+			return rs, err
+		}
 		rs = append(rs, a)
 	}
-	Errcheck(rows.Err())
-	return rs
+
+	return rs, rows.Err()
 }
 
 // GetRentableStatusOnOrAfter loads all the RentableStatus records that overlap the supplied time range
-func GetRentableStatusOnOrAfter(RID int64, dt *time.Time) RentableStatus {
+func GetRentableStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (RentableStatus, error) {
+
+	var (
+		// err error
+		a RentableStatus
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableStatusOnOrAfter.QueryRow(RID, dt)
-	var a RentableStatus
-	Errcheck(ReadRentableStatus(row, &a))
-	return a
+	return a, ReadRentableStatus(row, &a)
 }
 
 // GetRentableStatusByRange loads all the RentableStatus records that overlap the supplied time range
-func GetRentableStatusByRange(RID int64, d1, d2 *time.Time) []RentableStatus {
+func GetRentableStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time) ([]RentableStatus, error) {
+
+	var (
+		err error
+		rs  []RentableStatus
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rs, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentableStatusByRange.Query(RID, d1, d2)
-	Errcheck(err)
-	return GetRentableStatusRows(rows)
+	if err != nil {
+		return rs, err
+	}
+	return getRentableStatusRows(ctx, rows)
 }
 
 // GetAllRentableStatus loads all the RentableStatus records that overlap the supplied time range
-func GetAllRentableStatus(RID int64) []RentableStatus {
+func GetAllRentableStatus(ctx context.Context, RID int64) ([]RentableStatus, error) {
+
+	var (
+		err error
+		rs  []RentableStatus
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rs, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllRentableStatus.Query(RID)
-	Errcheck(err)
-	return GetRentableStatusRows(rows)
+	if err != nil {
+		return rs, err
+	}
+	return getRentableStatusRows(ctx, rows)
 }
 
 //=======================================================
@@ -1798,79 +4207,192 @@ func GetAllRentableStatus(RID int64) []RentableStatus {
 //=======================================================
 
 // GetRentableType returns characteristics of the Rentable
-func GetRentableType(rtid int64, rt *RentableType) error {
-	row := RRdb.Prepstmt.GetRentableType.QueryRow(rtid)
-	err := ReadRentableType(row, rt)
-	if nil == err {
-		var cerr error
-		rt.CA, cerr = GetAllCustomAttributes(ELEMRENTABLETYPE, rtid)
-		if !IsSQLNoResultsError(cerr) { // it's not really an error if we don't find any custom attributes
-			err = cerr
+func GetRentableType(ctx context.Context, rtid int64, rt *RentableType) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
 		}
 	}
+
+	row := RRdb.Prepstmt.GetRentableType.QueryRow(rtid)
+	err = ReadRentableType(row, rt)
+	if err != nil {
+		return err
+	}
+
+	var cerr error
+	rt.CA, cerr = GetAllCustomAttributes(ctx, ELEMRENTABLETYPE, rtid)
+	if cerr != nil { // it's not really an error if we don't find any custom attributes
+		err = cerr
+	}
+
 	return err
 }
 
 // GetRentableTypeByStyle returns characteristics of the Rentable
-func GetRentableTypeByStyle(name string, bid int64) (RentableType, error) {
-	var rt RentableType
+func GetRentableTypeByStyle(ctx context.Context, name string, bid int64) (RentableType, error) {
+
+	var (
+		// err error
+		rt RentableType
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rt, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid)
-	err := ReadRentableType(row, &rt)
-	return rt, err
+	return rt, ReadRentableType(row, &rt)
 }
 
 // GetRentableTypeByName returns characteristics of the Rentable
-func GetRentableTypeByName(name string, bid int64) (RentableType, error) {
-	var rt RentableType
+func GetRentableTypeByName(ctx context.Context, name string, bid int64) (RentableType, error) {
+
+	var (
+		// err error
+		rt RentableType
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rt, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableTypeByName.QueryRow(name, bid)
-	err := ReadRentableType(row, &rt)
-	return rt, err
+	return rt, ReadRentableType(row, &rt)
+}
+
+// getBizRentableTypes returns a slice of RentableType indexed by the RTID
+func getBizRentableTypes(bid int64) (map[int64]RentableType, error) {
+
+	var (
+		err error
+		t   = make(map[int64]RentableType)
+	)
+
+	rows, err := RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var a RentableType
+		err = ReadRentableTypes(rows, &a)
+		if err != nil {
+			return t, err
+		}
+		a.MR = []RentableMarketRate{}
+		err = getRentableMarketRates(&a)
+		if err != nil {
+			return t, err
+		}
+		t[a.RTID] = a
+	}
+
+	return t, rows.Err()
 }
 
 // GetBusinessRentableTypes returns a slice of RentableType indexed by the RTID
-func GetBusinessRentableTypes(bid int64) map[int64]RentableType {
-	var t map[int64]RentableType
-	t = make(map[int64]RentableType)
-	rows, err := RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		var a RentableType
-		ReadRentableTypes(rows, &a)
-		a.MR = []RentableMarketRate{}
-		GetRentableMarketRates(&a)
-		t[a.RTID] = a
-	}
-	Errcheck(rows.Err())
+func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]RentableType, error) {
 
-	return t
+	var (
+		// err error
+		t = make(map[int64]RentableType)
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	return getBizRentableTypes(bid)
 }
 
-// GetRentableMarketRates loads all the MarketRate rent information for this Rentable into an array
-func GetRentableMarketRates(rt *RentableType) {
+// getRentableMarketRates loads all the MarketRate rent information for this Rentable into an array
+func getRentableMarketRates(rt *RentableType) error {
+
+	var (
+		err error
+	)
+
 	// now get all the MarketRate rent info...
 	rows, err := RRdb.Prepstmt.GetRentableMarketRates.Query(rt.RTID)
-	Errcheck(err)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
+
 	LatestMRDTStart := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
 	for rows.Next() {
 		var a RentableMarketRate
-		Errcheck(ReadRentableMarketRates(rows, &a))
+		err = ReadRentableMarketRates(rows, &a)
+		if err != nil {
+			return err
+		}
 		if a.DtStart.After(LatestMRDTStart) {
 			LatestMRDTStart = a.DtStart
 			rt.MRCurrent = a.MarketRate
 		}
 		rt.MR = append(rt.MR, a)
 	}
-	Errcheck(rows.Err())
+
+	return rows.Err()
+}
+
+// GetRentableMarketRates loads all the MarketRate rent information for this Rentable into an array
+func GetRentableMarketRates(ctx context.Context, rt *RentableType) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	return getRentableMarketRates(rt)
 }
 
 // GetRentableMarketRateInstance returns instance of rentableMarketRate for given RMRID
-func GetRentableMarketRateInstance(rmrid int64) (RentableMarketRate, error) {
-	var rmr RentableMarketRate
+func GetRentableMarketRateInstance(ctx context.Context, rmrid int64) (RentableMarketRate, error) {
+
+	var (
+		// err error
+		rmr RentableMarketRate
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return rmr, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentableMarketRateInstance.QueryRow(rmrid)
-	err := ReadRentableMarketRate(row, &rmr)
-	return rmr, err
+	return rmr, ReadRentableMarketRate(row, &rmr)
 }
 
 // GetRentableMarketRate returns the market-rate rent amount for r during the
@@ -1879,32 +4401,70 @@ func GetRentableMarketRateInstance(rmrid int64) (RentableMarketRate, error) {
 // will be returned. It is best to provide as small a timerange d1-d2 as
 // possible to minimize risk of overlap
 //-----------------------------------------------------------------------------
-func GetRentableMarketRate(xbiz *XBusiness, RID int64, d1, d2 *time.Time) float64 {
-	rtid := GetRTIDForDate(RID, d1) // first thing... find the RTID for this time range
+func GetRentableMarketRate(ctx context.Context, xbiz *XBusiness, RID int64, d1, d2 *time.Time) (float64, error) {
+
+	var (
+		err             error
+		marketRateValue float64
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return marketRateValue, ErrSessionRequired
+		}
+	}
+
+	rtid, err := GetRTIDForDate(ctx, RID, d1) // first thing... find the RTID for this time range
+	if err != nil {
+		return marketRateValue, err
+	}
+
 	mr := xbiz.RT[rtid].MR
 	// Console("GetRentableMarketRate: len(mr) is %d\n", len(mr))
 	for i := 0; i < len(mr); i++ {
 		if DateRangeOverlap(d1, d2, &mr[i].DtStart, &mr[i].DtStop) {
-			return mr[i].MarketRate
+			return mr[i].MarketRate, err
 		}
 	}
-	return float64(0)
+	return marketRateValue, err
 }
 
 // GetRentableUsersInRange returns an array of payors (in the form of payors)
 // associated with the supplied RentalAgreement ID during the time range d1-d2
 //-----------------------------------------------------------------------------
-func GetRentableUsersInRange(rid int64, d1, d2 *time.Time) []RentableUser {
+func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) ([]RentableUser, error) {
+
+	var (
+		err error
+		t   []RentableUser
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentableUsersInRange.Query(rid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t []RentableUser
+
 	for rows.Next() {
 		var r RentableUser
-		ReadRentableUsers(rows, &r)
+		err = ReadRentableUsers(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 //=======================================================
@@ -1912,184 +4472,429 @@ func GetRentableUsersInRange(rid int64, d1, d2 *time.Time) []RentableUser {
 //=======================================================
 
 // GetRentalAgreement returns the RentalAgreement struct for the supplied rental agreement id
-func GetRentalAgreement(raid int64) (RentalAgreement, error) {
-	var r RentalAgreement
+func GetRentalAgreement(ctx context.Context, raid int64) (RentalAgreement, error) {
+
+	var (
+		// err error
+		r RentalAgreement
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid)
-	err := ReadRentalAgreement(row, &r)
-	return r, err
+	return r, ReadRentalAgreement(row, &r)
 }
 
 // LoadXRentalAgreement is like GetXRentalAgreement except that it assumes that some of the structure may
 // already be loaded. It only loads those portions that appear not to already be loaded.
-func LoadXRentalAgreement(raid int64, r *RentalAgreement, d1, d2 *time.Time) error {
-	var err error
-	if r.RAID != raid {
-		(*r), err = GetRentalAgreement(raid)
+func LoadXRentalAgreement(ctx context.Context, raid int64, r *RentalAgreement, d1, d2 *time.Time) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
 	}
 
-	t := GetRentalAgreementRentables(raid, d1, d2)
+	if r.RAID != raid {
+		(*r), err = GetRentalAgreement(ctx, raid)
+		if err != nil {
+			return err
+		}
+	}
+
+	t, err := GetRentalAgreementRentables(ctx, raid, d1, d2)
+	if err != nil {
+		return err
+	}
+
 	r.R = make([]XRentable, 0)
 	for i := 0; i < len(t); i++ {
 		var xu XRentable
-		GetXRentable(t[i].RID, &xu)
+		err = GetXRentable(ctx, t[i].RID, &xu)
+		if err != nil {
+			return err
+		}
 		r.R = append(r.R, xu)
 	}
 
-	m := GetRentalAgreementPayorsInRange(raid, d1, d2)
+	m, err := GetRentalAgreementPayorsInRange(ctx, raid, d1, d2)
+	if err != nil {
+		return err
+	}
+
 	r.P = make([]XPerson, 0)
 	for i := 0; i < len(m); i++ {
 		var xp XPerson
-		GetXPerson(m[i].TCID, &xp)
+		err = GetXPerson(ctx, m[i].TCID, &xp)
+		if err != nil {
+			return err
+		}
+
 		r.P = append(r.P, xp)
 	}
 
 	for j := 0; j < len(r.R); j++ {
-		n := GetRentableUsersInRange(r.R[j].R.RID, d1, d2)
+		n, err := GetRentableUsersInRange(ctx, r.R[j].R.RID, d1, d2)
+		if err != nil {
+			return err
+		}
+
 		r.T = make([]XPerson, 0)
 		for i := 0; i < len(n); i++ {
 			var xp XPerson
-			GetXPerson(n[i].TCID, &xp)
+			err = GetXPerson(ctx, n[i].TCID, &xp)
+			if err != nil {
+				return err
+			}
+
 			r.T = append(r.T, xp)
 		}
 	}
+
 	return err
 }
 
 // GetRentalAgreementEarliestDate returns the earliest of
 // AgreementStart, PossessionStart, and RentStart
-func GetRentalAgreementEarliestDate(a *RentalAgreement) time.Time {
-	dt := a.AgreementStart
+func GetRentalAgreementEarliestDate(ctx context.Context, a *RentalAgreement) (time.Time, error) {
+
+	var (
+		err error
+		dt  time.Time
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return dt, ErrSessionRequired
+		}
+	}
+
+	dt = a.AgreementStart
 	if a.PossessionStart.Before(dt) {
 		dt = a.PossessionStart
 	}
 	if a.RentStart.Before(dt) {
 		dt = a.RentStart
 	}
-	return dt
+	return dt, err
 }
 
 // GetXRentalAgreement gets the RentalAgreement plus the associated rentables and payors for the
 // time period specified
-func GetXRentalAgreement(raid int64, d1, d2 *time.Time) (RentalAgreement, error) {
-	var ra RentalAgreement
-	err := LoadXRentalAgreement(raid, &ra, d1, d2)
-	return ra, err
+func GetXRentalAgreement(ctx context.Context, raid int64, d1, d2 *time.Time) (RentalAgreement, error) {
+
+	var (
+		// err error
+		ra RentalAgreement
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ra, ErrSessionRequired
+		}
+	}
+
+	return ra, LoadXRentalAgreement(ctx, raid, &ra, d1, d2)
 }
 
 // GetRentalAgreementsFromList takes an array of RentalAgreementRentables and returns map of
 // all the rental agreements referenced. The map is indexed by the RAID
-func GetRentalAgreementsFromList(raa *[]RentalAgreementRentable) map[int64]RentalAgreement {
-	var t map[int64]RentalAgreement
+func GetRentalAgreementsFromList(ctx context.Context, raa *[]RentalAgreementRentable) (map[int64]RentalAgreement, error) {
+
+	var (
+		err error
+		t   = make(map[int64]RentalAgreement)
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	for i := 0; i < len(*raa); i++ {
-		ra, err := GetRentalAgreement((*raa)[i].RAID)
-		Errlog(err)
+		ra, err := GetRentalAgreement(ctx, (*raa)[i].RAID)
+		if err != nil {
+			return t, err
+		}
+
 		if ra.RAID > 0 {
 			t[ra.RAID] = ra
 		}
 	}
-	return t
+
+	return t, err
 }
 
 // GetAgreementsForRentable returns an array of RentalAgreementRentables associated with the supplied RentableID
 // during the time range d1-d2
-func GetAgreementsForRentable(rid int64, d1, d2 *time.Time) []RentalAgreementRentable {
+func GetAgreementsForRentable(ctx context.Context, rid int64, d1, d2 *time.Time) ([]RentalAgreementRentable, error) {
+
+	var (
+		err error
+		t   []RentalAgreementRentable
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentalAgreementsForRentable.Query(rid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t []RentalAgreementRentable
+
 	for rows.Next() {
 		var r RentalAgreementRentable
-		ReadRentalAgreementRentables(rows, &r)
-		// Errcheck(rows.Scan(&r.RAID, &r.BID, &r.RID, &r.CLID, &r.ContractRent, &r.DtStart, &r.DtStop))
+		err = ReadRentalAgreementRentables(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 // GetRARentableForDate gets the RentalAgreementRentable plus the associated rentables and payors for the
 // time period specified
-func GetRARentableForDate(raid int64, d1 *time.Time, rar *RentalAgreementRentable) error {
+func GetRARentableForDate(ctx context.Context, raid int64, d1 *time.Time, rar *RentalAgreementRentable) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRARentableForDate.QueryRow(raid, d1, d1)
 	return ReadRentalAgreementRentable(row, rar)
 }
 
 // GetRentalAgreementRentable returns Rentable record matching the supplied RARID
-func GetRentalAgreementRentable(rarid int64) (RentalAgreementRentable, error) {
+func GetRentalAgreementRentable(ctx context.Context, rarid int64) (RentalAgreementRentable, error) {
+
+	var (
+		// err error
+		r RentalAgreementRentable
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentalAgreementRentable.QueryRow(rarid)
-	var r RentalAgreementRentable
-	err := ReadRentalAgreementRentable(row, &r)
-	return r, err
+	return r, ReadRentalAgreementRentable(row, &r)
 }
 
 // GetRentalAgreementRentables returns an array of RentalAgreementRentables associated with the supplied RentalAgreement ID
 // during the time range d1-d2
-func GetRentalAgreementRentables(raid int64, d1, d2 *time.Time) []RentalAgreementRentable {
+func GetRentalAgreementRentables(ctx context.Context, raid int64, d1, d2 *time.Time) ([]RentalAgreementRentable, error) {
+
+	var (
+		err error
+		t   []RentalAgreementRentable
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentalAgreementRentables.Query(raid, d1, d2)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	var t []RentalAgreementRentable
+
 	for rows.Next() {
 		var r RentalAgreementRentable
-		ReadRentalAgreementRentables(rows, &r)
-		// Errcheck(rows.Scan(&r.RAID, &r.BID, &r.RID, &r.CLID, &r.ContractRent, &r.DtStart, &r.DtStop))
+		err = ReadRentalAgreementRentables(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 // GetRentalAgreementPayorByRBT returns Rental Agreement Payor record matching the supplied
 // RAID, BID, TCID
-func GetRentalAgreementPayorByRBT(raid, bid, tcid int64) (RentalAgreementPayor, error) {
+func GetRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64) (RentalAgreementPayor, error) {
+
+	var (
+		// err error
+		r RentalAgreementPayor
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentalAgreementPayorByRBT.QueryRow(raid, bid, tcid)
-	var r RentalAgreementPayor
-	err := ReadRentalAgreementPayor(row, &r)
-	return r, err
+	return r, ReadRentalAgreementPayor(row, &r)
 }
 
 // GetRentalAgreementPayor returns Rental Agreement Payor record matching the supplied id
-func GetRentalAgreementPayor(id int64) (RentalAgreementPayor, error) {
+func GetRentalAgreementPayor(ctx context.Context, id int64) (RentalAgreementPayor, error) {
+
+	var (
+		// err error
+		r RentalAgreementPayor
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentalAgreementPayor.QueryRow(id)
-	var r RentalAgreementPayor
-	err := ReadRentalAgreementPayor(row, &r)
-	return r, err
+	return r, ReadRentalAgreementPayor(row, &r)
 }
 
 // GetRentalAgreementPayorsInRange returns an array of payors (in the form of payors) associated with the supplied RentalAgreement ID
 // during the time range d1-d2
-func GetRentalAgreementPayorsInRange(raid int64, d1, d2 *time.Time) []RentalAgreementPayor {
+func GetRentalAgreementPayorsInRange(ctx context.Context, raid int64, d1, d2 *time.Time) ([]RentalAgreementPayor, error) {
+
+	var (
+		err error
+		t   []RentalAgreementPayor
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentalAgreementPayorsInRange.Query(raid, d1, d2)
-	Errcheck(err)
-	return GetRentalAgreementPayorsByRows(rows)
+	if err != nil {
+		return t, err
+	}
+	return getRentalAgreementPayorsByRows(ctx, rows)
 }
 
 // GetRentalAgreementsByPayor returns an array of RentalAgreementPayor where the supplied
 // TCID is a payor on the specified date
-func GetRentalAgreementsByPayor(bid, tcid int64, dt *time.Time) []RentalAgreementPayor {
+func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.Time) ([]RentalAgreementPayor, error) {
+
+	var (
+		err error
+		t   []RentalAgreementPayor
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
-	Errcheck(err)
-	return GetRentalAgreementPayorsByRows(rows)
+	if err != nil {
+		return t, err
+	}
+	return getRentalAgreementPayorsByRows(ctx, rows)
 }
 
 // GetRentalAgreementsByPayorRange returns an array of RentalAgreementPayor where the supplied
 // TCID is a payor within the supplied range
-func GetRentalAgreementsByPayorRange(bid, tcid int64, d1, d2 *time.Time) []RentalAgreementPayor {
+func GetRentalAgreementsByPayorRange(ctx context.Context, bid, tcid int64, d1, d2 *time.Time) ([]RentalAgreementPayor, error) {
+
+	var (
+		err error
+		t   []RentalAgreementPayor
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
-	Errcheck(err)
-	return GetRentalAgreementPayorsByRows(rows)
+	if err != nil {
+		return t, err
+	}
+	return getRentalAgreementPayorsByRows(ctx, rows)
 }
 
-// GetRentalAgreementPayorsByRows returns an array of RentalAgreementPayor records
+// getRentalAgreementPayorsByRows returns an array of RentalAgreementPayor records
 // that were matched by the supplied sql.Rows
-func GetRentalAgreementPayorsByRows(rows *sql.Rows) []RentalAgreementPayor {
+func getRentalAgreementPayorsByRows(ctx context.Context, rows *sql.Rows) ([]RentalAgreementPayor, error) {
+
+	var (
+		err error
+		t   []RentalAgreementPayor
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
 	defer rows.Close()
-	var t []RentalAgreementPayor
-	t = make([]RentalAgreementPayor, 0)
+
 	for rows.Next() {
 		var r RentalAgreementPayor
-		ReadRentalAgreementPayors(rows, &r)
+		err = ReadRentalAgreementPayors(rows, &r)
+		if err != nil {
+			return t, err
+		}
 		t = append(t, r)
 	}
-	return t
+
+	return t, rows.Err()
 }
 
 //=======================================================
@@ -2097,19 +4902,43 @@ func GetRentalAgreementPayorsByRows(rows *sql.Rows) []RentalAgreementPayor {
 //=======================================================
 
 // GetRentalAgreementTemplate returns the RentalAgreementTemplate struct for the supplied rental agreement id
-func GetRentalAgreementTemplate(ratid int64) RentalAgreementTemplate {
-	var r RentalAgreementTemplate
+func GetRentalAgreementTemplate(ctx context.Context, ratid int64) (RentalAgreementTemplate, error) {
+
+	var (
+		// err error
+		r RentalAgreementTemplate
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentalAgreementTemplate.QueryRow(ratid)
-	ReadRentalAgreementTemplate(row, &r)
-	return r
+	return r, ReadRentalAgreementTemplate(row, &r)
 }
 
 // GetRentalAgreementByRATemplateName returns the RentalAgreementTemplate struct for the supplied rental agreement id
-func GetRentalAgreementByRATemplateName(ref string) RentalAgreementTemplate {
-	var r RentalAgreementTemplate
+func GetRentalAgreementByRATemplateName(ctx context.Context, ref string) (RentalAgreementTemplate, error) {
+
+	var (
+		// err error
+		r RentalAgreementTemplate
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return r, ErrSessionRequired
+		}
+	}
+
 	row := RRdb.Prepstmt.GetRentalAgreementByRATemplateName.QueryRow(ref)
-	ReadRentalAgreementTemplate(row, &r)
-	return r
+	return r, ReadRentalAgreementTemplate(row, &r)
 }
 
 //=======================================================
@@ -2117,49 +4946,122 @@ func GetRentalAgreementByRATemplateName(ref string) RentalAgreementTemplate {
 //=======================================================
 
 // GetStringList reads a StringList structure based on the supplied StringList id
-func GetStringList(id int64, a *StringList) {
-	ReadStringList(RRdb.Prepstmt.GetStringList.QueryRow(id), a)
-	GetSLStrings(a.SLID, a)
+func GetStringList(ctx context.Context, id int64, a *StringList) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetStringList.QueryRow(id)
+	err = ReadStringList(row, a)
+	if err != nil {
+		return err
+	}
+	return getSLStrings(ctx, a.SLID, a)
 }
 
 // GetAllStringLists reads all StringList structures belonging to the business with the the supplied id
-func GetAllStringLists(id int64) []StringList {
-	var m []StringList
+func GetAllStringLists(ctx context.Context, id int64) ([]StringList, error) {
+
+	var (
+		err error
+		m   []StringList
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetAllStringLists.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a StringList
-		ReadStringLists(rows, &a)
-		GetSLStrings(a.SLID, &a)
+		err = ReadStringLists(rows, &a)
+		if err != nil {
+			return m, err
+		}
+
+		err = getSLStrings(ctx, a.SLID, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	Errcheck(rows.Err())
-	return m
+
+	return m, rows.Err()
 }
 
 // GetStringListByName reads a StringList structure based on the supplied StringList id
-func GetStringListByName(bid int64, s string, a *StringList) {
-	ReadStringList(RRdb.Prepstmt.GetStringListByName.QueryRow(bid, s), a)
-	if a.SLID != 0 {
-		GetSLStrings(a.SLID, a)
+func GetStringListByName(ctx context.Context, bid int64, s string, a *StringList) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
 	}
+
+	row := RRdb.Prepstmt.GetStringListByName.QueryRow(bid, s)
+	err = ReadStringList(row, a)
+	if err != nil {
+		return err
+	}
+
+	return getSLStrings(ctx, a.SLID, a)
 }
 
 // GetSLStrings reads all strings with the supplid SLID into a
-func GetSLStrings(id int64, a *StringList) {
-	if id == 0 {
-		return
+func getSLStrings(ctx context.Context, id int64, a *StringList) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
 	}
+
 	rows, err := RRdb.Prepstmt.GetSLStrings.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var p SLString
-		ReadSLStrings(rows, &p)
+		err = ReadSLStrings(rows, &p)
+		if err != nil {
+			return err
+		}
 		a.S = append(a.S, p)
 	}
-	Errcheck(rows.Err())
+
+	return rows.Err()
 }
 
 //=======================================================
@@ -2167,23 +5069,56 @@ func GetSLStrings(id int64, a *StringList) {
 //=======================================================
 
 // GetSubAR reads a SubAR structure based on the supplied SubAR id
-func GetSubAR(id int64, a *SubAR) {
-	ReadSubAR(RRdb.Prepstmt.GetSubAR.QueryRow(id), a)
+func GetSubAR(ctx context.Context, id int64, a *SubAR) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetSubAR.QueryRow(id)
+	return ReadSubAR(row, a)
 }
 
 // GetSubARs reads all SubAR structures belonging to the business with the the supplied id
-func GetSubARs(id int64) []SubAR {
-	var m []SubAR
+func GetSubARs(ctx context.Context, id int64) ([]SubAR, error) {
+
+	var (
+		err error
+		m   []SubAR
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetSubARs.Query(id)
-	Errcheck(err)
+	if err != nil {
+		return m, err
+	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var a SubAR
-		ReadSubARs(rows, &a)
+		err = ReadSubARs(rows, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	Errcheck(rows.Err())
-	return m
+
+	return m, rows.Err()
 }
 
 //=======================================================
@@ -2196,245 +5131,541 @@ func GetSubARs(id int64) []SubAR {
 //            s - string or substring to search for
 //        limit - return no more than this many matches
 // return a slice of TransactantTypeDowns and an error.
-func GetTransactantTypeDown(bid int64, s string, limit int) ([]TransactantTypeDown, error) {
-	var m []TransactantTypeDown
+func GetTransactantTypeDown(ctx context.Context, bid int64, s string, limit int) ([]TransactantTypeDown, error) {
+
+	var (
+		err error
+		m   []TransactantTypeDown
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	s = "%" + s + "%"
 	rows, err := RRdb.Prepstmt.GetTransactantTypeDown.Query(bid, s, s, s, s, limit)
 	if err != nil {
 		return m, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var t TransactantTypeDown
-		ReadTransactantTypeDowns(rows, &t)
+		err = ReadTransactantTypeDowns(rows, &t)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, t)
 	}
-	return m, nil
+
+	return m, rows.Err()
 }
 
 // GetTCIDByNote used to get TCID from Note Comment
 // originally to get it from people csv Notes field
-func GetTCIDByNote(cmt string) int {
-	var id int
-	rows, err := RRdb.Prepstmt.FindTCIDByNote.Query(cmt)
-	Errcheck(err)
-	defer rows.Close()
+func GetTCIDByNote(ctx context.Context, cmt string) (int64, error) {
+
+	var (
+		// err  error
+		tcid int64
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return tcid, ErrSessionRequired
+		}
+	}
 
 	// just return first, in case of duplicate
 	// TODO: need to verify
-	for rows.Next() {
-		ReadTCIDByNote(rows, &id)
-		return id
-	}
-	return id
+	row := RRdb.Prepstmt.FindTCIDByNote.QueryRow(cmt)
+	return tcid, row.Scan(&tcid)
 }
 
 // GetTransactantByPhoneOrEmail searches for a transactoant match on the phone number or email
-func GetTransactantByPhoneOrEmail(BID int64, s string) Transactant {
-	var t Transactant
-	p := fmt.Sprintf("SELECT "+TRNSfields+" FROM Transactant where BID=%d AND (WorkPhone=\"%s\" or CellPhone=\"%s\" or PrimaryEmail=\"%s\" or SecondaryEmail=\"%s\")", BID, s, s, s, s)
+func GetTransactantByPhoneOrEmail(ctx context.Context, BID int64, s string) (Transactant, error) {
+
+	var (
+		// err error
+		t Transactant
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	tq := `
+	SELECT
+		{{.SelectClause}}
+	FROM
+		Transactant
+	WHERE
+		BID={{.BID}} AND (
+			WorkPhone="{{.WorkPhone}}" OR
+			CellPhone="{{.CellPhone}}" OR
+			PrimaryEmail="{{.PrimaryEmail}}" OR
+			SecondaryEmail="{{.SecondaryEmail}}"
+		);`
+
+	qc := QueryClause{
+		"SelectClause":   TRNSfields,
+		"BID":            strconv.FormatInt(BID, 10),
+		"WorkPhone":      s,
+		"CellPhone":      s,
+		"PrimaryEmail":   s,
+		"SecondaryEmail": s,
+	}
+
+	// get formatted query
+	p := RenderSQLQuery(tq, qc)
 
 	// there could be multiple people with the same identifying number...
 	// to safeguard, we'll read as a query and accept first match
-	rows, err := RRdb.Dbrr.Query(p)
-	Errcheck(err)
-	defer rows.Close()
-	for rows.Next() {
-		ReadTransactants(rows, &t)
-		return t
-	}
-	//ReadTransactant(RRdb.Dbrr.QueryRow(p), &t)
-	return t
+	row := RRdb.Dbrr.QueryRow(p)
+	return t, ReadTransactant(row, &t)
 }
 
 // GetTransactant reads a Transactant structure based on the supplied Transactant id
-func GetTransactant(tid int64, t *Transactant) error {
-	return ReadTransactant(RRdb.Prepstmt.GetTransactant.QueryRow(tid), t)
+func GetTransactant(ctx context.Context, tid int64, t *Transactant) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetTransactant.QueryRow(tid)
+	return ReadTransactant(row, t)
 }
 
 // GetProspect reads a Prospect structure based on the supplied Transactant id
-func GetProspect(id int64, p *Prospect) {
-	ReadProspect(RRdb.Prepstmt.GetProspect.QueryRow(id), p)
+func GetProspect(ctx context.Context, id int64, p *Prospect) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetProspect.QueryRow(id)
+	return ReadProspect(row, p)
 }
 
 // GetUser reads a User structure based on the supplied User id.
 // This call does not load the vehicle list.  You can use GetVehiclesByTransactant()
 // if you need them.  Or you can call GetXPerson, which loads all details about a Transactant.
-func GetUser(tcid int64, t *User) {
-	ReadUser(RRdb.Prepstmt.GetUser.QueryRow(tcid), t)
+func GetUser(ctx context.Context, tcid int64, t *User) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetUser.QueryRow(tcid)
+	return ReadUser(row, t)
 }
 
 // GetPayor reads a Payor structure based on the supplied Transactant id
-func GetPayor(pid int64, p *Payor) {
-	ReadPayor(RRdb.Prepstmt.GetPayor.QueryRow(pid), p)
+func GetPayor(ctx context.Context, pid int64, p *Payor) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetPayor.QueryRow(pid)
+	return ReadPayor(row, p)
 }
 
-// func GetRentalAgreementGridInfo(raid int64, d1, d2 *time.Time) []RentalAgreementGrid {
-// 	var m []RentalAgreementGrid
-// 	rows, err := RRdb.Prepstmt.UIRAGrid(raid, d1, d2)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var t RentalAgreementGrid
-// 		ReadRentalAgreementGrids(rows, &t)
-// 		m = append(m, &t)
-// 	}
-// 	return m
-// }
+/*// GetRentalAgreementGridInfo returns the array of rental agreement for grid
+func GetRentalAgreementGridInfo(ctx context.Context, raid int64, d1, d2 *time.Time) ([]RentalAgreementGrid, error) {
+
+	var (
+		err error
+		m   []RentalAgreementGrid
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
+	rows, err :=RRdb.Prepstmt.UIRAGrid(raid, d1, d2)
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var t RentalAgreementGrid
+		err = ReadRentalAgreementGrids(rows, &t)
+		if err != nil {
+			return m, err
+		}
+		m = append(m, &t)
+	}
+
+	return m, rows.Err()
+}*/
 
 // GetVehicle reads a Vehicle structure based on the supplied Vehicle id
-func GetVehicle(vid int64, t *Vehicle) {
-	ReadVehicle(RRdb.Prepstmt.GetVehicle.QueryRow(vid), t)
+func GetVehicle(ctx context.Context, vid int64, t *Vehicle) error {
+
+	var (
+	// err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	row := RRdb.Prepstmt.GetVehicle.QueryRow(vid)
+	return ReadVehicle(row, t)
 }
 
-func getVehicleList(rows *sql.Rows) []Vehicle {
-	var m []Vehicle
+func getVehicleList(ctx context.Context, rows *sql.Rows) ([]Vehicle, error) {
+
+	var (
+		err error
+		m   []Vehicle
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return m, ErrSessionRequired
+		}
+	}
+
 	for rows.Next() {
 		var a Vehicle
-		ReadVehicles(rows, &a)
+		err = ReadVehicles(rows, &a)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, a)
 	}
-	Errcheck(rows.Err())
-	return m
+
+	return m, rows.Err()
 }
 
 // GetVehiclesByLicensePlate reads a Vehicle structure based on the supplied Vehicle id
-func GetVehiclesByLicensePlate(s string) []Vehicle {
+func GetVehiclesByLicensePlate(ctx context.Context, s string) ([]Vehicle, error) {
+
+	var (
+		err error
+		t   []Vehicle
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetVehiclesByLicensePlate.Query(s)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	return getVehicleList(rows)
+
+	return getVehicleList(ctx, rows)
 }
 
 // GetVehiclesByTransactant reads a Vehicle structure based on the supplied Vehicle id
-func GetVehiclesByTransactant(tcid int64) []Vehicle {
+func GetVehiclesByTransactant(ctx context.Context, tcid int64) ([]Vehicle, error) {
+
+	var (
+		err error
+		t   []Vehicle
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetVehiclesByTransactant.Query(tcid)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	return getVehicleList(rows)
+
+	return getVehicleList(ctx, rows)
 }
 
 // GetVehiclesByBID reads a Vehicle structure based on the supplied Vehicle id
-func GetVehiclesByBID(bid int64) []Vehicle {
+func GetVehiclesByBID(ctx context.Context, bid int64) ([]Vehicle, error) {
+
+	var (
+		err error
+		t   []Vehicle
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
 	rows, err := RRdb.Prepstmt.GetVehiclesByBID.Query(bid)
-	Errcheck(err)
+	if err != nil {
+		return t, err
+	}
 	defer rows.Close()
-	return getVehicleList(rows)
+
+	return getVehicleList(ctx, rows)
 }
 
 // GetXPerson will load a full XPerson given the trid
-func GetXPerson(tcid int64, x *XPerson) {
+func GetXPerson(ctx context.Context, tcid int64, x *XPerson) error {
+
+	var (
+		err error
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
 	if 0 == x.Trn.TCID {
-		GetTransactant(tcid, &x.Trn)
+		err = GetTransactant(ctx, tcid, &x.Trn)
+		if err != nil {
+			return err
+		}
 	}
 	if 0 == x.Psp.TCID {
-		GetProspect(tcid, &x.Psp)
+		err = GetProspect(ctx, tcid, &x.Psp)
+		if err != nil {
+			return err
+		}
 	}
 	if 0 == x.Usr.TCID {
-		GetUser(tcid, &x.Usr)
-		x.Usr.Vehicles = GetVehiclesByTransactant(tcid)
+		err = GetUser(ctx, tcid, &x.Usr)
+		if err != nil {
+			return err
+		}
+
+		x.Usr.Vehicles, err = GetVehiclesByTransactant(ctx, tcid)
+		if err != nil {
+			return err
+		}
 	}
 	if 0 == x.Pay.TCID {
-		GetPayor(tcid, &x.Pay)
+		err = GetPayor(ctx, tcid, &x.Pay)
+		if err != nil {
+			return err
+		}
 	}
+
+	return err
 }
 
-// GetDateOfLedgerMarkerOnOrBefore returns the Dt value of the last LedgerMarker set generated on or before d1
-// func GetDateOfLedgerMarkerOnOrBefore(bid int64, d1 *time.Time) time.Time {
-// 	GenRcvLID := RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
-// 	lm := GetLedgerMarkerOnOrBefore(bid, GenRcvLID, d1)
-// 	if lm.LMID == 0 {
-// 		Ulog("%s - SEVERE ERROR - unable to locate a LedgerMarker on or before %s\n", d1.Format(RRDATEFMT4))
-// 	}
-// 	return lm.Dt
-// }
+/*// GetDateOfLedgerMarkerOnOrBefore returns the Dt value of the last LedgerMarker set generated on or before d1
+func GetDateOfLedgerMarkerOnOrBefore(ctx context.Context, bid int64, d1 *time.Time) (time.Time, err) {
+
+	var (
+		err error
+		dt  time.Time
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return dt, ErrSessionRequired
+		}
+	}
+
+	var lm LedgerMarker
+	GenRcvLID := RRdb.BizTypes[bid].DefaultAccts[GLGENRCV].LID
+	lm, err = GetLedgerMarkerOnOrBefore(ctx, bid, GenRcvLID, d1)
+
+	// log the error
+	if err != nil {
+		Ulog("%s - SEVERE ERROR - unable to locate a LedgerMarker on or before %s\n", d1.Format(RRDATEFMT4))
+	}
+
+	return lm.Dt, err
+}*/
 
 // GetCountBusinessCustomAttrRefs get total count for CustomAttrRefs
 // with particular associated business
-func GetCountBusinessCustomAttrRefs(bid int64) int {
-	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessCustomAttrRefs.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
+func GetCountBusinessCustomAttrRefs(ctx context.Context, bid int64) (int, error) {
 
-	for rows.Next() {
-		ReadCountBusinessCustomAttrRefs(rows, &id)
-		return id
+	var (
+		// err   error
+		count int
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
 	}
-	return id
+
+	row := RRdb.Prepstmt.CountBusinessCustomAttrRefs.QueryRow(bid)
+	return count, row.Scan(&count)
 }
 
 // GetCountBusinessCustomAttributes get total count for CustomAttributes
 // with particular associated business
-func GetCountBusinessCustomAttributes(bid int64) int {
-	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessCustomAttributes.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
+func GetCountBusinessCustomAttributes(ctx context.Context, bid int64) (int, error) {
 
-	for rows.Next() {
-		ReadCountBusinessCustomAttributes(rows, &id)
-		return id
+	var (
+		// err   error
+		count int
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
 	}
-	return id
+
+	row := RRdb.Prepstmt.CountBusinessCustomAttributes.QueryRow(bid)
+	return count, row.Scan(&count)
 }
 
 // GetCountBusinessRentableTypes get total count for RentableTypes
 // with particular associated business
-func GetCountBusinessRentableTypes(bid int64) int {
-	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessRentableTypes.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
+func GetCountBusinessRentableTypes(ctx context.Context, bid int64) (int, error) {
 
-	for rows.Next() {
-		ReadCountBusinessRentableTypes(rows, &id)
-		return id
+	var (
+		// err   error
+		count int
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
 	}
-	return id
+
+	row := RRdb.Prepstmt.CountBusinessRentableTypes.QueryRow(bid)
+	return count, row.Scan(&count)
 }
 
 // GetCountBusinessTransactants get total count for Transactants
 // with particular associated business
-func GetCountBusinessTransactants(bid int64) int {
-	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessTransactants.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
+func GetCountBusinessTransactants(ctx context.Context, bid int64) (int, error) {
 
-	for rows.Next() {
-		ReadCountBusinessTransactants(rows, &id)
-		return id
+	var (
+		// err   error
+		count int
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
 	}
-	return id
+
+	row := RRdb.Prepstmt.CountBusinessTransactants.QueryRow(bid)
+	return count, row.Scan(&count)
 }
 
 // GetCountBusinessRentables get total count for Rentables
 // with particular associated business
-func GetCountBusinessRentables(bid int64) int {
-	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessRentables.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
+func GetCountBusinessRentables(ctx context.Context, bid int64) (int, error) {
 
-	for rows.Next() {
-		ReadCountBusinessRentables(rows, &id)
-		return id
+	var (
+		// err   error
+		count int
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
 	}
-	return id
+
+	row := RRdb.Prepstmt.CountBusinessRentables.QueryRow(bid)
+	return count, row.Scan(&count)
 }
 
 // GetCountBusinessRentalAgreements get total count for RentalAgreements
 // with particular associated business
-func GetCountBusinessRentalAgreements(bid int64) int {
-	var id int
-	rows, err := RRdb.Prepstmt.CountBusinessRentalAgreements.Query(bid)
-	Errcheck(err)
-	defer rows.Close()
+func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, error) {
 
-	for rows.Next() {
-		ReadCountBusinessRentalAgreements(rows, &id)
-		return id
+	var (
+		// err   error
+		count int
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return count, ErrSessionRequired
+		}
 	}
-	return id
+
+	row := RRdb.Prepstmt.CountBusinessRentalAgreements.QueryRow(bid)
+	return count, row.Scan(&count)
 }

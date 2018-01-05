@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
@@ -134,8 +135,8 @@ var csvCols = []CSVColumn{
 // Return Values
 // int   -->  0 = everything is fine, process the next line;  1 abort the csv load
 // error -->  nil if no problems
-func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreatePeopleFromCSV"
+func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreatePeopleFromCSV"
 
 	var (
 		err      error
@@ -169,7 +170,10 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 			// Make sure the rlib.Business is in the database
 			//-------------------------------------------------------------------
 			if len(des) > 0 { // make sure it's not empty
-				b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
+				b1, err := rlib.GetBusinessByDesignation(ctx, des) // see if we can find the biz
+				if err != nil {
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, sa[0], err.Error())
+				}
 				if len(b1.Designation) == 0 {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business with designation %s does not exist", funcname, lineno, sa[0])
 				}
@@ -331,7 +335,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 			}
 		case RentableTypePreference:
 			if len(s) > 0 {
-				rt, err := rlib.GetRentableTypeByStyle(s, tr.BID)
+				rt, err := rlib.GetRentableTypeByStyle(ctx, s, tr.BID)
 				if err != nil || rt.RTID == 0 {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid DesiredUsageStartDate value: %s", funcname, lineno, s)
 				}
@@ -409,13 +413,19 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	// Make sure this person doesn't already exist...
 	//-------------------------------------------------------------------
 	if len(tr.PrimaryEmail) > 0 {
-		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.PrimaryEmail)
+		t1, err := rlib.GetTransactantByPhoneOrEmail(ctx, tr.BID, tr.PrimaryEmail)
+		if err != nil { // if not "no rows error" then MUST return
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error while verifying Transactant with PrimaryEmail address = %s: %s", funcname, lineno, tr.PrimaryEmail, err.Error())
+		}
 		if t1.TCID > 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Transactant with PrimaryEmail address = %s ", funcname, lineno, DupTransactant, tr.PrimaryEmail)
 		}
 	}
 	if len(tr.CellPhone) > 0 && !ignoreDupPhone {
-		t1 := rlib.GetTransactantByPhoneOrEmail(tr.BID, tr.CellPhone)
+		t1, err := rlib.GetTransactantByPhoneOrEmail(ctx, tr.BID, tr.CellPhone)
+		if err != nil { // if not "no rows error" then MUST return
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error verifying Transactant with CellPhone number = %s: %s", funcname, lineno, tr.CellPhone, err.Error())
+		}
 		if t1.TCID > 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: Transactant with CellPhone number = %s already exists", funcname, lineno, DupTransactant, tr.CellPhone)
 		}
@@ -439,7 +449,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	if len(userNote) > 0 {
 		var nl rlib.NoteList
 		nl.BID = tr.BID
-		nl.NLID, err = rlib.InsertNoteList(&nl)
+		nl.NLID, err = rlib.InsertNoteList(ctx, &nl)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s", funcname, lineno, err.Error())
 		}
@@ -448,7 +458,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 		n.NTID = 1 // first comment type
 		n.NLID = nl.NLID
 		n.BID = nl.BID
-		_, err = rlib.InsertNote(&n)
+		_, err = rlib.InsertNote(ctx, &n)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error creating NoteList = %s", funcname, lineno, err.Error())
 		}
@@ -458,7 +468,7 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// OK, just insert the records and we're done
 	//-------------------------------------------------------------------
-	tcid, err := rlib.InsertTransactant(&tr)
+	tcid, err := rlib.InsertTransactant(ctx, &tr)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting Transactant = %v", funcname, lineno, err)
 	}
@@ -475,21 +485,21 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 	}
 	// fmt.Printf("tcid = %d\n", tcid)
 	// fmt.Printf("inserting user = %#v\n", t)
-	_, err = rlib.InsertUser(&t)
+	_, err = rlib.InsertUser(ctx, &t)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.User = %v", funcname, lineno, err)
 	}
 
-	_, err = rlib.InsertPayor(&p)
+	_, err = rlib.InsertPayor(ctx, &p)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.Payor = %v", funcname, lineno, err)
 	}
 
-	_, err = rlib.InsertProspect(&pr)
+	_, err = rlib.InsertProspect(ctx, &pr)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.Prospect = %v", funcname, lineno, err)
 	}
-	errlist := bizlogic.FinalizeTransactant(&tr)
+	errlist := bizlogic.FinalizeTransactant(ctx, &tr)
 	if len(errlist) > 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting Transactant LedgerMarker = %s", funcname, lineno, errlist[0].Message)
 	}
@@ -497,6 +507,6 @@ func CreatePeopleFromCSV(sa []string, lineno int) (int, error) {
 }
 
 // LoadPeopleCSV loads a csv file with people information
-func LoadPeopleCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreatePeopleFromCSV)
+func LoadPeopleCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreatePeopleFromCSV)
 }

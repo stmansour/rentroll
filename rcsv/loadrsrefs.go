@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -22,11 +23,13 @@ import (
 // }
 
 // CreateRentableSpecialtyRefsCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreateRentableSpecialtyRefsCSV"
-	var a rlib.RentableSpecialtyRef
-	var r rlib.Rentable
-	var err error
+func CreateRentableSpecialtyRefsCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateRentableSpecialtyRefsCSV"
+	var (
+		err error
+		a   rlib.RentableSpecialtyRef
+		r   rlib.Rentable
+	)
 
 	const (
 		BUD               = 0
@@ -57,7 +60,10 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 
 	var b rlib.Business
 	if len(des) > 0 {
-		b = rlib.GetBusinessByDesignation(des)
+		b, err = rlib.GetBusinessByDesignation(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+		}
 		if b.BID < 1 {
 			return CsvErrorSensitivity, fmt.Errorf("CreateRentalSpecialtyType: rlib.Business named %s not found", sa[0])
 		}
@@ -70,7 +76,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 	s := strings.TrimSpace(sa[RID])
 	if len(s) > 0 {
 		// fmt.Printf("Searching: rentable name = %s, BID = %d\n", s, b.BID)
-		r, err = rlib.GetRentableByName(s, b.BID)
+		r, err = rlib.GetRentableByName(ctx, s, b.BID)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error loading rlib.Rentable named: %s in Business %d.  Error = %v", funcname, lineno, s, b.BID, err)
 		}
@@ -81,7 +87,10 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 	// Make sure we can find the RentableSpecialty
 	//-------------------------------------------------------------------
 	name := strings.TrimSpace(sa[RentableSpecialty])
-	rsp := rlib.GetRentableSpecialtyTypeByName(r.BID, name)
+	rsp, err := rlib.GetRentableSpecialtyTypeByName(ctx, r.BID, name)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error getting rlib.RentableSpecialty named %s in rlib.Business %d: %s", funcname, lineno, name, r.BID, err.Error())
+	}
 	if rsp.RSPID == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find a rlib.RentableSpecialty named %s in rlib.Business %d", funcname, lineno, name, r.BID)
 	}
@@ -95,7 +104,7 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 		return CsvErrorSensitivity, fmt.Errorf("%s", err.Error())
 	}
 
-	err = rlib.InsertRentableSpecialtyRef(&a)
+	_, err = rlib.InsertRentableSpecialtyRef(ctx, &a)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting assessment: %v", funcname, lineno, err)
 	}
@@ -103,6 +112,6 @@ func CreateRentableSpecialtyRefsCSV(sa []string, lineno int) (int, error) {
 }
 
 // LoadRentableSpecialtyRefsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadRentableSpecialtyRefsCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRentableSpecialtyRefsCSV)
+func LoadRentableSpecialtyRefsCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRentableSpecialtyRefsCSV)
 }

@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"html/template"
@@ -25,13 +26,15 @@ import (
 //    edi={0|1}         {0 = default = end date is non-inclusive, 1 = end date is inclusive}
 //-----------------------------------------------------------------------------
 func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "ReportServiceHandler"
+	const funcname = "ReportServiceHandler"
+	var (
+		ui         RRuiSupport
+		xbiz       rlib.XBusiness
+		reportname string
+		err        error
+		edi        = int(0) // 0 = end date is not inclusive, 1 = end date is inclusive
+	)
 	rlib.Console("Entered %s\n", funcname)
-	var ui ReportContext
-	var xbiz rlib.XBusiness
-	var reportname string
-	var err error
-	var edi = int(0) // 0 = end date is not inclusive, 1 = end date is inclusive
 
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -50,7 +53,12 @@ func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 	// 	return
 	// }
 
-	rlib.GetXBusiness(d.BID, &xbiz)
+	err = rlib.GetXBusiness(r.Context(), d.BID, &xbiz)
+	if err != nil {
+		ui.ReportContent = fmt.Sprintf("Error while fetching business: %s", err.Error())
+		SendWebSvcPage(w, r, &ui)
+		return
+	}
 
 	m, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
@@ -150,7 +158,7 @@ func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 	// pdf page size unit, take default `inch` as of now
 	ui.PDFPageSizeUnit = "in"
 
-	v1ReportHandler(reportname, &xbiz, &ui, w, &m)
+	v1ReportHandler(r.Context(), reportname, &xbiz, &ui, w, &m)
 	// ui.ReportContent = websvcReportHandler(reportname, &xbiz, &ui)
 	// SendWebSvcPage(w, r, &ui)
 }
@@ -175,22 +183,32 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *ReportContext) {
 	}
 }
 
-func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *ReportContext, w http.ResponseWriter, qp *url.Values) {
-	funcname := "v1ReportHandler"
+func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusiness, ui *ReportContext, w http.ResponseWriter, qp *url.Values) {
+	const funcname = "v1ReportHandler"
 	rlib.Console("%s: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", funcname, reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 
-	var ri = rrpt.ReporterInfo{
-		OutputFormat: gotable.TABLEOUTHTML,
-		Bid:          xbiz.P.BID,
-		D1:           ui.D1,
-		D2:           ui.D2,
-		Xbiz:         xbiz,
-		EDI:          ui.EDI,
-		BlankLineAfterRptName: true,
-		QueryParams:           qp}
+	var (
+		err error
+		ri  = rrpt.ReporterInfo{
+			OutputFormat: gotable.TABLEOUTHTML,
+			Bid:          xbiz.P.BID,
+			D1:           ui.D1,
+			D2:           ui.D2,
+			Xbiz:         xbiz,
+			EDI:          ui.EDI,
+			BlankLineAfterRptName: true,
+			QueryParams:           qp,
+		}
+	)
 
 	// init business internals first
-	rlib.InitBizInternals(ri.Bid, xbiz)
+	err = rlib.InitBizInternals(ri.Bid, xbiz)
+	if err != nil {
+		s := fmt.Sprintf("Error in InitBizInternals: %s\n", err.Error())
+		fmt.Print(s)
+		fmt.Fprintf(w, "%s\n", s)
+		return
+	}
 
 	// handler for reports which has single table
 	var wsr = []rrpt.SingleTableReportHandler{
@@ -247,7 +265,7 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *ReportContext,
 
 	// if found then handle service for request
 	if tsh.Found {
-		tbl := tsh.TableHandler(&ri)
+		tbl := tsh.TableHandler(ctx, &ri)
 
 		// format downloadable report name
 		attachmentName := ri.Xbiz.P.Designation + "-" + strings.Title(tsh.ReportNames[1])
@@ -335,7 +353,13 @@ func v1ReportHandler(reportname string, xbiz *rlib.XBusiness, ui *ReportContext,
 
 	// if found then handle service for request
 	if tmh.Found {
-		m := tmh.TableHandler(&ri)
+		m, err := tmh.TableHandler(ctx, &ri)
+		if err != nil {
+			s := fmt.Sprintf("Error in Multi Table Handler for \"%s\" : %s\n", tmh.ReportTitle, err.Error())
+			fmt.Print(s)
+			fmt.Fprintf(w, "%s\n", s)
+			return
+		}
 
 		// format downloadable report name
 		attachmentName := ri.Xbiz.P.Designation + "-" + strings.Title(tmh.ReportNames[1])

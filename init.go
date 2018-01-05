@@ -17,16 +17,20 @@ func initRentRoll() {
 }
 
 func createStartupCtx() DispatchCtx {
-	var ctx DispatchCtx
-	var err error
+	var (
+		dCtx DispatchCtx
+		err  error
+	)
 
-	ctx.DtStart, err = rlib.StringToDate(App.sStart)
+	dCtx.DtStart, err = rlib.StringToDate(App.sStart)
 	if err != nil {
+		fmt.Printf("Invalid start date:  %s\n", App.sStart)
 		os.Exit(1)
 	}
-	ctx.DtStop, err = rlib.StringToDate(App.sStop)
+
+	dCtx.DtStop, err = rlib.StringToDate(App.sStop)
 	if err != nil {
-		fmt.Printf("Invalid start date:  %s\n", App.sStop)
+		fmt.Printf("Invalid stop date:  %s\n", App.sStop)
 		os.Exit(1)
 	}
 
@@ -35,12 +39,12 @@ func createStartupCtx() DispatchCtx {
 		fmt.Printf("No BUD specified. A BUD is required for batch mode operation\n")
 		os.Exit(1)
 	}
-	ctx.xbiz.P = rlib.GetBusinessByDesignation(des) // see if we can find the biz
-	if len(ctx.xbiz.P.Designation) == 0 {
-		rlib.Ulog("Business Unit with designation %s does not exist\n", des)
+	dCtx.xbiz.P, err = rlib.GetBizByDesignation(des) // see if we can find the biz
+	if err != nil /*len(dCtx.xbiz.P.Designation) == 0*/ {
+		rlib.Ulog("Business Unit with designation %s does not exist: error: %s\n", des, err.Error())
 		os.Exit(1)
 	}
-	rlib.GetXBusiness(ctx.xbiz.P.BID, &ctx.xbiz)
+	rlib.GetXBiz(dCtx.xbiz.P.BID, &dCtx.xbiz)
 
 	// App.Report is a string, of the format:
 	//   n[,s1[,s2[...]]]
@@ -51,12 +55,12 @@ func createStartupCtx() DispatchCtx {
 	// The only required value is n, the report number
 	sa := strings.Split(App.Report, ",") // comma separated list
 	if len(App.Report) > 0 {
-		ctx.Report, _ = rlib.IntFromString(sa[0], "invalid report number")
+		dCtx.Report, _ = rlib.IntFromString(sa[0], "invalid report number")
 	}
-	ctx.Args = App.Report
-	ctx.CSVLoadStr = strings.TrimSpace(App.CSVLoad)
-	// fmt.Printf("ctx.CSVLoadStr = %s\n", ctx.CSVLoadStr)
-	ctx.Cmd = 1
-	ctx.OutputFormat = gotable.TABLEOUTTEXT
-	return ctx
+	dCtx.Args = App.Report
+	dCtx.CSVLoadStr = strings.TrimSpace(App.CSVLoad)
+	// fmt.Printf("dCtx.CSVLoadStr = %s\n", dCtx.CSVLoadStr)
+	dCtx.Cmd = 1
+	dCtx.OutputFormat = gotable.TABLEOUTTEXT
+	return dCtx
 }

@@ -153,7 +153,7 @@ var arQuerySelectFields = rlib.SelectQueryFields{
 //  @Response SearchARsResponse
 // wsdoc }
 func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcSearchHandlerARs"
+	const funcname = "SvcSearchHandlerARs"
 	fmt.Printf("Entered %s\n", funcname)
 
 	switch d.wsSearchReq.Cmd {
@@ -179,7 +179,7 @@ func SvcSearchHandlerARs(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //  @Response SearchARsResponse
 // wsdoc }
 func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "getARGrid"
+	const funcname = "getARGrid"
 	var (
 		err error
 		g   SearchARsResponse
@@ -289,9 +289,9 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcFormHandlerAR"
 	var (
-		funcname = "SvcFormHandlerAR"
-		err      error
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	if d.ARID, err = SvcExtractIDFromURI(r.RequestURI, "ARID", 3, w); err != nil {
@@ -331,12 +331,11 @@ func SvcFormHandlerAR(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "saveARForm"
 	var (
-		funcname = "saveARForm"
-		foo      SaveARInput
-		a        rlib.AR
-		err      error
+		foo SaveARInput
+		a   rlib.AR
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -381,7 +380,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
 	// Ensure that the supplied data is valid
-	e := bizlogic.ValidateAcctRule(&a)
+	e := bizlogic.ValidateAcctRule(r.Context(), &a)
 	if len(e) > 0 {
 		SvcErrListReturn(w, e, funcname)
 		return
@@ -391,11 +390,11 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.ARID == 0 && d.ARID == 0 {
 		// This is a new AR
 		fmt.Printf(">>>> NEW RECEIPT IS BEING ADDED\n")
-		_, err = rlib.InsertAR(&a)
+		_, err = rlib.InsertAR(r.Context(), &a)
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing AR: %d\n", a.ARID)
-		err = rlib.UpdateAR(&a)
+		err = rlib.UpdateAR(r.Context(), &a)
 	}
 	if err != nil {
 		e := fmt.Errorf("Error saving receipt (ARID=%d\n: %s", d.ARID, err.Error())
@@ -445,11 +444,10 @@ var raRequiredMap = map[int][2]bool{
 //  @Response GetARResponse
 // wsdoc }
 func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "getARForm"
 	var (
-		funcname = "getARForm"
-		g        GetARResponse
-		err      error
+		g   GetARResponse
+		err error
 	)
 	fmt.Printf("entered %s\n", funcname)
 
@@ -527,9 +525,9 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcWriteSuccessResponse
 // wsdoc }
 func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteARForm"
 	var (
-		funcname = "deleteARForm"
-		del      DeleteARForm
+		del DeleteARForm
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -540,7 +538,7 @@ func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err := rlib.DeleteAR(del.ARID); err != nil {
+	if err := rlib.DeleteAR(r.Context(), del.ARID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}

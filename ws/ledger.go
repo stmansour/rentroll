@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
@@ -46,7 +47,7 @@ type GetLedgerResponse struct {
 //  @Response SearchLedgersResponse
 // wsdoc }
 func SvcSearchHandlerLedger(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcSearchHandlerLedger"
+	const funcname = "SvcSearchHandlerLedger"
 	fmt.Printf("Entered %s\n", funcname)
 
 	switch d.wsSearchReq.Cmd {
@@ -62,9 +63,14 @@ func SvcSearchHandlerLedger(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 // GetAccountBalance returns the balance of the account at time dt
 //
-func GetAccountBalance(bid, lid int64, dt *time.Time) (float64, rlib.LedgerMarker) {
-	lm := rlib.GetRALedgerMarkerOnOrBeforeDeprecated(bid, lid, 0, dt) // find nearest ledgermarker, use it as a starting point
-	bal, _ := rlib.GetAccountActivity(bid, lid, &lm.Dt, dt)
+func GetAccountBalance(ctx context.Context, bid, lid int64, dt *time.Time) (float64, rlib.LedgerMarker) {
+	var bal float64
+	lm, err := rlib.GetRALedgerMarkerOnOrBeforeDeprecated(ctx, bid, lid, 0, dt) // find nearest ledgermarker, use it as a starting point
+	if err != nil {
+		return bal, lm
+	}
+
+	bal, _ = rlib.GetAccountActivity(ctx, bid, lid, &lm.Dt, dt)
 	return bal, lm
 }
 
@@ -85,7 +91,7 @@ var LMStates = []string{
 //  @Response SearchLedgersResponse
 // wsdoc }
 func getLedgerGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "getLedgerGrid"
+	const funcname = "getLedgerGrid"
 	var (
 		err error
 		g   SearchLedgersResponse
@@ -103,7 +109,12 @@ func getLedgerGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	i := int64(d.wsSearchReq.Offset)
 	for rows.Next() {
 		var acct rlib.GLAccount
-		rlib.ReadGLAccounts(rows, &acct)
+		err = rlib.ReadGLAccounts(rows, &acct)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
 		active := "active"
 		if 1 == acct.Status {
 			active = "inactive"
@@ -113,7 +124,7 @@ func getLedgerGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			posts = "no"
 		}
 
-		bal, lm := GetAccountBalance(acct.BID, acct.LID, &dt)
+		bal, lm := GetAccountBalance(r.Context(), acct.BID, acct.LID, &dt)
 
 		state := "??"
 		j := int(lm.State)
