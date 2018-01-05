@@ -36,7 +36,7 @@ type ReceiptSendForm struct {
 	CreateTS       rlib.JSONDateTime
 	CreateBy       int64
 	FLAGS          uint64
-	//AcctRule       string
+	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
 }
 
 // ReceiptSaveForm is a structure specifically for the return value from w2ui.
@@ -85,6 +85,7 @@ type PrReceiptGrid struct {
 	FLAGS          uint64
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
 	Comment        string
+	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
 }
 
 // SaveReceiptInput is the input data format for a Save command
@@ -253,6 +254,14 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 			return
 		}
 
+		//---------------------------------------------------------------
+		// RECEIPT-ONLY CLIENT UPDATE...
+		// extract the RentableName from the comment if it is present...
+		//---------------------------------------------------------------
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			q.RentableName, q.Comment = rlib.ROCExtractRentableName(q.Comment)
+		}
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -353,12 +362,19 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.RCPTID == 0 && d.RCPTID == 0 {
 		//-------------------------------------------------------------------
 		// there is one special case: if the client is the receipt-only
-		// client for Isola Bella, we skip the business checks because only
-		// the receipts are being saved, nothing else.  This will go away
-		// in the future when we're able to keep the payors up-to-date for
-		// Isola Bella.
 		//-------------------------------------------------------------------
-		if d.wsSearchReq.Client == "receipts" {
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			//----------------------------------------------------------------
+			// There is no field for the RentableName in a receipt. But we
+			// need one for the Receipt-Only client. We will encode it onto
+			// the comment field with double-braces.  We will remove the
+			// double braces and RentableName when the Read-Only client reads
+			// back these receipts.  They will be transferred to the client
+			// in a RentableName field.
+			//----------------------------------------------------------------
+			if len(d.wsSearchReq.RentableName) > 0 {
+				a.Comment += rlib.ROCPRE + d.wsSearchReq.RentableName + rlib.ROCPOST
+			}
 			_, err = rlib.InsertReceipt(&a)
 		} else {
 			err = bizlogic.InsertReceipt(&a)
@@ -377,7 +393,10 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// in the future when we're able to keep the payors up-to-date for
 		// Isola Bella.
 		//-------------------------------------------------------------------
-		if d.wsSearchReq.Client == "receipts" {
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			if len(d.wsSearchReq.RentableName) > 0 {
+				a.Comment += rlib.ROCPRE + d.wsSearchReq.RentableName + rlib.ROCPOST
+			}
 			err = rlib.UpdateReceipt(&a)
 		} else {
 			now := time.Now() // this is the time we're making the change if a reversal needs to be done
@@ -423,6 +442,12 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				gg.Payor = t.GetFullTransactantName() + " (TCID: " + tcid + ")"
 			}
 		}
+
+		// RECEIPT-ONLY CLIENT - Remove when this client is no longer needed
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			gg.RentableName, gg.Comment = rlib.ROCExtractRentableName(gg.Comment)
+		}
+
 		g.Record = gg
 	}
 	g.Status = "success"
@@ -456,6 +481,20 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rcpt := rlib.GetReceipt(del.RCPTID)
+
+	//---------------------------------------------------------------
+	// RECEIPT-ONLY CLIENT UPDATE...
+	// extract the RentableName from the comment if it is present...
+	//---------------------------------------------------------------
+	if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+		i1 := strings.Index(rcpt.Comment, rlib.ROCPRE)
+		i2 := strings.Index(rcpt.Comment, rlib.ROCPOST)
+		if i1 >= 0 && i2 > i1 {
+			rcpt.RentableName = rcpt.Comment[i1+rlib.ROCOFFSET : i2]
+			rcpt.Comment = rcpt.Comment[:i1]
+		}
+	}
+
 	dt := time.Now()
 	err := bizlogic.ReverseReceipt(&rcpt, &dt)
 	if err != nil {

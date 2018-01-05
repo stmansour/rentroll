@@ -67,6 +67,7 @@ type WebGridSearchRequestJSON struct {
 	SearchDtStop  rlib.JSONDate `json:"searchDtStop"`  // for time-sensitive searches
 	Bool1         bool          `json:"Bool1"`         // a general purpose bool flag for postData from client
 	Client        string        `json:"client"`        // name of requesting client
+	RentableName  string        `json:"RentableName"`  // RECEIPT-ONLY CLIENT EXTENSION - to be removed when Receipt-Only client goes away
 }
 
 // WebGridSearchRequest is a struct suitable for describing a webservice operation.
@@ -82,6 +83,7 @@ type WebGridSearchRequest struct {
 	SearchDtStop  time.Time   `json:"searchDtStop"`  // for time-sensitive searches
 	Bool1         bool        `json:"Bool1"`         // a general purpose bool flag for postData from client
 	Client        string      `json:"client"`        // name of requesting client.  ex: "roller", "receipts"
+	RentableName  string      `json:"RentableName"`  // RECEIPT-ONLY CLIENT EXTENSION - to be removed when Receipt-Only client goes away
 }
 
 // WebFormRequest is a struct suitable for describing a webservice operation.

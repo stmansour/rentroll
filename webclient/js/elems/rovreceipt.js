@@ -5,7 +5,7 @@
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, formRecDiffer, getCurrentBID, getBUDfromBID,
-
+    ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
 */
 "use strict";
 function getROVReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
@@ -86,19 +86,20 @@ function buildROVReceiptElements() {
                         return '';
                     },
             },
-            {field: 'RCPTID',        caption: 'Receipt ID',     size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
-            {field: 'Dt',            caption: 'Date',           size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
-            {field: 'ARID',          caption: 'ARID',           size: '150px', hidden: true,  sortable: false},
-            {field: 'DID',           caption: 'DID',            size: '150px', hidden: true,  sortable: false},
-            {field: 'AcctRule',      caption: 'Account Rule',   size: '150px', hidden: true,  sortable: true},
-            {field: 'Amount',        caption: 'Amount',         size: '100px', hidden: false, sortable: true, render: 'money', style: 'text-align: right'},
-            {field: 'BID',           caption: 'BUD',            size: '40px',  hidden: true,  sortable: false},
-            {field: 'TCID',          caption: 'TCID',           size: '40px',  hidden: true,  sortable: false},
-            {field: 'PMTID',         caption: 'PMTID',                         hidden: true,  sortable: false},
-            {field: 'PmtTypeName',   caption: 'Payment Type',   size: '100px', hidden: false, sortable: true},
-            {field: 'DocNo',         caption: 'Document Number',size: '150px', hidden: false, sortable: true, style: 'text-align: right'},
-            {field: 'OtherPayorName',caption: 'Payor',          size: '150px', hidden: false,  sortable: true},
-            {field: 'Comment',       caption: 'Comment',        size: '150px', hidden: false, sortable: true},
+            {field: 'RCPTID',        caption: 'Receipt ID',      size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'Dt',            caption: 'Date',            size: '80px',  hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'ARID',          caption: 'ARID',            size: '150px', hidden: true,  sortable: false},
+            {field: 'DID',           caption: 'DID',             size: '150px', hidden: true,  sortable: false},
+            {field: 'AcctRule',      caption: 'Account Rule',    size: '150px', hidden: true,  sortable: true},
+            {field: 'Amount',        caption: 'Amount',          size: '100px', hidden: false, sortable: true, render: 'money', style: 'text-align: right'},
+            {field: 'BID',           caption: 'BUD',             size: '40px',  hidden: true,  sortable: false},
+            {field: 'TCID',          caption: 'TCID',            size: '40px',  hidden: true,  sortable: false},
+            {field: 'PMTID',         caption: 'PMTID',                          hidden: true,  sortable: false},
+            {field: 'PmtTypeName',   caption: 'Payment Type',    size: '100px', hidden: false, sortable: true},
+            {field: 'DocNo',         caption: 'Document Number', size: '150px', hidden: false, sortable: true, style: 'text-align: right'},
+            {field: 'OtherPayorName',caption: 'Payor',           size: '150px', hidden: false, sortable: true},
+            {field: 'RentableName',  caption: 'Resident Address',size: '150px', hidden: false, sortable: true},
+            {field: 'Comment',       caption: 'Comment',         size: '150px', hidden: false, sortable: true},
         ],
         searches : [
             { field: 'Amount', caption: 'Amount', type: 'string' },
@@ -123,7 +124,10 @@ function buildROVReceiptElements() {
                         grid.select(app.last.grid_sel_recid);// keep highlighting current row in any case
 
                         var rec = grid.get(recid);
-                        // var f = w2ui.receiptForm;
+                        var f = w2ui.receiptForm;
+                        var j = f.get('ERentableName',true); // index of the enumerated RentableName field
+                        f.fields[j].options.url = '/v1/rentablestd/' + BID;
+                        f.postData = {searchDtStart: app.D1, searchDtStop: app.D2, client: app.client};
                         setToForm('receiptForm', '/v1/receipt/' + BID + '/' + rec.RCPTID, 400, true);
 
                         // get the latest receipt rules and feed the list in "ARID" form field
@@ -145,7 +149,7 @@ function buildROVReceiptElements() {
             };
         },
         onRequest: function(/*event*/) {
-            w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+            w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2, client: app.client};
         },
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -160,51 +164,70 @@ function buildROVReceiptElements() {
 
                 if (event.target == 'monthfwd') {  // we do these tasks after monthfwd is refreshed so we know that the 2 date controls exist
                     setDateControlsInToolbar('receipts');
-                    w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+                    w2ui.receiptsGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2, client: app.client};
                 }
             };
         },
         onAdd: function (/*event*/) {
-            var yes_args = [this],
-                no_callBack = function() { return false; },
-                yes_callBack = function(grid) {
-                    var BID = getCurrentBID();
-                    var BUD = getBUDfromBID(BID);
+            var BID = getCurrentBID();
+            var BUD = getBUDfromBID(BID);
 
-                    // reset it
-                    app.last.grid_sel_recid = -1;
-                    grid.selectNone();
+            // reset it
+            app.last.grid_sel_recid = -1;
+            // grid.selectNone();
 
-                    var f = w2ui.receiptForm;
-                    setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
-                    var pmt_options = buildPaymentTypeSelectList(BUD);
-                    var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                    f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
-                    f.header = "Edit Receipt (new)";
-                    f.postData = {client: app.client};
+            var f = w2ui.receiptForm;
+            var j = f.get('ERentableName',true); // index of the enumerated RentableName field
+            f.fields[j].options.url = '/v1/rentablestd/' + BID;
+            setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
+            var pmt_options = buildPaymentTypeSelectList(BUD);
+            var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
+            f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
+            f.header = "Edit Receipt (new)";
+            f.postData = {client: app.client};
 
-                    // get the latest receipt rules
-                    // getBusinessReceiptRules(BID, BUD)
-                    // .done(function(data) {
-                    //     if ('status' in data && data.status !== 'success') {
-                    //         f.message(data.message);
-                    //     } else {
-                    //         var pmt_options = buildPaymentTypeSelectList(BUD);
-                    //         var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                    //         f.get("PmtTypeName").options.items = pmt_options;
-                    //         f.get("ARID").options.items = app.ReceiptRules[BUD];
-                    //         f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
-                    //         f.refresh();
-                    //         setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
-                    //     }
-                    // })
-                    // .fail( function() {
-                    //     console.log('Error getting /v1/uival/'+BUD+'/app.ReceiptRules');
-                    // });
-                };
+            // var yes_args = [this],
+            //     no_callBack = function() { return false; },
+            //     yes_callBack = function(grid) {
+            //         var BID = getCurrentBID();
+            //         var BUD = getBUDfromBID(BID);
 
-            // warn user if form content has been changed
-            form_dirty_alert(yes_callBack, no_callBack, yes_args);
+            //         // reset it
+            //         app.last.grid_sel_recid = -1;
+            //         grid.selectNone();
+
+            //         var f = w2ui.receiptForm;
+            //         var j = f.get('ERentableName',true); // index of the enumerated RentableName field
+            //         f.fields[j].options.url = '/v1/rentablestd/' + BID;
+            //         setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
+            //         var pmt_options = buildPaymentTypeSelectList(BUD);
+            //         var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
+            //         f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
+            //         f.header = "Edit Receipt (new)";
+            //         f.postData = {client: app.client};
+
+            //         // get the latest receipt rules
+            //         // getBusinessReceiptRules(BID, BUD)
+            //         // .done(function(data) {
+            //         //     if ('status' in data && data.status !== 'success') {
+            //         //         f.message(data.message);
+            //         //     } else {
+            //         //         var pmt_options = buildPaymentTypeSelectList(BUD);
+            //         //         var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
+            //         //         f.get("PmtTypeName").options.items = pmt_options;
+            //         //         f.get("ARID").options.items = app.ReceiptRules[BUD];
+            //         //         f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
+            //         //         f.refresh();
+            //         //         setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
+            //         //     }
+            //         // })
+            //         // .fail( function() {
+            //         //     console.log('Error getting /v1/uival/'+BUD+'/app.ReceiptRules');
+            //         // });
+            //     };
+
+            // // warn user if form content has been changed
+            // form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
@@ -220,17 +243,17 @@ function buildROVReceiptElements() {
         url: '/v1/receipt',
         formURL: '/webclient/html/formrovrcpt.html',
         fields: [
-            { field: 'PmtTypeName',    type: 'list', required: true, options: { items: [], selected: {} }, html: { caption: "BUD", page: 0 } }, // keep this at position 0 as the list changes and we need to update it
-            // { field: 'ARID',           type: 'list',  required: true, options:  {items: app.ReceiptRules} },  // 1
-            { field: 'recid',          type: 'int',   required: false },                                     // 2
-            { field: "BID", required: false, type: 'int', html: { caption: "BID", page: 0, column: 0 } },
-            { field: "BUD", required: true, options: { items: app.businesses, maxDropHeight: 350 }, type: 'list', html: { caption: "BUD", page: 0, column: 0 } },
-            { field: 'RCPTID',         type: 'int',   required: true },     // 4
-            { field: 'PRCPTID',        type: 'int',   required: false },    // 5
-            { field: 'PMTID',          type: 'int',   required: false },    // 6
-            { field: 'Dt',             type: 'date',  required: true },     // 7
-            { field: 'DocNo',          type: 'text',  required: false },    // 8
-            // { field: 'Payor', required: true,                               // 9   <<<<<<********
+            { field: 'PmtTypeName',type: 'list', required: true, options: { items: [], selected: {} }, html: { caption: "BUD", page: 0 } },
+            // { field: 'ARID',    type: 'list', required: true, options:  {items: app.ReceiptRules} },
+            { field: 'recid',      type: 'int',  required: false },
+            { field: "BID",        type: 'int',  required: false, html: { caption: "BID", page: 0, column: 0 } },
+            { field: "BUD",        type: 'list', required: true, options: { items: app.businesses, maxDropHeight: 350 }, html: { caption: "BUD", page: 0, column: 0 } },
+            { field: 'RCPTID',     type: 'int',  required: true },
+            { field: 'PRCPTID',    type: 'int',  required: false },
+            { field: 'PMTID',      type: 'int',  required: false },
+            { field: 'Dt',         type: 'date', required: true },
+            { field: 'DocNo',      type: 'text', required: false },
+            // { field: 'Payor', required: true,
             //     type: 'enum',
             //     options: {
             //         url:        '/v1/transactantstd/',
@@ -258,20 +281,41 @@ function buildROVReceiptElements() {
             //         }
             //     },
             // },
-            { field: 'RentableName',   type: 'enum',  required: false },
-            { field: 'ARID',           type: 'hidden',  required: false },
-            { field: 'Payor',          type: 'hidden',  required: false },
-            { field: 'TCID',           type: 'hidden',  required: false },
-            { field: 'RAID',           type: 'hidden',  required: false },
+            {   field: 'ERentableName',
+                type: 'enum',
+                options: {
+                    url:           '/v1/rentablestd/',
+                    max:           1,
+                    cacheMax:      50,
+                    maxDropHeight: 350,
+                    maxDropWidth:  300,
+                    compare:       ridRentableCompare,
+                    renderItem: function (item) {
+                        w2ui.receiptForm.record.RentableName = item.RentableName;
+                        return item.RentableName;
+                    },
+                    renderDrop: function (item) {
+                        return item.RentableName;
+                    },
+                    onNew: function (event) {
+                        $.extend(event.item, { RentableName : event.item.text });
+                    }
+                },
+            },
+            { field: 'ARID',           type: 'hidden', required: false },
+            { field: 'Payor',          type: 'hidden', required: false },
+            { field: 'TCID',           type: 'hidden', required: false },
+            { field: 'RAID',           type: 'hidden', required: false },
             { field: 'Amount',         type: 'money',  required: true },
             { field: 'Comment',        type: 'text',   required: false },
             { field: 'OtherPayorName', type: 'text',   required: false },
             { field: 'FLAGS',          type: 'w2int',  required: false },
-            { field: 'DID',            type: 'hidden',    required: false },
+            { field: 'DID',            type: 'hidden', required: false },
             { field: 'LastModTime',    type: 'hidden', required: false },
             { field: 'LastModBy',      type: 'hidden', required: false },
             { field: 'CreateTS',       type: 'hidden', required: false },
             { field: 'CreateBy',       type: 'hidden', required: false },
+            { field: 'RentableName',   type: 'hidden', required: false },
         ],
         toolbar: {
             items: [
@@ -294,45 +338,51 @@ function buildROVReceiptElements() {
         },
         onRender: function(event) { // when form is loaded first time in toplayout right panel
             event.onComplete = function() {
-                var f = this,
-                    r = f.record,
-                    BID = getCurrentBID();
+                var f = this;
+                var r = f.record;
+                // var BID = getCurrentBID();
 
-                // enable/disable RAID based on Account Rule
-                var arid;
-                if (typeof r.ARID === "object") {
-                    arid = r.ARID.id;
-                } else {
-                    arid = r.ARID;
-                }
-                if (arid) { // if it has Account Rule then only
-                    var url = '/v1/ar/' + r.BID +'/' + arid;
-                    handleReceiptRAID(url, f);
+                // // enable/disable RAID based on Account Rule
+                // var arid;
+                // if (typeof r.ARID === "object") {
+                //     arid = r.ARID.id;
+                // } else {
+                //     arid = r.ARID;
+                // }
+                // if (arid) { // if it has Account Rule then only
+                //     var url = '/v1/ar/' + r.BID +'/' + arid;
+                //     handleReceiptRAID(url, f);
+                // }
+
+                // Create the RentableName element if rentable name exists...
+                if (r.RentableName.length > 0) {
+                    var item = {recid: 0, RentableName: r.RentableName};
+                    r.ERentableName = [item];
                 }
 
-                if (r.TCID) { // if it has Payor then only
-                    var record = {};
-                    getPersonDetailsByTCID(BID, r.TCID)
-                    .done(function(data) {
-                        record = JSON.parse(data).record;
-                        var item = {
-                            CompanyName: record.CompanyName,
-                            IsCompany: record.IsCompany,
-                            FirstName: record.FirstName,
-                            LastName: record.LastName,
-                            MiddleName: record.MiddleName,
-                            TCID: record.TCID,
-                            recid: 0,
-                        };
-                        if ($(f.box).find("input[name=Payor]").length > 0) {
-                            $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                        }
-                    })
-                    .fail(function() {
-                        f.message("Couldn't get person details for TCID: ", r.TCID);
-                        console.log("couldn't get person details for TCID: ", r.TCID);
-                    });
-                }
+                // if (r.TCID) { // if it has Payor then only
+                //     var record = {};
+                //     getPersonDetailsByTCID(BID, r.TCID)
+                //     .done(function(data) {
+                //         record = JSON.parse(data).record;
+                //         var item = {
+                //             CompanyName: record.CompanyName,
+                //             IsCompany: record.IsCompany,
+                //             FirstName: record.FirstName,
+                //             LastName: record.LastName,
+                //             MiddleName: record.MiddleName,
+                //             TCID: record.TCID,
+                //             recid: 0,
+                //         };
+                //         if ($(f.box).find("input[name=Payor]").length > 0) {
+                //             $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+                //         }
+                //     })
+                //     .fail(function() {
+                //         f.message("Couldn't get person details for TCID: ", r.TCID);
+                //         console.log("couldn't get person details for TCID: ", r.TCID);
+                //     });
+                // }
             };
         },
         onLoad: function(event) { // when form data is loaded without rendering/refreshing event then
@@ -379,6 +429,7 @@ function buildROVReceiptElements() {
             };
         },
         onRefresh: function(event) {
+            //w2ui.ridRentablePicker.fields[0].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
             event.onComplete = function() {
                 var f      = this;
                 var r      = f.record;
@@ -391,10 +442,15 @@ function buildROVReceiptElements() {
                     header = "Edit Receipt (new)";
                 }
 
+                if (r.RentableName.length > 0) {
+                    var item = {recid: 0, RentableName: r.RentableName};
+                    r.ERentableName = [item];
+                }
+
                 f.get("PmtTypeName").options.items = buildPaymentTypeSelectList( BUD );
                 f.get("PmtTypeName").options.selected = getPaymentType(BUD, r.PMTID);
-                f.get("ARID").options.items = app.ReceiptRules[BUD];
-                f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
+                // f.get("ARID").options.items = app.ReceiptRules[BUD];
+                // f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
                 // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
 
                 formRefreshCallBack(f, "RCPTID", header);
@@ -583,7 +639,7 @@ function buildROVReceiptElements() {
                 }
                 grid.selectNone();
 
-                f.postData = {client: app.client};
+                f.postData = {client: app.client, RentableName: f.record.RentableName};
                 f.save(null, function (data) {
                     if (data.status == 'error') {
                         console.log('ERROR: '+ data.message);

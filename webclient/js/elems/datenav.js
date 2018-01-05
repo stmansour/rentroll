@@ -32,6 +32,7 @@ function adjustD2() {
 // @return  <no return value>
 //-----------------------------------------------------------------------------
 function handleDateToolbarAction(event,prefix) {
+    console.log('handleDateToolbarAction: target = ' + event.target + ' prefix = ' + prefix);
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
     switch (event.target) {
@@ -186,6 +187,9 @@ function addDateNavToToolbar(prefix) {
     var grid = w2ui[prefix+'Grid'];
     grid.toolbar.add( genDateRangeNavigator(prefix) );
     grid.toolbar.on('click', function(event) {
+        if (event.target == 'w2ui-add') {
+            return; // this function does not handle 'w2ui-add'
+        }
         handleDateToolbarAction(event,prefix); // adjusts dates and loads into date controls
         updateGridPostDataDates(grid);
         grid.load(grid.url, function() {

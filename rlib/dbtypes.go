@@ -3,6 +3,7 @@ package rlib
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -842,6 +843,36 @@ type Receipt struct {
 	RA              []ReceiptAllocation
 	CreateTS        time.Time // when was this record created
 	CreateBy        int64     // employee UID (from phonebook) that created it
+	RentableName    string    // RECEIPT-ONLY CLIENT. Remove this field when we no longer use the RECEIPT-ONLY CLIENT
+}
+
+// RECEIPTONLYCLIENT et. al. are values used to support the
+// receipt-only client.
+// TODO: remove when this client is no longer needed.
+const (
+	RECEIPTONLYCLIENT = "receipts"
+	ROCPRE            = "^*{{"
+	ROCPOST           = "}}*^"
+	ROCOFFSET         = len(ROCPRE)
+)
+
+// ROCExtractRentableName is used to extract the rentable name
+// from the comment field in a Receipt structure produced by the
+// RECEIPT-ONLY client.
+// TODO: remove when this client is no longer needed.
+//
+// Input - the comment string
+// Returns -  rentableName, commentWithRentableNameRemoved
+//-----------------------------------------------------------------
+func ROCExtractRentableName(comment string) (string, string) {
+	var rn string
+	i1 := strings.Index(comment, ROCPRE)
+	i2 := strings.Index(comment, ROCPOST)
+	if i1 >= 0 && i2 > i1 {
+		rn = comment[i1+ROCOFFSET : i2]
+		comment = comment[:i1]
+	}
+	return rn, comment
 }
 
 // ReceiptAllocation defines an allocation of a Receipt amount.
