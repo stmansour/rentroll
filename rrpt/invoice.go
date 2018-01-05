@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"gotable"
-	"rentroll/rcsv"
 	"rentroll/rlib"
 	"strings"
 )
@@ -141,10 +140,7 @@ func RRreportInvoices(ctx context.Context, ri *ReporterInfo) string {
 	tbl.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("DeliveredBy", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
-	// TODO(Steve): should we replce Rcsv.DtStart, DtStop with "ri" dates?
-	// However, ri dates need the flag on of NeedsDt in main.go
-	m, err := rlib.GetAllInvoicesInRange(ctx, ri.Bid, &rcsv.Rcsv.DtStart, &rcsv.Rcsv.DtStop)
-	// m, err := rlib.GetAllInvoicesInRange(ctx, ri.Bid, &ri.D1, &ri.D2)
+	m, err := rlib.GetAllInvoicesInRange(ctx, ri.Bid, &ri.D1, &ri.D2)
 	if err != nil {
 		tbl.SetSection3(err.Error())
 		return tbl.String()

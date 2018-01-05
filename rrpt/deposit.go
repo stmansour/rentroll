@@ -16,7 +16,6 @@ func RRreportDeposits(ctx context.Context, ri *ReporterInfo) string {
 	var t gotable.Table
 	t.Init()
 
-	// TODO(Steve): this routine moved from rcsv/report.go, should we replace Rcsv.DtStart, Rcsv.DtStop with "ri" dates
 	m, err := rlib.GetAllDepositsInRange(ctx, ri.Bid, &ri.D1, &ri.D2)
 	if err != nil {
 		t.SetSection3(err.Error())
