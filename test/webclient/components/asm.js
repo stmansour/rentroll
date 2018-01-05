@@ -28,7 +28,7 @@ exports.addNewConf = {
     sidebarID: SIDEBAR_ID,
     capture: "asmsAddNewButton.png",
     buttonName: ["save", "saveadd"],
-    disableFields: [],
+    disableFields: ["RAID", "Rentable"],
     tabs: [],
-    testCount: 27
+    testCount: 29
 };

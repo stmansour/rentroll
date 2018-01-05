@@ -143,11 +143,25 @@ exports.getInputListW2UIFields = function (inputField) {
     }
 };
 
-// getTextTypeW2UIFields Return a w2ui form fields  object with type 'text' or 'enum' or 'money'
-exports.getTextTypeW2UIFields = function (inputField) {
+// getW2UIInputFields Return a w2ui form fields  object with type 'text' or 'enum' or 'money'
+exports.getW2UIInputFields = function (inputField) {
+
     if (inputField.type === "text" || inputField.type === "enum" || inputField.type === "money") {
         return inputField;
     }
+
+    /* There are many int type fields available. Many of them are as hidden.
+    We don't need to perform the test on that hidden fields. e.g., recid
+    Return inputField if it is not hidden.
+    */
+
+    // TODO: InuptField doesn't have el object. Find other way around to return inputField with type int
+/*    if (inputField.type === "int"){
+
+        if (!inputField.el.hidden){
+            return inputField;
+        }
+    }*/
 };
 
 //

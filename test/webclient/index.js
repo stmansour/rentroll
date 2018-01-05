@@ -124,7 +124,7 @@ casper.then(function addNewButtonTesting() {
 // --------------------------------------------------
 // 4. Now start all right side panel view UI testing
 // --------------------------------------------------
-/*casper.then(function formTesting() {
+casper.then(function formTesting() {
     formM.w2uiFormTest(asmM.formConf);
     formM.w2uiFormTest(transactantsM.formConf);
     formM.w2uiFormTest(acctM.formConf);
@@ -133,21 +133,21 @@ casper.then(function addNewButtonTesting() {
     formM.w2uiFormTest(depmethM.formConf);
     formM.w2uiFormTest(arsM.formConf);
     formM.w2uiFormTest(rtM.formConf);
-});*/
+});
 
 
 // --------------------------------------------------
 // 5. Now start all grid record check test
 // --------------------------------------------------
 
-/*casper.then(function apiIntegrationTest() {
+casper.then(function apiIntegrationTest() {
     gridRecordM.gridRecordsTest(pmtM.gridConf);
     gridRecordM.gridRecordsTest(depM.gridConf);
     gridRecordM.gridRecordsTest(depmethM.gridConf);
     gridRecordM.gridRecordsTest(arsM.gridConf);
     gridRecordM.gridRecordsTest(rtM.gridConf);
     gridRecordM.gridRecordsTest(rentableM.gridConf);
-});*/
+});
 
 // ========== RUN TEST ==========
 casper.run();

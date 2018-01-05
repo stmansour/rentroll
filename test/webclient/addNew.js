@@ -224,17 +224,30 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             //to open a grid
             this.sidebarID = addNewButtonConfig.sidebarID;
 
+
+            casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
+            casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
+
+            // Click add new button in toolbar
+            casper.wait(common.waitTime, function clickAddNewButton() {
+                //It will click table cell with the text 'Add New'
+                casper.clickLabel("Add New", "td");
+            });
+
+
             // list of input fields
             // this.inputFields = addNewButtonConfig.inputField;
             this.formFields = casper.evaluate(function (form) {
                 return w2ui[form].fields;
             }, this.form);
 
+            console.log(JSON.stringify(this.formFields));
+
             // list of tabs in form
             this.tabs = addNewButtonConfig.tabs;
 
             // list of input fields
-            this.inputFields = this.formFields.filter(w2ui_utils.getTextTypeW2UIFields);
+            this.inputFields = this.formFields.filter(w2ui_utils.getW2UIInputFields);
 
             // list of input select fields
             this.inputSelectField = this.formFields.filter(w2ui_utils.getInputListW2UIFields);
@@ -254,16 +267,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             // Disable fields list
             this.disableFields = addNewButtonConfig.disableFields;
 
-            // updateFieldsMemberInList()
-
-            casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
-            casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
-
-            // Click add new button in toolbar
-            casper.wait(common.waitTime, function clickAddNewButton() {
-                //It will click table cell with the text 'Add New'
-                casper.clickLabel("Add New", "td");
-            });
         },
 
         test: function (test) {
@@ -282,8 +285,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 that.tabs.forEach(function (tab, pageNo) {
 
-                    // pageNo += 1;
-
                     // If there are tabs in form than approach to perform test on form will be difference.
                     // W2UI Form fields have html page number. Filter records based on page number and use it to perform tests
                     // Update members in inputFields, inputSelectFields, checkBoxes, dateFields, and other fields list
@@ -296,7 +297,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
 
                     // First tab has been opened already. So don't click on first tab.
-                    if (pageNo !== 0){
+                    if (pageNo !== 0) {
                         casper.clickLabel(tab, "div");
                     }
 
@@ -324,9 +325,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 });
 
                 // If there are no tabs but there is only one form than perform tests on fields of the form.
-                if (that.tabs.length === 0){
-
-                    console.log("No tabs!");
+                if (that.tabs.length === 0) {
 
                     // Input fields test
                     testInputFields(that.form, that.inputFields, test);
