@@ -132,7 +132,7 @@ func CreateInvoicesFromCSV(ctx context.Context, sa []string, lineno int) (int, e
 	// build the payor list
 	m, err := rlib.GetRentalAgreementPayorsInRange(ctx, RAID, &inv.Dt, &inv.DtDue) // these are the main payors
 	if err != nil {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  Error while getting agreement payors for RAID(%d), inv.Dt(%q), inv.DtDue(%q). Error: %s\n", funcname, lineno, RAID, inv.Dt, inv.DtDue, err.Error())
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  Error while getting agreement payors for RAID(%d), inv.Dt(%q), inv.DtDue(%q). Error: %s", funcname, lineno, RAID, inv.Dt, inv.DtDue, err.Error())
 	}
 	// for i := 0; i < len(t); i++ {                                 // if there are any additional people that should receive the invoice...
 	// 	var a rlib.RentalAgreementPayor // add them...
