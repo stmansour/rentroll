@@ -164,13 +164,13 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// Try to read an existing record...
-	_, err = rlib.GetRentableUserByRBT(r.Context(), a.RID, a.BID, a.TCID)
-	if err != nil && !strings.Contains(err.Error(), "no rows") {
+	ru, err := rlib.GetRentableUserByRBT(r.Context(), a.RID, a.BID, a.TCID)
+	if err != nil {
 		fmt.Printf("Error from GetRentableUserByRBT: %s\n", err.Error())
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	if err == nil {
+	if ru.RUID > 0 { // if found such rentable user then raise the error
 		var t rlib.Transactant
 		err = rlib.GetTransactant(r.Context(), a.TCID, &t)
 		err = fmt.Errorf("%s (%s) is already listed as a user", t.GetUserName(), t.IDtoString())

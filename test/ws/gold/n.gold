@@ -1,4 +1,4 @@
 {
-    "message": "Error: Jason Thomas (TC00000373) is already listed as a user\n",
+    "message": "Error: There is already an overlapping record for this user from 03/05/2017 to 03/05/2018\n",
     "status": "error"
 }
