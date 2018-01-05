@@ -28,7 +28,7 @@ import (
 func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "ReportServiceHandler"
 	var (
-		ui         RRuiSupport
+		ui         ReportContext
 		xbiz       rlib.XBusiness
 		reportname string
 		err        error
