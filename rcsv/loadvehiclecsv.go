@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strconv"
@@ -20,8 +21,8 @@ import (
 
 // CreateVehicleFromCSV reads a rental specialty type string array and creates a database record for the rental specialty type.
 // If the return value is not 0, abort the csv load
-func CreateVehicleFromCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreateVehicleFromCSV"
+func CreateVehicleFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateVehicleFromCSV"
 
 	var (
 		err error
@@ -78,14 +79,20 @@ func CreateVehicleFromCSV(sa []string, lineno int) (int, error) {
 			// Make sure the rlib.Business is in the database
 			//-------------------------------------------------------------------
 			if len(des) > 0 { // make sure it's not empty
-				b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
+				b1, err := rlib.GetBusinessByDesignation(ctx, des) // see if we can find the biz
+				if err != nil {
+					return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+				}
 				if len(b1.Designation) == 0 {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist", funcname, lineno, sa[0])
 				}
 				tr.BID = b1.BID
 			}
 		case TCID:
-			tr = rlib.GetTransactantByPhoneOrEmail(tr.BID, s)
+			tr, err = rlib.GetTransactantByPhoneOrEmail(ctx, tr.BID, s)
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error getting Transactant with %s listed as a phone or email: %s", funcname, lineno, s, err.Error())
+			}
 			if tr.TCID < 1 {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d, no Transactant found with %s listed as a phone or email", funcname, lineno, s)
 			}
@@ -134,7 +141,8 @@ func CreateVehicleFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Check for duplicate...
 	//-------------------------------------------------------------------
-	tm := rlib.GetVehiclesByLicensePlate(t.LicensePlateNumber)
+	// TODO(Steve): ignore error?
+	tm, _ := rlib.GetVehiclesByLicensePlate(ctx, t.LicensePlateNumber)
 	for i := 0; i < len(tm); i++ {
 		if t.LicensePlateNumber == tm[i].LicensePlateNumber && t.LicensePlateState == tm[i].LicensePlateState {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - vehicle with License Plate %s in State = %s already exists", funcname, lineno, t.LicensePlateNumber, t.LicensePlateState)
@@ -146,7 +154,7 @@ func CreateVehicleFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	t.TCID = tr.TCID
 	t.BID = tr.BID
-	vid, err := rlib.InsertVehicle(&t)
+	vid, err := rlib.InsertVehicle(ctx, &t)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting Vehicle = %v", funcname, lineno, err)
 	}
@@ -158,6 +166,6 @@ func CreateVehicleFromCSV(sa []string, lineno int) (int, error) {
 }
 
 // LoadVehicleCSV loads a csv file with vehicles
-func LoadVehicleCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateVehicleFromCSV)
+func LoadVehicleCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateVehicleFromCSV)
 }

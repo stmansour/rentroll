@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -32,18 +33,23 @@ const (
 // initialize to LOOSE as it is best for testing and should be OK for normal use as well.
 var CsvErrorSensitivity = int(CsvErrLoose)
 
+// CSVLoadHandlerFunc type of load hanlder function
+type CSVLoadHandlerFunc func(context.Context, string) []error
+
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
 type CSVLoadHandler struct {
 	Fname   string
-	Handler func(string) []error
+	Handler CSVLoadHandlerFunc
 }
+
+type csvHandlerFunc func(context.Context, []string, int) (int, error)
 
 // LoadRentRollCSV performs a general purpose load.  It opens the supplied file name, and processes
 // it line-by-line by calling the supplied handler function.
 // Return Values
 //		[]error  -  an array of errors encountered by the handler function during the load
 //--------------------------------------------------------------------------------------------------
-func LoadRentRollCSV(fname string, handler func([]string, int) (int, error)) []error {
+func LoadRentRollCSV(ctx context.Context, fname string, handler csvHandlerFunc) []error {
 	var m []error
 	t := rlib.LoadCSV(fname)
 	for i := 0; i < len(t); i++ {
@@ -53,7 +59,7 @@ func LoadRentRollCSV(fname string, handler func([]string, int) (int, error)) []e
 		if t[i][0][0] == '#' { // if it's a comment line, don't process it, just move on
 			continue
 		}
-		s, err := handler(t[i], i+1)
+		s, err := handler(ctx, t[i], i+1)
 		if err != nil {
 			m = append(m, err)
 		}
@@ -107,13 +113,18 @@ func ValidateCSVColumns(csvCols []CSVColumn, sa []string, funcname string, linen
 // CSVLoaderTransactantList takes a comma separated list of email addresses and phone numbers
 // and returns an array of transactants for each.  If any of the addresses in the list
 // cannot be resolved to a rlib.Transactant, then processing stops immediately and an error is returned.
-func CSVLoaderTransactantList(BID int64, s string) ([]rlib.Transactant, error) {
-	funcname := "CSVLoaderTransactantList"
-	var m []rlib.Transactant
-	var noerr error
+func CSVLoaderTransactantList(ctx context.Context, BID int64, s string) ([]rlib.Transactant, error) {
+	const funcname = "CSVLoaderTransactantList"
+
+	var (
+		err error
+		m   []rlib.Transactant
+	)
+
 	if "" == s {
 		return m, nil
 	}
+
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
 	ss := strings.Split(s2, ",")
 	for i := 0; i < len(ss); i++ {
@@ -121,9 +132,17 @@ func CSVLoaderTransactantList(BID int64, s string) ([]rlib.Transactant, error) {
 		s = strings.TrimSpace(ss[i])                          // either the email address or the phone number
 		n, ok := readNumAndStatusFromExpr(s, "^TC0*(.*)", "") // "" suppresses error messages
 		if len(ok) == 0 {
-			rlib.GetTransactant(n, &a)
+			err = rlib.GetTransactant(ctx, n, &a)
+			if err != nil {
+				rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)
+				return m, rerr
+			}
 		} else {
-			a = rlib.GetTransactantByPhoneOrEmail(BID, s)
+			a, err = rlib.GetTransactantByPhoneOrEmail(ctx, BID, s)
+			if err != nil {
+				rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)
+				return m, rerr
+			}
 		}
 		if 0 == a.TCID {
 			rerr := fmt.Errorf("%s:  error retrieving Transactant with TCID, phone, or email: %s", funcname, s)
@@ -132,7 +151,7 @@ func CSVLoaderTransactantList(BID int64, s string) ([]rlib.Transactant, error) {
 		}
 		m = append(m, a)
 	}
-	return m, noerr
+	return m, err
 }
 
 // ErrlistToString converts an errorlist into a string suitable for printout
@@ -155,8 +174,11 @@ func ErrlistToString(m *[]error) string {
 // default values of dfltStart and dfltStop -- which are the start/stop time of the rental agreement --
 // are used instead. This is common because the payors will usually be the same for the entire rental
 // agreement lifetime.
-func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentalAgreementPayor, error) {
-	var m []rlib.RentalAgreementPayor
+func BuildPayorList(ctx context.Context, BID int64, s string, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentalAgreementPayor, error) {
+	var (
+		m []rlib.RentalAgreementPayor
+		// err error
+	)
 	// var noerr error
 	s2 := strings.TrimSpace(s) // either the email address or the phone number
 	if len(s2) == 0 {
@@ -173,7 +195,10 @@ func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname st
 		if len(s) == 0 {
 			return m, fmt.Errorf("%s: line %d - Required Payor field is blank", funcname, lineno)
 		}
-		n, _ := CSVLoaderTransactantList(BID, s)
+		n, err := CSVLoaderTransactantList(ctx, BID, s)
+		if err != nil {
+			return m, fmt.Errorf("%s:  line %d - could not find rlib.Transactant with contact information %s", funcname, lineno, s)
+		}
 		if len(n) == 0 {
 			return m, fmt.Errorf("%s:  line %d - could not find rlib.Transactant with contact information %s", funcname, lineno, s)
 		}
@@ -196,8 +221,12 @@ func BuildPayorList(BID int64, s string, dfltStart, dfltStop string, funcname st
 }
 
 // BuildUserList parses a UserSpec and returns an array of RentableUser structs
-func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentableUser, error) {
-	var m []rlib.RentableUser
+func BuildUserList(ctx context.Context, BID int64, sa, dfltStart, dfltStop string, funcname string, lineno int) ([]rlib.RentableUser, error) {
+	var (
+		m []rlib.RentableUser
+		// err error
+	)
+
 	s2 := strings.TrimSpace(sa) // TCID, email address, or the phone number
 	if len(s2) == 0 {
 		return m, fmt.Errorf("%s: line %d - Required User field is blank", funcname, lineno)
@@ -215,7 +244,7 @@ func BuildUserList(BID int64, sa, dfltStart, dfltStop string, funcname string, l
 		if len(s) == 0 {
 			return m, fmt.Errorf("%s: line %d - Required User field is blank", funcname, lineno)
 		}
-		n, err := CSVLoaderTransactantList(BID, s)
+		n, err := CSVLoaderTransactantList(ctx, BID, s)
 		if err != nil {
 			return m, fmt.Errorf("%s: line %d - invalid person identifier: %s. Error = %s", funcname, lineno, s, err.Error())
 		}

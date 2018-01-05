@@ -55,7 +55,7 @@ func GenSQLInsertAndUpdateStrings(s string) (string, string, string, string, str
 			insertFields = append(insertFields, fld)
 		}
 		// UPDATE FIELDS Inclusion
-		if fld != "LastModTime" && fld != "CreateTS" && fld != "CreateBy" { // remove these fields for INSERT
+		if fld != "LastModTime" && fld != "CreateTS" && fld != "CreateBy" { // remove these fields for UPDATE
 			updateFields = append(updateFields, fld)
 		}
 	}
@@ -183,7 +183,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateBusiness, err = RRdb.Dbrr.Prepare("UPDATE Business SET " + s3 + " WHERE BID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetAllBusinessSpecialtyTypes, err = RRdb.Dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description FROM RentableSpecialty WHERE BID=?")
+	RRdb.Prepstmt.GetAllBusinessRentableSpecialtyTypes, err = RRdb.Dbrr.Prepare("SELECT RSPID,BID,Name,Fee,Description,CreateTS,CreateBy,LastModTime,LastModBy FROM RentableSpecialty WHERE BID=?")
 	Errcheck(err)
 
 	//==========================================
@@ -211,7 +211,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// Custom Attribute Ref
 	//==========================================
-	flds = "ElementType,BID,ID,CID,CreateTS,CreateBy"
+	flds = "ElementType,BID,ID,CID,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["CustomAttrRef"] = flds
 	RRdb.Prepstmt.CountBusinessCustomAttrRefs, err = RRdb.Dbrr.Prepare("SELECT COUNT(CID) FROM CustomAttrRef WHERE BID=?")
 	Errcheck(err)
@@ -308,7 +308,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// EXPENSE
 	//==========================================
-	flds = "EXPID,RPEXPID,BID,RID,RAID,Amount,Dt,AcctRule,ARID,FLAGS,Comment,LastModTime,LastModBy,CreateTS,CreateBy"
+	flds = "EXPID,RPEXPID,BID,RID,RAID,Amount,Dt,AcctRule,ARID,FLAGS,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Expense"] = flds
 
 	RRdb.Prepstmt.GetExpense, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Expense WHERE EXPID=?")
@@ -343,7 +343,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// INVOICE PART
 	//==========================================
-	flds = "InvoiceNo,BID,ASMID,CreateTS,CreateBy"
+	flds = "InvoiceNo,BID,ASMID,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["InvoiceAssessment"] = flds
 	RRdb.Prepstmt.GetInvoiceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM InvoiceAssessment WHERE InvoiceNo=?")
 	Errcheck(err)
@@ -356,7 +356,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// INVOICE PAYOR
 	//==========================================
-	flds = "InvoiceNo,BID,PID,CreateTS,CreateBy"
+	flds = "InvoiceNo,BID,PID,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["InvoicePayor"] = flds
 	RRdb.Prepstmt.GetInvoicePayors, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM InvoicePayor WHERE InvoiceNo=?")
 	Errcheck(err)
@@ -394,7 +394,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// Journal Allocation
 	//==========================================
-	flds = "JAID,BID,JID,RID,RAID,TCID,RCPTID,Amount,ASMID,EXPID,AcctRule,CreateTS,CreateBy"
+	flds = "JAID,BID,JID,RID,RAID,TCID,RCPTID,Amount,ASMID,EXPID,AcctRule,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["JournalAllocation"] = flds
 	RRdb.Prepstmt.GetJournalAllocation, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from JournalAllocation WHERE JAID=?")
 	Errcheck(err)
@@ -701,7 +701,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// RATE PLAN REF RPRID's Rate Info for Rentable Type
 	//==========================================
-	flds = "RPRID,BID,RTID,FLAGS,Val,CreateTS,CreateBy"
+	flds = "RPRID,BID,RTID,FLAGS,Val,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RatePlanRefRTRate"] = flds
 	RRdb.Prepstmt.GetRatePlanRefRTRate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RatePlanRefRTRate WHERE RPRID=? and RTID=?")
 	Errcheck(err)
@@ -711,7 +711,7 @@ func buildPreparedStatements() {
 	_, _, _, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRatePlanRefRTRate, err = RRdb.Dbrr.Prepare("INSERT INTO RatePlanRefRTRate (" + s4 + ") VALUES(" + s5 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRatePlanRefRTRate, err = RRdb.Dbrr.Prepare("UPDATE  RatePlanRefRTRate SET BID=?,FLAGS=?,Val=? WHERE RPRID=? and RTID=?")
+	RRdb.Prepstmt.UpdateRatePlanRefRTRate, err = RRdb.Dbrr.Prepare("UPDATE  RatePlanRefRTRate SET BID=?,FLAGS=?,Val=?,LastModBy=? WHERE RPRID=? and RTID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRatePlanRefRTRate, err = RRdb.Dbrr.Prepare("DELETE FROM  RatePlanRefRTRate WHERE RPRID=? and RTID=?")
 	Errcheck(err)
@@ -719,7 +719,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// RATE PLAN Ref RPRID's Rate Info for Specialties
 	//==========================================
-	flds = "RPRID,BID,RTID,RSPID,FLAGS,Val,CreateTS,CreateBy"
+	flds = "RPRID,BID,RTID,RSPID,FLAGS,Val,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RatePlanRefSPRate"] = flds
 	RRdb.Prepstmt.GetRatePlanRefSPRate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RatePlanRefSPRate WHERE RPRID=? and RTID=? and RSPID=?")
 	Errcheck(err)
@@ -729,7 +729,7 @@ func buildPreparedStatements() {
 	_, _, _, s4, s5 = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRatePlanRefSPRate, err = RRdb.Dbrr.Prepare("INSERT INTO RatePlanRefSPRate (" + s4 + ") VALUES(" + s5 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRatePlanRefSPRate, err = RRdb.Dbrr.Prepare("UPDATE RatePlanRefSPRate SET FLAGS=?,Val=? WHERE RPRID=? and RTID=? and RSPID=?")
+	RRdb.Prepstmt.UpdateRatePlanRefSPRate, err = RRdb.Dbrr.Prepare("UPDATE RatePlanRefSPRate SET FLAGS=?,Val=?,LastModBy=? WHERE RPRID=? and RTID=? and RSPID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRatePlanRefSPRate, err = RRdb.Dbrr.Prepare("DELETE FROM RatePlanRefSPRate WHERE RPRID=? and RSPID=?")
 	Errcheck(err)
@@ -842,7 +842,7 @@ func buildPreparedStatements() {
 	//====================================================
 	//  Rental Agreement Rentable
 	//====================================================
-	flds = "RARID,RAID,BID,RID,CLID,ContractRent,RARDtStart,RARDtStop,CreateTS,CreateBy"
+	flds = "RARID,RAID,BID,RID,CLID,ContractRent,RARDtStart,RARDtStop,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentalAgreementRentables"] = flds
 	RRdb.Prepstmt.GetRARentableForDate, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentalAgreementRentables WHERE RAID=? AND ?>=RARDtStart AND ?<RARDtStop")
 	Errcheck(err)
@@ -870,7 +870,7 @@ func buildPreparedStatements() {
 	//====================================================
 	//  Rental Agreement Users
 	//====================================================
-	flds = "RUID,RID,BID,TCID,DtStart,DtStop,CreateTS,CreateBy"
+	flds = "RUID,RID,BID,TCID,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentableUsers"] = flds
 	RRdb.Prepstmt.GetRentableUser, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentableUsers WHERE RUID=?")
 	Errcheck(err)
@@ -882,7 +882,7 @@ func buildPreparedStatements() {
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.UpdateRentableUser, err = RRdb.Dbrr.Prepare("UPDATE RentableUsers SET " + s3 + " WHERE RUID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableUserByRBT, err = RRdb.Dbrr.Prepare("UPDATE RentableUsers SET DtStart=?,DtStop=? WHERE RID=? AND BID=? AND TCID=?")
+	RRdb.Prepstmt.UpdateRentableUserByRBT, err = RRdb.Dbrr.Prepare("UPDATE RentableUsers SET DtStart=?,DtStop=?,LastModBy=? WHERE RID=? AND BID=? AND TCID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertRentableUser, err = RRdb.Dbrr.Prepare("INSERT INTO RentableUsers (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
@@ -894,7 +894,7 @@ func buildPreparedStatements() {
 	//====================================================
 	//  Rental Agreement Payors
 	//====================================================
-	flds = "RAPID,RAID,BID,TCID,DtStart,DtStop,FLAGS,CreateTS,CreateBy"
+	flds = "RAPID,RAID,BID,TCID,DtStart,DtStop,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentalAgreementPayors"] = flds
 	RRdb.Prepstmt.GetRentalAgreementPayor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPayors WHERE RAPID=?")
 	Errcheck(err)
@@ -911,7 +911,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateRentalAgreementPayor, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPayors SET " + s3 + " WHERE RAPID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPayors SET DtStart=?,DtStop=?,FLAGS=? WHERE RAID=? AND BID=? AND TCID=?")
+	RRdb.Prepstmt.UpdateRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("UPDATE RentalAgreementPayors SET DtStart=?,DtStop=?,FLAGS=?,LastModBy=? WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRentalAgreementPayorByRBT, err = RRdb.Dbrr.Prepare("DELETE from RentalAgreementPayors WHERE RAID=? AND BID=? AND TCID=?")
 	Errcheck(err)
@@ -1000,7 +1000,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  RentableSpecialty
 	//===============================
-	flds = "RSPID,BID,Name,Fee,Description,CreateTS,CreateBy"
+	flds = "RSPID,BID,Name,Fee,Description,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentableSpecialty"] = flds
 	RRdb.Prepstmt.GetRentableSpecialtyTypeByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentableSpecialty WHERE BID=? AND Name=?")
 	Errcheck(err)
@@ -1055,13 +1055,13 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=1 WHERE RTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.ReactivateRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=0 WHERE RTID=?")
+	RRdb.Prepstmt.UpdateRentableTypeToActive, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=0,LastModBy=? WHERE RTID=?")
 	Errcheck(err)
 
 	//===============================
 	//  RentableMarketRates
 	//===============================
-	flds = "RMRID,RTID,BID,MarketRate,DtStart,DtStop,CreateTS,CreateBy"
+	flds = "RMRID,RTID,BID,MarketRate,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentableMarketRate"] = flds
 	RRdb.Prepstmt.GetRentableMarketRates, err = RRdb.Dbrr.Prepare("SELECT " + flds + " from RentableMarketRate WHERE RTID=?")
 	Errcheck(err)
@@ -1135,7 +1135,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// SubAR
 	//==========================================
-	flds = "SARID,ARID,SubARID,BID,LastModTime,LastModBy,CreateTS,CreateBy"
+	flds = "SARID,ARID,SubARID,BID,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["SubAR"] = flds
 	RRdb.Prepstmt.GetSubAR, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM SubAR WHERE SARID=?")
 	Errcheck(err)

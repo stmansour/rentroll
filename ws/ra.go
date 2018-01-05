@@ -223,7 +223,10 @@ func GetRentalAgreementTypeDown(bid int64, s string, limit int) ([]RentalAgreeme
 	defer rows.Close()
 	for rows.Next() {
 		var t RentalAgreementTypedown
-		rlib.Errcheck(rows.Scan(&t.TCID, &t.FirstName, &t.MiddleName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.RAID))
+		err = rows.Scan(&t.TCID, &t.FirstName, &t.MiddleName, &t.LastName, &t.CompanyName, &t.IsCompany, &t.RAID)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, t)
 	}
 	return m, nil
@@ -242,10 +245,10 @@ func GetRentalAgreementTypeDown(bid int64, s string, limit int) ([]RentalAgreeme
 //  @Response TransactantsTypedownResponse
 // wsdoc }
 func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRentalAgreementTypeDown"
 	var (
-		funcname = "SvcRentalAgreementTypeDown"
-		g        RentalAgreementTypedownResponse
-		err      error
+		g   RentalAgreementTypedownResponse
+		err error
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -287,12 +290,11 @@ func rentalAgrRowScan(rows *sql.Rows, q RentalAgr) (RentalAgr, error) {
 //  @Response RentalAgrSearchResponse
 // wsdoc }
 func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcSearchHandlerRentalAgr"
 	var (
-		funcname = "SvcSearchHandlerRentalAgr"
-		err      error
-		g        RentalAgrSearchResponse
-		t        = time.Now()
+		err error
+		g   RentalAgrSearchResponse
+		t   = time.Now()
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -413,11 +415,11 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	rlib.Console("Entered SvcFormHandlerRentalAgreement\n")
+	const funcname = "SvcFormHandlerRentalAgreement"
 	var (
-		funcname = "SvcFormHandlerRentalAgreement"
-		err      error
+		err error
 	)
+	rlib.Console("Entered %s\n", funcname)
 
 	if d.RAID, err = SvcExtractIDFromURI(r.RequestURI, "RAID", 3, w); err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -453,10 +455,9 @@ func SvcFormHandlerRentalAgreement(w http.ResponseWriter, r *http.Request, d *Se
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "saveRentalAgreement"
 	var (
-		funcname = "saveRentalAgreement"
-		err      error
+		err error
 	)
 
 	target := `"record":`
@@ -510,7 +511,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	// Now just update the database
 	if a.RAID > 0 {
-		err = rlib.UpdateRentalAgreement(&a)
+		err = rlib.UpdateRentalAgreement(r.Context(), &a)
 		if err != nil {
 			e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -520,8 +521,9 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// If any of the start dates are prior to this RA's initial LedgerMarker
 		// then we need to move the initial LedgerMarker's date back.
 		//------------------------------------------------------------------------
-		lm := rlib.GetInitialLedgerMarkerByRAID(a.RAID)
-		if lm.LMID == 0 {
+		lm, err := rlib.GetInitialLedgerMarkerByRAID(r.Context(), a.RAID)
+		if lm.LMID == 0 || err != nil {
+			// if you want to log err then separate above if clause condition
 			e := fmt.Errorf("Could not find initial LedgerMarker for RAID = %d", a.RAID)
 			SvcErrorReturn(w, e, funcname)
 			return
@@ -529,11 +531,11 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		rlib.Console("Found initial LedgerMarker for RAID %d\n", a.RAID)
 		if lm.Dt.After(a.AgreementStart) || lm.Dt.After(a.PossessionStart) || lm.Dt.After(a.RentStart) {
 			// find the earliest date...
-			dt := rlib.GetRentalAgreementEarliestDate(&a)
+			dt, _ := rlib.GetRentalAgreementEarliestDate(r.Context(), &a)
 			rlib.Console("Moving initial LedgerMarker to: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
 			if dt.Before(lm.Dt) {
 				lm.Dt = dt // update the ledger marker date to the earliest date
-				err = rlib.UpdateLedgerMarker(&lm)
+				err = rlib.UpdateLedgerMarker(r.Context(), &lm)
 				if err != nil {
 					e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 					SvcErrorReturn(w, e, funcname)
@@ -542,13 +544,13 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			}
 		}
 	} else {
-		_, err = rlib.InsertRentalAgreement(&a)
+		_, err = rlib.InsertRentalAgreement(r.Context(), &a)
 		if err == nil {
 			var lm rlib.LedgerMarker
 			lm.Dt = a.AgreementStart
 			lm.RAID = a.RAID
 			lm.State = rlib.LMINITIAL
-			err = rlib.InsertLedgerMarker(&lm)
+			_, err = rlib.InsertLedgerMarker(r.Context(), &lm)
 			if err != nil {
 				e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 				SvcErrorReturn(w, e, funcname)
@@ -572,15 +574,15 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //  @Response GetRentalAgreementResponse
 // wsdoc }
 func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getRentalAgreement"
 	var (
-		funcname = "getRentalAgreement"
-		err      error
-		g        GetRentalAgreementResponse
+		err error
+		g   GetRentalAgreementResponse
 	)
 
 	rlib.Console("Entered %s\n", funcname)
 
-	a, err := rlib.GetRentalAgreement(d.RAID)
+	a, err := rlib.GetRentalAgreement(r.Context(), d.RAID)
 	if err != nil {
 		e := fmt.Errorf("getRentalAgreement: cannot read RentalAgreement RAID = %d, err = %s", d.RAID, err.Error())
 		SvcErrorReturn(w, e, funcname)
@@ -606,10 +608,10 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteRentalAgreement"
 	var (
-		funcname = "deleteRentalAgreement"
-		err      error
-		del      DeleteRentalAgreementForm
+		err error
+		del DeleteRentalAgreementForm
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -624,30 +626,33 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	delRAID := del.RAID
 
 	// first get rentalAgreement
-	ra, err := rlib.GetRentalAgreement(delRAID)
+	ra, err := rlib.GetRentalAgreement(r.Context(), delRAID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// remove all pets associated with this rental Agreement
-	if err = rlib.DeleteAllRentalAgreementPets(delRAID); err != nil {
+	// TODO(Sudip): better should pass transaction here for batch delete
+	if err = rlib.DeleteAllRentalAgreementPets(r.Context(), delRAID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// remove all payors associated with this rental Agreement
-	if err = rlib.DeleteAllRentalAgreementPayors(delRAID); err != nil {
+	// TODO(Sudip): better should pass transaction here for batch delete
+	if err = rlib.DeleteAllRentalAgreementPayors(r.Context(), delRAID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// remove all rentable users associated with this rental Agreement
-	rarList := rlib.GetRentalAgreementRentables(delRAID, &ra.AgreementStart, &ra.AgreementStop)
+	// TODO(Sudip): better should start transaction here for batch delete
+	rarList, _ := rlib.GetRentalAgreementRentables(r.Context(), delRAID, &ra.AgreementStart, &ra.AgreementStop)
 	for _, rar := range rarList {
-		rUsers := rlib.GetRentableUsersInRange(rar.RID, &rar.RARDtStart, &rar.RARDtStop)
+		rUsers, _ := rlib.GetRentableUsersInRange(r.Context(), rar.RID, &rar.RARDtStart, &rar.RARDtStop)
 		for _, ru := range rUsers {
-			if err := rlib.DeleteRentableUser(ru.RUID); err != nil {
+			if err := rlib.DeleteRentableUser(r.Context(), ru.RUID); err != nil {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
@@ -655,13 +660,14 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	}
 
 	// remove all references to rentables associated with this rental Agreement
-	if err = rlib.DeleteAllRentalAgreementRentables(delRAID); err != nil {
+	// TODO(Sudip): better should start transaction here for batch delete
+	if err = rlib.DeleteAllRentalAgreementRentables(r.Context(), delRAID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	// finally delete this rental Agreement
-	if err = rlib.DeleteRentalAgreement(delRAID); err != nil {
+	if err = rlib.DeleteRentalAgreement(r.Context(), delRAID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}

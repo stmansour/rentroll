@@ -1,11 +1,10 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
-	"os"
 	"rentroll/rlib"
-	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -28,28 +27,33 @@ type StmtEntry struct {
 
 // GetRentableCountByRentableType returns a structure containing the count of Rentables for each RentableType
 // in the specified time range
-func GetRentableCountByRentableType(xbiz *rlib.XBusiness, d1, d2 *time.Time) ([]RTIDCount, error) {
-	var count int64
-	var m []RTIDCount
-	var err error
-	i := 0
+func GetRentableCountByRentableType(ctx context.Context, xbiz *rlib.XBusiness, d1, d2 *time.Time) ([]RTIDCount, error) {
+	var (
+		count int64
+		m     []RTIDCount
+		err   error
+		i     = 0
+	)
+
 	for _, v := range xbiz.RT {
 		s := fmt.Sprintf("SELECT COUNT(*) FROM RentableTypeRef WHERE RTID=%d AND DtStop>\"%s\" AND DtStart<\"%s\"",
 			v.RTID, d1.Format(rlib.RRDATEINPFMT), d2.Format(rlib.RRDATEINPFMT))
 		err = rlib.RRdb.Dbrr.QueryRow(s).Scan(&count)
 		if err != nil {
 			fmt.Printf("GetRentableCountByRentableType: query=\"%s\"    err = %s\n", s, err.Error())
+			// TODO(Steve): shouldn't we returned from here?
+			// return m, err
 		}
 		var rc RTIDCount
 		rc.Count = count
 		rc.RT = v
 		var cerr error
-		rc.RT.CA, cerr = rlib.GetAllCustomAttributes(rlib.ELEMRENTABLETYPE, v.RTID)
+		rc.RT.CA, cerr = rlib.GetAllCustomAttributes(ctx, rlib.ELEMRENTABLETYPE, v.RTID)
+		// it's not really an error if we don't find any custom attributes
+		// and that thing is already handled during read operation after QueryRow operation
 		if cerr != nil {
-			if !rlib.IsSQLNoResultsError(cerr) { // it's not really an error if we don't find any custom attributes
-				err = cerr
-				break
-			}
+			err = cerr
+			break
 		}
 
 		m = append(m, rc)
@@ -59,55 +63,94 @@ func GetRentableCountByRentableType(xbiz *rlib.XBusiness, d1, d2 *time.Time) ([]
 }
 
 // yes this is a total hack until I can get rid of some old infrastructure, it only applies to old tests though
-func temporaryGetAcctsRcv(bid int64) int64 {
-	var b rlib.GLAccount
+func temporaryGetAcctsRcv(ctx context.Context, bid int64) (int64, error) {
+	var (
+		b   rlib.GLAccount
+		err error
+	)
+
 	q := "SELECT " + rlib.RRdb.DBFields["GLAccount"] + " FROM GLAccount WHERE Name LIKE \"%receivable%\""
 	row := rlib.RRdb.Dbrr.QueryRow(q)
-	rlib.ReadGLAccount(row, &b)
+	err = rlib.ReadGLAccount(row, &b)
+	if err != nil {
+		return 0, err
+	}
+
 	if b.LID == 0 {
-		b = rlib.GetLedgerByGLNo(bid, "12000")
+		b, err = rlib.GetLedgerByGLNo(ctx, bid, "12000")
+		if err != nil {
+			return 0, err
+		}
 		if b.LID == 0 {
-			fmt.Printf("Could not find Accounts Receivable\n")
+			// TODO(Steve): Don't know WHY such a code exists...
+			/*fmt.Printf("Could not find Accounts Receivable\n")
 			debug.PrintStack()
-			os.Exit(1) // yes this is terrible.
+			os.Exit(1) // yes this is terrible.*/
+			return 0, err
 		}
 	}
-	return b.LID
+	return b.LID, err
 }
 
 // GetStatementData returns an array of StatementEntries for building a statement
-func GetStatementData(bid int64, raid int64, d1, d2 *time.Time) []StmtEntry {
-	var m []StmtEntry
-	lid := temporaryGetAcctsRcv(bid)
-	bal := rlib.GetRAAccountBalance(bid, lid, raid, d1)
+func GetStatementData(ctx context.Context, bid int64, raid int64, d1, d2 *time.Time) ([]StmtEntry, error) {
+	const funcname = "GetStatementData"
+	var (
+		err error
+		m   []StmtEntry
+	)
+	lid, err := temporaryGetAcctsRcv(ctx, bid)
+	if err != nil {
+		return m, err
+	}
+
+	bal, err := rlib.GetRAAccountBalance(ctx, bid, lid, raid, d1)
+	if err != nil {
+		return m, err
+	}
+
 	var initBal = StmtEntry{Amt: bal, T: 3, Dt: *d1}
 	m = append(m, initBal)
-	n, err := rlib.GetLedgerEntriesForRAID(d1, d2, raid, lid)
+	n, err := rlib.GetLedgerEntriesForRAID(ctx, d1, d2, raid, lid)
 	if err != nil {
-		return m
+		return m, err
 	}
 	for i := 0; i < len(n); i++ {
 		var se StmtEntry
 		se.Amt = n[i].Amount
 		se.Dt = n[i].Dt
-		j := rlib.GetJournal(n[i].JID)
+		j, err := rlib.GetJournal(ctx, n[i].JID)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			return m, err
+		}
 		se.T = int(j.Type)
 		se.ID = j.ID
 		if se.T == rlib.JOURNALTYPEASMID {
 			// read the assessment to find out what it was for...
-			a, err := rlib.GetAssessment(se.ID)
+			a, err := rlib.GetAssessment(ctx, se.ID)
 			if err != nil {
 				rlib.LogAndPrint("rrpt.GetStatementData: error getting asmid %d: %s\n", se.ID, err.Error())
-				return m
+				return m, err
 			}
 			se.A = &a
 		} else if se.T == rlib.JOURNALTYPERCPTID {
-			r := rlib.GetReceipt(se.ID)
-			ja := rlib.GetJournalAllocation(n[i].JAID)
-			a, err := rlib.GetAssessment(ja.ASMID)
+			r, err := rlib.GetReceipt(ctx, se.ID)
+			if err != nil {
+				rlib.LogAndPrintError(funcname, err)
+				return m, err
+			}
+
+			ja, err := rlib.GetJournalAllocation(ctx, n[i].JAID)
+			if err != nil {
+				rlib.LogAndPrintError(funcname, err)
+				return m, err
+			}
+
+			a, err := rlib.GetAssessment(ctx, ja.ASMID)
 			if err != nil {
 				rlib.LogAndPrint("rrpt.GetStatementData: error getting asmid %d: %s\n", ja.ASMID, err.Error())
-				return m
+				return m, err
 			}
 			se.A = &a
 			se.R = &r
@@ -115,16 +158,15 @@ func GetStatementData(bid int64, raid int64, d1, d2 *time.Time) []StmtEntry {
 
 		m = append(m, se)
 	}
-	return m
+	return m, err
 }
 
 // RptStatementForRA generates a text Statement for the supplied rental agreement ra.
-func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table {
-	funcname := "RptStatementForRA"
-
-	// init and prepare some values before table init
-	rlib.LoadXRentalAgreement(ra.RAID, ra, &ri.D1, &ri.D2)
-	payors := ra.GetPayorNameList(&ri.D1, &ri.D2)
+func RptStatementForRA(ctx context.Context, ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table {
+	const funcname = "RptStatementForRA"
+	var (
+		err error
+	)
 
 	// table init
 	tbl := getRRTable()
@@ -136,14 +178,36 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 	tbl.AddColumn("Payment", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Balance", 12, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 
-	s := fmt.Sprintf("Statement  -  Rental Agreement %s\nPayor(s): %s\n", ra.IDtoString(), strings.Join(payors, ", "))
-	err := TableReportHeaderBlock(&tbl, s, funcname, ri)
+	// init and prepare some values before table init
+	err = rlib.LoadXRentalAgreement(ctx, ra.RAID, ra, &ri.D1, &ri.D2)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
-	m := GetStatementData(ri.Xbiz.P.BID, ra.RAID, &ri.D1, &ri.D2)
+	payors, err := ra.GetPayorNameList(ctx, &ri.D1, &ri.D2)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
+	s := fmt.Sprintf("Statement  -  Rental Agreement %s\nPayor(s): %s\n", ra.IDtoString(), strings.Join(payors, ", "))
+	err = TableReportHeaderBlock(ctx, &tbl, s, funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
+	m, err := GetStatementData(ctx, ri.Xbiz.P.BID, ra.RAID, &ri.D1, &ri.D2)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	var b = rlib.RoundToCent(m[0].Amt) // element 0 is always the account balance
 	var c = float64(0)                 // credit
 	var d = float64(0)                 // debit
@@ -191,33 +255,46 @@ func RptStatementForRA(ri *ReporterInfo, ra *rlib.RentalAgreement) gotable.Table
 }
 
 // RptStatementReportTable is a returns list of table object for all Statement for a RentalAgreement
-func RptStatementReportTable(ri *ReporterInfo) []gotable.Table {
-	var m []gotable.Table
+func RptStatementReportTable(ctx context.Context, ri *ReporterInfo) ([]gotable.Table, error) {
+	const funcname = "RptStatementReportTable"
+	var (
+		err error
+		m   []gotable.Table
+	)
+
 	// init some values
 	ri.RptHeaderD1 = true
 	ri.RptHeaderD2 = true
 
 	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreementsByRange.Query(ri.Xbiz.P.BID, ri.D1, ri.D2)
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
-		return m
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return m, err
 	}
 	defer rows.Close()
 
 	// Spin through all the RentalAgreements that are active in this timeframe
 	for rows.Next() {
 		var ra rlib.RentalAgreement
-		rlib.ReadRentalAgreements(rows, &ra)
-		tbl := RptStatementForRA(ri, &ra)
+		err = rlib.ReadRentalAgreements(rows, &ra)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			return m, err
+		}
+		tbl := RptStatementForRA(ctx, ri, &ra)
 		m = append(m, tbl)
 	}
-	return m
+	return m, err
 }
 
 // RptStatementTextReport is a text version of a Statement for a RentalAgreement
-func RptStatementTextReport(ri *ReporterInfo) string {
-	m := RptStatementReportTable(ri)
+func RptStatementTextReport(ctx context.Context, ri *ReporterInfo) string {
+	m, err := RptStatementReportTable(ctx, ri)
+	if err != nil {
+		return err.Error()
+	}
+
 	var s string
 	// Spin through all the RentalAgreements that are active in this timeframe
 	for _, tbl := range m {

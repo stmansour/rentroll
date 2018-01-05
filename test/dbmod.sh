@@ -4,7 +4,7 @@
 #  This script performs SQL schema changes on the test databases that are
 #  saved as SQL files in the test directory. It loads them, performs the
 #  ALTER commands, then saves the sql file.
-# 
+#
 #  If the test file uses its own database saved as a .sql file, make sure
 #  it is listed in the dbs array
 #==========================================================================
@@ -41,7 +41,21 @@ cat >${MODFILE} <<EOF
 #     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
 #     PRIMARY KEY(SARID)
 # );
-ALTER TABLE Assessments ADD COLUMN AGRCPTID BIGINT NOT NULL DEFAULT 0 AFTER RPASMID;
+# ALTER TABLE Assessments ADD COLUMN AGRCPTID BIGINT NOT NULL DEFAULT 0 AFTER RPASMID;
+# 1 Jan, 2018
+ALTER TABLE rentroll.CustomAttrRef ADD CARID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.RatePlanRefRTRate ADD RPRRTRateID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.RatePlanRefSPRate ADD RPRSPRateID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.RentableSpecialtyRef ADD RSPRefID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.Prospect DROP TCID, ADD ProspectID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.User DROP TCID, ADD UserID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.Payor DROP TCID, ADD PayorID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.InvoiceAssessment ADD InvoiceASMID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.InvoicePayor ADD InvoicePayorID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+# 1 Jan, 2018 -- add removed TCID column back in these three tables
+ALTER TABLE rentroll.Prospect ADD TCID BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE rentroll.User ADD TCID BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE rentroll.Payor ADD TCID BIGINT NOT NULL DEFAULT 0;
 EOF
 
 #=====================================================

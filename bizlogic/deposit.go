@@ -1,6 +1,7 @@
 package bizlogic
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 )
@@ -16,11 +17,19 @@ import (
 //  a - the assesment that r is for
 //  d - the Depository where the funds will be deposited.
 //--------------------------------------------------------------
-func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib.Depository, deposit *rlib.Deposit) error {
-	var xbiz rlib.XBusiness
-	var err error
-	funcname := "EnsureReceiptFundsToDepositoryAccount"
-	rlib.InitBizInternals(r.BID, &xbiz)
+func EnsureReceiptFundsToDepositoryAccount(ctx context.Context, r *rlib.Receipt, asmid int64, d *rlib.Depository, deposit *rlib.Deposit) error {
+	const funcname = "EnsureReceiptFundsToDepositoryAccount"
+	var (
+		xbiz rlib.XBusiness
+		err  error
+	)
+
+	err = rlib.InitBizInternals(r.BID, &xbiz)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return err
+	}
+
 	ar := rlib.RRdb.BizTypes[r.BID].AR[r.ARID] // this is the Account Rule for the Receipt
 
 	//-------------------------------------------------------------------------
@@ -44,7 +53,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 			ID:      r.RCPTID,
 			Comment: fmt.Sprintf("auto-transfer for deposit %s", deposit.IDtoShortString()),
 		}
-		_, err = rlib.InsertJournal(&jnl)
+		_, err = rlib.InsertJournal(ctx, &jnl)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			return err
@@ -62,7 +71,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 			TCID:   r.TCID,
 			RCPTID: r.RCPTID,
 		}
-		err = rlib.InsertJournalAllocationEntry(&ja)
+		_, err = rlib.InsertJournalAllocationEntry(ctx, &ja)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			return err
@@ -83,7 +92,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 			LID:    d.LID,
 			Amount: r.Amount,
 		}
-		_, err = rlib.InsertLedgerEntry(&l)
+		_, err = rlib.InsertLedgerEntry(ctx, &l)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			return err
@@ -91,7 +100,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 
 		l.LID = ar.DebitLID
 		l.Amount = -r.Amount
-		_, err = rlib.InsertLedgerEntry(&l)
+		_, err = rlib.InsertLedgerEntry(ctx, &l)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			return err
@@ -107,7 +116,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 		ra.BID = r.BID
 		ra.Dt = r.Dt
 		ra.RAID = r.RAID
-		_, err = rlib.InsertReceiptAllocation(&ra)
+		_, err = rlib.InsertReceiptAllocation(ctx, &ra)
 		if err != nil {
 			return err
 		}
@@ -127,7 +136,7 @@ func EnsureReceiptFundsToDepositoryAccount(r *rlib.Receipt, asmid int64, d *rlib
 // @returns
 //	errlist - an array of errors
 //-----------------------------------------------------------------------
-func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
+func SaveDeposit(ctx context.Context, a *rlib.Deposit, newRcpts []int64) []BizError {
 	rlib.Console("SaveDeposit: 0\n")
 	var e []BizError
 	var rlist []rlib.Receipt
@@ -137,7 +146,13 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 	// in this receipt
 	//------------------------------------------------------------
 	for i := 0; i < len(newRcpts); i++ {
-		r := rlib.GetReceipt(newRcpts[i])
+		r, err := rlib.GetReceipt(ctx, newRcpts[i])
+		if err != nil {
+			elist := bizErrSys(&err)
+			e = append(e, elist[0])
+			continue
+		}
+
 		tot += r.Amount
 		if r.DID != 0 && r.DID != a.DID {
 			s := fmt.Sprintf(BizErrors[ReceiptAlreadyDeposited].Message, rlib.IDtoShortString("RCPT", r.RCPTID), rlib.IDtoShortString("D", r.DID))
@@ -161,7 +176,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 		return e
 	}
 
-	dep, err := rlib.GetDepository(a.DEPID) // get the depository for this deposit
+	dep, err := rlib.GetDepository(ctx, a.DEPID) // get the depository for this deposit
 	if err != nil {
 		var be []BizError
 		return AddErrToBizErrlist(err, be)
@@ -171,7 +186,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 	// Save the deposit
 	//------------------------------------------------------------
 	if a.DID == 0 {
-		_, err := rlib.InsertDeposit(a)
+		_, err := rlib.InsertDeposit(ctx, a)
 		if err != nil {
 			e = AddErrToBizErrlist(err, e)
 		}
@@ -181,14 +196,14 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 				BID:    a.BID,
 				RCPTID: newRcpts[i],
 			}
-			err = rlib.InsertDepositPart(&dp)
+			_, err = rlib.InsertDepositPart(ctx, &dp)
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 				continue
 			}
 			if rlist[i].DID == 0 {
 				rlist[i].DID = a.DID
-				err = rlib.UpdateReceipt(&rlist[i])
+				err = rlib.UpdateReceipt(ctx, &rlist[i])
 				if err != nil {
 					e = AddErrToBizErrlist(err, e)
 					continue
@@ -202,7 +217,10 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			// automatically generate a transfer
 			//-----------------------------------------------------------------------
 			var xbiz rlib.XBusiness
-			rlib.InitBizInternals(a.BID, &xbiz)
+			err = rlib.InitBizInternals(a.BID, &xbiz)
+			if err != nil {
+				return bizErrSys(&err)
+			}
 			debitLID := rlib.RRdb.BizTypes[a.BID].AR[rlist[i].ARID].DebitLID // find the receipt's Account Rule Debit LID
 
 			rlib.Console("debitLID = %d - AcctRule: %s\n", debitLID, rlib.RRdb.BizTypes[a.BID].AR[rlist[i].ARID].Name)
@@ -211,22 +229,26 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			// compare to LID for the Depository
 			if debitLID != dep.LID { // if they're not the same, transfer to the appropriate account
 				asmid := int64(0) // assume no auto-gen Assessment is associated with this receipt
-				ja := rlib.GetJournalAllocationByASMandRCPTID(newRcpts[i])
+				ja, err := rlib.GetJournalAllocationByASMandRCPTID(ctx, newRcpts[i])
+				if err != nil {
+					return AddErrToBizErrlist(err, e)
+				}
+
 				if len(ja) == 1 { // if there is an associated auto-gen'd assessment
-					asmt, err := rlib.GetAssessment(ja[0].ASMID)
+					asmt, err := rlib.GetAssessment(ctx, ja[0].ASMID)
 					if err != nil {
 						return AddErrToBizErrlist(err, e)
 					}
 					asmid = asmt.ASMID // use the correct ASMID
 				}
-				err = EnsureReceiptFundsToDepositoryAccount(&rlist[i], asmid, &dep, a)
+				err = EnsureReceiptFundsToDepositoryAccount(ctx, &rlist[i], asmid, &dep, a)
 				if err != nil {
 					return AddErrToBizErrlist(err, e)
 				}
 			}
 		}
 	} else {
-		err := rlib.UpdateDeposit(a)
+		err := rlib.UpdateDeposit(ctx, a)
 		if err != nil {
 			e = AddErrToBizErrlist(err, e)
 		}
@@ -238,7 +260,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 		// link the addlist, and unlink the removelist.  The new Receipts are
 		// already provided in newRcpts.
 		//---------------------------------------------------------------------------
-		curDepParts, err := rlib.GetDepositParts(a.DID)
+		curDepParts, err := rlib.GetDepositParts(ctx, a.DID)
 		if err != nil {
 			e = AddErrToBizErrlist(err, e)
 			return e
@@ -274,13 +296,16 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 		// Remove the deposit link in the removelist receipts...
 		//--------------------------------------------------------
 		for i := 0; i < len(removelist); i++ {
-			r := rlib.GetReceipt(removelist[i])
+			r, err := rlib.GetReceipt(ctx, removelist[i])
+			if err != nil {
+				e = AddErrToBizErrlist(err, e)
+			}
 			if r.RCPTID == 0 {
 				err := fmt.Errorf("could not load receipt %d", removelist[i])
 				e = AddErrToBizErrlist(err, e)
 			}
 			r.DID = 0
-			err := rlib.UpdateReceipt(&r)
+			err = rlib.UpdateReceipt(ctx, &r)
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}
@@ -289,7 +314,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 			//---------------------------------------
 			for j := 0; j < len(curDepParts); j++ {
 				if curDepParts[j].RCPTID == removelist[i] {
-					err = rlib.DeleteDepositPart(curDepParts[j].DPID)
+					err = rlib.DeleteDepositPart(ctx, curDepParts[j].DPID)
 					if err != nil {
 						e = AddErrToBizErrlist(err, e)
 					}
@@ -302,13 +327,16 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 		// Add the deposit link in the addlist receipts...
 		//--------------------------------------------------------
 		for i := 0; i < len(addlist); i++ {
-			r := rlib.GetReceipt(addlist[i])
-			if r.RCPTID == 0 {
+			r, err := rlib.GetReceipt(ctx, addlist[i])
+			if err != nil {
+				e = AddErrToBizErrlist(err, e)
+			}
+			if r.RCPTID == 0 { // if resource not found then also raise the error
 				err := fmt.Errorf("could not load receipt %d", addlist[i])
 				e = AddErrToBizErrlist(err, e)
 			}
 			r.DID = a.DID
-			err := rlib.UpdateReceipt(&r)
+			err = rlib.UpdateReceipt(ctx, &r)
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}
@@ -320,7 +348,7 @@ func SaveDeposit(a *rlib.Deposit, newRcpts []int64) []BizError {
 				BID:    a.BID,
 				RCPTID: r.RCPTID,
 			}
-			err = rlib.InsertDepositPart(&dp)
+			_, err = rlib.InsertDepositPart(ctx, &dp)
 			if err != nil {
 				e = AddErrToBizErrlist(err, e)
 			}

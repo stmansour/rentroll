@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -101,12 +102,15 @@ func ParseSimpleAcctRule(s string) []AcctRule {
 //
 // RETURNS:
 //     a slice of AcctRule structs that make up the account rule
-func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) []AcctRule {
-	funcname := "ParseAcctRule"
-	var m []AcctRule
+func ParseAcctRule(ctx context.Context, xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, amount, pf float64) ([]AcctRule, error) {
+	const funcname = "ParseAcctRule"
+	var (
+		m   []AcctRule
+		err error
+	)
 	// fmt.Printf("%s:  rid = %d, d1 = %s, d2 = %s, rule = %s, amount = %f, pf = %f, xbiz.P.BID = %d\n", funcname, rid, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4), rule, amount, pf, xbiz.P.BID)
-	ctx := RpnCreateCtx(xbiz, rid, d1, d2, &m, amount, pf)
-	// fmt.Printf("ctx.Amount = %f\n", ctx.amount)
+	rpnCtx := RpnCreateCtx(xbiz, rid, d1, d2, &m, amount, pf)
+	// fmt.Printf("rpnCtx.Amount = %f\n", rpnCtx.amount)
 	if len(rule) > 0 {
 		sa := strings.Split(rule, ",")
 		for k := 0; k < len(sa); k++ {
@@ -135,14 +139,17 @@ func ParseAcctRule(xbiz *XBusiness, rid int64, d1, d2 *time.Time, rule string, a
 			r.Account = DoAcctSubstitution(xbiz.P.BID, r.AcctExpr)  // the is the substituted acct name
 			ar := strings.Join(ta[base+2:], " ")                    // remaining fields make up the amount formula
 			r.Expr = strings.TrimSpace(ar)                          // prepare the formula for the calculator
-			ctx.r = &r                                              // the AcctRule in the process of being constructed.  Has the Assessment ID which may be needed.
-			// fmt.Printf("ctx = %#v\n", ctx)
+			rpnCtx.r = &r                                           // the AcctRule in the process of being constructed.  Has the Assessment ID which may be needed.
+			// fmt.Printf("rpnCtx = %#v\n", rpnCtx)
 			// fmt.Printf("r.Expr = %s\n", r.Expr)
-			x := RpnCalculateEquation(&ctx, r.Expr) // let the calculator compute the amount
+			x, err := RpnCalculateEquation(ctx, &rpnCtx, r.Expr) // let the calculator compute the amount
+			if err != nil {
+				return m, err
+			}
 			// fmt.Printf("\ncalc returned x = %8.2f\n\n", x)
 			r.Amount = x     // set the Amount field
 			m = append(m, r) // and we're done
 		}
 	}
-	return m
+	return m, err
 }

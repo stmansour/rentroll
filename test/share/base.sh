@@ -65,8 +65,8 @@ else
 fi
 TREPORT="${RRBIN}/../../test/testreport.txt"
 
-RENTROLL="${RRBIN}/rentroll -A ${NOCONSOLE}"
-CSVLOAD="${RRBIN}/rrloadcsv  ${NOCONSOLE}"
+RENTROLL="${RRBIN}/rentroll -A ${NOCONSOLE} -noauth"
+CSVLOAD="${RRBIN}/rrloadcsv ${NOCONSOLE} -noauth"
 GOLD="./gold"
 
 PAUSE=0
@@ -543,7 +543,7 @@ doOnesiteTest () {
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
-		${RRBIN}/importers/onesite/onesiteload ${2} >${1} 2>&1
+		${RRBIN}/importers/onesite/onesiteload -noauth ${2} >${1} 2>&1
 	fi
 
 	checkPause
@@ -612,7 +612,7 @@ doRoomKeyTest () {
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	if [ "x${2}" != "x" ]; then
-		${RRBIN}/importers/roomkey/roomkeyload ${2} >${1} 2>&1
+		${RRBIN}/importers/roomkey/roomkeyload -noauth ${2} >${1} 2>&1
 	fi
 
 	checkPause

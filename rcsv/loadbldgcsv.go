@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strconv"
@@ -13,9 +14,12 @@ import (
 // REH,1,"2001 Creaking Oak Drive","","Springfield","MO","65803","USA"
 
 // CreateBuilding reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateBuilding(sa []string, lineno int) (int, error) {
-	funcname := "CreateBuilding"
-	var b rlib.Building
+func CreateBuilding(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateBuilding"
+	var (
+		err error
+		b   rlib.Building
+	)
 
 	const (
 		BUD        = 0
@@ -54,7 +58,8 @@ func CreateBuilding(sa []string, lineno int) (int, error) {
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1 := rlib.GetBusinessByDesignation(des)
+		// TODO(Steve): ignore error?
+		b1, _ := rlib.GetBusinessByDesignation(ctx, des)
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, des)
 		}
@@ -82,7 +87,7 @@ func CreateBuilding(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done
 	//-------------------------------------------------------------------
-	_, err = rlib.InsertBuildingWithID(&b)
+	_, err = rlib.InsertBuildingWithID(ctx, &b)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error inserting rlib.Building = %v", funcname, lineno, err)
 	}
@@ -90,6 +95,6 @@ func CreateBuilding(sa []string, lineno int) (int, error) {
 }
 
 // LoadBuildingCSV loads a csv file with rental specialty types and processes each one
-func LoadBuildingCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateBuilding)
+func LoadBuildingCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateBuilding)
 }

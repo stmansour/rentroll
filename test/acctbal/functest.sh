@@ -10,7 +10,7 @@ mysql --no-defaults rentroll < baltest.sql
 
 source ../share/base.sh
 
-./acctbal > z
+./acctbal -noauth > z
 
 genericlogcheck "z"  ""  "AcctBal-Checks"
 

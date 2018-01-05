@@ -177,15 +177,19 @@ func getAccountThingJSList() map[string]map[int64]string {
 //  @Response AccountListResponse
 // wsdoc }
 func SvcAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcAccountsList"
 	var (
-		funcname = "SvcAccountsList"
-		g        AccountListResponse
+		g AccountListResponse
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
 	// get rentable types for a business
-	m := rlib.GetLedgerList(d.BID)
+	m, err := rlib.GetLedgerList(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 	fmt.Printf("rlib.GetLedgerList returned %d records\n", len(g.Records))
 
 	// append records in ascending order
@@ -216,16 +220,20 @@ func SvcAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response AccountListResponse
 // wsdoc }
 func SvcParentAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcParentAccountsList"
 	var (
-		funcname = "SvcParentAccountsList"
-		g        AccountListResponse
+		err error
+		g   AccountListResponse
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
 	// Need to init some internals for Business
 	var xbiz rlib.XBusiness
-	rlib.InitBizInternals(d.BID, &xbiz)
+	err = rlib.InitBizInternals(d.BID, &xbiz)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	// get rentable types for a business
 	m := bizlogic.PossibleParentAccounts(d.BID)
@@ -260,16 +268,20 @@ func SvcParentAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //  @Response AccountListResponse
 // wsdoc }
 func SvcPostAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcPostAccountsList"
 	var (
-		funcname = "SvcPostAccountsList"
-		g        AccountListResponse
+		err error
+		g   AccountListResponse
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
 	// Need to init some internals for Business
 	var xbiz rlib.XBusiness
-	rlib.InitBizInternals(d.BID, &xbiz)
+	err = rlib.InitBizInternals(d.BID, &xbiz)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	// get rentable types for a business
 	m := bizlogic.PossiblePostAccounts(d.BID)
@@ -303,12 +315,11 @@ func SvcPostAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData)
 //  @Response SearchGLAccountsResponse
 // wsdoc }
 func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcSearchHandlerGLAccounts"
 	var (
-		funcname = "SvcSearchHandlerGLAccounts"
-		p        rlib.GLAccount
-		err      error
-		g        SearchGLAccountsResponse
+		err error
+		p   rlib.GLAccount
+		g   SearchGLAccountsResponse
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -336,7 +347,11 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 	for rows.Next() {
 		var p GLAccount
 		var q rlib.GLAccount
-		rlib.ReadGLAccounts(rows, &q)
+		err = rlib.ReadGLAccounts(rows, &q)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 		rlib.MigrateStructVals(&q, &p)
 		p.Recid = count
 
@@ -542,9 +557,9 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcFormHandlerGLAccounts"
 	var (
-		err      error
-		funcname = "SvcFormHandlerGLAccounts"
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("Request: %s:  BID = %d,  LID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
@@ -584,12 +599,11 @@ func SvcFormHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Service
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "saveGLAccount"
 	var (
-		funcname = "saveGLAccount"
-		foo      SaveAcctInput
-		a        rlib.GLAccount
-		err      error
+		foo SaveAcctInput
+		a   rlib.GLAccount
+		err error
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -658,7 +672,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//-------------------------------------------------------------------
 		// OK, it's a new account.  Do the bizlogic checks and save...
 		//-------------------------------------------------------------------
-		errlist := bizlogic.SaveGLAccount(&a)
+		errlist := bizlogic.SaveGLAccount(r.Context(), &a)
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -673,7 +687,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			Dt:    time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC),
 			State: rlib.LMINITIAL,
 		}
-		err = rlib.InsertLedgerMarker(&lm)
+		_, err = rlib.InsertLedgerMarker(r.Context(), &lm)
 		if err != nil {
 			e := fmt.Errorf("Error saving Account %s LedgerMarker, Error:= %s", a.Name, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -681,7 +695,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		// update existing record
-		errlist := bizlogic.SaveGLAccount(&a)
+		errlist := bizlogic.SaveGLAccount(r.Context(), &a)
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -721,13 +735,12 @@ var getAcctQuerySelectFields = rlib.SelectQueryFields{
 //  @Response GetAccountResponse
 // wsdoc }
 func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "getGLAccount"
 	var (
-		funcname = "getGLAccount"
-		g        GetAccountResponse
-		err      error
-		order    = `GLAccount.LID ASC`
-		whr      = fmt.Sprintf(`GLAccount.BID=%d AND GLAccount.LID=%d`, d.BID, d.ID)
+		g     GetAccountResponse
+		err   error
+		order = `GLAccount.LID ASC`
+		whr   = fmt.Sprintf(`GLAccount.BID=%d AND GLAccount.LID=%d`, d.BID, d.ID)
 	)
 
 	fmt.Printf("entered %s\n", funcname)
@@ -796,9 +809,9 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteGLAccount"
 	var (
-		funcname = "deleteGLAccount"
-		del      AcctDeleteForm
+		del AcctDeleteForm
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
@@ -811,8 +824,9 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//----------------------------------------
 	// First check, account exists or not
 	//----------------------------------------
-	gl := rlib.GetLedger(del.LID)
-	if gl.LID == 0 {
+	gl, err := rlib.GetLedger(r.Context(), del.LID)
+	if err != nil || gl.LID == 0 {
+		// if you want to log error then separate this if clause condition
 		err := fmt.Errorf("No such account exists with ID: %d", del.LID)
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -821,8 +835,14 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//----------------------------------------
 	// do biz logic checks...
 	//----------------------------------------
-	l := rlib.GetLedger(del.LID)
-	ok, errlist := bizlogic.OKToDelete(&l)
+	l, err := rlib.GetLedger(r.Context(), del.LID)
+	if err != nil {
+		err := fmt.Errorf("No such account exists with ID: %d", del.LID)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	ok, errlist := bizlogic.OKToDelete(r.Context(), &l)
 	if !ok {
 		SvcErrListReturn(w, errlist, funcname)
 		return
@@ -832,18 +852,19 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Passed all the checks... OK to remove it.
 	// Remove LedgerMarkers for this LID
 	//-----------------------------------------------
-	lm := rlib.GetLatestLedgerMarkerByLID(d.BID, del.LID)
+	// ODO(Steve): ignore error?
+	lm, _ := rlib.GetLatestLedgerMarkerByLID(r.Context(), d.BID, del.LID)
 	if lm.State != rlib.LMINITIAL {
 		e := fmt.Errorf("This account (LID = %d) cannot be deleted because Ledger Markers exist beyond the origin", del.LID)
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	if err := rlib.DeleteLedgerMarker(lm.LMID); err != nil {
+	if err := rlib.DeleteLedgerMarker(r.Context(), lm.LMID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	if err := rlib.DeleteLedger(del.LID); err != nil {
+	if err := rlib.DeleteLedger(r.Context(), del.LID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -853,19 +874,24 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // SvcExportGLAccounts used to export glaccounts for a business in csv format
 func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcExportGLAccounts"
 	var (
-		funcname = "SvcExportGLAccounts"
-		buf      = bytes.Buffer{}
-		wr       = csv.NewWriter(&buf)
+		err error
+		buf = bytes.Buffer{}
+		wr  = csv.NewWriter(&buf)
 	)
 	fmt.Printf("Entered %s", funcname)
 
 	// Need to init some internals for Business
 	var xbiz rlib.XBusiness
-	rlib.InitBizInternals(d.BID, &xbiz)
+	err = rlib.InitBizInternals(d.BID, &xbiz)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	// get list of all accounts
-	accts := rlib.GetLedgerList(d.BID)
+	accts, err := rlib.GetLedgerList(r.Context(), d.BID)
 
 	// write csv file headers
 	wr.Write([]string{"BUD", "Name", "GLNumber", "Parent GLNumber", "Account Type",
@@ -878,7 +904,11 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// get parent account GLNumber
 		var paGLNumber string
 		if a.PLID > 0 {
-			pa := rlib.GetLedger(a.PLID)
+			pa, err := rlib.GetLedger(r.Context(), a.PLID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
 			paGLNumber = pa.GLNumber
 		}
 		rec = append(rec, paGLNumber)
@@ -888,7 +918,11 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 		// append balance
 		now := time.Now()
-		bal := rlib.GetAccountBalance(d.BID, a.LID, &now)
+		bal, err := rlib.GetAccountBalance(r.Context(), d.BID, a.LID, &now)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 		s64Bal := strconv.FormatFloat(bal, 'f', 2, 64)
 		rec = append(rec, s64Bal)
 
@@ -923,8 +957,8 @@ type ImportGLAccountRow struct {
 
 // SvcImportGLAccounts used to import glaccounts for a business from csv format
 func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcImportGLAccounts"
 	var (
-		funcname      = "SvcImportGLAccounts"
 		err           error
 		inf           multipart.File
 		recs          = [][]string{}
@@ -946,7 +980,11 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	// Need to init some internals for Business
 	var xbiz rlib.XBusiness
-	rlib.InitBizInternals(d.BID, &xbiz)
+	err = rlib.InitBizInternals(d.BID, &xbiz)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	// get BUD from formData value
 	var bud = d.MFValues["BUD"][0] //get first value from slice
@@ -1028,13 +1066,13 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// first check if account is already exists, if yes then continue to next
 		// 1. By GLNumber,
 		glNo := recs[ri][acctCSVIndexMap["glnumber"]]
-		ngl = rlib.GetLedgerByGLNo(bid, glNo)
+		ngl, _ = rlib.GetLedgerByGLNo(r.Context(), bid, glNo)
 		if ngl.LID > 0 {
 			continue
 		}
 		// 2. By Name
 		name := recs[ri][acctCSVIndexMap["name"]]
-		ngl = rlib.GetLedgerByName(bid, name)
+		ngl, _ = rlib.GetLedgerByName(r.Context(), bid, name)
 		if ngl.LID > 0 {
 			continue
 		}
@@ -1060,14 +1098,14 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// set PLID from parent glnumber if available
 		pglNo := recs[ri][acctCSVIndexMap["parentglnumber"]]
 		if pglNo != "" { // set parent account LID -> PLID
-			pgl := rlib.GetLedgerByGLNo(bid, pglNo)
+			pgl, _ := rlib.GetLedgerByGLNo(r.Context(), bid, pglNo)
 			if pgl.LID > 0 {
 				ngl.PLID = pgl.LID // set parent account lid in PLID field
 			}
 		}
 
 		// now hit this in database to insert new record
-		ngl.LID, err = rlib.InsertLedger(&ngl)
+		ngl.LID, err = rlib.InsertLedger(r.Context(), &ngl)
 		if err != nil {
 			// continue to next one, if current one fails
 			// process as much as possible, we can mark failure one in future
@@ -1085,8 +1123,15 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// now if balance provided, then parse it to float64
 		balStr := recs[ri][acctCSVIndexMap["balance"]]
 		bal, _ := strconv.ParseFloat(balStr, 64)
-		lm.Balance = bal             // don't worry about balance if can't parsed from string, default will be 0
-		rlib.InsertLedgerMarker(&lm) // insert ledger marker
+		lm.Balance = bal                                   // don't worry about balance if can't parsed from string, default will be 0
+		_, err = rlib.InsertLedgerMarker(r.Context(), &lm) // insert ledger marker
+		if err != nil {
+			rlib.Ulog("%s: Error while inserting ledger marker: %s\n", funcname, err.Error())
+			// continue to next one, if current one fails
+			// process as much as possible, we can mark failure one in future
+			continue
+
+		}
 	}
 
 	// if all passed then return success response

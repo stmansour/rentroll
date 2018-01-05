@@ -91,15 +91,23 @@ var pTypeList = []string{"payor", "user"}
 //      /v1/rapayor/REX/5
 //-----------------------------------------------------------------------------
 func SvcGetRAPeople(ptype string, w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcGetRAPeople"
 	//------------------------------------------------------
 	// Get the transactants... either payors or users...
 	//------------------------------------------------------
-	var gxp RAPeopleResponse
+	var (
+		gxp RAPeopleResponse
+		err error
+	)
 	if ptype == "rapayor" {
-		m := rlib.GetRentalAgreementPayorsInRange(d.RAID, &d.Dt, &d.Dt)
+		m, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), d.RAID, &d.Dt, &d.Dt)
 		for i := 0; i < len(m); i++ {
 			var p rlib.Transactant
-			rlib.GetTransactant(m[i].TCID, &p)
+			err = rlib.GetTransactant(r.Context(), m[i].TCID, &p)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
 			var xr RAPeople
 			fmt.Printf("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
 			rlib.MigrateStructVals(&p, &xr)
@@ -112,16 +120,28 @@ func SvcGetRAPeople(ptype string, w http.ResponseWriter, r *http.Request, d *Ser
 		}
 	} else if ptype == "ruser" {
 		// first get the rentables associated with the Rental Agreement...
-		m := rlib.GetRentalAgreementRentables(d.RAID, &d.Dt, &d.Dt)
+		m, _ := rlib.GetRentalAgreementRentables(r.Context(), d.RAID, &d.Dt, &d.Dt)
 		fmt.Printf("GetRentalAgreementRentables for RAID = %d, date = %s,  return count = %d\n", d.RAID, d.Dt.Format(rlib.RRDATEFMT3), len(m))
 		k := 1                        // recid counter
 		for j := 0; j < len(m); j++ { // for each rentable in the Rental Agreement
-			rentable := rlib.GetRentable(m[j].RID)                    // get the rentable
-			n := rlib.GetRentableUsersInRange(m[j].RID, &d.Dt, &d.Dt) // get the users associated with that rentable
+			rentable, err := rlib.GetRentable(r.Context(), m[j].RID) // get the rentable
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
+			n, err := rlib.GetRentableUsersInRange(r.Context(), m[j].RID, &d.Dt, &d.Dt) // get the users associated with that rentable
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
+			}
 			fmt.Printf("Rentable: %d, date = %s, rentable user count: %d\n", m[j].RID, d.Dt.Format(rlib.RRDATEFMT3), len(n))
 			for i := 0; i < len(n); i++ { // add an entry for each user associated with this rentable
 				var p rlib.Transactant
-				rlib.GetTransactant(n[i].TCID, &p)
+				err = rlib.GetTransactant(r.Context(), n[i].TCID, &p)
+				if err != nil {
+					SvcErrorReturn(w, err, funcname)
+					return
+				}
 				var xr RAPeople
 				rlib.MigrateStructVals(&n[i], &xr)
 				rlib.MigrateStructVals(&rentable, &xr)

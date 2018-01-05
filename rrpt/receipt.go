@@ -1,14 +1,15 @@
 package rrpt
 
 import (
+	"context"
 	"gotable"
 	"rentroll/rlib"
 )
 
 // RRReceiptsTable generates a gotable Table object
 // contains of all rlib.Receipt related with business
-func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRReceiptsTable"
+func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRReceiptsTable"
 	const (
 		Date    = 0
 		RCPTID  = iota
@@ -38,13 +39,20 @@ func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 	// tbl.AddColumn("Account Rule", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set table title, sections
-	err := TableReportHeaderBlock(&tbl, "Tendered Payment Log", funcname, ri)
+	err := TableReportHeaderBlock(ctx, &tbl, "Tendered Payment Log", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
-	m := rlib.GetReceipts(ri.Bid, &ri.D1, &ri.D2)
+	m, err := rlib.GetReceipts(ctx, ri.Bid, &ri.D1, &ri.D2)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	for _, a := range m {
 		tbl.AddRow()
 		tbl.Putd(-1, Date, a.Dt)
@@ -63,10 +71,10 @@ func RRReceiptsTable(ri *ReporterInfo) gotable.Table {
 }
 
 // RRreportReceipts generates a text report based on RRReceiptsTable
-func RRreportReceipts(ri *ReporterInfo) string {
+func RRreportReceipts(ctx context.Context, ri *ReporterInfo) string {
 	// ri.D1 = time.Date(1970, time.January, 0, 0, 0, 0, 0, time.UTC)
 	// ri.D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC)
-	tbl := RRReceiptsTable(ri)
+	tbl := RRReceiptsTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }
 

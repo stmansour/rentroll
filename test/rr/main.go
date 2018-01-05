@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -23,6 +24,7 @@ var App struct {
 	PortRR int            // rentroll port
 	Bud    string         // Biz Unit Descriptor
 	Xbiz   rlib.XBusiness // lots of info about this biz
+	NoAuth bool
 }
 
 func readCommandLineArgs() {
@@ -31,12 +33,14 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.PortRR = *portPtr
 	App.Bud = *pBud
+	App.NoAuth = *noauth
 }
 
 func main() {
@@ -82,24 +86,31 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SetAuthFlag(App.NoAuth)
 
-	biz := rlib.GetBusinessByDesignation(App.Bud)
+	// create background context
+	ctx := context.Background()
+
+	biz, err := rlib.GetBusinessByDesignation(ctx, App.Bud)
+	rlib.Errcheck(err)
 	if biz.BID == 0 {
 		fmt.Printf("Could not find Business Unit named %s\n", App.Bud)
 		os.Exit(1)
 	}
-	rlib.InitBizInternals(biz.BID, &App.Xbiz)
 
-	DoTest()
+	err = rlib.InitBizInternals(biz.BID, &App.Xbiz)
+	rlib.Errcheck(err)
+
+	DoTest(ctx)
 }
 
 // DoTest checks Security Deposit Balances
-func DoTest() {
-	test1()
-	test2()
+func DoTest(ctx context.Context) {
+	test1(ctx)
+	test2(ctx)
 }
 
-func test2() {
+func test2(ctx context.Context) {
 	var ds = []struct {
 		sd1, sd2 string
 	}{
@@ -127,8 +138,9 @@ func test2() {
 
 }
 
-func test1() {
-	funcname := "DoTest"
+func test1(ctx context.Context) {
+	const funcname = "DoTest"
+	var err error
 	// RentRoll report dates
 	dtStart := time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC)
 	dtStop := time.Date(2017, time.February, 1, 0, 0, 0, 0, time.UTC)
@@ -137,7 +149,8 @@ func test1() {
 	d2 := dtStart
 	raids := []int64{1, 3, 2, 0, 4, 5, 0, 0}
 
-	lm := rlib.GetRARentableLedgerMarkerOnOrBefore(1, 1, &dtStart)
+	lm, _ := rlib.GetRARentableLedgerMarkerOnOrBefore(ctx, 1, 1, &dtStart)
+	rlib.Errcheck(err)
 	rlib.Console("raid=1, rid=1, Dt=%s, lm = %#v\n", dtStart.Format(rlib.RRDATEFMT3), lm)
 
 	// set the limits for which RA(s) we want to process
@@ -148,13 +161,13 @@ func test1() {
 		if int64(0) == raids[rid-1] {
 			continue
 		}
-		x, err := rlib.GetSecDepBalance(App.Xbiz.P.BID, raids[rid-1], rid, &d1, &d2)
+		x, err := rlib.GetSecDepBalance(ctx, App.Xbiz.P.BID, raids[rid-1], rid, &d1, &d2)
 		if err != nil {
 			fmt.Printf("err = %s\n", err.Error())
 			os.Exit(1)
 		}
 		rlib.Console("SecDep Opening balance on %s  =  %.2f\n\n", dtStart.Format(rlib.RRDATEFMTSQL), x)
-		x, err = rlib.GetSecDepBalance(App.Xbiz.P.BID, raids[rid-1], rid, &dtStart, &dtStop)
+		x, err = rlib.GetSecDepBalance(ctx, App.Xbiz.P.BID, raids[rid-1], rid, &dtStart, &dtStop)
 		if err != nil {
 			fmt.Printf("err = %s\n", err.Error())
 			os.Exit(1)
@@ -163,7 +176,7 @@ func test1() {
 			dtStart.Format(rlib.RRDATEFMTSQL), dtStop.Format(rlib.RRDATEFMTSQL), x)
 
 		rlib.Console("before rlib.GetBeginEndRARBalance:  dtStart = %s, dtStop = %s\n", dtStart.Format(rlib.RRDATEFMT3), dtStop.Format(rlib.RRDATEFMT3))
-		openingBal, closingBal, err := rlib.GetBeginEndRARBalance(App.Xbiz.P.BID, rid, raids[rid-1], &dtStart, &dtStop)
+		openingBal, closingBal, err := rlib.GetBeginEndRARBalance(ctx, App.Xbiz.P.BID, rid, raids[rid-1], &dtStart, &dtStop)
 		if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 			os.Exit(1)

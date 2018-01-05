@@ -77,10 +77,9 @@ type DeleteDepForm struct {
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcHandlerDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcHandlerDepository"
 	var (
-		funcname = "SvcHandlerDepository"
-		err      error
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -157,13 +156,12 @@ var depSearchSelectQueryFields = rlib.SelectQueryFields{
 //  @Response DepositorySearchResponse
 // wsdoc }
 func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcSearchHandlerDepositories"
 	var (
-		funcname = "SvcSearchHandlerDepositories"
-		g        DepositorySearchResponse
-		err      error
-		order    = `Depository.DEPID ASC` // default ORDER in sql result
-		whr      = fmt.Sprintf("Depository.BID=%d", d.BID)
+		g     DepositorySearchResponse
+		err   error
+		order = `Depository.DEPID ASC` // default ORDER in sql result
+		whr   = fmt.Sprintf("Depository.BID=%d", d.BID)
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -267,9 +265,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "deleteDepository"
-	)
+	const funcname = "deleteDepository"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
@@ -280,7 +276,7 @@ func deleteDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	if err := rlib.DeleteDepository(del.ID); err != nil {
+	if err := rlib.DeleteDepository(r.Context(), del.ID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -299,11 +295,10 @@ func deleteDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "saveDepository"
 	var (
-		funcname = "saveDepository"
-		foo      DepositoryGridSave
-		err      error
+		foo DepositoryGridSave
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -336,16 +331,16 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	adup := rlib.GetDepositoryByName(a.BID, a.Name)
+	adup, _ := rlib.GetDepositoryByName(r.Context(), a.BID, a.Name)
 	if a.Name == adup.Name && a.DEPID != adup.DEPID {
 		e := fmt.Errorf("%s: A Depository with the name %s already exists", funcname, a.Name)
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
-	adup = rlib.GetDepositoryByLID(a.BID, a.LID)
+	adup, _ = rlib.GetDepositoryByLID(r.Context(), a.BID, a.LID)
 	if a.LID == adup.LID && a.DEPID != adup.DEPID {
-		l := rlib.GetLedger(a.LID)
+		l, _ := rlib.GetLedger(r.Context(), a.LID)
 		e := fmt.Errorf("%s: A Depository for Account %s (%s) already exists", funcname, l.GLNumber, l.Name)
 		SvcErrorReturn(w, e, funcname)
 		return
@@ -354,11 +349,11 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.DEPID == 0 && d.ID == 0 {
 		// This is a new AR
 		fmt.Printf(">>>> NEW DEPOSITORY IS BEING ADDED\n")
-		_, err = rlib.InsertDepository(&a)
+		_, err = rlib.InsertDepository(r.Context(), &a)
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing Depository: %d\n", a.DEPID)
-		err = rlib.UpdateDepository(&a)
+		err = rlib.UpdateDepository(r.Context(), &a)
 	}
 
 	if err != nil {
@@ -381,11 +376,10 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response DepositoryGetResponse
 // wsdoc }
 func getDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "getDepository"
 	var (
-		funcname = "getDepository"
-		g        DepositoryGetResponse
-		whr      = fmt.Sprintf("Depository.DEPID=%d", d.ID)
+		g   DepositoryGetResponse
+		whr = fmt.Sprintf("Depository.DEPID=%d", d.ID)
 	)
 
 	fmt.Printf("entered %s\n", funcname)

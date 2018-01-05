@@ -318,3 +318,10 @@ func IsDateBefore(bT, aT time.Time) bool {
 func DateDiff(a, b time.Time) int64 {
 	return int64(a.Sub(b))
 }
+
+// DebugPrint just an alias for fmt.Printf, made for the development purpose only!
+// Once development done, it would be easy to remove all of statements from the entire code
+// by this method name identification easily
+func DebugPrint(format string, a ...interface{}) {
+	fmt.Printf(format, a...)
+}

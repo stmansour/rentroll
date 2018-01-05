@@ -3,6 +3,7 @@ package rlib
 // This file is a random collection of utility routines...
 
 import (
+	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"os"
@@ -143,10 +144,17 @@ func AccrualDuration(a int64) time.Duration {
 	return d
 }
 
+// SkipSQLNoRowsError assing nil to original err variable
+// if its kind of no rows in result error from sql package
+func SkipSQLNoRowsError(err *error) {
+	if IsSQLNoResultsError(*err) {
+		*err = nil
+	}
+}
+
 // IsSQLNoResultsError returns true if the error provided is a sql err indicating no rows in the solution set.
 func IsSQLNoResultsError(err error) bool {
-	s := fmt.Sprintf("%v", err)
-	return strings.Contains(s, "no rows in result")
+	return err == sql.ErrNoRows
 }
 
 // IntFromString converts the supplied string to an int64 value. If there

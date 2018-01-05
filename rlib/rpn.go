@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -33,10 +34,10 @@ var rpnFunction *regexp.Regexp
 var rpnASM *regexp.Regexp
 var rpnSUM *regexp.Regexp
 
-func rpnPrintStack(ctx *RpnCtx) {
-	fmt.Printf("Stack --- size: %d\n", len(ctx.stack))
-	for i := 0; i < len(ctx.stack); i++ {
-		fmt.Printf("%2d: %f\n", i, ctx.stack[i])
+func rpnPrintStack(rpnCtx *RpnCtx) {
+	fmt.Printf("Stack --- size: %d\n", len(rpnCtx.stack))
+	for i := 0; i < len(rpnCtx.stack); i++ {
+		fmt.Printf("%2d: %f\n", i, rpnCtx.stack[i])
 	}
 }
 
@@ -49,52 +50,61 @@ func RpnInit() {
 	rpnASM = regexp.MustCompile(`^ASM\(([^)]+)\)`)
 }
 
-func rpnPop(ctx *RpnCtx) float64 {
-	l := len(ctx.stack)
+func rpnPop(rpnCtx *RpnCtx) float64 {
+	l := len(rpnCtx.stack)
 	if l > 0 {
-		x := ctx.stack[l-1]
-		ctx.stack = ctx.stack[0 : l-1]
+		x := rpnCtx.stack[l-1]
+		rpnCtx.stack = rpnCtx.stack[0 : l-1]
 		return x
 	}
 	return 0
 }
 
-func rpnPush(ctx *RpnCtx, x float64) {
-	ctx.stack = append(ctx.stack, x*ctx.pf)
+func rpnPush(rpnCtx *RpnCtx, x float64) {
+	rpnCtx.stack = append(rpnCtx.stack, x*rpnCtx.pf)
 }
 
-func rpnLoadRentable(ctx *RpnCtx) {
+func rpnLoadRentable(ctx context.Context, rpnCtx *RpnCtx) error {
+	var (
+		err error
+	)
+
 	// only load it if necessary
-	if 0 == ctx.xu.R.RID {
-		GetXRentable(ctx.rid, &ctx.xu)
+	if 0 == rpnCtx.xu.R.RID {
+		err = GetXRentable(ctx, rpnCtx.rid, &rpnCtx.xu)
+		if err != nil {
+			return err
+		}
 	}
+
+	return err
 }
 
 // RpnCreateCtx creates the context structure needed for use with all the Rpn functions
 func RpnCreateCtx(xbiz *XBusiness, rid int64, d1, d2 *time.Time, m *[]AcctRule, amount, pf float64) RpnCtx {
-	var ctx RpnCtx
-	ctx.xbiz = xbiz
-	ctx.m = m
-	ctx.d1 = d1
-	ctx.d2 = d2
-	ctx.rid = rid
-	ctx.stack = make([]float64, 0)
-	ctx.pf = pf
-	ctx.amount = amount
-	ctx.GSRset = false
-	return ctx
+	var rpnCtx RpnCtx
+	rpnCtx.xbiz = xbiz
+	rpnCtx.m = m
+	rpnCtx.d1 = d1
+	rpnCtx.d2 = d2
+	rpnCtx.rid = rid
+	rpnCtx.stack = make([]float64, 0)
+	rpnCtx.pf = pf
+	rpnCtx.amount = amount
+	rpnCtx.GSRset = false
+	return rpnCtx
 }
 
-func rpnFunctionResolve(ctx *RpnCtx, cmd, val string) float64 {
+func rpnFunctionResolve(rpnCtx *RpnCtx, cmd, val string) float64 {
 	switch {
 	case cmd == "aval":
 		if val[0] == '$' {
-			val = DoAcctSubstitution(ctx.xbiz.P.BID, val) // could be a substitution
+			val = DoAcctSubstitution(rpnCtx.xbiz.P.BID, val) // could be a substitution
 		}
-		for i := 0; i < len(*ctx.m); i++ {
-			if (*ctx.m)[i].Account == val {
-				// fmt.Printf("rpnFunctionResolve: returning %f\n", (*ctx.m)[i].Amount)
-				return (*ctx.m)[i].Amount
+		for i := 0; i < len(*rpnCtx.m); i++ {
+			if (*rpnCtx.m)[i].Account == val {
+				// fmt.Printf("rpnFunctionResolve: returning %f\n", (*rpnCtx.m)[i].Amount)
+				return (*rpnCtx.m)[i].Amount
 			}
 		}
 	default:
@@ -103,48 +113,74 @@ func rpnFunctionResolve(ctx *RpnCtx, cmd, val string) float64 {
 	return float64(0)
 }
 
-func varResolve(ctx *RpnCtx, s string) float64 {
+func varResolve(ctx context.Context, rpnCtx *RpnCtx, s string) (float64, error) {
+	var (
+		err error
+		val float64
+	)
 
 	if s == "UMR" { // Unit MARKET RATE
-		rpnLoadRentable(ctx) // make sure it's loaded
-		return ctx.pf * GetRentableMarketRate(ctx.xbiz, ctx.xu.R.RID, ctx.d1, ctx.d2)
+		err = rpnLoadRentable(ctx, rpnCtx) // make sure it's loaded
+		if err != nil {
+			return val, err
+		}
+
+		mr, err := GetRentableMarketRate(ctx, rpnCtx.xbiz, rpnCtx.xu.R.RID, rpnCtx.d1, rpnCtx.d2)
+		if err != nil {
+			return val, err
+		}
+		return rpnCtx.pf * mr, err
 	}
+
 	if s == "GSR" { // Gross Schedule Rent = Market Rate + Specialties
-		if ctx.GSRset { // don't recalculate if already set
-			return ctx.pf * ctx.GSR
+		if rpnCtx.GSRset { // don't recalculate if already set
+			return rpnCtx.pf * rpnCtx.GSR, err
 		}
-		rpnLoadRentable(ctx) // make sure it's loaded
-		amt, _, _, err := CalculateLoadedGSR(ctx.xu.R.BID, ctx.xu.R.RID, ctx.d1, ctx.d2, ctx.xbiz)
-		if err == nil {
-			// fmt.Printf("varResolve: amt = %f, d1 = %s, d2 = %s\n", amt, ctx.d1.Format(RRDATEFMT4), ctx.d2.Format(RRDATEFMT4))
-			ctx.GSR = amt
-			ctx.GSRset = true
-			return ctx.pf * ctx.GSR
+		err = rpnLoadRentable(ctx, rpnCtx) // make sure it's loaded
+		if err != nil {
+			return val, err
 		}
+
+		amt, _, _, err := CalculateLoadedGSR(ctx, rpnCtx.xu.R.BID, rpnCtx.xu.R.RID, rpnCtx.d1, rpnCtx.d2, rpnCtx.xbiz)
+		if err != nil {
+			return val, err
+		}
+		// fmt.Printf("varResolve: amt = %f, d1 = %s, d2 = %s\n", amt, rpnCtx.d1.Format(RRDATEFMT4), rpnCtx.d2.Format(RRDATEFMT4))
+		rpnCtx.GSR = amt
+		rpnCtx.GSRset = true
+		return rpnCtx.pf * rpnCtx.GSR, err
 	}
+
 	if s == "ASM.Amount" { // the amount of the associated assessment
-		a, err := GetAssessment(ctx.r.ASMID)
+		a, err := GetAssessment(ctx, rpnCtx.r.ASMID)
 		if nil != err {
-			Ulog("varResolve: could not load Assessment %d. err = %s\n", ctx.r.ASMID, err.Error())
-			return float64(0)
+			Ulog("varResolve: could not load Assessment %d. err = %s\n", rpnCtx.r.ASMID, err.Error())
+			return val, err
 		}
-		return ctx.pf * a.Amount
+
+		return rpnCtx.pf * a.Amount, err
 	}
+
 	m1 := rpnFunction.FindAllStringSubmatchIndex(s, -1)
 	if m1 != nil {
 		m := m1[0]
 		cmd := s[m[2]:m[3]]
 		val := s[m[4]:m[5]]
-		return rpnFunctionResolve(ctx, cmd, val)
+		return rpnFunctionResolve(rpnCtx, cmd, val), err
 	}
 
-	return float64(0)
+	return val, err
 }
 
 // RpnCalculateEquation takes a formula, parses and executes the formula and returns the number it calculates.
 // This may be helpful: https://play.golang.org/p/p842UZpQaK
-func RpnCalculateEquation(ctx *RpnCtx, s string) float64 {
+func RpnCalculateEquation(ctx context.Context, rpnCtx *RpnCtx, s string) (float64, error) {
 	// funcname := "RpnCalculateEquation"
+
+	var (
+		err error
+	)
+
 	// fmt.Printf("%s: entered\n", funcname)
 	t := strings.Split(s, " ")
 	// fmt.Printf("%s: t = %#v\n", funcname, t)
@@ -157,40 +193,44 @@ func RpnCalculateEquation(ctx *RpnCtx, s string) float64 {
 				m := rpnVariable.FindStringSubmatchIndex(s)
 				if m != nil {
 					match := s[m[2]:m[3]]
-					n := varResolve(ctx, match)
-					ctx.stack = append(ctx.stack, n)
+					n, err := varResolve(ctx, rpnCtx, match)
+					if err != nil {
+						return float64(0), err
+					}
+
+					rpnCtx.stack = append(rpnCtx.stack, n)
 				}
 			} else if s[0] == '_' {
-				// fmt.Printf("%s: found '_', pushing ctx.amount = %8.2f\n", funcname, ctx.amount)
-				rpnPush(ctx, ctx.amount)
+				// fmt.Printf("%s: found '_', pushing rpnCtx.amount = %8.2f\n", funcname, rpnCtx.amount)
+				rpnPush(rpnCtx, rpnCtx.amount)
 			} else if ('0' <= s[0] && s[0] <= '9') || '.' == s[0] { // is it a number?
 				m := rpnNumber.FindStringSubmatchIndex(s)
 				match := s[m[0]:m[1]]
 				n, _ := strconv.ParseFloat(match, 64)
-				ctx.stack = append(ctx.stack, n*ctx.pf)
+				rpnCtx.stack = append(rpnCtx.stack, n*rpnCtx.pf)
 			} else if len(s) > 1 && s[0] == '-' && (('0' <= s[1] && s[1] <= '9') || '.' == s[1]) {
 				m := rpnNumber.FindStringSubmatchIndex(s)
 				match := s[m[0]:m[1]]
 				n, _ := strconv.ParseFloat(match, 64)
-				ctx.stack = append(ctx.stack, n*ctx.pf)
+				rpnCtx.stack = append(rpnCtx.stack, n*rpnCtx.pf)
 			} else if s[0] == '-' || s[0] == '+' || s[0] == '*' || s[0] == '/' { // is it an operator?
 				op := s[0:1]
 				var x, y float64
-				y = rpnPop(ctx)
-				x = rpnPop(ctx)
+				y = rpnPop(rpnCtx)
+				x = rpnPop(rpnCtx)
 				switch op {
 				case "+":
-					ctx.stack = append(ctx.stack, x+y)
+					rpnCtx.stack = append(rpnCtx.stack, x+y)
 				case "-":
-					ctx.stack = append(ctx.stack, x-y)
+					rpnCtx.stack = append(rpnCtx.stack, x-y)
 				case "*":
-					ctx.stack = append(ctx.stack, x*y)
+					rpnCtx.stack = append(rpnCtx.stack, x*y)
 				case "/":
-					ctx.stack = append(ctx.stack, x/y)
+					rpnCtx.stack = append(rpnCtx.stack, x/y)
 				}
 			}
 		}
-		// rpnPrintStack(ctx)
+		// rpnPrintStack(rpnCtx)
 	}
-	return rpnPop(ctx)
+	return rpnPop(rpnCtx), err
 }

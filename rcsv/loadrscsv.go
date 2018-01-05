@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strconv"
@@ -16,8 +17,12 @@ import (
 // REH,         "Fireplace",     20.0,  "Wood burning, gas fireplace"
 
 // CreateRentalSpecialty reads a rental specialty type string array and creates a database record for the rental specialty type.
-func CreateRentalSpecialty(sa []string, lineno int) (int, error) {
-	funcname := "CreateRentalSpecialty"
+func CreateRentalSpecialty(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateRentalSpecialty"
+	var (
+		err error
+	)
+
 	const (
 		BUD         = 0
 		Name        = iota
@@ -49,7 +54,10 @@ func CreateRentalSpecialty(sa []string, lineno int) (int, error) {
 	var b rlib.Business
 
 	if len(des) > 0 {
-		b = rlib.GetBusinessByDesignation(des)
+		b, err = rlib.GetBusinessByDesignation(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+		}
 		if b.BID < 1 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - rlib.Business named %s not found", funcname, lineno, des)
 		}
@@ -69,7 +77,8 @@ func CreateRentalSpecialty(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Make sure we don't already have an exact rlib.Business,name match
 	//-------------------------------------------------------------------
-	rsp := rlib.GetRentableSpecialtyTypeByName(a.BID, a.Name)
+	// TODO(Steve): ignore error?
+	rsp, _ := rlib.GetRentableSpecialtyTypeByName(ctx, a.BID, a.Name)
 	if rsp.RSPID > 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - rlib.Business %s already has a rlib.RentableSpecialty named %s", funcname, lineno, des, a.Name)
 	}
@@ -77,7 +86,7 @@ func CreateRentalSpecialty(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// OK, just insert the record and we're done
 	//-------------------------------------------------------------------
-	err = rlib.InsertRentableSpecialty(&a)
+	_, err = rlib.InsertRentableSpecialty(ctx, &a)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d  - error inserting RentalSpecialty = %v", funcname, lineno, err)
 	}
@@ -85,6 +94,6 @@ func CreateRentalSpecialty(sa []string, lineno int) (int, error) {
 }
 
 // LoadRentalSpecialtiesCSV loads a csv file with rental specialty types and processes each one
-func LoadRentalSpecialtiesCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRentalSpecialty)
+func LoadRentalSpecialtiesCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRentalSpecialty)
 }

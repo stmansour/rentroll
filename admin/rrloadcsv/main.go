@@ -12,6 +12,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -71,6 +72,7 @@ var App struct {
 	DtStart        time.Time                  // range start time
 	DtStop         time.Time                  // range stop time
 	Xbiz           rlib.XBusiness             // xbusiness associated with -G  (BUD)
+	NoAuth         bool                       // if true then skip authentication
 }
 
 func readCommandLineArgs() {
@@ -112,6 +114,7 @@ func readCommandLineArgs() {
 	verPtr := flag.Bool("v", false, "prints the version to stdout")
 	depositPtr := flag.String("y", "", "add Deposits via csv file")
 	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	flag.Parse()
 	if *verPtr {
@@ -158,6 +161,8 @@ func readCommandLineArgs() {
 	App.SLFile = *slPtr
 	App.SrcFile = *src
 	App.VehicleFile = *vehiclePtr
+	App.NoAuth = *noauth
+
 	var err error
 	s := *pDates
 	if len(s) > 0 {
@@ -187,9 +192,9 @@ func bizErrCheck(sa []string) {
 	}
 }
 
-func loaderGetBiz(s string) int64 {
-	bid := rcsv.GetBusinessBID(s)
-	if bid == 0 {
+func loaderGetBiz(ctx context.Context, s string) int64 {
+	bid, err := rcsv.GetBusinessBID(ctx, s)
+	if /*bid == 0*/ err != nil {
 		fmt.Printf("unrecognized Business designator: %s\n", s)
 		os.Exit(1)
 	}
@@ -202,9 +207,9 @@ type csvimporter struct {
 	Handler func(string) []error
 }
 
-func rrDoLoad(fname string, handler func(string) []error) {
+func rrDoLoad(ctx context.Context, fname string, handler rcsv.CSVLoadHandlerFunc) {
 	// fmt.Printf("calling handler for: %q\n", fname)
-	m := handler(fname)
+	m := handler(ctx, fname)
 	fmt.Print(rcsv.ErrlistToString(&m))
 }
 
@@ -252,28 +257,55 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SetAuthFlag(App.NoAuth) // currently needed for testing
+
+	// create background context
+	ctx := context.Background()
 
 	//----------------------------------------------------
 	// initialize the CSV infrastructure
 	//----------------------------------------------------
 	if len(App.BUD) > 0 {
-		b2 := rlib.GetBusinessByDesignation(App.BUD)
+		b2, err := rlib.GetBusinessByDesignation(ctx, App.BUD)
+		if err != nil {
+			fmt.Printf("Could not find Business Unit named %s, Error=%s\n", App.BUD, err.Error())
+			os.Exit(1)
+		}
 		if b2.BID == 0 {
+			// If resource not found then also raise the Error
 			fmt.Printf("Could not find Business Unit named %s\n", App.BUD)
 			os.Exit(1)
 		}
-		rlib.GetXBusiness(b2.BID, &App.Xbiz)
+
+		err = rlib.GetXBusiness(ctx, b2.BID, &App.Xbiz)
+		if err != nil {
+			fmt.Printf("Could not load Business with BID(%d), Error=%s\n", b2.BID, err.Error())
+			os.Exit(1)
+		}
+		if b2.BID == 0 {
+			// If resource not found then also raise the Error
+			fmt.Printf("Could not load Business with BID(%d)\n", b2.BID)
+			os.Exit(1)
+		}
 	} else if len(App.AsmtFile) > 0 || len(App.RcptFile) > 0 {
 		fmt.Printf("To load Assessments or Receipts you must provide a business unit\n")
 		os.Exit(1)
 	}
 	if App.Xbiz.P.BID > 0 {
 		rcsv.InitRCSV(&App.DtStart, &App.DtStop, &App.Xbiz)
-		rlib.InitBizInternals(App.Xbiz.P.BID, &App.Xbiz)
+		err = rlib.InitBizInternals(App.Xbiz.P.BID, &App.Xbiz)
+		if err != nil /*b2.BID == 0*/ {
+			fmt.Printf("error while InitBizInternals call: %s\n", err.Error())
+			os.Exit(1)
+		}
 	}
 
 	if len(App.RcptFile) > 0 && App.Xbiz.P.BID > 0 {
-		App.PmtTypes = rlib.GetPaymentTypesByBusiness(App.Xbiz.P.BID)
+		App.PmtTypes, err = rlib.GetPaymentTypesByBusiness(ctx, App.Xbiz.P.BID)
+		if err != nil {
+			fmt.Printf("error while get payment types for BID(%d): %s\n", App.Xbiz.P.BID, err.Error())
+			os.Exit(1)
+		}
 	}
 
 	//----------------------------------------------------
@@ -313,7 +345,7 @@ func main() {
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			rrDoLoad(h[i].Fname, h[i].Handler)
+			rrDoLoad(ctx, h[i].Fname, h[i].Handler)
 		}
 	}
 
@@ -333,18 +365,18 @@ func main() {
 		{ReportNo: 13, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rrpt.RRreportReceipts},
 		{ReportNo: 14, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportCustomAttributes},
 		{ReportNo: 15, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportCustomAttributeRefs},
-		{ReportNo: 16, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: false, NeedsRAID: true, NeedsDt: false, Handler: rcsv.RRreportRentalAgreementPets},
-		{ReportNo: 17, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportNoteTypes},
+		{ReportNo: 16, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: false, NeedsRAID: true, NeedsDt: false, Handler: rrpt.RRreportRentalAgreementPets},
+		{ReportNo: 17, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportNoteTypes},
 		{ReportNo: 18, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportDepository},
-		{ReportNo: 19, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportDeposits},
-		{ReportNo: 20, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportInvoices},
-		{ReportNo: 21, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialties},
-		{ReportNo: 22, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSpecialtyAssigns},
+		{ReportNo: 19, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rrpt.RRreportDeposits},
+		{ReportNo: 20, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rrpt.RRreportInvoices},
+		{ReportNo: 21, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportSpecialties},
+		{ReportNo: 22, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportSpecialtyAssigns},
 		{ReportNo: 23, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportDepositMethods},
-		{ReportNo: 24, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportSources},
+		{ReportNo: 24, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportSources},
 		{ReportNo: 25, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportStringLists},
-		{ReportNo: 26, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rcsv.RRreportRatePlans},
-		{ReportNo: 27, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rcsv.RRreportRatePlanRefs},
+		{ReportNo: 26, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportRatePlans},
+		{ReportNo: 27, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rrpt.RRreportRatePlanRefs},
 		{ReportNo: 28, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
 	}
 
@@ -370,9 +402,13 @@ func main() {
 		r[idx].D2 = time.Date(9999, time.January, 0, 0, 0, 0, 0, time.UTC) // init
 		if r[idx].NeedsBID {
 			bizErrCheck(sa)
-			r[idx].Bid = loaderGetBiz(sa[1])
+			r[idx].Bid = loaderGetBiz(ctx, sa[1])
 			var xbiz rlib.XBusiness
-			rlib.GetXBusiness(r[idx].Bid, &xbiz)
+			err = rlib.GetXBusiness(ctx, r[idx].Bid, &xbiz)
+			if err != nil {
+				fmt.Printf("error while loading business for BID(%d): %s\n", r[idx].Bid, err.Error())
+				os.Exit(1)
+			}
 			r[idx].Xbiz = &xbiz
 		}
 		if r[idx].NeedsDt {
@@ -382,6 +418,6 @@ func main() {
 		if r[idx].NeedsRAID {
 			r[idx].Raid = rcsv.CSVLoaderGetRAID(sa[1])
 		}
-		fmt.Printf("%s\n", r[idx].Handler(&r[idx]))
+		fmt.Printf("%s\n", r[idx].Handler(ctx, &r[idx]))
 	}
 }

@@ -61,12 +61,12 @@ type RentableTypeGetResponse struct {
 	Record RentableTypeGridRecord `json:"record"`
 }
 
-// DeleteRentableTypeForm used to delete form
+// DeleteRentableTypeForm used to inactive Rentable Type
 type DeleteRentableTypeForm struct {
 	ID int64
 }
 
-// ReactivateRentableTypeForm used to delete form
+// ReactivateRentableTypeForm used to reactivate Rentable Type
 type ReactivateRentableTypeForm struct {
 	ID int64
 }
@@ -90,14 +90,14 @@ type RentableTypeFormSave struct {
 //  @Response RentableTypesTypeDownResponse
 // wsdoc }
 func SvcRentableTypesTD(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Println("Entered service handler for SvcRentableTypesList")
-
+	const funcname = "SvcRentableTypesTD"
 	var (
 		g RentableTypesTDResponse
 	)
+	fmt.Printf("Entered in %s, service handler for SvcRentableTypesList\n", funcname)
 
 	// get rentable types for a business
-	m := rlib.GetBusinessRentableTypes(d.BID)
+	m, _ := rlib.GetBusinessRentableTypes(r.Context(), d.BID)
 
 	// sort keys
 	var keys rlib.Int64Range
@@ -127,10 +127,9 @@ func SvcRentableTypesTD(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcHandlerRentableType"
 	var (
-		funcname = "SvcHandlerRentableType"
-		err      error
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -223,13 +222,12 @@ var rtSearchSelectQueryFields = rlib.SelectQueryFields{
 //  @Response RentableTypeSearchResponse
 // wsdoc }
 func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcSearchHandlerRentableTypes"
 	var (
-		funcname = "SvcSearchHandlerRentableTypes"
-		g        RentableTypeSearchResponse
-		err      error
-		order    = `RentableTypes.RTID ASC` // default ORDER in sql result
-		whr      = fmt.Sprintf(`RentableTypes.BID=%d
+		g     RentableTypeSearchResponse
+		err   error
+		order = `RentableTypes.RTID ASC` // default ORDER in sql result
+		whr   = fmt.Sprintf(`RentableTypes.BID=%d
 				AND (RentableMarketRate.DtStart <= %q OR RentableMarketRate.DtStart IS NULL)
 				AND (RentableMarketRate.DtStop >%q OR RentableMarketRate.DtStop IS NULL)`,
 			d.BID, d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL))
@@ -338,11 +336,10 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 //  @Response RentableTypeGetResponse
 // wsdoc }
 func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "getRentableType"
 	var (
-		funcname = "getRentableType"
-		g        RentableTypeGetResponse
-		whr      = fmt.Sprintf("RentableTypes.RTID=%d", d.ID)
+		g   RentableTypeGetResponse
+		whr = fmt.Sprintf("RentableTypes.RTID=%d", d.ID)
 	)
 
 	fmt.Printf("entered %s\n", funcname)
@@ -405,9 +402,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "deleteRentableType"
-	)
+	const funcname = "deleteRentableType"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
@@ -418,7 +413,7 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 
-	if err := rlib.DeleteRentableType(del.ID); err != nil {
+	if err := rlib.DeleteRentableType(r.Context(), del.ID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -436,9 +431,7 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 //  @Response SvcStatusResponse
 // wsdoc }
 func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var (
-		funcname = "reactivateRentableType"
-	)
+	const funcname = "reactivateRentableType"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
@@ -450,7 +443,7 @@ func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	rt := rlib.RentableType{RTID: reActF.ID}
-	if err := rlib.ReactivateRentableType(&rt); err != nil {
+	if err := rlib.UpdateRentableTypeToActive(r.Context(), &rt); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -468,11 +461,10 @@ func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "saveRentableType"
 	var (
-		funcname = "saveRentableType"
-		foo      RentableTypeFormSave
-		err      error
+		foo RentableTypeFormSave
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -500,7 +492,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	errlist := bizlogic.ValidateRentableType(&a)
+	errlist := bizlogic.ValidateRentableType(r.Context(), &a)
 	if len(errlist) > 0 {
 		SvcErrListReturn(w, errlist, funcname)
 		return
@@ -509,7 +501,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.RTID == 0 && d.ID == 0 {
 		// This is a new AR
 		rlib.Console(">>>> NEW RentableType IS BEING ADDED\n")
-		a.RTID, err = rlib.InsertRentableType(&a)
+		a.RTID, err = rlib.InsertRentableType(r.Context(), &a)
 		if err != nil {
 			e := fmt.Errorf("%s: unable to save RentableType record: %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -518,7 +510,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	} else {
 		// update existing record
 		fmt.Printf("Updating existing RentableType: %d\n", a.RTID)
-		err = rlib.UpdateRentableType(&a)
+		err = rlib.UpdateRentableType(r.Context(), &a)
 		if err != nil {
 			e := fmt.Errorf("%s: unable to update RentableType (RTID=%d\n: %s", funcname, a.RTID, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -573,9 +565,9 @@ var rmrSearchSelectQueryFields = rlib.SelectQueryFields{
 
 // SvcHandlerRentableMarketRates returns the list of market rates for given rentable type
 func SvcHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcHandlerRentableMarketRates"
 	var (
-		funcname = "SvcHandlerRentableMarketRates"
-		err      error
+		err error
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -607,12 +599,12 @@ func SvcHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request, d *Se
 
 // svcSearchHandlerRentableMarketRates handles market rate grid request/response
 func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "svcSearchHandlerRentableMarketRates"
 	var (
-		funcname = "svcSearchHandlerRentableMarketRates"
-		g        RentableMarketRateGridResponse
-		err      error
-		order    = `RentableMarketRate.RMRID ASC`
-		whr      = fmt.Sprintf("RentableMarketRate.RTID=%d", d.ID)
+		g     RentableMarketRateGridResponse
+		err   error
+		order = `RentableMarketRate.RMRID ASC`
+		whr   = fmt.Sprintf("RentableMarketRate.RTID=%d", d.ID)
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -718,10 +710,10 @@ type MarketRateGridSave struct {
 
 // saveRentableTypeMarketRates save/update market rates associated with RentableType
 func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveRentableTypeMarketRates"
 	var (
-		funcname = "saveRentableTypeMarketRates"
-		err      error
-		foo      MarketRateGridSave
+		err error
+		foo MarketRateGridSave
 	)
 	fmt.Printf("Entered %s\n", funcname)
 	rlib.Console("record data: %s\n", d.data)
@@ -746,7 +738,7 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 	// if not then return with error
 	var rt rlib.RentableType
 	rtid := foo.Changes[0].RTID
-	if err = rlib.GetRentableType(rtid, &rt); err != nil {
+	if err = rlib.GetRentableType(r.Context(), rtid, &rt); err != nil {
 		e := fmt.Errorf("Error while getting RentableType: %s", err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
@@ -762,7 +754,7 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 		var a rlib.RentableMarketRate
 		rlib.MigrateStructVals(&mr, &a) // the variables that don't need special handling
 
-		errs := bizlogic.ValidateRentableMarketRate(&a)
+		errs := bizlogic.ValidateRentableMarketRate(r.Context(), &a)
 		if len(errs) > 0 {
 			bizErrs = append(bizErrs, errs...)
 			continue
@@ -770,14 +762,14 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 
 		// insert new marketRate
 		if a.RMRID == 0 {
-			err = rlib.InsertRentableMarketRates(&a)
+			_, err = rlib.InsertRentableMarketRates(r.Context(), &a)
 			if err != nil {
 				e := fmt.Errorf("Error while inserting market rate:  %s", err.Error())
 				SvcErrorReturn(w, e, funcname)
 				return
 			}
 		} else { // else update existing one
-			err = rlib.UpdateRentableMarketRateInstance(&a)
+			err = rlib.UpdateRentableMarketRateInstance(r.Context(), &a)
 			if err != nil {
 				e := fmt.Errorf("Error with updating market rate instance (%d), RTID=%d : %s", a.RMRID, a.RTID, err.Error())
 				SvcErrorReturn(w, e, funcname)
@@ -803,10 +795,10 @@ type MarketRateGridDelete struct {
 
 // deleteRentableTypeMarketRates used to delete multiple market rate records associated with rentable type
 func deleteRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteRentableTypeMarketRates"
 	var (
-		funcname = "deleteRentableTypeMarketRates"
-		err      error
-		foo      MarketRateGridDelete
+		err error
+		foo MarketRateGridDelete
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data: %s\n", d.data)
@@ -819,7 +811,7 @@ func deleteRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Se
 	}
 
 	for _, rmrid := range foo.RMRIDList {
-		err = rlib.DeleteRentableMarketRateInstance(rmrid)
+		err = rlib.DeleteRentableMarketRateInstance(r.Context(), rmrid)
 		if err != nil {
 			e := fmt.Errorf("Error with deleting MarketRate with ID %d:  %s", rmrid, err.Error())
 			SvcErrorReturn(w, e, funcname)

@@ -60,9 +60,9 @@ type StatementInfoGetResponse struct {
 //  @Response StatementInfoGetResponse
 // wsdoc }
 func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcGetStatementInfo"
 	var (
-		funcname = "SvcGetStatementInfo"
-		g        StatementInfoGetResponse
+		g StatementInfoGetResponse
 	)
 
 	rlib.Console("entered %s\n", funcname)
@@ -75,8 +75,8 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
       RentalAgreement.AgreementStart, RentalAgreement.AgreementStop,
       RentalAgreement.PossessionStart, RentalAgreement.PossessionStop,
       RentalAgreement.RentStart, RentalAgreement.RentStop
-      FROM RentalAgreementPayors 
-      LEFT JOIN Transactant ON RentalAgreementPayors.TCID=Transactant.TCID 
+      FROM RentalAgreementPayors
+      LEFT JOIN Transactant ON RentalAgreementPayors.TCID=Transactant.TCID
       LEFT JOIN RentalAgreement On RentalAgreementPayors.RAID=RentalAgreement.RAID
       WHERE RentalAgreementPayors.RAID=%d AND %q<DtStop and %q>=DtStart`
 	qry := fmt.Sprintf(q, d.ID, d1.Format(rlib.RRDATEFMTSQL), d2.Format(rlib.RRDATEFMTSQL))
@@ -121,12 +121,12 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		// for that rental agreement and fill out the dates. As for the payors,
 		// get the payors over the lifetime of the agreement
 		//------------------------------------------------------------------------
-		ra, err := rlib.GetRentalAgreement(d.ID)
+		ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		sap := ra.GetPayorNameList(&ra.AgreementStart, &ra.AgreementStop)
+		sap, _ := ra.GetPayorNameList(r.Context(), &ra.AgreementStart, &ra.AgreementStop)
 		g.Record.Payors = strings.Join(sap, ",")
 		g.Record.AgreementStart = rlib.JSONDate(ra.AgreementStart)
 		g.Record.AgreementStop = rlib.JSONDate(ra.AgreementStop)

@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -23,6 +24,7 @@ var App struct {
 	PortRR int            // rentroll port
 	Bud    string         // Biz Unit Descriptor
 	Xbiz   rlib.XBusiness // lots of info about this biz
+	NoAuth bool
 }
 
 func readCommandLineArgs() {
@@ -31,12 +33,14 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.PortRR = *portPtr
 	App.Bud = *pBud
+	App.NoAuth = *noauth
 }
 
 func main() {
@@ -81,19 +85,25 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SetAuthFlag(App.NoAuth)
 
-	biz := rlib.GetBusinessByDesignation(App.Bud)
+	// Create background context
+	ctx := context.Background()
+
+	biz, err := rlib.GetBusinessByDesignation(ctx, App.Bud)
+	rlib.Errcheck(err)
 	if biz.BID == 0 {
 		fmt.Printf("Could not find Business Unit named %s\n", App.Bud)
 		os.Exit(1)
 	}
-	rlib.GetXBusiness(biz.BID, &App.Xbiz)
+	err = rlib.GetXBusiness(ctx, biz.BID, &App.Xbiz)
+	rlib.Errcheck(err)
 
 	// based on work from: https://play.golang.org/p/p842UZpQaK
 	var m []rlib.AcctRule
 	var xbiz rlib.XBusiness
 	now := time.Now()
-	ctx := rlib.RpnCreateCtx(&xbiz, 1, &now, &now, &m, float64(-2000), float64(1.0))
+	rpnCtx := rlib.RpnCreateCtx(&xbiz, 1, &now, &now, &m, float64(-2000), float64(1.0))
 
 	rlib.RpnInit()
 	var expr = []string{
@@ -103,7 +113,8 @@ func main() {
 	}
 
 	for i := 0; i < len(expr); i++ {
-		x := rlib.RpnCalculateEquation(&ctx, expr[i])
+		// TODO(Steve): should we ignore error?
+		x, _ := rlib.RpnCalculateEquation(ctx, &rpnCtx, expr[i])
 		fmt.Printf("%d. x = %.2f\n", i, x)
 	}
 }

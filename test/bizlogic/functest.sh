@@ -15,7 +15,7 @@ mysql --no-defaults rentroll < rex.sql
 
 source ../share/base.sh
 
-./bizlogic > z
+./bizlogic -noauth > z
 
 genericlogcheck "z"  ""  "Accts-Bizlogic-Checks"
 

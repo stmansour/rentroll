@@ -1,6 +1,7 @@
 package bizlogic
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -16,12 +17,12 @@ import (
 // RETURNS
 //  a slice of BizErrors encountered
 //-----------------------------------------------------------------------------
-func InsertRentable(r *rlib.Rentable) []BizError {
+func InsertRentable(ctx context.Context, r *rlib.Rentable) []BizError {
 	var be []BizError
 	//-------------------------------------------------------------
 	// Check 1:  does a Rentable with the same name already exist?
 	//-------------------------------------------------------------
-	r1, err := rlib.GetRentableByName(r.RentableName, r.BID)
+	r1, err := rlib.GetRentableByName(ctx, r.RentableName, r.BID)
 	if err != nil {
 		s := err.Error()
 		if !strings.Contains(s, "no rows") {
@@ -33,7 +34,7 @@ func InsertRentable(r *rlib.Rentable) []BizError {
 		b := BizError{Errno: RentableNameExists, Message: s}
 		return append(be, b)
 	}
-	_, err = rlib.InsertRentable(r)
+	_, err = rlib.InsertRentable(ctx, r)
 	if err != nil {
 		return AddErrToBizErrlist(err, be)
 	}

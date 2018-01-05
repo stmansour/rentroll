@@ -181,15 +181,15 @@ type DeletePersonForm struct {
 //  @Response TransactantsTypedownResponse
 // wsdoc }
 func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcTransactantTypeDown"
 	var (
-		funcname = "SvcTransactantTypeDown"
-		g        TransactantsTypedownResponse
-		err      error
+		g   TransactantsTypedownResponse
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
 	fmt.Printf("handle typedown: GetTransactantsTypeDown( bid=%d, search=%s, limit=%d\n", d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
-	g.Records, err = rlib.GetTransactantTypeDown(d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
+	g.Records, err = rlib.GetTransactantTypeDown(r.Context(), d.BID, d.wsTypeDownReq.Search, d.wsTypeDownReq.Max)
 	fmt.Printf("GetTransactantTypeDown returned %d matches\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	if err != nil {
@@ -276,11 +276,10 @@ func transactantRowScan(rows *sql.Rows, t rlib.Transactant) (rlib.Transactant, e
 //  @Response SearchTransactantsResponse
 // wsdoc }
 func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcSearchHandlerTransactants"
 	var (
-		funcname = "SvcSearchHandlerTransactants"
-		err      error
-		g        SearchTransactantsResponse
+		err error
+		g   SearchTransactantsResponse
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -394,9 +393,9 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcFormHandlerXPerson"
 	var (
-		funcname = "SvcFormHandlerXPerson"
-		err      error
+		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -435,9 +434,9 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //  @Response SearchTransactantsResponse
 // wsdoc }
 func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveXPerson"
 	var (
-		funcname = "saveXPerson"
-		err      error
+		err error
 	)
 
 	target := `"record":`
@@ -511,14 +510,14 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if xp.Trn.TCID == 0 {
 		// this is new transactant record
 		fmt.Println(">>> Inserting New Transactant Record")
-		tcid, err := rlib.InsertTransactant(&xp.Trn)
+		tcid, err := rlib.InsertTransactant(r.Context(), &xp.Trn)
 		if err != nil {
 			e := fmt.Errorf("%s: Insert Transactant error:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
-		errlist := bizlogic.FinalizeTransactant(&xp.Trn)
+		errlist := bizlogic.FinalizeTransactant(r.Context(), &xp.Trn)
 		if len(errlist) > 0 {
 			SvcErrListReturn(w, errlist, funcname)
 			return
@@ -529,21 +528,21 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		xp.Pay.TCID = tcid
 		xp.Psp.TCID = tcid
 
-		_, err = rlib.InsertUser(&xp.Usr)
+		_, err = rlib.InsertUser(r.Context(), &xp.Usr)
 		if err != nil {
 			e := fmt.Errorf("%s: Insert User error:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
-		_, err = rlib.InsertProspect(&xp.Psp)
+		_, err = rlib.InsertProspect(r.Context(), &xp.Psp)
 		if err != nil {
 			e := fmt.Errorf("%s: Insert Prospect error:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
-		_, err = rlib.InsertPayor(&xp.Pay)
+		_, err = rlib.InsertPayor(r.Context(), &xp.Pay)
 		if err != nil {
 			e := fmt.Errorf("%s: Insert Payor error:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -551,28 +550,28 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	} else {
 		fmt.Printf("Updating Transactant record with TCID: %d\n", xp.Trn.TCID)
-		err = rlib.UpdateTransactant(&xp.Trn)
+		err = rlib.UpdateTransactant(r.Context(), &xp.Trn)
 		if err != nil {
 			e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
-		err = rlib.UpdateUser(&xp.Usr)
+		err = rlib.UpdateUser(r.Context(), &xp.Usr)
 		if err != nil {
 			e := fmt.Errorf("%s: UpdateUser error:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
-		err = rlib.UpdateProspect(&xp.Psp)
+		err = rlib.UpdateProspect(r.Context(), &xp.Psp)
 		if err != nil {
 			e := fmt.Errorf("%s: UpdateProspect error:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 
-		err = rlib.UpdatePayor(&xp.Pay)
+		err = rlib.UpdatePayor(r.Context(), &xp.Pay)
 		if err != nil {
 			e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
@@ -593,9 +592,11 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response GetTransactantResponse
 // wsdoc }
 func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	var g GetTransactantResponse
-	var xp rlib.XPerson
-	rlib.GetXPerson(d.TCID, &xp)
+	var (
+		g  GetTransactantResponse
+		xp rlib.XPerson
+	)
+	_ = rlib.GetXPerson(r.Context(), d.TCID, &xp)
 	if xp.Pay.TCID > 0 {
 		rlib.MigrateStructVals(&xp.Pay, &g.Record)
 	}
@@ -625,9 +626,9 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcWriteSuccessResponse
 // wsdoc }
 func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteXPerson"
 	var (
-		funcname = "deleteXPerson"
-		del      DeletePersonForm
+		del DeletePersonForm
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -641,22 +642,22 @@ func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// fmt.Printf("del = %#v\n", del)
 
 	// delete Prospect
-	if err := rlib.DeleteProspect(del.TCID); err != nil {
+	if err := rlib.DeleteProspect(r.Context(), del.TCID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	// delete Payor
-	if err := rlib.DeletePayor(del.TCID); err != nil {
+	if err := rlib.DeletePayor(r.Context(), del.TCID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	// delete User
-	if err := rlib.DeleteUser(del.TCID); err != nil {
+	if err := rlib.DeleteUser(r.Context(), del.TCID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	// finally delete Transactant
-	if err := rlib.DeleteTransactant(del.TCID); err != nil {
+	if err := rlib.DeleteTransactant(r.Context(), del.TCID); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}

@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
@@ -8,9 +9,22 @@ import (
 )
 
 // RentableMarketRates prints a report of the rentable rid's rent rates between d1 and d2
-func RentableMarketRates(xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time) {
-	r := rlib.GetRentable(rid)
-	m := rlib.GetRentableTypeRefsByRange(r.RID, d1, d2)
+func RentableMarketRates(ctx context.Context, xbiz *rlib.XBusiness, rid int64, d1, d2 *time.Time) {
+	const funcname = "RentableMarketRates"
+
+	r, err := rlib.GetRentable(ctx, rid)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		fmt.Println(err.Error())
+		return
+	}
+
+	m, err := rlib.GetRentableTypeRefsByRange(ctx, r.RID, d1, d2)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		fmt.Println(err.Error())
+		return
+	}
 
 	fmt.Printf("RENTABLE RENT RATES\nRentable: %s  (%s)\nPeriod %s - %s\n\n", r.RentableName, r.IDtoString(), d1.Format(rlib.RRDATEFMT4), d2.Format(rlib.RRDATEFMT4))
 

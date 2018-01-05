@@ -1,13 +1,17 @@
 package rrpt
 
 import (
+	"context"
 	"gotable"
 	"rentroll/rlib"
 )
 
 // RRreportCustomAttributesTable generates a table object for custom attributes
-func RRreportCustomAttributesTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportCustomAttributesTable"
+func RRreportCustomAttributesTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportCustomAttributesTable"
+	var (
+		err error
+	)
 
 	// table initialization
 	tbl := getRRTable()
@@ -20,25 +24,31 @@ func RRreportCustomAttributesTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Units", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// prepare table's title, section1, section2
-	err := TableReportHeaderBlock(&tbl, "Custom Attributes", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Custom Attributes", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributes.Query()
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
+	if err != nil {
 		// set errors in section3 and return
-		tbl.SetSection3(NoRecordsFoundMsg)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var a rlib.CustomAttribute
-		rlib.ReadCustomAttributes(rows, &a)
+		err = rlib.ReadCustomAttributes(rows, &a)
+		if err != nil {
+			// set errors in section3 and return
+			tbl.SetSection3(err.Error())
+			return tbl
+		}
 		tbl.AddRow()
 		tbl.Puts(-1, 0, a.IDtoString())
 		tbl.Puts(-1, 1, rlib.IDtoString("B", a.BID))
@@ -47,20 +57,29 @@ func RRreportCustomAttributesTable(ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 4, a.Value)
 		tbl.Puts(-1, 5, a.Units)
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	tbl.TightenColumns()
 	return tbl
 }
 
 // RRreportCustomAttributes generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributes(ri *ReporterInfo) string {
-	tbl := RRreportCustomAttributesTable(ri)
+func RRreportCustomAttributes(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportCustomAttributesTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }
 
 // RRreportCustomAttributeRefsTable generates a table object of custom attrib references
-func RRreportCustomAttributeRefsTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportCustomAttributeRefsTable"
+func RRreportCustomAttributeRefsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportCustomAttributeRefsTable"
+	var (
+		err error
+	)
 
 	// table initialization
 	tbl := getRRTable()
@@ -71,38 +90,50 @@ func RRreportCustomAttributeRefsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("CID", 4, gotable.CELLINT, gotable.COLJUSTIFYRIGHT)
 
 	// prepare table's title, sections
-	err := TableReportHeaderBlock(&tbl, "Custom Attributes References", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Custom Attributes References", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllCustomAttributeRefs.Query()
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
+	if err != nil {
 		// set errors in section3 and return
-		tbl.SetSection3(NoRecordsFoundMsg)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var a rlib.CustomAttributeRef
-		rlib.ReadCustomAttributeRefs(rows, &a)
+		err = rlib.ReadCustomAttributeRefs(rows, &a)
+		if err != nil {
+			// set errors in section3 and return
+			tbl.SetSection3(err.Error())
+			return tbl
+		}
 		tbl.AddRow()
 		tbl.Puti(-1, 0, a.ElementType)
 		tbl.Puts(-1, 1, rlib.IDtoString("B", a.BID))
 		tbl.Puti(-1, 2, a.ID)
 		tbl.Puti(-1, 3, a.CID)
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	tbl.TightenColumns()
 	return tbl
 }
 
 // RRreportCustomAttributeRefs generates a report of all rlib.GLAccount accounts
-func RRreportCustomAttributeRefs(ri *ReporterInfo) string {
-	tbl := RRreportCustomAttributeRefsTable(ri)
+func RRreportCustomAttributeRefs(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportCustomAttributeRefsTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

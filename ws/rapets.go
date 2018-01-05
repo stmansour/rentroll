@@ -35,9 +35,9 @@ type RAPets struct {
 // 		/v1/rapets/BID/RAID?dt=2017-02-01
 //-----------------------------------------------------------------------------
 func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcRAPets"
 	var (
-		funcname = "SvcRAPets"
-		err      error
+		err error
 	)
 
 	fmt.Printf("entered %s\n", funcname)
@@ -65,7 +65,11 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var gxp RAPets
 	var m []rlib.RentalAgreementPet
 	if raid > 0 {
-		m = rlib.GetAllRentalAgreementPets(raid)
+		m, err = rlib.GetAllRentalAgreementPets(r.Context(), raid)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	}
 
 	gxp.Records = m

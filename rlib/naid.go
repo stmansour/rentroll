@@ -1,6 +1,7 @@
 package rlib
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"time"
@@ -288,16 +289,25 @@ func (t *Vehicle) IDtoShortString() string {
 // GetUserNameList returns an array of strings with all the User names
 // associated with the Rentable. the strings are sorted alphabetically
 //-----------------------------------------------------------------------------
-func (t *Rentable) GetUserNameList(d1, d2 *time.Time) []string {
+func (t *Rentable) GetUserNameList(ctx context.Context, d1, d2 *time.Time) ([]string, error) {
 	var m []string
-	users := GetRentableUsersInRange(t.RID, d1, d2) // get all defined renters for this period
+
+	// TODO(Steve): ignore error?
+	users, err := GetRentableUsersInRange(ctx, t.RID, d1, d2) // get all defined renters for this period
+	if err != nil {
+		return m, err
+	}
+
 	for i := 0; i < len(users); i++ {
 		var tr Transactant
-		GetTransactant(users[i].TCID, &tr)
+		err = GetTransactant(ctx, users[i].TCID, &tr)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, tr.GetUserName())
 	}
 	sort.Strings(m)
-	return m
+	return m, err
 }
 
 //-------------------------------------------------
@@ -319,15 +329,21 @@ func (t *RentalAgreement) GetPayorLastNames(d1, d2 *time.Time) []string {
 // GetPayorNameList returns an array of strings with all the Payor names
 // associated with the Rental Agreement
 //-----------------------------------------------------------------------------
-func (t *RentalAgreement) GetPayorNameList(d1, d2 *time.Time) []string {
+func (t *RentalAgreement) GetPayorNameList(ctx context.Context, d1, d2 *time.Time) ([]string, error) {
 	var m []string
-	payors := GetRentalAgreementPayorsInRange(t.RAID, d1, d2) // get all defined renters for this period
+	payors, err := GetRentalAgreementPayorsInRange(ctx, t.RAID, d1, d2) // get all defined renters for this period
+	if err != nil {
+		return m, err
+	}
 	for i := 0; i < len(payors); i++ {
 		var tr Transactant
-		GetTransactant(payors[i].TCID, &tr)
+		err := GetTransactant(ctx, payors[i].TCID, &tr)
+		if err != nil {
+			return m, err
+		}
 		m = append(m, tr.GetUserName())
 	}
-	return m
+	return m, err
 }
 
 // GetUserNameList loops through all the rentables associated with this rental
@@ -335,14 +351,23 @@ func (t *RentalAgreement) GetPayorNameList(d1, d2 *time.Time) []string {
 // associated with each Rentable in the Rental Agreement for the supplied time
 // range.
 //-----------------------------------------------------------------------------
-func (t *RentalAgreement) GetUserNameList(d1, d2 *time.Time) []string {
+func (t *RentalAgreement) GetUserNameList(ctx context.Context, d1, d2 *time.Time) ([]string, error) {
 	var m []string
 	c := make(map[string]int)
-	rl := GetRentalAgreementRentables(t.RAID, d1, d2)
+	rl, err := GetRentalAgreementRentables(ctx, t.RAID, d1, d2)
+	if err != nil {
+		return m, err
+	}
 
 	for i := 0; i < len(rl); i++ {
-		r := GetRentable(rl[i].RID)
-		n := r.GetUserNameList(d1, d2)
+		r, err := GetRentable(ctx, rl[i].RID)
+		if err != nil {
+			return m, err
+		}
+		n, err := r.GetUserNameList(ctx, d1, d2)
+		if err != nil {
+			return m, err
+		}
 		for j := 0; j < len(n); j++ { // loop through, but only add unique names
 			_, ok := c[n[j]] // have we seen this name?
 			if !ok {         // if not, then...
@@ -351,30 +376,44 @@ func (t *RentalAgreement) GetUserNameList(d1, d2 *time.Time) []string {
 			}
 		}
 	}
-	return m
+	return m, err
 }
 
 // GetTheRentableName is used to get the name of the highest priced rentable
 // (based on the rentable's type).  There is an assumption that all rentables
 // belonging to this rental agreement have the same rent cycle.
 //-----------------------------------------------------------------------------
-func (t *RentalAgreement) GetTheRentableName(d1, d2 *time.Time) string {
-	var xbiz XBusiness
-	GetXBusiness(t.BID, &xbiz)
+func (t *RentalAgreement) GetTheRentableName(ctx context.Context, d1, d2 *time.Time) (string, error) {
+	var (
+		xbiz        XBusiness
+		theRentable Rentable
+	)
+	err := GetXBusiness(ctx, t.BID, &xbiz)
+	if err != nil {
+		return theRentable.RentableName, err
+	}
 	max := float64(0)
-	var theRentable Rentable
 
 	// Console("Entered: RentalAgreement.GetTheRentableName\n")
-	rl := GetRentalAgreementRentables(t.RAID, d1, d2)
+	rl, err := GetRentalAgreementRentables(ctx, t.RAID, d1, d2)
+	if err != nil {
+		return theRentable.RentableName, err
+	}
 	for i := 0; i < len(rl); i++ {
-		r := GetRentable(rl[i].RID)
-		amt := GetRentableMarketRate(&xbiz, r.RID, d1, d2)
+		r, err := GetRentable(ctx, rl[i].RID)
+		if err != nil {
+			return theRentable.RentableName, err
+		}
+		amt, err := GetRentableMarketRate(ctx, &xbiz, r.RID, d1, d2)
+		if err != nil {
+			return theRentable.RentableName, err
+		}
 		// Console("Rentable = %d, MarketRate = %.2f\n", r.RID, amt)
 		if amt > max {
 			theRentable = r
 		}
 	}
-	return theRentable.RentableName
+	return theRentable.RentableName, err
 }
 
 //-------------------------------------------------

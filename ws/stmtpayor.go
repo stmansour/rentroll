@@ -74,8 +74,10 @@ type ResponseRecordSelector struct {
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcPayorStmtDispatch(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcPayorStmtDispatch"
-	var err error
+	const funcname = "SvcPayorStmtDispatch"
+	var (
+		err error
+	)
 	rlib.Console("Entered %s\n", funcname)
 	if len(d.pathElements) > 3 {
 		if d.TCID, err = SvcExtractIDFromURI(r.RequestURI, "TCID", 3, w); err != nil {
@@ -119,10 +121,10 @@ func payorRowScan(rows *sql.Rows, t rlib.Transactant) (rlib.Transactant, error) 
 //  @Response StmtPayorResponse
 // wsdoc }
 func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcStatementPayors"
 	var (
-		funcname = "SvcStatementPayors"
-		err      error
-		g        SearchTransactantsResponse
+		err error
+		g   SearchTransactantsResponse
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -262,16 +264,24 @@ type PayorStmtDetailResponse struct {
 //  @Response StmtPayorResponse
 // wsdoc }
 func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "getPayorStmt"
-	external := d.wsSearchReq.Bool1 // Bool1 is false for internal report, true if external
-	var psdr PayorStmtDetailResponse
-	var xbiz rlib.XBusiness
+	const funcname = "getPayorStmt"
+	var (
+		external = d.wsSearchReq.Bool1 // Bool1 is false for internal report, true if external
+		psdr     PayorStmtDetailResponse
+		xbiz     rlib.XBusiness
+		err      error
+	)
 
 	rlib.Console("external view = %t\n", external)
 
 	// UGH!
 	//=======================================================================
-	rlib.InitBizInternals(d.BID, &xbiz)
+	err = rlib.InitBizInternals(d.BID, &xbiz)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 	_, ok := rlib.RRdb.BizTypes[d.BID]
 	if !ok {
 		e := fmt.Errorf("nothing exists in rlib.RRdb.BizTypes[%d]", d.BID)
@@ -287,7 +297,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// UGH!
 
 	payors := []int64{d.ID}
-	m, err := rlib.PayorsStatement(d.BID, payors, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+	m, err := rlib.PayorsStatement(r.Context(), d.BID, payors, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -322,7 +332,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				continue
 			} else {
 				pe.Date = rlib.JSONDate(m.RL[i].R.Dt)
-				pe.Payor = rlib.GetNameFromTransactantCache(m.RL[i].R.TCID, payorcache)
+				pe.Payor = rlib.GetNameFromTransactantCache(r.Context(), m.RL[i].R.TCID, payorcache)
 				pe.RCPTID = rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID)
 				pe.Description = "Receipt " + m.RL[i].R.DocNo
 				pe.UnappliedAmount = m.RL[i].Unallocated
@@ -356,13 +366,13 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 			var pe payorStmtEntry
 			pe.Date = rlib.JSONDate(m.RL[i].R.Dt)
-			pe.Payor = rlib.GetNameFromTransactantCache(m.RL[i].R.TCID, payorcache)
+			pe.Payor = rlib.GetNameFromTransactantCache(r.Context(), m.RL[i].R.TCID, payorcache)
 
 			//----------------------------------------------------
 			// If the payor only has one RAID and it is THIS one
 			// then we can list the details of the receipt
 			//----------------------------------------------------
-			l1 := rlib.GetRentalAgreementsByPayorRange(d.BID, m.RL[i].R.TCID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			l1, _ := rlib.GetRentalAgreementsByPayorRange(r.Context(), d.BID, m.RL[i].R.TCID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 			if len(l1) == 1 {
 				pe.RAID = rlib.IDtoShortString("RA", l1[0].RAID)
 				pe.RCPTID = rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID)
@@ -393,7 +403,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Generate the per-Rental-Agreement information...
 	//------------------------------------------------------
 	for i := 0; i < len(m.RAB); i++ { // for each RA
-		ra, err := rlib.GetRentalAgreement(m.RAB[i].RAID)
+		ra, err := rlib.GetRentalAgreement(r.Context(), m.RAB[i].RAID)
 		if err != nil {
 			rlib.LogAndPrintError("PayorStatement", err)
 			continue
@@ -414,7 +424,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			pe.Description = "Opening balance"
 			pe.Date = rlib.JSONDate(m.RAB[i].DtStart)
 			pe.Balance = m.RAB[i].OpeningBal
-			pe.RentableName = ra.GetTheRentableName(&d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+			pe.RentableName, _ = ra.GetTheRentableName(r.Context(), &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 			safeAddPayorStmtEntry(&pe, &psdr, &ctx)
 		}
 
@@ -457,10 +467,11 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					pe.ASMID = rlib.IDtoShortString("ASM", m.RAB[i].Stmt[j].A.ASMID)
 				}
 				if m.RAB[i].Stmt[j].A.RAID > 0 { // Payor(s) = all payors associated with RentalAgreement
-					pyrs := rlib.GetRentalAgreementPayorsInRange(m.RAB[i].Stmt[j].A.RAID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
+					pyrs, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), m.RAB[i].Stmt[j].A.RAID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 					sa := []string{}
 					for k := 0; k < len(pyrs); k++ {
-						sa = append(sa, rlib.GetNameFromTransactantCache(pyrs[k].TCID, payorcache))
+						nm := rlib.GetNameFromTransactantCache(r.Context(), pyrs[k].TCID, payorcache)
+						sa = append(sa, nm)
 					}
 					pe.Payor = strings.Join(sa, ",")
 				}
@@ -477,9 +488,9 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				descr += "Receipt allocation"
 				if rcptid > 0 {
 					pe.RCPTID = rlib.IDtoShortString("RCPT", rcptid)
-					rcpt := rlib.GetReceipt(rcptid)
+					rcpt, _ := rlib.GetReceipt(r.Context(), rcptid)
 					if rcpt.RCPTID > 0 {
-						pe.Payor = rlib.GetNameFromTransactantCache(rcpt.TCID, payorcache)
+						pe.Payor = rlib.GetNameFromTransactantCache(r.Context(), rcpt.TCID, payorcache)
 					}
 				}
 				if m.RAB[i].Stmt[j].A.ASMID > 0 {
@@ -489,7 +500,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					applied += amt
 					bal -= amt
 				} else {
-					rcpt := rlib.GetReceipt(m.RAB[i].Stmt[j].R.RCPTID)
+					rcpt, _ := rlib.GetReceipt(r.Context(), m.RAB[i].Stmt[j].R.RCPTID)
 					if rcpt.RCPTID > 0 && len(rcpt.Comment) > 0 {
 						descr += " (" + rcpt.Comment + ")"
 					}

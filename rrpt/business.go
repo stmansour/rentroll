@@ -1,12 +1,13 @@
 package rrpt
 
 import (
+	"context"
 	"gotable"
 	"rentroll/rlib"
 )
 
 // RRreportBusinessTable generates a Table of all Businesses defined in the database.
-func RRreportBusinessTable(ri *ReporterInfo) gotable.Table {
+func RRreportBusinessTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	// initialize table
 	tbl := getRRTable()
 
@@ -20,8 +21,7 @@ func RRreportBusinessTable(ri *ReporterInfo) gotable.Table {
 	tbl.SetTitle("Business Units\n\n")
 
 	rows, err := rlib.RRdb.Prepstmt.GetAllBusinesses.Query()
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
+	if err != nil {
 		// set errors in section3 and return
 		tbl.SetSection3(NoRecordsFoundMsg)
 		return tbl
@@ -30,7 +30,12 @@ func RRreportBusinessTable(ri *ReporterInfo) gotable.Table {
 
 	for rows.Next() {
 		var p rlib.Business
-		rlib.ReadBusinesses(rows, &p)
+		err = rlib.ReadBusinesses(rows, &p)
+		if err != nil {
+			// set errors in section3 and return
+			tbl.SetSection3(NoRecordsFoundMsg)
+			return tbl
+		}
 		tbl.AddRow()
 		tbl.Puts(-1, 0, p.IDtoString())
 		tbl.Puts(-1, 1, p.Designation)
@@ -39,12 +44,17 @@ func RRreportBusinessTable(ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 4, rlib.RentalPeriodToString(p.DefaultProrationCycle))
 		tbl.Puts(-1, 5, rlib.RentalPeriodToString(p.DefaultGSRPC))
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		// set errors in section3 and return
+		tbl.SetSection3(NoRecordsFoundMsg)
+		return tbl
+	}
 	return tbl
 }
 
 // RRreportBusiness generates a String Report of all Businesses defined in the database.
-func RRreportBusiness(ri *ReporterInfo) string {
-	tbl := RRreportBusinessTable(ri)
+func RRreportBusiness(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportBusinessTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }
