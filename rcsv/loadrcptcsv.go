@@ -170,9 +170,12 @@ func CreateReceiptsFromCSV(ctx context.Context, sa []string, lineno int) (int, e
 	//-------------------------------------------------------------------
 	raid := CSVLoaderGetRAID(sa[RAID]) // this should probably go away, we should select it from an Assessment in the AcctRule
 
-	_, err = rlib.GetRentalAgreement(ctx, raid)
+	ra, err := rlib.GetRentalAgreement(ctx, raid)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error loading Rental Agreement %s, err = %v", funcname, lineno, sa[RAID], err)
+	}
+	if ra.RAID == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error loading Rental Agreement %s", funcname, lineno, sa[RAID])
 	}
 
 	//-------------------------------------------------------------------

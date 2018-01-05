@@ -217,6 +217,10 @@ func CreateRentables(ctx context.Context, sa []string, lineno int) (int, error) 
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rentable type with style name: %s  -- error = %s",
 				funcname, lineno, ss[0], err.Error())
 		}
+		if rstruct.RTID == 0 {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rentable type with style name: %s",
+				funcname, lineno, ss[0])
+		}
 		rt.RTID = rstruct.RTID
 
 		rt.DtStart, rt.DtStop, err = readTwoDates(ss[1], ss[2], funcname, lineno, "RentableTypeRef")

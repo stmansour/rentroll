@@ -77,13 +77,12 @@ func CreatePhonebookLinkedBusiness(ctx context.Context, sa []string, lineno int)
 	// It does not exist, see if we can find it in Phonebook...
 	//-------------------------------------------------------------------
 	if !found && len(des) > 0 {
-		bu, err := rlib.GetBusinessUnitByDesignation(ctx, des)
-		if err != nil {
-			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rlib.Business Unit with Designation %s from Accord Directory: error = %v", funcname, lineno, des, err)
+		bu, _ := rlib.GetBusinessUnitByDesignation(ctx, des)
+		if len(bu.Description) > 0 {
+			found = true
+			b.Name = bu.Name    // Phonebook rlib.Business Unit name
+			b.Designation = des // rlib.Business unit designator
 		}
-		found = true
-		b.Name = bu.Name    // Phonebook rlib.Business Unit name
-		b.Designation = des // rlib.Business unit designator
 	}
 
 	//-----------------------------------------
@@ -115,7 +114,6 @@ func CreatePhonebookLinkedBusiness(ctx context.Context, sa []string, lineno int)
 		b.Name = strings.TrimSpace(sa[1])
 		b.Designation = des
 	}
-
 	// fmt.Printf("Business to save:  %#v\n", b)
 	_, err = rlib.InsertBusiness(ctx, &b)
 	if err != nil {
