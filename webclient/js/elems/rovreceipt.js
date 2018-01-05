@@ -30,6 +30,7 @@ function getROVReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
         Amount: 0,
         Comment: '',
         OtherPayorName: '',
+        RentableName: '',
         FLAGS: 0,
         LastModBy: 0,
         CreateBy: 0

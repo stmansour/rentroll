@@ -1,5 +1,6 @@
 /*global
-    w2ui,console,app,form_dirty_alert,addDateNavToToolbar,
+    $,w2ui,console,app,form_dirty_alert,addDateNavToToolbar,exportReportCSV,
+    exportReportPDF, popupPDFCustomDimensions, w2utils,
 */
 
 //
@@ -360,25 +361,11 @@ function buildRentRollElements() {
 
     // handle pdf/csv report download actions
     w2ui.rrGrid.toolbar.on('click', function(event) {
-        var d1, d2; // start date, stop date
-
         if (event.target == "csvexport") {
-            d1 = document.getElementsByName("rrD1")[0].value;
-            app.D1 = d1;
-            d2 = document.getElementsByName("rrD2")[0].value;
-            app.D2 = d2;
-
-            // now call to export csv report function with start and stop date
-            exportReportCSV("RPTrr", d1, d2);
+            exportReportCSV("RPTrr", app.D1, app.D2);
         }
         else if (event.target == "printreport") {
-            d1 = document.getElementsByName("rrD1")[0].value;
-            app.D1 = d1;
-            d2 = document.getElementsByName("rrD2")[0].value;
-            app.D2 = d2;
-
-            // call to export pdf report function with start and stop date
-            exportReportPDF("RPTrr", d1, d2);
+            exportReportPDF("RPTrr", app.D1, app.D2);
         }
     });
 }
