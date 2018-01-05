@@ -19,7 +19,7 @@ func GetCompanyByDesignation(ctx context.Context, des string) (Company, error) {
 		&c.Address, &c.Address2, &c.City, &c.State, &c.PostalCode, &c.Country, &c.Phone,
 		&c.Fax, &c.Email, &c.Designation, &c.Active, &c.EmploysPersonnel, &c.LastModTime,
 		&c.LastModBy)
-	err = SkipSQLNoRowsError(err)
+	SkipSQLNoRowsError(&err)
 	return c, err
 }
 
@@ -40,7 +40,7 @@ func GetCompany(ctx context.Context, n int64) (Company, error) {
 		&c.Address, &c.Address2, &c.City, &c.State, &c.PostalCode, &c.Country, &c.Phone,
 		&c.Fax, &c.Email, &c.Designation, &c.Active, &c.EmploysPersonnel, &c.LastModTime,
 		&c.LastModBy)
-	err = SkipSQLNoRowsError(err)
+	SkipSQLNoRowsError(&err)
 	return c, err
 }
 
@@ -59,6 +59,6 @@ func GetBusinessUnitByDesignation(ctx context.Context, des string) (BusinessUnit
 
 	// err := RRdb.PBsql.GetBusinessUnitByDesignation.QueryRow(des).Scan(&c.ClassCode, &c.CoCode, &c.Name, &c.Designation, &c.Description, &c.LastModTime, &c.LastModBy)
 	err := RRdb.Dbdir.QueryRow("SELECT ClassCode,CoCode,Name,Designation,Description,LastModTime,LastModBy FROM classes WHERE Designation=?", des).Scan(&c.ClassCode, &c.CoCode, &c.Name, &c.Designation, &c.Description, &c.LastModTime, &c.LastModBy)
-	err = SkipSQLNoRowsError(err)
+	SkipSQLNoRowsError(&err)
 	return c, err
 }
