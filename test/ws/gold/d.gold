@@ -15,6 +15,7 @@
             "Payor": "Aaron Read",
             "PmtTypeName": "Cash",
             "RCPTID": 21,
+            "RentableName": "",
             "TCID": 1,
             "recid": 0
         },
@@ -33,6 +34,7 @@
             "Payor": "Lauren Beck",
             "PmtTypeName": "Cash",
             "RCPTID": 23,
+            "RentableName": "",
             "TCID": 7,
             "recid": 1
         },
@@ -51,6 +53,7 @@
             "Payor": "Rita Costea",
             "PmtTypeName": "Cash",
             "RCPTID": 22,
+            "RentableName": "",
             "TCID": 3,
             "recid": 2
         }
