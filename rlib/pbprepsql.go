@@ -32,7 +32,7 @@ func buildPBPreparedStatements() {
 	// GetDirectoryPerson
 	//==========================================
 	flds = "UID,UserName,LastName,MiddleName,FirstName,PreferredName,PreferredName,OfficePhone,CellPhone"
-	RRdb.PBsql.GetDirectoryPerson, err = RRdb.Dbdir.Prepare("SELECT " + flds + " FROM People WHERE UID=?")
+	RRdb.PBsql.GetDirectoryPerson, err = RRdb.Dbdir.Prepare("SELECT " + flds + " FROM people WHERE UID=?")
 	Errcheck(err)
 
 }
