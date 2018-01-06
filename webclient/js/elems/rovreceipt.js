@@ -5,7 +5,7 @@
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, formRecDiffer, getCurrentBID, getBUDfromBID,
-    ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
+    exportItemReportCSV, exportItemReportPDF,
 */
 "use strict";
 function getROVReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
@@ -254,34 +254,6 @@ function buildROVReceiptElements() {
             { field: 'PMTID',      type: 'int',  required: false },
             { field: 'Dt',         type: 'date', required: true },
             { field: 'DocNo',      type: 'text', required: false },
-            // { field: 'Payor', required: true,
-            //     type: 'enum',
-            //     options: {
-            //         url:        '/v1/transactantstd/',
-            //         max:        1,
-            //         renderItem: tcidReceiptPayorPickerRender,
-            //         renderDrop: tcidPickerDropRender,
-            //         compare:    tcidPickerCompare,
-            //         onNew: function (event) {
-            //             //console.log('++ New Item: Do not forget to submit it to the server too', event);
-            //             $.extend(event.item, { FirstName: '', LastName : event.item.text });
-            //         },
-            //         onRemove: function(event) {
-            //             event.onComplete = function() {
-            //                 var f = w2ui.receiptForm;
-            //                 // reset payor field related data when removed
-            //                 f.record.TCID = 0;
-            //                 f.record.Payor = "";
-
-            //                 // NOTE: have to trigger manually, b'coz we manually change the record,
-            //                 // otherwise it triggers the change event but it won't get change (Object: {})
-            //                 var event = f.trigger({ phase: 'before', target: f.name, type: 'change', event: event }); // event before
-            //                 if (event.cancelled === true) return false;
-            //                 f.trigger($.extend(event, { phase: 'after' })); // event after
-            //             };
-            //         }
-            //     },
-            // },
             {   field: 'ERentableName',
                 type: 'enum',
                 options: {
@@ -320,9 +292,11 @@ function buildROVReceiptElements() {
         ],
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                { id: 'btnNotes',    type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'csvexport',   type: 'button', icon: 'fa fa-table',        tooltip: 'export to CSV' },
+                { id: 'printreport', type: 'button', icon: 'fa fa-file-pdf-o',   tooltip: 'export to PDF' },
+                { id: 'bt3',         type: 'spacer' },
+                { id: 'btnClose',    type: 'button', icon: 'fa fa-times' },
             ],
             onClick: function (event) {
                 switch(event.target) {
@@ -334,6 +308,18 @@ function buildROVReceiptElements() {
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
+                case "csvexport":
+                    if (w2ui.receiptForm.record.RCPTID === 0) {
+                        return;
+                    }
+                    exportItemReportCSV("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
+                    break;
+                case "printreport":
+                    if (w2ui.receiptForm.record.RCPTID === 0) {
+                        return;
+                    }
+                    exportItemReportPDF("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
+                    break;
                 }
             },
         },
@@ -341,49 +327,12 @@ function buildROVReceiptElements() {
             event.onComplete = function() {
                 var f = this;
                 var r = f.record;
-                // var BID = getCurrentBID();
-
-                // // enable/disable RAID based on Account Rule
-                // var arid;
-                // if (typeof r.ARID === "object") {
-                //     arid = r.ARID.id;
-                // } else {
-                //     arid = r.ARID;
-                // }
-                // if (arid) { // if it has Account Rule then only
-                //     var url = '/v1/ar/' + r.BID +'/' + arid;
-                //     handleReceiptRAID(url, f);
-                // }
 
                 // Create the RentableName element if rentable name exists...
                 if (r.RentableName.length > 0) {
                     var item = {recid: 0, RentableName: r.RentableName};
                     r.ERentableName = [item];
                 }
-
-                // if (r.TCID) { // if it has Payor then only
-                //     var record = {};
-                //     getPersonDetailsByTCID(BID, r.TCID)
-                //     .done(function(data) {
-                //         record = JSON.parse(data).record;
-                //         var item = {
-                //             CompanyName: record.CompanyName,
-                //             IsCompany: record.IsCompany,
-                //             FirstName: record.FirstName,
-                //             LastName: record.LastName,
-                //             MiddleName: record.MiddleName,
-                //             TCID: record.TCID,
-                //             recid: 0,
-                //         };
-                //         if ($(f.box).find("input[name=Payor]").length > 0) {
-                //             $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                //         }
-                //     })
-                //     .fail(function() {
-                //         f.message("Couldn't get person details for TCID: ", r.TCID);
-                //         console.log("couldn't get person details for TCID: ", r.TCID);
-                //     });
-                // }
             };
         },
         onLoad: function(event) { // when form data is loaded without rendering/refreshing event then
@@ -411,12 +360,12 @@ function buildROVReceiptElements() {
                         record = JSON.parse(data).record;
                         var item = {
                             CompanyName: record.CompanyName,
-                            IsCompany: record.IsCompany,
-                            FirstName: record.FirstName,
-                            LastName: record.LastName,
-                            MiddleName: record.MiddleName,
-                            TCID: record.TCID,
-                            recid: 0,
+                            IsCompany:   record.IsCompany,
+                            FirstName:   record.FirstName,
+                            LastName:    record.LastName,
+                            MiddleName:  record.MiddleName,
+                            TCID:        record.TCID,
+                            recid:       0,
                         };
                         if ($(f.box).find("input[name=Payor]").length > 0) {
                             $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();

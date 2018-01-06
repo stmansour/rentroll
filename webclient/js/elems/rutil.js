@@ -1031,6 +1031,23 @@ function setDefaultFormFieldAsPreviousRecord(formFields, defaultFormRecord, prev
 // Download the CSV report for given report name, date range
 //
 // @params
+//   rptname    : report name to be downloaded
+//   dtStart    : Start Date
+//   dtStop     : Stop Date
+//   returnURL  : it true then returns the url otherwise
+//                downloads the report from built url in separate window
+//   id         : id for the report to detail
+//-------------------------------------------------------------------------------
+function exportItemReportCSV(rptname,id,dtStart,dtStop,returnURL) {
+    var x = getCurrentBusiness();
+    var url = '/v1/report/' + x.value + '/' + id + '?r=' + rptname + '&edi=' + app.dateMode;
+    finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
+}
+
+//-------------------------------------------------------------------------------
+// Download the CSV report for given report name, date range
+//
+// @params
 //   rptname            : report name to be downloaded
 //   dtStart            : Start Date
 //   dtStop             : Stop Date
@@ -1043,7 +1060,10 @@ function exportReportCSV(rptname, dtStart, dtStop, returnURL){
     }
     var x = getCurrentBusiness();
     var url = '/v1/report/' + x.value + '?r=' + rptname + '&edi=' + app.dateMode;
+    finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
+}
 
+function finishReportCSV(url,rptname, dtStart, dtStop, returnURL) {
     // if both dates are available then only append dtstart and dtstop in query params
     if (dtStart && dtStop) {
         url += '&dtstart=' + dtStart; // StartDate
@@ -1101,6 +1121,26 @@ function saveCustomDims() {
 }
 
 //-------------------------------------------------------------------------------
+// Download the PDF report for given id-focused report, date range
+//
+// @params
+//   rptname            : report name to be downloaded
+//   id                 : id of item on which report should focus
+//   dtStart            : Start Date
+//   dtStop             : Stop Date
+//   returnURL          : it true then returns the url otherwise
+//                        downloads the report from built url in separate window
+//-------------------------------------------------------------------------------
+function exportItemReportPDF(rptname,id, dtStart, dtStop, returnURL){
+    if (rptname === '') {
+        return;
+    }
+    var x = getCurrentBusiness();
+    var url = '/v1/report/' + x.value + '/' + id + '?r=' + rptname + '&edi=' + app.dateMode;
+    finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
+}
+
+//-------------------------------------------------------------------------------
 // Download the PDF report for given report name, date range
 //
 // @params
@@ -1116,7 +1156,10 @@ function exportReportPDF(rptname, dtStart, dtStop, returnURL){
     }
     var x = getCurrentBusiness();
     var url = '/v1/report/' + x.value + '?r=' + rptname + '&edi=' + app.dateMode;
+    finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
+}
 
+function finishReportPDF(url,rptname, dtStart, dtStop, returnURL) {
     // if both dates are available then only append dtstart and dtstop in query params
     if (dtStart && dtStop) {
         url += '&dtstart=' + dtStart; // StartDate

@@ -1,6 +1,9 @@
 package rlib
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 // GetCompanyByDesignation returns a Company struct for the Phonebook company with the
 // supplied designation. If no such company exists, c.CoCode will be 0
@@ -61,4 +64,38 @@ func GetBusinessUnitByDesignation(ctx context.Context, des string) (BusinessUnit
 	err := RRdb.Dbdir.QueryRow("SELECT ClassCode,CoCode,Name,Designation,Description,LastModTime,LastModBy FROM classes WHERE Designation=?", des).Scan(&c.ClassCode, &c.CoCode, &c.Name, &c.Designation, &c.Description, &c.LastModTime, &c.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return c, err
+}
+
+// GetDirectoryPerson reads the public fields for a person in Accord Directory
+// based on the supplied UID.
+func GetDirectoryPerson(ctx context.Context, uid int64) (DirectoryPerson, error) {
+	var c DirectoryPerson
+
+	if !RRdb.noAuth {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return c, ErrSessionRequired
+		}
+	}
+
+	err := RRdb.PBsql.GetDirectoryPerson.QueryRow(uid).Scan(&c.UID, &c.UserName, &c.LastName, &c.MiddleName, &c.FirstName, &c.PreferredName, &c.PreferredName, &c.OfficePhone, &c.CellPhone)
+	SkipSQLNoRowsError(&err)
+	return c, err
+}
+
+// DisplayName returns the name for use on Roller's interface
+// for this user
+func (t *DirectoryPerson) DisplayName() string {
+	var name string
+	name = t.PreferredName
+	if len(name) == 0 {
+		name = t.FirstName
+	}
+	if len(name) == 0 {
+		name = fmt.Sprintf("UID-%d", t.UID)
+	}
+	if len(t.LastName) > 0 {
+		name += " " + t.LastName
+	}
+	return name
 }

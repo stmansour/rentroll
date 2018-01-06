@@ -23,7 +23,8 @@ import (
 //	  r=<reportname>
 //    dtstart=<date>
 //    dtstop=<date>
-//    edi={0|1}         {0 = default = end date is non-inclusive, 1 = end date is inclusive}
+//    edi={0|1}         {0 = default = end date is non-inclusive,
+//                       1 = end date is inclusive}
 //-----------------------------------------------------------------------------
 func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "ReportServiceHandler"
@@ -75,6 +76,8 @@ func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 		return
 	}
 	reportname = x[0]
+
+	ui.ID = d.ID // pass this along, regardless of its value. Reports that detail a specific entity will use it
 
 	tnow := time.Now()
 	ui.D1 = time.Date(tnow.Year(), tnow.Month(), 1, 0, 0, 0, 0, time.UTC)
@@ -190,14 +193,15 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 	var (
 		err error
 		ri  = rrpt.ReporterInfo{
-			OutputFormat: gotable.TABLEOUTHTML,
-			Bid:          xbiz.P.BID,
-			D1:           ui.D1,
-			D2:           ui.D2,
-			Xbiz:         xbiz,
-			EDI:          ui.EDI,
 			BlankLineAfterRptName: true,
+			OutputFormat:          gotable.TABLEOUTHTML,
+			Bid:                   xbiz.P.BID,
+			D1:                    ui.D1,
+			D2:                    ui.D2,
+			Xbiz:                  xbiz,
+			EDI:                   ui.EDI, // End-Date-includes
 			QueryParams:           qp,
+			ID:                    ui.ID,
 		}
 	)
 
@@ -227,7 +231,8 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 		{ReportNames: []string{"RPTr", "rentables"}, TableHandler: rrpt.RRreportRentablesTable},
 		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable},
 		{ReportNames: []string{"RPTrat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable},
-		{ReportNames: []string{"RPTrcpt", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
+		{ReportNames: []string{"RPTrcptlist", "receipts"}, TableHandler: rrpt.RRReceiptsTable},
+		{ReportNames: []string{"RPTrcpt", "receipt"}, TableHandler: rrpt.RRRcptOnlyReceiptTable},
 		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RRReportTable},
 		{ReportNames: []string{"RPTrt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable},
 		{ReportNames: []string{"RPTrcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable},

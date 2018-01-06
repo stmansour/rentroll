@@ -20,6 +20,7 @@ type ReportContext struct {
 	D1                 time.Time       // time.Time value for DtStart
 	DtStop             string          // end of period of interest
 	D2                 time.Time       // time.Time value for DtStop
+	ID                 int64           // ID for reports that detail a specific entity
 	B                  rlib.Business   // business associated with this report
 	BL                 []rlib.Business // array of all businesses, for initializing dropdown selections
 	ReportContent      string          // text report content

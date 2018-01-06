@@ -127,6 +127,7 @@ type ReporterInfo struct {
 	Raid                  int64     // associated Rental Agreement if needed
 	D1                    time.Time // associated date if needed
 	D2                    time.Time // associated date if needed
+	ID                    int64     // specific id if a single entity is being printed
 	NeedsBID              bool      // true if BID is needed for this report
 	NeedsRAID             bool      // true if RAID is needed for this report
 	NeedsDt               bool      // true if a Date is needed for this report

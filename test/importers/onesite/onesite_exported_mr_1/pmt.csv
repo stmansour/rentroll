@@ -1,0 +1,5 @@
+BUD,Name,Description
+ISO,"Cash","Cash"
+ISO,"Check","Personal check from payor"
+ISO,"VISA","Credit card charge"
+ISO,"AMEX","American Express credit card"
