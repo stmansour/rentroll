@@ -535,69 +535,71 @@ function buildROVReceiptElements() {
                     };
                 form_dirty_alert(yes_callBack, no_callBack);
             },
-            saveadd: function() {
-                var f = this,
-                    r = f.record,
-                    grid = w2ui.receiptsGrid,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
-                    BUD = getBUDfromBID(BID);
+            saveprint: function() {
+                doRcptSave(this,true);
+                // var f = this,
+                //     r = f.record,
+                //     grid = w2ui.receiptsGrid,
+                //     x = getCurrentBusiness(),
+                //     BID=parseInt(x.value),
+                //     BUD = getBUDfromBID(BID);
 
-                if (typeof r.RAID === "string") {
-                    r.RAID = parseInt(r.RAID);
-                }
-                // clean dirty flag of form
-                app.form_is_dirty = false;
-                // clear the grid select recid
-                app.last.grid_sel_recid  =-1;
+                // if (typeof r.RAID === "string") {
+                //     r.RAID = parseInt(r.RAID);
+                // }
+                // // clean dirty flag of form
+                // app.form_is_dirty = false;
+                // // clear the grid select recid
+                // app.last.grid_sel_recid  =-1;
 
-                // select none if you're going to add new record
-                grid.selectNone();
-                f.postData = {client: app.client};
-                f.save(null, function (data) {
-                    if (data.status == 'error') {
-                        console.log('ERROR: '+ data.message);
-                        return;
-                    }
+                // // select none if you're going to add new record
+                // grid.selectNone();
+                // f.postData = {client: app.client};
+                // f.save(null, function (data) {
+                //     if (data.status == 'error') {
+                //         console.log('ERROR: '+ data.message);
+                //         return;
+                //     }
 
-                    // JUST RENDER THE GRID ONLY
-                    grid.render();
+                //     // JUST RENDER THE GRID ONLY
+                //     grid.render();
 
-                    var url = '/v1/ar/' + r.BID +'/' + f.record.ARID.id;
-                    handleReceiptRAID(url, f);
+                //     var url = '/v1/ar/' + r.BID +'/' + f.record.ARID.id;
+                //     handleReceiptRAID(url, f);
 
-                    // add new empty record and just refresh the form, don't need to do CLEAR form
-                    var pmt_options = buildPaymentTypeSelectList(BUD);
-                    var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                    f.get("PmtTypeName").options.items = pmt_options;
-                    f.get("ARID").options.items = app.ReceiptRules[BUD];
-                    f.record = getROVReceiptInitRecord(BID, BUD, ptInit, f.record);
-                    f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
-                    f.url = '/v1/receipt/' + BID + '/0';
-                    f.refresh();
-                });
+                //     // add new empty record and just refresh the form, don't need to do CLEAR form
+                //     var pmt_options = buildPaymentTypeSelectList(BUD);
+                //     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
+                //     f.get("PmtTypeName").options.items = pmt_options;
+                //     f.get("ARID").options.items = app.ReceiptRules[BUD];
+                //     f.record = getROVReceiptInitRecord(BID, BUD, ptInit, f.record);
+                //     f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
+                //     f.url = '/v1/receipt/' + BID + '/0';
+                //     f.refresh();
+                // });
             },
             save: function () {
-                var f = this,
-                    r = f.record,
-                    // x = getCurrentBusiness(),
-                    // BID=parseInt(x.value),
-                    grid = w2ui.receiptsGrid;
+                doRcptSave(this,false);
+                // var f = this,
+                //     r = f.record,
+                //     // x = getCurrentBusiness(),
+                //     // BID=parseInt(x.value),
+                //     grid = w2ui.receiptsGrid;
 
-                if (typeof r.RAID === "string") {
-                    r.RAID = parseInt(r.RAID);
-                }
-                grid.selectNone();
+                // if (typeof r.RAID === "string") {
+                //     r.RAID = parseInt(r.RAID);
+                // }
+                // grid.selectNone();
 
-                f.postData = {client: app.client, RentableName: f.record.RentableName};
-                f.save(null, function (data) {
-                    if (data.status == 'error') {
-                        console.log('ERROR: '+ data.message);
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    grid.render();
-                });
+                // f.postData = {client: app.client, RentableName: f.record.RentableName};
+                // f.save(null, function (data) {
+                //     if (data.status == 'error') {
+                //         console.log('ERROR: '+ data.message);
+                //         return;
+                //     }
+                //     w2ui.toplayout.hide('right',true);
+                //     grid.render();
+                // });
             },
             reverse: function() {
                 var form = this;
@@ -629,6 +631,29 @@ function buildROVReceiptElements() {
             },
         },
    });
+}
+
+function doRcptSave(f,prnt) {
+    var r = f.record;
+    var grid = w2ui.receiptsGrid;
+
+    if (typeof r.RAID === "string") {
+        r.RAID = parseInt(r.RAID);
+    }
+    grid.selectNone();
+
+    f.postData = {client: app.client, RentableName: f.record.RentableName};
+    f.save(null, function (data) {
+        if (data.status == 'error') {
+            console.log('ERROR: '+ data.message);
+            return;
+        }
+        w2ui.toplayout.hide('right',true);
+        grid.render();
+        if (prnt) {
+            exportItemReportPDF("RPTrcpt", data.recid, app.D1, app.D2);
+        }
+    });
 }
 
 function handleReceiptRAID(url, f) {
