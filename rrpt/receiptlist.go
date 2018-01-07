@@ -26,6 +26,8 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	ri.RptHeaderD2 = true
 	ri.BlankLineAfterRptName = true
 
+	n, _ := rlib.GetPaymentTypesByBusiness(ctx, ri.Bid) // get the payment types for this business
+
 	// table init
 	tbl := getRRTable()
 
@@ -59,7 +61,7 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl.Putd(-1, Date, a.Dt)
 		tbl.Puts(-1, RCPTID, a.IDtoString())
 		tbl.Puts(-1, PRCPTID, rlib.IDtoString("RCPT", a.PRCPTID))
-		tbl.Puts(-1, PMTID, rlib.IDtoString("PMT", a.PMTID))
+		tbl.Puts(-1, PMTID, n[a.PMTID].Name)
 		tbl.Puts(-1, DocNo, a.DocNo)
 		tbl.Putf(-1, Amount, a.Amount)
 		tbl.Puts(-1, Comment, comment)

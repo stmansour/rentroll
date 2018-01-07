@@ -5,7 +5,7 @@
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, formRecDiffer, getCurrentBID, getBUDfromBID,
-    exportItemReportCSV, exportItemReportPDF,
+    exportItemReportCSV, exportItemReportPDF, exportReportCSV, exportReportPDF
 */
 "use strict";
 function getROVReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
@@ -102,6 +102,18 @@ function buildROVReceiptElements() {
             {field: 'RentableName',  caption: 'Resident Address',size: '150px', hidden: false, sortable: true},
             {field: 'Comment',       caption: 'Comment',         size: '150px', hidden: false, sortable: true},
         ],
+        toolbar: {
+            onClick: function (event) {
+                switch(event.target) {
+                case 'cvsexport':
+                    exportReportCSV("RPTrcptlist", app.D1, app.D2);
+                    break;
+                case 'printreport':
+                    exportReportPDF("RPTrcptlist", app.D1, app.D2);
+                    break;
+                }
+            },
+        },
         searches : [
             { field: 'Amount', caption: 'Amount', type: 'string' },
             // { field: 'DocNo', caption: 'Document Number', type: 'string' },
@@ -130,21 +142,6 @@ function buildROVReceiptElements() {
                         f.fields[j].options.url = '/v1/rentablestd/' + BID;
                         f.postData = {searchDtStart: app.D1, searchDtStop: app.D2, client: app.client};
                         setToForm('receiptForm', '/v1/receipt/' + BID + '/' + rec.RCPTID, 400, true);
-
-                        // get the latest receipt rules and feed the list in "ARID" form field
-                        // getBusinessReceiptRules(BID, BUD)
-                        // .done(function(data) {
-                        //     if ('status' in data && data.status !== 'success') {
-                        //         f.message(data.message);
-                        //     } else {
-                        //         f.get('ARID').options.items = app.ReceiptRules[BUD];
-                        //         f.refresh();
-                        //         setToForm('receiptForm', '/v1/receipt/' + BID + '/' + rec.RCPTID, 400, true);
-                        //     }
-                        // })
-                        // .fail( function() {
-                        //     console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
-                        //  });
                     };
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);  // warn user if form content has been changed
             };
@@ -186,53 +183,15 @@ function buildROVReceiptElements() {
             f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
             f.header = "Edit Receipt (new)";
             f.postData = {client: app.client};
-
-            // var yes_args = [this],
-            //     no_callBack = function() { return false; },
-            //     yes_callBack = function(grid) {
-            //         var BID = getCurrentBID();
-            //         var BUD = getBUDfromBID(BID);
-
-            //         // reset it
-            //         app.last.grid_sel_recid = -1;
-            //         grid.selectNone();
-
-            //         var f = w2ui.receiptForm;
-            //         var j = f.get('ERentableName',true); // index of the enumerated RentableName field
-            //         f.fields[j].options.url = '/v1/rentablestd/' + BID;
-            //         setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
-            //         var pmt_options = buildPaymentTypeSelectList(BUD);
-            //         var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-            //         f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
-            //         f.header = "Edit Receipt (new)";
-            //         f.postData = {client: app.client};
-
-            //         // get the latest receipt rules
-            //         // getBusinessReceiptRules(BID, BUD)
-            //         // .done(function(data) {
-            //         //     if ('status' in data && data.status !== 'success') {
-            //         //         f.message(data.message);
-            //         //     } else {
-            //         //         var pmt_options = buildPaymentTypeSelectList(BUD);
-            //         //         var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-            //         //         f.get("PmtTypeName").options.items = pmt_options;
-            //         //         f.get("ARID").options.items = app.ReceiptRules[BUD];
-            //         //         f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
-            //         //         f.refresh();
-            //         //         setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
-            //         //     }
-            //         // })
-            //         // .fail( function() {
-            //         //     console.log('Error getting /v1/uival/'+BUD+'/app.ReceiptRules');
-            //         // });
-            //     };
-
-            // // warn user if form content has been changed
-            // form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
 
     addDateNavToToolbar('receipts');
+    w2ui.receiptsGrid.toolbar.add([
+        { type: 'spacer',},
+        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
+        { type: 'button', id: 'printreport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+        ]);
 
     //------------------------------------------------------------------------
     //          receiptForm
@@ -459,7 +418,7 @@ function buildROVReceiptElements() {
                     // show save, saveadd, reverse button, hide close button
                     $(f.box).find("button[name=reverse]").removeClass("hidden");
                     $(f.box).find("button[name=save]").removeClass("hidden");
-                    $(f.box).find("button[name=saveadd]").removeClass("hidden");
+                    // $(f.box).find("button[name=saveadd]").removeClass("hidden");
                     $(f.box).find("button[name=close]").addClass("hidden");
 
                     // ********************************************************
@@ -537,69 +496,9 @@ function buildROVReceiptElements() {
             },
             saveprint: function() {
                 doRcptSave(this,true);
-                // var f = this,
-                //     r = f.record,
-                //     grid = w2ui.receiptsGrid,
-                //     x = getCurrentBusiness(),
-                //     BID=parseInt(x.value),
-                //     BUD = getBUDfromBID(BID);
-
-                // if (typeof r.RAID === "string") {
-                //     r.RAID = parseInt(r.RAID);
-                // }
-                // // clean dirty flag of form
-                // app.form_is_dirty = false;
-                // // clear the grid select recid
-                // app.last.grid_sel_recid  =-1;
-
-                // // select none if you're going to add new record
-                // grid.selectNone();
-                // f.postData = {client: app.client};
-                // f.save(null, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-
-                //     // JUST RENDER THE GRID ONLY
-                //     grid.render();
-
-                //     var url = '/v1/ar/' + r.BID +'/' + f.record.ARID.id;
-                //     handleReceiptRAID(url, f);
-
-                //     // add new empty record and just refresh the form, don't need to do CLEAR form
-                //     var pmt_options = buildPaymentTypeSelectList(BUD);
-                //     var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
-                //     f.get("PmtTypeName").options.items = pmt_options;
-                //     f.get("ARID").options.items = app.ReceiptRules[BUD];
-                //     f.record = getROVReceiptInitRecord(BID, BUD, ptInit, f.record);
-                //     f.header = "Edit Receipt (new)"; // have to provide header here, otherwise have to call refresh method twice to get this change in form
-                //     f.url = '/v1/receipt/' + BID + '/0';
-                //     f.refresh();
-                // });
             },
             save: function () {
                 doRcptSave(this,false);
-                // var f = this,
-                //     r = f.record,
-                //     // x = getCurrentBusiness(),
-                //     // BID=parseInt(x.value),
-                //     grid = w2ui.receiptsGrid;
-
-                // if (typeof r.RAID === "string") {
-                //     r.RAID = parseInt(r.RAID);
-                // }
-                // grid.selectNone();
-
-                // f.postData = {client: app.client, RentableName: f.record.RentableName};
-                // f.save(null, function (data) {
-                //     if (data.status == 'error') {
-                //         console.log('ERROR: '+ data.message);
-                //         return;
-                //     }
-                //     w2ui.toplayout.hide('right',true);
-                //     grid.render();
-                // });
             },
             reverse: function() {
                 var form = this;
