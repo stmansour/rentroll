@@ -106,25 +106,25 @@ casper.then(function pageBasicLayoutTest() {
 casper.then(function addNewButtonTesting() {
     // Assessments / Receipts Module
     addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
+/*    addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(expensesM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depositM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);*/
 
     // Setup Module
-    addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
+/*    addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(rtM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);*/
 });
 
 // --------------------------------------------------
 // 4. Now start all right side panel view UI testing
 // --------------------------------------------------
-casper.then(function formTesting() {
+/*casper.then(function formTesting() {
     formM.w2uiFormTest(asmM.formConf);
     formM.w2uiFormTest(transactantsM.formConf);
     formM.w2uiFormTest(acctM.formConf);
@@ -133,21 +133,21 @@ casper.then(function formTesting() {
     formM.w2uiFormTest(depmethM.formConf);
     formM.w2uiFormTest(arsM.formConf);
     formM.w2uiFormTest(rtM.formConf);
-});
+});*/
 
 
 // --------------------------------------------------
 // 5. Now start all grid record check test
 // --------------------------------------------------
 
-casper.then(function apiIntegrationTest() {
+/*casper.then(function apiIntegrationTest() {
     gridRecordM.gridRecordsTest(pmtM.gridConf);
     gridRecordM.gridRecordsTest(depM.gridConf);
     gridRecordM.gridRecordsTest(depmethM.gridConf);
     gridRecordM.gridRecordsTest(arsM.gridConf);
     gridRecordM.gridRecordsTest(rtM.gridConf);
     gridRecordM.gridRecordsTest(rentableM.gridConf);
-});
+});*/
 
 // ========== RUN TEST ==========
 casper.run();

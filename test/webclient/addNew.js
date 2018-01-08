@@ -40,9 +40,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
         inputFields.forEach(function (inputField) {
 
-            // console.log(JSON.stringify(inputField));
-            console.log("In testInputFields");
-
             // get selector for the input field
             var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputField.field);
 
@@ -73,6 +70,54 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
             // Check default value must be blank
             test.assertEquals(inputFieldValue, inputFieldValueInW2UI.toString(), "{0} field is blank".format(inputField.field));
+        });
+    }
+
+    // Test visible int input fields of the form
+    function testIntInputFields(formName, inputFields, test) {
+
+        inputFields.forEach(function (inputField) {
+
+            // get selector for the input field
+            var inputFieldSelector = w2ui_utils.getInputFieldSelector(inputField.field);
+
+            // get hidden flag from the DOM
+            var typeOfElementInDOM = casper.evaluate(function (inputFieldSelector) {
+                return document.querySelector(inputFieldSelector).type;
+            }, inputFieldSelector);
+
+            // If the element is hidden in DOM than do not perform tests on that element and return
+            if (typeOfElementInDOM === "hidden") {
+                return;
+            }
+
+            // get visibility status  of input field in viewport
+            var isVisible = casper.evaluate(function inputFieldVisibility(inputFieldSelector) {
+                return isVisibleInViewPort(document.querySelector(inputFieldSelector));
+            }, inputFieldSelector);
+
+            // Check visibility of input field
+            test.assert(isVisible, "{0} input field is visible to remote screen.".format(inputField.field));
+
+            // get value of input field from the DOM
+            var inputFieldValue = casper.evaluate(function (inputFieldSelector) {
+                return document.querySelector(inputFieldSelector).value;
+            }, inputFieldSelector);
+
+            // get default value of input field from the W2UI object
+            var inputFieldValueInW2UI = casper.evaluate(function (formName, field) {
+                return w2ui[formName].record[field];
+            }, formName, inputField.field);
+
+            // Update inpurFieldValue of input field type is money. Because default value of money type field is $0.00.
+            // Here money prefix can be any thing $, Rs, etc.
+            // To make generic replace $,.,0 with blank string ""
+            if (inputField.type === "money") {
+                inputFieldValue = inputFieldValue.replace(/[$.]/g, "");
+            }
+
+            // Check default value must be blank
+            test.assertEquals(inputFieldValue, inputFieldValueInW2UI.toString(), "{0} field have default value {1}".format(inputField.field, inputFieldValueInW2UI.toString()));
         });
     }
 
@@ -241,13 +286,14 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 return w2ui[form].fields;
             }, this.form);
 
-            console.log(JSON.stringify(this.formFields));
-
             // list of tabs in form
             this.tabs = addNewButtonConfig.tabs;
 
             // list of input fields
             this.inputFields = this.formFields.filter(w2ui_utils.getW2UIInputFields);
+
+            // list of int fields in form
+            this.inputIntFields = this.formFields.filter(w2ui_utils.getIntInputW2UIFields);
 
             // list of input select fields
             this.inputSelectField = this.formFields.filter(w2ui_utils.getInputListW2UIFields);
@@ -329,6 +375,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                     // Input fields test
                     testInputFields(that.form, that.inputFields, test);
+
+                    // Int input fields test.
+                    testIntInputFields(that.form, that.inputIntFields, test);
 
                     // Dropdown Input fields test
                     testInputSelectField(that.form, that.inputSelectField, test);
