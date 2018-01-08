@@ -152,6 +152,7 @@ const (
 	RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
 	RRDATETIMEFMT    = "2006-01-02T15:04:00Z"
 	RRDATEREPORTFMT  = "Jan 2, 2006"
+	RRDATERECEIPTFMT = "January 2, 2006"
 )
 
 // TIME0 is the "beginning of time" constant to use when we need
@@ -1724,13 +1725,6 @@ func DeleteBusinessFromDB(ctx context.Context, BID int64) (int64, error) {
 	}
 	RRdb.BUDlist = BuildBusinessDesignationMap()
 	return noRecs, nil
-}
-
-// PBprepSQL is the structure of prepared sql statements for the Phonebook db
-type PBprepSQL struct {
-	GetCompanyByDesignation      *sql.Stmt
-	GetCompany                   *sql.Stmt
-	GetBusinessUnitByDesignation *sql.Stmt
 }
 
 // BusinessTypeLists is a struct holding a collection of Types associated with a business

@@ -1,0 +1,12 @@
+ISO Payment Types
+Accord/OKC Members, LLC
+6303 NW 63rd Street
+Oklahoma City, OK 73132 USA
+
+PMTID        BID        Name   Description                 
+-----------  ---------  -----  ----------------------------
+PMT00000001  B00000002  Cash   Cash                        
+PMT00000002  B00000002  Check  Personal check from payor   
+PMT00000003  B00000002  VISA   Credit card charge          
+PMT00000004  B00000002  AMEX   American Express credit card
+

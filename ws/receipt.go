@@ -489,15 +489,46 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	//---------------------------------------------------------------
 	// RECEIPT-ONLY CLIENT UPDATE...
-	// extract the RentableName from the comment if it is present...
+	// This reversal is much simpler than the one in biz logic
+	// Here, we simply set the flags and make a new receipt to
+	// negate the one being reversed.
 	//---------------------------------------------------------------
 	if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
-		i1 := strings.Index(rcpt.Comment, rlib.ROCPRE)
-		i2 := strings.Index(rcpt.Comment, rlib.ROCPOST)
-		if i1 >= 0 && i2 > i1 {
-			rcpt.RentableName = rcpt.Comment[i1+rlib.ROCOFFSET : i2]
-			rcpt.Comment = rcpt.Comment[:i1]
+		if rcpt.FLAGS&0x04 != 0 {
+			SvcWriteSuccessResponse(w) // it's already reversed
+			return
 		}
+
+		// TBD: start a db transaction
+
+		//------------------------------------------------------
+		// Build the new receipt
+		//------------------------------------------------------
+		rname, _ := rlib.ROCExtractRentableName(rcpt.Comment)
+		rr := rcpt
+		rr.RCPTID = int64(0)
+		rr.Amount = -rr.Amount
+		rr.Comment = fmt.Sprintf("Reversal of receipt %s", rcpt.IDtoShortString()) + rlib.ROCPRE + rname + rlib.ROCPOST
+		rr.PRCPTID = rcpt.RCPTID  // link to parent
+		rr.FLAGS |= rlib.RCPTvoid // mark that it is voided
+		_, err = rlib.InsertReceipt(r.Context(), &rr)
+		if err != nil {
+			// TBD: abort transaction
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		//------------------------------------------------------
+		// update the flags on the original receipt
+		//------------------------------------------------------
+		rcpt.FLAGS |= rlib.RCPTvoid
+		if err = rlib.UpdateReceipt(r.Context(), &rcpt); err != nil {
+			// TBD: abort transaction
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// TBD: end db transaction
+
 	}
 
 	dt := time.Now()

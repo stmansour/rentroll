@@ -35,3 +35,16 @@ type BusinessUnit struct {
 	LastModBy   int
 	C           Company // parent company
 }
+
+// DirectoryPerson is the structure of person in Accord Directory
+// with publicly viewable data.
+type DirectoryPerson struct {
+	UID           int64
+	UserName      string
+	LastName      string
+	MiddleName    string
+	FirstName     string
+	PreferredName string
+	OfficePhone   string
+	CellPhone     string
+}

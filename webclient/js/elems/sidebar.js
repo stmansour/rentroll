@@ -74,7 +74,7 @@ function buildSidebar(flag) {
                            { id: 'RPTla',           text: 'Ledger Activity',                 icon: 'fa fa-file-text-o' },
                            { id: 'RPTpeople',       text: app.sTransactant,                  icon: 'fa fa-file-text-o' },
                            //{ id: 'RPTpmt',        text: 'Payment Types',                   icon: 'fa fa-file-text-o' },
-                           //{ id: 'RPTrcpt',       text: 'Receipts',                        icon: 'fa fa-file-text-o' },
+                           //{ id: 'RPTrcptlist',   text: 'Receipts List',                    icon: 'fa fa-file-text-o' },
                            { id: 'RPTrcbt',         text: app.sRentable+' Type Counts',      icon: 'fa fa-file-text-o' },
                            { id: 'RPTr',            text: plural(app.sRentable),             icon: 'fa fa-file-text-o' },
                            { id: 'RPTra',           text: plural(app.sRentalAgreement),      icon: 'fa fa-file-text-o' },
@@ -271,6 +271,7 @@ function buildSidebar(flag) {
                         case 'RPTra':
                         case 'RPTrat':
                         case 'RPTrcbt':  // rentable count by type
+                        case 'RPTrcptlist':
                         case 'RPTrcpt':
                         case 'RPTrr':
                         case 'RPTrt':
@@ -310,7 +311,7 @@ function buildSidebar(flag) {
                 },
                 { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
                     nodes: [
-                          { id: 'RPTrcpt',       text: 'Tendered Payment Log',           icon: 'fa fa-file-text-o' },
+                          { id: 'RPTrcptlist',   text: 'Tendered Payment Log',       icon: 'fa fa-file-text-o' },
                     ]
                 },
             ],
@@ -344,7 +345,7 @@ function buildSidebar(flag) {
                             // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             switchToGrid(target);
                             break;
-                        case 'RPTrcpt':
+                        case 'RPTrcptlist':
                             showReport(target);
                             app.last.report = target;
                             break;
