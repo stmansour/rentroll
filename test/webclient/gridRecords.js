@@ -1,4 +1,5 @@
 "use strict";
+
 var require = patchRequire(require);
 var common = require("./common.js");
 
@@ -147,11 +148,11 @@ exports.gridRecordsTest = function (gridConfig) {
                 // Check each row exist in DOM and visible in viewport
                 testRowColoumnData(that, test);
 
-                test.done();
-            });
+                // Take screen shot of viewport
+                common.capture(this.capture);
 
-            // Take screen shot of viewport
-            common.capture(this.capture);
+                test.done();
+            })
         }
     });
 };

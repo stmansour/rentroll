@@ -5,6 +5,7 @@ var FORM = "depositoryForm";
 var SIDEBAR_ID = "dep";
 var common = require("../common.js");
 
+// Below configurations are in use while performing tests via gridRecords.js
 exports.gridConf = {
     grid: "depGrid",
     sidebarID: "dep",
@@ -18,6 +19,7 @@ exports.gridConf = {
     testCount: 19
 };
 
+// Below configurations are in use while performing tests via form.js
 exports.formConf = {
     grid: "depGrid",
     form: "depForm",
@@ -29,6 +31,7 @@ exports.formConf = {
     testCount: 5
 };
 
+// Below configurations are in use while performing tests via addNew.js
 exports.addNewConf = {
     grid: GRID,
     form: FORM,

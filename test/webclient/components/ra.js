@@ -1,11 +1,13 @@
 "use strict";
 
+// Below configurations are in use while performing tests via gridRecords.js
 exports.gridConf = {
     grid: "rentalagrsGrid",
     sidebarID: "rentalagrs",
     capture: "rentalagrsGridRequest.png"
 };
 
+// Below configurations are in use while performing tests via form.js
 exports.formConf = {
     grid: "rentalagrsGrid",
     form: "rentalagrsForm",

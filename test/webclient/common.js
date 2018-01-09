@@ -2,8 +2,10 @@
 
 var fs = require("fs");
 
+// Directory name for captured screen shot
 var CAPTURES_STORE = "CAPTURES";
 
+// Take screenshot of the viewport with filename 'fname'
 exports.capture = function(fname) {
     // get absolute path to store capture images
     var fpath = fs.pathJoin(fs.workingDirectory, CAPTURES_STORE, fname);
@@ -17,6 +19,7 @@ exports.capture = function(fname) {
     });
 };
 
+// check is column  in excluded grid columns list
 exports.isColumnInExcludedGridColumns = function (column, excludedGridColumns) {
     var isColumnInExcludedGridColumns =  false;
 
@@ -29,16 +32,25 @@ exports.isColumnInExcludedGridColumns = function (column, excludedGridColumns) {
     return isColumnInExcludedGridColumns;
 };
 
+// Check element's existence(value) in array
 exports.isInArray = function(value, array){
   return array.indexOf(value) > -1;
 };
 
+// wait time duration for function execution
 exports.waitTime = 500;
 
+// base url for API endpoints
 exports.apiBaseURL = "http://localhost:8270";
+
+// API version
 exports.apiVersion = "v1";
+
+// Unset business id
 exports.BID = -1;
 
+// Success flag to match with API response status
 exports.successFlag = 'success';
 
+// logSpace name
 exports.logSpace = "rrLog";

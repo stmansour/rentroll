@@ -5,6 +5,7 @@ var SIDEBAR_ID = "ars";
 var FORM = "arsForm";
 var common = require("../common.js");
 
+// Below configurations are in use while performing tests via gridRecords.js
 exports.gridConf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
@@ -19,6 +20,7 @@ exports.gridConf = {
     testCount: 40
 };
 
+// Below configurations are in use while performing tests via form.js
 exports.formConf = {
     grid: "arsGrid",
     form: "arsForm",
@@ -30,6 +32,7 @@ exports.formConf = {
     testCount: 5
 };
 
+// Below configurations are in use while performing tests via addNew.js
 exports.addNewConf = {
     grid: GRID,
     form: FORM,
