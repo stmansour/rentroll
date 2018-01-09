@@ -99,20 +99,20 @@ casper.then(function pageBasicLayoutTest() {
 // --------------------------------------------------
 casper.then(function addNewButtonTesting() {
     // Assessments / Receipts Module
-/*    addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(expensesM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depositM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);*/
+    addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);
 
     // Setup Module
-  /*  addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);*/
+    addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
-/*    addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(rtM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);*/
+    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
 });
 
 // --------------------------------------------------

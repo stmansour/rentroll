@@ -152,7 +152,7 @@ exports.gridRecordsTest = function (gridConfig) {
                 common.capture(this.capture);
 
                 test.done();
-            })
+            });
         }
     });
 };

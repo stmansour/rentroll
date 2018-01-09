@@ -149,7 +149,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             // var defaultValueInW2UI = casper.evaluate(function getDefaultValue(form, field) {
             //     return w2ui[form].record[field].text;
             // }, formName, inputSelectField.field);
-            var defaultValueInW2UI = w2uiFormRecords[inputField.field].text;
+            var defaultValueInW2UI = w2uiFormRecords[inputSelectField.field].text;
 
             // match default value with input field value in DOM
             test.assertEquals(inputSelectFieldValue, defaultValueInW2UI, "{0} have default value {1}".format(inputSelectField.field, defaultValueInW2UI));
@@ -259,6 +259,25 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
     }
 
+    function testInputs(that, w2uiFormRecords, test) {
+        testInputFields(that.form, that.inputFields, w2uiFormRecords, test);
+
+        // Int input fields test.
+        testIntInputFields(that.form, that.inputIntFields, w2uiFormRecords, test);
+
+        // Dropdown Input fields test
+        testInputSelectField(that.form, that.inputSelectField, w2uiFormRecords, test);
+
+        // Check box rendering test
+        testCheckBoxes(that.form, that.checkboxes, test);
+
+        // Date field rendering test
+        testDateFields(that.form, that.dateFields, test);
+
+        // Disabled field rendering test
+        testDisabledFields(that.disableFields, test);
+    }
+
     casper.test.begin(testName, testCount, {
 
         //do basic setup first
@@ -274,12 +293,14 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             this.sidebarID = addNewButtonConfig.sidebarID;
 
 
+            // Click on side bar node
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
+
             casper.log('[FormTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
 
             // Click add new button in toolbar
             casper.wait(common.waitTime, function clickAddNewButton() {
-                //It will click table cell with the text 'Add New'
+                // It will click table cell with the text 'Add New'
                 casper.clickLabel("Add New", "td");
             });
 
@@ -380,26 +401,9 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 // If there are no tabs but there is only one form than perform tests on fields of the form.
                 if (that.tabs.length === 0) {
-
-                    // Input fields test
-                    testInputFields(that.form, that.inputFields, w2uiFormRecords, test);
-
-                    // Int input fields test.
-                    // testIntInputFields(that.form, that.inputIntFields, w2uiFormRecords, test);
-
-                    // Dropdown Input fields test
-                    testInputSelectField(that.form, that.inputSelectField, w2uiFormRecords, test);
-
-                    // Check box rendering test
-                    testCheckBoxes(that.form, that.checkboxes, test);
-
-                    // Date field rendering test
-                    testDateFields(that.form, that.dateFields, test);
-
-                    // Disabled field rendering test
-                    testDisabledFields(that.disableFields, test);
+                    // test all fields of w2ui form
+                    testInputs(that, w2uiFormRecords, test);
                 }
-
 
                 // Form Button rendering test
                 testButtons(that.buttonNames, test);
