@@ -1,5 +1,16 @@
 "use strict";
 
+// ========== UI TEST APP OPTIONS ==========
+// pageURL for open the application
+exports.pageURL = "http://localhost:8270/home";
+
+// Width and height of viewport
+exports.pageWidth = 1855; // 1280
+exports.pageHeight = 978; // 720
+
+// wait time for page loading
+exports.pageLoadWaitTime = 2000;
+
 var fs = require("fs");
 
 // Directory name for captured screen shot
@@ -14,8 +25,8 @@ exports.capture = function(fname) {
     casper.capture(fpath, {
         top: 0,
         left: 0,
-        width: pageWidth,
-        height: pageHeight
+        width: exports.pageWidth,
+        height: exports.pageHeight
     });
 };
 

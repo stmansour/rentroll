@@ -4,7 +4,7 @@ var common = require("./common.js");
 
 exports.init = function() {
     // ========== CASPER OPTIONS ==========
-    casper.options.viewportSize = {width: pageWidth, height: pageHeight};
+    casper.options.viewportSize = {width: common.pageWidth, height: common.pageHeight};
     casper.options.exitOnError = true;
     // casper.options.colorizerType = 'Dummy';
     casper.options.clientScripts.push("./visibility.js");

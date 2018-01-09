@@ -24,12 +24,6 @@ var rtM = require("./components/rt.js");
 var rentableM = require("./components/rentable.js");
 
 // ========== UI TEST APP OPTIONS ==========
-var pageURL = "http://localhost:8270/home",
-    // pageWidth = 1280,
-    // pageHeight = 720,
-    pageWidth = 1855,
-    pageHeight = 978,
-    pageLoadWaitTime = 2000;
 var testBiz = "REX",
     testBizID = -1;
 var appSettings;
@@ -39,11 +33,11 @@ initM.init();
 
 // ========== TESTING ==========
 // start webpage request
-casper.start(pageURL);
+casper.start(common.pageURL);
 
 // wait for amount of time (defined in `pageLoadWaitTime`)
 // for page to be loaded
-casper.wait(pageLoadWaitTime);
+casper.wait(common.pageLoadWaitTime);
 
 // --------------------------------------------------
 // 1. get the app settings, verify it, change the business to "REX"
@@ -105,26 +99,26 @@ casper.then(function pageBasicLayoutTest() {
 // --------------------------------------------------
 casper.then(function addNewButtonTesting() {
     // Assessments / Receipts Module
-    addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
+/*    addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(expensesM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depositM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);*/
 
     // Setup Module
-    addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
+  /*  addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);*/
     addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
+/*    addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
     addNewButtonM.w2uiAddNewButtonTest(rtM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);*/
 });
 
 // --------------------------------------------------
 // 4. Now start all right side panel view UI testing
 // --------------------------------------------------
-casper.then(function formTesting() {
+/*casper.then(function formTesting() {
     formM.w2uiFormTest(asmM.formConf);
     formM.w2uiFormTest(transactantsM.formConf);
     formM.w2uiFormTest(acctM.formConf);
@@ -133,7 +127,7 @@ casper.then(function formTesting() {
     formM.w2uiFormTest(depmethM.formConf);
     formM.w2uiFormTest(arsM.formConf);
     formM.w2uiFormTest(rtM.formConf);
-});
+});*/
 
 
 // --------------------------------------------------
@@ -141,12 +135,12 @@ casper.then(function formTesting() {
 // --------------------------------------------------
 
 casper.then(function apiIntegrationTest() {
-    gridRecordM.gridRecordsTest(pmtM.gridConf);
+/*    gridRecordM.gridRecordsTest(pmtM.gridConf);
     gridRecordM.gridRecordsTest(depM.gridConf);
     gridRecordM.gridRecordsTest(depmethM.gridConf);
     gridRecordM.gridRecordsTest(arsM.gridConf);
     gridRecordM.gridRecordsTest(rtM.gridConf);
-    gridRecordM.gridRecordsTest(rentableM.gridConf);
+    gridRecordM.gridRecordsTest(rentableM.gridConf);*/
 });
 
 // ========== RUN TEST ==========

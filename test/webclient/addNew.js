@@ -36,7 +36,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     }
 
     // Test visible input fields of the form
-    function testInputFields(formName, inputFields, test) {
+    function testInputFields(formName, inputFields, w2uiFormRecords, test) {
 
         inputFields.forEach(function (inputField) {
 
@@ -57,15 +57,17 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             }, inputFieldSelector);
 
             // get default value of input field from the W2UI object
-            var inputFieldValueInW2UI = casper.evaluate(function (formName, field) {
-                return w2ui[formName].record[field];
-            }, formName, inputField.field);
+            // var inputFieldValueInW2UI = casper.evaluate(function (formName, field) {
+            //     return w2ui[formName].record[field];
+            // }, formName, inputField.field);
+
+            var inputFieldValueInW2UI = w2uiFormRecords[inputField.field];
 
             // Update inpurFieldValue of input field type is money. Because default value of money type field is $0.00.
             // Here money prefix can be any thing $, Rs, etc.
             // To make generic replace $,.,0 with blank string ""
             if (inputField.type === "money") {
-                inputFieldValue = inputFieldValue.replace(/[$.]/g, "");
+                inputFieldValue = w2ui_utils.getUpdatedInputFieldValueForMoneyTypeField(inputFieldValue);
             }
 
             // Check default value must be blank
@@ -74,7 +76,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     }
 
     // Test visible int input fields of the form
-    function testIntInputFields(formName, inputFields, test) {
+    function testIntInputFields(formName, inputFields, w2uiFormRecords, test) {
 
         inputFields.forEach(function (inputField) {
 
@@ -105,15 +107,16 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             }, inputFieldSelector);
 
             // get default value of input field from the W2UI object
-            var inputFieldValueInW2UI = casper.evaluate(function (formName, field) {
-                return w2ui[formName].record[field];
-            }, formName, inputField.field);
+            // var inputFieldValueInW2UI = casper.evaluate(function (formName, field) {
+            //     return w2ui[formName].record[field];
+            // }, formName, inputField.field);
+            var inputFieldValueInW2UI = w2uiFormRecords[inputField.field];
 
             // Update inpurFieldValue of input field type is money. Because default value of money type field is $0.00.
             // Here money prefix can be any thing $, Rs, etc.
             // To make generic replace $,.,0 with blank string ""
             if (inputField.type === "money") {
-                inputFieldValue = inputFieldValue.replace(/[$.]/g, "");
+                inputFieldValue = w2ui_utils.getUpdatedInputFieldValueForMoneyTypeField(inputFieldValue);
             }
 
             // Check default value must be blank
@@ -122,7 +125,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     }
 
     // Test visible input select fields of the form
-    function testInputSelectField(formName, inputSelectField, test) {
+    function testInputSelectField(formName, inputSelectField, w2uiFormRecords, test) {
 
         inputSelectField.forEach(function (inputSelectField) {
 
@@ -143,9 +146,10 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             }, inputSelectFieldSelector);
 
             // get value of input select field from W2UI form record
-            var defaultValueInW2UI = casper.evaluate(function getDefaultValue(form, field) {
-                return w2ui[form].record[field].text;
-            }, formName, inputSelectField.field);
+            // var defaultValueInW2UI = casper.evaluate(function getDefaultValue(form, field) {
+            //     return w2ui[form].record[field].text;
+            // }, formName, inputSelectField.field);
+            var defaultValueInW2UI = w2uiFormRecords[inputField.field].text;
 
             // match default value with input field value in DOM
             test.assertEquals(inputSelectFieldValue, defaultValueInW2UI, "{0} have default value {1}".format(inputSelectField.field, defaultValueInW2UI));
@@ -312,7 +316,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
             // Disable fields list
             this.disableFields = addNewButtonConfig.disableFields;
-
         },
 
         test: function (test) {
@@ -323,6 +326,11 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                 // Right panel rendering
                 testRightPanelRendering(test);
+
+                // get W2UI from record
+                var w2uiFormRecords = casper.evaluate(function (formName) {
+                    return w2ui[formName].record;
+                }, that.form);
 
                 // var tabSelector = w2ui_utils.getW2UITabSelector(that.form, );
 
@@ -352,10 +360,10 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                         common.capture("tab_{0}_{1}.jpg".format(tab, pageNo));
 
                         // Input fields test
-                        testInputFields(that.form, inputFields, test);
+                        testInputFields(that.form, inputFields, w2uiFormRecords, test);
 
                         // Drop down Input fields test
-                        testInputSelectField(that.form, inputSelectField, test);
+                        testInputSelectField(that.form, inputSelectField, w2uiFormRecords, test);
 
                         // Check box rendering test
                         testCheckBoxes(that.form, checkboxes, test);
@@ -374,13 +382,13 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                 if (that.tabs.length === 0) {
 
                     // Input fields test
-                    testInputFields(that.form, that.inputFields, test);
+                    testInputFields(that.form, that.inputFields, w2uiFormRecords, test);
 
                     // Int input fields test.
-                    testIntInputFields(that.form, that.inputIntFields, test);
+                    // testIntInputFields(that.form, that.inputIntFields, w2uiFormRecords, test);
 
                     // Dropdown Input fields test
-                    testInputSelectField(that.form, that.inputSelectField, test);
+                    testInputSelectField(that.form, that.inputSelectField, w2uiFormRecords, test);
 
                     // Check box rendering test
                     testCheckBoxes(that.form, that.checkboxes, test);

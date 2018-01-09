@@ -169,3 +169,11 @@ exports.getW2UIInputFields = function (inputField) {
 exports.getRecordsParentDivSelector = function (gridName) {
     return "#grid_{0}_records".format(gridName);
 };
+
+// getUpdatedInputFieldValueForMoneyTypeField $,. replace by blank string
+exports.getUpdatedInputFieldValueForMoneyTypeField = function (inputFieldValue) {
+    // Update inpurFieldValue of input field type is money. Because default value of money type field is $0.00.
+    // Here money prefix can be any thing $, Rs, etc.
+    // To make generic replace $,.,0 with blank string ""
+    return inputFieldValue.replace(/[$.]/g, "");
+};

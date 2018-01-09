@@ -52,10 +52,13 @@ exports.w2uiFormTest = function (formConfig) {
 
                 // Button rendering
                 that.buttonName.forEach(function (btnName) {
+
+                    // get button's visibility status in viewport
                     var isVisible = casper.evaluate(function formButtonVisibility(btnNode) {
                         return isVisibleInViewPort(document.querySelector(btnNode));
                     }, w2ui_utils.getW2UIButtonReferanceSelector(btnName));
 
+                    // test button's visibility in viewport
                     test.assert(isVisible, "[{0}] is visible to remote screen.".format(btnName));
                 });
 
