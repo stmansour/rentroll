@@ -55,7 +55,15 @@ func GetAR(ctx context.Context, id int64) (AR, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetAR.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAR)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetAR.QueryRow(fields...)
+	}
 	return a, ReadAR(row, &a)
 }
 
@@ -75,7 +83,15 @@ func GetARByName(ctx context.Context, bid int64, name string) (AR, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetARByName.QueryRow(bid, name)
+	var row *sql.Row
+	fields := []interface{}{bid, name}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetARByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetARByName.QueryRow(fields...)
+	}
 	return a, ReadAR(row, &a)
 }
 
@@ -117,7 +133,17 @@ func getARMap(bid int64) (map[int64]AR, error) {
 		t   = make(map[int64]AR)
 	)
 
-	rows, err := RRdb.Prepstmt.GetAllARs.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllARs)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllARs.Query(fields...)
+	}*/
+	rows, err = RRdb.Prepstmt.GetAllARs.Query(fields...)
+
 	if err != nil {
 		return t, err
 	}
@@ -170,7 +196,16 @@ func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllARs.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllARs)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllARs.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -193,7 +228,16 @@ func GetARsByType(ctx context.Context, id int64, artype int) ([]AR, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetARsByType.Query(id, artype)
+	var rows *sql.Rows
+	fields := []interface{}{id, artype}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetARsByType)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetARsByType.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -220,7 +264,15 @@ func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentalAgreementPet.QueryRow(petid)
+	var row *sql.Row
+	fields := []interface{}{petid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementPet)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentalAgreementPet.QueryRow(fields...)
+	}
 	return a, ReadRentalAgreementPet(row, &a)
 }
 
@@ -240,7 +292,16 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllRentalAgreementPets.Query(raid)
+	var rows *sql.Rows
+	fields := []interface{}{raid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentalAgreementPets)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRentalAgreementPets.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -280,7 +341,15 @@ func FindAgreementByRentable(ctx context.Context, rid int64, d1, d2 *time.Time) 
 
 	// SELECT RAID,BID,RID,DtStart,DtStop from RentalAgreementRentables where RID=? and DtStop>=? and DtStart<=?
 
-	row := RRdb.Prepstmt.FindAgreementByRentable.QueryRow(rid, d1, d2)
+	var row *sql.Row
+	fields := []interface{}{rid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.FindAgreementByRentable)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.FindAgreementByRentable.QueryRow(fields...)
+	}
 	return a, ReadRentalAgreementRentable(row, &a)
 }
 
@@ -304,7 +373,16 @@ func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllRentableAssessments.Query(RID, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{RID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentableAssessments)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRentableAssessments.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -327,7 +405,16 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetUnpaidAssessmentsByRAID.Query(RAID)
+	var rows *sql.Rows
+	fields := []interface{}{RAID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetUnpaidAssessmentsByRAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetUnpaidAssessmentsByRAID.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -356,7 +443,16 @@ func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAssessmentInstancesByParent.Query(id, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{id, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentInstancesByParent)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAssessmentInstancesByParent.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -409,7 +505,15 @@ func GetAssessment(ctx context.Context, asmid int64) (Assessment, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetAssessment.QueryRow(asmid)
+	var row *sql.Row
+	fields := []interface{}{asmid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessment)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetAssessment.QueryRow(fields...)
+	}
 	return a, ReadAssessment(row, &a)
 }
 
@@ -429,7 +533,15 @@ func GetAssessmentInstance(ctx context.Context, start *time.Time, pasmid int64) 
 		}
 	}
 
-	row := RRdb.Prepstmt.GetAssessmentInstance.QueryRow(start, pasmid)
+	var row *sql.Row
+	fields := []interface{}{start, pasmid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentInstance)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetAssessmentInstance.QueryRow(fields...)
+	}
 	return a, ReadAssessment(row, &a)
 }
 
@@ -450,7 +562,15 @@ func GetAssessmentFirstInstance(ctx context.Context, pasmid int64) (Assessment, 
 		}
 	}
 
-	row := RRdb.Prepstmt.GetAssessmentFirstInstance.QueryRow(pasmid)
+	var row *sql.Row
+	fields := []interface{}{pasmid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentFirstInstance)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetAssessmentFirstInstance.QueryRow(fields...)
+	}
 	return a, ReadAssessment(row, &a)
 }
 
@@ -470,7 +590,15 @@ func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, 
 		}
 	}
 
-	row := RRdb.Prepstmt.GetAssessmentDuplicate.QueryRow(start, amt, pasmid, rid, raid, atypelid)
+	var row *sql.Row
+	fields := []interface{}{start, amt, pasmid, rid, raid, atypelid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAssessmentDuplicate)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetAssessmentDuplicate.QueryRow(fields...)
+	}
 	return a, ReadAssessment(row, &a)
 }
 
@@ -495,7 +623,15 @@ func GetBuilding(ctx context.Context, id int64) (Building, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetBuilding.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetBuilding)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetBuilding.QueryRow(fields...)
+	}
 	return t, ReadBuildingData(row, &t)
 }
 
@@ -512,7 +648,17 @@ func GetAllBiz() ([]Business, error) {
 		m   []Business
 	)
 
-	rows, err := RRdb.Prepstmt.GetAllBusinesses.Query()
+	var rows *sql.Rows
+	fields := []interface{}{}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllBusinesses)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllBusinesses.Query(fields...)
+	}*/
+	rows, err = RRdb.Prepstmt.GetAllBusinesses.Query(fields...)
+
 	if err != nil {
 		return m, err
 	}
@@ -551,7 +697,16 @@ func GetAllBusinesses(ctx context.Context) ([]Business, error) {
 
 // getBiz loads the Business struct for the supplied Business id
 func getBiz(bid int64, a *Business) error {
-	row := RRdb.Prepstmt.GetBusiness.QueryRow(bid)
+	var row *sql.Row
+	fields := []interface{}{bid}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetBusiness)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetBusiness.QueryRow(fields...)
+	}*/
+	row = RRdb.Prepstmt.GetBusiness.QueryRow(fields...)
 	return ReadBusiness(row, a)
 }
 
@@ -581,7 +736,16 @@ func GetBizByDesignation(des string) (Business, error) {
 		a Business
 	)
 
-	row := RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(des)
+	var row *sql.Row
+	fields := []interface{}{des}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetBusinessByDesignation)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(fields...)
+	}*/
+	row = RRdb.Prepstmt.GetBusinessByDesignation.QueryRow(fields...)
 	return a, ReadBusiness(row, &a)
 }
 
@@ -624,7 +788,18 @@ func GetXBiz(bid int64, xbiz *XBusiness) error {
 	}
 
 	xbiz.US = make(map[int64]RentableSpecialty)
-	rows, err := RRdb.Prepstmt.GetAllBusinessRentableSpecialtyTypes.Query(bid)
+
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllBusinessRentableSpecialtyTypes)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllBusinessRentableSpecialtyTypes.Query(fields...)
+	}*/
+	rows, err = RRdb.Prepstmt.GetAllBusinessRentableSpecialtyTypes.Query(fields...)
+
 	if err != nil {
 		return err
 	}
@@ -672,7 +847,16 @@ func getCustomAttribute(id int64) (CustomAttribute, error) {
 		a CustomAttribute
 	)
 
-	row := RRdb.Prepstmt.GetCustomAttribute.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetCustomAttribute)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetCustomAttribute.QueryRow(fields...)
+	}*/
+	row = RRdb.Prepstmt.GetCustomAttribute.QueryRow(fields...)
 	return a, ReadCustomAttribute(row, &a)
 }
 
@@ -715,7 +899,15 @@ func GetCustomAttributeByVals(ctx context.Context, t int64, n, v, u string) (Cus
 		}
 	}
 
-	row := RRdb.Prepstmt.GetCustomAttributeByVals.QueryRow(t, n, v, u)
+	var row *sql.Row
+	fields := []interface{}{t, n, v, u}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetCustomAttributeByVals)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetCustomAttributeByVals.QueryRow(fields...)
+	}
 	return a, ReadCustomAttribute(row, &a)
 }
 
@@ -728,7 +920,17 @@ func getAllCustomAttributes(elemid, id int64) (map[string]CustomAttribute, error
 		m   = make(map[string]CustomAttribute)
 	)
 
-	rows, err := RRdb.Prepstmt.GetCustomAttributeRefs.Query(elemid, id)
+	var rows *sql.Rows
+	fields := []interface{}{elemid, id}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetCustomAttributeRefs)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetCustomAttributeRefs.Query(fields...)
+	}*/
+	rows, err = RRdb.Prepstmt.GetCustomAttributeRefs.Query(fields...)
+
 	if err != nil {
 		return m, err
 	}
@@ -794,7 +996,15 @@ func GetCustomAttributeRef(ctx context.Context, e, i, c int64) (CustomAttributeR
 		}
 	}
 
-	row := RRdb.Prepstmt.GetCustomAttributeRef.QueryRow(e, i, c)
+	var row *sql.Row
+	fields := []interface{}{e, i, c}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetCustomAttributeRef)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetCustomAttributeRef.QueryRow(fields...)
+	}
 	return a, ReadCustomAttributeRef(row, &a)
 }
 
@@ -836,7 +1046,17 @@ func GetDemandSource(ctx context.Context, id int64, t *DemandSource) error {
 		}
 	}
 
-	return ReadDemandSource(RRdb.Prepstmt.GetDemandSource.QueryRow(id), t)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDemandSource)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDemandSource.QueryRow(fields...)
+	}
+
+	return ReadDemandSource(row, t)
 }
 
 // GetDemandSourceByName reads a DemandSource structure based on the supplied DemandSource id
@@ -854,7 +1074,17 @@ func GetDemandSourceByName(ctx context.Context, bid int64, name string, t *Deman
 		}
 	}
 
-	return ReadDemandSource(RRdb.Prepstmt.GetDemandSourceByName.QueryRow(bid, name), t)
+	var row *sql.Row
+	fields := []interface{}{bid, name}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDemandSourceByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDemandSourceByName.QueryRow(fields...)
+	}
+
+	return ReadDemandSource(row, t)
 }
 
 // GetAllDemandSources returns an array of DemandSource structures containing all sources for the supplied BID
@@ -873,7 +1103,16 @@ func GetAllDemandSources(ctx context.Context, id int64) ([]DemandSource, error) 
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllDemandSources.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllDemandSources)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllDemandSources.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -912,7 +1151,15 @@ func GetDeposit(ctx context.Context, id int64) (Deposit, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetDeposit.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDeposit)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDeposit.QueryRow(fields...)
+	}
 	return a, ReadDeposit(row, &a)
 }
 
@@ -932,7 +1179,16 @@ func GetAllDepositsInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllDepositsInRange.Query(bid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{bid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllDepositsInRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllDepositsInRange.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -971,7 +1227,15 @@ func GetDepository(ctx context.Context, id int64) (Depository, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetDepository.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDepository)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDepository.QueryRow(fields...)
+	}
 	return a, ReadDepository(row, &a)
 }
 
@@ -991,7 +1255,15 @@ func GetDepositoryByAccount(ctx context.Context, bid int64, acct string) (Deposi
 		}
 	}
 
-	row := RRdb.Prepstmt.GetDepositoryByAccount.QueryRow(bid, acct)
+	var row *sql.Row
+	fields := []interface{}{bid, acct}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDepositoryByAccount)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDepositoryByAccount.QueryRow(fields...)
+	}
 	return a, ReadDepository(row, &a)
 }
 
@@ -1011,7 +1283,15 @@ func GetDepositoryByName(ctx context.Context, bid int64, name string) (Depositor
 		}
 	}
 
-	row := RRdb.Prepstmt.GetDepositoryByName.QueryRow(bid, name)
+	var row *sql.Row
+	fields := []interface{}{bid, name}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDepositoryByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDepositoryByName.QueryRow(fields...)
+	}
 	return a, ReadDepository(row, &a)
 }
 
@@ -1031,7 +1311,15 @@ func GetDepositoryByLID(ctx context.Context, bid int64, id int64) (Depository, e
 		}
 	}
 
-	row := RRdb.Prepstmt.GetDepositoryByLID.QueryRow(bid, id)
+	var row *sql.Row
+	fields := []interface{}{bid, id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDepositoryByLID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDepositoryByLID.QueryRow(fields...)
+	}
 	return a, ReadDepository(row, &a)
 }
 
@@ -1051,7 +1339,16 @@ func GetAllDepositories(ctx context.Context, bid int64) ([]Depository, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllDepositories.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllDepositories)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllDepositories.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -1085,7 +1382,16 @@ func GetDepositParts(ctx context.Context, id int64) ([]DepositPart, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetDepositParts.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDepositParts)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetDepositParts.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -1119,7 +1425,15 @@ func GetDepositMethod(ctx context.Context, id int64) (DepositMethod, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetDepositMethod.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDepositMethod)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDepositMethod.QueryRow(fields...)
+	}
 	return a, ReadDepositMethod(row, &a)
 }
 
@@ -1139,7 +1453,15 @@ func GetDepositMethodByName(ctx context.Context, bid int64, name string) (Deposi
 		}
 	}
 
-	row := RRdb.Prepstmt.GetDepositMethodByName.QueryRow(bid, name)
+	var row *sql.Row
+	fields := []interface{}{bid, name}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetDepositMethodByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetDepositMethodByName.QueryRow(fields...)
+	}
 	return a, ReadDepositMethod(row, &a)
 }
 
@@ -1159,7 +1481,16 @@ func GetAllDepositMethods(ctx context.Context, bid int64) ([]DepositMethod, erro
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllDepositMethods.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllDepositMethods)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllDepositMethods.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -1197,7 +1528,15 @@ func GetExpense(ctx context.Context, id int64) (Expense, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetExpense.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetExpense)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetExpense.QueryRow(fields...)
+	}
 	return a, ReadExpense(row, &a)
 }
 
@@ -1221,7 +1560,15 @@ func GetInvoice(ctx context.Context, id int64) (Invoice, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetInvoice.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetInvoice)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetInvoice.QueryRow(fields...)
+	}
 	err = ReadInvoice(row, &a)
 	if err != nil {
 		return a, err
@@ -1256,7 +1603,16 @@ func GetAllInvoicesInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllInvoicesInRange.Query(bid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{bid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllInvoicesInRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllInvoicesInRange.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -1300,7 +1656,16 @@ func GetInvoiceAssessments(ctx context.Context, id int64) ([]InvoiceAssessment, 
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetInvoiceAssessments.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetInvoiceAssessments)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetInvoiceAssessments.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -1334,7 +1699,16 @@ func GetInvoicePayors(ctx context.Context, id int64) ([]InvoicePayor, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetInvoicePayors.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetInvoicePayors)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetInvoicePayors.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -1372,7 +1746,15 @@ func GetJournal(ctx context.Context, jid int64) (Journal, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetJournal.QueryRow(jid)
+	var row *sql.Row
+	fields := []interface{}{jid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournal)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetJournal.QueryRow(fields...)
+	}
 	return r, ReadJournal(row, &r)
 }
 
@@ -1384,7 +1766,15 @@ func GetJournalInstance(ctx context.Context, id int64, dt1, dt2 *time.Time) (Jou
 		// err error
 		r Journal
 	)
-	row := RRdb.Prepstmt.GetJournalInstance.QueryRow(id, dt1, dt2)
+	var row *sql.Row
+	fields := []interface{}{id, dt1, dt2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalInstance)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetJournalInstance.QueryRow(fields...)
+	}
 	return r, ReadJournal(row, &r)
 }*/
 
@@ -1406,7 +1796,15 @@ func GetJournalVacancy(ctx context.Context, id int64, dt1, dt2 *time.Time) (Jour
 		}
 	}
 
-	row := RRdb.Prepstmt.GetJournalVacancy.QueryRow(id, dt1, dt2)
+	var row *sql.Row
+	fields := []interface{}{id, dt1, dt2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalVacancy)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetJournalVacancy.QueryRow(fields...)
+	}
 	return r, ReadJournal(row, &r)
 }
 
@@ -1427,7 +1825,15 @@ func GetJournalByTypeAndID(ctx context.Context, t, id int64) (Journal, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetJournalByTypeAndID.QueryRow(t, id)
+	var row *sql.Row
+	fields := []interface{}{t, id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalByTypeAndID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetJournalByTypeAndID.QueryRow(fields...)
+	}
 	return r, ReadJournal(row, &r)
 }
 
@@ -1448,7 +1854,15 @@ func GetJournalByReceiptID(ctx context.Context, id int64) (Journal, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetJournalByReceiptID.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalByReceiptID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetJournalByReceiptID.QueryRow(fields...)
+	}
 	return r, ReadJournal(row, &r)
 }
 
@@ -1469,7 +1883,16 @@ func GetJournalsByReceiptID(ctx context.Context, id int64) ([]Journal, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetJournalByReceiptID.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalByReceiptID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetJournalByReceiptID.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -1503,7 +1926,16 @@ func GetJournalMarkers(ctx context.Context, n int64) ([]JournalMarker, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetJournalMarkers.Query(n)
+	var rows *sql.Rows
+	fields := []interface{}{n}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalMarkers)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetJournalMarkers.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -1569,7 +2001,15 @@ func GetJournalAllocation(ctx context.Context, jaid int64) (JournalAllocation, e
 		}
 	}
 
-	row := RRdb.Prepstmt.GetJournalAllocation.QueryRow(jaid)
+	var row *sql.Row
+	fields := []interface{}{jaid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalAllocation)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetJournalAllocation.QueryRow(fields...)
+	}
 	return a, ReadJournalAllocation(row, &a)
 }
 
@@ -1589,7 +2029,16 @@ func GetJournalAllocations(ctx context.Context, j *Journal) error {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetJournalAllocations.Query(j.JID)
+	var rows *sql.Rows
+	fields := []interface{}{j.JID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalAllocations)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetJournalAllocations.Query(fields...)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -1621,7 +2070,16 @@ func GetJournalAllocationByASMID(ctx context.Context, id int64) ([]JournalAlloca
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMID.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalAllocationsByASMID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetJournalAllocationsByASMID.Query(fields...)
+	}
+
 	if err != nil {
 		return jaRows, err
 	}
@@ -1648,7 +2106,16 @@ func GetJournalAllocationByASMandRCPTID(ctx context.Context, id int64) ([]Journa
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetJournalAllocationsByASMandRCPTID.Query(fields...)
+	}
+
 	if err != nil {
 		return jaRows, err
 	}
@@ -1704,7 +2171,15 @@ func GetLatestLedgerMarkerByLID(ctx context.Context, bid, lid int64) (LedgerMark
 		}
 	}
 
-	row := RRdb.Prepstmt.GetLatestLedgerMarkerByLID.QueryRow(bid, lid)
+	var row *sql.Row
+	fields := []interface{}{bid, lid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLatestLedgerMarkerByLID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLatestLedgerMarkerByLID.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1724,7 +2199,15 @@ func GetInitialLedgerMarkerByRAID(ctx context.Context, raid int64) (LedgerMarker
 		}
 	}
 
-	row := RRdb.Prepstmt.GetInitialLedgerMarkerByRAID.QueryRow(raid)
+	var row *sql.Row
+	fields := []interface{}{raid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetInitialLedgerMarkerByRAID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetInitialLedgerMarkerByRAID.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1744,7 +2227,15 @@ func GetInitialLedgerMarkerByRID(ctx context.Context, id int64) (LedgerMarker, e
 		}
 	}
 
-	row := RRdb.Prepstmt.GetInitialLedgerMarkerByRID.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetInitialLedgerMarkerByRID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetInitialLedgerMarkerByRID.QueryRow(fields...)
+	}
 	return a, ReadLedgerMarker(row, &a)
 }
 
@@ -1764,7 +2255,15 @@ func GetLedgerMarkerOnOrBefore(ctx context.Context, bid, lid int64, dt *time.Tim
 		}
 	}
 
-	row := RRdb.Prepstmt.GetLedgerMarkerOnOrBefore.QueryRow(bid, lid, dt)
+	var row *sql.Row
+	fields := []interface{}{bid, lid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerMarkerOnOrBefore)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLedgerMarkerOnOrBefore.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1784,7 +2283,15 @@ func GetPayorLedgerMarkerOnOrBefore(ctx context.Context, bid, tcid int64, dt *ti
 		}
 	}
 
-	row := RRdb.Prepstmt.GetPayorLedgerMarkerOnOrBefore.QueryRow(bid, tcid, dt)
+	var row *sql.Row
+	fields := []interface{}{bid, tcid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPayorLedgerMarkerOnOrBefore)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetPayorLedgerMarkerOnOrBefore.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }*/
 
@@ -1806,7 +2313,15 @@ func GetRALedgerMarkerOnOrBeforeDeprecated(ctx context.Context, bid, lid, raid i
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBeforeDeprecated.QueryRow(bid, lid, raid, dt)
+	var row *sql.Row
+	fields := []interface{}{bid, lid, raid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRALedgerMarkerOnOrBeforeDeprecated)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRALedgerMarkerOnOrBeforeDeprecated.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1828,7 +2343,15 @@ func GetRALedgerMarkerOnOrBefore(ctx context.Context, raid int64, dt *time.Time)
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore.QueryRow(raid, dt)
+	var row *sql.Row
+	fields := []interface{}{raid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRALedgerMarkerOnOrBefore.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1850,7 +2373,15 @@ func GetRALedgerMarkerOnOrAfter(ctx context.Context, raid int64, dt *time.Time) 
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRALedgerMarkerOnOrAfter.QueryRow(raid, dt)
+	var row *sql.Row
+	fields := []interface{}{raid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRALedgerMarkerOnOrAfter)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRALedgerMarkerOnOrAfter.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1872,7 +2403,15 @@ func GetTCLedgerMarkerOnOrBefore(ctx context.Context, tcid int64, dt *time.Time)
 		}
 	}
 
-	row := RRdb.Prepstmt.GetTCLedgerMarkerOnOrBefore.QueryRow(tcid, dt)
+	var row *sql.Row
+	fields := []interface{}{tcid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTCLedgerMarkerOnOrBefore)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTCLedgerMarkerOnOrBefore.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1894,7 +2433,15 @@ func GetTCLedgerMarkerOnOrAfter(ctx context.Context, tcid int64, dt *time.Time) 
 		}
 	}
 
-	row := RRdb.Prepstmt.GetTCLedgerMarkerOnOrAfter.QueryRow(tcid, dt)
+	var row *sql.Row
+	fields := []interface{}{tcid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTCLedgerMarkerOnOrAfter)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTCLedgerMarkerOnOrAfter.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1915,7 +2462,15 @@ func GetRentableLedgerMarkerOnOrBefore(ctx context.Context, bid, lid, rid int64,
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableLedgerMarkerOnOrBefore.QueryRow(bid, lid, rid, dt)
+	var row *sql.Row
+	fields := []interface{}{bid, lid, rid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableLedgerMarkerOnOrBefore)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableLedgerMarkerOnOrBefore.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -1936,7 +2491,15 @@ func GetRARentableLedgerMarkerOnOrBefore(ctx context.Context, raid, rid int64, d
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRARentableLedgerMarkerOnOrBefore.QueryRow(raid, rid, dt)
+	var row *sql.Row
+	fields := []interface{}{raid, rid, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRARentableLedgerMarkerOnOrBefore)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRARentableLedgerMarkerOnOrBefore.QueryRow(fields...)
+	}
 	return r, ReadLedgerMarker(row, &r)
 }
 
@@ -2094,7 +2657,18 @@ func GetAllLedgerMarkersOnOrBefore(ctx context.Context, bid int64, dt *time.Time
 
 	}
 
-	rows, err :=RRdb.Prepstmt.GetAllLedgerMarkersOnOrBefore.Query(bid, dt)
+
+	var rows *sql.Rows
+	(bid, dt)
+	fields := []interface{}{}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(Prepstmt.GetAllLedgerMarkersOnOrBefore.Query)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = Prepstmt.GetAllLedgerMarkersOnOrBefore.Query.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -2135,7 +2709,16 @@ func GetLedgerList(ctx context.Context, bid int64) ([]GLAccount, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerList)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetLedgerList.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -2161,7 +2744,17 @@ func getLedgerMap(bid int64) (map[int64]GLAccount, error) {
 		t   = make(map[int64]GLAccount)
 	)
 
-	rows, err := RRdb.Prepstmt.GetLedgerList.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerList)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetLedgerList.Query(fields...)
+	}*/
+	rows, err = RRdb.Prepstmt.GetLedgerList.Query(fields...)
+
 	if err != nil {
 		return t, err
 	}
@@ -2214,7 +2807,15 @@ func GetLedger(ctx context.Context, lid int64) (GLAccount, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetLedger.QueryRow(lid)
+	var row *sql.Row
+	fields := []interface{}{lid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedger)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLedger.QueryRow(fields...)
+	}
 	return a, ReadGLAccount(row, &a)
 }
 
@@ -2234,7 +2835,15 @@ func GetLedgerEntryByJAID(ctx context.Context, bid, lid, jaid int64) (LedgerEntr
 		}
 	}
 
-	row := RRdb.Prepstmt.GetLedgerEntryByJAID.QueryRow(bid, lid, jaid)
+	var row *sql.Row
+	fields := []interface{}{bid, lid, jaid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerEntryByJAID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLedgerEntryByJAID.QueryRow(fields...)
+	}
 	return a, ReadLedgerEntry(row, &a)
 }
 
@@ -2254,7 +2863,16 @@ func GetLedgerEntriesByJAID(ctx context.Context, bid, jaid int64) ([]LedgerEntry
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesByJAID.Query(bid, jaid)
+	var rows *sql.Rows
+	fields := []interface{}{bid, jaid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerEntriesByJAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetLedgerEntriesByJAID.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2288,7 +2906,15 @@ func GetCountLedgerEntries(ctx context.Context, lid, bid int64) (int64, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.CountLedgerEntries.QueryRow(lid, bid)
+	var row *sql.Row
+	fields := []interface{}{lid, bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.CountLedgerEntries)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.CountLedgerEntries.QueryRow(fields...)
+	}
 	return count, row.Scan(&count)
 }
 
@@ -2308,7 +2934,15 @@ func GetLedgerByGLNo(ctx context.Context, bid int64, s string) (GLAccount, error
 		}
 	}
 
-	row := RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(bid, s)
+	var row *sql.Row
+	fields := []interface{}{bid, s}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerByGLNo)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLedgerByGLNo.QueryRow(fields...)
+	}
 	return a, ReadGLAccount(row, &a)
 }
 
@@ -2328,7 +2962,15 @@ func GetLedgerByName(ctx context.Context, bid int64, s string) (GLAccount, error
 		}
 	}
 
-	row := RRdb.Prepstmt.GetLedgerByName.QueryRow(bid, s)
+	var row *sql.Row
+	fields := []interface{}{bid, s}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLedgerByName.QueryRow(fields...)
+	}
 	return a, ReadGLAccount(row, &a)
 }
 
@@ -2348,7 +2990,15 @@ func GetLedgerByType(ctx context.Context, bid, t int64) (GLAccount, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetLedgerByType.QueryRow(bid, t)
+	var row *sql.Row
+	fields := []interface{}{bid, t}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerByType)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLedgerByType.QueryRow(fields...)
+	}
 	return a, ReadGLAccount(row, &a)
 }*/
 
@@ -2368,7 +3018,15 @@ func GetRABalanceLedger(ctx context.Context, bid, RAID int64) (GLAccount, error)
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRABalanceLedger.QueryRow(bid)
+	var row *sql.Row
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRABalanceLedger)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRABalanceLedger.QueryRow(fields...)
+	}
 	return a, ReadGLAccount(row, &a)
 }*/
 
@@ -2388,7 +3046,15 @@ func GetSecDepBalanceLedger(ctx context.Context, bid, RAID int64) (GLAccount, er
 		}
 	}
 
-	row := RRdb.Prepstmt.GetSecDepBalanceLedger.QueryRow(bid, RAID)
+	var row *sql.Row
+	fields := []interface{}{bid, RAID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetSecDepBalanceLedger)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetSecDepBalanceLedger.QueryRow(fields...)
+	}
 	return a, ReadGLAccount(row, &a)
 }*/
 
@@ -2407,7 +3073,18 @@ func GetDefaultLedgers(ctx context.Context, bid int64) error {
 		}
 	}
 
-	rows, err :=RRdb.Prepstmt.GetDefaultLedgers.Query(bid)
+
+	var rows *sql.Rows
+	(bid)
+	fields := []interface{}{}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(Prepstmt.GetDefaultLedgers.Query)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = Prepstmt.GetDefaultLedgers.Query.Query(fields...)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -2472,7 +3149,16 @@ func GetLedgerEntriesInRange(ctx context.Context, d1, d2 *time.Time, bid, lid in
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(bid, lid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{bid, lid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerEntriesInRangeByLID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetLedgerEntriesInRangeByLID.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2497,7 +3183,16 @@ func GetLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid, lid i
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(d1, d2, raid, lid)
+	var rows *sql.Rows
+	fields := []interface{}{d1, d2, raid, lid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerEntriesForRAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetLedgerEntriesForRAID.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2522,7 +3217,16 @@ func GetLedgerEntriesForRentable(ctx context.Context, d1, d2 *time.Time, rid, li
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetLedgerEntriesForRentable.Query(d1, d2, rid, lid)
+	var rows *sql.Rows
+	fields := []interface{}{d1, d2, rid, lid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLedgerEntriesForRentable)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetLedgerEntriesForRentable.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2547,7 +3251,16 @@ func GetAllLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid int
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(d1, d2, raid)
+	var rows *sql.Rows
+	fields := []interface{}{d1, d2, raid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllLedgerEntriesForRAID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllLedgerEntriesForRAID.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2572,7 +3285,16 @@ func GetAllLedgerEntriesForRID(ctx context.Context, d1, d2 *time.Time, rid int64
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesForRID.Query(d1, d2, rid)
+	var rows *sql.Rows
+	fields := []interface{}{d1, d2, rid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllLedgerEntriesForRID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllLedgerEntriesForRID.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2597,7 +3319,16 @@ func GetAllLedgerEntriesInRange(ctx context.Context, bid int64, d1, d2 *time.Tim
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(bid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{bid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllLedgerEntriesInRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllLedgerEntriesInRange.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2622,7 +3353,18 @@ func GetLedgerEntriesInRange(ctx context.Context, bid, lid, raid int64, d1, d2 *
 		}
 	}
 
-	rows, err :=RRdb.Prepstmt.GetLedgerEntriesInRange.Query(bid, lid, raid, d1, d2)
+
+	var rows *sql.Rows
+	(bid, lid, raid, d1, d2)
+	fields := []interface{}{}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(Prepstmt.GetLedgerEntriesInRange.Query)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = Prepstmt.GetLedgerEntriesInRange.Query.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2650,7 +3392,15 @@ func GetNote(ctx context.Context, tid int64, t *Note) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetNote.QueryRow(tid)
+	var row *sql.Row
+	fields := []interface{}{tid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetNote)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetNote.QueryRow(fields...)
+	}
 	return ReadNote(row, t)
 }
 
@@ -2676,7 +3426,16 @@ func GetNoteAndChildNotes(ctx context.Context, nid int64) (Note, error) {
 		return n, err
 	}
 
-	rows, err := RRdb.Prepstmt.GetNoteAndChildNotes.Query(nid)
+	var rows *sql.Rows
+	fields := []interface{}{nid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetNoteAndChildNotes)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetNoteAndChildNotes.Query(fields...)
+	}
+
 	if err != nil {
 		return n, err
 	}
@@ -2714,13 +3473,30 @@ func GetNoteList(ctx context.Context, nlid int64) (NoteList, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetNoteList.QueryRow(nlid)
+	var row *sql.Row
+	fields := []interface{}{nlid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetNoteList)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetNoteList.QueryRow(fields...)
+	}
 	err = ReadNoteList(row, &m)
 	if err != nil {
 		return m, err
 	}
 
-	rows, err := RRdb.Prepstmt.GetNoteListMembers.Query(nlid)
+	var rows *sql.Rows
+	fields = []interface{}{nlid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetNoteListMembers)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetNoteListMembers.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2762,7 +3538,15 @@ func GetNoteType(ctx context.Context, ntid int64, t *NoteType) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetNoteType.QueryRow(ntid)
+	var row *sql.Row
+	fields := []interface{}{ntid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetNoteType)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetNoteType.QueryRow(fields...)
+	}
 	return ReadNoteType(row, t)
 }
 
@@ -2774,7 +3558,17 @@ func getBusinessAllNoteTypes(bid int64) ([]NoteType, error) {
 		m   []NoteType
 	)
 
-	rows, err := RRdb.Prepstmt.GetAllNoteTypes.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllNoteTypes)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllNoteTypes.Query(fields...)
+	}*/
+	rows, err = RRdb.Prepstmt.GetAllNoteTypes.Query(fields...)
+
 	if err != nil {
 		return m, err
 	}
@@ -2830,7 +3624,15 @@ func GetPaymentType(ctx context.Context, id int64, a *PaymentType) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetPaymentType.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPaymentType)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetPaymentType.QueryRow(fields...)
+	}
 	return ReadPaymentType(row, a)
 }
 
@@ -2849,7 +3651,15 @@ func GetPaymentTypeByName(ctx context.Context, bid int64, name string, a *Paymen
 		}
 	}
 
-	row := RRdb.Prepstmt.GetPaymentTypeByName.QueryRow(bid, name)
+	var row *sql.Row
+	fields := []interface{}{bid, name}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPaymentTypeByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetPaymentTypeByName.QueryRow(fields...)
+	}
 	return ReadPaymentType(row, a)
 }
 
@@ -2857,8 +3667,8 @@ func GetPaymentTypeByName(ctx context.Context, bid int64, name string, a *Paymen
 func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]PaymentType, error) {
 
 	var (
-		// err error
-		t = make(map[int64]PaymentType)
+		err error
+		t   = make(map[int64]PaymentType)
 	)
 
 	// session... context
@@ -2869,7 +3679,16 @@ func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]Paymen
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetPaymentTypesByBusiness.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPaymentTypesByBusiness)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetPaymentTypesByBusiness.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -2906,7 +3725,15 @@ func GetRatePlan(ctx context.Context, id int64, a *RatePlan) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRatePlan.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRatePlan)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRatePlan.QueryRow(fields...)
+	}
 	return ReadRatePlan(row, a)
 }
 
@@ -2925,7 +3752,15 @@ func GetRatePlanByName(ctx context.Context, id int64, s string, a *RatePlan) err
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRatePlanByName.QueryRow(id, s)
+	var row *sql.Row
+	fields := []interface{}{id, s}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRatePlanByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRatePlanByName.QueryRow(fields...)
+	}
 	return ReadRatePlan(row, a)
 }
 
@@ -2945,7 +3780,16 @@ func GetAllRatePlans(ctx context.Context, id int64) ([]RatePlan, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllRatePlans.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRatePlans)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRatePlans.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -2978,7 +3822,15 @@ func GetRatePlanRef(ctx context.Context, id int64, a *RatePlanRef) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRatePlanRef.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRatePlanRef)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRatePlanRef.QueryRow(fields...)
+	}
 	return ReadRatePlanRef(row, a)
 }
 
@@ -2999,7 +3851,15 @@ func GetRatePlanRefFull(ctx context.Context, id int64, a *RatePlanRef) error {
 	}
 
 	if a.RPRID == 0 {
-		row := RRdb.Prepstmt.GetRatePlanRef.QueryRow(id)
+		var row *sql.Row
+		fields := []interface{}{id}
+		if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+			stmt := tx.Stmt(RRdb.Prepstmt.GetRatePlanRef)
+			defer stmt.Close()
+			row = stmt.QueryRow(fields...)
+		} else {
+			row = RRdb.Prepstmt.GetRatePlanRef.QueryRow(fields...)
+		}
 		err = ReadRatePlanRef(row, a)
 		if err != nil {
 			return err
@@ -3009,7 +3869,17 @@ func GetRatePlanRefFull(ctx context.Context, id int64, a *RatePlanRef) error {
 	// =====================================
 	// LOAD ALL Rate Plan RT RATES
 	// =====================================
-	rows, err := RRdb.Prepstmt.GetAllRatePlanRefRTRates.Query(id)
+
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRatePlanRefRTRates)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRatePlanRefRTRates.Query(fields...)
+	}
+
 	if err != nil {
 		Ulog("GetRatePlanRefFull:   GetAllRatePlanRefRTRates - error = %s\n", err.Error())
 		return err
@@ -3033,7 +3903,17 @@ func GetRatePlanRefFull(ctx context.Context, id int64, a *RatePlanRef) error {
 	// =====================================
 	// LOAD ALL Rate Plan SPECIALTY RATES
 	// =====================================
-	rows, err = RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(a.RPRID, a.RPID)
+
+	// var rows *sql.Rows
+	fields = []interface{}{a.RPRID, a.RPID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRatePlanRefSPRates)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(fields...)
+	}
+
 	if err != nil {
 		Ulog("GetRatePlanRefFull: GetAllRatePlanRefSPRates - error = %s\n", err.Error())
 		return err
@@ -3067,7 +3947,16 @@ func GetRatePlanRefsInRange(ctx context.Context, id int64, d1, d2 *time.Time) ([
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRatePlanRefsInRange.Query(id, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{id, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRatePlanRefsInRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRatePlanRefsInRange.Query(fields...)
+	}
+
 	if err != nil {
 		Ulog("GetRatePlanRefsInRange: error = %s\n", err.Error())
 		return m, err
@@ -3102,7 +3991,16 @@ func GetAllRatePlanRefsInRange(ctx context.Context, d1, d2 *time.Time) ([]RatePl
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllRatePlanRefsInRange.Query(d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRatePlanRefsInRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRatePlanRefsInRange.Query(fields...)
+	}
+
 	if err != nil {
 		Ulog("GetAllRatePlanRefsInRange: error = %s\n", err.Error())
 		return m, err
@@ -3136,7 +4034,15 @@ func GetRatePlanRefRTRate(ctx context.Context, rprid, rtid int64, a *RatePlanRef
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRatePlanRefRTRate.QueryRow(rprid, rtid)
+	var row *sql.Row
+	fields := []interface{}{rprid, rtid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRatePlanRefRTRate)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRatePlanRefRTRate.QueryRow(fields...)
+	}
 	return ReadRatePlanRefRTRate(row, a)
 }
 
@@ -3155,7 +4061,15 @@ func GetRatePlanRefSPRate(ctx context.Context, rprid, rtid int64, a *RatePlanRef
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRatePlanRefSPRate.QueryRow(rprid, rtid)
+	var row *sql.Row
+	fields := []interface{}{rprid, rtid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRatePlanRefSPRate)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRatePlanRefSPRate.QueryRow(fields...)
+	}
 	return ReadRatePlanRefSPRate(row, a)
 }
 
@@ -3175,7 +4089,16 @@ func GetAllRatePlanRefSPRates(ctx context.Context, rprid, rtid int64) ([]RatePla
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(rprid, rtid)
+	var rows *sql.Rows
+	fields := []interface{}{rprid, rtid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRatePlanRefSPRates)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRatePlanRefSPRates.Query(fields...)
+	}
+
 	if err != nil {
 		Ulog("GetAllRatePlanRefSPRates: error = %s\n", err.Error())
 		return m, err
@@ -3238,7 +4161,15 @@ func GetReceiptAllocation(ctx context.Context, id int64) (ReceiptAllocation, err
 		}
 	}
 
-	row := RRdb.Prepstmt.GetReceiptAllocation.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetReceiptAllocation)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetReceiptAllocation.QueryRow(fields...)
+	}
 	return r, ReadReceiptAllocation(row, &r)
 }
 
@@ -3259,7 +4190,15 @@ func GetReceiptNoAllocations(ctx context.Context, rcptid int64) (Receipt, error)
 		}
 	}
 
-	row := RRdb.Prepstmt.GetReceipt.QueryRow(rcptid)
+	var row *sql.Row
+	fields := []interface{}{rcptid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetReceipt)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetReceipt.QueryRow(fields...)
+	}
 	return r, ReadReceipt(row, &r)
 }
 
@@ -3279,7 +4218,15 @@ func GetReceiptDuplicate(ctx context.Context, dt *time.Time, amt float64, docno 
 		}
 	}
 
-	row := RRdb.Prepstmt.GetReceiptDuplicate.QueryRow(dt, amt, docno)
+	var row *sql.Row
+	fields := []interface{}{dt, amt, docno}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetReceiptDuplicate)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetReceiptDuplicate.QueryRow(fields...)
+	}
 	return r, ReadReceipt(row, &r)
 }
 
@@ -3299,7 +4246,16 @@ func GetReceiptAllocations(ctx context.Context, rcptid int64, r *Receipt) error 
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetReceiptAllocations.Query(rcptid)
+	var rows *sql.Rows
+	fields := []interface{}{rcptid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetReceiptAllocations)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetReceiptAllocations.Query(fields...)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -3334,7 +4290,16 @@ func GetReceipts(ctx context.Context, bid int64, d1, d2 *time.Time) ([]Receipt, 
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetReceiptsInDateRange.Query(bid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{bid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetReceiptsInDateRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetReceiptsInDateRange.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -3406,7 +4371,16 @@ func GetASMReceiptAllocationsInRAIDDateRange(ctx context.Context, raid int64, d1
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(raid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{raid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetASMReceiptAllocationsInRAIDDateRange.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -3432,7 +4406,16 @@ func GetReceiptAllocationsByASMID(ctx context.Context, bid, asmid int64) ([]Rece
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetReceiptAllocationsByASMID.Query(bid, asmid)
+	var rows *sql.Rows
+	fields := []interface{}{bid, asmid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetReceiptAllocationsByASMID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetReceiptAllocationsByASMID.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -3460,7 +4443,16 @@ func GetReceiptAllocationsThroughDate(ctx context.Context, id int64, dt *time.Ti
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetReceiptAllocationsThroughDate.Query(id, dt)
+	var rows *sql.Rows
+	fields := []interface{}{id, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetReceiptAllocationsThroughDate)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetReceiptAllocationsThroughDate.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -3530,7 +4522,16 @@ func GetUnallocatedReceiptsByPayor(ctx context.Context, bid, tcid int64) ([]Rece
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetUnallocatedReceiptsByPayor.Query(bid, tcid)
+	var rows *sql.Rows
+	fields := []interface{}{bid, tcid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetUnallocatedReceiptsByPayor)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetUnallocatedReceiptsByPayor.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -3570,7 +4571,15 @@ func GetPayorUnallocatedReceiptsCount(ctx context.Context, bid, tcid int64) (int
 		}
 	}
 
-	row := RRdb.Prepstmt.GetPayorUnallocatedReceiptsCount.QueryRow(bid, tcid)
+	var row *sql.Row
+	fields := []interface{}{bid, tcid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPayorUnallocatedReceiptsCount)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetPayorUnallocatedReceiptsCount.QueryRow(fields...)
+	}
 	return count, row.Scan(&count)
 }
 
@@ -3593,7 +4602,15 @@ func GetRentableByID(ctx context.Context, rid int64, r *Rentable) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentable.QueryRow(rid)
+	var row *sql.Row
+	fields := []interface{}{rid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentable)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentable.QueryRow(fields...)
+	}
 	return ReadRentable(row, r)
 }
 
@@ -3632,7 +4649,15 @@ func GetRentableByName(ctx context.Context, name string, bid int64) (Rentable, e
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableByName.QueryRow(name, bid)
+	var row *sql.Row
+	fields := []interface{}{name, bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableByName.QueryRow(fields...)
+	}
 	return r, ReadRentable(row, &r)
 }
 
@@ -3657,7 +4682,17 @@ func GetRentableTypeDown(ctx context.Context, bid int64, s string, limit int) ([
 	}
 
 	s = "%" + s + "%"
-	rows, err := RRdb.Prepstmt.GetRentableTypeDown.Query(bid, s, limit)
+
+	var rows *sql.Rows
+	fields := []interface{}{bid, s, limit}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableTypeDown)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableTypeDown.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -3717,7 +4752,15 @@ func GetRentableUser(ctx context.Context, ruid int64) (RentableUser, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableUser.QueryRow(ruid)
+	var row *sql.Row
+	fields := []interface{}{ruid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUser)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableUser.QueryRow(fields...)
+	}
 	return r, ReadRentableUser(row, &r)
 }
 
@@ -3738,7 +4781,15 @@ func GetRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) (RentableUs
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableUserByRBT.QueryRow(rid, bid, tcid)
+	var row *sql.Row
+	fields := []interface{}{rid, bid, tcid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUserByRBT)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableUserByRBT.QueryRow(fields...)
+	}
 	return r, ReadRentableUser(row, &r)
 }
 
@@ -3758,7 +4809,15 @@ func GetRentableSpecialtyTypeByName(ctx context.Context, bid int64, name string)
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableSpecialtyTypeByName.QueryRow(bid, name)
+	var row *sql.Row
+	fields := []interface{}{bid, name}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableSpecialtyTypeByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableSpecialtyTypeByName.QueryRow(fields...)
+	}
 	return rsp, ReadRentableSpecialty(row, &rsp)
 }
 
@@ -3778,7 +4837,15 @@ func GetRentableSpecialtyType(ctx context.Context, rspid int64) (RentableSpecial
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableSpecialtyType.QueryRow(rspid)
+	var row *sql.Row
+	fields := []interface{}{rspid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableSpecialtyType)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableSpecialtyType.QueryRow(fields...)
+	}
 	return rs, ReadRentableSpecialty(row, &rs)
 }
 
@@ -3799,7 +4866,17 @@ func GetAllRentableSpecialtyRefs(ctx context.Context, bid, rid int64) ([]int64, 
 	}
 
 	// first, get the specialties for this Rentable
-	rows, err := RRdb.Prepstmt.GetRentableSpecialtyRefs.Query(bid, rid)
+
+	var rows *sql.Rows
+	fields := []interface{}{bid, rid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableSpecialtyRefs)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableSpecialtyRefs.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -3891,7 +4968,16 @@ func GetRentableSpecialtyRefsByRange(ctx context.Context, bid, rid int64, d1, d2
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentableSpecialtyRefsByRange.Query(bid, rid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{bid, rid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableSpecialtyRefsByRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableSpecialtyRefsByRange.Query(fields...)
+	}
+
 	if err != nil {
 		return rs, err
 	}
@@ -3925,7 +5011,15 @@ func GetRentableTypeRef(ctx context.Context, rtrid int64) (RentableTypeRef, erro
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableTypeRef.QueryRow(rtrid)
+	var row *sql.Row
+	fields := []interface{}{rtrid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableTypeRef)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableTypeRef.QueryRow(fields...)
+	}
 	return rtr, ReadRentableTypeRef(row, &rtr)
 }
 
@@ -4000,7 +5094,16 @@ func GetRentableTypeRefsByRange(ctx context.Context, RID int64, d1, d2 *time.Tim
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentableTypeRefsByRange.Query(RID, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{RID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableTypeRefsByRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableTypeRefsByRange.Query(fields...)
+	}
+
 	if err != nil {
 		return rtr, err
 	}
@@ -4023,7 +5126,16 @@ func GetRentableTypeRefs(ctx context.Context, RID int64) ([]RentableTypeRef, err
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentableTypeRefs.Query(RID)
+	var rows *sql.Rows
+	fields := []interface{}{RID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableTypeRefs)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableTypeRefs.Query(fields...)
+	}
+
 	if err != nil {
 		return rtr, err
 	}
@@ -4103,7 +5215,15 @@ func GetRentableStatus(ctx context.Context, rsid int64) (RentableStatus, error) 
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableStatus.QueryRow(rsid)
+	var row *sql.Row
+	fields := []interface{}{rsid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableStatus)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableStatus.QueryRow(fields...)
+	}
 	return rs, ReadRentableStatus(row, &rs)
 }
 
@@ -4152,7 +5272,15 @@ func GetRentableStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableStatusOnOrAfter.QueryRow(RID, dt)
+	var row *sql.Row
+	fields := []interface{}{RID, dt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableStatusOnOrAfter)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableStatusOnOrAfter.QueryRow(fields...)
+	}
 	return a, ReadRentableStatus(row, &a)
 }
 
@@ -4172,7 +5300,16 @@ func GetRentableStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time)
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentableStatusByRange.Query(RID, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{RID, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableStatusByRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableStatusByRange.Query(fields...)
+	}
+
 	if err != nil {
 		return rs, err
 	}
@@ -4195,7 +5332,16 @@ func GetAllRentableStatus(ctx context.Context, RID int64) ([]RentableStatus, err
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllRentableStatus.Query(RID)
+	var rows *sql.Rows
+	fields := []interface{}{RID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentableStatus)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRentableStatus.Query(fields...)
+	}
+
 	if err != nil {
 		return rs, err
 	}
@@ -4221,7 +5367,15 @@ func GetRentableType(ctx context.Context, rtid int64, rt *RentableType) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableType.QueryRow(rtid)
+	var row *sql.Row
+	fields := []interface{}{rtid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableType)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableType.QueryRow(fields...)
+	}
 	err = ReadRentableType(row, rt)
 	if err != nil {
 		return err
@@ -4252,7 +5406,15 @@ func GetRentableTypeByStyle(ctx context.Context, name string, bid int64) (Rentab
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(name, bid)
+	var row *sql.Row
+	fields := []interface{}{name, bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableTypeByStyle)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableTypeByStyle.QueryRow(fields...)
+	}
 	return rt, ReadRentableType(row, &rt)
 }
 
@@ -4272,7 +5434,15 @@ func GetRentableTypeByName(ctx context.Context, name string, bid int64) (Rentabl
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableTypeByName.QueryRow(name, bid)
+	var row *sql.Row
+	fields := []interface{}{name, bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableTypeByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableTypeByName.QueryRow(fields...)
+	}
 	return rt, ReadRentableType(row, &rt)
 }
 
@@ -4284,7 +5454,16 @@ func getBizRentableTypes(bid int64) (map[int64]RentableType, error) {
 		t   = make(map[int64]RentableType)
 	)
 
-	rows, err := RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllBusinessRentableTypes)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(fields...)
+	}*/
+	rows, err = RRdb.Prepstmt.GetAllBusinessRentableTypes.Query(fields...)
 	if err != nil {
 		return t, err
 	}
@@ -4334,7 +5513,18 @@ func getRentableMarketRates(rt *RentableType) error {
 	)
 
 	// now get all the MarketRate rent info...
-	rows, err := RRdb.Prepstmt.GetRentableMarketRates.Query(rt.RTID)
+
+	var rows *sql.Rows
+	fields := []interface{}{rt.RTID}
+	/*if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableMarketRates)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableMarketRates.Query(fields...)
+	}*/
+
+	rows, err = RRdb.Prepstmt.GetRentableMarketRates.Query(fields...)
 	if err != nil {
 		return err
 	}
@@ -4391,7 +5581,15 @@ func GetRentableMarketRateInstance(ctx context.Context, rmrid int64) (RentableMa
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentableMarketRateInstance.QueryRow(rmrid)
+	var row *sql.Row
+	fields := []interface{}{rmrid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableMarketRateInstance)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentableMarketRateInstance.QueryRow(fields...)
+	}
 	return rmr, ReadRentableMarketRate(row, &rmr)
 }
 
@@ -4449,7 +5647,16 @@ func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) 
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentableUsersInRange.Query(rid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{rid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentableUsersInRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentableUsersInRange.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -4487,7 +5694,15 @@ func GetRentalAgreement(ctx context.Context, raid int64) (RentalAgreement, error
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentalAgreement.QueryRow(raid)
+	var row *sql.Row
+	fields := []interface{}{raid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreement)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentalAgreement.QueryRow(fields...)
+	}
 	return r, ReadRentalAgreement(row, &r)
 }
 
@@ -4661,7 +5876,16 @@ func GetAgreementsForRentable(ctx context.Context, rid int64, d1, d2 *time.Time)
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentalAgreementsForRentable.Query(rid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{rid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementsForRentable)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentalAgreementsForRentable.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -4695,7 +5919,15 @@ func GetRARentableForDate(ctx context.Context, raid int64, d1 *time.Time, rar *R
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRARentableForDate.QueryRow(raid, d1, d1)
+	var row *sql.Row
+	fields := []interface{}{raid, d1, d1}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRARentableForDate)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRARentableForDate.QueryRow(fields...)
+	}
 	return ReadRentalAgreementRentable(row, rar)
 }
 
@@ -4715,7 +5947,15 @@ func GetRentalAgreementRentable(ctx context.Context, rarid int64) (RentalAgreeme
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentalAgreementRentable.QueryRow(rarid)
+	var row *sql.Row
+	fields := []interface{}{rarid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementRentable)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentalAgreementRentable.QueryRow(fields...)
+	}
 	return r, ReadRentalAgreementRentable(row, &r)
 }
 
@@ -4736,7 +5976,16 @@ func GetRentalAgreementRentables(ctx context.Context, raid int64, d1, d2 *time.T
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentalAgreementRentables.Query(raid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{raid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementRentables)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentalAgreementRentables.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -4771,7 +6020,15 @@ func GetRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64) (R
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentalAgreementPayorByRBT.QueryRow(raid, bid, tcid)
+	var row *sql.Row
+	fields := []interface{}{raid, bid, tcid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementPayorByRBT)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentalAgreementPayorByRBT.QueryRow(fields...)
+	}
 	return r, ReadRentalAgreementPayor(row, &r)
 }
 
@@ -4791,7 +6048,15 @@ func GetRentalAgreementPayor(ctx context.Context, id int64) (RentalAgreementPayo
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentalAgreementPayor.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementPayor)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentalAgreementPayor.QueryRow(fields...)
+	}
 	return r, ReadRentalAgreementPayor(row, &r)
 }
 
@@ -4812,7 +6077,16 @@ func GetRentalAgreementPayorsInRange(ctx context.Context, raid int64, d1, d2 *ti
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentalAgreementPayorsInRange.Query(raid, d1, d2)
+	var rows *sql.Rows
+	fields := []interface{}{raid, d1, d2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementPayorsInRange)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentalAgreementPayorsInRange.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -4836,7 +6110,16 @@ func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.T
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
+	var rows *sql.Rows
+	fields := []interface{}{bid, tcid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementsByPayor)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -4860,7 +6143,16 @@ func GetRentalAgreementsByPayorRange(ctx context.Context, bid, tcid int64, d1, d
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(bid, tcid)
+	var rows *sql.Rows
+	fields := []interface{}{bid, tcid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementsByPayor)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetRentalAgreementsByPayor.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -4917,7 +6209,15 @@ func GetRentalAgreementTemplate(ctx context.Context, ratid int64) (RentalAgreeme
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentalAgreementTemplate.QueryRow(ratid)
+	var row *sql.Row
+	fields := []interface{}{ratid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementTemplate)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentalAgreementTemplate.QueryRow(fields...)
+	}
 	return r, ReadRentalAgreementTemplate(row, &r)
 }
 
@@ -4937,7 +6237,15 @@ func GetRentalAgreementByRATemplateName(ctx context.Context, ref string) (Rental
 		}
 	}
 
-	row := RRdb.Prepstmt.GetRentalAgreementByRATemplateName.QueryRow(ref)
+	var row *sql.Row
+	fields := []interface{}{ref}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetRentalAgreementByRATemplateName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetRentalAgreementByRATemplateName.QueryRow(fields...)
+	}
 	return r, ReadRentalAgreementTemplate(row, &r)
 }
 
@@ -4960,7 +6268,15 @@ func GetStringList(ctx context.Context, id int64, a *StringList) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetStringList.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetStringList)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetStringList.QueryRow(fields...)
+	}
 	err = ReadStringList(row, a)
 	if err != nil {
 		return err
@@ -4984,7 +6300,16 @@ func GetAllStringLists(ctx context.Context, id int64) ([]StringList, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetAllStringLists.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllStringLists)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllStringLists.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -5022,7 +6347,15 @@ func GetStringListByName(ctx context.Context, bid int64, s string, a *StringList
 		}
 	}
 
-	row := RRdb.Prepstmt.GetStringListByName.QueryRow(bid, s)
+	var row *sql.Row
+	fields := []interface{}{bid, s}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetStringListByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetStringListByName.QueryRow(fields...)
+	}
 	err = ReadStringList(row, a)
 	if err != nil {
 		return err
@@ -5046,7 +6379,16 @@ func getSLStrings(ctx context.Context, id int64, a *StringList) error {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetSLStrings.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetSLStrings)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetSLStrings.Query(fields...)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -5083,7 +6425,15 @@ func GetSubAR(ctx context.Context, id int64, a *SubAR) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetSubAR.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetSubAR)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetSubAR.QueryRow(fields...)
+	}
 	return ReadSubAR(row, a)
 }
 
@@ -5103,7 +6453,16 @@ func GetSubARs(ctx context.Context, id int64) ([]SubAR, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetSubARs.Query(id)
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetSubARs)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetSubARs.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -5147,7 +6506,17 @@ func GetTransactantTypeDown(ctx context.Context, bid int64, s string, limit int)
 	}
 
 	s = "%" + s + "%"
-	rows, err := RRdb.Prepstmt.GetTransactantTypeDown.Query(bid, s, s, s, s, limit)
+
+	var rows *sql.Rows
+	fields := []interface{}{bid, s, s, s, s, limit}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTransactantTypeDown)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetTransactantTypeDown.Query(fields...)
+	}
+
 	if err != nil {
 		return m, err
 	}
@@ -5184,7 +6553,15 @@ func GetTCIDByNote(ctx context.Context, cmt string) (int64, error) {
 
 	// just return first, in case of duplicate
 	// TODO: need to verify
-	row := RRdb.Prepstmt.FindTCIDByNote.QueryRow(cmt)
+	var row *sql.Row
+	fields := []interface{}{cmt}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.FindTCIDByNote)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.FindTCIDByNote.QueryRow(fields...)
+	}
 	return tcid, row.Scan(&tcid)
 }
 
@@ -5250,7 +6627,15 @@ func GetTransactant(ctx context.Context, tid int64, t *Transactant) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetTransactant.QueryRow(tid)
+	var row *sql.Row
+	fields := []interface{}{tid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTransactant)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTransactant.QueryRow(fields...)
+	}
 	return ReadTransactant(row, t)
 }
 
@@ -5269,7 +6654,15 @@ func GetProspect(ctx context.Context, id int64, p *Prospect) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetProspect.QueryRow(id)
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetProspect)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetProspect.QueryRow(fields...)
+	}
 	return ReadProspect(row, p)
 }
 
@@ -5290,7 +6683,15 @@ func GetUser(ctx context.Context, tcid int64, t *User) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetUser.QueryRow(tcid)
+	var row *sql.Row
+	fields := []interface{}{tcid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetUser)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetUser.QueryRow(fields...)
+	}
 	return ReadUser(row, t)
 }
 
@@ -5309,7 +6710,15 @@ func GetPayor(ctx context.Context, pid int64, p *Payor) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetPayor.QueryRow(pid)
+	var row *sql.Row
+	fields := []interface{}{pid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPayor)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetPayor.QueryRow(fields...)
+	}
 	return ReadPayor(row, p)
 }
 
@@ -5362,7 +6771,15 @@ func GetVehicle(ctx context.Context, vid int64, t *Vehicle) error {
 		}
 	}
 
-	row := RRdb.Prepstmt.GetVehicle.QueryRow(vid)
+	var row *sql.Row
+	fields := []interface{}{vid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetVehicle)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetVehicle.QueryRow(fields...)
+	}
 	return ReadVehicle(row, t)
 }
 
@@ -5409,7 +6826,16 @@ func GetVehiclesByLicensePlate(ctx context.Context, s string) ([]Vehicle, error)
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetVehiclesByLicensePlate.Query(s)
+	var rows *sql.Rows
+	fields := []interface{}{s}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetVehiclesByLicensePlate)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetVehiclesByLicensePlate.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -5434,7 +6860,16 @@ func GetVehiclesByTransactant(ctx context.Context, tcid int64) ([]Vehicle, error
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetVehiclesByTransactant.Query(tcid)
+	var rows *sql.Rows
+	fields := []interface{}{tcid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetVehiclesByTransactant)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetVehiclesByTransactant.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -5459,7 +6894,16 @@ func GetVehiclesByBID(ctx context.Context, bid int64) ([]Vehicle, error) {
 		}
 	}
 
-	rows, err := RRdb.Prepstmt.GetVehiclesByBID.Query(bid)
+	var rows *sql.Rows
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetVehiclesByBID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetVehiclesByBID.Query(fields...)
+	}
+
 	if err != nil {
 		return t, err
 	}
@@ -5561,7 +7005,15 @@ func GetCountBusinessCustomAttrRefs(ctx context.Context, bid int64) (int, error)
 		}
 	}
 
-	row := RRdb.Prepstmt.CountBusinessCustomAttrRefs.QueryRow(bid)
+	var row *sql.Row
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.CountBusinessCustomAttrRefs)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.CountBusinessCustomAttrRefs.QueryRow(fields...)
+	}
 	return count, row.Scan(&count)
 }
 
@@ -5582,7 +7034,15 @@ func GetCountBusinessCustomAttributes(ctx context.Context, bid int64) (int, erro
 		}
 	}
 
-	row := RRdb.Prepstmt.CountBusinessCustomAttributes.QueryRow(bid)
+	var row *sql.Row
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.CountBusinessCustomAttributes)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.CountBusinessCustomAttributes.QueryRow(fields...)
+	}
 	return count, row.Scan(&count)
 }
 
@@ -5603,7 +7063,15 @@ func GetCountBusinessRentableTypes(ctx context.Context, bid int64) (int, error) 
 		}
 	}
 
-	row := RRdb.Prepstmt.CountBusinessRentableTypes.QueryRow(bid)
+	var row *sql.Row
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.CountBusinessRentableTypes)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.CountBusinessRentableTypes.QueryRow(fields...)
+	}
 	return count, row.Scan(&count)
 }
 
@@ -5624,7 +7092,15 @@ func GetCountBusinessTransactants(ctx context.Context, bid int64) (int, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.CountBusinessTransactants.QueryRow(bid)
+	var row *sql.Row
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.CountBusinessTransactants)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.CountBusinessTransactants.QueryRow(fields...)
+	}
 	return count, row.Scan(&count)
 }
 
@@ -5645,7 +7121,15 @@ func GetCountBusinessRentables(ctx context.Context, bid int64) (int, error) {
 		}
 	}
 
-	row := RRdb.Prepstmt.CountBusinessRentables.QueryRow(bid)
+	var row *sql.Row
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.CountBusinessRentables)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.CountBusinessRentables.QueryRow(fields...)
+	}
 	return count, row.Scan(&count)
 }
 
@@ -5666,6 +7150,14 @@ func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, erro
 		}
 	}
 
-	row := RRdb.Prepstmt.CountBusinessRentalAgreements.QueryRow(bid)
+	var row *sql.Row
+	fields := []interface{}{bid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.CountBusinessRentalAgreements)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.CountBusinessRentalAgreements.QueryRow(fields...)
+	}
 	return count, row.Scan(&count)
 }
