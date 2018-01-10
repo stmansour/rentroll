@@ -305,7 +305,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			tfname := tsh.HTMLTemplate
 			if len(tfname) > 0 {
 				bud := getBUDFromBIDList(ri.Bid)
-				tfname = "rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
+				tfname = "webclient/html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
 				err := tbl.SetHTMLTemplate(tfname)
 				if err != nil {
 					s := fmt.Sprintf("Error in CSVprintTable: %s\n", err.Error())
@@ -333,7 +333,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			if len(tfname) > 0 {
 				var err error
 				bud := getBUDFromBIDList(ri.Bid)
-				tfname = "html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
+				tfname = "webclient/html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
 
 				cwd, err := os.Getwd()
 
