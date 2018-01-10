@@ -1,7 +1,7 @@
 /*global
     w2ui, $, app, w2confirm, getBUDfromBID, getCurrentBusiness, setToForm,
     console, form_dirty_alert, buildPaymentTypeSelectList, setDateControlsInToolbar,
-    addDateNavToToolbar, 
+    addDateNavToToolbar,
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, formRecDiffer, getCurrentBID, getBUDfromBID,
@@ -177,12 +177,13 @@ function buildROVReceiptElements() {
             var f = w2ui.receiptForm;
             var j = f.get('ERentableName',true); // index of the enumerated RentableName field
             f.fields[j].options.url = '/v1/rentablestd/' + BID;
-            setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
             var pmt_options = buildPaymentTypeSelectList(BUD);
             var ptInit = (pmt_options.length > 0) ? pmt_options[0] : '';
             f.record = getROVReceiptInitRecord(BID, BUD, ptInit, null);
             f.header = "Edit Receipt (new)";
             f.postData = {client: app.client};
+            f.refresh();
+            setToForm('receiptForm', '/v1/receipt/' + BID + '/0', 400);
         },
     });
 
