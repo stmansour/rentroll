@@ -217,38 +217,38 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 
 	// handler for reports which has single table
 	var wsr = []rrpt.SingleTableReportHandler{
-		{ReportNames: []string{"RPTasmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTb", "business"}, TableHandler: rrpt.RRreportBusinessTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTcoa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTc", "custom attributes"}, TableHandler: rrpt.RRreportCustomAttributesTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTcr", "custom attribute refs"}, TableHandler: rrpt.RRreportCustomAttributeRefsTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTdelinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTdpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTdep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTgsr", "gsr"}, TableHandler: rrpt.GSRReportTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTj", "journals"}, TableHandler: rrpt.JournalReportTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTpeople", "people"}, TableHandler: rrpt.RRreportPeopleTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTpmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTr", "rentables"}, TableHandler: rrpt.RRreportRentablesTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTrat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTrcptlist", "receipts"}, TableHandler: rrpt.RRReceiptsTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTrcpt", "receipt"}, TableHandler: rrpt.RRRcptOnlyReceiptTable, PDFprops: rrpt.ReceiptPDFProps, HTMLTemplate: "receipt.html"},
-		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RRReportTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTrt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTrcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTsl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTt", "people"}, TableHandler: rrpt.RRreportPeopleTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTtb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTpayorstmt", "payor statements"}, TableHandler: rrpt.RRPayorStatement, PDFprops: nil, HTMLTemplate: ""},
-		{ReportNames: []string{"RPTrastmt", "rental agreement statements"}, TableHandler: rrpt.RRRentalAgreementStatements, PDFprops: nil, HTMLTemplate: ""},
+		{ReportNames: []string{"RPTasmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTb", "business"}, TableHandler: rrpt.RRreportBusinessTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTcoa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTc", "custom attributes"}, TableHandler: rrpt.RRreportCustomAttributesTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTcr", "custom attribute refs"}, TableHandler: rrpt.RRreportCustomAttributeRefsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTdelinq", "delinquency"}, TableHandler: rrpt.DelinquencyReportTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTdpm", "deposit methods"}, TableHandler: rrpt.RRreportDepositMethodsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTdep", "depositories"}, TableHandler: rrpt.RRreportDepositoryTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTgsr", "gsr"}, TableHandler: rrpt.GSRReportTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTj", "journals"}, TableHandler: rrpt.JournalReportTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTpeople", "people"}, TableHandler: rrpt.RRreportPeopleTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTpmt", "payment types"}, TableHandler: rrpt.RRreportPaymentTypesTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTr", "rentables"}, TableHandler: rrpt.RRreportRentablesTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTra", "rental agreements"}, TableHandler: rrpt.RRreportRentalAgreementsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTrat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTrcptlist", "receipts"}, TableHandler: rrpt.RRReceiptsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTrcpt", "receipt"}, TableHandler: rrpt.RRRcptOnlyReceiptTable, PDFprops: rrpt.ReceiptPDFProps, HTMLTemplate: "receipt.html", NeedsCustomPDFDimension: false, NeedsPDFTitle: false},
+		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RRReportTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTrt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTrcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTsl", "string lists"}, TableHandler: rrpt.RRreportStringListsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTt", "people"}, TableHandler: rrpt.RRreportPeopleTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTtb", "trial balance"}, TableHandler: rrpt.LedgerBalanceReportTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTpayorstmt", "payor statements"}, TableHandler: rrpt.RRPayorStatement, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
+		{ReportNames: []string{"RPTrastmt", "rental agreement statements"}, TableHandler: rrpt.RRRentalAgreementStatements, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
 	}
 
 	// handler for reports which has more than one table
 	var wmr = []rrpt.MultiTableReportHandler{
-		{ReportTitle: "Ledger", ReportNames: []string{"RPTl", "ledger"}, TableHandler: rrpt.LedgerReportTable},
-		{ReportTitle: "Ledger Activity", ReportNames: []string{"RPTla", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable},
-		{ReportTitle: "Report Statements", ReportNames: []string{"RPTstatements", "report statements"}, TableHandler: rrpt.RptStatementReportTable},
+		{ReportTitle: "Ledger", ReportNames: []string{"RPTl", "ledger"}, TableHandler: rrpt.LedgerReportTable, PDFprops: nil, NeedsCustomPDFDimension: true},
+		{ReportTitle: "Ledger Activity", ReportNames: []string{"RPTla", "ledger activity"}, TableHandler: rrpt.LedgerActivityReportTable, PDFprops: nil, NeedsCustomPDFDimension: true},
+		{ReportTitle: "Report Statements", ReportNames: []string{"RPTstatements", "report statements"}, TableHandler: rrpt.RptStatementReportTable, PDFprops: nil, NeedsCustomPDFDimension: true},
 	}
 
 	// find reportname from list of report handler
@@ -302,10 +302,12 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 				fmt.Print(s)
 				fmt.Fprintf(w, "%s\n", s)
 			}
+
+			// custom template if available
 			tfname := tsh.HTMLTemplate
 			if len(tfname) > 0 {
 				bud := getBUDFromBIDList(ri.Bid)
-				tfname = "rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
+				tfname = "webclient/html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
 				err := tbl.SetHTMLTemplate(tfname)
 				if err != nil {
 					s := fmt.Sprintf("Error in CSVprintTable: %s\n", err.Error())
@@ -328,12 +330,13 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			w.Header().Set("Content-Type", "application/pdf")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
 
+			// custom template if available
 			tfname := tsh.HTMLTemplate
 			rlib.Console("report.go:  tfname = %s\n", tfname)
 			if len(tfname) > 0 {
 				var err error
 				bud := getBUDFromBIDList(ri.Bid)
-				tfname = "html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
+				tfname = "webclient/html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
 
 				cwd, err := os.Getwd()
 
@@ -356,11 +359,21 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			}
 
 			// get page size and orientation, set title
-			pdfProps = rrpt.SetPDFOption(pdfProps, "--header-center", tbl.Title)
-			pdfPageWidth := rlib.Float64ToString(ui.PDFPageWidth) + ui.PDFPageSizeUnit
-			pdfProps = rrpt.SetPDFOption(pdfProps, "--page-width", pdfPageWidth)
-			pdfPageHeight := rlib.Float64ToString(ui.PDFPageHeight) + ui.PDFPageSizeUnit
-			pdfProps = rrpt.SetPDFOption(pdfProps, "--page-height", pdfPageHeight)
+			if tsh.NeedsPDFTitle {
+				// NOTE: There is no support of custom title right now
+				pdfProps = rrpt.SetPDFOption(pdfProps, "--header-center", tbl.Title)
+			}
+
+			// if custom dimension needy, then get those from client side
+			if tsh.NeedsCustomPDFDimension {
+				// pdf page width from the UI
+				pdfPageWidth := rlib.Float64ToString(ui.PDFPageWidth) + ui.PDFPageSizeUnit
+				pdfProps = rrpt.SetPDFOption(pdfProps, "--page-width", pdfPageWidth)
+
+				// pdf page height from the UI
+				pdfPageHeight := rlib.Float64ToString(ui.PDFPageHeight) + ui.PDFPageSizeUnit
+				pdfProps = rrpt.SetPDFOption(pdfProps, "--page-height", pdfPageHeight)
+			}
 
 			err := tbl.PDFprintTable(w, pdfProps)
 			if err != nil {
@@ -431,6 +444,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			w.Header().Set("Content-Type", "application/pdf")
 			w.Header().Set("Content-Disposition", "attachment; filename="+attachmentName+".pdf")
 
+			// now, prepare pdf title for this multi table report
 			var pdfTitle string
 			pdfTitle += tmh.ReportTitle
 
@@ -443,7 +457,32 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 				pdfTitle += " To " + toDate
 			}
 
-			rrpt.MultiTablePDFPrint(m, w, pdfTitle, ui.PDFPageWidth, ui.PDFPageHeight, ui.PDFPageSizeUnit)
+			// get pdf props slice
+			var pdfProps []*gotable.PDFProperty
+			if tsh.PDFprops != nil {
+				pdfProps = tsh.PDFprops
+			} else {
+				pdfProps = rrpt.GetReportPDFProps()
+			}
+
+			// report title
+			pdfProps = rrpt.SetPDFOption(pdfProps, "--header-center", pdfTitle)
+
+			// if custom dimension is set then get values from UI
+			if tmh.NeedsCustomPDFDimension {
+				pw := rlib.Float64ToString(ui.PDFPageWidth) + ui.PDFPageSizeUnit
+				pdfProps = rrpt.SetPDFOption(pdfProps, "--page-width", pw)
+				ph := rlib.Float64ToString(ui.PDFPageHeight) + ui.PDFPageSizeUnit
+				pdfProps = rrpt.SetPDFOption(pdfProps, "--page-height", ph)
+			}
+
+			// now finally hit to print the report in io.Writer of w
+			err := gotable.MultiTablePDFPrint(m, w, pdfProps)
+			if err != nil {
+				s := fmt.Sprintf("Error in PDFprintTable: %s\n", err.Error())
+				fmt.Print(s)
+				fmt.Fprintf(w, "%s\n", s)
+			}
 			return
 		default:
 			fmt.Fprintf(w, "%s", "Unsupported format output of report")

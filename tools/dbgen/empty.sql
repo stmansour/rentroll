@@ -1171,7 +1171,7 @@ DROP TABLE IF EXISTS `Payor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Payor` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `TaxpayorID` varchar(25) NOT NULL DEFAULT '',
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
@@ -1202,7 +1202,7 @@ DROP TABLE IF EXISTS `Prospect`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Prospect` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `EmployerName` varchar(100) NOT NULL DEFAULT '',
   `EmployerStreetAddress` varchar(100) NOT NULL DEFAULT '',
@@ -2201,7 +2201,7 @@ DROP TABLE IF EXISTS `User`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `User` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Points` bigint(20) NOT NULL DEFAULT '0',
   `DateofBirth` date NOT NULL DEFAULT '1970-01-01',

@@ -578,7 +578,7 @@ type Transactant struct {
 
 // Prospect contains info over and above
 type Prospect struct {
-	ProspectID             int64
+	// ProspectID             int64
 	TCID                   int64
 	BID                    int64
 	EmployerName           string
@@ -609,7 +609,7 @@ type Prospect struct {
 
 // User contains all info common to a person
 type User struct {
-	UserID                    int64
+	// UserID                    int64
 	TCID                      int64
 	BID                       int64
 	Points                    int64
@@ -670,7 +670,7 @@ type Vehicle struct {
 // Payor is attributes of the person financially responsible
 // for the rent.
 type Payor struct {
-	PayorID             int64
+	// PayorID             int64
 	TCID                int64
 	BID                 int64
 	CreditLimit         float64
