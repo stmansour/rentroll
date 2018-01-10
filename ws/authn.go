@@ -104,9 +104,9 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	rlib.Console("b.Username = %s, b.UID = %d", b.Username, b.UID)
+	// rlib.Console("b.Username = %s, b.UID = %d", b.Username, b.UID)
 	w.Header().Set("Content-Type", "application/json")
-	rlib.Console("Creating session\n")
+	// rlib.Console("Creating session\n")
 	s, err := rlib.CreateSession(b.Username, b.UID, w, r)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
