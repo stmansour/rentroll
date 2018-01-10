@@ -749,8 +749,8 @@ CREATE TABLE Transactant (
 
 -- website
 CREATE TABLE Prospect (
-    ProspectID BIGINT NOT NULL AUTO_INCREMENT,                    -- unique id of this Prospect
-    TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant (has Name and all contact info)
+    -- ProspectID BIGINT NOT NULL AUTO_INCREMENT,              -- unique id of this Prospect
+    TCID BIGINT NOT NULL,                         -- associated Transactant (has Name and all contact info)
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
     EmployerStreetAddress VARCHAR(100) NOT NULL DEFAULT '',
@@ -776,7 +776,7 @@ CREATE TABLE Prospect (
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (ProspectID)
+    PRIMARY KEY (TCID)
 );
 
 -- --new  Custom Fields
@@ -790,8 +790,8 @@ CREATE TABLE Prospect (
 --   USER
 -- ===========================================
 CREATE TABLE User (
-    UserID BIGINT NOT NULL AUTO_INCREMENT,                      -- Unique identifier for vehicle
-    TCID BIGINT NOT NULL DEFAULT 0,                             -- associated Transactant
+    -- UserID BIGINT NOT NULL AUTO_INCREMENT,                   -- Unique identifier for vehicle
+    TCID BIGINT NOT NULL,                                       -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                              -- which business
     Points BIGINT NOT NULL DEFAULT 0,                           -- bonus points for this User
     DateofBirth DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
@@ -807,11 +807,11 @@ CREATE TABLE User (
     LastModBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                          -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (UserID)
+    PRIMARY KEY (TCID)
 );
 
 CREATE TABLE Vehicle (
-    VID BIGINT NOT NULL AUTO_INCREMENT,                               -- Unique identifier for vehicle
+    VID BIGINT NOT NULL AUTO_INCREMENT,                          -- Unique identifier for vehicle
     TCID BIGINT NOT NULL DEFAULT 0,                              -- Transactant ID of vehicle owner
     BID BIGINT NOT NULL DEFAULT 0,
     VehicleType VARCHAR(80) NOT NULL DEFAULT '',
@@ -837,8 +837,8 @@ CREATE TABLE Vehicle (
 --   PAYOR
 -- ===========================================
 CREATE TABLE Payor (
-    PayorID BIGINT NOT NULL AUTO_INCREMENT,                       -- unique id of this Payor
-    TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant
+    --PayorID BIGINT NOT NULL AUTO_INCREMENT,                 -- unique id of this Payor
+    TCID BIGINT NOT NULL,                         -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
@@ -848,7 +848,7 @@ CREATE TABLE Payor (
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (PayorID)
+    PRIMARY KEY (TCID)
 );
 
 

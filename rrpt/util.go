@@ -117,6 +117,8 @@ type MultiTableReportHandler struct {
 	Found        bool
 	ReportNames  []string
 	TableHandler multiGoTableHandler
+	PDFprops     []*gotable.PDFProperty
+	HTMLTemplate string
 }
 
 // ReporterInfo is for routines that want to table-ize their reporting using

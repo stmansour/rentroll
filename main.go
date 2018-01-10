@@ -144,7 +144,6 @@ func initHTTP() {
 func main() {
 	var err error
 	readCommandLineArgs()
-	// fmt.Printf("App.CSVLoad = %s\n", App.CSVLoad)
 	//==============================================
 	// Open the logfile and begin logging...
 	//==============================================
