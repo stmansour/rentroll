@@ -499,7 +499,18 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		// TBD: start a db transaction
+		//------------------------------------------------------
+		// start a db transaction
+		//------------------------------------------------------
+		var tx *sql.Tx
+
+		tx, err = rlib.RRdb.Dbrr.Begin()
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		ctx := rlib.SetDBTxContextKey(r.Context(), tx)
 
 		//------------------------------------------------------
 		// Build the new receipt
@@ -511,9 +522,9 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rr.Comment = fmt.Sprintf("Reversal of receipt %s", rcpt.IDtoShortString()) + rlib.ROCPRE + rname + rlib.ROCPOST
 		rr.PRCPTID = rcpt.RCPTID  // link to parent
 		rr.FLAGS |= rlib.RCPTvoid // mark that it is voided
-		_, err = rlib.InsertReceipt(r.Context(), &rr)
+		_, err = rlib.InsertReceipt(ctx, &rr)
 		if err != nil {
-			// TBD: abort transaction
+			tx.Rollback() // TBD: abort transaction
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
@@ -521,14 +532,19 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// update the flags on the original receipt
 		//------------------------------------------------------
 		rcpt.FLAGS |= rlib.RCPTvoid
-		if err = rlib.UpdateReceipt(r.Context(), &rcpt); err != nil {
-			// TBD: abort transaction
+		if err = rlib.UpdateReceipt(ctx, &rcpt); err != nil {
 			SvcErrorReturn(w, err, funcname)
+			tx.Rollback() // TBD: abort transaction
 			return
 		}
 
-		// TBD: end db transaction
-
+		if err := tx.Commit(); err != nil {
+			tx.Rollback() // TBD: abort transaction
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		SvcWriteSuccessResponse(w)
+		return
 	}
 
 	dt := time.Now()

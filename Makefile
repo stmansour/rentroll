@@ -36,7 +36,7 @@ testdb:
 	cd test/ws;mysql --no-defaults rentroll < restore.sql
 
 isodb:
-	cd test/importers/onesite/onesite_exported_mr_1;if [ -f iso.csv ]; then ./functest.sh ; fi
+	cd test/importers/onesite/onesite_exported_mr_1;if [ ! -f iso.sql ]; then ./functest.sh ; fi
 	mysql --no-defaults rentroll < test/importers/onesite/onesite_exported_mr_1/iso.sql
 
 dbschemachange:

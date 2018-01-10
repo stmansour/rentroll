@@ -8,6 +8,38 @@ import (
 	"time"
 )
 
+// ReceiptPDFProps holds the override properties needed for the receipt report
+var ReceiptPDFProps = []*gotable.PDFProperty{
+	//
+	{Option: "--no-collate"},
+	// top margin
+	{Option: "-T", Value: "15"},
+	// header center content
+	// {Option: "--header-center", Value: "Header Center"},
+	// header font size
+	{Option: "--header-font-size", Value: "7"},
+	// header font
+	{Option: "--header-font-name", Value: "opensans"},
+	// header spacing
+	{Option: "--header-spacing", Value: "3"},
+	// bottom margin
+	{Option: "-B", Value: "15"},
+	// footer spacing
+	{Option: "--footer-spacing", Value: "5"},
+	// footer font
+	{Option: "--footer-font-name", Value: "opensans"},
+	// footer font size
+	{Option: "--footer-font-size", Value: "7"},
+	// footer left content
+	{Option: "--footer-left", Value: time.Now().Format(gotable.DATETIMEFMT)},
+	// footer right content
+	{Option: "--footer-right", Value: "Page [page] of [toPage]"},
+	// page size
+	{Option: "--page-size", Value: "A5"},
+	// orientation
+	{Option: "--orientation", Value: "Portrait"},
+}
+
 // RRRcptOnlyReceiptTable generates a receipt suitable for printing
 //
 // INPUT

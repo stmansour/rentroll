@@ -105,6 +105,8 @@ type SingleTableReportHandler struct {
 	Found        bool
 	ReportNames  []string
 	TableHandler singleGoTableHandler
+	PDFprops     []*gotable.PDFProperty
+	HTMLTemplate string
 }
 
 type multiGoTableHandler func(context.Context, *ReporterInfo) ([]gotable.Table, error)
