@@ -2245,16 +2245,13 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 	}
 
 	// After getting result...
-	/*if nil == err {
+	if nil == err {
 		x, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(x)
 			a.TCID = rid
 		}
 	} else {
-		err = insertError(err, "Transactant", *a)
-	}*/
-	if err != nil {
 		err = insertError(err, "Transactant", *a)
 	}
 	return rid, err
@@ -2266,7 +2263,7 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 	var (
 		rid = int64(0)
 		err error
-		res sql.Result
+		// res sql.Result
 	)
 
 	// session... context
@@ -2286,9 +2283,9 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)
 		defer stmt.Close()
-		res, err = stmt.Exec(fields...)
+		_, err = stmt.Exec(fields...)
 	} else {
-		res, err = RRdb.Prepstmt.InsertPayor.Exec(fields...)
+		_, err = RRdb.Prepstmt.InsertPayor.Exec(fields...)
 	}
 
 	// After getting result...
@@ -2313,7 +2310,7 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 	var (
 		rid = int64(0)
 		err error
-		res sql.Result
+		// res sql.Result
 	)
 
 	// session... context
@@ -2336,9 +2333,9 @@ func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertProspect)
 		defer stmt.Close()
-		res, err = stmt.Exec(fields...)
+		_, err = stmt.Exec(fields...)
 	} else {
-		res, err = RRdb.Prepstmt.InsertProspect.Exec(fields...)
+		_, err = RRdb.Prepstmt.InsertProspect.Exec(fields...)
 	}
 
 	// After getting result...
@@ -2363,7 +2360,7 @@ func InsertUser(ctx context.Context, a *User) (int64, error) {
 	var (
 		rid = int64(0)
 		err error
-		res sql.Result
+		// res sql.Result
 	)
 
 	// session... context
@@ -2383,9 +2380,9 @@ func InsertUser(ctx context.Context, a *User) (int64, error) {
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertUser)
 		defer stmt.Close()
-		res, err = stmt.Exec(fields...)
+		_, err = stmt.Exec(fields...)
 	} else {
-		res, err = RRdb.Prepstmt.InsertUser.Exec(fields...)
+		_, err = RRdb.Prepstmt.InsertUser.Exec(fields...)
 	}
 
 	// After getting result...
