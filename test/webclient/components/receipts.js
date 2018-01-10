@@ -21,6 +21,6 @@ exports.addNewConf = {
     buttonName: ["save", "saveadd"],
     disableFields: [],
     tabs: [],
-    testCount: 25
+    testCount: 29
 };
 

@@ -40,6 +40,6 @@ exports.addNewConf = {
     buttonName: ["save", "saveadd"],
     disableFields: ["RAID", "RARDtStart", "RARDtStop"],
     tabs: [],
-    testCount: 16
+    testCount: 31
 };
 

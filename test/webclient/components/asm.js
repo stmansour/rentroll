@@ -33,5 +33,5 @@ exports.addNewConf = {
     buttonName: ["save", "saveadd"],
     disableFields: ["RAID", "Rentable"],
     tabs: [],
-    testCount: 33
+    testCount: 31
 };

@@ -49,7 +49,7 @@ casper.then(function afterStartAndWait() {
 
     // TODO: verification pending for appsettings variable, how to do it?
 
-    appSettings.BizMap.forEach(function(item) {
+    appSettings.BizMap.forEach(function (item) {
         if (item.BUD === testBiz) {
             testBizID = item.BID;
         }
@@ -64,7 +64,7 @@ casper.then(function afterStartAndWait() {
 
     // If this test get fail than don't take other test cases in consideration. And exit casperJS
     this.test.assertEquals(expBizID, testBizID, "Business is changed to REX.");
-    if (expBizID !== testBizID){
+    if (expBizID !== testBizID) {
         casper.exit();
     }
 
@@ -101,35 +101,61 @@ casper.then(function addNewButtonTesting() {
     // Assessments / Receipts Module
 
     /*  Assess Charges */
-    // addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
 
     /* Receive Receipts  */
-    // addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
 
+    /*
+    ================================
+    // Remove comment for Expenses tests will fail the test.
+    // Business Unit Field is enable
+    // Check Tests sheet for more detail.
+    =================================
+    */
     /* Expenses */
     // addNewButtonM.w2uiAddNewButtonTest(expensesM.addNewConf);
 
+
+    /*
+    ================================
+    // Remove comment for Deposits tests will fail the test.
+    // Check Tests sheet for more detail.
+    =================================
+    */
     /* Deposits */
     // addNewButtonM.w2uiAddNewButtonTest(depositM.addNewConf);
 
     // Rental Agreements Module
 
-    /* Transactants */ //TODO: Remove comment after setup for tabed form
+    /*
+    ================================
+    // Remove comment for Transactants tests will fail the test.
+    // Check Tests sheet for more detail.
+    =================================
+    */
+    /* Transactants */
     // addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);
 
     // Setup Module
 
+    /*
+    ================================
+    // Remove comment for Chart of accounts tests will fail the test.
+    // Check Tests sheet for more detail.
+    =================================
+    */
     /* Chart of accounts */
     // addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
 
     /* Payment Types */
-    // addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
 
     /* Depository Accounts */
-    // addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
 
     /* Deposit Methods */
-    // addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
 
 
     /*
@@ -141,11 +167,19 @@ casper.then(function addNewButtonTesting() {
     /* Account Rules */
     // addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
 
+
+    /*
+    ================================
+    // Remove comment for Rentable Types tests will fail the test.
+    // Because form is not visible properly. Check Screen shot.
+    // Check Tests sheet for more detail.
+    =================================
+    */
     /* Rentable Types */
     // addNewButtonM.w2uiAddNewButtonTest(rtM.addNewConf);
 
     /* Rentables */
-    // addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
+    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
 });
 
 // --------------------------------------------------
@@ -168,12 +202,20 @@ casper.then(function addNewButtonTesting() {
 // --------------------------------------------------
 
 casper.then(function apiIntegrationTest() {
-/*    gridRecordM.gridRecordsTest(pmtM.gridConf);
-    gridRecordM.gridRecordsTest(depM.gridConf);
-    gridRecordM.gridRecordsTest(depmethM.gridConf);
-    gridRecordM.gridRecordsTest(arsM.gridConf);
-    gridRecordM.gridRecordsTest(rtM.gridConf);
-    gridRecordM.gridRecordsTest(rentableM.gridConf);*/
+        gridRecordM.gridRecordsTest(pmtM.gridConf);
+        gridRecordM.gridRecordsTest(depM.gridConf);
+        gridRecordM.gridRecordsTest(depmethM.gridConf);
+
+        /*
+        ================================
+        // Remove comment for Account Rules for grid tests will fail the test.
+        // Check Tests sheet for more detail. Scrolling of records remaining
+        =================================
+        */
+        // gridRecordM.gridRecordsTest(arsM.gridConf);
+
+        gridRecordM.gridRecordsTest(rtM.gridConf);
+        gridRecordM.gridRecordsTest(rentableM.gridConf);
 });
 
 // ========== RUN TEST ==========
