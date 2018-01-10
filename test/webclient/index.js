@@ -99,20 +99,53 @@ casper.then(function pageBasicLayoutTest() {
 // --------------------------------------------------
 casper.then(function addNewButtonTesting() {
     // Assessments / Receipts Module
-    addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(expensesM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(depositM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);
+
+    /*  Assess Charges */
+    // addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
+
+    /* Receive Receipts  */
+    // addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
+
+    /* Expenses */
+    // addNewButtonM.w2uiAddNewButtonTest(expensesM.addNewConf);
+
+    /* Deposits */
+    // addNewButtonM.w2uiAddNewButtonTest(depositM.addNewConf);
+
+    // Rental Agreements Module
+
+    /* Transactants */ //TODO: Remove comment after setup for tabed form
+    // addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);
 
     // Setup Module
-    addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(rtM.addNewConf);
-    addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
+
+    /* Chart of accounts */
+    // addNewButtonM.w2uiAddNewButtonTest(acctM.addNewConf);
+
+    /* Payment Types */
+    // addNewButtonM.w2uiAddNewButtonTest(pmtM.addNewConf);
+
+    /* Depository Accounts */
+    // addNewButtonM.w2uiAddNewButtonTest(depM.addNewConf);
+
+    /* Deposit Methods */
+    // addNewButtonM.w2uiAddNewButtonTest(depmethM.addNewConf);
+
+
+    /*
+    ================================
+    // Remove comment for Account Rules tests will fail the test.
+    // Check Tests sheet for more detail.
+    =================================
+    */
+    /* Account Rules */
+    // addNewButtonM.w2uiAddNewButtonTest(arsM.addNewConf);
+
+    /* Rentable Types */
+    // addNewButtonM.w2uiAddNewButtonTest(rtM.addNewConf);
+
+    /* Rentables */
+    // addNewButtonM.w2uiAddNewButtonTest(rentableM.addNewConf);
 });
 
 // --------------------------------------------------

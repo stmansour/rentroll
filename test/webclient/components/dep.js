@@ -7,7 +7,7 @@ var common = require("../common.js");
 
 // Below configurations are in use while performing tests via gridRecords.js
 exports.gridConf = {
-    grid: "depGrid",
+    grid: GRID,
     sidebarID: "dep",
     capture: "depGridRequest.png",
     endPoint: common.apiBaseURL + "/{0}/dep/{1}",
@@ -21,9 +21,9 @@ exports.gridConf = {
 
 // Below configurations are in use while performing tests via form.js
 exports.formConf = {
-    grid: "depGrid",
-    form: "depForm",
-    sidebarID: "dep",
+    grid: GRID,
+    form: FORM,
+    sidebarID: SIDEBAR_ID,
     row: "0",
     capture: "depFormRequest.png",
     captureAfterClosingForm: "depFormRequestAfterClosingForm.png",

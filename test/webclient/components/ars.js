@@ -22,8 +22,8 @@ exports.gridConf = {
 
 // Below configurations are in use while performing tests via form.js
 exports.formConf = {
-    grid: "arsGrid",
-    form: "arsForm",
+    grid: GRID,
+    form: FORM,
     sidebarID: "ars",
     row: "0",
     capture: "arsFormRequest.png",

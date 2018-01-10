@@ -22,7 +22,7 @@ exports.gridConf = {
 // Below configurations are in use while performing tests via form.js
 exports.formConf = {
     grid: GRID,
-    form: "rentableForm",
+    form: FORM,
     sidebarID: SIDEBAR_ID,
     row: "0",
     capture: "rentablesFormRequest.png",

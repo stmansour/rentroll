@@ -260,22 +260,60 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
     }
 
     function testInputs(that, w2uiFormRecords, test) {
-        testInputFields(that.form, that.inputFields, w2uiFormRecords, test);
 
-        // Int input fields test.
-        testIntInputFields(that.form, that.inputIntFields, w2uiFormRecords, test);
+        that.formFields.forEach(function (formField) {
 
-        // Dropdown Input fields test
-        testInputSelectField(that.form, that.inputSelectField, w2uiFormRecords, test);
+            var fieldSelector = "#{0}".format(formField.field);
+            var fieldValueInW2UI = w2uiFormRecords[formField.field];
+            var fieldValueInDOM = casper.evaluate(function (fieldSelector) {
+                return document.querySelector(fieldSelector).value;
+            }, fieldSelector);
 
-        // Check box rendering test
-        testCheckBoxes(that.form, that.checkboxes, test);
+            switch (formField.type){
 
-        // Date field rendering test
-        testDateFields(that.form, that.dateFields, test);
+                // Update inpurFieldValue of input field type is money. Because default value of money type field is $0.00.
+                // Here money prefix can be any thing $, Rs, etc.
+                // To make generic replace $,.,0 with blank string ""
+                case "money":
+                    console.log("MONEEEEEY!");
+                    fieldValueInDOM = w2ui_utils.getUpdatedInputFieldValueForMoneyTypeField(fieldValueInDOM);
+                    console.log(fieldValueInW2UI);
+                    break;
 
-        // Disabled field rendering test
-        testDisabledFields(that.disableFields, test);
+                case "list":
+                    fieldValueInW2UI = fieldValueInW2UI.text;
+                    break;
+
+                case "checkbox":
+                    // get value of field from the DOM
+                    fieldValueInDOM = casper.evaluate(function (fieldSelector) {
+                        return document.querySelector(fieldSelector).checked;
+                    }, fieldSelector);
+                    break;
+
+                default:
+            }
+
+            if(!formField.isHidden){
+
+                console.log("###########################");
+                console.log(fieldSelector);
+                console.log(fieldValueInW2UI);
+                console.log(fieldValueInDOM);
+                console.log("###########################");
+
+                // get visibility status  of input field in viewport
+                var isVisible = casper.evaluate(function getFieldVisibility(fieldSelector) {
+                    return isVisibleInViewPort(document.querySelector(fieldSelector));
+                }, fieldSelector);
+
+                // Check visibility of input field
+                test.assert(isVisible, "{0} input field is visible to remote screen.".format(formField.field));
+
+                // Check default value must be blank
+                test.assertEquals(fieldValueInDOM.toString(), fieldValueInW2UI.toString(), "{0} field have default value {1}".format(formField.field, fieldValueInW2UI.toString()));
+            }
+        });
     }
 
     casper.test.begin(testName, testCount, {
@@ -283,15 +321,14 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
         //do basic setup first
         setUp: function (/*test*/) {
 
-            //form name
+            // form name
             this.form = addNewButtonConfig.form;
 
-            //grid name
+            // grid name
             this.grid = addNewButtonConfig.grid;
 
-            //to open a grid
+            // sidebar id to open a grid
             this.sidebarID = addNewButtonConfig.sidebarID;
-
 
             // Click on side bar node
             casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
@@ -306,9 +343,15 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
 
             // list of input fields
-            // this.inputFields = addNewButtonConfig.inputField;
             this.formFields = casper.evaluate(function (form) {
-                return w2ui[form].fields;
+                var formFields = w2ui[form].fields;
+
+                // add isHidden key with default value true
+                formFields.forEach(function (formField) {
+                    formField.isHidden = true;
+                });
+
+                return formFields;
             }, this.form);
 
             // list of tabs in form
@@ -353,7 +396,29 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                     return w2ui[formName].record;
                 }, that.form);
 
-                // var tabSelector = w2ui_utils.getW2UITabSelector(that.form, );
+                // Update isHidden key of all fields as per the field's type in DOM
+                that.formFields = casper.evaluate(function (formFields) {
+                    formFields.forEach(function (formField) {
+
+                        // get field type in DOM
+                        var formFieldTypeInDOM = document.querySelector("#{0}".format(formField.field)).type;
+
+                        // Update isHidden key as per field's type in DOM
+                        if (formFieldTypeInDOM !== "hidden"){
+                            formField.isHidden = false;
+                        }
+
+                    });
+
+                    return formFields;
+
+                }, that.formFields);
+
+                // If there are no tabs but there is only one form than perform tests on fields of the form.
+                if (that.tabs.length === 0) {
+                    // test all fields of w2ui form
+                    testInputs(that, w2uiFormRecords, test);
+                }
 
                 // BUD Field Test
                 testBUDField(test);
@@ -398,12 +463,6 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                     }(inputFields, tab, pageNo));
 
                 });
-
-                // If there are no tabs but there is only one form than perform tests on fields of the form.
-                if (that.tabs.length === 0) {
-                    // test all fields of w2ui form
-                    testInputs(that, w2uiFormRecords, test);
-                }
 
                 // Form Button rendering test
                 testButtons(that.buttonNames, test);
