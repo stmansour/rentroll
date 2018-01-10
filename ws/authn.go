@@ -73,7 +73,7 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+			e := fmt.Errorf("%s: failed to execute client.Do:  %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
@@ -103,9 +103,11 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
+
+	rlib.Console("b.Username = %s, b.UID = %d", b.Username, b.UID)
 	w.Header().Set("Content-Type", "application/json")
 	rlib.Console("Creating session\n")
-	s, err := rlib.CreateSession(a.User, w, r)
+	s, err := rlib.CreateSession(b.Username, b.UID, w, r)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

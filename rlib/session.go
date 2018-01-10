@@ -201,14 +201,13 @@ func SessionNew(token, username, name string, uid int64, rid int64) *Session {
 // RETURNS
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
-func CreateSession(username string, w http.ResponseWriter, r *http.Request) (*Session, error) {
+func CreateSession(username string, uid int64, w http.ResponseWriter, r *http.Request) (*Session, error) {
 	expiration := time.Now().Add(SessionTimeout)
 
 	//----------------------------------------------
 	// TODO: lookup username in address book data
 	//----------------------------------------------
-	name := "Steve"
-	uid := int64(211)
+	name := username
 	RoleID := int64(0)
 
 	//=================================================================================
