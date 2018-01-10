@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"gotable"
-	"io"
 	"net/url"
 	"rentroll/rlib"
 	"strings"
@@ -102,23 +101,25 @@ type singleGoTableHandler func(context.Context, *ReporterInfo) gotable.Table
 
 // SingleTableReportHandler : single table report handler, used to get report from a table in a required output format
 type SingleTableReportHandler struct {
-	Found        bool
-	ReportNames  []string
-	TableHandler singleGoTableHandler
-	PDFprops     []*gotable.PDFProperty
-	HTMLTemplate string
+	Found                   bool
+	ReportNames             []string
+	TableHandler            singleGoTableHandler
+	PDFprops                []*gotable.PDFProperty
+	HTMLTemplate            string
+	NeedsCustomPDFDimension bool
+	NeedsPDFTitle           bool
 }
 
 type multiGoTableHandler func(context.Context, *ReporterInfo) ([]gotable.Table, error)
 
 // MultiTableReportHandler : multi table report handler, used to get report from multiple tables in a required output format
 type MultiTableReportHandler struct {
-	ReportTitle  string
-	Found        bool
-	ReportNames  []string
-	TableHandler multiGoTableHandler
-	PDFprops     []*gotable.PDFProperty
-	HTMLTemplate string
+	ReportTitle             string
+	Found                   bool
+	ReportNames             []string
+	TableHandler            multiGoTableHandler
+	PDFprops                []*gotable.PDFProperty
+	NeedsCustomPDFDimension bool
 }
 
 // ReporterInfo is for routines that want to table-ize their reporting using
@@ -354,22 +355,6 @@ func getRRTable() gotable.Table {
 	tbl.SetNoHeadersCSS(RReportTableErrorSectionCSS)
 
 	return tbl
-}
-
-// MultiTablePDFPrint writes pdf output from each table to w io.Writer
-func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pdfTitle string, pdfPageWidth float64, pdfPageHeight float64, pdfPageSizeUnit string) {
-
-	// pdf props title
-	pdfProps := GetReportPDFProps()
-
-	pdfProps = SetPDFOption(pdfProps, "--header-center", pdfTitle)
-	pw := rlib.Float64ToString(pdfPageWidth) + pdfPageSizeUnit
-	pdfProps = SetPDFOption(pdfProps, "--page-width", pw)
-	ph := rlib.Float64ToString(pdfPageHeight) + pdfPageSizeUnit
-	pdfProps = SetPDFOption(pdfProps, "--page-height", ph)
-
-	gotable.MultiTablePDFPrint(m, w, pdfProps)
-
 }
 
 // GetAttachmentDate used to get date for attachements served over web
