@@ -1378,97 +1378,6 @@ func InsertPaymentType(ctx context.Context, a *PaymentType) (int64, error) {
 	return rid, err
 }
 
-// InsertPayor writes a new User record to the database
-func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
-
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !RRdb.noAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
-	}
-
-	// transaction... context
-	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.CreateBy, a.LastModBy}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)
-		defer stmt.Close()
-		res, err = stmt.Exec(fields...)
-	} else {
-		res, err = RRdb.Prepstmt.InsertPayor.Exec(fields...)
-	}
-
-	// After getting result...
-	if nil == err {
-		x, err := res.LastInsertId()
-		if err == nil {
-			rid = int64(x)
-			a.PayorID = rid
-		}
-	} else {
-		err = insertError(err, "Payor", *a)
-	}
-	return rid, err
-}
-
-// InsertProspect writes a new User record to the database
-func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
-
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !RRdb.noAuth {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
-	}
-
-	// transaction... context
-	fields := []interface{}{a.TCID, a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
-		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
-		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
-		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.CreateBy, a.LastModBy}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertProspect)
-		defer stmt.Close()
-		res, err = stmt.Exec(fields...)
-	} else {
-		res, err = RRdb.Prepstmt.InsertProspect.Exec(fields...)
-	}
-
-	// After getting result...
-	if nil == err {
-		x, err := res.LastInsertId()
-		if err == nil {
-			rid = int64(x)
-			a.ProspectID = rid
-		}
-	} else {
-		err = insertError(err, "Prospect", *a)
-	}
-	return rid, err
-}
-
 // InsertRentable writes a new Rentable record to the database
 func InsertRentable(ctx context.Context, a *Rentable) (int64, error) {
 
@@ -2336,7 +2245,7 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 	}
 
 	// After getting result...
-	if nil == err {
+	/*if nil == err {
 		x, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(x)
@@ -2344,6 +2253,106 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 		}
 	} else {
 		err = insertError(err, "Transactant", *a)
+	}*/
+	if err != nil {
+		err = insertError(err, "Transactant", *a)
+	}
+	return rid, err
+}
+
+// InsertPayor writes a new User record to the database
+func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
+
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertPayor.Exec(fields...)
+	}
+
+	// After getting result...
+	/*if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.PayorID = rid
+		}
+	} else {
+		err = insertError(err, "Payor", *a)
+	}*/
+	if err != nil {
+		err = insertError(err, "Payor", *a)
+	}
+	return rid, err
+}
+
+// InsertProspect writes a new User record to the database
+func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
+
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.TCID, a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
+		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
+		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
+		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertProspect)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertProspect.Exec(fields...)
+	}
+
+	// After getting result...
+	/*if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.ProspectID = rid
+		}
+	} else {
+		err = insertError(err, "Prospect", *a)
+	}*/
+	if err != nil {
+		err = insertError(err, "Prospect", *a)
 	}
 	return rid, err
 }
@@ -2380,13 +2389,16 @@ func InsertUser(ctx context.Context, a *User) (int64, error) {
 	}
 
 	// After getting result...
-	if nil == err {
+	/*if nil == err {
 		x, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(x)
 			a.UserID = rid
 		}
 	} else {
+		err = insertError(err, "User", *a)
+	}*/
+	if err != nil {
 		err = insertError(err, "User", *a)
 	}
 	return rid, err
