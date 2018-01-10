@@ -38,6 +38,8 @@ var ReceiptPDFProps = []*gotable.PDFProperty{
 	{Option: "--page-size", Value: "A5"},
 	// orientation
 	{Option: "--orientation", Value: "Portrait"},
+	// sizing
+	{Option: "--dpi", Value: "1600"},
 }
 
 // RRRcptOnlyReceiptTable generates a receipt suitable for printing
@@ -55,8 +57,8 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 	var err error
 
 	tbl := getRRTable()
-	tbl.AddColumn("", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("", 155, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("", 75, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.SetTitle("Receipt of Delivery")
 
 	// get records from db

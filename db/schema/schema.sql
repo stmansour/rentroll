@@ -815,7 +815,7 @@ CREATE TABLE User (
 -- ===========================================
 CREATE TABLE Payor (
     -- PayorID BIGINT NOT NULL AUTO_INCREMENT,              -- unique id of this Payor
-    TCID BIGINT NOT NULL,                         -- associated Transactant
+    TCID BIGINT NOT NULL,                                   -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
@@ -829,7 +829,7 @@ CREATE TABLE Payor (
 );
 
 CREATE TABLE Vehicle (
-    VID BIGINT NOT NULL AUTO_INCREMENT,                               -- Unique identifier for vehicle
+    VID BIGINT NOT NULL AUTO_INCREMENT,                          -- Unique identifier for vehicle
     TCID BIGINT NOT NULL DEFAULT 0,                              -- Transactant ID of vehicle owner
     BID BIGINT NOT NULL DEFAULT 0,
     VehicleType VARCHAR(80) NOT NULL DEFAULT '',
