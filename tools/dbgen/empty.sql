@@ -357,7 +357,9 @@ CREATE TABLE `CustomAttrRef` (
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `CARID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`CARID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -640,7 +642,9 @@ CREATE TABLE `InvoiceAssessment` (
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `InvoiceASMID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`InvoiceASMID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -667,7 +671,9 @@ CREATE TABLE `InvoicePayor` (
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `InvoicePayorID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`InvoicePayorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1348,7 +1354,9 @@ CREATE TABLE `RatePlanRefRTRate` (
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RPRRTRateID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`RPRRTRateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1378,7 +1386,9 @@ CREATE TABLE `RatePlanRefSPRate` (
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RPRSPRateID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`RPRSPRateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1575,7 +1585,9 @@ CREATE TABLE `RentableSpecialtyRef` (
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RSPRefID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`RSPRefID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
