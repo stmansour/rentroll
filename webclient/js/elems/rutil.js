@@ -1041,6 +1041,9 @@ function setDefaultFormFieldAsPreviousRecord(formFields, defaultFormRecord, prev
 function exportItemReportCSV(rptname,id,dtStart,dtStop,returnURL) {
     var x = getCurrentBusiness();
     var url = '/v1/report/' + x.value + '/' + id + '?r=' + rptname + '&edi=' + app.dateMode;
+    if (returnURL) {
+        return finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
+    }
     finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
 }
 
@@ -1060,6 +1063,10 @@ function exportReportCSV(rptname, dtStart, dtStop, returnURL){
     }
     var x = getCurrentBusiness();
     var url = '/v1/report/' + x.value + '?r=' + rptname + '&edi=' + app.dateMode;
+
+    if (returnURL) { // if retrunURL is set then we need to return it
+        return finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
+    }
     finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
 }
 
@@ -1137,6 +1144,9 @@ function exportItemReportPDF(rptname,id, dtStart, dtStop, returnURL){
     }
     var x = getCurrentBusiness();
     var url = '/v1/report/' + x.value + '/' + id + '?r=' + rptname + '&edi=' + app.dateMode;
+    if (returnURL) {
+        return finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
+    }
     finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
 }
 
@@ -1156,6 +1166,9 @@ function exportReportPDF(rptname, dtStart, dtStop, returnURL){
     }
     var x = getCurrentBusiness();
     var url = '/v1/report/' + x.value + '?r=' + rptname + '&edi=' + app.dateMode;
+    if (returnURL) { // if retrunURL is set then we need to return it
+        return finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
+    }
     finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
 }
 

@@ -17,8 +17,10 @@ func printLedgerHeader(tbl *gotable.Table, xbiz *rlib.XBusiness, l *rlib.GLAccou
 	// s += fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name)
 	// s += fmt.Sprintf("Period:   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
 	// tbl.SetTitle(s)
-	tbl.SetTitle(fmt.Sprintf("%s\n", l.Name))
-	tbl.SetSection1(fmt.Sprintf("GL Account: %s\n", l.GLNumber))
+	title := fmt.Sprintf("%s (GL Account: %s)\n", l.Name, l.GLNumber)
+	tbl.SetTitle(title)
+	// tbl.SetTitle(fmt.Sprintf("%s\n", l.Name))
+	// tbl.SetSection1(fmt.Sprintf("GL Account: %s\n", l.GLNumber))
 }
 
 // returns the payment/accessment reason, Rentable name
@@ -189,7 +191,7 @@ func (a int64arr) Less(i, j int) bool { return a[i] < a[j] }
 
 // LedgerActivityReportTable generates a Table Ledger for active accounts during the supplied time range
 func LedgerActivityReportTable(ctx context.Context, ri *ReporterInfo) ([]gotable.Table, error) {
-	// funcname := "LedgerActivityReportTable"
+	const funcname = "LedgerActivityReportTable"
 	var (
 		err error
 		m   []gotable.Table
@@ -226,6 +228,14 @@ func LedgerActivityReportTable(ctx context.Context, ri *ReporterInfo) ([]gotable
 		tbl := getRRTable()
 		initTableColumns(&tbl)
 
+		// prepare table's title, sections
+		err = TableReportHeaderBlock(ctx, &tbl, "LedgerActivity", funcname, ri)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			tbl.SetSection3(err.Error())
+			return m, err
+		}
+
 		lm, err := rlib.GetLedgerMarkerOnOrBefore(ctx, ri.Xbiz.P.BID, t[i], &ri.D1)
 		if err != nil {
 			return m, err
@@ -257,7 +267,7 @@ func LedgerActivityReport(ctx context.Context, ri *ReporterInfo) string {
 
 // LedgerReportTable generates a Table Ledger for the supplied Business and time range
 func LedgerReportTable(ctx context.Context, ri *ReporterInfo) ([]gotable.Table, error) {
-	// funcname := "LedgerReportTable"
+	const funcname = "LedgerReportTable"
 	var (
 		err error
 		m   []gotable.Table
@@ -274,6 +284,14 @@ func LedgerReportTable(ctx context.Context, ri *ReporterInfo) ([]gotable.Table, 
 	for i := 0; i < len(t); i++ {
 		tbl := getRRTable()
 		initTableColumns(&tbl)
+
+		// prepare table's title, sections
+		err = TableReportHeaderBlock(ctx, &tbl, "Ledger", funcname, ri)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			tbl.SetSection3(err.Error())
+			return m, err
+		}
 
 		lm, err := rlib.GetLedgerMarkerOnOrBefore(ctx, ri.Xbiz.P.BID, t[i].LID, &ri.D1)
 		if err != nil {

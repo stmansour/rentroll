@@ -193,6 +193,7 @@ func RptStatementForRA(ctx context.Context, ri *ReporterInfo, ra *rlib.RentalAgr
 		return tbl
 	}
 
+	// now start to format title after getting enough info for it
 	s := fmt.Sprintf("Statement  -  Rental Agreement %s\nPayor(s): %s\n", ra.IDtoString(), strings.Join(payors, ", "))
 	err = TableReportHeaderBlock(ctx, &tbl, s, funcname, ri)
 	if err != nil {
