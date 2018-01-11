@@ -74,12 +74,14 @@ func GetDirectoryPerson(ctx context.Context, uid int64) (DirectoryPerson, error)
 	if !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
+			Console("GetDirectoryPerson -- returning empty DirectoryPerson\n")
 			return c, ErrSessionRequired
 		}
 	}
 
 	err := RRdb.PBsql.GetDirectoryPerson.QueryRow(uid).Scan(&c.UID, &c.UserName, &c.LastName, &c.MiddleName, &c.FirstName, &c.PreferredName, &c.PreferredName, &c.OfficePhone, &c.CellPhone)
 	SkipSQLNoRowsError(&err)
+	Console("GetDirectoryPerson -- read directory person. c.UserName = %s\n", c.UserName)
 	return c, err
 }
 

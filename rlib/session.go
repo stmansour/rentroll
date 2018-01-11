@@ -201,13 +201,19 @@ func SessionNew(token, username, name string, uid int64, rid int64) *Session {
 // RETURNS
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
-func CreateSession(username string, uid int64, w http.ResponseWriter, r *http.Request) (*Session, error) {
+func CreateSession(uid int64, w http.ResponseWriter, r *http.Request) (*Session, error) {
 	expiration := time.Now().Add(SessionTimeout)
 
 	//----------------------------------------------
 	// TODO: lookup username in address book data
 	//----------------------------------------------
-	name := username
+	dp, err := GetDirectoryPerson(r.Context(), uid)
+	if err != nil {
+		var bad Session
+		return &bad, err
+	}
+	Console("DIR PERSON UserName = %s\n", dp.UserName)
+	Console("dp = %#v\n", dp)
 	RoleID := int64(0)
 
 	//=================================================================================
@@ -217,10 +223,15 @@ func CreateSession(username string, uid int64, w http.ResponseWriter, r *http.Re
 	//
 	// The cookie is:   username + User-Agent + remote ip address
 	//=================================================================================
-	key := username + r.Header.Get("User-Agent") + r.RemoteAddr
+	key := dp.UserName + r.Header.Get("User-Agent") + r.RemoteAddr
 	token := fmt.Sprintf("%x", md5.Sum([]byte(key)))
-
-	s := SessionNew(token, username, name, uid, RoleID)
+	name := dp.FirstName
+	if len(dp.PreferredName) > 0 {
+		name = dp.PreferredName
+	}
+	Console("dp = %#v\n", dp)
+	s := SessionNew(token, dp.UserName, name, uid, RoleID)
+	Console("session = %#v\n", s)
 	cookie := http.Cookie{Name: sessionCookieName, Value: s.Token, Expires: expiration}
 	cookie.Path = "/"
 	http.SetCookie(w, &cookie)
