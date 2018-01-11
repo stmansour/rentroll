@@ -66,6 +66,8 @@ type WebGridSearchRequestJSON struct {
 	SearchDtStart rlib.JSONDate `json:"searchDtStart"` // for time-sensitive searches
 	SearchDtStop  rlib.JSONDate `json:"searchDtStop"`  // for time-sensitive searches
 	Bool1         bool          `json:"Bool1"`         // a general purpose bool flag for postData from client
+	Client        string        `json:"client"`        // name of requesting client
+	RentableName  string        `json:"RentableName"`  // RECEIPT-ONLY CLIENT EXTENSION - to be removed when Receipt-Only client goes away
 }
 
 // WebGridSearchRequest is a struct suitable for describing a webservice operation.
@@ -80,6 +82,8 @@ type WebGridSearchRequest struct {
 	SearchDtStart time.Time   `json:"searchDtStart"` // for time-sensitive searches
 	SearchDtStop  time.Time   `json:"searchDtStop"`  // for time-sensitive searches
 	Bool1         bool        `json:"Bool1"`         // a general purpose bool flag for postData from client
+	Client        string      `json:"client"`        // name of requesting client.  ex: "roller", "receipts"
+	RentableName  string      `json:"RentableName"`  // RECEIPT-ONLY CLIENT EXTENSION - to be removed when Receipt-Only client goes away
 }
 
 // WebFormRequest is a struct suitable for describing a webservice operation.
@@ -181,6 +185,7 @@ var Svcs = []ServiceHandler{
 	{"rentalagr", SvcFormHandlerRentalAgreement, true, true},
 	{"rentalagrs", SvcSearchHandlerRentalAgr, true, true},
 	{"rentalagrtd", SvcRentalAgreementTypeDown, true, true},
+	{"report", ReportServiceHandler, true, true},
 	{"resetpw", SvcResetPW, false, false},
 	{"rr", SvcRR, true, true},
 	{"rt", SvcHandlerRentableType, true, true},
@@ -208,6 +213,7 @@ var SvcCtx struct {
 // SvcInit initializes the service subsystem
 func SvcInit(noauth bool) {
 	SvcCtx.NoAuth = noauth
+	rlib.SetAuthFlag(noauth)
 }
 
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
@@ -246,6 +252,10 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 		if d.sess != nil {
 			d.sess.Refresh(w, r) // they actively tried to use the session, extend timeout
 		}
+
+		// get session in the request context
+		ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
+		r = r.WithContext(ctx)
 	}
 
 	//-----------------------------------------------------------------------
@@ -523,6 +533,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 		return e
 	}
 	rlib.MigrateStructVals(&wjs, &d.wsSearchReq)
+	rlib.Console("Client = %s\n", d.wsSearchReq.Client)
 	return err
 }
 

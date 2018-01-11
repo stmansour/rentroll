@@ -1,14 +1,18 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
 )
 
 // RRreportDepositoryTable generates a table object for all rlib.Depository
-func RRreportDepositoryTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportDepositoryTable"
+func RRreportDepositoryTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportDepositoryTable"
+	var (
+		err error
+	)
 
 	// table init
 	tbl := getRRTable()
@@ -20,18 +24,34 @@ func RRreportDepositoryTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("GLAccount", 45, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// prepare table title, sections
-	err := TableReportHeaderBlock(&tbl, "Depositories", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Depositories", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// get records from db
-	m := rlib.GetAllDepositories(ri.Bid)
+	m, err := rlib.GetAllDepositories(ctx, ri.Bid)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		// set errors in section3 and return
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	for i := 0; i < len(m); i++ {
 		var l rlib.GLAccount
 		if m[i].LID > 0 {
-			l = rlib.GetLedger(m[i].LID)
+			l, err = rlib.GetLedger(ctx, m[i].LID)
+			if err != nil {
+				rlib.LogAndPrintError(funcname, err)
+				// set errors in section3 and return
+				tbl.SetSection3(err.Error())
+				return tbl
+			}
+
 		}
 		tbl.AddRow()
 		tbl.Puts(-1, 0, rlib.IDtoString("DEP", m[i].DEPID))
@@ -47,7 +67,7 @@ func RRreportDepositoryTable(ri *ReporterInfo) gotable.Table {
 }
 
 // RRreportDepository generates a report of all rlib.Depository
-func RRreportDepository(ri *ReporterInfo) string {
-	tbl := RRreportDepositoryTable(ri)
+func RRreportDepository(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportDepositoryTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

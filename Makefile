@@ -28,12 +28,16 @@ jshint:
 try: build db4
 
 db4:
-	cd tools/dbgen;./dbgen -f db4.json
+	cd tools/dbgen;./dbgen -f db4.json -noauth
 
 build: clean rentroll package
 
 testdb:
 	cd test/ws;mysql --no-defaults rentroll < restore.sql
+
+isodb:
+	cd test/importers/onesite/onesite_exported_mr_1;if [ ! -f iso.sql ]; then ./functest.sh ; fi
+	mysql --no-defaults rentroll < test/importers/onesite/onesite_exported_mr_1/iso.sql
 
 dbschemachange:
 	cd test/testdb;make clean test dbbackup;cd ../ws;make get

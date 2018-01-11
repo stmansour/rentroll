@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"rentroll/bizlogic"
@@ -8,9 +9,11 @@ import (
 	"time"
 )
 
+type tableMakerFunc func(context.Context, *GenDBConf) error
+
 type tableMaker struct {
 	Name    string
-	Handler func(*GenDBConf) error
+	Handler tableMakerFunc
 }
 
 var iRID = int64(1)
@@ -25,7 +28,7 @@ var handlers = []tableMaker{
 
 // GenerateDB is the RentRoll Database generator. It creates a
 // database for testing based on parameters in the supplied configuration
-// context ctx.
+// context dbConf.
 //
 // The current implementation adds to the existing database. Typically a
 // database is created with the following information already in it:
@@ -43,61 +46,70 @@ var handlers = []tableMaker{
 //
 //
 // INPUTS:
-//  ctx - context; the configuration data
+//  dbConf - conf; the configuration data
 //
 // RETURNS:
 //  any errors encountered
 //-----------------------------------------------------------------------------
-func GenerateDB(ctx *GenDBConf) error {
-	var ar rlib.AR
-	var err error
-	BID := ctx.BIZ[0].BID
-	rlib.InitBizInternals(BID, &ctx.xbiz) // used by handlers
-	if ctx.ARIDrent == 0 {
-		ar, err = rlib.GetARByName(BID, "Rent Non-Taxable")
-		ctx.ARIDrent = ar.ARID
+func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
+	var (
+		ar  rlib.AR
+		err error
+	)
+
+	BID := dbConf.BIZ[0].BID
+	err = rlib.InitBizInternals(BID, &dbConf.xbiz) // used by handlers
+	if err != nil {
+		return err
+	}
+	if dbConf.ARIDrent == 0 {
+		ar, err = rlib.GetARByName(ctx, BID, "Rent Non-Taxable")
+		dbConf.ARIDrent = ar.ARID
 		if err != nil {
 			return err
 		}
 	}
-	if ctx.ARIDsecdep == 0 {
-		ar, err = rlib.GetARByName(BID, "Security Deposit Assessment")
-		ctx.ARIDsecdep = ar.ARID
+	if dbConf.ARIDsecdep == 0 {
+		ar, err = rlib.GetARByName(ctx, BID, "Security Deposit Assessment")
+		dbConf.ARIDsecdep = ar.ARID
 		if err != nil {
 			return err
 		}
 	}
-	if ctx.ARIDCheckPayment == 0 {
-		ar, err = rlib.GetARByName(BID, "Receive a Payment")
-		ctx.ARIDCheckPayment = ar.ARID
+	if dbConf.ARIDCheckPayment == 0 {
+		ar, err = rlib.GetARByName(ctx, BID, "Receive a Payment")
+		dbConf.ARIDCheckPayment = ar.ARID
 		if err != nil {
 			return err
 		}
 	}
-	if ctx.OpDepository == 0 {
-		d := rlib.GetDepositoryByName(BID, ctx.OpDepositoryName)
+	if dbConf.OpDepository == 0 {
+		d, err := rlib.GetDepositoryByName(ctx, BID, dbConf.OpDepositoryName)
+		rlib.Errcheck(err)
 		if d.DEPID == 0 {
-			return fmt.Errorf("Could not find Depository named %q", ctx.OpDepositoryName)
+			return fmt.Errorf("Could not find Depository named %q", dbConf.OpDepositoryName)
 		}
-		ctx.OpDepository = d.DEPID
+		dbConf.OpDepository = d.DEPID
 	}
-	if ctx.SecDepDepository == 0 {
-		d := rlib.GetDepositoryByName(BID, ctx.SecDepDepositoryName)
+	if dbConf.SecDepDepository == 0 {
+		d, err := rlib.GetDepositoryByName(ctx, BID, dbConf.SecDepDepositoryName)
+		rlib.Errcheck(err)
 		if d.DEPID == 0 {
-			return fmt.Errorf("Could not find Depository named %q", ctx.SecDepDepositoryName)
+			return fmt.Errorf("Could not find Depository named %q", dbConf.SecDepDepositoryName)
 		}
-		ctx.SecDepDepository = d.DEPID
+		dbConf.SecDepDepository = d.DEPID
 	}
-	if ctx.PTypeCheck == 0 {
+	if dbConf.PTypeCheck == 0 {
 		var pt rlib.PaymentType
-		rlib.GetPaymentTypeByName(BID, ctx.PTypeCheckName, &pt)
+		err = rlib.GetPaymentTypeByName(ctx, BID, dbConf.PTypeCheckName, &pt)
+		rlib.Errcheck(err)
 		if pt.PMTID == 0 {
-			return fmt.Errorf("Could not find Payment Type with name %q", ctx.PTypeCheckName)
+			return fmt.Errorf("Could not find Payment Type with name %q", dbConf.PTypeCheckName)
 		}
-		ctx.PTypeCheck = pt.PMTID
+		dbConf.PTypeCheck = pt.PMTID
 	}
 	for i := 0; i < len(handlers); i++ {
-		if err := handlers[i].Handler(ctx); err != nil {
+		if err := handlers[i].Handler(ctx, dbConf); err != nil {
 			return err
 		}
 	}
@@ -110,17 +122,17 @@ func randomPhoneNumber() string {
 
 // createTransactants
 //-----------------------------------------------------------------------------
-func createTransactants(ctx *GenDBConf) error {
-	for i := 0; i < ctx.PeopleCount; i++ {
+func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
+	for i := 0; i < dbConf.PeopleCount; i++ {
 		var t rlib.Transactant
-		t.BID = ctx.BIZ[0].BID
+		t.BID = dbConf.BIZ[0].BID
 		t.FirstName = fmt.Sprintf("John%04d", i)
 		t.MiddleName = "Q"
 		t.LastName = fmt.Sprintf("Doe%04d", i)
 		t.PreferredName = fmt.Sprintf("J%04d", i)
 		t.CellPhone = randomPhoneNumber()
 		t.PrimaryEmail = fmt.Sprintf("jdoe%04d@example.com", i)
-		_, err := rlib.InsertTransactant(&t)
+		_, err := rlib.InsertTransactant(ctx, &t)
 		if err != nil {
 			return err
 		}
@@ -130,32 +142,33 @@ func createTransactants(ctx *GenDBConf) error {
 
 // createRentableTypesAndRentables
 //-----------------------------------------------------------------------------
-func createRentableTypesAndRentables(ctx *GenDBConf) error {
+func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) error {
 	var err error
-	for i := 0; i < len(ctx.RT); i++ {
+	for i := 0; i < len(dbConf.RT); i++ {
 		var rt rlib.RentableType
 		rt.BID = 1
 		rt.Style = fmt.Sprintf("ST%03d", i)
 		rt.Name = fmt.Sprintf("RType%03d", i)
-		rt.RentCycle = ctx.RT[i].RentCycle
-		rt.Proration = ctx.RT[i].ProrateCycle
-		rt.GSRPC = ctx.RT[i].ProrateCycle
+		rt.RentCycle = dbConf.RT[i].RentCycle
+		rt.Proration = dbConf.RT[i].ProrateCycle
+		rt.GSRPC = dbConf.RT[i].ProrateCycle
 		rt.ManageToBudget = 1
-		_, err = rlib.InsertRentableType(&rt)
+		_, err = rlib.InsertRentableType(ctx, &rt)
 		if err != nil {
 			return err
 		}
 
 		var mr rlib.RentableMarketRate
-		mr.DtStart = ctx.DtBOT
-		mr.DtStop = ctx.DtEOT
-		mr.MarketRate = ctx.RT[i].MarketRate
+		mr.DtStart = dbConf.DtBOT
+		mr.DtStop = dbConf.DtEOT
+		mr.MarketRate = dbConf.RT[i].MarketRate
 		mr.RTID = rt.RTID
-		if err = rlib.InsertRentableMarketRates(&mr); err != nil {
+		_, err = rlib.InsertRentableMarketRates(ctx, &mr)
+		if err != nil {
 			return err
 		}
 
-		if err = createRentables(ctx, &ctx.RT[i], &mr, rt.RTID); err != nil {
+		if err = createRentables(ctx, dbConf, &dbConf.RT[i], &mr, rt.RTID); err != nil {
 			return err
 		}
 	}
@@ -164,37 +177,39 @@ func createRentableTypesAndRentables(ctx *GenDBConf) error {
 
 // createRentables
 //-----------------------------------------------------------------------------
-func createRentables(ctx *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, RTID int64) error {
+func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, RTID int64) error {
 	for i := 0; i < rt.Count; i++ {
 		var r rlib.Rentable
 		var err error
 
 		r.RID = iRID
-		r.BID = ctx.BIZ[0].BID
+		r.BID = dbConf.BIZ[0].BID
 		r.RentableName = fmt.Sprintf("Rentable%03d", iRID)
-		errlist := bizlogic.InsertRentable(&r)
+		errlist := bizlogic.InsertRentable(ctx, &r)
 		if errlist != nil {
 			return bizlogic.BizErrorListToError(errlist)
 		}
 
 		var rtr rlib.RentableTypeRef
-		rtr.DtStart = ctx.DtBOT
-		rtr.DtStop = ctx.DtEOT
-		rtr.BID = ctx.BIZ[0].BID
+		rtr.DtStart = dbConf.DtBOT
+		rtr.DtStop = dbConf.DtEOT
+		rtr.BID = dbConf.BIZ[0].BID
 		rtr.RTID = RTID
 		rtr.RID = r.RID
-		if err = rlib.InsertRentableTypeRef(&rtr); err != nil {
+		_, err = rlib.InsertRentableTypeRef(ctx, &rtr)
+		if err != nil {
 			return err
 		}
 
 		var rs rlib.RentableStatus
-		rs.DtStart = ctx.DtBOT
-		rs.DtStop = ctx.DtEOT
-		rs.BID = ctx.BIZ[0].BID
+		rs.DtStart = dbConf.DtBOT
+		rs.DtStop = dbConf.DtEOT
+		rs.BID = dbConf.BIZ[0].BID
 		rs.RID = r.RID
 		rs.LeaseStatus = rlib.LEASESTATUSleased
 		rs.UseStatus = rlib.USESTATUSinService
-		if err = rlib.InsertRentableStatus(&rs); err != nil {
+		_, err = rlib.InsertRentableStatus(ctx, &rs)
+		if err != nil {
 			return err
 		}
 		iRID++
@@ -205,54 +220,61 @@ func createRentables(ctx *GenDBConf, rt *RType, mr *rlib.RentableMarketRate, RTI
 // createReceipts reads all assessments and creates a separate receipt for
 // each one.
 //-----------------------------------------------------------------------------
-func createReceipts(ctx *GenDBConf) error {
-	qry := fmt.Sprintf("SELECT %s FROM Assessments WHERE BID=%d AND (PASMID=0 OR RentCycle=0)", rlib.RRdb.DBFields["Assessments"], ctx.BIZ[0].BID)
+func createReceipts(ctx context.Context, dbConf *GenDBConf) error {
+	qry := fmt.Sprintf("SELECT %s FROM Assessments WHERE BID=%d AND (PASMID=0 OR RentCycle=0)", rlib.RRdb.DBFields["Assessments"], dbConf.BIZ[0].BID)
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
-	rlib.Errcheck(err)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
 	for i := 0; rows.Next(); i++ {
 		var a rlib.Assessment
-		rlib.ReadAssessments(rows, &a)
+		err = rlib.ReadAssessments(rows, &a)
+		if err != nil {
+			return err
+		}
 
 		if !((a.RentCycle > rlib.RECURNONE && a.PASMID > 0) || a.RentCycle == rlib.RECURNONE) {
 			continue
 		}
-		depid := ctx.OpDepository
-		if a.ARID == ctx.ARIDsecdep {
-			depid = ctx.SecDepDepository
+		depid := dbConf.OpDepository
+		if a.ARID == dbConf.ARIDsecdep {
+			depid = dbConf.SecDepDepository
 		}
 
 		var rcpt rlib.Receipt
-		rcpt.ARID = ctx.ARIDCheckPayment
-		rcpt.BID = ctx.BIZ[0].BID
-		rcpt.PMTID = ctx.PTypeCheck
+		rcpt.ARID = dbConf.ARIDCheckPayment
+		rcpt.BID = dbConf.BIZ[0].BID
+		rcpt.PMTID = dbConf.PTypeCheck
 		rcpt.DEPID = depid
 		rcpt.RAID = a.RAID
 		rcpt.Dt = a.Start
 		rcpt.DocNo = fmt.Sprintf("%d", rand.Int63n(int64(1000000)))
 		rcpt.Amount = a.Amount
-		rcpt.ARID = ctx.ARIDCheckPayment
-		pa := rlib.GetRentalAgreementPayorsInRange(a.RAID, &rlib.TIME0, &rlib.ENDOFTIME)
+		rcpt.ARID = dbConf.ARIDCheckPayment
+		pa, _ := rlib.GetRentalAgreementPayorsInRange(ctx, a.RAID, &rlib.TIME0, &rlib.ENDOFTIME)
 		if len(pa) > 0 {
 			rcpt.TCID = pa[0].TCID
 		}
 
-		err = bizlogic.InsertReceipt(&rcpt)
+		err = bizlogic.InsertReceipt(ctx, &rcpt)
 		if err != nil {
 			return err
 		}
 	}
-	return nil
+	return rows.Err()
 }
 
 // applyReceipts reads all transactants and applies all their unallocated
 // funds to unpaid Assessments
 //-----------------------------------------------------------------------------
-func applyReceipts(ctx *GenDBConf) error {
+func applyReceipts(ctx context.Context, dbConf *GenDBConf) error {
 	// rlib.Console("Entered applyReceipts\n")
 
-	rows, err := rlib.RRdb.Prepstmt.GetUnallocatedReceipts.Query(ctx.BIZ[0].BID)
-	rlib.Errcheck(err)
+	rows, err := rlib.RRdb.Prepstmt.GetUnallocatedReceipts.Query(dbConf.BIZ[0].BID)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
 
 	// We need a list of payors.  Build a map indexed by TCID, that points
@@ -260,7 +282,10 @@ func applyReceipts(ctx *GenDBConf) error {
 	var u = map[int64]int{}
 	for rows.Next() {
 		var r rlib.Receipt
-		rlib.ReadReceipts(rows, &r)
+		err = rlib.ReadReceipts(rows, &r)
+		if err != nil {
+			return err
+		}
 		// rlib.Console("Unallocated Receipt:  RCPTID = %d, Amount = %8.2f, Payor = %d\n", r.RCPTID, r.Amount, r.TCID)
 		i, ok := u[r.TCID]
 		if ok {
@@ -269,13 +294,16 @@ func applyReceipts(ctx *GenDBConf) error {
 			u[r.TCID] = 1
 		}
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		return err
+	}
 
 	// rlib.Console("Payors with unallocated receipts:\n")
 	for k := range u {
 		// rlib.Console("Payor with TCID=%d has %d unallocated receipts\n", k, v)
-		dt := ctx.DtStart
-		bizlogic.AutoAllocatePayorReceipts(k, &dt)
+		dt := dbConf.DtStart
+		bizlogic.AutoAllocatePayorReceipts(ctx, k, &dt)
 	}
 
 	return nil
@@ -283,21 +311,34 @@ func applyReceipts(ctx *GenDBConf) error {
 
 // createRentalAgreements
 //-----------------------------------------------------------------------------
-func createRentalAgreements(ctx *GenDBConf) error {
-	BID := ctx.BIZ[0].BID
-	rlib.GetXBusiness(BID, &ctx.xbiz)
-	d1 := time.Date(ctx.DtStart.Year(), ctx.DtStart.Month(), ctx.DtStart.Day(), 0, 0, 0, 0, time.UTC)
+func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
+	BID := dbConf.BIZ[0].BID
+	err := rlib.GetXBusiness(ctx, BID, &dbConf.xbiz)
+	if err != nil {
+		return err
+	}
+	d1 := time.Date(dbConf.DtStart.Year(), dbConf.DtStart.Month(), dbConf.DtStart.Day(), 0, 0, 0, 0, time.UTC)
 	d2 := d1.AddDate(2, 0, 0)
-	epoch := time.Date(ctx.DtStart.Year(), ctx.DtStart.Month(), 1, 0, 0, 0, 0, time.UTC)
-	if ctx.DtStart.Day() > 1 {
+	epoch := time.Date(dbConf.DtStart.Year(), dbConf.DtStart.Month(), 1, 0, 0, 0, 0, time.UTC)
+	if dbConf.DtStart.Day() > 1 {
 		epoch = epoch.AddDate(0, 1, 0)
 
 	}
-	MaxRID := int64(rlib.GetCountByTableName("Rentable", BID))
-	MaxTCID := int64(rlib.GetCountByTableName("Transactant", BID))
+	rentableC, err := rlib.GetCountByTableName(ctx, "Rentable", BID)
+	if err != nil {
+		return err
+	}
+	MaxRID := int64(rentableC)
+
+	tC, err := rlib.GetCountByTableName(ctx, "Transactant", BID)
+	if err != nil {
+		return err
+	}
+	MaxTCID := int64(tC)
+
 	RID := int64(1)
 
-	for i := 0; i < ctx.RACount; i++ {
+	for i := 0; i < dbConf.RACount; i++ {
 		var ra rlib.RentalAgreement
 		ra.RATID = 1
 		ra.BID = BID
@@ -311,7 +352,7 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		ra.UnspecifiedAdults = rand.Int63n(4)
 		ra.UnspecifiedChildren = rand.Int63n(3)
 		ra.Renewal = 2
-		_, err := rlib.InsertRentalAgreement(&ra)
+		_, err := rlib.InsertRentalAgreement(ctx, &ra)
 		if err != nil {
 			return err
 		}
@@ -324,12 +365,15 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		var lm rlib.LedgerMarker
 		lm.RAID = ra.RAID
 		lm.Dt = d1.AddDate(0, 0, -14)
-		err = rlib.InsertLedgerMarker(&lm)
+		_, err = rlib.InsertLedgerMarker(ctx, &lm)
 		if err != nil {
 			return err
 		}
 
-		RIDMktRate := rlib.GetRentableMarketRate(&ctx.xbiz, RID, &d1, &d2)
+		RIDMktRate, err := rlib.GetRentableMarketRate(ctx, &dbConf.xbiz, RID, &d1, &d2)
+		if err != nil {
+			return err
+		}
 
 		//-------------------------------------
 		// Assign Rentable
@@ -338,20 +382,25 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		if RID > MaxRID {
 			continue
 		}
-		rtr := rlib.GetRentableTypeRefForDate(RID, &d1)
+		rtr, err := rlib.GetRentableTypeRefForDate(ctx, RID, &d1)
+		if err != nil {
+			return err
+		}
 		rar.BID = BID
 		rar.RAID = ra.RAID
 		rar.RARDtStart = d1
 		rar.RARDtStop = d2
 		rar.RID = RID
 		rar.ContractRent = RIDMktRate
-		_, err = rlib.InsertRentalAgreementRentable(&rar)
-
+		_, err = rlib.InsertRentalAgreementRentable(ctx, &rar)
+		if err != nil {
+			return err
+		}
 		//----------------------------------------------------------
 		// Create the LedgerMarker for this RID, RAID combination
 		//----------------------------------------------------------
 		lm.RID = RID
-		err = rlib.InsertLedgerMarker(&lm)
+		_, err = rlib.InsertLedgerMarker(ctx, &lm)
 		if err != nil {
 			return err
 		}
@@ -366,7 +415,10 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		rap.DtStop = d2
 		rap.RAID = ra.RAID
 		rap.TCID = TCID
-		_, err = rlib.InsertRentalAgreementPayor(&rap)
+		_, err = rlib.InsertRentalAgreementPayor(ctx, &rap)
+		if err != nil {
+			return err
+		}
 
 		//-------------------------------------
 		// Assign User
@@ -377,7 +429,10 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		rau.DtStart = d1
 		rau.DtStop = d2
 		rau.TCID = TCID
-		err = rlib.InsertRentableUser(&rau)
+		_, err = rlib.InsertRentableUser(ctx, &rau)
+		if err != nil {
+			return err
+		}
 
 		//-------------------------------------
 		// Generate Rent Assessments
@@ -388,12 +443,12 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		asmRent.RID = RID
 		asmRent.RAID = ra.RAID
 		asmRent.Amount = RIDMktRate
-		asmRent.RentCycle = ctx.xbiz.RT[rtr.RTID].RentCycle
-		asmRent.ProrationCycle = ctx.xbiz.RT[rtr.RTID].Proration
+		asmRent.RentCycle = dbConf.xbiz.RT[rtr.RTID].RentCycle
+		asmRent.ProrationCycle = dbConf.xbiz.RT[rtr.RTID].Proration
 		asmRent.Start = epoch
 		asmRent.Stop = d2
-		asmRent.ARID = ctx.ARIDrent
-		be := bizlogic.InsertAssessment(&asmRent, 1)
+		asmRent.ARID = dbConf.ARIDrent
+		be := bizlogic.InsertAssessment(ctx, &asmRent, 1)
 		if be != nil {
 			return bizlogic.BizErrorListToError(be)
 		}
@@ -419,8 +474,8 @@ func createRentalAgreements(ctx *GenDBConf) error {
 			a.ProrationCycle = rlib.RECURNONE
 			a.Start = d1
 			a.Stop = d1
-			a.ARID = ctx.ARIDrent
-			be = bizlogic.InsertAssessment(&a, 1)
+			a.ARID = dbConf.ARIDrent
+			be = bizlogic.InsertAssessment(ctx, &a, 1)
 			if be != nil {
 				return bizlogic.BizErrorListToError(be)
 			}
@@ -437,14 +492,14 @@ func createRentalAgreements(ctx *GenDBConf) error {
 		asmSecDep.ProrationCycle = rlib.RECURNONE
 		asmSecDep.Start = d1
 		asmSecDep.Stop = d1
-		asmSecDep.ARID = ctx.ARIDsecdep
-		be = bizlogic.InsertAssessment(&asmSecDep, 1)
+		asmSecDep.ARID = dbConf.ARIDsecdep
+		be = bizlogic.InsertAssessment(ctx, &asmSecDep, 1)
 		if be != nil {
 			return bizlogic.BizErrorListToError(be)
 		}
 
 		RID++
-		if i+1 < ctx.RACount && RID > MaxRID {
+		if i+1 < dbConf.RACount && RID > MaxRID {
 			fmt.Printf("Halting Rental Agreement creation at RAID = %d because all Rentables are rented\n", ra.RAID)
 			break
 		}

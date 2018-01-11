@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"rentroll/rlib"
+	"rentroll/ws"
 	"strings"
 
 	"github.com/kardianos/osext"
@@ -35,7 +36,13 @@ func RHomeUIHandler(w http.ResponseWriter, r *http.Request) {
 // <tmpl> specifies which template to use. The default is "dflt"
 //------------------------------------------------------------------
 func internalHomeUIHandler(w http.ResponseWriter, r *http.Request, appPage string) {
-	var ui RRuiSupport
+	// var ui ReportContext
+	var ui struct {
+		Language      string
+		Template      string
+		BL            []rlib.Business
+		ReportContent string
+	}
 	var err error
 	funcname := "HomeUIHandler"
 	//appPage := "home.html"
@@ -79,16 +86,16 @@ func internalHomeUIHandler(w http.ResponseWriter, r *http.Request, appPage strin
 
 	ui.Language = lang
 	ui.Template = tmpl
-	ui.BL, err = rlib.GetAllBusinesses()
+	ui.BL, err = rlib.GetAllBiz()
 	if err != nil {
-		rlib.Ulog("GetAllBusinesses: err = %s\n", err.Error())
+		rlib.Ulog("GetAllBiz: err = %s\n", err.Error())
 	}
 
 	clientDir := filepath.Join(cwd, "webclient")
 	htmlDir := filepath.Join(clientDir, "html")
 	tmplFile := filepath.Join(htmlDir, appPage)
 
-	t, err := template.New(appPage).Funcs(RRfuncMap).ParseFiles(tmplFile)
+	t, err := template.New(appPage).Funcs(ws.RRfuncMap).ParseFiles(tmplFile)
 	if nil != err {
 		s := fmt.Sprintf("%s: error loading template: %v\n", funcname, err)
 		ui.ReportContent += s

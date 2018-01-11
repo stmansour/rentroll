@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -93,11 +94,11 @@ type DepMethMap struct {
 
 // GetJSDepositMethods builds a datastructure suitable for javascript parsing that
 // holds the DepositMethods for all businesses
-func GetJSDepositMethods() map[string][]DepMethMap {
+func GetJSDepositMethods(ctx context.Context) map[string][]DepMethMap {
 	var budDepMethods = make(map[string][]DepMethMap)
 	for bud, bid := range rlib.RRdb.BUDlist {
 		depmethList := []DepMethMap{}
-		m := rlib.GetAllDepositMethods(bid) // get the payment types for this business
+		m, _ := rlib.GetAllDepositMethods(ctx, bid) // get the payment types for this business
 		for i := 0; i < len(m); i++ {
 			depmethList = append(depmethList, DepMethMap{DPMID: m[i].DPMID, Text: m[i].Method})
 		}
@@ -126,7 +127,7 @@ func GetJSDepositMethods() map[string][]DepMethMap {
 //  @Response JSONResponse
 // wsdoc }
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	funcname := "SvcUILists"
+	const funcname = "SvcUILists"
 	fmt.Printf("Entered %s\n", funcname)
 	language := "en-us"   // start with default
 	template := "default" // start with default
@@ -214,7 +215,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var pmtTypes = make(map[string][]pmtMap)
 	for bud, bid := range rlib.RRdb.BUDlist {
 		bizPmtList := []pmtMap{}
-		m := rlib.GetPaymentTypesByBusiness(bid) // get the payment types for this business
+		m, _ := rlib.GetPaymentTypesByBusiness(r.Context(), bid) // get the payment types for this business
 		for pmt, a := range m {
 			bizPmtList = append(bizPmtList, pmtMap{PMTID: pmt, Name: a.Name})
 		}
@@ -223,7 +224,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	appData["pmtTypes"] = pmtTypes
 
 	// --------------- LIST DOWN DEPOSIT METHODS ----------------------
-	appData["depmeth"] = GetJSDepositMethods()
+	appData["depmeth"] = GetJSDepositMethods(r.Context())
 
 	// --------------- LIST DOWN SLICES ----------------------
 	for i := 0; i < len(ssliceToJS); i++ {

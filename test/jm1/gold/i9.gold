@@ -1,4 +1,4 @@
-REX Receipts
+REX Tendered Payment Log
 Sep 1, 2016 - Oct 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -6,11 +6,11 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                          Parent                                          
-Date        RCPTID        RCPTID  PMTID        Doc No      Amount  Comment
-----------  ------------  ------  -----------  ------  ----------  -------
-09/01/2016  RCPT00000024  0       PMT00000001  2157      3,750.00         
-09/01/2016  RCPT00000025  0       PMT00000001  8736      4,150.00         
-----------  ------------  ------  -----------  ------  ----------  -------
-                                                         7,900.00         
+                          Parent                                    
+Date        RCPTID        RCPTID  PMTID  Doc No      Amount  Comment
+----------  ------------  ------  -----  ------  ----------  -------
+09/01/2016  RCPT00000024  0       Cash   2157      3,750.00         
+09/01/2016  RCPT00000025  0       Cash   8736      4,150.00         
+----------  ------------  ------  -----  ------  ----------  -------
+                                                   7,900.00         
 

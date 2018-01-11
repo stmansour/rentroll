@@ -35,6 +35,7 @@ Command Line Arguments
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -62,6 +63,7 @@ var App struct {
 	TestMode int      // used for test purpose?
 	CSV      string   // csv filename that needs to be load
 	debug    int      // debug records
+	NoAuth   bool     // if true then skip authentication
 }
 
 // userRRValues holds the values passed by user for rentroll attributes
@@ -111,6 +113,7 @@ func readCommandLineArgs() []string {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	// ================================
 	// check for values which must be required
@@ -140,6 +143,7 @@ func readCommandLineArgs() []string {
 	App.TestMode = *testmode
 	App.CSV = *fp
 	App.debug = *debug
+	App.NoAuth = *noauth
 
 	// get user values
 	userRRValues["RentCycle"] = *frequency
@@ -172,7 +176,6 @@ func main() {
 
 	// LOGFILE SETUP
 	App.LogFile, err = os.OpenFile("onesite.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-
 	lib.Errcheck(err)
 	defer App.LogFile.Close()
 	log.SetOutput(App.LogFile)
@@ -196,41 +199,6 @@ func main() {
 		rlib.Ulog("INTERNAL ERROR <INITIALIZATION>: %s", err.Error())
 		os.Exit(1)
 	}
-
-	// // DATABASE INITIALIZATION
-	// rlib.RRReadConfig()
-
-	// //----------------------------
-	// // Open RentRoll database
-	// //----------------------------
-	// // s := fmt.Sprintf("%s:@/%s?charset=utf8&parseTime=True", DBUser, DBRR)
-	// s := rlib.RRGetSQLOpenString(App.DBRR)
-	// App.dbrr, err = sql.Open("mysql", s)
-	// if nil != err {
-	// 	fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
-	// 	os.Exit(1)
-	// }
-	// defer App.dbrr.Close()
-	// err = App.dbrr.Ping()
-	// if nil != err {
-	// 	fmt.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", App.DBRR, rlib.AppConfig.RRDbuser, err)
-	// 	os.Exit(1)
-	// }
-
-	// //----------------------------
-	// // Open Phonebook database
-	// //----------------------------
-	// s = rlib.RRGetSQLOpenString(App.DBDir)
-	// App.dbdir, err = sql.Open("mysql", s)
-	// if nil != err {
-	// 	fmt.Printf("sql.Open: Error = %v\n", err)
-	// 	os.Exit(1)
-	// }
-	// err = App.dbdir.Ping()
-	// if nil != err {
-	// 	fmt.Printf("dbdir.Ping: Error = %v\n", err)
-	// 	os.Exit(1)
-	// }
 
 	//----------------------------
 	// Open RentRoll database
@@ -270,6 +238,10 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SetAuthFlag(App.NoAuth) // currently needed for testing
+
+	// create background context
+	ctx := context.Background()
 
 	// ==================================
 	// AFTER DB SETUP DO VALIDATION OVER
@@ -280,7 +252,7 @@ func main() {
 	MergeSuppliedAndDefaultValues()
 
 	// now validation on user supplied values
-	validateErrs, business := onesite.ValidateUserSuppliedValues(userRRValues)
+	validateErrs, business := onesite.ValidateUserSuppliedValues(ctx, userRRValues)
 	if len(validateErrs) > 0 {
 		for _, err := range validateErrs {
 			fmt.Println(err.Error())
@@ -294,6 +266,7 @@ func main() {
 
 	// call onesite loader
 	report, internalErr, done := onesite.CSVHandler(
+		ctx,
 		App.CSV,
 		App.TestMode,
 		userRRValues,

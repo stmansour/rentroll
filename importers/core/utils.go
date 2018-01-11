@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"regexp"
 	"rentroll/rlib"
 )
@@ -37,27 +38,52 @@ func IsValidEmail(email string) bool {
 
 // GetImportedCount get map of summaryCount as an argument
 // then it hit db to get imported count for each type
-func GetImportedCount(summaryCount map[int]map[string]int, BID int64) {
+func GetImportedCount(ctx context.Context, summaryCount map[int]map[string]int, BID int64) error {
 	for dbType := range summaryCount {
 		switch dbType {
 		case DBCustomAttrRef:
-			summaryCount[DBCustomAttrRef]["imported"] += rlib.GetCountBusinessCustomAttrRefs(BID)
+			n, err := rlib.GetCountBusinessCustomAttrRefs(ctx, BID)
+			if err != nil {
+				return err
+			}
+			summaryCount[DBCustomAttrRef]["imported"] += n
 			break
 		case DBCustomAttr:
-			summaryCount[DBCustomAttr]["imported"] += rlib.GetCountBusinessCustomAttributes(BID)
+			n, err := rlib.GetCountBusinessCustomAttributes(ctx, BID)
+			if err != nil {
+				return err
+			}
+			summaryCount[DBCustomAttr]["imported"] += n
 			break
 		case DBRentableType:
-			summaryCount[DBRentableType]["imported"] += rlib.GetCountBusinessRentableTypes(BID)
+			n, err := rlib.GetCountBusinessRentableTypes(ctx, BID)
+			if err != nil {
+				return err
+			}
+			summaryCount[DBRentableType]["imported"] += n
 			break
 		case DBPeople:
-			summaryCount[DBPeople]["imported"] += rlib.GetCountBusinessTransactants(BID)
+			n, err := rlib.GetCountBusinessTransactants(ctx, BID)
+			if err != nil {
+				return err
+			}
+			summaryCount[DBPeople]["imported"] += n
 			break
 		case DBRentable:
-			summaryCount[DBRentable]["imported"] += rlib.GetCountBusinessRentables(BID)
+			n, err := rlib.GetCountBusinessRentables(ctx, BID)
+			if err != nil {
+				return err
+			}
+			summaryCount[DBRentable]["imported"] += n
 			break
 		case DBRentalAgreement:
-			summaryCount[DBRentalAgreement]["imported"] += rlib.GetCountBusinessRentalAgreements(BID)
+			n, err := rlib.GetCountBusinessRentalAgreements(ctx, BID)
+			if err != nil {
+				return err
+			}
+			summaryCount[DBRentalAgreement]["imported"] += n
 			break
 		}
 	}
+	return nil
 }

@@ -1,8 +1,24 @@
 /*global
     app, w2ui, $, monthBack, monthFwd, dayBack, dayFwd, setToCurrentMonth, setToNextMonth,
-    console, dateFromString, dateControlString,
+    console, dateFromString, dateControlString, w2uiDateControlString, setDateControl
 */
 "use strict";
+
+//-----------------------------------------------------------------------------
+// adjustD2
+//          - if D2 is being set based on the contents of a datenav control
+//            in the UI we need to adjust forward if app.dateMode == 1
+// @params
+// @return  <no return value>
+//-----------------------------------------------------------------------------
+function adjustD2() {
+    if (app.dateMode == 1) {
+        var dt = dateFromString(app.D2);
+        dt.setDate(dt.getDate() + 1); // in this mode, we need to add a day
+        app.D2 = w2uiDateControlString(dt);
+    }
+}
+
 //-----------------------------------------------------------------------------
 // handleDateToolbarAction
 //          - based on the button selected, perform the appropriate date
@@ -16,6 +32,7 @@
 // @return  <no return value>
 //-----------------------------------------------------------------------------
 function handleDateToolbarAction(event,prefix) {
+    console.log('handleDateToolbarAction: target = ' + event.target + ' prefix = ' + prefix);
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
     switch (event.target) {
@@ -23,6 +40,7 @@ function handleDateToolbarAction(event,prefix) {
             app.D1 = monthBack(xd1);
             if ( !event.originalEvent.shiftKey ) {
                 app.D2 = monthBack(xd2);
+                adjustD2();
             }
             break;
         case 'monthfwd':
@@ -30,15 +48,27 @@ function handleDateToolbarAction(event,prefix) {
                 app.D1 = monthFwd(xd1);
             }
             app.D2 = monthFwd(xd2);
+            adjustD2();
             break;
         case 'today':
-            app.D1 = setToCurrentMonth(xd1);
-            app.D2 = setToNextMonth(xd2);
+            if ( event.originalEvent.shiftKey ) {
+                var y = new Date();
+                var d1 = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 0, 0, 0, 0);
+                app.D1 = setDateControl(xd1, d1);
+                var d2 = dateFromString(app.D1);
+                d2.setDate(d2.getDate());
+                app.D2 = setDateControl(xd2, d2);
+            } else {
+                app.D1 = setToCurrentMonth(xd1);
+                app.D2 = setToNextMonth(xd2);
+            }
+            adjustD2();
             break;
         case 'dayback':
             app.D1 = dayBack(xd1);
             if ( !event.originalEvent.shiftKey ) {
                 app.D2 = dayBack(xd2);
+                adjustD2();
             }
             break;
         case 'dayfwd':
@@ -46,6 +76,7 @@ function handleDateToolbarAction(event,prefix) {
                 app.D1 = dayFwd(xd1);
             }
             app.D2 = dayFwd(xd2);
+            adjustD2();
             break;
     }
     console.log('handleDateToolbarAction:  D1 = ' + app.D1 + '  D2 = ' + app.D2);
@@ -64,8 +95,14 @@ function handleDateToolbarAction(event,prefix) {
 function setDateControlsInToolbar(prefix) {
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
+    var x = app.D2;
+    if (app.dateMode == 1) {
+        var dt = dateFromString(x);
+        dt.setDate(dt.getDate() - 1);
+        x = w2uiDateControlString(dt);
+    }
     if (typeof xd1 != "undefined") { xd1.value = app.D1; }
-    if (typeof xd2 != "undefined") { xd2.value = app.D2; }
+    if (typeof xd2 != "undefined") { xd2.value = x; }
 }
 
 
@@ -137,6 +174,7 @@ function updateGridPostDataDates(grid) {
     }
 }
 
+
 //-----------------------------------------------------------------------------
 // addDateNavToToolbar
 //          - Utility routine create add a date navigator to a toolbar
@@ -149,6 +187,9 @@ function addDateNavToToolbar(prefix) {
     var grid = w2ui[prefix+'Grid'];
     grid.toolbar.add( genDateRangeNavigator(prefix) );
     grid.toolbar.on('click', function(event) {
+        if (event.target == 'w2ui-add') {
+            return; // this function does not handle 'w2ui-add'
+        }
         handleDateToolbarAction(event,prefix); // adjusts dates and loads into date controls
         updateGridPostDataDates(grid);
         grid.load(grid.url, function() {
@@ -166,7 +207,7 @@ function addDateNavToToolbar(prefix) {
     $(document).on("keypress change", "input[name="+nd1+"]", function(e) {        
         // if event type is keypress then
         if (e.type == 'keypress'){            
-            // do not procedd further untill user press the Enter key
+            // do not proceed further until the user presses the Enter key
             if (e.which != 13) {
                 return;
             }            
@@ -175,6 +216,12 @@ function addDateNavToToolbar(prefix) {
         var xd2 = document.getElementsByName(nd2)[0].value;
         var d1 = dateFromString(xd1);
         var d2 = dateFromString(xd2);
+
+        // d2 must be adjusted based on the dateMode
+        if (app.dateMode == 1) {
+            d2.setDate(d2.getDate()+1);  // always work with up-to-but-not-including date internally
+        }
+
         // check that it is valid or not
         if (isNaN(Date.parse(xd1)) || isNaN(Date.parse(xd2))) {
             return;
@@ -222,6 +269,11 @@ function addDateNavToToolbar(prefix) {
         var xd2 = document.getElementsByName(nd2)[0].value;
         var d1 = dateFromString(xd1);
         var d2 = dateFromString(xd2);
+        // d2 must be adjusted based on the dateMode
+        if (app.dateMode == 1) {
+            d2.setDate(d2.getDate()+1);  // always work with up-to-but-not-including date internally
+        }
+
         // check that it is valid or not
         if (isNaN(Date.parse(xd1)) || isNaN(Date.parse(xd2))) {
             return;

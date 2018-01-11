@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -11,10 +12,13 @@ import (
 // REX, "Square Feet", 0-2 , 	   "1638",  "sqft"
 
 // CreateCustomAttributes reads a CustomAttributes string array and creates a database record
-func CreateCustomAttributes(sa []string, lineno int) (int, error) {
-	funcname := "CreateCustomAttributes"
-	var errmsg string
-	var c rlib.CustomAttribute
+func CreateCustomAttributes(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateCustomAttributes"
+	var (
+		err    error
+		errmsg string
+		c      rlib.CustomAttribute
+	)
 
 	const (
 		BUD       = 0
@@ -46,7 +50,10 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	cmpdes := strings.TrimSpace(sa[BUD])
 	if len(cmpdes) > 0 {
-		b2 := rlib.GetBusinessByDesignation(cmpdes)
+		b2, err := rlib.GetBusinessByDesignation(ctx, cmpdes)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Business named %s", funcname, lineno, cmpdes)
+		}
 		if b2.BID == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Business named %s", funcname, lineno, cmpdes)
 		}
@@ -82,12 +89,13 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 		}
 	}
 
-	dup := rlib.GetCustomAttributeByVals(c.Type, c.Name, c.Value, c.Units)
+	// TODO(Steve): ignore error?
+	dup, _ := rlib.GetCustomAttributeByVals(ctx, c.Type, c.Name, c.Value, c.Units)
 	if dup.CID > 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: skipping this because a custom attribute with Type = %d, Name = %s, Value = %s, Units = %s already exists", funcname, lineno, DupCustomAttribute, c.Type, c.Name, c.Value, c.Units)
 	}
 
-	_, err = rlib.InsertCustomAttribute(&c)
+	_, err = rlib.InsertCustomAttribute(ctx, &c)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert CustomAttribute. err = %v", funcname, lineno, err)
 	}
@@ -95,6 +103,6 @@ func CreateCustomAttributes(sa []string, lineno int) (int, error) {
 }
 
 // LoadCustomAttributesCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadCustomAttributesCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateCustomAttributes)
+func LoadCustomAttributesCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateCustomAttributes)
 }

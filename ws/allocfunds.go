@@ -76,9 +76,7 @@ type AllocFundSaveRequest struct {
 //-----------------------------------------------------------------------------------
 func SvcSearchHandlerAllocFunds(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
-	var (
-		funcname = "SvcSearchHandlerAllocFunds"
-	)
+	const funcname = "SvcSearchHandlerAllocFunds"
 
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("Request: %s:  BID = %d\n", d.wsSearchReq.Cmd, d.BID)
@@ -108,11 +106,10 @@ func SvcSearchHandlerAllocFunds(w http.ResponseWriter, r *http.Request, d *Servi
 //  @Response SearchAllocFundsResponse
 // wsdoc }
 func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "getUnallocFundPayors"
 	var (
-		funcname = "getUnallocFundPayors"
-		err      error
-		g        SearchAllocFundsResponse
+		err error
+		g   SearchAllocFundsResponse
 	)
 
 	rows, err := rlib.RRdb.Prepstmt.GetUnallocatedReceipts.Query(d.BID)
@@ -132,11 +129,15 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 	for rows.Next() {
 		// get receipts record
 		var rcpt rlib.Receipt
-		rlib.ReadReceipts(rows, &rcpt)
+		err = rlib.ReadReceipts(rows, &rcpt)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 
 		// get Transactant records
 		var t rlib.Transactant
-		err = rlib.GetTransactant(rcpt.TCID, &t)
+		err = rlib.GetTransactant(r.Context(), rcpt.TCID, &t)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -195,10 +196,10 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 //  @Response SvcStatusResponse
 // wsdoc }
 func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "allocatePayorFund"
 	var (
-		funcname = "allocatePayorFund"
-		err      error
-		foo      AllocFundSaveRequest
+		err error
+		foo AllocFundSaveRequest
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -215,12 +216,16 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// Need to init some internals for Business
 	var xbiz rlib.XBusiness
-	rlib.InitBizInternals(foo.BID, &xbiz)
+	err = rlib.InitBizInternals(foo.BID, &xbiz)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	// dt := time.Now()
 
 	// get receipts for payor
-	n := rlib.GetUnallocatedReceiptsByPayor(foo.BID, foo.TCID)
+	n, _ := rlib.GetUnallocatedReceiptsByPayor(r.Context(), foo.BID, foo.TCID)
 	rlib.Console("number of unallocated receipts: %d\n", len(n))
 
 	for _, asmRec := range foo.Records {
@@ -233,13 +238,13 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			continue
 		}
 
-		asm, err := rlib.GetAssessment(asmRec.ASMID)
+		asm, err := rlib.GetAssessment(r.Context(), asmRec.ASMID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
-		needed := bizlogic.AssessmentUnpaidPortion(&asm)
+		needed := bizlogic.AssessmentUnpaidPortion(r.Context(), &asm)
 		rlib.Console("ASMID = %d, Requested Amount = %.2f, AR = %d\n", asm.ASMID, amt, asm.ARID)
 		dt := time.Time(asmRec.Dt)
 		rlib.Console("Allocation date: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
@@ -250,7 +255,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				continue // move on to the next receipt
 			}
 
-			err := bizlogic.PayAssessment(&asm, &n[j], &needed, &amt, &dt)
+			err := bizlogic.PayAssessment(r.Context(), &asm, &n[j], &needed, &amt, &dt)
 			rlib.Console("amt = %.2f .  Amount still owed: %.2f\n", amt, needed)
 			if err != nil {
 				SvcErrorReturn(w, err, funcname)
@@ -277,10 +282,9 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response PayorUnpaidAsmsResponse
 // wsdoc }
 func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcHandlerGetUnpaidAsms"
 	var (
-		funcname = "SvcHandlerGetUnpaidAsms"
-		res      PayorUnpaidAsmsResponse
+		res PayorUnpaidAsmsResponse
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
@@ -288,16 +292,16 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 	TCID := d.ID
 	dt := time.Now()
 	// res.Time = rlib.JSONDate(dt) // let's keep it here as of now
-	m := bizlogic.GetAllUnpaidAssessmentsForPayor(d.BID, TCID, &dt)
+	m := bizlogic.GetAllUnpaidAssessmentsForPayor(r.Context(), d.BID, TCID, &dt)
 
 	for i, asm := range m {
 		var rec UnpaidAsm
 		rec.Recid = i
 		rec.DtStart = rlib.JSONDate(asm.Start)
 		rec.Amount = asm.Amount
-		rec.AmountOwed = bizlogic.AssessmentUnpaidPortion(&m[i])
+		rec.AmountOwed = bizlogic.AssessmentUnpaidPortion(r.Context(), &m[i])
 		rec.AmountPaid = rec.Amount - rec.AmountOwed
-		ar, err := rlib.GetAR(asm.ARID)
+		ar, err := rlib.GetAR(r.Context(), asm.ARID)
 		if err != nil {
 			fmt.Printf("%s: Error while getting AR (ARID=%d) for Assessment: %d, error=<%s>\n", funcname, asm.ARID, asm.ASMID, err.Error())
 			SvcErrorReturn(w, err, funcname)
@@ -327,23 +331,22 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 //  @Response PayorFundResponse
 // wsdoc }
 func SvcHandlerTotalUnallocFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-
+	const funcname = "SvcHandlerGetUnpaidAsms"
 	var (
-		funcname = "SvcHandlerGetUnpaidAsms"
-		res      PayorFundResponse
+		res PayorFundResponse
 	)
 
 	fmt.Printf("Entered %s\n", funcname)
 
 	TCID := d.ID
-	m := rlib.GetUnallocatedReceiptsByPayor(d.BID, TCID)
+	m, _ := rlib.GetUnallocatedReceiptsByPayor(r.Context(), d.BID, TCID)
 
 	for _, rcpt := range m {
 		if rcpt.FLAGS&3 == 2 { // if there are no funds left in this receipt...
 			continue // move on to the next receipt
 		}
 
-		amt := bizlogic.RemainingReceiptFunds(&rcpt)
+		amt := bizlogic.RemainingReceiptFunds(r.Context(), &rcpt)
 		res.Record.Fund += amt
 	}
 

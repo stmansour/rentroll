@@ -1,6 +1,6 @@
 Test Name:    Renter Changing During RentCycle
 Test Purpose: Tests changing Rental Agreements multiple times during a rent cycle
-Date/Time:    Wed Mar 22 18:10:48 PDT 2017
+Date/Time:    Thu Jan 11 13:42:24 IST 2018
 
 Create new database...  successful
-Test completed: Wed Mar 22 18:10:49 PDT 2017
+Test completed: Thu Jan 11 13:42:33 IST 2018

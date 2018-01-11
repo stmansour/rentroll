@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -21,19 +22,20 @@ var (
 //		  REX, MoveOutReason,New Job
 //		  REX, MoveOutReason,Can't afford it
 
-func writeStringList() error {
+func writeStringList(ctx context.Context) error {
 	var err error
 	if len(a.Name) > 0 {
 		var t rlib.StringList
-		rlib.GetStringListByName(a.BID, a.Name, &t) // do we already have a stringlist by this name?
-		if t.SLID > 0 {                             // t.SLID will be nonzero if so
-			err = rlib.DeleteStringList(t.SLID) // delete what's there if it exists
+		// TODO(Steve): ignore error?
+		_ = rlib.GetStringListByName(ctx, a.BID, a.Name, &t) // do we already have a stringlist by this name?
+		if t.SLID > 0 {                                      // t.SLID will be nonzero if so
+			err = rlib.DeleteStringList(ctx, t.SLID) // delete what's there if it exists
 			if err != nil {
 				return err
 			}
 		}
 	}
-	_, err = rlib.InsertStringList(&a) // update the db with this list
+	_, err = rlib.InsertStringList(ctx, &a) // update the db with this list
 	if err != nil {
 		return err
 	}
@@ -43,7 +45,7 @@ func writeStringList() error {
 }
 
 // CreateStringList creates a database record for the values supplied in sa[]
-func CreateStringList(sa []string, lineno int) (int, error) {
+func CreateStringList(ctx context.Context, sa []string, lineno int) (int, error) {
 	funcname := "CreateStringList"
 	const (
 		BUD   = 0
@@ -71,13 +73,16 @@ func CreateStringList(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	des := strings.ToLower(strings.TrimSpace(sa[0])) // this should be BUD
 	if len(des) > 0 {                                // make sure it's not empty
-		b1 := rlib.GetBusinessByDesignation(des) // see if we can find the biz
+		b1, err := rlib.GetBusinessByDesignation(ctx, des) // see if we can find the biz
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+		}
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		// if business is changed, write the stringlist
 		if len(bud) > 0 && des != bud {
-			writeStringList()
+			writeStringList(ctx)
 		}
 		a.BID = b1.BID
 	}
@@ -88,8 +93,8 @@ func CreateStringList(sa []string, lineno int) (int, error) {
 	name := strings.TrimSpace(sa[1])
 	if len(name) > 0 {
 		if len(a.Name) > 0 && a.Name != name { // did the name of the StringList change from the last time?
-			writeStringList() // yes: write what we have and start a new one
-			bud = des         // only the Name changed, not the business. Restore the bud value
+			writeStringList(ctx) // yes: write what we have and start a new one
+			bud = des            // only the Name changed, not the business. Restore the bud value
 		}
 		a.Name = name
 	}
@@ -104,12 +109,12 @@ func CreateStringList(sa []string, lineno int) (int, error) {
 }
 
 // LoadStringTablesCSV loads a csv file with assessment types and processes each one
-func LoadStringTablesCSV(fname string) []error {
-	m := LoadRentRollCSV(fname, CreateStringList)
+func LoadStringTablesCSV(ctx context.Context, fname string) []error {
+	m := LoadRentRollCSV(ctx, fname, CreateStringList)
 
 	// write out whatever we got
 	if len(a.S) > 0 && len(m) == 0 {
-		err := writeStringList()
+		err := writeStringList(ctx)
 		if err != nil {
 			err := fmt.Errorf("Error writing string list: %s", err.Error())
 			m = append(m, err)

@@ -11,6 +11,7 @@
 package onesite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -50,6 +51,7 @@ func getOneSiteMapping(oneSiteFieldMap *CSVFieldMap) error {
 // loadOneSiteCSV loads the values from the supplied csv file and
 // creates rlib.Business records as needed
 func loadOneSiteCSV(
+	ctx context.Context,
 	oneSiteCSV string,
 	testMode int,
 	userRRValues map[string]string,
@@ -226,8 +228,13 @@ func loadOneSiteCSV(
 	// DELETE DATA RELATED TO BUSINESS ID
 	// =================================
 	// detele business related data before starting to import in database
-	rlib.DeleteBusinessFromDB(business.BID)
-	bid, err := rlib.InsertBusiness(business)
+	_, err = rlib.DeleteBusinessFromDB(ctx, business.BID)
+	if err != nil {
+		rlib.Ulog("INTERNAL ERROR <DELETE BUSINESS>: %s\n", err.Error())
+		return traceUnitMap, csvErrors, internalErrFlag
+	}
+
+	bid, err := rlib.InsertBusiness(ctx, business)
 	if err != nil {
 		rlib.Ulog("INTERNAL ERROR <INSERT BUSINESS>: %s\n", err.Error())
 		return traceUnitMap, csvErrors, internalErrFlag
@@ -428,8 +435,8 @@ func loadOneSiteCSV(
 
 	// rrDoLoad is a nested function
 	// used to load data from csv with help of rcsv loaders
-	rrDoLoad := func(fname string, handler func(string) []error, traceDataMapName string, dbType int) bool {
-		Errs := handler(fname)
+	rrDoLoad := func(ctx context.Context, fname string, handler func(context.Context, string) []error, traceDataMapName string, dbType int) bool {
+		Errs := handler(ctx, fname)
 
 		for _, err := range Errs {
 			// skip warnings about already existing records
@@ -459,8 +466,8 @@ func loadOneSiteCSV(
 	// *****************************************************
 	// rrPeopleDoLoad (SPECIAL METHOD TO LOAD PEOPLE)
 	// *****************************************************
-	rrPeopleDoLoad := func(fname string, handler func(string) []error, traceDataMapName string, dbType int) bool {
-		Errs := handler(fname)
+	rrPeopleDoLoad := func(ctx context.Context, fname string, handler func(context.Context, string) []error, traceDataMapName string, dbType int) bool {
+		Errs := handler(ctx, fname)
 
 		for _, err := range Errs {
 			// handling for duplicant transactant
@@ -478,8 +485,12 @@ func loadOneSiteCSV(
 				csvRow := *csvRowDataMap[onesiteIndex]
 				pEmail := csvRow.Email
 				// get tcid from email
-				t := rlib.GetTransactantByPhoneOrEmail(business.BID, pEmail)
-				if t.TCID == 0 {
+				t, tErr := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pEmail)
+				if tErr != nil {
+					// unable to get TCID
+					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
+					csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
+				} else if t.TCID == 0 {
 					// unable to get TCID
 					reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
 					csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
@@ -524,8 +535,12 @@ func loadOneSiteCSV(
 					csvRow := *csvRowDataMap[onesiteIndex]
 					pCellNo := csvRow.PhoneNumber
 					// get tcid from cellphonenumber
-					t := rlib.GetTransactantByPhoneOrEmail(business.BID, pCellNo)
-					if t.TCID == 0 {
+					t, tErr := rlib.GetTransactantByPhoneOrEmail(ctx, business.BID, pCellNo)
+					if tErr != nil {
+						// unable to get TCID
+						reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information" + err.Error()
+						csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
+					} else if t.TCID == 0{
 						// unable to get TCID
 						reason := "E:<" + core.DBTypeMapStrings[core.DBPeople] + ">:Unable to get people information"
 						csvErrors[onesiteIndex] = append(csvErrors[onesiteIndex], reason)
@@ -554,7 +569,7 @@ func loadOneSiteCSV(
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
+			if !rrDoLoad(ctx, h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
 				// INTERNAL ERROR
 				return traceUnitMap, csvErrors, internalErrFlag
 			}
@@ -578,7 +593,7 @@ func loadOneSiteCSV(
 		errPrefix := "E:<" + core.DBTypeMapStrings[core.DBCustomAttrRef] + ">:"
 		// find rentableType
 		refData := customAttributesRefData[key]
-		rt, err := rlib.GetRentableTypeByStyle(refData.Style, refData.BID)
+		rt, err := rlib.GetRentableTypeByStyle(ctx, refData.Style, refData.BID)
 		if err != nil {
 			rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", err.Error())
 			csvErrors[refData.RowIndex] = append(csvErrors[refData.RowIndex], errPrefix+"Unable to insert custom attribute")
@@ -592,7 +607,13 @@ func loadOneSiteCSV(
 			n := customAttributeConfig["Name"]
 			v := strconv.Itoa(int(refData.SqFt))
 			u := customAttributeConfig["Units"]
-			ca := rlib.GetCustomAttributeByVals(t, n, v, u)
+			ca, err := rlib.GetCustomAttributeByVals(ctx, t, n, v, u)
+			if err != nil {
+				rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", "CUSTOM ATTRIBUTE NOT FOUND IN DB")
+				csvErrors[refData.RowIndex] = append(csvErrors[refData.RowIndex], errPrefix+"Unable to insert custom attribute")
+				continue
+			}
+			// if resource not found then continue
 			if ca.CID == 0 {
 				rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", "CUSTOM ATTRIBUTE NOT FOUND IN DB")
 				csvErrors[refData.RowIndex] = append(csvErrors[refData.RowIndex], errPrefix+"Unable to insert custom attribute")
@@ -611,17 +632,22 @@ func loadOneSiteCSV(
 
 			// check that record already exists, if yes then just continue
 			// without accounting it as an error
-			ref := rlib.GetCustomAttributeRef(a.ElementType, a.ID, a.CID)
-			if ref.ElementType == a.ElementType && ref.CID == a.CID && ref.ID == a.ID {
-				unit, _ := traceUnitMap[refData.RowIndex]
-				errText := fmt.Sprintf(
-					"This reference already exists. No changes were made. at row \"%d\" with unit \"%s\"",
-					refData.RowIndex, unit)
-				rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", errText)
+			ref, err := rlib.GetCustomAttributeRef(ctx, a.ElementType, a.ID, a.CID)
+			if err != nil {
+				rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", err.Error())
 				continue
+			} else {
+				if ref.ElementType == a.ElementType && ref.CID == a.CID && ref.ID == a.ID {
+					unit, _ := traceUnitMap[refData.RowIndex]
+					errText := fmt.Sprintf(
+						"This reference already exists. No changes were made. at row \"%d\" with unit \"%s\"",
+						refData.RowIndex, unit)
+					rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", errText)
+					continue
+				}
 			}
 
-			err := rlib.InsertCustomAttributeRef(&a)
+			_, err = rlib.InsertCustomAttributeRef(ctx, &a)
 			if err != nil {
 				rlib.Ulog("ERROR <CUSTOMREF INSERTION>: %s", err.Error())
 				csvErrors[refData.RowIndex] = append(csvErrors[refData.RowIndex], errPrefix+"Unable to insert custom attribute")
@@ -639,7 +665,7 @@ func loadOneSiteCSV(
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			if !rrPeopleDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
+			if !rrPeopleDoLoad(ctx, h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
 				// INTERNAL ERROR
 				return traceUnitMap, csvErrors, internalErrFlag
 			}
@@ -651,10 +677,10 @@ func loadOneSiteCSV(
 	// ========================================================
 
 	for onesiteIndex := range traceTCIDMap {
-		tcid := rlib.GetTCIDByNote(getPeopleNoteString(onesiteIndex, currentTimeFormat))
+		tcid, _ := rlib.GetTCIDByNote(ctx, getPeopleNoteString(onesiteIndex, currentTimeFormat))
 		// for duplicant case, it won't be found so need check here
 		if tcid != 0 {
-			traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(tcid)
+			traceTCIDMap[onesiteIndex] = tcidPrefix + strconv.Itoa(int(tcid))
 		}
 	}
 
@@ -758,7 +784,7 @@ func loadOneSiteCSV(
 
 	for i := 0; i < len(h); i++ {
 		if len(h[i].Fname) > 0 {
-			if !rrDoLoad(h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
+			if !rrDoLoad(ctx, h[i].Fname, h[i].Handler, h[i].TraceDataMap, h[i].DBType) {
 				// INTERNAL ERROR
 				return traceUnitMap, csvErrors, internalErrFlag
 			}
@@ -813,6 +839,7 @@ func clearSplittedTempCSVFiles(timestamp string) {
 // CSVHandler is main function to handle user uploaded
 // csv and extract information
 func CSVHandler(
+	ctx context.Context,
 	csvPath string,
 	testMode int,
 	userRRValues map[string]string,
@@ -849,7 +876,7 @@ func CSVHandler(
 	}
 
 	// ====== Call onesite loader =====
-	unitMap, csvErrs, internalErr := loadOneSiteCSV(
+	unitMap, csvErrs, internalErr := loadOneSiteCSV(ctx,
 		csvPath, testMode, userRRValues,
 		business, currentTime, currentTimeFormat,
 		summaryReportCount)
@@ -861,7 +888,7 @@ func CSVHandler(
 
 	// check if there any errors from onesite loader
 	if len(csvErrs) > 0 {
-		csvReport, csvLoaded = errorReporting(business, csvErrs, unitMap, summaryReportCount, csvPath, debugMode, currentTime)
+		csvReport, csvLoaded = errorReporting(ctx, business, csvErrs, unitMap, summaryReportCount, csvPath, debugMode, currentTime)
 
 		// if not testmode then only do rollback
 		if testMode != 1 {
@@ -872,7 +899,7 @@ func CSVHandler(
 	}
 
 	// ===== 4. Generate Report =====
-	csvReport = successReport(business, summaryReportCount, csvPath, debugMode, currentTime)
+	csvReport = successReport(ctx, business, summaryReportCount, csvPath, debugMode, currentTime)
 
 	// ===== 5. Return =====
 	return csvReport, internalErr, csvLoaded

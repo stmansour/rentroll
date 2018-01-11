@@ -1,5 +1,11 @@
-Cash
-GL Account: 10000
+Cash (GL Account: 10000)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -11,8 +17,14 @@ Payment #237 - Security Deposits                         12/04/2015  J00000006  
 Closing Balance                                          12/31/2015                                                           13,300.00
 
 
-Cash BofA
-GL Account: 10001
+Cash BofA (GL Account: 10001)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -21,8 +33,14 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Unapplied Funds
-GL Account: 10100
+Unapplied Funds (GL Account: 10100)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -31,8 +49,14 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Credit Card Clearing
-GL Account: 11000
+Credit Card Clearing (GL Account: 11000)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -41,8 +65,14 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Accounts Receivable
-GL Account: 12000
+Accounts Receivable (GL Account: 12000)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -57,8 +87,14 @@ Payment #237 - Security Deposits                         12/04/2015  J00000006  
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Security Deposits
-GL Account: 30000
+Security Deposits (GL Account: 30000)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -70,18 +106,30 @@ Assessment - Security Deposits                           12/01/2015  J00000001  
 Closing Balance                                          12/31/2015                                                          -13,300.00
 
 
-Accrued Taxes
-GL Account: 30100
+Accrued Taxes (GL Account: 30100)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Sales Taxes (GL Account: 30101)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Sales Taxes
-GL Account: 30101
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -90,18 +138,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Transient Occupancy Taxes
-GL Account: 30102
+Transient Occupancy Taxes (GL Account: 30102)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Other Accrued Taxes (GL Account: 30199)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Other Accrued Taxes
-GL Account: 30199
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -110,18 +170,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Owners' Equity
-GL Account: 39000
+Owners' Equity (GL Account: 39000)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Gross Scheduled Rent-Not Taxable (GL Account: 41000)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Gross Scheduled Rent-Not Taxable
-GL Account: 41000
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -130,18 +202,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Gross Scheduled Rent-Taxable
-GL Account: 41001
+Gross Scheduled Rent-Taxable (GL Account: 41001)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Income Offsets (GL Account: 41002)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Income Offsets
-GL Account: 41002
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -150,18 +234,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Other Income
-GL Account: 41003
+Other Income (GL Account: 41003)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Unit Income Offsets (GL Account: 41100)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Unit Income Offsets
-GL Account: 41100
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -170,18 +266,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Vacancy
-GL Account: 41101
+Vacancy (GL Account: 41101)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Loss (Gain) to Lease (GL Account: 41102)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Loss (Gain) to Lease
-GL Account: 41102
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -190,18 +298,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Employee Concessions
-GL Account: 41103
+Employee Concessions (GL Account: 41103)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Resident Concessions (GL Account: 41104)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Resident Concessions
-GL Account: 41104
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -210,8 +330,14 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Owner Concession
-GL Account: 41105
+Owner Concession (GL Account: 41105)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -220,178 +346,286 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Administrative Concession
-GL Account: 41106
+Administrative Concession (GL Account: 41106)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Off Line Renovations (GL Account: 41107)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Off Line Renovations
-GL Account: 41107
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Off Line Maintenance (GL Account: 41108)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Off Line Maintenance
-GL Account: 41108
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Othe Income Offsets (GL Account: 41199)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Othe Income Offsets
-GL Account: 41199
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Serviced Fees (GL Account: 41200)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Serviced Fees
-GL Account: 41200
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Broadcast and IT Services (GL Account: 41201)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Broadcast and IT Services
-GL Account: 41201
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Food Services (GL Account: 41202)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Food Services
-GL Account: 41202
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Linen Services (GL Account: 41203)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Linen Services
-GL Account: 41203
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Wash N Fold Services (GL Account: 41204)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Wash N Fold Services
-GL Account: 41204
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Other Service Fees (GL Account: 41299)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Other Service Fees
-GL Account: 41299
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Utility Fees (GL Account: 41300)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Utility Fees
-GL Account: 41300
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Electric Base Fee (GL Account: 41301)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Electric Base Fee
-GL Account: 41301
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Electric Overage (GL Account: 41302)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Electric Overage
-GL Account: 41302
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Water and Sewer Base Fee (GL Account: 41303)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Water and Sewer Base Fee
-GL Account: 41303
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Water and Sewer Overage (GL Account: 41304)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Water and Sewer Overage
-GL Account: 41304
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Gas Base Fee (GL Account: 41305)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Gas Base Fee
-GL Account: 41305
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Gas Overage (GL Account: 41306)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Gas Overage
-GL Account: 41306
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Trash Collection Base Fee (GL Account: 41307)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Trash Collection Base Fee
-GL Account: 41307
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -400,18 +634,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Trash Collection Overage
-GL Account: 41308
+Trash Collection Overage (GL Account: 41308)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Other Utility Fee (GL Account: 41399)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Other Utility Fee
-GL Account: 41399
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -420,18 +666,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Miscellaneous Income
-GL Account: 41400
+Miscellaneous Income (GL Account: 41400)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Application Fees (GL Account: 41401)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Application Fees
-GL Account: 41401
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -440,18 +698,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Late Fees
-GL Account: 41402
+Late Fees (GL Account: 41402)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Insufficient Funds Fee (GL Account: 41403)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Insufficient Funds Fee
-GL Account: 41403
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -460,18 +730,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Month to Month Fee
-GL Account: 41404
+Month to Month Fee (GL Account: 41404)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Premium Upgrades (GL Account: 41405)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Premium Upgrades
-GL Account: 41405
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -480,18 +762,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-No Show or Termination Fee
-GL Account: 41406
+No Show or Termination Fee (GL Account: 41406)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Pet Fees (GL Account: 41407)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Pet Fees
-GL Account: 41407
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -500,18 +794,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Pet Rent
-GL Account: 41408
+Pet Rent (GL Account: 41408)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Expense Reimbursement (GL Account: 41409)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Expense Reimbursement
-GL Account: 41409
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -520,18 +826,30 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Special Cleaning Fee
-GL Account: 41410
+Special Cleaning Fee (GL Account: 41410)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Eviction Fee Reimbursement (GL Account: 41411)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Eviction Fee Reimbursement
-GL Account: 41411
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -540,8 +858,14 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Extra Person Charge
-GL Account: 41412
+Extra Person Charge (GL Account: 41412)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
@@ -550,178 +874,286 @@ Opening Balance                                                                 
 Closing Balance                                          12/31/2015                                                                0.00
 
 
-Forfeited SecDep
-GL Account: 41413
+Forfeited SecDep (GL Account: 41413)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
+
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Damage Fee (GL Account: 41414)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Damage Fee
-GL Account: 41414
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+CAM Fees (GL Account: 41415)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-CAM Fees
-GL Account: 41415
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Other Miscellaneous Income (GL Account: 41499)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Other Miscellaneous Income
-GL Account: 41499
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Taxes Collected in Trust (GL Account: 41500)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Taxes Collected in Trust
-GL Account: 41500
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Sales Taxes (GL Account: 41501)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Sales Taxes
-GL Account: 41501
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Transient Occupancy Taxes (GL Account: 41502)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Transient Occupancy Taxes
-GL Account: 41502
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Business Income (GL Account: 42000)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Business Income
-GL Account: 42000
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Convenience Store (GL Account: 42100)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Convenience Store
-GL Account: 42100
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Fitness Center Revenue (GL Account: 42200)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Fitness Center Revenue
-GL Account: 42200
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Vending Income (GL Account: 42300)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Vending Income
-GL Account: 42300
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Restaurant Sales (GL Account: 42400)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Restaurant Sales
-GL Account: 42400
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Bar Sales (GL Account: 42500)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Bar Sales
-GL Account: 42500
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Spa Sales (GL Account: 42600)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Spa Sales
-GL Account: 42600
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Cash Over/Short (GL Account: 49991)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Cash Over/Short
-GL Account: 49991
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Bad Debt (GL Account: 49992)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Bad Debt
-GL Account: 49992
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
 
+Income Suspense (GL Account: 49998)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
-Income Suspense
-GL Account: 49998
+
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Opening Balance                                                                                                                    0.00
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------
 Closing Balance                                          12/31/2015                                                                0.00
+
+
+Other Business Income (GL Account: 49999)
+Dec 1, 2015 - Jan 1, 2016
+BH Rexford Group, Inc.
+11719 Bee Cave Road
+Suite 301
+Austin, TX 78738 USA
 
 
-Other Business Income
-GL Account: 49999
                                                                      Journal    Rental                                                 
 Description                                              Date        ID         Agreement   Rentable Name          Amount       Balance
 -------------------------------------------------------  ----------  ---------  ----------  ---------------  ------------  ------------

@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -24,6 +25,7 @@ var App struct {
 	PortRR int            // rentroll port
 	Bud    string         // Biz Unit Descriptor
 	Xbiz   rlib.XBusiness // lots of info about this biz
+	NoAuth bool
 }
 
 func readCommandLineArgs() {
@@ -32,12 +34,16 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	portPtr := flag.Int("p", 8270, "port on which RentRoll server listens")
+	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
+
+	flag.Parse()
 
 	App.DBDir = *dbnmPtr
 	App.DBRR = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.PortRR = *portPtr
 	App.Bud = *pBud
+	App.NoAuth = *noauth
 }
 
 func main() {
@@ -83,25 +89,38 @@ func main() {
 
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
+	rlib.SetAuthFlag(App.NoAuth)
 
-	biz := rlib.GetBusinessByDesignation(App.Bud)
+	// create background context
+	ctx := context.Background()
+
+	biz, err := rlib.GetBusinessByDesignation(ctx, App.Bud)
+	if err != nil {
+		fmt.Printf("Could not find Business Unit named %s, Error: %s\n", App.Bud, err.Error())
+		os.Exit(1)
+	}
 	if biz.BID == 0 {
 		fmt.Printf("Could not find Business Unit named %s\n", App.Bud)
 		os.Exit(1)
 	}
-	rlib.InitBizInternals(biz.BID, &App.Xbiz)
 
-	DoTest()
+	err = rlib.InitBizInternals(biz.BID, &App.Xbiz)
+	if err != nil {
+		fmt.Printf("Error in InitBizInternals: %s\n", err.Error())
+		os.Exit(1)
+	}
+
+	DoTest(ctx)
 }
 
 // DoTest does the account balance checks for Rental Agreements
-func DoTest() {
+func DoTest(ctx context.Context) {
 	raid := int64(5)
 	d1 := time.Date(2017, time.May, 1, 0, 0, 0, 0, rlib.RRdb.Zone)
 	d2 := d1.AddDate(0, 1, 0)
 
 	fmt.Printf("RA statement info for period %s - %s\n", d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
-	m, err := rlib.GetRAIDStatementInfo(raid, &d1, &d2)
+	m, err := rlib.GetRAIDStatementInfo(ctx, raid, &d1, &d2)
 	if err != nil {
 		log.Fatalf("*** ERROR *** GetRAIDAccountBalance returned error: %s\n", err.Error())
 	}

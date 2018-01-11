@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"rentroll/rlib"
@@ -23,10 +24,14 @@ import (
 // REH, TCID, RA00000001, 1,     1,     "2015-11-21", 883789238746, 294.66,  "Rent Payment Check", "ASM(1) c ${GLGENRCV} 266.67, ASM(1) d ${rlib.DFLT} 266.67, ASM(3) c ${GLGENRCV} 13.33, ASM(3) d ${rlib.DFLT} 13.33, ASM(4) c ${GLGENRCV} 5.33, ASM(4) d ${rlib.DFLT} 5.33, ASM(9) c ${GLGENRCV} 9.33,ASM(9) d ${rlib.DFLT} 9.33", "I am a comment"
 
 // GenerateReceiptAllocations processes the AcctRule for the supplied rlib.Receipt and generates rlib.ReceiptAllocation records
-func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusiness) error {
+func GenerateReceiptAllocations(ctx context.Context, rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusiness) error {
 	var d1 = time.Date(rcpt.Dt.Year(), rcpt.Dt.Month(), 1, 0, 0, 0, 0, time.UTC)
 	var d2 = d1.AddDate(0, 0, 31)
-	t := rlib.ParseAcctRule(xbiz, 0, &d1, &d2, rcpt.AcctRuleApply, rcpt.Amount, 1.0)
+
+	t, err := rlib.ParseAcctRule(ctx, xbiz, 0, &d1, &d2, rcpt.AcctRuleApply, rcpt.Amount, 1.0)
+	if err != nil {
+		return err
+	}
 	u := make(map[int64][]int64)
 
 	// First, group together all entries that refer to a single ASMID into a list of lists
@@ -44,7 +49,10 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusi
 		a.Dt = rcpt.Dt
 
 		// make sure the referenced assessment actually exists
-		a1, _ := rlib.GetAssessment(a.ASMID)
+		a1, err := rlib.GetAssessment(ctx, a.ASMID)
+		if err != nil {
+			return fmt.Errorf("GenerateReceiptAllocations: GetAssessment with ID(%d) error: %s", a.ASMID, err.Error())
+		}
 		if a1.ASMID == 0 {
 			return fmt.Errorf("GenerateReceiptAllocations: Referenced assessment ID %d does not exist", a.ASMID)
 		}
@@ -59,7 +67,7 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusi
 			}
 		}
 		a.BID = rcpt.BID
-		_, err := rlib.InsertReceiptAllocation(&a)
+		_, err = rlib.InsertReceiptAllocation(ctx, &a)
 		if err != nil {
 			fmt.Printf("GenerateReceiptAllocations: Error inserting ReceiptAllocation: %s\n", err.Error())
 			os.Exit(1)
@@ -73,12 +81,14 @@ func GenerateReceiptAllocations(rcpt *rlib.Receipt, raid int64, xbiz *rlib.XBusi
 //var pmtTypes = map[int64]rlib.PaymentType{}
 
 // CreateReceiptsFromCSV reads an assessment type string array and creates a database record for the assessment type
-func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreateReceiptsFromCSV"
-	var xbiz rlib.XBusiness
-	var r rlib.Receipt
-	var err error
-	bud := strings.ToLower(strings.TrimSpace(sa[0]))
+func CreateReceiptsFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateReceiptsFromCSV"
+	var (
+		err  error
+		xbiz rlib.XBusiness
+		r    rlib.Receipt
+		bud  = strings.ToLower(strings.TrimSpace(sa[0]))
+	)
 
 	const (
 		BUD      = 0
@@ -121,18 +131,24 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	// Make sure the rlib.Business is in the database
 	//-------------------------------------------------------------------
 	if len(bud) > 0 {
-		b1 := rlib.GetBusinessByDesignation(bud)
+		b1, err := rlib.GetBusinessByDesignation(ctx, bud)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, bud, err.Error())
+		}
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
 		r.BID = b1.BID
-		rlib.GetXBusiness(r.BID, &xbiz)
+		err = rlib.GetXBusiness(ctx, r.BID, &xbiz)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business BID(%d): %s", funcname, lineno, r.BID, err.Error())
+		}
 	}
 
 	//-------------------------------------------------------------------
 	// Who is the payor?
 	//-------------------------------------------------------------------
-	payors, err := CSVLoaderTransactantList(r.BID, sa[TCID])
+	payors, err := CSVLoaderTransactantList(ctx, r.BID, sa[TCID])
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error: %s", funcname, lineno, err.Error())
 	}
@@ -141,20 +157,25 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	}
 	if payors[0].TCID == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - payor cannot be found: %s", funcname, lineno, sa[TCID])
-
 	}
 	r.TCID = payors[0].TCID
 
-	pmtTypes := rlib.GetPaymentTypesByBusiness(r.BID)
+	pmtTypes, err := rlib.GetPaymentTypesByBusiness(ctx, r.BID)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while getting payment types for BID(%d): %s", funcname, lineno, r.BID, err.Error())
+	}
 
 	//-------------------------------------------------------------------
 	// Find Rental Agreement
 	//-------------------------------------------------------------------
 	raid := CSVLoaderGetRAID(sa[RAID]) // this should probably go away, we should select it from an Assessment in the AcctRule
 
-	_, err = rlib.GetRentalAgreement(raid)
+	ra, err := rlib.GetRentalAgreement(ctx, raid)
 	if nil != err {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error loading Rental Agreement %s, err = %v", funcname, lineno, sa[RAID], err)
+	}
+	if ra.RAID == 0 {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error loading Rental Agreement %s", funcname, lineno, sa[RAID])
 	}
 
 	//-------------------------------------------------------------------
@@ -198,7 +219,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	s := strings.TrimSpace(sa[AR])
 	if len(s) > 0 {
-		rule, err := rlib.GetARByName(r.BID, s)
+		rule, err := rlib.GetARByName(ctx, r.BID, s)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load AR named %s: %s", funcname, lineno, s, err.Error())
 		}
@@ -222,12 +243,13 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Make sure there's no duplicate...
 	//-------------------------------------------------------------------
-	rdup := rlib.GetReceiptDuplicate(&r.Dt, r.Amount, r.DocNo)
+	// TODO(Steve): ignore error?
+	rdup, _ := rlib.GetReceiptDuplicate(ctx, &r.Dt, r.Amount, r.DocNo)
 	if rdup.RCPTID != 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - this is a duplicate of an existing receipt: %s", funcname, lineno, rdup.IDtoString())
 	}
 
-	rcptid, err := rlib.InsertReceipt(&r)
+	rcptid, err := rlib.InsertReceipt(ctx, &r)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting receipt: %v", funcname, lineno, err)
 	}
@@ -236,10 +258,12 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Create the allocations...
 	//-------------------------------------------------------------------
-	err = GenerateReceiptAllocations(&r, raid, &xbiz)
+	err = GenerateReceiptAllocations(ctx, &r, raid, &xbiz)
 	if err != nil {
-		rlib.DeleteReceipt(r.RCPTID)
-		rlib.DeleteReceiptAllocations(r.RCPTID)
+		// TODO(Steve): ignore error?
+		_ = rlib.DeleteReceipt(ctx, r.RCPTID)
+		// TODO(Steve): ignore error?
+		_ = rlib.DeleteReceiptAllocations(ctx, r.RCPTID)
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error processing receipt: %s", funcname, lineno, err.Error())
 	}
 
@@ -250,7 +274,7 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	for i := 0; i < len(r.RA); i++ {
 		// fmt.Printf("Checking receipt allocation: %#v\n", r.RA[i])
-		a, err := rlib.GetAssessment(r.RA[i].ASMID)
+		a, err := rlib.GetAssessment(ctx, r.RA[i].ASMID)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error marking assessments as paid: %s", funcname, lineno, err.Error())
 		}
@@ -263,12 +287,12 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	// Now mark the allocated assessments as paid
 	//-------------------------------------------------------------------
 	for i := 0; i < len(r.RA); i++ {
-		a, err := rlib.GetAssessment(r.RA[i].ASMID)
+		a, err := rlib.GetAssessment(ctx, r.RA[i].ASMID)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error marking assessments as paid: %s", funcname, lineno, err.Error())
 		}
 		a.FLAGS |= 1 << 0 // bit 0 is the "paid" flag
-		err = rlib.UpdateAssessment(&a)
+		err = rlib.UpdateAssessment(ctx, &a)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error marking assessments as paid: %s", funcname, lineno, err.Error())
 		}
@@ -277,15 +301,18 @@ func CreateReceiptsFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// Process the receipt...
 	//-------------------------------------------------------------------
-	rlib.ProcessNewReceipt(Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, &r)
+	_, err = rlib.ProcessNewReceipt(ctx, Rcsv.Xbiz, &Rcsv.DtStart, &Rcsv.DtStop, &r)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error while processing new receipt: %s", funcname, lineno, err.Error())
+	}
 
 	return 0, nil
 }
 
 // LoadReceiptsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadReceiptsCSV(fname string) []error {
+func LoadReceiptsCSV(ctx context.Context, fname string) []error {
 	var m []error
-	// pmtTypes = rlib.GetPaymentTypes()
+
 	t := rlib.LoadCSV(fname)
 	if len(t) > 1 {
 		//-------------------------------------------------------------------
@@ -293,16 +320,20 @@ func LoadReceiptsCSV(fname string) []error {
 		//-------------------------------------------------------------------
 		des := strings.TrimSpace(t[1][0])
 		if len(des) > 0 {
-			b := rlib.GetBusinessByDesignation(des)
+			b, err := rlib.GetBusinessByDesignation(ctx, des)
+			if err != nil {
+				m = append(m, err)
+				return m
+			}
 			if b.BID < 1 {
 				err := fmt.Errorf("LoadReceiptsCSV: rlib.Business named %s not found", des)
 				m = append(m, err)
 				return m
 			}
 			rlib.InitBusinessFields(b.BID)
-			// rlib.GetDefaultLedgers(b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
+			// _ = rlib.GetDefaultLedgers(ctx, b.BID) // the actually loads the RRdb.BizTypes array which is needed by rpn
 		}
 	}
 
-	return LoadRentRollCSV(fname, CreateReceiptsFromCSV)
+	return LoadRentRollCSV(ctx, fname, CreateReceiptsFromCSV)
 }

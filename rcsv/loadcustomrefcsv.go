@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -11,9 +12,12 @@ import (
 //  REX,  5 ,          123,     456
 
 // CreateCustomAttributeRefs reads a rlib.CustomAttributeRefs string array and creates a database record
-func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
-	funcname := "Createrlib.CustomAttributeRefs"
-	var c rlib.CustomAttributeRef
+func CreateCustomAttributeRefs(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "Createrlib.CustomAttributeRefs"
+	var (
+		err error
+		c   rlib.CustomAttributeRef
+	)
 
 	const (
 		BUD         = 0
@@ -43,7 +47,10 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	cmpdes := strings.TrimSpace(sa[BUD])
 	if len(cmpdes) > 0 {
-		b2 := rlib.GetBusinessByDesignation(cmpdes)
+		b2, err := rlib.GetBusinessByDesignation(ctx, cmpdes)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Business named %s", funcname, lineno, cmpdes)
+		}
 		if b2.BID == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - could not find Business named %s", funcname, lineno, cmpdes)
 		}
@@ -70,18 +77,19 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 	switch c.ElementType {
 	case rlib.ELEMRENTABLETYPE:
 		var rt rlib.RentableType
-		err := rlib.GetRentableType(c.ID, &rt)
+		err := rlib.GetRentableType(ctx, c.ID, &rt)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rlib.RentableType with id %d:  error = %v", funcname, lineno, c.ID, err)
 		}
 	}
 
-	ref := rlib.GetCustomAttributeRef(c.ElementType, c.ID, c.CID)
+	// TODO(Steve): ignore error?
+	ref, _ := rlib.GetCustomAttributeRef(ctx, c.ElementType, c.ID, c.CID)
 	if ref.ElementType == c.ElementType && ref.CID == c.CID && ref.ID == c.ID {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - This reference already exists, no changes made", funcname, lineno)
 	}
 
-	err = rlib.InsertCustomAttributeRef(&c)
+	_, err = rlib.InsertCustomAttributeRef(ctx, &c)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert CustomAttributeRef. err = %v", funcname, lineno, err)
 	}
@@ -89,6 +97,6 @@ func CreateCustomAttributeRefs(sa []string, lineno int) (int, error) {
 }
 
 // LoadCustomAttributeRefsCSV loads a csv file with a chart of accounts and creates rlib.GLAccount markers for each
-func LoadCustomAttributeRefsCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateCustomAttributeRefs)
+func LoadCustomAttributeRefsCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateCustomAttributeRefs)
 }

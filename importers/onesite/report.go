@@ -1,6 +1,7 @@
 package onesite
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/importers/core"
@@ -36,6 +37,7 @@ func getSummaryReportSection1(importTime time.Time, csvFile string) string {
 
 // generateSummaryReport used to generate summary report from argued struct
 func generateSummaryReport(
+	ctx context.Context,
 	summaryCount map[int]map[string]int,
 	BID int64,
 	currentTime time.Time,
@@ -54,7 +56,11 @@ func generateSummaryReport(
 	tbl.AddColumn("Issues", 10, gotable.CELLINT, gotable.COLJUSTIFYLEFT)
 
 	// evaluate import count
-	core.GetImportedCount(summaryCount, BID)
+	err := core.GetImportedCount(ctx, summaryCount, BID)
+	if err != nil {
+		rlib.Ulog("generateSummaryReport: error = %s", err.Error())
+		tbl.SetSection3(err.Error())
+	}
 
 	// sort indices
 	summaryCountIndexes := []int{}
@@ -217,6 +223,7 @@ func generateDetailedReport(
 
 // generateRCSVReport return report for all type of csv defined here from rcsv
 func generateRCSVReport(
+	ctx context.Context,
 	business *rlib.Business,
 	summaryCount map[int]map[string]int,
 	csvFile string,
@@ -240,7 +247,7 @@ func generateRCSVReport(
 	rcsvReport += "\n\n"
 
 	for i := 0; i < len(r); i++ {
-		rcsvReport += r[i].Handler(&r[i])
+		rcsvReport += r[i].Handler(ctx, &r[i])
 		rcsvReport += strings.Repeat("=", len(title))
 		rcsvReport += "\n"
 	}
@@ -250,6 +257,7 @@ func generateRCSVReport(
 
 // successReport generates success report
 func successReport(
+	ctx context.Context,
 	business *rlib.Business,
 	summaryCount map[int]map[string]int,
 	csvFile string,
@@ -260,12 +268,12 @@ func successReport(
 	var report string
 
 	// append summary report
-	report += generateSummaryReport(summaryCount, business.BID, currentTime, csvFile)
+	report += generateSummaryReport(ctx, summaryCount, business.BID, currentTime, csvFile)
 	report += "\n"
 
 	// csv report for all types if testmode is on
 	if debugMode == 1 {
-		report += generateRCSVReport(business, summaryCount, csvFile)
+		report += generateRCSVReport(ctx, business, summaryCount, csvFile)
 	}
 
 	// return
@@ -274,6 +282,7 @@ func successReport(
 
 // errorReporting used to report the errors for onesite csv
 func errorReporting(
+	ctx context.Context,
 	business *rlib.Business,
 	csvErrors map[int][]string,
 	unitMap map[int]string,
@@ -291,7 +300,7 @@ func errorReporting(
 	detailedReport += "\n"
 
 	// append summary report
-	errReport += generateSummaryReport(summaryCount, business.BID, currentTime, csvFile)
+	errReport += generateSummaryReport(ctx, summaryCount, business.BID, currentTime, csvFile)
 	errReport += "\n"
 
 	// append detailedReport
@@ -300,7 +309,7 @@ func errorReporting(
 	// if true then generate csv report
 	// specia case: when there are only warnings but no errors
 	if csvReportGenerate && debugMode == 1 {
-		errReport += generateRCSVReport(business, summaryCount, csvFile)
+		errReport += generateRCSVReport(ctx, business, summaryCount, csvFile)
 	}
 
 	// return

@@ -1,6 +1,7 @@
 /*global
-    app, w2ui, w2popup, getCurrentBusiness, $, console, genDateRangeNavigator,
-    handleDateToolbarAction, dateFromString, dateControlString,
+    app, w2ui, popupPDFCustomDimensions, getCurrentBusiness, $, console, genDateRangeNavigator,
+    handleDateToolbarAction, dateFromString, dateControlString, exportReportCSV, exportReportPDF,
+    w2uiDateControlString
 */
 "use strict";
 function showReport(rptname, elToFocus) {
@@ -8,33 +9,52 @@ function showReport(rptname, elToFocus) {
         return;
     }
     var x = getCurrentBusiness();
-    var url = '/wsvc/' + x.value + '?r=' + rptname;
+    var url = '/v1/report/' + x.value + '?r=' + rptname;
     w2ui.toplayout.content('main', w2ui.reportslayout);
     w2ui.toplayout.hide('right',true);
-    var y = document.getElementsByName("dateD1");
-    if (y.length === 0) {
-        return; // the toolbar has not been rendered yet.  Just return now, we'll get called back.
-    }
-    var d = y[0].value;
-    app.D1 = d;
-    url += '&dtstart=' + d;
-    //console.log('d1 = ' + d);
-    y = document.getElementsByName("dateD2");
-    d = y[0].value;
-    app.D2 = d;
-    // console.log('d2 = ' + d);
-    url += '&dtstop=' + d;
-    console.log('url = ' + url);
-    var callBack;
 
-    if (elToFocus) {
-        callBack = function() {
-            // $("input[name="+elToFocus+"]").prop('readonly', true).focus().prop('readonly', false);
-            // elToFocus.focus();
-            // document.getElementsByName(elToFocus)[0].focus(); // arrr..... does not found element, WHY!!
-        };
+    url += '&dtstart=' + app.D1 + '&dtstop=' + app.D2 + '&edi=' + app.dateMode;
+
+    // var callBack;
+    // if (elToFocus) {
+    //     callBack = function() {
+    //         // $("input[name="+elToFocus+"]").prop('readonly', true).focus().prop('readonly', false);
+    //         // elToFocus.focus();
+    //         // document.getElementsByName(elToFocus)[0].focus(); // arrr..... does not found element, WHY!!
+    //     };
+    // }
+    w2ui.reportslayout.load('main', url, null, null /*callBack*/);
+}
+
+//-----------------------------------------------------------------------------
+// adjustInputD2
+//          - if D2 is being set based on d2str, which is typically set to the
+//            contents of a datenav control.
+//            In the UI, we need to adjust forward if app.dateMode == 1.
+// @params
+// @return  <no return value>
+//-----------------------------------------------------------------------------
+function adjustInputD2(d2str) {
+    var dt = dateFromString(d2str);
+    if (app.dateMode == 1) {
+        dt.setDate(dt.getDate() + 1); // in this mode, we need to add a day
     }
-    w2ui.reportslayout.load('main', url, null, callBack);
+    app.D2 = w2uiDateControlString(dt);
+}
+
+//-----------------------------------------------------------------------------
+// getDisplayD2
+//          - if D2 is being set based on the contents of a datenav control
+//            in the UI we need to adjust forward if app.dateMode == 1.
+// @params
+// @return  the date string to display
+//-----------------------------------------------------------------------------
+function getDisplayD2() {
+    var dt = dateFromString(app.D2);
+    if (app.dateMode == 1) {
+        dt.setDate(dt.getDate() - 1); // we need to subtract a day so it shows the last date included
+    }
+    return w2uiDateControlString(dt);
 }
 
 function buildReportElements(){
@@ -109,7 +129,7 @@ function buildReportElements(){
         name: 'reportstoolbar',
         items: tmp,
         onClick: function (event) {
-            var d1, d2; // start date, stop date
+            // var d1, d2; // start date, stop date
 
             if (event.target == "page_size") {
                 console.log("Page size selected");
@@ -118,22 +138,12 @@ function buildReportElements(){
                 console.log("orientation selected");
             }
             else if (event.target == "csvexport") {
-                d1 = document.getElementsByName("dateD1")[0].value;
-                app.D1 = d1;
-                d2 = document.getElementsByName("dateD2")[0].value;
-                app.D2 = d2;
-
                 // now call to export csv report function with start and stop date
-                exportReportCSV(app.last.report, d1, d2);
+                exportReportCSV(app.last.report, app.D1, app.D2);
             }
             else if (event.target == "printreport") {
-                d1 = document.getElementsByName("dateD1")[0].value;
-                app.D1 = d1;
-                d2 = document.getElementsByName("dateD2")[0].value;
-                app.D2 = d2;
-
                 // call to export pdf report function with start and stop date
-                exportReportPDF(app.last.report, d1, d2);
+                exportReportPDF(app.last.report, app.D1, app.D2);
             }
             else{
                 handleDateToolbarAction(event,'date');
@@ -147,7 +157,7 @@ function buildReportElements(){
                 var x = document.getElementsByName("dateD1");
                 x[0].value = app.D1;
                 x = document.getElementsByName("dateD2");
-                x[0].value = app.D2;
+                x[0].value = getDisplayD2();
             }
         }
     }));
@@ -164,7 +174,10 @@ function buildReportElements(){
         var xd1 = document.getElementsByName('dateD1')[0].value;
         var xd2 = document.getElementsByName('dateD2')[0].value;
         var d1 = dateFromString(xd1);
-        var d2 = dateFromString(xd2);
+        //var d2 = dateFromString(xd2);
+        adjustInputD2(xd2); // gets string from the control, adjusts app.D2
+        var d2 = dateFromString(app.D2);
+
         // check that it is valid or not
         if (isNaN(Date.parse(xd1))) {
             return;
@@ -191,7 +204,10 @@ function buildReportElements(){
         var xd1 = document.getElementsByName('dateD1')[0].value;
         var xd2 = document.getElementsByName('dateD2')[0].value;
         var d1 = dateFromString(xd1);
-        var d2 = dateFromString(xd2);
+        //var d2 = dateFromString(xd2);
+        adjustInputD2(xd2); // gets string from the control, adjusts app.D2
+        var d2 = dateFromString(app.D2);
+        xd2 = w2uiDateControlString(d2);
         // check that it is valid or not
         if (isNaN(Date.parse(xd2))) {
             return;

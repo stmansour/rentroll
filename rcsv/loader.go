@@ -1,12 +1,11 @@
 package rcsv
 
 import (
-	"fmt"
 	"rentroll/rlib"
 	"time"
 )
 
-// CSVBusiness et. al., are indeces of the functions that load a csv file with
+/*// CSVBusiness et. al., are indeces of the functions that load a csv file with
 // the type of information described in the constant's name.
 const (
 	CSVAssessments              = 0
@@ -42,7 +41,7 @@ const (
 type CSVLoader struct {
 	Name   string
 	Index  int // which loader
-	Loader func(string) []error
+	Loader func(context.Context, string) []error
 }
 
 // CSVLoaders is an array of functions that load CSV files that are indexed
@@ -76,7 +75,7 @@ var CSVLoaders = []CSVLoader{
 	// {Name: "NoteTypes", Index: CSVNoteTypes, Loader: LoadNoteTypesCSV},
 	// {Name: "Invoices", Index: CSVInvoices, Loader: LoadInvoicesCSV},
 	// {Name: "Building", Index: CSVBuilding, Loader: LoadBuildingCSV},
-}
+}*/
 
 // Rcsv contains the shared data used by the RCS loaders
 var Rcsv struct {
@@ -92,14 +91,14 @@ func InitRCSV(d1, d2 *time.Time, xbiz *rlib.XBusiness) {
 	Rcsv.Xbiz = xbiz
 }
 
-// DispatchCSV is the generic CSV loader call. It will call a csv loader with the supplied
+/*// DispatchCSV is the generic CSV loader call. It will call a csv loader with the supplied
 // file name based on the supplied index.
-func DispatchCSV(index int, fname string) string {
+func DispatchCSV(ctx context.Context, index int, fname string) string {
 	for i := 0; i < len(CSVLoaders); i++ {
 		if CSVLoaders[i].Index == index {
-			m := CSVLoaders[i].Loader(fname)
+			m := CSVLoaders[i].Loader(ctx, fname)
 			return ErrlistToString(&m)
 		}
 	}
 	return fmt.Sprintf("CSV Loader %d not found", index)
-}
+}*/

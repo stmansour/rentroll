@@ -1,13 +1,14 @@
 package bizlogic
 
 import (
+	"context"
 	"rentroll/rlib"
 	"time"
 )
 
 // FinalizeTransactant performs bizlogic checks on the transactant
 // and initializes the LedgerMarker for any payments they make.
-func FinalizeTransactant(a *rlib.Transactant) []BizError {
+func FinalizeTransactant(ctx context.Context, a *rlib.Transactant) []BizError {
 	var errlist []BizError
 	var lm = rlib.LedgerMarker{
 		LID:     0,
@@ -19,7 +20,7 @@ func FinalizeTransactant(a *rlib.Transactant) []BizError {
 		Balance: 0.0,
 		State:   rlib.LMINITIAL,
 	}
-	err := rlib.InsertLedgerMarker(&lm)
+	_, err := rlib.InsertLedgerMarker(ctx, &lm)
 	if err != nil {
 		errlist = AddErrToBizErrlist(err, errlist)
 	}

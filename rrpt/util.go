@@ -1,9 +1,9 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
-	"io"
 	"net/url"
 	"rentroll/rlib"
 	"strings"
@@ -97,19 +97,29 @@ const (
 	NoRecordsFoundMsg = "no records found"
 )
 
+type singleGoTableHandler func(context.Context, *ReporterInfo) gotable.Table
+
 // SingleTableReportHandler : single table report handler, used to get report from a table in a required output format
 type SingleTableReportHandler struct {
-	Found        bool
-	ReportNames  []string
-	TableHandler func(*ReporterInfo) gotable.Table
+	Found                   bool
+	ReportNames             []string
+	TableHandler            singleGoTableHandler
+	PDFprops                []*gotable.PDFProperty
+	HTMLTemplate            string
+	NeedsCustomPDFDimension bool
+	NeedsPDFTitle           bool
 }
+
+type multiGoTableHandler func(context.Context, *ReporterInfo) ([]gotable.Table, error)
 
 // MultiTableReportHandler : multi table report handler, used to get report from multiple tables in a required output format
 type MultiTableReportHandler struct {
-	ReportTitle  string
-	Found        bool
-	ReportNames  []string
-	TableHandler func(*ReporterInfo) []gotable.Table
+	ReportTitle             string
+	Found                   bool
+	ReportNames             []string
+	TableHandler            multiGoTableHandler
+	PDFprops                []*gotable.PDFProperty
+	NeedsCustomPDFDimension bool
 }
 
 // ReporterInfo is for routines that want to table-ize their reporting using
@@ -117,19 +127,43 @@ type MultiTableReportHandler struct {
 type ReporterInfo struct {
 	ReportNo              int       // index number of the report
 	OutputFormat          int       // text, html, maybe more in the future
+	EDI                   int       // end date inclusive -- 0 = no, 1 = yes
 	Bid                   int64     // associated business
 	Raid                  int64     // associated Rental Agreement if needed
 	D1                    time.Time // associated date if needed
 	D2                    time.Time // associated date if needed
+	ID                    int64     // specific id if a single entity is being printed
 	NeedsBID              bool      // true if BID is needed for this report
 	NeedsRAID             bool      // true if RAID is needed for this report
 	NeedsDt               bool      // true if a Date is needed for this report
 	RptHeaderD1           bool      // true if the report's header should contain D1
 	RptHeaderD2           bool      // true if the dates should show as a range D1 - D2
 	BlankLineAfterRptName bool      // true if a blank line should be added after the Report Name
-	Handler               func(*ReporterInfo) string
+	Handler               func(context.Context, *ReporterInfo) string
 	Xbiz                  *rlib.XBusiness // may not be set in all cases
 	QueryParams           *url.Values
+}
+
+// GetDisplayD2 returns the appropriate display date for the end date of a period.
+//     Some people like to see the last date as up-to-and-including.  But from a
+//     code perspective, we always set the end date to a value which
+//     is up-to-but-not-including.  If ri.EDI == 0, then we display the date as
+//     up-to-and-including.  If EDI == 1, we display the up-to-but-not-including
+//     value.
+//
+// INPUT
+//   ri - Report context
+//
+// RETURNS - the display date
+//-----------------------------------------------------------------------------
+func GetDisplayD2(ri *ReporterInfo) time.Time {
+	// Adjust d2 depending on the mode...  0 = no adjustment needed, 1 = inclusive last date, so subtract 1 day
+	// rlib.Console("*** GetDisplayD2:  ri.EDI = %d\n", ri.EDI)
+	d2 := ri.D2
+	if ri.EDI == 1 {
+		d2 = d2.AddDate(0, 0, -1)
+	}
+	return d2
 }
 
 // TableReportHeader returns a title block of text for a report. The format is:
@@ -147,21 +181,23 @@ type ReporterInfo struct {
 // @return
 //		string = title string
 //         err = any problem that occurred
-func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
+func TableReportHeader(ctx context.Context, tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
 	tbl.SetTitle(ri.Xbiz.P.Designation + " " + rn)
 
 	var s string
+	d2 := GetDisplayD2(ri)
+	// rlib.Console("*** Table Report Header:  d2 = %s\n", d2.Format(rlib.RRDATEREPORTFMT))
 	if ri.RptHeaderD1 && ri.RptHeaderD2 {
-		s = ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + ri.D2.Format(rlib.RRDATEREPORTFMT)
+		s = ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + d2.Format(rlib.RRDATEREPORTFMT)
 	} else if ri.RptHeaderD1 {
 		s = ri.D1.Format(rlib.RRDATEREPORTFMT)
 	} else if ri.RptHeaderD2 {
-		s = ri.D2.Format(rlib.RRDATEREPORTFMT)
+		s = d2.Format(rlib.RRDATEREPORTFMT)
 	}
 	tbl.SetSection1(s)
 
 	var s1 string
-	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
+	bu, err := rlib.GetBusinessUnitByDesignation(ctx, ri.Xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
 		tbl.SetSection3(e.Error())
@@ -170,7 +206,7 @@ func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo
 	if bu.CoCode == 0 {
 		s1 = bu.Name + "\n\n"
 	} else {
-		c, err := rlib.GetCompany(int64(bu.CoCode))
+		c, err := rlib.GetCompany(ctx, int64(bu.CoCode))
 		if err != nil {
 			e := fmt.Errorf("%s: error getting Company - %s\nBusinessUnit = %s, bu = %#v", funcname, err.Error(), ri.Xbiz.P.Designation, bu)
 			tbl.SetSection3(e.Error())
@@ -202,12 +238,14 @@ func TableReportHeader(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo
 //
 // @return
 //		string = title string
-func TableReportHeaderBlock(tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
+func TableReportHeaderBlock(ctx context.Context, tbl *gotable.Table, rn, funcname string, ri *ReporterInfo) error {
 	if ri.Xbiz == nil {
 		ri.Xbiz = new(rlib.XBusiness)
-		rlib.GetXBusiness(ri.Bid, ri.Xbiz)
+		if err := rlib.GetXBusiness(ctx, ri.Bid, ri.Xbiz); err != nil {
+			return err
+		}
 	}
-	return TableReportHeader(tbl, rn, funcname, ri)
+	return TableReportHeader(ctx, tbl, rn, funcname, ri)
 }
 
 // ReportHeader returns a title block of text for a report.
@@ -219,9 +257,9 @@ func TableReportHeaderBlock(tbl *gotable.Table, rn, funcname string, ri *Reporte
 // @return
 //		string = title string
 //         err = any problem that occurred
-func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
+func ReportHeader(ctx context.Context, rn, funcname string, ri *ReporterInfo) (string, error) {
 	s := ri.Xbiz.P.Designation + "\n"
-	bu, err := rlib.GetBusinessUnitByDesignation(ri.Xbiz.P.Designation)
+	bu, err := rlib.GetBusinessUnitByDesignation(ctx, ri.Xbiz.P.Designation)
 	if err != nil {
 		e := fmt.Errorf("%s: error getting BusinessUnit - %s", funcname, err.Error())
 		return s, e
@@ -229,7 +267,7 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 	if bu.CoCode == 0 {
 		s += bu.Name + "\n\n"
 	} else {
-		c, err := rlib.GetCompany(int64(bu.CoCode))
+		c, err := rlib.GetCompany(ctx, int64(bu.CoCode))
 		if err != nil {
 			e := fmt.Errorf("%s: error getting Company - %s\nBusinessUnit = %s, bu = %#v", funcname, err.Error(), ri.Xbiz.P.Designation, bu)
 			return s, e
@@ -245,18 +283,22 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 	if ri.BlankLineAfterRptName {
 		s += "\n"
 	}
+
+	d2 := GetDisplayD2(ri)
+	rlib.Console("*** Report Header:  d2 = %s\n", d2.Format(rlib.RRDATEREPORTFMT))
+
 	if ri.RptHeaderD1 && ri.RptHeaderD2 {
-		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + ri.D2.Format(rlib.RRDATEREPORTFMT) + "\n"
+		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + d2.Format(rlib.RRDATEREPORTFMT) + "\n"
 	} else if ri.RptHeaderD1 {
 		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + "\n"
 	} else if ri.RptHeaderD2 {
-		s += ri.D2.Format(rlib.RRDATEREPORTFMT) + "\n"
+		s += d2.Format(rlib.RRDATEREPORTFMT) + "\n"
 	}
 	s += "\n"
 	return s, nil
 }
 
-// ReportHeaderBlock is a wrapper for Report header. It ensures that ri.Xbiz is valid
+/*// ReportHeaderBlock is a wrapper for Report header. It ensures that ri.Xbiz is valid
 //		and will append any error messages to the title.
 //
 // @params
@@ -266,17 +308,20 @@ func ReportHeader(rn, funcname string, ri *ReporterInfo) (string, error) {
 //
 // @return
 //		string = title string
-func ReportHeaderBlock(rn, funcname string, ri *ReporterInfo) string {
+func ReportHeaderBlock(ctx context.Context, rn, funcname string, ri *ReporterInfo) string {
 	if ri.Xbiz == nil {
 		ri.Xbiz = new(rlib.XBusiness)
-		rlib.GetXBusiness(ri.Bid, ri.Xbiz)
+		err = rlib.GetXBusiness(ctx, ri.Bid, ri.Xbiz)
+		if err != nil {
+			return err.Error() // should return error from here!!!
+		}
 	}
 	s, err := ReportHeader(rn, funcname, ri)
 	if err != nil {
 		s += "\n" + err.Error() + "\n"
 	}
 	return s
-}
+}*/
 
 // ReportToString returns a string version of the report. It uses information in
 // 		ri for the output format and whether or not to include the title.
@@ -310,22 +355,6 @@ func getRRTable() gotable.Table {
 	tbl.SetNoHeadersCSS(RReportTableErrorSectionCSS)
 
 	return tbl
-}
-
-// MultiTablePDFPrint writes pdf output from each table to w io.Writer
-func MultiTablePDFPrint(m []gotable.Table, w io.Writer, pdfTitle string, pdfPageWidth float64, pdfPageHeight float64, pdfPageSizeUnit string) {
-
-	// pdf props title
-	pdfProps := GetReportPDFProps()
-
-	pdfProps = SetPDFOption(pdfProps, "--header-center", pdfTitle)
-	pw := rlib.Float64ToString(pdfPageWidth) + pdfPageSizeUnit
-	pdfProps = SetPDFOption(pdfProps, "--page-width", pw)
-	ph := rlib.Float64ToString(pdfPageHeight) + pdfPageSizeUnit
-	pdfProps = SetPDFOption(pdfProps, "--page-height", ph)
-
-	gotable.MultiTablePDFPrint(m, w, pdfProps)
-
 }
 
 // GetAttachmentDate used to get date for attachements served over web

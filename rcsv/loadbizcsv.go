@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strconv"
@@ -25,13 +26,15 @@ func GetAccrual(s string) (int64, bool) {
 
 // CreatePhonebookLinkedBusiness creates a new rlib.Business in the
 // RentRoll database from the company in Phonebook with the supplied designation
-func CreatePhonebookLinkedBusiness(sa []string, lineno int) (int, error) {
-	funcname := "CreatePhonebookLinkedBusiness"
-	var b rlib.Business
-	des := strings.TrimSpace(sa[0])
-	found := true
-	var err error
-	var ok bool
+func CreatePhonebookLinkedBusiness(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreatePhonebookLinkedBusiness"
+	var (
+		err   error
+		b     rlib.Business
+		des   = strings.TrimSpace(sa[0])
+		found = true
+		ok    bool
+	)
 
 	const (
 		BUD                   = 0
@@ -62,7 +65,8 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (int, error) {
 	// Check to see if this rlib.Business is already in the database
 	//-------------------------------------------------------------------
 	if len(des) > 0 {
-		b1 := rlib.GetBusinessByDesignation(des)
+		// TODO(Steve): ignore error?
+		b1, _ := rlib.GetBusinessByDesignation(ctx, des)
 		if len(b1.Designation) > 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -rs, rlib.Business Unit with designation %s already exists", funcname, lineno, des)
 		}
@@ -73,16 +77,12 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (int, error) {
 	// It does not exist, see if we can find it in Phonebook...
 	//-------------------------------------------------------------------
 	if !found && len(des) > 0 {
-		bu, err := rlib.GetBusinessUnitByDesignation(des)
-		if nil != err {
-			if !rlib.IsSQLNoResultsError(err) { // if the error is something other than "no match" then report and return CsvErrorSensitivity
-				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not load rlib.Business Unit with Designation %s from Accord Directory: error = %v", funcname, lineno, des, err)
-			}
-		} else {
+		bu, _ := rlib.GetBusinessUnitByDesignation(ctx, des)
+		if len(bu.Description) > 0 {
 			found = true
+			b.Name = bu.Name    // Phonebook rlib.Business Unit name
+			b.Designation = des // rlib.Business unit designator
 		}
-		b.Name = bu.Name    // Phonebook rlib.Business Unit name
-		b.Designation = des // rlib.Business unit designator
 	}
 
 	//-----------------------------------------
@@ -114,9 +114,8 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (int, error) {
 		b.Name = strings.TrimSpace(sa[1])
 		b.Designation = des
 	}
-
 	// fmt.Printf("Business to save:  %#v\n", b)
-	_, err = rlib.InsertBusiness(&b)
+	_, err = rlib.InsertBusiness(ctx, &b)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: error inserting rlib.Business = %v", funcname, err)
 	}
@@ -129,6 +128,6 @@ func CreatePhonebookLinkedBusiness(sa []string, lineno int) (int, error) {
 
 // LoadBusinessCSV loads the values from the supplied csv file and creates rlib.Business records
 // as needed.
-func LoadBusinessCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreatePhonebookLinkedBusiness)
+func LoadBusinessCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreatePhonebookLinkedBusiness)
 }

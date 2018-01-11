@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -12,10 +13,12 @@ import (
 // REX, 6/1/16,  /*DEP001,   */ 7/1/16   1,           "ASM00001,2"
 
 // CreateInvoicesFromCSV reads an invoice type string array and creates a database record
-func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
-	funcname := "CreateInvoicesFromCSV"
-	var err error
-	var inv rlib.Invoice
+func CreateInvoicesFromCSV(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateInvoicesFromCSV"
+	var (
+		err error
+		inv rlib.Invoice
+	)
 
 	const (
 		BUD            = 0
@@ -49,7 +52,10 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	bud := strings.ToLower(strings.TrimSpace(sa[BUD]))
 	if len(bud) > 0 {
-		b1 := rlib.GetBusinessByDesignation(bud)
+		b1, err := rlib.GetBusinessByDesignation(ctx, bud)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error while getting business by designation(%s), Error: %s", funcname, lineno, sa[BUD], err.Error())
+		}
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Business with designation %s does not exist", funcname, lineno, sa[BUD])
 		}
@@ -106,7 +112,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 		}
 		asmts = append(asmts, id)
 		// load each assessment so that we can total the amount and see if it matches Amount
-		a, err := rlib.GetAssessment(id)
+		a, err := rlib.GetAssessment(ctx, id)
 		if err != nil {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error getting Assessment %d: %v", funcname, lineno, id, err)
 		}
@@ -124,7 +130,10 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 	inv.Amount = tot
 
 	// build the payor list
-	m := rlib.GetRentalAgreementPayorsInRange(RAID, &inv.Dt, &inv.DtDue) // these are the main payors
+	m, err := rlib.GetRentalAgreementPayorsInRange(ctx, RAID, &inv.Dt, &inv.DtDue) // these are the main payors
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  Error while getting agreement payors for RAID(%d), inv.Dt(%q), inv.DtDue(%q). Error: %s", funcname, lineno, RAID, inv.Dt, inv.DtDue, err.Error())
+	}
 	// for i := 0; i < len(t); i++ {                                 // if there are any additional people that should receive the invoice...
 	// 	var a rlib.RentalAgreementPayor // add them...
 	// 	a.TCID = t[i].TCID              // as a RentalAgreementPayor struct...
@@ -138,7 +147,7 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	// We have all we need. Write the records.  First, the Invoice itself
 	//-------------------------------------------------------------------
-	id, err := rlib.InsertInvoice(&inv)
+	id, err := rlib.InsertInvoice(ctx, &inv)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting invoice: %v", funcname, lineno, err)
 	}
@@ -148,9 +157,12 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 		a.InvoiceNo = id
 		a.ASMID = asmts[i]
 		a.BID = inv.BID
-		err = rlib.InsertInvoiceAssessment(&a)
+		_, err = rlib.InsertInvoiceAssessment(ctx, &a)
 		if nil != err {
-			rlib.DeleteInvoice(id)
+			err = rlib.DeleteInvoice(ctx, id)
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error deleting invoice(%d) : %v", funcname, lineno, id, err.Error())
+			}
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting invoice part: %v", funcname, lineno, err)
 		}
 	}
@@ -160,9 +172,12 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 		a.InvoiceNo = id
 		a.BID = inv.BID
 		a.PID = m[i].TCID
-		err = rlib.InsertInvoicePayor(&a)
+		_, err = rlib.InsertInvoicePayor(ctx, &a)
 		if nil != err {
-			rlib.DeleteInvoice(id)
+			err = rlib.DeleteInvoice(ctx, id)
+			if err != nil {
+				return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error deleting invoice(%d) : %v", funcname, lineno, id, err.Error())
+			}
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d -  error inserting invoice payor: %v", funcname, lineno, err)
 		}
 	}
@@ -170,6 +185,6 @@ func CreateInvoicesFromCSV(sa []string, lineno int) (int, error) {
 }
 
 // LoadInvoicesCSV loads a csv file with deposits and creates Invoice records
-func LoadInvoicesCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateInvoicesFromCSV)
+func LoadInvoicesCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateInvoicesFromCSV)
 }

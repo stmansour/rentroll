@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{.HeadTitle}}</title>
+    {{.DefaultCSS}}
+    {{.CustomCSS}}
+    <style type="text/css">
+        p{
+            text-align: justify;
+        }
+        div.container{
+            margin-top: 50px;
+        }
+        div.rpt-table-container table thead tr th{
+            border-bottom: none;
+        }
+        div.rpt-table-container table{
+            page-break-after:avoid;
+            margin-bottom: 50px;
+        }
+        table tr td, th{
+            white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body>
+    <header style="text-align: center;">
+        <img src="webclient/html/rpt-templates/ISO/isola-bella-logo.jpg" width="300" height="60" />
+    </header>
+    <div class="container">
+        {{.TableHTML}}
+    </div>
+    <footer>
+        <p>
+            Isola Bella hereby acknowledges that the Resident named above has tendered payment in the amount shown above.  Isola Bella reserves the right to accept or reject such payment within one business day of the date of this Receipt.  In the event, the payment is rejected, Isola Bella will use commercially-reasonable means of returning the payment to the Resident, and no payment shall be evidenced hereby.
+        </p>
+    </footer>
+</body>
+</html>

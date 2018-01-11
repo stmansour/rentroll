@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"gotable"
 	"rentroll/rlib"
 	"strings"
@@ -22,11 +23,12 @@ func getCategory(s string) (string, string) {
 }
 
 // RRreportStringListsTable generates a table object of all StringLists for the supplied business (ri.Bid)
-func RRreportStringListsTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportStringListsTable"
+func RRreportStringListsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportStringListsTable"
 
 	// init and prepare some values before table init
 	var (
+		err      error
 		cat, val string
 	)
 
@@ -38,13 +40,19 @@ func RRreportStringListsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Value", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set table title, sections
-	err := TableReportHeaderBlock(&tbl, "String Lists", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "String Lists", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
-	m := rlib.GetAllStringLists(ri.Bid)
+	m, err := rlib.GetAllStringLists(ctx, ri.Bid)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 
 	for i := 0; i < len(m); i++ {
 		tbl.AddRow()
@@ -61,7 +69,7 @@ func RRreportStringListsTable(ri *ReporterInfo) gotable.Table {
 }
 
 // RRreportStringLists generates a report of all StringLists for the supplied business (ri.Bid)
-func RRreportStringLists(ri *ReporterInfo) string {
-	tbl := RRreportStringListsTable(ri)
+func RRreportStringLists(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportStringListsTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

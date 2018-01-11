@@ -28,6 +28,8 @@ docsvtest "e" "-L 6,${BUD}" "Rentables"
 docsvtest "f" "-L 9,${BUD}" "RentalAgreements"
 docsvtest "h" "-L 14,${BUD}" "CustomAttribute"
 docsvtest "k" "-L 15,${BUD}" "CustomAttributeRef"
+docsvtest "y" "-P pmt.csv -L 12,${BUD}" "Payment Types"
 
 logcheck
 
+mysqldump --no-defaults rentroll >iso.sql

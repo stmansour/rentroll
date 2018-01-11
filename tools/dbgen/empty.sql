@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.16
+-- Server version	5.7.20-0ubuntu0.16.04.1-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -144,6 +144,8 @@ CREATE TABLE `AvailabilityTypes` (
   `AVAILID` bigint(20) NOT NULL AUTO_INCREMENT,
   `BID` bigint(20) NOT NULL,
   `Name` varchar(100) NOT NULL DEFAULT '',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`AVAILID`)
@@ -234,6 +236,8 @@ DROP TABLE IF EXISTS `BusinessAssessments`;
 CREATE TABLE `BusinessAssessments` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `ATypeLID` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -258,6 +262,8 @@ DROP TABLE IF EXISTS `BusinessPaymentTypes`;
 CREATE TABLE `BusinessPaymentTypes` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `PMTID` mediumint(9) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -288,6 +294,8 @@ CREATE TABLE `CommissionLedger` (
   `Percent` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `Amount` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `PaymentDueDate` date NOT NULL DEFAULT '1970-01-01',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`CLID`)
@@ -346,8 +354,12 @@ CREATE TABLE `CustomAttrRef` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `ID` bigint(20) NOT NULL,
   `CID` bigint(20) NOT NULL,
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `CARID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`CARID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -627,8 +639,12 @@ CREATE TABLE `InvoiceAssessment` (
   `InvoiceNo` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `ASMID` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `InvoiceASMID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`InvoiceASMID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -652,8 +668,12 @@ CREATE TABLE `InvoicePayor` (
   `InvoiceNo` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `PID` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `InvoicePayorID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`InvoicePayorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -717,6 +737,8 @@ CREATE TABLE `JournalAllocation` (
   `ASMID` bigint(20) NOT NULL DEFAULT '0',
   `EXPID` bigint(20) NOT NULL DEFAULT '0',
   `AcctRule` varchar(200) NOT NULL DEFAULT '',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`JAID`)
@@ -743,7 +765,10 @@ CREATE TABLE `JournalAudit` (
   `JID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UID` mediumint(9) NOT NULL DEFAULT '0',
-  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -797,7 +822,10 @@ CREATE TABLE `JournalMarkerAudit` (
   `JMID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UID` mediumint(9) NOT NULL DEFAULT '0',
-  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -850,7 +878,10 @@ CREATE TABLE `LedgerAudit` (
   `LEID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UID` mediumint(9) NOT NULL DEFAULT '0',
-  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -945,7 +976,10 @@ CREATE TABLE `LedgerMarkerAudit` (
   `LMID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UID` mediumint(9) NOT NULL DEFAULT '0',
-  `ModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1088,6 +1122,8 @@ CREATE TABLE `OtherDeliverables` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Name` varchar(256) DEFAULT NULL,
   `Active` smallint(6) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ODID`)
@@ -1141,7 +1177,7 @@ DROP TABLE IF EXISTS `Payor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Payor` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `TaxpayorID` varchar(25) NOT NULL DEFAULT '',
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
@@ -1172,7 +1208,7 @@ DROP TABLE IF EXISTS `Prospect`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Prospect` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `EmployerName` varchar(100) NOT NULL DEFAULT '',
   `EmployerStreetAddress` varchar(100) NOT NULL DEFAULT '',
@@ -1250,6 +1286,8 @@ CREATE TABLE `RatePlanOD` (
   `RPRID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `ODID` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1313,8 +1351,12 @@ CREATE TABLE `RatePlanRefRTRate` (
   `RTID` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `Val` decimal(19,4) NOT NULL DEFAULT '0.0000',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RPRRTRateID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`RPRRTRateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1341,8 +1383,12 @@ CREATE TABLE `RatePlanRefSPRate` (
   `RSPID` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `Val` decimal(19,4) NOT NULL DEFAULT '0.0000',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RPRSPRateID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`RPRSPRateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1476,6 +1522,8 @@ CREATE TABLE `RentableMarketRate` (
   `MarketRate` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtStop` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RMRID`)
@@ -1504,6 +1552,8 @@ CREATE TABLE `RentableSpecialty` (
   `Name` varchar(100) NOT NULL DEFAULT '',
   `Fee` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `Description` varchar(256) NOT NULL DEFAULT '',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RSPID`)
@@ -1535,7 +1585,9 @@ CREATE TABLE `RentableSpecialtyRef` (
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0'
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `RSPRefID` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`RSPRefID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1627,6 +1679,8 @@ CREATE TABLE `RentableTypeTax` (
   `TAXID` bigint(20) NOT NULL DEFAULT '0',
   `DtStart` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtStop` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1689,6 +1743,8 @@ CREATE TABLE `RentableUsers` (
   `TCID` bigint(20) NOT NULL DEFAULT '0',
   `DtStart` date NOT NULL DEFAULT '1970-01-01',
   `DtStop` date NOT NULL DEFAULT '1970-01-01',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RUID`)
@@ -1777,6 +1833,8 @@ CREATE TABLE `RentalAgreementPayors` (
   `DtStart` date NOT NULL DEFAULT '1970-01-01',
   `DtStop` date NOT NULL DEFAULT '1970-01-01',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RAPID`)
@@ -1843,6 +1901,8 @@ CREATE TABLE `RentalAgreementRentables` (
   `ContractRent` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `RARDtStart` date NOT NULL DEFAULT '1970-01-01',
   `RARDtStop` date NOT NULL DEFAULT '1970-01-01',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`RARID`)
@@ -1871,6 +1931,8 @@ CREATE TABLE `RentalAgreementTax` (
   `DtStart` date NOT NULL DEFAULT '1970-01-01',
   `DtStop` date NOT NULL DEFAULT '1970-01-01',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2151,7 +2213,7 @@ DROP TABLE IF EXISTS `User`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `User` (
-  `TCID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Points` bigint(20) NOT NULL DEFAULT '0',
   `DateofBirth` date NOT NULL DEFAULT '1970-01-01',
@@ -2227,4 +2289,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-27 13:55:47
+-- Dump completed on 2017-12-18 18:25:31

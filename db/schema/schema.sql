@@ -1,4 +1,3 @@
---     Table names are all lower case
 --     Field names are camel case
 --     Money values are all stored as DECIMAL(19,4)
 
@@ -158,6 +157,7 @@ CREATE TABLE CustomAttr (
 );
 
 CREATE TABLE CustomAttrRef (
+    CARID BIGINT NOT NULL AUTO_INCREMENT,                   -- unique identifer for this custom attribute Reference
     ElementType BIGINT NOT NULL,                            -- for what type of object is this a ref:  1=Person, 2=Company, 3=Business-Unit, 4=executable service, 5=RentableType
     BID         BIGINT NOT NULL DEFAULT 0,                  -- Business associated with this NoteType
     ID          BIGINT NOT NULL,                            -- the UID of the object type. That is, if ObjectType == 5, the ID is the RTID (Rentable type id)
@@ -165,7 +165,8 @@ CREATE TABLE CustomAttrRef (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                      -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (CARID)
 );
 
 -- ===========================================
@@ -361,6 +362,7 @@ CREATE TABLE RatePlanRef (
 
 -- RatePlanRefRTRate is RatePlan RPRID's rate information for the RentableType (RTID)
 CREATE TABLE RatePlanRefRTRate (
+    RPRRTRateID BIGINT NOT NULL AUTO_INCREMENT,                -- unique id for this rate plan ref RT Rate
     RPRID BIGINT NOT NULL DEFAULT 0,                          -- which RatePlanRef is this
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business
     RTID BIGINT NOT NULL DEFAULT 0,                           -- which RentableType
@@ -369,10 +371,13 @@ CREATE TABLE RatePlanRefRTRate (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                        -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (RPRRTRateID)
 );
+
 -- RatePlanRefSPRate is RatePlan RPRID's rate information for the Specialties
 CREATE TABLE RatePlanRefSPRate (
+    RPRSPRateID BIGINT NOT NULL AUTO_INCREMENT,                -- unique id for this rate plan ref SP Rate
     RPRID BIGINT NOT NULL DEFAULT 0,                          -- which RatePlanRef is this
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business
     RTID BIGINT NOT NULL DEFAULT 0,                           -- which RentableType
@@ -382,7 +387,8 @@ CREATE TABLE RatePlanRefSPRate (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,             -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                        -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (RPRSPRateID)
 );
 
 -- Rate plans can have other deliverables. These can be things like 2 tickets to SeaWorld, free meal vouchers, etc.
@@ -654,6 +660,7 @@ CREATE TABLE RentableTypeRef (
 );
 
 CREATE TABLE RentableSpecialtyRef (
+    RSPRefID BIGINT NOT NULL AUTO_INCREMENT,                        -- unique id for Rentable specialty Reference
     BID BIGINT NOT NULL DEFAULT 0,                                  -- the Business
     RID BIGINT NOT NULL DEFAULT 0,                                  -- unique id of unit
     RSPID BIGINT NOT NULL DEFAULT 0,                                -- unique id of specialty (see Table RentableSpecialties)
@@ -662,7 +669,8 @@ CREATE TABLE RentableSpecialtyRef (
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                              -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (RSPRefID)
 );
 
 
@@ -740,8 +748,8 @@ CREATE TABLE Transactant (
 
 -- website
 CREATE TABLE Prospect (
-    -- PRSPID BIGINT NOT NULL DEFAULT 0,                    -- unique id of this Prospect
-    TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant (has Name and all contact info)
+    -- ProspectID BIGINT NOT NULL AUTO_INCREMENT,           -- unique id of this Prospect
+    TCID BIGINT NOT NULL,                                   -- associated Transactant (has Name and all contact info)
     BID BIGINT NOT NULL DEFAULT 0,                          -- which business
     EmployerName  VARCHAR(100) NOT NULL DEFAULT '',
     EmployerStreetAddress VARCHAR(100) NOT NULL DEFAULT '',
@@ -781,7 +789,8 @@ CREATE TABLE Prospect (
 --   USER
 -- ===========================================
 CREATE TABLE User (
-    TCID BIGINT NOT NULL DEFAULT 0,                             -- associated Transactant
+    -- UserID BIGINT NOT NULL AUTO_INCREMENT,                   -- Unique identifier for vehicle
+    TCID BIGINT NOT NULL,                                       -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                              -- which business
     Points BIGINT NOT NULL DEFAULT 0,                           -- bonus points for this User
     DateofBirth DATE NOT NULL DEFAULT '1970-01-01T00:00:00',
@@ -800,8 +809,26 @@ CREATE TABLE User (
     PRIMARY KEY (TCID)
 );
 
+-- ===========================================
+--   PAYOR
+-- ===========================================
+CREATE TABLE Payor (
+    -- PayorID BIGINT NOT NULL AUTO_INCREMENT,              -- unique id of this Payor
+    TCID BIGINT NOT NULL,                                   -- associated Transactant
+    BID BIGINT NOT NULL DEFAULT 0,                          -- which business
+    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
+    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
+    AccountRep BIGINT NOT NULL DEFAULT 0,                   -- Accord (renting company) Phonebook UID of account rep
+    EligibleFuturePayor SMALLINT NOT NULL DEFAULT 1,        -- yes/no
+    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (TCID)
+);
+
 CREATE TABLE Vehicle (
-    VID BIGINT NOT NULL AUTO_INCREMENT,                               -- Unique identifier for vehicle
+    VID BIGINT NOT NULL AUTO_INCREMENT,                          -- Unique identifier for vehicle
     TCID BIGINT NOT NULL DEFAULT 0,                              -- Transactant ID of vehicle owner
     BID BIGINT NOT NULL DEFAULT 0,
     VehicleType VARCHAR(80) NOT NULL DEFAULT '',
@@ -819,26 +846,6 @@ CREATE TABLE Vehicle (
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
     PRIMARY KEY (VID)
-);
-
-
-
--- ===========================================
---   PAYOR
--- ===========================================
-CREATE TABLE Payor (
-    -- PID BIGINT NOT NULL DEFAULT 0,                       -- unique id of this Payor
-    TCID BIGINT NOT NULL DEFAULT 0,                         -- associated Transactant
-    BID BIGINT NOT NULL DEFAULT 0,                          -- which business
-    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
-    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
-    AccountRep BIGINT NOT NULL DEFAULT 0,                   -- Accord (renting company) Phonebook UID of account rep
-    EligibleFuturePayor SMALLINT NOT NULL DEFAULT 1,        -- yes/no
-    LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
-    PRIMARY KEY (TCID)
 );
 
 
@@ -935,7 +942,7 @@ CREATE TABLE AR (
     FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts,
                                                             -- 1<<1 - populate on Rental Agreement,
                                                             -- 1<<2 = RAID required,
-                                                            -- 1<<3 = subARIDs apply
+                                                            -- 1<<3 = subARIDs apply (i.e., there are other ar rules that apply to this AR Rule)
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
@@ -1088,23 +1095,27 @@ CREATE TABLE Invoice (
 );
 
 CREATE TABLE InvoiceAssessment (
+    InvoiceASMID BIGINT NOT NULL AUTO_INCREMENT,                -- Unique id for this invoice Assessment
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
     BID BIGINT NOT NULL DEFAULT 0,                              -- bid
     ASMID BIGINT NOT NULL DEFAULT 0,                            -- assessment id
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (InvoiceASMID)
 );
 
 CREATE TABLE InvoicePayor (
+    InvoicePayorID BIGINT NOT NULL AUTO_INCREMENT,              -- Unique id for this invoice Payor
     InvoiceNo BIGINT NOT NULL DEFAULT 0,                        -- which invoice
     BID BIGINT NOT NULL DEFAULT 0,                              -- bid
     PID BIGINT NOT NULL DEFAULT 0,                              -- Payor id
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (InvoicePayorID)
 );
 
 

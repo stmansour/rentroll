@@ -36,7 +36,7 @@ type ReceiptSendForm struct {
 	CreateTS       rlib.JSONDateTime
 	CreateBy       int64
 	FLAGS          uint64
-	//AcctRule       string
+	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
 }
 
 // ReceiptSaveForm is a structure specifically for the return value from w2ui.
@@ -69,20 +69,23 @@ type ReceiptSaveForm struct {
 
 // PrReceiptGrid is a structure specifically for the UI Grid.
 type PrReceiptGrid struct {
-	Recid       int64 `json:"recid"` // this is to support the w2ui form
-	RCPTID      int64
-	BID         int64
-	DID         int64
-	TCID        int64 // TCID of payor
-	PMTID       int64
-	PmtTypeName string
-	Dt          rlib.JSONDate
-	DocNo       string // check number, money order number, etc.; documents the payment
-	Amount      float64
-	Payor       rlib.NullString // name of the payor
-	ARID        int64           // which account rule
-	AcctRule    rlib.NullString // expression showing how to account for the amount
-	FLAGS       uint64
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	RCPTID         int64
+	BID            int64
+	DID            int64
+	TCID           int64 // TCID of payor
+	PMTID          int64
+	PmtTypeName    string
+	Dt             rlib.JSONDate
+	DocNo          string // check number, money order number, etc.; documents the payment
+	Amount         float64
+	Payor          rlib.NullString // name of the payor
+	ARID           int64           // which account rule
+	AcctRule       rlib.NullString // expression showing how to account for the amount
+	FLAGS          uint64
+	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
+	Comment        string
+	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
 }
 
 // SaveReceiptInput is the input data format for a Save command
@@ -113,25 +116,27 @@ type DeleteRcptForm struct {
 
 // receiptsGridRowScan scans a result from sql row and dump it in a PrReceiptGrid struct
 func receiptsGridRowScan(rows *sql.Rows, q PrReceiptGrid) (PrReceiptGrid, error) {
-	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS, &q.DID)
+	err := rows.Scan(&q.RCPTID, &q.BID, &q.TCID, &q.PMTID, &q.PmtTypeName, &q.Dt, &q.DocNo, &q.Amount, &q.Payor, &q.ARID, &q.AcctRule, &q.FLAGS, &q.DID, &q.OtherPayorName, &q.Comment)
 	return q, err
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
 var receiptsFieldsMap = map[string][]string{
-	"RCPTID":      {"Receipt.RCPTID"},
-	"BID":         {"Receipt.BID"},
-	"TCID":        {"Receipt.TCID"},
-	"PMTID":       {"Receipt.PMTID"},
-	"PmtTypeName": {"PaymentType.Name"},
-	"Dt":          {"Receipt.Dt"},
-	"DocNo":       {"Receipt.DocNo"},
-	"Amount":      {"Receipt.Amount"},
-	"Payor":       {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
-	"ARID":        {"Receipt.ARID"},
-	"AcctRule":    {"AR.Name"},
-	"FLAGS":       {"Receipt.FLAGS"},
-	"DID":         {"Receipt.DID"},
+	"RCPTID":         {"Receipt.RCPTID"},
+	"BID":            {"Receipt.BID"},
+	"TCID":           {"Receipt.TCID"},
+	"PMTID":          {"Receipt.PMTID"},
+	"PmtTypeName":    {"PaymentType.Name"},
+	"Dt":             {"Receipt.Dt"},
+	"DocNo":          {"Receipt.DocNo"},
+	"Amount":         {"Receipt.Amount"},
+	"Payor":          {"Transactant.FirstName", "Transactant.LastName", "Transactant.CompanyName"},
+	"ARID":           {"Receipt.ARID"},
+	"AcctRule":       {"AR.Name"},
+	"FLAGS":          {"Receipt.FLAGS"},
+	"DID":            {"Receipt.DID"},
+	"OtherPayorName": {"Receipt.OtherPayorName"},
+	"Comment":        {"Receipt.Comment"},
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -149,6 +154,8 @@ var receiptsQuerySelectFields = []string{
 	"AR.Name as AcctRule",
 	"Receipt.FLAGS",
 	"Receipt.DID",
+	"Receipt.OtherPayorName",
+	"Receipt.Comment",
 }
 
 // SvcSearchHandlerReceipts generates a report of all Receipts defined business d.BID
@@ -163,10 +170,10 @@ var receiptsQuerySelectFields = []string{
 //  @Response SearchReceiptsResponse
 // wsdoc }
 func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcSearchHandlerReceipts"
 	var (
-		funcname = "SvcSearchHandlerReceipts"
-		err      error
-		g        SearchReceiptsResponse
+		err error
+		g   SearchReceiptsResponse
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -247,6 +254,14 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 			return
 		}
 
+		//---------------------------------------------------------------
+		// RECEIPT-ONLY CLIENT UPDATE...
+		// extract the RentableName from the comment if it is present...
+		//---------------------------------------------------------------
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			q.RentableName, q.Comment = rlib.ROCExtractRentableName(q.Comment)
+		}
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -276,9 +291,9 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 //      delete
 //-----------------------------------------------------------------------------------
 func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcFormHandlerReceipt"
 	var (
-		funcname = "SvcFormHandlerReceipt"
-		err      error
+		err error
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -319,11 +334,11 @@ func SvcFormHandlerReceipt(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //  @Response SvcStatusResponse
 // wsdoc }
 func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveReceipt"
 	var (
-		funcname = "saveReceipt"
-		err      error
-		foo      SaveReceiptInput
-		a        rlib.Receipt
+		err error
+		foo SaveReceiptInput
+		a   rlib.Receipt
 	)
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -345,8 +360,25 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//  Update or Insert as appropriate...
 	//------------------------------------------
 	if a.RCPTID == 0 && d.RCPTID == 0 {
-		// rlib.Console(">>>> NEW RECEIPT IS BEING ADDED\n")
-		err = bizlogic.InsertReceipt(&a)
+		//-------------------------------------------------------------------
+		// there is one special case: if the client is the receipt-only
+		//-------------------------------------------------------------------
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			//----------------------------------------------------------------
+			// There is no field for the RentableName in a receipt. But we
+			// need one for the Receipt-Only client. We will encode it onto
+			// the comment field with double-braces.  We will remove the
+			// double braces and RentableName when the Read-Only client reads
+			// back these receipts.  They will be transferred to the client
+			// in a RentableName field.
+			//----------------------------------------------------------------
+			if len(d.wsSearchReq.RentableName) > 0 {
+				a.Comment += rlib.ROCPRE + d.wsSearchReq.RentableName + rlib.ROCPOST
+			}
+			_, err = rlib.InsertReceipt(r.Context(), &a)
+		} else {
+			err = bizlogic.InsertReceipt(r.Context(), &a)
+		}
 		if err != nil {
 			e := fmt.Errorf("%s:  Error in rlib.ProcessNewReceipt: %s", funcname, err.Error())
 			rlib.Ulog("%s", e.Error())
@@ -354,9 +386,22 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	} else {
-		// rlib.Console(">>>> UPDATE EXISTING RECEIPT\n")
-		now := time.Now() // this is the time we're making the change if a reversal needs to be done
-		err = bizlogic.UpdateReceipt(&a, &now)
+		//-------------------------------------------------------------------
+		// there is one special case: if the client is the receipt-only
+		// client for Isola Bella, we skip the business checks because only
+		// the receipts are being saved, nothing else.  This will go away
+		// in the future when we're able to keep the payors up-to-date for
+		// Isola Bella.
+		//-------------------------------------------------------------------
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			if len(d.wsSearchReq.RentableName) > 0 {
+				a.Comment += rlib.ROCPRE + d.wsSearchReq.RentableName + rlib.ROCPOST
+			}
+			err = rlib.UpdateReceipt(r.Context(), &a)
+		} else {
+			now := time.Now() // this is the time we're making the change if a reversal needs to be done
+			err = bizlogic.UpdateReceipt(r.Context(), &a, &now)
+		}
 	}
 	if err != nil {
 		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d)\n: %s", funcname, d.RCPTID, err.Error())
@@ -378,9 +423,10 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response GetReceiptResponse
 // wsdoc }
 func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	rlib.Console("entered getReceipt\n")
+	const funcname = "getReceipt"
+	rlib.Console("entered %s\n", funcname)
 	var g GetReceiptResponse
-	a := rlib.GetReceiptNoAllocations(d.RCPTID)
+	a, _ := rlib.GetReceiptNoAllocations(r.Context(), d.RCPTID)
 	if a.RCPTID > 0 {
 		var gg ReceiptSendForm
 		gg.BID = d.BID
@@ -391,12 +437,18 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		if a.TCID > 0 {
 			var t rlib.Transactant
-			rlib.GetTransactant(a.TCID, &t)
+			_ = rlib.GetTransactant(r.Context(), a.TCID, &t)
 			if t.TCID > 0 {
 				tcid := strconv.FormatInt(t.TCID, 10)
 				gg.Payor = t.GetFullTransactantName() + " (TCID: " + tcid + ")"
 			}
 		}
+
+		// RECEIPT-ONLY CLIENT - Remove when this client is no longer needed
+		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+			gg.RentableName, gg.Comment = rlib.ROCExtractRentableName(gg.Comment)
+		}
+
 		g.Record = gg
 	}
 	g.Status = "success"
@@ -416,9 +468,9 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response SvcWriteSuccessResponse
 // wsdoc }
 func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deleteReceipt"
 	var (
-		funcname = "deleteReceipt"
-		del      DeleteRcptForm
+		del DeleteRcptForm
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -429,9 +481,74 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	rcpt := rlib.GetReceipt(del.RCPTID)
+	rcpt, err := rlib.GetReceipt(r.Context(), del.RCPTID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//---------------------------------------------------------------
+	// RECEIPT-ONLY CLIENT UPDATE...
+	// This reversal is much simpler than the one in biz logic
+	// Here, we simply set the flags and make a new receipt to
+	// negate the one being reversed.
+	//---------------------------------------------------------------
+	if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
+		if rcpt.FLAGS&0x04 != 0 {
+			SvcWriteSuccessResponse(w) // it's already reversed
+			return
+		}
+
+		//------------------------------------------------------
+		// start a db transaction
+		//------------------------------------------------------
+		var tx *sql.Tx
+
+		tx, err = rlib.RRdb.Dbrr.Begin()
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		ctx := rlib.SetDBTxContextKey(r.Context(), tx)
+
+		//------------------------------------------------------
+		// Build the new receipt
+		//------------------------------------------------------
+		rname, _ := rlib.ROCExtractRentableName(rcpt.Comment)
+		rr := rcpt
+		rr.RCPTID = int64(0)
+		rr.Amount = -rr.Amount
+		rr.Comment = fmt.Sprintf("Reversal of receipt %s", rcpt.IDtoShortString()) + rlib.ROCPRE + rname + rlib.ROCPOST
+		rr.PRCPTID = rcpt.RCPTID  // link to parent
+		rr.FLAGS |= rlib.RCPTvoid // mark that it is voided
+		_, err = rlib.InsertReceipt(ctx, &rr)
+		if err != nil {
+			tx.Rollback() // TBD: abort transaction
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		//------------------------------------------------------
+		// update the flags on the original receipt
+		//------------------------------------------------------
+		rcpt.FLAGS |= rlib.RCPTvoid
+		if err = rlib.UpdateReceipt(ctx, &rcpt); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			tx.Rollback() // TBD: abort transaction
+			return
+		}
+
+		if err := tx.Commit(); err != nil {
+			tx.Rollback() // TBD: abort transaction
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		SvcWriteSuccessResponse(w)
+		return
+	}
+
 	dt := time.Now()
-	err := bizlogic.ReverseReceipt(&rcpt, &dt)
+	err = bizlogic.ReverseReceipt(r.Context(), &rcpt, &dt)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

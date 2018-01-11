@@ -1,5 +1,10 @@
 package rlib
 
+import (
+	"context"
+	"database/sql"
+)
+
 func insertError(err error, n string, a interface{}) error {
 	if nil != err {
 		Ulog("Insert%s: error inserting %s:  %v\n", n, n, err)
@@ -10,17 +15,41 @@ func insertError(err error, n string, a interface{}) error {
 
 // InsertAR writes a new AR record to the database. If the record is successfully written,
 // the ARID field is set to its new value.
-func InsertAR(a *AR) (int64, error) {
+func InsertAR(ctx context.Context, a *AR) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertAR.Exec(a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Name, a.ARType, a.DebitLID, a.CreditLID, a.Description, a.RARequired, a.DtStart, a.DtStop, a.FLAGS, a.DefaultAmount, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertAR)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertAR.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.ARID = rid
 		}
 	} else {
@@ -31,28 +60,44 @@ func InsertAR(a *AR) (int64, error) {
 
 // InsertAssessment writes a new assessmenttype record to the database. If the record is successfully written,
 // the ASMID field is set to its new value.
-func InsertAssessment(a *Assessment) (int64, error) {
+func InsertAssessment(ctx context.Context, a *Assessment) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
 
-	//
-	// DEBUG...
-	//
-	// if a.FLAGS&0x4 == 0 {
-	// 	fmt.Printf(">>> INSERTING ASSESSMENT WITH FLAGS bit 2 not set.  FLAGS = %x\n", a.FLAGS)
-	// 	debug.PrintStack()
-	// 	// os.Exit(1)
-	// }
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
 
+	// ROUND OFF Amount upto 2 decimals
 	a.Amount = Round(a.Amount, .5, 2)
-	res, err := RRdb.Prepstmt.InsertAssessment.Exec(a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
+
+	// transaction... context
+	fields := []interface{}{a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertAssessment)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertAssessment.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.ASMID = rid
 		}
 	} else {
@@ -62,17 +107,42 @@ func InsertAssessment(a *Assessment) (int64, error) {
 }
 
 // InsertBuilding writes a new Building record to the database
-func InsertBuilding(a *Building) (int64, error) {
+func InsertBuilding(ctx context.Context, a *Building) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertBuilding.Exec(a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertBuilding)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertBuilding.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
+			a.BLDGID = rid
 		}
 	} else {
 		err = insertError(err, "Building", *a)
@@ -82,17 +152,42 @@ func InsertBuilding(a *Building) (int64, error) {
 
 // InsertBuildingWithID writes a new Building record to the database with the supplied bldgid
 // the Building ID must be set in the supplied Building struct ptr (a.BLDGID).
-func InsertBuildingWithID(a *Building) (int64, error) {
+func InsertBuildingWithID(ctx context.Context, a *Building) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertBuildingWithID.Exec(a.BLDGID, a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BLDGID, a.BID, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertBuildingWithID)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertBuildingWithID.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
+			a.BLDGID = rid
 		}
 	} else {
 		err = insertError(err, "Building", *a)
@@ -102,84 +197,218 @@ func InsertBuildingWithID(a *Building) (int64, error) {
 
 // InsertBusiness writes a new Business record.
 // returns the new Business ID and any associated error
-func InsertBusiness(b *Business) (int64, error) {
+func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	b.CreateBy = b.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var bid = int64(0)
-	res, err := RRdb.Prepstmt.InsertBusiness.Exec(b.Designation, b.Name, b.DefaultRentCycle, b.DefaultProrationCycle, b.DefaultGSRPC, b.CreateBy, b.LastModBy)
-	if nil == err {
-		id, err := res.LastInsertId()
-		if err == nil {
-			bid = int64(id)
-			b.BID = bid
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
 		}
-		RRdb.BUDlist[b.Designation] = bid
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	return bid, err
+
+	// transaction... context
+	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertBusiness)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertBusiness.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.BID = rid
+		}
+
+		// Need to update this BUD list memory cache
+		RRdb.BUDlist[a.Designation] = rid
+	}
+	return rid, err
 }
 
 // InsertCustomAttribute writes a new User record to the database
-func InsertCustomAttribute(a *CustomAttribute) (int64, error) {
+func InsertCustomAttribute(ctx context.Context, a *CustomAttribute) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertCustomAttribute.Exec(a.BID, a.Type, a.Name, a.Value, a.Units, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Type, a.Name, a.Value, a.Units, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertCustomAttribute)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertCustomAttribute.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.CID = rid
 		}
 	} else {
 		err = insertError(err, "CustomAttribute", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertCustomAttributeRef writes a new assessmenttype record to the database
-func InsertCustomAttributeRef(a *CustomAttributeRef) error {
+func InsertCustomAttributeRef(ctx context.Context, a *CustomAttributeRef) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertCustomAttributeRef.Exec(a.ElementType, a.BID, a.ID, a.CID, a.CreateBy)
-	return err
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.ElementType, a.BID, a.ID, a.CID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertCustomAttributeRef)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertCustomAttributeRef.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.CARID = rid
+		}
+	} else {
+		err = insertError(err, "CustomAttributeRef", *a)
+	}
+	return rid, err
 }
 
 // InsertDemandSource writes a new DemandSource record to the database
-func InsertDemandSource(a *DemandSource) (int64, error) {
+func InsertDemandSource(ctx context.Context, a *DemandSource) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertDemandSource.Exec(a.BID, a.Name, a.Industry, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Name, a.Industry, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertDemandSource)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertDemandSource.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.SourceSLSID = rid
 		}
 	} else {
 		err = insertError(err, "DemandSource", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertDeposit writes a new Deposit record to the database
-func InsertDeposit(a *Deposit) (int64, error) {
+func InsertDeposit(ctx context.Context, a *Deposit) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertDeposit.Exec(a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.ClearedAmount, a.FLAGS, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.DEPID, a.DPMID, a.Dt, a.Amount, a.ClearedAmount, a.FLAGS, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertDeposit)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertDeposit.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.DID = rid
 		}
 	} else {
@@ -189,49 +418,135 @@ func InsertDeposit(a *Deposit) (int64, error) {
 }
 
 // InsertDepositMethod writes a new DepositMethod record to the database
-func InsertDepositMethod(a *DepositMethod) error {
+func InsertDepositMethod(ctx context.Context, a *DepositMethod) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertDepositMethod.Exec(a.BID, a.Method, a.CreateBy, a.LastModBy)
-	if nil != err {
-		return insertError(err, "DepositMethod", *a)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	return err
-}
 
-// InsertDepositPart writes a new DepositPart record to the database
-func InsertDepositPart(a *DepositPart) error {
-
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
-
-	_, err := RRdb.Prepstmt.InsertDepositPart.Exec(a.DID, a.BID, a.RCPTID, a.CreateBy, a.LastModBy)
-	if nil != err {
-		return insertError(err, "DepositPart", *a)
+	// transaction... context
+	fields := []interface{}{a.BID, a.Method, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertDepositMethod)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertDepositMethod.Exec(fields...)
 	}
-	return err
-}
 
-// InsertDepository writes a new Depository record to the database
-func InsertDepository(a *Depository) (int64, error) {
-
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
-
-	var id = int64(0)
-	res, err := RRdb.Prepstmt.InsertDepository.Exec(a.BID, a.LID, a.Name, a.AccountNo, a.CreateBy, a.LastModBy)
+	// After getting result...
 	if nil == err {
 		x, err := res.LastInsertId()
 		if err == nil {
-			id = int64(x)
-			a.DEPID = id
+			rid = int64(x)
+			a.DPMID = rid
+		}
+	} else {
+		err = insertError(err, "DepositMethod", *a)
+	}
+	return rid, err
+}
+
+// InsertDepositPart writes a new DepositPart record to the database
+func InsertDepositPart(ctx context.Context, a *DepositPart) (int64, error) {
+
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.DID, a.BID, a.RCPTID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertDepositPart)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertDepositPart.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.DPID = rid
+		}
+	} else {
+		err = insertError(err, "DepositPart", *a)
+	}
+	return rid, err
+}
+
+// InsertDepository writes a new Depository record to the database
+func InsertDepository(ctx context.Context, a *Depository) (int64, error) {
+
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.LID, a.Name, a.AccountNo, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertDepository)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertDepository.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.DEPID = rid
 		}
 	} else {
 		err = insertError(err, "Depository", *a)
 	}
-	return id, err
+	return rid, err
 }
 
 //======================================
@@ -239,24 +554,48 @@ func InsertDepository(a *Depository) (int64, error) {
 //======================================
 
 // InsertExpense writes a new Expense record to the database
-func InsertExpense(a *Expense) error {
+func InsertExpense(ctx context.Context, a *Expense) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
 	a.Amount = Round(a.Amount, .5, 2)
-	res, err := RRdb.Prepstmt.InsertExpense.Exec(a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy)
+	// transaction... context
+	fields := []interface{}{a.RPEXPID, a.BID, a.RID, a.RAID, a.Amount, a.Dt, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertExpense)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertExpense.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.EXPID = rid
 		}
 	} else {
-		return insertError(err, "Expense", *a)
+		err = insertError(err, "Expense", *a)
 	}
-	return nil
+	return rid, err
 }
 
 //======================================
@@ -264,17 +603,42 @@ func InsertExpense(a *Expense) error {
 //======================================
 
 // InsertInvoice writes a new Invoice record to the database
-func InsertInvoice(a *Invoice) (int64, error) {
+func InsertInvoice(ctx context.Context, a *Invoice) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertInvoice.Exec(a.BID, a.Dt, a.DtDue, a.Amount, a.DeliveredBy, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Dt, a.DtDue, a.Amount, a.DeliveredBy, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertInvoice)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertInvoice.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
+			a.InvoiceNo = rid
 		}
 	} else {
 		err = insertError(err, "Invoice", *a)
@@ -283,76 +647,227 @@ func InsertInvoice(a *Invoice) (int64, error) {
 }
 
 // InsertInvoiceAssessment writes a new InvoiceAssessment record to the database
-func InsertInvoiceAssessment(a *InvoiceAssessment) error {
+func InsertInvoiceAssessment(ctx context.Context, a *InvoiceAssessment) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertInvoiceAssessment.Exec(a.InvoiceNo, a.BID, a.ASMID, a.CreateBy)
-	if nil != err {
-		return insertError(err, "DepositPart", *a)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	return err
+
+	// transaction... context
+	fields := []interface{}{a.InvoiceNo, a.BID, a.ASMID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertInvoiceAssessment)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertInvoiceAssessment.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.InvoiceASMID = rid
+		}
+	} else {
+		err = insertError(err, "InvoiceAssessment", *a)
+	}
+	return rid, err
 }
 
 // InsertInvoicePayor writes a new InvoicePayor record to the database
-func InsertInvoicePayor(a *InvoicePayor) error {
+func InsertInvoicePayor(ctx context.Context, a *InvoicePayor) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertInvoicePayor.Exec(a.InvoiceNo, a.BID, a.PID, a.CreateBy)
-	if nil != err {
-		return insertError(err, "DepositPayor", *a)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	return err
+
+	// transaction... context
+	fields := []interface{}{a.InvoiceNo, a.BID, a.PID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertInvoicePayor)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertInvoicePayor.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.InvoicePayorID = rid
+		}
+	} else {
+		err = insertError(err, "InvoicePayor", *a)
+	}
+	return rid, err
 }
 
 // InsertJournal writes a new Journal entry to the database
-func InsertJournal(j *Journal) (int64, error) {
+func InsertJournal(ctx context.Context, a *Journal) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	j.CreateBy = j.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var id = int64(0)
-
-	res, err := RRdb.Prepstmt.InsertJournal.Exec(j.BID, j.Dt, j.Amount, j.Type, j.ID, j.Comment, j.CreateBy, j.LastModBy)
-	if nil == err {
-		nid, err := res.LastInsertId()
-		if err == nil {
-			id = int64(nid)
-			j.JID = id
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
 		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	return id, err
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Dt, a.Amount, a.Type, a.ID, a.Comment, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertJournal)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertJournal.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.JID = rid
+		}
+	} else {
+		err = insertError(err, "Journal", *a)
+	}
+	return rid, err
 }
 
 // InsertJournalAllocationEntry writes a new JournalAllocation record to the database. Also sets JAID with its
 // newly assigned id.
-func InsertJournalAllocationEntry(ja *JournalAllocation) error {
+func InsertJournalAllocationEntry(ctx context.Context, a *JournalAllocation) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	ja.CreateBy = ja.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
 
 	// debug.PrintStack()
-	res, err := RRdb.Prepstmt.InsertJournalAllocation.Exec(ja.BID, ja.JID, ja.RID, ja.RAID, ja.TCID, ja.RCPTID, ja.Amount, ja.ASMID, ja.EXPID, ja.AcctRule, ja.CreateBy)
-	if nil == err {
-		id, err := res.LastInsertId()
-		if err == nil {
-			ja.JAID = int64(id)
-		}
+	// transaction... context
+	fields := []interface{}{a.BID, a.JID, a.RID, a.RAID, a.TCID, a.RCPTID, a.Amount, a.ASMID, a.EXPID, a.AcctRule, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertJournalAllocation)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertJournalAllocation.Exec(fields...)
 	}
-	return err
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.JAID = rid
+		}
+	} else {
+		err = insertError(err, "JournalAllocation", *a)
+	}
+	return rid, err
 }
 
 // InsertJournalMarker writes a new JournalMarker record to the database
-func InsertJournalMarker(jm *JournalMarker) error {
+func InsertJournalMarker(ctx context.Context, a *JournalMarker) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	jm.CreateBy = jm.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertJournalMarker.Exec(jm.BID, jm.State, jm.DtStart, jm.DtStop, jm.CreateBy, jm.LastModBy)
-	return err
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.State, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertJournalMarker)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertJournalMarker.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.JMID = rid
+		}
+	} else {
+		err = insertError(err, "JournalMarker", *a)
+	}
+
+	// After getting result...
+	return rid, err
 }
 
 //======================================
@@ -360,60 +875,133 @@ func InsertJournalMarker(jm *JournalMarker) error {
 //======================================
 
 // InsertLedgerMarker writes a new LedgerMarker record to the database
-func InsertLedgerMarker(l *LedgerMarker) error {
+func InsertLedgerMarker(ctx context.Context, a *LedgerMarker) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	l.CreateBy = l.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	res, err := RRdb.Prepstmt.InsertLedgerMarker.Exec(l.LID, l.BID, l.RAID, l.RID, l.TCID, l.Dt, l.Balance, l.State, l.CreateBy, l.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.LID, a.BID, a.RAID, a.RID, a.TCID, a.Dt, a.Balance, a.State, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertLedgerMarker)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertLedgerMarker.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			l.LMID = int64(id)
+			a.LMID = int64(x)
 		}
 	} else {
-		Ulog("InsertLedgerMarker: err = %#v\n", err)
+		err = insertError(err, "LedgerMarker", *a)
 	}
-	return err
+	return rid, err
 }
 
 // InsertLedgerEntry writes a new LedgerEntry to the database
-func InsertLedgerEntry(l *LedgerEntry) (int64, error) {
+func InsertLedgerEntry(ctx context.Context, a *LedgerEntry) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	l.CreateBy = l.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertLedgerEntry.Exec(l.BID, l.JID, l.JAID, l.LID, l.RAID, l.RID, l.TCID, l.Dt, l.Amount, l.Comment, l.CreateBy, l.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.JID, a.JAID, a.LID, a.RAID, a.RID, a.TCID, a.Dt, a.Amount, a.Comment, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertLedgerEntry)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertLedgerEntry.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
-			l.LEID = rid
+			rid = int64(x)
+			a.LEID = rid
 		}
 	} else {
-		Ulog("Error inserting LedgerEntry:  %v\n", err)
+		err = insertError(err, "LedgerEntry", *a)
 	}
 	return rid, err
 }
 
 // InsertLedger writes a new GLAccount to the database
-func InsertLedger(l *GLAccount) (int64, error) {
+func InsertLedger(ctx context.Context, a *GLAccount) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	l.CreateBy = l.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
 	//                                            PLID, BID,     RAID,  TCID,   GLNumber,   Status,   Name,   AcctType,   AllowPost,  FLAGS,   Description, CreateBy, LastModBy
-	res, err := RRdb.Prepstmt.InsertLedger.Exec(l.PLID, l.BID, l.RAID, l.TCID, l.GLNumber, l.Status, l.Name, l.AcctType, l.AllowPost, l.FLAGS, l.Description, l.CreateBy, l.LastModBy)
+	// transaction... context
+	fields := []interface{}{a.PLID, a.BID, a.RAID, a.TCID, a.GLNumber, a.Status, a.Name, a.AcctType, a.AllowPost, a.FLAGS, a.Description, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertLedger)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertLedger.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
-			l.LID = rid
+			rid = int64(x)
+			a.LID = rid
 		}
 	} else {
-		Ulog("Error inserting GLAccount:  %v\n", err)
+		err = insertError(err, "Ledger", *a)
 	}
 	return rid, err
 }
@@ -423,20 +1011,45 @@ func InsertLedger(l *GLAccount) (int64, error) {
 //======================================
 
 // InsertNote writes a new Note to the database
-func InsertNote(a *Note) (int64, error) {
+func InsertNote(ctx context.Context, a *Note) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertNote.Exec(a.BID, a.NLID, a.PNID, a.NTID, a.RID, a.RAID, a.TCID, a.Comment, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.NLID, a.PNID, a.NTID, a.RID, a.RAID, a.TCID, a.Comment, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertNote)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertNote.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
+			a.NID = rid
 		}
 	} else {
-		Ulog("Error inserting Note:  %v\n", err)
+		err = insertError(err, "Note", *a)
 	}
 	return rid, err
 }
@@ -446,20 +1059,45 @@ func InsertNote(a *Note) (int64, error) {
 //======================================
 
 // InsertNoteList inserts a new wrapper for a notelist into the database
-func InsertNoteList(a *NoteList) (int64, error) {
+func InsertNoteList(ctx context.Context, a *NoteList) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertNoteList.Exec(a.BID, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertNoteList)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertNoteList.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
+			a.NLID = rid
 		}
 	} else {
-		Ulog("Error inserting NoteList:  %v\n", err)
+		err = insertError(err, "NoteList", *a)
 	}
 	return rid, err
 }
@@ -469,20 +1107,45 @@ func InsertNoteList(a *NoteList) (int64, error) {
 //======================================
 
 // InsertNoteType writes a new NoteType to the database
-func InsertNoteType(a *NoteType) (int64, error) {
+func InsertNoteType(ctx context.Context, a *NoteType) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertNoteType.Exec(a.BID, a.Name, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Name, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertNoteType)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertNoteType.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
+			a.NTID = rid
 		}
 	} else {
-		Ulog("Error inserting NoteType:  %v\n", err)
+		err = insertError(err, "NoteType", *a)
 	}
 	return rid, err
 }
@@ -492,69 +1155,179 @@ func InsertNoteType(a *NoteType) (int64, error) {
 //=======================================================
 
 // InsertRatePlan writes a new RatePlan record to the database
-func InsertRatePlan(a *RatePlan) (int64, error) {
+func InsertRatePlan(ctx context.Context, a *RatePlan) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRatePlan.Exec(a.BID, a.Name, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Name, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRatePlan)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRatePlan.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.RPID = rid
 		}
 	} else {
 		err = insertError(err, "RatePlan", *a)
 	}
-	a.RPID = tid
-	return tid, err
+	return rid, err
 }
 
 // InsertRatePlanRef writes a new RatePlanRef record to the database
-func InsertRatePlanRef(a *RatePlanRef) (int64, error) {
+func InsertRatePlanRef(ctx context.Context, a *RatePlanRef) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRatePlanRef.Exec(a.BID, a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.RPID, a.DtStart, a.DtStop, a.FeeAppliesAge, a.MaxNoFeeUsers, a.AdditionalUserFee, a.PromoCode, a.CancellationFee, a.FLAGS, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRatePlanRef)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRatePlanRef.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.RPRID = rid
 		}
 	} else {
 		err = insertError(err, "RatePlanRef", *a)
 	}
-	a.RPRID = tid
-	return tid, err
+	return rid, err
 }
 
 // InsertRatePlanRefRTRate writes a new RatePlanRefRTRate record to the database
-func InsertRatePlanRefRTRate(a *RatePlanRefRTRate) error {
+func InsertRatePlanRefRTRate(ctx context.Context, a *RatePlanRefRTRate) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertRatePlanRefRTRate.Exec(a.RPRID, a.BID, a.RTID, a.FLAGS, a.Val, a.CreateBy)
-	if nil != err {
-		return insertError(err, "RatePlanRefRTRate", *a)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	return err
+
+	// transaction... context
+	fields := []interface{}{a.RPRID, a.BID, a.RTID, a.FLAGS, a.Val, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRatePlanRefRTRate)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRatePlanRefRTRate.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RPRRTRateID = rid
+		}
+	} else {
+		err = insertError(err, "RatePlanRefRTRate", *a)
+	}
+	return rid, err
 }
 
 // InsertRatePlanRefSPRate writes a new RatePlanRefSPRate record to the database
-func InsertRatePlanRefSPRate(a *RatePlanRefSPRate) error {
+func InsertRatePlanRefSPRate(ctx context.Context, a *RatePlanRefSPRate) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertRatePlanRefSPRate.Exec(a.RPRID, a.BID, a.RTID, a.RSPID, a.FLAGS, a.Val, a.CreateBy)
-	if nil != err {
-		return insertError(err, "RatePlanRefSPRate", *a)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	return err
+
+	// transaction... context
+	fields := []interface{}{a.RPRID, a.BID, a.RTID, a.RSPID, a.FLAGS, a.Val, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRatePlanRefSPRate)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRatePlanRefSPRate.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RPRSPRateID = rid
+		}
+	} else {
+		err = insertError(err, "RatePlanRefSPRate", *a)
+	}
+	return rid, err
 }
 
 //=======================================================
@@ -562,76 +1335,85 @@ func InsertRatePlanRefSPRate(a *RatePlanRefSPRate) error {
 //=======================================================
 
 // InsertPaymentType writes a new assessmenttype record to the database
-func InsertPaymentType(a *PaymentType) error {
+func InsertPaymentType(ctx context.Context, a *PaymentType) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	res, err := RRdb.Prepstmt.InsertPaymentType.Exec(a.BID, a.Name, a.Description, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Name, a.Description, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertPaymentType)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertPaymentType.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			a.PMTID = int64(id)
+			rid = int64(x)
+			a.PMTID = rid
 		}
 	} else {
-		return insertError(err, "Payor", *a)
+		err = insertError(err, "PaymentType", *a)
 	}
-	return err
-}
-
-// InsertPayor writes a new User record to the database
-func InsertPayor(a *Payor) (int64, error) {
-
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
-
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertPayor.Exec(a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.CreateBy, a.LastModBy)
-	if nil == err {
-		id, err := res.LastInsertId()
-		if err == nil {
-			tid = int64(id)
-		}
-	} else {
-		err = insertError(err, "Payor", *a)
-	}
-	return tid, err
-}
-
-// InsertProspect writes a new User record to the database
-func InsertProspect(a *Prospect) (int64, error) {
-
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
-
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertProspect.Exec(a.TCID, a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
-		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
-		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
-		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.CreateBy, a.LastModBy)
-	if nil == err {
-		id, err := res.LastInsertId()
-		if err == nil {
-			tid = int64(id)
-		}
-	} else {
-		err = insertError(err, "Prospect", *a)
-	}
-	return tid, err
+	return rid, err
 }
 
 // InsertRentable writes a new Rentable record to the database
-func InsertRentable(a *Rentable) (int64, error) {
+func InsertRentable(ctx context.Context, a *Rentable) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentable.Exec(a.BID, a.RentableName, a.AssignmentTime, a.MRStatus, a.DtMRStart, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.RentableName, a.AssignmentTime, a.MRStatus, a.DtMRStart, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentable)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentable.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RID = rid
 		}
 	} else {
@@ -646,124 +1428,269 @@ func InsertRentable(a *Rentable) (int64, error) {
 
 // InsertReceipt writes a new Receipt record to the database. If the record is successfully written,
 // the RCPTID field is set to its new value.
-func InsertReceipt(r *Receipt) (int64, error) {
+func InsertReceipt(ctx context.Context, a *Receipt) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	r.CreateBy = r.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	r.Amount = Round(r.Amount, .5, 2)
-	res, err := RRdb.Prepstmt.InsertReceipt.Exec(r.PRCPTID, r.BID, r.TCID, r.PMTID, r.DEPID, r.DID, r.RAID, r.Dt, r.DocNo, r.Amount, r.AcctRuleReceive, r.ARID, r.AcctRuleApply, r.FLAGS, r.Comment, r.OtherPayorName, r.CreateBy, r.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	a.Amount = Round(a.Amount, .5, 2)
+	// transaction... context
+	fields := []interface{}{a.PRCPTID, a.BID, a.TCID, a.PMTID, a.DEPID, a.DID, a.RAID, a.Dt, a.DocNo, a.Amount, a.AcctRuleReceive, a.ARID, a.AcctRuleApply, a.FLAGS, a.Comment, a.OtherPayorName, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertReceipt)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertReceipt.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
-			r.RCPTID = tid
+			rid = int64(x)
+			a.RCPTID = rid
 		}
 	} else {
-		err = insertError(err, "Receipt", *r)
+		err = insertError(err, "Receipt", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertReceiptAllocation writes a new ReceiptAllocation record to the database
-func InsertReceiptAllocation(a *ReceiptAllocation) (int64, error) {
+func InsertReceiptAllocation(ctx context.Context, a *ReceiptAllocation) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
 	a.Amount = Round(a.Amount, .5, 2)
-	res, err := RRdb.Prepstmt.InsertReceiptAllocation.Exec(a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.FLAGS, a.AcctRule, a.CreateBy, a.LastModBy)
+	// transaction... context
+	fields := []interface{}{a.RCPTID, a.BID, a.RAID, a.Dt, a.Amount, a.ASMID, a.FLAGS, a.AcctRule, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertReceiptAllocation)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertReceiptAllocation.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
-			a.RCPAID = tid
+			rid = int64(x)
+			a.RCPAID = rid
 		}
 	} else {
 		err = insertError(err, "ReceiptAllocation", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertRentalAgreement writes a new RentalAgreement record to the database
-func InsertRentalAgreement(a *RentalAgreement) (int64, error) {
+func InsertRentalAgreement(ctx context.Context, a *RentalAgreement) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreement.Exec(a.RATID, a.BID, a.NLID, a.AgreementStart, a.AgreementStop, a.PossessionStart, a.PossessionStop, a.RentStart, a.RentStop, a.RentCycleEpoch, a.UnspecifiedAdults, a.UnspecifiedChildren, a.Renewal, a.SpecialProvisions, a.LeaseType, a.ExpenseAdjustmentType, a.ExpensesStop, a.ExpenseStopCalculation, a.BaseYearEnd, a.ExpenseAdjustment, a.EstimatedCharges, a.RateChange, a.NextRateChange, a.PermittedUses, a.ExclusiveUses, a.ExtensionOption, a.ExtensionOptionNotice, a.ExpansionOption, a.ExpansionOptionNotice, a.RightOfFirstRefusal, a.FLAGS, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.RATID, a.BID, a.NLID, a.AgreementStart, a.AgreementStop, a.PossessionStart, a.PossessionStop, a.RentStart, a.RentStop, a.RentCycleEpoch, a.UnspecifiedAdults, a.UnspecifiedChildren, a.Renewal, a.SpecialProvisions, a.LeaseType, a.ExpenseAdjustmentType, a.ExpensesStop, a.ExpenseStopCalculation, a.BaseYearEnd, a.ExpenseAdjustment, a.EstimatedCharges, a.RateChange, a.NextRateChange, a.PermittedUses, a.ExclusiveUses, a.ExtensionOption, a.ExtensionOptionNotice, a.ExpansionOption, a.ExpansionOptionNotice, a.RightOfFirstRefusal, a.FLAGS, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreement)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentalAgreement.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
-			a.RAID = tid
+			rid = int64(x)
+			a.RAID = rid
 		}
 	} else {
 		err = insertError(err, "RentalAgreement", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertRentalAgreementPayor writes a new User record to the database
-func InsertRentalAgreementPayor(a *RentalAgreementPayor) (int64, error) {
+func InsertRentalAgreementPayor(ctx context.Context, a *RentalAgreementPayor) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementPayor.Exec(a.RAID, a.BID, a.TCID, a.DtStart, a.DtStop, a.FLAGS, a.CreateBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.RAID, a.BID, a.TCID, a.DtStart, a.DtStop, a.FLAGS, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreementPayor)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentalAgreementPayor.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
-			a.RAPID = tid
+			rid = int64(x)
+			a.RAPID = rid
 		}
 	} else {
 		err = insertError(err, "RentalAgreementPayor", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertRentalAgreementPet writes a new User record to the database
-func InsertRentalAgreementPet(a *RentalAgreementPet) (int64, error) {
+func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementPet.Exec(a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreementPet)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentalAgreementPet.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.PETID = rid
 		}
 	} else {
 		err = insertError(err, "RentalAgreementPet", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertRentalAgreementRentable writes a new User record to the database
-func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
+func InsertRentalAgreementRentable(ctx context.Context, a *RentalAgreementRentable) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementRentable.Exec(a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop, a.CreateBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.RAID, a.BID, a.RID, a.CLID, a.ContractRent, a.RARDtStart, a.RARDtStop, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreementRentable)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentalAgreementRentable.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
-			a.RARID = tid
+			rid = int64(x)
+			a.RARID = rid
 		}
 	} else {
 		err = insertError(err, "RentalAgreementRentable", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 //=======================================================
@@ -771,234 +1698,749 @@ func InsertRentalAgreementRentable(a *RentalAgreementRentable) (int64, error) {
 //=======================================================
 
 // InsertRentalAgreementTemplate writes a new User record to the database
-func InsertRentalAgreementTemplate(a *RentalAgreementTemplate) (int64, error) {
+func InsertRentalAgreementTemplate(ctx context.Context, a *RentalAgreementTemplate) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentalAgreementTemplate.Exec(a.BID, a.RATemplateName, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.RATemplateName, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreementTemplate)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentalAgreementTemplate.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.RATID = rid
 		}
 	} else {
 		err = insertError(err, "RentalAgreementTemplate", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertRentableSpecialty writes a new RentableSpecialty record to the database
-func InsertRentableSpecialty(a *RentableSpecialty) error {
+func InsertRentableSpecialty(ctx context.Context, a *RentableSpecialty) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertRentableSpecialtyType.Exec(a.BID, a.Name, a.Fee, a.Description, a.CreateBy)
-	return err
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Name, a.Fee, a.Description, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableSpecialtyType)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableSpecialtyType.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RSPID = rid
+		}
+	} else {
+		err = insertError(err, "RentableSpecialty", *a)
+	}
+	return rid, err
 }
 
 // InsertRentableMarketRates writes a new marketrate record to the database
-func InsertRentableMarketRates(r *RentableMarketRate) error {
+func InsertRentableMarketRates(ctx context.Context, a *RentableMarketRate) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	r.CreateBy = r.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertRentableMarketRates.Exec(r.RTID, r.BID, r.MarketRate, r.DtStart, r.DtStop, r.CreateBy)
-	return err
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.RTID, a.BID, a.MarketRate, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableMarketRates)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableMarketRates.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RMRID = rid
+		}
+	} else {
+		err = insertError(err, "RentableMarketRate", *a)
+	}
+	return rid, err
 }
 
 // InsertRentableType writes a new RentableType record to the database
-func InsertRentableType(a *RentableType) (int64, error) {
+func InsertRentableType(ctx context.Context, a *RentableType) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var rid = int64(0)
-	res, err := RRdb.Prepstmt.InsertRentableType.Exec(a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableType)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableType.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			rid = int64(id)
+			rid = int64(x)
 			a.RTID = rid
 		}
 	} else {
-		Ulog("Error inserting RentableType:  %v\n", err)
+		err = insertError(err, "RentableType", *a)
 	}
 	return rid, err
 }
 
 // InsertRentableSpecialtyRef writes a new RentableSpecialty record to the database
-func InsertRentableSpecialtyRef(a *RentableSpecialtyRef) error {
+func InsertRentableSpecialtyRef(ctx context.Context, a *RentableSpecialtyRef) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	_, err := RRdb.Prepstmt.InsertRentableSpecialtyRef.Exec(a.BID, a.RID, a.RSPID, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
-	return err
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.RID, a.RSPID, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableSpecialtyRef)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableSpecialtyRef.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RSPRefID = rid
+		}
+	} else {
+		err = insertError(err, "RentableSpecialtyRef", *a)
+	}
+	return rid, err
 }
 
 // InsertRentableStatus writes a new RentableStatus record to the database
-func InsertRentableStatus(a *RentableStatus) error {
+func InsertRentableStatus(ctx context.Context, a *RentableStatus) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	res, err := RRdb.Prepstmt.InsertRentableStatus.Exec(a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.UseStatus, a.LeaseStatus, a.CreateBy, a.LastModBy)
-	if nil != err {
-		return insertError(err, "RentableStatus", *a)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	id, err := res.LastInsertId()
-	if err == nil {
-		a.RSID = int64(id)
+
+	// transaction... context
+	fields := []interface{}{a.RID, a.BID, a.DtStart, a.DtStop, a.DtNoticeToVacate, a.UseStatus, a.LeaseStatus, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableStatus)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableStatus.Exec(fields...)
 	}
-	return err
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RSID = rid
+		}
+	} else {
+		err = insertError(err, "RentableStatus", *a)
+	}
+	return rid, err
 
 }
 
 // InsertRentableTypeRef writes a new RentableTypeRef record to the database
-func InsertRentableTypeRef(a *RentableTypeRef) error {
+func InsertRentableTypeRef(ctx context.Context, a *RentableTypeRef) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	res, err := RRdb.Prepstmt.InsertRentableTypeRef.Exec(a.RID, a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
-	if nil != err {
-		return insertError(err, "RentableTypeRef", *a)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	id, err := res.LastInsertId()
-	if err == nil {
-		a.RTRID = int64(id)
+
+	// transaction... context
+	fields := []interface{}{a.RID, a.BID, a.RTID, a.OverrideRentCycle, a.OverrideProrationCycle, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableTypeRef)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableTypeRef.Exec(fields...)
 	}
-	return err
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RTRID = rid
+		}
+	} else {
+		err = insertError(err, "RentableTypeRef", *a)
+	}
+	return rid, err
 }
 
 // InsertRentableUser writes a new User record to the database
-func InsertRentableUser(a *RentableUser) error {
+func InsertRentableUser(ctx context.Context, a *RentableUser) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	res, err := RRdb.Prepstmt.InsertRentableUser.Exec(a.RID, a.BID, a.TCID, a.DtStart, a.DtStop, a.CreateBy)
-	if nil != err {
-		return insertError(err, "RentableUser", *a)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	id, err := res.LastInsertId()
-	if err == nil {
-		a.RUID = int64(id)
+
+	// transaction... context
+	fields := []interface{}{a.RID, a.BID, a.TCID, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentableUser)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertRentableUser.Exec(fields...)
 	}
-	return err
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.RUID = rid
+		}
+	} else {
+		err = insertError(err, "RentableUser", *a)
+	}
+	return rid, err
 }
 
 // InsertStringList writes a new StringList record to the database
-func InsertStringList(a *StringList) (int64, error) {
+func InsertStringList(ctx context.Context, a *StringList) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertStringList.Exec(a.BID, a.Name, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.Name, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertStringList)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertStringList.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.SLID = rid
 		}
 	} else {
 		err = insertError(err, "StringList", *a)
 	}
-	a.SLID = tid
-	InsertSLStrings(a)
-	return tid, err
+
+	// Before return, insert string list with context
+	InsertSLStrings(ctx, a)
+
+	return rid, err
 }
 
 // InsertSLStrings writes a the list of strings in a StringList to the database
-// THIS SHOULD BE PUT IN A TRANSACTION
-func InsertSLStrings(a *StringList) {
+// This one conducts the write operation in bulk mode
+// So, if transaction being found from context then it will consider that
+// Otherwise it creates new transaction and executes bulk write and commit it
+// TAGS: BULK-WRITE,
+func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		// res sql.Result
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// SPECIAL CASE
+	var (
+		insertStmt *sql.Stmt
+		newTx      bool
+		tx         *sql.Tx
+		ok         bool
+	)
+
+	if tx, ok = DBTxFromContext(ctx); ok { // if transaction is supplied
+		insertStmt = tx.Stmt(RRdb.Prepstmt.InsertSLString)
+	} else {
+		newTx = true
+		tx, err = RRdb.Dbrr.Begin()
+		if err != nil {
+			return rid, err
+		}
+		insertStmt = tx.Stmt(RRdb.Prepstmt.InsertSLString)
+	}
+	defer insertStmt.Close()
 
 	for i := 0; i < len(a.S); i++ {
 		a.S[i].SLID = a.SLID
-		_, err := RRdb.Prepstmt.InsertSLString.Exec(a.BID, a.SLID, a.S[i].Value, a.CreateBy, a.S[i].LastModBy)
+
+		// transaction... context
+		fields := []interface{}{a.BID, a.SLID, a.S[i].Value, a.CreateBy, a.S[i].LastModBy}
+		insertStmt.Exec(fields...)
+
+		// After getting result...
 		if nil != err {
-			Ulog("InsertSLString: error:  %v\n", err)
+			Ulog("Error while inserting SLString BULK-WRITE: %s\n", err.Error())
 		}
 	}
+
+	if newTx { // if new transaction then commit it
+		// if error then rollback
+		if err = tx.Commit(); err != nil {
+			tx.Rollback()
+			Ulog("Error while Commiting transaction | inserting SLString BULK-WRITE: %s\n", err.Error())
+			err = insertError(err, "SLStrings", *a)
+			return rid, err
+		}
+	}
+
+	return rid, err
 }
 
 // InsertSubAR writes a SubAR to the database
-func InsertSubAR(a *SubAR) error {
+func InsertSubAR(ctx context.Context, a *SubAR) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	res, err := RRdb.Prepstmt.InsertSubAR.Exec(a.ARID, a.SubARID, a.BID, a.CreateBy, a.LastModBy)
-	if nil != err {
-		Ulog("InsertSubAR: error:  %v\n", err)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
-	id, err := res.LastInsertId()
-	if err == nil {
-		a.SARID = int64(id)
+
+	// transaction... context
+	fields := []interface{}{a.ARID, a.SubARID, a.BID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertSubAR)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertSubAR.Exec(fields...)
 	}
-	return err
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.SARID = rid
+		}
+	} else {
+		err = insertError(err, "InsertSubAR", *a)
+	}
+	return rid, err
 }
 
 // InsertTransactant writes a new Transactant record to the database
-func InsertTransactant(a *Transactant) (int64, error) {
+func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertTransactant.Exec(a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertTransactant)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertTransactant.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
-			a.TCID = tid
+			rid = int64(x)
+			a.TCID = rid
 		}
 	} else {
 		err = insertError(err, "Transactant", *a)
 	}
-	return tid, err
+	return rid, err
+}
+
+// InsertPayor writes a new User record to the database
+func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
+
+	var (
+		rid = int64(0)
+		err error
+		// res sql.Result
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.InsertPayor.Exec(fields...)
+	}
+
+	// After getting result...
+	/*if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.PayorID = rid
+		}
+	} else {
+		err = insertError(err, "Payor", *a)
+	}*/
+	if err != nil {
+		err = insertError(err, "Payor", *a)
+	}
+	return rid, err
+}
+
+// InsertProspect writes a new User record to the database
+func InsertProspect(ctx context.Context, a *Prospect) (int64, error) {
+
+	var (
+		rid = int64(0)
+		err error
+		// res sql.Result
+	)
+
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.TCID, a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity,
+		a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee,
+		a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences,
+		a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertProspect)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.InsertProspect.Exec(fields...)
+	}
+
+	// After getting result...
+	/*if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.ProspectID = rid
+		}
+	} else {
+		err = insertError(err, "Prospect", *a)
+	}*/
+	if err != nil {
+		err = insertError(err, "Prospect", *a)
+	}
+	return rid, err
 }
 
 // InsertUser writes a new User record to the database
-func InsertUser(a *User) (int64, error) {
+func InsertUser(ctx context.Context, a *User) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		// res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertUser.Exec(a.TCID, a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.CreateBy, a.LastModBy)
-	if nil == err {
-		id, err := res.LastInsertId()
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.TCID, a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertUser)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.InsertUser.Exec(fields...)
+	}
+
+	// After getting result...
+	/*if nil == err {
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.UserID = rid
 		}
 	} else {
 		err = insertError(err, "User", *a)
+	}*/
+	if err != nil {
+		err = insertError(err, "User", *a)
 	}
-	return tid, err
+	return rid, err
 }
 
 // InsertVehicle writes a new Vehicle record to the database
-func InsertVehicle(a *Vehicle) (int64, error) {
+func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
 
-	// while creating resource, CreateBy will be same as LastModBy
-	a.CreateBy = a.LastModBy
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
 
-	var tid = int64(0)
-	res, err := RRdb.Prepstmt.InsertVehicle.Exec(a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy)
+	// session... context
+	if !RRdb.noAuth {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// transaction... context
+	fields := []interface{}{a.TCID, a.BID, a.VehicleType, a.VehicleMake, a.VehicleModel, a.VehicleColor, a.VehicleYear, a.LicensePlateState, a.LicensePlateNumber, a.ParkingPermitNumber, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertVehicle)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertVehicle.Exec(fields...)
+	}
+
+	// After getting result...
 	if nil == err {
-		id, err := res.LastInsertId()
+		x, err := res.LastInsertId()
 		if err == nil {
-			tid = int64(id)
+			rid = int64(x)
+			a.VID = rid
 		}
 	} else {
 		err = insertError(err, "Vehicle", *a)
 	}
-	return tid, err
+	return rid, err
 }

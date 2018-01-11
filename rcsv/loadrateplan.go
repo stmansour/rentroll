@@ -1,6 +1,7 @@
 package rcsv
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"strings"
@@ -14,10 +15,14 @@ import (
 // REX, X2,
 
 // CreateRatePlans reads a RatePlan string array and creates a database record
-func CreateRatePlans(sa []string, lineno int) (int, error) {
-	funcname := "CreateRatePlans"
-	var rp rlib.RatePlan
-	var FLAGS uint64
+func CreateRatePlans(ctx context.Context, sa []string, lineno int) (int, error) {
+	const funcname = "CreateRatePlans"
+
+	var (
+		err   error
+		rp    rlib.RatePlan
+		FLAGS uint64
+	)
 
 	const (
 		BUD     = 0
@@ -45,7 +50,10 @@ func CreateRatePlans(sa []string, lineno int) (int, error) {
 	//-------------------------------------------------------------------
 	des := strings.ToLower(strings.TrimSpace(sa[BUD]))
 	if len(des) > 0 {
-		b1 := rlib.GetBusinessByDesignation(des)
+		b1, err := rlib.GetBusinessByDesignation(ctx, des)
+		if err != nil {
+			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, error while getting business by designation(%s): %s", funcname, lineno, des, err.Error())
+		}
 		if len(b1.Designation) == 0 {
 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d, rlib.Business with designation %s does not exist", funcname, lineno, sa[0])
 		}
@@ -77,7 +85,7 @@ func CreateRatePlans(sa []string, lineno int) (int, error) {
 
 	//return CsvErrorSensitivity, fmt.Errorf("FLAGS = 0x%x", FLAGS)
 
-	rpid, err := rlib.InsertRatePlan(&rp)
+	rpid, err := rlib.InsertRatePlan(ctx, &rp)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Error inserting RatePlan.  err = %s", funcname, lineno, err.Error())
 	}
@@ -89,7 +97,7 @@ func CreateRatePlans(sa []string, lineno int) (int, error) {
 	c.BID = rp.BID
 	c.Type = rlib.CUSTUINT
 	c.Value = fmt.Sprintf("%d", FLAGS)
-	cid, err := rlib.InsertCustomAttribute(&c)
+	cid, err := rlib.InsertCustomAttribute(ctx, &c)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert CustomAttribute. err = %v", funcname, lineno, err)
 	}
@@ -97,7 +105,7 @@ func CreateRatePlans(sa []string, lineno int) (int, error) {
 	cr.ID = rpid
 	cr.BID = rp.BID
 	cr.CID = cid
-	err = rlib.InsertCustomAttributeRef(&cr)
+	_, err = rlib.InsertCustomAttributeRef(ctx, &cr)
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not insert CustomAttributeRef. err = %v", funcname, lineno, err)
 	}
@@ -105,6 +113,6 @@ func CreateRatePlans(sa []string, lineno int) (int, error) {
 }
 
 // LoadRatePlansCSV loads a csv file with note types
-func LoadRatePlansCSV(fname string) []error {
-	return LoadRentRollCSV(fname, CreateRatePlans)
+func LoadRatePlansCSV(ctx context.Context, fname string) []error {
+	return LoadRentRollCSV(ctx, fname, CreateRatePlans)
 }

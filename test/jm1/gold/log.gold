@@ -1,7 +1,7 @@
 Test Name:    JM1 - 12 months of books on the Rexford Properties
 Test Purpose: Setup and run JM1 company and the Rexford Properties for 1 year
-Date/Time:    Thu Nov 30 12:39:03 IST 2017
+Date/Time:    Thu Jan 11 13:43:16 IST 2018
 
 Create new database...  successful
 BEGIN JM1 FUNCTIONAL TEST
-Test completed: Thu Nov 30 12:39:59 IST 2017
+Test completed: Thu Jan 11 13:44:11 IST 2018

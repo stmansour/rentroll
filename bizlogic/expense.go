@@ -1,6 +1,7 @@
 package bizlogic
 
 import (
+	"context"
 	"fmt"
 	"rentroll/rlib"
 	"time"
@@ -9,7 +10,7 @@ import (
 // ReverseExpense reverse an expense. If the Expense has already been reversed
 // it returns immediately.
 //-----------------------------------------------------------------------------
-func ReverseExpense(aold *rlib.Expense, dt *time.Time) []BizError {
+func ReverseExpense(ctx context.Context, aold *rlib.Expense, dt *time.Time) []BizError {
 	var errlist []BizError
 	if aold.FLAGS&0x4 != 0 {
 		return nil // it's already reversed
@@ -22,16 +23,16 @@ func ReverseExpense(aold *rlib.Expense, dt *time.Time) []BizError {
 	anew.FLAGS |= 0x4 // set bit 2 to mark that this expense is void
 	anew.Comment = fmt.Sprintf("Reversal of %s", aold.IDtoShortString())
 
-	err := rlib.InsertExpense(&anew)
+	_, err := rlib.InsertExpense(ctx, &anew)
 	if err != nil {
 		return bizErrSys(&err)
 	}
 	var xbiz rlib.XBusiness
-	rlib.ProcessNewExpense(&anew, &xbiz)
+	rlib.ProcessNewExpense(ctx, &anew, &xbiz)
 
 	aold.Comment = fmt.Sprintf("Reversed by %s", anew.IDtoShortString())
 	aold.FLAGS |= 0x4 // set bit 2 to mark that this expense is void
-	err = rlib.UpdateExpense(aold)
+	err = rlib.UpdateExpense(ctx, aold)
 	if err != nil {
 		return bizErrSys(&err)
 	}
@@ -50,7 +51,7 @@ func ReverseExpense(aold *rlib.Expense, dt *time.Time) []BizError {
 // RETURNS
 //    a slice of BizErrors
 //-------------------------------------------------------------------------------------
-func UpdateExpense(anew *rlib.Expense, dt *time.Time) []BizError {
+func UpdateExpense(ctx context.Context, anew *rlib.Expense, dt *time.Time) []BizError {
 	var err error
 	var errlist []BizError
 
@@ -64,7 +65,7 @@ func UpdateExpense(anew *rlib.Expense, dt *time.Time) []BizError {
 	//-------------------------------
 	// Load existing expense...
 	//-------------------------------
-	aold, err := rlib.GetExpense(anew.EXPID)
+	aold, err := rlib.GetExpense(ctx, anew.EXPID)
 	if err != nil {
 		return bizErrSys(&err)
 	}
@@ -80,17 +81,17 @@ func UpdateExpense(anew *rlib.Expense, dt *time.Time) []BizError {
 	//   Dt
 	//---------------------------------------------------------------------------------
 	if aold.ARID != anew.ARID || aold.Amount != anew.Amount || (!aold.Dt.Equal(anew.Dt)) {
-		errlist = ReverseExpense(&aold, dt) // reverse the expense itself
+		errlist = ReverseExpense(ctx, &aold, dt) // reverse the expense itself
 		if errlist != nil {
 			return errlist
 		}
 		anew.EXPID = 0 // need to insert a new record with the updated info
-		err := rlib.InsertExpense(anew)
+		_, err := rlib.InsertExpense(ctx, anew)
 		if err != nil {
 			return bizErrSys(&err)
 		}
 	} else {
-		err = rlib.UpdateExpense(anew) // reversal not needed, just update the expense
+		err = rlib.UpdateExpense(ctx, anew) // reversal not needed, just update the expense
 		if err != nil {
 			return bizErrSys(&err)
 		}

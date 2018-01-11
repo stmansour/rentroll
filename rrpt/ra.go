@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
@@ -10,8 +11,11 @@ import (
 )
 
 // RRreportRentalAgreementsTable generates a table object for All rental agreements related with Business
-func RRreportRentalAgreementsTable(ri *ReporterInfo) gotable.Table {
-	funcname := "RRreportRentalAgreementsTable"
+func RRreportRentalAgreementsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	const funcname = "RRreportRentalAgreementsTable"
+	var (
+		err error
+	)
 
 	// init and prepare some values before table init
 	totalErrs := 0
@@ -36,17 +40,17 @@ func RRreportRentalAgreementsTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Notes", 30, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	// set table title, sections
-	err := TableReportHeaderBlock(&tbl, "Rental Agreement", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Rental Agreement", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
 	// get records from db
 	rows, err := rlib.RRdb.Prepstmt.GetAllRentalAgreements.Query(ri.Bid)
-	rlib.Errcheck(err)
-	if rlib.IsSQLNoResultsError(err) {
-		// set errors in section3 and return
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
 		tbl.SetSection3(NoRecordsFoundMsg)
 		return tbl
 	}
@@ -58,18 +62,28 @@ func RRreportRentalAgreementsTable(ri *ReporterInfo) gotable.Table {
 
 	for rows.Next() {
 		var p rlib.RentalAgreement
-		rlib.Errcheck(rows.Scan(&raid))
+		err = rows.Scan(&raid)
+		if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+			totalErrs++
+			continue
+		}
 
-		p, err = rlib.GetXRentalAgreement(raid, &d1, &d2)
+		p, err = rlib.GetXRentalAgreement(ctx, raid, &d1, &d2)
 		if err != nil {
 			totalErrs++
-			rlib.Ulog("RRreportRentalAgreements: rlib.GetXRentalAgreement returned err = %v\n", err)
+			rlib.Ulog("%s: rlib.GetXRentalAgreement returned err = %v\n", funcname, err)
 			continue
 		}
 
 		note := ""
 		if p.NLID > 0 {
-			nl := rlib.GetNoteList(p.NLID)
+			nl, err := rlib.GetNoteList(ctx, p.NLID)
+			if err != nil {
+				totalErrs++
+				rlib.Ulog("%s: rlib.GetNoteList returned err = %s\n", funcname, err.Error())
+				continue
+			}
 			if len(nl.N) > 0 {
 				note = nl.N[0].Comment
 			}
@@ -77,8 +91,22 @@ func RRreportRentalAgreementsTable(ri *ReporterInfo) gotable.Table {
 
 		tbl.AddRow()
 		tbl.Puts(-1, 0, p.IDtoString())
-		tbl.Puts(-1, 1, strings.Join(p.GetPayorNameList(&p.AgreementStart, &p.AgreementStop), ", "))
-		tbl.Puts(-1, 2, strings.Join(p.GetUserNameList(&p.AgreementStart, &p.AgreementStop), ", "))
+
+		payors, err := p.GetPayorNameList(ctx, &p.AgreementStart, &p.AgreementStop)
+		if err != nil {
+			totalErrs++
+			rlib.Ulog("%s: p.GetPayorNameList returned err = %s\n", funcname, err.Error())
+			continue
+		}
+		tbl.Puts(-1, 1, strings.Join(payors, ", "))
+
+		users, err := p.GetUserNameList(ctx, &p.AgreementStart, &p.AgreementStop)
+		if err != nil {
+			totalErrs++
+			rlib.Ulog("%s: p.GetUserNameList returned err = %s\n", funcname, err.Error())
+			continue
+		}
+		tbl.Puts(-1, 2, strings.Join(users, ", "))
 		tbl.Putd(-1, 3, p.AgreementStart)
 		tbl.Putd(-1, 4, p.AgreementStop)
 		tbl.Putd(-1, 5, p.PossessionStart)
@@ -92,7 +120,12 @@ func RRreportRentalAgreementsTable(ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 13, p.SpecialProvisions)
 		tbl.Puts(-1, 14, note)
 	}
-	rlib.Errcheck(rows.Err())
+	err = rows.Err()
+	if err != nil {
+		totalErrs++
+		rlib.Ulog("%s: rows.Err() returned err = %s\n", funcname, err.Error())
+	}
+
 	tbl.TightenColumns()
 	if totalErrs > 0 {
 		errMsg := fmt.Sprintf("Encountered %d errors while creating this report. See log.", totalErrs)
@@ -102,16 +135,17 @@ func RRreportRentalAgreementsTable(ri *ReporterInfo) gotable.Table {
 }
 
 // RRreportRentalAgreements generates a report of all Businesses defined in the database.
-func RRreportRentalAgreements(ri *ReporterInfo) string {
-	tbl := RRreportRentalAgreementsTable(ri)
+func RRreportRentalAgreements(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRreportRentalAgreementsTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }
 
 // RRRentalAgreementStatementTable returns gotable.Table for rental agreement statements
-func RRRentalAgreementStatementTable(BID, RAID int64, d1, d2 *time.Time) gotable.Table {
+func RRRentalAgreementStatementTable(ctx context.Context, BID, RAID int64, d1, d2 *time.Time) gotable.Table {
+	const funcname = "SvcStatementDetails"
 	var (
-		funcname = "SvcStatementDetails"
-		xbiz     rlib.XBusiness
+		err  error
+		xbiz rlib.XBusiness
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -131,7 +165,12 @@ func RRRentalAgreementStatementTable(BID, RAID int64, d1, d2 *time.Time) gotable
 	//
 	// UGH!
 	//=======================================================================
-	rlib.InitBizInternals(BID, &xbiz)
+	err = rlib.InitBizInternals(BID, &xbiz)
+	if err != nil {
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
 	rlib.Console("BID = %d\n", BID)
 	_, ok := rlib.RRdb.BizTypes[BID]
 	if !ok {
@@ -150,7 +189,7 @@ func RRRentalAgreementStatementTable(BID, RAID int64, d1, d2 *time.Time) gotable
 	//--------------------------------------------
 	// Get the statement data...
 	//--------------------------------------------
-	m, err := rlib.GetRAIDStatementInfo(RAID, d1, d2)
+	m, err := rlib.GetRAIDStatementInfo(ctx, RAID, d1, d2)
 	if err != nil {
 		tbl.SetSection3(err.Error())
 		return tbl
@@ -166,12 +205,16 @@ func RRRentalAgreementStatementTable(BID, RAID int64, d1, d2 *time.Time) gotable
 
 	tbl.SetTitle(fmt.Sprintf("Rental Agreement %d - Statement", RAID))
 	//tbl.SetSection1(fmt.Sprintf("Statement for: Rental Agreement %d", RAID))
-	ra, err := rlib.GetRentalAgreement(RAID)
+	ra, err := rlib.GetRentalAgreement(ctx, RAID)
 	if err != nil {
 		tbl.SetSection3("Unable to get Rental Agreement info: " + err.Error())
 		return tbl
 	}
-	sap := ra.GetPayorNameList(&ra.AgreementStart, &ra.AgreementStop)
+	sap, err := ra.GetPayorNameList(ctx, &ra.AgreementStart, &ra.AgreementStop)
+	if err != nil {
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
 	tbl.SetSection1(fmt.Sprintf("Statement Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3), strings.Join(sap, ", ")))
 
 	//--------------------------------------------
@@ -234,7 +277,12 @@ func RRRentalAgreementStatementTable(BID, RAID int64, d1, d2 *time.Time) gotable
 					d += amt
 					b -= amt
 				} else {
-					rcpt := rlib.GetReceipt(m.Stmt[i].R.RCPTID)
+					rcpt, err := rlib.GetReceipt(ctx, m.Stmt[i].R.RCPTID)
+					if err != nil {
+						tbl.SetSection3(err.Error())
+						return tbl
+					}
+
 					comment := ""
 					if rcpt.RCPTID > 0 {
 						comment += rcpt.Comment
@@ -267,7 +315,7 @@ func RRRentalAgreementStatementTable(BID, RAID int64, d1, d2 *time.Time) gotable
 }
 
 // RRRentalAgreementStatements gives string representation of table
-func RRRentalAgreementStatements(ri *ReporterInfo) gotable.Table {
+func RRRentalAgreementStatements(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	// find raid from query params
 	var (
 		raid int64
@@ -275,6 +323,6 @@ func RRRentalAgreementStatements(ri *ReporterInfo) gotable.Table {
 	raidStr := ri.QueryParams.Get("raid")
 	raid, _ = strconv.ParseInt(raidStr, 10, 64)
 
-	tbl := RRRentalAgreementStatementTable(ri.Bid, raid, &ri.D1, &ri.D2)
+	tbl := RRRentalAgreementStatementTable(ctx, ri.Bid, raid, &ri.D1, &ri.D2)
 	return tbl
 }

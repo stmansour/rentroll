@@ -1,6 +1,7 @@
 package rrpt
 
 import (
+	"context"
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
@@ -9,19 +10,19 @@ import (
 
 // RRTextReport prints a text-based RentRoll report
 // for the business in xbiz and timeframe d1 to d2 to stdout
-func RRTextReport(ri *ReporterInfo) {
-	fmt.Print(RRReport(ri))
+func RRTextReport(ctx context.Context, ri *ReporterInfo) {
+	fmt.Print(RRReport(ctx, ri))
 }
 
 // RRReport returns a string containin a text-based RentRoll report
 // for the business in xbiz and timeframe d1 to d2.
-func RRReport(ri *ReporterInfo) string {
-	tbl := RRReportTable(ri)
+func RRReport(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRReportTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }
 
 // RRReportTable returns the gotable representation for rentroll report
-func RRReportTable(ri *ReporterInfo) gotable.Table {
+func RRReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	const funcname = "RRReportTable"
 	var (
 		err error
@@ -37,9 +38,10 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.SetSection3CSS(cssListSection3)
 
 	// set table title, sections
-	err = TableReportHeaderBlock(&tbl, "Rentroll", funcname, ri)
+	err = TableReportHeaderBlock(ctx, &tbl, "Rentroll", funcname, ri)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
 		return tbl
 	}
 
@@ -67,13 +69,14 @@ func RRReportTable(ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Ending Security Deposit", 10, gotable.CELLSTRING, gotable.COLJUSTIFYRIGHT)    // account for the associated RentalAgreement
 
 	// NOW GET THE ROWS FOR RENTROLL ROUTINE
-	rows, _, _, err := rlib.GetRentRollRows(
+	rows, _, _, err := rlib.GetRentRollRows(ctx,
 		ri.Bid, ri.D1, ri.D2, // BID, startDate, stopDate
 		-1, -1, // offset, limit
 	)
 
 	// if any error encountered then just set it to section3
 	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
 		tbl.SetSection3(err.Error())
 		return tbl
 	}

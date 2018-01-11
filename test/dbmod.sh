@@ -4,7 +4,7 @@
 #  This script performs SQL schema changes on the test databases that are
 #  saved as SQL files in the test directory. It loads them, performs the
 #  ALTER commands, then saves the sql file.
-# 
+#
 #  If the test file uses its own database saved as a .sql file, make sure
 #  it is listed in the dbs array
 #==========================================================================
@@ -41,7 +41,17 @@ cat >${MODFILE} <<EOF
 #     CreateBy BIGINT NOT NULL DEFAULT 0,                     -- employee UID (from phonebook) that created this record
 #     PRIMARY KEY(SARID)
 # );
-ALTER TABLE Assessments ADD COLUMN AGRCPTID BIGINT NOT NULL DEFAULT 0 AFTER RPASMID;
+# ALTER TABLE Assessments ADD COLUMN AGRCPTID BIGINT NOT NULL DEFAULT 0 AFTER RPASMID;
+# 1 Jan, 2018
+ALTER TABLE rentroll.CustomAttrRef ADD CARID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.RatePlanRefRTRate ADD RPRRTRateID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.RatePlanRefSPRate ADD RPRSPRateID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.RentableSpecialtyRef ADD RSPRefID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.Prospect MODIFY TCID BIGINT NOT NULL;
+ALTER TABLE rentroll.User MODIFY TCID BIGINT NOT NULL;
+ALTER TABLE rentroll.Payor MODIFY TCID BIGINT NOT NULL;
+ALTER TABLE rentroll.InvoiceAssessment ADD InvoiceASMID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE rentroll.InvoicePayor ADD InvoicePayorID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
 EOF
 
 #=====================================================

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -22,7 +23,7 @@ import (
 
 // DispatchCtx is a type of struct needed for the Dispatch function. It defines
 // everything needed to run a particular command. It is the responsibility of the
-// caller to fill out all the needed ctx information. Not all information is needed
+// caller to fill out all the needed dCtx information. Not all information is needed
 // for all commands.
 type DispatchCtx struct {
 	Cmd          int                 // cmd to execute
@@ -58,10 +59,6 @@ var App struct {
 	//DBRR         string   // rentroll database
 	RootStaticDir string // root directory settings
 }
-
-// RRfuncMap is a map of functions passed to each html page that can be referenced
-// as needed to produce the page
-var RRfuncMap map[string]interface{}
 
 // Chttp is a server mux for handling unprocessed html page requests.
 // For example, a .css file or an image file.
@@ -115,9 +112,9 @@ func readCommandLineArgs() {
 	App.NoAuth = *noauth
 }
 
-func intTest(xbiz *rlib.XBusiness, d1, d2 *time.Time) {
+func intTest(ctx context.Context, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
 	fmt.Printf("INTERNAL TEST\n")
-	m := rlib.ParseAcctRule(xbiz, 1, d1, d2, "d ${GLGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${GLGENRCV})} -", float64(1000), float64(8)/float64(30))
+	m, _ := rlib.ParseAcctRule(ctx, xbiz, 1, d1, d2, "d ${GLGENRCV} 1000.0, c 40001 ${UMR}, d 41004 ${UMR} ${aval(${GLGENRCV})} -", float64(1000), float64(8)/float64(30))
 
 	for i := 0; i < len(m); i++ {
 		fmt.Printf("m[%d] = %#v\n", i, m[i])
@@ -130,7 +127,15 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	if strings.Contains(r.URL.Path, ".") {
 		Chttp.ServeHTTP(w, r)
 	} else {
-		http.Redirect(w, r, "/home/", http.StatusFound)
+		// RECEIPT-ONLY CLIENT SUPPORT...
+		switch rlib.AppConfig.RootHandler {
+		case "roller":
+			http.Redirect(w, r, "/home/", http.StatusFound)
+		case "receipts":
+			http.Redirect(w, r, "/rhome/", http.StatusFound)
+		default:
+			http.Redirect(w, r, "/home/", http.StatusFound)
+		}
 	}
 }
 
@@ -141,13 +146,12 @@ func initHTTP() {
 	http.HandleFunc("/home/", HomeUIHandler)
 	http.HandleFunc("/rhome/", RHomeUIHandler) // special purpose, receipt-only version of roller
 	http.HandleFunc("/v1/", ws.V1ServiceHandler)
-	http.HandleFunc("/wsvc/", webServiceHandler)
+	// http.HandleFunc("/wsvc/", ReportServiceHandler)
 }
 
 func main() {
 	var err error
 	readCommandLineArgs()
-	// fmt.Printf("App.CSVLoad = %s\n", App.CSVLoad)
 	//==============================================
 	// Open the logfile and begin logging...
 	//==============================================
@@ -166,6 +170,7 @@ func main() {
 	}
 
 	s := extres.GetSQLOpenString(rlib.AppConfig.RRDbname, &rlib.AppConfig)
+	//rlib.Console("sql.Open string: %s\n", s)
 	App.dbrr, err = sql.Open("mysql", s)
 	if nil != err {
 		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
@@ -198,9 +203,13 @@ func main() {
 	ws.SvcInit(App.NoAuth) // currently needed for testing
 
 	if App.BatchMode {
-		ctx := createStartupCtx()
-		rcsv.InitRCSV(&ctx.DtStart, &ctx.DtStop, &ctx.xbiz)
-		RunCommandLine(&ctx)
+		// this is command line based approach, so no request context
+		// instead create background context and pass it
+		// This should be run under no authentication
+		ctx := context.Background()
+		dCtx := createStartupCtx()
+		rcsv.InitRCSV(&dCtx.DtStart, &dCtx.DtStop, &dCtx.xbiz)
+		RunCommandLine(ctx, &dCtx)
 	} else {
 		tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir) // starts the scheduler in a go routine. only initialize when we're in server mode
 		worker.Init()                             // register Rentroll's TWS workers

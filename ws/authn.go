@@ -55,33 +55,40 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	//-----------------------------------------------------------------------
-	// There's no need to Marshal the data into JSON format. We already have
-	// it in d.data.  Just pass it along to the authenication server
-	//-----------------------------------------------------------------------
-	url := rlib.AppConfig.AuthNHost + "v1/authenticate"
-	rlib.Console("posting request to: %s\n", url)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(d.data)))
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcErrorReturn(w, e, funcname)
-		return
-	}
-	defer resp.Body.Close()
-
-	// fmt.Println("response Status:", resp.Status)
-	// fmt.Println("response Headers:", resp.Header)
-	body, _ := ioutil.ReadAll(resp.Body)
-	rlib.Console("response Body: %s\n", string(body))
-
 	var b AuthenticateResponse
-	if err := json.Unmarshal([]byte(body), &b); err != nil {
-		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
-		SvcErrorReturn(w, e, funcname)
-		return
+	if SvcCtx.NoAuth {
+		b.Status = "success"
+		b.Username = "noauth"
+		b.Name = "NoAuth"
+		b.UID = 0
+	} else {
+		//-----------------------------------------------------------------------
+		// There's no need to Marshal the data into JSON format. We already have
+		// it in d.data.  Just pass it along to the authenication server
+		//-----------------------------------------------------------------------
+		url := rlib.AppConfig.AuthNHost + "v1/authenticate"
+		rlib.Console("posting request to: %s\n", url)
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(d.data)))
+		req.Header.Set("Content-Type", "application/json")
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			e := fmt.Errorf("%s: failed to execute client.Do:  %s", funcname, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
+		defer resp.Body.Close()
+
+		// fmt.Println("response Status:", resp.Status)
+		// fmt.Println("response Headers:", resp.Header)
+		body, _ := ioutil.ReadAll(resp.Body)
+		rlib.Console("response Body: %s\n", string(body))
+
+		if err := json.Unmarshal([]byte(body), &b); err != nil {
+			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
 	}
 
 	switch b.Status {
@@ -96,14 +103,17 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
+	// rlib.Console("b.Username = %s, b.UID = %d, b.Name = %s\n", b.Username, b.UID, b.Name)
 	w.Header().Set("Content-Type", "application/json")
-	rlib.Console("Creating session\n")
-	s, err := rlib.CreateSession(a.User, w, r)
+	// rlib.Console("Creating session\n")
+	s, err := rlib.CreateSession(b.UID, b.ImageURL, w, r)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	b.ImageURL = s.ImageURL
-	rlib.Console("Created session: %s\n", s.Token)
+	b.Username = s.Username
+	// rlib.Console("Created session: %#v\n", s)
+	// rlib.Console("Created response: %#v\n", b)
 	SvcWriteResponse(&b, w)
 }
