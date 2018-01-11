@@ -17,7 +17,7 @@ func printLedgerHeader(tbl *gotable.Table, xbiz *rlib.XBusiness, l *rlib.GLAccou
 	// s += fmt.Sprintf("Account:  %s - %s\n", l.GLNumber, l.Name)
 	// s += fmt.Sprintf("Period:   %s - %s\n", d1.Format(rlib.RRDATEFMT), d2.AddDate(0, 0, -1).Format(rlib.RRDATEFMT))
 	// tbl.SetTitle(s)
-	title := fmt.Sprintf("%s\n(GL Account: %s)\n", l.Name, l.GLNumber)
+	title := fmt.Sprintf("%s (GL Account: %s)\n", l.Name, l.GLNumber)
 	tbl.SetTitle(title)
 	// tbl.SetTitle(fmt.Sprintf("%s\n", l.Name))
 	// tbl.SetSection1(fmt.Sprintf("GL Account: %s\n", l.GLNumber))
