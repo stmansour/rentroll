@@ -1,5 +1,4 @@
-Cash
-(GL Account: 10000)
+Cash (GL Account: 10000)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -22,8 +21,7 @@ Transfer                                                 02/20/2016  J00000026  
 Closing Balance                                          02/29/2016                                                           52,646.66
 
 
-Cash BofA
-(GL Account: 10001)
+Cash BofA (GL Account: 10001)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -39,8 +37,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Unapplied Funds
-(GL Account: 10100)
+Unapplied Funds (GL Account: 10100)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -56,8 +53,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Credit Card Clearing
-(GL Account: 11000)
+Credit Card Clearing (GL Account: 11000)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -73,8 +69,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Accounts Receivable
-(GL Account: 12000)
+Accounts Receivable (GL Account: 12000)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -98,8 +93,7 @@ Payment #268 - Gross Scheduled Rent-Not Taxable          02/16/2016  J00000023  
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Security Deposits
-(GL Account: 30000)
+Security Deposits (GL Account: 30000)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -115,8 +109,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                          -13,300.00
 
 
-Accrued Taxes
-(GL Account: 30100)
+Accrued Taxes (GL Account: 30100)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -132,8 +125,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Sales Taxes
-(GL Account: 30101)
+Sales Taxes (GL Account: 30101)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -149,8 +141,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Transient Occupancy Taxes
-(GL Account: 30102)
+Transient Occupancy Taxes (GL Account: 30102)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -166,8 +157,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Other Accrued Taxes
-(GL Account: 30199)
+Other Accrued Taxes (GL Account: 30199)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -183,8 +173,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Owners' Equity
-(GL Account: 39000)
+Owners' Equity (GL Account: 39000)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -200,8 +189,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Gross Scheduled Rent-Not Taxable
-(GL Account: 41000)
+Gross Scheduled Rent-Not Taxable (GL Account: 41000)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -222,8 +210,7 @@ Unassociated                                             02/29/2016  J00000027  
 Closing Balance                                          02/29/2016                                                          -27,900.00
 
 
-Gross Scheduled Rent-Taxable
-(GL Account: 41001)
+Gross Scheduled Rent-Taxable (GL Account: 41001)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -239,8 +226,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Income Offsets
-(GL Account: 41002)
+Income Offsets (GL Account: 41002)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -256,8 +242,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                            2,500.00
 
 
-Other Income
-(GL Account: 41003)
+Other Income (GL Account: 41003)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -273,8 +258,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Unit Income Offsets
-(GL Account: 41100)
+Unit Income Offsets (GL Account: 41100)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -290,8 +274,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                            2,500.00
 
 
-Vacancy
-(GL Account: 41101)
+Vacancy (GL Account: 41101)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -309,8 +292,7 @@ Unassociated                                             02/29/2016  J00000028  
 Closing Balance                                          02/29/2016                                                            8,337.93
 
 
-Loss (Gain) to Lease
-(GL Account: 41102)
+Loss (Gain) to Lease (GL Account: 41102)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -326,8 +308,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Employee Concessions
-(GL Account: 41103)
+Employee Concessions (GL Account: 41103)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -343,8 +324,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Resident Concessions
-(GL Account: 41104)
+Resident Concessions (GL Account: 41104)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -360,8 +340,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Owner Concession
-(GL Account: 41105)
+Owner Concession (GL Account: 41105)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -377,8 +356,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Administrative Concession
-(GL Account: 41106)
+Administrative Concession (GL Account: 41106)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -394,8 +372,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Off Line Renovations
-(GL Account: 41107)
+Off Line Renovations (GL Account: 41107)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -411,8 +388,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Off Line Maintenance
-(GL Account: 41108)
+Off Line Maintenance (GL Account: 41108)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -428,8 +404,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Othe Income Offsets
-(GL Account: 41199)
+Othe Income Offsets (GL Account: 41199)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -445,8 +420,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Serviced Fees
-(GL Account: 41200)
+Serviced Fees (GL Account: 41200)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -462,8 +436,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Broadcast and IT Services
-(GL Account: 41201)
+Broadcast and IT Services (GL Account: 41201)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -479,8 +452,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Food Services
-(GL Account: 41202)
+Food Services (GL Account: 41202)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -497,8 +469,7 @@ Assessment - Employee Concessions                        02/01/2016  J00000020  
 Closing Balance                                          02/29/2016                                                             -111.26
 
 
-Linen Services
-(GL Account: 41203)
+Linen Services (GL Account: 41203)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -514,8 +485,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Wash N Fold Services
-(GL Account: 41204)
+Wash N Fold Services (GL Account: 41204)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -531,8 +501,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Other Service Fees
-(GL Account: 41299)
+Other Service Fees (GL Account: 41299)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -548,8 +517,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Utility Fees
-(GL Account: 41300)
+Utility Fees (GL Account: 41300)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -565,8 +533,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Electric Base Fee
-(GL Account: 41301)
+Electric Base Fee (GL Account: 41301)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -582,8 +549,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Electric Overage
-(GL Account: 41302)
+Electric Overage (GL Account: 41302)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -599,8 +565,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Water and Sewer Base Fee
-(GL Account: 41303)
+Water and Sewer Base Fee (GL Account: 41303)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -616,8 +581,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Water and Sewer Overage
-(GL Account: 41304)
+Water and Sewer Overage (GL Account: 41304)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -633,8 +597,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Gas Base Fee
-(GL Account: 41305)
+Gas Base Fee (GL Account: 41305)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -650,8 +613,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Gas Overage
-(GL Account: 41306)
+Gas Overage (GL Account: 41306)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -667,8 +629,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Trash Collection Base Fee
-(GL Account: 41307)
+Trash Collection Base Fee (GL Account: 41307)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -684,8 +645,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Trash Collection Overage
-(GL Account: 41308)
+Trash Collection Overage (GL Account: 41308)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -701,8 +661,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Other Utility Fee
-(GL Account: 41399)
+Other Utility Fee (GL Account: 41399)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -718,8 +677,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Miscellaneous Income
-(GL Account: 41400)
+Miscellaneous Income (GL Account: 41400)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -735,8 +693,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Application Fees
-(GL Account: 41401)
+Application Fees (GL Account: 41401)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -752,8 +709,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Late Fees
-(GL Account: 41402)
+Late Fees (GL Account: 41402)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -769,8 +725,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Insufficient Funds Fee
-(GL Account: 41403)
+Insufficient Funds Fee (GL Account: 41403)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -786,8 +741,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Month to Month Fee
-(GL Account: 41404)
+Month to Month Fee (GL Account: 41404)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -803,8 +757,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Premium Upgrades
-(GL Account: 41405)
+Premium Upgrades (GL Account: 41405)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -820,8 +773,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-No Show or Termination Fee
-(GL Account: 41406)
+No Show or Termination Fee (GL Account: 41406)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -837,8 +789,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Pet Fees
-(GL Account: 41407)
+Pet Fees (GL Account: 41407)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -854,8 +805,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Pet Rent
-(GL Account: 41408)
+Pet Rent (GL Account: 41408)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -871,8 +821,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Expense Reimbursement
-(GL Account: 41409)
+Expense Reimbursement (GL Account: 41409)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -888,8 +837,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Special Cleaning Fee
-(GL Account: 41410)
+Special Cleaning Fee (GL Account: 41410)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -905,8 +853,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Eviction Fee Reimbursement
-(GL Account: 41411)
+Eviction Fee Reimbursement (GL Account: 41411)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -922,8 +869,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Extra Person Charge
-(GL Account: 41412)
+Extra Person Charge (GL Account: 41412)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -939,8 +885,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Forfeited SecDep
-(GL Account: 41413)
+Forfeited SecDep (GL Account: 41413)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -956,8 +901,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Damage Fee
-(GL Account: 41414)
+Damage Fee (GL Account: 41414)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -973,8 +917,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-CAM Fees
-(GL Account: 41415)
+CAM Fees (GL Account: 41415)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -990,8 +933,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Other Miscellaneous Income
-(GL Account: 41499)
+Other Miscellaneous Income (GL Account: 41499)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1007,8 +949,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Taxes Collected in Trust
-(GL Account: 41500)
+Taxes Collected in Trust (GL Account: 41500)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1024,8 +965,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Sales Taxes
-(GL Account: 41501)
+Sales Taxes (GL Account: 41501)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1041,8 +981,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Transient Occupancy Taxes
-(GL Account: 41502)
+Transient Occupancy Taxes (GL Account: 41502)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1058,8 +997,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Business Income
-(GL Account: 42000)
+Business Income (GL Account: 42000)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1075,8 +1013,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Convenience Store
-(GL Account: 42100)
+Convenience Store (GL Account: 42100)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1092,8 +1029,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Fitness Center Revenue
-(GL Account: 42200)
+Fitness Center Revenue (GL Account: 42200)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1109,8 +1045,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Vending Income
-(GL Account: 42300)
+Vending Income (GL Account: 42300)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1126,8 +1061,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Restaurant Sales
-(GL Account: 42400)
+Restaurant Sales (GL Account: 42400)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1143,8 +1077,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Bar Sales
-(GL Account: 42500)
+Bar Sales (GL Account: 42500)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1160,8 +1093,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Spa Sales
-(GL Account: 42600)
+Spa Sales (GL Account: 42600)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1177,8 +1109,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Cash Over/Short
-(GL Account: 49991)
+Cash Over/Short (GL Account: 49991)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1194,8 +1125,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Bad Debt
-(GL Account: 49992)
+Bad Debt (GL Account: 49992)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1211,8 +1141,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Income Suspense
-(GL Account: 49998)
+Income Suspense (GL Account: 49998)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -1228,8 +1157,7 @@ Opening Balance                                                                 
 Closing Balance                                          02/29/2016                                                                0.00
 
 
-Other Business Income
-(GL Account: 49999)
+Other Business Income (GL Account: 49999)
 Feb 1, 2016 - Mar 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road

@@ -1,5 +1,4 @@
-Cash
-(GL Account: 10000)
+Cash (GL Account: 10000)
 Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -22,8 +21,7 @@ Transfer                                                 07/20/2016  J00000069  
 Closing Balance                                          07/31/2016                                                          151,181.37
 
 
-Accounts Receivable
-(GL Account: 12000)
+Accounts Receivable (GL Account: 12000)
 Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -47,8 +45,7 @@ Payment #1948 - Gross Scheduled Rent-Not Taxable         07/11/2016  J00000067  
 Closing Balance                                          07/31/2016                                                                0.00
 
 
-Security Deposits
-(GL Account: 30000)
+Security Deposits (GL Account: 30000)
 Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -65,8 +62,7 @@ Assessment - Security Deposits                           07/01/2016  J00000063  
 Closing Balance                                          07/31/2016                                                          -18,300.00
 
 
-Gross Scheduled Rent-Not Taxable
-(GL Account: 41000)
+Gross Scheduled Rent-Not Taxable (GL Account: 41000)
 Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -86,8 +82,7 @@ Unassociated                                             07/31/2016  J00000072  
 Closing Balance                                          07/31/2016                                                          -98,650.00
 
 
-Vacancy
-(GL Account: 41101)
+Vacancy (GL Account: 41101)
 Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -104,8 +99,7 @@ Unassociated                                             07/31/2016  J00000072  
 Closing Balance                                          07/31/2016                                                           37,687.93
 
 
-Food Services
-(GL Account: 41202)
+Food Services (GL Account: 41202)
 Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
@@ -121,8 +115,7 @@ Opening Balance                                                                 
 Closing Balance                                          07/31/2016                                                             -111.26
 
 
-Forfeited SecDep
-(GL Account: 41413)
+Forfeited SecDep (GL Account: 41413)
 Jul 1, 2016 - Aug 1, 2016
 BH Rexford Group, Inc.
 11719 Bee Cave Road
