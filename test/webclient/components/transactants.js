@@ -9,7 +9,12 @@ var common = require("../common.js");
 exports.gridConf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
-    capture: "transactantsGridRequest.png"
+    capture: "transactantsGridRequest.png",
+    endPoint: common.apiBaseURL + "/{0}/transactants/{1}",
+    methodType: "POST",
+    requestData: JSON.stringify({"cmd": "get", "selected": [], "limit": 100, "offset": 0}),
+    excludeGridColumns: [],
+    testCount: 143
 };
 
 // Below configurations are in use while performing tests via form.js

@@ -103,8 +103,53 @@ casper.then(function pageBasicLayoutTest() {
 // Now start all grid record check test
 // --------------------------------------------------
 casper.then(function apiIntegrationTest() {
+
+    // -------------------------------------------- //
+    // Assessments / Receipts Module
+    // -------------------------------------------- //
+
+    /*  Assess Charges */
+    // gridRecordM.gridRecordsTest(asmM.gridConf);
+
+    /* Tendered Payment Receipt */
+    // gridRecordM.gridRecordsTest(receiptsM.gridConf);
+
+    /* Expenses */
+    /*
+    ================================
+    // Remove comment for Tendered Payment Receipt for grid tests will fail the test.
+    // Require to change from and to
+    =================================
+    */
+    // gridRecordM.gridRecordsTest(expensesM.gridConf);
+
+    /* Deposits */
+    /*
+    ================================
+    // Remove comment for Tendered Payment Receipt for grid tests will fail the test.
+    // Require to change from and to
+    =================================
+    */
+    // gridRecordM.gridRecordsTest(depositM.gridConf);
+
+    // -------------------------------------------- //
+    // Rental Agreements
+    // -------------------------------------------- //
+
+    /* Transactants */
+    gridRecordM.gridRecordsTest(transactantsM.gridConf);
+
+
+    // ----------------------------- //
+    // Setup Module
+    // ----------------------------- //
+    /*  Payment Types */
     gridRecordM.gridRecordsTest(pmtM.gridConf);
+
+    /* Depository Accounts */
     gridRecordM.gridRecordsTest(depM.gridConf);
+
+    /* Deposit Methods */
     gridRecordM.gridRecordsTest(depmethM.gridConf);
 
     /*
@@ -115,7 +160,10 @@ casper.then(function apiIntegrationTest() {
     */
     // gridRecordM.gridRecordsTest(arsM.gridConf);
 
+    /* Rentable Types */
     gridRecordM.gridRecordsTest(rtM.gridConf);
+
+    /* Rentables */
     gridRecordM.gridRecordsTest(rentableM.gridConf);
 });
 
@@ -131,7 +179,7 @@ casper.then(function addNewButtonTesting() {
     /*  Assess Charges */
     addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
 
-    /* Receive Receipts  */
+    /* Tendered Payment Receipts  */
     addNewButtonM.w2uiAddNewButtonTest(receiptsM.addNewConf);
 
     /*
@@ -217,6 +265,7 @@ casper.then(function addNewButtonTesting() {
 // --------------------------------------------------
 // Now start all right side panel view UI testing
 // --------------------------------------------------
+// Below form test doesn't require as of now. Because we are just checking form button in that.
 /*casper.then(function formTesting() {
     formM.w2uiFormTest(asmM.formConf);
     formM.w2uiFormTest(transactantsM.formConf);

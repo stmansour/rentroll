@@ -9,7 +9,19 @@ var common = require("../common.js");
 exports.gridConf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
-    capture: "depositGridRequest.png"
+    capture: "depositGridRequest.png",
+    endPoint: common.apiBaseURL + "/{0}/deposit/{1}",
+    methodType: "POST",
+    requestData: JSON.stringify({
+        "cmd": "get",
+        "selected": [],
+        "limit": 100,
+        "offset": 0,
+        "searchDtStart": "9/25/2017",
+        "searchDtStop": "10/26/2017"
+    }),
+    excludeGridColumns: [],
+    testCount: 23
 };
 
 // Below configurations are in use while performing tests via form.js

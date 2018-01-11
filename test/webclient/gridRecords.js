@@ -137,7 +137,9 @@ exports.gridRecordsTest = function (gridConfig) {
                 return JSON.parse(__utils__.sendAJAX(url, method, data, false));
             }, this.gridEndPoint, gridConfig.methodType, gridConfig.requestData);
 
-            // require('utils').dump(this.apiResponse); // Print API Response
+            console.log(JSON.stringify(this.apiResponse));
+
+            require('utils').dump(this.apiResponse); // Print API Response
 
             casper.click("div[name=sidebarL1] #" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[GridRecordTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
