@@ -170,7 +170,7 @@ func dumpSessions() {
 // RETURNS
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
-func SessionNew(token, username, name string, uid int64, rid int64) *Session {
+func SessionNew(token, username, name string, uid int64, imgurl string, rid int64) *Session {
 	s := new(Session)
 	s.Token = token
 	s.Username = username
@@ -179,7 +179,9 @@ func SessionNew(token, username, name string, uid int64, rid int64) *Session {
 
 	switch AppConfig.AuthNType {
 	case "Accord Directory":
-		s.ImageURL = fmt.Sprintf("%spictures/%d.png", AppConfig.AuthNHost, s.UID)
+		if len(imgurl) > 0 {
+			s.ImageURL = fmt.Sprintf("%s%s", AppConfig.AuthNHost, imgurl)
+		}
 	}
 
 	s.Expire = time.Now().Add(SessionTimeout)
@@ -201,7 +203,7 @@ func SessionNew(token, username, name string, uid int64, rid int64) *Session {
 // RETURNS
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
-func CreateSession(uid int64, w http.ResponseWriter, r *http.Request) (*Session, error) {
+func CreateSession(uid int64, imgurl string, w http.ResponseWriter, r *http.Request) (*Session, error) {
 	expiration := time.Now().Add(SessionTimeout)
 
 	//----------------------------------------------
@@ -212,8 +214,8 @@ func CreateSession(uid int64, w http.ResponseWriter, r *http.Request) (*Session,
 		var bad Session
 		return &bad, err
 	}
-	Console("DIR PERSON UserName = %s\n", dp.UserName)
-	Console("dp = %#v\n", dp)
+	// Console("DIR PERSON UserName = %s\n", dp.UserName)
+	// Console("dp = %#v\n", dp)
 	RoleID := int64(0)
 
 	//=================================================================================
@@ -229,9 +231,9 @@ func CreateSession(uid int64, w http.ResponseWriter, r *http.Request) (*Session,
 	if len(dp.PreferredName) > 0 {
 		name = dp.PreferredName
 	}
-	Console("dp = %#v\n", dp)
-	s := SessionNew(token, dp.UserName, name, uid, RoleID)
-	Console("session = %#v\n", s)
+	// Console("dp = %#v\n", dp)
+	s := SessionNew(token, dp.UserName, name, uid, imgurl, RoleID)
+	// Console("session = %#v\n", s)
 	cookie := http.Cookie{Name: sessionCookieName, Value: s.Token, Expires: expiration}
 	cookie.Path = "/"
 	http.SetCookie(w, &cookie)
