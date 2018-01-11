@@ -127,7 +127,15 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	if strings.Contains(r.URL.Path, ".") {
 		Chttp.ServeHTTP(w, r)
 	} else {
-		http.Redirect(w, r, "/home/", http.StatusFound)
+		// RECEIPT-ONLY CLIENT SUPPORT...
+		switch rlib.AppConfig.RootHandler {
+		case "roller":
+			http.Redirect(w, r, "/home/", http.StatusFound)
+		case "receipts":
+			http.Redirect(w, r, "/rhome/", http.StatusFound)
+		default:
+			http.Redirect(w, r, "/home/", http.StatusFound)
+		}
 	}
 }
 

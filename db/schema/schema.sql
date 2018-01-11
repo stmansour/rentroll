@@ -1,4 +1,3 @@
---     Table names are all lower case
 --     Field names are camel case
 --     Money values are all stored as DECIMAL(19,4)
 
