@@ -99,6 +99,9 @@ casper.then(function pageBasicLayoutTest() {
     this.test.assertEquals(pageInitiated, true, "Page basic layout is ready.");
 });
 
+// --------------------------------------------------
+// Now start all grid record check test
+// --------------------------------------------------
 casper.then(function apiIntegrationTest() {
     gridRecordM.gridRecordsTest(pmtM.gridConf);
     gridRecordM.gridRecordsTest(depM.gridConf);
@@ -117,7 +120,7 @@ casper.then(function apiIntegrationTest() {
 });
 
 // --------------------------------------------------
-// 3. Now start all add new button test
+// Now start all add new button test
 // --------------------------------------------------
 casper.then(function addNewButtonTesting() {
 
@@ -212,7 +215,7 @@ casper.then(function addNewButtonTesting() {
 });
 
 // --------------------------------------------------
-// 4. Now start all right side panel view UI testing
+// Now start all right side panel view UI testing
 // --------------------------------------------------
 /*casper.then(function formTesting() {
     formM.w2uiFormTest(asmM.formConf);
@@ -224,28 +227,6 @@ casper.then(function addNewButtonTesting() {
     formM.w2uiFormTest(arsM.formConf);
     formM.w2uiFormTest(rtM.formConf);
 });*/
-
-
-// --------------------------------------------------
-// 5. Now start all grid record check test
-// --------------------------------------------------
-
-// casper.then(function apiIntegrationTest() {
-//         gridRecordM.gridRecordsTest(pmtM.gridConf);
-//         gridRecordM.gridRecordsTest(depM.gridConf);
-//         gridRecordM.gridRecordsTest(depmethM.gridConf);
-//
-//         /*
-//         ================================
-//         // Remove comment for Account Rules for grid tests will fail the test.
-//         // Check Tests sheet for more detail. Scrolling of records is remaining.
-//         =================================
-//         */
-//         // gridRecordM.gridRecordsTest(arsM.gridConf);
-//
-//         gridRecordM.gridRecordsTest(rtM.gridConf);
-//         gridRecordM.gridRecordsTest(rentableM.gridConf);
-// });
 
 // ========== RUN TEST ==========
 casper.run();
