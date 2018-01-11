@@ -99,6 +99,23 @@ casper.then(function pageBasicLayoutTest() {
     this.test.assertEquals(pageInitiated, true, "Page basic layout is ready.");
 });
 
+casper.then(function apiIntegrationTest() {
+    gridRecordM.gridRecordsTest(pmtM.gridConf);
+    gridRecordM.gridRecordsTest(depM.gridConf);
+    gridRecordM.gridRecordsTest(depmethM.gridConf);
+
+    /*
+    ================================
+    // Remove comment for Account Rules for grid tests will fail the test.
+    // Check Tests sheet for more detail. Scrolling of records is remaining.
+    =================================
+    */
+    // gridRecordM.gridRecordsTest(arsM.gridConf);
+
+    gridRecordM.gridRecordsTest(rtM.gridConf);
+    gridRecordM.gridRecordsTest(rentableM.gridConf);
+});
+
 // --------------------------------------------------
 // 3. Now start all add new button test
 // --------------------------------------------------
@@ -213,22 +230,22 @@ casper.then(function addNewButtonTesting() {
 // 5. Now start all grid record check test
 // --------------------------------------------------
 
-casper.then(function apiIntegrationTest() {
-        gridRecordM.gridRecordsTest(pmtM.gridConf);
-        gridRecordM.gridRecordsTest(depM.gridConf);
-        gridRecordM.gridRecordsTest(depmethM.gridConf);
-
-        /*
-        ================================
-        // Remove comment for Account Rules for grid tests will fail the test.
-        // Check Tests sheet for more detail. Scrolling of records is remaining.
-        =================================
-        */
-        // gridRecordM.gridRecordsTest(arsM.gridConf);
-
-        gridRecordM.gridRecordsTest(rtM.gridConf);
-        gridRecordM.gridRecordsTest(rentableM.gridConf);
-});
+// casper.then(function apiIntegrationTest() {
+//         gridRecordM.gridRecordsTest(pmtM.gridConf);
+//         gridRecordM.gridRecordsTest(depM.gridConf);
+//         gridRecordM.gridRecordsTest(depmethM.gridConf);
+//
+//         /*
+//         ================================
+//         // Remove comment for Account Rules for grid tests will fail the test.
+//         // Check Tests sheet for more detail. Scrolling of records is remaining.
+//         =================================
+//         */
+//         // gridRecordM.gridRecordsTest(arsM.gridConf);
+//
+//         gridRecordM.gridRecordsTest(rtM.gridConf);
+//         gridRecordM.gridRecordsTest(rentableM.gridConf);
+// });
 
 // ========== RUN TEST ==========
 casper.run();

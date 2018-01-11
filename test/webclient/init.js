@@ -2,7 +2,7 @@
 
 var common = require("./common.js");
 
-exports.init = function() {
+ exports.init = function() {
     // ========== CASPER OPTIONS ==========
     casper.options.viewportSize = {width: common.pageWidth, height: common.pageHeight};
     casper.options.exitOnError = true;

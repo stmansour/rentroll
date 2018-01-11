@@ -7,6 +7,8 @@ exports.pageURL = "http://localhost:8270/home";
 // Width and height of viewport
 exports.pageWidth = 1855; // 1280
 exports.pageHeight = 978; // 720
+// exports.pageWidth = 1280; // 1280
+// exports.pageHeight = 720; // 720
 
 // wait time for page loading
 exports.pageLoadWaitTime = 2000;

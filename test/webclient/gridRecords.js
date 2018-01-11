@@ -47,14 +47,15 @@ exports.gridRecordsTest = function (gridConfig) {
 
     // Match total number of records with total number of records with W2UI object
     function testRecordLength(that, test) {
+
         // get records length from the w2ui's grid record
         var w2uiRecordLength = casper.evaluate(function (gridName) {
             return w2ui[gridName].records.length;
         }, that.grid);
 
+
         // Check w2ui records length match with length with api response
         test.assertEquals(w2uiRecordLength, that.apiResponse.total, "{0} record length matched with response list".format(that.grid));
-
 
         // get record length from the DOM
         var trsLen = casper.evaluate(function gridTableRowsLen(a, b, grid) {
@@ -136,9 +137,9 @@ exports.gridRecordsTest = function (gridConfig) {
                 return JSON.parse(__utils__.sendAJAX(url, method, data, false));
             }, this.gridEndPoint, gridConfig.methodType, gridConfig.requestData);
 
-            require('utils').dump(this.apiResponse); // Print API Response
+            // require('utils').dump(this.apiResponse); // Print API Response
 
-            casper.click("#" + w2ui_utils.getSidebarID(this.sidebarID));
+            casper.click("div[name=sidebarL1] #" + w2ui_utils.getSidebarID(this.sidebarID));
             casper.log('[GridRecordTest] [{0}] sidebar node clicked with ID: "{1}"'.format(this.grid, this.sidebarID), 'debug', common.logSpace);
         },
 
@@ -148,16 +149,16 @@ exports.gridRecordsTest = function (gridConfig) {
             // test api response status
             testAPIResponseStatus(that, test);
 
-            casper.wait(common.waitTime, function testGridRecords() {
+            casper.wait(500, function testGridRecords() {
+
+                // Take screen shot of viewport
+                common.capture(that.capture);
 
                 // Match w2ui/DOM record length with list size in API Response
                 testRecordLength(that, test);
 
                 // Check each row exist in DOM and visible in viewport
                 testRowColoumnData(that, test);
-
-                // Take screen shot of viewport
-                common.capture(this.capture);
 
                 test.done();
             });
