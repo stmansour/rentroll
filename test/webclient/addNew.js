@@ -17,8 +17,12 @@ function testFieldVisibilityAndValue(fieldSelector, test, formField, fieldValueI
 }
 
 exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
+
+    // get testCount from configuration file
     var testCount = addNewButtonConfig.testCount;
-    var testName = "w2ui add new button [{0}] test".format(addNewButtonConfig.form);
+
+    // title for the test
+    var testName = "w2ui add new button test for [{0}].".format(addNewButtonConfig.form);
 
     // Test Right panel rendering
     function testRightPanelRendering(test) {
@@ -105,6 +109,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
             }, fieldSelector);
 
 
+            // Update the variable based on the field type
             switch (formField.type) {
 
                 // Update inpurFieldValue of input field type is money. Because default value of money type field is $0.00.
@@ -127,14 +132,23 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
                     break;
 
                 default:
+                    // Do nothing
             }
 
+
+            /*
+            * There are form with tabs and without tabs.
+            * For tabbed form, Check fields are available in selected tab(page) and not hidden in DOM than only perform test on that field.
+            * For without tabbed form, Check fields aren't hidden in DOM than only perform the test on that field.
+            */
             if (haveTabs) {
                 if ((formField.html.page === pageNo) && (!formField.isHidden)) {
+
                     // tests for tabs
                     testFieldVisibilityAndValue(fieldSelector, test, formField, fieldValueInDOM, fieldValueInW2UI);
                 }
             } else if (!formField.isHidden) {
+
                 // test for without tabs
                 testFieldVisibilityAndValue(fieldSelector, test, formField, fieldValueInDOM, fieldValueInW2UI);
             }
@@ -169,6 +183,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
             // list of input fields
             this.formFields = casper.evaluate(function (form) {
+                // get fields from opened w2ui form
                 var formFields = w2ui[form].fields;
 
                 // add isHidden key with default value true
@@ -249,6 +264,7 @@ exports.w2uiAddNewButtonTest = function (addNewButtonConfig) {
 
                         common.capture("tab_{0}_{1}.jpg".format(tab, pageNo));
 
+                        // test fields of the
                         testInputs(that, w2uiFormRecords, pageNo, true, test);
                     }(tab, pageNo));
 

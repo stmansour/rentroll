@@ -43,12 +43,15 @@ casper.wait(common.pageLoadWaitTime);
 // 1. get the app settings, verify it, change the business to "REX"
 // --------------------------------------------------
 casper.then(function afterStartAndWait() {
+
+    // common settings parameters which are being use throughout application.
     appSettings = this.evaluate(function getAppSettings() {
         return app;
     });
 
     // TODO: verification pending for appsettings variable, how to do it?
 
+    // get business id to set testBizID
     appSettings.BizMap.forEach(function (item) {
         if (item.BUD === testBiz) {
             testBizID = item.BID;
@@ -65,6 +68,7 @@ casper.then(function afterStartAndWait() {
     // If this test get fail than don't take other test cases in consideration. And exit casperJS
     this.test.assertEquals(expBizID, testBizID, "Business is changed to REX.");
     if (expBizID !== testBizID) {
+        // Exiting casperJS
         casper.exit();
     }
 
@@ -76,6 +80,7 @@ casper.then(function afterStartAndWait() {
 // 2. Page basic layout is ready or not
 // --------------------------------------------------
 casper.then(function pageBasicLayoutTest() {
+
     // check that basic layout with w2ui has been loaded in page
     var pageInitiated = this.evaluate(function evaluateBasicLayoutCheck() {
 
@@ -98,7 +103,10 @@ casper.then(function pageBasicLayoutTest() {
 // 3. Now start all add new button test
 // --------------------------------------------------
 casper.then(function addNewButtonTesting() {
+
+    // -------------------------------------------- //
     // Assessments / Receipts Module
+    // -------------------------------------------- //
 
     /*  Assess Charges */
     addNewButtonM.w2uiAddNewButtonTest(asmM.addNewConf);
@@ -126,7 +134,9 @@ casper.then(function addNewButtonTesting() {
     /* Deposits */
     // addNewButtonM.w2uiAddNewButtonTest(depositM.addNewConf);
 
+    // ------------------------------- //
     // Rental Agreements Module
+    // ------------------------------- //
 
     /*
     ================================
@@ -137,7 +147,9 @@ casper.then(function addNewButtonTesting() {
     /* Transactants */
     // addNewButtonM.w2uiAddNewButtonTest(transactantsM.addNewConf);
 
+    // ----------------------------- //
     // Setup Module
+    // ----------------------------- //
 
     /*
     ================================
@@ -209,7 +221,7 @@ casper.then(function apiIntegrationTest() {
         /*
         ================================
         // Remove comment for Account Rules for grid tests will fail the test.
-        // Check Tests sheet for more detail. Scrolling of records remaining
+        // Check Tests sheet for more detail. Scrolling of records is remaining.
         =================================
         */
         // gridRecordM.gridRecordsTest(arsM.gridConf);

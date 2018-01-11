@@ -33,7 +33,11 @@ function performRowColumnVisiblityTest(that, column, recordNo, test) {
 }
 
 exports.gridRecordsTest = function (gridConfig) {
+
+    // get testCount from configuration file
     var testCount = gridConfig.testCount;
+
+    // title for the test
     var testName = "{0} record tests".format(gridConfig.grid);
 
     // Check status in API Response
@@ -43,9 +47,12 @@ exports.gridRecordsTest = function (gridConfig) {
 
     // Match total number of records with total number of records with W2UI object
     function testRecordLength(that, test) {
+        // get records length from the w2ui's grid record
         var w2uiRecordLength = casper.evaluate(function (gridName) {
             return w2ui[gridName].records.length;
         }, that.grid);
+
+        // Check w2ui records length match with length with api response
         test.assertEquals(w2uiRecordLength, that.apiResponse.total, "{0} record length matched with response list".format(that.grid));
 
 
@@ -66,7 +73,7 @@ exports.gridRecordsTest = function (gridConfig) {
     // Perform test on row column's data
     function testRowColoumnData(that, test) {
 
-        // TODO: Scrolling records
+        // TODO(Akshay): Scrolling records
 
         that.apiResponse.records.forEach(function (record, recordNo) {
 
@@ -84,7 +91,8 @@ exports.gridRecordsTest = function (gridConfig) {
                 // Check cell's visibility in viewport
                 var rowColumnData = performRowColumnVisiblityTest(that, excludeGridColumn, recordNo, test);
 
-                // TODO: Match rowColumnData value with appSettings object
+                // TODO(Akshay): Match rowColumnData value with appSettings object.
+                // It can be done after changing structure in app settings.
 
                 // Making sure that displayed data length is greater than 0. Remove this test after above To do.
                 // Check cell's data exists in API Response
