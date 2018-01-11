@@ -70,7 +70,6 @@ function buildLoginForm() {
                         $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
                         $(f.box).find("#LoginMessage").removeClass("hidden");
                         // w2ui.passwordform.error(w2utils.lang(data.message));
-                        return;
                     }
                     else if (data.status === "success") {
                         app.uid = data.uid;
@@ -80,8 +79,9 @@ function buildLoginForm() {
                         w2popup.close();
                         w2ui.passwordform.record.pass = ""; // after closing dialog, remove password information.
                         userProfileToUI();
+                    } else {
+                        console.log("Login service returned unexpected status: " + data.status);
                     }
-                    console.log("Login service returned unexpected status: " + data.status);
                     return;
                 })
                 .fail(function(/*data*/){

@@ -170,6 +170,7 @@ func main() {
 	}
 
 	s := extres.GetSQLOpenString(rlib.AppConfig.RRDbname, &rlib.AppConfig)
+	//rlib.Console("sql.Open string: %s\n", s)
 	App.dbrr, err = sql.Open("mysql", s)
 	if nil != err {
 		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)

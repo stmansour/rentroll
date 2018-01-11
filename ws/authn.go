@@ -103,16 +103,17 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-
-	// rlib.Console("b.Username = %s, b.UID = %d", b.Username, b.UID)
+	rlib.Console("b.Username = %s, b.UID = %d, b.Name = %s\n", b.Username, b.UID, b.Name)
 	w.Header().Set("Content-Type", "application/json")
 	// rlib.Console("Creating session\n")
-	s, err := rlib.CreateSession(b.Username, b.UID, w, r)
+	s, err := rlib.CreateSession(b.UID, w, r)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 	b.ImageURL = s.ImageURL
-	rlib.Console("Created session: %s\n", s.Token)
+	b.Username = s.Username
+	rlib.Console("Created session: %#v\n", s)
+	rlib.Console("Created response: %#v\n", b)
 	SvcWriteResponse(&b, w)
 }
