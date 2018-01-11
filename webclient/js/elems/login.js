@@ -11,8 +11,8 @@ var loginSessionChecker = {};
 var loginPopupOptions = {
     body: '<div id="loginPopupForm" style="width: 100%; height: 100%;"></div>',
     style: 'padding: 15px 0px 0px 0px; overflow: auto;',
-    width: 425,
-    height: 300,
+    width: 400,
+    height: 400,
     showMax: true,
     modal: true,
     onOpen: function (event) {
