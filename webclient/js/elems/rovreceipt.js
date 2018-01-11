@@ -530,6 +530,17 @@ function buildROVReceiptElements() {
                 });
             },
         },
+        onResize: function(event) {
+            event.onComplete = function() {
+                // HACK: set the height of right panel of toplayout box div and form's box div
+                // this is how w2ui set the content inside box of toplayout panel, and form's main('div.w2ui-form-box')
+                // so that footer content get placed at correct position
+                var h = w2ui.toplayout.get("right").height;
+                $(w2ui.toplayout.get("right").content.box).height(h);
+                $(this.box).find("div.w2ui-form-box").height(h);
+            };
+        },
+
    });
 }
 
