@@ -2,8 +2,7 @@
 <html lang=en>
   <head>
     <title>
-      FRB Operating Account 4320
-      (GL Account: 10104)
+      FRB Operating Account 4320 (GL Account: 10104)
     </title>
     <style>
       html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:26px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
@@ -16,8 +15,7 @@
     <div class=container>
       <div class="rpt-table-container">
         <p class="title">
-          FRB Operating Account 4320
-          (GL Account: 10104)
+          FRB Operating Account 4320 (GL Account: 10104)
         </p>
         <p class="section1">
           Jan 1, 2017 - Aug 1, 2017
@@ -164,8 +162,7 @@
 <html lang=en>
   <head>
     <title>
-      Accounts Receivable
-      (GL Account: 11000)
+      Accounts Receivable (GL Account: 11000)
     </title>
     <style>
       html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:26px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
@@ -178,8 +175,7 @@
     <div class=container>
       <div class="rpt-table-container">
         <p class="title">
-          Accounts Receivable
-          (GL Account: 11000)
+          Accounts Receivable (GL Account: 11000)
         </p>
         <p class="section1">
           Jan 1, 2017 - Aug 1, 2017
@@ -884,8 +880,7 @@
 <html lang=en>
   <head>
     <title>
-      Gross Scheduled Rent Taxable
-      (GL Account: 40000)
+      Gross Scheduled Rent Taxable (GL Account: 40000)
     </title>
     <style>
       html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:26px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
@@ -898,8 +893,7 @@
     <div class=container>
       <div class="rpt-table-container">
         <p class="title">
-          Gross Scheduled Rent Taxable
-          (GL Account: 40000)
+          Gross Scheduled Rent Taxable (GL Account: 40000)
         </p>
         <p class="section1">
           Jan 1, 2017 - Aug 1, 2017
@@ -1144,8 +1138,7 @@
 <html lang=en>
   <head>
     <title>
-      Gross Scheduled Rent  Non-Taxable
-      (GL Account: 40001)
+      Gross Scheduled Rent  Non-Taxable (GL Account: 40001)
     </title>
     <style>
       html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:26px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
@@ -1158,8 +1151,7 @@
     <div class=container>
       <div class="rpt-table-container">
         <p class="title">
-          Gross Scheduled Rent  Non-Taxable
-          (GL Account: 40001)
+          Gross Scheduled Rent  Non-Taxable (GL Account: 40001)
         </p>
         <p class="section1">
           Jan 1, 2017 - Aug 1, 2017
@@ -1404,8 +1396,7 @@
 <html lang=en>
   <head>
     <title>
-      Electric Base Fee
-      (GL Account: 43001)
+      Electric Base Fee (GL Account: 43001)
     </title>
     <style>
       html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:26px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
@@ -1418,8 +1409,7 @@
     <div class=container>
       <div class="rpt-table-container">
         <p class="title">
-          Electric Base Fee
-          (GL Account: 43001)
+          Electric Base Fee (GL Account: 43001)
         </p>
         <p class="section1">
           Jan 1, 2017 - Aug 1, 2017
@@ -1526,8 +1516,7 @@
 <html lang=en>
   <head>
     <title>
-      Water and Sewer Base Fee
-      (GL Account: 43003)
+      Water and Sewer Base Fee (GL Account: 43003)
     </title>
     <style>
       html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:26px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
@@ -1540,8 +1529,7 @@
     <div class=container>
       <div class="rpt-table-container">
         <p class="title">
-          Water and Sewer Base Fee
-          (GL Account: 43003)
+          Water and Sewer Base Fee (GL Account: 43003)
         </p>
         <p class="section1">
           Jan 1, 2017 - Aug 1, 2017
@@ -1671,8 +1659,7 @@
 <html lang=en>
   <head>
     <title>
-      Unapplied Funds
-      (GL Account: 10999)
+      Unapplied Funds (GL Account: 10999)
     </title>
     <style>
       html,body{margin:0;padding:0;line-height:1.33333;font:100% Helvetica,sans-serif;font-size:14px}div{display:block}.container{padding:0px 20px}div.rpt-table-container p.title{text-align:center;font-weight:bold;font-size:32px;margin-bottom:0em}div.rpt-table-container p.section1{text-align:center;font-size:26px;margin-top:0.5em;margin-bottom:0.5em}div.rpt-table-container p.section2{text-align:center;font-size:16px;margin-top:0.5em}div.rpt-table-container p.section3{text-align:center;font-size:14px}div.rpt-table-container p.no-headers{color:red;text-align:center}div.rpt-table-container table{border-collapse:collapse;table-layout:fixed;margin:0 auto;padding:0;min-width:90%;max-width:100%;page-break-after:always}div.rpt-table-container table td,div.rpt-table-container table th{padding:5px 10px;box-sizing:content-box}div.rpt-table-container table tr{page-break-inside:avoid}div.rpt-table-container table thead{display:table-header-group}div.rpt-table-container table thead tr th{border-bottom:2px solid #BBB;font-weight:bold;padding-top:20px}div.rpt-table-container table tbody tr.top-line td{border-top:1px solid #BBB}div.rpt-table-container table tbody tr.bottom-line td{border-bottom:1px solid #BBB}div.rpt-table-container table tbody tr td{vertical-align:top}div.rpt-table-container table tbody tr td.no-rows{color:red;text-align:center}
@@ -1685,8 +1672,7 @@
     <div class=container>
       <div class="rpt-table-container">
         <p class="title">
-          Unapplied Funds
-          (GL Account: 10999)
+          Unapplied Funds (GL Account: 10999)
         </p>
         <p class="section1">
           Jan 1, 2017 - Aug 1, 2017
