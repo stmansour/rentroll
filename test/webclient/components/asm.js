@@ -17,8 +17,8 @@ exports.gridConf = {
         "selected": [],
         "limit": 100,
         "offset": 0,
-        "searchDtStart": "1/1/2018",
-        "searchDtStop": "2/1/2018"
+        "searchDtStart": "3/5/2018",
+        "searchDtStop": "4/5/2018"
     }),
     excludeGridColumns: [],
     testCount: 23

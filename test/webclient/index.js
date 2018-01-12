@@ -112,12 +112,18 @@ casper.then(function apiIntegrationTest() {
     // gridRecordM.gridRecordsTest(asmM.gridConf);
 
     /* Tendered Payment Receipt */
+    /*
+    ================================
+    // Remove comment for Tendered Payment Receipt for grid tests will fail the test.
+    // Require to change from and to
+    =================================
+    */
     // gridRecordM.gridRecordsTest(receiptsM.gridConf);
 
     /* Expenses */
     /*
     ================================
-    // Remove comment for Tendered Payment Receipt for grid tests will fail the test.
+    // Remove comment for Expenses for grid tests will fail the test.
     // Require to change from and to
     =================================
     */
@@ -126,7 +132,7 @@ casper.then(function apiIntegrationTest() {
     /* Deposits */
     /*
     ================================
-    // Remove comment for Tendered Payment Receipt for grid tests will fail the test.
+    // Remove comment for Deposits Receipt for grid tests will fail the test.
     // Require to change from and to
     =================================
     */
@@ -143,6 +149,15 @@ casper.then(function apiIntegrationTest() {
     // ----------------------------- //
     // Setup Module
     // ----------------------------- //
+    /* Chart of Accounts */
+    /*
+    ================================
+    // Remove comment for Chart of Accounts for grid tests will fail the test.
+    // Due to Status column. Check sheet for the more detail.
+    =================================
+    */
+    // gridRecordM.gridRecordsTest(acctM.gridConf);
+
     /*  Payment Types */
     gridRecordM.gridRecordsTest(pmtM.gridConf);
 
