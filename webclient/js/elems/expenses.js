@@ -228,7 +228,7 @@ function buildExpenseElements() {
             { field: 'recid',       type: 'int',    required: false },
             { field: 'EXPID',       type: 'int',    required: false },
             { field: 'BID',         type: 'int',    required: true  },
-            { field: 'BUD',         type: 'list',   required: true, options: {items: app.businesses} },
+            { field: 'BUD',         type: 'list',   required: true, options: {items: app.businesses}, html: { caption: "BUD", page: 0, column: 0 } },
             { field: 'PREXPID',     type: 'int',    required: false },
             { field: 'RName',       type: 'text',   required: false },
             { field: 'RID',         type: 'int',    required: false },
@@ -397,7 +397,7 @@ function buildExpenseElements() {
                     $(f.box).find("#ExpenseInfo").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $(f.box).find('input,button').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
 
                     return;
                 } else {
@@ -440,7 +440,7 @@ function buildExpenseElements() {
                     // ****************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS
                     // ****************************************
-                    $(f.box).find('input,button').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
                 }
 
                 // finally append
