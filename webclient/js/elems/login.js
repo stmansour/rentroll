@@ -1,7 +1,7 @@
 "use strict";
 
 /*global
-    $, console, app, w2ui, w2popup, setInterval, getCookieValue, 
+    $, console, app, w2ui, w2popup, setInterval, getCookieValue, triggerReceiptsGrid
 */
 
 var loginRoURL = "/webclient/html/formlogin.html";
@@ -33,6 +33,15 @@ function userProfileToUI() {
         var imgurl = app.imageurl;
         if (imgurl.length === 0) { imgurl = app.userBlankImage; }
         $("#user_menu_container").find("img").attr("src", imgurl);
+    }
+
+    // *******************
+    // ONLY FOR ROV CLIENT
+    // -------------------
+    if (window.location.href.endsWith("/rhome/")) {
+        setTimeout(function() {
+            $('#node_receipts').trigger('click');
+        }, 500); // wait for some time meanwhile left sidebar render done!
     }
 }
 
@@ -84,6 +93,9 @@ function buildLoginForm() {
                         w2popup.close();
                         w2ui.passwordform.record.pass = ""; // after closing dialog, remove password information.
                         userProfileToUI();
+
+                        // remove blank screen if login successfully
+                        handleBlankScreen(true);
                     } else {
                         console.log("Login service returned unexpected status: " + data.status);
                     }
@@ -133,7 +145,6 @@ function buildLoginForm() {
 function startNewSession() {
     ensureSession(); // get the user logged in
     startSessionChecker(); // have the user log in if the session expires
-
 }
 
 //---------------------------------------------------------------------------------
@@ -183,6 +194,21 @@ function startSessionChecker() {
 }
 
 //---------------------------------------------------------------------------------
+// handleBlankScreen - hide the content of screen if user is not logged in as in
+//                     black blank screen with login popup otherwise it will be
+//                     hidden
+// @params  - isLoggedIn
+// @returns <none>
+//---------------------------------------------------------------------------------
+function handleBlankScreen(isLoggedIn) {
+    if (isLoggedIn) {
+        $("#blank_screen").hide();
+    } else {
+        $("#blank_screen").show();
+    }
+}
+
+//---------------------------------------------------------------------------------
 // ensureSession - check to see if we have our session cookie.  If not, we need to
 //             authenticate.
 //
@@ -201,6 +227,7 @@ function ensureSession() {
             c = c.substring(1);
         }
         if (c.indexOf(name) === 0) {
+            handleBlankScreen(true);
             // return c.substring(name.length, c.length);
             return; // the cookie is here, so it has not expired
         }
@@ -216,6 +243,7 @@ function ensureSession() {
             $(f.box).find("#LoginMessage").removeClass("hidden");
         }
     }
+    handleBlankScreen(false);
 }
 
 //---------------------------------------------------------------------------------
