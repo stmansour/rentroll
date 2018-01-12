@@ -61,6 +61,7 @@ function handleDateToolbarAction(event,prefix) {
             } else {
                 app.D1 = setToCurrentMonth(xd1);
                 app.D2 = setToNextMonth(xd2);
+                adjustD2();
             }
             adjustD2();
             break;
