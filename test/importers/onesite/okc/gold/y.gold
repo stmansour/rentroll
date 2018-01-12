@@ -1,0 +1,14 @@
+OKC Payment Types
+Accord/OKC Members, LLC
+
+PMTID        BID        Name        Description                 
+-----------  ---------  ----------  ----------------------------
+PMT00000001  B00000002  ACH         Automated Clearing House    
+PMT00000002  B00000002  AMEX        American Express credit card
+PMT00000003  B00000002  Cash        Cash                        
+PMT00000004  B00000002  Check       Personal check from payor   
+PMT00000005  B00000002  Discover    Discover credit card        
+PMT00000006  B00000002  EFT         Electronic Funds Transfer   
+PMT00000007  B00000002  MasterCard  MasterCard credit card      
+PMT00000008  B00000002  VISA        VISA credit card            
+
