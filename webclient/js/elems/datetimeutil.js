@@ -1,6 +1,6 @@
 "use strict";
 /*global
-  console,
+  console, app, 
 */
 
 //-----------------------------------------------------------------------------
@@ -65,11 +65,16 @@ function dateMonthFwd(y) {
 //            month. It will snap the date to the end of the month if the
 //            current date is the end of the month.
 // @params
-//   dc = date control
+//   dc     = date control
+//   strval = if provided, it needs to the string value to use for the existing
+//            date rather than the value of the supplied date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function monthFwd(dc) {
+function monthFwd(dc,strval) {
     var y = dateFromString(dc.value);
+    if (typeof strval == "string") {
+        y = dateFromString(strval);
+    }
     var d2 = dateMonthFwd(y);
     return setDateControl(dc, d2);
 }
@@ -91,18 +96,28 @@ function setToCurrentMonth(dc) {
 //-----------------------------------------------------------------------------
 // setToNextMonth
 //            This routine sets the supplied date control to the 1st of
-//            the next month..
+//            the next month.
+//            NOTICE: Assumes we're setting the end date of a date range.
+//                    DO NOT CALL THIS ROUTINE TO SET A START DATE
 // @params
 //   dc = date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
 function setToNextMonth(dc) {
-
     var y = new Date();
     var my = (y.getMonth() + 1) / 12; // number of years to add for next month
     var m = (y.getMonth() + 1) % 12;  // next month
     var d2 = new Date(y.getFullYear() + my, m, 1, 0,0,0,0);
-    return setDateControl(dc, d2);
+    var s = w2uiDateControlString(d2);
+
+    // now work out the display date:
+    var dispDate = d2; // assume it's mode 0
+    if (app.dateMode == 1) {
+        dispDate.setDate(dispDate.getDate() - 1);
+    }
+    dc.value = w2uiDateControlString(dispDate);
+
+    return s;
 }
 
 //-----------------------------------------------------------------------------
