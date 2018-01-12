@@ -602,7 +602,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetPaymentTypeByName, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM PaymentType WHERE BID=? AND Name=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetPaymentTypesByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM PaymentType WHERE BID=?")
+	RRdb.Prepstmt.GetPaymentTypesByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM PaymentType WHERE BID=? ORDER BY Name ASC")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertPaymentType, err = RRdb.Dbrr.Prepare("INSERT INTO PaymentType (" + s1 + ") VALUES(" + s2 + ")")

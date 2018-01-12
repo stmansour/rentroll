@@ -47,8 +47,7 @@ function handleDateToolbarAction(event,prefix) {
             if ( !event.originalEvent.shiftKey ) {
                 app.D1 = monthFwd(xd1);
             }
-            app.D2 = monthFwd(xd2);
-            adjustD2();
+            app.D2 = monthFwd(xd2,app.D2);
             break;
         case 'today':
             if ( event.originalEvent.shiftKey ) {
@@ -58,12 +57,11 @@ function handleDateToolbarAction(event,prefix) {
                 var d2 = dateFromString(app.D1);
                 d2.setDate(d2.getDate());
                 app.D2 = setDateControl(xd2, d2);
+                adjustD2();
             } else {
                 app.D1 = setToCurrentMonth(xd1);
                 app.D2 = setToNextMonth(xd2);
-                adjustD2();
             }
-            adjustD2();
             break;
         case 'dayback':
             app.D1 = dayBack(xd1);

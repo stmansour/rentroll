@@ -1,0 +1,9 @@
+BUD,Name,Description
+OKC,"ACH","Automated Clearing House"
+OKC,"AMEX","American Express credit card"
+OKC,"Cash","Cash"
+OKC,"Check","Personal check from payor"
+OKC,"Discover","Discover credit card"
+OKC,"EFT","Electronic Funds Transfer"
+OKC,"MasterCard","MasterCard credit card"
+OKC,"VISA","VISA credit card"

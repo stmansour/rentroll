@@ -1,0 +1,23 @@
+OKC Custom Attributes
+Accord/OKC Members, LLC
+
+                      Value                           
+CID        BID        Type   Name         Value  Units
+---------  ---------  -----  -----------  -----  -----
+C00000001  B00000002  int    Square Feet    656  sqft 
+C00000002  B00000002  int    Square Feet    840  sqft 
+C00000003  B00000002  int    Square Feet    852  sqft 
+C00000004  B00000002  int    Square Feet    847  sqft 
+C00000005  B00000002  int    Square Feet    872  sqft 
+C00000006  B00000002  int    Square Feet   1549  sqft 
+C00000007  B00000002  int    Square Feet    715  sqft 
+C00000008  B00000002  int    Square Feet    932  sqft 
+C00000009  B00000002  int    Square Feet   1150  sqft 
+C00000010  B00000002  int    Square Feet   1000  sqft 
+C00000011  B00000002  int    Square Feet   1300  sqft 
+C00000012  B00000002  int    Square Feet    675  sqft 
+C00000013  B00000002  int    Square Feet   1400  sqft 
+C00000014  B00000002  int    Square Feet    850  sqft 
+C00000015  B00000002  int    Square Feet   1164  sqft 
+C00000016  B00000002  int    Square Feet   1184  sqft 
+
