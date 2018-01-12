@@ -2,23 +2,24 @@
 
 var common = require("./common.js");
 
-exports.init = function() {
+ exports.init = function() {
     // ========== CASPER OPTIONS ==========
-    casper.options.viewportSize = {width: pageWidth, height: pageHeight};
+    casper.options.viewportSize = {width: common.pageWidth, height: common.pageHeight};
     casper.options.exitOnError = true;
     // casper.options.colorizerType = 'Dummy';
+    casper.options.clientScripts.push("./visibility.js");
     casper.options.onError = function(casper, msg, backtrace) {
         common.capture('onError.png');
         // ------------------------------
         // NOTE: `this.log()` cause to run casper infinitely, so don't put it
         // ------------------------------
-        this.echo("[{0}] onError msg: {1}".format(logSpace, msg));
-        this.echo("[{0}] onError backtrace: {1}".format(logSpace, backtrace));
+        this.echo("[{0}] onError msg: {1}".format(common.logSpace, msg));
+        this.echo("[{0}] onError backtrace: {1}".format(common.logSpace, backtrace));
         this.exit();
     };
     casper.options.onLoadError = function(casper, url, status) {
-        this.echo("[{0}] onLoadError URL: {1}".format(logSpace, url));
-        this.echo("[{0}] onLoadError Status: {1}".format(logSpace, status));
+        this.echo("[{0}] onLoadError URL: {1}".format(common.logSpace, url));
+        this.echo("[{0}] onLoadError Status: {1}".format(common.logSpace, status));
         this.exit();
     };
 
