@@ -393,20 +393,26 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// in the future when we're able to keep the payors up-to-date for
 		// Isola Bella.
 		//-------------------------------------------------------------------
+		rlib.Console("%s: d.RCPTID = %d, a.RCPTID = %d\n", d.RCPTID)
 		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
-			if len(d.wsSearchReq.RentableName) > 0 {
-				a.Comment += rlib.ROCPRE + d.wsSearchReq.RentableName + rlib.ROCPOST
+			rcpt, err := rlib.GetReceipt(r.Context(), d.RCPTID)
+			if err != nil {
+				SvcErrorReturn(w, err, funcname)
+				return
 			}
-			err = rlib.UpdateReceipt(r.Context(), &a)
-		} else {
-			now := time.Now() // this is the time we're making the change if a reversal needs to be done
-			err = bizlogic.UpdateReceipt(r.Context(), &a, &now)
+			if receiptOnlyUIUpdateAndReverse(&a, &rcpt, w, r, d) {
+				return
+			}
+			SvcWriteSuccessResponseWithID(w, a.RCPTID)
+			return
 		}
-	}
-	if err != nil {
-		e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d)\n: %s", funcname, d.RCPTID, err.Error())
-		SvcErrorReturn(w, e, funcname)
-		return
+		now := time.Now() // this is the time we're making the change if a reversal needs to be done
+		err = bizlogic.UpdateReceipt(r.Context(), &a, &now)
+		if err != nil {
+			e := fmt.Errorf("%s: Error saving receipt (RCPTID=%d)\n: %s", funcname, d.RCPTID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
 	}
 
 	SvcWriteSuccessResponseWithID(w, a.RCPTID)
@@ -494,65 +500,136 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// negate the one being reversed.
 	//---------------------------------------------------------------
 	if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
-		if rcpt.FLAGS&0x04 != 0 {
-			SvcWriteSuccessResponse(w) // it's already reversed
+		if receiptOnlyUIReverse(&rcpt, w, r, d) {
 			return
 		}
-
-		//------------------------------------------------------
-		// start a db transaction
-		//------------------------------------------------------
-		var tx *sql.Tx
-
-		tx, err = rlib.RRdb.Dbrr.Begin()
+	} else {
+		dt := time.Now()
+		err = bizlogic.ReverseReceipt(r.Context(), &rcpt, &dt)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-
-		ctx := rlib.SetDBTxContextKey(r.Context(), tx)
-
-		//------------------------------------------------------
-		// Build the new receipt
-		//------------------------------------------------------
-		rname, _ := rlib.ROCExtractRentableName(rcpt.Comment)
-		rr := rcpt
-		rr.RCPTID = int64(0)
-		rr.Amount = -rr.Amount
-		rr.Comment = fmt.Sprintf("Reversal of receipt %s", rcpt.IDtoShortString()) + rlib.ROCPRE + rname + rlib.ROCPOST
-		rr.PRCPTID = rcpt.RCPTID  // link to parent
-		rr.FLAGS |= rlib.RCPTvoid // mark that it is voided
-		_, err = rlib.InsertReceipt(ctx, &rr)
-		if err != nil {
-			tx.Rollback() // TBD: abort transaction
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		//------------------------------------------------------
-		// update the flags on the original receipt
-		//------------------------------------------------------
-		rcpt.FLAGS |= rlib.RCPTvoid
-		if err = rlib.UpdateReceipt(ctx, &rcpt); err != nil {
-			SvcErrorReturn(w, err, funcname)
-			tx.Rollback() // TBD: abort transaction
-			return
-		}
-
-		if err := tx.Commit(); err != nil {
-			tx.Rollback() // TBD: abort transaction
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		SvcWriteSuccessResponse(w)
-		return
 	}
+	SvcWriteSuccessResponse(w)
+}
 
-	dt := time.Now()
-	err = bizlogic.ReverseReceipt(r.Context(), &rcpt, &dt)
+// receiptOnlyUIReverse
+//
+// INPUTS
+//  rcpt - receipt to be reversed
+//  w      - http handle
+//  r      - http request
+//  d      - service data
+//
+// RETURNS
+//  bool   - false = no errors occurred
+//         - true = error occurred and was sent to client
+//---------------------------------------------------------------------
+func receiptOnlyUIReverse(rcpt *rlib.Receipt, w http.ResponseWriter, r *http.Request, d *ServiceData) bool {
+	funcname := "receiptOnlyUIReverse"
+	var err error
+
+	if rcpt.FLAGS&0x04 != 0 {
+		err := fmt.Errorf("Error: receipt %s has already been reversed", rlib.IDtoShortString("RCPT", rcpt.RCPTID))
+		SvcErrorReturn(w, err, funcname)
+		return true
+	}
+	//------------------------------------------------------
+	// start a db transaction
+	//------------------------------------------------------
+	var tx *sql.Tx
+
+	tx, err = rlib.RRdb.Dbrr.Begin()
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
-		return
+		return true
 	}
 
-	SvcWriteSuccessResponse(w)
+	ctx := rlib.SetDBTxContextKey(r.Context(), tx)
+
+	//------------------------------------------------------
+	// Build the new receipt
+	//------------------------------------------------------
+	rname, _ := rlib.ROCExtractRentableName(rcpt.Comment)
+	rr := *rcpt
+	rr.RCPTID = int64(0)
+	rr.Amount = -rr.Amount
+	rr.Comment = fmt.Sprintf("Reversal of receipt %s", rcpt.IDtoShortString()) + rlib.ROCPRE + rname + rlib.ROCPOST
+	rr.PRCPTID = rcpt.RCPTID  // link to parent
+	rr.FLAGS |= rlib.RCPTvoid // mark that it is voided
+	_, err = rlib.InsertReceipt(ctx, &rr)
+	if err != nil {
+		tx.Rollback() // TBD: abort transaction
+		SvcErrorReturn(w, err, funcname)
+		return true
+	}
+	//------------------------------------------------------
+	// update the flags on the original receipt
+	//------------------------------------------------------
+	rcpt.FLAGS |= rlib.RCPTvoid
+	if err = rlib.UpdateReceipt(ctx, rcpt); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		tx.Rollback() // TBD: abort transaction
+		return true
+	}
+
+	if err := tx.Commit(); err != nil {
+		tx.Rollback() // TBD: abort transaction
+		SvcErrorReturn(w, err, funcname)
+		return true
+	}
+	return false
+}
+
+// receiptOnlyUIUpdateAndReverse
+//
+// INPUTS
+//  uprcpt - the updated receipt structure from the UI
+//  rcpt   - the original version of the receipt prior to updating
+//  w      - http handle
+//  r      - http request
+//  d      - service data
+//---------------------------------------------------------------------
+func receiptOnlyUIUpdateAndReverse(uprcpt, rcpt *rlib.Receipt, w http.ResponseWriter, r *http.Request, d *ServiceData) bool {
+	funcname := "receiptOnlyUIUpdateAndReverse"
+	var err error
+	rcptAddr, _ := rlib.ROCExtractRentableName(rcpt.Comment)
+	uprcptAddr := d.wsSearchReq.RentableName
+
+	//------------------------------------------
+	// check to see if a reversal is needed...
+	//------------------------------------------
+	bReverse := uprcpt.Amount != rcpt.Amount
+	bReverse = bReverse || uprcpt.Dt.Year() != rcpt.Dt.Year() || uprcpt.Dt.Month() != rcpt.Dt.Month() || uprcpt.Dt.Day() != rcpt.Dt.Day()
+	bReverse = bReverse || uprcptAddr != rcptAddr
+	bReverse = bReverse || uprcpt.OtherPayorName != rcpt.OtherPayorName
+	if bReverse {
+		if receiptOnlyUIReverse(rcpt, w, r, d) {
+			return true
+		}
+	}
+
+	//-------------------------------------------------------------------
+	// Regardless of what happened with the reversal, we need to
+	// properly encode the comment field of the new or updated receipt.
+	//-------------------------------------------------------------------
+	if len(d.wsSearchReq.RentableName) > 0 {
+		uprcpt.Comment += rlib.ROCPRE + d.wsSearchReq.RentableName + rlib.ROCPOST
+	}
+
+	//--------------------------------------------------------
+	// If we did not reverse uprcpt, the simply update it.
+	// If we reversed it, we'll need to create a new receipt
+	//--------------------------------------------------------
+	if bReverse {
+		_, err = rlib.InsertReceipt(r.Context(), uprcpt)
+	} else {
+		err = rlib.UpdateReceipt(r.Context(), uprcpt)
+	}
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return true
+	}
+	return false
 }
