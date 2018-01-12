@@ -1,5 +1,9 @@
 BUD,Name,Description
+ISO,"ACH","Automated Clearing House"
+ISO,"AMEX","American Express credit card"
 ISO,"Cash","Cash"
 ISO,"Check","Personal check from payor"
-ISO,"VISA","Credit card charge"
-ISO,"AMEX","American Express credit card"
+ISO,"Discover","Discover credit card"
+ISO,"EFT","Electronic Funds Transfer"
+ISO,"MasterCard","MasterCard credit card"
+ISO,"VISA","VISA credit card"
