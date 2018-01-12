@@ -97,14 +97,14 @@ function buildStatementsElements() {
                         d2 = document.getElementsByName("stmtDetailD2")[0].value;
                         url = exportReportCSV("RPTrastmt", d1, d2, true);
                         url += "&raid=" + r.RAID;
-                        window.open(url); // open url
+                        downloadMediaFromURL(url);
                         break;
                     case 'pdfexport':
                         d1 = document.getElementsByName("stmtDetailD1")[0].value;
                         d2 = document.getElementsByName("stmtDetailD2")[0].value;
                         url = exportReportPDF("RPTrastmt", d1, d2, true);
                         url += "&raid=" + r.RAID;
-                        window.open(url); // open url
+                        downloadMediaFromURL(url);
                         break;
                     }
                 };

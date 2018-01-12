@@ -439,7 +439,7 @@ function exportGLAccounts() {
         url: downloadURL,
         type: 'GET',
         success: function() {
-            window.open(downloadURL);
+            downloadMediaFromURL(downloadURL);
         }
     });
 }

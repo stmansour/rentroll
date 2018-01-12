@@ -119,7 +119,7 @@ function buildPayorStatementElements() {
                         url = exportReportCSV("RPTpayorstmt", d1, d2, true);
                         url += "&internal=" + !app.PayorStmtExt;
                         url += "&tcid=" + r.TCID;
-                        window.open(url); // open url
+                        downloadMediaFromURL(url);
                         break;
                     case 'pdfexport':
                         d1 = document.getElementsByName("payorStmtDetailD1")[0].value;
@@ -127,7 +127,7 @@ function buildPayorStatementElements() {
                         url = exportReportPDF("RPTpayorstmt", d1, d2, true);
                         url += "&internal=" + !app.PayorStmtExt;
                         url += "&tcid=" + r.TCID;
-                        window.open(url); // open url
+                        downloadMediaFromURL(url);
                         break;
                     }
                 };

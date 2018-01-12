@@ -151,6 +151,7 @@ textarea.w2ui-input-focus {
     height: 28px;
     margin-top: 1px;
     vertical-align: middle;
+    border-radius: 50%;
 }
 
 span#username {
