@@ -252,7 +252,7 @@ function buildROVReceiptElements() {
         ],
         toolbar: {
             items: [
-                { id: 'btnNotes',    type: 'button', icon: 'fa fa-sticky-note-o' },
+                // { id: 'btnNotes',    type: 'button', icon: 'fa fa-sticky-note-o' },
                 { id: 'csvexport',   type: 'button', icon: 'fa fa-table',        tooltip: 'export to CSV' },
                 { id: 'printreport', type: 'button', icon: 'fa fa-file-pdf-o',   tooltip: 'export to PDF' },
                 { id: 'bt3',         type: 'spacer' },
