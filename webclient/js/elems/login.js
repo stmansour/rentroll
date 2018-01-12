@@ -4,7 +4,8 @@
     $, console, app, w2ui, w2popup, setInterval, getCookieValue, 
 */
 
-var loginTmplURL = "/webclient/html/formlogin.html";
+var loginRoURL = "/webclient/html/formlogin.html";
+var loginRcURL = "/webclient/html/formrcptlogin.html";
 
 var loginSessionChecker = {};
 
@@ -12,7 +13,7 @@ var loginPopupOptions = {
     body: '<div id="loginPopupForm" style="width: 100%; height: 100%;"></div>',
     style: 'padding: 15px 0px 0px 0px; overflow: auto;',
     width: 400,
-    height: 400,
+    height: 435,
     showMax: true,
     modal: true,
     onOpen: function (event) {
@@ -36,6 +37,10 @@ function userProfileToUI() {
 }
 
 function buildLoginForm() {
+    var loginTmplURL = loginRoURL;
+    if (app.client == "receipts") {
+        loginTmplURL = loginRcURL;
+    }
     $().w2form({
         name: 'passwordform',
         formURL: loginTmplURL,
