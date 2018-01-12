@@ -104,6 +104,7 @@
         "exportReportPDF": true,
         "popupPDFCustomDimensions": true,
         "saveCustomDims": true,
-        "setDefaultFormFieldAsPreviousRecord": true
+        "setDefaultFormFieldAsPreviousRecord": true,
+        "downloadMediaFromURL": true
     }
 }

@@ -1085,7 +1085,7 @@ function finishReportCSV(url,rptname, dtStart, dtStop, returnURL) {
     if (returnURL) {
         return url;
     } else {
-        window.open(url);
+        downloadMediaFromURL(url);
     }
 }
 
@@ -1190,7 +1190,26 @@ function finishReportPDF(url,rptname, dtStart, dtStop, returnURL) {
     if (returnURL) {
         return url;
     } else {
-        window.open(url);
+        downloadMediaFromURL(url);
     }
 }
 
+//-------------------------------------------------------------------------------
+// Download the media using provided URL
+//
+// @params
+//   url            : the url to download the media
+//-------------------------------------------------------------------------------
+function downloadMediaFromURL(url) {
+    var idown = $('#down_iframe');
+    if (idown.length > 0) {
+        idown.attr('src', url);
+    } else {
+        idown = $('<iframe>', { id: 'down_iframe', src: url }).hide().appendTo('body');
+    }
+
+    // reset the url after download after sometime
+    setTimeout(function() {
+        idown.attr('src', '');
+    }, 100);
+}
