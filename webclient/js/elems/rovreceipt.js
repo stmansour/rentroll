@@ -213,7 +213,7 @@ function buildROVReceiptElements() {
             { field: 'PRCPTID',    type: 'int',  required: false },
             { field: 'PMTID',      type: 'int',  required: false },
             { field: 'Dt',         type: 'date', required: true },
-            { field: 'DocNo',      type: 'text', required: false },
+            { field: 'DocNo',      type: 'text', required: true },
             {   field: 'ERentableName',
                 type: 'enum',
                 options: {

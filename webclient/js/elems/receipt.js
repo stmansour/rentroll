@@ -244,7 +244,7 @@ function buildReceiptElements() {
             { field: 'PRCPTID',        type: 'int',   required: false },    // 5
             { field: 'PMTID',          type: 'int',   required: false },    // 6
             { field: 'Dt',             type: 'date',  required: true },     // 7
-            { field: 'DocNo',          type: 'text',  required: false },    // 8
+            { field: 'DocNo',          type: 'text',  required: true },    // 8
             { field: 'Payor', required: true,                               // 9   <<<<<<********
                 type: 'enum',
                 options: {

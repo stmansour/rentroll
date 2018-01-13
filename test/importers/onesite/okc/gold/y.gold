@@ -11,4 +11,6 @@ PMT00000005  B00000002  Discover    Discover credit card
 PMT00000006  B00000002  EFT         Electronic Funds Transfer   
 PMT00000007  B00000002  MasterCard  MasterCard credit card      
 PMT00000008  B00000002  VISA        VISA credit card            
+PMT00000009  B00000002  Money       usually safer than checks   
+                        Order                                   
 
