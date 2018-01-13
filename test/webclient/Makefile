@@ -25,7 +25,7 @@ test: captures db4
 
 jshint:
 	@touch fail
-	jshint --extract=always --show-non-errors .
+	jshint  --config .jshintrc  *.js
 	@rm -rf fail
 
 clean:
