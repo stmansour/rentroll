@@ -176,7 +176,7 @@ function buildPageElements() {
         name: 'mainlayout',
         padding: 2,
         panels: [
-            { type: 'top', size: 55, style: app.pstyle, content: 'top' },
+            { type: 'top', size: 50, style: app.pstyle, content: 'top' },
             { type: 'left', size: app.sidebarWidth, hidden: true, style: app.pstyle, content: 'left' },
             { type: 'main', style: app.pstyle, content: 'main' },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle, content: 'preview' },
@@ -192,9 +192,9 @@ function buildPageElements() {
         name: 'toptoolbar',
         items: [
              { type: 'html',  id: 'logo',
-                html: '<div style="padding: 4px 0px;"><table<tr valign="center">'+
-                      '<td><img src="/webclient/html/images/toolbarlogo1.png"></td>'+
-                      '<td><img src="/webclient/html/images/rollerlogo50x50.png"></td></tr></table></div>'
+                html: '<div style="padding: 4px 0px;"><table><tr valign="center">'+
+                      '<td><img src="/webclient/html/images/air-48.png"></td>'+
+                      '<td><img src="/webclient/html/images/roller-32.png"></td></tr></table></div>'
             },
             { type: 'break', id: 'break1' },
             { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
