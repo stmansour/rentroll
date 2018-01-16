@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"database/sql"
+	"extres"
 	"fmt"
 	"strings"
 	"time"
@@ -1753,7 +1754,9 @@ var RRdb struct {
 
 // SetAuthFlag enable/disable authentication in RRdb
 func SetAuthFlag(noauth bool) {
-	RRdb.noAuth = noauth
+	if AppConfig.Env == extres.APPENVDEV { // only applicable for DEV Enviornment
+		RRdb.noAuth = noauth
+	}
 }
 
 // BuildBusinessDesignationMap builds a map of biz designations to BIDs
