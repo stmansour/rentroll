@@ -1,6 +1,7 @@
 DIRS = db rlib rrpt rcsv worker bizlogic ws admin importers webclient tools test
 TOP = .
 COUNTOL=${TOP}/tools/bashtools/countol.sh
+THISDIR=.
 
 .PHONY:  test
 
