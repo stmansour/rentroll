@@ -1754,7 +1754,7 @@ var RRdb struct {
 
 // SetAuthFlag enable/disable authentication in RRdb
 func SetAuthFlag(noauth bool) {
-	if AppConfig.Env == extres.APPENVDEV { // only applicable for DEV Enviornment
+	if AppConfig.Env != extres.APPENVDEV { // NOT only applicable for PROD Enviornment
 		RRdb.noAuth = noauth
 	}
 }
