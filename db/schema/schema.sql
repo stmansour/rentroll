@@ -939,7 +939,7 @@ CREATE TABLE AR (
     Description VARCHAR(1024) NOT NULL DEFAULT '',
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- epoch date for recurring assessments; the date/time of the assessment for instances
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00', -- stop date for recurrent assessments; the date/time of the assessment for instances
-    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts,
+    FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts,  (that is allocate it immediately)
                                                             -- 1<<1 - populate on Rental Agreement,
                                                             -- 1<<2 = RAID required,
                                                             -- 1<<3 = subARIDs apply (i.e., there are other ar rules that apply to this AR Rule)

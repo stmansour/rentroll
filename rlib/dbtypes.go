@@ -155,6 +155,9 @@ const (
 	RRDATERECEIPTFMT = "January 2, 2006"
 )
 
+// ARTypesList is the readable, csv loadable names for the different rule types
+var ARTypesList = []string{"Assessment", "Receipt", "Expense", "Sub-Assessment"}
+
 // TIME0 is the "beginning of time" constant to use when we need
 // to set a time far enough in the past so that there won't be a
 // date prior issue

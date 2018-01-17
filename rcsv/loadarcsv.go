@@ -191,6 +191,9 @@ func CreateAR(ctx context.Context, sa []string, lineno int) (int, error) {
 		b.FLAGS |= 1 << 2
 	}
 
+	b.DtStart = rlib.TIME0
+	b.DtStop = rlib.ENDOFTIME
+
 	//----------------------------------------------------------------
 	// Get SubARs - add the array of subars to b, then update the
 	// subars with this ARID after we've saved b below

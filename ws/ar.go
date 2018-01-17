@@ -456,7 +456,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	FROM AR
 	INNER JOIN GLAccount as debitQuery on AR.DebitLID=debitQuery.LID
 	INNER JOIN GLAccount as creditQuery on AR.CreditLID=creditQuery.LID
-	WHERE {{.WhereClause}};`
+ 	WHERE {{.WhereClause}};`
 
 	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(getARQuerySelectFields, ","),
@@ -481,6 +481,8 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(d.BID)
 
+		rlib.Console("gg.BUD = %s\n", gg.BUD)
+
 		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName,
 			&gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop,
 			&gg.raRequired, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
@@ -500,6 +502,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			gg.RAIDrqd = true
 		}
 		g.Record = gg
+		rlib.Console("g.Record.BUD = %s\n", g.Record.BUD)
 	}
 
 	// error check
