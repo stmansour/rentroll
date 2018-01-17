@@ -1,0 +1,39 @@
+SUM Account Rules
+Dec 31, 1969 - Dec 31, 9998
+JGM First, LLC
+
+
+BUD  Name                                            ARType          Debit                          Credit                         Allocated  ShowOnRA  RAIDRequired  SubARSpec  Description                              
+---  ----------------------------------------------  --------------  -----------------------------  -----------------------------  ---------  --------  ------------  ---------  -----------------------------------------
+SUM  Application Fee Received                        Receipt         Undeposited Funds              Application Fees               Yes        No        No                       Application fee taken, no assessment made
+SUM  Auto-Generated Application Fee Assessment       Sub-Assessment  Rent Roll Receivables          Application Fees               No         No        No                                                                
+SUM  Auto-Generated Floating Deposit Assessment      Sub-Assessment  Rent Roll Receivables          Floating Security Deposits     No         No        No                                                                
+SUM  Bad Debt Write-Off                              Expense         Bad Debt                       Rent Roll Receivables          No         No        No                                                                
+SUM  Bank Service Fee (Operating Account)            Expense         Bank Service Fee               FRB 54320 (operating account)  No         No        No                                                                
+SUM  Bank Service Fee (Security Deposit Account)     Expense         Bank Service Fee               FRB 96953 (security deposits)  No         No        No                                                                
+SUM  Damage Fee                                      Assessment      Rent Roll Receivables          Damage Fee                     No         No        No                                                                
+SUM  Deposit to Operating Account (FRB54320)         Receipt         FRB 54320 (operating account)  Undeposited Funds              No         No        No                                                                
+SUM  Deposit to Security Deposit Account (FRB96953)  Receipt         FRB 96953 (security deposits)  Undeposited Funds              No         No        No                                                                
+SUM  Electric Base Fee                               Assessment      Rent Roll Receivables          Electric Base Fee              No         No        No                                                                
+SUM  Electric Overage                                Assessment      Rent Roll Receivables          Electric Overage               No         No        No                                                                
+SUM  Eviction Fee Reimbursement                      Assessment      Rent Roll Receivables          Eviction Fee Reimbursement     No         No        No                                                                
+SUM  Gas Base Fee                                    Assessment      Rent Roll Receivables          Gas Base Fee                   No         No        No                                                                
+SUM  Gas Base Overage                                Assessment      Rent Roll Receivables          Gas Overage                    No         No        No                                                                
+SUM  Gross Scheduled Rent                            Assessment      Rent Roll Receivables          Gross Scheduled Rent           No         No        No                                                                
+SUM  Insufficient Funds Fee                          Assessment      Rent Roll Receivables          Insufficient Funds Fee         No         No        No                                                                
+SUM  Late Fee                                        Assessment      Rent Roll Receivables          Late Fees                      No         No        No                                                                
+SUM  Month to Month Fee                              Assessment      Rent Roll Receivables          Month to Month Fee             No         No        No                                                                
+SUM  No Show / Termination Fee                       Assessment      Rent Roll Receivables          No Show or Termination Fee     No         No        No                                                                
+SUM  Other Special Tenant Charges                    Assessment      Rent Roll Receivables          Other Special Tenant Charges   No         No        No                                                                
+SUM  Pet Fee                                         Assessment      Rent Roll Receivables          Pet Fees                       No         No        No                                                                
+SUM  Pet Rent                                        Assessment      Rent Roll Receivables          Pet Rent                       No         No        No                                                                
+SUM  Receive a Payment                               Receipt         Undeposited Funds              Unapplied Funds                No         No        No                                                                
+SUM  Security Deposit Assessment                     Assessment      Rent Roll Receivables          Security Deposit Liability     No         No        No                       normal deposit                           
+SUM  Security Deposit Forfeiture                     Assessment      Security Deposit Liability     Security Deposit Forfeiture    No         No        No                       Forfeit                                  
+SUM  Security Deposit Refund from Operating Account  Assessment      Security Deposit Liability     FRB 54320 (operating account)  No         No        No                       Refund                                   
+SUM  Special Cleaning Fee                            Assessment      Rent Roll Receivables          Special Cleaning Fee           No         No        No                                                                
+SUM  Tenant Expense Chargeback                       Assessment      Rent Roll Receivables          Tenant Expense Chargeback      No         No        No                                                                
+SUM  Vending Income from Credit Card                 Receipt         Credit Cards Funds in Transit  Vending Income                 Yes        No        No                                                                
+SUM  Water and Sewer Base Fee                        Assessment      Rent Roll Receivables          Water and Sewer Base Fee       No         No        No                                                                
+SUM  Water and Sewer Overage                         Assessment      Rent Roll Receivables          Water and Sewer Overage        No         No        No                                                                
+

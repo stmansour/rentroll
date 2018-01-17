@@ -217,6 +217,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 
 	// handler for reports which has single table
 	var wsr = []rrpt.SingleTableReportHandler{
+		{ReportNames: []string{"RPTar", "account rules"}, TableHandler: rrpt.RRARTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
 		{ReportNames: []string{"RPTasmrpt", "assessments"}, TableHandler: rrpt.RRAssessmentsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
 		{ReportNames: []string{"RPTb", "business"}, TableHandler: rrpt.RRreportBusinessTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
 		{ReportNames: []string{"RPTcoa", "chart of accounts"}, TableHandler: rrpt.RRreportChartOfAccountsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},

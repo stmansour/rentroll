@@ -1,0 +1,79 @@
+PAC Chart of Accounts
+Accord/PAC Members LLC
+
+GLNumber  Name                                      Parent                               Account Type          Description              
+--------  ----------------------------------------  -----------------------------------  --------------------  -------------------------
+   10000  Cash                                                                           Cash                                           
+   10100  Petty Cash                                Cash                                 Cash                                           
+   10104  FRB 54320 (operating account)             Cash                                 Bank Account                                   
+   10105  FRB 96953 (security deposits)             Cash                                 Bank Account                                   
+   10999  Undeposited Funds                         Cash                                 Cash                                           
+   11000  Credit Cards Funds in Transit                                                  Cash                                           
+   12000  Accounts Receivable                                                            Accounts Receivable                            
+   12001  Rent Roll Receivables                     Accounts Receivable                  Accounts Receivable                            
+   12999  Unapplied Funds                                                                Asset                                          
+   30000  Security Deposit Liability                                                     Liability Security                             
+                                                                                         Deposit                                        
+   30001  Floating Security Deposits                                                     Liability Security    Sec Dep posted before    
+                                                                                         Deposit               rentable identified      
+   30100  Collected Taxes                                                                Liabilities                                    
+   30101  Sales Taxes Collected                     Collected Taxes                      Liabilities                                    
+   30102  Transient Occupancy Taxes Collected       Collected Taxes                      Liabilities                                    
+   30199  Other Collected Taxes                     Collected Taxes                      Liabilities                                    
+   41000  Gross Scheduled Rent                                                           Income                                         
+   41100  Unit Income Offsets                                                            Income Offset                                  
+   41101  Vacancy                                   Unit Income Offsets                  Income Offset                                  
+   41102  Loss (Gain) to Lease                      Unit Income Offsets                  Income Offset                                  
+   41103  Employee Concessions                      Unit Income Offsets                  Income Offset                                  
+   41104  Resident Concessions                      Unit Income Offsets                  Income Offset                                  
+   41105  Owner Concession                          Unit Income Offsets                  Income Offset                                  
+   41106  Administrative Concession                 Unit Income Offsets                  Income Offset                                  
+   41107  Off Line Renovations                      Unit Income Offsets                  Income Offset                                  
+   41108  Off Line Maintenance                      Unit Income Offsets                  Income Offset                                  
+   41199  Othe Income Offsets                       Unit Income Offsets                  Income Offset                                  
+   41200  Service Fees                                                                   Income                                         
+   41201  Broadcast and IT Services                 Service Fees                         Income                                         
+   41202  Food Services                             Service Fees                         Income                                         
+   41203  Linen Services                            Service Fees                         Income                                         
+   41204  Wash N Fold Services                      Service Fees                         Income                                         
+   41299  Other Service Fees                        Service Fees                         Income                                         
+   41300  Utility Fees                                                                   Income                                         
+   41301  Electric Base Fee                         Utility Fees                         Income                                         
+   41302  Electric Overage                          Utility Fees                         Income                                         
+   41303  Water and Sewer Base Fee                  Utility Fees                         Income                                         
+   41304  Water and Sewer Overage                   Utility Fees                         Income                                         
+   41305  Gas Base Fee                              Utility Fees                         Income                                         
+   41306  Gas Overage                               Utility Fees                         Income                                         
+   41307  Trash Collection Base Fee                 Utility Fees                         Income                                         
+   41308  Trash Collection Overage                  Utility Fees                         Income                                         
+   41399  Other Utility Fee                         Utility Fees                         Income                                         
+   41400  Special Tenant Charges                                                         Income                                         
+   41401  Application Fees                          Special Tenant Charges               Income                                         
+   41402  Late Fees                                 Special Tenant Charges               Income                                         
+   41403  Insufficient Funds Fee                    Special Tenant Charges               Income                                         
+   41404  Month to Month Fee                        Special Tenant Charges               Income                                         
+   41405  Rentable Specialties                      Special Tenant Charges               Income                                         
+   41406  No Show or Termination Fee                Special Tenant Charges               Income                                         
+   41407  Pet Fees                                  Special Tenant Charges               Income                                         
+   41408  Pet Rent                                  Special Tenant Charges               Income                                         
+   41409  Tenant Expense Chargeback                 Special Tenant Charges               Income                                         
+   41410  Special Cleaning Fee                      Special Tenant Charges               Income                                         
+   41411  Eviction Fee Reimbursement                Special Tenant Charges               Income                                         
+   41412  Extra Person Charge                       Special Tenant Charges               Income                                         
+   41413  Security Deposit Forfeiture               Special Tenant Charges               Income                                         
+   41414  Damage Fee                                Special Tenant Charges               Income                                         
+   41415  CAM Fees                                  Special Tenant Charges               Income                                         
+   41499  Other Special Tenant Charges              Special Tenant Charges               Income                                         
+   42000  Business Income                                                                Income                                         
+   42100  Convenience Store                         Business Income                      Income                                         
+   42200  Fitness Center Revenue                    Business Income                      Income                                         
+   42300  Vending Income                            Business Income                      Income                                         
+   42400  Restaurant Sales                          Business Income                      Income                                         
+   42500  Bar Sales                                 Business Income                      Income                                         
+   42600  Spa Sales                                 Business Income                      Income                                         
+   50000  Expenses                                                                       Expenses                                       
+   50001  Cash Over/Short                           Expenses                             Expenses                                       
+   50002  Bad Debt                                  Expenses                             Expenses                                       
+   50003  Bank Service Fee                          Expenses                             Expenses                                       
+   50999  Other Expenses                            Expenses                             Expenses                                       
+

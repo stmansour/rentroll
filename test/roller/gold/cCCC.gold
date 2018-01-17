@@ -1,0 +1,39 @@
+CCC Account Rules
+Dec 31, 1969 - Dec 31, 9998
+California Commerce Centr
+
+
+BUD  Name                                            ARType          Debit                          Credit                         Allocated  ShowOnRA  RAIDRequired  SubARSpec  Description                              
+---  ----------------------------------------------  --------------  -----------------------------  -----------------------------  ---------  --------  ------------  ---------  -----------------------------------------
+CCC  Application Fee Received                        Receipt         Undeposited Funds              Application Fees               Yes        No        No                       Application fee taken, no assessment made
+CCC  Auto-Generated Application Fee Assessment       Sub-Assessment  Rent Roll Receivables          Application Fees               No         No        No                                                                
+CCC  Auto-Generated Floating Deposit Assessment      Sub-Assessment  Rent Roll Receivables          Floating Security Deposits     No         No        No                                                                
+CCC  Bad Debt Write-Off                              Expense         Bad Debt                       Rent Roll Receivables          No         No        No                                                                
+CCC  Bank Service Fee (Operating Account)            Expense         Bank Service Fee               FRB 54320 (operating account)  No         No        No                                                                
+CCC  Bank Service Fee (Security Deposit Account)     Expense         Bank Service Fee               FRB 96953 (security deposits)  No         No        No                                                                
+CCC  Damage Fee                                      Assessment      Rent Roll Receivables          Damage Fee                     No         No        No                                                                
+CCC  Deposit to Operating Account (FRB54320)         Receipt         FRB 54320 (operating account)  Undeposited Funds              No         No        No                                                                
+CCC  Deposit to Security Deposit Account (FRB96953)  Receipt         FRB 96953 (security deposits)  Undeposited Funds              No         No        No                                                                
+CCC  Electric Base Fee                               Assessment      Rent Roll Receivables          Electric Base Fee              No         No        No                                                                
+CCC  Electric Overage                                Assessment      Rent Roll Receivables          Electric Overage               No         No        No                                                                
+CCC  Eviction Fee Reimbursement                      Assessment      Rent Roll Receivables          Eviction Fee Reimbursement     No         No        No                                                                
+CCC  Gas Base Fee                                    Assessment      Rent Roll Receivables          Gas Base Fee                   No         No        No                                                                
+CCC  Gas Base Overage                                Assessment      Rent Roll Receivables          Gas Overage                    No         No        No                                                                
+CCC  Gross Scheduled Rent                            Assessment      Rent Roll Receivables          Gross Scheduled Rent           No         No        No                                                                
+CCC  Insufficient Funds Fee                          Assessment      Rent Roll Receivables          Insufficient Funds Fee         No         No        No                                                                
+CCC  Late Fee                                        Assessment      Rent Roll Receivables          Late Fees                      No         No        No                                                                
+CCC  Month to Month Fee                              Assessment      Rent Roll Receivables          Month to Month Fee             No         No        No                                                                
+CCC  No Show / Termination Fee                       Assessment      Rent Roll Receivables          No Show or Termination Fee     No         No        No                                                                
+CCC  Other Special Tenant Charges                    Assessment      Rent Roll Receivables          Other Special Tenant Charges   No         No        No                                                                
+CCC  Pet Fee                                         Assessment      Rent Roll Receivables          Pet Fees                       No         No        No                                                                
+CCC  Pet Rent                                        Assessment      Rent Roll Receivables          Pet Rent                       No         No        No                                                                
+CCC  Receive a Payment                               Receipt         Undeposited Funds              Unapplied Funds                No         No        No                                                                
+CCC  Security Deposit Assessment                     Assessment      Rent Roll Receivables          Security Deposit Liability     No         No        No                       normal deposit                           
+CCC  Security Deposit Forfeiture                     Assessment      Security Deposit Liability     Security Deposit Forfeiture    No         No        No                       Forfeit                                  
+CCC  Security Deposit Refund from Operating Account  Assessment      Security Deposit Liability     FRB 54320 (operating account)  No         No        No                       Refund                                   
+CCC  Special Cleaning Fee                            Assessment      Rent Roll Receivables          Special Cleaning Fee           No         No        No                                                                
+CCC  Tenant Expense Chargeback                       Assessment      Rent Roll Receivables          Tenant Expense Chargeback      No         No        No                                                                
+CCC  Vending Income from Credit Card                 Receipt         Credit Cards Funds in Transit  Vending Income                 Yes        No        No                                                                
+CCC  Water and Sewer Base Fee                        Assessment      Rent Roll Receivables          Water and Sewer Base Fee       No         No        No                                                                
+CCC  Water and Sewer Overage                         Assessment      Rent Roll Receivables          Water and Sewer Overage        No         No        No                                                                
+

@@ -64,6 +64,8 @@ function buildSidebar(flag) {
                     nodes: [
                            //{ id: 'RPTasmrpt',     text: 'Assessments',                     icon: 'fa fa-file-text-o' },
                            //{ id: 'RPTb',          text: 'Business Units',                  icon: 'fa fa-file-text-o' },
+                           { id: 'RPTar',           text: 'Account Rules',                   icon: 'fa fa-file-text-o' },
+                           { id: 'RPTar',           text: 'Account Rules',                   icon: 'fa fa-file-text-o' },
                            { id: 'RPTcoa',          text: 'Chart Of Accounts',               icon: 'fa fa-file-text-o' },
                            //{ id: 'RPTdpm',        text: 'Deposit Methods',                 icon: 'fa fa-file-text-o' },
                            //{ id: 'RPTdep',        text: 'Depository Accounts',             icon: 'fa fa-file-text-o' },
@@ -255,6 +257,7 @@ function buildSidebar(flag) {
                             w2ui.toplayout.load('main', '/webclient/html/formperm.html');
                             w2ui.toplayout.hide('right',true);
                             break;
+                        case 'RPTar':
                         case 'RPTasmrpt':
                         case 'RPTb':
                         case 'RPTcoa':

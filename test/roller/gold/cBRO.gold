@@ -1,0 +1,39 @@
+BRO Account Rules
+Dec 31, 1969 - Dec 31, 9998
+Accord/BRO Members, LLC
+
+
+BUD  Name                                            ARType          Debit                          Credit                         Allocated  ShowOnRA  RAIDRequired  SubARSpec  Description                              
+---  ----------------------------------------------  --------------  -----------------------------  -----------------------------  ---------  --------  ------------  ---------  -----------------------------------------
+BRO  Application Fee Received                        Receipt         Undeposited Funds              Application Fees               Yes        No        No                       Application fee taken, no assessment made
+BRO  Auto-Generated Application Fee Assessment       Sub-Assessment  Rent Roll Receivables          Application Fees               No         No        No                                                                
+BRO  Auto-Generated Floating Deposit Assessment      Sub-Assessment  Rent Roll Receivables          Floating Security Deposits     No         No        No                                                                
+BRO  Bad Debt Write-Off                              Expense         Bad Debt                       Rent Roll Receivables          No         No        No                                                                
+BRO  Bank Service Fee (Operating Account)            Expense         Bank Service Fee               FRB 54320 (operating account)  No         No        No                                                                
+BRO  Bank Service Fee (Security Deposit Account)     Expense         Bank Service Fee               FRB 96953 (security deposits)  No         No        No                                                                
+BRO  Damage Fee                                      Assessment      Rent Roll Receivables          Damage Fee                     No         No        No                                                                
+BRO  Deposit to Operating Account (FRB54320)         Receipt         FRB 54320 (operating account)  Undeposited Funds              No         No        No                                                                
+BRO  Deposit to Security Deposit Account (FRB96953)  Receipt         FRB 96953 (security deposits)  Undeposited Funds              No         No        No                                                                
+BRO  Electric Base Fee                               Assessment      Rent Roll Receivables          Electric Base Fee              No         No        No                                                                
+BRO  Electric Overage                                Assessment      Rent Roll Receivables          Electric Overage               No         No        No                                                                
+BRO  Eviction Fee Reimbursement                      Assessment      Rent Roll Receivables          Eviction Fee Reimbursement     No         No        No                                                                
+BRO  Gas Base Fee                                    Assessment      Rent Roll Receivables          Gas Base Fee                   No         No        No                                                                
+BRO  Gas Base Overage                                Assessment      Rent Roll Receivables          Gas Overage                    No         No        No                                                                
+BRO  Gross Scheduled Rent                            Assessment      Rent Roll Receivables          Gross Scheduled Rent           No         No        No                                                                
+BRO  Insufficient Funds Fee                          Assessment      Rent Roll Receivables          Insufficient Funds Fee         No         No        No                                                                
+BRO  Late Fee                                        Assessment      Rent Roll Receivables          Late Fees                      No         No        No                                                                
+BRO  Month to Month Fee                              Assessment      Rent Roll Receivables          Month to Month Fee             No         No        No                                                                
+BRO  No Show / Termination Fee                       Assessment      Rent Roll Receivables          No Show or Termination Fee     No         No        No                                                                
+BRO  Other Special Tenant Charges                    Assessment      Rent Roll Receivables          Other Special Tenant Charges   No         No        No                                                                
+BRO  Pet Fee                                         Assessment      Rent Roll Receivables          Pet Fees                       No         No        No                                                                
+BRO  Pet Rent                                        Assessment      Rent Roll Receivables          Pet Rent                       No         No        No                                                                
+BRO  Receive a Payment                               Receipt         Undeposited Funds              Unapplied Funds                No         No        No                                                                
+BRO  Security Deposit Assessment                     Assessment      Rent Roll Receivables          Security Deposit Liability     No         No        No                       normal deposit                           
+BRO  Security Deposit Forfeiture                     Assessment      Security Deposit Liability     Security Deposit Forfeiture    No         No        No                       Forfeit                                  
+BRO  Security Deposit Refund from Operating Account  Assessment      Security Deposit Liability     FRB 54320 (operating account)  No         No        No                       Refund                                   
+BRO  Special Cleaning Fee                            Assessment      Rent Roll Receivables          Special Cleaning Fee           No         No        No                                                                
+BRO  Tenant Expense Chargeback                       Assessment      Rent Roll Receivables          Tenant Expense Chargeback      No         No        No                                                                
+BRO  Vending Income from Credit Card                 Receipt         Credit Cards Funds in Transit  Vending Income                 Yes        No        No                                                                
+BRO  Water and Sewer Base Fee                        Assessment      Rent Roll Receivables          Water and Sewer Base Fee       No         No        No                                                                
+BRO  Water and Sewer Overage                         Assessment      Rent Roll Receivables          Water and Sewer Overage        No         No        No                                                                
+

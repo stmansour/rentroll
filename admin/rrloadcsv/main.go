@@ -93,7 +93,7 @@ func readCommandLineArgs() {
 	pBUD := flag.String("G", "", "BUD - business unit designator")
 	pAD := flag.String("H", "", "add Account Depositories via csv file")
 	invPtr := flag.String("i", "", "add Invoices via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName, 28-BUD")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipts, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName, 28-BUD, 29-AcctRules")
 	slPtr := flag.String("l", "", "add StringLists via csv file")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	dmPtr := flag.String("m", "", "add DepositMethods via csv file")
@@ -378,6 +378,7 @@ func main() {
 		{ReportNo: 26, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportRatePlans},
 		{ReportNo: 27, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: true, Handler: rrpt.RRreportRatePlanRefs},
 		{ReportNo: 28, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
+		{ReportNo: 29, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsDt: false, Handler: rrpt.RRreportAR},
 	}
 
 	if len(App.Report) > 0 {
@@ -411,6 +412,7 @@ func main() {
 			}
 			r[idx].Xbiz = &xbiz
 		}
+
 		if r[idx].NeedsDt {
 			r[idx].D1 = App.DtStart
 			r[idx].D2 = App.DtStop
