@@ -37,3 +37,23 @@ func DBTxFromContext(ctx context.Context) (*sql.Tx, bool) {
 	tx, ok := ctx.Value(dbTxCtxKey).(*sql.Tx)
 	return tx, ok
 }
+
+// NewTransactionWithContext returns newly created sql.Tx object
+// and it also embeds that in the provided context and returns newly updated ctx
+func NewTransactionWithContext(ctx context.Context) (*sql.Tx, context.Context, error) {
+	var (
+		tx  *sql.Tx
+		err error
+	)
+
+	// get the new transaction
+	tx, err = RRdb.Dbrr.Begin()
+	if err != nil {
+		return tx, ctx, err
+	}
+
+	// set the transaction in context
+	ctx = SetDBTxContextKey(ctx, tx)
+
+	return tx, ctx, err
+}

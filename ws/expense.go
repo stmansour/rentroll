@@ -326,10 +326,29 @@ func deleteExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 	now := time.Now() // mark Assessment reversed at this time
-	errlist := bizlogic.ReverseExpense(r.Context(), &a, &now)
+	errlist := bizlogic.ReverseExpense(ctx, &a, &now)
 	if len(errlist) > 0 {
+		tx.Rollback()
 		SvcErrListReturn(w, errlist, funcname)
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
 	}
 
 	SvcWriteSuccessResponse(w)

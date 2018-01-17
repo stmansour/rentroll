@@ -513,11 +513,31 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	rlib.Console("Reversal Mode = %d\n", del.ReverseMode)
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
+	// reverse assessment in atomic transaction
 	now := time.Now() // mark Assessment reversed at this time
-	errlist := bizlogic.ReverseAssessment(r.Context(), &a, del.ReverseMode, &now)
+	errlist := bizlogic.ReverseAssessment(ctx, &a, del.ReverseMode, &now)
 	if len(errlist) > 0 {
+		tx.Rollback()
 		SvcErrListReturn(w, errlist, funcname)
+		return
+	}
+
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
 	}
 
 	SvcWriteSuccessResponse(w)
