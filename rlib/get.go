@@ -20,7 +20,7 @@ func GetCountByTableName(ctx context.Context, t string, bid int64) (int, error) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
@@ -49,7 +49,7 @@ func GetAR(ctx context.Context, id int64) (AR, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -77,7 +77,7 @@ func GetARByName(ctx context.Context, bid int64, name string) (AR, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -106,7 +106,7 @@ func getARsForRows(ctx context.Context, rows *sql.Rows) ([]AR, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -171,7 +171,7 @@ func GetARMap(ctx context.Context, bid int64) (map[int64]AR, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -190,7 +190,7 @@ func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -222,7 +222,7 @@ func GetARsByType(ctx context.Context, id int64, artype int) ([]AR, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -258,7 +258,7 @@ func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -286,7 +286,7 @@ func GetAllRentalAgreementPets(ctx context.Context, raid int64) ([]RentalAgreeme
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -333,7 +333,7 @@ func FindAgreementByRentable(ctx context.Context, rid int64, d1, d2 *time.Time) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -367,7 +367,7 @@ func GetAllRentableAssessments(ctx context.Context, RID int64, d1, d2 *time.Time
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -399,7 +399,7 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -437,7 +437,7 @@ func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -469,7 +469,7 @@ func getAssessmentsByRows(ctx context.Context, rows *sql.Rows) ([]Assessment, er
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -499,7 +499,7 @@ func GetAssessment(ctx context.Context, asmid int64) (Assessment, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -527,7 +527,7 @@ func GetAssessmentInstance(ctx context.Context, start *time.Time, pasmid int64) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -556,7 +556,7 @@ func GetAssessmentFirstInstance(ctx context.Context, pasmid int64) (Assessment, 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -584,7 +584,7 @@ func GetAssessmentDuplicate(ctx context.Context, start *time.Time, amt float64, 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -617,7 +617,7 @@ func GetBuilding(ctx context.Context, id int64) (Building, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -686,7 +686,7 @@ func GetAllBusinesses(ctx context.Context) ([]Business, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -719,7 +719,7 @@ func GetBusiness(ctx context.Context, bid int64, a *Business) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -759,7 +759,7 @@ func GetBusinessByDesignation(ctx context.Context, des string) (Business, error)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -826,7 +826,7 @@ func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -870,7 +870,7 @@ func GetCustomAttribute(ctx context.Context, id int64) (CustomAttribute, error) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -893,7 +893,7 @@ func GetCustomAttributeByVals(ctx context.Context, t int64, n, v, u string) (Cus
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -971,7 +971,7 @@ func GetAllCustomAttributes(ctx context.Context, elemid, id int64) (map[string]C
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -990,7 +990,7 @@ func GetCustomAttributeRef(ctx context.Context, e, i, c int64) (CustomAttributeR
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1040,7 +1040,7 @@ func GetDemandSource(ctx context.Context, id int64, t *DemandSource) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1068,7 +1068,7 @@ func GetDemandSourceByName(ctx context.Context, bid int64, name string, t *Deman
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -1097,7 +1097,7 @@ func GetAllDemandSources(ctx context.Context, id int64) ([]DemandSource, error) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -1145,7 +1145,7 @@ func GetDeposit(ctx context.Context, id int64) (Deposit, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1173,7 +1173,7 @@ func GetAllDepositsInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -1221,7 +1221,7 @@ func GetDepository(ctx context.Context, id int64) (Depository, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1249,7 +1249,7 @@ func GetDepositoryByAccount(ctx context.Context, bid int64, acct string) (Deposi
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1277,7 +1277,7 @@ func GetDepositoryByName(ctx context.Context, bid int64, name string) (Depositor
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1305,7 +1305,7 @@ func GetDepositoryByLID(ctx context.Context, bid int64, id int64) (Depository, e
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1333,7 +1333,7 @@ func GetAllDepositories(ctx context.Context, bid int64) ([]Depository, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -1376,7 +1376,7 @@ func GetDepositParts(ctx context.Context, id int64) ([]DepositPart, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -1419,7 +1419,7 @@ func GetDepositMethod(ctx context.Context, id int64) (DepositMethod, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1447,7 +1447,7 @@ func GetDepositMethodByName(ctx context.Context, bid int64, name string) (Deposi
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1475,7 +1475,7 @@ func GetAllDepositMethods(ctx context.Context, bid int64) ([]DepositMethod, erro
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -1522,7 +1522,7 @@ func GetExpense(ctx context.Context, id int64) (Expense, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1554,7 +1554,7 @@ func GetInvoice(ctx context.Context, id int64) (Invoice, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -1597,7 +1597,7 @@ func GetAllInvoicesInRange(ctx context.Context, bid int64, d1, d2 *time.Time) ([
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -1650,7 +1650,7 @@ func GetInvoiceAssessments(ctx context.Context, id int64) ([]InvoiceAssessment, 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -1693,7 +1693,7 @@ func GetInvoicePayors(ctx context.Context, id int64) ([]InvoicePayor, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -1740,7 +1740,7 @@ func GetJournal(ctx context.Context, jid int64) (Journal, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -1790,7 +1790,7 @@ func GetJournalVacancy(ctx context.Context, id int64, dt1, dt2 *time.Time) (Jour
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -1819,7 +1819,7 @@ func GetJournalByTypeAndID(ctx context.Context, t, id int64) (Journal, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -1848,7 +1848,7 @@ func GetJournalByReceiptID(ctx context.Context, id int64) (Journal, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -1877,7 +1877,7 @@ func GetJournalsByReceiptID(ctx context.Context, id int64) ([]Journal, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -1920,7 +1920,7 @@ func GetJournalMarkers(ctx context.Context, n int64) ([]JournalMarker, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -1963,7 +1963,7 @@ func GetLastJournalMarker(ctx context.Context) (JournalMarker, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return j, ErrSessionRequired
@@ -1995,7 +1995,7 @@ func GetJournalAllocation(ctx context.Context, jaid int64) (JournalAllocation, e
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -2023,7 +2023,7 @@ func GetJournalAllocations(ctx context.Context, j *Journal) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -2064,7 +2064,7 @@ func GetJournalAllocationByASMID(ctx context.Context, id int64) ([]JournalAlloca
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return jaRows, ErrSessionRequired
@@ -2100,7 +2100,7 @@ func GetJournalAllocationByASMandRCPTID(ctx context.Context, id int64) ([]Journa
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return jaRows, ErrSessionRequired
@@ -2131,7 +2131,7 @@ func getJournalAllocationRows(ctx context.Context, rows *sql.Rows) ([]JournalAll
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ja, ErrSessionRequired
@@ -2165,7 +2165,7 @@ func GetLatestLedgerMarkerByLID(ctx context.Context, bid, lid int64) (LedgerMark
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2193,7 +2193,7 @@ func GetInitialLedgerMarkerByRAID(ctx context.Context, raid int64) (LedgerMarker
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2221,7 +2221,7 @@ func GetInitialLedgerMarkerByRID(ctx context.Context, id int64) (LedgerMarker, e
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -2249,7 +2249,7 @@ func GetLedgerMarkerOnOrBefore(ctx context.Context, bid, lid int64, dt *time.Tim
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2277,7 +2277,7 @@ func GetPayorLedgerMarkerOnOrBefore(ctx context.Context, bid, tcid int64, dt *ti
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2307,7 +2307,7 @@ func GetRALedgerMarkerOnOrBeforeDeprecated(ctx context.Context, bid, lid, raid i
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2337,7 +2337,7 @@ func GetRALedgerMarkerOnOrBefore(ctx context.Context, raid int64, dt *time.Time)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2367,7 +2367,7 @@ func GetRALedgerMarkerOnOrAfter(ctx context.Context, raid int64, dt *time.Time) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2397,7 +2397,7 @@ func GetTCLedgerMarkerOnOrBefore(ctx context.Context, tcid int64, dt *time.Time)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2427,7 +2427,7 @@ func GetTCLedgerMarkerOnOrAfter(ctx context.Context, tcid int64, dt *time.Time) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2456,7 +2456,7 @@ func GetRentableLedgerMarkerOnOrBefore(ctx context.Context, bid, lid, rid int64,
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2485,7 +2485,7 @@ func GetRARentableLedgerMarkerOnOrBefore(ctx context.Context, raid, rid int64, d
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -2526,7 +2526,7 @@ func LoadPayorLedgerMarker(ctx context.Context, bid, tcid int64, dt *time.Time) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return lm, ErrSessionRequired
@@ -2570,7 +2570,7 @@ func LoadRALedgerMarker(ctx context.Context, bid, lid, raid int64, dt *time.Time
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return lm, ErrSessionRequired
@@ -2601,7 +2601,7 @@ func GetLatestLedgerMarkerByGLNo(ctx context.Context, bid int64, s string) (Ledg
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return lm, ErrSessionRequired
@@ -2624,7 +2624,7 @@ func GetLatestLedgerMarkerByType(ctx context.Context, bid int64, t int64) (Ledge
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return lm, ErrSessionRequired
@@ -2650,7 +2650,7 @@ func GetAllLedgerMarkersOnOrBefore(ctx context.Context, bid int64, dt *time.Time
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -2703,7 +2703,7 @@ func GetLedgerList(ctx context.Context, bid int64) ([]GLAccount, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -2782,7 +2782,7 @@ func GetGLAccountMap(ctx context.Context, bid int64) (map[int64]GLAccount, error
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -2801,7 +2801,7 @@ func GetLedger(ctx context.Context, lid int64) (GLAccount, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -2829,7 +2829,7 @@ func GetLedgerEntryByJAID(ctx context.Context, bid, lid, jaid int64) (LedgerEntr
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -2857,7 +2857,7 @@ func GetLedgerEntriesByJAID(ctx context.Context, bid, jaid int64) ([]LedgerEntry
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -2900,7 +2900,7 @@ func GetCountLedgerEntries(ctx context.Context, lid, bid int64) (int64, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
@@ -2928,7 +2928,7 @@ func GetLedgerByGLNo(ctx context.Context, bid int64, s string) (GLAccount, error
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -2956,7 +2956,7 @@ func GetLedgerByName(ctx context.Context, bid int64, s string) (GLAccount, error
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -2984,7 +2984,7 @@ func GetLedgerByType(ctx context.Context, bid, t int64) (GLAccount, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -3012,7 +3012,7 @@ func GetRABalanceLedger(ctx context.Context, bid, RAID int64) (GLAccount, error)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -3040,7 +3040,7 @@ func GetSecDepBalanceLedger(ctx context.Context, bid, RAID int64) (GLAccount, er
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -3067,7 +3067,7 @@ func GetDefaultLedgers(ctx context.Context, bid int64) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3115,7 +3115,7 @@ func getLedgerEntryArray(ctx context.Context, rows *sql.Rows) ([]LedgerEntry, er
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3143,7 +3143,7 @@ func GetLedgerEntriesInRange(ctx context.Context, d1, d2 *time.Time, bid, lid in
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3177,7 +3177,7 @@ func GetLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid, lid i
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3211,7 +3211,7 @@ func GetLedgerEntriesForRentable(ctx context.Context, d1, d2 *time.Time, rid, li
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3245,7 +3245,7 @@ func GetAllLedgerEntriesForRAID(ctx context.Context, d1, d2 *time.Time, raid int
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3279,7 +3279,7 @@ func GetAllLedgerEntriesForRID(ctx context.Context, d1, d2 *time.Time, rid int64
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3313,7 +3313,7 @@ func GetAllLedgerEntriesInRange(ctx context.Context, bid int64, d1, d2 *time.Tim
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3347,7 +3347,7 @@ func GetLedgerEntriesInRange(ctx context.Context, bid, lid, raid int64, d1, d2 *
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3386,7 +3386,7 @@ func GetNote(ctx context.Context, tid int64, t *Note) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3415,7 +3415,7 @@ func GetNoteAndChildNotes(ctx context.Context, nid int64) (Note, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return n, ErrSessionRequired
@@ -3467,7 +3467,7 @@ func GetNoteList(ctx context.Context, nlid int64) (NoteList, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3532,7 +3532,7 @@ func GetNoteType(ctx context.Context, ntid int64, t *NoteType) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3596,7 +3596,7 @@ func GetAllNoteTypes(ctx context.Context, bid int64) ([]NoteType, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3618,7 +3618,7 @@ func GetPaymentType(ctx context.Context, id int64, a *PaymentType) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3645,7 +3645,7 @@ func GetPaymentTypeByName(ctx context.Context, bid int64, name string, a *Paymen
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3673,7 +3673,7 @@ func GetPaymentTypesByBusiness(ctx context.Context, bid int64) (map[int64]Paymen
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -3719,7 +3719,7 @@ func GetRatePlan(ctx context.Context, id int64, a *RatePlan) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3746,7 +3746,7 @@ func GetRatePlanByName(ctx context.Context, id int64, s string, a *RatePlan) err
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3774,7 +3774,7 @@ func GetAllRatePlans(ctx context.Context, id int64) ([]RatePlan, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3816,7 +3816,7 @@ func GetRatePlanRef(ctx context.Context, id int64, a *RatePlanRef) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3844,7 +3844,7 @@ func GetRatePlanRefFull(ctx context.Context, id int64, a *RatePlanRef) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -3941,7 +3941,7 @@ func GetRatePlanRefsInRange(ctx context.Context, id int64, d1, d2 *time.Time) ([
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -3985,7 +3985,7 @@ func GetAllRatePlanRefsInRange(ctx context.Context, d1, d2 *time.Time) ([]RatePl
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -4028,7 +4028,7 @@ func GetRatePlanRefRTRate(ctx context.Context, rprid, rtid int64, a *RatePlanRef
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -4055,7 +4055,7 @@ func GetRatePlanRefSPRate(ctx context.Context, rprid, rtid int64, a *RatePlanRef
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -4083,7 +4083,7 @@ func GetAllRatePlanRefSPRates(ctx context.Context, rprid, rtid int64) ([]RatePla
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -4131,7 +4131,7 @@ func GetReceipt(ctx context.Context, rcptid int64) (Receipt, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4155,7 +4155,7 @@ func GetReceiptAllocation(ctx context.Context, id int64) (ReceiptAllocation, err
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4184,7 +4184,7 @@ func GetReceiptNoAllocations(ctx context.Context, rcptid int64) (Receipt, error)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4212,7 +4212,7 @@ func GetReceiptDuplicate(ctx context.Context, dt *time.Time, amt float64, docno 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4240,7 +4240,7 @@ func GetReceiptAllocations(ctx context.Context, rcptid int64, r *Receipt) error 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -4284,7 +4284,7 @@ func GetReceipts(ctx context.Context, bid int64, d1, d2 *time.Time) ([]Receipt, 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -4333,7 +4333,7 @@ func getReceiptAllocationList(ctx context.Context, rows *sql.Rows) ([]ReceiptAll
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -4365,7 +4365,7 @@ func GetASMReceiptAllocationsInRAIDDateRange(ctx context.Context, raid int64, d1
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -4400,7 +4400,7 @@ func GetReceiptAllocationsByASMID(ctx context.Context, bid, asmid int64) ([]Rece
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -4437,7 +4437,7 @@ func GetReceiptAllocationsThroughDate(ctx context.Context, id int64, dt *time.Ti
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -4479,7 +4479,7 @@ func GetReceiptAllocationAmountsOnDate(ctx context.Context, id int64, dt *time.T
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return amt, alloc, unalloc, ErrSessionRequired
@@ -4516,7 +4516,7 @@ func GetUnallocatedReceiptsByPayor(ctx context.Context, bid, tcid int64) ([]Rece
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -4565,7 +4565,7 @@ func GetPayorUnallocatedReceiptsCount(ctx context.Context, bid, tcid int64) (int
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
@@ -4596,7 +4596,7 @@ func GetRentableByID(ctx context.Context, rid int64, r *Rentable) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -4624,7 +4624,7 @@ func GetRentable(ctx context.Context, rid int64) (Rentable, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4643,7 +4643,7 @@ func GetRentableByName(ctx context.Context, name string, bid int64) (Rentable, e
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4675,7 +4675,7 @@ func GetRentableTypeDown(ctx context.Context, bid int64, s string, limit int) ([
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -4719,7 +4719,7 @@ func GetXRentable(ctx context.Context, rid int64, x *XRentable) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -4746,7 +4746,7 @@ func GetRentableUser(ctx context.Context, ruid int64) (RentableUser, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4775,7 +4775,7 @@ func GetRentableUserByRBT(ctx context.Context, rid, bid, tcid int64) (RentableUs
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4803,7 +4803,7 @@ func GetRentableSpecialtyTypeByName(ctx context.Context, bid int64, name string)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rsp, ErrSessionRequired
@@ -4831,7 +4831,7 @@ func GetRentableSpecialtyType(ctx context.Context, rspid int64) (RentableSpecial
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
@@ -4859,7 +4859,7 @@ func GetAllRentableSpecialtyRefs(ctx context.Context, bid, rid int64) ([]int64, 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -4904,7 +4904,7 @@ func SelectRentableTypeRefForDate(ctx context.Context, rsa *[]RentableSpecialty,
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -4929,7 +4929,7 @@ func GetRentableSpecialtyTypesForRentableByRange(ctx context.Context, bid, rid i
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rsta, ErrSessionRequired
@@ -4962,7 +4962,7 @@ func GetRentableSpecialtyRefsByRange(ctx context.Context, bid, rid int64, d1, d2
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
@@ -5005,7 +5005,7 @@ func GetRentableTypeRef(ctx context.Context, rtrid int64) (RentableTypeRef, erro
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rtr, ErrSessionRequired
@@ -5033,7 +5033,7 @@ func SelectRentableTypeRefForDate(ctx context.Context, rta *[]RentableTypeRef, d
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -5058,7 +5058,7 @@ func getRTRefs(ctx context.Context, rows *sql.Rows) ([]RentableTypeRef, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
@@ -5088,7 +5088,7 @@ func GetRentableTypeRefsByRange(ctx context.Context, RID int64, d1, d2 *time.Tim
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rtr, ErrSessionRequired
@@ -5120,7 +5120,7 @@ func GetRentableTypeRefs(ctx context.Context, RID int64) ([]RentableTypeRef, err
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rtr, ErrSessionRequired
@@ -5153,7 +5153,7 @@ func GetRTIDForDate(ctx context.Context, RID int64, d1 *time.Time) (int64, error
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rtid, ErrSessionRequired
@@ -5181,7 +5181,7 @@ func GetRentableTypeRefForDate(ctx context.Context, RID int64, d1 *time.Time) (R
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -5209,7 +5209,7 @@ func GetRentableStatus(ctx context.Context, rsid int64) (RentableStatus, error) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
@@ -5237,7 +5237,7 @@ func getRentableStatusRows(ctx context.Context, rows *sql.Rows) ([]RentableStatu
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
@@ -5266,7 +5266,7 @@ func GetRentableStatusOnOrAfter(ctx context.Context, RID int64, dt *time.Time) (
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return a, ErrSessionRequired
@@ -5294,7 +5294,7 @@ func GetRentableStatusByRange(ctx context.Context, RID int64, d1, d2 *time.Time)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
@@ -5326,7 +5326,7 @@ func GetAllRentableStatus(ctx context.Context, RID int64) ([]RentableStatus, err
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rs, ErrSessionRequired
@@ -5361,7 +5361,7 @@ func GetRentableType(ctx context.Context, rtid int64, rt *RentableType) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -5400,7 +5400,7 @@ func GetRentableTypeByStyle(ctx context.Context, name string, bid int64) (Rentab
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rt, ErrSessionRequired
@@ -5428,7 +5428,7 @@ func GetRentableTypeByName(ctx context.Context, name string, bid int64) (Rentabl
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rt, ErrSessionRequired
@@ -5496,7 +5496,7 @@ func GetBusinessRentableTypes(ctx context.Context, bid int64) (map[int64]Rentabl
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -5556,7 +5556,7 @@ func GetRentableMarketRates(ctx context.Context, rt *RentableType) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -5575,7 +5575,7 @@ func GetRentableMarketRateInstance(ctx context.Context, rmrid int64) (RentableMa
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rmr, ErrSessionRequired
@@ -5608,7 +5608,7 @@ func GetRentableMarketRate(ctx context.Context, xbiz *XBusiness, RID int64, d1, 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return marketRateValue, ErrSessionRequired
@@ -5641,7 +5641,7 @@ func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -5688,7 +5688,7 @@ func GetRentalAgreement(ctx context.Context, raid int64) (RentalAgreement, error
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -5716,7 +5716,7 @@ func LoadXRentalAgreement(ctx context.Context, raid int64, r *RentalAgreement, d
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -5792,7 +5792,7 @@ func GetRentalAgreementEarliestDate(ctx context.Context, a *RentalAgreement) (ti
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return dt, ErrSessionRequired
@@ -5819,7 +5819,7 @@ func GetXRentalAgreement(ctx context.Context, raid int64, d1, d2 *time.Time) (Re
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ra, ErrSessionRequired
@@ -5839,7 +5839,7 @@ func GetRentalAgreementsFromList(ctx context.Context, raa *[]RentalAgreementRent
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -5870,7 +5870,7 @@ func GetAgreementsForRentable(ctx context.Context, rid int64, d1, d2 *time.Time)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -5913,7 +5913,7 @@ func GetRARentableForDate(ctx context.Context, raid int64, d1 *time.Time, rar *R
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -5941,7 +5941,7 @@ func GetRentalAgreementRentable(ctx context.Context, rarid int64) (RentalAgreeme
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -5970,7 +5970,7 @@ func GetRentalAgreementRentables(ctx context.Context, raid int64, d1, d2 *time.T
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6014,7 +6014,7 @@ func GetRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64) (R
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -6042,7 +6042,7 @@ func GetRentalAgreementPayor(ctx context.Context, id int64) (RentalAgreementPayo
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -6071,7 +6071,7 @@ func GetRentalAgreementPayorsInRange(ctx context.Context, raid int64, d1, d2 *ti
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6104,7 +6104,7 @@ func GetRentalAgreementsByPayor(ctx context.Context, bid, tcid int64, dt *time.T
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6137,7 +6137,7 @@ func GetRentalAgreementsByPayorRange(ctx context.Context, bid, tcid int64, d1, d
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6170,7 +6170,7 @@ func getRentalAgreementPayorsByRows(ctx context.Context, rows *sql.Rows) ([]Rent
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6203,7 +6203,7 @@ func GetRentalAgreementTemplate(ctx context.Context, ratid int64) (RentalAgreeme
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -6231,7 +6231,7 @@ func GetRentalAgreementByRATemplateName(ctx context.Context, ref string) (Rental
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return r, ErrSessionRequired
@@ -6262,7 +6262,7 @@ func GetStringList(ctx context.Context, id int64, a *StringList) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6294,7 +6294,7 @@ func GetAllStringLists(ctx context.Context, id int64) ([]StringList, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -6341,7 +6341,7 @@ func GetStringListByName(ctx context.Context, bid int64, s string, a *StringList
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6373,7 +6373,7 @@ func getSLStrings(ctx context.Context, id int64, a *StringList) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6419,7 +6419,7 @@ func GetSubAR(ctx context.Context, id int64, a *SubAR) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6447,7 +6447,7 @@ func GetSubARs(ctx context.Context, id int64) ([]SubAR, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -6499,7 +6499,7 @@ func GetTransactantTypeDown(ctx context.Context, bid int64, s string, limit int)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -6545,7 +6545,7 @@ func GetTCIDByNote(ctx context.Context, cmt string) (int64, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return tcid, ErrSessionRequired
@@ -6575,7 +6575,7 @@ func GetTransactantByPhoneOrEmail(ctx context.Context, BID int64, s string) (Tra
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6621,7 +6621,7 @@ func GetTransactant(ctx context.Context, tid int64, t *Transactant) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6648,7 +6648,7 @@ func GetProspect(ctx context.Context, id int64, p *Prospect) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6677,7 +6677,7 @@ func GetUser(ctx context.Context, tcid int64, t *User) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6704,7 +6704,7 @@ func GetPayor(ctx context.Context, pid int64, p *Payor) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6732,7 +6732,7 @@ func GetRentalAgreementGridInfo(ctx context.Context, raid int64, d1, d2 *time.Ti
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -6765,7 +6765,7 @@ func GetVehicle(ctx context.Context, vid int64, t *Vehicle) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6792,7 +6792,7 @@ func getVehicleList(ctx context.Context, rows *sql.Rows) ([]Vehicle, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return m, ErrSessionRequired
@@ -6820,7 +6820,7 @@ func GetVehiclesByLicensePlate(ctx context.Context, s string) ([]Vehicle, error)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6854,7 +6854,7 @@ func GetVehiclesByTransactant(ctx context.Context, tcid int64) ([]Vehicle, error
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6888,7 +6888,7 @@ func GetVehiclesByBID(ctx context.Context, bid int64) ([]Vehicle, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return t, ErrSessionRequired
@@ -6921,7 +6921,7 @@ func GetXPerson(ctx context.Context, tcid int64, x *XPerson) error {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return ErrSessionRequired
@@ -6970,7 +6970,7 @@ func GetDateOfLedgerMarkerOnOrBefore(ctx context.Context, bid int64, d1 *time.Ti
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return dt, ErrSessionRequired
@@ -6999,7 +6999,7 @@ func GetCountBusinessCustomAttrRefs(ctx context.Context, bid int64) (int, error)
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
@@ -7028,7 +7028,7 @@ func GetCountBusinessCustomAttributes(ctx context.Context, bid int64) (int, erro
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
@@ -7057,7 +7057,7 @@ func GetCountBusinessRentableTypes(ctx context.Context, bid int64) (int, error) 
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
@@ -7086,7 +7086,7 @@ func GetCountBusinessTransactants(ctx context.Context, bid int64) (int, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
@@ -7115,7 +7115,7 @@ func GetCountBusinessRentables(ctx context.Context, bid int64) (int, error) {
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
@@ -7144,7 +7144,7 @@ func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, erro
 	)
 
 	// session... context
-	if !(RRdb.noAuth && AppConfig.Env == extres.APPENVDEV) {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return count, ErrSessionRequired
