@@ -504,9 +504,29 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	} else {
-		dt := time.Now()
-		err = bizlogic.ReverseReceipt(r.Context(), &rcpt, &dt)
+		//-------------------------------------------------------
+		// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+		//-------------------------------------------------------
+		tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
 		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// reverse receipt in atomic transaction mode
+		dt := time.Now()
+		err = bizlogic.ReverseReceipt(ctx, &rcpt, &dt)
+		if err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// ------------------
+		// COMMIT TRANSACTION
+		// ------------------
+		if err := tx.Commit(); err != nil {
+			tx.Rollback()
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
@@ -527,26 +547,24 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //         - true = error occurred and was sent to client
 //---------------------------------------------------------------------
 func receiptOnlyUIReverse(rcpt *rlib.Receipt, w http.ResponseWriter, r *http.Request, d *ServiceData) bool {
-	funcname := "receiptOnlyUIReverse"
-	var err error
+	const funcname = "receiptOnlyUIReverse"
+	var (
+		err error
+	)
 
 	if rcpt.FLAGS&0x04 != 0 {
 		err := fmt.Errorf("Error: receipt %s has already been reversed", rlib.IDtoShortString("RCPT", rcpt.RCPTID))
 		SvcErrorReturn(w, err, funcname)
 		return true
 	}
-	//------------------------------------------------------
-	// start a db transaction
-	//------------------------------------------------------
-	var tx *sql.Tx
-
-	tx, err = rlib.RRdb.Dbrr.Begin()
+	//-------------------------------------------------------
+	// GET THE NEW `tx`, UPDATED CTX FROM THE REQUEST CONTEXT
+	//-------------------------------------------------------
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return true
 	}
-
-	ctx := rlib.SetDBTxContextKey(r.Context(), tx)
 
 	//------------------------------------------------------
 	// Build the new receipt
@@ -574,6 +592,9 @@ func receiptOnlyUIReverse(rcpt *rlib.Receipt, w http.ResponseWriter, r *http.Req
 		return true
 	}
 
+	// ------------------
+	// COMMIT TRANSACTION
+	// ------------------
 	if err := tx.Commit(); err != nil {
 		tx.Rollback() // TBD: abort transaction
 		SvcErrorReturn(w, err, funcname)
