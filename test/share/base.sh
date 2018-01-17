@@ -1192,6 +1192,9 @@ doCasperUITest () {
 	TESTCOUNT=$((TESTCOUNT + 1))
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
+	echo "STARTING RENTROLL SERVER"
+	startRentRollServer
+
 	if [ "x${2}" != "x" ]; then
 		${CASPERTEST} ${2} >${1} 2>&1
 	fi
@@ -1239,12 +1242,17 @@ doCasperUITest () {
 			if [ "${ASKBEFOREEXIT}" = "1" ]; then
 				pause ${1}
 			else
+				echo "Stopping the server as error occurred!"
+				stopRentRollServer
 				exit 1
 			fi
 		fi
 	else
 		echo
 	fi
+
+	echo "STOPPING RENTROLL SERVER"
+	stopRentRollServer
 }
 
 #############################################################################

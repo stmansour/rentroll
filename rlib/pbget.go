@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"context"
+	"extres"
 	"fmt"
 )
 
@@ -11,7 +12,7 @@ func GetCompanyByDesignation(ctx context.Context, des string) (Company, error) {
 	var c Company
 
 	// session... context
-	if !RRdb.noAuth {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return c, ErrSessionRequired
@@ -32,7 +33,7 @@ func GetCompany(ctx context.Context, n int64) (Company, error) {
 	var c Company
 
 	// session... context
-	if !RRdb.noAuth {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return c, ErrSessionRequired
@@ -53,7 +54,7 @@ func GetBusinessUnitByDesignation(ctx context.Context, des string) (BusinessUnit
 	var c BusinessUnit
 
 	// session... context
-	if !RRdb.noAuth {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return c, ErrSessionRequired
@@ -71,7 +72,7 @@ func GetBusinessUnitByDesignation(ctx context.Context, des string) (BusinessUnit
 func GetDirectoryPerson(ctx context.Context, uid int64) (DirectoryPerson, error) {
 	var c DirectoryPerson
 
-	if !RRdb.noAuth {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			Console("GetDirectoryPerson -- returning empty DirectoryPerson\n")
