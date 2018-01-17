@@ -18,8 +18,6 @@ source ../share/base.sh
 
 # server with noauth
 RENTROLLSERVERAUTH="-noauth"
-echo "STARTING RENTROLL SERVER"
-startRentRollServer
 
 echo "Running casper UI test cases..."
 # casperjs test index.js
@@ -28,8 +26,4 @@ echo "Running casper UI test cases..."
 # call loader
 doCasperUITest "a" "./index.js" "CasperUITesting"
 
-stopRentRollServer
-echo "RENTROLL SERVER STOPPED"
-
 logcheck
-

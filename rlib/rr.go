@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"database/sql"
+	"extres"
 	"sort"
 	"strconv"
 	"strings"
@@ -1128,7 +1129,7 @@ func GetRentRollRows(ctx context.Context, BID int64, startDt, stopDt time.Time,
 	Console("Entered in %s\n", funcname)
 
 	// session... context
-	if !RRdb.noAuth {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			return rrRows, totalRowsCount, totalMainRowsCount, ErrSessionRequired
