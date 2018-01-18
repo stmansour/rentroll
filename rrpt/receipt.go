@@ -94,7 +94,7 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Date")
-	tbl.Puts(-1, 1, time.Now().Format(rlib.RRDATERECEIPTFMT))
+	tbl.Puts(-1, 1, m.Dt.Format(rlib.RRDATERECEIPTFMT))
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Received From")
