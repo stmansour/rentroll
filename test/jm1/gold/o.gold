@@ -6,12 +6,12 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                          Parent                                                                  
-Date        RCPTID        RCPTID  PMTID  Doc No      Amount  Comment                              
-----------  ------------  ------  -----  ------  ----------  -------------------------------------
-12/02/2015  RCPT00000001  0       Cash   1126      7,000.00  Get the Security Deposit on the books
-12/03/2015  RCPT00000002  0       Cash   1597      3,000.00  Get the Security Deposit on the books
-12/04/2015  RCPT00000003  0       Cash   237       3,300.00  Get the Security Deposit on the books
-----------  ------------  ------  -----  ------  ----------  -------------------------------------
-                                                  13,300.00                                       
+                          Parent                                                                         
+Date        RCPTID        RCPTID  PMTID  Doc No      Amount  Payor  Comment                              
+----------  ------------  ------  -----  ------  ----------  -----  -------------------------------------
+12/02/2015  RCPT00000001  0       Cash   1126      7,000.00         Get the Security Deposit on the books
+12/03/2015  RCPT00000002  0       Cash   1597      3,000.00         Get the Security Deposit on the books
+12/04/2015  RCPT00000003  0       Cash   237       3,300.00         Get the Security Deposit on the books
+----------  ------------  ------  -----  ------  ----------  -----  -------------------------------------
+                                                  13,300.00                                              
 

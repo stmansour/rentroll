@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TESTNAME="RAID Account Balance and Expenses"
-TESTSUMMARY="Test rentroll RA Acct Balance and Expenses"
+TESTNAME="Server Functions for Receipts Client"
+TESTSUMMARY="Tests receipts and printouts for Receipts client"
 
 CREATENEWDB=0
 BUD=OKC

@@ -3,18 +3,18 @@ Jan 1, 2018 - Feb 1, 2018
 Accord/OKC Members, LLC
 
 
-                          Parent                                                  
-Date        RCPTID        RCPTID  PMTID        Doc No            Amount  Comment  
-----------  ------------  ------  -----------  ------------  ----------  ---------
-01/17/2018  RCPT00000001  0       AMEX         1234              123.00  hello    
-01/17/2018  RCPT00000002  0       Discover     887766             88.77  Blotto   
-01/17/2018  RCPT00000003  0       Money Order  132456789123      200.00  200      
-01/17/2018  RCPT00000004  0       VISA         876543098         543.00           
-01/17/2018  RCPT00000005  0       ACH          4884883773        488.00  laugher  
-01/17/2018  RCPT00000006  0       MasterCard   291716             39.00  Abner!   
-01/17/2018  RCPT00000007  0       Cash         cash            1,000.00  excellent
-01/17/2018  RCPT00000008  0       Check        549                 5.49  Brandine 
-01/17/2018  RCPT00000009  0       EFT          000000001       1,000.00           
-----------  ------------  ------  -----------  ------------  ----------  ---------
-                                                               3,487.26           
+                          Parent                                                                    
+Date        RCPTID        RCPTID  PMTID        Doc No            Amount  Payor             Comment  
+----------  ------------  ------  -----------  ------------  ----------  ----------------  ---------
+01/17/2018  RCPT00000001  0       AMEX         1234              123.00  Bill Blatt        hello    
+01/17/2018  RCPT00000002  0       Discover     887766             88.77  Hugh Jass         Blotto   
+01/17/2018  RCPT00000003  0       Money Order  132456789123      200.00  Mr. Winky         200      
+01/17/2018  RCPT00000004  0       VISA         876543098         543.00  Hans Moleman               
+01/17/2018  RCPT00000005  0       ACH          4884883773        488.00  Sideshow Bob      laugher  
+01/17/2018  RCPT00000006  0       MasterCard   291716             39.00  Edna Kravitz      Abner!   
+01/17/2018  RCPT00000007  0       Cash         cash            1,000.00  Montgomery Burns  excellent
+01/17/2018  RCPT00000008  0       Check        549                 5.49  Cletus Yokel      Brandine 
+01/17/2018  RCPT00000009  0       EFT          000000001       1,000.00  Edward Snowden             
+----------  ------------  ------  -----------  ------------  ----------  ----------------  ---------
+                                                               3,487.26                             
 

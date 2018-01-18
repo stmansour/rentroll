@@ -17,6 +17,7 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		PMTID   = iota
 		DocNo   = iota
 		Amount  = iota
+		Payor   = iota
 		Comment = iota
 		// AccountRule = iota
 	)
@@ -37,6 +38,7 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("PMTID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Doc No", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
+	tbl.AddColumn("Payor", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Comment", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	// tbl.AddColumn("Account Rule", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
@@ -64,6 +66,7 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, PMTID, n[a.PMTID].Name)
 		tbl.Puts(-1, DocNo, a.DocNo)
 		tbl.Putf(-1, Amount, a.Amount)
+		tbl.Puts(-1, Payor, a.OtherPayorName)
 		tbl.Puts(-1, Comment, comment)
 		// tbl.Puts(-1, 6, rlib.GetReceiptAccountRuleText(&a))
 	}
