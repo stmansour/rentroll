@@ -1,20 +1,11 @@
 {
-    "strict": "global" ,
+    "strict": "global",
+    "esversion": 6,
     "globals": {
-        "casper": true,
-        "require": true,
-        "isVisibleInViewPort": true,
-        "exports": true,
-        "$": true,
-        "app": true,
-        "document": true,
-        "pageWidth": true,
-        "pageHeight": true,
-        "logspace": true,
-        "w2ui": true,
-        "patchRequire": true,
-        "testBiz": true,
-        "__utils__": true,
-        "console": true
+        "console": true,
+        "cy": true,
+        "describe": true,
+        "it": true,
+        "expect": true
     }
 }

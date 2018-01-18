@@ -1,0 +1,71 @@
+2018/01/16 15:19:21 *** Accord RENTROLL ***
+2018/01/16 15:19:21 Registered Worker: CreateAssessmentInstances
+2018/01/16 15:19:21 Registered Worker: CleanRARBalanceCache
+2018/01/16 15:19:21 Registered Worker: CleanSecDepBalanceCache
+2018/01/16 15:19:21 Registered Worker: CleanAcctSliceCache
+2018/01/16 15:19:21 Registered Worker: CleanARSliceCache
+2018/01/16 15:19:21 Rentroll static file directory = ../../tmp/rentroll
+2018/01/16 15:19:21 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/16 15:19:21 RentRoll sessions timeout is 15 minutes
+2018/01/16 15:38:17 *** Accord RENTROLL ***
+2018/01/16 15:38:17 Registered Worker: CreateAssessmentInstances
+2018/01/16 15:38:17 Registered Worker: CleanRARBalanceCache
+2018/01/16 15:38:17 Registered Worker: CleanSecDepBalanceCache
+2018/01/16 15:38:17 Registered Worker: CleanAcctSliceCache
+2018/01/16 15:38:17 Registered Worker: CleanARSliceCache
+2018/01/16 15:38:17 Rentroll static file directory = ../../tmp/rentroll
+2018/01/16 15:38:17 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/16 15:38:17 RentRoll sessions timeout is 15 minutes
+2018/01/16 15:38:49 *** Accord RENTROLL ***
+2018/01/16 15:38:49 Registered Worker: CreateAssessmentInstances
+2018/01/16 15:38:49 Registered Worker: CleanRARBalanceCache
+2018/01/16 15:38:49 Registered Worker: CleanSecDepBalanceCache
+2018/01/16 15:38:49 Registered Worker: CleanAcctSliceCache
+2018/01/16 15:38:49 Registered Worker: CleanARSliceCache
+2018/01/16 15:38:49 Rentroll static file directory = ../../tmp/rentroll
+2018/01/16 15:38:49 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/16 15:38:49 RentRoll sessions timeout is 15 minutes
+2018/01/16 15:41:44 *** Accord RENTROLL ***
+2018/01/16 15:41:44 Rentroll static file directory = ../../tmp/rentroll
+2018/01/16 15:41:44 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/16 15:41:44 RentRoll sessions timeout is 15 minutes
+2018/01/16 15:44:45 *** Accord RENTROLL ***
+2018/01/16 15:44:45 Rentroll static file directory = ../../tmp/rentroll
+2018/01/16 15:44:45 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/16 15:44:45 RentRoll sessions timeout is 15 minutes
+2018/01/16 15:48:17 *** Accord RENTROLL ***
+2018/01/16 15:48:17 Registered Worker: CreateAssessmentInstances
+2018/01/16 15:48:17 Registered Worker: CleanRARBalanceCache
+2018/01/16 15:48:17 Registered Worker: CleanSecDepBalanceCache
+2018/01/16 15:48:17 Registered Worker: CleanAcctSliceCache
+2018/01/16 15:48:17 Registered Worker: CleanARSliceCache
+2018/01/16 15:48:17 Rentroll static file directory = ../../tmp/rentroll
+2018/01/16 15:48:17 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/16 15:48:17 RentRoll sessions timeout is 15 minutes
+2018/01/16 18:24:43 *** Accord RENTROLL ***
+2018/01/16 18:24:43 Registered Worker: CreateAssessmentInstances
+2018/01/16 18:24:43 Registered Worker: CleanRARBalanceCache
+2018/01/16 18:24:43 Registered Worker: CleanSecDepBalanceCache
+2018/01/16 18:24:43 Registered Worker: CleanAcctSliceCache
+2018/01/16 18:24:43 Registered Worker: CleanARSliceCache
+2018/01/16 18:24:43 Rentroll static file directory = ../../tmp/rentroll
+2018/01/16 18:24:43 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/16 18:24:43 RentRoll sessions timeout is 15 minutes
+2018/01/17 10:51:36 *** Accord RENTROLL ***
+2018/01/17 10:51:36 Registered Worker: CreateAssessmentInstances
+2018/01/17 10:51:36 Registered Worker: CleanRARBalanceCache
+2018/01/17 10:51:36 Registered Worker: CleanSecDepBalanceCache
+2018/01/17 10:51:36 Registered Worker: CleanAcctSliceCache
+2018/01/17 10:51:36 Registered Worker: CleanARSliceCache
+2018/01/17 10:51:36 Rentroll static file directory = ../../tmp/rentroll
+2018/01/17 10:51:36 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/17 10:51:36 RentRoll sessions timeout is 15 minutes
+2018/01/18 10:51:43 *** Accord RENTROLL ***
+2018/01/18 10:51:43 Registered Worker: CreateAssessmentInstances
+2018/01/18 10:51:43 Registered Worker: CleanRARBalanceCache
+2018/01/18 10:51:43 Registered Worker: CleanSecDepBalanceCache
+2018/01/18 10:51:43 Registered Worker: CleanAcctSliceCache
+2018/01/18 10:51:43 Registered Worker: CleanARSliceCache
+2018/01/18 10:51:43 Rentroll static file directory = ../../tmp/rentroll
+2018/01/18 10:51:43 RentRoll initiating HTTP service on port 8270 and HTTPS on port 8271
+2018/01/18 10:51:43 RentRoll sessions timeout is 15 minutes
