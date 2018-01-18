@@ -4,8 +4,8 @@ TOP=../..
 RRBIN=${TOP}/tmp/rentroll
 RSD="-rsd ${RRBIN}"
 
-TESTNAME="Cypress UI Test"
-TESTSUMMARY="UI Testing with cypress"
+TESTNAME="CasperJS UI Test"
+TESTSUMMARY="UI Testing with casperjs"
 
 # do not create new db
 CREATENEWDB=0
@@ -19,7 +19,11 @@ source ../share/base.sh
 # server with noauth
 RENTROLLSERVERAUTH="-noauth"
 
-# run cypress test with only roller_spec.js with videoRecording false as of now
-doCypressUITest "a" "--config videoRecording=false --spec ./cypress/integration/roller_spec.js" "CypressUITesting"
+echo "Running casper UI test cases..."
+# casperjs test index.js
+# casperjs test index.js --log-level=debug --verbose
+
+# call loader
+doCasperUITest "a" "./index.js" "CasperUITesting"
 
 logcheck
