@@ -853,7 +853,7 @@ function getFormSubmitData(record) {
     // iterate over each record
     for(var key in record) {
         var item = record[key];
-        if (typeof item === "object" && item !== null) {
+        if (typeof item === "object" && item !== null && "id" in item) {
             record[key] = item.id;
         }
     }
