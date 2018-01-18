@@ -16,7 +16,7 @@ function getRTInitRecord(BID, BUD){
         RentCycle: 0,
         Proration: 0,
         GSRPC: 0,
-        ManageToBudget: 0,
+        ManageToBudget: false,
         RMRID: 0,
         MarketRate: 0.0,
         LastModTime: y.toISOString(),
@@ -213,8 +213,8 @@ function buildRentableTypeElements() {
             { field: 'RentCycle', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
             { field: 'Proration', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
             { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
-            { field: 'ManageToBudget', type: 'list', options: {items: app.manageToBudgetList, selected: {}}, required: true, html: { page: 0, column: 0 } },
-            { field: 'FLAGS', type: 'list', options: {items: app.rtActiveFLAGS, selected: {}}, required: true, html: { page: 0, column: 0 } },
+            { field: 'ManageToBudget', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
+            { field: 'FLAGS', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
             { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
@@ -223,7 +223,7 @@ function buildRentableTypeElements() {
         onValidate: function(event) {
             event.onComplete = function() {
                 console.log(event);
-                if (this.record.ManageToBudget.id === 1) {
+                if (this.record.ManageToBudget) {
                     console.log("manageToBudget is true");
                     var grid = w2ui.rmrGrid;
                     var f = this;
@@ -271,6 +271,18 @@ function buildRentableTypeElements() {
             delete data.postData.record.CreateTS;
             delete data.postData.record.CreateBy;
             delete data.postData.record.MarketRate;
+
+            if (data.postData.record.ManageToBudget) {
+                data.postData.record.ManageToBudget = 1; // true=1(yes) || false=0(no)
+            } else {
+                data.postData.record.ManageToBudget = 0; // true=1(yes) || false=0(no)
+            }
+
+            if (data.postData.record.Active) {
+                data.postData.record.Active = 0; // true=0(no), false=1(yes)
+            } else {
+                data.postData.record.Active = 1; // true=0(no), false=1(yes)
+            }
             // server request form data
             getFormSubmitData(data.postData.record);
         },
@@ -299,12 +311,12 @@ function buildRentableTypeElements() {
                     cycleFreqItems.push({ id: itemIndex, text: itemText });
                 });
 
-                // select value for manage to budget
+                /*// select value for manage to budget
                 app.manageToBudgetList.forEach(function(item) {
                     if (item.id == r.ManageToBudget) {
                         manageToBudgetSel = {id: item.id, text: item.text};
                     }
-                });
+                });*/
 
                 // select value for rentable type FLAGS
                 app.rtActiveFLAGS.forEach(function(item) {
@@ -320,14 +332,39 @@ function buildRentableTypeElements() {
                 f.get("Proration").options.selected = prorationSel;
                 f.get("GSRPC").options.items = cycleFreqItems;
                 f.get("GSRPC").options.selected = gsrpcSel;
-                f.get("ManageToBudget").options.selected = manageToBudgetSel;
+                // f.get("ManageToBudget").options.selected = manageToBudgetSel;
                 f.get("FLAGS").options.selected = FLAGSel;
+
+                // if manageToBudget set then enable market rate grid
+                if (f.record.ManageToBudget) {
+                    w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
+                } else {
+                    w2ui.rtDetailLayout.get("main").tabs.disable("rmrGrid");
+                }
+
+                // if active set(=0) then mark the active flag, this is beyond weird
+                if (f.record.FLAGS) {
+                    $(f.box).find("input[name=FLAGS]").prop("checked", false);
+                } else {
+                    $(f.box).find("input[name=FLAGS]").prop("checked", true);
+                }
 
                 formRefreshCallBack(f, "RTID", header);
             };
         },
         onChange: function(event) {
+            var f = this;
             event.onComplete = function() {
+                switch (event.target) {
+                case "ManageToBudget":
+                    if (event.value_new) {
+                        w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
+                    } else {
+                        w2ui.rtDetailLayout.get("main").tabs.disable("rmrGrid");
+                    }
+                    break;
+                }
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
@@ -386,7 +423,7 @@ function buildRentableTypeElements() {
                     };
 
                     // only if manage to budget is set then call
-                    if (rtF.record.ManageToBudget.id === 1) {
+                    if (rtF.record.ManageToBudget) {
                         // update RTID in grid records
                         for (var i = 0; i < rmrG.records.length; i++) {
                             rmrG.records[i].RTID = rtF.record.RTID;
@@ -453,15 +490,15 @@ function buildRentableTypeElements() {
                             cycleFreqItems.push({ id: itemIndex, text: itemText });
                         });
 
-                        // select value for manage to budget
+                        /*// select value for manage to budget
                         app.manageToBudgetList.forEach(function(item) {
                             if (item.id == rtF.record.ManageToBudget) {
                                 manageToBudgetSel = {id: item.id, text: item.text};
                             }
-                        });
+                        });*/
 
-                        rtF.get("ManageToBudget").options.items = app.manageToBudgetList;
-                        rtF.get("ManageToBudget").options.selected = manageToBudgetSel[0];
+                        /*rtF.get("ManageToBudget").options.items = app.manageToBudgetList;
+                        rtF.get("ManageToBudget").options.selected = manageToBudgetSel[0];*/
                         rtF.get("RentCycle").options.items = cycleFreqItems;
                         rtF.get("RentCycle").options.selected = rentCycleSel[0];
                         rtF.get("Proration").options.items = cycleFreqItems;
@@ -479,7 +516,7 @@ function buildRentableTypeElements() {
                         rtF.refresh();
                     };
 
-                    if (rtF.record.ManageToBudget.id === 1) {
+                    if (rtF.record.ManageToBudget) {
                         // now set the url of market Rate grid so that it can save the record on server side
                         rmrG.url = '/v1/rmr/' + BID + '/' + rtF.record.RTID;
                         rmrG.save(function(data) {
@@ -498,7 +535,7 @@ function buildRentableTypeElements() {
                     }
                 });
             },
-            delete: function() {
+            deactivate: function() {
                 var rtF = w2ui.rtForm;
 
                 // confirm before delete
@@ -557,12 +594,12 @@ function buildRentableTypeElements() {
                 if (rtActive == 1) { // 1 means inactive
                     $("#rtFormBtns").find("button[name=save]").addClass("hidden");
                     $("#rtFormBtns").find("button[name=saveadd]").addClass("hidden");
-                    $("#rtFormBtns").find("button[name=delete]").addClass("hidden");
+                    $("#rtFormBtns").find("button[name=deactivate]").addClass("hidden");
                     $("#rtFormBtns").find("button[name=reactivate]").removeClass("hidden");
                 } else {
                     $("#rtFormBtns").find("button[name=save]").removeClass("hidden");
                     $("#rtFormBtns").find("button[name=saveadd]").removeClass("hidden");
-                    $("#rtFormBtns").find("button[name=delete]").removeClass("hidden");
+                    $("#rtFormBtns").find("button[name=deactivate]").removeClass("hidden");
                     $("#rtFormBtns").find("button[name=reactivate]").addClass("hidden");
                 }
             };
