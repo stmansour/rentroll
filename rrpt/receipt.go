@@ -101,7 +101,7 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 		tbl.AddRow()
 		tbl.Puts(-1, 0, "")
 		if m.PRCPTID > 0 {
-			tbl.Puts(-1, 1, fmt.Sprintf("*** REVERSAL *** reverses %s on %s", rlib.IDtoShortString("RCPT", m.PRCPTID), m.CreateTS.Format(rlib.RRDATEFMT3)))
+			tbl.Puts(-1, 1, fmt.Sprintf("*** REVERSAL *** reverses %s", rlib.IDtoShortString("RCPT", m.PRCPTID)))
 		} else {
 			tbl.Puts(-1, 1, "*** REVERSED ***")
 		}

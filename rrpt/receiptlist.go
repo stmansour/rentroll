@@ -11,14 +11,15 @@ import (
 func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	const funcname = "RRReceiptsTable"
 	const (
-		Date    = 0
-		RCPTID  = iota
-		PRCPTID = iota
-		PMTID   = iota
-		DocNo   = iota
-		Amount  = iota
-		Payor   = iota
-		Comment = iota
+		Date     = 0
+		RCPTID   = iota
+		PRCPTID  = iota
+		PMTID    = iota
+		DocNo    = iota
+		Amount   = iota
+		Payor    = iota
+		Reversal = iota
+		Comment  = iota
 		// AccountRule = iota
 	)
 
@@ -39,6 +40,7 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Doc No", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
 	tbl.AddColumn("Payor", 25, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Flags", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Comment", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	// tbl.AddColumn("Account Rule", 50, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
@@ -59,6 +61,10 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 
 	for _, a := range m {
 		_, comment := rlib.ROCExtractRentableName(a.Comment)
+		rev := ""
+		if a.FLAGS&rlib.RCPTREVERSED != 0 {
+			rev = "REVERSAL"
+		}
 		tbl.AddRow()
 		tbl.Putd(-1, Date, a.Dt)
 		tbl.Puts(-1, RCPTID, a.IDtoString())
@@ -67,6 +73,7 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, DocNo, a.DocNo)
 		tbl.Putf(-1, Amount, a.Amount)
 		tbl.Puts(-1, Payor, a.OtherPayorName)
+		tbl.Puts(-1, Reversal, rev)
 		tbl.Puts(-1, Comment, comment)
 		// tbl.Puts(-1, 6, rlib.GetReceiptAccountRuleText(&a))
 	}
