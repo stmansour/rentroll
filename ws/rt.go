@@ -42,10 +42,6 @@ type RentableTypeGridRecord struct {
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
 	CreateBy       int64
-	RMRID          rlib.NullInt64
-	MarketRate     rlib.NullFloat64
-	DtStart        rlib.NullDate
-	DtStop         rlib.NullDate
 }
 
 // RentableTypeSearchResponse is a response string to the search request for rentable types records
@@ -167,7 +163,7 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // rtGridRowScan scans a result from sql row and dump it in a struct for rentableGrid
 func rentableTypeGridRowScan(rows *sql.Rows, q RentableTypeGridRecord) (RentableTypeGridRecord, error) {
 	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.ManageToBudget, &q.FLAGS,
-		&q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy, &q.RMRID, &q.MarketRate, &q.DtStart, &q.DtStop)
+		&q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
 	return q, err
 }
 
@@ -184,10 +180,6 @@ var rtSearchFieldMap = rlib.SelectQueryFieldMap{
 	"LastModBy":      {"RentableTypes.LastModBy"},
 	"CreateTS":       {"RentableTypes.CreateTS"},
 	"CreateBy":       {"RentableTypes.CreateBy"},
-	"RMRID":          {"RentableMarketRate.RMRID"},
-	"MarketRate":     {"RentableMarketRate.MarketRate"},
-	"DtStart":        {"RentableMarketRate.DtStart"},
-	"DtStop":         {"RentableMarketRate.DtStop"},
 }
 
 // which fields needs to be fetch to satisfy the struct
@@ -204,10 +196,6 @@ var rtSearchSelectQueryFields = rlib.SelectQueryFields{
 	"RentableTypes.LastModBy",
 	"RentableTypes.CreateTS",
 	"RentableTypes.CreateBy",
-	"RentableMarketRate.RMRID",
-	"RentableMarketRate.MarketRate",
-	"RentableMarketRate.DtStart",
-	"RentableMarketRate.DtStop",
 }
 
 // SvcSearchHandlerRentableTypes generates a report of all RentableTypes defined business d.BID
