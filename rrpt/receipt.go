@@ -96,6 +96,17 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 	tbl.Puts(-1, 0, "Date")
 	tbl.Puts(-1, 1, m.Dt.Format(rlib.RRDATERECEIPTFMT))
 
+	// if the receipt has been reversed, set up some extra info
+	if m.FLAGS&rlib.RCPTREVERSED != 0 {
+		tbl.AddRow()
+		tbl.Puts(-1, 0, "")
+		if m.PRCPTID > 0 {
+			tbl.Puts(-1, 1, fmt.Sprintf("*** REVERSAL *** reverses %s on %s", rlib.IDtoShortString("RCPT", m.PRCPTID), m.CreateTS.Format(rlib.RRDATEFMT3)))
+		} else {
+			tbl.Puts(-1, 1, "*** REVERSED ***")
+		}
+	}
+
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Received From")
 	tbl.Puts(-1, 1, m.OtherPayorName)
