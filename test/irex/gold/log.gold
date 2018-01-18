@@ -1,7 +1,0 @@
-Test Name:    IREX - UI TestDB for REX
-Test Purpose: minimal db for UI testing on REX
-Date/Time:    Tue Aug 15 11:25:22 PDT 2017
-
-Create new database...  successful
-BEGIN IREX FUNCTIONAL TEST
-Test completed: Tue Aug 15 11:25:24 PDT 2017

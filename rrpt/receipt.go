@@ -130,6 +130,8 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 	tbl.AddRow()
 	tbl.AddLineAfter(len(tbl.Row) - 1)
 
+	tbl.TightenColumns()
+
 	return tbl
 }
 
