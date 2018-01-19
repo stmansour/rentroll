@@ -99,7 +99,7 @@ describe('RentRoll Basic Test', function () {
         cy.get(formSelector).should('be.visible');
 
         // Get form
-        cy.get(formSelector).within(() => {
+        /*cy.get(formSelector).within(() => {
             // Get all input of the forms
             cy.get('input').then(($input) => {
                 // Perform visibility test on input fields only if its type is not hidden
@@ -111,9 +111,9 @@ describe('RentRoll Basic Test', function () {
                 // Perform visibility test on input fields
                 cy.get(selector).should('be.visible');
             });
-        });
+        });*/
 
-        // get fields from opened w2ui form
+/*        // get fields from opened w2ui form
         var formFields = w2ui[form].fields;
 
         // add isHidden key with default value true
@@ -121,7 +121,42 @@ describe('RentRoll Basic Test', function () {
             formField.isHidden = true;
         });
 
-        return formFields;
+        return formFields;*/
+
+        let getW2UIFormRecords;
+        cy.window().then((win) => {
+            getW2UIFormRecords = win.w2ui.receiptForm.record;
+            cy.log(getW2UIFormRecords);
+        });
+
+
+        let defaultValue;
+        let fieldID;
+        cy.get(formSelector)
+            .find('input.w2ui-input:not(:hidden)') //:not(:hidden)
+            .each(($el, index, $list) => {
+
+                defaultValue = getW2UIFormRecords[$el.context.id];
+
+                cy.log(defaultValue);
+                // cy.log(getW2UIFormRecords[$el.context.id]);
+
+
+                fieldID = $el.context.id;
+                cy.log(fieldID);
+                // cy.get('input#BUD.w2ui-input.w2ui-select.w2field').should('have.value', 'REX');
+                // cy.get($el).should('have.value', defaultValue);
+
+
+                // cy.get(fieldID).should('have.value', defaultValue);
+                // cy.get('input[id='+ fieldID +']');
+
+
+            });
+
+
+
+
 
 
 
