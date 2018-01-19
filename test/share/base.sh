@@ -1274,6 +1274,7 @@ doCypressUITest () {
 	startRentRollServer
 
 	if [ "x${2}" != "x" ]; then
+		echo "${CYPRESSTEST} ${2} >${1} 2>&1"
 		${CYPRESSTEST} ${2} >${1} 2>&1
 	fi
 
@@ -1292,6 +1293,7 @@ doCypressUITest () {
 			's/([0-9]*ms)/{TestExecutedTime}/g'
 			's/Duration:\s+[0-9]*\sseconds*/{durationSec}/g'
 			's/[0-9]* passing \([0-9]*s\)/{passingSec}/g'
+			's/Video Recorded:.*/{videoRecordOnOff}/g'
 		)
 		cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
 		cp ${1} ${1}.g
