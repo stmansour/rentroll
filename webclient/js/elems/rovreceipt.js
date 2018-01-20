@@ -246,8 +246,10 @@ function buildROVReceiptElements() {
             { field: 'DID',            type: 'hidden', required: false },
             { field: 'LastModTime',    type: 'hidden', required: false },
             { field: 'LastModBy',      type: 'hidden', required: false },
+            { field: 'LastModByUser',  type: 'hidden', required: false },
             { field: 'CreateTS',       type: 'hidden', required: false },
             { field: 'CreateBy',       type: 'hidden', required: false },
+            { field: 'CreateByUser',   type: 'hidden', required: false },
             { field: 'RentableName',   type: 'hidden', required: false },
         ],
         toolbar: {
@@ -429,8 +431,8 @@ function buildROVReceiptElements() {
                 }
 
                 // finally append
-                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-                flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModByUser);
+                flagHTML += "<p>Created: {0} by {1}</p>".format(r.CreateTS, r.CreateByUser);
                 $(f.box).find("#FLAGReport").html(flagHTML);
             };
         },

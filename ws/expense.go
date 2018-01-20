@@ -36,23 +36,25 @@ type ExpenseGridNull struct {
 // ExpenseGrid contains the data from Expense that is targeted to the UI Grid that displays
 // a list of Expense structs
 type ExpenseGrid struct {
-	Recid       int64 `json:"recid"`
-	EXPID       int64
-	BID         int64
-	BUD         rlib.XJSONBud
-	RID         int64
-	RAID        int64
-	Amount      float64
-	Dt          rlib.JSONDate
-	ARID        int64
-	ARName      string
-	RName       string
-	FLAGS       uint64
-	Comment     string
-	LastModTime rlib.JSONDateTime
-	LastModBy   int64
-	CreateTS    rlib.JSONDateTime
-	CreateBy    int64
+	Recid         int64 `json:"recid"`
+	EXPID         int64
+	BID           int64
+	BUD           rlib.XJSONBud
+	RID           int64
+	RAID          int64
+	Amount        float64
+	Dt            rlib.JSONDate
+	ARID          int64
+	ARName        string
+	RName         string
+	FLAGS         uint64
+	Comment       string
+	LastModTime   rlib.JSONDateTime
+	LastModBy     int64
+	LastModByUser string
+	CreateTS      rlib.JSONDateTime
+	CreateBy      int64
+	CreateByUser  string
 }
 
 // ExpenseSearchResponse is a response string to the search request for Expense records
@@ -450,9 +452,23 @@ func getExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rentable, _ := rlib.GetRentable(r.Context(), a.RID)
 		gg.RName = rentable.RentableName
 	}
+
 	if a.EXPID > 0 {
 		rlib.MigrateStructVals(&a, &gg)
 		gg.BUD = getBUDFromBIDList(gg.BID)
+
+		// creator person
+		cp, err := rlib.GetDirectoryPerson(r.Context(), a.CreateBy)
+		if err != nil {
+			gg.CreateByUser = cp.DisplayName()
+		}
+
+		// modifier person
+		mp, err := rlib.GetDirectoryPerson(r.Context(), a.LastModBy)
+		if err != nil {
+			gg.LastModByUser = mp.DisplayName()
+		}
+
 		g.Record = gg
 	}
 	g.Status = "success"
