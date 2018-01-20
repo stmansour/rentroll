@@ -224,23 +224,25 @@ function buildExpenseElements() {
         url: '/v1/expense',
         formURL: '/webclient/html/formexpense.html',
         fields: [
-            { field: 'ARID',        type: 'list',   required: true, options: { items: [] }},
-            { field: 'recid',       type: 'int',    required: false },
-            { field: 'EXPID',       type: 'int',    required: false },
-            { field: 'BID',         type: 'int',    required: true  },
-            { field: 'BUD',         type: 'list',   required: true, options: {items: app.businesses}, html: { caption: "BUD", page: 0, column: 0 } },
-            { field: 'PREXPID',     type: 'int',    required: false },
-            { field: 'RName',       type: 'text',   required: false },
-            { field: 'RID',         type: 'int',    required: false },
-            { field: 'RAID',        type: 'int',    required: false },
-            { field: 'Amount',      type: 'money',  required: true  },
-            { field: 'Dt',          type: 'date',   required: true  },
-            { field: 'Comment',     type: 'text',   required: false },
-            { field: 'LastModTime', type: 'hidden', required: false },
-            { field: 'LastModBy',   type: 'hidden', required: false },
-            { field: 'CreateTS',    type: 'hidden', required: false },
-            { field: 'CreateBy',    type: 'hidden', required: false },
-            { field: 'FLAGS',       type: 'w2int',  required: false },
+            { field: 'ARID',           type: 'list',   required: true, options: { items: [] }},
+            { field: 'recid',          type: 'int',    required: false },
+            { field: 'EXPID',          type: 'int',    required: false },
+            { field: 'BID',            type: 'int',    required: true  },
+            { field: 'BUD',            type: 'list',   required: true, options: {items: app.businesses}, html: { caption: "BUD", page: 0, column: 0 } },
+            { field: 'PREXPID',        type: 'int',    required: false },
+            { field: 'RName',          type: 'text',   required: false },
+            { field: 'RID',            type: 'int',    required: false },
+            { field: 'RAID',           type: 'int',    required: false },
+            { field: 'Amount',         type: 'money',  required: true  },
+            { field: 'Dt',             type: 'date',   required: true  },
+            { field: 'Comment',        type: 'text',   required: false },
+            { field: 'LastModTime',    type: 'hidden', required: false },
+            { field: 'LastModBy',      type: 'hidden', required: false },
+            { field: 'LastModByUser',  type: 'hidden', required: false },
+            { field: 'CreateTS',       type: 'hidden', required: false },
+            { field: 'CreateBy',       type: 'hidden', required: false },
+            { field: 'CreateByUser',   type: 'hidden', required: false },
+            { field: 'FLAGS',          type: 'w2int',  required: false },
         ],
         toolbar: {
             items: [
@@ -448,8 +450,8 @@ function buildExpenseElements() {
                 var z = document.getElementById("ExpFLAGReport");
                 if (z !== null) {
                     if (r.EXPID > 0) {
-                        flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-                        flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
+                        flagHTML += "<p style='margin-bottom: 5px;'>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModByUser);
+                        flagHTML += "<p>Created: {0} by {1}</p>".format(r.CreateTS, r.CreateByUser);
                         z.innerHTML = flagHTML;
                     } else {
                         z.innerHTML = " ";

@@ -33,7 +33,9 @@ type ReceiptSendForm struct {
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
+	LastModByUser  string
 	CreateTS       rlib.JSONDateTime
+	CreateByUser   string
 	CreateBy       int64
 	FLAGS          uint64
 	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
@@ -448,6 +450,18 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 				tcid := strconv.FormatInt(t.TCID, 10)
 				gg.Payor = t.GetFullTransactantName() + " (TCID: " + tcid + ")"
 			}
+		}
+
+		// creator person
+		cp, err := rlib.GetDirectoryPerson(r.Context(), a.CreateBy)
+		if err != nil {
+			gg.CreateByUser = cp.DisplayName()
+		}
+
+		// modifier person
+		mp, err := rlib.GetDirectoryPerson(r.Context(), a.LastModBy)
+		if err != nil {
+			gg.LastModByUser = mp.DisplayName()
 		}
 
 		// RECEIPT-ONLY CLIENT - Remove when this client is no longer needed
