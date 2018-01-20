@@ -105,7 +105,7 @@ function buildROVReceiptElements() {
         toolbar: {
             onClick: function (event) {
                 switch(event.target) {
-                case 'cvsexport':
+                case 'csvexport':
                     exportReportCSV("RPTrcptlist", app.D1, app.D2);
                     break;
                 case 'printreport':
