@@ -456,19 +456,8 @@ func getExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.EXPID > 0 {
 		rlib.MigrateStructVals(&a, &gg)
 		gg.BUD = getBUDFromBIDList(gg.BID)
-
-		// creator person
-		cp, err := rlib.GetDirectoryPerson(r.Context(), a.CreateBy)
-		if err != nil {
-			gg.CreateByUser = cp.DisplayName()
-		}
-
-		// modifier person
-		mp, err := rlib.GetDirectoryPerson(r.Context(), a.LastModBy)
-		if err != nil {
-			gg.LastModByUser = mp.DisplayName()
-		}
-
+		gg.CreateByUser = rlib.GetNameForUID(r.Context(), a.CreateBy)
+		gg.LastModByUser = rlib.GetNameForUID(r.Context(), a.LastModBy)
 		g.Record = gg
 	}
 	g.Status = "success"

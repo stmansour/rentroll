@@ -452,27 +452,13 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 
-		// creator person
-		rlib.Console("CREATOR: %d\n", a.CreateBy)
-		cp, err := rlib.GetDirectoryPerson(r.Context(), a.CreateBy)
-		if err == nil {
-			gg.CreateByUser = cp.DisplayName()
-			rlib.Console("cp.DisplayName = %s\n", cp.DisplayName())
-		}
-
-		// modifier person
-		rlib.Console("LAST MOD BY: %d\n", a.LastModBy)
-		mp, err := rlib.GetDirectoryPerson(r.Context(), a.LastModBy)
-		if err == nil {
-			gg.LastModByUser = mp.DisplayName()
-			rlib.Console("mp.DisplayName = %s\n", mp.DisplayName())
-		}
-
 		// RECEIPT-ONLY CLIENT - Remove when this client is no longer needed
 		if d.wsSearchReq.Client == rlib.RECEIPTONLYCLIENT {
 			gg.RentableName, gg.Comment = rlib.ROCExtractRentableName(gg.Comment)
 		}
 
+		gg.CreateByUser = rlib.GetNameForUID(r.Context(), a.CreateBy)
+		gg.LastModByUser = rlib.GetNameForUID(r.Context(), a.LastModBy)
 		g.Record = gg
 	}
 	g.Status = "success"

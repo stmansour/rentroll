@@ -69,14 +69,6 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 		return tbl
 	}
 
-	// we need to find the user name for the person who created this record
-	c, err := rlib.GetDirectoryPerson(ctx, m.CreateBy)
-	if err != nil {
-		rlib.LogAndPrintError(funcname, err)
-		tbl.SetSection3(err.Error())
-		return tbl
-	}
-
 	//----------------------------------------------
 	// Load the receipt types for this business...
 	//----------------------------------------------
@@ -117,7 +109,7 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Received By")
-	tbl.Puts(-1, 1, c.DisplayName())
+	tbl.Puts(-1, 1, rlib.GetNameForUID(ctx, m.CreateBy))
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Amount")

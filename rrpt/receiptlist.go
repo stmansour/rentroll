@@ -67,12 +67,6 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		if a.FLAGS&rlib.RCPTREVERSED != 0 {
 			rev = "REVERSAL"
 		}
-		receiver, err := rlib.GetDirectoryPerson(ctx, a.CreateBy)
-		if err != nil {
-			rlib.LogAndPrintError(funcname, err)
-			tbl.SetSection3(err.Error())
-			return tbl
-		}
 
 		tbl.AddRow()
 		tbl.Putd(-1, Date, a.Dt)
@@ -82,7 +76,7 @@ func RRReceiptsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, DocNo, a.DocNo)
 		tbl.Putf(-1, Amount, a.Amount)
 		tbl.Puts(-1, Payor, a.OtherPayorName)
-		tbl.Puts(-1, ReceivedBy, receiver.DisplayName())
+		tbl.Puts(-1, ReceivedBy, rlib.GetNameForUID(ctx, a.CreateBy))
 		tbl.Puts(-1, Reversal, rev)
 		tbl.Puts(-1, Comment, comment)
 		// tbl.Puts(-1, 6, rlib.GetReceiptAccountRuleText(&a))

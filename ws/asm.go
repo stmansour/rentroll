@@ -469,18 +469,8 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 
-		// creator person
-		cp, err := rlib.GetDirectoryPerson(r.Context(), gg.CreateBy)
-		if err != nil {
-			gg.CreateByUser = cp.DisplayName()
-		}
-
-		// modifier person
-		mp, err := rlib.GetDirectoryPerson(r.Context(), gg.LastModBy)
-		if err != nil {
-			gg.LastModByUser = mp.DisplayName()
-		}
-
+		gg.CreateByUser = rlib.GetNameForUID(r.Context(), gg.CreateBy)
+		gg.LastModByUser = rlib.GetNameForUID(r.Context(), gg.LastModBy)
 		g.Record = gg
 	}
 	// error check
