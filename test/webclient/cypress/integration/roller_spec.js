@@ -3,21 +3,29 @@
 describe('Basic Cypress UI Testing Demo', function() {
     it("visiting home page", function() {
 
-        // visit homepage
-        cy.visit("http://localhost:8270/home/");
+        // read config.json file to get user, pass to get logged in
+        cy.readFile("./../../tmp/rentroll/config.json")
+            .then((config) => {
+                // bundle user, pass and return it
+                return {"user": config.Tester1Name, "pass": config.Tester1Pass};
+            })
+            .then((creds) => {
+                    // visit homepage
+                    cy.visit("http://localhost:8270/home");
 
-        // enter username
-        cy.get('input[name=user]')
-        .type('sraval')
-        .should('have.value', 'sraval');
+                    // enter username
+                    cy.get('input[name=user]')
+                    .type(creds.user)
+                    .should('have.value', creds.user);
 
-        // enter password
-        cy.get('input[name=pass]')
-        .type('Foolme1')
-        .should('have.value', 'Foolme1');
+                    // enter password
+                    cy.get('input[name=pass]')
+                    .type(creds.pass)
+                    .should('have.value', creds.pass);
 
-        // click on login
-        cy.get('button[name=login]').click().wait(1000);
+                    // click on login and wait for 1s to get the dashboard page
+                    cy.get('button[name=login]').click().wait(1000);
+            });
 
         // click on left side node
         cy.get('#node_accounts').click().wait(500);
@@ -37,7 +45,12 @@ describe('Basic Cypress UI Testing Demo', function() {
 
         // click on first record from the grid, so that it loads the form
         /*cy.get('#grid_accountsGrid_records table tr[recid]:last').click();*/
-        cy.get('#grid_accountsGrid_records table tr[recid]:first').click();
+        cy.get('#grid_accountsGrid_records tr[recid]:first').click();
+
+        // get visible inputs in the DOM
+        cy.get('div[name=accountForm]').find('input:not(:hidden)').should(($inputs) => {
+            expect($inputs).to.have.length(11);
+        });
 
         // check BUD field in the form, it should be visible and it should be disabled as well
         cy.get('div[class=w2ui-form-box]').find('input[name=BUD]').should('be.visible').should('be.disabled');
