@@ -94,11 +94,11 @@ func (t *DirectoryPerson) DisplayName() string {
 	if len(name) == 0 {
 		name = t.FirstName
 	}
-	if len(name) == 0 {
-		name = fmt.Sprintf("UID-%d", t.UID)
-	}
 	if len(t.LastName) > 0 {
 		name += " " + t.LastName
+	}
+	if len(name) == 0 {
+		name = fmt.Sprintf("UID-%d", t.UID)
 	}
 	return name
 }

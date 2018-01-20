@@ -214,7 +214,7 @@ function buildROVReceiptElements() {
             { field: 'PMTID',      type: 'int',  required: false },
             { field: 'Dt',         type: 'date', required: true },
             { field: 'DocNo',      type: 'text', required: true },
-            {   field: 'ERentableName',
+            { field: 'ERentableName',
                 type: 'enum',
                 options: {
                     url:           '/v1/rentablestd/',
