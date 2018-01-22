@@ -24,7 +24,31 @@ let getW2UIFormRecords;
 // field list in w2ui form
 let getW2UIFormFields;
 
+// application cookie name
+let applicationCookie = "airoller";
+
+// receiptForm fields value to create a new row
+let receiptFormFieldsValue = {
+                                PmtTypeName: "Cash{enter}", 
+                                DocNo: "AB20180122", 
+                                Amount: "$120.00", 
+                                ERentableName: "Rentable001",
+                                OtherPayorName: "Akshay Bosamiya",
+                                Comment: "Testing UI via Cypress"    
+                            };
+
+
+
+
 describe('AIR Receipt UI Tests', function () {
+
+    before(function (){
+        /*
+        * Clear cookies befor starting tests. Because We are preserving cookies to use it all test suit. 
+        * Running test suit multiple times require new session to login into application.
+        */ 
+        cy.clearCookie(applicationCookie);
+    });
 
     /**********************************
      * Assert the title of application
@@ -75,7 +99,7 @@ describe('AIR Receipt UI Tests', function () {
      * Link for more detail: https://docs.cypress.io/api/cypress-api/cookies.html
      */
     beforeEach(function (){
-        Cypress.Cookies.defaults({whitelist: "airoller"});
+        Cypress.Cookies.defaults({whitelist: applicationCookie});
     });
 
     // Temporary commented tests
@@ -123,14 +147,14 @@ describe('AIR Receipt UI Tests', function () {
             });
         });*/
 
-/**
- * Tests for adding new record form.
- * 1. Open the form by clicking the Add New button in toolbar
- * 2. Check visibility of the form in viewport
- * 3. Find not hidden field from the DOM
- * 4. Perform visibility test on those hidden fields
- * 5. Check default value for that fields.
- */
+    /************************************************************
+     * Tests for adding new record form.
+     * 1. Open the form by clicking the Add New button in toolbar
+     * 2. Check visibility of the form in viewport
+     * 3. Find not hidden field from the DOM
+     * 4. Perform visibility test on those hidden fields
+     * 5. Check default value for that fields.
+     ***********************************************************/
     it('Test for the Add New Button', function () {
         // get form selector
         let formSelector = 'div[name=' + formName + ']';
@@ -180,8 +204,18 @@ describe('AIR Receipt UI Tests', function () {
                 */
                 if(fieldID !== "ERentableName"){
                     // Check visibility and match the default value of the fields.
-                    cy.get('#' + fieldID).should('be.visible').should('have.value', defaultValue);
+                    cy.get('#' + fieldID)
+                    .should('be.visible')
+                    .should('have.value', defaultValue);
                 }
+
+                // Preloaded value
+                // if(fieldID !== "BUD" && fieldID !== "Dt"){
+                //     // Type values in field
+                //     cy.get('#' + fieldID)
+                //     .click()
+                //     .type(receiptFormFieldsValue[fieldID]);
+                // }
 
             });
 
