@@ -610,13 +610,13 @@ function handleReceiptRAID(url, f) {
 function popupReceiptPrintChoice() {
     w2popup.open({
         title     : 'Print Receipt',
-        body      : '<div class="w2ui-centered">' +
+        body      : '<div style="margin-left: 31%;">' +
                         '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="permanent_resident" checked /> Permenant Resident </label></p></div>' +
                         '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="hotel" /> Hotel </label></p></div>' +
                     '</div>',
         buttons   : '<button class="w2ui-btn" onclick="receiptChoicePrint();">Print</button>'+
                     '<button class="w2ui-btn" onclick="w2popup.close();">Close</button>',
-        width     : 400,
+        width     : 350,
         height    : 170,
         overflow  : 'hidden',
         color     : '#333',
@@ -640,8 +640,11 @@ function receiptChoicePrint() {
         case "hotel":
             exportItemReportPDF("RPTrcpthotel", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
             break;
-        /*default:
-            break;*/
         }
+
+        // close the dialog after 500ms
+        setTimeout(function() {
+            w2popup.close();
+        }, 500);
     }
 }
