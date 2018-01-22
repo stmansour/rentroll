@@ -256,8 +256,8 @@ function buildROVReceiptElements() {
             items: [
                 // { id: 'btnNotes',    type: 'button', icon: 'fa fa-sticky-note-o' },
                 { id: 'csvexport',   type: 'button', icon: 'fa fa-table',        tooltip: 'export to CSV' },
-                { id: 'printreport', type: 'button', icon: 'fa fa-file-pdf-o',   tooltip: 'export to PDF' },
-                { id: 'print', type: 'button', icon: 'fa fa-print',        tooltip: 'print receipt' },
+                { id: 'pdfexport',   type: 'button', icon: 'fa fa-file-pdf-o',   tooltip: 'export to PDF' },
+                // { id: 'print',       type: 'button', icon: 'fa fa-print',        tooltip: 'print receipt' },
                 { id: 'bt3',         type: 'spacer' },
                 { id: 'btnClose',    type: 'button', icon: 'fa fa-times' },
             ],
@@ -277,7 +277,13 @@ function buildROVReceiptElements() {
                     }
                     exportItemReportCSV("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
                     break;
-                case "printreport":
+                case "pdfexport":
+                    if (w2ui.receiptForm.record.RCPTID === 0) {
+                        return;
+                    }
+                    popupReceiptPrintChoice();
+                    break;
+                /*case "printreport":
                     if (w2ui.receiptForm.record.RCPTID === 0) {
                         return;
                     }
@@ -288,7 +294,7 @@ function buildROVReceiptElements() {
                         return;
                     }
                     exportItemReportPDF("RPTrcpthotel", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
-                    break;
+                    break;*/
                 }
             },
         },
@@ -568,10 +574,15 @@ function doRcptSave(f,prnt) {
             console.log('ERROR: '+ data.message);
             return;
         }
-        w2ui.toplayout.hide('right',true);
-        grid.render();
+
+        // save the id in record, in case form record is new
+        f.record.RCPTID = data.recid;
+
         if (prnt) {
-            exportItemReportPDF("RPTrcpt", data.recid, app.D1, app.D2);
+            popupReceiptPrintChoice();
+        } else {
+            w2ui.toplayout.hide('right',true);
+            grid.render();
         }
     });
 }
@@ -591,4 +602,46 @@ function handleReceiptRAID(url, f) {
     .fail(function(/*data*/){
         f.error(url + " failed to get Receipt Rule details.");
     });
+}
+
+//--------------------------------------------------------------------------------
+// Pops up dialog to get print choice for the receipt (permanent resident / hotel)
+//--------------------------------------------------------------------------------
+function popupReceiptPrintChoice() {
+    w2popup.open({
+        title     : 'Print Receipt',
+        body      : '<div class="w2ui-centered">' +
+                        '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="permanent_resident" checked /> Permenant Resident </label></p></div>' +
+                        '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="hotel" /> Hotel </label></p></div>' +
+                    '</div>',
+        buttons   : '<button class="w2ui-btn" onclick="receiptChoicePrint();">Print</button>'+
+                    '<button class="w2ui-btn" onclick="w2popup.close();">Close</button>',
+        width     : 400,
+        height    : 170,
+        overflow  : 'hidden',
+        color     : '#333',
+        speed     : '0.3',
+        opacity   : '0.5',
+        modal     : true,
+        showClose : true,
+    });
+}
+
+//--------------------------------------------------------------------------------------------
+// Sends the request to print receipt based upon a choice by user (permanent resident / hotel)
+//--------------------------------------------------------------------------------------------
+function receiptChoicePrint() {
+    var checked = document.querySelector('input[name=receipt_print_choice]:checked');
+    if (checked) {
+        switch(checked.value){
+        case "permanent_resident":
+            exportItemReportPDF("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
+            break;
+        case "hotel":
+            exportItemReportPDF("RPTrcpthotel", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
+            break;
+        /*default:
+            break;*/
+        }
+    }
 }
