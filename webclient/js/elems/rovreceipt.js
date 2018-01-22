@@ -605,13 +605,13 @@ function handleReceiptRAID(url, f) {
 }
 
 //--------------------------------------------------------------------------------
-// Pops up dialog to get print choice for the receipt (permenant resident / hotel)
+// Pops up dialog to get print choice for the receipt (permanent resident / hotel)
 //--------------------------------------------------------------------------------
 function popupReceiptPrintChoice() {
     w2popup.open({
         title     : 'Print Receipt',
         body      : '<div class="w2ui-centered">' +
-                        '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="permenant_resident" checked /> Permenant Resident </label></p></div>' +
+                        '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="permanent_resident" checked /> Permenant Resident </label></p></div>' +
                         '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="hotel" /> Hotel </label></p></div>' +
                     '</div>',
         buttons   : '<button class="w2ui-btn" onclick="receiptChoicePrint();">Print</button>'+
@@ -628,13 +628,13 @@ function popupReceiptPrintChoice() {
 }
 
 //--------------------------------------------------------------------------------------------
-// Sends the request to print receipt based upon a choice by user (permenant resident / hotel)
+// Sends the request to print receipt based upon a choice by user (permanent resident / hotel)
 //--------------------------------------------------------------------------------------------
 function receiptChoicePrint() {
     var checked = document.querySelector('input[name=receipt_print_choice]:checked');
     if (checked) {
         switch(checked.value){
-        case "permenant_resident":
+        case "permanent_resident":
             exportItemReportPDF("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
             break;
         case "hotel":
