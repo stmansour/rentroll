@@ -8,7 +8,7 @@ let receiptResponse;
 
 // getVisibleColumnName
 
-describe('RentRoll Basic Test', function () {
+describe('AIR Receipt UI Tests', function () {
 
     /**********************************
      * Assert the title of application
@@ -30,17 +30,26 @@ describe('RentRoll Basic Test', function () {
      * ***********************************/
 
     it('Login into AIR Receipts', function () {
-        cy.get('#user')
-            .type('tester1')
-            .should('have.value', 'tester1');
 
-        cy.get('#pass')
-            .type('airtester')
-            .should('have.value', 'airtester');
+        // read config.json file to get user, pass to get logged in
+        cy.readFile("./../../tmp/rentroll/config.json").then((config) => {
+            // bundle user, pass and return it
+            return {"user": config.Tester1Name, "pass": config.Tester1Pass};
+        }).then((creds) => {
 
-        // cy.get('[class="w2ui-btn"]').click().wait(loginWaitTime)
-        cy.contains('Login').click().wait(waitTime);
-        // cy.get('button[name=login]').click().wait(1000);
+            // enter username
+            cy.get('input[name=user]')
+                .type(creds.user)
+                .should('have.value', creds.user);
+
+            // enter password
+            cy.get('input[name=pass]')
+                .type(creds.pass)
+                .should('have.value', creds.pass);
+
+            // click on login and wait for 1s to get the dashboard page
+            cy.get('button[name=login]').click().wait(1000);
+        });
     });
 
 
@@ -72,22 +81,22 @@ describe('RentRoll Basic Test', function () {
 
 
     // Temporary commented tests
-/*    it('Test for grid records', function () {
+    /*    it('Test for grid records', function () {
 
-        // Check visibility of receiptsGrid
-        cy.get('#grid_receiptsGrid_records').should('be.visible');
+            // Check visibility of receiptsGrid
+            cy.get('#grid_receiptsGrid_records').should('be.visible');
 
-        // get length from the window and perform tests
-        cy.window().then(win => {
-            var gridRecsLength = win.w2ui.receiptsGrid.records.length;
-            cy.log("receiptsGrid records length: ", gridRecsLength);
+            // get length from the window and perform tests
+            cy.window().then(win => {
+                var gridRecsLength = win.w2ui.receiptsGrid.records.length;
+                cy.log("receiptsGrid records length: ", gridRecsLength);
 
-            // Match grid record length with total rows in receiptsGrid
-            cy.get('#grid_receiptsGrid_records table tr[recid]').should(($trs) => {
-                expect($trs).to.have.length(gridRecsLength);
+                // Match grid record length with total rows in receiptsGrid
+                cy.get('#grid_receiptsGrid_records table tr[recid]').should(($trs) => {
+                    expect($trs).to.have.length(gridRecsLength);
+                });
             });
-        });
-    });*/
+        });*/
 
 
     it('Test for the Add New Button', function () {
@@ -113,52 +122,41 @@ describe('RentRoll Basic Test', function () {
             });
         });*/
 
-/*        // get fields from opened w2ui form
-        var formFields = w2ui[form].fields;
+        /*        // get fields from opened w2ui form
+                var formFields = w2ui[form].fields;
 
-        // add isHidden key with default value true
-        formFields.forEach(function (formField) {
-            formField.isHidden = true;
-        });
+                // add isHidden key with default value true
+                formFields.forEach(function (formField) {
+                    formField.isHidden = true;
+                });
 
-        return formFields;*/
+                return formFields;*/
 
         let getW2UIFormRecords;
+        let getW2UIFormFields;
         cy.window().then((win) => {
             getW2UIFormRecords = win.w2ui.receiptForm.record;
+            getW2UIFormFields = win.w2ui.receiptForm.fields;
             cy.log(getW2UIFormRecords);
+            cy.log(getW2UIFormFields);
         });
 
 
         let defaultValue;
         let fieldID;
         cy.get(formSelector)
-            .find('input.w2ui-input:not(:hidden)') //:not(:hidden)
+            .find('input.w2ui-input:not(:hidden)')
             .each(($el, index, $list) => {
 
-                defaultValue = getW2UIFormRecords[$el.context.id];
+            defaultValue = getW2UIFormRecords[$el.context.id];
+            fieldID = $el.context.id;
 
-                cy.log(defaultValue);
-                // cy.log(getW2UIFormRecords[$el.context.id]);
+            cy.log(defaultValue);
 
-
-                fieldID = $el.context.id;
-                cy.log(fieldID);
-                // cy.get('input#BUD.w2ui-input.w2ui-select.w2field').should('have.value', 'REX');
-                // cy.get($el).should('have.value', defaultValue);
-
-
-                // cy.get(fieldID).should('have.value', defaultValue);
-                // cy.get('input[id='+ fieldID +']');
-
-
-            });
-
-
-
-
-
-
+            if(fieldID !== "BUD" && fieldID !== "PmtTypeName" && fieldID !== "Amount"){
+                cy.get('#' + fieldID).should('be.visible').should('have.value', defaultValue);
+            }
+    });
 
 
         // {key: 'PmtTypeName', defaultValue: '-- Select Payment Type --'},
@@ -193,7 +191,8 @@ describe('RentRoll Basic Test', function () {
 
         // Check form should not visible after closing it
         cy.get(formSelector).should('not.be.visible');
+        
 
-    })
+    });
 
 });
