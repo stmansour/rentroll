@@ -125,23 +125,24 @@ type MultiTableReportHandler struct {
 // ReporterInfo is for routines that want to table-ize their reporting using
 // the CSV library's simple report routines.
 type ReporterInfo struct {
-	ReportNo              int       // index number of the report
-	OutputFormat          int       // text, html, maybe more in the future
-	EDI                   int       // end date inclusive -- 0 = no, 1 = yes
-	Bid                   int64     // associated business
-	Raid                  int64     // associated Rental Agreement if needed
-	D1                    time.Time // associated date if needed
-	D2                    time.Time // associated date if needed
-	ID                    int64     // specific id if a single entity is being printed
-	NeedsBID              bool      // true if BID is needed for this report
-	NeedsRAID             bool      // true if RAID is needed for this report
-	NeedsDt               bool      // true if a Date is needed for this report
-	NeedsID               bool      //true if the report requires an id
-	RptHeaderD1           bool      // true if the report's header should contain D1
-	RptHeaderD2           bool      // true if the dates should show as a range D1 - D2
-	BlankLineAfterRptName bool      // true if a blank line should be added after the Report Name
-	Handler               func(context.Context, *ReporterInfo) string
+	ReportNo              int             // index number of the report
+	OutputFormat          int             // text, html, maybe more in the future
+	EDI                   int             // end date inclusive -- 0 = no, 1 = yes
+	Bid                   int64           // associated business
+	Raid                  int64           // associated Rental Agreement if needed
+	D1                    time.Time       // associated date if needed
+	D2                    time.Time       // associated date if needed
+	ID                    int64           // specific id if a single entity is being printed
+	NeedsBID              bool            // true if BID is needed for this report
+	NeedsRAID             bool            // true if RAID is needed for this report
+	NeedsDt               bool            // true if a Date is needed for this report
+	NeedsID               bool            // true if the report requires an id
+	RptHeaderD1           bool            // true if the report's header should contain D1
+	RptHeaderD2           bool            // true if the dates should show as a range D1 - D2
+	BlankLineAfterRptName bool            // true if a blank line should be added after the Report Name
+	Style                 int             // some printouts may have multiple styles. This is the selector
 	Xbiz                  *rlib.XBusiness // may not be set in all cases
+	Handler               func(context.Context, *ReporterInfo) string
 	QueryParams           *url.Values
 }
 

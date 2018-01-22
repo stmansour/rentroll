@@ -93,7 +93,7 @@ func readCommandLineArgs() {
 	pBUD := flag.String("G", "", "BUD - business unit designator")
 	pAD := flag.String("H", "", "add Account Depositories via csv file")
 	invPtr := flag.String("i", "", "add Invoices via csv file")
-	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipt list, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName, 28-BUD, 29-AcctRules, 30-Receipt")
+	lptr := flag.String("L", "", "Report: 1-jnl, 2-ldg, 3-biz, 4-asmtypes, 5-rtypes, 6-rentables, 7-people, 8-rat, 9-ra, 10-coa, 11-asm, 12-payment types, 13-receipt list, 14-CustAttr, 15-CustAttrRef, 16-Pets, 17-NoteTypes, 18-Depositories, 19-Deposits, 20-Invoices, 21-Specialties, 22-Specialty Assignments, 23-Deposit Methods, 24-Sources, 25-StringList, 26-RatePlan, 27-RatePlanRef,BUD,RatePlanName, 28-BUD, 29-AcctRules, 30-Receipt, 31-HotelReceipt")
 	slPtr := flag.String("l", "", "add StringLists via csv file")
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	dmPtr := flag.String("m", "", "add DepositMethods via csv file")
@@ -380,6 +380,7 @@ func main() {
 		{ReportNo: 28, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: false, NeedsDt: false, Handler: rrpt.VehicleReport},
 		{ReportNo: 29, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: false, NeedsDt: false, Handler: rrpt.RRreportAR},
 		{ReportNo: 30, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: true, NeedsDt: false, Handler: rrpt.RRRcptOnlyReceipt},
+		{ReportNo: 31, OutputFormat: gotable.TABLEOUTTEXT, NeedsBID: true, NeedsRAID: false, NeedsID: true, NeedsDt: false, Handler: rrpt.RRRcptOnlyHotelReceipt},
 	}
 
 	if len(App.Report) > 0 {

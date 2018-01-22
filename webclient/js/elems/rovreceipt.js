@@ -105,7 +105,7 @@ function buildROVReceiptElements() {
         toolbar: {
             onClick: function (event) {
                 switch(event.target) {
-                case 'cvsexport':
+                case 'csvexport':
                     exportReportCSV("RPTrcptlist", app.D1, app.D2);
                     break;
                 case 'printreport':
@@ -214,7 +214,7 @@ function buildROVReceiptElements() {
             { field: 'PMTID',      type: 'int',  required: false },
             { field: 'Dt',         type: 'date', required: true },
             { field: 'DocNo',      type: 'text', required: true },
-            {   field: 'ERentableName',
+            { field: 'ERentableName',
                 type: 'enum',
                 options: {
                     url:           '/v1/rentablestd/',
@@ -246,8 +246,10 @@ function buildROVReceiptElements() {
             { field: 'DID',            type: 'hidden', required: false },
             { field: 'LastModTime',    type: 'hidden', required: false },
             { field: 'LastModBy',      type: 'hidden', required: false },
+            { field: 'LastModByUser',  type: 'hidden', required: false },
             { field: 'CreateTS',       type: 'hidden', required: false },
             { field: 'CreateBy',       type: 'hidden', required: false },
+            { field: 'CreateByUser',   type: 'hidden', required: false },
             { field: 'RentableName',   type: 'hidden', required: false },
         ],
         toolbar: {
@@ -255,6 +257,7 @@ function buildROVReceiptElements() {
                 // { id: 'btnNotes',    type: 'button', icon: 'fa fa-sticky-note-o' },
                 { id: 'csvexport',   type: 'button', icon: 'fa fa-table',        tooltip: 'export to CSV' },
                 { id: 'printreport', type: 'button', icon: 'fa fa-file-pdf-o',   tooltip: 'export to PDF' },
+                { id: 'print', type: 'button', icon: 'fa fa-print',        tooltip: 'print receipt' },
                 { id: 'bt3',         type: 'spacer' },
                 { id: 'btnClose',    type: 'button', icon: 'fa fa-times' },
             ],
@@ -279,6 +282,12 @@ function buildROVReceiptElements() {
                         return;
                     }
                     exportItemReportPDF("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
+                    break;
+                case "print":
+                    if (w2ui.receiptForm.record.RCPTID === 0) {
+                        return;
+                    }
+                    exportItemReportPDF("RPTrcpthotel", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
                     break;
                 }
             },
@@ -429,8 +438,8 @@ function buildROVReceiptElements() {
                 }
 
                 // finally append
-                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModBy);
-                flagHTML += "<p>CreateTS: {0} by {1}</p>".format(r.CreateTS, r.CreateBy);
+                flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModByUser);
+                flagHTML += "<p>Created: {0} by {1}</p>".format(r.CreateTS, r.CreateByUser);
                 $(f.box).find("#FLAGReport").html(flagHTML);
             };
         },

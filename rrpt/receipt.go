@@ -47,30 +47,43 @@ var ReceiptPDFProps = []*gotable.PDFProperty{
 // INPUT
 //  ctx    - context containing session, existing db transactions, etc.
 //  ri     - report information
-//  rcptid - receipt id to print
 //
 // RETURNS
 //  the gotable
 //-----------------------------------------------------------------------------
 func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	ri.Style = 0 // ensure permanent resident receipt
+	return rcptOnlyReceiptTable(ctx, ri)
+}
+
+// RRRcptHotelReceiptTable generates the hotel receipt
+func RRRcptHotelReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
+	ri.Style = 1 // ensure hotel receipt
+	return rcptOnlyReceiptTable(ctx, ri)
+}
+
+// rcptOnlyReceiptTable
+//  style  - 0 - Permanent resident hotel
+//           1 - hotel receipt
+func rcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	const funcname = "RRRcptOnlyReceiptTable"
 	var err error
 
 	tbl := getRRTable()
 	tbl.AddColumn("", 155, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("", 75, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.SetTitle("Receipt of Delivery")
+
+	switch ri.Style {
+	case 0:
+		tbl.SetTitle("Receipt of Delivery")
+	case 1:
+		tbl.SetTitle("Receipt for Payment")
+	default:
+		tbl.SetTitle("Receipt")
+	}
 
 	// get records from db
 	m, err := rlib.GetReceipt(ctx, ri.ID)
-	if err != nil {
-		rlib.LogAndPrintError(funcname, err)
-		tbl.SetSection3(err.Error())
-		return tbl
-	}
-
-	// we need to find the user name for the person who created this record
-	c, err := rlib.GetDirectoryPerson(ctx, m.CreateBy)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		tbl.SetSection3(err.Error())
@@ -117,7 +130,7 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Received By")
-	tbl.Puts(-1, 1, c.DisplayName())
+	tbl.Puts(-1, 1, rlib.GetNameForUID(ctx, m.CreateBy))
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Amount")
@@ -131,23 +144,31 @@ func RRRcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table
 	tbl.Puts(-1, 0, "Document Number")
 	tbl.Puts(-1, 1, m.DocNo)
 
-	tbl.AddRow()
-	tbl.AddRow()
-	tbl.AddRow()
-	tbl.Puts(-1, 0, "Email address")
-	tbl.Puts(-1, 1, "____________________________________________________")
+	if ri.Style == 0 {
+		tbl.AddRow()
+		tbl.AddRow()
+		tbl.AddRow()
+		tbl.Puts(-1, 0, "Email address")
+		tbl.Puts(-1, 1, "____________________________________________________")
 
-	tbl.AddRow()
-	tbl.AddRow()
-	tbl.AddLineAfter(len(tbl.Row) - 1)
+		tbl.AddRow()
+		tbl.AddRow()
+		tbl.AddLineAfter(len(tbl.Row) - 1)
+	}
 
 	tbl.TightenColumns()
 
 	return tbl
 }
 
-// RRRcptOnlyReceipt generates a report of the particular
+// RRRcptOnlyReceipt generates a report
 func RRRcptOnlyReceipt(ctx context.Context, ri *ReporterInfo) string {
 	tbl := RRRcptOnlyReceiptTable(ctx, ri)
+	return ReportToString(&tbl, ri)
+}
+
+// RRRcptOnlyHotelReceipt generates a report
+func RRRcptOnlyHotelReceipt(ctx context.Context, ri *ReporterInfo) string {
+	tbl := RRRcptHotelReceiptTable(ctx, ri)
 	return ReportToString(&tbl, ri)
 }

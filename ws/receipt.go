@@ -33,7 +33,9 @@ type ReceiptSendForm struct {
 	OtherPayorName string // if not '', the name of a payor who paid this receipt and who may not be in our system
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
+	LastModByUser  string
 	CreateTS       rlib.JSONDateTime
+	CreateByUser   string
 	CreateBy       int64
 	FLAGS          uint64
 	RentableName   string // FOR RECEIPT-ONLY CLIENT - to be removed when we no longer need that client
@@ -455,6 +457,8 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			gg.RentableName, gg.Comment = rlib.ROCExtractRentableName(gg.Comment)
 		}
 
+		gg.CreateByUser = rlib.GetNameForUID(r.Context(), a.CreateBy)
+		gg.LastModByUser = rlib.GetNameForUID(r.Context(), a.LastModBy)
 		g.Record = gg
 	}
 	g.Status = "success"

@@ -94,11 +94,38 @@ func (t *DirectoryPerson) DisplayName() string {
 	if len(name) == 0 {
 		name = t.FirstName
 	}
+	if len(t.LastName) > 0 {
+		if len(name) > 0 {
+			name += " "
+		}
+		name += t.LastName
+	}
 	if len(name) == 0 {
 		name = fmt.Sprintf("UID-%d", t.UID)
 	}
-	if len(t.LastName) > 0 {
-		name += " " + t.LastName
-	}
 	return name
+}
+
+// GetNameForUID reads the directory entry for the supplied uid and returns
+// a formatted name string.  If a database error occurs, it will return
+// a string of the format UID-nnn  where nnn is the UID as a string. So,
+// for example, if you supply 0 for uid, the return string will be
+// "UID-0".  The errors will be logged.
+//
+//
+// INPUTS:
+//  ctx - database context
+//  uid - the directory UID of the person
+//
+// RETURNS:
+//  formatted name string
+//-----------------------------------------------------------------------------
+func GetNameForUID(ctx context.Context, uid int64) string {
+	funcname := "GetNameForUID"
+	c, err := GetDirectoryPerson(ctx, uid)
+	if err != nil {
+		Ulog("%s: err = %s\n", funcname, err.Error())
+		return fmt.Sprintf("UID-%d", uid)
+	}
+	return c.DisplayName()
 }

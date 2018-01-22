@@ -27,6 +27,7 @@ startRentRollServer
 #	1.	A receipt log report that shows all the receipts, the types, and
 #       expected total.
 #   2.  An individual receipt for RCPT-9
+#   3.  A receipt log with the total amount collected
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22receiptForm%22%2C%22client%22%3A%22receipts%22%2C%22RentableName%22%3A%226333-123%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22RCPTID%22%3A0%2C%22PRCPTID%22%3A0%2C%22ARID%22%3A0%2C%22PMTID%22%3A2%2C%22RAID%22%3A0%2C%22PmtTypeName%22%3A2%2C%22BID%22%3A2%2C%22BUD%22%3A%22OKC%22%2C%22DID%22%3A0%2C%22Dt%22%3A%221%2F17%2F2018%22%2C%22DocNo%22%3A%221234%22%2C%22Payor%22%3A%22%22%2C%22TCID%22%3A0%2C%22Amount%22%3A123%2C%22Comment%22%3A%22hello%22%2C%22OtherPayorName%22%3A%22Bill+Blatt%22%2C%22RentableName%22%3A%226333-123%22%2C%22FLAGS%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/receipt/2/0" "request" "a00"  "Receipts-CreateReceipt-AMEX"
@@ -50,6 +51,7 @@ dojsonPOST "http://localhost:8270/v1/receipt/2/0" "request" "a08"  "Receipts-Cre
 CSVLOADRANGE="-G OKC -g 1/1/18,2/1/18"
 docsvtest "a10" "-L 13,OKC ${CSVLOADRANGE}" "ReceiptList"
 docsvtest "a11" "-L 30,OKC,9 ${CSVLOADRANGE}" "Receipt"
+docsvtest "a12" "-L 31,OKC,9 ${CSVLOADRANGE}" "HotelReceipt"
 
 #------------------------------------------------------------------------------
 #  TEST b
