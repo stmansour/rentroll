@@ -1297,6 +1297,12 @@ doCypressUITest () {
 		)
 		cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
 		cp ${1} ${1}.g
+
+		# only extract lines between matched pattern: (Test Starting to Cypress Version:)
+		# overwrite it in .g temp files
+		sed '/(Tests Starting/,/Cypress Version:/!d' -i ${GOLD}/${1}.g
+		sed '/(Tests Starting/,/Cypress Version:/!d' -i ${1}.g
+
 		for f in "${out_filters[@]}"
 		do
 			perl -pe "$f" ${GOLD}/${1}.g > ${GOLD}/${1}.t; mv ${GOLD}/${1}.t ${GOLD}/${1}.g
