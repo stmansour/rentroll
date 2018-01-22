@@ -51,6 +51,7 @@ dojsonPOST "http://localhost:8270/v1/receipt/2/0" "request" "a08"  "Receipts-Cre
 CSVLOADRANGE="-G OKC -g 1/1/18,2/1/18"
 docsvtest "a10" "-L 13,OKC ${CSVLOADRANGE}" "ReceiptList"
 docsvtest "a11" "-L 30,OKC,9 ${CSVLOADRANGE}" "Receipt"
+docsvtest "a12" "-L 31,OKC,9 ${CSVLOADRANGE}" "HotelReceipt"
 
 #------------------------------------------------------------------------------
 #  TEST b

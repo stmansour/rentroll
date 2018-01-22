@@ -257,6 +257,7 @@ function buildROVReceiptElements() {
                 // { id: 'btnNotes',    type: 'button', icon: 'fa fa-sticky-note-o' },
                 { id: 'csvexport',   type: 'button', icon: 'fa fa-table',        tooltip: 'export to CSV' },
                 { id: 'printreport', type: 'button', icon: 'fa fa-file-pdf-o',   tooltip: 'export to PDF' },
+                { id: 'print', type: 'button', icon: 'fa fa-print',        tooltip: 'print receipt' },
                 { id: 'bt3',         type: 'spacer' },
                 { id: 'btnClose',    type: 'button', icon: 'fa fa-times' },
             ],
@@ -281,6 +282,12 @@ function buildROVReceiptElements() {
                         return;
                     }
                     exportItemReportPDF("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
+                    break;
+                case "print":
+                    if (w2ui.receiptForm.record.RCPTID === 0) {
+                        return;
+                    }
+                    exportItemReportPDF("RPTrcpthotel", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
                     break;
                 }
             },

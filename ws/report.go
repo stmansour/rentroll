@@ -7,7 +7,6 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
-	"os"
 	"rentroll/rlib"
 	"rentroll/rrpt"
 	"strings"
@@ -235,6 +234,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 		{ReportNames: []string{"RPTrat", "rental agreement templates"}, TableHandler: rrpt.RRreportRentalAgreementTemplatesTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
 		{ReportNames: []string{"RPTrcptlist", "receipts"}, TableHandler: rrpt.RRReceiptsTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
 		{ReportNames: []string{"RPTrcpt", "receipt"}, TableHandler: rrpt.RRRcptOnlyReceiptTable, PDFprops: rrpt.ReceiptPDFProps, HTMLTemplate: "receipt.html", NeedsCustomPDFDimension: false, NeedsPDFTitle: false},
+		{ReportNames: []string{"RPTrcpthotel", ""}, TableHandler: rrpt.RRRcptHotelReceiptTable, PDFprops: rrpt.ReceiptPDFProps, HTMLTemplate: "rcpthotel.html", NeedsCustomPDFDimension: false, NeedsPDFTitle: false},
 		{ReportNames: []string{"RPTrr", "rentroll"}, TableHandler: rrpt.RRReportTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
 		{ReportNames: []string{"RPTrt", "rentable types"}, TableHandler: rrpt.RRreportRentableTypesTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
 		{ReportNames: []string{"RPTrcbt", "rentable type counts"}, TableHandler: rrpt.RentableCountByRentableTypeReportTable, PDFprops: nil, HTMLTemplate: "", NeedsCustomPDFDimension: true, NeedsPDFTitle: true},
@@ -333,16 +333,15 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 
 			// custom template if available
 			tfname := tsh.HTMLTemplate
-			rlib.Console("report.go:  tfname = %s\n", tfname)
+			// rlib.Console("report.go:  tfname = %s\n", tfname)
 			if len(tfname) > 0 {
 				var err error
 				bud := getBUDFromBIDList(ri.Bid)
 				tfname = "webclient/html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
 
-				cwd, err := os.Getwd()
-
-				rlib.Console("report.go:  cwd = %s\n", cwd)
-				rlib.Console("report.go:  setHTMLTemplate to %s\n", tfname)
+				// cwd, err := os.Getwd()
+				// rlib.Console("report.go:  cwd = %s\n", cwd)
+				// rlib.Console("report.go:  setHTMLTemplate to %s\n", tfname)
 				err = tbl.SetHTMLTemplate(tfname)
 				if err != nil {
 					s := fmt.Sprintf("Error in CSVprintTable: %s\n", err.Error())
