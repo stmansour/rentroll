@@ -64,10 +64,19 @@ describe('AIR Receipt UI Tests', function () {
                 .should('have.value', creds.pass);
 
             // click on login and wait for 1s to get the dashboard page
-            cy.get('button[name=login]').click().wait(1000);
+            cy.get('button[name=login]').click().wait(waitTime);
         });
     });
 
+    /*
+     * Cypress automatically clears all cookies before each test run.\
+     *  It does make application log off. 
+     * To preserve cookies for entire test suit add that cookie in Cypress cookies's whitelist.
+     * Link for more detail: https://docs.cypress.io/api/cypress-api/cookies.html
+     */
+    beforeEach(function (){
+        Cypress.Cookies.defaults({whitelist: "airoller"});
+    });
 
     // Temporary commented tests
     /*it('Test for receipts node', function () {
