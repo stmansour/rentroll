@@ -29,24 +29,24 @@ let applicationCookie = "airoller";
 
 // receiptForm fields value to create a new row
 let receiptFormFieldsValue = {
-                                PmtTypeName: "Cash{enter}", 
-                                DocNo: "AB20180122", 
-                                Amount: "$120.00", 
+                                PmtTypeName: "Cash{enter}",
+                                DocNo: "AB20180122",
+                                Amount: "$120.00",
                                 ERentableName: "Rentable001",
                                 OtherPayorName: "Akshay Bosamiya",
-                                Comment: "Testing UI via Cypress"    
+                                Comment: "Testing UI via Cypress"
                             };
 
-
-
+// URL for AIR Receipt application
+let applicationPath = "/rhome";
 
 describe('AIR Receipt UI Tests', function () {
 
     before(function (){
         /*
-        * Clear cookies befor starting tests. Because We are preserving cookies to use it all test suit. 
+        * Clear cookies befor starting tests. Because We are preserving cookies to use it all test suit.
         * Running test suit multiple times require new session to login into application.
-        */ 
+        */
         cy.clearCookie(applicationCookie);
     });
 
@@ -57,10 +57,12 @@ describe('AIR Receipt UI Tests', function () {
      ************************************/
 
     it('Assert the title of application', function () {
-        cy.visit('http://localhost:8270/rhome/').wait(pageLoadTime);
 
+        // It visit baseUrl(from cypress.json) + applicationPath
+        cy.visit(applicationPath).wait(pageLoadTime);
+
+        // Assert application title
         cy.title().should('include', 'AIR Receipts');
-
     });
 
     /************************************
@@ -94,7 +96,7 @@ describe('AIR Receipt UI Tests', function () {
 
     /*
      * Cypress automatically clears all cookies before each test run.\
-     *  It does make application log off. 
+     *  It does make application log off.
      * To preserve cookies for entire test suit add that cookie in Cypress cookies's whitelist.
      * Link for more detail: https://docs.cypress.io/api/cypress-api/cookies.html
      */
@@ -190,8 +192,8 @@ describe('AIR Receipt UI Tests', function () {
                 if(typeof defaultValue === 'object'){
                     defaultValue = defaultValue.text;
                 }
-                /* Money type field have default value in DOM is "$0.00". 
-                And w2ui field have value "0". 
+                /* Money type field have default value in DOM is "$0.00".
+                And w2ui field have value "0".
                 To make the comparison change default value "0" to "$0.00" */
                 else if(field.type === "money" && typeof defaultValue === 'number'){
                     defaultValue = "$0.00";
@@ -245,7 +247,7 @@ describe('AIR Receipt UI Tests', function () {
 
         // Check that form should not visible after closing it
         cy.get(formSelector).should('not.be.visible');
-        
+
     });
 
 });
