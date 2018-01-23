@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Isola Bella HOTEL Receipt -->
+
+<head>
+    <title>{{.HeadTitle}}</title>
+    {{.DefaultCSS}}
+    {{.CustomCSS}}
+    <style type="text/css">
+        p{
+            text-align: justify;
+        }
+        div.container{
+            margin-top: 5px;
+        }
+        div.rpt-table-container table thead tr th{
+            border-bottom: none;
+        }
+        div.rpt-table-container table{
+            page-break-after:avoid;
+            margin-bottom: 15px;
+        }
+        table tr td, th{
+            white-space: nowrap;
+            font-size: 8pt;
+        }
+
+    </style>
+</head>
+<body>
+    <header style="text-align: center;">
+        <img src="webclient/html/rpt-templates/OKC/isola-bella-logo.jpg" width="300" height="60" />
+    </header>
+    <div class="container">
+        {{.TableHTML}}
+    </div>
+    <table  width="100%" cellpadding="2" cellspacing="0" style="border-collapse: collapse;" border="1">
+        <tr><td height="15pt" align="left">Description</td><td height="15pt" align="left">From</td><td height="15pt" align="left">To</td><td height="15pt" align="right">Nights</td><td height="15pt" align="right">Rate</td><td height="15pt" align="right">Total</td></tr>
+        <tr><td height="15pt">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td height="15pt">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td height="15pt">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td height="15pt">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td height="15pt">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td height="15pt">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td colspan="6">Sales Taxes</td></tr>
+        <tr><td colspan="6">Transient Occupancy Tax</td></tr>
+        <tr><td colspan="6">Total Charges</td></tr>
+        <tr><td colspan="6" height="10">&nbsp;</td></tr>
+        <tr><td colspan="6">Payments Received</td></tr>
+        <tr><td colspan="6" height="10">&nbsp;</td></tr>
+        <tr><td colspan="6">Balance Due</td></tr>
+    </table>
+    <p style="font-size: 8pt;text-align: center;">
+        6303 NW 63rd Street ~
+        Oklahoma City, OK  73132 ~
+        405-721-2194 ~
+        Concierge@MyIsolaBella.com ~
+        www.MyIsolaBella.com
+    </p>
+</body>
+</html>

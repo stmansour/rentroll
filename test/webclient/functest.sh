@@ -22,7 +22,7 @@ RENTROLLSERVERAUTH="-noauth"
 # specific file that needs to be tested
 CYPRESS_SPEC="./cypress/integration/roller_spec.js"
 
-if [ "${UNAME}" == "Darwin" -o "${IAMJENKINS}" == "jenkins" ]; then
+if [ "${IAMJENKINS}" == "jenkins" ]; then
     # if build machine then record the activity
     doCypressUITest "a" "--spec ${CYPRESS_SPEC} --record" "CypressUITesting"
 else
