@@ -134,14 +134,14 @@ func rcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Amount")
-	tbl.Puts(-1, 1, rlib.RRCommaf(m.Amount))
+	tbl.Puts(-1, 1, "$"+rlib.RRCommaf(m.Amount))
 
 	tbl.AddRow()
 	tbl.Puts(-1, 0, "Form of Payment")
 	tbl.Puts(-1, 1, sPmtType)
 
 	tbl.AddRow()
-	tbl.Puts(-1, 0, "Document Number")
+	tbl.Puts(-1, 0, "Reference")
 	tbl.Puts(-1, 1, m.DocNo)
 
 	if ri.Style == 0 {
