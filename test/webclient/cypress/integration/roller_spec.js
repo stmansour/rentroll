@@ -66,19 +66,13 @@ describe('AIR Receipt UI Tests', function () {
 
         // It visit baseUrl(from cypress.json) + applicationPath
         cy.visit(applicationPath).wait(pageLoadTime);
-        // cy.visit('http://localhost:8270/rhome').wait(pageLoadTime);
 
         // Assert application title
         cy.title().should('include', 'AIR Receipts');
 
     });
 
-    /************************************
-     * Login into application
-     * 1. Fill username and password
-     * 2. Click Login button
-     * ***********************************/
-
+    // -- Login into application --
     it('Login into AIR Receipts', function () {
       // Routing thing is in WIP. It will be refactor tomorrow.
         cy.server();
@@ -88,25 +82,8 @@ describe('AIR Receipt UI Tests', function () {
           cy.log(response);
         });
 
-        // read config.json file to get user, pass to get logged in
-        cy.readFile("./../../tmp/rentroll/config.json").then((config) => {
-            // bundle user, pass and return it
-            return {"user": config.Tester1Name, "pass": config.Tester1Pass};
-        }).then((creds) => {
-
-            // enter username
-            cy.get('input[name=user]')
-                .type(creds.user)
-                .should('have.value', creds.user);
-
-            // enter password
-            cy.get('input[name=pass]')
-                .type(creds.pass)
-                .should('have.value', creds.pass);
-
-            // click on login and wait for 1s to get the dashboard page
-            cy.get('button[name=login]').click().wait(waitTime);
-        });
+        // Check custom login command for more detail. File path: ./../support/commands.js
+        cy.login();
 
         // Check http status
         cy.wait('@getReceipts').its('status').should('eq', 200);
