@@ -1,7 +1,7 @@
 TOP=..
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
-rrlib: *.go
+rrlib: ver.go *.go
 	@touch fail
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -9,6 +9,9 @@ rrlib: *.go
 	go test
 	go install
 	@rm -f fail
+
+ver.go:
+	./mkver.sh rlib
 
 test:
 	@touch fail

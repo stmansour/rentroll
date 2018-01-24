@@ -41,44 +41,8 @@ type ReportContext struct {
 func InitReports() {
 	RRfuncMap = template.FuncMap{
 		"DateToString": rlib.DateToString,
-		"GetVersionNo": GetVersionNo,
-		"getBuildTime": GetBuildTime,
+		"GetVersionNo": rlib.GetVersionNo,
+		"getBuildTime": rlib.GetBuildTime,
 		"RRCommaf":     rlib.RRCommaf,
 	}
 }
-
-//========================================================================================================
-
-// LMSum takes an array of LedgerMarkers, sums the Balance value of each, and returns the sum.
-// The summing skips shadow RA balance accounts
-// func LMSum(m *[]XLedger) float64 {
-// 	bal := float64(0)
-// 	for _, v := range *m {
-// 		bal += v.LM.Balance
-// 	}
-// 	return bal
-// }
-
-// // UIInitBizList is used to fill out the array of businesses that can be used in UI forms
-// func UIInitBizList(ui *ReportContext) {
-// 	var err error
-// 	ui.BL, err = rlib.GetAllBusinesses()
-// 	if err != nil {
-// 		rlib.Ulog("UIInitBizList: err = %s\n", err.Error())
-// 	}
-// 	// DEBUGGING
-// 	// for i := 0; i < len(ui.BL); i++ {
-// 	// 	fmt.Printf("ui.BL[%d] = %#v\n", i, ui.BL[i])
-// 	// }
-// }
-// // XLedger has ledger fields plus LedgerMarker fields for supplied time range
-// type XLedger struct {
-// 	G  rlib.GLAccount
-// 	LM rlib.LedgerMarker
-// }
-// // UILedger contains ledger info for a user interface
-// type UILedger struct {
-// 	Balance float64 // sum of all LM Balances
-// 	BID     int64
-// 	XL      []XLedger // all ledgers in this business
-// }
