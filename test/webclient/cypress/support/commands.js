@@ -37,7 +37,6 @@ Cypress.Commands.add("login", function(){
         });
 
         // login steps
-
         cy
             .get('input[name=user]').type(username).should('have.value', username) // enter username
             .get('input[name=pass]').type(password).should('have.value', password) // enter password

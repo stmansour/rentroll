@@ -46,6 +46,8 @@ let receiptFormFieldsValue = {
 // URL for AIR Receipt application
 let applicationPath = "/rhome";
 
+let apiRecordsResponse;
+
 describe('AIR Receipt UI Tests', function () {
 
     before(function (){
@@ -92,6 +94,11 @@ describe('AIR Receipt UI Tests', function () {
         cy.get('@getReceipts').then(function (xhr) {
             // Check key `status` in responseBody
             expect(xhr.responseBody).to.have.property('status', 'success');
+
+            cy.log("API Response");
+            cy.log(xhr.response.body.records); // record list in API Response
+
+            apiRecordsResponse = xhr.response.body.records;
         });
 
     });
@@ -168,14 +175,6 @@ describe('AIR Receipt UI Tests', function () {
     //                 .should('have.value', defaultValue);
     //             }
     //
-    //             // Preloaded value
-    //             // if(fieldID !== "BUD" && fieldID !== "Dt"){
-    //             //     // Type values in field
-    //             //     cy.get('#' + fieldID)
-    //             //     .click()
-    //             //     .type(receiptFormFieldsValue[fieldID]);
-    //             // }
-    //
     //         });
     //
     //     // TODO(Akshay): Business Unit value will be handled dynamically.
@@ -237,92 +236,175 @@ describe('AIR Receipt UI Tests', function () {
     //     });
     // });
 
+    it('Test for grid records', function () {
 
-    // Temporary commented tests
-    // it('Test for grid records', function () {
-    //
-    //       cy.server();
-    //
-    //       // Check visibility of receiptsGrid
-    //       cy.get('#grid_receiptsGrid_records').should('be.visible').wait(waitTime);
-    //
-    //       // get length from the window and perform tests
-    //       cy.window().then(win => {
-    //
-    //           // get list of columns in the grid
-    //           let w2uiGridColumns = win.w2ui[w2uiGridName].columns;
-    //
-    //           // // get list of visible columns in the grid
-    //           // let visibleW2w2uiGridColumns = w2uiGridColumns.filter(column => column.hidden === false);
-    //
-    //           // get list of records in grid
-    //           w2uiGridRecords = win.w2ui[w2uiGridName].records;
-    //
-    //           var gridRecsLength = w2uiGridRecords.length;
-    //
-    //           cy.log(w2uiGridRecords);
-    //
-    //           cy.log("receiptsGrid records length: ", gridRecsLength);
-    //
-    //           // Match grid record length with total rows in receiptsGrid
-    //           cy.get('#grid_receiptsGrid_records table tr[recid]').should(($trs) => {
-    //               expect($trs).to.have.length(gridRecsLength);
-    //           });
-    //
-    //
-    //           w2uiGridRecords.forEach(function (w2uiGridRecord, rowNo){
-    //
-    //             w2uiGridColumns.forEach(function (w2uiGridColumn, columnNo) {
-    //
-    //               // Skipping traversal icon and RCPT ID column as of now
-    //               if(columnNo !== 1 && columnNo !== 2){
-    //
-    //                 // Perform test only if w2uiGridColumn isn't hidden
-    //                 if(!w2uiGridColumn.hidden){
-    //                   // cy.log("filtering");
-    //                   // cy.log("RowNo", row);
-    //                   // cy.log(w2uiGridColumn, w2uiGridColumn.field, w2uiGridRecord);
-    //                   // cy.log("ColumnNo", column);
-    //                   // cy.log("Value at cell", w2uiGridRecord[w2uiGridColumn.field]);
-    //
-    //                   // get defaultValue of cell from w2uiGrid
-    //                   var defaultValue = w2uiGridRecord[w2uiGridColumn.field];
-    //
-    //                   // Check visibility and default value of cell in the grid
-    //                   cy.get('#grid_'+ w2uiGridName + '_data_' + rowNo + '_' + columnNo)
-    //                   .scrollIntoView()
-    //                   .should('be.visible')
-    //                   .should('contain', defaultValue);
-    //                 }
-    //               }
-    //
-    //             });
-    //
-    //             cy.get('#grid_' + w2uiGridName + '_rec_' + rowNo).click().wait(pageLoadTime);
-    //
-    //             // cy.server();
-    //
-    //             // cy.debug();
-    //
-    //             cy.route('POST', '/v1/receipt/1/9').as('getDetailRecord');
-    //
-    //             cy.wait('@getDetailRecord').its('status').should('eq', 200);
-    //            //  cy.route({ method: 'POST',
-    //            //  url: 'v1/receipt/1/**',
-    //            //    onRequest: (xhr) => {
-    //            //
-    //            //    },
-    //            //    onResponse: (xhr) => {
-    //            //      expect(xhr.responseBody).to.have.property('status', 'success');
-    //            //      cy.log(xhr.responseBody);
-    //            //    }
-    //            // });
-    //
-    //
-              // });
+          cy.server();
+
+          // Check visibility of receiptsGrid
+          cy.get('#grid_receiptsGrid_records').should('be.visible').wait(waitTime);
+
+          // get length from the window and perform tests
+          cy.window().then(win => {
+
+              // get list of columns in the grid
+              let w2uiGridColumns = win.w2ui[w2uiGridName].columns;
+
+              cy.log(w2uiGridColumns);
+
+              // // get list of visible columns in the grid
+              // let visibleW2w2uiGridColumns = w2uiGridColumns.filter(column => column.hidden === false);
+
+              // get list of records in grid
+              w2uiGridRecords = win.w2ui[w2uiGridName].records;
+
+              var gridRecsLength = w2uiGridRecords.length;
+
+              cy.log("Records!!");
+              cy.log(w2uiGridRecords);
+
+              cy.log("receiptsGrid records length: ", gridRecsLength);
+
+              // Match grid record length with total rows in receiptsGrid
+              cy.get('#grid_receiptsGrid_records table tr[recid]').should(($trs) => {
+                  expect($trs).to.have.length(gridRecsLength);
+              });
 
 
-          // });
-      // });
+              apiRecordsResponse.forEach(function (w2uiGridRecord, rowNo){
+
+                w2uiGridColumns.forEach(function (w2uiGridColumn, columnNo) {
+
+                  // Skipping traversal icon and RCPT ID column as of now
+                  if(columnNo !== 1 && columnNo !== 2){
+
+                    // Perform test only if w2uiGridColumn isn't hidden
+                    if(!w2uiGridColumn.hidden){
+                      // cy.log("filtering");
+                      // cy.log("RowNo", row);
+                        cy.log(w2uiGridColumn);
+                      // cy.log(w2uiGridColumn, w2uiGridColumn.field, w2uiGridRecord);
+                      // cy.log("ColumnNo", column);
+                      // cy.log("Value at cell", w2uiGridRecord[w2uiGridColumn.field]);
+
+                      // get defaultValue of cell from w2uiGrid
+                      var defaultValue = w2uiGridRecord[w2uiGridColumn.field];
+
+                      // Check visibility and default value of cell in the grid
+                      cy.get('#grid_'+ w2uiGridName + '_data_' + rowNo + '_' + columnNo)
+                      .scrollIntoView()
+                      .should('be.visible')
+                      .should('contain', defaultValue);
+                    }
+                  }
+
+                });
+
+              });
+
+              // detail record testing
+              const id = apiRecordsResponse[0].RCPTID
+              cy.route('POST', '/v1/receipt/1/' + id).as('getDetailRecord');
+
+              cy.get('#grid_' + w2uiGridName + '_rec_0').click().wait(pageLoadTime);
+
+              cy.wait('@getDetailRecord').its('status').should('eq', 200);
+
+              cy.get('@getDetailRecord').then(function (xhr) {
+
+                  cy.log("DetailRecord");
+
+                  cy.log(xhr.response.body.record);
+
+                  let recordDetailFromAPIResponse = xhr.response.body.record;
+
+                  // get form selector
+                  let formSelector = 'div[name=' + formName + ']';
+
+                  // Check visibility of form
+                  cy.get(formSelector).should('be.visible');
+
+                  // get record and field list from the w2ui form object
+                  cy.window().then((win) => {
+                      // get w2ui form records
+                      getW2UIFormRecords = win.w2ui[formName].record;
+
+                      // get w2ui form fields
+                      getW2UIFormFields = win.w2ui[formName].fields;
+                  });
+
+
+                  cy.get(formSelector)
+                      .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+                      .each(($el, index, $list) => {
+
+                          // get id of the field
+                          fieldID = $el.context.id;
+
+                          // get default value of field
+                          defaultValue = recordDetailFromAPIResponse[fieldID];
+
+                          // get field from w2ui form field list
+                          field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
+
+                          // // defaultValue type is object means it does have key value pair. get default text from the key value pair.
+                          // if(typeof defaultValue === 'object'){
+                          //     defaultValue = defaultValue.text;
+                          // }
+                          // /* Money type field have default value in DOM is "$0.00".
+                          // And w2ui field have value "0".
+                          // To make the comparison change default value "0" to "$0.00" */
+                          // else if(field.type === "money" && typeof defaultValue === 'number'){
+                          //     defaultValue = "$0.00";
+                          // }
+
+                          /* Skipping tests for Resident Address field. Because it have default value as 'undefined' and in DOM it have value as ''.
+                          Which makes the test fail.
+                          TODO(Sudip): Change default value undefine to ''.
+                          TODO(Akshay): Remove `if` condition for the tests after an issue has been resolved.
+                          */
+                          // ERentableName
+
+                          if(fieldID !== "PmtTypeName" && fieldID !== "Amount" && fieldID !== "ERentableName"){
+                              // Check visibility and match the default value of the fields.
+                              cy.get('#' + fieldID)
+                                  .should('be.visible')
+                                  .should('have.value', defaultValue);
+                          }
+
+                      });
+
+
+                  // TODO(Akshay): Business Unit value will be handled dynamically.
+                  // Check Business Unit field must be disabled and have value REX
+                  cy.get('#BUD').should('be.disabled').and('have.value', 'REX').and('be.visible');
+
+                  // TODO(Akshay): List of buttons will be handled globally if needed
+                  // List of visible and not visible buttons
+                  let visibleButtons = ["save", "saveprint", "reverse"];
+                  let notVisibleButtons = ["close"];
+
+                  // Check visibility of buttons
+                  visibleButtons.forEach(function (button) {
+                      // Check visibility of button
+                      cy.get('button[name=' + button + ']').should('be.visible');
+                  });
+
+                  // Check buttons aren't visible
+                  notVisibleButtons.forEach(function (button) {
+                      // Check button aren't visible
+                      cy.get('button[name=' + button + ']').should('not.be.visible');
+                  });
+
+                  // Close the form
+                  cy.get('[class="fa fa-times"]').click().wait(waitTime);
+
+                  // Check that form should not visible after closing it
+                  cy.get(formSelector).should('not.be.visible');
+
+              });
+
+
+          });
+      });
 
 });
