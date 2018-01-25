@@ -23,7 +23,6 @@ function getRentableInitRecord(BID, BUD, previousFormRecord){
         RentableStatus: "unknown",
         RSDtStart: w2uiDateControlString(y),
         RSDtStop: "1/1/9999",
-        CurrentDate: y,
         AssignmentTime: 0,
     };
 
@@ -176,7 +175,6 @@ function buildRentableElements() {
             { field: 'RentableStatus', type: 'list', options: {items: app.rentableStatusList}, required: true, html: { page: 0, column: 0 } },
             { field: 'RSDtStart', type: 'date', required: true, html: { page: 0, column: 0 } },
             { field: 'RSDtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
-            { field: 'CurrentDate', type: 'date', required: false },
             { field: 'AssignmentTime', type: 'list', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModTime',          type: 'hidden', required: false },
             { field: 'LastModBy',          type: 'hidden', required: false },
@@ -238,7 +236,7 @@ function buildRentableElements() {
 
                     var record = getRentableInitRecord(BID, BUD, f.record);
                     f.record = record;
-                    f.header = "Edit {0} ({1}) as of {2}".format(app.sRentable, "new", w2uiDateControlString(r.CurrentDate));
+                    f.header = "Edit {0} ({1})".format(app.sRentable, "new");
                     f.url = '/v1/rentable/' + BID+'/0';
                     f.refresh();
                 });
@@ -281,9 +279,9 @@ function buildRentableElements() {
 
                 // custom header, not common one!!
                 if (r.RID) {
-                    header = "Edit {0} - {1} ({2}) as of {3}".format(app.sRentable, r.RentableName, r.RID, r.CurrentDate);
+                    header = "Edit {0} - {1} ({2})".format(app.sRentable, r.RentableName, r.RID);
                 } else {
-                    header = "Edit {0} ({1}) as of {2}".format(app.sRentable, "new", w2uiDateControlString(r.CurrentDate));
+                    header = "Edit {0} ({1})".format(app.sRentable, "new");
                 }
 
                 // assignmentTime selected and items for w2field
