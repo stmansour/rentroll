@@ -1,3 +1,5 @@
+"use strict";
+
 // ***********************************************
 // This file contains custom build command for cypress
 // ***********************************************

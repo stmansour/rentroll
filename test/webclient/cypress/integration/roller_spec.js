@@ -1,16 +1,9 @@
 "use strict";
 
-const pageLoadTime = 2000;
-const loginWaitTime = 2000;
-const waitTime = 2000;
+import * as selectors from '../support/utils/get_selectors';
+import * as constants from '../support/utils/constants';
 
-const HTTP_OK_STATUS = 200;
-const API_RESPONSE_SUCCESS_FLAG = 'success';
-
-let receiptResponse;
-
-// w2ui formname
-let formName = "receiptForm";
+const receiptsM = require('../support/components/receipts');
 
 // default value of field in w2ui object
 let defaultValue;
@@ -27,34 +20,24 @@ let getW2UIFormRecords;
 // field list in w2ui form
 let getW2UIFormFields;
 
-// list of grid record
-let w2uiGridRecords;
-
-// name of w2ui grid
-let w2uiGridName = "receiptsGrid";
-
 // list of columns from the grid
 let w2uiGridColumns;
 
-// application cookie name
-let applicationCookie = "airoller";
-
-// receiptForm fields value to create a new row
-let receiptFormFieldsValue = {
-    PmtTypeName: "Cash{enter}",
-    DocNo: "AB20180122",
-    Amount: "$120.00",
-    ERentableName: "Rentable001",
-    OtherPayorName: "Akshay Bosamiya",
-    Comment: "Testing UI via Cypress"
-};
-
-// URL for AIR Receipt application
-let applicationPath = "/rhome";
-
+// records list of module from the API response
 let recordsAPIResponse;
 
-let noRecords;
+// number of records in API response
+let noRecordsInAPIResponse;
+
+// this contain app variable of the application
+let appSettings;
+
+// holds the test configuration for the modules
+let testConfig;
+
+function getAPIEndPoint(module) {
+    return constants.API_VERSION + "/" + module + "/" + constants.BID
+}
 
 describe('AIR Receipt UI Tests', function () {
 
@@ -64,7 +47,10 @@ describe('AIR Receipt UI Tests', function () {
         * Clear cookies befor starting tests. Because We are preserving cookies to use it all test suit.
         * Running test suit multiple times require new session to login into application.
         */
-        cy.clearCookie(applicationCookie);
+        cy.clearCookie(constants.APPLICATION_COOKIE);
+
+        testConfig = receiptsM.conf;
+
     });
 
     /**********************************
@@ -76,7 +62,7 @@ describe('AIR Receipt UI Tests', function () {
     it('Assert the title of application', function () {
 
         // It visit baseUrl(from cypress.json) + applicationPath
-        cy.visit(applicationPath).wait(pageLoadTime);
+        cy.visit(constants.RECEIPT_APPLICATION_PATH).wait(constants.PAGE_LOAD_TIME);
 
         // Assert application title
         cy.title().should('include', 'AIR Receipts');
@@ -89,7 +75,6 @@ describe('AIR Receipt UI Tests', function () {
         cy.login();
     });
 
-
     // -- Perform operation before each test(it()) starts. It runs before each test in the block. --
     beforeEach(function () {
         /*
@@ -98,7 +83,19 @@ describe('AIR Receipt UI Tests', function () {
         * To preserve cookies for entire test suit add that cookie in Cypress cookies's whitelist.
         * Link for more detail: https://docs.cypress.io/api/cypress-api/cookies.html
         */
-        Cypress.Cookies.defaults({whitelist: applicationCookie});
+        Cypress.Cookies.defaults({whitelist: constants.APPLICATION_COOKIE});
+
+        // -- get app variable from the window --
+        /*
+        * After successfully login into application it will have fixed app variable.
+        * Fetching it after successful login.
+        * */
+        cy.window().then((win) => {
+            appSettings = win.app;
+        });
+
+        cy.log(appSettings);
+
     });
 
 
@@ -110,32 +107,31 @@ describe('AIR Receipt UI Tests', function () {
      *******************************************************/
     it('Left side node', function () {
 
-
         // Starting a server to begin routing responses to cy.route()
         cy.server();
 
         // To manage the behavior of network requests. Routing the response for the requests.
-        cy.route('POST', '/v1/receipts/1').as('getReceipts');
+        cy.route(testConfig.methodType, getAPIEndPoint(testConfig.sidebarID)).as('getReceipts');
 
         // It should be visible and selected
-        cy.get("#node_receipts").scrollIntoView()
+        cy.get(selectors.getNodeSelector(testConfig.sidebarID))
+            .scrollIntoView()
             .should('be.visible')
             .should('have.class', 'w2ui-selected')
-            .click().wait(waitTime);
+            .click().wait(constants.WAIT_TIME);
 
         // Check http status
-        cy.wait('@getReceipts').its('status').should('eq', HTTP_OK_STATUS);
+        cy.wait('@getReceipts').its('status').should('eq', constants.HTTP_OK_STATUS);
 
         // get API endpoint's responseBody
         cy.get('@getReceipts').then(function (xhr) {
 
             // Check key `status` in responseBody
-            expect(xhr.responseBody).to.have.property('status', API_RESPONSE_SUCCESS_FLAG);
+            expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
 
             // get records list from the API response
             recordsAPIResponse = xhr.response.body.records;
-            cy.log(recordsAPIResponse);
-            noRecords = xhr.response.body.records.length;
+            noRecordsInAPIResponse = xhr.response.body.records.length;
         });
 
     });
@@ -162,27 +158,27 @@ describe('AIR Receipt UI Tests', function () {
         // Starting a server to begin routing responses to cy.route()
         cy.server();
 
-
+        // -- Tests for grid records --
         cy.log("Tests for grid records");
 
-        // Check visibility of receiptsGrid
-        cy.get('#grid_' + w2uiGridName + '_records').should('be.visible').wait(waitTime);
+        // Check visibility of grid
+        cy.get(selectors.getGridSelector(testConfig.grid)).should('be.visible').wait(constants.WAIT_TIME);
 
         // get length from the window and perform tests
         cy.window().then(win => {
 
             // get list of columns in the grid
-            w2uiGridColumns = win.w2ui[w2uiGridName].columns;
+            w2uiGridColumns = win.w2ui[testConfig.grid].columns;
 
             // Match grid record length with total rows in receiptsGrid
-            cy.get('#grid_' + w2uiGridName + '_records table tr[recid]').should(($trs) => {
-                expect($trs).to.have.length(noRecords);
+            cy.get(selectors.getRowsInGridSelector(testConfig.grid)).should(($trs) => {
+                expect($trs).to.have.length(noRecordsInAPIResponse);
             });
 
             // Iterate through each row
-            recordsAPIResponse.forEach(function (w2uiGridRecord, rowNo) {
+            recordsAPIResponse.forEach(function (record, rowNo) {
 
-                // Iterat through each column in row
+                // Iterate through each column in row
                 w2uiGridColumns.forEach(function (w2uiGridColumn, columnNo) {
 
                     // Skipping traversal icon and RCPT ID column as of now
@@ -193,10 +189,10 @@ describe('AIR Receipt UI Tests', function () {
                         if (!w2uiGridColumn.hidden) {
 
                             // get defaultValue of cell from w2uiGrid
-                            let valueForCell = w2uiGridRecord[w2uiGridColumn.field];
+                            let valueForCell = record[w2uiGridColumn.field];
 
                             // Check visibility and default value of cell in the grid
-                            cy.get('#grid_' + w2uiGridName + '_data_' + rowNo + '_' + columnNo)
+                            cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
                                 .scrollIntoView()
                                 .should('be.visible')
                                 .should('contain', valueForCell);
@@ -210,35 +206,43 @@ describe('AIR Receipt UI Tests', function () {
             cy.log("Tests for detail record form");
 
             // -- detail record testing --
-            const id = recordsAPIResponse[0].RCPTID; // TODO(Akshay): Make it global. Primary id will be change based on the service
+            const id = recordsAPIResponse[0][testConfig.primaryId];
 
             // Routing response to detail record's api requests.
-            cy.route('POST', '/v1/receipt/1/' + id).as('getDetailRecord');
+            cy.route(testConfig.methodType, '/v1/receipt/1/' + id).as('getDetailRecord');
 
-            cy.get('#grid_' + w2uiGridName + '_rec_0').click().wait(pageLoadTime);
+            // click on the first record of grid
+            cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
-            cy.wait('@getDetailRecord').its('status').should('eq', HTTP_OK_STATUS);
+            // check response status of API end point
+            cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
 
+            // perform tests on record detail form
             cy.get('@getDetailRecord').then(function (xhr) {
 
                 let recordDetailFromAPIResponse = xhr.response.body.record;
 
+                let formName = testConfig.form;
+
                 // get form selector
-                let formSelector = 'div[name=' + formName + ']';
+                let formSelector = selectors.getFormSelector(formName);
 
                 // Check visibility of form
                 cy.get(formSelector).should('be.visible');
 
                 // get record and field list from the w2ui form object
                 cy.window().then((win) => {
+
                     // get w2ui form records
                     getW2UIFormRecords = win.w2ui[formName].record;
 
                     // get w2ui form fields
                     getW2UIFormFields = win.w2ui[formName].fields;
+
                 });
 
 
+                // perform tests on form fields
                 cy.get(formSelector)
                     .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
                     .each(($el, index, $list) => {
@@ -258,7 +262,7 @@ describe('AIR Receipt UI Tests', function () {
                         if (fieldID !== "PmtTypeName" && fieldID !== "Amount" && fieldID !== "ERentableName") {
 
                             // Check visibility and match the default value of the fields.
-                            cy.get('#' + fieldID)
+                            cy.get(selectors.getFieldSelector(fieldID))
                                 .should('be.visible')
                                 .should('have.value', defaultValue);
                         }
@@ -269,25 +273,20 @@ describe('AIR Receipt UI Tests', function () {
                 // Check Business Unit field must be disabled and have value REX
                 cy.get('#BUD').should('be.disabled').and('have.value', 'REX').and('be.visible');
 
-                // TODO(Akshay): List of buttons will be handled globally if needed
-                // List of visible and not visible buttons
-                let visibleButtons = ["save", "saveprint", "reverse"];
-                let notVisibleButtons = ["close"];
-
                 // Check visibility of buttons
-                visibleButtons.forEach(function (button) {
+                testConfig.buttonNamesInDetailForm.forEach(function (button) {
                     // Check visibility of button
-                    cy.get('button[name=' + button + ']').should('be.visible');
+                    cy.get(selectors.getButtonSelector(button)).should('be.visible');
                 });
 
                 // Check buttons aren't visible
-                notVisibleButtons.forEach(function (button) {
+                testConfig.notVisibleButtonNamesInForm.forEach(function (button) {
                     // Check button aren't visible
-                    cy.get('button[name=' + button + ']').should('not.be.visible');
+                    cy.get(selectors.getButtonSelector(button)).should('not.be.visible');
                 });
 
                 // Close the form
-                cy.get('[class="fa fa-times"]').click().wait(waitTime);
+                cy.get(selectors.getFormCloseButtonSelector()).click().wait(constants.WAIT_TIME);
 
                 // Check that form should not visible after closing it
                 cy.get(formSelector).should('not.be.visible');
@@ -309,7 +308,7 @@ describe('AIR Receipt UI Tests', function () {
     //     // get form selector
     //     let formSelector = 'div[name=' + formName + ']';
     //
-    //     cy.contains('Add New', {force: true}).click().wait(waitTime);
+    //     cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
     //
     //     // Check visibility of form
     //     cy.get(formSelector).should('be.visible');
@@ -383,7 +382,7 @@ describe('AIR Receipt UI Tests', function () {
     //     });
     //
     //     // Close the form
-    //     cy.get('[class="fa fa-times"]').click().wait(waitTime);
+    // cy.get(selectors.getFormCloseButtonSelector()).click().wait(constants.WAIT_TIME);
     //
     //     // Check that form should not visible after closing it
     //     cy.get(formSelector).should('not.be.visible');
