@@ -1,3 +1,8 @@
 {
-  "projectId": "supa6j"
+  "projectId": "supa6j",
+  "baseUrl": "http://localhost:8270",
+  "viewportHeight": 978,
+  "viewportWidth": 1920,
+  "responseTimeout": 30000,
+  "requestTimeout": 5000
 }

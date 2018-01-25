@@ -1,20 +1,24 @@
   (Tests Starting)
 
 
-  Basic Cypress UI Testing Demo
-    ✓ visiting home page (6120ms)
+  AIR Receipt UI Tests
+    ✓ Assert the title of application (2550ms)
+    ✓ Login into AIR Receipts (2992ms)
+    ✓ Left side node (2382ms)
+    ✓ Test for grid records and record detail (2072ms)
+    ✓ Test for the Add New Button (5876ms)
 
 
-  1 passing (8s)
+  5 passing (16s)
 
 
   (Tests Finished)
 
-  - Tests:           1
-  - Passes:          1
+  - Tests:           5
+  - Passes:          5
   - Failures:        0
   - Pending:         0
-  - Duration:        8 seconds
+  - Duration:        16 seconds
   - Screenshots:     0
   - Video Recorded:  false
   - Cypress Version: 1.4.1
