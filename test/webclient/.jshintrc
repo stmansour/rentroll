@@ -9,6 +9,9 @@
         "expect": true,
         "beforeEach": true,
         "Cypress": true,
-        "before": true
+        "before": true,
+        "formName": true,
+        "require": true,
+        "recordDetailFromAPIResponse": true
     }
 }
