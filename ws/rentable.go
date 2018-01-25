@@ -81,8 +81,7 @@ type RentableDetails struct {
 	RentableStatus string         // rentable status
 	RSDtStart      rlib.JSONDate  // rentable status start date
 	RSDtStop       rlib.JSONDate  // rentable status stop date
-	CurrentDate    rlib.JSONDate
-	AssignmentTime int64 // assignment time
+	AssignmentTime int64          // assignment time
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
@@ -811,7 +810,6 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	for rows.Next() {
 		var gg RentableDetails
-		gg.CurrentDate = rlib.JSONDate(t)
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(gg.BID)
 
