@@ -1,5 +1,6 @@
 /*global
-    setDefaultFormFieldAsPreviousRecord
+    setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
+    getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData,
 */
 "use strict";
 function getRentableInitRecord(BID, BUD, previousFormRecord){
