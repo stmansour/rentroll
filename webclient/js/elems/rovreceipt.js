@@ -255,9 +255,7 @@ function buildROVReceiptElements() {
         toolbar: {
             items: [
                 // { id: 'btnNotes',    type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'csvexport',   type: 'button', icon: 'fa fa-table',        tooltip: 'export to CSV' },
-                { id: 'pdfexport',   type: 'button', icon: 'fa fa-file-pdf-o',   tooltip: 'export to PDF' },
-                // { id: 'print',       type: 'button', icon: 'fa fa-print',        tooltip: 'print receipt' },
+                { id: 'print',       type: 'button', icon: 'fa fa-print',        tooltip: 'print receipt' },
                 { id: 'bt3',         type: 'spacer' },
                 { id: 'btnClose',    type: 'button', icon: 'fa fa-times' },
             ],
@@ -271,30 +269,12 @@ function buildROVReceiptElements() {
                         };
                     form_dirty_alert(yes_callBack, no_callBack);
                     break;
-                case "csvexport":
-                    if (w2ui.receiptForm.record.RCPTID === 0) {
-                        return;
-                    }
-                    exportItemReportCSV("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
-                    break;
-                case "pdfexport":
+                case "print":
                     if (w2ui.receiptForm.record.RCPTID === 0) {
                         return;
                     }
                     popupReceiptPrintChoice();
                     break;
-                /*case "printreport":
-                    if (w2ui.receiptForm.record.RCPTID === 0) {
-                        return;
-                    }
-                    exportItemReportPDF("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
-                    break;
-                case "print":
-                    if (w2ui.receiptForm.record.RCPTID === 0) {
-                        return;
-                    }
-                    exportItemReportPDF("RPTrcpthotel", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
-                    break;*/
                 }
             },
         },
@@ -605,25 +585,85 @@ function handleReceiptRAID(url, f) {
 }
 
 //--------------------------------------------------------------------------------
+// This contains the definition part of receiptChoiceForm, loads the form on call
+//--------------------------------------------------------------------------------
+function loadReceiptChoiceForm() {
+    $().w2form({
+        name: 'receiptChoiceForm',
+        style: 'border: 0px; background-color: transparent;',
+        focus: -1,
+        formHTML:
+            '<div class="w2ui-page page-0">'+
+            '    <div class="w2ui-field">'+
+            '        <label>Format:</label>'+
+            '        <div>'+
+            '           <input name="report_format" type="list" />'+
+            '        </div>'+
+            '    </div>'+
+            '    <div class="w2ui-field">'+
+            '        <label>Type:</label>'+
+            '        <div>'+
+            '           <label>'+
+            '               <input name="report_type" type="radio" value="permanent_resident" /> Permanent Resident'+
+            '           </label>'+
+            '           </br>'+
+            '           <label>'+
+            '               <input name="report_type" type="radio" value="hotel" /> Hotel'+
+            '           </label>'+
+            '        </div>'+
+            '    </div>'+
+            '</div>'+
+            '<div class="w2ui-buttons">'+
+            '    <button class="w2ui-btn" name="print" >Print</button>'+
+            '    <button class="w2ui-btn" name="close">Close</button>'+
+            '</div>',
+        fields: [
+            { field: 'report_format', type: 'list' , options: { items: ['PDF', 'CSV'] } },
+            { field: 'report_type'  , type: 'radio' },
+        ],
+        record: {
+            report_format : "PDF",
+            report_type   : "permanent_resident",
+        },
+        actions: {
+            close: function () {
+                w2popup.close();
+            },
+            print: function() {
+                receiptChoicePrint();
+            },
+        }
+    });
+}
+
+//--------------------------------------------------------------------------------
 // Pops up dialog to get print choice for the receipt (permanent resident / hotel)
 //--------------------------------------------------------------------------------
 function popupReceiptPrintChoice() {
+
+    // if receipt form is not loaded then load it first
+    if (!w2ui.receiptChoiceForm) {
+        loadReceiptChoiceForm();
+    }
+
     w2popup.open({
         title     : 'Print Receipt',
-        body      : '<div style="margin-left: 31%;">' +
-                        '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="permanent_resident" checked /> Permenant Resident </label></p></div>' +
-                        '<div class="w2ui-field"><p><label><input type="radio" name="receipt_print_choice" class="w2ui-input" value="hotel" /> Hotel </label></p></div>' +
-                    '</div>',
-        buttons   : '<button class="w2ui-btn" onclick="receiptChoicePrint();">Print</button>'+
-                    '<button class="w2ui-btn" onclick="w2popup.close();">Close</button>',
-        width     : 350,
-        height    : 170,
+        body      : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style     : 'padding: 15px 0px 0px 0px',
+        width     : 360,
+        height    : 220,
         overflow  : 'hidden',
         color     : '#333',
         speed     : '0.3',
         opacity   : '0.5',
         modal     : true,
         showClose : true,
+        onOpen    : function(event) {
+            event.onComplete = function() {
+                // specifying an onOpen handler instead is equivalent to specifying an onBeforeOpen handler, which would make this code execute too early and hence not deliver.
+                $('#w2ui-popup #form').w2render('receiptChoiceForm');
+            };
+        }
     });
 }
 
@@ -631,20 +671,34 @@ function popupReceiptPrintChoice() {
 // Sends the request to print receipt based upon a choice by user (permanent resident / hotel)
 //--------------------------------------------------------------------------------------------
 function receiptChoicePrint() {
-    var checked = document.querySelector('input[name=receipt_print_choice]:checked');
-    if (checked) {
-        switch(checked.value){
-        case "permanent_resident":
-            exportItemReportPDF("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
-            break;
-        case "hotel":
-            exportItemReportPDF("RPTrcpthotel", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
-            break;
-        }
-
-        // close the dialog after 500ms
-        setTimeout(function() {
-            w2popup.close();
-        }, 500);
+    // decide function call based on format first
+    var exportFormatFunc;
+    switch(w2ui.receiptChoiceForm.record.report_format.id) {
+    case "PDF":
+        exportFormatFunc = exportItemReportPDF;
+        break;
+    case "CSV":
+        exportFormatFunc = exportItemReportCSV;
+        break;
+    default:
+        alert("Invalid export format for receipt print");
+        return false;
     }
+
+    // choose type of report based on user selection
+    switch(w2ui.receiptChoiceForm.record.report_type){
+    case "permanent_resident":
+        exportFormatFunc("RPTrcpt", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
+        break;
+    case "hotel":
+        exportFormatFunc("RPTrcpthotel", w2ui.receiptForm.record.RCPTID, app.D1, app.D2);
+        break;
+    }
+
+    // close the dialog after 500ms
+    setTimeout(function() {
+        w2popup.close();
+        // TODO(Sudip): should we close the right panel after save/print succeed?
+    }, 500);
 }
+
