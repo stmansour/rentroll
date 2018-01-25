@@ -786,14 +786,20 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	INNER JOIN RentableTypeRef ON Rentable.RID = RentableTypeRef.RID
 	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
 	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
-	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
+	LEFT JOIN RentalAgreementRentables ON (
+		RentalAgreementRentables.RID=Rentable.RID
+		AND (CASE WHEN RentalAgreementRentables.RARDtStart IS NOT NULL THEN RentalAgreementRentables.RARDtStart<="{{.rarStart}}" END)
+		AND (CASE WHEN RentalAgreementRentables.RARDtStop IS NOT NULL THEN RentalAgreementRentables.RARDtStop>"{{.rarStop}}" END)
+	)
 	WHERE {{.WhereClause}};
 	`
 
 	// will be substituted as query clauses
 	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(rentableFormSelectFields, ","),
-		"WhereClause":  fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL ) AND (RentalAgreementRentables.RARDtStop>%q OR RentalAgreementRentables.RARDtStop IS NULL) ", d.BID, d.RID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)),
+		"WhereClause":  fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", d.BID, d.RID),
+		"rarStart":     t.Format(rlib.RRDATEINPFMT),
+		"rarStop":      t.Format(rlib.RRDATEINPFMT),
 	}
 
 	// get formatted query with substitution of select, where, order clause
