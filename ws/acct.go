@@ -652,8 +652,8 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//-------------------------------------------------------------------
 		existQuery := `SELECT LID FROM GLAccount WHERE {{.WhereClause}};`
 		qc := rlib.QueryClause{
-			"WhereClause": fmt.Sprintf("Name=\"%s\" OR GLNumber=\"%s\"",
-				strings.ToLower(a.Name), strings.ToLower(a.GLNumber)),
+			"WhereClause": fmt.Sprintf("BID=%d AND (Name=\"%s\" OR GLNumber=\"%s\")",
+				d.BID, strings.ToLower(a.Name), strings.ToLower(a.GLNumber)),
 		}
 		q := rlib.RenderSQLQuery(existQuery, qc)
 		fmt.Printf("db query = %s\n", q)
