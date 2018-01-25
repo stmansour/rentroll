@@ -6,6 +6,12 @@
         "cy": true,
         "describe": true,
         "it": true,
-        "expect": true
+        "expect": true,
+        "beforeEach": true,
+        "Cypress": true,
+        "before": true,
+        "formName": true,
+        "require": true,
+        "recordDetailFromAPIResponse": true
     }
 }
