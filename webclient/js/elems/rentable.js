@@ -62,6 +62,22 @@ function getRentableTypes(BUD) {
 }
 
 function buildRentableElements() {
+    // inside rentable part, we need this items
+    app.cycleFreqItems = []; // cycle freq items
+    app.cycleFreq.forEach(function(item, index) {
+        app.cycleFreqItems.push({id: index, text: item});
+    });
+
+    app.RSUseStatusItems = []; // rentable use status items
+    app.RSUseStatus.forEach(function(item, index) {
+        app.RSUseStatusItems.push({id: index, text: item});
+    });
+
+    app.RSLeaseStatusItems = []; // rentable lease status items
+    app.RSLeaseStatus.forEach(function(item, index) {
+        app.RSLeaseStatusItems.push({id: index, text: item});
+    });
+
     //------------------------------------------------------------------------
     //          rentablesGrid
     //------------------------------------------------------------------------
@@ -266,10 +282,6 @@ function buildRentableElements() {
         ],
         onSubmit: function(target, data){
             // server request form data
-            delete data.postData.record.RARID;
-            delete data.postData.record.RAID;
-            delete data.postData.record.RARDtStop;
-            delete data.postData.record.RARDtStart;
             delete data.postData.record.LastModTime;
             delete data.postData.record.LastModBy;
             delete data.postData.record.CreateTS;
@@ -350,8 +362,30 @@ function buildRentableElements() {
             {field: 'DtNoticeToVacate',                    caption: 'DtNoticeToVacate',         hidden: true},
             {field: 'DtNoticeToVacateIsSet',               caption: 'DtNoticeToVacateIsSet',    hidden: true},
             {field: 'RSID',        caption: 'RSID',        size: '50px'},
-            {field: 'UseStatus',   caption: 'UseStatus',   size: '150px',                                             editable: { type: 'list', align: 'left', items: [] } },
-            {field: 'LeaseStatus', caption: 'LeaseStatus', size: '150px',                                             editable: { type: 'list', align: 'left', items: [] } },
+            {field: 'UseStatus',   caption: 'UseStatus',   size: '150px',
+                editable: { type: 'select', align: 'left', items: app.RSUseStatusItems },
+                render: function (record, index, col_index) {
+                    var html = '';
+                    for (var s in app.RSUseStatusItems) {
+                        if (app.RSUseStatusItems[s].id == this.getCellValue(index, col_index)) {
+                            html = app.RSUseStatusItems[s].text;
+                        }
+                    }
+                    return html;
+                },
+            },
+            {field: 'LeaseStatus', caption: 'LeaseStatus', size: '150px',
+                editable: { type: 'select', align: 'left', items: app.RSLeaseStatusItems },
+                render: function (record, index, col_index) {
+                    var html = '';
+                    for (var s in app.RSLeaseStatusItems) {
+                        if (app.RSLeaseStatusItems[s].id == this.getCellValue(index, col_index)) {
+                            html = app.RSLeaseStatusItems[s].text;
+                        }
+                    }
+                    return html;
+                },
+            },
             {field: 'DtStart',     caption: 'DtStart',     size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
             {field: 'DtStop',      caption: 'DtStop',      size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
             {field: 'CreateBy',    caption: 'CreateBy',    hidden: true},
@@ -399,6 +433,10 @@ function buildRentableElements() {
             g.add(newRec);
         },
         onSave: function(event) {
+            this.records.forEach(function(item, index, arr) {
+                arr[index].UseStatus = parseInt(arr[index].UseStatus);
+                arr[index].LeaseStatus = parseInt(arr[index].LeaseStatus);
+            });
             event.changes = this.records;
         },
         onDelete: function(event) {
@@ -440,12 +478,6 @@ function buildRentableElements() {
                 field = g.columns[event.column].field,
                 chgRec = g.get(event.recid),
                 changeIsValid = true;
-
-            if ( field === "MarketRate" ) { // if field is MarketRate
-                if (event.value_new <= 0) {
-                    changeIsValid = false;
-                }
-            }
 
             // if fields are DtStart or DtStop
             if ( field === "DtStart" || field === "DtStop") {
@@ -521,8 +553,30 @@ function buildRentableElements() {
             {field: 'RID',         caption: 'RID',         hidden: true},
             {field: 'BID',         caption: 'BID',         hidden: true},
             {field: 'BUD',         caption: 'BUD',         hidden: true},
-            {field: 'OverrideRentCycle',                   caption: 'OverrideRentCycle',             size: "150px",   editable: { type: 'list', align: 'left', items: [] } },
-            {field: 'OverrideProrationCycle',              caption: 'OverrideProrationCycle',        size: "150px",   editable: { type: 'list', align: 'left', items: [] } },
+            {field: 'OverrideRentCycle',                   caption: 'OverrideRentCycle',             size: "150px",
+                editable: { type: 'select', align: 'left', items: app.cycleFreqItems },
+                render: function (record, index, col_index) {
+                    var html = '';
+                    for (var f in app.cycleFreqItems) {
+                        if (app.cycleFreqItems[f].id == this.getCellValue(index, col_index)) {
+                            html = app.cycleFreqItems[f].text;
+                        }
+                    }
+                    return html;
+                },
+            },
+            {field: 'OverrideProrationCycle',              caption: 'OverrideProrationCycle',        size: "150px",
+                editable: { type: 'select', align: 'left', items: app.cycleFreqItems },
+                render: function (record, index, col_index) {
+                    var html = '';
+                    for (var f in app.cycleFreqItems) {
+                        if (app.cycleFreqItems[f].id == this.getCellValue(index, col_index)) {
+                            html = app.cycleFreqItems[f].text;
+                        }
+                    }
+                    return html;
+                },
+            },
             {field: 'RTID',        caption: 'RTID',        size: '50px'},
             {field: 'RTRID',       caption: 'RTRID',       size: '50px'},
             {field: 'DtStart',     caption: 'DtStart',     size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
@@ -572,6 +626,10 @@ function buildRentableElements() {
             g.add(newRec);
         },
         onSave: function(event) {
+            this.records.forEach(function(item, index, arr) {
+                arr[index].OverrideRentCycle = parseInt(arr[index].OverrideRentCycle);
+                arr[index].OverrideProrationCycle = parseInt(arr[index].OverrideProrationCycle);
+            });
             event.changes = this.records;
         },
         onDelete: function(event) {
@@ -613,12 +671,6 @@ function buildRentableElements() {
                 field = g.columns[event.column].field,
                 chgRec = g.get(event.recid),
                 changeIsValid = true;
-
-            if ( field === "MarketRate" ) { // if field is MarketRate
-                if (event.value_new <= 0) {
-                    changeIsValid = false;
-                }
-            }
 
             // if fields are DtStart or DtStop
             if ( field === "DtStart" || field === "DtStop") {
