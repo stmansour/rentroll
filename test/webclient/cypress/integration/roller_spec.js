@@ -144,7 +144,7 @@ describe('AIR Receipt UI Tests', function () {
 
         // get business id from appSettings variable for 'REX'
         appSettings.BizMap.forEach(function (item) {
-            if (item.BUD === constants.testBiz){
+            if (item.BUD === constants.testBiz) {
                 constants.testBizID = item.BID;
             }
         });
@@ -255,21 +255,18 @@ describe('AIR Receipt UI Tests', function () {
                     // Iterate through each column in row
                     w2uiGridColumns.forEach(function (w2uiGridColumn, columnNo) {
 
-                        // Skipping tests on skipColumns
-                        if (!common.isInArray(w2uiGridColumn.field, testConfig.skipColumns)) {
+                        // Skipping tests on skipColumns and
+                        // Perform test only if w2uiGridColumn isn't hidden
+                        if (!common.isInArray(w2uiGridColumn.field, testConfig.skipColumns) && !w2uiGridColumn.hidden) {
 
-                            // Perform test only if w2uiGridColumn isn't hidden
-                            if (!w2uiGridColumn.hidden) {
+                            // get defaultValue of cell from w2uiGrid
+                            let valueForCell = record[w2uiGridColumn.field];
 
-                                // get defaultValue of cell from w2uiGrid
-                                let valueForCell = record[w2uiGridColumn.field];
-
-                                // Check visibility and default value of cell in the grid
-                                cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
-                                    .scrollIntoView()
-                                    .should('be.visible')
-                                    .should('contain', valueForCell);
-                            }
+                            // Check visibility and default value of cell in the grid
+                            cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
+                                .scrollIntoView()
+                                .should('be.visible')
+                                .should('contain', valueForCell);
                         }
 
                     });
