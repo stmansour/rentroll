@@ -7,7 +7,7 @@ import (
 
 // RSLeaseStatus is a slice of the string meaning of each LeaseStatus
 var RSLeaseStatus = []string{
-	"Unknown	",
+	"Unknown",
 	"Vacant Preleased",
 	"Vacant Unleased",
 	"On Notice Preleased",

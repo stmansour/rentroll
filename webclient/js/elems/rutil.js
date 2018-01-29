@@ -594,30 +594,6 @@ function calcRarGridContractRent(grid) {
     grid.set('s-1', { ContractRent: total });
 }
 
-
-//-----------------------------------------------------------------------------
-// getRentableTypes - return the RentableTypes list with respect of BUD
-// @params
-//      - BUD: current business designation
-// @return  the Rentable Types List
-//-----------------------------------------------------------------------------
-function getRentableTypes(BUD) {
-
-    return jQuery.ajax({
-        type: "GET",
-        url: "/v1/rtlist/"+BUD,
-        dataType: "json",
-    }).done(function(data) {
-        if (data.status == "success") {
-            if (data.records) {
-                app.rt_list[BUD] = data.records;
-            } else {
-                app.rt_list[BUD] = [];
-            }
-        }
-    });
-}
-
 //-----------------------------------------------------------------------------
 // getAccountsList - return the GLAccounts list with respect of BUD
 // @params

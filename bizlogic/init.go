@@ -44,6 +44,14 @@ const (
 	RentableNameExists              = 20 // A rentable with that name already exists
 	AsmDateRangeNotAllowed          = 21 // Non recur asmts must have equivalent start/stop dates
 	StartDateAfterStopDate          = 22 // Stop date occurs before start date
+	UnknownBID                      = 23 // Unknown BID
+	UnknownBUD                      = 24 // Unknown BUD
+	InvalidRentableUseStatus        = 25 // invalid rentable use status
+	InvalidRentableLeaseStatus      = 26 // invalid rentable lease status
+	InvalidRentableStatusDates      = 27 // invalid rentable status dates
+	RentableStatusDatesOverlap      = 28 // rentable status dates overlapping
+	InvalidRentableTypeRefDates     = 29 // invalid rentable type ref dates
+	RentableTypeRefDatesOverlap     = 29 // rentable type ref dates overlapping
 )
 
 // InitBizLogic loads the error messages needed for validation errors
@@ -61,7 +69,7 @@ func InitBizLogic() {
 		}
 		j, err := strconv.Atoi(n)
 		if err != nil {
-			rlib.LogAndPrint("InitAssessmentValidation: bizerr.csv - line %d, Invalid number %s\n", n)
+			rlib.LogAndPrint("InitBizLogic: bizerr.csv - line %d, Invalid number %s\n", n)
 		}
 		b := BizError{Errno: j, Message: t[i][1]}
 		BizErrors = append(BizErrors, b)

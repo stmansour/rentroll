@@ -38,6 +38,28 @@ function getRentableInitRecord(BID, BUD, previousFormRecord){
     return defaultFormData;
 }
 
+//-----------------------------------------------------------------------------
+// getRentableTypes - return the RentableTypes list with respect of BUD
+// @params
+//      - BUD: current business designation
+// @return  the Rentable Types List
+//-----------------------------------------------------------------------------
+function getRentableTypes(BUD) {
+    return jQuery.ajax({
+        type: "GET",
+        url: "/v1/rtlist/"+BUD,
+        dataType: "json",
+    }).done(function(data) {
+        if (data.status == "success") {
+            if (data.records) {
+                app.rt_list[BUD] = data.records;
+            } else {
+                app.rt_list[BUD] = [];
+            }
+        }
+    });
+}
+
 function buildRentableElements() {
     //------------------------------------------------------------------------
     //          rentablesGrid
@@ -101,15 +123,8 @@ function buildRentableElements() {
                             BID=parseInt(x.value),
                             BUD = getBUDfromBID(BID);
 
-                        console.log('rentable form url: ' + '/v1/rentable/' + BID + '/' + rec.RID);
-
-                        getRentableTypes(BUD)
-                        .done(function(/*data*/){
-                            setToForm('rentableForm', '/v1/rentable/' + BID + '/' + rec.RID, 700, true);
-                        })
-                        .fail(function(){
-                            console.log("Failed to get rentable type list");
-                        });
+                        setRentableLayout(BID, rec.RID);
+                        // setToForm('rentableForm', '/v1/rentable/' + BID + '/' + rec.RID, 700, true);
                     };
 
                 // warn user if form content has been chagned
@@ -128,17 +143,9 @@ function buildRentableElements() {
                         BID=parseInt(x.value),
                         BUD = getBUDfromBID(BID);
 
-                    var record = getRentableInitRecord(BID, BUD, null);
-
-                    getRentableTypes(BUD)
-                    .done(function(/*data*/){
-                        w2ui.rentableForm.record = record;
-                        w2ui.rentableForm.refresh();
-                        setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
-                    })
-                    .fail(function(){
-                        console.log("Failed to get rentable type list");
-                    });
+                    w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, null);
+                    w2ui.rentableForm.refresh();
+                    setRentableLayout(BID, 0);
                 };
 
             // warn user if form content has been chagned
@@ -147,12 +154,74 @@ function buildRentableElements() {
     });
 
     //------------------------------------------------------------------------
+    //          rentable detailed layout with form in main panel
+    //------------------------------------------------------------------------
+    $().w2layout({
+        name: 'rentableDetailLayout',
+        panels: [
+            {
+                type: 'top',
+                size: 35,
+                style: 'border: 1px solid silver;',
+                content: "",
+                toolbar: {
+                    style: "height: 35px; background-color: #eee; border: 0px;",
+                    items: [
+                        { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                        { id: 'bt3', type: 'spacer' },
+                        { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                    ],
+                    onClick: function (event) {
+                        switch(event.target) {
+                        case 'btnClose':
+                            var no_callBack = function() { return false; },
+                                yes_callBack = function() {
+                                    w2ui.toplayout.hide('right',true);
+                                    w2ui.rentablesGrid.render();
+                                };
+                            form_dirty_alert(yes_callBack, no_callBack);
+                            break;
+                        }
+                    },
+                },
+            },
+            {
+                type: 'main',
+                overflow: "hidden",
+                style: 'background-color: white; border: 1px solid silver; padding: 0px;',
+                tabs: {
+                    style: "padding-top: 10px;",
+                    active: 'rentableForm',
+                    tabs: [
+                        { id: 'rentableForm', caption: 'Rentable Detail' },
+                        { id: 'rentableStatusGrid', caption: 'Rentable Status' },
+                        { id: 'rentableTypeRefGrid', caption: 'Rentable Type Ref' },
+                    ],
+                    onClick: function (event) {
+                        if (event.target === "rentableForm") {
+                            w2ui.rentableDetailLayout.html('main', w2ui.rentableForm);
+                        } else if (event.target === "rentableStatusGrid") {
+                            w2ui.rentableDetailLayout.html('main', w2ui.rentableStatusGrid);
+                        } else if (event.target === "rentableTypeRefGrid") {
+                            w2ui.rentableDetailLayout.html('main', w2ui.rentableTypeRefGrid);
+                        }
+                    }
+                }
+            },
+            {
+                type: 'bottom',
+                size: 60,
+                // style: 'background-color: white;  border-top: 1px solid silver; text-align: center; padding: 15px;',
+            },
+        ],
+    });
+
+    //------------------------------------------------------------------------
     //          rentableForm
     //------------------------------------------------------------------------
     $().w2form({
         name: 'rentableForm',
         style: 'border: 0px; background-color: transparent;',
-        header: app.sRentable + ' Detail',
         url: '/v1/rentable',
         formURL: '/webclient/html/formr.html',
         fields: [
@@ -160,101 +229,13 @@ function buildRentableElements() {
             { field: 'RID', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
             { field: 'BUD', type: 'list', required: true, options: {items: app.businesses}, html: { page: 0, column: 0 } },
-            { field: 'RARID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'RAID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'RARDtStart', type: 'date', required: false, html: { page: 0, column: 0 } },
-            { field: 'RARDtStop', type: 'date', required: false, html: { page: 0, column: 0 } },
             { field: 'RentableName', type: 'text', required: true, html: { page: 0, column: 0 } },
-            { field: 'RTID', type: 'list', required: true, html: { page: 0, column: 0 }, options: { items: [], selected: {}, maxDropHeight: 200 } },
-            // { field: 'RTID', type: 'int', required: false },
-            { field: 'RTRID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'RTRefDtStart', type: 'date', required: true, html: { page: 0, column: 0 } },
-            { field: 'RTRefDtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
-            { field: 'RSID', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'RentableStatus', type: 'list', options: {items: app.rentableStatusList}, required: true, html: { page: 0, column: 0 } },
-            { field: 'RSDtStart', type: 'date', required: true, html: { page: 0, column: 0 } },
-            { field: 'RSDtStop', type: 'date', required: true, html: { page: 0, column: 0 } },
             { field: 'AssignmentTime', type: 'list', required: false, html: { page: 0, column: 0 } },
             { field: 'LastModTime',          type: 'hidden', required: false },
             { field: 'LastModBy',          type: 'hidden', required: false },
             { field: 'CreateTS',          type: 'hidden', required: false },
             { field: 'CreateBy',          type: 'hidden', required: false },
         ],
-        toolbar: {
-            items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
-            ],
-            onClick: function (event) {
-                switch(event.target) {
-                case 'btnClose':
-                    var no_callBack = function() { return false; },
-                        yes_callBack = function() {
-                            w2ui.toplayout.hide('right',true);
-                            w2ui.rentablesGrid.render();
-                        };
-                    form_dirty_alert(yes_callBack, no_callBack);
-                    break;
-                }
-            },
-        },
-        actions: {
-            saveadd: function() {
-                var f = this,
-                    grid = w2ui.rentablesGrid,
-                    r = f.record,
-                    x = getCurrentBusiness(),
-                    BID=parseInt(x.value),
-                    BUD=getBUDfromBID(BID);
-
-                // clean dirty flag of form
-                app.form_is_dirty = false;
-                // clear the grid select recid
-                app.last.grid_sel_recid  =-1;
-
-                // select none if you're going to add new record
-                grid.selectNone();
-
-                f.save({}, function (data) {
-                    if (data.status == 'error') {
-                        console.log('ERROR: '+ data.message);
-                        return;
-                    }
-                    getRentableTypes(BUD)
-                    .done(function(/*data*/){
-                        w2ui.rentableForm.record = record;
-                        w2ui.rentableForm.refresh();
-                        setToForm('rentableForm', '/v1/rentable/' + BID + '/0', 700);
-                    })
-                    .fail(function(){
-                        console.log("Failed to get rentable type list");
-                    });
-                    // JUST RENDER THE GRID ONLY
-                    grid.render();
-
-                    var record = getRentableInitRecord(BID, BUD, f.record);
-                    f.record = record;
-                    f.header = "Edit {0} ({1})".format(app.sRentable, "new");
-                    f.url = '/v1/rentable/' + BID+'/0';
-                    f.refresh();
-                });
-            },
-            save: function () {
-                //var obj = this;
-                var tgrid = w2ui.rentablesGrid;
-                tgrid.selectNone();
-                this.save({}, function (data) {
-                    if (data.status == 'error') {
-                        console.log('ERROR: '+ data.message);
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    tgrid.render();
-                });
-
-            },
-        },
         onSubmit: function(target, data){
             // server request form data
             delete data.postData.record.RARID;
@@ -276,12 +257,12 @@ function buildRentableElements() {
                     BUD = getBUDfromBID(BID),
                     header = "";
 
-                // custom header, not common one!!
+                /*// custom header, not common one!!
                 if (r.RID) {
                     header = "Edit {0} - {1} ({2})".format(app.sRentable, r.RentableName, r.RID);
                 } else {
                     header = "Edit {0} ({1})".format(app.sRentable, "new");
-                }
+                }*/
 
                 // assignmentTime selected and items for w2field
                 var assignmentItems = [], assignSelected = {};
@@ -294,8 +275,6 @@ function buildRentableElements() {
 
                 f.get("AssignmentTime").options.items = assignmentItems;
                 f.get("AssignmentTime").options.selected = assignSelected;
-                f.get("RTID").options.items = app.rt_list[BUD];
-                f.get("RTID").options.selected = {id: r.RTID, text: r.Name};
 
                 formRefreshCallBack(f, "RID", header);
             };
@@ -313,4 +292,551 @@ function buildRentableElements() {
             };
         },
     });
+
+    //------------------------------------------------------------------------
+    //          rentable Status Grid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'rentableStatusGrid',
+        style: 'padding: 0px',
+        show: {
+            header: false,
+            toolbar: true,
+            toolbarReload: false,
+            toolbarColumns: false,
+            toolbarSearch: true,
+            toolbarAdd: true,
+            toolbarDelete: true,
+            toolbarSave: false,
+            searchAll       : true,
+            footer: true,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        columns: [
+            {field: 'recid',       caption: 'recid',       hidden: true},
+            {field: 'RID',         caption: 'RID',         hidden: true},
+            {field: 'BID',         caption: 'BID',         hidden: true},
+            {field: 'BUD',         caption: 'BUD',         hidden: true},
+            {field: 'DtNoticeToVacate',                    caption: 'DtNoticeToVacate',         hidden: true},
+            {field: 'DtNoticeToVacateIsSet',               caption: 'DtNoticeToVacateIsSet',    hidden: true},
+            {field: 'RSID',        caption: 'RSID',        size: '50px'},
+            {field: 'UseStatus',   caption: 'UseStatus',   size: '150px',                                             editable: { type: 'list', align: 'left', items: [] } },
+            {field: 'LeaseStatus', caption: 'LeaseStatus', size: '150px',                                             editable: { type: 'list', align: 'left', items: [] } },
+            {field: 'DtStart',     caption: 'DtStart',     size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
+            {field: 'DtStop',      caption: 'DtStop',      size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
+            {field: 'CreateBy',    caption: 'CreateBy',    hidden: true},
+            {field: 'LastModBy',   caption: 'LastModBy',   hidden: true},
+        ],
+        onLoad: function(event) {
+            event.onComplete = function() {
+                this.url = '';
+            };
+        },
+        onAdd: function(/*event*/) {
+            var x = getCurrentBusiness(),
+                BID=parseInt(x.value),
+                BUD = getBUDfromBID(BID),
+                fr = w2ui.rentableForm.record,
+                g = this,
+                ndStart;
+
+            // get lastest date among all market rate object's stopDate for new MR's StartDate
+            if (g.records.length === 0) {
+                ndStart = new Date();
+            } else {
+                g.records.forEach(function(rec) {
+                    if (ndStart === undefined) {
+                        ndStart = new Date(rec.DtStop);
+                    }
+                    if (rec.DtStop) {
+                        var rdStop = new Date(rec.DtStop);
+                        if (ndStart < rdStop) {
+                            ndStart = rdStop;
+                        }
+                    }
+                });
+            }
+
+            var newRec = { recid: g.records.length,
+                BID: BID,
+                BUD: BUD,
+                RID: fr.RID,
+                RSID: 0,
+                UseStatus: 0,
+                LeaseStatus: 0,
+                DtStart: dateFmtStr(ndStart),
+                DtStop: "12/31/9999" };
+            g.add(newRec);
+        },
+        onSave: function(event) {
+            event.changes = this.records;
+        },
+        onDelete: function(event) {
+            var selected = this.getSelection(),
+                RSIDList = [],
+                grid = this;
+
+            // if not selected then return
+            if (selected.length < 0) {
+                return;
+            }
+            // collect RMRID
+            selected.forEach(function(id) {
+                RSIDList.push(grid.get(id).RSID);
+            });
+
+            event.onComplete = function() {
+                var x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID),
+                    RTID = w2ui.rentableForm.record.RTID;
+
+                var payload = { "cmd": "delete", "RSIDList": RSIDList };
+                $.ajax({
+                    type: "POST",
+                    url: "/v1/rentablestatus/" + BID + "/" + RTID,
+                    data: JSON.stringify(payload),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: function(data) {
+                        grid.reload();
+                    },
+                });
+            };
+        },
+        onChange: function(event) {
+            event.preventDefault();
+            var g = this,
+                field = g.columns[event.column].field,
+                chgRec = g.get(event.recid),
+                changeIsValid = true;
+
+            if ( field === "MarketRate" ) { // if field is MarketRate
+                if (event.value_new <= 0) {
+                    changeIsValid = false;
+                }
+            }
+
+            // if fields are DtStart or DtStop
+            if ( field === "DtStart" || field === "DtStop") {
+
+                var chgDStart = field === "DtStart" ? new Date(event.value_new) : new Date(chgRec.DtStart),
+                    chgDStop = field === "DtStop" ? new Date(event.value_new) : new Date(chgRec.DtStop);
+
+                // Stop date should not before Start Date
+                if (chgDStop <= chgDStart) {
+                        changeIsValid = false;
+                } else {
+                    // make sure date values don't overlap with other market rate dates
+                    for(var i in g.records) {
+                        var rec = g.records[i];
+                        if (rec.recid === chgRec.recid) { // if same record then continue to next one
+                            continue;
+                        }
+
+                        var rDStart = new Date(rec.DtStart),
+                            rDStop = new Date(rec.DtStop);
+
+                        // return if changed record startDate falls in other MR time span
+                        if (rDStart < chgDStart && chgDStart < rDStop) {
+                            changeIsValid = false;
+                        } else if(rDStart < chgDStop && chgDStop < rDStop) {
+                            changeIsValid = false;
+                        } else if(chgDStart < rDStart && rDStop < chgDStop) {
+                            changeIsValid = false;
+                        }
+                    }
+                }
+            }
+
+            if(changeIsValid) {
+                // if everything is ok, then mark this as false
+                event.isCancelled = false;
+            } else {
+                event.isCancelled = true;
+            }
+
+            event.onComplete = function() {
+                if (!event.isCancelled) { // if event not cancelled then invoke save method
+                    // save automatically locally
+                    this.save();
+                }
+            };
+        }
+    });
+
+    //------------------------------------------------------------------------
+    //          rentable Type Ref Grid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'rentableTypeRefGrid',
+        style: 'padding: 0px',
+        show: {
+            header: false,
+            toolbar: true,
+            toolbarReload: false,
+            toolbarColumns: false,
+            toolbarSearch: true,
+            toolbarAdd: true,
+            toolbarDelete: true,
+            toolbarSave: false,
+            searchAll       : true,
+            footer: true,
+            lineNumbers: false,
+            selectColumn: false,
+            expandColumn: false
+        },
+        columns: [
+            {field: 'recid',       caption: 'recid',       hidden: true},
+            {field: 'RID',         caption: 'RID',         hidden: true},
+            {field: 'BID',         caption: 'BID',         hidden: true},
+            {field: 'BUD',         caption: 'BUD',         hidden: true},
+            {field: 'OverrideRentCycle',                   caption: 'OverrideRentCycle',             size: "150px",   editable: { type: 'list', align: 'left', items: [] } },
+            {field: 'OverrideProrationCycle',              caption: 'OverrideProrationCycle',        size: "150px",   editable: { type: 'list', align: 'left', items: [] } },
+            {field: 'RTID',        caption: 'RTID',        size: '50px'},
+            {field: 'RTRID',       caption: 'RTRID',       size: '50px'},
+            {field: 'DtStart',     caption: 'DtStart',     size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
+            {field: 'DtStop',      caption: 'DtStop',      size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
+            {field: 'CreateBy',    caption: 'CreateBy',    hidden: true},
+            {field: 'LastModBy',   caption: 'LastModBy',   hidden: true},
+        ],
+        onLoad: function(event) {
+            event.onComplete = function() {
+                this.url = '';
+            };
+        },
+        onAdd: function(event) {
+            var x = getCurrentBusiness(),
+                BID=parseInt(x.value),
+                BUD = getBUDfromBID(BID),
+                g = this,
+                ndStart;
+
+            // get lastest date among all market rate object's stopDate for new MR's StartDate
+            if (g.records.length === 0) {
+                ndStart = new Date();
+            } else {
+                g.records.forEach(function(rec) {
+                    if (ndStart === undefined) {
+                        ndStart = new Date(rec.DtStop);
+                    }
+                    if (rec.DtStop) {
+                        var rdStop = new Date(rec.DtStop);
+                        if (ndStart < rdStop) {
+                            ndStart = rdStop;
+                        }
+                    }
+                });
+            }
+
+            var newRec = { recid: g.records.length,
+                BID: BID,
+                BUD: BUD,
+                RID: w2ui.rentableForm.record.RID,
+                RTID: 0,
+                RTRID: 0,
+                OverrideRentCycle: 0,
+                OverrideProrationCycle: 0,
+                DtStart: dateFmtStr(ndStart),
+                DtStop: "12/31/9999" };
+            g.add(newRec);
+        },
+        onSave: function(event) {
+            event.changes = this.records;
+        },
+        onDelete: function(event) {
+            var selected = this.getSelection(),
+                RTRIDList = [],
+                grid = this;
+
+            // if not selected then return
+            if (selected.length < 0) {
+                return;
+            }
+            // collect RTRID
+            selected.forEach(function(id) {
+                RTRIDList.push(grid.get(id).RTRID);
+            });
+
+            event.onComplete = function() {
+                var x = getCurrentBusiness(),
+                    BID=parseInt(x.value),
+                    BUD = getBUDfromBID(BID),
+                    RID = w2ui.rentableForm.record.RID;
+
+                var payload = { "cmd": "delete", "RTRIDList": RTRIDList };
+                $.ajax({
+                    type: "POST",
+                    url: "/v1/rentabletyperef/" + BID + "/" + RID,
+                    data: JSON.stringify(payload),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: function(data) {
+                        grid.reload();
+                    },
+                });
+            };
+        },
+        onChange: function(event) {
+            event.preventDefault();
+            var g = this,
+                field = g.columns[event.column].field,
+                chgRec = g.get(event.recid),
+                changeIsValid = true;
+
+            if ( field === "MarketRate" ) { // if field is MarketRate
+                if (event.value_new <= 0) {
+                    changeIsValid = false;
+                }
+            }
+
+            // if fields are DtStart or DtStop
+            if ( field === "DtStart" || field === "DtStop") {
+
+                var chgDStart = field === "DtStart" ? new Date(event.value_new) : new Date(chgRec.DtStart),
+                    chgDStop = field === "DtStop" ? new Date(event.value_new) : new Date(chgRec.DtStop);
+
+                // Stop date should not before Start Date
+                if (chgDStop <= chgDStart) {
+                        changeIsValid = false;
+                } else {
+                    // make sure date values don't overlap with other market rate dates
+                    for(var i in g.records) {
+                        var rec = g.records[i];
+                        if (rec.recid === chgRec.recid) { // if same record then continue to next one
+                            continue;
+                        }
+
+                        var rDStart = new Date(rec.DtStart),
+                            rDStop = new Date(rec.DtStop);
+
+                        // return if changed record startDate falls in other MR time span
+                        if (rDStart < chgDStart && chgDStart < rDStop) {
+                            changeIsValid = false;
+                        } else if(rDStart < chgDStop && chgDStop < rDStop) {
+                            changeIsValid = false;
+                        } else if(chgDStart < rDStart && rDStop < chgDStop) {
+                            changeIsValid = false;
+                        }
+                    }
+                }
+            }
+
+            if(changeIsValid) {
+                // if everything is ok, then mark this as false
+                event.isCancelled = false;
+            } else {
+                event.isCancelled = true;
+            }
+
+            event.onComplete = function() {
+                if (!event.isCancelled) { // if event not cancelled then invoke save method
+                    // save automatically locally
+                    this.save();
+                }
+            };
+        }
+    });
+
+    //------------------------------------------------------------------------
+    //          Rentable Form Buttons
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'rentableFormBtns',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/webclient/html/formrbtns.html',
+        url: '',
+        fields: [],
+        actions: {
+            save: function() {
+                var BID = getCurrentBID();
+
+                // unselect record from
+                w2ui.rentablesGrid.selectNone();
+
+                // hit save
+                w2ui.rentableForm.save({}, function (data) {
+                    if (data.status === 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    // in case if record is new then we've to update RID that saved on server side
+                    w2ui.rentableForm.record.RID = data.recid;
+
+                    var i;
+                    // update RID in grid records (status)
+                    for (i = 0; i < w2ui.rentableStatusGrid.records.length; i++) {
+                        w2ui.rentableStatusGrid.records[i].RID = w2ui.rentableForm.record.RID;
+                    }
+
+                    // update RID in grid records (typeRef)
+                    for (i = 0; i < w2ui.rentableTypeRefGrid.records.length; i++) {
+                        w2ui.rentableTypeRefGrid.records[i].RID = w2ui.rentableForm.record.RID;
+                    }
+
+                    // now set the url of status grid so that it can save the record on server side
+                    w2ui.rentableStatusGrid.url = '/v1/rentablestatus/' + BID + '/' + w2ui.rentableForm.record.RID;
+                    w2ui.rentableStatusGrid.save(function(data) {
+                        // no matter, if it was succeed or not, just reset it, we already setting it before save call
+                        w2ui.rentableStatusGrid.url = ""; // after save, remove it
+
+                        if (data.status == "success") {
+                            // next save rentable type ref
+                            // now set the url of type ref grid so that it can save the record on server side
+                            w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/' + BID + '/' + w2ui.rentableForm.record.RID;
+                            w2ui.rentableTypeRefGrid.save(function(data) {
+                                // no matter, if it was succeed or not, just reset it, we already setting it before save call
+                                w2ui.rentableTypeRefGrid.url = ""; // after save, remove it
+
+                                if (data.status === "success") {
+                                    w2ui.toplayout.hide('right',true);
+                                    w2ui.rentablesGrid.render();
+                                }
+                            });
+                        }
+                    });
+                });
+            },
+            saveadd: function() {
+                var BID = getCurrentBID(),
+                    BUD = getBUDfromBID(BID);
+
+                // clean dirty flag of form
+                app.form_is_dirty = false;
+
+                // clear the grid select recid
+                app.last.grid_sel_recid  =-1;
+
+                // select none if you're going to add new record
+                w2ui.rentablesGrid.selectNone();
+
+                w2ui.rentableForm.save({}, function (data) {
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+
+                    // now set the url of market Rate grid so that it can save the record on server side
+                    w2ui.rentableStatusGrid.url = '/v1/rentablestatus/' + BID + '/' + w2ui.rentableForm.record.RID;
+                    w2ui.rentableStatusGrid.save(function(data) {
+                        // no matter, if it was succeed or not, just reset it, we already setting it before save call
+                        w2ui.rentableStatusGrid.url = ""; // after save, remove it
+
+                        if (data.status === "success") {
+
+                            // clear grid as we're going to add new Form
+                            w2ui.rentableStatusGrid.clear();
+
+                            // next save rentable type ref
+                            // now set the url of type ref grid so that it can save the record on server side
+                            w2ui.rentableTypeRefGrid.url = '/v1/rentabletyperef/' + BID + '/' + w2ui.rentableForm.record.RID;
+                            w2ui.rentableTypeRefGrid.save(function(data) {
+                                // no matter, if it was succeed or not, just reset it, we already setting it before save call
+                                w2ui.rentableTypeRefGrid.url = ""; // after save, remove it
+
+                                if (data.status === "success") {
+
+                                    // clear the rentabletyperef grid, as we're going to add new record
+                                    w2ui.rentableTypeRefGrid.clear();
+
+                                    // JUST RENDER THE MAIN GRID ONLY
+                                    w2ui.rentablesGrid.render();
+
+                                    w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, w2ui.rentableForm.record);
+                                    // w2ui.rentableForm.header = "Edit {0} ({1}) as of {2}".format(app.sRentable, "new", w2uiDateControlString(w2ui.rentableForm.record.CurrentDate));
+                                    w2ui.rentableForm.url = '/v1/rentable/' + BID+'/0';
+                                    w2ui.rentableForm.refresh();
+                                }
+                            });
+                        }
+                    });
+                });
+            },
+            deactivate: function() {},
+            reactivate: function() {},
+         },
+    });
+}
+
+function setRentableLayout(BID, RID) {
+
+    // set the url for rentableForm
+    w2ui.rentableForm.url = '/v1/rentable/' + BID + '/' + RID;
+
+    // load bottom panels with action buttons panel
+    w2ui.rentableDetailLayout.content("bottom", w2ui.rentableFormBtns);
+
+    // if form has tabs then click the first one
+    if (typeof w2ui.rentableForm.tabs.name == "string") {
+        w2ui.rentableForm.tabs.click('tab1');
+    }
+
+    // mark this flag as is this new record
+    app.new_form_rec = RID ? true : false;
+
+    // as new content will be loaded for this form
+    // mark form dirty flag as false
+    app.form_is_dirty = false;
+
+    if (RID) {
+
+        // if rentable available then load the status grid
+        w2ui.rentableStatusGrid.load('/v1/rentablestatus/' + BID + '/' + RID);
+        console.log("rentable status grid load data: {0}".format('/v1/rentablestatus/' + BID + '/' + RID));
+
+        // // if rentable available then load the type ref grid
+        w2ui.rentableTypeRefGrid.load('/v1/rentabletyperef/' + BID + '/' + RID);
+        console.log("rentable type ref grid load data: {0}".format('/v1/rentabletyperef/' + BID + '/' + RID));
+
+        // change the text of form tab
+        w2ui.rentableDetailLayout.get("main").tabs.get("rentableForm").text = "Rentable Details ({0})".format(RID);
+        w2ui.rentableDetailLayout.get("main").tabs.refresh();
+
+        // load form content from server
+        w2ui.rentableForm.request(function(event) {
+            if (event.status === "success") {
+                // only render the toplayout after server has sent down data
+                // so that w2ui can bind values with field's html control,
+                // otherwise it is unable to find html controls
+                showForm();
+                return true;
+            }
+            else {
+                showForm();
+                w2ui.rentableForm.message("Could not get form data from server...!!");
+                return false;
+            }
+        });
+    }
+    else {
+        // if new RentableType then clear the status, type ref grid first
+        w2ui.rentableStatusGrid.clear();
+        w2ui.rentableTypeRefGrid.clear();
+
+        // change the text of form tab
+        w2ui.rentableDetailLayout.get("main").tabs.get("rentableForm").text = "Rentable Details ({0})".format("new");
+        w2ui.rentableDetailLayout.get("main").tabs.refresh();
+
+        // unselect the previous selected row
+        var sel_recid = parseInt(w2ui.rentablesGrid.last.sel_recid);
+        if (sel_recid > -1) {
+            // if new record is being added then unselect {{the selected record}} from the grid
+            w2ui.rentablesGrid.unselect(w2ui.rentablesGrid.last.sel_recid);
+        }
+
+        showForm();
+        return true;
+    }
+
+    function showForm() {
+        // SHOW the right panel now
+        w2ui.toplayout.content('right', w2ui.rentableDetailLayout);
+        w2ui.toplayout.sizeTo('right', 700);
+        // w2ui.rentableDetailLayout.render();
+        w2ui.rentableDetailLayout.get("main").tabs.click("rentableForm");
+        w2ui.toplayout.show('right', true);
+    }
 }
