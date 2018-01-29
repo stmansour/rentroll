@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -65,25 +64,12 @@ type RentableTypedownResponse struct {
 
 // RentableDetails holds the details about other detailed associated data with specific rentable
 type RentableDetails struct {
-	Recid          int64         `json:"recid"` // this is to support the w2ui form
-	BID            int64         // business
-	BUD            rlib.XJSONBud // business
+	Recid          int64 `json:"recid"` // this is to support the w2ui form
+	BID            int64
+	BUD            rlib.XJSONBud
 	RID            int64
-	RentableName   string         // Rentable Name
-	RARID          rlib.NullInt64 // RentalAgreementRentable ID
-	RAID           rlib.NullInt64 // Rental Agreement ID for this period
-	RARDtStart     rlib.NullDate  // RentalAgreementStart Date
-	RARDtStop      rlib.NullDate  // RentalAgreementStop Date
-	RTID           int64          // Rentable type id
-	RTRID          int64          // Rentable Type Reference ID
-	RTRefDtStart   rlib.JSONDate  // Rentable Type Reference Stop Date
-	RTRefDtStop    rlib.JSONDate  // Rentable Type Reference Start Date
-	RentableType   string         // Rentable Type Name
-	RSID           int64          // Rentable Status ID
-	RentableStatus string         // rentable status
-	RSDtStart      rlib.JSONDate  // rentable status start date
-	RSDtStop       rlib.JSONDate  // rentable status stop date
-	AssignmentTime int64          // assignment time
+	RentableName   string
+	AssignmentTime int64
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
@@ -340,7 +326,7 @@ func SvcFormHandlerRentable(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // 	rlib.Console("----------------------------\n")
 // }
 
-// AdjustRTRTimeList determines what edits and/or inserts are needed to
+/*// AdjustRTRTimeList determines what edits and/or inserts are needed to
 // add the supplied rtr struct to the the existing RentableTypeRef records.
 // Records are added as needed except where there is overlap. Overlaps are
 // handled as illustrated in the following example (Rentable Types RT1 and
@@ -483,7 +469,7 @@ func AdjustRSTimeList(ctx context.Context, rs *rlib.RentableStatus, r *rlib.Rent
 		m = append(m, *rs) // add rs to the list after all adjustments
 	}
 	return R, m
-}
+}*/
 
 // saveRentable returns the requested rentable
 // wsdoc {
@@ -524,11 +510,11 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	var (
-		ok          bool
-		rt          rlib.Rentable
-		rs          rlib.RentableStatus
+		ok bool
+		rt rlib.Rentable
+		/*rs          rlib.RentableStatus
 		rtr         rlib.RentableTypeRef
-		currentTime = time.Now()
+		currentTime = time.Now()*/
 	)
 
 	// checks for valid values
@@ -538,12 +524,13 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	// check whether rentable type is provided or not
+
+	/*// check whether rentable type is provided or not
 	if !(rfRecord.RTID > 0) {
 		e := fmt.Errorf("Rentable Type must be provided")
 		SvcErrorReturn(w, e, funcname)
 		return
-	}
+	}*/
 
 	// // StopDate should not be before Today's date
 	// if !(rlib.IsDateBefore((time.Time)(rfRecord.RTRefDtStart), (time.Time)(rfRecord.RTRefDtStop))) {
@@ -587,7 +574,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		rlib.Console("Rentable record has been updated with RID: %d\n", rt.RID)
 
-		// ---------------- UPDATE RENTABLE TYPE REFERENCE ------------------------
+		/*// ---------------- UPDATE RENTABLE TYPE REFERENCE ------------------------
 
 		// get rental type ref object associated with this rentable
 		rtr, err = rlib.GetRentableTypeRef(r.Context(), rfRecord.RTRID)
@@ -653,10 +640,9 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					return
 				}
 			}
-		}
+		}*/
 	} else {
 		fmt.Println("Inserting new Rentable Record...")
-		rlib.Console("Given RTID is %d\n", rfRecord.RTID)
 
 		// --------------------- INSERT RENTABLE RECORD -------------------------
 		rt.BID = requestedBID
@@ -676,7 +662,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rt.RID = rid
 		rlib.Console("New Rentable record has been saved with RID: %d\n", rt.RID)
 
-		// ------------------------- INSERT RENTABLE STATUS ---------------------------
+		/*// ------------------------- INSERT RENTABLE STATUS ---------------------------
 
 		// insert rentable status for this Rentable
 		rs.RID = rt.RID
@@ -709,34 +695,10 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		rlib.Console("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)
+		rlib.Console("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)*/
 	}
 
 	SvcWriteSuccessResponse(w)
-}
-
-// which fields needs to be fetched for SQL query for rentable details
-var rentableFormSelectFields = []string{
-	"Rentable.RID",
-	"Rentable.RentableName",
-	"RentalAgreementRentables.RARID",
-	"RentalAgreementRentables.RAID",
-	"RentalAgreementRentables.RARDtStart",
-	"RentalAgreementRentables.RARDtStop",
-	"RentableTypeRef.RTID",
-	"RentableTypeRef.RTRID",
-	"RentableTypeRef.DtStart as RTRefDtStart",
-	"RentableTypeRef.DtStop as RTRefDtStop",
-	"RentableTypes.Name",
-	"RentableStatus.RSID",
-	"RentableStatus.UseStatus as RentableStatus",
-	"RentableStatus.DtStart as RSDtStart",
-	"RentableStatus.DtStop as RSDtStop",
-	"Rentable.AssignmentTime",
-	"Rentable.LastModTime",
-	"Rentable.LastModBy",
-	"Rentable.CreateTS",
-	"Rentable.CreateBy",
 }
 
 // getRentable returns the requested rentable
@@ -753,68 +715,19 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRentable"
 	var (
 		g GetRentableResponse
-		t = time.Now()
 	)
 	rlib.Console("entered %s\n", funcname)
 
-	rentableQuery := `
-	SELECT
-		DISTINCT {{.SelectClause}}
-	FROM Rentable
-	INNER JOIN RentableTypeRef ON Rentable.RID = RentableTypeRef.RID
-	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
-	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
-	LEFT JOIN RentalAgreementRentables ON (
-		RentalAgreementRentables.RID=Rentable.RID
-		AND (CASE WHEN RentalAgreementRentables.RARDtStart IS NOT NULL THEN RentalAgreementRentables.RARDtStart<="{{.rarStart}}" END)
-		AND (CASE WHEN RentalAgreementRentables.RARDtStop IS NOT NULL THEN RentalAgreementRentables.RARDtStop>"{{.rarStop}}" END)
-	)
-	WHERE {{.WhereClause}};
-	`
-
-	// will be substituted as query clauses
-	qc := rlib.QueryClause{
-		"SelectClause": strings.Join(rentableFormSelectFields, ","),
-		"WhereClause":  fmt.Sprintf("Rentable.BID=%d AND Rentable.RID=%d", d.BID, d.RID),
-		"rarStart":     t.Format(rlib.RRDATEINPFMT),
-		"rarStop":      t.Format(rlib.RRDATEINPFMT),
-	}
-
-	// get formatted query with substitution of select, where, order clause
-	q := rlib.RenderSQLQuery(rentableQuery, qc)
-	rlib.Console("db query = %s\n", q)
-
-	// execute the query
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	rentable, err := rlib.GetRentable(r.Context(), d.RID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var gg RentableDetails
-		gg.BID = d.BID
-		gg.BUD = getBUDFromBIDList(gg.BID)
-
-		var rStatus int64
-		err = rows.Scan(&gg.RID, &gg.RentableName, &gg.RARID, &gg.RAID, &gg.RARDtStart, &gg.RARDtStop, &gg.RTID, &gg.RTRID, &gg.RTRefDtStart, &gg.RTRefDtStop, &gg.RentableType, &gg.RSID, &rStatus, &gg.RSDtStart, &gg.RSDtStop, &gg.AssignmentTime, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-
-		// convert status int to string, human readable
-		gg.RentableStatus = rlib.RentableStatusToString(rStatus)
-
-		g.Record = gg
-	}
-	// error check
-	err = rows.Err()
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
+	var gg RentableDetails
+	rlib.MigrateStructVals(&rentable, &gg) // the variables that don't need special handling
+	gg.BUD = getBUDFromBIDList(gg.BID)
+	g.Record = gg
 
 	// write response
 	g.Status = "success"
