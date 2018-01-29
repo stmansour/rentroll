@@ -86,7 +86,34 @@ function buildRentableElements() {
             // {field: 'AssignmentTime', caption: 'Assignment Time', size: '120px', sortable: true},
             {field: 'RTID', caption: 'Rentable Type ID', hidden: true, sortable: true},
             {field: 'RentableType', caption: 'Rentable Type', size: '200px', sortable: true},
-            {field: 'RentableStatus', caption: 'Rentable <br>Status', size: '100px', sortable: true},
+            {field: 'UseStatus',    caption: 'Rentable <br>Use Status',   size: '100px', sortable: true,
+                render: function (record/*, index, col_index*/) {
+                    var text = '';
+                    if (record) {
+                        app.RSUseStatus.forEach(function(item, index) {
+                            if (record.UseStatus == index) {
+                                text = item;
+                                return false;
+                            }
+                        });
+                    }
+                    return text;
+                },
+            },
+            {field: 'LeaseStatus',  caption: 'Rentable <br>Lease Status', size: '100px', sortable: true,
+                render: function (record/*, index, col_index*/) {
+                    var text = '';
+                    if (record) {
+                        app.RSLeaseStatus.forEach(function(item, index) {
+                            if (record.LeaseStatus == index) {
+                                text = item;
+                                return false;
+                            }
+                        });
+                    }
+                    return text;
+                },
+            },
             {field: 'RARID', caption: 'RARID', hidden: true, sortable: true},
             {field: 'RAID', caption: 'RAID', size: '70px', sortable: true},
             {field: 'RentalAgreementStart', caption: 'Rental Agreement <br>Start', size: '120px', sortable: true},

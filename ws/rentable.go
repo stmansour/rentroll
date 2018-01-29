@@ -32,7 +32,8 @@ type PrRentableOther struct {
 	RTID                 int64
 	RentableName         string
 	RentableType         string
-	RentableStatus       string
+	UseStatus            int64
+	LeaseStatus          int64
 	RARID                rlib.NullInt64
 	RAID                 rlib.NullInt64
 	RentalAgreementStart rlib.NullDate
@@ -128,7 +129,8 @@ var rentablesGridFieldsMap = map[string][]string{
 	"RentableName":         {"Rentable.RentableName"},
 	"RentableType":         {"RentableTypes.Name"},
 	"RTID":                 {"RentableTypes.RTID"},
-	"RentableStatus":       {"RentableStatus.UseStatus"},
+	"UseStatus":            {"RentableStatus.UseStatus"},
+	"LeaseStatus":          {"RentableStatus.LeaseStatus"},
 	"RARID":                {"RentalAgreementRentables.RARID"},
 	"RAID":                 {"RentalAgreementRentables.RAID"},
 	"RentalAgreementStart": {"RentalAgreementRentables.RARDtStart"},
@@ -141,7 +143,8 @@ var rentablesQuerySelectFields = []string{
 	"Rentable.RentableName",
 	"RentableTypes.Name as RentableType",
 	"RentableTypes.RTID",
-	"RentableStatus.UseStatus as RentableStatus",
+	"RentableStatus.UseStatus",
+	"RentableStatus.LeaseStatus",
 	"RentalAgreementRentables.RARID",
 	"RentalAgreementRentables.RAID",
 	"RentalAgreementRentables.RARDtStart as RentalAgreementStart",
@@ -150,13 +153,7 @@ var rentablesQuerySelectFields = []string{
 
 // rentablesRowScan scans a result from sql row and dump it in a PrRentableOther struct
 func rentablesRowScan(rows *sql.Rows, q PrRentableOther) (PrRentableOther, error) {
-	var rStatus int64
-
-	err := rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &q.RTID, &rStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
-
-	// convert status int to string, human readable
-	q.RentableStatus = rlib.RentableStatusToString(rStatus)
-
+	err := rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &q.RTID, &q.UseStatus, &q.LeaseStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
 	return q, err
 }
 
@@ -175,7 +172,6 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	var (
 		err error
 		g   SearchRentablesResponse
-		// currentTime = time.Now()
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -196,29 +192,10 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 
 	// Show All Renbles no matter in what state they are,
 	srch := fmt.Sprintf(`Rentable.BID=%d`, d.BID)
+
 	// show active rentable first by RenalAgreement Dates
 	// order := "RentalAgreementRentables.RARDtStop DESC, RentalAgreementRentables.RARDtStart DESC, Rentable.RentableName ASC" // default ORDER
 	order := "Rentable.RID ASC,RentalAgreementRentables.RARID ASC" // default ORDER
-
-	// check that RentableStatus is there in search fields
-	// if exists then modify it
-	var rStatusSearch []GenSearch
-	for i := 0; i < len(d.wsSearchReq.Search); i++ {
-		if d.wsSearchReq.Search[i].Field == "RentableStatus" {
-			for index, status := range rlib.RentableStatusString {
-				if strings.Contains(status, strings.ToLower(d.wsSearchReq.Search[i].Value)) && strings.TrimSpace(d.wsSearchReq.Search[i].Value) != "" {
-					rStatusSearch = append(rStatusSearch, GenSearch{
-						Operator: "is", Field: "RentableStatus", Value: rlib.IntToString(index), Type: "int",
-					})
-				}
-			}
-			// remove original rentable status from search
-			d.wsSearchReq.Search = append(d.wsSearchReq.Search[:i], d.wsSearchReq.Search[i+1:]...)
-		}
-	}
-
-	// append modified status search fields
-	d.wsSearchReq.Search = append(d.wsSearchReq.Search, rStatusSearch...)
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, rentablesGridFieldsMap)
