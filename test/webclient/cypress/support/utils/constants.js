@@ -12,8 +12,9 @@ export const ROLLER_APPLICATION_PATH = '/home';
 export const API_VERSION = "v1";
 
 // Unset business id
-// export const BID = -1;
-export const BID = 1; //TODO(Akshay): Handle dynamically
+export let BID = -1;
+export let testBiz = "REX";
+export let testBizID = -1;
 
 // Success flag to match with API response status
 export const API_RESPONSE_SUCCESS_FLAG = 'success';

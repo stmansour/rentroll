@@ -43,3 +43,7 @@ export function getFieldSelector(fieldId) {
 export function getButtonSelector(buttonName) {
     return 'button[name=' + buttonName + ']';
 }
+
+export function getBUDSelector() {
+    return '#BUD';
+}

@@ -98,6 +98,27 @@ describe('AIR Receipt UI Tests', function () {
 
     });
 
+    // -- Change business to REX --
+    it('Change business to REX', function () {
+
+        // get business id from appSettings variable for 'REX'
+        appSettings.BizMap.forEach(function (item) {
+            if (item.BUD === constants.testBiz){
+                constants.testBizID = item.BID;
+            }
+        });
+
+        // Now change the business to REX
+        cy.get('[name="BusinessSelect"]').select(constants.testBiz);
+
+        // Check BusinessSelect value is set per the expected BID from appSettings variable
+        cy.get('[name="BusinessSelect"]').should('have.value', constants.testBizID.toString());
+
+        // onSuccessful test set BID value. If above test get fail below code will not be executed.
+        constants.BID = constants.testBizID;
+
+    });
+
 
     /*****************************************************
      * Tests for node
@@ -275,10 +296,8 @@ describe('AIR Receipt UI Tests', function () {
                             }
                         });
 
-
-                    // TODO(Akshay): Business Unit value will be handled dynamically.
                     // Check Business Unit field must be disabled and have value REX
-                    cy.get('#BUD').should('be.disabled').and('have.value', 'REX').and('be.visible');
+                    cy.get(selectors.getBUDSelector()).should('be.disabled').and('have.value', constants.testBiz).and('be.visible');
 
                     // Check visibility of buttons
                     testConfig.buttonNamesInDetailForm.forEach(function (button) {
@@ -375,9 +394,8 @@ describe('AIR Receipt UI Tests', function () {
 
             });
 
-        // TODO(Akshay): Business Unit value will be handled dynamically.
         // Check Business Unit field must be disabled and have value REX
-        cy.get('#BUD').should('be.disabled').and('have.value', 'REX').and('be.visible');
+        cy.get(selectors.getBUDSelector()).should('be.disabled').and('have.value', constants.testBiz).and('be.visible');
 
         // Check visibility of buttons
         testConfig.buttonNamesInForm.forEach(function (button) {
