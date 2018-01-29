@@ -27,3 +27,5 @@
 26,"Given Rentable Lease Status (%d) is invalid"
 27,"Given Rentable Status (RSID: %d) StopDate(%s) should not be before StartDate(%s)"
 28,"Given Rentable Status (RSID: %d) dates are invalid, overlaps with (RSID: %d)"
+29,"Given Rentable Type Ref (RTRID: %d) StopDate(%s) should not be before StartDate(%s)"
+30,"Given Rentable Type Ref (RTRID: %d) dates are invalid, overlaps with (RTRID: %d)"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 )
 
@@ -78,7 +79,43 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 	// 5. check that DtStart and DtStop don't overlap/fall in with other object
 	// associated with the same RID
 	// TODO(Sudip): ignore error as of now
-	rsList, _ := rlib.GetAllRentableStatus(ctx, rs.RID)
+
+	overLappingRSQuery := `
+	SELECT
+		RSID
+	FROM RentableStatus
+	WHERE
+		RSID <> {{.RSID}} AND
+		DtStart <= "{{.stopDate}}"
+		AND "{{.startDate}}" <= DtStop AND
+		RID = {{.RID}} AND
+		BID = {{.BID}}
+	LIMIT 1`
+
+	qc := rlib.QueryClause{
+		"BID":       strconv.FormatInt(rs.BID, 10),
+		"RID":       strconv.FormatInt(rs.RID, 10),
+		"RSID":      strconv.FormatInt(rs.RSID, 10),
+		"startDate": rs.DtStart.Format(rlib.RRDATEFMTSQL),
+		"stopDate":  rs.DtStop.Format(rlib.RRDATEFMTSQL),
+	}
+
+	qry := rlib.RenderSQLQuery(overLappingRSQuery, qc)
+	row := rlib.RRdb.Dbrr.QueryRow(qry)
+
+	var overLappingRSID int64
+	err := row.Scan(&overLappingRSID)
+	rlib.SkipSQLNoRowsError(&err)
+	if err != nil {
+		panic(err.Error()) // BOOM!
+	}
+	if overLappingRSID > 0 {
+		s := fmt.Sprintf(BizErrors[RentableStatusDatesOverlap].Message, rs.RSID, overLappingRSID)
+		b := BizError{Errno: RentableStatusDatesOverlap, Message: s}
+		errlist = append(errlist, b)
+	}
+
+	/*rsList, _ := rlib.GetAllRentableStatus(ctx, rs.RID)
 
 	for _, rsRow := range rsList {
 		// if same object then continue
@@ -91,7 +128,7 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 			b := BizError{Errno: RentableStatusDatesOverlap, Message: s}
 			errlist = append(errlist, b)
 		}
-	}
+	}*/
 	return errlist
 }
 
@@ -116,6 +153,40 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 	}
 
 	// TODO(Sudip): make query to get any rentable type ref that bring validation false here
+	overLappingRTRQuery := `
+	SELECT
+		RTRID
+	FROM RentableTypeRef
+	WHERE
+		RTRID <> {{.RTRID}} AND
+		DtStart <= "{{.stopDate}}" AND
+		"{{.startDate}}" <= DtStop AND
+		RID = {{.RID}} AND
+		BID = {{.BID}}
+	LIMIT 1`
+
+	qc := rlib.QueryClause{
+		"BID":       strconv.FormatInt(rtr.BID, 10),
+		"RID":       strconv.FormatInt(rtr.RID, 10),
+		"RTRID":     strconv.FormatInt(rtr.RTRID, 10),
+		"startDate": rtr.DtStart.Format(rlib.RRDATEFMTSQL),
+		"stopDate":  rtr.DtStop.Format(rlib.RRDATEFMTSQL),
+	}
+
+	qry := rlib.RenderSQLQuery(overLappingRTRQuery, qc)
+	row := rlib.RRdb.Dbrr.QueryRow(qry)
+
+	var overLappingRTRID int64
+	err := row.Scan(&overLappingRTRID)
+	rlib.SkipSQLNoRowsError(&err)
+	if err != nil {
+		panic(err.Error()) // BOOM!
+	}
+	if overLappingRTRID > 0 {
+		s := fmt.Sprintf(BizErrors[RentableTypeRefDatesOverlap].Message, rtr.RTRID, overLappingRTRID)
+		b := BizError{Errno: RentableTypeRefDatesOverlap, Message: s}
+		errlist = append(errlist, b)
+	}
 
 	/*// 3. check that DtStart and DtStop don't overlap/fall in with other object
 	// associated with the same RID
