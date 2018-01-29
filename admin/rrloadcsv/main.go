@@ -118,7 +118,7 @@ func readCommandLineArgs() {
 
 	flag.Parse()
 	if *verPtr {
-		fmt.Printf("Version:    %s\nBuild Time: %s\n", GetVersionNo(), GetBuildTime())
+		fmt.Printf("Version:    %s\nBuild Time: %s\n", rlib.GetVersionNo(), rlib.GetBuildTime())
 		os.Exit(0)
 	}
 	if *noconPtr {

@@ -6,7 +6,7 @@ WEBDOC=${WEBDOCDIR}/webdoc
 WEBCSS=${WEBDOCDIR}/doc.css
 THISDIR="ws"
 
-ws: ver.go *.go webdoc
+ws: *.go webdoc
 	@touch fail
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
@@ -15,9 +15,6 @@ ws: ver.go *.go webdoc
 	go install
 	@rm -f fail
 	@echo "*** ${THISDIR}: completed build ***"
-
-ver.go:
-	./mkver.sh ws
 
 webdoc:
 	rm -rf doc

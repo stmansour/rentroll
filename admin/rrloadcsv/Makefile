@@ -2,7 +2,7 @@ TOP=../..
 BINDIR=${TOP}/tmp/rentroll
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 
-rrloadcsv: ver.go *.go config.json
+rrloadcsv: *.go config.json
 	touch fail
 	${COUNTOL} "go vet"
 	${COUNTOL} golint
@@ -13,9 +13,6 @@ rrloadcsv: ver.go *.go config.json
 clean:
 	rm -f rrloadcsv ver.go fail conf*.json
 	echo "*** CLEAN completed in rrloadcsv ***"
-
-ver.go:
-		${TOP}/ws/mkver.sh
 
 config.json:
 	/usr/local/accord/bin/getfile.sh accord/db/confdev.json

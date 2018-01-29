@@ -345,7 +345,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 // SvcHandlerPing is the most basic test that you can run against the server
 // see if it is alive and taking requests. It will return its version number.
 func SvcHandlerPing(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Fprintf(w, "Accord Rentroll - Version %s\n", GetVersionNo())
+	fmt.Fprintf(w, "Accord Rentroll - Version %s\n", rlib.GetVersionNo())
 }
 
 // SvcHandlerVersion returns the server version number
@@ -359,7 +359,7 @@ func SvcHandlerPing(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response version number
 // wsdoc }
 func SvcHandlerVersion(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	fmt.Fprintf(w, "%s", GetVersionNo())
+	fmt.Fprintf(w, "%s", rlib.GetVersionNo())
 }
 
 // SvcTWS returns a grid representation of the TWS table
