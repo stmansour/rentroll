@@ -25,5 +25,6 @@ export let conf = {
     notVisibleButtonNamesInForm: ["close"],
     buttonNamesInDetailForm: ["save", "saveprint", "reverse"],
     skipColumns: ["reversed"],
+    skipFields: ["ERentableName"],
     primaryId: "RCPTID"
 };
