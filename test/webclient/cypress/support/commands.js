@@ -1,10 +1,13 @@
 "use strict";
 
+import * as selectors from '../support/utils/get_selectors';
+import * as constants from '../support/utils/constants';
+
 // ***********************************************
 // This file contains custom build command for cypress
 // ***********************************************
 
-// -- This is a custom command to login int AIR application --
+// -- This is a custom command to login into AIR application --
 Cypress.Commands.add("login", function(){
 
     /************************************
@@ -49,3 +52,31 @@ Cypress.Commands.add("login", function(){
     });
 
 });
+
+// Cypress.Commands.add("closeForm", (formSelector) => {
+//
+//     /****************************************************
+//      * 1. Close the form
+//      * 2. Assert that form isn't visible to the screen
+//      ***************************************************/
+//
+//     let log = Cypress.log({
+//         name: "closeForm",
+//         message: "Closing the form"
+//     });
+//
+//     // Close the form
+//     cy
+//         .get(selectors.getFormCloseButtonSelector())
+//         .click()
+//         .wait(constants.WAIT_TIME);
+//
+//     cy.log("###########");
+//     cy.log(formSelector);
+//
+//     // Check that form should not visible after closing it
+//     cy
+//         .get(formSelector)
+//         .should('not.be.visible');
+//
+// });

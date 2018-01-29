@@ -152,7 +152,8 @@ describe('AIR Receipt UI Tests', function () {
 
             // get records list from the API response
             recordsAPIResponse = xhr.response.body.records;
-            // TODO(Akshay): Assigning number of records to 0 if no records are available in response
+
+            // -- Assigning number of records to 0 if no records are available in response --
             if (recordsAPIResponse) {
                 noRecordsInAPIResponse = xhr.response.body.records.length;
             } else {
@@ -174,7 +175,7 @@ describe('AIR Receipt UI Tests', function () {
      * 2. Check visibility of detail form
      * 3. Check visibility and value of the fields
      * 4. Check button's visibility
-     * 5. TODO(Akshay):Check Unallocated section visibility and position
+     * 5. Check Unallocated section visibility and position(CSS Class)
      * 6. Close the detail form
      * 7. Assert that form is close.
      *
@@ -250,6 +251,7 @@ describe('AIR Receipt UI Tests', function () {
 
                     let recordDetailFromAPIResponse = xhr.response.body.record;
 
+                    // formName
                     let formName = testConfig.form;
 
                     // get form selector
@@ -310,6 +312,12 @@ describe('AIR Receipt UI Tests', function () {
                         // Check button aren't visible
                         cy.get(selectors.getButtonSelector(button)).should('not.be.visible');
                     });
+
+                    // Check Unallocated section's visibility and class
+                    cy.get('#FLAGReport')
+                        .scrollIntoView()
+                        .should('be.visible')
+                        .should('have.class', 'FLAGReportContainer');
 
                     // Close the form
                     cy.get(selectors.getFormCloseButtonSelector()).click().wait(constants.WAIT_TIME);
