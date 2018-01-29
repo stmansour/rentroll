@@ -52,31 +52,3 @@ Cypress.Commands.add("login", function(){
     });
 
 });
-
-// Cypress.Commands.add("closeForm", (formSelector) => {
-//
-//     /****************************************************
-//      * 1. Close the form
-//      * 2. Assert that form isn't visible to the screen
-//      ***************************************************/
-//
-//     let log = Cypress.log({
-//         name: "closeForm",
-//         message: "Closing the form"
-//     });
-//
-//     // Close the form
-//     cy
-//         .get(selectors.getFormCloseButtonSelector())
-//         .click()
-//         .wait(constants.WAIT_TIME);
-//
-//     cy.log("###########");
-//     cy.log(formSelector);
-//
-//     // Check that form should not visible after closing it
-//     cy
-//         .get(formSelector)
-//         .should('not.be.visible');
-//
-// });

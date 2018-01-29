@@ -2,6 +2,7 @@
 
 import * as selectors from '../support/utils/get_selectors';
 import * as constants from '../support/utils/constants';
+import * as common from '../support/utils/common';
 
 const receiptsM = require('../support/components/receipts');
 
@@ -39,6 +40,46 @@ function getAPIEndPoint(module) {
     return constants.API_VERSION + "/" + module + "/" + constants.BID;
 }
 
+// -- Close the form. And assert that form isn't visible. --
+function closeFormTests(formSelector) {
+
+    // Close the form
+    cy.get(selectors.getFormCloseButtonSelector()).click().wait(constants.WAIT_TIME);
+
+    // Check that form should not visible after closing it
+    cy.get(formSelector).should('not.be.visible');
+}
+
+// -- Check Unallocated section's visibility and class --
+function unallocatedSectionTest() {
+    cy.get(selectors.getUnallocateSectionSelector())
+        .scrollIntoView()
+        .should('be.visible')
+        .should('have.class', 'FLAGReportContainer');
+}
+
+
+function buttonsTest(visibleButtons, notVisibleButtons) {
+
+    // Check visibility of buttons
+    visibleButtons.forEach(function (button) {
+        // Check visibility of button
+        cy.get(selectors.getButtonSelector(button)).should('be.visible');
+    });
+
+    // Check buttons aren't visible
+    notVisibleButtons.forEach(function (button) {
+        // Check button aren't visible
+        cy.get(selectors.getButtonSelector(button)).should('not.be.visible');
+    });
+}
+
+function BUDFieldTest() {
+    // Check Business Unit field must be disabled and have value REX
+    cy.get(selectors.getBUDSelector()).should('be.disabled').and('have.value', constants.testBiz).and('be.visible');
+}
+
+// -- Start Cypress UI tests --
 describe('AIR Receipt UI Tests', function () {
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
@@ -186,7 +227,9 @@ describe('AIR Receipt UI Tests', function () {
         // Starting a server to begin routing responses to cy.route()
         cy.server();
 
+        // ----------------------------
         // -- Tests for grid records --
+        // ----------------------------
         cy.log("Tests for grid records");
 
         // Check visibility of grid
@@ -203,16 +246,17 @@ describe('AIR Receipt UI Tests', function () {
                 expect($trs).to.have.length(noRecordsInAPIResponse);
             });
 
+            // Perform test only if there is/are record(s) exists in API response.
             if (noRecordsInAPIResponse > 0) {
+
                 // Iterate through each row
                 recordsAPIResponse.forEach(function (record, rowNo) {
 
                     // Iterate through each column in row
                     w2uiGridColumns.forEach(function (w2uiGridColumn, columnNo) {
 
-                        // Skipping traversal icon and RCPT ID column as of now
-                        // TODO(Akshay): RCPTID returns '' from the DOM and expected value from the records. Which mismatch and test get fails. Remove condition on columnNo
-                        if (columnNo !== 1 && columnNo !== 2) {
+                        // Skipping tests on skipColumns
+                        if (!common.isInArray(w2uiGridColumn.field, testConfig.skipColumns)) {
 
                             // Perform test only if w2uiGridColumn isn't hidden
                             if (!w2uiGridColumn.hidden) {
@@ -232,6 +276,10 @@ describe('AIR Receipt UI Tests', function () {
 
                 });
 
+
+                // ----------------------------------
+                // -- Tests for detail record form --
+                // ----------------------------------
                 cy.log("Tests for detail record form");
 
                 // -- detail record testing --
@@ -299,31 +347,15 @@ describe('AIR Receipt UI Tests', function () {
                         });
 
                     // Check Business Unit field must be disabled and have value REX
-                    cy.get(selectors.getBUDSelector()).should('be.disabled').and('have.value', constants.testBiz).and('be.visible');
+                    BUDFieldTest();
 
-                    // Check visibility of buttons
-                    testConfig.buttonNamesInDetailForm.forEach(function (button) {
-                        // Check visibility of button
-                        cy.get(selectors.getButtonSelector(button)).should('be.visible');
-                    });
+                    buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
 
-                    // Check buttons aren't visible
-                    testConfig.notVisibleButtonNamesInForm.forEach(function (button) {
-                        // Check button aren't visible
-                        cy.get(selectors.getButtonSelector(button)).should('not.be.visible');
-                    });
+                    // -- Check Unallocated section's visibility and class --
+                    unallocatedSectionTest();
 
-                    // Check Unallocated section's visibility and class
-                    cy.get('#FLAGReport')
-                        .scrollIntoView()
-                        .should('be.visible')
-                        .should('have.class', 'FLAGReportContainer');
-
-                    // Close the form
-                    cy.get(selectors.getFormCloseButtonSelector()).click().wait(constants.WAIT_TIME);
-
-                    // Check that form should not visible after closing it
-                    cy.get(formSelector).should('not.be.visible');
+                    // -- Close the form. And assert that form isn't visible. --
+                    closeFormTests(formSelector);
 
                 });
             }
@@ -341,88 +373,80 @@ describe('AIR Receipt UI Tests', function () {
      * 5. Check default value for that fields.
      ***********************************************************/
     //TODO(Akshay): Do common code for formfields
-    it('Test for the Add New Button', function () {
-
-        cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
-
-        let formName = testConfig.form;
-
-        // get form selector
-        let formSelector = selectors.getFormSelector(formName);
-
-        // Check visibility of form
-        cy.get(formSelector).should('be.visible');
-
-        // get record and field list from the w2ui form object
-        cy.window().then((win) => {
-
-            // get w2ui form records
-            getW2UIFormRecords = win.w2ui[formName].record;
-
-            // get w2ui form fields
-            getW2UIFormFields = win.w2ui[formName].fields;
-
-        });
-
-        cy.get(formSelector)
-            .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
-            .each(($el, index, $list) => {
-
-                // get id of the field
-                fieldID = $el.context.id;
-
-                // get default value of field
-                defaultValue = getW2UIFormRecords[fieldID];
-
-                // get field from w2ui form field list
-                field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
-
-                // defaultValue type is object means it does have key value pair. get default text from the key value pair.
-                if (typeof defaultValue === 'object') {
-                    defaultValue = defaultValue.text;
-                }
-                /* Money type field have default value in DOM is "$0.00".
-                And w2ui field have value "0".
-                To make the comparison change default value "0" to "$0.00" */
-                else if (field.type === "money" && typeof defaultValue === 'number') {
-                    defaultValue = "$0.00";
-                }
-
-                /* Skipping tests for Resident Address field. Because it have default value as 'undefined' and in DOM it have value as ''.
-                Which makes the test fail.
-                TODO(Sudip): Change default value undefine to ''.
-                TODO(Akshay): Remove `if` condition for the tests after an issue has been resolved.
-                */
-                if (fieldID !== "ERentableName") {
-                    // Check visibility and match the default value of the fields.
-                    cy.get('#' + fieldID)
-                        .should('be.visible')
-                        .should('have.value', defaultValue);
-                }
-
-            });
-
-        // Check Business Unit field must be disabled and have value REX
-        cy.get(selectors.getBUDSelector()).should('be.disabled').and('have.value', constants.testBiz).and('be.visible');
-
-        // Check visibility of buttons
-        testConfig.buttonNamesInForm.forEach(function (button) {
-            // Check visibility of button
-            cy.get(selectors.getButtonSelector(button)).should('be.visible');
-        });
-
-        // Check buttons aren't visible
-        testConfig.notVisibleButtonNamesInForm.forEach(function (button) {
-            // Check button aren't visible
-            cy.get(selectors.getButtonSelector(button)).should('not.be.visible');
-        });
-
-        // Close the form
-        cy.get(selectors.getFormCloseButtonSelector()).click().wait(constants.WAIT_TIME);
-
-        // Check that form should not visible after closing it
-        cy.get(formSelector).should('not.be.visible');
-
-    });
+    // it('Test for the Add New Button', function () {
+    //
+    //     cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+    //
+    //     let formName = testConfig.form;
+    //
+    //     // get form selector
+    //     let formSelector = selectors.getFormSelector(formName);
+    //
+    //     // Check visibility of form
+    //     cy.get(formSelector).should('be.visible');
+    //
+    //     // get record and field list from the w2ui form object
+    //     cy.window().then((win) => {
+    //
+    //         // get w2ui form records
+    //         getW2UIFormRecords = win.w2ui[formName].record;
+    //
+    //         // get w2ui form fields
+    //         getW2UIFormFields = win.w2ui[formName].fields;
+    //
+    //     });
+    //
+    //     cy.get(formSelector)
+    //         .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+    //         .each(($el, index, $list) => {
+    //
+    //             // get id of the field
+    //             fieldID = $el.context.id;
+    //
+    //             // get default value of field
+    //             defaultValue = getW2UIFormRecords[fieldID];
+    //
+    //             // get field from w2ui form field list
+    //             field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
+    //
+    //             // defaultValue type is object means it does have key value pair. get default text from the key value pair.
+    //             if (typeof defaultValue === 'object') {
+    //                 defaultValue = defaultValue.text;
+    //             }
+    //             /* Money type field have default value in DOM is "$0.00".
+    //             And w2ui field have value "0".
+    //             To make the comparison change default value "0" to "$0.00" */
+    //             else if (field.type === "money" && typeof defaultValue === 'number') {
+    //                 defaultValue = "$0.00";
+    //             }
+    //
+    //             /* Skipping tests for Resident Address field. Because it have default value as 'undefined' and in DOM it have value as ''.
+    //             Which makes the test fail.
+    //             TODO(Sudip): Change default value undefine to ''.
+    //             TODO(Akshay): Remove `if` condition for the tests after an issue has been resolved.
+    //             */
+    //             if (fieldID !== "ERentableName") {
+    //                 // Check visibility and match the default value of the fields.
+    //                 cy.get('#' + fieldID)
+    //                     .should('be.visible')
+    //                     .should('have.value', defaultValue);
+    //             }
+    //
+    //         });
+    //
+    //     // Check Business Unit field must be disabled and have value REX
+    //     BUDFieldTest();
+    //
+    //     // Check button's visibility
+    //     buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm)
+    //
+    //     // -- Close the form. And assert that form isn't visible. --
+    //     closeFormTests(formSelector);
+    //
+    // });
 
 });
+
+// describe('AIR Roller UI Tests', function () {
+//
+// });
