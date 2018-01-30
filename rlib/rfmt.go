@@ -156,34 +156,6 @@ func DateToString(t time.Time) string {
 	return t.Format("01/02/2006")
 }
 
-// RentableStatusString is an array of strings representing
-var RentableStatusString = []string{
-	"unknown",
-	"online",
-	"admin",
-	"employee",
-	"owner occupied",
-	"offline",
-}
-
-// RentableStatusToString returns a string representation for the status value
-func RentableStatusToString(n int64) string {
-	if n > int64(len(RentableStatusString)-1) || n < 0 {
-		n = 0
-	}
-	return RentableStatusString[n]
-}
-
-// RentableStatusToNumber returns a number representation for the status value
-func RentableStatusToNumber(rs string) int64 {
-	for i, status := range RentableStatusString {
-		if strings.Contains(status, rs) {
-			return int64(i)
-		}
-	}
-	return 0 // 0 for unknown
-}
-
 var acceptedDateFmts = []string{
 	RRDATEINPFMT,
 	RRDATEFMT2,

@@ -64,7 +64,8 @@ var ssliceToJS = []struct {
 	{"epochInstance", &EpochInstance},
 	{"yesNoList", &yesno},
 	{"usStateAbbr", &USStateAbbr},
-	{"rentableStatusList", &rlib.RentableStatusString},
+	{"RSUseStatus", &rlib.RSUseStatus},
+	{"RSLeaseStatus", &rlib.RSLeaseStatus},
 	{"qbAcctType", &rlib.QBAcctType},
 }
 
