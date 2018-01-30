@@ -26,11 +26,13 @@ import (
 // automatically populated from an rlib.Rentable struct
 type PrRentableOther struct {
 	Recid                int64 `json:"recid"` // this is to support the w2ui form
-	RID                  int64
 	BID                  rlib.XJSONBud
-	RTID                 int64
+	RID                  int64
 	RentableName         string
+	RTRID                int64
 	RentableType         string
+	RTID                 int64
+	RSID                 int64
 	UseStatus            int64
 	LeaseStatus          int64
 	RARID                rlib.NullInt64
@@ -111,35 +113,39 @@ func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData)
 // rentablesGridFields holds the map of field (to be shown on grid)
 // to actual database fields, multiple db fields means combine those
 var rentablesGridFieldsMap = map[string][]string{
-	"RID":                  {"Rentable.RID"},
-	"RentableName":         {"Rentable.RentableName"},
-	"RentableType":         {"RentableTypes.Name"},
-	"RTID":                 {"RentableTypes.RTID"},
-	"UseStatus":            {"RentableStatus.UseStatus"},
-	"LeaseStatus":          {"RentableStatus.LeaseStatus"},
-	"RARID":                {"RentalAgreementRentables.RARID"},
-	"RAID":                 {"RentalAgreementRentables.RAID"},
-	"RentalAgreementStart": {"RentalAgreementRentables.RARDtStart"},
-	"RentalAgreementStop":  {"RentalAgreementRentables.RARDtStop"},
+	"RID":                  {"R.RID"},
+	"RentableName":         {"R.RentableName"},
+	"RTRID":                {"RTR.RTRID"},
+	"RTID":                 {"RT.RTID"},
+	"RentableType":         {"RT.Name"},
+	"RSID":                 {"RS.RSID"},
+	"UseStatus":            {"RS.UseStatus"},
+	"LeaseStatus":          {"RS.LeaseStatus"},
+	"RARID":                {"RAR.RARID"},
+	"RAID":                 {"RAR.RAID"},
+	"RentalAgreementStart": {"RAR.RARDtStart"},
+	"RentalAgreementStop":  {"RAR.RARDtStop"},
 }
 
 // which fields needs to be fetched for SQL query for rentables
 var rentablesQuerySelectFields = []string{
-	"Rentable.RID",
-	"Rentable.RentableName",
-	"RentableTypes.Name as RentableType",
-	"RentableTypes.RTID",
-	"RentableStatus.UseStatus",
-	"RentableStatus.LeaseStatus",
-	"RentalAgreementRentables.RARID",
-	"RentalAgreementRentables.RAID",
-	"RentalAgreementRentables.RARDtStart as RentalAgreementStart",
-	"RentalAgreementRentables.RARDtStop as RentalAgreementStop",
+	"R.RID",
+	"R.RentableName",
+	"RTR.RTRID",
+	"RT.Name as RentableType",
+	"RT.RTID",
+	"RS.RSID",
+	"RS.UseStatus",
+	"RS.LeaseStatus",
+	"RAR.RARID",
+	"RAR.RAID",
+	"RAR.RARDtStart as RentalAgreementStart",
+	"RAR.RARDtStop as RentalAgreementStop",
 }
 
 // rentablesRowScan scans a result from sql row and dump it in a PrRentableOther struct
 func rentablesRowScan(rows *sql.Rows, q PrRentableOther) (PrRentableOther, error) {
-	err := rows.Scan(&q.RID, &q.RentableName, &q.RentableType, &q.RTID, &q.UseStatus, &q.LeaseStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
+	err := rows.Scan(&q.RID, &q.RentableName, &q.RTRID, &q.RentableType, &q.RTID, &q.RSID, &q.UseStatus, &q.LeaseStatus, &q.RARID, &q.RAID, &q.RentalAgreementStart, &q.RentalAgreementStop)
 	return q, err
 }
 
@@ -166,22 +172,11 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		limitClause int = 100
 	)
 
-	// default search (where clause) and sort (order by clause)
-	// defaultWhere := `Rentable.BID=%d
-	// 	AND (RentalAgreementRentables.RARDtStart<=%q OR RentalAgreementRentables.RARDtStart IS NULL)
-	// 	AND (RentalAgreementRentables.RARDtStop>%q OR RentalAgreementRentables.RARDtStop IS NULL)
-	// 	AND (RentableTypeRef.DtStart<=%q OR RentableTypeRef.DtStart IS NULL)
-	// 	AND (RentableTypeRef.DtStop>%q OR RentableTypeRef.DtStop IS NULL)
-	// 	AND (RentableStatus.DtStart<=%q OR RentableStatus.DtStart IS NULL)
-	// 	AND (RentableStatus.DtStop>%q OR RentableStatus.DtStop IS NULL)`
-	// srch := fmt.Sprintf(defaultWhere, d.BID, currentTime, currentTime, currentTime, currentTime, currentTime, currentTime)  // default WHERE clause
-
 	// Show All Renbles no matter in what state they are,
-	srch := fmt.Sprintf(`Rentable.BID=%d`, d.BID)
+	srch := fmt.Sprintf(`R.BID=%d`, d.BID)
 
 	// show active rentable first by RenalAgreement Dates
-	// order := "RentalAgreementRentables.RARDtStop DESC, RentalAgreementRentables.RARDtStart DESC, Rentable.RentableName ASC" // default ORDER
-	order := "Rentable.RID ASC,RentalAgreementRentables.RARID ASC" // default ORDER
+	order := "R.RID ASC" // default ORDER
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, rentablesGridFieldsMap)
@@ -196,13 +191,34 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	rentablesQuery := `
 	SELECT DISTINCT
 		{{.SelectClause}}
-	FROM Rentable
-	INNER JOIN RentableTypeRef ON Rentable.RID=RentableTypeRef.RID
-	INNER JOIN RentableTypes ON RentableTypeRef.RTID=RentableTypes.RTID
-	INNER JOIN RentableStatus ON RentableStatus.RID=Rentable.RID
-	LEFT JOIN RentalAgreementRentables ON RentalAgreementRentables.RID=Rentable.RID
-	WHERE {{.WhereClause}}
-	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
+	FROM Rentable AS R
+	INNER JOIN (
+        SELECT RID, RTID, RTRID
+        FROM RentableTypeRef
+        GROUP BY RTRID
+        ORDER BY RTRID DESC
+    ) AS RTR ON R.RID=RTR.RID
+    INNER JOIN (
+        SELECT RTID, Name
+        FROM RentableTypes
+        GROUP BY RTID
+        ORDER BY RTID DESC
+    ) RT ON RTR.RTID=RT.RTID
+    INNER JOIN (
+        SELECT UseStatus, LeaseStatus, RID, RSID
+        FROM RentableStatus
+        GROUP BY RSID
+        ORDER BY RSID DESC
+    ) AS RS ON RS.RID=R.RID
+    LEFT JOIN (
+        SELECT RARID, RID, RAID, RARDtStart, RARDtStop
+        FROM RentalAgreementRentables
+        GROUP BY RARID
+        ORDER BY RARID DESC
+    ) AS RAR ON RAR.RID=R.RID
+    WHERE {{.WhereClause}}
+    GROUP BY R.RID
+    ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
 
 	// will be substituted as query clauses
 	qc := rlib.QueryClause{
