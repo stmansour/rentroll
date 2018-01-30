@@ -161,8 +161,9 @@ func rentablesRowScan(rows *sql.Rows, q PrRentableOther) (PrRentableOther, error
 func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcSearchHandlerRentables"
 	var (
-		err error
-		g   SearchRentablesResponse
+		err         error
+		g           SearchRentablesResponse
+		currentTime = time.Now()
 	)
 	rlib.Console("Entered %s\n", funcname)
 
@@ -187,7 +188,6 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	}
 
 	// Rentables Query Text Template
-	// TODO(Sudip): need to cover date range
 	rentablesQuery := `
 	SELECT DISTINCT
 		{{.SelectClause}}
@@ -195,6 +195,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	LEFT JOIN (
         SELECT RID, RTID, RTRID
         FROM RentableTypeRef
+        WHERE DtStart <= "{{.currentTime}}" AND "{{.currentTime}}" < DtStop AND BID={{.BID}}
         GROUP BY RTRID
         ORDER BY RTRID DESC
     ) AS RTR ON R.RID=RTR.RID
@@ -207,12 +208,14 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
     LEFT JOIN (
         SELECT UseStatus, LeaseStatus, RID, RSID
         FROM RentableStatus
+        WHERE DtStart <= "{{.currentTime}}" AND "{{.currentTime}}" < DtStop AND BID={{.BID}}
         GROUP BY RSID
         ORDER BY RSID DESC
     ) AS RS ON RS.RID=R.RID
     LEFT JOIN (
         SELECT RARID, RID, RAID, RARDtStart, RARDtStop
         FROM RentalAgreementRentables
+        WHERE RARDtStart <= "{{.currentTime}}" AND "{{.currentTime}}" < RARDtStop AND BID={{.BID}}
         GROUP BY RARID
         ORDER BY RARID DESC
     ) AS RAR ON RAR.RID=R.RID
@@ -225,6 +228,8 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		"SelectClause": strings.Join(rentablesQuerySelectFields, ","),
 		"WhereClause":  srch,
 		"OrderClause":  order,
+		"currentTime":  currentTime.Format(rlib.RRDATEFMTSQL), // show associated instance(s) active as of current time
+		"BID":          strconv.FormatInt(d.BID, 10),
 	}
 
 	// GET TOTAL COUNT OF RESULTS
