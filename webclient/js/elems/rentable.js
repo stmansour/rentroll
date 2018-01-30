@@ -460,6 +460,12 @@ function buildRentableElements() {
             this.records.forEach(function(item, index, arr) {
                 arr[index].UseStatus = parseInt(arr[index].UseStatus);
                 arr[index].LeaseStatus = parseInt(arr[index].LeaseStatus);
+                /*// if dateMode is set, then add one day to the stopDate
+                if (app.dateMode) {
+                    var d = dateFromString(arr[index].DtStop);
+                    d.setDate(d.getDate() + 1);
+                    arr[index].DtStop = dateFmtStr(d);
+                }*/
             });
             event.changes = this.records;
         },
@@ -577,6 +583,21 @@ function buildRentableElements() {
             {field: 'RID',         caption: 'RID',         hidden: true},
             {field: 'BID',         caption: 'BID',         hidden: true},
             {field: 'BUD',         caption: 'BUD',         hidden: true},
+            {field: 'RTRID',       caption: 'RTRID',       size: '50px'},
+            {field: 'RTID',                                caption: 'Rentable Type',                 size: '150px',
+                editable: { type: 'select', align: 'left', items: [] },
+                render: function (record, index, col_index) {
+                    var html = '';
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+                    for (var rt in app.rt_list[BUD]) {
+                        if (app.rt_list[BUD][rt].id == this.getCellValue(index, col_index)) {
+                            html = app.rt_list[BUD][rt].text;
+                        }
+                    }
+                    return html;
+                },
+            },
             {field: 'OverrideRentCycle',                   caption: 'OverrideRentCycle',             size: "150px",
                 editable: { type: 'select', align: 'left', items: app.cycleFreqItems },
                 render: function (record, index, col_index) {
@@ -601,21 +622,6 @@ function buildRentableElements() {
                     return html;
                 },
             },
-            {field: 'RTID',                                caption: 'Rentable Type',                 size: '150px',
-                editable: { type: 'select', align: 'left', items: [] },
-                render: function (record, index, col_index) {
-                    var html = '';
-                    var BID = getCurrentBID(),
-                        BUD = getBUDfromBID(BID);
-                    for (var rt in app.rt_list[BUD]) {
-                        if (app.rt_list[BUD][rt].id == this.getCellValue(index, col_index)) {
-                            html = app.rt_list[BUD][rt].text;
-                        }
-                    }
-                    return html;
-                },
-            },
-            {field: 'RTRID',       caption: 'RTRID',       size: '50px'},
             {field: 'DtStart',     caption: 'DtStart',     size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
             {field: 'DtStop',      caption: 'DtStop',      size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
             {field: 'CreateBy',    caption: 'CreateBy',    hidden: true},
@@ -667,6 +673,12 @@ function buildRentableElements() {
                 arr[index].OverrideRentCycle = parseInt(arr[index].OverrideRentCycle);
                 arr[index].OverrideProrationCycle = parseInt(arr[index].OverrideProrationCycle);
                 arr[index].RTID = parseInt(arr[index].RTID);
+                /*// if dateMode is set, then add one day to the stopDate
+                if (app.dateMode) {
+                    var d = dateFromString(arr[index].DtStop);
+                    d.setDate(d.getDate() + 1);
+                    arr[index].DtStop = dateFmtStr(d);
+                }*/
             });
             event.changes = this.records;
         },
