@@ -1,10 +1,13 @@
 "use strict";
 
+import * as selectors from '../support/utils/get_selectors';
+import * as constants from '../support/utils/constants';
+
 // ***********************************************
 // This file contains custom build command for cypress
 // ***********************************************
 
-// -- This is a custom command to login int AIR application --
+// -- This is a custom command to login into AIR application --
 Cypress.Commands.add("login", function(){
 
     /************************************

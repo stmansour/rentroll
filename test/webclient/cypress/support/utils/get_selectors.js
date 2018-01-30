@@ -40,6 +40,17 @@ export function getFieldSelector(fieldId) {
     return '#' + fieldId;
 }
 
+// return selector for buttons
 export function getButtonSelector(buttonName) {
     return 'button[name=' + buttonName + ']';
+}
+
+// return selector for Business Unit
+export function getBUDSelector() {
+    return '#BUD';
+}
+
+// return selector for Unallocated section in detail form
+export function getUnallocateSectionSelector() {
+    return '#FLAGReport';
 }

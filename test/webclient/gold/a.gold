@@ -2,23 +2,25 @@
 
 
   AIR Receipt UI Tests
-    ✓ Assert the title of application (2550ms)
-    ✓ Login into AIR Receipts (2992ms)
-    ✓ Left side node (2382ms)
-    ✓ Test for grid records and record detail (2072ms)
-    ✓ Test for the Add New Button (5876ms)
+    ✓ Assert the title of application (2983ms)
+    ✓ Login into AIR Receipts (3134ms)
+    ✓ Change business to REX (268ms)
+    ✓ Left side node (2310ms)
+    ✓ Change date (3009ms)
+    ✓ Test for grid records and record detail (18265ms)
+    ✓ Test for the Add New Button (5551ms)
 
 
-  5 passing (16s)
+  7 passing (37s)
 
 
   (Tests Finished)
 
-  - Tests:           5
-  - Passes:          5
+  - Tests:           7
+  - Passes:          7
   - Failures:        0
   - Pending:         0
-  - Duration:        16 seconds
+  - Duration:        36 seconds
   - Screenshots:     0
   - Video Recorded:  false
   - Cypress Version: 1.4.1
