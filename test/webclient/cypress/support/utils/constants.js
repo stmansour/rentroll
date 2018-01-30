@@ -30,4 +30,7 @@ export const WAIT_TIME = 2000;
 export const PAGE_LOAD_TIME = 2000;
 export const LOGIN_WAIT_TIME = 2000;
 
-// aliasing for cypress commands
+// select date
+export let fromDate = "8/1/2017";
+export let month = "7"; // If Aug(8) than month is 7 (8-1). Index start from 0
+export let year = "2017";

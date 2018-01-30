@@ -38,7 +38,11 @@ let appSettings;
 let testConfig;
 
 function getAPIEndPoint(module) {
-    return constants.API_VERSION + "/" + module + "/" + constants.BID;
+    return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID;
+}
+
+function getDetailRecordAPIEndPoint(module, id) {
+    return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID + "/" + id;
 }
 
 // -- Close the form. And assert that form isn't visible. --
@@ -80,7 +84,7 @@ function BUDFieldTest() {
     cy.get(selectors.getBUDSelector()).should('be.disabled').and('have.value', constants.testBiz).and('be.visible');
 }
 
-function gridCellsTest() {
+function gridCellsTest(win) {
     // Iterate through each row
     recordsAPIResponse.forEach(function (record, rowNo) {
 
@@ -93,6 +97,11 @@ function gridCellsTest() {
 
                 // get defaultValue of cell from w2uiGrid
                 let valueForCell = record[w2uiGridColumn.field];
+
+                // format money type value
+                if (w2uiGridColumn.render === "money") {
+                    valueForCell = win.w2utils.formatters.money(valueForCell);
+                }
 
                 // Check visibility and default value of cell in the grid
                 cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
@@ -300,17 +309,8 @@ describe('AIR Receipt UI Tests', function () {
 
     /*****************************************************
      * Tests for node
-     * 1. Route the receipt API
-     * 2. Check http status
-     * 3. Check key `status` in API endpoint responseBody
      *******************************************************/
     it('Left side node', function () {
-
-        // Starting a server to begin routing responses to cy.route()
-        cy.server();
-
-        // To manage the behavior of network requests. Routing the response for the requests.
-        cy.route(testConfig.methodType, getAPIEndPoint(testConfig.sidebarID)).as('getReceipts');
 
         // It should be visible and selected
         cy.get(selectors.getNodeSelector(testConfig.sidebarID))
@@ -319,11 +319,36 @@ describe('AIR Receipt UI Tests', function () {
             .should('have.class', 'w2ui-selected')
             .click().wait(constants.WAIT_TIME);
 
+
+    });
+
+    /******************************
+     * Change date in toolbar
+     * 1. Route the receipt API
+     * 2. Check http status
+     * 3. Check key `status` in API endpoint responseBody
+     *****************************/
+    it('Change date', function () {
+
+        // Starting a server to begin routing responses to cy.route()
+        cy.server();
+
+        // To manage the behavior of network requests. Routing the response for the requests.
+        cy.route(testConfig.methodType, getAPIEndPoint(testConfig.sidebarID)).as('getRecords');
+
+        // Select date from W2UI calender
+        cy.get('[name="receiptsD1"]').click().wait(constants.WAIT_TIME);
+        cy.get('[class="w2ui-calendar-title title"]').click();
+        cy.get('[class="w2ui-jump-month"][name=' + constants.month +']').click();
+        cy.get('[class="w2ui-jump-year"][name=' + constants.year + ']').click();
+        cy.get('[date="8/1/2017"]').click();
+        // cy.get('[date=' + constants.fromDate + ']').click(); //TODO(Akshay): fetch date from constants.js
+
         // Check http status
-        cy.wait('@getReceipts').its('status').should('eq', constants.HTTP_OK_STATUS);
+        cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
 
         // get API endpoint's responseBody
-        cy.get('@getReceipts').then(function (xhr) {
+        cy.get('@getRecords').then(function (xhr) {
 
             // Check key `status` in responseBody
             expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
@@ -339,7 +364,6 @@ describe('AIR Receipt UI Tests', function () {
             }
 
         });
-
     });
 
     /**********************************************************
@@ -387,7 +411,7 @@ describe('AIR Receipt UI Tests', function () {
             if (noRecordsInAPIResponse > 0) {
 
                 // tests for grid cells visibility and value matching with api response records
-                gridCellsTest();
+                gridCellsTest(win);
 
                 // ----------------------------------
                 // -- Tests for detail record form --
@@ -399,6 +423,7 @@ describe('AIR Receipt UI Tests', function () {
 
                 // Routing response to detail record's api requests.
                 cy.route(testConfig.methodType, '/v1/receipt/1/' + id).as('getDetailRecord');
+                // cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.sidebarID, id)).as('getDetailRecord');
 
                 // click on the first record of grid
                 cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
@@ -464,7 +489,7 @@ describe('AIR Receipt UI Tests', function () {
         BUDFieldTest();
 
         // Check button's visibility
-        buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm)
+        buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
 
         // -- Close the form. And assert that form isn't visible. --
         closeFormTests(formSelector);
@@ -472,7 +497,3 @@ describe('AIR Receipt UI Tests', function () {
     });
 
 });
-
-// describe('AIR Roller UI Tests', function () {
-//
-// });
