@@ -29,19 +29,18 @@ type PrRentableOther struct {
 	BID                  rlib.XJSONBud
 	RID                  int64
 	RentableName         string
-	RTRID                int64
-	RentableType         string
-	RTID                 int64
-	RSID                 int64
-	UseStatus            int64
-	LeaseStatus          int64
+	RTRID                rlib.NullInt64
+	RentableType         rlib.NullString
+	RTID                 rlib.NullInt64
+	RSID                 rlib.NullInt64
+	UseStatus            rlib.NullInt64
+	LeaseStatus          rlib.NullInt64
 	RARID                rlib.NullInt64
 	RAID                 rlib.NullInt64
 	RentalAgreementStart rlib.NullDate
 	RentalAgreementStop  rlib.NullDate
-	// AssignmentTime       rlib.XJSONAssignmentTime
-	LastModTime rlib.JSONDateTime
-	LastModBy   int64
+	LastModTime          rlib.JSONDateTime
+	LastModBy            int64
 }
 
 // SearchRentablesResponse is a response string to the search request for rentables
@@ -192,19 +191,19 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	SELECT DISTINCT
 		{{.SelectClause}}
 	FROM Rentable AS R
-	INNER JOIN (
+	LEFT JOIN (
         SELECT RID, RTID, RTRID
         FROM RentableTypeRef
         GROUP BY RTRID
         ORDER BY RTRID DESC
     ) AS RTR ON R.RID=RTR.RID
-    INNER JOIN (
+    LEFT JOIN (
         SELECT RTID, Name
         FROM RentableTypes
         GROUP BY RTID
         ORDER BY RTID DESC
     ) RT ON RTR.RTID=RT.RTID
-    INNER JOIN (
+    LEFT JOIN (
         SELECT UseStatus, LeaseStatus, RID, RSID
         FROM RentableStatus
         GROUP BY RSID

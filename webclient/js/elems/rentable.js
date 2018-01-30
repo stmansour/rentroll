@@ -99,7 +99,6 @@ function buildRentableElements() {
             {field: 'recid', caption: 'recid', size: '50px', hidden: true, sortable: true},
             {field: 'RID', caption: 'RID', size: '50px', sortable: true},
             {field: 'RentableName', caption: 'Rentable Name', size: '150px', sortable: true},
-            // {field: 'AssignmentTime', caption: 'Assignment Time', size: '120px', sortable: true},
             {field: 'RTRID', caption: 'RTRID', hidden: true, sortable: true},
             {field: 'RTID', caption: 'Rentable Type ID', hidden: true, sortable: true},
             {field: 'RentableType', caption: 'Rentable Type', size: '200px', sortable: true},
