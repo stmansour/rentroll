@@ -48,7 +48,7 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 	var errlist []BizError
 
 	// 1. First check BID is valid or not
-	if !(rlib.IsBIDExists(rs.BID)) {
+	if !(rlib.BIDExists(rs.BID)) {
 		s := fmt.Sprintf(BizErrors[UnknownBID].Message, rs.BID)
 		b := BizError{Errno: UnknownBID, Message: s}
 		errlist = append(errlist, b)
@@ -128,7 +128,7 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 	var errlist []BizError
 
 	// 1. First check BID is valid or not
-	if !(rlib.IsBIDExists(rtr.BID)) {
+	if !(rlib.BIDExists(rtr.BID)) {
 		s := fmt.Sprintf(BizErrors[UnknownBID].Message, rtr.BID)
 		b := BizError{Errno: UnknownBID, Message: s}
 		errlist = append(errlist, b)
