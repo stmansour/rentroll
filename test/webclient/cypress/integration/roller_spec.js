@@ -279,7 +279,6 @@ describe('AIR Receipt UI Tests', function () {
                 // tests for grid cells visibility and value matching with api response records
                 gridCellsTest();
 
-
                 // ----------------------------------
                 // -- Tests for detail record form --
                 // ----------------------------------
@@ -332,48 +331,41 @@ describe('AIR Receipt UI Tests', function () {
 
                             // get id of the field
                             fieldID = $el.context.id;
-                            cy.log("--------------");
                             cy.log(fieldID);
 
                             // get default value of field
                             fieldValue = recordDetailFromAPIResponse[fieldID];
-                            cy.log("*******");
                             cy.log(fieldValue);
 
-                        //     // get field from w2ui form field list
+                            // get field from w2ui form field list
                             field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
-                        // // && typeof fieldValue === 'number'
+
+                            // Convert fieldValue to w2ui money type
                             if (field.type === "money") {
-                                cy.window().then((win) => {
-                                    cy.log("########");
-                                    cy.log(fieldValue);
-                                    fieldValue = win.w2utils.formatters.money(fieldValue);
-                                    cy.log(fieldValue);
-                                });
+                                    fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
                             }
 
-                            /*
-                            * TODO(Akshay): Handle PmtTypeName from app.pmtType. Render Amount in w2ui money type.
-                            * */
+                            // Update fieldValue for PmtTypeName
+                            if(fieldID === "PmtTypeName"){
+                                let pmtID = recordDetailFromAPIResponse["PMTID"];
+                                let pmtTypes = appSettings.pmtTypes[constants.testBiz];
+                                let pmtType = pmtTypes.find(pmtTypes => pmtTypes["PMTID"] === pmtID);
 
-                            if(!common.isInArray(fieldID, testConfig.skipFields) && fieldID !== "PmtTypeName" && fieldID !== "Amount"){
+                                fieldValue = pmtType["Name"];
+                            }
+
+                            if (!common.isInArray(fieldID, testConfig.skipFields)) {
                                 // Check visibility and match the default value of the fields.
                                 cy.get(selectors.getFieldSelector(fieldID))
                                     .should('be.visible')
                                     .should('have.value', fieldValue);
                             }
-                            // if (fieldID !== "PmtTypeName" && fieldID !== "Amount" && fieldID !== "ERentableName") {
-                            //
-                            //     // Check visibility and match the default value of the fields.
-                            //     cy.get(selectors.getFieldSelector(fieldID))
-                            //         .should('be.visible')
-                            //         .should('have.value', defaultValue);
-                            // }
                         });
 
                     // Check Business Unit field must be disabled and have value REX
                     BUDFieldTest();
 
+                    // -- Check buttons visibility --
                     buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
 
                     // -- Check Unallocated section's visibility and class --
@@ -398,78 +390,78 @@ describe('AIR Receipt UI Tests', function () {
      * 5. Check default value for that fields.
      ***********************************************************/
     // TODO(Akshay): Do common code for formfields
-//     it('Test for the Add New Button', function () {
-//
-//         cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
-//
-//         let formName = testConfig.form;
-//
-//         // get form selector
-//         let formSelector = selectors.getFormSelector(formName);
-//
-//         // Check visibility of form
-//         cy.get(formSelector).should('be.visible');
-//
-//         // get record and field list from the w2ui form object
-//         cy.window().then((win) => {
-//
-//             // get w2ui form records
-//             getW2UIFormRecords = win.w2ui[formName].record;
-//
-//             // get w2ui form fields
-//             getW2UIFormFields = win.w2ui[formName].fields;
-//
-//         });
-//
-//         cy.get(formSelector)
-//             .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
-//             .each(($el, index, $list) => {
-//
-//                 // get id of the field
-//                 fieldID = $el.context.id;
-//
-//                 // get default value of field
-//                 defaultValue = getW2UIFormRecords[fieldID];
-//
-//                 // get field from w2ui form field list
-//                 field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
-//
-//                 // defaultValue type is object means it does have key value pair. get default text from the key value pair.
-//                 if (typeof defaultValue === 'object') {
-//                     defaultValue = defaultValue.text;
-//                 }
-//                 /* Money type field have default value in DOM is "$0.00".
-//                 And w2ui field have value "0".
-//                 To make the comparison change default value "0" to "$0.00" */
-//                 else if (field.type === "money" && typeof defaultValue === 'number') {
-//                     defaultValue = "$0.00";
-//                 }
-//
-//                 /* Skipping tests for Resident Address field. Because it have default value as 'undefined' and in DOM it have value as ''.
-//                 Which makes the test fail.
-//                 TODO(Sudip): Change default value undefine to ''.
-//                 TODO(Akshay): Remove `if` condition for the tests after an issue has been resolved.
-//                 */
-//                 if(!common.isInArray(fieldID, testConfig.skipFields)){
-//                     // Check visibility and match the default value of the fields.
-//                     cy.get(selectors.getFieldSelector(fieldID))
-//                         .should('be.visible')
-//                         .should('have.value', defaultValue);
-//                 }
-//
-//             });
-//
-//         // Check Business Unit field must be disabled and have value REX
-//         BUDFieldTest();
-//
-//         // Check button's visibility
-//         buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm)
-//
-//         // -- Close the form. And assert that form isn't visible. --
-//         closeFormTests(formSelector);
-//
-//     });
-//
+    it('Test for the Add New Button', function () {
+
+        cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+
+        let formName = testConfig.form;
+
+        // get form selector
+        let formSelector = selectors.getFormSelector(formName);
+
+        // Check visibility of form
+        cy.get(formSelector).should('be.visible');
+
+        // get record and field list from the w2ui form object
+        cy.window().then((win) => {
+
+            // get w2ui form records
+            getW2UIFormRecords = win.w2ui[formName].record;
+
+            // get w2ui form fields
+            getW2UIFormFields = win.w2ui[formName].fields;
+
+        });
+
+        cy.get(formSelector)
+            .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+            .each(($el, index, $list) => {
+
+                // get id of the field
+                fieldID = $el.context.id;
+
+                // get default value of field
+                defaultValue = getW2UIFormRecords[fieldID];
+
+                // get field from w2ui form field list
+                field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
+
+                // defaultValue type is object means it does have key value pair. get default text from the key value pair.
+                if (typeof defaultValue === 'object') {
+                    defaultValue = defaultValue.text;
+                }
+                /* Money type field have default value in DOM is "$0.00".
+                And w2ui field have value "0".
+                To make the comparison change default value "0" to "$0.00" */
+                else if (field.type === "money" && typeof defaultValue === 'number') {
+                    defaultValue = "$0.00";
+                }
+
+                /* Skipping tests for Resident Address field. Because it have default value as 'undefined' and in DOM it have value as ''.
+                Which makes the test fail.
+                TODO(Sudip): Change default value undefine to ''.
+                TODO(Akshay): Remove `if` condition for the tests after an issue has been resolved.
+                */
+                if(!common.isInArray(fieldID, testConfig.skipFields)){
+                    // Check visibility and match the default value of the fields.
+                    cy.get(selectors.getFieldSelector(fieldID))
+                        .should('be.visible')
+                        .should('have.value', defaultValue);
+                }
+
+            });
+
+        // Check Business Unit field must be disabled and have value REX
+        BUDFieldTest();
+
+        // Check button's visibility
+        buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm)
+
+        // -- Close the form. And assert that form isn't visible. --
+        closeFormTests(formSelector);
+
+    });
+
 });
 
 // describe('AIR Roller UI Tests', function () {
