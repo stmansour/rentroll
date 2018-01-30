@@ -167,8 +167,19 @@ function buildRentableElements() {
                             BID=parseInt(x.value),
                             BUD = getBUDfromBID(BID);
 
-                        setRentableLayout(BID, rec.RID);
-                        // setToForm('rentableForm', '/v1/rentable/' + BID + '/' + rec.RID, 700, true);
+                        getRentableTypes(BUD)
+                        .done(function(data) {
+                            if ('status' in data && data.status !== 'success') {
+                                w2ui.rentableForm.message(data.message);
+                            } else {
+                                // 6. RTID column
+                                w2ui.rentableTypeRefGrid.columns[6].editable.items = app.rt_list[BUD];
+                                setRentableLayout(BID, rec.RID);
+                            }
+                        })
+                        .fail( function() {
+                            console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
+                        });
                     };
 
                 // warn user if form content has been chagned
@@ -189,7 +200,20 @@ function buildRentableElements() {
 
                     w2ui.rentableForm.record = getRentableInitRecord(BID, BUD, null);
                     w2ui.rentableForm.refresh();
-                    setRentableLayout(BID, 0);
+
+                    getRentableTypes(BUD)
+                    .done(function(data) {
+                        if ('status' in data && data.status !== 'success') {
+                            w2ui.rentableForm.message(data.message);
+                        } else {
+                            // 6. RTID column
+                            w2ui.rentableTypeRefGrid.columns[6].editable.items = app.rt_list[BUD];
+                            setRentableLayout(BID, 0);
+                        }
+                    })
+                    .fail( function() {
+                        console.log('Error getting /v1/uival/' + BID + '/app.ReceiptRules');
+                    });
                 };
 
             // warn user if form content has been chagned
@@ -457,12 +481,12 @@ function buildRentableElements() {
                 var x = getCurrentBusiness(),
                     BID=parseInt(x.value),
                     BUD = getBUDfromBID(BID),
-                    RTID = w2ui.rentableForm.record.RTID;
+                    RID = w2ui.rentableForm.record.RID;
 
                 var payload = { "cmd": "delete", "RSIDList": RSIDList };
                 $.ajax({
                     type: "POST",
-                    url: "/v1/rentablestatus/" + BID + "/" + RTID,
+                    url: "/v1/rentablestatus/" + BID + "/" + RID,
                     data: JSON.stringify(payload),
                     contentType: "application/json",
                     dataType: "json",
@@ -577,7 +601,20 @@ function buildRentableElements() {
                     return html;
                 },
             },
-            {field: 'RTID',        caption: 'RTID',        size: '50px'},
+            {field: 'RTID',                                caption: 'Rentable Type',                 size: '150px',
+                editable: { type: 'select', align: 'left', items: [] },
+                render: function (record, index, col_index) {
+                    var html = '';
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+                    for (var rt in app.rt_list[BUD]) {
+                        if (app.rt_list[BUD][rt].id == this.getCellValue(index, col_index)) {
+                            html = app.rt_list[BUD][rt].text;
+                        }
+                    }
+                    return html;
+                },
+            },
             {field: 'RTRID',       caption: 'RTRID',       size: '50px'},
             {field: 'DtStart',     caption: 'DtStart',     size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
             {field: 'DtStop',      caption: 'DtStop',      size: "50%",   sortable: true, style: 'text-align: right', editable: {type: 'date'} },
@@ -629,6 +666,7 @@ function buildRentableElements() {
             this.records.forEach(function(item, index, arr) {
                 arr[index].OverrideRentCycle = parseInt(arr[index].OverrideRentCycle);
                 arr[index].OverrideProrationCycle = parseInt(arr[index].OverrideProrationCycle);
+                arr[index].RTID = parseInt(arr[index].RTID);
             });
             event.changes = this.records;
         },

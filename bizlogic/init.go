@@ -52,6 +52,8 @@ const (
 	RentableStatusDatesOverlap      = 28 // rentable status dates overlapping
 	InvalidRentableTypeRefDates     = 29 // invalid rentable type ref dates
 	RentableTypeRefDatesOverlap     = 30 // rentable type ref dates overlapping
+	UnknownRID                      = 31 // Unknown Rentable
+	UnknownRTID                     = 32 // Unknown Rentable Type
 )
 
 // InitBizLogic loads the error messages needed for validation errors

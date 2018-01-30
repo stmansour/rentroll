@@ -510,8 +510,8 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	var (
-		ok bool
-		rt rlib.Rentable
+		ok       bool
+		rentable rlib.Rentable
 		/*rs          rlib.RentableStatus
 		rtr         rlib.RentableTypeRef
 		currentTime = time.Now()*/
@@ -548,12 +548,12 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if rfRecord.RID > 0 {
 		rlib.Console("Updating Rentable with RID: %d ...\n", rfRecord.RID)
 		// get Rentable from RID
-		rt, err = rlib.GetRentable(r.Context(), rfRecord.RID)
+		rentable, err = rlib.GetRentable(r.Context(), rfRecord.RID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		if !(rt.RID > 0) {
+		if !(rentable.RID > 0) {
 			e := fmt.Errorf("No such Rentable exists, RID: %d", rfRecord.RID)
 			SvcErrorReturn(w, e, funcname)
 			return
@@ -562,17 +562,17 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// TODO: if business value is changed then shouldn't we keep
 		// the record of tie-up of this rentable with previous business?
 
-		rt.BID = requestedBID
-		rt.RentableName = rfRecord.RentableName
-		rt.AssignmentTime = rfRecord.AssignmentTime
+		rentable.BID = requestedBID
+		rentable.RentableName = rfRecord.RentableName
+		rentable.AssignmentTime = rfRecord.AssignmentTime
 		// Now just update the Rentable Record
-		err = rlib.UpdateRentable(r.Context(), &rt)
+		err = rlib.UpdateRentable(r.Context(), &rentable)
 		if err != nil {
 			e := fmt.Errorf("Error updating rentable: %s", err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
-		rlib.Console("Rentable record has been updated with RID: %d\n", rt.RID)
+		rlib.Console("Rentable record has been updated with RID: %d\n", rentable.RID)
 
 		/*// ---------------- UPDATE RENTABLE TYPE REFERENCE ------------------------
 
@@ -645,10 +645,10 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		fmt.Println("Inserting new Rentable Record...")
 
 		// --------------------- INSERT RENTABLE RECORD -------------------------
-		rt.BID = requestedBID
-		rt.RentableName = rfRecord.RentableName
-		rt.AssignmentTime = rfRecord.AssignmentTime
-		rid, err := rlib.InsertRentable(r.Context(), &rt)
+		rentable.BID = requestedBID
+		rentable.RentableName = rfRecord.RentableName
+		rentable.AssignmentTime = rfRecord.AssignmentTime
+		rid, err := rlib.InsertRentable(r.Context(), &rentable)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -659,8 +659,8 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 		// assign RID for this rentable
-		rt.RID = rid
-		rlib.Console("New Rentable record has been saved with RID: %d\n", rt.RID)
+		rentable.RID = rid
+		rlib.Console("New Rentable record has been saved with RID: %d\n", rentable.RID)
 
 		/*// ------------------------- INSERT RENTABLE STATUS ---------------------------
 
@@ -698,7 +698,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.Console("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)*/
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponseWithID(w, rentable.RID)
 }
 
 // getRentable returns the requested rentable

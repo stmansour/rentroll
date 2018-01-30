@@ -54,6 +54,13 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 		errlist = append(errlist, b)
 	}
 
+	// check for RID as well
+	if rs.RID < 1 {
+		s := fmt.Sprintf(BizErrors[UnknownRID].Message, rs.RID)
+		b := BizError{Errno: UnknownRID, Message: s}
+		errlist = append(errlist, b)
+	}
+
 	// 2. check UseStatus is valid or not
 	if !(0 <= rs.UseStatus && rs.UseStatus < int64(len(rlib.RSUseStatus))) {
 		s := fmt.Sprintf(BizErrors[InvalidRentableUseStatus].Message, rs.UseStatus)
@@ -78,16 +85,14 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 
 	// 5. check that DtStart and DtStop don't overlap/fall in with other object
 	// associated with the same RID
-	// TODO(Sudip): ignore error as of now
-
 	overLappingRSQuery := `
 	SELECT
 		RSID
 	FROM RentableStatus
 	WHERE
 		RSID <> {{.RSID}} AND
-		DtStart <= "{{.stopDate}}"
-		AND "{{.startDate}}" <= DtStop AND
+		DtStart < "{{.stopDate}}" AND
+		"{{.startDate}}" < DtStop AND
 		RID = {{.RID}} AND
 		BID = {{.BID}}
 	LIMIT 1`
@@ -114,21 +119,6 @@ func ValidateRentableStatus(ctx context.Context, rs *rlib.RentableStatus) []BizE
 		b := BizError{Errno: RentableStatusDatesOverlap, Message: s}
 		errlist = append(errlist, b)
 	}
-
-	/*rsList, _ := rlib.GetAllRentableStatus(ctx, rs.RID)
-
-	for _, rsRow := range rsList {
-		// if same object then continue
-		if rs.RSID == rsRow.RSID {
-			continue
-		}
-		// start date should not sit between other market rate's time span
-		if rlib.DateRangeOverlap(&rs.DtStart, &rs.DtStop, &rsRow.DtStart, &rsRow.DtStop) {
-			s := fmt.Sprintf(BizErrors[RentableStatusDatesOverlap].Message, rs.RSID, rsRow.RSID)
-			b := BizError{Errno: RentableStatusDatesOverlap, Message: s}
-			errlist = append(errlist, b)
-		}
-	}*/
 	return errlist
 }
 
@@ -144,6 +134,20 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 		errlist = append(errlist, b)
 	}
 
+	// check for RID as well
+	if rtr.RID < 1 {
+		s := fmt.Sprintf(BizErrors[UnknownRID].Message, rtr.RID)
+		b := BizError{Errno: UnknownRID, Message: s}
+		errlist = append(errlist, b)
+	}
+
+	// check for RTID as well
+	if rtr.RTID < 1 {
+		s := fmt.Sprintf(BizErrors[UnknownRTID].Message, rtr.RTID)
+		b := BizError{Errno: UnknownRTID, Message: s}
+		errlist = append(errlist, b)
+	}
+
 	// 2. Stopdate should not be before startDate
 	if rtr.DtStop.Before(rtr.DtStart) {
 		s := fmt.Sprintf(BizErrors[InvalidRentableTypeRefDates].Message,
@@ -152,15 +156,15 @@ func ValidateRentableTypeRef(ctx context.Context, rtr *rlib.RentableTypeRef) []B
 		errlist = append(errlist, b)
 	}
 
-	// TODO(Sudip): make query to get any rentable type ref that bring validation false here
+	// 3. Check that any other instance doesn't overlap with given date range
 	overLappingRTRQuery := `
 	SELECT
 		RTRID
 	FROM RentableTypeRef
 	WHERE
 		RTRID <> {{.RTRID}} AND
-		DtStart <= "{{.stopDate}}" AND
-		"{{.startDate}}" <= DtStop AND
+		DtStart < "{{.stopDate}}" AND
+		"{{.startDate}}" < DtStop AND
 		RID = {{.RID}} AND
 		BID = {{.BID}}
 	LIMIT 1`
