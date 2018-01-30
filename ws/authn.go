@@ -113,6 +113,7 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	b.ImageURL = s.ImageURL
 	b.Username = s.Username
+	rlib.Ulog("user %s (%d) logged in\n", s.Username, s.UID)
 	// rlib.Console("Created session: %#v\n", s)
 	// rlib.Console("Created response: %#v\n", b)
 	SvcWriteResponse(&b, w)
