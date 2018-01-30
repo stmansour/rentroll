@@ -175,7 +175,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	srch := fmt.Sprintf(`R.BID=%d`, d.BID)
 
 	// show active rentable first by RenalAgreement Dates
-	order := "R.RID ASC" // default ORDER
+	order := "R.RID ASC, RAR.RARID DESC, RTR.RTRID DESC, RS.RSID DESC" // default ORDER
 
 	// get where clause and order clause for sql query
 	whereClause, orderClause := GetSearchAndSortSQL(d, rentablesGridFieldsMap)
@@ -187,6 +187,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	}
 
 	// Rentables Query Text Template
+	// TODO(Sudip): need to cover date range
 	rentablesQuery := `
 	SELECT DISTINCT
 		{{.SelectClause}}
