@@ -209,11 +209,11 @@ function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win
 
             // Update fieldValue for PmtTypeName
             if (fieldID === "PmtTypeName") {
-                let pmtID = recordDetailFromAPIResponse["PMTID"];
+                let pmtID = recordDetailFromAPIResponse.PMTID;
                 let pmtTypes = appSettings.pmtTypes[constants.testBiz];
-                let pmtType = pmtTypes.find(pmtTypes => pmtTypes["PMTID"] === pmtID);
+                let pmtType = pmtTypes.find(pmtTypes => pmtTypes.PMTID === pmtID);
 
-                fieldValue = pmtType["Name"];
+                fieldValue = pmtType.Name;
             }
 
             if (!common.isInArray(fieldID, testConfig.skipFields)) {
