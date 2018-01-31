@@ -290,49 +290,6 @@ function buildROVReceiptElements() {
                 }
             };
         },
-        onLoad: function(event) { // when form data is loaded without rendering/refreshing event then
-            event.onComplete = function() {
-                var f = this,
-                    r = f.record,
-                    BID = getCurrentBID();
-
-                // enable/disable RAID based on Account Rule
-                var arid;
-                if (typeof r.ARID === "object") {
-                    arid = r.ARID.id;
-                } else {
-                    arid = r.ARID;
-                }
-                if (arid) { // if it has Account Rule then only
-                    var url = '/v1/ar/' + r.BID +'/' + arid;
-                    handleReceiptRAID(url, f);
-                }
-
-                if (r.TCID) { // if it has Payor then only
-                    var record = {};
-                    getPersonDetailsByTCID(BID, r.TCID)
-                    .done(function(data) {
-                        record = JSON.parse(data).record;
-                        var item = {
-                            CompanyName: record.CompanyName,
-                            IsCompany:   record.IsCompany,
-                            FirstName:   record.FirstName,
-                            LastName:    record.LastName,
-                            MiddleName:  record.MiddleName,
-                            TCID:        record.TCID,
-                            recid:       0,
-                        };
-                        if ($(f.box).find("input[name=Payor]").length > 0) {
-                            $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
-                        }
-                    })
-                    .fail(function() {
-                        f.message("Couldn't get person details for TCID: ", r.TCID);
-                        console.log("couldn't get person details for TCID: ", r.TCID);
-                    });
-                }
-            };
-        },
         onRefresh: function(event) {
             //w2ui.ridRentablePicker.fields[0].options.url = '/v1/rentablestd/' + app.ridRentablePicker.BID;
             event.onComplete = function() {
@@ -354,9 +311,6 @@ function buildROVReceiptElements() {
 
                 f.get("PmtTypeName").options.items = buildPaymentTypeSelectList( BUD );
                 f.get("PmtTypeName").options.selected = getPaymentType(BUD, r.PMTID);
-                // f.get("ARID").options.items = app.ReceiptRules[BUD];
-                // f.get("Payor").options.url = '/v1/transactantstd/'+ BUD;
-                // $("#receiptForm").find("input[name=Dt]").prop("disabled", r.RCPTID !== 0);
 
                 formRefreshCallBack(f, "RCPTID", header);
 
@@ -564,23 +518,6 @@ function doRcptSave(f,prnt) {
             w2ui.toplayout.hide('right',true);
             grid.render();
         }
-    });
-}
-
-function handleReceiptRAID(url, f) {
-    var params = {"cmd":"get","recid":0,"name":"receiptForm","client": app.client};
-    var dat = JSON.stringify(params);
-    $.post(url, dat, null, "json")
-    .done(function(data) {
-        if (data.status === "error") {
-            f.error(w2utils.lang(data.message));
-            return;
-        }
-        var b = (data.record.FLAGS & 4 !== 0);
-        $(f.box).find("input[name=RAID]").prop( "disabled", !b);
-    })
-    .fail(function(/*data*/){
-        f.error(url + " failed to get Receipt Rule details.");
     });
 }
 
