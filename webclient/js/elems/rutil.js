@@ -1187,5 +1187,5 @@ function downloadMediaFromURL(url) {
     // reset the url after download after sometime
     setTimeout(function() {
         idown.attr('src', '');
-    }, 100);
+    }, 1000);
 }
