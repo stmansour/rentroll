@@ -341,8 +341,7 @@ describe('AIR Receipt UI Tests', function () {
         cy.get('[class="w2ui-calendar-title title"]').click();
         cy.get('[class="w2ui-jump-month"][name=' + constants.month +']').click();
         cy.get('[class="w2ui-jump-year"][name=' + constants.year + ']').click();
-        cy.get('[date="8/1/2017"]').click();
-        // cy.get('[date=' + constants.fromDate + ']').click(); //TODO(Akshay): fetch date from constants.js
+        cy.get('[date="' + constants.fromDate + '"]').click();
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
