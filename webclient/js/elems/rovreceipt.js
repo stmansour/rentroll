@@ -420,10 +420,6 @@ function buildROVReceiptElements() {
                 case "PmtTypeName":
                     r.PMTID = event.value_new.id;
                     break;
-                case "ARID":
-                    var url = '/v1/ar/' + r.BID +'/' + event.value_new.id;
-                    handleReceiptRAID(url, f);
-                    break;
                 }
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(f.record, app.active_form_original, {});
