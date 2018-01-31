@@ -326,8 +326,20 @@ func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err error
 	)
 	fmt.Printf("Entered %s\n", funcname)
+	d1 := d.wsSearchReq.SearchDtStart
+	d2 := d.wsSearchReq.SearchDtStop
 
-	m, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), d.RAID, &d.Dt, &d.Dt)
+	//--------------------------------------------------------------------------
+	// This is a hack... at some point the date being sent up was not correct.
+	// Since we can display all the Payors we need to, if the daterange looks
+	// incorrect it gets set to all-time
+	//--------------------------------------------------------------------------
+	if d1.Year() < 1970 {
+		d1 = rlib.TIME0
+		d2 = rlib.ENDOFTIME
+	}
+
+	m, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), d.RAID, &d1, &d2)
 	for i := 0; i < len(m); i++ {
 		var p rlib.Transactant
 		err = rlib.GetTransactant(r.Context(), m[i].TCID, &p)
