@@ -468,7 +468,7 @@ function buildRentableElements() {
 
                 // if UseStatus and LeaseStatus both kept as "unknown" then it doesn't
                 // make sense to send this entry to server, remove it
-                if (UseStatus === 0 && LeaseStatus === 0) {
+                if (arr[index].UseStatus === 0 && arr[index].LeaseStatus === 0) {
                     arr.splice(index, 1);
                 }
 
