@@ -173,8 +173,9 @@ function buildRentableElements() {
                             if ('status' in data && data.status !== 'success') {
                                 w2ui.rentableForm.message(data.message);
                             } else {
-                                // 6. RTID column
-                                w2ui.rentableTypeRefGrid.columns[6].editable.items = app.rt_list[BUD];
+                                // get "RTID" column index and set rentable types list in editable items
+                                var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
+                                w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
                                 setRentableLayout(BID, rec.RID);
                             }
                         })
@@ -207,8 +208,9 @@ function buildRentableElements() {
                         if ('status' in data && data.status !== 'success') {
                             w2ui.rentableForm.message(data.message);
                         } else {
-                            // 6. RTID column
-                            w2ui.rentableTypeRefGrid.columns[6].editable.items = app.rt_list[BUD];
+                            // get "RTID" column index and set rentable types list in editable items
+                            var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
+                            w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
                             setRentableLayout(BID, 0);
                         }
                     })
@@ -886,8 +888,8 @@ function buildRentableElements() {
                     });
                 });
             },
-            deactivate: function() {},
-            reactivate: function() {},
+            deactivate: function() {}, // TODO(Sudip): deactivate action
+            reactivate: function() {}, // TODO(Sudip): reactivate action
          },
     });
 }
