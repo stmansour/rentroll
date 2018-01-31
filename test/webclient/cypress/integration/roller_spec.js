@@ -37,10 +37,12 @@ let appSettings;
 // holds the test configuration for the modules
 let testConfig;
 
+// get api end point for grid records
 function getAPIEndPoint(module) {
     return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID;
 }
 
+// get api end point for grid record detail
 function getDetailRecordAPIEndPoint(module, id) {
     return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID + "/" + id;
 }
@@ -63,7 +65,7 @@ function unallocatedSectionTest() {
         .should('have.class', 'FLAGReportContainer');
 }
 
-
+// -- perform tests on button --
 function buttonsTest(visibleButtons, notVisibleButtons) {
 
     // Check visibility of buttons
@@ -79,11 +81,13 @@ function buttonsTest(visibleButtons, notVisibleButtons) {
     });
 }
 
+// -- perform test on BUD field --
 function BUDFieldTest() {
     // Check Business Unit field must be disabled and have value REX
     cy.get(selectors.getBUDSelector()).should('be.disabled').and('have.value', constants.testBiz).and('be.visible');
 }
 
+// -- perform test on grid cells --
 function gridCellsTest(win) {
     // Iterate through each row
     recordsAPIResponse.forEach(function (record, rowNo) {
@@ -115,6 +119,7 @@ function gridCellsTest(win) {
     });
 }
 
+// -- perform test on add new record form's field --
 function addNewFormTest(formName, formSelector) {
 
     // Check visibility of form
@@ -170,6 +175,7 @@ function addNewFormTest(formName, formSelector) {
         });
 }
 
+// -- perform test on detail record form's field --
 function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win) {
 // Check visibility of form
     cy.get(formSelector).should('be.visible');
