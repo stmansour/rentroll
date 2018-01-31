@@ -173,8 +173,9 @@ function buildRentableElements() {
                             if ('status' in data && data.status !== 'success') {
                                 w2ui.rentableForm.message(data.message);
                             } else {
-                                // 6. RTID column
-                                w2ui.rentableTypeRefGrid.columns[6].editable.items = app.rt_list[BUD];
+                                // get "RTID" column index and set rentable types list in editable items
+                                var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
+                                w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
                                 setRentableLayout(BID, rec.RID);
                             }
                         })
@@ -207,8 +208,9 @@ function buildRentableElements() {
                         if ('status' in data && data.status !== 'success') {
                             w2ui.rentableForm.message(data.message);
                         } else {
-                            // 6. RTID column
-                            w2ui.rentableTypeRefGrid.columns[6].editable.items = app.rt_list[BUD];
+                            // get "RTID" column index and set rentable types list in editable items
+                            var RTIDColIndex = w2ui.rentableTypeRefGrid.getColumn("RTID", true);
+                            w2ui.rentableTypeRefGrid.columns[RTIDColIndex].editable.items = app.rt_list[BUD];
                             setRentableLayout(BID, 0);
                         }
                     })
@@ -458,11 +460,20 @@ function buildRentableElements() {
             g.add(newRec);
         },
         onSave: function(event) {
+            // TODO(Sudip): validation on values before sending these to server
+
             this.records.forEach(function(item, index, arr) {
                 arr[index].UseStatus = parseInt(arr[index].UseStatus);
                 arr[index].LeaseStatus = parseInt(arr[index].LeaseStatus);
+
+                // if UseStatus and LeaseStatus both kept as "unknown" then it doesn't
+                // make sense to send this entry to server, remove it
+                if (arr[index].UseStatus === 0 && arr[index].LeaseStatus === 0) {
+                    arr.splice(index, 1);
+                }
+
                 /*// if dateMode is set, then add one day to the stopDate
-                if (app.dateMode) {
+                if (app.dateMode === 1) {
                     var d = dateFromString(arr[index].DtStop);
                     d.setDate(d.getDate() + 1);
                     arr[index].DtStop = dateFmtStr(d);
@@ -670,12 +681,15 @@ function buildRentableElements() {
             g.add(newRec);
         },
         onSave: function(event) {
+            // TODO(Sudip): validation on values before sending these to server
+
             this.records.forEach(function(item, index, arr) {
                 arr[index].OverrideRentCycle = parseInt(arr[index].OverrideRentCycle);
                 arr[index].OverrideProrationCycle = parseInt(arr[index].OverrideProrationCycle);
                 arr[index].RTID = parseInt(arr[index].RTID);
+
                 /*// if dateMode is set, then add one day to the stopDate
-                if (app.dateMode) {
+                if (app.dateMode === 1) {
                     var d = dateFromString(arr[index].DtStop);
                     d.setDate(d.getDate() + 1);
                     arr[index].DtStop = dateFmtStr(d);
@@ -886,8 +900,8 @@ function buildRentableElements() {
                     });
                 });
             },
-            deactivate: function() {},
-            reactivate: function() {},
+            deactivate: function() {}, // TODO(Sudip): deactivate action
+            reactivate: function() {}, // TODO(Sudip): reactivate action
          },
     });
 }
