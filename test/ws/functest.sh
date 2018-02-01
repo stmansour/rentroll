@@ -167,6 +167,38 @@ dojsonGET "http://localhost:8270/v1/rentalagrtd/CCC?request=%7B%22search%22%3A%2
 # get Rentable types list for a business
 dojsonGET "http://localhost:8270/v1/rtlist/2" "ws38" "WebService--GetRentableTypesForBusiness"
 
+# save rentable
+echo "request=%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22rentableForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A0%2C%22RentableName%22%3A%22REX-Test-1%22%2C%22AssignmentTime%22%3A1%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentable/1/0" "request" "ws39"  "WebService--SaveRentable"
+
+# save rentable status with usestatus: 2(Administrative), leaseStatus: 5(Leased)
+echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A0%2C%22RSID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1129%2C%22UseStatus%22%3A2%2C%22LeaseStatus%22%3A5%2C%22DtStart%22%3A%221%2F1%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F9999%22%2C%22DtNoticeToVacate%22%3A%221%2F1%2F1900%22%2C%22DtNoticeToVacateIsSet%22%3Afalse%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentablestatus/1/1129" "request" "ws40"  "WebService--SaveRentableStatus-Rentable(1129)"
+
+# save rentable type ref
+echo "%7B%22cmd%22%3A%22save%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22changes%22%3A%5B%7B%22recid%22%3A0%2C%22RTRID%22%3A0%2C%22RTID%22%3A1%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RID%22%3A1129%2C%22OverrideRentCycle%22%3A0%2C%22OverrideProrationCycle%22%3A0%2C%22DtStart%22%3A%221%2F1%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F9999%22%2C%22CreateBy%22%3A0%2C%22LastModBy%22%3A0%7D%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1129" "request" "ws41"  "WebService--SaveRentableTypeRef-Rentable(1129)"
+
+# Get Rentables
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentables/1" "request" "ws42"  "WebService--GetRentables"
+
+# Get Rentable Status list for Rentable(1129)
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentablestatus/1/1129" "request" "ws43"  "WebService--GetRentableStatus"
+
+# Get Rentable Type ref list for Rentable(1129)
+echo "request=%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1129" "request" "ws44"  "WebService--GetRentableTypeRef"
+
+# delete rentable status recently created (1129)
+echo "%7B%22cmd%22%3A%22delete%22%2C%22RSIDList%22%3A%5B1129%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentablestatus/1/1129" "request" "ws45" "WebService--DeleteRentableStatus(1129)"
+
+# delete rentable type ref recently created (1129)
+echo "%7B%22cmd%22%3A%22delete%22%2C%22RTRIDList%22%3A%5B1129%5D%7D" > request
+dojsonPOST "http://localhost:8270/v1/rentabletyperef/1/1129" "request" "ws46" "WebService--DeleteRentableTypeRef(1129)"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 
