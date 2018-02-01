@@ -5,6 +5,36 @@ export function getFormCloseButtonSelector() {
     return '[class="fa fa-times"]';
 }
 
+// return selector for print button of form
+export function getFormPrintButtonSelector() {
+    return '[class="fa fa-print"]';
+}
+
+// return selector for print receipt popup
+export function getPrintReceiptPopUpSelector() {
+    return '#w2ui-popup';
+}
+
+// return selector for permanent resident radio button in print receipt popup
+export function getPermanentResidentRadioButtonSelector() {
+    return '[name="report_type"][type="radio"][value="permanent_resident"]';
+}
+
+// return selector for hotel radio button in print receipt popup
+export function getHotelRadioButtonSelector() {
+ return '[name="report_type"][type="radio"][value="hotel"]';
+}
+
+// return selector for close button in w2ui popup
+export function getClosePopupButtonSelector() {
+    return '[class="w2ui-popup-button w2ui-popup-close"]';
+}
+
+// return selector for print receipt pop up title
+export function getPrintReceiptPopUpTitleSelector() {
+    return '[class="w2ui-popup-title"]';
+}
+
 // return selector for node in left side panel
 export function getNodeSelector(nodeName) {
     return '#node_' + nodeName;

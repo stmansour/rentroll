@@ -39,12 +39,13 @@ let testConfig;
 
 // get api end point for grid records
 function getAPIEndPoint(module) {
-    return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID;
+    return [constants.API_VERSION, module, constants.BID].join("/");
 }
 
 // get api end point for grid record detail
 function getDetailRecordAPIEndPoint(module, id) {
-    return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID + "/" + id;
+    return [constants.API_VERSION, module, constants.BID, id].join("/");
+    // return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID + "/" + id;
 }
 
 // -- Close the form. And assert that form isn't visible. --
@@ -231,6 +232,35 @@ function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win
         });
 }
 
+function printReceiptUITest() {
+// Open print receipt UI
+    cy.get(selectors.getFormPrintButtonSelector()).should('be.visible').click();
+
+    // Check print receipt pop up should open
+    cy.get(selectors.getPrintReceiptPopUpSelector()).should('be.visible').wait(constants.WAIT_TIME);
+
+    //TODO(Akshay): Check Report format list is visible
+    // cy.get('[class="w2ui-field-helper"]').should('be.visible');
+
+    // Check default permanent_resident radio button is checked
+    cy.get(selectors.getPermanentResidentRadioButtonSelector())
+        .should('be.visible')
+        .should('be.checked');
+
+    // Check hotel radio button is unchecked
+    cy.get(selectors.getHotelRadioButtonSelector())
+        .should('be.visible')
+        .should('not.be.checked');
+
+    // Check button visibility
+    let printReceiptButtons = ["print", "close"];
+
+    buttonsTest(printReceiptButtons, []);
+
+    // Close the popup
+    cy.get(selectors.getClosePopupButtonSelector()).click();
+}
+
 // -- Start Cypress UI tests --
 describe('AIR Receipt UI Tests', function () {
 
@@ -324,7 +354,6 @@ describe('AIR Receipt UI Tests', function () {
             .should('be.visible')
             .should('have.class', 'w2ui-selected')
             .click().wait(constants.WAIT_TIME);
-
 
     });
 
@@ -459,6 +488,9 @@ describe('AIR Receipt UI Tests', function () {
 
                     // -- Check Unallocated section's visibility and class --
                     unallocatedSectionTest();
+
+                    // -- Check print receipt UI --
+                    printReceiptUITest();
 
                     // -- Close the form. And assert that form isn't visible. --
                     closeFormTests(formSelector);

@@ -26,5 +26,6 @@ export let conf = {
     buttonNamesInDetailForm: ["save", "saveprint", "reverse"],
     skipColumns: ["reversed"],
     skipFields: ["ERentableName"],
+    printReceiptButtons: ["print", "close"],
     primaryId: "RCPTID"
 };
