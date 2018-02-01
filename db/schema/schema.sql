@@ -631,8 +631,8 @@ CREATE TABLE RentableStatus (
     RSID BIGINT NOT NULL AUTO_INCREMENT,                            -- unique id for Rentable Status
     RID BIGINT NOT NULL DEFAULT 0,                                  -- associated Rentable
     BID BIGINT NOT NULL DEFAULT 0,                                  -- Business
-    UseStatus SMALLINT NOT NULL DEFAULT 0,                          -- 1-Administrative, 2=InService, 3=Employee, 4=Model, 5=OfflineRennovation, 6=OfflineMaintenance
-    LeaseStatus SMALLINT NOT NULL DEFAULT 0,                        -- 1-Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable
+    UseStatus SMALLINT NOT NULL DEFAULT 0,                          -- 1=InService, 2=Administrative, 3=Employee, 4=OwnerOccupied, 5=OfflineRennovation, 6=OfflineMaintenance, 7=Model, 8=Inactive
+    LeaseStatus SMALLINT NOT NULL DEFAULT 0,                        -- 1=Vacant-rented, 2=VacantNotRented, 3=OnNoticePreLeased, 4=OnNoticeAvailable, 5=Leased, 6=Unavailable, 7=Inactive
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',        -- start time for this state
     DtStop DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- stop time for this state
     DtNoticeToVacate DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- user has indicated they will vacate on this date

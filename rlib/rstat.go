@@ -7,13 +7,14 @@ import (
 
 // RSLeaseStatus is a slice of the string meaning of each LeaseStatus
 var RSLeaseStatus = []string{
-	"Unknown",
-	"Vacant Preleased",
-	"Vacant Unleased",
-	"On Notice Preleased",
-	"On Notice Unleased",
-	"Leased",
-	"Unavailable",
+	"Unknown",             // 0
+	"Vacant Preleased",    // 1
+	"Vacant Unleased",     // 2
+	"On Notice Preleased", // 3
+	"On Notice Unleased",  // 4
+	"Leased",              // 5
+	"Unavailable",         // 6
+	"Inactive",            // 7
 }
 
 // RSUseStatus is a slice of the string meaning of each UseStatus
@@ -26,6 +27,7 @@ var RSUseStatus = []string{
 	"Offline Rennovation", // 5
 	"Offline Maintenance", // 6
 	"Model",               // 7
+	"Inactive",            // 8
 }
 
 // RSMakeReadyStatus is a slice of the string meaning of each MakeReadyStatus

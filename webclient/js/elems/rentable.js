@@ -460,16 +460,52 @@ function buildRentableElements() {
             g.add(newRec);
         },
         onSave: function(event) {
+            // if url is set then only take further actions, for local save just ignore those
+            if (this.url === "") {
+                return false;
+            }
+
             // TODO(Sudip): validation on values before sending these to server
+
+            // get "Unknown" status value from the map, as well as for "Inactive" from Use Status items
+            var UseUnknownStatus, UseInactiveStatus;
+            app.RSUseStatusItems.forEach(function(status) {
+                switch(status.text) {
+                case "Unknown":
+                    UseUnknownStatus = status.id;
+                    break;
+                case "Inactive":
+                    UseInactiveStatus = status.id;
+                    break;
+                }
+            });
+
+            // get "Unknown" status value from the map, as well as for "Inactive" from Lease Status items
+            var LeaseUnknownStatus, LeaseInactiveStatus;
+            app.RSLeaseStatusItems.forEach(function(status) {
+                switch(status.text) {
+                case "Unknown":
+                    LeaseUnknownStatus = status.id;
+                    break;
+                case "Inactive":
+                    LeaseInactiveStatus = status.id;
+                    break;
+                }
+            });
 
             this.records.forEach(function(item, index, arr) {
                 arr[index].UseStatus = parseInt(arr[index].UseStatus);
                 arr[index].LeaseStatus = parseInt(arr[index].LeaseStatus);
 
-                // if UseStatus and LeaseStatus both kept as "unknown" then it doesn't
-                // make sense to send this entry to server, remove it
-                if (arr[index].UseStatus === 0 && arr[index].LeaseStatus === 0) {
+                if (arr[index].UseStatus === UseUnknownStatus && arr[index].LeaseStatus === LeaseUnknownStatus) {
+                    // if UseStatus and LeaseStatus both kept as "unknown" then it doesn't
+                    // make sense to send this entry to server, remove it
                     arr.splice(index, 1);
+                } else if (arr[index].UseStatus === UseInactiveStatus || arr[index].LeaseStatus === LeaseInactiveStatus) {
+                    // if "Inactive" set in any of UseStatus, LeaseStatus, then set "Inactive"
+                    // in both status field
+                    arr[index].UseStatus = UseInactiveStatus;
+                    arr[index].LeaseStatus = LeaseInactiveStatus;
                 }
 
                 /*// if dateMode is set, then add one day to the stopDate
@@ -521,9 +557,34 @@ function buildRentableElements() {
                 chgRec = g.get(event.recid),
                 changeIsValid = true;
 
-            // if fields are DtStart or DtStop
-            if ( field === "DtStart" || field === "DtStop") {
-
+            switch(field) {
+            case "UseStatus":
+                // in local save check if use status is unknown for existing instance
+                // if yes, then don't allow that change
+                app.RSUseStatusItems.forEach(function(status) {
+                    switch(status.text) {
+                    case "Unknown":
+                        if (chgRec.RSID > 0) { // only for existing instance
+                            changeIsValid = false;
+                        }
+                    }
+                });
+                break;
+            case "LeaseStatus":
+                // in local save check if lease status is unknown for existing instance
+                // if yes, then don't allow that change
+                app.RSLeaseStatusItems.forEach(function(status) {
+                    switch(status.text) {
+                    case "Unknown":
+                        if (chgRec.RSID > 0) { // only for existing instance
+                            changeIsValid = false;
+                        }
+                    }
+                });
+                break;
+            case "DtStart":
+            case "DtStop":
+                // get the changed value if field, otherwise take the record saved date value
                 var chgDStart = field === "DtStart" ? new Date(event.value_new) : new Date(chgRec.DtStart),
                     chgDStop = field === "DtStop" ? new Date(event.value_new) : new Date(chgRec.DtStop);
 
@@ -551,6 +612,7 @@ function buildRentableElements() {
                         }
                     }
                 }
+                break;
             }
 
             if(changeIsValid) {
