@@ -1,0 +1,29 @@
+{
+    "record": {
+        "ARID": 0,
+        "Amount": 3550,
+        "BID": 1,
+        "BUD": "REX",
+        "Comment": "",
+        "CreateBy": 0,
+        "CreateByUser": "UID-0",
+        "CreateTS": "2018-02-01T13:13:00Z",
+        "DID": 1,
+        "DocNo": "1631",
+        "Dt": "1/4/2016",
+        "FLAGS": 0,
+        "LastModBy": 0,
+        "LastModByUser": "UID-0",
+        "LastModTime": "2018-02-01T13:13:00Z",
+        "OtherPayorName": "",
+        "PMTID": 1,
+        "PRCPTID": 0,
+        "Payor": "Rita Costea (TCID: 3)",
+        "RAID": 0,
+        "RCPTID": 5,
+        "RentableName": "",
+        "TCID": 3,
+        "recid": 0
+    },
+    "status": "success"
+}

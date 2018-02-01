@@ -1,0 +1,30 @@
+{
+    "record": {
+        "ARID": 0,
+        "ASMID": 1,
+        "Amount": 7000,
+        "BID": 1,
+        "BUD": "REX",
+        "Comment": "",
+        "CreateBy": 0,
+        "CreateByUser": "UID-0",
+        "CreateTS": "2018-02-01T13:13:00Z",
+        "ExpandPastInst": 1,
+        "FLAGS": 1,
+        "InvoiceNo": 0,
+        "LastModBy": 0,
+        "LastModByUser": "UID-0",
+        "LastModTime": "2018-02-01T13:13:00Z",
+        "Mode": 0,
+        "PASMID": 0,
+        "ProrationCycle": "Norecur",
+        "RAID": 1,
+        "RID": 1,
+        "RentCycle": "Norecur",
+        "Rentable": "309 Rexford",
+        "Start": "12/1/2015",
+        "Stop": "12/1/2015",
+        "recid": 0
+    },
+    "status": "success"
+}
