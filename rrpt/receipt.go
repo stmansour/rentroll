@@ -93,10 +93,8 @@ func rcptOnlyReceiptTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	//----------------------------------------------
 	// Load the receipt types for this business...
 	//----------------------------------------------
-	sPmtType := fmt.Sprintf("PMTID = %d ??", m.PMTID)
-
 	n, _ := rlib.GetPaymentTypesByBusiness(ctx, m.BID) // get the payment types for this business
-	sPmtType = n[m.PMTID].Name
+	sPmtType := n[m.PMTID].Name
 
 	rname, _ := rlib.ROCExtractRentableName(m.Comment)
 
