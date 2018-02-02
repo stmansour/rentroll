@@ -58,12 +58,33 @@ function closeFormTests(formSelector) {
     cy.get(formSelector).should('not.be.visible');
 }
 
+// Check position of allocated section in detail form
+function allocatedSectionPositionTest() {
+
+    // get co-ordinate of allocated section
+    const allocatedSection = Cypress.$('#FLAGReport').get(0).getBoundingClientRect();
+
+    // get co-ordinate of button section
+    const buttonSection = Cypress.$('.w2ui-buttons').get(0).getBoundingClientRect();
+
+    // get difference of y co-ordinate of element
+    let sectionDiff = allocatedSection.y - buttonSection.y;
+
+    // Check difference must be 1
+    expect(sectionDiff).to.equal(1);
+}
+
 // -- Check Unallocated section's visibility and class --
 function unallocatedSectionTest() {
+
+    // Check visibility and class of
     cy.get(selectors.getUnallocateSectionSelector())
         .scrollIntoView()
         .should('be.visible')
         .should('have.class', 'FLAGReportContainer');
+
+    // Check position of allocated section in detail form
+    allocatedSectionPositionTest();
 }
 
 // -- perform tests on button --
@@ -490,7 +511,7 @@ describe('AIR Receipt UI Tests', function () {
                     unallocatedSectionTest();
 
                     // -- Check print receipt UI --
-                    printReceiptUITest();
+                    // printReceiptUITest();
 
                     // -- Close the form. And assert that form isn't visible. --
                     closeFormTests(formSelector);
