@@ -45,7 +45,6 @@ function getAPIEndPoint(module) {
 // get api end point for grid record detail
 function getDetailRecordAPIEndPoint(module, id) {
     return [constants.API_VERSION, module, constants.BID, id].join("/");
-    // return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID + "/" + id;
 }
 
 // -- Close the form. And assert that form isn't visible. --
@@ -62,7 +61,7 @@ function closeFormTests(formSelector) {
 function allocatedSectionPositionTest() {
 
     // get co-ordinate of allocated section
-    const allocatedSection = Cypress.$('#FLAGReport').get(0).getBoundingClientRect();
+    const allocatedSection = Cypress.$(selectors.getAllocatedSectionSelector()).get(0).getBoundingClientRect();
 
     // get co-ordinate of button section
     const buttonSection = Cypress.$('.w2ui-buttons').get(0).getBoundingClientRect();
@@ -78,7 +77,7 @@ function allocatedSectionPositionTest() {
 function unallocatedSectionTest() {
 
     // Check visibility and class of
-    cy.get(selectors.getUnallocateSectionSelector())
+    cy.get(selectors.getAllocatedSectionSelector())
         .scrollIntoView()
         .should('be.visible')
         .should('have.class', 'FLAGReportContainer');
@@ -244,6 +243,7 @@ function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win
                 fieldValue = pmtType.Name;
             }
 
+            // check fields visibility
             if (!common.isInArray(fieldID, testConfig.skipFields)) {
                 // Check visibility and match the default value of the fields.
                 cy.get(selectors.getFieldSelector(fieldID))
@@ -253,15 +253,18 @@ function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win
         });
 }
 
+// test for print receipt ui in detail record form
 function printReceiptUITest() {
-// Open print receipt UI
+
+    // Open print receipt UI
     cy.get(selectors.getFormPrintButtonSelector()).should('be.visible').click();
 
     // Check print receipt pop up should open
     cy.get(selectors.getPrintReceiptPopUpSelector()).should('be.visible').wait(constants.WAIT_TIME);
 
-    //TODO(Akshay): Check Report format list is visible
-    // cy.get('[class="w2ui-field-helper"]').should('be.visible');
+    // Check format list visibility
+    cy.get(selectors.getPrintReceiptPopUpSelector())
+        .find('.w2ui-field-helper').should('be.visible');
 
     // Check default permanent_resident radio button is checked
     cy.get(selectors.getPermanentResidentRadioButtonSelector())
@@ -275,8 +278,10 @@ function printReceiptUITest() {
 
     // Check button visibility
     let printReceiptButtons = ["print", "close"];
-
     buttonsTest(printReceiptButtons, []);
+
+    // We are not clicking print button. Because files get downloaded.
+    // cy.get(selectors.getButtonSelector(printReceiptButtons[0])).click();
 
     // Close the popup
     cy.get(selectors.getClosePopupButtonSelector()).click();
@@ -363,6 +368,15 @@ describe('AIR Receipt UI Tests', function () {
 
     });
 
+    // -- Check export CSV and export to Print button in grid toolbar --
+    it('CSV and Print button in toolbar', function () {
+        // Check visibility of export to CSV button
+        cy.get(selectors.getExportCSVButtonSelector()).should('be.visible');
+
+        // Check visibility of export to PDF button
+        cy.get(selectors.getExportPDFButtonSelector()).should('be.visible');
+    });
+
 
     /*****************************************************
      * Tests for node
@@ -432,10 +446,10 @@ describe('AIR Receipt UI Tests', function () {
      * 2. Check visibility of detail form
      * 3. Check visibility and value of the fields
      * 4. Check button's visibility
-     * 5. Check Unallocated section visibility and position(CSS Class)
-     * 6. Close the detail form
-     * 7. Assert that form is close.
-     *
+     * 5. Check Unallocated section visibility and position(Using Y co-ordinate of elements)
+     * 6. Check print receipt ui test
+     * 7. Close the detail form
+     * 8. Assert that form is close.
      *********************************************************/
 
     it('Test for grid records and record detail', function () {
@@ -477,8 +491,7 @@ describe('AIR Receipt UI Tests', function () {
                 const id = recordsAPIResponse[0][testConfig.primaryId];
 
                 // Routing response to detail record's api requests.
-                cy.route(testConfig.methodType, '/v1/receipt/1/' + id).as('getDetailRecord');
-                // cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.sidebarID, id)).as('getDetailRecord');
+                cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
 
                 // click on the first record of grid
                 cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
@@ -511,7 +524,7 @@ describe('AIR Receipt UI Tests', function () {
                     unallocatedSectionTest();
 
                     // -- Check print receipt UI --
-                    // printReceiptUITest();
+                    printReceiptUITest();
 
                     // -- Close the form. And assert that form isn't visible. --
                     closeFormTests(formSelector);
@@ -536,6 +549,7 @@ describe('AIR Receipt UI Tests', function () {
 
         cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
 
+        // get form name
         let formName = testConfig.form;
 
         // get form selector

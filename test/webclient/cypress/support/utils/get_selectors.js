@@ -81,6 +81,16 @@ export function getBUDSelector() {
 }
 
 // return selector for Unallocated section in detail form
-export function getUnallocateSectionSelector() {
+export function getAllocatedSectionSelector() {
     return '#FLAGReport';
+}
+
+// return selector for export csv button in grid toolbar
+export function getExportCSVButtonSelector() {
+    return '#tb_receiptsGrid_toolbar_item_csvexport';
+}
+
+// return selector for export pdf button in grid toolbar
+export function getExportPDFButtonSelector() {
+    return '#tb_receiptsGrid_toolbar_item_printreport';
 }
