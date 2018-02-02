@@ -37,12 +37,14 @@ let appSettings;
 // holds the test configuration for the modules
 let testConfig;
 
+// get api end point for grid records
 function getAPIEndPoint(module) {
-    return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID;
+    return [constants.API_VERSION, module, constants.BID].join("/");
 }
 
+// get api end point for grid record detail
 function getDetailRecordAPIEndPoint(module, id) {
-    return "/" + constants.API_VERSION + "/" + module + "/" + constants.BID + "/" + id;
+    return [constants.API_VERSION, module, constants.BID, id].join("/");
 }
 
 // -- Close the form. And assert that form isn't visible. --
@@ -55,15 +57,36 @@ function closeFormTests(formSelector) {
     cy.get(formSelector).should('not.be.visible');
 }
 
+// Check position of allocated section in detail form
+function allocatedSectionPositionTest() {
+
+    // get co-ordinate of allocated section
+    const allocatedSection = Cypress.$(selectors.getAllocatedSectionSelector()).get(0).getBoundingClientRect();
+
+    // get co-ordinate of button section
+    const buttonSection = Cypress.$('.w2ui-buttons').get(0).getBoundingClientRect();
+
+    // get difference of y co-ordinate of element
+    let sectionDiff = allocatedSection.y - buttonSection.y;
+
+    // Check difference must be 1
+    // expect(sectionDiff).to.equal(1);
+}
+
 // -- Check Unallocated section's visibility and class --
 function unallocatedSectionTest() {
-    cy.get(selectors.getUnallocateSectionSelector())
+
+    // Check visibility and class of
+    cy.get(selectors.getAllocatedSectionSelector())
         .scrollIntoView()
         .should('be.visible')
         .should('have.class', 'FLAGReportContainer');
+
+    // Check position of allocated section in detail form
+    allocatedSectionPositionTest();
 }
 
-
+// -- perform tests on button --
 function buttonsTest(visibleButtons, notVisibleButtons) {
 
     // Check visibility of buttons
@@ -79,11 +102,13 @@ function buttonsTest(visibleButtons, notVisibleButtons) {
     });
 }
 
+// -- perform test on BUD field --
 function BUDFieldTest() {
     // Check Business Unit field must be disabled and have value REX
     cy.get(selectors.getBUDSelector()).should('be.disabled').and('have.value', constants.testBiz).and('be.visible');
 }
 
+// -- perform test on grid cells --
 function gridCellsTest(win) {
     // Iterate through each row
     recordsAPIResponse.forEach(function (record, rowNo) {
@@ -115,6 +140,7 @@ function gridCellsTest(win) {
     });
 }
 
+// -- perform test on add new record form's field --
 function addNewFormTest(formName, formSelector) {
 
     // Check visibility of form
@@ -170,6 +196,7 @@ function addNewFormTest(formName, formSelector) {
         });
 }
 
+// -- perform test on detail record form's field --
 function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win) {
 // Check visibility of form
     cy.get(formSelector).should('be.visible');
@@ -216,6 +243,7 @@ function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win
                 fieldValue = pmtType.Name;
             }
 
+            // check fields visibility
             if (!common.isInArray(fieldID, testConfig.skipFields)) {
                 // Check visibility and match the default value of the fields.
                 cy.get(selectors.getFieldSelector(fieldID))
@@ -223,6 +251,40 @@ function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win
                     .should('have.value', fieldValue);
             }
         });
+}
+
+// test for print receipt ui in detail record form
+function printReceiptUITest() {
+
+    // Open print receipt UI
+    cy.get(selectors.getFormPrintButtonSelector()).should('be.visible').click();
+
+    // Check print receipt pop up should open
+    cy.get(selectors.getPrintReceiptPopUpSelector()).should('be.visible').wait(constants.WAIT_TIME);
+
+    // Check format list visibility
+    cy.get(selectors.getPrintReceiptPopUpSelector())
+        .find('.w2ui-field-helper').should('be.visible');
+
+    // Check default permanent_resident radio button is checked
+    cy.get(selectors.getPermanentResidentRadioButtonSelector())
+        .should('be.visible')
+        .should('be.checked');
+
+    // Check hotel radio button is unchecked
+    cy.get(selectors.getHotelRadioButtonSelector())
+        .should('be.visible')
+        .should('not.be.checked');
+
+    // Check button visibility
+    let printReceiptButtons = ["print", "close"];
+    buttonsTest(printReceiptButtons, []);
+
+    // We are not clicking print button. Because files get downloaded.
+    // cy.get(selectors.getButtonSelector(printReceiptButtons[0])).click();
+
+    // Close the popup
+    cy.get(selectors.getClosePopupButtonSelector()).click();
 }
 
 // -- Start Cypress UI tests --
@@ -306,6 +368,15 @@ describe('AIR Receipt UI Tests', function () {
 
     });
 
+    // -- Check export CSV and export to Print button in grid toolbar --
+    it('CSV and Print button in toolbar', function () {
+        // Check visibility of export to CSV button
+        cy.get(selectors.getExportCSVButtonSelector()).should('be.visible');
+
+        // Check visibility of export to PDF button
+        cy.get(selectors.getExportPDFButtonSelector()).should('be.visible');
+    });
+
 
     /*****************************************************
      * Tests for node
@@ -318,7 +389,6 @@ describe('AIR Receipt UI Tests', function () {
             .should('be.visible')
             .should('have.class', 'w2ui-selected')
             .click().wait(constants.WAIT_TIME);
-
 
     });
 
@@ -341,8 +411,7 @@ describe('AIR Receipt UI Tests', function () {
         cy.get('[class="w2ui-calendar-title title"]').click();
         cy.get('[class="w2ui-jump-month"][name=' + constants.month +']').click();
         cy.get('[class="w2ui-jump-year"][name=' + constants.year + ']').click();
-        cy.get('[date="8/1/2017"]').click();
-        // cy.get('[date=' + constants.fromDate + ']').click(); //TODO(Akshay): fetch date from constants.js
+        cy.get('[date="' + constants.fromDate + '"]').click();
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
@@ -377,10 +446,10 @@ describe('AIR Receipt UI Tests', function () {
      * 2. Check visibility of detail form
      * 3. Check visibility and value of the fields
      * 4. Check button's visibility
-     * 5. Check Unallocated section visibility and position(CSS Class)
-     * 6. Close the detail form
-     * 7. Assert that form is close.
-     *
+     * 5. Check Unallocated section visibility and position(Using Y co-ordinate of elements)
+     * 6. Check print receipt ui test
+     * 7. Close the detail form
+     * 8. Assert that form is close.
      *********************************************************/
 
     it('Test for grid records and record detail', function () {
@@ -422,8 +491,7 @@ describe('AIR Receipt UI Tests', function () {
                 const id = recordsAPIResponse[0][testConfig.primaryId];
 
                 // Routing response to detail record's api requests.
-                cy.route(testConfig.methodType, '/v1/receipt/1/' + id).as('getDetailRecord');
-                // cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.sidebarID, id)).as('getDetailRecord');
+                cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
 
                 // click on the first record of grid
                 cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
@@ -455,6 +523,9 @@ describe('AIR Receipt UI Tests', function () {
                     // -- Check Unallocated section's visibility and class --
                     unallocatedSectionTest();
 
+                    // -- Check print receipt UI --
+                    printReceiptUITest();
+
                     // -- Close the form. And assert that form isn't visible. --
                     closeFormTests(formSelector);
 
@@ -478,6 +549,7 @@ describe('AIR Receipt UI Tests', function () {
 
         cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
 
+        // get form name
         let formName = testConfig.form;
 
         // get form selector
