@@ -6,7 +6,7 @@ DBGENDIR = ${TOP}/tools/dbgen
 package:
 	@echo "*** PACKAGE completed in test/webclient ***"
 
-test: db4
+test:
 	@touch fail
 	./functest.sh
 	@rm -f fail

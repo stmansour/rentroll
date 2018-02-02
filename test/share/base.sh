@@ -1217,48 +1217,57 @@ doCypressUITest () {
 			echo "UNSET CONTENT" > ${GOLD}/${1}.gold
 			echo "Created a default ${GOLD}/$1.gold for you. Update this file with known-good output."
 		fi
-		declare -a out_filters=(
-			's/([0-9]*ms)/{TestExecutedTime}/g'
-			's/Duration:\s+[0-9]*\sseconds*/{durationSec}/g'
-			's/[0-9]* passing \([0-9]*s\)/{passingSec}/g'
-			's/Video Recorded:.*/{videoRecordOnOff}/g'
-		)
-		cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
-		cp ${1} ${1}.g
+		# declare -a out_filters=(
+		# 	's/([0-9]*ms)/{TestExecutedTime}/g'
+		# 	's/Duration:\s+[0-9]*\sseconds*/{durationSec}/g'
+		# 	's/[0-9]* passing \([0-9]*s\)/{passingSec}/g'
+		# 	's/Video Recorded:.*/{videoRecordOnOff}/g'
+		# )
+		# cp ${GOLD}/${1}.gold ${GOLD}/${1}.g
+		# cp ${1} ${1}.g
 
-		# only extract lines between matched pattern: (Test Starting to Cypress Version:)
-		# overwrite it in .g temp files
-		sed '/(Tests Starting/,/Cypress Version:/!d' -i ${GOLD}/${1}.g
-		sed '/(Tests Starting/,/Cypress Version:/!d' -i ${1}.g
+		# # only extract lines between matched pattern: (Test Starting to Cypress Version:)
+		# # overwrite it in .g temp files
+		# sed '/(Tests Starting/,/Cypress Version:/!d' -i ${GOLD}/${1}.g
+		# sed '/(Tests Starting/,/Cypress Version:/!d' -i ${1}.g
 
-		for f in "${out_filters[@]}"
-		do
-			perl -pe "$f" ${GOLD}/${1}.g > ${GOLD}/${1}.t; mv ${GOLD}/${1}.t ${GOLD}/${1}.g
-			perl -pe "$f" ${1}.g > ${1}.t; mv ${1}.t ${1}.g
-		done
-		UDIFFS=$(diff ${1}.g ${GOLD}/${1}.g | wc -l)
-		if [ ${UDIFFS} -eq 0 ]; then
-			if [ ${SHOWCOMMAND} -eq 1 ]; then
-				echo "PASSED	cmd: ${CYPRESSTEST} ${2}"
-			else
-				echo "PASSED"
-			fi
-			rm -f ${1}.g ${GOLD}/${1}.g
-		else
-			echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
-			echo "Command to reproduce:  ${CYPRESSTEST} ${2}" >> ${ERRFILE}
-			echo "Differences in ${1} are as follows:" >> ${ERRFILE}
-			diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
-			cat ${ERRFILE}
+		# for f in "${out_filters[@]}"
+		# do
+		# 	perl -pe "$f" ${GOLD}/${1}.g > ${GOLD}/${1}.t; mv ${GOLD}/${1}.t ${GOLD}/${1}.g
+		# 	perl -pe "$f" ${1}.g > ${1}.t; mv ${1}.t ${1}.g
+		# done
+		# UDIFFS=$(diff ${1}.g ${GOLD}/${1}.g | wc -l)
+		# if [ ${UDIFFS} -eq 0 ]; then
+		# 	if [ ${SHOWCOMMAND} -eq 1 ]; then
+		# 		echo "PASSED	cmd: ${CYPRESSTEST} ${2}"
+		# 	else
+		# 		echo "PASSED"
+		# 	fi
+		# 	rm -f ${1}.g ${GOLD}/${1}.g
+		# else
+		# 	echo "FAILED...   if correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
+		# 	echo "Command to reproduce:  ${CYPRESSTEST} ${2}" >> ${ERRFILE}
+		# 	echo "Differences in ${1} are as follows:" >> ${ERRFILE}
+		# 	diff ${GOLD}/${1}.g ${1}.g >> ${ERRFILE}
+		# 	cat ${ERRFILE}
+		# 	failmsg
+		# 	if [ "${ASKBEFOREEXIT}" = "1" ]; then
+		# 		pause ${1}
+		# 	else
+		# 		echo "Stopping the server as error occurred in cypress UI automated testing!"
+		# 		stopRentRollServer
+		# 		exit 1
+		# 	fi
+		# fi
+		FAILURES=$(grep "Failures:" ${1} | awk '{print $3}')
+		if (( ${FAILURES} > 0 )); then
+			echo "FAILED"
+			echo "FAILURE COUNT = ${FAILURES}"
 			failmsg
-			if [ "${ASKBEFOREEXIT}" = "1" ]; then
-				pause ${1}
-			else
-				echo "Stopping the server as error occurred in cypress UI automated testing!"
-				stopRentRollServer
-				exit 1
-			fi
+			exit 1
 		fi
+		echo "PASSED"
+		passmsg
 	else
 		echo
 	fi

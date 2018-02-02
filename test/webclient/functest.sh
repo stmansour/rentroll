@@ -3,6 +3,7 @@
 TOP=../..
 RRBIN=${TOP}/tmp/rentroll
 RSD="-rsd ${RRBIN}"
+DBGENDIR=${TOP}/tools/dbgen
 
 TESTNAME="Cypress UI Test"
 TESTSUMMARY="UI Testing with cypress"
@@ -21,6 +22,10 @@ RENTROLLSERVERAUTH="-noauth"
 
 # specific file that needs to be tested
 CYPRESS_SPEC="./cypress/integration/roller_spec.js"
+
+pushd ${DBGENDIR}
+./dbgen -f db4.json -noauth
+popd
 
 if [ "${IAMJENKINS}" == "jenkins" ]; then
     # if build machine then record the activity
