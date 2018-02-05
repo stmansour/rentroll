@@ -164,6 +164,8 @@ function addNewFormTest(formName, formSelector) {
             // get id of the field
             fieldID = $el.context.id;
 
+            cy.log(getW2UIFormRecords);
+
             // get default value of field
             defaultValue = getW2UIFormRecords[fieldID];
 
@@ -181,12 +183,14 @@ function addNewFormTest(formName, formSelector) {
                 defaultValue = "$0.00";
             }
 
-            /* Skipping tests for Resident Address field. Because it have default value as 'undefined' and in DOM it have value as ''.
-                Which makes the test fail.
-                TODO(Sudip): Change default value undefine to ''.
-                TODO(Akshay): Remove `if` condition for the tests after an issue has been resolved.
-                */
+            // ERentableName field manipulation
+            if (fieldID === "ERentableName"){
+                defaultValue = getW2UIFormRecords.RentableName;
+            }
+
+            // Check field visibility and match default value from w2ui
             if (!common.isInArray(fieldID, testConfig.skipFields)) {
+
                 // Check visibility and match the default value of the fields.
                 cy.get(selectors.getFieldSelector(fieldID))
                     .should('be.visible')
@@ -243,7 +247,12 @@ function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win
                 fieldValue = pmtType.Name;
             }
 
-            // check fields visibility
+            // ERentableName
+            if (fieldID === "ERentableName"){
+                fieldValue = recordDetailFromAPIResponse.RentableName;
+            }
+
+            // check fields visibility and respective value
             if (!common.isInArray(fieldID, testConfig.skipFields)) {
                 // Check visibility and match the default value of the fields.
                 cy.get(selectors.getFieldSelector(fieldID))
