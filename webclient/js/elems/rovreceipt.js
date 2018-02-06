@@ -508,11 +508,10 @@ function doRcptSave(f,prnt) {
         // save the id in record, in case form record is new
         f.record.RCPTID = data.recid;
 
+        w2ui.toplayout.hide('right',true);
+        grid.render();
         if (prnt) {
             popupReceiptPrintChoice();
-        } else {
-            w2ui.toplayout.hide('right',true);
-            grid.render();
         }
     });
 }
