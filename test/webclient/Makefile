@@ -18,13 +18,10 @@ jshint:
 	@rm -rf fail
 
 clean:
-	@rm -f *log *sql *.g [a-z] err.txt fail
+	@rm -f *log *.g [a-z] err.txt fail
 
 all: clean jshint test
 
 link:
 	ln -s
 
-db4:
-	@echo "*** loading database with db4.json ***"
-	cd ${DBGENDIR};./dbgen -f db4.json -noauth
