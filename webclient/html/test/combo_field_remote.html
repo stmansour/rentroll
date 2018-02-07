@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RentableName combo demo - dropdown list</title>
+    <script src="/webclient/js/jquery.min.js"></script>
+    <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
+    <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
+</head>
+<body>
+
+<div style="height: 20px"></div>
+<div class="w2ui-field">
+    <label>RentableName:</label>
+    <div>
+        <input id="list" onchange="showSelection(this);">
+    </div>
+    <label>Selected Value:</label>
+    <div>
+        <textarea id="output"></textarea>
+    </div>
+</div>
+<div style="height: 20px"></div>
+
+<style>
+.w2ui-field input {
+    width: 300px;
+}
+.w2ui-field > div > span {
+    margin-left: 20px;
+}
+</style>
+
+<script type="text/javascript">
+
+function showSelection(el) {
+    var selected = el.value;
+    $('#output').text(selected);
+}
+
+$('#list').w2field('combo', {
+    url: '/v1/rentablestd/1/',
+    max:           1,
+    cacheMax:      50,
+    maxDropHeight: 350,
+    maxDropWidth:  300,
+    recId:         'recid',
+    recText:       'RentableName',
+});
+</script>
+</body>
+</html>
