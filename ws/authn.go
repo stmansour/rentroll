@@ -7,23 +7,17 @@ import (
 	"io/ioutil"
 	"net/http"
 	"rentroll/rlib"
+	"time"
 )
 
 // AuthenticateData is the struct with the username and password
 // used for authentication
 type AuthenticateData struct {
-	User string `json:"user"`
-	Pass string `json:"pass"`
-}
-
-// AuthenticateResponse is the reply structure from Accord Directory
-type AuthenticateResponse struct {
-	Status   string `json:"status"`   // success or error
-	UID      int64  `json:"uid"`      // only present when Status = "success"
-	Username string `json:"username"` // user's first or preferred name
-	Name     string `json:"name"`     // user's first or preferred name
-	ImageURL string `json:"imageurl"` // url to user's image
-	Message  string `json:"message"`  // only present when Status = "error"
+	User       string `json:"user"`
+	Pass       string `json:"pass"`
+	FLAGS      uint64 `json:"flags"`
+	UserAgent  string `json:"useragent"`
+	RemoteAddr string `json:"remoteaddr"`
 }
 
 // SvcAuthenticate handles authentication requests from clients.
@@ -55,20 +49,37 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	var b AuthenticateResponse
-	if SvcCtx.NoAuth {
+	var b rlib.AIRAuthenticateResponse
+	if SvcCtx.NoAuth { // test mode
 		b.Status = "success"
 		b.Username = "noauth"
 		b.Name = "NoAuth"
 		b.UID = 0
 	} else {
 		//-----------------------------------------------------------------------
-		// There's no need to Marshal the data into JSON format. We already have
-		// it in d.data.  Just pass it along to the authenication server
+		// fill in what the auth server needs...
+		//-----------------------------------------------------------------------
+		a.RemoteAddr = r.RemoteAddr // this needs to be the user's value, not our server's value
+		a.UserAgent = r.UserAgent() // this needs to be the user's value, not our server's value
+
+		//-----------------------------------------------------------------------
+		// Marshal together a new request buffer...
+		//-----------------------------------------------------------------------
+		pbr, err := json.Marshal(&a)
+		if err != nil {
+			e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+			rlib.Ulog("%s: %s\n", funcname, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
+		rlib.Console("Request to auth server:  %s\n", string(pbr))
+
+		//-----------------------------------------------------------------------
+		// Send to the authenication server
 		//-----------------------------------------------------------------------
 		url := rlib.AppConfig.AuthNHost + "v1/authenticate"
 		rlib.Console("posting request to: %s\n", url)
-		req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(d.data)))
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(pbr))
 		req.Header.Set("Content-Type", "application/json")
 		client := &http.Client{}
 		resp, err := client.Do(req)
@@ -89,6 +100,7 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
+		rlib.Console("Successfully unmarshaled response: %s\n", string(body))
 	}
 
 	switch b.Status {
@@ -103,17 +115,19 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	// rlib.Console("b.Username = %s, b.UID = %d, b.Name = %s\n", b.Username, b.UID, b.Name)
-	w.Header().Set("Content-Type", "application/json")
-	// rlib.Console("Creating session\n")
-	s, err := rlib.CreateSession(b.UID, b.ImageURL, w, r)
+	rlib.Console("Directory Service Expire time = %s\n", time.Time(b.Expire).Format(rlib.RRDATETIMEINPFMT))
+	s, err := rlib.CreateSession(r.Context(), &b)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+	cookie := http.Cookie{Name: rlib.SessionCookieName, Value: b.Token, Expires: s.Expire, Path: "/"}
+	http.SetCookie(w, &cookie) // a cookie cannot be set after writing anything to a response writer
 	b.ImageURL = s.ImageURL
 	b.Username = s.Username
 	rlib.Ulog("user %s (%d) logged in\n", s.Username, s.UID)
+	rlib.Console("Session Table:\n")
+	rlib.DumpSessions()
 	// rlib.Console("Created session: %#v\n", s)
 	// rlib.Console("Created response: %#v\n", b)
 	SvcWriteResponse(&b, w)

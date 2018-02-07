@@ -77,7 +77,7 @@ func SvcResetPW(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	rlib.Console("response Body: %s\n", string(body))
 
-	var foo AuthenticateResponse
+	var foo rlib.AIRAuthenticateResponse
 	if err := json.Unmarshal([]byte(body), &foo); err != nil {
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcErrorReturn(w, e, funcname)

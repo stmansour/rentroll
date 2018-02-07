@@ -16,19 +16,21 @@ import (
 //  @Descr information includes:  the username, the user's first (or
 //  @Descr preferred name), the user's id number, and a url to the
 //  @Descr user's image.
-//  @Input AuthenticateResponse
+//  @Input rlib.AIRAuthenticateResponse
 //  @Response SvcStatus
 // wsdoc }
 //-----------------------------------------------------------------------------
 func SvcUserProfile(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var funcname = "SvcUserProfile"
-	var a AuthenticateResponse
+	var a rlib.AIRAuthenticateResponse
 	rlib.Console("Entered: %s\n", funcname)
 	a.Status = "success"
 	a.UID = d.sess.UID
 	a.Name = d.sess.Name
 	a.Username = d.sess.Username
 	a.ImageURL = d.sess.ImageURL
+	a.Expire = rlib.JSONDateTime(d.sess.Expire)
+	a.Token = d.sess.Token
 
 	SvcWriteResponse(&a, w)
 }

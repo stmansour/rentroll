@@ -175,6 +175,18 @@ type Period struct {
 	Checked bool // used by Period overlap check functions
 }
 
+// AIRAuthenticateResponse is the reply structure from Accord Directory
+type AIRAuthenticateResponse struct {
+	Status   string       `json:"status"`
+	UID      int64        `json:"uid"`
+	Username string       `json:"username"` // user's first or preferred name
+	Name     string       `json:"Name"`
+	ImageURL string       `json:"ImageURL"`
+	Message  string       `json:"message"`
+	Token    string       `json:"Token"`
+	Expire   JSONDateTime `json:"Expire"` // DATETIMEFMT in this format "2006-01-02T15:04:00Z"
+}
+
 // StringList is a generic list structure for lists of strings. These could be
 // used to implement things like the list of reasons why an applicant's
 // application was turned down, the list of reasons why a tenant is moving out,

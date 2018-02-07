@@ -1,7 +1,8 @@
 "use strict";
 
 /*global
-    $, console, app, w2ui, w2popup, setInterval, getCookieValue, triggerReceiptsGrid
+    $, console, app, w2ui, w2popup, setInterval, getCookieValue, triggerReceiptsGrid,
+    deleteCookie
 */
 
 var loginRoURL = "/webclient/html/formlogin.html";
@@ -24,16 +25,19 @@ var loginPopupOptions = {
 };
 
 function userProfileToUI() {
-    var f = w2ui.passwordform;
+    // var f = w2ui.passwordform;
 
-    if (f) {
+    // if (f) {
         var name = app.name;
+        // if (typeof name == "undefined") { 
+        //     return; 
+        // }
         if (name.length === 0 || app.uid === 0) { name = "?";}
         $("#user_menu_container").find("#username").text(name);
         var imgurl = app.imageurl;
         if (imgurl.length === 0) { imgurl = app.userBlankImage; }
         $("#user_menu_container").find("img").attr("src", imgurl);
-    }
+    // }
 
     // *******************
     // ONLY FOR ROV CLIENT
@@ -87,8 +91,8 @@ function buildLoginForm() {
                     }
                     else if (data.status === "success") {
                         app.uid = data.uid;
-                        app.name = data.name;
-                        app.imageurl = data.imageurl;
+                        app.name = data.Name;
+                        app.imageurl = data.ImageURL;
                         $(f.box).find("#LoginMessage").addClass("hidden");
                         w2popup.close();
                         w2ui.passwordform.record.pass = ""; // after closing dialog, remove password information.
@@ -148,6 +152,27 @@ function startNewSession() {
 }
 
 //---------------------------------------------------------------------------------
+// getUserInfo - get the user profile information
+//
+// @params  <none>
+// @returns <none>
+//---------------------------------------------------------------------------------
+function getUserInfo() {
+    $.get('/v1/userprofile/')
+    .done(function(data, textStatus, jqXHR) {
+        if (data.status == "success") {
+            app.uid = data.uid;
+            app.username = data.username;
+            app.name = data.Name;
+            app.imageurl = data.ImageURL;
+            userProfileToUI();
+        }
+    })
+    .fail( function() {
+        console.log('Error getting /v1/userprofile');
+    });
+}
+//---------------------------------------------------------------------------------
 // launchSession - if a valid sessionid exists, use it and get user profile info
 //                 if not, log in.
 //
@@ -155,26 +180,10 @@ function startNewSession() {
 // @returns <none>
 //---------------------------------------------------------------------------------
 function launchSession() {
-    var x = getCookieValue("airoller");
+    var x = getCookieValue("air");
     if (x !== null && x.length > 0) {
-        $.get('/v1/userprofile/')
-        .done(function(sdata, textStatus, jqXHR) {
-            var data = JSON.parse(sdata);
-            if (data.status == "success") {
-                app.uid = data.uid;
-                app.username = data.username;
-                app.name = data.name;
-                app.imageurl = data.imageurl;
-                startSessionChecker(); // have the user log in if the session expires
-                userProfileToUI();
-            } else {
-                startNewSession();
-            }
-        })
-        .fail( function() {
-            console.log('Error getting /v1/userprofile');
-            startNewSession();
-        });
+        getUserInfo();
+        handleBlankScreen(true);
     }
     startNewSession();
 }
@@ -208,6 +217,17 @@ function handleBlankScreen(isLoggedIn) {
     }
 }
 
+function popupLoginDialogBox() {
+    $().w2popup('open', loginPopupOptions);
+    var f = w2ui.passwordform;
+    if (f) {
+        $(f.box).find("#LoginMessage").find(".errors").empty();
+        var message = "Your session hass expired. Please login again.";
+        $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
+        $(f.box).find("#LoginMessage").removeClass("hidden");
+    }
+}
+
 //---------------------------------------------------------------------------------
 // ensureSession - check to see if we have our session cookie.  If not, we need to
 //             authenticate.
@@ -218,7 +238,7 @@ function handleBlankScreen(isLoggedIn) {
 function ensureSession() {
     // console.log('ensureSession');
     if (w2popup.status == "open") {return;}
-    var name = "airoller=";
+    var name = "air=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
     for(var i = 0; i <ca.length; i++) {
@@ -228,21 +248,15 @@ function ensureSession() {
         }
         if (c.indexOf(name) === 0) {
             handleBlankScreen(true);
-            // return c.substring(name.length, c.length);
+            // make sure we have user info
+            if ( app.name.length === 0) {
+                getUserInfo();
+            }
             return; // the cookie is here, so it has not expired
         }
     }
     // The cookie was not found. We need to authenticate...
-    $().w2popup('open', loginPopupOptions);
-    if (app.uid !== 0) {
-        var f = w2ui.passwordform;
-        if (f) {
-            $(f.box).find("#LoginMessage").find(".errors").empty();
-            var message = "Your session hass expired. Please login again.";
-            $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
-            $(f.box).find("#LoginMessage").removeClass("hidden");
-        }
-    }
+    popupLoginDialogBox();
     handleBlankScreen(false);
 }
 
@@ -253,39 +267,26 @@ function ensureSession() {
 // @returns <none>
 //---------------------------------------------------------------------------------
 function logoff() {
-    var name = "airoller=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    var found = false;
-    for(var i = 0; i <ca.length && !found; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) === 0) {
-            found = true;
-            // return c.substring(name.length, c.length);
-
-        }
-    }
     app.uid = 0;
     app.name = "";
     app.username = "";
     app.imageurl = "";
-    if (found) {
-        $.get('/v1/logoff/')
-        .done(function(data, textStatus, jqXHR) {
-            if (jqXHR.status == 200) {
-                console.log('logoff success, app.uid set to 0.');
-                ensureSession();
-            } else {
-                console.log( '**** YIPES! ****  status on logoff = ' + textStatus);
-            }
-        })
-        .fail( function() {
-            console.log('Error getting /v1/uilists');
-        });
-    }
+    $.get('/v1/logoff/')
+    .done(function(data, textStatus, jqXHR) {
+        if (jqXHR.status == 200) {
+            console.log('logoff success, app.uid set to 0.');
+            ensureSession();
+        } else {
+            console.log( '**** YIPES! ****  status on logoff = ' + textStatus);
+        }
+        deleteCookie("air");  // no matter what, delete the cookie after this call completes
+    })
+    .fail( function() {
+        console.log('Error with /v1/logoff');
+        deleteCookie("air");  // no matter what, delete the cookie after this call completes
+    });
+    popupLoginDialogBox();
+    handleBlankScreen(false);
 }
 
 

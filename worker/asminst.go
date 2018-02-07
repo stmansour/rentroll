@@ -24,7 +24,8 @@ func CreateAssessmentInstances(item *tws.Item) {
 	// and based on that we can define permissions on those pre-defined sessions
 	// so that they can access only required information
 	// For ex. for command line applications we've to do this!
-	s := rlib.SessionNew("workerToken", "tws-worker", "tws-session", -99, "", -99)
+	expire := time.Now().Add(10 * time.Minute)
+	s := rlib.SessionNew("workerToken", "tws-worker", "tws-session", -99, "", -99, &expire)
 	ctx = rlib.SetSessionContextKey(ctx, s)
 
 	// add any new recurring instances for this day...
