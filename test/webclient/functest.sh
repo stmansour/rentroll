@@ -13,19 +13,16 @@ CREATENEWDB=0
 
 source ../share/base.sh
 
-#--------------------------------------------------------------------
-#  Use the testdb for these tests... (dbgen with db4.json, as of now)
-#--------------------------------------------------------------------
-
 # server with noauth
 RENTROLLSERVERAUTH="-noauth"
 
 # specific file that needs to be tested
 CYPRESS_SPEC="./cypress/integration/roller_spec.js"
 
-pushd ${DBGENDIR}
-./dbgen -f db4.json -noauth
-popd
+#--------------------------------------------------------------------
+#  Use custom dumped .sql file for the webclient UI tests
+#--------------------------------------------------------------------
+mysql rentroll < webclientTest.sql
 
 if [ "${IAMJENKINS}" == "jenkins" ]; then
     # if build machine then record the activity

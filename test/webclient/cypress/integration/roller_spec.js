@@ -415,12 +415,19 @@ describe('AIR Receipt UI Tests', function () {
         // To manage the behavior of network requests. Routing the response for the requests.
         cy.route(testConfig.methodType, getAPIEndPoint(testConfig.sidebarID)).as('getRecords');
 
-        // Select date from W2UI calender
+        // Select From date from W2UI calender
         cy.get('[name="receiptsD1"]').click().wait(constants.WAIT_TIME);
         cy.get('[class="w2ui-calendar-title title"]').click();
-        cy.get('[class="w2ui-jump-month"][name=' + constants.month +']').click();
-        cy.get('[class="w2ui-jump-year"][name=' + constants.year + ']').click();
-        cy.get('[date="' + constants.fromDate + '"]').click();
+        cy.get('[class="w2ui-jump-month"][name=' + constants.fromMonth +']').click();
+        cy.get('[class="w2ui-jump-year"][name=' + constants.fromYear + ']').click();
+        cy.get('[date="' + constants.fromDate + '"]').click().wait(constants.WAIT_TIME);
+
+        // Select To date from W2UI calender
+        cy.get('[name="receiptsD2"]').click().wait(constants.WAIT_TIME);
+        cy.get('[class="w2ui-calendar-title title"]').click();
+        cy.get('[class="w2ui-jump-month"][name=' + constants.toMonth +']').click();
+        cy.get('[class="w2ui-jump-year"][name=' + constants.toYear + ']').click().wait(constants.WAIT_TIME);
+        cy.get('[date="' + constants.toDate + '"]').click();
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
