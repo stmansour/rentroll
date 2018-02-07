@@ -229,6 +229,9 @@ func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error 
 			return err
 		}
 		if d.sess != nil {
+			if d.sess.UID == 0 || len(d.sess.Username) == 0 {
+				return fmt.Errorf("SessionToken expired, please log in")
+			}
 			rlib.Console("*** GetSession found sess: %s\n", d.sess.Token)
 			rlib.Console("Session.Username: %s\n", d.sess.Username)
 			d.sess.Refresh(w, (*r)) // they actively tried to use the session, extend timeout

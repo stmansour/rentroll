@@ -36,9 +36,11 @@ build: clean rentroll package
 testdb:
 	cd test/ws;mysql --no-defaults rentroll < restore.sql
 
-okcdb:
-	cd test/importers/onesite/okc;if [ ! -f iso.sql ]; then ./functest.sh ; fi
-	mysql --no-defaults rentroll < test/importers/onesite/okc/iso.sql
+receiptsdb:
+	mysql --no-defaults rentroll < receipts.sql
+
+rrdb:
+	mysql --no-defaults rentroll < rr.sql
 
 dbschemachange:
 	cd test/testdb;make clean test dbbackup;cd ../ws;make get

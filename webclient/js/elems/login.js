@@ -246,6 +246,7 @@ function ensureSession() {
         while (c.charAt(0) == ' ') {
             c = c.substring(1);
         }
+        console.log('ensureSession: processing c = ' + c);
         if (c.indexOf(name) === 0) {
             handleBlankScreen(true);
             // make sure we have user info
@@ -255,6 +256,7 @@ function ensureSession() {
             return; // the cookie is here, so it has not expired
         }
     }
+    // getCookieValue("air")
     // The cookie was not found. We need to authenticate...
     popupLoginDialogBox();
     handleBlankScreen(false);
