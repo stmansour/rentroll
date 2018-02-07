@@ -22,7 +22,10 @@ CYPRESS_SPEC="./cypress/integration/roller_spec.js"
 #--------------------------------------------------------------------
 #  Use custom dumped .sql file for the webclient UI tests
 #--------------------------------------------------------------------
+
+echo "*** Adding custom mysql dump into rentroll database ***"
 mysql rentroll < webclientTest.sql
+echo "*** Successfully inserted custom mysql dump ***"
 
 if [ "${IAMJENKINS}" == "jenkins" ]; then
     # if build machine then record the activity
