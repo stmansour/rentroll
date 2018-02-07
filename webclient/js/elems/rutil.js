@@ -32,6 +32,16 @@ function getCookieValue(name) {
   return (result === null) ? null : result[1];
 }
 
+//---------------------------------------------------------------------------------
+// deleteCookie - looks for a cookie with the supplied name. If found it returns
+//          the cookie value. Otherwise it returns null
+//
+// @params  name  - name of the cookie
+// @returns nothing at this time
+//---------------------------------------------------------------------------------
+function deleteCookie(name) {
+  document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
 
 //---------------------------------------------------------------------------------
 // ChangeBusiness updates the UI to the newly selected business.

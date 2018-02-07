@@ -333,11 +333,12 @@ $(function () {
             console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + textStatus);
         }
         finishInitialization();
+        launchSession();
     })
     .fail( function() {
         console.log('Error getting /v1/uilists');
+        console.log('*** NO INTERFACE ***');
     });
-    launchSession();
 });
 
 </script>

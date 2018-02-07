@@ -165,7 +165,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "encon", Handler: SvcEnableConsole, NeedBiz: false, NeedSession: true},
 	{Cmd: "expense", Handler: SvcHandlerExpense, NeedBiz: false, NeedSession: true},
 	{Cmd: "ledgers", Handler: getLedgerGrid, NeedBiz: true, NeedSession: true},
-	{Cmd: "logoff", Handler: SvcLogoff, NeedBiz: false, NeedSession: false},
+	{Cmd: "logoff", Handler: SvcLogoff, NeedBiz: false, NeedSession: true},
 	{Cmd: "parentaccounts", Handler: SvcParentAccountsList, NeedBiz: true, NeedSession: true},
 	{Cmd: "payorfund", Handler: SvcHandlerTotalUnallocFund, NeedBiz: true, NeedSession: true},
 	{Cmd: "payorstmt", Handler: SvcPayorStmtDispatch, NeedBiz: true, NeedSession: true},
@@ -246,18 +246,23 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	d.BID = -1 // indicates it has not been set
 
 	if !SvcCtx.NoAuth {
-		d.sess, err = rlib.GetSession(w, r)
+		// get session in the request context
+		ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
+		r = r.WithContext(ctx)
+
+		rlib.Console("calling GetSession\n")
+		d.sess, err = rlib.GetSession(ctx, w, r)
 		if err != nil {
+			rlib.Console("*** GetSession returned error: %s\n", err.Error())
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		if d.sess != nil {
+			rlib.Console("*** GetSession found sess: %s\n", d.sess.Token)
+			rlib.Console("Session.Username: %s\n", d.sess.Username)
 			d.sess.Refresh(w, r) // they actively tried to use the session, extend timeout
 		}
 
-		// get session in the request context
-		ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
-		r = r.WithContext(ctx)
 	}
 
 	//-----------------------------------------------------------------------
@@ -632,6 +637,7 @@ func svcDebugTxnEnd() {
 
 // SvcWriteResponse finishes the transaction with the W2UI client
 func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json") // we're marshaling the data as json
 	b, err := json.Marshal(g)
 	if err != nil {
 		e := fmt.Errorf("Error marshaling json data: %s", err.Error())

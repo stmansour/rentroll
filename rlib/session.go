@@ -1,13 +1,23 @@
 package rlib
 
 import (
-	"crypto/md5"
+	"bytes"
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
 )
+
+// ValidateCookie describes what the auth server wants to
+// validate the cookie value
+type ValidateCookie struct {
+	CookieVal string `json:"cookieval"`
+	FLAGS     uint64 `json:"flags"`
+}
 
 // Session is the structure definition for  a user session
 // with this program.
@@ -20,14 +30,6 @@ type Session struct {
 	ImageURL string    // user's picture
 	Expire   time.Time // when does the cookie expire
 	RoleID   int64     // security role id
-	// Urole    Role               // user's role for permissions
-	// Breadcrumbs  []Crumb        // where is the user in the screen hierarchy
-	// Pp           map[string]int // quick way to reference person permissions based on field name
-	// Pco          map[string]int // quick way to reference company permissions based on field name
-	// Pcl          map[string]int // quick way to reference class permissions based on field name
-	// Ppr          map[string]int
-	// UIDorig      int            // original uid (for use with method sessionBecome())
-	// UsernameOrig string         // original username
 }
 
 // UnrecognizedCookie is the error string associated with an
@@ -50,15 +52,15 @@ var sessions map[string]*Session
 // SessionTimeout defines how long a session can remain idle before it expires.
 var SessionTimeout time.Duration // in minutes
 
-// sessionCookieName is the name of the Roller cookie where the session
+// SessionCookieName is the name of the Roller cookie where the session
 // token is stored.
-var sessionCookieName = string("airoller")
+var SessionCookieName = string("air")
 
 // GetSessionCookieName simply returns a string containing the session
 // cookie name. We want this to be a private / unchangable name.
 //-----------------------------------------------------------------------------
 func GetSessionCookieName() string {
-	return sessionCookieName
+	return SessionCookieName
 }
 
 // SessionDispatcher is a Go routine that controls access to shared memory.
@@ -149,10 +151,15 @@ func (s *Session) ToString() string {
 		s.Username, s.Name, s.UID, s.Token)
 }
 
-func dumpSessions() {
+// DumpSessions sends the contents of the session table to the consol.
+//
+// RETURNS
+//  a string representation of the session entry
+//-----------------------------------------------------------------------------
+func DumpSessions() {
 	i := 0
 	for _, v := range sessions {
-		fmt.Printf("%2d. %s\n", i, v.ToString())
+		Console("%2d. %s\n", i, v.ToString())
 		i++
 	}
 }
@@ -170,12 +177,13 @@ func dumpSessions() {
 // RETURNS
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
-func SessionNew(token, username, name string, uid int64, imgurl string, rid int64) *Session {
+func SessionNew(token, username, name string, uid int64, imgurl string, rid int64, expire *time.Time) *Session {
 	s := new(Session)
 	s.Token = token
 	s.Username = username
 	s.Name = name
 	s.UID = uid
+	s.Expire = *expire
 
 	switch AppConfig.AuthNType {
 	case "Accord Directory":
@@ -183,8 +191,6 @@ func SessionNew(token, username, name string, uid int64, imgurl string, rid int6
 			s.ImageURL = fmt.Sprintf("%s%s", AppConfig.AuthNHost, imgurl)
 		}
 	}
-
-	s.Expire = time.Now().Add(SessionTimeout)
 
 	ReqSessionMem <- 1 // ask to access the shared mem, blocks until granted
 	<-ReqSessionMemAck // make sure we got it
@@ -203,41 +209,29 @@ func SessionNew(token, username, name string, uid int64, imgurl string, rid int6
 // RETURNS
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
-func CreateSession(uid int64, imgurl string, w http.ResponseWriter, r *http.Request) (*Session, error) {
-	expiration := time.Now().Add(SessionTimeout)
+func CreateSession(ctx context.Context, a *AIRAuthenticateResponse) (*Session, error) {
+	expiration := time.Time(a.Expire)
+
+	// expiration := time.Now().Add(15 * time.Minute)
 
 	//----------------------------------------------
 	// TODO: lookup username in address book data
 	//----------------------------------------------
-	dp, err := GetDirectoryPerson(r.Context(), uid)
+	Console("Calling GetDirectoryPerson with UID = %d\n", a.UID)
+	dp, err := GetDirectoryPerson(ctx, a.UID)
 	if err != nil {
 		var bad Session
+		Console("*** ERROR *** GetDirectoryPerson - %s\n", err.Error())
 		return &bad, err
 	}
-	// Console("DIR PERSON UserName = %s\n", dp.UserName)
-	// Console("dp = %#v\n", dp)
-	RoleID := int64(0)
+	Console("Successfully read info from directory for UID = %d\n", dp.UID)
 
-	//=================================================================================
-	// There could be multiple sessions from the same user on different browsers.
-	// These could be on the same or separate machines. We need the IP and the browser
-	// to ensure uniqueness...
-	//
-	// The cookie is:   username + User-Agent + remote ip address
-	//=================================================================================
-	key := dp.UserName + r.Header.Get("User-Agent") + r.RemoteAddr
-	token := fmt.Sprintf("%x", md5.Sum([]byte(key)))
+	RoleID := int64(0) // we haven't yet implemented Role
 	name := dp.FirstName
 	if len(dp.PreferredName) > 0 {
 		name = dp.PreferredName
 	}
-	// Console("dp = %#v\n", dp)
-	s := SessionNew(token, dp.UserName, name, uid, imgurl, RoleID)
-	// Console("session = %#v\n", s)
-	cookie := http.Cookie{Name: sessionCookieName, Value: s.Token, Expires: expiration}
-	cookie.Path = "/"
-	http.SetCookie(w, &cookie)
-	r.AddCookie(&cookie) // need this so that the redirect to search finds the cookie
+	s := SessionNew(a.Token, dp.UserName, name, a.UID, a.ImageURL, RoleID, &expiration)
 	return s, nil
 }
 
@@ -265,30 +259,92 @@ func IsUnrecognizedCookieError(err error) bool {
 //  session - pointer to the new session
 //  error   - any error encountered
 //-----------------------------------------------------------------------------
-func GetSession(w http.ResponseWriter, r *http.Request) (*Session, error) {
+func GetSession(ctx context.Context, w http.ResponseWriter, r *http.Request) (*Session, error) {
+	funcname := "GetSession"
+	var b AIRAuthenticateResponse
 	var ok bool
-	Console("GetSession 1\n")
-	cookie, err := r.Cookie(sessionCookieName)
+
+	// Console("GetSession 1\n")
+	// Console("\nSession Table:\n")
+	// DumpSessions()
+	// Console("\n")
+	cookie, err := r.Cookie(SessionCookieName)
 	if err != nil {
-		Console("GetSession 2\n")
+		// Console("GetSession 2\n")
 		if strings.Contains(err.Error(), "cookie not present") {
-			Console("GetSession 3\n")
+			// Console("GetSession 3\n")
 			return nil, nil
 		}
-		Console("GetSession 4\n")
+		// Console("GetSession 4\n")
 		return nil, err
 	}
-	Console("GetSession 5\n")
+	// Console("GetSession 5\n")
 	sess, ok := sessions[cookie.Value]
 	if !ok || sess == nil {
-		Console("GetSession 6\n")
-		cookie.Expires = time.Now()
-		cookie.Path = "/"
-		http.SetCookie(w, cookie)
-		err := fmt.Errorf("There is a problem with your session: %s.  Please Sign In again", UnrecognizedCookie)
-		return nil, err // cookie had a value, but not found in our session table
+		// Console("GetSession 6\n")
+		//--------------------------------------------------------
+		// We have a cookie, but we don't have it in our
+		// session table. So, the user could have logged in from
+		// another AIR app.  Validate the cookie with the AUTH
+		// server.
+		//--------------------------------------------------------
+		var a = ValidateCookie{
+			CookieVal: cookie.Value,
+		}
+		//-----------------------------------------------------------------------
+		// Marshal together a new request buffer...
+		//-----------------------------------------------------------------------
+		pbr, err := json.Marshal(&a)
+		if err != nil {
+			e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+			Ulog("%s: %s\n", funcname, err.Error())
+			return nil, e
+		}
+		// Console("Request to auth server:  %s\n", string(pbr))
+
+		//-----------------------------------------------------------------------
+		// Send to the authenication server
+		//-----------------------------------------------------------------------
+		url := AppConfig.AuthNHost + "v1/validatecookie"
+		// Console("posting request to: %s\n", url)
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(pbr))
+		req.Header.Set("Content-Type", "application/json")
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			e := fmt.Errorf("%s: failed to execute client.Do:  %s", funcname, err.Error())
+			return nil, e
+		}
+		defer resp.Body.Close()
+
+		body, _ := ioutil.ReadAll(resp.Body)
+		// Console("response Body: %s\n", string(body))
+
+		if err := json.Unmarshal([]byte(body), &b); err != nil {
+			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+			return nil, e
+		}
+		// Console("Successfully unmarshaled response: %s\n", string(body))
+		//-------------------------------------
+		// build a session from this data...
+		//-------------------------------------
+		switch b.Status {
+		case "success":
+			// Console("Authentication succeeded\n")
+		default:
+			e := fmt.Errorf("%s", b.Message)
+			return nil, e
+		}
+		// Console("Directory Service Expire time = %s\n", time.Time(b.Expire).Format(RRDATETIMEINPFMT))
+		s, err := CreateSession(ctx, &b)
+		if err != nil {
+			return nil, err
+		}
+		cookie := http.Cookie{Name: SessionCookieName, Value: b.Token, Expires: s.Expire, Path: "/"}
+		http.SetCookie(w, &cookie) // a cookie cannot be set after writing anything to a response writer
+		return s, nil
 	}
-	Console("GetSession 7\n")
+	// Console("GetSession 7\n")
 	return sess, nil
 }
 
@@ -302,7 +358,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) (*Session, error) {
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
 func (s *Session) Refresh(w http.ResponseWriter, r *http.Request) int {
-	cookie, err := r.Cookie(sessionCookieName)
+	cookie, err := r.Cookie(SessionCookieName)
 	if nil != cookie && err == nil {
 		cookie.Expires = time.Now().Add(SessionTimeout)
 		ReqSessionMem <- 1        // ask to access the shared mem, blocks until granted
@@ -326,7 +382,7 @@ func (s *Session) Refresh(w http.ResponseWriter, r *http.Request) int {
 //  nothing at this time
 //-----------------------------------------------------------------------------
 func (s *Session) ExpireCookie(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie(sessionCookieName)
+	cookie, err := r.Cookie(SessionCookieName)
 	if nil != cookie && err == nil {
 		cookie.Expires = time.Now()
 		cookie.Path = "/"
@@ -346,9 +402,13 @@ func (s *Session) ExpireCookie(w http.ResponseWriter, r *http.Request) {
 //  session - pointer to the new session
 //-----------------------------------------------------------------------------
 func SessionDelete(s *Session, w http.ResponseWriter, r *http.Request) {
-	// Console("Session being deleted: %s\n", s.ToString())
-	// Console("sessions before delete:\n")
-	// dumpSessions()
+	if nil == s {
+		Console("SessionDelete: supplied session is nil\n")
+		return
+	}
+	Console("Session being deleted: %s\n", s.ToString())
+	Console("sessions before delete:\n")
+	DumpSessions()
 
 	ss := make(map[string]*Session, 0)
 
@@ -362,8 +422,8 @@ func SessionDelete(s *Session, w http.ResponseWriter, r *http.Request) {
 	sessions = ss
 	ReqSessionMemAck <- 1 // tell SessionDispatcher we're done with the data
 	s.ExpireCookie(w, r)
-	// Console("sessions after delete:\n")
-	// dumpSessions()
+	Console("sessions after delete:\n")
+	DumpSessions()
 }
 
 // ErrSessionRequired session required error
