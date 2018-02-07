@@ -23,7 +23,7 @@ export const API_RESPONSE_SUCCESS_FLAG = 'success';
 export const HTTP_OK_STATUS = 200;
 
 // Application cookie's key
-export const APPLICATION_COOKIE = 'airoller';
+export const APPLICATION_COOKIE = 'air';
 
 // wait time in application
 export const WAIT_TIME = 2000;
