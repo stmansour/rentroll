@@ -218,20 +218,22 @@ func CreateSession(ctx context.Context, a *AIRAuthenticateResponse) (*Session, e
 	// TODO: lookup username in address book data
 	//----------------------------------------------
 	Console("Calling GetDirectoryPerson with UID = %d\n", a.UID)
-	dp, err := GetDirectoryPerson(ctx, a.UID)
+	var c DirectoryPerson
+	err := RRdb.PBsql.GetDirectoryPerson.QueryRow(a.UID).Scan(&c.UID, &c.UserName, &c.LastName, &c.MiddleName, &c.FirstName, &c.PreferredName, &c.PreferredName, &c.OfficePhone, &c.CellPhone)
+	SkipSQLNoRowsError(&err)
 	if err != nil {
 		var bad Session
 		Console("*** ERROR *** GetDirectoryPerson - %s\n", err.Error())
 		return &bad, err
 	}
-	Console("Successfully read info from directory for UID = %d\n", dp.UID)
+	Console("Successfully read info from directory for UID = %d\n", c.UID)
 
 	RoleID := int64(0) // we haven't yet implemented Role
-	name := dp.FirstName
-	if len(dp.PreferredName) > 0 {
-		name = dp.PreferredName
+	name := c.FirstName
+	if len(c.PreferredName) > 0 {
+		name = c.PreferredName
 	}
-	s := SessionNew(a.Token, dp.UserName, name, a.UID, a.ImageURL, RoleID, &expiration)
+	s := SessionNew(a.Token, c.UserName, name, a.UID, a.ImageURL, RoleID, &expiration)
 	return s, nil
 }
 

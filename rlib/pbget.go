@@ -72,7 +72,8 @@ func GetBusinessUnitByDesignation(ctx context.Context, des string) (BusinessUnit
 func GetDirectoryPerson(ctx context.Context, uid int64) (DirectoryPerson, error) {
 	var c DirectoryPerson
 
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+	Console("RRdb.noAuth = %t, AppConfig.Env = %d\n", RRdb.noAuth, AppConfig.Env)
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) || !RRdb.noAuth {
 		_, ok := SessionFromContext(ctx)
 		if !ok {
 			Console("GetDirectoryPerson -- returning empty DirectoryPerson\n")

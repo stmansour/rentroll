@@ -216,7 +216,12 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var pmtTypes = make(map[string][]pmtMap)
 	for bud, bid := range rlib.RRdb.BUDlist {
 		bizPmtList := []pmtMap{}
-		m, _ := rlib.GetPaymentTypesByBusiness(r.Context(), bid) // get the payment types for this business
+		m, err := rlib.GetPaymentTypesByBusiness(r.Context(), bid) // get the payment types for this business
+		if err != nil {
+			rlib.Console("Error gettint PaymentTypes: %s\n", err.Error())
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 		for pmt, a := range m {
 			bizPmtList = append(bizPmtList, pmtMap{PMTID: pmt, Name: a.Name})
 		}
@@ -262,6 +267,14 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		accountStuff[k] = list
 	}
 	appData["account_stuff"] = accountStuff
+
+	b, err := json.Marshal(appData)
+	if err != nil {
+		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+		rlib.Ulog("SvcWriteResponse: %s\n", e.Error())
+	} else {
+		rlib.Console("AJAXLIST sent to server:  %s\n", string(b))
+	}
 
 	// send down then json stuff
 	if err := json.NewEncoder(w).Encode(appData); err != nil {
