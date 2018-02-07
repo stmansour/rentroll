@@ -236,30 +236,19 @@ function popupLoginDialogBox() {
 // @returns <none>
 //---------------------------------------------------------------------------------
 function ensureSession() {
-    // console.log('ensureSession');
-    if (w2popup.status == "open") {return;}
-    var name = "air=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        console.log('ensureSession: processing c = ' + c);
-        if (c.indexOf(name) === 0) {
-            handleBlankScreen(true);
-            // make sure we have user info
-            if ( app.name.length === 0) {
-                getUserInfo();
-            }
-            return; // the cookie is here, so it has not expired
-        }
+    if (w2popup.status == "open") {return;} // just return now if we're trying to log in
+
+    var c = getCookieValue("air");          // Do we have an "air" cookie?
+    if (c === null || c.length === 0) {     // if not...
+        popupLoginDialogBox();              // ...then get logged in
+        handleBlankScreen(false);
+        return;
     }
-    // getCookieValue("air")
-    // The cookie was not found. We need to authenticate...
-    popupLoginDialogBox();
-    handleBlankScreen(false);
+
+    handleBlankScreen(true);        // make sure we can see the interface
+    if (app.name.length === 0) {    // if we don't have user info
+        getUserInfo();              // then get it
+    }
 }
 
 //---------------------------------------------------------------------------------
