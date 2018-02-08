@@ -892,6 +892,10 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	// get list of all accounts
 	accts, err := rlib.GetLedgerList(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	// write csv file headers
 	wr.Write([]string{"BUD", "Name", "GLNumber", "Parent GLNumber", "Account Type",
