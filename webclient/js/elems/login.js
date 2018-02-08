@@ -25,19 +25,12 @@ var loginPopupOptions = {
 };
 
 function userProfileToUI() {
-    // var f = w2ui.passwordform;
-
-    // if (f) {
-        var name = app.name;
-        // if (typeof name == "undefined") { 
-        //     return; 
-        // }
-        if (name.length === 0 || app.uid === 0) { name = "?";}
-        $("#user_menu_container").find("#username").text(name);
-        var imgurl = app.imageurl;
-        if (imgurl.length === 0) { imgurl = app.userBlankImage; }
-        $("#user_menu_container").find("img").attr("src", imgurl);
-    // }
+    var name = app.name;
+    if (name.length === 0 || app.uid === 0) { name = "?";}
+    $("#user_menu_container").find("#username").text(name);
+    var imgurl = app.imageurl;
+    if (imgurl.length === 0) { imgurl = app.userBlankImage; }
+    $("#user_menu_container").find("img").attr("src", imgurl);
 
     // *******************
     // ONLY FOR ROV CLIENT

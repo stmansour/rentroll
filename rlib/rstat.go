@@ -24,7 +24,7 @@ var RSUseStatus = []string{
 	"Administrative",      // 2
 	"Employee",            // 3
 	"Owner Occupied",      // 4
-	"Offline Rennovation", // 5
+	"Offline Renovation",  // 5
 	"Offline Maintenance", // 6
 	"Model",               // 7
 	"Inactive",            // 8

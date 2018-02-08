@@ -224,7 +224,7 @@ FROM
             AND RentableTypeRef.BID = Rentable_CUM_RA.BID
             AND "{{.DtStart}}" <= RentableTypeRef.DtStop
             AND "{{.DtStop}}" > RentableTypeRef.DtStart
-            -- Should we consider agreement dates too for comparision?
+            -- Should we consider agreement dates too for comparison?
             /*AND RentableTypeRef.DtStart >= Rentable_CUM_RA.AgreementStart
             AND RentableTypeRef.DtStop <= Rentable_CUM_RA.AgreementStop*/)
         LEFT JOIN RentableTypes ON (RentableTypes.RTID = RentableTypeRef.RTID
@@ -236,7 +236,7 @@ FROM
             AND RentableStatus.BID = Rentable_CUM_RA.BID
             AND "{{.DtStart}}" <= RentableStatus.DtStop
             AND "{{.DtStop}}" > RentableStatus.DtStart
-            -- Should we consider agreement dates too for comparision?
+            -- Should we consider agreement dates too for comparison?
             /*AND RentableStatus.DtStart >= Rentable_CUM_RA.AgreementStart
             AND RentableStatus.DtStop <= Rentable_CUM_RA.AgreementStop*/)
         /*
@@ -1114,7 +1114,7 @@ func getReceivableAndSecDep(ctx context.Context, BID int64, startDt, stopDt time
 //  - list of rentroll rows
 //  - total rows count
 //  - total main rows count
-//  - error occured during the process
+//  - error occurred during the process
 //-----------------------------------------------------------------------------
 func GetRentRollRows(ctx context.Context, BID int64, startDt, stopDt time.Time,
 	offset, limit int) (

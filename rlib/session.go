@@ -57,7 +57,7 @@ var SessionTimeout time.Duration // in minutes
 var SessionCookieName = string("air")
 
 // GetSessionCookieName simply returns a string containing the session
-// cookie name. We want this to be a private / unchangable name.
+// cookie name. We want this to be a private / unchangeable name.
 //-----------------------------------------------------------------------------
 func GetSessionCookieName() string {
 	return SessionCookieName

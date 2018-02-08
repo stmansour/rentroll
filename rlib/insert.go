@@ -2161,7 +2161,7 @@ func InsertSLStrings(ctx context.Context, a *StringList) (int64, error) {
 		// if error then rollback
 		if err = tx.Commit(); err != nil {
 			tx.Rollback()
-			Ulog("Error while Commiting transaction | inserting SLString BULK-WRITE: %s\n", err.Error())
+			Ulog("Error while Committing transaction | inserting SLString BULK-WRITE: %s\n", err.Error())
 			err = insertError(err, "SLStrings", *a)
 			return rid, err
 		}

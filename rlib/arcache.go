@@ -20,7 +20,7 @@ var ARCacheCtx = SimpleCacheCtx{
 }
 var arcache = map[string]*ARSliceCacheEntry{} // initialize an empty cache
 
-// ARCacheController is a go routine that will controll access to
+// ARCacheController is a go routine that will control access to
 // arcache when multiple routines are trying to write to it.
 //-----------------------------------------------------------------------------
 func ARCacheController() {

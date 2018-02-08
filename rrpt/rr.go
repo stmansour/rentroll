@@ -281,7 +281,7 @@ func rrTableAddRow(tbl *gotable.Table, q rlib.RentRollStaticInfo) {
 	tbl.Puts(-1, EndSecDep, EndSecDepREP)
 }
 
-// int64ToStr returns the string represenation of int64 type number
+// int64ToStr returns the string representation of int64 type number
 // if blank is set to true, then it will returns blank string otherwise returns 0
 func int64ToStr(number int64, blank bool) string {
 	nStr := strconv.FormatInt(number, 10)
@@ -293,7 +293,7 @@ func int64ToStr(number int64, blank bool) string {
 	return nStr
 }
 
-// float64ToStr returns the string represenation of float64 type number
+// float64ToStr returns the string representation of float64 type number
 // if blank is set to true, then it will returns blank string otherwise returns 0.00
 func float64ToStr(number float64, blank bool) string {
 	nStr := strconv.FormatFloat(number, 'f', 2, 64)
