@@ -18,7 +18,6 @@ function getRTInitRecord(BID, BUD){
         GSRPC: 0,
         ManageToBudget: false,
         RMRID: 0,
-        MarketRate: 0.0,
         LastModTime: y.toISOString(),
         LastModBy: 0,
         FLAGS: 0,
@@ -128,9 +127,6 @@ function buildRentableTypeElements() {
             {field: 'LastModTime', caption: 'LastModTime', hidden: true},
             {field: 'LastModBy',   caption: 'LastModBy',   hidden: true},
             {field: 'RMRID',       caption: 'RMRID',       hidden: true},
-            {field: 'MarketRate',  caption: 'MarketRate',  size: '100px', sortable: true, render: 'money'},
-            {field: 'DtStart',     caption: 'DtStart',     size: '100px', sortable: true, style: 'text-align: right'},
-            {field: 'DtStop',      caption: 'DtStop',      size: '100px', sortable: true, style: 'text-align: right'},
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -270,7 +266,6 @@ function buildRentableTypeElements() {
             delete data.postData.record.LastModBy;
             delete data.postData.record.CreateTS;
             delete data.postData.record.CreateBy;
-            delete data.postData.record.MarketRate;
 
             if (data.postData.record.ManageToBudget) {
                 data.postData.record.ManageToBudget = 1; // true=1(yes) || false=0(no)
