@@ -619,7 +619,7 @@ CREATE TABLE MRHistory (
     MRHID BIGINT NOT NULL AUTO_INCREMENT,                           -- unique id for MakeReady History
     MRStatus SMALLINT NOT NULL DEFAULT 0,                           -- see definition in Rentable table field
     DtMRStart TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- when the rentable went into this status
-    DtMRStop TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when the rentable changed to a differnt status
+    DtMRStop TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when the rentable changed to a different status
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                   -- when was this record created

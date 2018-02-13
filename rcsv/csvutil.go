@@ -33,7 +33,7 @@ const (
 // initialize to LOOSE as it is best for testing and should be OK for normal use as well.
 var CsvErrorSensitivity = int(CsvErrLoose)
 
-// CSVLoadHandlerFunc type of load hanlder function
+// CSVLoadHandlerFunc type of load handler function
 type CSVLoadHandlerFunc func(context.Context, string) []error
 
 // CSVLoadHandler struct is for routines that want to table-ize their loading.

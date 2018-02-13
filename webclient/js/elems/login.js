@@ -25,19 +25,12 @@ var loginPopupOptions = {
 };
 
 function userProfileToUI() {
-    // var f = w2ui.passwordform;
-
-    // if (f) {
-        var name = app.name;
-        // if (typeof name == "undefined") { 
-        //     return; 
-        // }
-        if (name.length === 0 || app.uid === 0) { name = "?";}
-        $("#user_menu_container").find("#username").text(name);
-        var imgurl = app.imageurl;
-        if (imgurl.length === 0) { imgurl = app.userBlankImage; }
-        $("#user_menu_container").find("img").attr("src", imgurl);
-    // }
+    var name = app.name;
+    if (name.length === 0 || app.uid === 0) { name = "?";}
+    $("#user_menu_container").find("#username").text(name);
+    var imgurl = app.imageurl;
+    if (imgurl.length === 0) { imgurl = app.userBlankImage; }
+    $("#user_menu_container").find("img").attr("src", imgurl);
 
     // *******************
     // ONLY FOR ROV CLIENT
@@ -236,28 +229,19 @@ function popupLoginDialogBox() {
 // @returns <none>
 //---------------------------------------------------------------------------------
 function ensureSession() {
-    // console.log('ensureSession');
-    if (w2popup.status == "open") {return;}
-    var name = "air=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) === 0) {
-            handleBlankScreen(true);
-            // make sure we have user info
-            if ( app.name.length === 0) {
-                getUserInfo();
-            }
-            return; // the cookie is here, so it has not expired
-        }
+    if (w2popup.status == "open") {return;} // just return now if we're trying to log in
+
+    var c = getCookieValue("air");          // Do we have an "air" cookie?
+    if (c === null || c.length === 0) {     // if not...
+        popupLoginDialogBox();              // ...then get logged in
+        handleBlankScreen(false);
+        return;
     }
-    // The cookie was not found. We need to authenticate...
-    popupLoginDialogBox();
-    handleBlankScreen(false);
+
+    handleBlankScreen(true);        // make sure we can see the interface
+    if (app.name.length === 0) {    // if we don't have user info
+        getUserInfo();              // then get it
+    }
 }
 
 //---------------------------------------------------------------------------------

@@ -215,7 +215,7 @@ function buildROVReceiptElements() {
             { field: 'Dt',         type: 'date', required: true },
             { field: 'DocNo',      type: 'text', required: true },
             { field: 'ERentableName',
-                type: 'enum',
+                type: 'combo',
                 options: {
                     url:           '/v1/rentablestd/',
                     max:           1,
@@ -223,16 +223,8 @@ function buildROVReceiptElements() {
                     maxDropHeight: 350,
                     maxDropWidth:  300,
                     compare:       ridRentableCompare,
-                    renderItem: function (item) {
-                        w2ui.receiptForm.record.RentableName = item.RentableName;
-                        return item.RentableName;
-                    },
-                    renderDrop: function (item) {
-                        return item.RentableName;
-                    },
-                    onNew: function (event) {
-                        $.extend(event.item, { RentableName : event.item.text });
-                    }
+                    recId:         'recid',
+                    recText:       'RentableName',
                 },
             },
             { field: 'ARID',           type: 'hidden', required: false },
@@ -285,8 +277,7 @@ function buildROVReceiptElements() {
 
                 // Create the RentableName element if rentable name exists...
                 if (r.RentableName.length > 0) {
-                    var item = {recid: 0, RentableName: r.RentableName};
-                    r.ERentableName = [item];
+                    r.ERentableName = r.RentableName;
                 }
             };
         },
@@ -305,8 +296,7 @@ function buildROVReceiptElements() {
                 }
 
                 if (r.RentableName.length > 0) {
-                    var item = {recid: 0, RentableName: r.RentableName};
-                    r.ERentableName = [item];
+                    r.ERentableName = r.RentableName;
                 }
 
                 f.get("PmtTypeName").options.items = buildPaymentTypeSelectList( BUD );
@@ -420,6 +410,9 @@ function buildROVReceiptElements() {
                 case "PmtTypeName":
                     r.PMTID = event.value_new.id;
                     break;
+                case "ERentableName":
+                    // if ERentableName changed then also update RentableName field
+                    r.RentableName = r.ERentableName;
                 }
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(f.record, app.active_form_original, {});

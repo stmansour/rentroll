@@ -13,7 +13,7 @@ var SecDepBalCacheCtx = SimpleCacheCtx{
 }
 var secdepcache = map[string]*BalanceCacheEntry{} // initialize an empty cache
 
-// SecDepBalCacheController is a go routine that will controll access to
+// SecDepBalCacheController is a go routine that will control access to
 // balcache when multiple routines are trying to write to it.
 //-----------------------------------------------------------------------------
 func SecDepBalCacheController() {

@@ -36,7 +36,7 @@ var RARBalCacheCtx = SimpleCacheCtx{
 }
 var balcache = map[string]*BalanceCacheEntry{} // initialize an empty cache
 
-// RARBalCacheController is a go routine that will controll access to
+// RARBalCacheController is a go routine that will control access to
 // balcache when multiple routines are trying to write to it.
 //-----------------------------------------------------------------------------
 func RARBalCacheController() {

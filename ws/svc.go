@@ -218,6 +218,31 @@ func SvcInit(noauth bool) {
 	rlib.SetAuthFlag(noauth)
 }
 
+func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error {
+	var err error
+	if !SvcCtx.NoAuth {
+		rlib.Console("calling GetSession\n")
+		d.sess, err = rlib.GetSession((*r).Context(), w, (*r))
+		if err != nil {
+			rlib.Console("*** GetSession returned error: %s\n", err.Error())
+			// SvcErrorReturn(w, err, funcname)
+			return err
+		}
+		if d.sess != nil {
+			if d.sess.UID == 0 || len(d.sess.Username) == 0 {
+				return fmt.Errorf("SessionToken expired, please log in")
+			}
+			rlib.Console("*** GetSession found sess: %s\n", d.sess.Token)
+			rlib.Console("Session.Username: %s\n", d.sess.Username)
+			d.sess.Refresh(w, (*r)) // they actively tried to use the session, extend timeout
+		}
+		// get session in the request context
+		ctx := rlib.SetSessionContextKey((*r).Context(), d.sess)
+		(*r) = (*r).WithContext(ctx)
+	}
+	return nil
+}
+
 // V1ServiceHandler is the main dispatch point for WEB SERVICE requests
 //
 // The expected input is of the form:
@@ -245,25 +270,7 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	d.ID = -1  // indicates it has not been set
 	d.BID = -1 // indicates it has not been set
 
-	if !SvcCtx.NoAuth {
-		// get session in the request context
-		ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
-		r = r.WithContext(ctx)
-
-		rlib.Console("calling GetSession\n")
-		d.sess, err = rlib.GetSession(ctx, w, r)
-		if err != nil {
-			rlib.Console("*** GetSession returned error: %s\n", err.Error())
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		if d.sess != nil {
-			rlib.Console("*** GetSession found sess: %s\n", d.sess.Token)
-			rlib.Console("Session.Username: %s\n", d.sess.Username)
-			d.sess.Refresh(w, r) // they actively tried to use the session, extend timeout
-		}
-
-	}
+	findSession(w, &r, &d) // we don't care about the error return here. We do further below
 
 	//-----------------------------------------------------------------------
 	// pathElements:  0   1            2     3
@@ -326,11 +333,25 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 				SvcErrorReturn(w, err, funcname)
 				return
 			}
-			if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil || (d.sess != nil && d.sess.UID == 0) {
-				e := fmt.Errorf("session required, please log in")
-				rlib.Console("*** ERROR ***  command %s requires a session. SvcCtx.NoAuth = %t\n", Svcs[i].Cmd, SvcCtx.NoAuth)
-				SvcErrorReturn(w, e, funcname)
-				return
+			// if !SvcCtx.NoAuth && Svcs[i].NeedSession && d.sess == nil || (d.sess != nil && d.sess.UID == 0) {
+			if !SvcCtx.NoAuth && Svcs[i].NeedSession {
+				if err = findSession(w, &r, &d); err != nil {
+					e := fmt.Errorf("Could not find session: %s", err)
+					rlib.Console("%s\n", e.Error())
+					SvcErrorReturn(w, e, funcname)
+					return
+				}
+				if d.sess == nil || (d.sess != nil && d.sess.UID == 0) {
+					e := fmt.Errorf("session required, please log in")
+					rlib.Console("*** ERROR ***  command %s requires a session. SvcCtx.NoAuth = %t\n", Svcs[i].Cmd, SvcCtx.NoAuth)
+					SvcErrorReturn(w, e, funcname)
+					return
+				}
+
+				// get session in the request context
+				ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
+				r = r.WithContext(ctx)
+				rlib.Console("Session is set in ctx.  Sess = %s\n", d.sess.Token)
 			}
 			Svcs[i].Handler(w, r, &d)
 			found = true

@@ -20,7 +20,7 @@ func RRReadConfig(fPath ...string) error {
 		err        error
 	)
 
-	// as of now, just limit the paramaters upto 1 length only
+	// as of now, just limit the parameters upto 1 length only
 	if len(fPath) > 0 {
 		folderPath = fPath[0]
 	} else {

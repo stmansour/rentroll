@@ -19,7 +19,7 @@ var GLAcctCacheCtx = SimpleCacheCtx{
 }
 var glacctcache = map[string]*GLAcctSliceCacheEntry{} // initialize an empty cache
 
-// GLAcctCacheController is a go routine that will controll access to
+// GLAcctCacheController is a go routine that will control access to
 // glacctcache when multiple routines are trying to write to it.
 //-----------------------------------------------------------------------------
 func GLAcctCacheController() {

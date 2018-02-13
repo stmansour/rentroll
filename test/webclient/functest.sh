@@ -23,9 +23,13 @@ CYPRESS_SPEC="./cypress/integration/roller_spec.js"
 #  Use custom dumped .sql file for the webclient UI tests
 #--------------------------------------------------------------------
 
-echo "*** Adding custom mysql dump into rentroll database ***"
-mysql rentroll < webclientTest.sql
-echo "*** Successfully inserted custom mysql dump ***"
+echo "*** loading data from webclientTest.sql into rentroll db ***"
+mysql --no-defaults rentroll < webclientTest.sql
+if [[ $? == 0 ]]; then
+    echo "*** data has been loaded from webclientTest.sql in rentroll db ***"
+else
+    exit 1
+fi
 
 if [ "${IAMJENKINS}" == "jenkins" ]; then
     # if build machine then record the activity
@@ -35,4 +39,4 @@ else
     doCypressUITest "a" "--config videoRecording=false --spec ${CYPRESS_SPEC}" "CypressUITesting"
 fi
 
-logcheck
+# logcheck
