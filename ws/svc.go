@@ -256,11 +256,10 @@ func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error 
 // information, then contacts an appropriate handler for more detailed
 // processing.  It will set the Cmd member variable.
 //
-// W2UI sometimes sends requests that look like this: request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D
+// W2UI sometimes sends requests that look like this:
+//	request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D
 // using HTTP GET (rather than its more typical POST).  The command decodes to
 // this: request={"search":"s","max":250}
-//
-//-----------------------------------------------------------------------------
 func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "V1ServiceHandler"
 	svcDebugTxn(funcname, r)
@@ -347,11 +346,6 @@ func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 					SvcErrorReturn(w, e, funcname)
 					return
 				}
-
-				// get session in the request context
-				ctx := rlib.SetSessionContextKey(r.Context(), d.sess)
-				r = r.WithContext(ctx)
-				rlib.Console("Session is set in ctx.  Sess = %s\n", d.sess.Token)
 			}
 			Svcs[i].Handler(w, r, &d)
 			found = true
@@ -562,6 +556,13 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	}
 	rlib.MigrateStructVals(&wjs, &d.wsSearchReq)
 	rlib.Console("Client = %s\n", d.wsSearchReq.Client)
+
+	// if dateMode is on the change the stopDate value for search op
+	if rlib.DateMode {
+		// TODO(Sudip): handle default(IsZero) date case
+		d.wsSearchReq.SearchDtStop = d.wsSearchReq.SearchDtStop.AddDate(0, 0, 1) // add one day forward
+	}
+
 	return err
 }
 
@@ -619,7 +620,12 @@ func showWebRequest(d *ServiceData) {
 		rlib.Console("\t\tOffset        = %d\n", d.wsSearchReq.Offset)
 		rlib.Console("\t\tsearchLogic   = %s\n", d.wsSearchReq.SearchLogic)
 		rlib.Console("\t\tsearchDtStart = %s\n", time.Time(d.wsSearchReq.SearchDtStart).Format(rlib.RRDATEFMT4))
-		rlib.Console("\t\tsearchDtStop  = %s\n", time.Time(d.wsSearchReq.SearchDtStop).Format(rlib.RRDATEFMT4))
+		dateModeMsg := ""
+		if rlib.DateMode {
+			dateModeMsg = " (with dateMode enabled)"
+		}
+		// searchDtStop with extra message indicating whether datemode is on
+		rlib.Console("\t\tsearchDtStop  = %s%s\n", time.Time(d.wsSearchReq.SearchDtStop).Format(rlib.RRDATEFMT4), dateModeMsg)
 		for i := 0; i < len(d.wsSearchReq.Search); i++ {
 			rlib.Console("\t\tsearch[%d] - Field = %s,  Type = %s,  Value = %s,  Operator = %s\n", i, d.wsSearchReq.Search[i].Field, d.wsSearchReq.Search[i].Type, d.wsSearchReq.Search[i].Value, d.wsSearchReq.Search[i].Operator)
 		}
@@ -659,6 +665,7 @@ func svcDebugTxnEnd() {
 // SvcWriteResponse finishes the transaction with the W2UI client
 func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json") // we're marshaling the data as json
+	rlib.HandleInterfaceEDI(g)
 	b, err := json.Marshal(g)
 	if err != nil {
 		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
