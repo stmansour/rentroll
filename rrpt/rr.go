@@ -74,6 +74,9 @@ func RRReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		-1, -1, // offset, limit
 	)
 
+	// handle end date mode right at this point
+	rlib.HandleInterfaceEDI(&rows)
+
 	// if any error encountered then just set it to section3
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)

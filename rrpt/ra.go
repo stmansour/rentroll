@@ -89,6 +89,9 @@ func RRreportRentalAgreementsTable(ctx context.Context, ri *ReporterInfo) gotabl
 			}
 		}
 
+		// handle end date mode
+		rlib.HandleInterfaceEDI(&p)
+
 		tbl.AddRow()
 		tbl.Puts(-1, 0, p.IDtoString())
 
