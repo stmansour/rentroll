@@ -688,6 +688,7 @@ function buildRAElements() {
             var sel = w2ui.rapGrid.getSelection(true); // get the record indeces rather than the recids
             w2ui.rapGrid.postData = {
                 TCID: w2ui.rapGrid.records[sel[0]].TCID,
+                DtStart: w2ui.rapGrid.records[sel[0]].DtStart,
                 DtStop: w2ui.rapGrid.records[sel[0]].DtStop
             };
         }

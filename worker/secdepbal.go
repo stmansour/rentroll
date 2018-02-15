@@ -6,7 +6,8 @@ import (
 	"tws"
 )
 
-// CleanSecDepBalanceCache is a worker that that cleans the RAR Balance cache.
+// CleanSecDepBalanceCache is a worker that that cleans the Security Deposit
+// Balance cache.
 //-----------------------------------------------------------------------------
 func CleanSecDepBalanceCache(item *tws.Item) {
 	tws.ItemWorking(item) // inform the tws system that we're working
