@@ -187,9 +187,7 @@ func SessionNew(token, username, name string, uid int64, imgurl string, rid int6
 
 	switch AppConfig.AuthNType {
 	case "Accord Directory":
-		if len(imgurl) > 0 {
-			s.ImageURL = fmt.Sprintf("%s%s", AppConfig.AuthNHost, imgurl)
-		}
+		s.ImageURL = imgurl
 	}
 
 	ReqSessionMem <- 1 // ask to access the shared mem, blocks until granted
