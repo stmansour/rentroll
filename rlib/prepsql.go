@@ -169,7 +169,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// Business
 	//==========================================
-	flds = "BID,BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "BID,BUD,Name,DefaultRentCycle,DefaultProrationCycle,DefaultGSRPC,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Business"] = flds
 	RRdb.Prepstmt.GetAllBusinesses, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Business ORDER BY Name ASC")
 	Errcheck(err)

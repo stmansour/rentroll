@@ -271,7 +271,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	b, err := json.Marshal(appData)
 	if err != nil {
 		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
-		rlib.Ulog("SvcWriteResponse: %s\n", e.Error())
+		rlib.Ulog("Error in AJAXLIST marshaling: %s\n", e.Error())
 	} else {
 		rlib.Console("AJAXLIST sent to server:  %s\n", string(b))
 	}

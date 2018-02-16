@@ -430,15 +430,16 @@ CREATE TABLE OtherDeliverables (
 
 CREATE TABLE Business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
-    BUD VARCHAR(100) NOT NULL DEFAULT '',                       -- Business Unit Designation
-    Name VARCHAR(100) NOT NULL DEFAULT '',
-    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,               -- default for every rentable type - useful to initialize UI
-    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,          -- default for every rentable type - useful to initialize UI
-    DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                   -- default for every rentable type - useful to initialize UI
+    BUD VARCHAR(100) NOT NULL DEFAULT '',                                         -- Business Unit Designation
+    Name VARCHAR(100) NOT NULL DEFAULT '',                                        -- Business Full Name
+    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,                                 -- default for every rentable type - useful to initialize UI
+    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,                            -- default for every rentable type - useful to initialize UI
+    DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                                     -- default for every rentable type - useful to initialize UI
+    FLAGS BIGINT NOT NULL DEFAULT 0,                                              -- last bit =0(EDI disabled), =1(EDI enabled)
     LastModTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                                          -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                                 -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                                           -- employee UID (from phonebook) that created this record
     PRIMARY KEY (BID)
 );
 --    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,           -- yes/no  0 = no, 1 = yes

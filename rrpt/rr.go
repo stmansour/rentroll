@@ -75,7 +75,7 @@ func RRReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	)
 
 	// handle end date mode right at this point
-	rlib.HandleInterfaceEDI(&rows)
+	rlib.HandleInterfaceEDI(&rows, ri.Bid)
 
 	// if any error encountered then just set it to section3
 	if err != nil {

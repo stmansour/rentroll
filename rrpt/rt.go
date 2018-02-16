@@ -48,6 +48,11 @@ func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.T
 	for _, k := range keys {
 		i := int64(k)
 		p := m[i]
+
+		// just before adding row to gotable, handle end date inclusion if applicable
+		// for market rates
+		rlib.HandleInterfaceEDI(&p, ri.Bid)
+
 		tbl.AddRow()
 		tbl.Puts(-1, 0, p.IDtoString())
 		tbl.Puts(-1, 1, p.Style)
@@ -58,8 +63,8 @@ func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.T
 		tbl.Puts(-1, 6, rlib.YesNoToString(p.ManageToBudget))
 		s := ""
 		for i := 0; i < len(p.MR); i++ {
-			s += fmt.Sprintf("%8s - %8s: $%8.2f", p.MR[i].DtStart.Format(rlib.RRDATEFMT2),
-				p.MR[i].DtStop.Format(rlib.RRDATEFMT2), p.MR[i].MarketRate)
+			s += fmt.Sprintf("%8s - %8s: $%8.2f", p.MR[i].DtStart.Format(rlib.RRDATEFMT3),
+				p.MR[i].DtStop.Format(rlib.RRDATEFMT3), p.MR[i].MarketRate)
 			if i+1 < len(p.MR) {
 				s += ",  "
 			}

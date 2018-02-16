@@ -79,7 +79,8 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.LastModBy, a.BID}
+	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
+	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.FLAGS, a.LastModBy, a.BID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateBusiness)
 		defer stmt.Close()

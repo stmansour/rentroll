@@ -8,11 +8,11 @@ import (
 // SvcDisableConsole disables console messages from printing out
 func SvcDisableConsole(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.DisableConsole()
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // SvcEnableConsole enables console messages to print out
 func SvcEnableConsole(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.EnableConsole()
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

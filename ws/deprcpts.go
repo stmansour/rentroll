@@ -236,7 +236,7 @@ func SvcUndepositedReceiptList(w http.ResponseWriter, r *http.Request, d *Servic
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 
 }
 
@@ -362,5 +362,5 @@ func SvcDepositReceiptsAndUndeposited(w http.ResponseWriter, r *http.Request, d 
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }

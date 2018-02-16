@@ -272,7 +272,7 @@ func SvcSearchHandlerAssessments(w http.ResponseWriter, r *http.Request, d *Serv
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcFormHandlerAssessment formats a complete data record for an assessment for use with the w2ui Form
@@ -378,7 +378,7 @@ func saveAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 var asmFormSelectFields = []string{
@@ -482,7 +482,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// write response
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteAssessment deletes the requested assessment with ASMID
@@ -544,5 +544,5 @@ func deleteAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

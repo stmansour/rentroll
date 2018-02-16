@@ -106,7 +106,7 @@ func SvcRentableTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	rlib.Console("GetRentableTypeDown returned %d matches\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // rentablesGridFields holds the map of field (to be shown on grid)
@@ -300,7 +300,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	// write response
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcFormHandlerRentable formats a complete data record for a person suitable for use with the w2ui Form
@@ -719,7 +719,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.Console("RentableTypeRef has been saved for Rentable(%d), RTRID: %d\n", rt.RID, rtr.RTRID)*/
 	}
 
-	SvcWriteSuccessResponseWithID(w, rentable.RID)
+	SvcWriteSuccessResponseWithID(d.BID, w, rentable.RID)
 }
 
 // getRentable returns the requested rentable
@@ -752,7 +752,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// write response
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // RentableStatusGridResponse to a response of grid
@@ -952,7 +952,7 @@ func svcSearchHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *S
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // RentableStatusGridSave is the input data format for a Save command
@@ -1034,7 +1034,7 @@ func saveRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // RentableStatusGridRecDelete is a struct used in delete request for rentable status
@@ -1071,7 +1071,7 @@ func deleteRentableStatus(w http.ResponseWriter, r *http.Request, d *ServiceData
 			return
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // RentableTypeRefGridResponse to a response of grid
@@ -1262,7 +1262,7 @@ func svcSearchHandlerRentableTypeRef(w http.ResponseWriter, r *http.Request, d *
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // RentableTypeRefGridSave is the input data format for a Save command for rentable type ref instances
@@ -1344,7 +1344,7 @@ func saveRentableTypeRef(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // RentableTypeRefGridRecDelete is a struct used in delete request for rentable type ref
@@ -1382,5 +1382,5 @@ func deleteRentableTypeRef(w http.ResponseWriter, r *http.Request, d *ServiceDat
 			return
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

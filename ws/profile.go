@@ -32,5 +32,5 @@ func SvcUserProfile(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	a.Expire = rlib.JSONDateTime(d.sess.Expire)
 	a.Token = d.sess.Token
 
-	SvcWriteResponse(&a, w)
+	SvcWriteResponse(d.BID, &a, w)
 }

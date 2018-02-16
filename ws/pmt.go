@@ -237,7 +237,7 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 
 }
 
@@ -272,7 +272,7 @@ func deletePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetPaymentType returns the requested assessment
@@ -343,7 +343,7 @@ func savePaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetPaymentType returns the requested assessment
@@ -374,5 +374,5 @@ func getPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Record = gg
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }

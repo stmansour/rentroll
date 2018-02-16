@@ -169,7 +169,7 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 					SvcErrorReturn(w, err, funcname)
 					return
 				}
-				SvcWriteSuccessResponse(w)
+				SvcWriteSuccessResponse(d.BID, w)
 				return
 			}
 		}
@@ -245,7 +245,7 @@ func saveRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponseWithID(w, a.RAPID)
+	SvcWriteSuccessResponseWithID(d.BID, w, a.RAPID)
 }
 
 // SvcUpdateRAPayor is called when a Rentable User is updated from the RentableUserGrid
@@ -293,7 +293,7 @@ func SvcUpdateRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // SvcGetRAPayor is used to get either the Payor(s) or User(s) associated
@@ -363,5 +363,5 @@ func SvcGetRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//------------------------------------------------------
 	gxp.Status = "success"
 	gxp.Total = int64(len(gxp.Records))
-	SvcWriteResponse(&gxp, w)
+	SvcWriteResponse(d.BID, &gxp, w)
 }

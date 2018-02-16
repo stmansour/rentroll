@@ -276,7 +276,7 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcFormHandlerAR formats a complete data record for a person suitable for use with the w2ui Form
@@ -402,7 +402,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponseWithID(w, a.ARID)
+	SvcWriteSuccessResponseWithID(d.BID, w, a.ARID)
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -514,7 +514,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteAR request delete AR from database
@@ -546,5 +546,5 @@ func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

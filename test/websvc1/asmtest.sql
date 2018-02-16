@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.16
+-- Server version	5.7.21-0ubuntu0.16.04.1-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -205,6 +205,7 @@ CREATE TABLE `Business` (
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`BID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -215,7 +216,7 @@ CREATE TABLE `Business` (
 
 LOCK TABLES `Business` WRITE;
 /*!40000 ALTER TABLE `Business` DISABLE KEYS */;
-INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,'2017-06-13 05:39:46',0,'2017-06-14 18:26:46',0),(2,'PAC','Accord/PAC Members LLC',6,4,4,'2018-01-25 23:02:33',0,'2018-01-25 23:02:33',0);
+INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,'2017-06-13 05:39:46',0,'2017-06-14 18:26:46',0,0),(2,'PAC','Accord/PAC Members LLC',6,4,4,'2018-01-25 23:02:33',0,'2018-01-25 23:02:33',0,0);
 /*!40000 ALTER TABLE `Business` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2289,4 +2290,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-25 15:02:46
+-- Dump completed on 2018-02-15 19:25:11

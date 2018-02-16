@@ -399,7 +399,7 @@ func SvcTWS(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 func getBIDfromBUI(s string) (int64, error) {
@@ -558,7 +558,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	rlib.Console("Client = %s\n", d.wsSearchReq.Client)
 
 	// if dateMode is on the change the stopDate value for search op
-	if rlib.DateMode {
+	if rlib.EDIEnabledForBID(d.BID) {
 		// TODO(Sudip): handle default(IsZero) date case
 		d.wsSearchReq.SearchDtStop = d.wsSearchReq.SearchDtStop.AddDate(0, 0, 1) // add one day forward
 	}
@@ -621,7 +621,7 @@ func showWebRequest(d *ServiceData) {
 		rlib.Console("\t\tsearchLogic   = %s\n", d.wsSearchReq.SearchLogic)
 		rlib.Console("\t\tsearchDtStart = %s\n", time.Time(d.wsSearchReq.SearchDtStart).Format(rlib.RRDATEFMT4))
 		dateModeMsg := ""
-		if rlib.DateMode {
+		if rlib.EDIEnabledForBID(d.BID) {
 			dateModeMsg = " (with dateMode enabled)"
 		}
 		// searchDtStop with extra message indicating whether datemode is on
@@ -663,9 +663,9 @@ func svcDebugTxnEnd() {
 }
 
 // SvcWriteResponse finishes the transaction with the W2UI client
-func SvcWriteResponse(g interface{}, w http.ResponseWriter) {
+func SvcWriteResponse(BID int64, g interface{}, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json") // we're marshaling the data as json
-	rlib.HandleInterfaceEDI(g)
+	rlib.HandleInterfaceEDI(g, BID)
 	b, err := json.Marshal(g)
 	if err != nil {
 		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
@@ -688,15 +688,15 @@ func SvcWrite(w http.ResponseWriter, b []byte) {
 }
 
 // SvcWriteSuccessResponse is used to complete a successful write operation on w2ui form save requests.
-func SvcWriteSuccessResponse(w http.ResponseWriter) {
+func SvcWriteSuccessResponse(BID int64, w http.ResponseWriter) {
 	var g = SvcStatusResponse{Status: "success"}
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(BID, &g, w)
 }
 
 // SvcWriteSuccessResponseWithID is used to complete a successful write operation on w2ui form save requests.
-func SvcWriteSuccessResponseWithID(w http.ResponseWriter, id int64) {
+func SvcWriteSuccessResponseWithID(BID int64, w http.ResponseWriter, id int64) {
 	var g = SvcStatusResponse{Status: "success", Recid: id}
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(BID, &g, w)
 }

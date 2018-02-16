@@ -265,7 +265,7 @@ func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *Servi
 		g.Records[i].Recid = int64(i)
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
@@ -402,7 +402,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	// write response
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcFormHandlerRentalAgreement formats a complete data record for a person suitable for use with the w2ui Form
@@ -559,7 +559,7 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		}
 	}
 
-	SvcWriteSuccessResponseWithID(w, a.RAID)
+	SvcWriteSuccessResponseWithID(d.BID, w, a.RAID)
 }
 
 // https://play.golang.org/p/gfOhByMroo
@@ -595,7 +595,7 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		g.Record = gg
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // wsdoc {
@@ -672,5 +672,5 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
