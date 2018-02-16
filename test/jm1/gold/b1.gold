@@ -6,13 +6,10 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                 Proration                                                                                             
-ASMID        RAID        Rentable    Rent Cycle  Cycle          Amount  AsmType                           AR Name                                      
------------  ----------  ----------  ----------  ---------  ----------  --------------------------------  ---------------------------------------------
-ASM00000004  RA00000001  309         monthly     daily        3,500.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                       
-ASM00000006  RA00000002  309 1/2     monthly     daily        3,550.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                       
-ASM00000008  RA00000003  311         monthly     daily        4,400.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                       
+                                                      Proration                                                                                             
+ASMID        RAID        Rentable         Rent Cycle  Cycle          Amount  AsmType                           AR Name                                      
+-----------  ----------  ---------------  ----------  ---------  ----------  --------------------------------  ---------------------------------------------
+ASM00000005  RA00000001  309 Rexford      monthly     daily        3,500.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+ASM00000007  RA00000002  309 1/2 Rexford  monthly     daily        3,550.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+ASM00000009  RA00000003  311 Rexford      monthly     daily        4,400.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
 

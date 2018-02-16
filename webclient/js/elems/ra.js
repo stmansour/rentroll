@@ -1,7 +1,7 @@
 /*global
     $, console, w2ui, w2uiDateControlString, app, plural, dateFmtStr,
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, w2confirm, form_dirty_alert,
-    delete_confirm_options, formRefreshCallBack, getFormSubmitData,
+    delete_confirm_options, formRefreshCallBack, getFormSubmitData, addDateNavToToolbar,
     ridRentablePickerRender,ridRentableDropRender,ridRentableCompare,tcidRUserPickerRender,
     tcidPickerDropRender, tcidPickerCompare, tcidRAPayorPickerRender, calcRarGridContractRent,
 */

@@ -1,6 +1,6 @@
 /*global
     setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
-    getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData,
+    getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar,
 */
 "use strict";
 function getRentableInitRecord(BID, BUD, previousFormRecord){
@@ -223,6 +223,7 @@ function buildRentableElements() {
             form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
+    addDateNavToToolbar('rentables');
 
     //------------------------------------------------------------------------
     //          rentable detailed layout with form in main panel

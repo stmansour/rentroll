@@ -195,7 +195,7 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 	LEFT JOIN (
         SELECT RID, RTID, RTRID
         FROM RentableTypeRef
-        WHERE DtStart <= "{{.currentTime}}" AND "{{.currentTime}}" < DtStop AND BID={{.BID}}
+        WHERE DtStop > "{{.searchStart}}" AND DtStart <= "{{.searchStop}}" AND BID={{.BID}}
         GROUP BY RTRID
         ORDER BY RTRID DESC
     ) AS RTR ON R.RID=RTR.RID
@@ -208,14 +208,14 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
     LEFT JOIN (
         SELECT UseStatus, LeaseStatus, RID, RSID
         FROM RentableStatus
-        WHERE DtStart <= "{{.currentTime}}" AND "{{.currentTime}}" < DtStop AND BID={{.BID}}
+        WHERE DtStop > "{{.searchStart}}" AND DtStart <= "{{.searchStop}}" AND BID={{.BID}}
         GROUP BY RSID
         ORDER BY RSID DESC
     ) AS RS ON RS.RID=R.RID
     LEFT JOIN (
         SELECT RARID, RID, RAID, RARDtStart, RARDtStop
         FROM RentalAgreementRentables
-        WHERE RARDtStart <= "{{.currentTime}}" AND "{{.currentTime}}" < RARDtStop AND BID={{.BID}}
+        WHERE RARDtStop > "{{.searchStart}}" AND RARDtStart <= "{{.searchStop}}" AND BID={{.BID}}
         GROUP BY RARID
         ORDER BY RARID DESC
     ) AS RAR ON RAR.RID=R.RID
@@ -228,7 +228,9 @@ func SvcSearchHandlerRentables(w http.ResponseWriter, r *http.Request, d *Servic
 		"SelectClause": strings.Join(rentablesQuerySelectFields, ","),
 		"WhereClause":  srch,
 		"OrderClause":  order,
-		"currentTime":  currentTime.Format(rlib.RRDATEFMTSQL), // show associated instance(s) active as of current time
+		"currentTime":  currentTime.Format(rlib.RRDATEFMTSQL),                 // show associated instance(s) active as of current time
+		"searchStart":  d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), // selected range start
+		"searchStop":   d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL),  // selected range stop
 		"BID":          strconv.FormatInt(d.BID, 10),
 	}
 
