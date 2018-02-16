@@ -517,6 +517,7 @@ CREATE TABLE TaskListDefinition (
     PRIMARY KEY(TLID)
 );
 
+*/
 
 
 -- ===========================================
@@ -552,7 +553,6 @@ CREATE TABLE RentableMarketRate (
     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (RMRID)
 );
-*/
 
 -- RentableType RTID needs to have tax TAXID applied to rental assessments.
 -- There can be as many of these records as needed per rentable type.

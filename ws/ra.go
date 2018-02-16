@@ -8,7 +8,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // RentalAgr is a structure specifically for the Web Services interface. It will be
@@ -294,7 +293,6 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	var (
 		err error
 		g   RentalAgrSearchResponse
-		t   = time.Now()
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -303,8 +301,10 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		limitClause int = 100
 	)
 
-	srch := fmt.Sprintf("RentalAgreement.BID=%d AND (RentalAgreement.AgreementStop>%q OR RentalAgreement.PossessionStop>%q OR RentalAgreement.RentStop>%q)",
-		d.BID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
+	// srch := fmt.Sprintf("RentalAgreement.BID=%d AND (RentalAgreement.AgreementStop>%q OR RentalAgreement.PossessionStop>%q OR RentalAgreement.RentStop>%q)",
+	// 	d.BID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
+	srch := fmt.Sprintf("RentalAgreement.BID=%d AND RentalAgreement.AgreementStop>%q AND RentalAgreement.AgreementStart<%q",
+		d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL)) // default WHERE clause
 	order := "RentalAgreement.RAID ASC" // default ORDER
 
 	// get where clause and order clause for sql query

@@ -164,6 +164,10 @@ func RunCommandLine(ctx context.Context, dCtx *DispatchCtx) {
 			os.Exit(1)
 		}
 		fmt.Print(s)
+	case 24:
+		// Assessments
+		rlib.Console("Print Assessment report. BID = %d\n", ri.Bid)
+		rrpt.RRreportAssessments(ctx, &ri)
 
 	default:
 		err := rlib.GenerateJournalRecords(ctx, &dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop, App.SkipVacCheck)
