@@ -6,7 +6,7 @@ DBGENDIR = ${TOP}/tools/dbgen
 package:
 	@echo "*** PACKAGE completed in test/webclient ***"
 
-test:
+test: config.json
 	@touch fail
 	./functest.sh
 	@rm -f fail
@@ -18,10 +18,14 @@ jshint:
 	@rm -rf fail
 
 clean:
-	@rm -f *log *.g [a-z] err.txt fail
+	@rm -f *log *.g [a-z] err.txt fail config.json confdev.json
 
 all: clean jshint test
 
 link:
 	ln -s
 
+config.json:
+	@/usr/local/accord/bin/getfile.sh accord/webclient/confdev.json
+	@cp confdev.json config.json
+	@echo "file downloaded..."
