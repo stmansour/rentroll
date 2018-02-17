@@ -474,7 +474,7 @@ function getFullName(item) {
 function getTCIDName(item) {
 
     var s = (item.IsCompany > 0) ? item.CompanyName : getFullName(item);
-    if (item.TCID > 0) { s += ' (TCID: '+ String(item.TCID) +')'; }
+    if (item.TCID > 0) { s += ' (TCID: '+ String(item.TCID) +', RAID: '+item.RAID+')'; }
     return s;
 }
 

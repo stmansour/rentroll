@@ -127,6 +127,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetRecurringAssessmentsByBusiness, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? AND PASMID=0 AND RentCycle>0 AND Start<? AND Stop>=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetEpochAssessmentsByRentalAgreement, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE RAID=? AND (PASMID=0 or RentCycle=0)")
+	Errcheck(err)
 	RRdb.Prepstmt.GetAllSingleInstanceAssessments, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE BID=? AND (PASMID!=0 OR RentCycle=0) AND Start<? AND Stop>=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAssessmentsByRAIDRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Assessments WHERE (RentCycle=0  OR (RentCycle>0 AND PASMID>0)) AND RAID=? AND Stop>=? AND Start<?")
@@ -836,7 +838,7 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteRentalAgreement, err = RRdb.Dbrr.Prepare("DELETE FROM RentalAgreement WHERE RAID=?")
 	Errcheck(err)
 
-	RRdb.Prepstmt.GetRentalAgreementTypeDown, err = RRdb.Dbrr.Prepare("SELECT Transactant.TCID,Transactant.FirstName,Transactant.MiddleName,Transactant.LastName,Transactant.CompanyName,Transactant.IsCompany,RentalAgreementPayors.RAID FROM Transactant LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.TCID=Transactant.TCID WHERE Transactant.BID=? AND RentalAgreementPayors.RAID>0 AND (Transactant.FirstName LIKE ? OR Transactant.LastName LIKE ? OR Transactant.CompanyName LIKE ?) GROUP BY RentalAgreementPayors.RAID LIMIT ?")
+	RRdb.Prepstmt.GetRentalAgreementTypeDown, err = RRdb.Dbrr.Prepare("SELECT Transactant.TCID,Transactant.FirstName,Transactant.MiddleName,Transactant.LastName,Transactant.CompanyName,Transactant.IsCompany,RentalAgreementPayors.RAID FROM Transactant LEFT JOIN RentalAgreementPayors ON RentalAgreementPayors.TCID=Transactant.TCID WHERE Transactant.BID=? AND RentalAgreementPayors.RAID>0 AND (Transactant.FirstName LIKE ? OR Transactant.LastName LIKE ? OR Transactant.CompanyName LIKE ?) GROUP BY RentalAgreementPayors.RAID ORDER BY RentalAgreementPayors.DtStart DESC LIMIT ?")
 	Errcheck(err)
 
 	//====================================================

@@ -37,6 +37,7 @@ function buildRAPicker(){
                     // max:     1,
                     items: [],
                     openOnFocus:    true,
+                    maxWidth:       350,
                     maxDropHeight:  350,
                     renderItem:     rentalAgrPickerRender,
                     renderDrop:     rentalAgrPickerDropRender,
@@ -144,20 +145,20 @@ function rentalAgrPickerDropRender(item) {
     return getTCIDName(item);
 }
 
-//-----------------------------------------------------------------------------
-// rentalAgrPickerRender - renders a name during typedown in the
-//          rentalAgrPicker. It also sets the TCID for the record.
-// @params
-//   item = an object assumed to have a FirstName and LastName
-// @return - true if the names match, false otherwise
-//-----------------------------------------------------------------------------
-function rentalAgrPickerRender(item) {
-    var s = getTCIDName(item);
-    w2ui.rentalAgrPicker.record.TCID = item.TCID;
-    w2ui.rentalAgrPicker.record.Payor = s;
-    w2ui.rentalAgrPicker.record.RAID = item.RAID;
-    return s;
-}
+// //-----------------------------------------------------------------------------
+// // rentalAgrPickerRender - renders a name during typedown in the
+// //          rentalAgrPicker. It also sets the TCID for the record.
+// // @params
+// //   item = an object assumed to have a FirstName and LastName
+// // @return - true if the names match, false otherwise
+// //-----------------------------------------------------------------------------
+// function rentalAgrPickerRender(item) {
+//     var s = getTCIDName(item);
+//     w2ui.rentalAgrPicker.record.TCID = item.TCID;
+//     w2ui.rentalAgrPicker.record.Payor = s;
+//     w2ui.rentalAgrPicker.record.RAID = item.RAID;
+//     return s;
+// }
 
 //-----------------------------------------------------------------------------
 // rentalAgrPickerRender - renders a name during typedown.
@@ -191,7 +192,11 @@ function rentalAgrPickerRender(item) {
     //------------------------------------------------------------------------
     var url = '/v1/rar/' + app.RentalAgrPicker.BID + '/' + item.RAID;
     $.get(url,function(data /*,status*/) {
-        app.RentalAgrPicker.RAR = JSON.parse(data);
+        if (typeof data == "string") {
+            app.RentalAgrPicker.RAR = JSON.parse(data);
+        } else if (typeof data == "object") {
+            app.RentalAgrPicker.RAR = data;
+        }
         app.RentalAgrPicker.RARentablesNames = [];
         if (app.RentalAgrPicker.RAR.records) {
             for (var i = 0; i < app.RentalAgrPicker.RAR.records.length; i++) {

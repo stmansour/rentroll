@@ -9,6 +9,23 @@ import (
 	"time"
 )
 
+// sessionCheck encapsulates 6 lines of code that was repeated in every call
+//
+// INPUTS
+//  ctx  the context, which should have session
+//
+// RETURNS
+//  true - session was required but not found
+//  false - session was found or session not required
+//-----------------------------------------------------------------------------
+func sessionCheck(ctx context.Context) bool {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		return !ok
+	}
+	return false
+}
+
 // GetCountByTableName returns the count of records in table t
 // that belong to business bid
 //------------------------------------------------------------------
@@ -422,6 +439,41 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 	return getAssessmentsByRows(ctx, rows)
 }
 
+// GetEpochAssessmentsByRentalAgreement for the supplied RAID
+// INPUTS
+// ctx  - context
+// RAID - Rental Agreement id of interest
+//
+// RETURNS
+//    array of recurring assessment definitions and non-recurring single instances
+//    which are not part of a recurring series
+//-----------------------------------------------------------------------------
+func GetEpochAssessmentsByRentalAgreement(ctx context.Context, RAID int64) ([]Assessment, error) {
+
+	var (
+		err error
+		t   []Assessment
+	)
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{RAID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetEpochAssessmentsByRentalAgreement)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetEpochAssessmentsByRentalAgreement.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getAssessmentsByRows(ctx, rows)
+}
+
 // GetAssessmentInstancesByParent for the supplied RAID
 // INPUTS
 //    id - id of Parent Assessment
@@ -429,6 +481,7 @@ func GetUnpaidAssessmentsByRAID(ctx context.Context, RAID int64) ([]Assessment, 
 //
 // RETURNS
 //    array of matching assessments
+//-----------------------------------------------------------------------------
 func GetAssessmentInstancesByParent(ctx context.Context, id int64, d1, d2 *time.Time) ([]Assessment, error) {
 
 	var (

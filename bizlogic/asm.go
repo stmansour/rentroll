@@ -92,6 +92,7 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 //           0: just reverse this instance
 //           1: reverse this and future instances
 //           2: reverse all instances
+//    dt   = time to mark when the reversal was made
 //
 // RETURNS
 //    a slice of BizErrors
