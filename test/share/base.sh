@@ -1255,7 +1255,7 @@ doCypressUITest () {
 		# 		pause ${1}
 		# 	else
 		# 		echo "Stopping the server as error occurred in cypress UI automated testing!"
-		# 		stopRentRollServer
+		# 		stopRentgit RollServer
 		# 		exit 1
 		# 	fi
 		# fi
@@ -1264,6 +1264,8 @@ doCypressUITest () {
 			echo "FAILED"
 			echo "FAILURE COUNT = ${FAILURES}"
 			failmsg
+			stopRentRollServer
+			echo "STOPPING RENTROLL SERVER in cypress UI automated testing"
 			exit 1
 		fi
 		echo "PASSED"
@@ -1275,7 +1277,6 @@ doCypressUITest () {
 	echo "STOPPING RENTROLL SERVER in cypress UI automated testing"
 	stopRentRollServer
 }
-
 
 #############################################################################
 # newDB  - I just remember this name better.
