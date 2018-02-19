@@ -92,6 +92,7 @@ func UpdateAssessment(ctx context.Context, anew *rlib.Assessment, mode int, dt *
 //           0: just reverse this instance
 //           1: reverse this and future instances
 //           2: reverse all instances
+//    dt   = time to mark when the reversal was made
 //
 // RETURNS
 //    a slice of BizErrors
@@ -647,6 +648,9 @@ func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 			e = append(e, BizErrors[RentableTypeUnknown])
 		} else {
 			if a.Stop.Before(rtl[0].DtStart) || a.Start.After(rtl[l-1].DtStop) {
+				rlib.Console("ASMID = %d\n\tStart = %s, Stop = %s\n\tRentableType[0].start = %s, RentableType[%d].stop = %s",
+					a.ASMID, a.Start.Format(rlib.RRDATEREPORTFMT), a.Stop.Format(rlib.RRDATEREPORTFMT),
+					rtl[0].DtStart.Format(rlib.RRDATEREPORTFMT), l-1, rtl[l-1].DtStop.Format(rlib.RRDATEREPORTFMT))
 				e = append(e, BizErrors[RentableTypeUnknown])
 			}
 		}

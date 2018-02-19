@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"fmt"
 	"rentroll/rlib"
 	"time"
 	"tws"
@@ -13,31 +12,41 @@ import (
 // When their instance date arrives, this routine will generate the new instance.
 // After generating all instances whose time has arrived it will reschedule itself
 // to be called again the next day.
+//-----------------------------------------------------------------------------
 func CreateAssessmentInstances(item *tws.Item) {
 	tws.ItemWorking(item)
+	now := time.Now()
 
+	// reschedule for midnight tomorrow...
+	now = time.Now().In(rlib.RRdb.Zone)
+	resched := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, time.UTC).In(rlib.RRdb.Zone)
+	tws.RescheduleItem(item, resched)
+}
+
+// CreateAsmInstCore provides a more testable calling routine for creating
+// assessment instances
+//-----------------------------------------------------------------------------
+func CreateAsmInstCore(now *time.Time) {
+	rlib.Console("Entered CreateAsmInstCore\n")
 	// create background context
 	ctx := context.Background()
+	rlib.Console("Created ctx\n")
 
-	// create session and set in the context
-	// TODO(Steve): we should have some pre-defined sessions or something else
-	// and based on that we can define permissions on those pre-defined sessions
-	// so that they can access only required information
-	// For ex. for command line applications we've to do this!
-	expire := time.Now().Add(10 * time.Minute)
-	s := rlib.SessionNew("workerToken", "tws-worker", "tws-session", -99, "", -99, &expire)
+	expire := now.Add(10 * time.Minute)
+	s := rlib.SessionNew("workerToken", "tws-worker", "tws-session", -1, "", -1, &expire)
+	rlib.Console("Created Session\n")
 	ctx = rlib.SetSessionContextKey(ctx, s)
+	rlib.Console("Session context set\n")
 
 	// add any new recurring instances for this day...
 	m, err := rlib.GetAllBusinesses(ctx)
 	if err != nil {
 		rlib.Ulog("Error with rlib.GetAllBusinesses: %s\n", err.Error())
 	} else {
-		now := time.Now()
-		d1, d2 := rlib.GetMonthPeriodForDate(&now)
+		rlib.Console("got businesses: len(m) = %d\n", len(m))
+		d1, d2 := rlib.GetMonthPeriodForDate(now)
 		for i := 0; i < len(m); i++ {
-			fmt.Printf("PROCESS JOURNAL ENTRIES FOR BIZ: %s - %s\n", m[i].Designation, m[i].Name)
-			fmt.Printf("call rlib.GenerateRecurInstances(xbiz, %s, %s)\n", d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
+			rlib.Console("PROCESS JOURNAL ENTRIES FOR BIZ: %s - %s,  %s, %s\n", m[i].Designation, m[i].Name, d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
 			var xbiz rlib.XBusiness
 			err = rlib.GetXBusiness(ctx, m[i].BID, &xbiz)
 			if err != nil {
@@ -50,9 +59,4 @@ func CreateAssessmentInstances(item *tws.Item) {
 			}
 		}
 	}
-
-	// reschedule for midnight tomorrow...
-	now := time.Now().In(rlib.RRdb.Zone)
-	resched := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, time.UTC).In(rlib.RRdb.Zone)
-	tws.RescheduleItem(item, resched)
 }

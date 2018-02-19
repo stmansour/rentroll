@@ -6,15 +6,8 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                    Proration                                                                                                 
-ASMID        RAID        Rentable    Rent Cycle     Cycle              Amount  AsmType                           AR Name                                      
------------  ----------  ----------  -------------  -------------  ----------  --------------------------------  ---------------------------------------------
-ASM00000014  RA00000001  309         monthly        daily            3,750.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                              
-ASM00000025  RA00000004  311         monthly        daily            4,150.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                              
-ASM00000035  RA00000005  309 1/2     monthly        daily            4,000.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                              
-ASM00000039  RA00000005  309 1/2     non-recurring  non-recurring       15.00  Bad Debt                          c 12000 _, d 41199 _                         
-                         Rexford                                                                                                                              
+                                                         Proration                                                
+ASMID        RAID        Rentable         Rent Cycle     Cycle              Amount  AsmType   AR Name             
+-----------  ----------  ---------------  -------------  -------------  ----------  --------  --------------------
+ASM00000039  RA00000005  309 1/2 Rexford  non-recurring  non-recurring       15.00  Bad Debt  c 12000 _, d 41199 _
 

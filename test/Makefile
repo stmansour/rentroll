@@ -1,5 +1,6 @@
 #DIRS=setup newbiz mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 payorstmt roller receipts webclient
 DIRS=setup newbiz mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 payorstmt roller receipts
+TESTREPORT="testreport.txt"
 
 db:
 	for dir in $(DIRS); do make -C $$dir;done
@@ -12,19 +13,19 @@ clean:
 	@echo "*** CLEAN completed in test ***"
 
 test:
-	@echo "FUNCTIONAL TEST Report" > testreport.txt
-	@echo "Report Start: \c" >> testreport.txt
-	@date >> testreport.txt
-	@echo >> testreport.txt
-	@echo "Result  Path                  Test Name                                 Phases" >> testreport.txt
-	@echo "------  --------------------  ----------------------------------------  ------" >> testreport.txt
+	@echo "FUNCTIONAL TEST Report" > ${TESTREPORT}
+	@echo "Report Start: \c" >> ${TESTREPORT}
+	@date >> ${TESTREPORT}
+	@echo >> ${TESTREPORT}
+	@echo "Result  Path                  Test Name                                 Phases" >> ${TESTREPORT}
+	@echo "------  --------------------  ----------------------------------------  ------" >> ${TESTREPORT}
 	for dir in $(DIRS); do make -C $$dir test;done
 	@./totals.sh
-	@echo >> testreport.txt
-	@echo "Report Complete: \c" >> testreport.txt
-	@date >> testreport.txt
+	@echo >> ${TESTREPORT}
+	@echo "Report Complete: \c" >> ${TESTREPORT}
+	@date >> ${TESTREPORT}
 	@echo "*** TEST completed in test ***"
-	@cat testreport.txt
+	@cat ${TESTREPORT}
 
 package:
 	for dir in $(DIRS); do make -C $$dir package;done

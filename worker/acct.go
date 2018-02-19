@@ -6,7 +6,7 @@ import (
 	"tws"
 )
 
-// CleanAcctSliceCache is a worker that that cleans the RAR Balance cache.
+// CleanAcctSliceCache is a worker that that cleans the GLAccount cache.
 //-----------------------------------------------------------------------------
 func CleanAcctSliceCache(item *tws.Item) {
 	tws.ItemWorking(item) // inform the tws system that we're working

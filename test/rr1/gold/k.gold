@@ -9,7 +9,7 @@ Austin, TX 78738 USA
                                                Proration                                                                    
 ASMID        RAID        Rentable  Rent Cycle  Cycle          Amount  AsmType  AR Name                                      
 -----------  ----------  --------  ----------  ---------  ----------  -------  ---------------------------------------------
-ASM00000001  RA00000001  6323-303  monthly     daily        3,100.00  Cash     d 12000 _, c 41000 ${UMR}, d 41102 ${UMR} _ -
-ASM00000003  RA00000002  6323-303  monthly     daily        4,000.00  Cash     d 12000 _, c 41000 ${UMR}, d 41102 ${UMR} _ -
-ASM00000005  RA00000003  6323-303  monthly     daily        3,200.00  Cash     d 12000 _, c 41000 ${UMR}, d 41102 ${UMR} _ -
+ASM00000002  RA00000001  6323-303  monthly     daily          300.00  Cash     d 12000 _, c 41000 ${UMR}, d 41102 ${UMR} _ -
+ASM00000004  RA00000002  6323-303  monthly     daily          400.00  Cash     d 12000 _, c 41000 ${UMR}, d 41102 ${UMR} _ -
+ASM00000006  RA00000003  6323-303  monthly     daily        2,100.00  Cash     d 12000 _, c 41000 ${UMR}, d 41102 ${UMR} _ -
 

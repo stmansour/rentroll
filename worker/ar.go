@@ -6,7 +6,7 @@ import (
 	"tws"
 )
 
-// CleanARSliceCache is a worker that that cleans the RAR Balance cache.
+// CleanARSliceCache is a worker that that cleans the Account Rule cache.
 //-----------------------------------------------------------------------------
 func CleanARSliceCache(item *tws.Item) {
 	tws.ItemWorking(item) // inform the tws system that we're working

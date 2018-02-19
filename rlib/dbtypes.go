@@ -175,6 +175,79 @@ type Period struct {
 	Checked bool // used by Period overlap check functions
 }
 
+// Task is an indivually tracked work item.
+// FLAGS are defined as follows:
+//    1<<0 pre-completion required (if 0 then there is no pre-completion required)
+//    1<<1 PreCompletion done (if 0 it is not yet done)
+//    1<<2 Completion done (if 0 it is not yet done)
+type Task struct {
+	TID         int64
+	BID         int64
+	TLID        int64     // the TaskList to which this task belongs
+	Name        string    // Task text
+	Worker      string    // Name of the associated work function
+	DtDue       time.Time // Task Due Date
+	DtPreDue    time.Time // Pre Completion due date
+	DtDone      time.Time // Task completion Date
+	DtPreDone   time.Time // Task Pre Completion Date
+	FLAGS       int64
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
+}
+
+// TaskList is the shell container for a list of tracked tasks
+type TaskList struct {
+	TLID        int64
+	BID         int64
+	Name        string
+	Cycle       int64
+	DtDue       time.Time
+	DtPreDue    time.Time
+	DtDone      time.Time
+	DtPreDone   time.Time
+	FLAGS       int64
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
+}
+
+// TaskDescriptor is the definition of a task. It is used to make instance
+// which become Tasks
+type TaskDescriptor struct {
+	TDID        int64
+	BID         int64
+	TLDID       int64
+	Name        string
+	Worker      string
+	EpochDue    time.Time
+	EpochPreDue time.Time
+	FLAGS       int64
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
+}
+
+// TaskListDefinition is the shell container for TaskDescriptors
+type TaskListDefinition struct {
+	TLDID       int64
+	BID         int64
+	Name        string
+	Cycle       int64
+	DtDue       time.Time
+	DtPreDue    time.Time
+	DtDone      time.Time
+	DtPreDone   time.Time
+	FLAGS       int64
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
+}
+
 // AIRAuthenticateResponse is the reply structure from Accord Directory
 type AIRAuthenticateResponse struct {
 	Status   string       `json:"status"`
@@ -1649,6 +1722,23 @@ type RRprepSQL struct {
 	DeleteSubARs                            *sql.Stmt
 	GetJournalAllocationsByASMandRCPTID     *sql.Stmt
 	GetJournalByTypeAndID                   *sql.Stmt
+	GetTask                                 *sql.Stmt
+	GetTaskList                             *sql.Stmt
+	GetTaskDescriptor                       *sql.Stmt
+	GetTaskListDefinition                   *sql.Stmt
+	InsertTask                              *sql.Stmt
+	InsertTaskList                          *sql.Stmt
+	InsertTaskDescriptor                    *sql.Stmt
+	InsertTaskListDefinition                *sql.Stmt
+	UpdateTask                              *sql.Stmt
+	UpdateTaskList                          *sql.Stmt
+	UpdateTaskDescriptor                    *sql.Stmt
+	UpdateTaskListDefinition                *sql.Stmt
+	DeleteTask                              *sql.Stmt
+	DeleteTaskList                          *sql.Stmt
+	DeleteTaskDescriptor                    *sql.Stmt
+	DeleteTaskListDefinition                *sql.Stmt
+	GetEpochAssessmentsByRentalAgreement    *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database
