@@ -1,5 +1,5 @@
 #DIRS=setup newbiz mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 payorstmt roller receipts webclient
-DIRS=setup newbiz mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 payorstmt roller receipts
+DIRS=setup newbiz workersm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 payorstmt roller receipts
 TESTREPORT="testreport.txt"
 
 db:
@@ -10,6 +10,7 @@ clean:
 	rm -f testreport.txt dbqqqmods.sql
 	for dir in $(DIRS); do make -C $$dir clean;done
 	cd ./testdb;make clean
+	cd ./importers/onesite/okc;make clean
 	@echo "*** CLEAN completed in test ***"
 
 test:
