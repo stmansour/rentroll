@@ -1,16 +1,6 @@
 {
     "records": [
         {
-            "CompanyName": "JR Security",
-            "FirstName": "Jack",
-            "IsCompany": false,
-            "LastName": "Reacher",
-            "MiddleName": "R",
-            "RAID": 10,
-            "TCID": 17,
-            "recid": 0
-        },
-        {
             "CompanyName": "HD Supply Repair and Remodel",
             "FirstName": "",
             "IsCompany": true,
@@ -18,6 +8,16 @@
             "MiddleName": "",
             "RAID": 9,
             "TCID": 16,
+            "recid": 0
+        },
+        {
+            "CompanyName": "JR Security",
+            "FirstName": "Jack",
+            "IsCompany": false,
+            "LastName": "Reacher",
+            "MiddleName": "R",
+            "RAID": 10,
+            "TCID": 17,
             "recid": 1
         },
         {
