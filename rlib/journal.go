@@ -509,7 +509,9 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 
 			//--------------------------------------------------------------------------------
 			// Before inserting this, validate that the RentalAgreement for this assessment
-			// is still in effect...
+			// is still in effect.  This is because in the early versions of the Roller
+			// server code, there were no checks to ensure that recurring assessments stopped
+			// when their associated RentalAgreements stopped.
 			//--------------------------------------------------------------------------------
 			if a.RAID > 0 {
 				ra, err := GetRentalAgreement(ctx, a.RAID)

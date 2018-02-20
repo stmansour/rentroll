@@ -37,6 +37,7 @@ func UpdateRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) []BizE
 	// 2. If any of the start dates are prior to this RA's initial LedgerMarker
 	// then we need to move the initial LedgerMarker's date back.
 	//------------------------------------------------------------------------
+	rlib.Console("bizlogic: 2.  Ledger Markers")
 	lm, err := rlib.GetInitialLedgerMarkerByRAID(ctx, ra.RAID)
 	if lm.LMID == 0 || err != nil {
 		e := fmt.Errorf("Could not find initial LedgerMarker for RAID = %d", ra.RAID)
@@ -56,6 +57,12 @@ func UpdateRentalAgreement(ctx context.Context, ra *rlib.RentalAgreement) []BizE
 			}
 		}
 	}
+
+	//-------------------------------------------------------------------------------
+	// OK, if we made it this far, there are no biz rules broken. Go ahead and save
+	// the Rental Agreement...
+	//-------------------------------------------------------------------------------
+	err = rlib.UpdateRentalAgreement(ctx, ra)
 	return nil
 }
 
