@@ -11,21 +11,36 @@ TESTSUMMARY="UI Testing with cypress"
 # do not create new db
 CREATENEWDB=0
 
-source ../share/base.sh
+# DBNAME
+DBNAME="accord"
 
-# server with noauth
-RENTROLLSERVERAUTH="-noauth"
+source ../share/base.sh
 
 # specific file that needs to be tested
 CYPRESS_SPEC="./cypress/integration/roller_spec.js"
 
+# HACK: move this temporary based config.json to package directory AS OF NOW, LATER revert it to original version
+mv ${TOP}/tmp/rentroll/config.json ${TOP}/tmp/rentroll/config.bak.json
+cp config.json ${TOP}/tmp/rentroll/config.json
+
 #--------------------------------------------------------------------
-#  Use custom dumped .sql file for the webclient UI tests
+#  Use custom dumped "rentroll" .sql file for the webclient UI tests
 #--------------------------------------------------------------------
 echo "*** loading data from webclientTest.sql into rentroll db ***"
 mysql --no-defaults rentroll < webclientTest.sql
 if [[ $? == 0 ]]; then
     echo "*** data has been loaded from webclientTest.sql in rentroll db ***"
+else
+    exit 1
+fi
+
+#--------------------------------------------------------------------
+#  Use custom dumped "accord" .sql file for the webclient UI tests
+#--------------------------------------------------------------------
+echo "*** loading data from accord.sql into accord db ***"
+mysql --no-defaults accord < accord.sql
+if [[ $? == 0 ]]; then
+    echo "*** data has been loaded from accord.sql in accord db ***"
 else
     exit 1
 fi
@@ -39,3 +54,6 @@ else
 fi
 
 # logcheck
+
+# HACK: move original version of config.json in release dir
+mv ${TOP}/tmp/rentroll/config.bak.json ${TOP}/tmp/rentroll/config.json
