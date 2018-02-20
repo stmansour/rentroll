@@ -205,6 +205,14 @@ func journalAssessment(ctx context.Context, xbiz *XBusiness, d time.Time, a *Ass
 		return j, err
 	}
 
+	//--------------------------------------------------------------------------------------
+	// This is a safeguard against issues encountered in Feb 2018 where rent assessments
+	// continued after the RentalAgreement RentStop date.
+	//--------------------------------------------------------------------------------------
+	if pf < float64(0) {
+		pf = float64(0)
+	}
+
 	// Console("%s: a.ASMTID = %d, d = %s, d1 = %s, d2 = %s\n", funcname, a.ASMID, d.Format(RRDATEFMT4), d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// Console("%s: pf = %f, num = %d, den = %d, start = %s, stop = %s\n", funcname, pf, num, den, start.Format(RRDATEFMT4), stop.Format(RRDATEFMT4))
 
