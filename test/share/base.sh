@@ -32,17 +32,25 @@ DBTOOLSDIR="../../dbtools"
 USERSIMDIR="."
 USERSIM="${USERSIMDIR}/usersim"
 
-DBNAME="accordtest"
+if [ "x${DBNAME}" = "x" ]; then
+	DBNAME="accordtest"
+fi
 DBUSER="ec2-user"
 
 PBHOST="localhost"
 PBPORT="8250"
 
-PHONEBOOKDIR="../.."
+PHONEBOOKDIR="../../../phonebook"
 STARTPHONEBOOKCMD="./activate.sh -N ${DBNAME} -T start"
 STOPPHONEBOOKCMD="./activate.sh stop"
 
 RENTROLLSERVERAUTH=""
+
+if [ "x${CONFIGPATH}" = "x" ]; then
+	RRCONFIGPATH=""
+else
+	RRCONFIGPATH="-conf ${CONFIGPATH}"
+fi
 
 if [ "x${NOCONSOLE}" = "x" ]; then
 	NOCONSOLE="-nocon"
@@ -863,9 +871,9 @@ genericlogcheck() {
 startRentRollServer() {
 	if [ ${MANAGESERVER} -eq 1 ]; then
 		stopRentRollServer
-		cmd="${RRBIN}/rentroll -p ${RRPORT} ${RSD} > ${RRBIN}/rrlog 2>&1 &"
+		cmd="${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &"
 		echo "${cmd}"
-		${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} > ${RRBIN}/rrlog 2>&1 &
+		${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &
 		sleep 1
 	fi
 }
@@ -1192,6 +1200,12 @@ doPlainGET () {
 doCypressUITest () {
 	n=$((TESTCOUNT + 1))  ## we count the number of tests below
 	printf "PHASE %2s  %3s  %s... " ${n} $1 $3
+
+	echo "STARTING PHONEBOOK SERVER for cypress UI automated testing..."
+	pushd ../../../phonebook/
+	$STARTPHONEBOOKCMD
+	popd
+
 	echo "STARTING RENTROLL SERVER for cypress UI automated testing..."
 	startRentRollServer
 
@@ -1264,6 +1278,14 @@ doCypressUITest () {
 			echo "FAILED"
 			echo "FAILURE COUNT = ${FAILURES}"
 			failmsg
+			# stop rentroll server in case of failure
+			echo "Stopping the RENTROLL server as error occurred in cypress UI automated testing!"
+			stopRentRollServer
+			# stop phonebook server in case of failure
+			echo "Stopping the PHONEBOOK server as error occurred in cypress UI automated testing!"
+			pushd ../../../phonebook/
+			$STOPPHONEBOOKCMD > /dev/null 2>&1
+			popd
 			exit 1
 		fi
 		echo "PASSED"
@@ -1272,8 +1294,12 @@ doCypressUITest () {
 		echo
 	fi
 
-	echo "STOPPING RENTROLL SERVER in cypress UI automated testing"
+	echo "STOPPING RENTROLL SERVER in cypress UI automated testing" # finally
 	stopRentRollServer
+	echo "STOPPING PHONEBOOK SERVER in cypress UI automated testing" # finally
+	pushd ../../../phonebook/
+	$STOPPHONEBOOKCMD > /dev/null 2>&1
+	popd
 }
 
 
