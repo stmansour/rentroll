@@ -28,19 +28,19 @@ func RRReadConfig(fPath ...string) error {
 		log.Fatal(err)
 	}
 	// as of now, just limit the parameters upto 1 length only
-	Console("A\n")
+	// Console("A\n")
 	if len(fPath) > 0 && len(fPath[0]) > 0 {
-		Console("B len(fPath) = %d, fPath = %s\n", len(fPath), fPath)
+		// Console("B len(fPath) = %d, fPath = %s\n", len(fPath), fPath)
 		folderPath = fPath[0]
 		adjustEnv = folderPath == expath // is it in the release directory
 	} else {
-		Console("C\n")
+		// Console("C\n")
 		folderPath = expath
 		if len(folderPath) == 0 {
-			Console("D\n")
+			// Console("D\n")
 			folderPath = "."
 		}
-		Console("E\n")
+		// Console("E\n")
 		adjustEnv = true
 	}
 
