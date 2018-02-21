@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"extres"
+	"runtime/debug"
 )
 
 func updateError(err error, n string, a interface{}) error {
@@ -52,7 +53,9 @@ func UpdateAssessment(ctx context.Context, a *Assessment) error {
 		a.LastModBy = sess.UID
 	}
 
-	// debug.PrintStack()
+	if a.ASMID == 69 {
+		debug.PrintStack()
+	}
 	a.Amount = Round(a.Amount, .5, 2)
 	fields := []interface{}{a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied

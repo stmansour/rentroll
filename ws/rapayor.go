@@ -157,22 +157,29 @@ func deleteRAPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	dtStart := time.Time(del.DtStart)
-	dtStop := time.Time(del.DtStop)
+	// dtStart := time.Time(del.DtStart)
+	// dtStop := time.Time(del.DtStop)
 
 	for i := 0; i < len(del.Selected); i++ {
-		// first validate that the selected ids are part of the supplied raid
-		m, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), d.RAID, &dtStart, &dtStop)
-		for j := 0; j < len(m); j++ {
-			if m[j].RAPID == del.Selected[i] {
-				if err := rlib.DeleteRentalAgreementPayor(r.Context(), del.Selected[i]); err != nil {
-					SvcErrorReturn(w, err, funcname)
-					return
-				}
-				SvcWriteSuccessResponse(d.BID, w)
-				return
-			}
+		// // first validate that the selected ids are part of the supplied raid
+		// rlib.Console("Looking for payors in range:  RAID=%d, dtStart = %s, dtStop = %s\n", d.RAID, dtStart.Format(rlib.RRDATEREPORTFMT), dtStop.Format(rlib.RRDATEREPORTFMT))
+		// m, _ := rlib.GetRentalAgreementPayorsInRange(r.Context(), d.RAID, &dtStart, &dtStop)
+		// for j := 0; j < len(m); j++ {
+		// 	if m[j].RAPID == del.Selected[i] {
+		// 		if err := rlib.DeleteRentalAgreementPayor(r.Context(), del.Selected[i]); err != nil {
+		// 			SvcErrorReturn(w, err, funcname)
+		// 			return
+		// 		}
+		// 		SvcWriteSuccessResponse(d.BID, w)
+		// 		return
+		// 	}
+		// }
+		if err := rlib.DeleteRentalAgreementPayor(r.Context(), del.Selected[i]); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
 		}
+		SvcWriteSuccessResponse(d.BID, w)
+		return
 	}
 	e := fmt.Errorf("%s: Payor is was not listed as a payor for Rental Agreement %d during that time period", funcname, d.RAID)
 	SvcErrorReturn(w, e, funcname)

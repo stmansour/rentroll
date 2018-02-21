@@ -26,7 +26,7 @@ func RRAssessmentsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 
 	tbl.AddColumn("ASMID", 11, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("RAID", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Rentable", 10, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Rentable", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Rent Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Proration Cycle", 13, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Amount", 10, gotable.CELLFLOAT, gotable.COLJUSTIFYRIGHT)
@@ -51,7 +51,8 @@ func RRAssessmentsTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	}
 
 	// get records from db
-	rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
+	// rows, err := rlib.RRdb.Prepstmt.GetAllAssessmentsByBusiness.Query(bid, d2, d1)
+	rows, err := rlib.RRdb.Prepstmt.GetAllSingleInstanceAssessments.Query(bid, d2, d1)
 	if err != nil {
 		// set errors in section3 and return
 		tbl.SetSection3(err.Error())

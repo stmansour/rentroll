@@ -6,15 +6,9 @@ Suite 301
 Austin, TX 78738 USA
 
 
-                                                    Proration                                                                                                 
-ASMID        RAID        Rentable    Rent Cycle     Cycle              Amount  AsmType                           AR Name                                      
------------  ----------  ----------  -------------  -------------  ----------  --------------------------------  ---------------------------------------------
-ASM00000014  RA00000001  309         monthly        daily            3,750.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                              
-ASM00000020  RA00000002  309 1/2     monthly        daily            3,800.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                              
-ASM00000025  RA00000004  311         monthly        daily            4,150.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
-                         Rexford                                                                                                                              
-ASM00000027  RA00000004  311         non-recurring  non-recurring    8,300.00  Security Deposits                 d 12000 _, c 30000 _                         
-                         Rexford                                                                                                                              
+                                                     Proration                                                                                                 
+ASMID        RAID        Rentable     Rent Cycle     Cycle              Amount  AsmType                           AR Name                                      
+-----------  ----------  -----------  -------------  -------------  ----------  --------------------------------  ---------------------------------------------
+ASM00000026  RA00000004  311 Rexford  monthly        daily            4,150.00  Gross Scheduled Rent-Not Taxable  d 12000 _, c 41000 ${GSR}, d 41102 ${GSR} _ -
+ASM00000027  RA00000004  311 Rexford  non-recurring  non-recurring    8,300.00  Security Deposits                 d 12000 _, c 30000 _                         
 

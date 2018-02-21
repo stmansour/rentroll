@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // RentalAgr is a structure specifically for the Web Services interface. It will be
@@ -60,36 +60,36 @@ type RentalAgrForm struct {
 	Recid                  int64 `json:"recid"` // this is to support the w2ui form
 	BID                    int64
 	BUD                    rlib.XJSONBud
-	RAID                   int64         // internal unique id
-	RATID                  int64         // reference to Occupancy Master Agreement
-	NLID                   int64         // Note ID
-	AgreementStart         rlib.JSONDate // start date for rental agreement contract
-	AgreementStop          rlib.JSONDate // stop date for rental agreement contract
-	PossessionStart        rlib.JSONDate // start date for Occupancy
-	PossessionStop         rlib.JSONDate // stop date for Occupancy
-	RentStart              rlib.JSONDate // start date for Rent
-	RentStop               rlib.JSONDate // stop date for Rent
-	RentCycleEpoch         rlib.JSONDate // Date on which rent cycle recurs. Start date for the recurring rent assessment
-	UnspecifiedAdults      int64         // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
-	UnspecifiedChildren    int64         // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
-	SpecialProvisions      string        // free-form text
-	LeaseType              int64         // Full Service Gross, Gross, ModifiedGross, Tripple Net
-	ExpenseAdjustmentType  int64         // Base Year, No Base Year, Pass Through
-	ExpensesStop           float64       // cap on the amount of oexpenses that can be passed through to the tenant
-	ExpenseStopCalculation string        // note on how to determine the expense stop
-	BaseYearEnd            rlib.JSONDate // last day of the base year
-	ExpenseAdjustment      rlib.JSONDate // the next date on which an expense adjustment is due
-	EstimatedCharges       float64       // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
-	RateChange             float64       // predetermined amount of rent increase, expressed as a percentage
-	NextRateChange         rlib.JSONDate // he next date on which a RateChange will occur
-	PermittedUses          string        // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
-	ExclusiveUses          string        // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
-	ExtensionOption        string        // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
-	ExtensionOptionNotice  rlib.JSONDate // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
-	ExpansionOption        string        // the right to expand to certanin spaces that are typically contiguous to their primary space
-	ExpansionOptionNotice  rlib.JSONDate // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
-	RightOfFirstRefusal    string        // Tenant may have the right to purchase their premises if LL chooses to sell
-	Renewal                rlib.XJSONRenewal
+	RAID                   int64             // internal unique id
+	RATID                  int64             // reference to Occupancy Master Agreement
+	NLID                   int64             // Note ID
+	AgreementStart         rlib.JSONDate     // start date for rental agreement contract
+	AgreementStop          rlib.JSONDate     // stop date for rental agreement contract
+	PossessionStart        rlib.JSONDate     // start date for Occupancy
+	PossessionStop         rlib.JSONDate     // stop date for Occupancy
+	RentStart              rlib.JSONDate     // start date for Rent
+	RentStop               rlib.JSONDate     // stop date for Rent
+	RentCycleEpoch         rlib.JSONDate     // Date on which rent cycle recurs. Start date for the recurring rent assessment
+	UnspecifiedAdults      int64             // adults who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels
+	UnspecifiedChildren    int64             // children who are not accounted for in RentalAgreementPayor or RentableUser structs.  Used mostly by hotels.
+	SpecialProvisions      string            // free-form text
+	LeaseType              int64             // Full Service Gross, Gross, ModifiedGross, Tripple Net
+	ExpenseAdjustmentType  int64             // Base Year, No Base Year, Pass Through
+	ExpensesStop           float64           // cap on the amount of oexpenses that can be passed through to the tenant
+	ExpenseStopCalculation string            // note on how to determine the expense stop
+	BaseYearEnd            rlib.JSONDate     // last day of the base year
+	ExpenseAdjustment      rlib.JSONDate     // the next date on which an expense adjustment is due
+	EstimatedCharges       float64           // a periodic fee charged to the tenant to reimburse LL for anticipated expenses
+	RateChange             float64           // predetermined amount of rent increase, expressed as a percentage
+	NextRateChange         rlib.JSONDate     // he next date on which a RateChange will occur
+	PermittedUses          string            // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
+	ExclusiveUses          string            // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
+	ExtensionOption        string            // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
+	ExtensionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
+	ExpansionOption        string            // the right to expand to certanin spaces that are typically contiguous to their primary space
+	ExpansionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
+	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
+	Renewal                rlib.XJSONRenewal // month to month automatic extension, or lease extension
 }
 
 // RentalAgrSearchResponse is the response data for a Rental Agreement Search
@@ -294,7 +294,6 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	var (
 		err error
 		g   RentalAgrSearchResponse
-		t   = time.Now()
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -303,8 +302,10 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		limitClause int = 100
 	)
 
-	srch := fmt.Sprintf("RentalAgreement.BID=%d AND (RentalAgreement.AgreementStop>%q OR RentalAgreement.PossessionStop>%q OR RentalAgreement.RentStop>%q)",
-		d.BID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
+	// srch := fmt.Sprintf("RentalAgreement.BID=%d AND (RentalAgreement.AgreementStop>%q OR RentalAgreement.PossessionStop>%q OR RentalAgreement.RentStop>%q)",
+	// 	d.BID, t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT), t.Format(rlib.RRDATEINPFMT)) // default WHERE clause
+	srch := fmt.Sprintf("RentalAgreement.BID=%d AND RentalAgreement.AgreementStop>%q AND RentalAgreement.AgreementStart<%q",
+		d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL)) // default WHERE clause
 	order := "RentalAgreement.RAID ASC" // default ORDER
 
 	// get where clause and order clause for sql query
@@ -480,15 +481,13 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	//------------------------------
 	var foo RentalAgrForm
 
-	rlib.Console("A\n")
-
 	err = json.Unmarshal([]byte(s), &foo)
 	if err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("B\n")
+
 	// migrate the variables that transfer without needing special handling...
 	var a rlib.RentalAgreement
 	rlib.MigrateStructVals(&foo, &a)
@@ -497,7 +496,6 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	var ok bool
 	a.Renewal, ok = rlib.RenewalMap[string(foo.Renewal)]
-	rlib.Console("D\n")
 	if !ok {
 		e := fmt.Errorf("could not map %s to a Renewal value", foo.Renewal)
 		rlib.LogAndPrintError(funcname, e)
@@ -507,43 +505,20 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	//===============================================================
 
-	rlib.Console("Update complete:  RA = %#v\n", a)
+	rlib.Console("Update complete:  RA.AgreementStop = %s\n", a.AgreementStop.Format(rlib.RRDATEREPORTFMT))
 
 	// Now just update the database
 	if a.RAID > 0 {
-		err = rlib.UpdateRentalAgreement(r.Context(), &a)
-		if err != nil {
+		rlib.Console("E: a.RAID > 0.  Calling bizlogic\n")
+		be := bizlogic.UpdateRentalAgreement(r.Context(), &a)
+		if be != nil {
+			err = bizlogic.BizErrorListToError(be)
 			e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
-		//------------------------------------------------------------------------
-		// If any of the start dates are prior to this RA's initial LedgerMarker
-		// then we need to move the initial LedgerMarker's date back.
-		//------------------------------------------------------------------------
-		lm, err := rlib.GetInitialLedgerMarkerByRAID(r.Context(), a.RAID)
-		if lm.LMID == 0 || err != nil {
-			// if you want to log err then separate above if clause condition
-			e := fmt.Errorf("Could not find initial LedgerMarker for RAID = %d", a.RAID)
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-		rlib.Console("Found initial LedgerMarker for RAID %d\n", a.RAID)
-		if lm.Dt.After(a.AgreementStart) || lm.Dt.After(a.PossessionStart) || lm.Dt.After(a.RentStart) {
-			// find the earliest date...
-			dt, _ := rlib.GetRentalAgreementEarliestDate(r.Context(), &a)
-			rlib.Console("Moving initial LedgerMarker to: %s\n", dt.Format(rlib.RRDATEREPORTFMT))
-			if dt.Before(lm.Dt) {
-				lm.Dt = dt // update the ledger marker date to the earliest date
-				err = rlib.UpdateLedgerMarker(r.Context(), &lm)
-				if err != nil {
-					e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
-					SvcErrorReturn(w, e, funcname)
-					return
-				}
-			}
-		}
 	} else {
+		rlib.Console("E: a.RAID == 0.  Calling rlib.insert\n")
 		_, err = rlib.InsertRentalAgreement(r.Context(), &a)
 		if err == nil {
 			var lm rlib.LedgerMarker

@@ -1,12 +1,13 @@
 TOP = ./../..
 DBGENDIR = ${TOP}/tools/dbgen
+THISDIR="webclient"
 
 .PHONY: test
 
-package:
-	@echo "*** PACKAGE completed in test/webclient ***"
+webclient: config.json accord.sql
+	@echo "*** Completed in ${THISDIR} ***"
 
-test:
+test: webclient
 	@touch fail
 	./functest.sh
 	@rm -f fail
@@ -18,10 +19,19 @@ jshint:
 	@rm -rf fail
 
 clean:
-	@rm -f *log *.g [a-z] err.txt fail
+	@rm -f *log *.g [a-z] err.txt fail ./accord.sql ./conf*.json
 
 all: clean jshint test
 
 link:
 	ln -s
 
+config.json:
+	@/usr/local/accord/bin/getfile.sh accord/webclient/confdev.json
+	@cp confdev.json config.json
+
+accord.sql:
+	@/usr/local/accord/bin/getfile.sh accord/webclient/accord.sql
+
+package:
+	@echo "*** PACKAGE completed in test/webclient ***"

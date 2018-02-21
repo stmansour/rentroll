@@ -22,7 +22,6 @@ docsvtest "j" "-e rcpt.csv -G ${BUD} ${CSVDATERANGE} -L 13,${BUD}" "Receipts"
 
 # FEB 2017  -  MAR 2017
 dorrtest "k" "${RRDATERANGE} -b ${BUD}" "ProcessRecurringAssessments"
-
 dorrtest "l" "${RRDATERANGE} -b ${BUD} -r 11" "GSR"
 dorrtest "m" "${RRDATERANGE} -b ${BUD} -r 1" "Journal"
 dorrtest "o" "${RRDATERANGE} -b ${BUD} -r 2" "Ledgers"

@@ -1,7 +1,7 @@
 /*global
     $, console, w2ui, w2uiDateControlString, app, plural, dateFmtStr,
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, w2confirm, form_dirty_alert,
-    delete_confirm_options, formRefreshCallBack, getFormSubmitData,
+    delete_confirm_options, formRefreshCallBack, getFormSubmitData, addDateNavToToolbar,
     ridRentablePickerRender,ridRentableDropRender,ridRentableCompare,tcidRUserPickerRender,
     tcidPickerDropRender, tcidPickerCompare, tcidRAPayorPickerRender, calcRarGridContractRent,
 */
@@ -346,6 +346,8 @@ function buildRAElements() {
             form_dirty_alert(yes_callBack, no_callBack, yes_args);
         },
     });
+    addDateNavToToolbar('rentalagrs');
+
 
     //------------------------------------------------------------------------
     //          Rental Agreement Details
@@ -687,7 +689,9 @@ function buildRAElements() {
         onDelete: function(/*event*/) {
             var sel = w2ui.rapGrid.getSelection(true); // get the record indeces rather than the recids
             w2ui.rapGrid.postData = {
+                RAPID: w2ui.rapGrid,
                 TCID: w2ui.rapGrid.records[sel[0]].TCID,
+                DtStart: w2ui.rapGrid.records[sel[0]].DtStart,
                 DtStop: w2ui.rapGrid.records[sel[0]].DtStop
             };
         }
