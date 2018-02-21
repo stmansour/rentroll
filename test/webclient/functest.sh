@@ -14,14 +14,13 @@ CREATENEWDB=0
 # DBNAME
 DBNAME="accord"
 
+# set config.json path of this current folder
+CONFIGPATH="$(pwd)"
+
 source ../share/base.sh
 
 # specific file that needs to be tested
 CYPRESS_SPEC="./cypress/integration/roller_spec.js"
-
-# HACK: move this temporary based config.json to package directory AS OF NOW, LATER revert it to original version
-mv ${TOP}/tmp/rentroll/config.json ${TOP}/tmp/rentroll/config.bak.json
-cp config.json ${TOP}/tmp/rentroll/config.json
 
 #--------------------------------------------------------------------
 #  Use custom dumped "rentroll" .sql file for the webclient UI tests
@@ -54,6 +53,3 @@ else
 fi
 
 # logcheck
-
-# HACK: move original version of config.json in release dir
-mv ${TOP}/tmp/rentroll/config.bak.json ${TOP}/tmp/rentroll/config.json

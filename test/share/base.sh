@@ -46,6 +46,12 @@ STOPPHONEBOOKCMD="./activate.sh stop"
 
 RENTROLLSERVERAUTH=""
 
+if [ "x${CONFIGPATH}" = "x" ]; then
+	RRCONFIGPATH=""
+else
+	RRCONFIGPATH="-conf ${CONFIGPATH}"
+fi
+
 if [ "x${NOCONSOLE}" = "x" ]; then
 	NOCONSOLE="-nocon"
 else
@@ -865,9 +871,9 @@ genericlogcheck() {
 startRentRollServer() {
 	if [ ${MANAGESERVER} -eq 1 ]; then
 		stopRentRollServer
-		cmd="${RRBIN}/rentroll -p ${RRPORT} ${RSD} > ${RRBIN}/rrlog 2>&1 &"
+		cmd="${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &"
 		echo "${cmd}"
-		${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} > ${RRBIN}/rrlog 2>&1 &
+		${RRBIN}/rentroll -p ${RRPORT} ${RSD} ${RENTROLLSERVERAUTH} ${RRCONFIGPATH} > ${RRBIN}/rrlog 2>&1 &
 		sleep 1
 	fi
 }
