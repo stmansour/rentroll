@@ -9,6 +9,7 @@ clean:
 	rm -f testreport.txt dbqqqmods.sql
 	for dir in $(DIRS); do make -C $$dir clean;done
 	cd ./testdb;make clean
+	cd ./importers/onesite/okc;make clean
 	@echo "*** CLEAN completed in test ***"
 
 test:

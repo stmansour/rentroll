@@ -215,8 +215,6 @@ func rrDoLoad(ctx context.Context, fname string, handler rcsv.CSVLoadHandlerFunc
 
 func main() {
 	readCommandLineArgs()
-	rlib.RRReadConfig()
-
 	var err error
 
 	//----------------------------
