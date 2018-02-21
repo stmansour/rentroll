@@ -45,7 +45,7 @@ func RRReadConfig(fPath ...string) error {
 	}
 
 	fname := path.Join(folderPath, "config.json")
-	Console("ReadConfig( %q ),  expath = %s, folderpath = %s\n", fname, expath, folderPath)
+	// Console("ReadConfig( %q ),  expath = %s, folderpath = %s\n", fname, expath, folderPath)
 	err = extres.ReadConfig(fname, &AppConfig)
 	if err != nil {
 		log.Fatal(err)
