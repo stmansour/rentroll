@@ -58,6 +58,7 @@ var App struct {
 	KeyFile      string   //private key file
 	//DBRR         string   // rentroll database
 	RootStaticDir string // root directory settings
+	ConfigPath    string // config path
 }
 
 // Chttp is a server mux for handling unprocessed html page requests.
@@ -81,6 +82,7 @@ func readCommandLineArgs() {
 	xPtr := flag.Bool("x", false, "if specified, inhibit vacancy checking")
 	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
 	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
+	confPtr := flag.String("conf", "", "override config.json directory path")
 	rsd := flag.String("rsd", "./", "Root Static Directory path") // it will pick static content from provided path, default will be current directory
 
 	flag.Parse()
@@ -110,6 +112,7 @@ func readCommandLineArgs() {
 	App.CSVLoad = *pLoad
 	App.RootStaticDir = *rsd
 	App.NoAuth = *noauth
+	App.ConfigPath = *confPtr
 }
 
 func intTest(ctx context.Context, xbiz *rlib.XBusiness, d1, d2 *time.Time) {
@@ -164,7 +167,8 @@ func main() {
 	//----------------------------
 	// Open RentRoll database
 	//----------------------------
-	if err = rlib.RRReadConfig(); err != nil {
+	// rlib.Console("Read config:  App.ConfigPath = %q\n", App.ConfigPath)
+	if err = rlib.RRReadConfig(App.ConfigPath); err != nil {
 		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}

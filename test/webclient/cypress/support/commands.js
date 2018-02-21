@@ -22,6 +22,7 @@ Cypress.Commands.add("login", function(){
 
     // read config.json file to get user, pass to get logged in
     cy.readFile("config.json").then((config) => {
+        console.log(config);
         // bundle user, pass and return it
         return {"user": config.Tester1Name, "pass": config.Tester1Pass};
     }).then((creds) => {
