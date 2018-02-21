@@ -64,6 +64,7 @@ declare -a dbs=(
 	'websvc1/asmtest.sql'
 	'payorstmt/pstmt.sql'
 	'rr/rr.sql'
+	'webclient/webclientTest.sql'
 )
 
 for f in "${dbs[@]}"
