@@ -49,7 +49,7 @@ RENTROLLSERVERAUTH=""
 if [ "x${CONFIGPATH}" = "x" ]; then
 	RRCONFIGPATH=""
 else
-	RRCONFIGPATH="-conf ${CONFIGPATH}"
+	RRCONFIGPATH="-confdir ${CONFIGPATH}"
 fi
 
 if [ "x${NOCONSOLE}" = "x" ]; then
