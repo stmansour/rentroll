@@ -1,5 +1,5 @@
 TOP = ./../..
-DBGENDIR = ${TOP}/tools/dbgen
+ACCORDDB=${TOP}/test/setup/accord.sql
 THISDIR="webclient"
 
 .PHONY: test
@@ -31,7 +31,7 @@ config.json:
 	@cp confdev.json config.json
 
 accord.sql:
-	@/usr/local/accord/bin/getfile.sh accord/webclient/accord.sql
+	@cp ${ACCORDDB} .
 
 package:
 	@echo "*** PACKAGE completed in test/webclient ***"
