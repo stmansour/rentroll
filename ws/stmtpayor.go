@@ -226,7 +226,7 @@ func SvcStatementPayor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// write response
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 type payorStmtEntry struct {
@@ -529,7 +529,7 @@ func getPayorStmt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	psdr.Total = int64(ctx.Total)
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&psdr, w)
+	SvcWriteResponse(d.BID, &psdr, w)
 }
 
 // safeAddPayorStmtEntry adds pse to psdr.Records provided the total count

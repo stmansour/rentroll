@@ -251,7 +251,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteDepository deletes a payment type from the database
@@ -281,7 +281,7 @@ func deleteDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetDepository returns the requested assessment
@@ -362,7 +362,7 @@ func saveDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetDepository returns the requested assessment
@@ -427,5 +427,5 @@ func getDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }

@@ -55,5 +55,5 @@ func SvcGetPayorStmInfo(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	rlib.Console("g.Record = %#v\n", g.Record)
 
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }

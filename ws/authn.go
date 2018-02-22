@@ -130,5 +130,5 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.DumpSessions()
 	// rlib.Console("Created session: %#v\n", s)
 	// rlib.Console("Created response: %#v\n", b)
-	SvcWriteResponse(&b, w)
+	SvcWriteResponse(d.BID, &b, w)
 }

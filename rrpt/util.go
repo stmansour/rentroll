@@ -162,7 +162,8 @@ func GetDisplayD2(ri *ReporterInfo) time.Time {
 	// Adjust d2 depending on the mode...  0 = no adjustment needed, 1 = inclusive last date, so subtract 1 day
 	// rlib.Console("*** GetDisplayD2:  ri.EDI = %d\n", ri.EDI)
 	d2 := ri.D2
-	if ri.EDI == 1 {
+
+	if rlib.EDIEnabledForBID(ri.Bid) {
 		d2 = d2.AddDate(0, 0, -1)
 	}
 	return d2

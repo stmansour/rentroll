@@ -111,7 +111,7 @@ func SvcRentableTypesTD(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	fmt.Printf("GetBusinessRentableTypes returned %d records\n", len(g.Records))
 	g.Total = int64(len(g.Records))
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcHandlerRentableType formats a complete data record for an assessment for use with the w2ui Form
@@ -310,7 +310,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // getRentableType returns the requested RentableType record
@@ -376,7 +376,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteRentableType deletes a RentableType from the database
@@ -405,7 +405,7 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // reactivateRentableType re-activates a RentableType from the database
@@ -435,7 +435,7 @@ func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // saveRentableType save the requested rentabletype with given data
@@ -506,7 +506,7 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	SvcWriteSuccessResponseWithID(w, a.RTID)
+	SvcWriteSuccessResponseWithID(d.BID, w, a.RTID)
 }
 
 // RentableMarketRateGridResponse holds the struct for grids response
@@ -684,7 +684,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // MarketRateGridSave is the input data format for a Save command
@@ -772,7 +772,7 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // MarketRateGridDelete is a struct used in delete request for market rates
@@ -806,5 +806,5 @@ func deleteRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Se
 			return
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

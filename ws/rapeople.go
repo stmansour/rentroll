@@ -160,5 +160,5 @@ func SvcGetRAPeople(ptype string, w http.ResponseWriter, r *http.Request, d *Ser
 	//------------------------------------------------------
 	gxp.Status = "success"
 	gxp.Total = int64(len(gxp.Records))
-	SvcWriteResponse(&gxp, w)
+	SvcWriteResponse(d.BID, &gxp, w)
 }

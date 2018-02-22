@@ -172,5 +172,5 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	// g.Record.PayorUnalloc = pa
 
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }

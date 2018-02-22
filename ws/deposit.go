@@ -269,7 +269,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 
 }
 
@@ -340,7 +340,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // DeleteDeposit returns the requested assessment
@@ -397,7 +397,7 @@ func deleteDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetDeposit returns the requested assessment
@@ -465,5 +465,5 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
