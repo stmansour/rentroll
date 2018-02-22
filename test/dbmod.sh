@@ -66,6 +66,7 @@ declare -a dbs=(
 	'rr/rr.sql'
 	'webclient/webclientTest.sql'
 	'roller/prodrr.sql'
+	'workerasm/rr.sql'
 )
 
 for f in "${dbs[@]}"
