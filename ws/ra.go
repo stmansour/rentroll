@@ -186,7 +186,7 @@ var rentalAgrQuerySelectFields = []string{
 	"RentalAgreement.LastModBy",
 	"RentalAgreement.CreateTS",
 	"RentalAgreement.CreateBy",
-	"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
+	"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END ORDER BY Transactant.TCID ASC SEPARATOR ', ') AS Payors",
 }
 
 // RentalAgreementTypedown is the struct of data needed for typedown when searching for a RentalAgreement
