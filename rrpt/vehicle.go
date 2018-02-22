@@ -73,6 +73,10 @@ func VehicleReportTable(ctx context.Context, bid int64) gotable.Table {
 		if m[i].TCID > 0 {
 			err = rlib.GetTransactant(ctx, m[i].TCID, &t)
 		}
+
+		// just before adding row to gotable, modify end date if applicable based app.dateMode
+		rlib.HandleInterfaceEDI(&m[i], bid)
+
 		tbl.AddRow()
 		tbl.Puts(-1, VID, m[i].IDtoString())
 		tbl.Puts(-1, Business, b.Designation)

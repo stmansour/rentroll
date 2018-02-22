@@ -88,6 +88,6 @@ func SvcLogoff(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	rlib.Console("Status response: %s\n", b.Status)
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 	rlib.Ulog("user %s logged off\n", d.sess.Username)
 }

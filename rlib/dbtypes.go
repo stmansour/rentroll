@@ -874,6 +874,7 @@ type Business struct {
 	DefaultRentCycle      int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	DefaultProrationCycle int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	DefaultGSRPC          int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	FLAGS                 int64     // FLAGS -- 0=EDI disabled, 1=EDI enabled
 	LastModTime           time.Time // when was this record last written
 	LastModBy             int64     // employee UID (from phonebook) that modified it
 	// ParkingPermitInUse    int64     // yes/no  0 = no, 1 = yes
@@ -1842,6 +1843,7 @@ type BusinessTypeLists struct {
 	GLAccounts   map[int64]GLAccount    // all the accounts for this business
 	AR           map[int64]AR           // Account Rules
 	NoteTypes    []NoteType             // all defined note types for this business
+	FLAGS        int64                  // FLAGS for a business
 }
 
 // RRdb is a struct with all variables needed by the db infrastructure
@@ -1910,6 +1912,7 @@ func InitBusinessFields(bid int64) {
 			DefaultAccts: make(map[int64]*GLAccount),
 			GLAccounts:   make(map[int64]GLAccount),
 			AR:           make(map[int64]AR),
+			FLAGS:        -1,
 		}
 		RRdb.BizTypes[bid] = &bt
 	}
@@ -1928,6 +1931,9 @@ func InitBizInternals(bid int64, xbiz *XBusiness) error {
 	}
 
 	InitBusinessFields(bid)
+
+	// Store flags info in cache
+	RRdb.BizTypes[bid].FLAGS = xbiz.P.FLAGS
 
 	// GetDefaultLedgers(bid) // Gather its chart of accounts
 	RRdb.BizTypes[bid].GLAccounts, err = getLedgerMap(bid)

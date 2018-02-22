@@ -58,6 +58,12 @@ func RentableMarketRates(ctx context.Context, xbiz *rlib.XBusiness, rid int64, d
 				if m[i].OverrideProrationCycle != 0 {
 					pcycle = m[i].OverrideProrationCycle
 				}
+
+				// handling of end date inclusion on d2 if applicable
+				if rlib.EDIEnabledForBID(xbiz.P.BID) {
+					dt2 = dt2.AddDate(0, 0, -1)
+				}
+
 				tbl.AddRow()
 				tbl.Putd(-1, 0, dt1)
 				tbl.Putd(-1, 1, dt2)

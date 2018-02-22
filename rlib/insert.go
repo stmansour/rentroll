@@ -219,7 +219,9 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.CreateBy, a.LastModBy}
+
+	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
+	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.FLAGS, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertBusiness)
 		defer stmt.Close()

@@ -209,7 +209,7 @@ func saveRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponseWithID(w, a.RARID) // send the new id back with the status message
+	SvcWriteSuccessResponseWithID(d.BID, w, a.RARID) // send the new id back with the status message
 }
 
 // SvcUpdateRARentable is called when a Rentable is updated from the RentableUserGrid in the RentalAgreementDialog
@@ -259,7 +259,7 @@ func SvcUpdateRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			}
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // deleteRARentable deletes a rentable from a rental agreement
@@ -292,7 +292,7 @@ func deleteRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetRARentables returns the Rentables associated with the RAID supplied
@@ -332,5 +332,5 @@ func GetRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	rar.Status = "success"
 	rar.Total = int64(len(m))
-	SvcWriteResponse(&rar, w)
+	SvcWriteResponse(d.BID, &rar, w)
 }
