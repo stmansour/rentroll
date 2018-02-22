@@ -3,7 +3,6 @@ package rlib
 import (
 	"context"
 	"extres"
-	"runtime/debug"
 )
 
 func updateError(err error, n string, a interface{}) error {
