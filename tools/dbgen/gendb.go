@@ -506,3 +506,8 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 	}
 	return nil
 }
+
+// CreateDeposits
+func CreateDeposits(ctx context.Context, dbConf *GenDBConf) error {
+
+}

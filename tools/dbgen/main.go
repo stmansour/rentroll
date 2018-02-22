@@ -33,7 +33,7 @@ func readCommandLineArgs() {
 	dbrrPtr := flag.String("M", "rentroll", "database name (rentroll)")
 	pBud := flag.String("b", "REX", "Business Unit Identifier (Bud)")
 	pFile := flag.String("f", "dbconf.json", "settings that define DB generation")
-	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
+	// noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
 
 	flag.Parse()
 
@@ -42,12 +42,13 @@ func readCommandLineArgs() {
 	App.DBUser = *dbuPtr
 	App.Bud = *pBud
 	App.ConfFileName = *pFile
-	App.NoAuth = *noauth
+	// App.NoAuth = *noauth
 }
 
 func main() {
 	var err error
 	readCommandLineArgs()
+	App.NoAuth = true // I cannot think of a scenario where we would ask for a login
 
 	//----------------------------------------------------------------
 	// Initialize the empty database. It should contain things like:
