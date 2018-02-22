@@ -323,11 +323,19 @@ elapsedtime() {
 }
 
 passmsg() {
-	printf "PASSED  %-20.20s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
+	t="${TESTNAME}"
+	if [ "x${1}" != "x" ]; then
+		t="${t} - ${1}"
+	fi
+	printf "PASSED  %-20.20s  %-40.40s  %6d  \n" "${TESTDIR}" "${t}" ${TESTCOUNT} >> ${TREPORT}
 }
 
 failmsg() {
-	printf "FAILED  %-20.20s  %-40.40s  %6d  \n" "${TESTDIR}" "${TESTNAME}" ${TESTCOUNT} >> ${TREPORT}
+	t="${TESTNAME}"
+	if [ "x${1}" != "x" ]; then
+		t="${t} - ${1}"
+	fi
+	printf "FAILED  %-20.20s  %-40.40s  %6d  \n" "${TESTDIR}" "${t}" ${TESTCOUNT} >> ${TREPORT}
 }
 
 forcemsg() {
@@ -842,14 +850,14 @@ genericlogcheck() {
 		UDIFFS=$(diff ${1} gold/${1}.gold | wc -l)
 		if [ ${UDIFFS} -eq 0 ]; then
 			echo "PASSED"
-			passmsg
+			passmsg "${3}"
 		else
 			echo "FAILED:  differences are as follows:" >> ${ERRFILE}
 			diff gold/${1}.gold ${1} >> ${ERRFILE}
 			echo >> ${ERRFILE}
 			echo "If the new output is correct:  mv ${1} ${GOLD}/${1}.gold" >> ${ERRFILE}
 			cat ${ERRFILE}
-			failmsg
+			failmsg "${3}"
 			if [ "${ASKBEFOREEXIT}" = "1" ]; then
 				pause ${1}
 			else
