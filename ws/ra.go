@@ -505,35 +505,46 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	//===============================================================
 
-	rlib.Console("Update complete:  RA.AgreementStop = %s\n", a.AgreementStop.Format(rlib.RRDATEREPORTFMT))
-
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 	// Now just update the database
 	if a.RAID > 0 {
-		rlib.Console("E: a.RAID > 0.  Calling bizlogic\n")
-		be := bizlogic.UpdateRentalAgreement(r.Context(), &a)
+		be := bizlogic.UpdateRentalAgreement(ctx, &a)
 		if be != nil {
+			tx.Rollback()
 			err = bizlogic.BizErrorListToError(be)
 			e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	} else {
-		rlib.Console("E: a.RAID == 0.  Calling rlib.insert\n")
-		_, err = rlib.InsertRentalAgreement(r.Context(), &a)
-		if err == nil {
-			var lm rlib.LedgerMarker
-			lm.Dt = a.AgreementStart
-			lm.RAID = a.RAID
-			lm.State = rlib.LMINITIAL
-			_, err = rlib.InsertLedgerMarker(r.Context(), &lm)
-			if err != nil {
-				e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
-				SvcErrorReturn(w, e, funcname)
-				return
-			}
+		_, err = rlib.InsertRentalAgreement(ctx, &a)
+		if err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		var lm rlib.LedgerMarker
+		lm.Dt = a.AgreementStart
+		lm.RAID = a.RAID
+		lm.State = rlib.LMINITIAL
+		_, err = rlib.InsertLedgerMarker(ctx, &lm)
+		if err != nil {
+			tx.Rollback()
+			e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
 		}
 	}
 
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 	SvcWriteSuccessResponseWithID(d.BID, w, a.RAID)
 }
 
