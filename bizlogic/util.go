@@ -40,3 +40,17 @@ func BizErrorListToError(errlist []BizError) error {
 	}
 	return fmt.Errorf("%s", errmsg)
 }
+
+// PrintBizErrorList prints the errors in errlist to stdout
+//
+// INPUTS
+//  errlist = array of BizError
+//
+// RETURNS
+//  nothing
+//-------------------------------------------------------------------------------------
+func PrintBizErrorList(e []BizError) {
+	for i := 0; i < len(e); i++ {
+		fmt.Printf("Error: %s\n", e[i].Message)
+	}
+}

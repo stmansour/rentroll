@@ -21,12 +21,13 @@ import (
 func InitEmptyDB() int {
 	// rlib.Console("Reading empty.sql\n")
 	cmdname := "mysql"
-	var args = []string{"--no-defaults"}
+	var args = []string{"--no-defaults", "rentroll"}
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
 		log.Fatal(err)
 	}
 	fname := folderPath + "/empty.sql"
+	// rlib.Console("empty db read from: %q\n", fname)
 	bytes, err := ioutil.ReadFile(fname)
 	if err != nil {
 		log.Fatal(err)

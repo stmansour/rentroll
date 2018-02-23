@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"time"
@@ -24,6 +25,7 @@ var handlers = []tableMaker{
 	{"Rental Agreements", createRentalAgreements},
 	{"Receipts", createReceipts},
 	{"ApplyReceipts", applyReceipts},
+	{"Deposits", CreateDeposits},
 }
 
 // GenerateDB is the RentRoll Database generator. It creates a
@@ -46,6 +48,7 @@ var handlers = []tableMaker{
 //
 //
 // INPUTS:
+//  ctx    - database ctx
 //  dbConf - conf; the configuration data
 //
 // RETURNS:
@@ -62,35 +65,42 @@ func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
 	if err != nil {
 		return err
 	}
-	if dbConf.ARIDrent == 0 {
-		ar, err = rlib.GetARByName(ctx, BID, "Rent Non-Taxable")
-		dbConf.ARIDrent = ar.ARID
-		if err != nil {
-			return err
-		}
+
+	// These are the account rules the program needs
+	var ars = []struct {
+		name string
+		ar   *int64
+	}{
+		{"Rent Non-Taxable", &dbConf.ARIDrent},
+		{"Security Deposit Assessment", &dbConf.ARIDsecdep},
+		{"Receive a Payment", &dbConf.ARIDCheckPayment},
 	}
-	if dbConf.ARIDsecdep == 0 {
-		ar, err = rlib.GetARByName(ctx, BID, "Security Deposit Assessment")
-		dbConf.ARIDsecdep = ar.ARID
+	//---------------------------------
+	// Load the account rules needed...
+	//---------------------------------
+	for i := 0; i < len(ars); i++ {
+		ar, err = rlib.GetARByName(ctx, BID, ars[i].name)
 		if err != nil {
-			return err
+			fmt.Printf("Error getting Account Rule %s: %s\n", ars[i].name, err.Error())
+			os.Exit(1)
 		}
-	}
-	if dbConf.ARIDCheckPayment == 0 {
-		ar, err = rlib.GetARByName(ctx, BID, "Receive a Payment")
-		dbConf.ARIDCheckPayment = ar.ARID
-		if err != nil {
-			return err
+		if ar.ARID == 0 {
+			fmt.Printf("err: account rule %q is missing\n", ars[i].name)
+			os.Exit(1)
 		}
+		*(ars[i].ar) = ar.ARID
 	}
+
 	if dbConf.OpDepository == 0 {
 		d, err := rlib.GetDepositoryByName(ctx, BID, dbConf.OpDepositoryName)
 		rlib.Errcheck(err)
 		if d.DEPID == 0 {
-			return fmt.Errorf("Could not find Depository named %q", dbConf.OpDepositoryName)
+			fmt.Printf("Creating Depository:  %s", dbConf.OpDepositoryName)
+			d = rlib.Depository{}
 		}
 		dbConf.OpDepository = d.DEPID
 	}
+
 	if dbConf.SecDepDepository == 0 {
 		d, err := rlib.GetDepositoryByName(ctx, BID, dbConf.SecDepDepositoryName)
 		rlib.Errcheck(err)
@@ -507,7 +517,76 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 	return nil
 }
 
-// CreateDeposits
+// CreateDeposits generates a deposits for the receipts
+//-----------------------------------------------------------------------------
 func CreateDeposits(ctx context.Context, dbConf *GenDBConf) error {
+	// rlib.Console("Entered: CreateDeposits\n")
+	var SecDeps = []int64{}
+	var OpDeps = []int64{}
+	bid := dbConf.BIZ[0].BID
+	qry := fmt.Sprintf("SELECT %s FROM Receipt WHERE BID=%d AND DID=0", rlib.RRdb.DBFields["Receipt"], bid)
+	// rlib.Console("query = %q\n", qry)
+	rows, err := rlib.RRdb.Dbrr.Query(qry)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	//------------------------------------------------------------------------
+	// Collect the payments, separate security deposits from other payments
+	//------------------------------------------------------------------------
+	SecDepAmt := float64(0)
+	OpDepAmt := float64(0)
+	for i := 0; rows.Next(); i++ {
+		var a rlib.Receipt
+		if err = rlib.ReadReceipts(rows, &a); err != nil {
+			return err
+		}
+		// rlib.Console("Receipt: %d  DEPID = %d\n", a.RCPTID, a.DEPID)
+		if a.DEPID == dbConf.OpDepository {
+			SecDeps = append(SecDeps, a.RCPTID)
+			SecDepAmt += a.Amount
+		} else {
+			OpDeps = append(OpDeps, a.RCPTID)
+			OpDepAmt += a.Amount
+		}
+	}
+	if rows.Err() != nil {
+		return rows.Err()
+	}
 
+	//----------------------
+	// make the deposits
+	//----------------------
+	if SecDepAmt > float64(0) {
+		var b = rlib.Deposit{
+			BID:    bid,
+			DEPID:  dbConf.SecDepDepository,
+			DPMID:  int64(1),
+			Dt:     dbConf.DtStart,
+			Amount: SecDepAmt,
+		}
+		// rlib.Console("Security Deposit amount = %8.2f\n", SecDepAmt)
+
+		if e := bizlogic.SaveDeposit(ctx, &b, SecDeps); len(e) > 0 {
+			bizlogic.PrintBizErrorList(e)
+			return bizlogic.BizErrorListToError(e)
+		}
+	}
+
+	if OpDepAmt > float64(0) {
+		var c = rlib.Deposit{
+			BID:    bid,
+			DEPID:  dbConf.OpDepository,
+			DPMID:  int64(1),
+			Dt:     dbConf.DtStart,
+			Amount: OpDepAmt,
+		}
+		// rlib.Console("Op amount = %8.2f\n", OpDepAmt)
+		if e := bizlogic.SaveDeposit(ctx, &c, OpDeps); len(e) > 0 {
+			bizlogic.PrintBizErrorList(e)
+			return bizlogic.BizErrorListToError(e)
+		}
+	}
+
+	return nil
 }

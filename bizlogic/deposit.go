@@ -137,7 +137,7 @@ func EnsureReceiptFundsToDepositoryAccount(ctx context.Context, r *rlib.Receipt,
 //	errlist - an array of errors
 //-----------------------------------------------------------------------
 func SaveDeposit(ctx context.Context, a *rlib.Deposit, newRcpts []int64) []BizError {
-	rlib.Console("SaveDeposit: 0\n")
+	// rlib.Console("SaveDeposit: 0\n")
 	var e []BizError
 	var rlist []rlib.Receipt
 	tot := float64(0)
@@ -152,7 +152,6 @@ func SaveDeposit(ctx context.Context, a *rlib.Deposit, newRcpts []int64) []BizEr
 			e = append(e, elist[0])
 			continue
 		}
-
 		tot += r.Amount
 		if r.DID != 0 && r.DID != a.DID {
 			s := fmt.Sprintf(BizErrors[ReceiptAlreadyDeposited].Message, rlib.IDtoShortString("RCPT", r.RCPTID), rlib.IDtoShortString("D", r.DID))
@@ -223,8 +222,8 @@ func SaveDeposit(ctx context.Context, a *rlib.Deposit, newRcpts []int64) []BizEr
 			}
 			debitLID := rlib.RRdb.BizTypes[a.BID].AR[rlist[i].ARID].DebitLID // find the receipt's Account Rule Debit LID
 
-			rlib.Console("debitLID = %d - AcctRule: %s\n", debitLID, rlib.RRdb.BizTypes[a.BID].AR[rlist[i].ARID].Name)
-			rlib.Console("Depostitory LID = %d\n", dep.LID)
+			// rlib.Console("debitLID = %d - AcctRule: %s\n", debitLID, rlib.RRdb.BizTypes[a.BID].AR[rlist[i].ARID].Name)
+			// rlib.Console("Depostitory LID = %d\n", dep.LID)
 
 			// compare to LID for the Depository
 			if debitLID != dep.LID { // if they're not the same, transfer to the appropriate account
