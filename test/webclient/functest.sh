@@ -25,6 +25,7 @@ CYPRESS_SPEC="./cypress/integration/roller_spec.js"
 #--------------------------------------------------------------------
 #  Use custom dumped "rentroll" .sql file for the webclient UI tests
 #--------------------------------------------------------------------
+
 echo "*** loading data from webclientTest.sql into rentroll db ***"
 mysql --no-defaults rentroll < webclientTest.sql
 if [[ $? == 0 ]]; then
