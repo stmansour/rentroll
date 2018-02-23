@@ -182,7 +182,7 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 	g.Status = "success"
 	g.Total = int64(len(g.Records))
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // allocatePayorFund allocates user fund to unpaid assessments
@@ -268,7 +268,7 @@ func allocatePayorFund(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // SvcHandlerGetUnpaidAsms generates a list of all unpaid assessments for a payor
@@ -317,7 +317,7 @@ func SvcHandlerGetUnpaidAsms(w http.ResponseWriter, r *http.Request, d *ServiceD
 
 	res.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&res, w)
+	SvcWriteResponse(d.BID, &res, w)
 }
 
 // SvcHandlerTotalUnallocFund generates a total unallocated fund for a payor from receipts
@@ -352,5 +352,5 @@ func SvcHandlerTotalUnallocFund(w http.ResponseWriter, r *http.Request, d *Servi
 
 	res.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&res, w)
+	SvcWriteResponse(d.BID, &res, w)
 }

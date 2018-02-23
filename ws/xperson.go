@@ -201,7 +201,7 @@ func SvcTransactantTypeDown(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		g.Records[i].Recid = int64(i)
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // fields list needs to be fetched for grid
@@ -380,7 +380,7 @@ func SvcSearchHandlerTransactants(w http.ResponseWriter, r *http.Request, d *Ser
 	// write response
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcFormHandlerXPerson formats a complete data record for a person suitable for use with the w2ui Form
@@ -578,7 +578,7 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // getXPerson handles the request for an XPerson from the Transactant Form
@@ -612,7 +612,7 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record.BID = d.BID
 	g.Record.BUD = getBUDFromBIDList(d.BID)
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteXPerson request to delete Person with TCID from database
@@ -662,5 +662,5 @@ func deleteXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

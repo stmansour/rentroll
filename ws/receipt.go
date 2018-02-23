@@ -280,7 +280,7 @@ func SvcSearchHandlerReceipts(w http.ResponseWriter, r *http.Request, d *Service
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcFormHandlerReceipt formats a complete data record for a person suitable for use with the w2ui Form
@@ -405,7 +405,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			if receiptOnlyUIUpdateAndReverse(&a, &rcpt, w, r, d) {
 				return
 			}
-			SvcWriteSuccessResponseWithID(w, a.RCPTID)
+			SvcWriteSuccessResponseWithID(d.BID, w, a.RCPTID)
 			return
 		}
 		now := time.Now() // this is the time we're making the change if a reversal needs to be done
@@ -417,7 +417,7 @@ func saveReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	SvcWriteSuccessResponseWithID(w, a.RCPTID)
+	SvcWriteSuccessResponseWithID(d.BID, w, a.RCPTID)
 }
 
 // GetReceipt returns the requested receipt
@@ -462,7 +462,7 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Record = gg
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteReceipt reverses the requested receipt and other linked records
@@ -535,7 +535,7 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // receiptOnlyUIReverse

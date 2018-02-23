@@ -294,8 +294,7 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
-
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteExpense deletes a payment type from the database
@@ -353,7 +352,7 @@ func deleteExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetExpense returns the requested assessment
@@ -420,7 +419,7 @@ func saveExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetExpense returns the requested assessment
@@ -461,5 +460,5 @@ func getExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Record = gg
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }

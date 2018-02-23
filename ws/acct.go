@@ -206,7 +206,7 @@ func SvcAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Records = glAccountList
 	g.Total = int64(len(g.Records))
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcParentAccountsList generates a list of all possible Parent Accounts with respect of business id specified by d.BID
@@ -253,7 +253,7 @@ func SvcParentAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	g.Records = glAccountList
 	g.Total = int64(len(g.Records))
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcPostAccountsList generates a list of all Accounts
@@ -301,7 +301,7 @@ func SvcPostAccountsList(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	g.Records = glAccountList
 	g.Total = int64(len(g.Records))
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcSearchHandlerGLAccounts generates a report of all GLAccounts for a the business unit
@@ -370,7 +370,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 
 	w.Header().Set("Content-Type", "application/json")
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // ============================================== //
@@ -542,7 +542,7 @@ func SvcSearchHandlerGLAccounts(w http.ResponseWriter, r *http.Request, d *Servi
 
 // 	g.Status = "success"
 // 	w.Header().Set("Content-Type", "application/json")
-// 	SvcWriteResponse(&g, w)
+// 	SvcWriteResponse(d.BID,&g, w)
 // }
 
 // ======================================================= //
@@ -702,7 +702,7 @@ func saveGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	SvcWriteSuccessResponseWithID(w, a.LID)
+	SvcWriteSuccessResponseWithID(d.BID, w, a.LID)
 }
 
 // which fields needs to be fetched for SQL query for receipts grid
@@ -793,7 +793,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteGLAccount request delete GLAccount from database
@@ -869,7 +869,7 @@ func deleteGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // SvcExportGLAccounts used to export glaccounts for a business in csv format
@@ -1139,5 +1139,5 @@ func SvcImportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	}
 
 	// if all passed then return success response
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

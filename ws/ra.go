@@ -186,7 +186,7 @@ var rentalAgrQuerySelectFields = []string{
 	"RentalAgreement.LastModBy",
 	"RentalAgreement.CreateTS",
 	"RentalAgreement.CreateBy",
-	"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END SEPARATOR ', ') AS Payors",
+	"GROUP_CONCAT(DISTINCT CASE WHEN Transactant.IsCompany > 0 THEN Transactant.CompanyName ELSE CONCAT(Transactant.FirstName, ' ', Transactant.LastName) END ORDER BY Transactant.TCID ASC SEPARATOR ', ') AS Payors",
 }
 
 // RentalAgreementTypedown is the struct of data needed for typedown when searching for a RentalAgreement
@@ -265,7 +265,7 @@ func SvcRentalAgreementTypeDown(w http.ResponseWriter, r *http.Request, d *Servi
 		g.Records[i].Recid = int64(i)
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // rentalAgrRowScan scans a result from sql row and dump it in a RentalAgr struct
@@ -403,7 +403,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 	// write response
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // SvcFormHandlerRentalAgreement formats a complete data record for a person suitable for use with the w2ui Form
@@ -505,36 +505,47 @@ func saveRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData)
 
 	//===============================================================
 
-	rlib.Console("Update complete:  RA.AgreementStop = %s\n", a.AgreementStop.Format(rlib.RRDATEREPORTFMT))
-
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 	// Now just update the database
 	if a.RAID > 0 {
-		rlib.Console("E: a.RAID > 0.  Calling bizlogic\n")
-		be := bizlogic.UpdateRentalAgreement(r.Context(), &a)
+		be := bizlogic.UpdateRentalAgreement(ctx, &a)
 		if be != nil {
+			tx.Rollback()
 			err = bizlogic.BizErrorListToError(be)
 			e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 	} else {
-		rlib.Console("E: a.RAID == 0.  Calling rlib.insert\n")
-		_, err = rlib.InsertRentalAgreement(r.Context(), &a)
-		if err == nil {
-			var lm rlib.LedgerMarker
-			lm.Dt = a.AgreementStart
-			lm.RAID = a.RAID
-			lm.State = rlib.LMINITIAL
-			_, err = rlib.InsertLedgerMarker(r.Context(), &lm)
-			if err != nil {
-				e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
-				SvcErrorReturn(w, e, funcname)
-				return
-			}
+		_, err = rlib.InsertRentalAgreement(ctx, &a)
+		if err != nil {
+			tx.Rollback()
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		var lm rlib.LedgerMarker
+		lm.Dt = a.AgreementStart
+		lm.RAID = a.RAID
+		lm.State = rlib.LMINITIAL
+		_, err = rlib.InsertLedgerMarker(ctx, &lm)
+		if err != nil {
+			tx.Rollback()
+			e := fmt.Errorf("Error saving Rental Agreement RAID = %d: %s", a.RAID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
 		}
 	}
 
-	SvcWriteSuccessResponseWithID(w, a.RAID)
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	SvcWriteSuccessResponseWithID(d.BID, w, a.RAID)
 }
 
 // https://play.golang.org/p/gfOhByMroo
@@ -570,7 +581,7 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		g.Record = gg
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // wsdoc {
@@ -647,5 +658,5 @@ func deleteRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

@@ -26,6 +26,10 @@ func RRreportRentalAgreementPets(ctx context.Context, ri *ReporterInfo) string {
 
 	s := fmt.Sprintf("%-11s  %-10s  %-25s  %-15s  %-15s  %-15s  %-9s  %-10s  %-10s\n", "PETID", "RAID", "Name", "Type", "Breed", "Color", "Weight", "DtStart", "DtStop")
 	for i := 0; i < len(m); i++ {
+
+		// just before printing out, modify end date for this struct if applicable
+		rlib.HandleInterfaceEDI(&m[i], ri.Bid)
+
 		switch ri.OutputFormat {
 		case gotable.TABLEOUTTEXT:
 			s += ReportRentalAgreementPetToText(&m[i])

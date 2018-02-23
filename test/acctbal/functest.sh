@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TESTNAME="RAID Account Balance and Expenses"
+TESTNAME="RA - AcctBal & Expenses"
 TESTSUMMARY="Test rentroll RA Acct Balance and Expenses"
 
 CREATENEWDB=0
@@ -12,7 +12,7 @@ source ../share/base.sh
 
 ./acctbal -noauth > z
 
-genericlogcheck "z"  ""  "AcctBal-Checks"
+genericlogcheck "z"  ""  "Validations"
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"

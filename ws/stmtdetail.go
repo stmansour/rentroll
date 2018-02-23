@@ -90,7 +90,7 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 		// SvcErrorReturn(w, e, funcname)
 		g.Total = 0
 		g.Status = "success"
-		SvcWriteResponse(&g, w)
+		SvcWriteResponse(sd.BID, &g, w)
 		return
 	}
 
@@ -202,6 +202,6 @@ func SvcStatementDetail(w http.ResponseWriter, r *http.Request, sd *ServiceData)
 	g.Status = "success"
 
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(sd.BID, &g, w)
 
 }

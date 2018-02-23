@@ -227,7 +227,7 @@ func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *S
 
 	g.Status = "success"
 	w.Header().Set("Content-Type", "application/json")
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 
 }
 
@@ -261,7 +261,7 @@ func deleteDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetDepositMethod returns the requested assessment
@@ -337,7 +337,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetDepositMethod returns the requested assessment
@@ -372,5 +372,5 @@ func getDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Record = gg
 	}
 	g.Status = "success"
-	SvcWriteResponse(&g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }

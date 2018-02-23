@@ -76,6 +76,9 @@ func RRreportSpecialtyAssigns(ctx context.Context, ri *ReporterInfo) string {
 			return err.Error()
 		}
 
+		// just before printing out dates, handle end date mode
+		rlib.HandleInterfaceEDI(&a, ri.Bid)
+
 		switch ri.OutputFormat {
 		case gotable.TABLEOUTTEXT:
 			s += fmt.Sprintf("B%08d  R%08d  %-30s  %10s  %10s\n",

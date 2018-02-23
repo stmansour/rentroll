@@ -106,7 +106,7 @@ func deleteRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 	return
 }
 
@@ -184,7 +184,7 @@ func saveRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	SvcWriteSuccessResponseWithID(w, a.RUID)
+	SvcWriteSuccessResponseWithID(d.BID, w, a.RUID)
 }
 
 // SvcUpdateRUser is called when a Rentable User is updated from the RentableUserGrid
@@ -228,5 +228,5 @@ func SvcUpdateRUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			}
 		}
 	}
-	SvcWriteSuccessResponse(w)
+	SvcWriteSuccessResponse(d.BID, w)
 }

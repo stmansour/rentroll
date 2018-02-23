@@ -3,7 +3,6 @@ package rlib
 import (
 	"context"
 	"extres"
-	"runtime/debug"
 )
 
 func updateError(err error, n string, a interface{}) error {
@@ -53,9 +52,6 @@ func UpdateAssessment(ctx context.Context, a *Assessment) error {
 		a.LastModBy = sess.UID
 	}
 
-	if a.ASMID == 69 {
-		debug.PrintStack()
-	}
 	a.Amount = Round(a.Amount, .5, 2)
 	fields := []interface{}{a.PASMID, a.RPASMID, a.AGRCPTID, a.BID, a.RID, a.ATypeLID, a.RAID, a.Amount, a.Start, a.Stop, a.RentCycle, a.ProrationCycle, a.InvoiceNo, a.AcctRule, a.ARID, a.FLAGS, a.Comment, a.LastModBy, a.ASMID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
@@ -82,7 +78,8 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.LastModBy, a.BID}
+	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
+	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.FLAGS, a.LastModBy, a.BID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateBusiness)
 		defer stmt.Close()

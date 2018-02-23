@@ -67,6 +67,10 @@ func RRreportRatePlanRefs(ctx context.Context, ri *ReporterInfo) string {
 		if err != nil {
 			return err.Error()
 		}
+
+		// just before printing out report, modify end date mode if applicable
+		rlib.HandleInterfaceEDI(&p, ri.Bid)
+
 		switch ri.OutputFormat {
 		case gotable.TABLEOUTTEXT:
 			s += fmt.Sprintf("%-15.15s  RPR%08d  %10s  %10s  %8d  %6d  %9.2f  %9.2f  %s\n",

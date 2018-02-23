@@ -87,7 +87,7 @@ func SvcResetPW(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	switch foo.Status {
 	case "success":
 		rlib.Console("ResetPW succeeded\n")
-		SvcWriteSuccessResponse(w)
+		SvcWriteSuccessResponse(d.BID, w)
 		return
 	case "error":
 		e := fmt.Errorf("%s", foo.Message)

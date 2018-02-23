@@ -48,6 +48,11 @@ func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.T
 	for _, k := range keys {
 		i := int64(k)
 		p := m[i]
+
+		// just before adding row to gotable, handle end date inclusion if applicable
+		// for market rates
+		rlib.HandleInterfaceEDI(&p, ri.Bid)
+
 		tbl.AddRow()
 		tbl.Puts(-1, 0, p.IDtoString())
 		tbl.Puts(-1, 1, p.Style)
