@@ -217,7 +217,7 @@ CREATE TABLE `Business` (
 
 LOCK TABLES `Business` WRITE;
 /*!40000 ALTER TABLE `Business` DISABLE KEYS */;
-INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,'2017-11-10 23:24:22',0,'2017-11-10 23:24:22',0,0);
+INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,'2018-02-24 03:52:39',0,'2017-11-10 23:24:22',0,1);
 /*!40000 ALTER TABLE `Business` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2087,7 +2087,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2018-02-25 00:00:00','Steves-MacBook-Pro-2.local',4,'2018-02-24 01:19:54','2018-02-24 01:19:54','2017-11-10 15:24:21','2018-02-23 17:19:53'),(2,'CleanRARBalanceCache','','CleanRARBalanceCache','2018-02-24 01:24:54','Steves-MacBook-Pro-2.local',4,'2018-02-24 01:19:54','2018-02-24 01:19:54','2018-02-23 17:19:43','2018-02-23 17:19:53'),(3,'CleanSecDepBalanceCache','','CleanSecDepBalanceCache','2018-02-24 01:24:54','Steves-MacBook-Pro-2.local',4,'2018-02-24 01:19:54','2018-02-24 01:19:54','2018-02-23 17:19:43','2018-02-23 17:19:53'),(4,'CleanAcctSliceCache','','CleanAcctSliceCache','2018-02-24 01:24:54','Steves-MacBook-Pro-2.local',4,'2018-02-24 01:19:54','2018-02-24 01:19:54','2018-02-23 17:19:43','2018-02-23 17:19:53'),(5,'CleanARSliceCache','','CleanARSliceCache','2018-02-24 01:24:54','Steves-MacBook-Pro-2.local',4,'2018-02-24 01:19:54','2018-02-24 01:19:54','2018-02-23 17:19:43','2018-02-23 17:19:53');
+INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2018-02-25 00:00:00','Steves-MacBook-Pro-2.local',4,'2018-02-24 01:19:54','2018-02-24 01:19:54','2017-11-10 15:24:21','2018-02-23 17:19:53'),(2,'CleanRARBalanceCache','','CleanRARBalanceCache','2018-02-24 03:57:19','Steves-MacBook-Pro-2.local',4,'2018-02-24 03:52:19','2018-02-24 03:52:19','2018-02-23 17:19:43','2018-02-23 19:52:19'),(3,'CleanSecDepBalanceCache','','CleanSecDepBalanceCache','2018-02-24 03:57:19','Steves-MacBook-Pro-2.local',4,'2018-02-24 03:52:19','2018-02-24 03:52:19','2018-02-23 17:19:43','2018-02-23 19:52:19'),(4,'CleanAcctSliceCache','','CleanAcctSliceCache','2018-02-24 03:57:19','Steves-MacBook-Pro-2.local',4,'2018-02-24 03:52:19','2018-02-24 03:52:19','2018-02-23 17:19:43','2018-02-23 19:52:19'),(5,'CleanARSliceCache','','CleanARSliceCache','2018-02-24 03:57:19','Steves-MacBook-Pro-2.local',4,'2018-02-24 03:52:19','2018-02-24 03:52:19','2018-02-23 17:19:43','2018-02-23 19:52:19');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2284,4 +2284,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-02-23 17:21:49
+-- Dump completed on 2018-02-23 19:52:48
