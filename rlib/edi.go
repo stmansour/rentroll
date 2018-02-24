@@ -6,18 +6,21 @@ import (
 	"time"
 )
 
-var exceptionalStructStopDateMap = map[string][]string{
-	"RentRollStaticInfo": []string{"RentStop", "AgreementStop", "PossessionStop"},
-	"RentalAgreement":    []string{"RentStop", "AgreementStop", "PossessionStop"},
-	"AssessmentGrid":     []string{"Stop"},
-	"PrRentableOther":    []string{"RentalAgreementStop"},
+// dateRangeFieldsMap contains map of stop to start date.
+// The logic needs to be ensure that end date modification will
+// not prior to start date by looking into this mapping for a end date.
+var dateRangeFieldsMap = map[string]string{
+	"DtStop":              "DtStart",              // the default one which exists in most struct
+	"AgreementStop":       "AgreementStart",       // RentalAgreement, Rentroll view
+	"PossessionStop":      "PossessionStart",      // RentalAgreement, Rentroll view
+	"RentStop":            "RentStart",            // RentalAgreement, Rentroll view
+	"RentalAgreementStop": "RentalAgreementStart", // Rentables{grid, form}
+	"Stop":                "Start",                // AsssessmentGrid
 }
 
 // DateMode are etc. all constants used for end date inclusion condition
 const (
-	// DateMode             = true
-	layout               = "01/02/2006"
-	defaultStopDateField = "DtStop"
+	layout = "01/02/2006"
 )
 
 // getField gets the i'th field of the struct value.
@@ -31,55 +34,71 @@ func getField(v reflect.Value, i int) reflect.Value {
 	return val
 }
 
-func modifyInterfaceEDI(elemStopDate reflect.Value) {
+// modifyInterfaceEDI will change elemStopDate field
+// if its valid and can set and falls in the list of
+// defined switch cases of types, related to time.Time type.
+func modifyInterfaceEDI(elemStopDate, elemStartDate reflect.Value) {
 
+	// this applies to only date ranges so make sure that both start and end date elements are valid
 	// if target field is being able to set then
-	if elemStopDate.IsValid() && elemStopDate.CanSet() {
+	if elemStartDate.IsValid() && elemStopDate.IsValid() && elemStopDate.CanSet() {
 
-		var dtStop time.Time
+		var dtStop, dtStart time.Time
 		switch elemStopDate.Type().String() { // type().string() gives the full path
 		case "rlib.JSONDate":
 			dtStop = (time.Time)(elemStopDate.Interface().(JSONDate))
+			dtStart = (time.Time)(elemStartDate.Interface().(JSONDate))
 		case "rlib.JSONDateTime":
 			dtStop = (time.Time)(elemStopDate.Interface().(JSONDateTime))
+			dtStart = (time.Time)(elemStartDate.Interface().(JSONDateTime))
 		case "rlib.NullDate":
 			// TODO(Sudip): what if it contains invalid date, i.e., valid flag = false?
 			nd := elemStopDate.Interface().(NullDate)
 			dtStop = nd.Time
+			ns := elemStartDate.Interface().(NullDate)
+			dtStart = ns.Time
 		/*case "rlib.NullDateTime":
 		// TODO(Sudip): what if it contains invalid date, i.e., valid flag = false?
 		nd := elemStopDate.Interface().(NullDateTime)
-		dtStop = nd.Time*/
+		dtStop = nd.Time
+		ns := elemStartDate.Interface().(NullDateTime)
+		dtStart = ns.Time*/
 		case "time.Time":
 			dtStop = elemStopDate.Interface().(time.Time)
+			dtStart = elemStartDate.Interface().(time.Time)
 		default: // TODO(Sudip): better handle situation here
-
 			return
 		}
 
 		// move one day back
-		dtStop = dtStop.AddDate(0, 0, -1)
+		modStopDate := dtStop.AddDate(0, 0, -1)
 
-		// TODO: make sure stopDate should not be prior to start date
-		//       Here it needs the proper map of start and stop dates
+		// TODO(Sudip): might want to consider some exceptional cases, confirm with Steve
+
+		// if `modStopDate` is not prior or equals to start date
+		// then only set the modified end dates value in its place
+		// otherwise just return, don't proceed further
+		if dtStart.After(modStopDate) || dtStart.Equal(modStopDate) {
+			return
+		}
 
 		// convert back from time.Time to original defined type
 		var v reflect.Value
 		switch elemStopDate.Type().String() {
 		case "rlib.JSONDate":
-			v = reflect.ValueOf((JSONDate)(dtStop))
+			v = reflect.ValueOf((JSONDate)(modStopDate))
 		case "rlib.JSONDateTime":
-			v = reflect.ValueOf((JSONDateTime)(dtStop))
+			v = reflect.ValueOf((JSONDateTime)(modStopDate))
 		case "rlib.NullDate":
 			nd := elemStopDate.Interface().(NullDate)
-			nd.Time = dtStop
+			nd.Time = modStopDate
 			v = reflect.ValueOf(nd)
 		/*case "rlib.NullDateTime":
 		nd := elemStopDate.Interface().(NullDateTime)
-		nd.Time = dtStop
+		nd.Time = modStopDate
 		v = reflect.ValueOf(nd)*/
 		default:
-			v = reflect.ValueOf(dtStop)
+			v = reflect.ValueOf(modStopDate)
 		}
 
 		// set packed modified end date reflect Value in original struct
@@ -100,21 +119,18 @@ func lookForInterfaceStopDate(value reflect.Value, depth int) {
 			modifyInterfaceEDI(value)
 		}*/
 
-		// get exceptional dates from the map if not found then take
-		// default one
-		exceptionalDates, ok := exceptionalStructStopDateMap[f.Type().Name()]
-		if !ok { // process on default field -> "DtStop"
-			exceptionalDates = append(exceptionalDates, defaultStopDateField)
-		}
-
 		// operate on list of end dates
-		for _, edFieldName := range exceptionalDates {
+		// dateRangeFieldMap <=> {endDate: startDate}
+		for edFieldName, sdFieldName := range dateRangeFieldsMap {
 
 			// get field from ed string
 			elemStopDate := f.FieldByName(edFieldName)
 
+			// get field from sd string
+			elemStartDate := f.FieldByName(sdFieldName)
+
 			// modify field stop date value
-			modifyInterfaceEDI(elemStopDate)
+			modifyInterfaceEDI(elemStopDate, elemStartDate)
 		}
 
 		// Now, target on any field, composed internal structs via different kind of
