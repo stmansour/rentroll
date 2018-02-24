@@ -75,13 +75,15 @@ getSchema "${DEF2}" "${REMOTE}"
 BADSCHCOUNT=0
 echo "SCHEMA DIFFS" > report.txt
 ls -l ${LOCAL} | awk '{print $9}' | while read f; do
-	UDIFFS=$(diff ${LOCAL}/${f} ${REMOTE}/${f} | wc -l)
-	if [ ${UDIFFS} -ne 0 ]; then
-		echo "TABLE ${f} has differences:" >> report.txt
-		diff ${LOCAL}/${f} ${REMOTE}/${f} >> report.txt
-		BADSCHCOUNT=$((BADSCHCOUNT + 1))
-		echo "Miscompare on TABLE ${f} = ${BADSCHCOUNT}"
-	fi
+    sort ${LOCAL}/${f} > x ; cp x ${LOCAL}/${f}
+    sort ${REMOTE}/${f} > y ; cp y ${LOCAL}/${f}
+    UDIFFS=$(diff x y | wc -l)
+    if [ ${UDIFFS} -ne 0 ]; then
+        echo "TABLE ${f} has differences:" >> report.txt
+        diff x y >> report.txt
+        BADSCHCOUNT=$((BADSCHCOUNT + 1))
+        echo "Miscompare on TABLE ${f} = ${BADSCHCOUNT}"
+    fi  
 done
 
 stop=$(date)
