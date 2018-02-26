@@ -412,7 +412,7 @@ CREATE TABLE OtherDeliverables (
     Name VARCHAR(256),                                        -- Description of the other deliverables. Ex: 2 Seaworld tickets
     Active SMALLINT NOT NULL DEFAULT 0,                       -- Flag: Is this list still active?  0 = not active, 1 = active
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
+    LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                       -- employee UID (from phonebook) that created this record
     PRIMARY KEY(ODID)
@@ -1341,13 +1341,13 @@ CREATE TABLE GLAccount (
 
 
 CREATE TABLE LedgerAudit (
-    LEID BIGINT NOT NULL DEFAULT 0,             -- what LEID was affected
-    BID BIGINT NOT NULL DEFAULT 0,              -- Business id
-    UID MEDIUMINT NOT NULL DEFAULT 0,           -- UID of person making the change
+    LEID BIGINT NOT NULL DEFAULT 0,                             -- what LEID was affected
+    BID BIGINT NOT NULL DEFAULT 0,                              -- Business id
+    UID MEDIUMINT NOT NULL DEFAULT 0,                           -- UID of person making the change
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                 -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                             -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
 );
 
 CREATE TABLE LedgerMarkerAudit (

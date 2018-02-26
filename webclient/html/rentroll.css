@@ -147,7 +147,7 @@ textarea.w2ui-input-focus {
 }
 
 #user_menu_container img {
-    width: 28px;
+    width: auto;
     height: 28px;
     margin-top: 1px;
     vertical-align: middle;
