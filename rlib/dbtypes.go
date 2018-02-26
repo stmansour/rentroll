@@ -1831,7 +1831,7 @@ func DeleteBusinessFromDB(ctx context.Context, BID int64) (int64, error) {
 			noRecs += x
 		}
 	}
-	RRdb.BUDlist = BuildBusinessDesignationMap()
+	RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap()
 	return noRecs, nil
 }
 
@@ -1843,7 +1843,15 @@ type BusinessTypeLists struct {
 	GLAccounts   map[int64]GLAccount    // all the accounts for this business
 	AR           map[int64]AR           // Account Rules
 	NoteTypes    []NoteType             // all defined note types for this business
-	FLAGS        int64                  // FLAGS for a business
+}
+
+// BusinessCache will be used for caching some common info
+// which are frequently accessed throughout the application
+// so it saves the db hit calls.
+type BusinessCache struct {
+	BID   int64
+	BUD   string
+	FLAGS int64
 }
 
 // RRdb is a struct with all variables needed by the db infrastructure
@@ -1853,7 +1861,8 @@ var RRdb struct {
 	Dbdir    *sql.DB                      // phonebook db
 	Dbrr     *sql.DB                      //rentroll db
 	BizTypes map[int64]*BusinessTypeLists // details about a business
-	BUDlist  Str2Int64Map                 //list of known business Designations
+	BizCache map[int64]BusinessCache      // map of BID to business cache struct
+	BUDlist  Str2Int64Map                 // list of known business Designations
 	DBFields map[string]string            // map of db table fields DBFields[tablename] = field list
 	Zone     *time.Location               // what timezone should the server use?
 	noAuth   bool                         // if enable that means auth is not required, (should be moved in some common app struct!)
@@ -1868,18 +1877,21 @@ func SetAuthFlag(noauth bool) {
 }
 
 // BuildBusinessDesignationMap builds a map of biz designations to BIDs
-func BuildBusinessDesignationMap() map[string]int64 {
+func BuildBusinessDesignationMap() (map[string]int64, map[int64]BusinessCache) {
 	// Console("Entered BuildBusinessDesignationMap\n")
 	var sl = map[string]int64{}
+	var bc = make(map[int64]BusinessCache)
+
 	bl, err := GetAllBiz()
 	if err != nil {
 		Ulog("GetAllBusinesses: err = %s\n", err.Error())
 	}
 	for i := 0; i < len(bl); i++ {
 		sl[bl[i].Designation] = bl[i].BID
+		bc[bl[i].BID] = BusinessCache{BID: bl[i].BID, BUD: bl[i].Designation, FLAGS: bl[i].FLAGS}
 		// Console("bizlist[%s]=%d\n", bl[i].Designation, bl[i].BID)
 	}
-	return sl
+	return sl, bc
 }
 
 // InitDBHelpers initializes the db infrastructure
@@ -1892,7 +1904,7 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	buildPBPreparedStatements()
 	InitCaches()
 
-	RRdb.BUDlist = BuildBusinessDesignationMap()
+	RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap()
 
 	for i := 0; i < len(QBAcctInfo); i++ {
 		QBAcctType = append(QBAcctType, QBAcctInfo[i].Name)
@@ -1912,7 +1924,6 @@ func InitBusinessFields(bid int64) {
 			DefaultAccts: make(map[int64]*GLAccount),
 			GLAccounts:   make(map[int64]GLAccount),
 			AR:           make(map[int64]AR),
-			FLAGS:        -1,
 		}
 		RRdb.BizTypes[bid] = &bt
 	}
@@ -1931,9 +1942,6 @@ func InitBizInternals(bid int64, xbiz *XBusiness) error {
 	}
 
 	InitBusinessFields(bid)
-
-	// Store flags info in cache
-	RRdb.BizTypes[bid].FLAGS = xbiz.P.FLAGS
 
 	// GetDefaultLedgers(bid) // Gather its chart of accounts
 	RRdb.BizTypes[bid].GLAccounts, err = getLedgerMap(bid)

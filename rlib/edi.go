@@ -179,15 +179,12 @@ func lookForInterfaceStopDate(value reflect.Value, depth int) {
 // EDIEnabledForBID checks whether EDI for business with BID is enabled or not
 func EDIEnabledForBID(BID int64) bool {
 	var ediEnabled bool
-	// TODO(Sudip): it should coming from cache, not by hitting db everytime
-	// if b, ok := RRdb.BizTypes[BID]; ok {
-	// 	ediEnabled = b.FLAGS&1 > 0 // see if bit 1 is set or not
-	// }
-	var xbiz XBusiness
-	err := GetXBiz(BID, &xbiz)
-	if err == nil {
-		ediEnabled = xbiz.P.FLAGS&1 > 0
+
+	// look, if FLAGS is set or not
+	if bizCache, ok := RRdb.BizCache[BID]; ok {
+		ediEnabled = bizCache.FLAGS&1 > 0
 	}
+
 	return ediEnabled
 }
 
