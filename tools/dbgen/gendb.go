@@ -126,22 +126,36 @@ func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
 	return nil
 }
 
-func randomPhoneNumber() string {
-	return fmt.Sprintf("(%d) %3d-%04d", 100+rand.Intn(899), 100+rand.Intn(899), rand.Intn(9999))
-}
-
 // createTransactants
 //-----------------------------------------------------------------------------
 func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 	for i := 0; i < dbConf.PeopleCount; i++ {
 		var t rlib.Transactant
 		t.BID = dbConf.BIZ[0].BID
-		t.FirstName = fmt.Sprintf("John%04d", i)
-		t.MiddleName = "Q"
-		t.LastName = fmt.Sprintf("Doe%04d", i)
-		t.PreferredName = fmt.Sprintf("J%04d", i)
-		t.CellPhone = randomPhoneNumber()
-		t.PrimaryEmail = fmt.Sprintf("jdoe%04d@example.com", i)
+		if dbConf.RandNames {
+			t.FirstName = GenerateRandomFirstName()
+			t.MiddleName = GenerateRandomFirstName()
+			t.LastName = GenerateRandomLastName()
+			t.PreferredName = GenerateRandomFirstName()
+			t.CellPhone = GenerateRandomPhoneNumber()
+		} else {
+			t.FirstName = fmt.Sprintf("John%04d", i)
+			t.MiddleName = "Q"
+			t.LastName = fmt.Sprintf("Doe%04d", i)
+			t.PreferredName = fmt.Sprintf("J%04d", i)
+			t.CellPhone = GenerateRandomPhoneNumber()
+		}
+
+		t.Address = GenerateRandomAddress()
+		t.City = GenerateRandomCity()
+		t.State = GenerateRandomState()
+		t.Country = "USA"
+		t.PostalCode = fmt.Sprintf("%05d", rand.Intn(100000))
+		t.PrimaryEmail = GenerateRandomEmail(t.LastName, t.FirstName)
+		t.SecondaryEmail = GenerateRandomEmail(t.LastName, t.FirstName)
+		t.CompanyName = GenerateRandomCompany()
+		t.WorkPhone = GenerateRandomPhoneNumber()
+
 		_, err := rlib.InsertTransactant(ctx, &t)
 		if err != nil {
 			return err
@@ -238,6 +252,9 @@ func createReceipts(ctx context.Context, dbConf *GenDBConf) error {
 	}
 	defer rows.Close()
 	for i := 0; rows.Next(); i++ {
+		if dbConf.Randomize && dbConf.RRand.Intn(100) < dbConf.RandMissPayment {
+			continue // some randomness - a missed payment
+		}
 		var a rlib.Assessment
 		err = rlib.ReadAssessments(rows, &a)
 		if err != nil {
@@ -311,6 +328,9 @@ func applyReceipts(ctx context.Context, dbConf *GenDBConf) error {
 
 	// rlib.Console("Payors with unallocated receipts:\n")
 	for k := range u {
+		if dbConf.Randomize && dbConf.RRand.Intn(100) < dbConf.RandMissApply {
+			continue // some randomness - don't apply this payment
+		}
 		// rlib.Console("Payor with TCID=%d has %d unallocated receipts\n", k, v)
 		dt := dbConf.DtStart
 		bizlogic.AutoAllocatePayorReceipts(ctx, k, &dt)

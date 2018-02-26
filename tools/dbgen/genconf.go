@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"rentroll/rlib"
 	"time"
@@ -21,27 +22,35 @@ type RType struct {
 // Rent Assessments are created based on the Market Rate by default. A future update
 // may enable varying Contract Rent amounts.
 type GenDBConf struct {
-	DtStart              time.Time // default start time for all start time attributes
-	DtStop               time.Time // default stop time for all stop time attributes
-	PeopleCount          int       // defines the number of Transactants
-	RACount              int       // defines the number of Rental Agreements to create
-	RT                   []RType   // defines the rentable types and the count of Rentables
-	DtBOT                time.Time // Beginning of Time
-	DtEOT                time.Time // End of Time
-	BIZ                  []rlib.Business
-	ARIDrent             int64
-	ARIDsecdep           int64
-	ARIDCheckPayment     int64
-	PTypeCheck           int64  // pmtid for checks
-	PTypeCheckName       string // name of pmtid for checks
-	OpDepository         int64  // the operational bank depository
-	SecDepDepository     int64  // the security deposit depository
-	OpDepositoryName     string // the operational bank depository
-	SecDepDepositoryName string // the security deposit depository
-	xbiz                 rlib.XBusiness
+	DtStart              time.Time       // default start time for all start time attributes
+	DtStop               time.Time       // default stop time for all stop time attributes
+	PeopleCount          int             // defines the number of Transactants
+	RACount              int             // defines the number of Rental Agreements to create
+	RT                   []RType         // defines the rentable types and the count of Rentables
+	DtBOT                time.Time       // Beginning of Time
+	DtEOT                time.Time       // End of Time
+	BIZ                  []rlib.Business // all businesses in db
+	ARIDrent             int64           // Acct Rule for rent assessments
+	ARIDsecdep           int64           // Acct rule for security deposit assessments
+	ARIDCheckPayment     int64           // Acct Rule to use for check payments
+	PTypeCheck           int64           // pmtid for checks
+	PTypeCheckName       string          // name of pmtid for checks
+	OpDepository         int64           // the operational bank depository
+	SecDepDepository     int64           // the security deposit depository
+	OpDepositoryName     string          // the operational bank depository
+	SecDepDepositoryName string          // the security deposit depository
+	xbiz                 rlib.XBusiness  // business we're working on
+	Randomize            bool            // if true skip payments and allocation by percentages below
+	RandMissPayment      int             // if Randomize is true, skip payments on this percent (0-99)
+	RandMissApply        int             // if Randomize is true, skip payment application on this percent (0-99)
+	RSeed                int64           // to reproduce the same database
+	RSource              rand.Source     // for creating random numbers
+	RRand                *rand.Rand      // our base for generating random numbers
+	RandNames            bool            // if true create random names instead of predictables names
 }
 
-// GenDBRead is the preliminary loading point for db generation preferences.
+// GenDBRead is struct that gets loaded from the -f json file specified when
+// the program starts.  The data is transferred to a GenDBConf structure
 type GenDBRead struct {
 	DtStart              string  `json:"DtStart"`              // default start time for all start time attributes
 	DtStop               string  `json:"DtStop"`               // default stop time for all stop time attributes
@@ -49,6 +58,11 @@ type GenDBRead struct {
 	RACount              int     `json:"RACount"`              // defines the number of Rental Agreements to create
 	OpDepositoryName     string  `json:"OpDepositoryName"`     // the operational bank depository
 	SecDepDepositoryName string  `json:"SecDepDepositoryName"` // the security deposit depository
+	RSeed                int64   `json:"RSeed"`                // if specified it will seed the random number generator
+	Randomize            int     `json:"Randomize"`            // if non-zero then skip payments and allocation by percentages below
+	RandNames            int     `json:"RandNames"`            // if non-zero then create real names rather than numeric predictable names
+	RandMissPayment      int     `json:"RandMissPayment"`      // if Randomize is true, skip payments on this percent (0-99)
+	RandMissApply        int     `json:"RandMissApply"`        // if Randomize is true, skip payment application on this percent (0-99)
 	PTypeCheckName       string  // name of pmtid for checks
 	RT                   []RType `json:"RT"` // defines the rentable types and the count of Rentables
 }
@@ -70,6 +84,11 @@ func ReadConfig(fname string) (GenDBConf, error) {
 		return b, err
 	}
 	err = json.Unmarshal(content, &a)
+	if err != nil {
+		fmt.Printf("Error unmarshaling json file: %s\n", err.Error())
+		os.Exit(1)
+	}
+	// rlib.Console("after unmarshal, a = %#v\n", a)
 	b.RT = a.RT
 	b.PeopleCount = a.PeopleCount
 	b.RACount = a.RACount
@@ -86,8 +105,24 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	b.OpDepositoryName = a.OpDepositoryName
 	b.SecDepDepositoryName = a.SecDepDepositoryName
 	b.PTypeCheckName = a.PTypeCheckName
+	b.Randomize = a.Randomize != 0
+	b.RandNames = a.RandNames != 0
+	if b.Randomize {
+		b.RSeed = a.RSeed
+		b.RandMissApply = a.RandMissApply
+		b.RandMissPayment = a.RandMissPayment
+		rlib.Console("*** Randomize is in effect ***\n")
+		rlib.Console("Seed = %d, MissPayments = %d%%, MissApply = %d%%\n", b.RSeed, b.RandMissPayment, b.RandMissApply)
+	}
 
 	rlib.Console("DtStart = %s, DtStop = %s\n", b.DtStart.Format(rlib.RRDATEFMT4), b.DtStop.Format(rlib.RRDATEFMT4))
+
+	if a.RSeed == int64(0) {
+		a.RSeed = time.Now().UnixNano()
+	}
+	b.RSource = rand.NewSource(a.RSeed)
+	b.RSeed = a.RSeed
+	b.RRand = rand.New(b.RSource)
 
 	return b, nil
 }

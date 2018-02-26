@@ -76,7 +76,7 @@ BADSCHCOUNT=0
 echo "SCHEMA DIFFS" > report.txt
 ls -l ${LOCAL} | awk '{print $9}' | while read f; do
     sort ${LOCAL}/${f} > x ; cp x ${LOCAL}/${f}
-    sort ${REMOTE}/${f} > y ; cp y ${LOCAL}/${f}
+    sort ${REMOTE}/${f} > y ; cp y ${REMOTE}/${f}
     UDIFFS=$(diff x y | wc -l)
     if [ ${UDIFFS} -ne 0 ]; then
         echo "TABLE ${f} has differences:" >> report.txt

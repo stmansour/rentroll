@@ -7,7 +7,7 @@ schcmp:
 	@echo "*** Completed in ${THIS} ***"
 
 clean:
-	rm -rf t cmds *1 def*.sh u local remote *.json v report.txt
+	rm -rf t cmds *1 def*.sh u local remote *.json v report.txt x y
 	@echo "*** CLEAN completed in ${THIS} ***"
 
 config.json:
