@@ -45,8 +45,6 @@ type RentalAgr struct {
 	ExclusiveUses          string            // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
 	ExtensionOption        string            // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
 	ExtensionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
-	ExpansionOption        string            // the right to expand to certanin spaces that are typically contiguous to their primary space
-	ExpansionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
 	LastModTime            rlib.JSONDateTime // when was this record last written
 	LastModBy              int64             // employee UID (from phonebook) that modified it
@@ -84,8 +82,6 @@ type RentalAgrForm struct {
 	NextRateChange         rlib.JSONDate     // he next date on which a RateChange will occur
 	PermittedUses          string            // indicates primary use of the space, ex: doctor's office, or warehouse/distribution, etc.
 	ExclusiveUses          string            // those uses to which the tenant has the exclusive rights within a complex, ex: Trader Joe's may have the exclusive right to sell groceries
-	ExtensionOption        string            // the right to extend the term of lease by giving notice to LL, ex: 2 options to extend for 5 years each
-	ExtensionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an extension option period
 	ExpansionOption        string            // the right to expand to certanin spaces that are typically contiguous to their primary space
 	ExpansionOptionNotice  rlib.JSONDate     // the last date by which a Tenant can give notice of their intention to exercise the right to an Expansion Option
 	RightOfFirstRefusal    string            // Tenant may have the right to purchase their premises if LL chooses to sell
