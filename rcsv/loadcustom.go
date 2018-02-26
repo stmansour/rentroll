@@ -89,8 +89,10 @@ func CreateCustomAttributes(ctx context.Context, sa []string, lineno int) (int, 
 		}
 	}
 
-	// TODO(Steve): ignore error?
-	dup, _ := rlib.GetCustomAttributeByVals(ctx, c.Type, c.Name, c.Value, c.Units)
+	dup, err := rlib.GetCustomAttributeByVals(ctx, c.Type, c.Name, c.Value, c.Units)
+	if err != nil {
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - error checking for duplicate Custom Attributes: %s", funcname, lineno, err.Error())
+	}
 	if dup.CID > 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s:: skipping this because a custom attribute with Type = %d, Name = %s, Value = %s, Units = %s already exists", funcname, lineno, DupCustomAttribute, c.Type, c.Name, c.Value, c.Units)
 	}

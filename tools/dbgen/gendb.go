@@ -170,7 +170,7 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 	var err error
 	for i := 0; i < len(dbConf.RT); i++ {
 		var rt rlib.RentableType
-		rt.BID = 1
+		rt.BID = dbConf.BIZ[0].BID
 		rt.Style = fmt.Sprintf("ST%03d", i)
 		rt.Name = fmt.Sprintf("RType%03d", i)
 		rt.RentCycle = dbConf.RT[i].RentCycle
@@ -194,6 +194,30 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 
 		if err = createRentables(ctx, dbConf, &dbConf.RT[i], &mr, rt.RTID); err != nil {
 			return err
+		}
+
+		if dbConf.RT[i].SQFT > 0 {
+			// rlib.Console("Found custom attribute SQFT = %d\n", dbConf.RT[i].SQFT)
+			var c rlib.CustomAttribute
+			c.BID = rt.BID
+			c.Name = "Square Feet"
+			c.Type = rlib.CUSTINT
+			c.Units = "sqft"
+			c.Value = fmt.Sprintf("%d", dbConf.RT[i].SQFT)
+			_, err = rlib.InsertCustomAttribute(ctx, &c)
+			if err != nil {
+				return err
+			}
+
+			var cr rlib.CustomAttributeRef
+			cr.BID = rt.BID                        // this business
+			cr.ElementType = rlib.ELEMRENTABLETYPE // the id is that of a RentableType
+			cr.ID = rt.RTID                        // this is the RTID
+			cr.CID = c.CID                         // this is the associated custom attribute
+			_, err = rlib.InsertCustomAttributeRef(ctx, &cr)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

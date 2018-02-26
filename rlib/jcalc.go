@@ -337,7 +337,7 @@ func CalculateLoadedGSR(ctx context.Context, rBID, rRID int64, d1, d2 *time.Time
 	var err error
 	gsr := float64(0) // total rent, to update on each pass through the loop below
 
-	// Console("%s, rRID = %d, d1 = %s, d2 = %s\n", funcname, rRID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
+	// Console("Entered %s: rRID = %d, d1 = %s, d2 = %s\n", funcname, rRID, d1.Format(RRDATEINPFMT), d2.Format(RRDATEINPFMT))
 
 	rta, err := GetRentableTypeRefsByRange(ctx, rRID, d1, d2) // get the list
 	if err != nil {

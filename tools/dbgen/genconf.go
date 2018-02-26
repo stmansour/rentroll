@@ -16,6 +16,7 @@ type RType struct {
 	MarketRate   float64 // amount to charge for rent
 	RentCycle    int64   // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
 	ProrateCycle int64   // just like RentCycle
+	SQFT         int64   // square feed for this rentable
 }
 
 // GenDBConf provides attribute information for what is created in the database

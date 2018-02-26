@@ -703,8 +703,9 @@ func rentrollMapGapHandler(ctx context.Context, BID int64, startDt, stopDt time.
 //  any error encountered or nil if no error occurred
 //-----------------------------------------------------------------------------
 func rentrollMapGSRHandler(ctx context.Context, BID int64, startDt, stopDt time.Time, m *map[int64][]RentRollStaticInfo, xbiz *XBusiness) error {
-	for k, v := range *m { // for every component
 
+	// Console("Entered rentrollMapGSRHandler: startDt = %s, stopDt = %s\n", startDt.Format(RRDATEREPORTFMT), stopDt.Format(RRDATEREPORTFMT))
+	for k, v := range *m { // for every component
 		var gsrAmt float64
 		raid := int64(-1)
 		for i := 0; i < len(v); i++ {
