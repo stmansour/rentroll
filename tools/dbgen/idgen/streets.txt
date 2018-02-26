@@ -1,0 +1,115 @@
+10th
+11th
+12th
+13th
+1st
+2nd
+3rd
+4th
+5th
+6th
+7th
+8th
+9th
+A
+Airport
+Aloha
+Apache
+Aspen
+Bay
+Birch
+Broadway
+Canyon
+Cedar
+Center
+Cherry
+Church
+Columbine
+Cottonwood
+County Line
+Cypress
+Delaware
+Dogwood
+Eighth
+Eleventh
+Elm
+Evergreen
+Fifth
+First
+Fourth
+Hampton
+Hemlock
+Hickory
+Highland
+Hill
+Hillside
+Holly
+Jackson
+Johnson
+Juniper
+Kahili
+Kansas
+Kukui
+Lake
+Lakeview
+Laurel
+Lee
+Lehua
+Lincoln
+Magnolia
+Main
+Malulani
+Maple
+Meadow
+Mesquite
+Mountain View
+N 400
+Narragansett
+Navajo
+New Hampshire
+New Jersey
+New Mexico
+New York
+Ninth
+North
+North Carolina
+North Dakota
+Oak
+Orchard
+Palo Verde
+Park
+Pecan
+Pine
+Pinon
+Pioneer
+Pleasant
+Quail
+Redwood
+Rhode Island
+Ridge
+River
+S 100
+S 400
+Second
+Seventh
+Shore
+Sixth
+Smith
+South Carolina
+South Dakota
+Spruce
+Sunset
+Sycamore
+Tenth
+Third
+Thirteenth
+Twelfth
+Walnut
+Washington
+West
+West Virginia
+Williams
+Willow
+Wilson
+Wood
+Zoo

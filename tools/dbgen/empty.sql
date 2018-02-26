@@ -2087,7 +2087,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2018-02-25 00:00:00','Steves-MacBook-Pro-2.local',4,'2018-02-24 01:19:54','2018-02-24 01:19:54','2017-11-10 15:24:21','2018-02-23 17:19:53'),(2,'CleanRARBalanceCache','','CleanRARBalanceCache','2018-02-24 03:57:19','Steves-MacBook-Pro-2.local',4,'2018-02-24 03:52:19','2018-02-24 03:52:19','2018-02-23 17:19:43','2018-02-23 19:52:19'),(3,'CleanSecDepBalanceCache','','CleanSecDepBalanceCache','2018-02-24 03:57:19','Steves-MacBook-Pro-2.local',4,'2018-02-24 03:52:19','2018-02-24 03:52:19','2018-02-23 17:19:43','2018-02-23 19:52:19'),(4,'CleanAcctSliceCache','','CleanAcctSliceCache','2018-02-24 03:57:19','Steves-MacBook-Pro-2.local',4,'2018-02-24 03:52:19','2018-02-24 03:52:19','2018-02-23 17:19:43','2018-02-23 19:52:19'),(5,'CleanARSliceCache','','CleanARSliceCache','2018-02-24 03:57:19','Steves-MacBook-Pro-2.local',4,'2018-02-24 03:52:19','2018-02-24 03:52:19','2018-02-23 17:19:43','2018-02-23 19:52:19');
+INSERT INTO `TWS` VALUES (1,'CreateAssessmentInstances','','CreateAssessmentInstances','2018-02-25 00:00:00','Steves-MacBook-Pro-2.local',4,'2018-02-24 01:19:54','2018-02-24 01:19:54','2017-11-10 15:24:21','2018-02-23 17:19:53'),(2,'CleanRARBalanceCache','','CleanRARBalanceCache','2018-02-24 05:09:45','Steves-MacBook-Pro-2.local',4,'2018-02-24 05:04:45','2018-02-24 05:04:45','2018-02-23 17:19:43','2018-02-23 21:04:45'),(3,'CleanSecDepBalanceCache','','CleanSecDepBalanceCache','2018-02-24 05:09:45','Steves-MacBook-Pro-2.local',4,'2018-02-24 05:04:45','2018-02-24 05:04:45','2018-02-23 17:19:43','2018-02-23 21:04:45'),(4,'CleanAcctSliceCache','','CleanAcctSliceCache','2018-02-24 05:09:45','Steves-MacBook-Pro-2.local',4,'2018-02-24 05:04:45','2018-02-24 05:04:45','2018-02-23 17:19:43','2018-02-23 21:04:45'),(5,'CleanARSliceCache','','CleanARSliceCache','2018-02-24 05:09:45','Steves-MacBook-Pro-2.local',4,'2018-02-24 05:04:45','2018-02-24 05:04:45','2018-02-23 17:19:43','2018-02-23 21:04:45');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2284,4 +2284,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-02-23 19:52:48
+-- Dump completed on 2018-02-23 21:05:14

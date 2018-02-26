@@ -8,7 +8,7 @@ dbgen: *.go config.json
 	@${COUNTOL} "go vet"
 	@${COUNTOL} golint
 	go build
-	if [ ! -f "bizerr.csv" ]; then ln -s ../../bizlogic/bizerr.csv; fi
+	@if [ ! -f "bizerr.csv" ]; then ln -s ../../bizlogic/bizerr.csv; fi
 	@rm -f fail
 	@echo "*** Completed in ${THIS} ***"
 

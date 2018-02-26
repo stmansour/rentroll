@@ -104,6 +104,7 @@ func main() {
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	rlib.SetAuthFlag(App.NoAuth)
+	IGInit()
 
 	// create background context
 	ctx := context.Background()
