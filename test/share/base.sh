@@ -1335,6 +1335,23 @@ function createDB() {
 	fi
 }
 
+#############################################################################
+# Load phonebook directory database from test/setup/accord.sql
+#############################################################################
+function loadPhoneBookDB() {
+	echo -n "loading phonebook test/setup/accord.sql in ${DBNAME}" >> ${LOGFILE} 2>&1
+	mysql ${DBNAME} < ./../setup/accord.sql
+	if [ $? -eq 0 ]; then
+		echo " successful" >> ${LOGFILE} 2>&1
+	else
+		echo " ERROR" >> ${LOGFILE} 2>&1
+		echo "Failed to load phonebook db from test/setup/accord.sql in ${DBNAME}" > ${ERRFILE}
+		cat ${ERRFILE}
+		failmsg
+		exit 1
+	fi
+}
+
 #--------------------------------------------------------------------------
 #  Handle command line options...
 #--------------------------------------------------------------------------
