@@ -28,9 +28,7 @@ function userProfileToUI() {
     var name = app.name;
     if (name.length === 0 || app.uid === 0) { name = "?";}
     $("#user_menu_container").find("#username").text(name);
-    var imgurl = app.imageurl;
-    if (imgurl.length === 0) { imgurl = app.userBlankImage; }
-    $("#user_menu_container").find("img").attr("src", imgurl);
+    $("#user_menu_container").find("img").attr("src", app.imageurl);
 
     // *******************
     // ONLY FOR ROV CLIENT

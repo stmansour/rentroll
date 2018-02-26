@@ -57,8 +57,6 @@ var app = {
     DepMethods: {},
     Depositories: {}, // gets loaded as needed
     ExpenseRules: {},
-    userBlankImage: "/webclient/img/user_profile_blank.png" ,
-    userActiveImage: "/webclient/img/user_profile_active.png" ,
     uid: 0,       // this is username's UID (user id)
     username: "", // this is the logged in user's username
     name: "",     // first (or preferred) name of logged in user
@@ -242,14 +240,6 @@ function buildPageElements() {
         onRefresh: function(event) {
             event.onComplete = function() {
                 userProfileToUI();
-                // if(app.uid) {
-                // } else {
-                //     // if blank profile image is not set then
-                //     if ($("#user_menu_container").find("img").attr("src") !== app.userBlankImage) {
-                //         $("#user_menu_container").find("img").attr("src", app.userBlankImage);
-                //     }
-                //     $("#user_menu_container").find("#username").text("");
-                // }
             };
         },
         onClick: function (event) {
