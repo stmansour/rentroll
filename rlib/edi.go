@@ -17,6 +17,52 @@ var dateRangeFieldsMap = map[string]string{
 	"RentalAgreementStop": "RentalAgreementStart", // Rentables{grid, form}
 	"Stop":                "Start",                // AsssessmentGrid
 	"RARDtStop":           "RARDtStart",           // RentalAgreementRentables
+	"DtMRStop":            "DtMRStart",            // MRHistory in rlib
+}
+
+// known struct list to allow date conversion.
+var ediKnownStructMap = map[string]bool{
+	"rlib.RAAcctBal":               true,
+	"rlib.RentRollStaticInfo":      true,
+	"rlib.VacancyMarker":           true,
+	"rlib.AssessmentType":          true,
+	"rlib.RentalAgreementGrid":     true,
+	"rlib.RatePlanRef":             true,
+	"rlib.RentalAgreement":         true,
+	"rlib.RentalAgreementRentable": true,
+	"rlib.RentalAgreementTax":      true,
+	"rlib.RentalAgreementPayor":    true,
+	"rlib.RentableUser":            true,
+	"rlib.RentalAgreementPet":      true,
+	"rlib.Vehicle":                 true,
+	"rlib.Assessment":              true,
+	"rlib.AR":                      true,
+	"rlib.RentableMarketRate":      true,
+	"rlib.RentableTypeTax":         true,
+	"rlib.MRHistory":               true,
+	"rlib.RentableTypeRef":         true,
+	"rlib.RentCycleRef":            true,
+	"rlib.RentableSpecialtyRef":    true,
+	"rlib.RentableStatus":          true,
+	"rlib.XRentable":               true,
+	"rlib.JournalMarker":           true,
+	"rlib.MRHistory":               true,
+	"ws.ARSendForm ":               true,
+	"ws.PrARGrid":                  true,
+	"ws.AssessmentSendForm":        true,
+	"ws.AssessmentGrid":            true,
+	"ws.RentalAgr":                 true,
+	"ws.RentalAgrForm":             true,
+	"ws.RAPayor":                   true,
+	"ws.RAPeople":                  true,
+	"ws.RAR":                       true,
+	"ws.PrRentableOther":           true,
+	"ws.RentableStatusGridRec":     true,
+	"ws.RentableTypeRefGridRec":    true,
+	"ws.RentableMarketRateGridRec": true,
+	"ws.StatementInfoGridRecord":   true,
+	"ws.PayorHistory":              true,
+	"ws.StmtGrid":                  true,
 }
 
 // DateMode are etc. all constants used for end date inclusion condition
