@@ -238,8 +238,11 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 			a.BID = rid
 		}
 
-		// Need to update this BUD list memory cache
-		RRdb.BUDlist[a.Designation] = rid
+		/*// Need to update this BUD list memory cache
+		RRdb.BUDlist[a.Designation] = a.BID*/
+
+		// build business list and cache again
+		RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap()
 	}
 	return rid, err
 }

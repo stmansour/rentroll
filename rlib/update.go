@@ -87,6 +87,10 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 	} else {
 		_, err = RRdb.Prepstmt.UpdateBusiness.Exec(fields...)
 	}
+
+	// build business list and cache again
+	RRdb.BUDlist, RRdb.BizCache = BuildBusinessDesignationMap()
+
 	return updateError(err, "Business", *a)
 }
 

@@ -17,6 +17,51 @@ var dateRangeFieldsMap = map[string]string{
 	"RentalAgreementStop": "RentalAgreementStart", // Rentables{grid, form}
 	"Stop":                "Start",                // AsssessmentGrid
 	"RARDtStop":           "RARDtStart",           // RentalAgreementRentables
+	"DtMRStop":            "DtMRStart",            // MRHistory in rlib
+}
+
+// known struct list to allow date conversion.
+var ediKnownStructMap = map[string]bool{
+	"rlib.RAAcctBal":               true,
+	"rlib.RentRollStaticInfo":      true,
+	"rlib.VacancyMarker":           true,
+	"rlib.AssessmentType":          true,
+	"rlib.RentalAgreementGrid":     true,
+	"rlib.RatePlanRef":             true,
+	"rlib.RentalAgreement":         true,
+	"rlib.RentalAgreementRentable": true,
+	"rlib.RentalAgreementTax":      true,
+	"rlib.RentalAgreementPayor":    true,
+	"rlib.RentableUser":            true,
+	"rlib.RentalAgreementPet":      true,
+	"rlib.Vehicle":                 true,
+	"rlib.Assessment":              true,
+	"rlib.AR":                      true,
+	"rlib.RentableMarketRate":      true,
+	"rlib.RentableTypeTax":         true,
+	"rlib.MRHistory":               true,
+	"rlib.RentableTypeRef":         true,
+	"rlib.RentCycleRef":            true,
+	"rlib.RentableSpecialtyRef":    true,
+	"rlib.RentableStatus":          true,
+	"rlib.XRentable":               true,
+	"rlib.JournalMarker":           true,
+	"ws.ARSendForm":                true,
+	"ws.PrARGrid":                  true,
+	"ws.AssessmentSendForm":        true,
+	"ws.AssessmentGrid":            true,
+	"ws.RentalAgr":                 true,
+	"ws.RentalAgrForm":             true,
+	"ws.RAPayor":                   true,
+	"ws.RAPeople":                  true,
+	"ws.RAR":                       true,
+	"ws.PrRentableOther":           true,
+	"ws.RentableStatusGridRec":     true,
+	"ws.RentableTypeRefGridRec":    true,
+	"ws.RentableMarketRateGridRec": true,
+	"ws.StatementInfoGridRecord":   true,
+	"ws.PayorHistory":              true,
+	"ws.StmtGrid":                  true,
 }
 
 // DateMode are etc. all constants used for end date inclusion condition
@@ -179,30 +224,38 @@ func lookForInterfaceStopDate(value reflect.Value, depth int) {
 // EDIEnabledForBID checks whether EDI for business with BID is enabled or not
 func EDIEnabledForBID(BID int64) bool {
 	var ediEnabled bool
-	// TODO(Sudip): it should coming from cache, not by hitting db everytime
-	// if b, ok := RRdb.BizTypes[BID]; ok {
-	// 	ediEnabled = b.FLAGS&1 > 0 // see if bit 1 is set or not
-	// }
-	var xbiz XBusiness
-	err := GetXBiz(BID, &xbiz)
-	if err == nil {
-		ediEnabled = xbiz.P.FLAGS&1 > 0
+
+	// look, if FLAGS is set or not
+	if bizCache, ok := RRdb.BizCache[BID]; ok {
+		ediEnabled = bizCache.FLAGS&1 > 0
 	}
+
 	return ediEnabled
 }
 
 // HandleInterfaceEDI handles the end date inclusion situation
 // based on application DateMode setting for the p interface
 // which is having dateranges fields
+// right now it supports only "struct" kind of element
 func HandleInterfaceEDI(p interface{}, BID int64) {
 
 	// if end date inclusion enabled
 	if EDIEnabledForBID(BID) {
 
-		// make sure interface should be kind of ptr, otherwise field value will not be changed
-		if reflect.TypeOf(p).Kind() != reflect.Ptr {
+		/*Console("Elem kind: %s\n", reflect.ValueOf(p).Elem().Kind())
+		Console("Struct with Package: %s\n", reflect.ValueOf(p).Elem().Type().String())*/
+
+		// 1. make sure interface should be kind of ptr, otherwise field value will not be changed
+		// 2. underlying element should be kind of struct
+		if reflect.TypeOf(p).Kind() != reflect.Ptr && reflect.ValueOf(p).Elem().Kind() != reflect.Struct {
 			return
 		}
+
+		/*// is it known struct and enabled for looking and end date modification
+		enabledForLook, ok := ediKnownStructMap[reflect.ValueOf(p).Elem().Type().String()]
+		if !(ok && enabledForLook) {
+			return
+		}*/
 
 		// send the reflect.Value of given interface p
 		lookForInterfaceStopDate(reflect.ValueOf(p), 0) // depth=0

@@ -312,7 +312,7 @@ func saveDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//-------------------------
 		// one more thing to try:
 		//-------------------------
-		rlib.RRdb.BUDlist = rlib.BuildBusinessDesignationMap()
+		rlib.RRdb.BUDlist, rlib.RRdb.BizCache = rlib.BuildBusinessDesignationMap()
 		a.BID, ok = rlib.RRdb.BUDlist[string(foo.Record.BUD)]
 		if !ok {
 			e := fmt.Errorf("%s: Could not map BUD value: %s", funcname, foo.Record.BUD)
