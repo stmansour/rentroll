@@ -16,6 +16,7 @@ var dateRangeFieldsMap = map[string]string{
 	"RentStop":            "RentStart",            // RentalAgreement, Rentroll view
 	"RentalAgreementStop": "RentalAgreementStart", // Rentables{grid, form}
 	"Stop":                "Start",                // AsssessmentGrid
+	"RARDtStop":           "RARDtStart",           // RentalAgreementRentables
 }
 
 // DateMode are etc. all constants used for end date inclusion condition
