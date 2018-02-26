@@ -46,8 +46,7 @@ var ediKnownStructMap = map[string]bool{
 	"rlib.RentableStatus":          true,
 	"rlib.XRentable":               true,
 	"rlib.JournalMarker":           true,
-	"rlib.MRHistory":               true,
-	"ws.ARSendForm ":               true,
+	"ws.ARSendForm":                true,
 	"ws.PrARGrid":                  true,
 	"ws.AssessmentSendForm":        true,
 	"ws.AssessmentGrid":            true,
@@ -237,15 +236,26 @@ func EDIEnabledForBID(BID int64) bool {
 // HandleInterfaceEDI handles the end date inclusion situation
 // based on application DateMode setting for the p interface
 // which is having dateranges fields
+// right now it supports only "struct" kind of element
 func HandleInterfaceEDI(p interface{}, BID int64) {
 
 	// if end date inclusion enabled
 	if EDIEnabledForBID(BID) {
 
-		// make sure interface should be kind of ptr, otherwise field value will not be changed
-		if reflect.TypeOf(p).Kind() != reflect.Ptr {
+		/*Console("Elem kind: %s\n", reflect.ValueOf(p).Elem().Kind())
+		Console("Struct with Package: %s\n", reflect.ValueOf(p).Elem().Type().String())*/
+
+		// 1. make sure interface should be kind of ptr, otherwise field value will not be changed
+		// 2. underlying element should be kind of struct
+		if reflect.TypeOf(p).Kind() != reflect.Ptr && reflect.ValueOf(p).Elem().Kind() != reflect.Struct {
 			return
 		}
+
+		/*// is it known struct and enabled for looking and end date modification
+		enabledForLook, ok := ediKnownStructMap[reflect.ValueOf(p).Elem().Type().String()]
+		if !(ok && enabledForLook) {
+			return
+		}*/
 
 		// send the reflect.Value of given interface p
 		lookForInterfaceStopDate(reflect.ValueOf(p), 0) // depth=0
