@@ -20,7 +20,7 @@ CONFIGPATH="$(pwd)"
 source ../share/base.sh
 
 # specific file that needs to be tested
-CYPRESS_SPEC="./cypress/integration/roller_spec.js"
+CYPRESS_SPEC="./cypress/integration/receipt_spec.js"
 
 #--------------------------------------------------------------------
 #  Use custom dumped "rentroll" .sql file for the webclient UI tests
@@ -49,7 +49,7 @@ if [ "${IAMJENKINS}" == "jenkins" ]; then
     # if build machine then record the activity
     doCypressUITest "a" "--spec ${CYPRESS_SPEC} --record" "CypressUITesting"
 else
-    # run cypress test with only roller_spec.js with videoRecording false as of now
+    # run cypress test with only receipt_spec.js with videoRecording false as of now
     doCypressUITest "a" "--config videoRecording=false --spec ${CYPRESS_SPEC}" "CypressUITesting"
 fi
 

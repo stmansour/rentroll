@@ -5,7 +5,7 @@ const SIDEBAR_ID = "receipts";
 const FORM = "receiptForm";
 const MODULE = "receipt";
 
-// Below configurations are in use while performing tests via roller_spec.js for AIR Receipt application
+// Below configurations are in use while performing tests via receipt_spec.js for AIR Receipt application
 export let conf = {
     grid: GRID,
     form: FORM,
