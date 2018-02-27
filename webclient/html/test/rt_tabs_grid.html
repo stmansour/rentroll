@@ -24,6 +24,8 @@ sidebarL1     - w2ui sidebar
 
 
 <script>
+/*global w2ui, $
+*/
 "use strict";
 // widget configuration
 var config = {
@@ -48,7 +50,7 @@ var config = {
                             w2ui.layout.html('main', w2ui.rentableTypeForm);
                         }
                     },
-                    onClose: function (event) {
+                    onClose: function (/*event*/) {
                         this.click('grid1');
                     }
                 }
@@ -66,7 +68,7 @@ var config = {
             ]}
         ],
     }
-}
+};
 
 var app = {
     businesses: ["REX", "CCC", "401", "ISO", "RKY"],
@@ -200,8 +202,8 @@ $().w2grid({
         {field: 'DtStop',      caption: 'DtStop',      size: '1%', sortable: true, style: 'text-align: right'},
     ],
     onRequest: function(event) {
-        event.postData["searchDtStart"] = "8/1/2017";
-        event.postData["searchDtStop"] = "9/1/2017";
+        event.postData.searchDtStart = "8/1/2017";
+        event.postData.searchDtStop = "9/1/2017";
     }
 });
 

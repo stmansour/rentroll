@@ -12,6 +12,7 @@ webclient:
 		exit 1 ;\
 	fi
 	grunt
+	jshint --extract=always ./html/*.html ./html/test/*.html ./js/elems/*.js
 	@rm -f fail
 	@echo "*** Grunt done ***"
 

@@ -24,6 +24,8 @@ sidebarL1     - w2ui sidebar
 
 
 <script>
+/*global w2ui, $, 
+*/
 "use strict";
 // widget configuration
 var config = {
@@ -43,7 +45,7 @@ var config = {
                     onClick: function (event) {
                         w2ui.layout.html('main', w2ui[event.target]);
                     },
-                    onClose: function (event) {
+                    onClose: function (/*event*/) {
                         this.click('grid1');
                     }
                 }
@@ -88,7 +90,7 @@ var config = {
             ]}
         ],
     }
-}
+};
 
 $(function () {
     // initialization
