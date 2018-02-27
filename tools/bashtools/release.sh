@@ -58,9 +58,9 @@ function decho {
 function readConfig {
     APATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
     CONF="${APATH}/config.json"
-    USER=$(grep RepoUser ${CONF} | awk '{print $2;}' | sed 's/\"//g' | sed 's/,//')
-    APIKEY=$(grep RepoPass ${CONF} | awk '{print $2;}' | sed 's/\"//g' | sed 's/,//')
-    URLBASE=$(grep RepoURL ${CONF} | awk '{print $2;}' | sed 's/\"//g' | sed 's/,//')
+    USER=$(grep RepoUser ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
+    APIKEY=$(grep RepoPass ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
+    URLBASE=$(grep RepoURL ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
 }
 
 
