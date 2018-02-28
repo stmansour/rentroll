@@ -8,8 +8,8 @@ Austin, TX 78738 USA
                                     Rent     Proration         To                                    
 RTID        Style  Name             Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate       
 ----------  -----  ---------------  -------  ---------  -----  ------  ------------------------------
-RT00000001  Rex1   309 Rexford      monthly  daily      daily  Yes       1/1/14 -   3/1/99: $ 3500.00
-RT00000002  Rex2   309 1/2 Rexford  monthly  daily      daily  Yes       1/1/14 -   5/1/99: $ 3550.00
-RT00000003  Rex3   311 Rexford      monthly  daily      daily  Yes       1/1/14 -   4/1/99: $ 4400.00
-RT00000004  Rex4   311 1/2 Rexford  monthly  daily      daily  Yes       1/1/14 -   1/1/99: $ 2500.00
+RT00000001  Rex1   309 Rexford      monthly  daily      daily  Yes     1/1/2014 - 3/1/9999: $ 3500.00
+RT00000002  Rex2   309 1/2 Rexford  monthly  daily      daily  Yes     1/1/2014 - 5/1/9999: $ 3550.00
+RT00000003  Rex3   311 Rexford      monthly  daily      daily  Yes     1/1/2014 - 4/1/9999: $ 4400.00
+RT00000004  Rex4   311 1/2 Rexford  monthly  daily      daily  Yes     1/1/2014 - 1/1/9999: $ 2500.00
 

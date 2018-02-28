@@ -81,8 +81,29 @@ function ChangeBusiness() {
         }
         w2ui.reportslayout.load('main','/webclient/html/blank.html');
         app.last.report = '';
+
+        // check EDI mode for this business and set app.D2 accordingly
+        // get last selected biz flags
+        var d2 = dateFromString(app.D2);
+        var lastBizEDIEnabled = EDIEnabledForBUD(app.last.BUD);
+        var selBizEDIEnabled = EDIEnabledForBUD(bizName);
+
+        // -> if EDI enabled for both then nothing to do
+        // -> if EDI disabled for both then nothing to do
+        // -> if EDI enabled for last and not for selected one then add one day in app.D2
+        if (lastBizEDIEnabled && !selBizEDIEnabled) {
+            d2.setDate(d2.getDate() + 1);
+            app.D2 = dateControlString(d2);
+        }
+        // -> if EDI not enabled for last one and enabled for selected one then subtract one day in app.D2
+        if (!lastBizEDIEnabled && selBizEDIEnabled) {
+            d2.setDate(d2.getDate() - 1);
+            app.D2 = dateControlString(d2);
+        }
+
         app.last.BUD = bizName;
         app.last.BID = bizVal;
+
         s.collapse('reports');
         return true;
     };
@@ -1032,8 +1053,12 @@ function setDefaultFormFieldAsPreviousRecord(formFields, defaultFormRecord, prev
 //   id         : id for the report to detail
 //-------------------------------------------------------------------------------
 function exportItemReportCSV(rptname,id,dtStart,dtStop,returnURL) {
-    var x = getCurrentBusiness();
-    var url = '/v1/report/' + x.value + '/' + id + '?r=' + rptname + '&edi=' + app.dateMode;
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var bizEDIEnabled = EDIEnabledForBUD(BUD);
+    var edi = bizEDIEnabled ? 1 : 0;
+
+    var url = '/v1/report/' + String(BID) + '/' + id + '?r=' + rptname + '&edi=' + String(edi);
     if (returnURL) {
         return finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
     }
@@ -1054,8 +1079,13 @@ function exportReportCSV(rptname, dtStart, dtStop, returnURL){
     if (rptname === '') {
         return;
     }
-    var x = getCurrentBusiness();
-    var url = '/v1/report/' + x.value + '?r=' + rptname + '&edi=' + app.dateMode;
+
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var bizEDIEnabled = EDIEnabledForBUD(BUD);
+    var edi = bizEDIEnabled ? 1 : 0;
+
+    var url = '/v1/report/' + String(BID) + '?r=' + rptname + '&edi=' + String(edi);
 
     if (returnURL) { // if retrunURL is set then we need to return it
         return finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
@@ -1135,8 +1165,12 @@ function exportItemReportPDF(rptname,id, dtStart, dtStop, returnURL){
     if (rptname === '') {
         return;
     }
-    var x = getCurrentBusiness();
-    var url = '/v1/report/' + x.value + '/' + id + '?r=' + rptname + '&edi=' + app.dateMode;
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var bizEDIEnabled = EDIEnabledForBUD(BUD);
+    var edi = bizEDIEnabled ? 1 : 0;
+
+    var url = '/v1/report/' + String(BID) + '/' + id + '?r=' + rptname + '&edi=' + String(edi);
     if (returnURL) {
         return finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
     }
@@ -1157,8 +1191,13 @@ function exportReportPDF(rptname, dtStart, dtStop, returnURL){
     if (rptname === '') {
         return;
     }
-    var x = getCurrentBusiness();
-    var url = '/v1/report/' + x.value + '?r=' + rptname + '&edi=' + app.dateMode;
+
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var bizEDIEnabled = EDIEnabledForBUD(BUD);
+    var edi = bizEDIEnabled ? 1 : 0;
+
+    var url = '/v1/report/' + String(BID) + '?r=' + rptname + '&edi=' + String(edi);
     if (returnURL) { // if retrunURL is set then we need to return it
         return finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
     }
@@ -1205,4 +1244,14 @@ function downloadMediaFromURL(url) {
     setTimeout(function() {
         idown.attr('src', '');
     }, 1000);
+}
+
+//-------------------------------------------------------------------------------
+// returns true/false tells whether EDI mode enabled for business BUD
+//
+// @params
+//   BUD            : business designation
+//-------------------------------------------------------------------------------
+function EDIEnabledForBUD(BUD) {
+    return (app.bizFLAGS[BUD]&1) > 0;
 }
