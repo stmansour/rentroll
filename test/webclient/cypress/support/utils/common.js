@@ -85,6 +85,13 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     valueForCell = status.text;
                 }
 
+                // get update value for ARType from app variable : Chart of accounts
+                if (w2uiGridColumn.field === "AcctRule" || w2uiGridColumn.field === "Payor"){
+                    if (valueForCell === null){
+                        valueForCell = "";
+                    }
+                }
+
                 // Check visibility and default value of cell in the grid
                 cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
                     .scrollIntoView()
@@ -211,6 +218,14 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                 fieldValue = postAccountRule.text;
             }
 
+            if(fieldID === "ARID"){
+                let asmRuleID = recordDetailFromAPIResponse.ARID;
+                let assessmentRules = win.app.AssessmentRules[constants.testBiz];
+                let assessmentRule = assessmentRules.find(assessmentRules => assessmentRules.id === asmRuleID)
+
+                fieldValue = assessmentRule.text;
+            }
+
             // ERentableName
             if (fieldID === "ERentableName"){
                 fieldValue = recordDetailFromAPIResponse.RentableName;
@@ -224,4 +239,32 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                     .should('have.value', fieldValue);
             }
         });
+}
+
+// change date in UI from and to date
+export function changeDate(dateFieldName, fromDt, toDt) {
+    let fromMonth = fromDt.getMonth(); // Month : 0-11 : Jan-Dec
+    let fromYear = fromDt.getFullYear(); // Year : Return 4 digits for 4-digit year
+    let fromDay = fromDt.getDate(); // day/date: 1-31
+    let fromDate = [fromMonth + 1, fromDay, fromYear].join('/'); // mm/dd/yyyy
+
+    let toMonth = toDt.getMonth();
+    let toYear = toDt.getFullYear();
+    let toDay = toDt.getDate();
+    let toDate = [toMonth + 1, toDay, toYear].join('/'); // mm/dd/yyyy
+
+
+    // Select From date from W2UI calender
+    cy.get('[name="' + dateFieldName + 'D1"]').click().wait(constants.WAIT_TIME);
+    cy.get('[class="w2ui-calendar-title title"]').click();
+    cy.get('[class="w2ui-jump-month"][name=' + fromMonth + ']').click();
+    cy.get('[class="w2ui-jump-year"][name=' + fromYear + ']').click().wait(constants.WAIT_TIME);
+    cy.get('[date="' + fromDate + '"]').click().wait(constants.WAIT_TIME);
+
+    // Select To date from W2UI calender
+    cy.get('[name="' + dateFieldName + 'D2"]').click().wait(constants.WAIT_TIME);
+    cy.get('[class="w2ui-calendar-title title"]').click();
+    cy.get('[class="w2ui-jump-month"][name=' + toMonth + ']').click();
+    cy.get('[class="w2ui-jump-year"][name=' + toYear + ']').click().wait(constants.WAIT_TIME);
+    cy.get('[date="' + toDate + '"]').click();
 }

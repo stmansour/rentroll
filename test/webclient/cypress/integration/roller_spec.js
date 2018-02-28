@@ -9,6 +9,9 @@ const pmtM = require('../support/components/pmTypes');
 const depAcctM = require('../support/components/depAcct');
 const depMethM = require('../support/components/depMeth');
 const arsM = require('../support/components/ars');
+const asmsM = require('../support/components/asms');
+const receiptM = require('../support/components/receipts'); // TODO(Akshay): Detail Record
+const expensesM = require('../support/components/expenses');
 
 // this contain app variable of the application
 let appSettings;
@@ -36,8 +39,8 @@ describe('AIR Roller UI Tests', function () {
         */
         cy.clearCookie(constants.APPLICATION_COOKIE);
 
-        testConfigs = [accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf, arsM.conf];
-        // testConfigs = [arsM.conf];
+        // testConfigs = [accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf, arsM.conf, asmsM.conf];
+        testConfigs = [expensesM.conf];
 
     });
 
@@ -108,7 +111,7 @@ describe('AIR Roller UI Tests', function () {
     });
 
     // -- Test for Node --
-    it('Left side node', function () {
+    it('Grid records and record detail', function () {
 
         testConfigs.forEach(function (testConfig) {
 
@@ -128,6 +131,8 @@ describe('AIR Roller UI Tests', function () {
                 .should('be.visible')
                 .click().wait(constants.WAIT_TIME)
                 .should('have.class', 'w2ui-selected');
+
+            common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
 
             // Check http status
             cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);

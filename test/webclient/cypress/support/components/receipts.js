@@ -29,5 +29,8 @@ export let conf = {
     skipColumns: ["reversed"],
     skipFields: [],
     printReceiptButtons: ["print", "close"],
-    primaryId: "RCPTID"
+    primaryId: "RCPTID",
+    haveDateValue: true,
+    fromDate: new Date(2018, 0, 1), // year, month-1, day : 1st Jan 2018
+    toDate: new Date(2018, 1, 1) // 1st Feb 2018
 };
