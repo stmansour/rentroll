@@ -372,11 +372,14 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 		return err
 	}
 	d1 := time.Date(dbConf.DtStart.Year(), dbConf.DtStart.Month(), dbConf.DtStart.Day(), 0, 0, 0, 0, time.UTC)
-	d2 := d1.AddDate(2, 0, 0)
 	epoch := time.Date(dbConf.DtStart.Year(), dbConf.DtStart.Month(), 1, 0, 0, 0, 0, time.UTC)
 	if dbConf.DtStart.Day() > 1 {
 		epoch = epoch.AddDate(0, 1, 0)
 
+	}
+	d2 := epoch.AddDate(2, 0, 0)
+	if d2.Day() != 1 {
+		d2 = time.Date(d2.Year(), d2.Month(), 1, 0, 0, 0, 0, time.UTC)
 	}
 	rentableC, err := rlib.GetCountByTableName(ctx, "Rentable", BID)
 	if err != nil {
