@@ -422,7 +422,7 @@ function buildReceiptElements() {
                     $(f.box).find("#FLAGReport").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]','input[name=DID]').prop("disabled", false);
                     return;
                 } else {
                     $(f.box).find("#FLAGReport").removeClass("hidden");
