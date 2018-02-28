@@ -287,15 +287,15 @@ func ReportHeader(ctx context.Context, rn, funcname string, ri *ReporterInfo) (s
 		s += "\n"
 	}
 
-	d2 := GetDisplayD2(ri)
-	rlib.Console("*** Report Header:  d2 = %s\n", d2.Format(rlib.RRDATEREPORTFMT))
+	// d2 := GetDisplayD2(ri)
+	// rlib.Console("*** Report Header:  d2 = %s\n", d2.Format(rlib.RRDATEREPORTFMT))
 
 	if ri.RptHeaderD1 && ri.RptHeaderD2 {
-		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + d2.Format(rlib.RRDATEREPORTFMT) + "\n"
+		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + ri.D2.Format(rlib.RRDATEREPORTFMT) + "\n"
 	} else if ri.RptHeaderD1 {
 		s += ri.D1.Format(rlib.RRDATEREPORTFMT) + "\n"
 	} else if ri.RptHeaderD2 {
-		s += d2.Format(rlib.RRDATEREPORTFMT) + "\n"
+		s += ri.D2.Format(rlib.RRDATEREPORTFMT) + "\n"
 	}
 	s += "\n"
 	return s, nil

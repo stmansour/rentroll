@@ -328,7 +328,8 @@ function buildReceiptElements() {
                     var record = {};
                     getPersonDetailsByTCID(BID, r.TCID)
                     .done(function(data) {
-                        record = JSON.parse(data).record;
+                        // record = JSON.parse(data).record;
+                        record = data.record;
                         var item = {
                             CompanyName: record.CompanyName,
                             IsCompany: record.IsCompany,
@@ -371,7 +372,8 @@ function buildReceiptElements() {
                     var record = {};
                     getPersonDetailsByTCID(BID, r.TCID)
                     .done(function(data) {
-                        record = JSON.parse(data).record;
+                        // record = JSON.parse(data).record;
+                        record = data.record;
                         var item = {
                             CompanyName: record.CompanyName,
                             IsCompany: record.IsCompany,
