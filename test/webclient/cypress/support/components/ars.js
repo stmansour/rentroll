@@ -1,19 +1,19 @@
 "use strict";
 
-const GRID = "pmtsGrid";
-const SIDEBAR_ID = "pmts";
-const FORM = "pmtForm";
-const MODULE = "pmts";
+const GRID = "arsGrid";
+const SIDEBAR_ID = "ars";
+const FORM = "arsForm";
+const MODULE = "ar";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
-// For Module: Charts of Account
+// For Module: Deposit accounts
 export let conf = {
     grid: GRID,
     form: FORM,
     sidebarID: SIDEBAR_ID,
     module: MODULE,
-    capture: "paymentTypesGridRequest.png",
-    endPoint: "/{0}/pmts/{1}",
+    capture: "depositMethodsGridRequest.png",
+    endPoint: "/{0}/ars/{1}",
     methodType: 'POST',
     requestData: JSON.stringify({"cmd": "get", "selected": [], "limit": 100, "offset": 0}),
     excludeGridColumns: [],
@@ -21,6 +21,6 @@ export let conf = {
     notVisibleButtonNamesInForm: ["close"],
     buttonNamesInDetailForm: ["save", "saveadd", "delete"],
     skipColumns: [],
-    skipFields: [],
-    primaryId: "PMTID"
+    skipFields: ["ApplyRcvAccts", "RAIDrqd", "PriorToRAStart", "PriorToRAStop"], //TODO(Akshay): Write UI test for checkboxes
+    primaryId: "ARID"
 };

@@ -7,6 +7,8 @@ import * as common from '../support/utils/common';
 const accountM = require('../support/components/accounts');
 const pmtM = require('../support/components/pmTypes');
 const depAcctM = require('../support/components/depAcct');
+const depMethM = require('../support/components/depMeth');
+const arsM = require('../support/components/ars');
 
 // this contain app variable of the application
 let appSettings;
@@ -34,7 +36,8 @@ describe('AIR Roller UI Tests', function () {
         */
         cy.clearCookie(constants.APPLICATION_COOKIE);
 
-        testConfigs = [accountM.conf, pmtM.conf, depAcctM.conf];
+        testConfigs = [accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf, arsM.conf];
+        // testConfigs = [arsM.conf];
 
     });
 
@@ -187,7 +190,7 @@ describe('AIR Roller UI Tests', function () {
                 if (noRecordsInAPIResponse > 0) {
 
                     // tests for grid cells visibility and value matching with api response records
-                    // common.gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
+                    common.gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
                     // TODO(Akshay): Remove comment for above tests
 
                     // ----------------------------------

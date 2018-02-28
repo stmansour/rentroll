@@ -70,6 +70,21 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     valueForCell = win.w2utils.formatters.money(valueForCell);
                 }
 
+                // get update value for ARType from app variable : Account Rules
+                if (w2uiGridColumn.field === "ARType"){
+                    valueForCell = win.app.ARTypes[record[w2uiGridColumn.field]];
+                }
+
+                // get update value for ARType from app variable : Chart of accounts
+                if (w2uiGridColumn.field === "Status"){
+
+                    let statusID = record[w2uiGridColumn.field];
+                    let statusList = win.app.account_stuff["statusList"];
+                    let status = statusList.find(statusList => statusList.id === statusID);
+
+                    valueForCell = status.text;
+                }
+
                 // Check visibility and default value of cell in the grid
                 cy.get(selectors.getCellSelector(testConfig.grid, rowNo, columnNo))
                     .scrollIntoView()
@@ -133,6 +148,8 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                 fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
             }
 
+            //TODO(Akshay): Use switch statments
+
             // Update fieldValue for PmtTypeName
             if (fieldID === "PmtTypeName") {
                 let pmtID = recordDetailFromAPIResponse.PMTID;
@@ -151,6 +168,15 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                 fieldValue = parentAccountsRule.text;
             }
 
+            // Update fieldValue for GL Account
+            if(fieldID === "LID"){
+                let lid = recordDetailFromAPIResponse.LID;
+                let glAccountRules = win.app.gl_accounts[constants.testBiz];
+                let glAccountRule = glAccountRules.find(glAccountRules => glAccountRules.id === lid)
+
+                fieldValue = glAccountRule.text;
+            }
+
             // Update fieldValue for Status
             if(fieldID === "Status"){
                 let statusID = recordDetailFromAPIResponse.Status;
@@ -158,6 +184,31 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                 let status = statusList.find(statusList => statusList.id === statusID);
 
                 fieldValue = status.text;
+            }
+
+            // Update fieldValue for ARType : Account Rules
+            if(fieldID === "ARType"){
+                let arType = recordDetailFromAPIResponse.ARType;
+
+                fieldValue = win.app.ARTypes[arType];
+            }
+
+            // Update fieldValue for DebitLID : Account Rules
+            if(fieldID === "DebitLID"){
+                let lid = recordDetailFromAPIResponse.DebitLID;
+                let postAccountRules = win.app.post_accounts[constants.testBiz];
+                let postAccountRule = postAccountRules.find(postAccountRules => postAccountRules.id === lid)
+
+                fieldValue = postAccountRule.text;
+            }
+
+            // Update fieldValue for CreditLID : Account Rules
+            if(fieldID === "CreditLID"){
+                let lid = recordDetailFromAPIResponse.CreditLID;
+                let postAccountRules = win.app.post_accounts[constants.testBiz];
+                let postAccountRule = postAccountRules.find(postAccountRules => postAccountRules.id === lid)
+
+                fieldValue = postAccountRule.text;
             }
 
             // ERentableName

@@ -20,7 +20,7 @@ export let conf = {
     buttonNamesInForm: ["save", "saveadd"],
     notVisibleButtonNamesInForm: ["close"],
     buttonNamesInDetailForm: ["save", "saveadd", "delete"],
-    skipColumns: ["Status"],
+    skipColumns: [],
     skipFields: [],
     primaryId: "LID"
 };

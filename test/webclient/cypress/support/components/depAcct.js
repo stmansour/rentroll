@@ -3,7 +3,7 @@
 const GRID = "depGrid";
 const SIDEBAR_ID = "dep";
 const FORM = "depositoryForm";
-const MODULE = "Deposit accounts";
+const MODULE = "dep";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
 // For Module: Deposit accounts
@@ -22,5 +22,5 @@ export let conf = {
     buttonNamesInDetailForm: ["save", "saveadd", "delete"],
     skipColumns: [],
     skipFields: [],
-    primaryId: ""
+    primaryId: "DEPID"
 };
