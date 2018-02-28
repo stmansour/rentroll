@@ -1,6 +1,6 @@
 Accord RentRoll RoomKey Importer
-Date: 3/25/2017
-Time: 12:49AM IST
+Date: 2/28/2018
+Time: 8:24PM IST
 Import File: ./roomkey.csv
 Guest Export File: ./guestdataexport.csv
 
@@ -112,6 +112,7 @@ TC00000022  Baussan              Daniel                       No       407-489-2
 TC00000023  Baxter               Addison                      No       6015067741    addison.baxter@faa.gov  
 ==================================================
 ISO Rental Agreement
+Jan 1, 0001 - Jan 1, 0001
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA

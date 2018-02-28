@@ -17,6 +17,10 @@ func RRreportRentalAgreementsTable(ctx context.Context, ri *ReporterInfo) gotabl
 		err error
 	)
 
+	// init some values
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
+
 	// init and prepare some values before table init
 	totalErrs := 0
 
@@ -218,7 +222,13 @@ func RRRentalAgreementStatementTable(ctx context.Context, BID, RAID int64, d1, d
 		tbl.SetSection3(err.Error())
 		return tbl
 	}
-	tbl.SetSection1(fmt.Sprintf("Statement Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEFMT3), d2.Format(rlib.RRDATEFMT3), strings.Join(sap, ", ")))
+
+	// displayD2
+	// ALERT: d2 is pointer
+	displayD2 := *d2
+	rlib.HandleStopDateEDI(BID, &displayD2)
+
+	tbl.SetSection1(fmt.Sprintf("Statement Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEFMT3), displayD2.Format(rlib.RRDATEFMT3), strings.Join(sap, ", ")))
 
 	//--------------------------------------------
 	// Set the opening balance.

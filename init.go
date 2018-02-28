@@ -47,10 +47,7 @@ func createStartupCtx() DispatchCtx {
 	rlib.GetXBiz(dCtx.xbiz.P.BID, &dCtx.xbiz)
 
 	// if dateMode is on then change the stopDate value for search op
-	if rlib.EDIEnabledForBID(dCtx.xbiz.P.BID) {
-		// TODO(Sudip): handle default(IsZero) date case
-		dCtx.DtStop = dCtx.DtStop.AddDate(0, 0, 1) // add one day forward
-	}
+	rlib.HandleFrontEndDates(dCtx.xbiz.P.BID, &dCtx.DtStart, &dCtx.DtStop)
 
 	// App.Report is a string, of the format:
 	//   n[,s1[,s2[...]]]

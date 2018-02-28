@@ -261,3 +261,26 @@ func HandleInterfaceEDI(p interface{}, BID int64) {
 		lookForInterfaceStopDate(reflect.ValueOf(p), 0) // depth=0
 	}
 }
+
+// HandleFrontEndDates will modify front end dates coming from web service/command line app.
+// if edi is enabled for BID then it will modify stopDate incrementing by one day.
+// else it will look for the gap, if gap is not more than one day then it will force to stopDate
+// to be incremented by one day.
+func HandleFrontEndDates(BID int64, dtStart, dtStop *time.Time) {
+	if EDIEnabledForBID(BID) {
+		*dtStop = dtStop.AddDate(0, 0, 1)
+	} else {
+		// if edi is not enabled then gap should not be less then a day
+		gap := dtStop.Sub(*dtStart)
+		if gap >= 0 && gap < 24 { // if gap falls in 0 and upto 24
+			*dtStop = dtStop.AddDate(0, 0, 1)
+		}
+	}
+}
+
+// HandleStopDateEDI will modify give stopDate if EDI is enabled for the given business
+func HandleStopDateEDI(BID int64, stopDate *time.Time) {
+	if EDIEnabledForBID(BID) {
+		*stopDate = stopDate.AddDate(0, 0, -1)
+	}
+}

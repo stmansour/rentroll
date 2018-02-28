@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 2/27/2018
-Time: 2:13PM IST
+Date: 2/28/2018
+Time: 10:36PM IST
 Import File: ./onesite.csv
 
 Summary
@@ -28,10 +28,10 @@ Austin, TX 78738 USA
                               Rent     Proration         To                                       
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate          
 ----------  -------  -------  -------  ---------  -----  ------  ---------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     2/27/2018 - 12/31/9999: $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     2/27/2018 - 12/31/9999: $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     2/27/2018 - 12/31/9999: $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     2/27/2018 - 12/31/9999: $  800.00
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     2/28/2018 - 12/31/9999: $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     2/28/2018 - 12/31/9999: $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     2/28/2018 - 12/31/9999: $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     2/28/2018 - 12/31/9999: $  800.00
 =====================================================
 REX Rentables
 BH Rexford Group, Inc.
@@ -64,6 +64,7 @@ TC00000004  Fawad               Kahn                No                   fawadkh
 TC00000005  Crescent            Clark               No                                             
 =====================================================
 REX Rental Agreement
+Jan 1, 0001 - Jan 1, 0001
 BH Rexford Group, Inc.
 11719 Bee Cave Road
 Suite 301
