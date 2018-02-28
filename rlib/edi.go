@@ -277,3 +277,10 @@ func HandleFrontEndDates(BID int64, dtStart, dtStop *time.Time) {
 		}
 	}
 }
+
+// HandleStopDateEDI will modify give stopDate if EDI is enabled for the given business
+func HandleStopDateEDI(BID int64, stopDate *time.Time) {
+	if EDIEnabledForBID(BID) {
+		*stopDate = stopDate.AddDate(0, 0, -1)
+	}
+}

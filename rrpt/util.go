@@ -146,7 +146,7 @@ type ReporterInfo struct {
 	QueryParams           *url.Values
 }
 
-// GetDisplayD2 returns the appropriate display date for the end date of a period.
+// GetReporterInfoDisplayD2 returns the appropriate display date for the end date of a period.
 //     Some people like to see the last date as up-to-and-including.  But from a
 //     code perspective, we always set the end date to a value which
 //     is up-to-but-not-including.  If ri.EDI == 0, then we display the date as
@@ -158,14 +158,11 @@ type ReporterInfo struct {
 //
 // RETURNS - the display date
 //-----------------------------------------------------------------------------
-func GetDisplayD2(ri *ReporterInfo) time.Time {
+func GetReporterInfoDisplayD2(ri *ReporterInfo) time.Time {
 	// Adjust d2 depending on the mode...  0 = no adjustment needed, 1 = inclusive last date, so subtract 1 day
-	// rlib.Console("*** GetDisplayD2:  ri.EDI = %d\n", ri.EDI)
+	// rlib.Console("*** GetReporterInfoDisplayD2:  ri.EDI = %d\n", ri.EDI)
 	d2 := ri.D2
-
-	if rlib.EDIEnabledForBID(ri.Bid) {
-		d2 = d2.AddDate(0, 0, -1)
-	}
+	rlib.HandleStopDateEDI(ri.Bid, &d2)
 	return d2
 }
 
@@ -188,7 +185,7 @@ func TableReportHeader(ctx context.Context, tbl *gotable.Table, rn, funcname str
 	tbl.SetTitle(ri.Xbiz.P.Designation + " " + rn)
 
 	var s string
-	d2 := GetDisplayD2(ri)
+	d2 := GetReporterInfoDisplayD2(ri)
 	// rlib.Console("*** Table Report Header:  d2 = %s\n", d2.Format(rlib.RRDATEREPORTFMT))
 	if ri.RptHeaderD1 && ri.RptHeaderD2 {
 		s = ri.D1.Format(rlib.RRDATEREPORTFMT) + " - " + d2.Format(rlib.RRDATEREPORTFMT)
@@ -287,7 +284,7 @@ func ReportHeader(ctx context.Context, rn, funcname string, ri *ReporterInfo) (s
 		s += "\n"
 	}
 
-	// d2 := GetDisplayD2(ri)
+	// d2 := GetReporterInfoDisplayD2(ri)
 	// rlib.Console("*** Report Header:  d2 = %s\n", d2.Format(rlib.RRDATEREPORTFMT))
 
 	if ri.RptHeaderD1 && ri.RptHeaderD2 {
