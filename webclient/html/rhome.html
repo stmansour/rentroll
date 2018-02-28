@@ -60,7 +60,6 @@ var app = {
     uid: 0,       // this is username's UID (user id)
     username: "", // this is the logged in user's username
     name: "",     // first (or preferred) name of logged in user
-    dateMode: 1,  // 0 = up-to-but-not-including, 1 = up-to-and-including mode
     imageurl: "", // pointer to image of logged in user
     PayorStmtExt: false, // false = internal, true = external
     WidestFormWidth: 900,
@@ -235,6 +234,13 @@ function buildPageElements() {
                 // when this render complete then store default selected business in app.last
                 app.last.BUD = $("select[name=BusinessSelect]").find(":selected").attr("name");
                 app.last.BID = $("select[name=BusinessSelect]").val();
+
+                // check EDI mode for this business and set app.D2 accordingly
+                if (EDIEnabledForBUD(app.last.BUD)) {
+                    var d2 = dateFromString(app.D2);
+                    d2.setDate(d2.getDate() - 1);
+                    app.D2 = dateControlString(d2);
+                }
             };
         },
         onRefresh: function(event) {
@@ -279,6 +285,8 @@ function finishInitialization() {
     d1.setDate(1);
     app.D1 = dateControlString(d1);
     var d2 = dateMonthFwd(d1);
+    // set the default one at the moment, if date mode is enabled then
+    // "BusinessSelect" render event handler will take care in top toolbar
     app.D2 = dateControlString(d2);
 }
 
