@@ -10,7 +10,7 @@ if [ ${e} -gt 0 ]; then
     echo "See ./tools/schemacmp/report.txt for details"
 else
     echo "***   Schema on local machine and Roller production are the same."
-    echo "***   The build bundle will be publised to the repo."
+    echo "***   Publishing build bundle to the repo."
 fi
 echo "*************************************************************************************"
 rm -f w
