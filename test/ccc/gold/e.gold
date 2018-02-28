@@ -1,20 +1,20 @@
 CCC Rentable Types
 California Commerce Centr
 
-                                                                                Manage                                
-                                                   Rent       Proration         To                                    
-RTID        Style       Name                       Cycle      Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate       
-----------  ----------  -------------------------  ---------  ---------  -----  ------  ------------------------------
-RT00000001  Unit A      Condo A                    monthly    daily      daily  Yes       1/1/16 - 12/31/16: $  660.31
-RT00000002  Unit B      Condo B                    monthly    daily      daily  Yes       1/1/16 - 12/31/16: $ 3932.99
-RT00000003  Unit C      Condo C                    monthly    daily      daily  Yes       1/1/16 - 12/31/16: $ 1533.57
-RT00000004  Unit D      Condo D                    monthly    daily      daily  Yes       1/1/16 - 12/31/16: $ 2818.62
-RT00000005  Unit E      Condo E                    monthly    daily      daily  Yes       1/1/16 - 12/31/16: $ 6857.01
-RT00000006  Roof        Rooftop Lease              quarterly  daily      daily  Yes       1/1/16 - 12/31/16: $20766.25
-RT00000007  Parcel B    Parcel B                   monthly    daily      daily  Yes       1/1/16 - 12/31/16: $ 1023.71
-RT00000008  Roof Maint  Roof Maintenance           monthly    daily      daily  Yes       3/1/16 - 12/31/16: $ 1500.00
-                        Agreement                                                                                     
-RT00000009  PRKI        Parking Space Inside       monthly    daily      daily  Yes       1/1/16 -   1/1/18: $   50.00
-RT00000010  PRKO        Parking Space Outside      monthly    daily      daily  Yes       1/1/16 -   1/1/18: $   40.00
-RT00000011  Unit J      Condo J                    monthly    daily      daily  Yes       1/1/16 -   1/1/18: $ 8000.00
+                                                                                Manage                                  
+                                                   Rent       Proration         To                                      
+RTID        Style       Name                       Cycle      Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate         
+----------  ----------  -------------------------  ---------  ---------  -----  ------  --------------------------------
+RT00000001  Unit A      Condo A                    monthly    daily      daily  Yes     1/1/2016 - 12/31/2016: $  660.31
+RT00000002  Unit B      Condo B                    monthly    daily      daily  Yes     1/1/2016 - 12/31/2016: $ 3932.99
+RT00000003  Unit C      Condo C                    monthly    daily      daily  Yes     1/1/2016 - 12/31/2016: $ 1533.57
+RT00000004  Unit D      Condo D                    monthly    daily      daily  Yes     1/1/2016 - 12/31/2016: $ 2818.62
+RT00000005  Unit E      Condo E                    monthly    daily      daily  Yes     1/1/2016 - 12/31/2016: $ 6857.01
+RT00000006  Roof        Rooftop Lease              quarterly  daily      daily  Yes     1/1/2016 - 12/31/2016: $20766.25
+RT00000007  Parcel B    Parcel B                   monthly    daily      daily  Yes     1/1/2016 - 12/31/2016: $ 1023.71
+RT00000008  Roof Maint  Roof Maintenance           monthly    daily      daily  Yes     3/1/2016 - 12/31/2016: $ 1500.00
+                        Agreement                                                                                       
+RT00000009  PRKI        Parking Space Inside       monthly    daily      daily  Yes     1/1/2016 - 1/1/2018: $   50.00  
+RT00000010  PRKO        Parking Space Outside      monthly    daily      daily  Yes     1/1/2016 - 1/1/2018: $   40.00  
+RT00000011  Unit J      Condo J                    monthly    daily      daily  Yes     1/1/2016 - 1/1/2018: $ 8000.00  
 

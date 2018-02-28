@@ -163,6 +163,13 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	appData["BizMap"] = businessList
 
+	// --------------- LIST DOWN Business FLAGS ----------------------
+	bizFLAGS := make(map[string]int64)
+	for _, bcache := range rlib.RRdb.BizCache {
+		bizFLAGS[bcache.BUD] = bcache.FLAGS
+	}
+	appData["bizFLAGS"] = bizFLAGS
+
 	// --------------- LIST DOWN Assessment FLAGS ----------------------
 	appData["asmFLAGS"] = rlib.AsmFLAGS
 

@@ -91,7 +91,7 @@ function buildAssessmentElements() {
         name: 'asmsGrid',
         url: '/v1/asms',
         multiSelect: false,
-        postData: {searchDtStart: app.D1, searchDtStop: app.D2 /*getRealEndDate(app.dateMode)*/},
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2},
         show: {
             toolbar         : true,
             footer          : true,

@@ -1,6 +1,6 @@
 "use strict";
 /*global
-  console, app, 
+  console, app,
 */
 
 //-----------------------------------------------------------------------------
@@ -112,12 +112,18 @@ function setToNextMonth(dc) {
 
     // now work out the display date:
     var dispDate = d2; // assume it's mode 0
-    if (app.dateMode == 1) {
+
+    // check EDI mode for this business and set app.D2 accordingly
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    if (EDIEnabledForBUD(BUD)) {
         dispDate.setDate(dispDate.getDate() - 1);
     }
+
     dc.value = w2uiDateControlString(dispDate);
 
-    return s;
+    // return s;
+    return dc.value;
 }
 
 //-----------------------------------------------------------------------------
@@ -277,12 +283,12 @@ function isDatePriorToCurrentDate(date) {
 
 
 
-$(function() {         
-     $(document).on("blur change", "input[type=us-date1], input[type=us-date2]", function(e) {   
-         // replace trailing zero from date using regex   
-         this.value = this.value.replace(/\b0*(?=\d)/g, ''); 
+$(function() {
+     $(document).on("blur change", "input[type=us-date1], input[type=us-date2]", function(e) {
+         // replace trailing zero from date using regex
+         this.value = this.value.replace(/\b0*(?=\d)/g, '');
          if(app.dateFormatRegex.test(this.value)){
-             this.style.borderColor = '#cacaca';           
+             this.style.borderColor = '#cacaca';
          } else {
             this.style.borderColor = 'red';
          }
