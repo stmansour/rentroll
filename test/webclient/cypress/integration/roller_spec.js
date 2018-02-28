@@ -10,7 +10,7 @@ const depAcctM = require('../support/components/depAcct');
 const depMethM = require('../support/components/depMeth');
 const arsM = require('../support/components/ars');
 const asmsM = require('../support/components/asms');
-const receiptM = require('../support/components/receipts'); // TODO(Akshay): Detail Record
+const receiptM = require('../support/components/tenderReceipts'); // TODO(Akshay): Detail Record
 const expensesM = require('../support/components/expenses');
 
 // this contain app variable of the application
@@ -39,8 +39,8 @@ describe('AIR Roller UI Tests', function () {
         */
         cy.clearCookie(constants.APPLICATION_COOKIE);
 
-        // testConfigs = [accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf, arsM.conf, asmsM.conf];
-        testConfigs = [expensesM.conf];
+        // testConfigs = [accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf, arsM.conf, asmsM.conf, receiptM.conf];
+        testConfigs = [receiptM.conf];
 
     });
 
@@ -195,7 +195,7 @@ describe('AIR Roller UI Tests', function () {
                 if (noRecordsInAPIResponse > 0) {
 
                     // tests for grid cells visibility and value matching with api response records
-                    common.gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
+                    // common.gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
                     // TODO(Akshay): Remove comment for above tests
 
                     // ----------------------------------
@@ -228,7 +228,7 @@ describe('AIR Roller UI Tests', function () {
                         // get form selector
                         let formSelector = selectors.getFormSelector(formName);
 
-                        common.detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win, testConfig);
+
 
                         // Check Business Unit field must be disabled and have value REX
                         common.BUDFieldTest();
@@ -236,18 +236,14 @@ describe('AIR Roller UI Tests', function () {
                         // -- Check buttons visibility --
                         common.buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
 
+                        common.detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win, testConfig);
+
                         // -- Close the form. And assert that form isn't visible. --
                         common.closeFormTests(formSelector);
 
                     });
                 }
-
             });
-
-
         });
-
     });
-
-
 });

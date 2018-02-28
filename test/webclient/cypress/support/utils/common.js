@@ -133,9 +133,15 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
         getW2UIFormFields = win.w2ui[formName].fields;
     });
 
+    cy.log("******************");
+    cy.log(formSelector);
+    // div[name=receiptForm]
+    cy.log("******************");
 
+
+    debugger;
     // perform tests on form fields
-    cy.get(formSelector)
+    cy.get(formSelector).debug()
         .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
         .each(($el, index, $list) => {
 
