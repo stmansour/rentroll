@@ -156,8 +156,10 @@ function buildPayorStatementElements() {
                         title = r.CompanyName;
                     } else {
                         title = r.FirstName + ' ';
-                        if (r.MiddleName.length > 0 ) {
-                            title += r.MiddleName + ' ';
+                        if (typeof r.MiddleName == "string") {
+                            if (r.MiddleName.length > 0 ) {
+                                title += r.MiddleName + ' ';
+                            }
                         }
                         title += r.LastName + ' ';
                     }

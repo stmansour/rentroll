@@ -328,7 +328,8 @@ function buildReceiptElements() {
                     var record = {};
                     getPersonDetailsByTCID(BID, r.TCID)
                     .done(function(data) {
-                        record = JSON.parse(data).record;
+                        // record = JSON.parse(data).record;
+                        record = data.record;
                         var item = {
                             CompanyName: record.CompanyName,
                             IsCompany: record.IsCompany,
@@ -371,7 +372,8 @@ function buildReceiptElements() {
                     var record = {};
                     getPersonDetailsByTCID(BID, r.TCID)
                     .done(function(data) {
-                        record = JSON.parse(data).record;
+                        // record = JSON.parse(data).record;
+                        record = data.record;
                         var item = {
                             CompanyName: record.CompanyName,
                             IsCompany: record.IsCompany,
@@ -469,9 +471,9 @@ function buildReceiptElements() {
                     // ********************************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS, BUTTONS
                     // ********************************************************
-                    $(f.box).find('input,button').not('input[name=BUD]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD]','input[name=DID]').prop("disabled", false);
                 }
-
+                $(f.box).find("input[name=DID]").prop("disabled",true);
                 // finally append
                 flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModByUser);
                 flagHTML += "<p>Created: {0} by {1}</p>".format(r.CreateTS, r.CreateByUser);
