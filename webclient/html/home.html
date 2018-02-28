@@ -234,7 +234,14 @@ function buildPageElements() {
             event.onComplete = function() {
                 // when this render complete then store default selected business in app.last
                 app.last.BUD = $("select[name=BusinessSelect]").find(":selected").attr("name");
-                app.last.BID = $("select[name=BusinessSelect]").val();
+                app.last.BID = parseInt($("select[name=BusinessSelect]").val());
+
+                // check EDI mode for this business and set app.D2 accordingly
+                if (EDIEnabledForBUD(app.last.BUD)) {
+                    var d2 = dateFromString(app.D2);
+                    d2.setDate(d2.getDate() - 1);
+                    app.D2 = dateControlString(d2);
+                }
             };
         },
         onRefresh: function(event) {
@@ -305,6 +312,8 @@ function finishInitialization() {
     d1.setDate(1);
     app.D1 = dateControlString(d1);
     var d2 = dateMonthFwd(d1);
+    // set the default one at the moment, if date mode is enabled then
+    // "BusinessSelect" render event handler will take care in top toolbar
     app.D2 = dateControlString(d2);
 }
 

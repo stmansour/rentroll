@@ -8,12 +8,17 @@ function showReport(rptname, elToFocus) {
     if (rptname === '') {
         return;
     }
-    var x = getCurrentBusiness();
-    var url = '/v1/report/' + x.value + '?r=' + rptname;
+
     w2ui.toplayout.content('main', w2ui.reportslayout);
     w2ui.toplayout.hide('right',true);
 
-    url += '&dtstart=' + app.D1 + '&dtstop=' + app.D2 + '&edi=' + app.dateMode;
+    // check EDI mode for this business and set app.D2 accordingly
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var bizEDIEnabled = EDIEnabledForBUD(BUD);
+    var edi = bizEDIEnabled ? 1 : 0;
+
+    var url = '/v1/report/' + String(BID) + '?r=' + rptname +'&dtstart=' + app.D1 + '&dtstop=' + app.D2 + '&edi=' + String(edi);
 
     // var callBack;
     // if (elToFocus) {
@@ -26,7 +31,7 @@ function showReport(rptname, elToFocus) {
     w2ui.reportslayout.load('main', url, null, null /*callBack*/);
 }
 
-//-----------------------------------------------------------------------------
+/*//-----------------------------------------------------------------------------
 // adjustInputD2
 //          - if D2 is being set based on d2str, which is typically set to the
 //            contents of a datenav control.
@@ -36,11 +41,16 @@ function showReport(rptname, elToFocus) {
 //-----------------------------------------------------------------------------
 function adjustInputD2(d2str) {
     var dt = dateFromString(d2str);
-    if (app.dateMode == 1) {
+
+    // check EDI mode for this business and set app.D2 accordingly
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    if (EDIEnabledForBUD(BUD)) {
         dt.setDate(dt.getDate() + 1); // in this mode, we need to add a day
     }
+
     app.D2 = w2uiDateControlString(dt);
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // getDisplayD2
@@ -51,8 +61,12 @@ function adjustInputD2(d2str) {
 //-----------------------------------------------------------------------------
 function getDisplayD2() {
     var dt = dateFromString(app.D2);
-    if (app.dateMode == 1) {
-        dt.setDate(dt.getDate() - 1); // we need to subtract a day so it shows the last date included
+    // check EDI mode for this business and set app.D2 accordingly
+    var BID = getCurrentBID();
+    var BUD = getBUDfromBID(BID);
+    var bizEDIEnabled = EDIEnabledForBUD(BUD);
+    if (bizEDIEnabled) {
+        // dt.setDate(dt.getDate() - 1); // we need to subtract a day so it shows the last date included
     }
     return w2uiDateControlString(dt);
 }
@@ -174,9 +188,7 @@ function buildReportElements(){
         var xd1 = document.getElementsByName('dateD1')[0].value;
         var xd2 = document.getElementsByName('dateD2')[0].value;
         var d1 = dateFromString(xd1);
-        //var d2 = dateFromString(xd2);
-        adjustInputD2(xd2); // gets string from the control, adjusts app.D2
-        var d2 = dateFromString(app.D2);
+        var d2 = dateFromString(xd2);
 
         // check that it is valid or not
         if (isNaN(Date.parse(xd1))) {
@@ -204,9 +216,8 @@ function buildReportElements(){
         var xd1 = document.getElementsByName('dateD1')[0].value;
         var xd2 = document.getElementsByName('dateD2')[0].value;
         var d1 = dateFromString(xd1);
-        //var d2 = dateFromString(xd2);
-        adjustInputD2(xd2); // gets string from the control, adjusts app.D2
-        var d2 = dateFromString(app.D2);
+        var d2 = dateFromString(xd2);
+
         xd2 = w2uiDateControlString(d2);
         // check that it is valid or not
         if (isNaN(Date.parse(xd2))) {
