@@ -921,9 +921,6 @@ func sortAndFormatRentRollSubRows(m *map[int64][]RentRollStaticInfo) {
 		// in first row after sorting done
 		firstRowSQFT := (*m)[k][0].SqFt
 
-		// same thing for PeriodGSR as we did above
-		firstRowGSR := (*m)[k][0].PeriodGSR
-
 		// sort the list of all rows per rentable
 		sort.Slice((*m)[k], func(i, j int) bool {
 			if (*m)[k][i].PossessionStart.Time.Equal((*m)[k][j].PossessionStart.Time) {
@@ -938,7 +935,6 @@ func sortAndFormatRentRollSubRows(m *map[int64][]RentRollStaticInfo) {
 
 		// re-assign the original sqft back to the first row
 		(*m)[k][0].SqFt = firstRowSQFT
-		(*m)[k][0].PeriodGSR = firstRowGSR
 
 		// ===========================
 		//         FORMATTING
