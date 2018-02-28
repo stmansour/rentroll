@@ -6057,6 +6057,59 @@ func GetRentalAgreementRentables(ctx context.Context, raid int64, d1, d2 *time.T
 	return t, rows.Err()
 }
 
+// GetAllRentalAgreementRentables returns an array of RentalAgreementRentables
+// associated with the supplied RentalAgreement ID
+//
+// INPUTS
+//  ctx - context for txn
+//  raid - which rental agreement
+//
+// RETURNS
+//  an array of rental agr. rentables
+//  any error encountered
+//-----------------------------------------------------------------------------
+func GetAllRentalAgreementRentables(ctx context.Context, raid int64) ([]RentalAgreementRentable, error) {
+
+	var (
+		err error
+		t   []RentalAgreementRentable
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{raid}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllRentalAgreementRentables)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetAllRentalAgreementRentables.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r RentalAgreementRentable
+		err = ReadRentalAgreementRentables(rows, &r)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, r)
+	}
+
+	return t, rows.Err()
+}
+
 // GetRentalAgreementPayorByRBT returns Rental Agreement Payor record matching the supplied
 // RAID, BID, TCID
 func GetRentalAgreementPayorByRBT(ctx context.Context, raid, bid, tcid int64) (RentalAgreementPayor, error) {

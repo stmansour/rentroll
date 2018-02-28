@@ -29,6 +29,8 @@ func RRReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl = getRRTable() // gotable init for this report
 	)
 	rlib.Console("Entered in %s", funcname)
+	ri.RptHeaderD1 = true
+	ri.RptHeaderD2 = true
 
 	// use section3 for errors and apply red color
 	cssListSection3 := []*gotable.CSSProperty{

@@ -15,17 +15,11 @@ type PayorStatementInfo struct {
 	RL  []ReceiptListEntry // list of receipts for the RentalAgreement(s) associated with a payor
 }
 
-// group payor statement
-// First, collect every Rental Agreement we need to check...
-// Next, get all the assessments made to any of those Rental Agreements
-// during the period d1-d2
-// Next, get all the receipts that each payor made during d1-d2
-// sort the entire list by date
-
 // PayorsStatement returns a slice of RAStmtEntry structs that describe
 // a Statement for the payors whose TCIDs are listed in payors
 //
 // Parameters
+//  ctx    - context for db txn
 //  bid    - which business
 //	payors - a slice containing all the payors to be included in the Statement
 //  d1,d2  - start and stop of the time period for the statement
@@ -86,6 +80,15 @@ func PayorsStatement(ctx context.Context, bid int64, payors []int64, d1, d2 *tim
 
 // ReceiptSummary returns a slice of receipts made by all Payors
 // responsible for the supplied list of RentalAgreements
+//
+// INPUTS
+//  ctx      - context for db txn
+//  raidlist - slice of RAIDs for which we must find the payors
+//  d1,d2  - start and stop of the time period for the statement
+//
+// Returns  an array of RAAcctBal records
+//          any error that occurred or nil if no errors
+//---------------------------------------------------------------------------
 func ReceiptSummary(ctx context.Context, raidlist []int64, d1, d2 *time.Time) ([]ReceiptListEntry, error) {
 	var (
 		bid int64
@@ -131,7 +134,7 @@ func ReceiptSummary(ctx context.Context, raidlist []int64, d1, d2 *time.Time) ([
 
 	qry := RenderSQLQuery(q, qc)
 
-	// Console("PAYOR STATEMENT Receipt Query:  %s\n", q)
+	Console("PAYOR STATEMENT Receipt Query:  %s\n", qry)
 	rows, err := RRdb.Dbrr.Query(qry)
 	if err != nil {
 		return rl, err

@@ -311,12 +311,12 @@ func deleteRARentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func GetRARentables(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "GetRARentables"
-	fmt.Printf("Entered %s\n", funcname)
+	rlib.Console("Entered %s\n", funcname)
 	var m []rlib.RentalAgreementRentable
 	var rar RARList
 	if d.ID > 0 {
-		m, _ = rlib.GetRentalAgreementRentables(r.Context(), d.ID, &d.Dt, &d.Dt)
-		fmt.Printf("d.ID = %d, d.DT = %s, len(m) = %d\n", d.ID, d.Dt.Format(rlib.RRDATEFMT3), len(m))
+		m, _ = rlib.GetAllRentalAgreementRentables(r.Context(), d.ID)
+		rlib.Console("d.ID = %d, len(m) = %d\n", d.ID, len(m))
 		for i := 0; i < len(m); i++ {
 			var xr RAR
 			rentable, err := rlib.GetRentable(r.Context(), m[i].RID)
