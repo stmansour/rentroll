@@ -287,7 +287,12 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			attachmentName += "-From:" + fromDate
 		}
 		if !ri.D2.IsZero() {
-			toDate := rrpt.GetAttachmentDate(ri.D2)
+			d2 := ri.D2
+			// if EDI mode enabled then we should subtract one day from the report name
+			if rlib.EDIEnabledForBID(ri.Bid) {
+				d2 = d2.AddDate(0, 0, -1)
+			}
+			toDate := rrpt.GetAttachmentDate(d2)
 			attachmentName += "To:" + toDate
 		}
 
@@ -428,7 +433,12 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			attachmentName += "-From" + fromDate
 		}
 		if !ri.D2.IsZero() {
-			toDate := rrpt.GetAttachmentDate(ri.D2)
+			d2 := ri.D2
+			// if EDI mode enabled then we should subtract one day from the report name
+			if rlib.EDIEnabledForBID(ri.Bid) {
+				d2 = d2.AddDate(0, 0, -1)
+			}
+			toDate := rrpt.GetAttachmentDate(d2)
 			attachmentName += "To" + toDate
 		}
 
@@ -459,7 +469,12 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 				pdfTitle += " From " + fromDate
 			}
 			if !ri.D2.IsZero() {
-				toDate := rrpt.GetAttachmentDate(ri.D2)
+				d2 := ri.D2
+				// if EDI mode enabled then we should subtract one day from the report name
+				if rlib.EDIEnabledForBID(ri.Bid) {
+					d2 = d2.AddDate(0, 0, -1)
+				}
+				toDate := rrpt.GetAttachmentDate(d2)
 				pdfTitle += " To " + toDate
 			}
 
