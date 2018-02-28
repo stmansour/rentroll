@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"strconv"
 	"strings"
 	"time"
 	"tws"
@@ -557,11 +558,11 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	rlib.MigrateStructVals(&wjs, &d.wsSearchReq)
 	rlib.Console("Client = %s\n", d.wsSearchReq.Client)
 
-	// // if dateMode is on then change the stopDate value for search op
-	// if rlib.EDIEnabledForBID(d.BID) {
-	// 	// TODO(Sudip): handle default(IsZero) date case
-	// 	d.wsSearchReq.SearchDtStop = d.wsSearchReq.SearchDtStop.AddDate(0, 0, 1) // add one day forward
-	// }
+	// if dateMode is on then change the stopDate value for search op
+	if rlib.EDIEnabledForBID(d.BID) {
+		// TODO(Sudip): handle default(IsZero) date case
+		d.wsSearchReq.SearchDtStop = d.wsSearchReq.SearchDtStop.AddDate(0, 0, 1) // add one day forward
+	}
 
 	return err
 }
@@ -622,7 +623,7 @@ func showWebRequest(d *ServiceData) {
 		rlib.Console("\t\tsearchDtStart = %s\n", time.Time(d.wsSearchReq.SearchDtStart).Format(rlib.RRDATEFMT4))
 		dateModeMsg := ""
 		if rlib.EDIEnabledForBID(d.BID) {
-			dateModeMsg = " (with dateMode enabled)"
+			dateModeMsg = " (as EDI is enabled for BID: " + strconv.FormatInt(d.BID, 10) + ")"
 		}
 		// searchDtStop with extra message indicating whether datemode is on
 		rlib.Console("\t\tsearchDtStop  = %s%s\n", time.Time(d.wsSearchReq.SearchDtStop).Format(rlib.RRDATEFMT4), dateModeMsg)

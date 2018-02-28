@@ -422,7 +422,7 @@ function buildReceiptElements() {
                     $(f.box).find("#FLAGReport").addClass("hidden");
 
                     // ENABLE ALL INPUTS IF ALL OF THOSE HAVE BEEN DISABLED FOR REVERSED PREVIOUSLY
-                    $(f.box).find('input,button').not('input[name=BUD]','input[name=DID]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD], input[name=DID]').prop("disabled", false);
                     return;
                 } else {
                     $(f.box).find("#FLAGReport").removeClass("hidden");
@@ -471,9 +471,9 @@ function buildReceiptElements() {
                     // ********************************************************
                     // IF not REVERSED THEN ENABLE ALL INPUTS, BUTTONS
                     // ********************************************************
-                    $(f.box).find('input,button').not('input[name=BUD]','input[name=DID]').prop("disabled", false);
+                    $(f.box).find('input,button').not('input[name=BUD], input[name=DID]').prop("disabled", false);
                 }
-                $(f.box).find("input[name=DID]").prop("disabled",true);
+
                 // finally append
                 flagHTML += "<p>Last Update: {0} by {1}</p>".format(r.LastModTime, r.LastModByUser);
                 flagHTML += "<p>Created: {0} by {1}</p>".format(r.CreateTS, r.CreateByUser);

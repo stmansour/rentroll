@@ -119,10 +119,16 @@ func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 	//
 	//---------------------------------
 	x, ok = m["dtstop"]
+	var d2 time.Time
 	if ok && len(x[0]) > 0 {
-		d1, err = rlib.StringToDate(x[0])
+		d2, err = rlib.StringToDate(x[0])
+		// if dateMode is on then change the stopDate value for search op
+		if rlib.EDIEnabledForBID(d.BID) {
+			// TODO(Sudip): handle default(IsZero) date case
+			d2 = d2.AddDate(0, 0, 1) // add one day forward
+		}
 		if err == nil {
-			ui.D2 = d1
+			ui.D2 = d2
 			// ui.ReportContent = fmt.Sprintf("Error with dtstop value:  %s", err.Error())
 			// SendWebSvcPage(w, r, &ui)
 			// return
@@ -281,7 +287,12 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			attachmentName += "-From:" + fromDate
 		}
 		if !ri.D2.IsZero() {
-			toDate := rrpt.GetAttachmentDate(ri.D2)
+			d2 := ri.D2
+			// if EDI mode enabled then we should subtract one day from the report name
+			if rlib.EDIEnabledForBID(ri.Bid) {
+				d2 = d2.AddDate(0, 0, -1)
+			}
+			toDate := rrpt.GetAttachmentDate(d2)
 			attachmentName += "To:" + toDate
 		}
 
@@ -422,7 +433,12 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			attachmentName += "-From" + fromDate
 		}
 		if !ri.D2.IsZero() {
-			toDate := rrpt.GetAttachmentDate(ri.D2)
+			d2 := ri.D2
+			// if EDI mode enabled then we should subtract one day from the report name
+			if rlib.EDIEnabledForBID(ri.Bid) {
+				d2 = d2.AddDate(0, 0, -1)
+			}
+			toDate := rrpt.GetAttachmentDate(d2)
 			attachmentName += "To" + toDate
 		}
 
@@ -453,7 +469,12 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 				pdfTitle += " From " + fromDate
 			}
 			if !ri.D2.IsZero() {
-				toDate := rrpt.GetAttachmentDate(ri.D2)
+				d2 := ri.D2
+				// if EDI mode enabled then we should subtract one day from the report name
+				if rlib.EDIEnabledForBID(ri.Bid) {
+					d2 = d2.AddDate(0, 0, -1)
+				}
+				toDate := rrpt.GetAttachmentDate(d2)
 				pdfTitle += " To " + toDate
 			}
 

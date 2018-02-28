@@ -508,13 +508,6 @@ function buildRentableElements() {
                     arr[index].UseStatus = UseInactiveStatus;
                     arr[index].LeaseStatus = LeaseInactiveStatus;
                 }
-
-                /*// if dateMode is set, then add one day to the stopDate
-                if (app.dateMode === 1) {
-                    var d = dateFromString(arr[index].DtStop);
-                    d.setDate(d.getDate() + 1);
-                    arr[index].DtStop = dateFmtStr(d);
-                }*/
             });
             event.changes = this.records;
         },
@@ -750,13 +743,6 @@ function buildRentableElements() {
                 arr[index].OverrideRentCycle = parseInt(arr[index].OverrideRentCycle);
                 arr[index].OverrideProrationCycle = parseInt(arr[index].OverrideProrationCycle);
                 arr[index].RTID = parseInt(arr[index].RTID);
-
-                /*// if dateMode is set, then add one day to the stopDate
-                if (app.dateMode === 1) {
-                    var d = dateFromString(arr[index].DtStop);
-                    d.setDate(d.getDate() + 1);
-                    arr[index].DtStop = dateFmtStr(d);
-                }*/
             });
             event.changes = this.records;
         },

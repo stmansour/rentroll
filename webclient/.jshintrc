@@ -105,6 +105,7 @@
         "popupPDFCustomDimensions": true,
         "saveCustomDims": true,
         "setDefaultFormFieldAsPreviousRecord": true,
-        "downloadMediaFromURL": true
+        "downloadMediaFromURL": true,
+        "EDIEnabledForBUD": true
     }
 }
