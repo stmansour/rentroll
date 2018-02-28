@@ -31,46 +31,6 @@ function showReport(rptname, elToFocus) {
     w2ui.reportslayout.load('main', url, null, null /*callBack*/);
 }
 
-/*//-----------------------------------------------------------------------------
-// adjustInputD2
-//          - if D2 is being set based on d2str, which is typically set to the
-//            contents of a datenav control.
-//            In the UI, we need to adjust forward if app.dateMode == 1.
-// @params
-// @return  <no return value>
-//-----------------------------------------------------------------------------
-function adjustInputD2(d2str) {
-    var dt = dateFromString(d2str);
-
-    // check EDI mode for this business and set app.D2 accordingly
-    var BID = getCurrentBID();
-    var BUD = getBUDfromBID(BID);
-    if (EDIEnabledForBUD(BUD)) {
-        dt.setDate(dt.getDate() + 1); // in this mode, we need to add a day
-    }
-
-    app.D2 = w2uiDateControlString(dt);
-}*/
-
-//-----------------------------------------------------------------------------
-// getDisplayD2
-//          - if D2 is being set based on the contents of a datenav control
-//            in the UI we need to adjust forward if app.dateMode == 1.
-// @params
-// @return  the date string to display
-//-----------------------------------------------------------------------------
-function getDisplayD2() {
-    var dt = dateFromString(app.D2);
-    // check EDI mode for this business and set app.D2 accordingly
-    var BID = getCurrentBID();
-    var BUD = getBUDfromBID(BID);
-    var bizEDIEnabled = EDIEnabledForBUD(BUD);
-    if (bizEDIEnabled) {
-        // dt.setDate(dt.getDate() - 1); // we need to subtract a day so it shows the last date included
-    }
-    return w2uiDateControlString(dt);
-}
-
 function buildReportElements(){
     //------------------------------------------------------------------------
     //          reportslayout
@@ -171,7 +131,7 @@ function buildReportElements(){
                 var x = document.getElementsByName("dateD1");
                 x[0].value = app.D1;
                 x = document.getElementsByName("dateD2");
-                x[0].value = getDisplayD2();
+                x[0].value = app.D2;
             }
         }
     }));

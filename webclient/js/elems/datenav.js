@@ -4,26 +4,6 @@
 */
 "use strict";
 
-/*//-----------------------------------------------------------------------------
-// adjustD2
-//          - if D2 is being set based on the contents of a datenav control
-//            in the UI we need to adjust forward if app.dateMode == 1
-// @params
-// @return  <no return value>
-//-----------------------------------------------------------------------------
-function adjustD2() {
-    var dt = dateFromString(app.D2);
-
-    // check EDI mode for this business and set app.D2 accordingly
-    var BID = getCurrentBID();
-    var BUD = getBUDfromBID(BID);
-    if (EDIEnabledForBUD(BUD)) {
-        dt.setDate(dt.getDate() + 1); // in this mode, we need to add a day
-    }
-
-    app.D2 = w2uiDateControlString(dt);
-}*/
-
 //-----------------------------------------------------------------------------
 // handleDateToolbarAction
 //          - based on the button selected, perform the appropriate date
@@ -45,7 +25,6 @@ function handleDateToolbarAction(event,prefix) {
             app.D1 = monthBack(xd1);
             if ( !event.originalEvent.shiftKey ) {
                 app.D2 = monthBack(xd2);
-                // adjustD2();
             }
             break;
         case 'monthfwd':
@@ -61,24 +40,16 @@ function handleDateToolbarAction(event,prefix) {
                 app.D1 = setDateControl(xd1, d1);
                 var d2 = dateFromString(app.D1);
                 d2.setDate(d2.getDate());
-                console.clear();
-                console.log(app.D2);
                 app.D2 = setDateControl(xd2, d2);
-                console.log(app.D2);
-                // adjustD2();
             } else {
-                console.clear();
-                console.log(app.D2);
                 app.D1 = setToCurrentMonth(xd1);
                 app.D2 = setToNextMonth(xd2);
-                console.log(app.D2);
             }
             break;
         case 'dayback':
             app.D1 = dayBack(xd1);
             if ( !event.originalEvent.shiftKey ) {
                 app.D2 = dayBack(xd2);
-                // adjustD2();
             }
             break;
         case 'dayfwd':
@@ -86,7 +57,6 @@ function handleDateToolbarAction(event,prefix) {
                 app.D1 = dayFwd(xd1);
             }
             app.D2 = dayFwd(xd2);
-            // adjustD2();
             break;
     }
     console.log('handleDateToolbarAction:  D1 = ' + app.D1 + '  D2 = ' + app.D2);
@@ -106,11 +76,6 @@ function setDateControlsInToolbar(prefix) {
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
     var x = app.D2;
-    /*if (app.dateMode == 1) {
-        var dt = dateFromString(x);
-        dt.setDate(dt.getDate() - 1);
-        x = w2uiDateControlString(dt);
-    }*/
     if (typeof xd1 != "undefined") { xd1.value = app.D1; }
     if (typeof xd2 != "undefined") { xd2.value = x; }
 }
