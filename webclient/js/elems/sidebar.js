@@ -340,12 +340,6 @@ function buildSidebar(flag) {
                         var w = w2ui.reportslayout;
                         w2ui.toplayout.content('main', w);
                         w2ui.toplayout.hide('right',true);
-
-                        // if not report node then unselect any other node
-                        if (!(w2ui.sidebarL1.selected.startsWith("RPT"))) {
-                            w2ui.sidebarL1.unselect();
-                        }
-
                         break;
                 }
 
@@ -363,14 +357,6 @@ function buildSidebar(flag) {
                 },
                 yes_callBack = function(target) {
                     console.log("sidebar active form dirty - yes callBack", target);
-
-                    // if node is other than report nodes then
-                    // reset report layout content
-                    if (!(target.startsWith("RPT"))) {
-                        w2ui.reportslayout.content('main', '');
-                        w2ui.sidebarL1.unselect();
-                    }
-
                     switch(target) {
                         case 'receipts':
                             // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
