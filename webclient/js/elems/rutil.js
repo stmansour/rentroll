@@ -496,10 +496,10 @@ function getTCIDName(item) {
 
     var s = (item.IsCompany > 0) ? item.CompanyName : getFullName(item);
 
-    if (item.TCID > 0) { 
+    if (item.TCID > 0) {
         s += ' (TCID: '+ String(item.TCID);
         if (typeof item.RAID == "number") {
-            s += ', RAID: ' + item.RAID;   
+            s += ', RAID: ' + item.RAID;
         }
         s += ')';
     }
@@ -837,7 +837,7 @@ jQuery(document).on('click', '#alloc_fund_save_btn', function(/*event*/) {
     var dat = JSON.stringify(params);
 
     // submit request
-    $.post('/v1/allocfunds/'+bid+'/', dat)
+    $.post('/v1/allocfunds/'+bid+'/', dat, null, "json")
     .done(function(data) {
         if (data.status != "success") {
             return;
