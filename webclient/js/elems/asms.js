@@ -703,7 +703,9 @@ function buildAssessmentElements() {
                         f.pasmStart = "";
                         f.pasmStop = "";
                     }
-                    data = JSON.parse(data);
+                    if (typeof data == "string") {
+                        data = JSON.parse(data);
+                    }
                     // get parent assessment dates and store it in form
                     f.pasmStart = data.record.Start;
                     f.pasmStop = data.record.Stop;

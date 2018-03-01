@@ -559,10 +559,7 @@ func getPOSTdata(w http.ResponseWriter, r *http.Request, d *ServiceData) error {
 	rlib.Console("Client = %s\n", d.wsSearchReq.Client)
 
 	// if dateMode is on then change the stopDate value for search op
-	if rlib.EDIEnabledForBID(d.BID) {
-		// TODO(Sudip): handle default(IsZero) date case
-		d.wsSearchReq.SearchDtStop = d.wsSearchReq.SearchDtStop.AddDate(0, 0, 1) // add one day forward
-	}
+	rlib.HandleFrontEndDates(d.BID, &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 
 	return err
 }

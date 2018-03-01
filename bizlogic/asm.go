@@ -633,6 +633,30 @@ func InsertAssessment(ctx context.Context, a *rlib.Assessment, exp int) []BizErr
 //-------------------------------------------------------------------------------------
 func ValidateAssessment(ctx context.Context, a *rlib.Assessment) []BizError {
 	var e []BizError
+	var raid, bid int64
+	//----------------------------------------------
+	// Validate that we have a RAID that exists...
+	//----------------------------------------------
+	qry := fmt.Sprintf("SELECT RAID,BID FROM RentalAgreement WHERE RAID=%d", a.RAID)
+	de := rlib.RRdb.Dbrr.QueryRow(qry).Scan(&raid, &bid)
+	if de != nil {
+		if rlib.IsSQLNoResultsError(de) {
+			s := fmt.Sprintf(BizErrors[UnknownRAID].Message, a.RAID, a.BID)
+			b := BizError{Errno: UnknownRAID, Message: s}
+			e = append(e, b)
+		} else {
+			return bizErrSys(&de)
+		}
+	}
+	//----------------------------------------------------
+	// Validate that it is part of the same Business...
+	//----------------------------------------------------
+	if bid != a.BID {
+		s := fmt.Sprintf(BizErrors[UnknownRAID].Message, a.RAID, a.BID)
+		b := BizError{Errno: UnknownRAID, Message: s}
+		e = append(e, b)
+	}
+
 	if a.RID > 0 {
 		//--------------------------------------------------------------------------
 		//  Check for assessment timeframe prior to or after Rentable's type being defined

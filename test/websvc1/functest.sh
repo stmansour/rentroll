@@ -132,6 +132,33 @@ dojsonPOST "http://localhost:8270/v1/account/1/0" "request" "a19"  "WebService--
 echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A0%2C%22BID%22%3A2%2C%22BUD%22%3A%22PAC%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB+92844+Lockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3A1%2C%22FLAGS%22%3A0%2C%22OffsetAccount%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/2/0" "request" "a20"  "WebService--Add-LockboxAcct-toPAC"
 
+#--------------------------------------------------------------------------------------------
+# TEST a21
+# Validate that an assessment cannot be made against a non-existent Rental Agreement.
+#
+# Scenario:
+# 		Attempt to add an assessment to RAID 1000, where RAID 1000 does not exist
+#
+# Expected Results:
+#		Bizlogic should catch the issue and return an appropriate error message.
+#--------------------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A5%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A1000%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%227%2F20%2F2017%22%2C%22Stop%22%3A%227%2F20%2F2017%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A50%2C%22Rentable%22%3A%22309+S+Rexford%22%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22Validate+RAID+checking%22%2C%22ExpandPastInst%22%3A0%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%2C%22LastModByUser%22%3A%22%22%2C%22CreateByUser%22%3A%22%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/asm/2/0" "request" "a21"  "WebService--ValidateRAIDonAssessmentAdd"
+
+#--------------------------------------------------------------------------------------------
+# TEST a22
+# Validate that an assessment cannot cross business boundaries
+#
+# Scenario:
+# 		Attempt to add an assessment to RAID 4, where RAID 4 exists but is part of
+#		a different business.
+#
+# Expected Results:
+#		Bizlogic should catch the issue and return an appropriate error message.
+#--------------------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22asmEpochForm%22%2C%22record%22%3A%7B%22ARID%22%3A5%2C%22recid%22%3A0%2C%22RID%22%3A1%2C%22ASMID%22%3A0%2C%22PASMID%22%3A0%2C%22ATypeLID%22%3A0%2C%22InvoiceNo%22%3A0%2C%22RAID%22%3A4%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22Start%22%3A%222%2F28%2F2018%22%2C%22Stop%22%3A%222%2F28%2F2018%22%2C%22RentCycle%22%3A0%2C%22ProrationCycle%22%3A0%2C%22TCID%22%3A0%2C%22Amount%22%3A50%2C%22Rentable%22%3A%22309+S+Rexford%22%2C%22AcctRule%22%3A%22%22%2C%22Comment%22%3A%22%22%2C%22ExpandPastInst%22%3A0%2C%22FLAGS%22%3A0%2C%22Mode%22%3A0%2C%22LastModByUser%22%3A%22%22%2C%22CreateByUser%22%3A%22%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/asm/2/0" "request" "a22"  "WebService--ValidateRAIDdoesNotCrossBizBoundary"
+
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"
 

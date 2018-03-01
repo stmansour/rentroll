@@ -91,7 +91,13 @@ func PayorStatement(ctx context.Context, bid, tcid int64, d1, d2 *time.Time, int
 		return t
 	}
 	addr := tr.SingleLineAddress()
-	section1 += fmt.Sprintf("Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT), addr)
+
+	// displayD2
+	// ALERT: d2 is pointer
+	displayD2 := *d2
+	rlib.HandleStopDateEDI(bid, &displayD2)
+
+	section1 += fmt.Sprintf("Period: %s - %s <br>\n%s", d1.Format(rlib.RRDATEREPORTFMT), displayD2.Format(rlib.RRDATEREPORTFMT), addr)
 	t.SetSection1(section1)
 
 	m, err := rlib.PayorsStatement(ctx, bid, payors, d1, d2)

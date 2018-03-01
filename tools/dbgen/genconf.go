@@ -102,7 +102,7 @@ func ReadConfig(fname string) (GenDBConf, error) {
 		return b, fmt.Errorf("Error converting date string %s: %s", a.DtStop, err.Error())
 	}
 	b.DtBOT = time.Date(b.DtStart.Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
-	b.DtEOT = time.Date(3000, time.December, 31, 0, 0, 0, 0, time.UTC)
+	b.DtEOT = time.Date(3001, time.January, 1, 0, 0, 0, 0, time.UTC)
 	b.OpDepositoryName = a.OpDepositoryName
 	b.SecDepDepositoryName = a.SecDepDepositoryName
 	b.PTypeCheckName = a.PTypeCheckName

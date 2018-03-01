@@ -55,11 +55,10 @@ func RAAccountActivityRangeDetail(ctx context.Context, xbiz *rlib.XBusiness, lid
 	}
 
 	// handle end date inclusion on "d2"
-	if rlib.EDIEnabledForBID(xbiz.P.BID) {
-		*d2 = d2.AddDate(0, 0, -1)
-	}
+	displayD2 := d2
+	rlib.HandleStopDateEDI(xbiz.P.BID, displayD2)
 
 	fmt.Printf("Account Balance on %10s  -  %10s\n", d1.Format(rlib.RRDATEFMT4), rlib.RRCommaf(bal1))
-	fmt.Printf("Account Balance on %10s  -  %10s\n", d2.Format(rlib.RRDATEFMT4), rlib.RRCommaf(bal2))
+	fmt.Printf("Account Balance on %10s  -  %10s\n", displayD2.Format(rlib.RRDATEFMT4), rlib.RRCommaf(bal2))
 	fmt.Printf("Change ---> %8.2f\n", bal2-bal1)
 }
