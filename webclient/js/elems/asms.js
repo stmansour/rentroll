@@ -709,6 +709,7 @@ function buildAssessmentElements() {
                         f.pasmStart = "";
                         f.pasmStop = "";
                     } else {
+                        // get parent assessment dates and store it in form
                         f.pasmStart = data.record.Start;
                         f.pasmStop = data.record.Stop;
                     }
@@ -748,7 +749,6 @@ function buildAssessmentElements() {
                     $(f.box).find("#AssessmentInfo").removeClass("hidden");
                 }
 
-                // get parent assessment dates and store it in form
                 // Assessment Info at the top of form
                 // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
                 if (typeof r.RentCycle !== "object") { return; }
