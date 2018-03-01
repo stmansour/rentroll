@@ -191,12 +191,9 @@ function rentalAgrPickerRender(item) {
     // from a potential renter...
     //------------------------------------------------------------------------
     var url = '/v1/rar/' + app.RentalAgrPicker.BID + '/' + item.RAID;
-    $.get(url,function(data /*,status*/) {
-        if (typeof data == "string") {
-            app.RentalAgrPicker.RAR = JSON.parse(data);
-        } else if (typeof data == "object") {
-            app.RentalAgrPicker.RAR = data;
-        }
+    $.get(url, null, null, "json")
+    .done(function(data) {
+        app.RentalAgrPicker.RAR = data;
         app.RentalAgrPicker.RARentablesNames = [];
         if (app.RentalAgrPicker.RAR.records) {
             for (var i = 0; i < app.RentalAgrPicker.RAR.records.length; i++) {
@@ -204,8 +201,7 @@ function rentalAgrPickerRender(item) {
                     { id: app.RentalAgrPicker.RAR.records[i].RID, text: app.RentalAgrPicker.RAR.records[i].RentableName} );
             }
         } else {
-            app.RentalAgrPicker.RARentablesNames.push(
-                    { id: 0, text: ''} );
+            app.RentalAgrPicker.RARentablesNames.push({ id: 0, text: ''} );
         }
         console.log('calling rentalAgrPicker.refresh(), app.RentalAgrPicker.RARentablesNames.length = ' + app.RentalAgrPicker.RARentablesNames.length );
         w2ui.rentalAgrPicker.refresh();

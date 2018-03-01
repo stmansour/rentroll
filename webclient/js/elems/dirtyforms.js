@@ -44,7 +44,7 @@ function getPersonDetailsByTCID(BID, TCID) {
     var params = {"cmd":"get","recid":0,"name":"transactantForm"},
         dat = JSON.stringify(params);
 
-    return $.post("/v1/person/"+BID+"/"+TCID, dat);
+    return $.post("/v1/person/"+BID+"/"+TCID, dat, null, "json");
 }
 
 // form dirty alert confirmation dialog box options
