@@ -19,6 +19,8 @@
 # 	   line with the version number associated with each bundle. Lines are of
 #	   the format:  <bundle file name> <version stamp>
 # 
+# EXAMPLES:
+#       ./release.sh rentroll
 #------------------------------------------------------------------------------
 
 TS=$(date +%Y%m%d_%H%M%S%Z)
@@ -57,6 +59,10 @@ function decho {
 #############################################################################
 function readConfig {
     APATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+	if [ ! -f ${APATH}/config.json ]; then
+		echo "config.json file was not found in ${APATH}"
+		exit 1
+	fi
     CONF="${APATH}/config.json"
     USER=$(grep RepoUser ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
     APIKEY=$(grep RepoPass ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')

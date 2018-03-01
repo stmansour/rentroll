@@ -166,6 +166,8 @@ var reverse_confirm_options = {
 // the dropdown lists prior to downloading their values. By doing it this way, we download
 // the lists first so that their values will be set by the server before we build the UI.
 function buildPageElements() {
+    var now = new Date();
+    var copyright = '&copy; 2015-' + now.getFullYear() + ' Accord Interests';
     //------------------------------------------------------------------------
     //          mainlayout
     //------------------------------------------------------------------------
@@ -178,7 +180,7 @@ function buildPageElements() {
             { type: 'main', style: app.pstyle, content: 'main' },
             { type: 'preview', size: '50%', resizable: true, hidden: true, style: app.pstyle, content: 'preview' },
             { type: 'right', size: 200, resizable: true, style: app.pstyle, hidden: true, content: 'Details' },
-            { type: 'bottom', size: 20, resizable: false, style: app.stdfmt, content: '&copy; 2015-2017 Accord Interests' }
+            { type: 'bottom', size: 20, resizable: false, style: app.stdfmt, content: copyright }
         ]
     });
 

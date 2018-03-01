@@ -1,3 +1,4 @@
+#!/bin/bash
 #############################################################################
 # readConfig
 #   Description:
@@ -14,8 +15,8 @@
 #
 #############################################################################
 readConfig() {
-    APATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
-    CONF="${APATH}/config.json"
+    RELDIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+    CONF="${RELDIR}/config.json"
     USER=$(grep RepoUser ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
     APIKEY=$(grep RepoPass ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
     URLBASE=$(grep RepoURL ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
@@ -90,8 +91,11 @@ GetLatestRepoRelease() {
         echo "There are no product releases for ${f}"
         exit 1
     fi
+    cd ${RELDIR}/..
+    d=$(pwd)
+    echo "preparing to load release bundle into directory ${d}"
     t=$(basename ${f})
-    curl -s -u "${USER}:${APIKEY}" ${URLBASE}${f} > ../${t}
+    curl -s -u "${USER}:${APIKEY}" ${URLBASE}${f} > ${t}
 }
 
 #----------------------------------------------
@@ -114,23 +118,21 @@ configure
 
 echo -n "Shutting down rentroll server."; $(./activate.sh stop) >/dev/null 2>&1
 echo -n "."
-echo -n "."; cd ..
+echo -n "."; cd ${RELDIR}/..
 echo -n "."; rm -f rentroll*.tar
 echo
 echo -n "Retrieving latest released Rentroll..."
 
 GetLatestRepoRelease "rentroll"
 
-echo -n "."; cd ..
-echo -n "."; rm -f rentroll*.tar
-echo
-
 echo "Installing.."
+echo -n "."; cd ${RELDIR}/..
+#echo -n "."; rm -f rentroll*.tar
 echo -n "."; gunzip -f rentroll*.tar.gz
 echo -n "."; tar xf rentroll*.tar
 echo -n "."; chown -R ec2-user:ec2-user rentroll
 echo -n "."; rm -f rentroll*.tar*
-echo -n "."; cd rentroll/
+echo -n "."; cd ${RELDIR}
 echo
 
 echo -n "Installation complete.  Launching..."
