@@ -143,7 +143,7 @@ function buildAssessmentElements() {
             {field: 'AcctRule', caption: 'Account Rule',  size: '200px', style: 'text-align: left', sortable: true},
             {field: 'Amount', caption: 'Amount', size: '100px', sortable: true, render: 'money', style: 'text-align: right'},
             {field: 'BID', hidden: true, caption: 'BUD', size: '40px', sortable: false},
-            {field: 'PASMID', hidden: true, caption: 'PMTID', size: '40px', sortable: false},
+            {field: 'PASMID', hidden: true, caption: 'PASMID', size: '40px', sortable: false},
             {field: 'RAID', caption: app.sRentalAgreement,  size: '125px', style: 'text-align: right', sortable: true},
             {field: 'RID', caption: 'RID',  size: '40px', hidden: true, sortable: false},
             {field: 'Rentable', caption: app.sRentable,  size: '150px', sortable: true},
@@ -709,6 +709,7 @@ function buildAssessmentElements() {
                         f.pasmStart = "";
                         f.pasmStop = "";
                     } else {
+                        // get parent assessment dates and store it in form
                         f.pasmStart = data.record.Start;
                         f.pasmStop = data.record.Stop;
                     }
@@ -748,7 +749,6 @@ function buildAssessmentElements() {
                     $(f.box).find("#AssessmentInfo").removeClass("hidden");
                 }
 
-                // get parent assessment dates and store it in form
                 // Assessment Info at the top of form
                 // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
                 if (typeof r.RentCycle !== "object") { return; }

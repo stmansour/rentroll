@@ -114,13 +114,8 @@ function saveNewRUser() {
     var dat = JSON.stringify(params);
 
     // save the record to the server, insert into grid if successful
-    $.post(url, dat)
+    $.post(url, dat, null, "json")
     .done(function(data) {
-        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-            var msg = JSON.parse(data);
-            w2ui.rauGrid.message(msg.message);
-            return;
-        }
         if (data.status == 'success') {
             rec.recid = data.recid; // success reply returns RUID of record just added
             w2ui.rauGrid.add(rec,true);
@@ -152,13 +147,8 @@ function saveNewRARentable() {
     // with the rest of the record information that we insert into the grid.
     // We pick this up in the "success" return information
     var url = '/v1/rar/' + rec.BUI + '/' + rec.RAID;
-    $.post(url, dat)
+    $.post(url, dat, null, "json")
     .done(function(data) {
-        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-            var msg = JSON.parse(data);
-            w2ui.rarGrid.message(msg.message);
-            return;
-        }
         if (data.status == 'success') {
             rec.recid = data.recid; // success reply returns RARID of record just added
             w2ui.rarGrid.add(rec,true);
@@ -325,13 +315,8 @@ function buildRAElements() {
                     var url = '/v1/rentalagr/' + BUD + '/0';
 
                     var request={cmd:"save",recid:0,name:"rentalagrForm",record: rec};
-                    $.post(url, JSON.stringify(request))
+                    $.post(url, JSON.stringify(request), null, "json")
                     .done(function(data) {
-                        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-                            var msg = JSON.parse(data);
-                            w2ui.rentalagrsGrid.message(msg.message);
-                            return;
-                        }
                         if (data.status == 'success') {
                             rec.recid = data.recid; // success reply returns RAPID of record just added
                             rec.RAID = data.recid;
@@ -895,17 +880,20 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
     w2ui.tcidRUserPicker.record.IsCompany = -1;
     w2ui.tcidRUserPicker.record.CompanyName = '';
     w2ui.tcidRUserPicker.refresh();
+
     var url = '/v1/rar/' + bid + '/' + raid;
-    $.get(url,function(data,status) {
-        if (status != "success") {
-            console.log('>>>>>>>>>>>>>>>  status = ' + status);
+    $.get(url, null, null, "json")
+    .done(function(data) {
+        if (data.status != "success") {
             return;
         }
-        app.TcidRUserPicker.RAR = JSON.parse(data);
+
+        app.TcidRUserPicker.RAR = data;
         for (var i = 0; i < app.TcidRUserPicker.RAR.records.length; i++) {
             app.TcidRUserPicker.RARentablesNames.push(app.TcidRUserPicker.RAR.records[i].RentableName);
         }
     });
+
     $().w2popup('open', {
         title   : 'Add A New ' + sTitle,
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
@@ -949,13 +937,8 @@ function saveNewRAPayor() {
     var params = {cmd: 'save', formname: 'tcidRAPayorPicker', record: rec };
     var dat = JSON.stringify(params);
 
-    $.post(w2ui.rapGrid.url, dat)
+    $.post(w2ui.rapGrid.url, dat, null, "json")
     .done(function(data) {
-        if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
-            var msg = JSON.parse(data);
-            w2ui.rapGrid.message(msg.message);
-            return;
-        }
         if (data.status == 'success') {
             rec.recid = data.recid; // success reply returns RAPID of record just added
             w2ui.rapGrid.add(rec,true);
@@ -1057,12 +1040,14 @@ function buildRUserPicker(){
             { field: 'CompanyName', type: 'text', required: false },
             { field: 'IsCompany', type: 'int', required: false },
         ],
-        onRefresh: function(/*event*/) {
-            w2ui.tcidRUserPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRUserPicker.BID;
-            w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
-            if (app.TcidRUserPicker.RARentablesNames.length == 1) {
-                w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
-            }
+        onRefresh: function(event) {
+            event.onComplete = function() {
+                w2ui.tcidRUserPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRUserPicker.BID;
+                w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
+                if (app.TcidRUserPicker.RARentablesNames.length == 1) {
+                    w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
+                }
+            };
         },
         actions: {
             save: function () {
