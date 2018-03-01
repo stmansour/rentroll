@@ -4,7 +4,7 @@ import * as selectors from './get_selectors';
 import * as constants from './constants';
 
 // Check element's existence(value) in array
-export function isInArray(value, array){
+export function isInArray(value, array) {
     return array.indexOf(value) > -1;
 }
 
@@ -74,7 +74,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 
                 let types;
                 let type;
-                switch (w2uiGridColumn.field){
+                switch (w2uiGridColumn.field) {
                     case "ARType":
                         // Account Rules
                         valueForCell = appSettings.ARTypes[valueForCell];
@@ -87,7 +87,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "AcctRule":
                     case "Payor":
                         // Chart of accounts
-                        if (valueForCell === null){
+                        if (valueForCell === null) {
                             valueForCell = "";
                         }
                         break;
@@ -163,7 +163,7 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
             let type;
 
             // Get fieldValue from the win.app variable
-            switch(fieldID){
+            switch (fieldID) {
                 case "PmtTypeName":
                     types = appSettings.pmtTypes[constants.testBiz];
                     type = types.find(types => types.PMTID === recordDetailFromAPIResponse.PMTID);
@@ -200,9 +200,9 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                     break;
                 case  "ARID":
                     let ruleName;
-                    if(formName === "asmEpochForm"){
+                    if (formName === "asmEpochForm") {
                         ruleName = "AssessmentRules";
-                    }else if (formName === "receiptForm"){
+                    } else if (formName === "receiptForm") {
                         ruleName = "ReceiptRules";
                     }
                     types = appSettings[ruleName][constants.testBiz];
@@ -213,13 +213,12 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                 case "RAID": // Assess Charges form
                 case "DID": // Tendered Payment Receipt
                     fieldValue = fieldValue.toString();
+                    break;
+                case "ERentableName":
+                    fieldValue = recordDetailFromAPIResponse.RentableName;
+                    break;
 
             }
-
-            // ERentableName
-            // if (fieldID === "ERentableName"){
-            //     fieldValue = recordDetailFromAPIResponse.RentableName;
-            // }
 
             // check fields visibility and respective value
             if (!isInArray(fieldID, testConfig.skipFields)) {
@@ -228,6 +227,88 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                     .should('be.visible')
                     .should('have.value', fieldValue);
             }
+        });
+}
+
+// -- perform test on add new record form's field --
+export function addNewFormTest(formName, formSelector, testConfig) {
+
+    // record list in w2ui form
+    let getW2UIFormRecords;
+
+    // field list in w2ui form
+    let getW2UIFormFields;
+
+    // id of the field
+    let fieldID;
+
+    // field
+    let field;
+
+    // default value of field in w2ui object
+    let defaultValue;
+
+    // Check visibility of form
+    cy.get(formSelector).should('be.visible');
+
+    // get record and field list from the w2ui form object
+    cy.window().then((win) => {
+
+        // get w2ui form records
+        getW2UIFormRecords = win.w2ui[formName].record;
+
+        // get w2ui form fields
+        getW2UIFormFields = win.w2ui[formName].fields;
+
+    });
+
+    cy.get(formSelector)
+        .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+        .each(($el, index, $list) => {
+
+            // get id of the field
+            fieldID = $el.context.id;
+
+            cy.log(getW2UIFormRecords);
+
+            // get default value of field
+            defaultValue = getW2UIFormRecords[fieldID];
+
+            // get field from w2ui form field list
+            field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
+
+            // defaultValue type is object means it does have key value pair. get default text from the key value pair.
+            if (typeof defaultValue === 'object') {
+                defaultValue = defaultValue.text;
+            }
+            /* Money type field have default value in DOM is "$0.00".
+                And w2ui field have value "0".
+                To make the comparison change default value "0" to "$0.00" */
+            else if (field.type === "money" && typeof defaultValue === 'number') {
+                defaultValue = "$0.00";
+            }
+
+            // update defaultValue based on fieldID
+            switch (fieldID) {
+                case "InvoiceNo":
+                case "DID":
+                case "RAID":
+                    defaultValue = defaultValue.toString();
+                    break;
+                case "ERentableName":
+                    defaultValue = getW2UIFormRecords.RentableName;
+                    break;
+            }
+
+            // Check field visibility and match default value from w2ui
+            if (!isInArray(fieldID, testConfig.skipFields)) {
+
+                // Check visibility and match the default value of the fields.
+                cy.get(selectors.getFieldSelector(fieldID))
+                    .should('be.visible')
+                    .should('have.value', defaultValue);
+            }
+
         });
 }
 

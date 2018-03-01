@@ -7,20 +7,7 @@ import * as common from '../support/utils/common';
 const receiptsM = require('../support/components/receipts');
 
 // default value of field in w2ui object
-let defaultValue;
 let fieldValue;
-
-// field
-let field;
-
-// id of the field
-let fieldID;
-
-// record list in w2ui form
-let getW2UIFormRecords;
-
-// field list in w2ui form
-let getW2UIFormFields;
 
 // list of columns from the grid
 let w2uiGridColumns;
@@ -64,66 +51,6 @@ function unallocatedSectionTest() {
 
     // Check position of allocated section in detail form
     allocatedSectionPositionTest();
-}
-
-// -- perform test on add new record form's field --
-function addNewFormTest(formName, formSelector) {
-
-    // Check visibility of form
-    cy.get(formSelector).should('be.visible');
-
-    // get record and field list from the w2ui form object
-    cy.window().then((win) => {
-
-        // get w2ui form records
-        getW2UIFormRecords = win.w2ui[formName].record;
-
-        // get w2ui form fields
-        getW2UIFormFields = win.w2ui[formName].fields;
-
-    });
-
-    cy.get(formSelector)
-        .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
-        .each(($el, index, $list) => {
-
-            // get id of the field
-            fieldID = $el.context.id;
-
-            cy.log(getW2UIFormRecords);
-
-            // get default value of field
-            defaultValue = getW2UIFormRecords[fieldID];
-
-            // get field from w2ui form field list
-            field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
-
-            // defaultValue type is object means it does have key value pair. get default text from the key value pair.
-            if (typeof defaultValue === 'object') {
-                defaultValue = defaultValue.text;
-            }
-            /* Money type field have default value in DOM is "$0.00".
-                And w2ui field have value "0".
-                To make the comparison change default value "0" to "$0.00" */
-            else if (field.type === "money" && typeof defaultValue === 'number') {
-                defaultValue = "$0.00";
-            }
-
-            // ERentableName field manipulation
-            if (fieldID === "ERentableName"){
-                defaultValue = getW2UIFormRecords.RentableName;
-            }
-
-            // Check field visibility and match default value from w2ui
-            if (!common.isInArray(fieldID, testConfig.skipFields)) {
-
-                // Check visibility and match the default value of the fields.
-                cy.get(selectors.getFieldSelector(fieldID))
-                    .should('be.visible')
-                    .should('have.value', defaultValue);
-            }
-
-        });
 }
 
 // test for print receipt ui in detail record form
@@ -420,7 +347,7 @@ describe('AIR Receipt UI Tests', function () {
         // get form selector
         let formSelector = selectors.getFormSelector(formName);
 
-        addNewFormTest(formName, formSelector);
+        common.addNewFormTest(formName, formSelector, testConfig);
 
         // Check Business Unit field must be disabled and have value REX
         common.BUDFieldTest();

@@ -42,8 +42,9 @@ describe('AIR Roller UI Tests', function () {
         */
         cy.clearCookie(constants.APPLICATION_COOKIE);
 
-        // testConfigs = [asmsM.conf, treceiptM.conf, accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf, arsM.conf];
-        testConfigs = [treceiptM.conf];
+        testConfigs = [asmsM.conf, treceiptM.conf, accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf];
+        // arsM.conf : It should have default value for ARType in add new record form
+
     });
 
     /**********************************
@@ -126,8 +127,8 @@ describe('AIR Roller UI Tests', function () {
 
             // Node should be visible and selected
             /************************
-            * Select right side node
-            *************************/
+             * Select right side node
+             *************************/
             cy.get(selectors.getNodeSelector(testConfig.sidebarID))
                 .scrollIntoView()
                 .should('be.visible')
@@ -135,7 +136,7 @@ describe('AIR Roller UI Tests', function () {
                 .should('have.class', 'w2ui-selected');
 
             // If have date navigation bar than change from and to Date to get in between data
-            if(testConfig.haveDateValue){
+            if (testConfig.haveDateValue) {
                 common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
             }
 
@@ -200,8 +201,7 @@ describe('AIR Roller UI Tests', function () {
                 if (noRecordsInAPIResponse > 0) {
 
                     // tests for grid cells visibility and value matching with api response records
-                    // common.gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
-                    // TODO(Akshay): Remove comment for above tests
+                    common.gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
 
                     // ----------------------------------
                     // -- Tests for detail record form --
@@ -248,6 +248,29 @@ describe('AIR Roller UI Tests', function () {
 
                     });
                 }
+
+                // ---------------------------------------
+                // ----- Tests for add new record form ---
+                // ---------------------------------------
+
+                cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+
+                // get form name
+                let formName = testConfig.form;
+
+                // get form selector
+                let formSelector = selectors.getFormSelector(formName);
+
+                common.addNewFormTest(formName, formSelector, testConfig);
+
+                // Check Business Unit field must be disabled and have value REX
+                common.BUDFieldTest();
+
+                // Check button's visibility
+                common.buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
+
+                // -- Close the form. And assert that form isn't visible. --
+                common.closeFormTests(formSelector);
             });
         });
     });
