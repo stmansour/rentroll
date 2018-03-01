@@ -5,6 +5,7 @@
     form_dirty_alert,setToForm,addDateNavToToolbar,getCurrentBID,formRefreshCallBack,
 */
 "use strict";
+
 function getAsmsInitRecord(BID, BUD, previousFormRecord){
     var y = new Date();
     var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
@@ -692,27 +693,29 @@ function buildAssessmentElements() {
             event.onComplete = function() {
                 var f = this;
                 var r = f.record;
-                var x = getCurrentBusiness();
 
-                var params = {"cmd":"get","recid":0,"name":"asmInstForm"};
+                // if PASMID is 0 then return
+                if (r.PASMID == 0) {
+                    return;
+                }
+
+                var BID = getCurrentBID();
+                var params = {"cmd":"get", "recid":0,"name":"asmInstForm"};
                 var dat = JSON.stringify(params);
-                $.post('/v1/asm/' + x.value + '/' + r.PASMID, dat)
+                $.post('/v1/asm/' + BID + '/' + r.PASMID, dat, null, "json")
                 .done( function(data) {
-                    if (data.status != 'success') {
+                    if (data.status !== 'success') {
                         f.message(data.message);
                         f.pasmStart = "";
                         f.pasmStop = "";
+                    } else {
+                        f.pasmStart = data.record.Start;
+                        f.pasmStop = data.record.Stop;
                     }
-                    if (typeof data == "string") {
-                        data = JSON.parse(data);
-                    }
-                    // get parent assessment dates and store it in form
-                    f.pasmStart = data.record.Start;
-                    f.pasmStop = data.record.Stop;
                 })
                 .fail( function() {
-                    console.log('Error getting /v1/asm/' + x.value + '/' + r.PASMID);
-                 });
+                    console.log('Error getting /v1/asm/' + BID + '/' + r.PASMID);
+                });
             };
         },
         onRefresh: function(event) {
@@ -745,6 +748,7 @@ function buildAssessmentElements() {
                     $(f.box).find("#AssessmentInfo").removeClass("hidden");
                 }
 
+                // get parent assessment dates and store it in form
                 // Assessment Info at the top of form
                 // r.epoch = app.epochInstance[  (r.RentCycle !== 'Norecur' && r.PASMID === 0) ? 0 : 1 ];
                 if (typeof r.RentCycle !== "object") { return; }
