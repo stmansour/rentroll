@@ -11,13 +11,13 @@
 #       none
 #
 #   Returns:
-#       sets variables:  APIKEY, USER, and URLBASE
+#       sets variables:  APIKEY, REPOUSER, and URLBASE
 #
 #############################################################################
 readConfig() {
     RELDIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
     CONF="${RELDIR}/config.json"
-    USER=$(grep RepoUser ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
+    REPOUSER=$(grep RepoUser ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
     APIKEY=$(grep RepoPass ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
     URLBASE=$(grep RepoURL ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
 
@@ -26,7 +26,8 @@ readConfig() {
         URLBASE="${URLBASE}/"
     fi
 
-    echo "USER = ${USER}"
+    echo "RELDIR = ${RELDIR}"
+    echo "REPOUSER = ${REPOUSER}"
     echo "APIKEY = ${APIKEY}"
     echo "URLBASE = ${URLBASE}"
 }
@@ -57,16 +58,23 @@ configure() {
     # now make sure that we have jfrog...
     #---------------------------------------------------------
     if [ ! -f ~ec2-user/bin/jfrog ]; then
-        curl -s -u "${USER}:${APIKEY}" ${URLBASE}accord/tools/jfrog > ~ec2-user/bin/jfrog
+        curl -s -u "${REPOUSER}:${APIKEY}" ${URLBASE}accord/tools/jfrog > ~ec2-user/bin/jfrog
         chown ec2-user:ec2-user ~ec2-user/bin/jfrog
         chmod +x ~ec2-user/bin/jfrog
     fi
     if [ ! -d ~ec2-user/.jfrog ]; then
-        curl -s -u "${USER}:${APIKEY}" ${URLBASE}accord/tools/jfrogconf.tar > ~ec2-user/jfrogconf.tar
+        curl -s -u "${REPOUSER}:${APIKEY}" ${URLBASE}accord/tools/jfrogconf.tar > ~ec2-user/jfrogconf.tar
         pushd ~ec2-user
         tar xvf jfrogconf.tar
         rm jfrogconf.tar
         chown ec2-user:ec2-user ~ec2-user/bin/jfrog
+        popd
+    fi
+    if [ ! -d ~root/.jfrog ]; then
+        curl -s -u "${REPOUSER}:${APIKEY}" ${URLBASE}accord/tools/jfrogconf.tar > ~root/jfrogconf.tar
+        pushd ~root
+        tar xvf jfrogconf.tar
+        rm jfrogconf.tar
         popd
     fi
 }
@@ -93,9 +101,8 @@ GetLatestRepoRelease() {
     fi
     cd ${RELDIR}/..
     d=$(pwd)
-    echo "preparing to load release bundle into directory ${d}"
     t=$(basename ${f})
-    curl -s -u "${USER}:${APIKEY}" ${URLBASE}${f} > ${t}
+    curl -s -u "${REPOUSER}:${APIKEY}" ${URLBASE}${f} > ${t}
 }
 
 #----------------------------------------------
@@ -116,14 +123,16 @@ fi
 readConfig
 configure
 
-echo -n "Shutting down rentroll server."; $(./activate.sh stop) >/dev/null 2>&1
-echo -n "."
-echo -n "."; cd ${RELDIR}/..
-echo -n "."; rm -f rentroll*.tar
-echo
-echo -n "Retrieving latest released Rentroll..."
+#echo -n "Shutting down rentroll server."; $(./activate.sh stop) >/dev/null 2>&1
+#echo -n "."
+#echo -n "."; cd ${RELDIR}/..
+#echo -n "."; rm -f rentroll*.tar
+#echo
+#echo -n "Retrieving latest released Rentroll..."
 
 GetLatestRepoRelease "rentroll"
+
+echo "***** DONE **********"
 
 echo "Installing.."
 echo -n "."; cd ${RELDIR}/..
