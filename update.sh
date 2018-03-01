@@ -1,29 +1,97 @@
-PASS=AP3wHZhcQQCvkC4GVCCZzPcqe3L
-ART=http://ec2-52-91-201-195.compute-1.amazonaws.com/artifactory
-GETFILE="/usr/local/accord/bin/getfile.sh"
-USR=accord
+#############################################################################
+# readConfig
+#   Description:
+#       Read the config.json file from the directory containing this script
+#       to set some of the key values needed to access the artifactory repo.
+#
+#       Upon returning, URLBASE will end with the character "/".
+#
+#   Params:
+#       none
+#
+#   Returns:
+#       sets variables:  APIKEY, USER, and URLBASE
+#
+#############################################################################
+readConfig() {
+    APATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+    CONF="${APATH}/config.json"
+    USER=$(grep RepoUser ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
+    APIKEY=$(grep RepoPass ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
+    URLBASE=$(grep RepoURL ${CONF} | awk '{print $2;}' | sed -e 's/[,"]//g')
 
-EXTERNAL_HOST_NAME=$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)
-#${EXTERNAL_HOST_NAME:?"Need to set EXTERNAL_HOST_NAME non-empty"}
+    # add a trailing / if it does not have one...
+    if [ "${URLBASE: -1}" != "/" ]; then
+        URLBASE="${URLBASE}/"
+    fi
 
-#--------------------------------------------------------------
-#  Routine to download files from Artifactory
-#--------------------------------------------------------------
-artf_get() {
-    echo "Downloading $1/$2"
-    wget -O "$2" --user=$USR --password=$PASS ${ART}/"$1"/"$2"
+    echo "USER = ${USER}"
+    echo "APIKEY = ${APIKEY}"
+    echo "URLBASE = ${URLBASE}"
 }
 
-loadAccordTools() {
-    #--------------------------------------------------------------
-    #  Let's get our tools in place...
-    #--------------------------------------------------------------
-    artf_get ext-tools/utils accord-linux.tar.gz
-    echo "Installing /usr/local/accord" >>${LOGFILE}
-    cd /usr/local
-    tar xzf ~ec2-user/accord-linux.tar.gz
-    chown -R ec2-user:ec2-user accord
-    cd ~ec2-user/
+#############################################################################
+# configure
+#   Description:
+#       The only configuration needed is the jfrog cli environment. Just
+#       make sure we have it in the path. If it is not present, then
+#       get it.
+#
+#   Params:
+#       none
+#
+#   Returns:
+#       nothing
+#
+#############################################################################
+configure() {
+    #---------------------------------------------------------
+    # the user's bin directory is not created by default...
+    #---------------------------------------------------------
+    if [ ! -d ~ec2-user/bin ]; then
+        mkdir ~ec2-user/bin
+    fi
+
+    #---------------------------------------------------------
+    # now make sure that we have jfrog...
+    #---------------------------------------------------------
+    if [ ! -f ~ec2-user/bin/jfrog ]; then
+        curl -s -u "${USER}:${APIKEY}" ${URLBASE}accord/tools/jfrog > ~ec2-user/bin/jfrog
+        chown ec2-user:ec2-user ~ec2-user/bin/jfrog
+        chmod +x ~ec2-user/bin/jfrog
+    fi
+    if [ ! -d ~ec2-user/.jfrog ]; then
+        curl -s -u "${USER}:${APIKEY}" ${URLBASE}accord/tools/jfrogconf.tar > ~ec2-user/jfrogconf.tar
+        pushd ~ec2-user
+        tar xvf jfrogconf.tar
+        rm jfrogconf.tar
+        chown ec2-user:ec2-user ~ec2-user/bin/jfrog
+        popd
+    fi
+}
+
+#############################################################################
+# GetLatestProductRelease
+#   Description:
+#       The only configuration needed is the jfrog cli environment. Just
+#       make sure we have it in the path. If it is not present, then
+#       get it.
+#
+#   Params:
+#       ${1} = base name of product (rentroll, phonebook, mojo, ...)
+#
+#   Returns:
+#       nothing
+#
+#############################################################################
+GetLatestRepoRelease() {
+    f=$(~ec2-user/bin/jfrog rt s "accord/air/release/*" | grep ${1} | awk '{print $2}' | sed 's/"//g')
+    if [ "x${f}" = "x" ]; then
+        echo "There are no product releases for ${f}"
+        exit 1
+    fi
+    t=$(basename ${f})
+    curl -s -u "${USER}:${APIKEY}" ${URLBASE}${f} > ../${t}
 }
 
 #----------------------------------------------
@@ -41,24 +109,36 @@ if [ ${user} != "root" ]; then
     exit 1
 fi
 
+readConfig
+configure
+
 echo -n "Shutting down rentroll server."; $(./activate.sh stop) >/dev/null 2>&1
 echo -n "."
-echo -n "."; 
 echo -n "."; cd ..
+echo -n "."; rm -f rentroll*.tar
 echo
-echo -n "Retrieving latest development snapshot of rentroll..."
-${GETFILE} jenkins-snapshot/rentroll/latest/rentroll.tar.gz
+echo -n "Retrieving latest released Rentroll..."
+
+GetLatestRepoRelease "rentroll"
+
+echo -n "."; cd ..
+echo -n "."; rm -f rentroll*.tar
 echo
-echo -n "."; gunzip -f rentroll.tar.gz
-echo -n "."; tar xf rentroll.tar
+
+echo "Installing.."
+echo -n "."; gunzip -f rentroll*.tar.gz
+echo -n "."; tar xf rentroll*.tar
 echo -n "."; chown -R ec2-user:ec2-user rentroll
+echo -n "."; rm -f rentroll*.tar*
 echo -n "."; cd rentroll/
-echo -n "."; echo -n "starting..."
+echo
+
+echo -n "Installation complete.  Launching..."
 echo -n "."; ./activate.sh start
 echo -n "."; sleep 2
 echo -n "."; status=$(./activate.sh ready)
+echo -n "."; ./installman.sh >installman.log 2>&1  # a task to perform while activation is running
 echo
-./installman.sh >installman.log 2>&1
 if [ "${status}" = "OK" ]; then
     echo "Activation successful"
 else
