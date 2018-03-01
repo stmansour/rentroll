@@ -37,7 +37,7 @@ function buildRAPicker(){
                     // max:     1,
                     items: [],
                     openOnFocus:    true,
-                    maxWidth:       350,
+                    maxDropWidth:   350,
                     maxDropHeight:  350,
                     renderItem:     rentalAgrPickerRender,
                     renderDrop:     rentalAgrPickerDropRender,
