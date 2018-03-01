@@ -23,7 +23,7 @@ export let conf = {
         "searchDtStop": "11/1/2017"
     }),
     excludeGridColumns: [],
-    buttonNamesInForm: ["save", "saveprint"],
+    buttonNamesInForm: ["save", "saveadd"],
     notVisibleButtonNamesInForm: ["close"],
     buttonNamesInDetailForm: ["save", "saveadd", "reverse"],
     skipColumns: ["reversed"],
@@ -33,3 +33,5 @@ export let conf = {
     fromDate: new Date(2018, 0, 1), // year, month-1, day : 1st Jan 2018
     toDate: new Date(2018, 1, 1) // 1st Feb 2018
 };
+
+// TODO(Akshay): Green allocated section

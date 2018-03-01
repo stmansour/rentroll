@@ -22,5 +22,6 @@ export let conf = {
     buttonNamesInDetailForm: ["save", "saveadd", "delete"],
     skipColumns: [],
     skipFields: [],
-    primaryId: "LID"
+    primaryId: "LID",
+    haveDateValue: false,
 };

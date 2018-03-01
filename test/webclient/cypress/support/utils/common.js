@@ -52,6 +52,8 @@ export function closeFormTests(formSelector) {
 
 // -- perform test on grid cells --
 export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig) {
+    let appSettings = win.app;
+
     // Iterate through each row
     recordsAPIResponse.forEach(function (record, rowNo) {
 
@@ -70,26 +72,25 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     valueForCell = win.w2utils.formatters.money(valueForCell);
                 }
 
-                // get update value for ARType from app variable : Account Rules
-                if (w2uiGridColumn.field === "ARType"){
-                    valueForCell = win.app.ARTypes[record[w2uiGridColumn.field]];
-                }
-
-                // get update value for ARType from app variable : Chart of accounts
-                if (w2uiGridColumn.field === "Status"){
-
-                    let statusID = record[w2uiGridColumn.field];
-                    let statusList = win.app.account_stuff["statusList"];
-                    let status = statusList.find(statusList => statusList.id === statusID);
-
-                    valueForCell = status.text;
-                }
-
-                // get update value for ARType from app variable : Chart of accounts
-                if (w2uiGridColumn.field === "AcctRule" || w2uiGridColumn.field === "Payor"){
-                    if (valueForCell === null){
-                        valueForCell = "";
-                    }
+                let types;
+                let type;
+                switch (w2uiGridColumn.field){
+                    case "ARType":
+                        // Account Rules
+                        valueForCell = appSettings.ARTypes[valueForCell];
+                        break;
+                    case "Status":
+                        types = appSettings.account_stuff["statusList"];
+                        type = types.find(types => types.id === valueForCell);
+                        valueForCell = type.text;
+                        break;
+                    case "AcctRule":
+                    case "Payor":
+                        // Chart of accounts
+                        if (valueForCell === null){
+                            valueForCell = "";
+                        }
+                        break;
                 }
 
                 // Check visibility and default value of cell in the grid
@@ -106,6 +107,9 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 
 // -- perform test on detail record form's field --
 export function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win, testConfig) {
+    console.log(recordDetailFromAPIResponse);
+    let appSettings = win.app;
+
     let fieldValue;
 
     // field
@@ -133,21 +137,15 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
         getW2UIFormFields = win.w2ui[formName].fields;
     });
 
-    cy.log("******************");
-    cy.log(formSelector);
-    // div[name=receiptForm]
-    cy.log("******************");
-
-
-    debugger;
     // perform tests on form fields
-    cy.get(formSelector).debug()
+    cy.get(formSelector)
         .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
         .each(($el, index, $list) => {
 
             // get id of the field
             fieldID = $el.context.id;
             cy.log(fieldID);
+
 
             // get default value of field
             fieldValue = recordDetailFromAPIResponse[fieldID];
@@ -161,81 +159,67 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
                 fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
             }
 
-            //TODO(Akshay): Use switch statments
+            let types;
+            let type;
 
-            // Update fieldValue for PmtTypeName
-            if (fieldID === "PmtTypeName") {
-                let pmtID = recordDetailFromAPIResponse.PMTID;
-                let pmtTypes = win.app.pmtTypes[constants.testBiz];
-                let pmtType = pmtTypes.find(pmtTypes => pmtTypes.PMTID === pmtID);
+            // Get fieldValue from the win.app variable
+            switch(fieldID){
+                case "PmtTypeName":
+                    types = appSettings.pmtTypes[constants.testBiz];
+                    type = types.find(types => types.PMTID === recordDetailFromAPIResponse.PMTID);
+                    fieldValue = type.Name;
+                    break;
+                case "PLID":
+                    // Parents Account(PLID)
+                    types = appSettings.parent_accounts[constants.testBiz];
+                    type = types.find(types => types.id === fieldValue);
+                    fieldValue = type.text;
+                    break;
+                case "LID":
+                    // GL Account:
+                    types = appSettings.gl_accounts[constants.testBiz];
+                    type = types.find(types => types.id === fieldValue);
+                    fieldValue = type.text;
+                    break;
+                case  "Status":
+                    // Chart of accounts
+                    types = appSettings.account_stuff["statusList"];
+                    type = types.find(types => types.id === fieldValue);
+                    fieldValue = type.text;
+                    break;
+                case  "ARType":
+                    // Account Rules
+                    fieldValue = appSettings.ARTypes[fieldValue];
+                    break;
+                case  "DebitLID":
+                case  "CreditLID":
+                    // Account Rules
+                    types = appSettings.post_accounts[constants.testBiz];
+                    type = types.find(types => types.id === fieldValue);
+                    fieldValue = type.text;
+                    break;
+                case  "ARID":
+                    let ruleName;
+                    if(formName === "asmEpochForm"){
+                        ruleName = "AssessmentRules";
+                    }else if (formName === "receiptForm"){
+                        ruleName = "ReceiptRules";
+                    }
+                    types = appSettings[ruleName][constants.testBiz];
+                    type = types.find(types => types.id === fieldValue);
+                    fieldValue = type.text;
+                    break;
+                case "InvoiceNo": // Assess Charges form
+                case "RAID": // Assess Charges form
+                case "DID": // Tendered Payment Receipt
+                    fieldValue = fieldValue.toString();
 
-                fieldValue = pmtType.Name;
-            }
-
-            // Update fieldValue for Parents Account(PLID)
-            if(fieldID === "PLID"){
-                let plid = recordDetailFromAPIResponse.PLID;
-                let parentAccountsRules = win.app.parent_accounts[constants.testBiz];
-                let parentAccountsRule = parentAccountsRules.find(parentAccountsRules => parentAccountsRules.id === plid);
-
-                fieldValue = parentAccountsRule.text;
-            }
-
-            // Update fieldValue for GL Account
-            if(fieldID === "LID"){
-                let lid = recordDetailFromAPIResponse.LID;
-                let glAccountRules = win.app.gl_accounts[constants.testBiz];
-                let glAccountRule = glAccountRules.find(glAccountRules => glAccountRules.id === lid)
-
-                fieldValue = glAccountRule.text;
-            }
-
-            // Update fieldValue for Status
-            if(fieldID === "Status"){
-                let statusID = recordDetailFromAPIResponse.Status;
-                let statusList = win.app.account_stuff["statusList"];
-                let status = statusList.find(statusList => statusList.id === statusID);
-
-                fieldValue = status.text;
-            }
-
-            // Update fieldValue for ARType : Account Rules
-            if(fieldID === "ARType"){
-                let arType = recordDetailFromAPIResponse.ARType;
-
-                fieldValue = win.app.ARTypes[arType];
-            }
-
-            // Update fieldValue for DebitLID : Account Rules
-            if(fieldID === "DebitLID"){
-                let lid = recordDetailFromAPIResponse.DebitLID;
-                let postAccountRules = win.app.post_accounts[constants.testBiz];
-                let postAccountRule = postAccountRules.find(postAccountRules => postAccountRules.id === lid)
-
-                fieldValue = postAccountRule.text;
-            }
-
-            // Update fieldValue for CreditLID : Account Rules
-            if(fieldID === "CreditLID"){
-                let lid = recordDetailFromAPIResponse.CreditLID;
-                let postAccountRules = win.app.post_accounts[constants.testBiz];
-                let postAccountRule = postAccountRules.find(postAccountRules => postAccountRules.id === lid)
-
-                fieldValue = postAccountRule.text;
-            }
-
-            if(fieldID === "ARID"){
-                let asmRuleID = recordDetailFromAPIResponse.ARID;
-                let assessmentRules = win.app.AssessmentRules[constants.testBiz];
-                let assessmentRule = assessmentRules.find(assessmentRules => assessmentRules.id === asmRuleID)
-
-                fieldValue = assessmentRule.text;
             }
 
             // ERentableName
-            if (fieldID === "ERentableName"){
-                fieldValue = recordDetailFromAPIResponse.RentableName;
-            }
+            // if (fieldID === "ERentableName"){
+            //     fieldValue = recordDetailFromAPIResponse.RentableName;
+            // }
 
             // check fields visibility and respective value
             if (!isInArray(fieldID, testConfig.skipFields)) {

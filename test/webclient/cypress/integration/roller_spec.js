@@ -4,14 +4,17 @@ import * as selectors from '../support/utils/get_selectors';
 import * as constants from '../support/utils/constants';
 import * as common from '../support/utils/common';
 
+// --- Assessments/Receipts --
+const asmsM = require('../support/components/asms'); // Assess Charges
+const treceiptM = require('../support/components/tenderReceipts'); // Tendered Payment Receipt // TODO(Akshay): Detail Record
+const expensesM = require('../support/components/expenses'); // Expenses
+
+// --- Setup ---
 const accountM = require('../support/components/accounts');
 const pmtM = require('../support/components/pmTypes');
 const depAcctM = require('../support/components/depAcct');
 const depMethM = require('../support/components/depMeth');
 const arsM = require('../support/components/ars');
-const asmsM = require('../support/components/asms');
-const receiptM = require('../support/components/tenderReceipts'); // TODO(Akshay): Detail Record
-const expensesM = require('../support/components/expenses');
 
 // this contain app variable of the application
 let appSettings;
@@ -39,9 +42,8 @@ describe('AIR Roller UI Tests', function () {
         */
         cy.clearCookie(constants.APPLICATION_COOKIE);
 
-        // testConfigs = [accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf, arsM.conf, asmsM.conf, receiptM.conf];
-        testConfigs = [receiptM.conf];
-
+        // testConfigs = [asmsM.conf, treceiptM.conf, accountM.conf, pmtM.conf, depAcctM.conf, depMethM.conf, arsM.conf];
+        testConfigs = [treceiptM.conf];
     });
 
     /**********************************
@@ -132,7 +134,10 @@ describe('AIR Roller UI Tests', function () {
                 .click().wait(constants.WAIT_TIME)
                 .should('have.class', 'w2ui-selected');
 
-            common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
+            // If have date navigation bar than change from and to Date to get in between data
+            if(testConfig.haveDateValue){
+                common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
+            }
 
             // Check http status
             cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);

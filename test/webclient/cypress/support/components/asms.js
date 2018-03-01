@@ -29,5 +29,4 @@ export let conf = {
 };
 
 //TODO(Akshay): UI Test for Unpaid section(Green Color), White Color section, Find button in form
-//TODO(Akshay): Handle From and To Date
 
