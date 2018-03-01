@@ -165,18 +165,23 @@ func lookForInterfaceStopDate(value reflect.Value, depth int) {
 			modifyInterfaceEDI(value)
 		}*/
 
-		// operate on list of end dates
-		// dateRangeFieldMap <=> {endDate: startDate}
-		for edFieldName, sdFieldName := range dateRangeFieldsMap {
+		// is it known struct and enabled for looking and end date modification
+		// Console("Struct type with package: %s\n", f.Type().String())
+		enabledForLook, ok := ediKnownStructMap[f.Type().String()]
+		if ok && enabledForLook {
+			// operate on list of end dates
+			// dateRangeFieldMap <=> {endDate: startDate}
+			for edFieldName, sdFieldName := range dateRangeFieldsMap {
 
-			// get field from ed string
-			elemStopDate := f.FieldByName(edFieldName)
+				// get field from ed string
+				elemStopDate := f.FieldByName(edFieldName)
 
-			// get field from sd string
-			elemStartDate := f.FieldByName(sdFieldName)
+				// get field from sd string
+				elemStartDate := f.FieldByName(sdFieldName)
 
-			// modify field stop date value
-			modifyInterfaceEDI(elemStopDate, elemStartDate)
+				// modify field stop date value
+				modifyInterfaceEDI(elemStopDate, elemStartDate)
+			}
 		}
 
 		// Now, target on any field, composed internal structs via different kind of
@@ -250,12 +255,6 @@ func HandleInterfaceEDI(p interface{}, BID int64) {
 		if reflect.TypeOf(p).Kind() != reflect.Ptr && reflect.ValueOf(p).Elem().Kind() != reflect.Struct {
 			return
 		}
-
-		/*// is it known struct and enabled for looking and end date modification
-		enabledForLook, ok := ediKnownStructMap[reflect.ValueOf(p).Elem().Type().String()]
-		if !(ok && enabledForLook) {
-			return
-		}*/
 
 		// send the reflect.Value of given interface p
 		lookForInterfaceStopDate(reflect.ValueOf(p), 0) // depth=0
