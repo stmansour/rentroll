@@ -1,0 +1,363 @@
+"use strict";
+
+import * as selectors from '../support/utils/get_selectors';
+import * as constants from '../support/utils/constants';
+import * as common from '../support/utils/common';
+
+const receiptsM = require('../support/components/receipts');
+
+// default value of field in w2ui object
+let fieldValue;
+
+// list of columns from the grid
+let w2uiGridColumns;
+
+// records list of module from the API response
+let recordsAPIResponse;
+
+// number of records in API response
+let noRecordsInAPIResponse;
+
+// this contain app variable of the application
+let appSettings;
+
+// holds the test configuration for the modules
+let testConfig;
+
+// Check position of allocated section in detail form
+function allocatedSectionPositionTest() {
+
+    // get co-ordinate of allocated section
+    const allocatedSection = Cypress.$(selectors.getAllocatedSectionSelector()).get(0).getBoundingClientRect();
+
+    // get co-ordinate of button section
+    const buttonSection = Cypress.$('.w2ui-buttons').get(0).getBoundingClientRect();
+
+    // get difference of y co-ordinate of element
+    let sectionDiff = allocatedSection.y - buttonSection.y;
+
+    // Check difference must be 1
+    // expect(sectionDiff).to.equal(1);
+}
+
+// -- Check Unallocated section's visibility and class --
+function unallocatedSectionTest() {
+
+    // Check visibility and class of
+    cy.get(selectors.getAllocatedSectionSelector())
+        .scrollIntoView()
+        .should('be.visible')
+        .should('have.class', 'FLAGReportContainer');
+
+    // Check position of allocated section in detail form
+    allocatedSectionPositionTest();
+}
+
+// test for print receipt ui in detail record form
+function printReceiptUITest() {
+
+    // Open print receipt UI
+    cy.get(selectors.getFormPrintButtonSelector()).should('be.visible').click();
+
+    // Check print receipt pop up should open
+    cy.get(selectors.getPrintReceiptPopUpSelector()).should('be.visible').wait(constants.WAIT_TIME);
+
+    // Check format list visibility
+    cy.get(selectors.getPrintReceiptPopUpSelector())
+        .find('.w2ui-field-helper').should('be.visible');
+
+    // Check default permanent_resident radio button is checked
+    cy.get(selectors.getPermanentResidentRadioButtonSelector())
+        .should('be.visible')
+        .should('be.checked');
+
+    // Check hotel radio button is unchecked
+    cy.get(selectors.getHotelRadioButtonSelector())
+        .should('be.visible')
+        .should('not.be.checked');
+
+    // Check button visibility
+    let printReceiptButtons = ["print", "close"];
+    common.buttonsTest(printReceiptButtons, []);
+
+    // Close the popup
+    cy.get(selectors.getClosePopupButtonSelector()).click();
+}
+
+// -- Start Cypress UI tests --
+describe('AIR Receipt UI Tests', function () {
+
+    // -- Perform operation before all tests starts. It runs once before all tests in the block --
+    before(function () {
+        /*
+        * Clear cookies befor starting tests. Because We are preserving cookies to use it all test suit.
+        * Running test suit multiple times require new session to login into application.
+        */
+        cy.clearCookie(constants.APPLICATION_COOKIE);
+
+        testConfig = receiptsM.conf;
+
+    });
+
+    /**********************************
+     * Assert the title of application
+     * 1. Visit Receipt application
+     * 2. Assert the title 'AIR Receipts'
+     ************************************/
+
+    it('Assert the title of application', function () {
+
+        // It visit baseUrl(from cypress.json) + applicationPath
+        cy.visit(constants.RECEIPT_APPLICATION_PATH).wait(constants.PAGE_LOAD_TIME);
+
+        // Assert application title
+        cy.title().should('include', 'AIR Receipts');
+
+    });
+
+    // -- Login into application --
+    it('Login into AIR Receipts', function () {
+        // Check custom login command for more detail. File path: ./../support/commands.js
+        cy.login();
+    });
+
+    // -- Perform operation before each test(it()) starts. It runs before each test in the block. --
+    beforeEach(function () {
+        /*
+        * Cypress automatically clears all cookies before each test run.
+        * It does make application log off.
+        * To preserve cookies for entire test suit add that cookie in Cypress cookies's whitelist.
+        * Link for more detail: https://docs.cypress.io/api/cypress-api/cookies.html
+        */
+        Cypress.Cookies.defaults({whitelist: constants.APPLICATION_COOKIE});
+
+        // -- get app variable from the window --
+        /*
+        * After successfully login into application it will have fixed app variable.
+        * Fetching it after successful login.
+        * */
+        cy.window().then((win) => {
+            appSettings = win.app;
+        });
+
+        cy.log(appSettings);
+
+    });
+
+    // -- Change business to REX --
+    it('Change business to REX', function () {
+
+        // get business id from appSettings variable for 'REX'
+        appSettings.BizMap.forEach(function (item) {
+            if (item.BUD === constants.testBiz) {
+                constants.testBizID = item.BID;
+            }
+        });
+
+        // Now change the business to REX
+        cy.get('[name="BusinessSelect"]').select(constants.testBiz);
+
+        // Check BusinessSelect value is set per the expected BID from appSettings variable
+        cy.get('[name="BusinessSelect"]').should('have.value', constants.testBizID.toString());
+
+        // onSuccessful test set BID value. If above test get fail below code will not be executed.
+        constants.BID = constants.testBizID;
+
+    });
+
+    // -- Check export CSV and export to Print button in grid toolbar --
+    it('CSV and Print button in toolbar', function () {
+        // Check visibility of export to CSV button
+        cy.get(selectors.getExportCSVButtonSelector()).should('be.visible');
+
+        // Check visibility of export to PDF button
+        cy.get(selectors.getExportPDFButtonSelector()).should('be.visible');
+    });
+
+
+    /*****************************************************
+     * Tests for node
+     *******************************************************/
+    it('Left side node', function () {
+
+        // It should be visible and selected
+        cy.get(selectors.getNodeSelector(testConfig.sidebarID))
+            .scrollIntoView()
+            .should('be.visible')
+            .should('have.class', 'w2ui-selected')
+            .click().wait(constants.WAIT_TIME);
+
+    });
+
+    /******************************
+     * Change date in toolbar
+     * 1. Route the receipt API
+     * 2. Check http status
+     * 3. Check key `status` in API endpoint responseBody
+     *****************************/
+    it('Change date', function () {
+
+        // Starting a server to begin routing responses to cy.route()
+        cy.server();
+
+        // To manage the behavior of network requests. Routing the response for the requests.
+        cy.route(testConfig.methodType, common.getAPIEndPoint(testConfig.sidebarID)).as('getRecords');
+
+        common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
+
+        // Check http status
+        cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+        // get API endpoint's responseBody
+        cy.get('@getRecords').then(function (xhr) {
+
+            // Check key `status` in responseBody
+            expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+
+            // get records list from the API response
+            recordsAPIResponse = xhr.response.body.records;
+
+            // -- Assigning number of records to 0 if no records are available in response --
+            if (recordsAPIResponse) {
+                noRecordsInAPIResponse = xhr.response.body.records.length;
+            } else {
+                noRecordsInAPIResponse = 0;
+            }
+
+        });
+    });
+
+    /**********************************************************
+     * Tests for grid records
+     * 1. Iterate through each row
+     * 2. Check visibility of cell in the row
+     * 3. Check value of cells in the row
+     *
+     * Tests for grid record detail
+     * 1. Click on first record
+     * 2. Check visibility of detail form
+     * 3. Check visibility and value of the fields
+     * 4. Check button's visibility
+     * 5. Check Unallocated section visibility and position(Using Y co-ordinate of elements)
+     * 6. Check print receipt ui test
+     * 7. Close the detail form
+     * 8. Assert that form is close.
+     *********************************************************/
+
+    it('Test for grid records and record detail', function () {
+
+        // Starting a server to begin routing responses to cy.route()
+        cy.server();
+
+        // ----------------------------
+        // -- Tests for grid records --
+        // ----------------------------
+        cy.log("Tests for grid records");
+
+        // Check visibility of grid
+        cy.get(selectors.getGridSelector(testConfig.grid)).should('be.visible').wait(constants.WAIT_TIME);
+
+        // get length from the window and perform tests
+        cy.window().then(win => {
+
+            // get list of columns in the grid
+            w2uiGridColumns = win.w2ui[testConfig.grid].columns;
+
+            // Match grid record length with total rows in receiptsGrid
+            cy.get(selectors.getRowsInGridSelector(testConfig.grid)).should(($trs) => {
+                expect($trs).to.have.length(noRecordsInAPIResponse);
+            });
+
+            // Perform test only if there is/are record(s) exists in API response.
+            if (noRecordsInAPIResponse > 0) {
+
+                // tests for grid cells visibility and value matching with api response records
+                common.gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
+
+                // ----------------------------------
+                // -- Tests for detail record form --
+                // ----------------------------------
+                cy.log("Tests for detail record form");
+
+                // -- detail record testing --
+                const id = recordsAPIResponse[0][testConfig.primaryId];
+
+                // Routing response to detail record's api requests.
+                cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
+
+                // click on the first record of grid
+                cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+
+                // check response status of API end point
+                cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+                // perform tests on record detail form
+                cy.get('@getDetailRecord').then(function (xhr) {
+
+                    let recordDetailFromAPIResponse = xhr.response.body.record;
+
+                    cy.log(recordDetailFromAPIResponse);
+
+                    // formName
+                    let formName = testConfig.form;
+
+                    // get form selector
+                    let formSelector = selectors.getFormSelector(formName);
+
+                    common.detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win, testConfig);
+
+                    // Check Business Unit field must be disabled and have value REX
+                    common.BUDFieldTest();
+
+                    // -- Check buttons visibility --
+                    common.buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
+
+                    // -- Check Unallocated section's visibility and class --
+                    unallocatedSectionTest();
+
+                    // -- Check print receipt UI --
+                    printReceiptUITest();
+
+                    // -- Close the form. And assert that form isn't visible. --
+                    common.closeFormTests(formSelector);
+
+                });
+            }
+
+        });
+    });
+
+
+    /************************************************************
+     * Tests for adding new record form.
+     * 1. Open the form by clicking the Add New button in toolbar
+     * 2. Check visibility of the form in viewport
+     * 3. Find not hidden field from the DOM
+     * 4. Perform visibility test on those hidden fields
+     * 5. Check default value for that fields.
+     ***********************************************************/
+
+    it('Test for the Add New Button', function () {
+
+        cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+
+        // get form name
+        let formName = testConfig.form;
+
+        // get form selector
+        let formSelector = selectors.getFormSelector(formName);
+
+        common.addNewFormTest(formName, formSelector, testConfig);
+
+        // Check Business Unit field must be disabled and have value REX
+        common.BUDFieldTest();
+
+        // Check button's visibility
+        common.buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
+
+        // -- Close the form. And assert that form isn't visible. --
+        common.closeFormTests(formSelector);
+
+    });
+
+});
