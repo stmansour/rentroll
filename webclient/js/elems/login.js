@@ -172,6 +172,7 @@ function getUserInfo() {
 //---------------------------------------------------------------------------------
 function launchSession() {
     var x = getCookieValue("air");
+    console.log('launchSession: getCookieValue(air) = '+x);
     if (x !== null && x.length > 0) {
         getUserInfo();
         handleBlankScreen(true);
