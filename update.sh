@@ -132,8 +132,6 @@ configure
 
 GetLatestRepoRelease "rentroll"
 
-echo "***** DONE **********"
-
 echo "Installing.."
 echo -n "."; cd ${RELDIR}/..
 #echo -n "."; rm -f rentroll*.tar
