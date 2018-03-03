@@ -273,6 +273,7 @@ function getPayorFund(BID, TCID) {
 
 //-----------------------------------------------------------------------------
 // Auto Allocate amount for each unpaid assessment
+// returns false
 //-----------------------------------------------------------------------------
 jQuery(document).on('click', '#auto_allocate_btn', function(/*event*/) {
 
