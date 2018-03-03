@@ -1,6 +1,6 @@
 /*global
     $,w2ui,app,console,refreshUnallocAmtSummaries,unallocAmountRemaining,_unAllocRcpts,
-    parseFloat,getPayorFund,
+    parseFloat,getPayorFund,number_format,
 
 */
 "use strict";
@@ -208,3 +208,143 @@ function buildAllocFundsGrid() {
     });
 
 }
+
+//-----------------------------------------------------------------------------
+// computeAmountRemaining - based on the amounts allocated to receipts in the
+// unpaid receipts list, compute the amount of funds remaining to be allocated
+// @params
+// @return  the amount of funds remaining; a number
+//-----------------------------------------------------------------------------
+function computeAmountRemaining() {
+    var totalFunds = app.payor_fund; // must already be set to total unallocated receipt funds
+    for (var i=0; i < w2ui.unpaidASMsGrid.records.length; i++) {
+        totalFunds -= w2ui.unpaidASMsGrid.records[i].Allocate;
+    }
+    return totalFunds;
+}
+
+
+//-----------------------------------------------------------------------------
+// unallocAmountRemaining - display the funds remaining to be allocated
+// @params
+// @return
+//-----------------------------------------------------------------------------
+function unallocAmountRemaining() {
+    var dispAmt = number_format(computeAmountRemaining(), 2, '.', ',');
+    var x = document.getElementById("total_fund_amount");
+    if (x !== null) {
+        x.innerHTML = dispAmt;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// refreshUnallocAmtSummaries - This routine totals the summary columns for the
+// unpaid assessments grid.
+// @params
+// @return
+//-----------------------------------------------------------------------------
+function refreshUnallocAmtSummaries() {
+    if (w2ui.unpaidASMsGrid.records.length === 0 ) { return; }
+    var amt = 0;
+    var amtPaid = 0;
+    var amtOwed = 0;
+    var alloc = 0;
+    for (var i=0; i < w2ui.unpaidASMsGrid.records.length; i++) {
+        amt += w2ui.unpaidASMsGrid.records[i].Amount;
+        amtPaid += w2ui.unpaidASMsGrid.records[i].AmountPaid;
+        amtOwed += w2ui.unpaidASMsGrid.records[i].AmountOwed;
+        alloc += w2ui.unpaidASMsGrid.records[i].Allocate;
+    }
+    w2ui.unpaidASMsGrid.set('s-1', {Amount: amt, AmountPaid: amtPaid, AmountOwed: amtOwed, Allocate: alloc});
+}
+
+//-----------------------------------------------------------------------------
+// getPayorFund - get payor fund
+// @params
+// @return  the jquery promise
+//-----------------------------------------------------------------------------
+function getPayorFund(BID, TCID) {
+    return jQuery.ajax({
+        type: "GET",
+        url: '/v1/payorfund/'+BID+'/'+TCID,
+        dataType: "json",
+    });
+}
+
+//-----------------------------------------------------------------------------
+// Auto Allocate amount for each unpaid assessment
+//-----------------------------------------------------------------------------
+jQuery(document).on('click', '#auto_allocate_btn', function(/*event*/) {
+
+    // var fund = app.payor_fund;
+    var fund = computeAmountRemaining();
+    var grid = w2ui.unpaidASMsGrid;
+
+    for (var i = 0; i < grid.records.length; i++) {
+        if (fund <= 0) {
+            break;
+        }
+
+        //--------------------------------------------
+        // if it already has an amount, skip it...
+        //--------------------------------------------
+        if (grid.records[i].Allocate > 0 ) {
+            continue;
+        }
+
+        // //------------------------------------------------------------------
+        // // if this row has been fully paid then move on to the next row
+        // //------------------------------------------------------------------
+        // if (grid.records[i].Amount - grid.records[i].AmountPaid <= 0) {
+        //     continue;
+        // }
+
+        // check if fully paid or not
+        if (grid.records[i].Amount - grid.records[i].AmountPaid <= fund){
+            grid.records[i].Allocate = grid.records[i].Amount - grid.records[i].AmountPaid;
+            grid.set(grid.records[i].recid, grid.records[i]);
+        } else {
+            grid.records[i].Allocate = fund;
+            grid.set(grid.records[i].recid, grid.records[i]);
+        }
+
+        // decrement fund value by whatever the amount allocated for each record
+        fund = fund - grid.records[i].Allocate;
+    }
+    refreshUnallocAmtSummaries();
+    unallocAmountRemaining();
+    return false;
+});
+
+jQuery(document).on('click', '#alloc_fund_save_btn', function(/*event*/) {
+
+    var tgrid = w2ui.allocfundsGrid;
+    var rec = tgrid.getSelection();
+    if (rec.length < 0) {
+        return;
+    }
+
+    // rec = tgrid.get(rec[0]);
+    var tcid = app.TmpTCID,
+        x = getCurrentBusiness();
+    var bid = parseInt(x.value,10);
+
+
+    var params = {cmd: 'save', TCID: tcid, BID: bid, records: w2ui.unpaidASMsGrid.records };
+    var dat = JSON.stringify(params);
+
+    // submit request
+    $.post('/v1/allocfunds/'+bid+'/', dat, null, "json")
+    .done(function(data) {
+        if (data.status != "success") {
+            return;
+        }
+        w2ui.toplayout.hide('right',true);
+        w2ui.toplayout.render();
+        tgrid.reload();
+    })
+    .fail(function(/*data*/){
+        console.log("Payor Fund Allocation failed.");
+    });
+});
+
