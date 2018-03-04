@@ -16,6 +16,8 @@ import (
 // validate the cookie value
 type ValidateCookie struct {
 	CookieVal string `json:"cookieval"`
+	IP        string `json:"ip"`
+	UserAgent string `json:"useragent"`
 	FLAGS     uint64 `json:"flags"`
 }
 
@@ -290,6 +292,8 @@ func GetSession(ctx context.Context, w http.ResponseWriter, r *http.Request) (*S
 		//--------------------------------------------------------
 		var a = ValidateCookie{
 			CookieVal: cookie.Value,
+			IP:        r.RemoteAddr,
+			UserAgent: r.UserAgent(),
 		}
 		//-----------------------------------------------------------------------
 		// Marshal together a new request buffer...

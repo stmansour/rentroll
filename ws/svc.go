@@ -261,6 +261,7 @@ func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error 
 //	request=%7B%22search%22%3A%22s%22%2C%22max%22%3A250%7D
 // using HTTP GET (rather than its more typical POST).  The command decodes to
 // this: request={"search":"s","max":250}
+//-----------------------------------------------------------------------------
 func V1ServiceHandler(w http.ResponseWriter, r *http.Request) {
 	funcname := "V1ServiceHandler"
 	svcDebugTxn(funcname, r)
