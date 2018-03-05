@@ -119,7 +119,7 @@ function buildSidebar(flag) {
                         w2ui.toplayout.hide('right',true);
 
                         // if not report node then unselect any other node
-                        if (!(w2ui.sidebarL1.selected.startsWith("RPT"))) {
+                        if (!(w2ui.sidebarL1.selected && w2ui.sidebarL1.selected.startsWith("RPT"))) {
                             w2ui.sidebarL1.unselect();
                         }
 
