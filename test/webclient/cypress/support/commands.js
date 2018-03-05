@@ -48,7 +48,7 @@ Cypress.Commands.add("login", function () {
         });
 
         // login steps
-        cy.request('POST', '/v1/authn/', {"user": username, "pass": password})
+        cy.request('POST', constants.LOGIN_END_POINT, {"user": username, "pass": password})
             .then((resp) => {
                 cy.log(resp);
                 expect(resp.status).to.eq(200)
@@ -63,10 +63,11 @@ Cypress.Commands.add("login", function () {
 
 });
 
+
+// This command log off the application
 Cypress.Commands.add("logout", function () {
-    // This command log off the application
-    cy.request('GET', '/v1/logoff/')
+    cy.request('GET', constants.LOGOUT_END_POINT)
         .then((resp) => {
-        expect(resp.status).to.eq(200);
+            expect(resp.status).to.eq(200);
         });
 });

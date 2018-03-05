@@ -107,9 +107,8 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 }
 
 // -- perform test on detail record form's field --
-export function detailFormTest(formSelector, formName, recordDetailFromAPIResponse, win, testConfig) {
+export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
     console.log(recordDetailFromAPIResponse);
-    let appSettings = win.app;
 
     let fieldValue;
 
@@ -119,12 +118,17 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
     // id of the field
     let fieldID;
 
-
     // record list in w2ui form
     let getW2UIFormRecords;
 
     // field list in w2ui form
     let getW2UIFormFields;
+
+    // formName
+    let formName = testConfig.form;
+
+    // get form selector
+    let formSelector = selectors.getFormSelector(formName);
 
     // Check visibility of form
     cy.get(formSelector).should('be.visible');
@@ -136,103 +140,115 @@ export function detailFormTest(formSelector, formName, recordDetailFromAPIRespon
 
         // get w2ui form fields
         getW2UIFormFields = win.w2ui[formName].fields;
+
+        let appSettings = win.app;
+
+
+        // perform tests on form fields
+        cy.get(formSelector)
+            .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+            .each(($el, index, $list) => {
+
+                // get id of the field
+                fieldID = $el.context.id;
+                cy.log(fieldID);
+
+
+                // get default value of field
+                fieldValue = recordDetailFromAPIResponse[fieldID];
+                cy.log(fieldValue);
+
+                // get field from w2ui form field list
+                field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
+
+                // Convert fieldValue to w2ui money type
+                if (field.type === "money") {
+                    fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
+                }
+
+                let types;
+                let type;
+
+                // Get fieldValue from the win.app variable
+                switch (fieldID) {
+                    case "PmtTypeName":
+                        types = appSettings.pmtTypes[constants.testBiz];
+                        type = types.find(types => types.PMTID === recordDetailFromAPIResponse.PMTID);
+                        fieldValue = type.Name;
+                        break;
+                    case "PLID":
+                        // Parents Account(PLID)
+                        types = appSettings.parent_accounts[constants.testBiz];
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case "LID":
+                        // GL Account:
+                        types = appSettings.gl_accounts[constants.testBiz];
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case  "Status":
+                        // Chart of accounts
+                        types = appSettings.account_stuff["statusList"];
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case  "ARType":
+                        // Account Rules
+                        fieldValue = appSettings.ARTypes[fieldValue];
+                        break;
+                    case  "DebitLID":
+                    case  "CreditLID":
+                        // Account Rules
+                        types = appSettings.post_accounts[constants.testBiz];
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case  "ARID":
+                        let ruleName;
+                        if (formName === "asmEpochForm") {
+                            ruleName = "AssessmentRules";
+                        } else if (formName === "receiptForm") {
+                            ruleName = "ReceiptRules";
+                        }
+                        types = appSettings[ruleName][constants.testBiz];
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
+                        break;
+                    case "InvoiceNo": // Assess Charges form
+                    case "RAID": // Assess Charges form
+                    case "DID": // Tendered Payment Receipt
+                        fieldValue = fieldValue.toString();
+                        break;
+                    case "ERentableName":
+                        fieldValue = recordDetailFromAPIResponse.RentableName;
+                        break;
+
+                }
+
+                // check fields visibility and respective value
+                if (!isInArray(fieldID, testConfig.skipFields)) {
+                    // Check visibility and match the default value of the fields.
+                    cy.get(selectors.getFieldSelector(fieldID))
+                        .should('be.visible')
+                        .should('have.value', fieldValue);
+                }
+            });
     });
 
-    // perform tests on form fields
-    cy.get(formSelector)
-        .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
-        .each(($el, index, $list) => {
+    // Check Business Unit field must be disabled and have value REX
+    BUDFieldTest();
 
-            // get id of the field
-            fieldID = $el.context.id;
-            cy.log(fieldID);
+    // -- Check buttons visibility --
+    buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
 
-
-            // get default value of field
-            fieldValue = recordDetailFromAPIResponse[fieldID];
-            cy.log(fieldValue);
-
-            // get field from w2ui form field list
-            field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
-
-            // Convert fieldValue to w2ui money type
-            if (field.type === "money") {
-                fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
-            }
-
-            let types;
-            let type;
-
-            // Get fieldValue from the win.app variable
-            switch (fieldID) {
-                case "PmtTypeName":
-                    types = appSettings.pmtTypes[constants.testBiz];
-                    type = types.find(types => types.PMTID === recordDetailFromAPIResponse.PMTID);
-                    fieldValue = type.Name;
-                    break;
-                case "PLID":
-                    // Parents Account(PLID)
-                    types = appSettings.parent_accounts[constants.testBiz];
-                    type = types.find(types => types.id === fieldValue);
-                    fieldValue = type.text;
-                    break;
-                case "LID":
-                    // GL Account:
-                    types = appSettings.gl_accounts[constants.testBiz];
-                    type = types.find(types => types.id === fieldValue);
-                    fieldValue = type.text;
-                    break;
-                case  "Status":
-                    // Chart of accounts
-                    types = appSettings.account_stuff["statusList"];
-                    type = types.find(types => types.id === fieldValue);
-                    fieldValue = type.text;
-                    break;
-                case  "ARType":
-                    // Account Rules
-                    fieldValue = appSettings.ARTypes[fieldValue];
-                    break;
-                case  "DebitLID":
-                case  "CreditLID":
-                    // Account Rules
-                    types = appSettings.post_accounts[constants.testBiz];
-                    type = types.find(types => types.id === fieldValue);
-                    fieldValue = type.text;
-                    break;
-                case  "ARID":
-                    let ruleName;
-                    if (formName === "asmEpochForm") {
-                        ruleName = "AssessmentRules";
-                    } else if (formName === "receiptForm") {
-                        ruleName = "ReceiptRules";
-                    }
-                    types = appSettings[ruleName][constants.testBiz];
-                    type = types.find(types => types.id === fieldValue);
-                    fieldValue = type.text;
-                    break;
-                case "InvoiceNo": // Assess Charges form
-                case "RAID": // Assess Charges form
-                case "DID": // Tendered Payment Receipt
-                    fieldValue = fieldValue.toString();
-                    break;
-                case "ERentableName":
-                    fieldValue = recordDetailFromAPIResponse.RentableName;
-                    break;
-
-            }
-
-            // check fields visibility and respective value
-            if (!isInArray(fieldID, testConfig.skipFields)) {
-                // Check visibility and match the default value of the fields.
-                cy.get(selectors.getFieldSelector(fieldID))
-                    .should('be.visible')
-                    .should('have.value', fieldValue);
-            }
-        });
+    // -- Close the form. And assert that form isn't visible. --
+    closeFormTests(formSelector);
 }
 
 // -- perform test on add new record form's field --
-export function addNewFormTest(formName, formSelector, testConfig) {
+export function addNewFormTest(testConfig) {
 
     // record list in w2ui form
     let getW2UIFormRecords;
@@ -248,6 +264,12 @@ export function addNewFormTest(formName, formSelector, testConfig) {
 
     // default value of field in w2ui object
     let defaultValue;
+
+    // get form name
+    let formName = testConfig.form;
+
+    // get form selector
+    let formSelector = selectors.getFormSelector(formName);
 
     // Check visibility of form
     cy.get(formSelector).should('be.visible');
@@ -311,6 +333,16 @@ export function addNewFormTest(formName, formSelector, testConfig) {
             }
 
         });
+
+
+    // Check Business Unit field must be disabled and have value REX
+    BUDFieldTest();
+
+    // Check button's visibility
+    buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
+
+    // -- Close the form. And assert that form isn't visible. --
+    closeFormTests(formSelector);
 }
 
 // change date in UI from and to date
@@ -343,8 +375,8 @@ export function changeDate(dateFieldName, fromDt, toDt) {
 
 // change business unit as per the constants.testBiz
 // return updated testBizID
-function changeBU(appSettings) {
-// get business id from appSettings variable for 'REX'
+export function changeBU(appSettings) {
+    // get business id from appSettings variable for 'REX'
     appSettings.BizMap.forEach(function (item) {
         if (item.BUD === constants.testBiz) {
             constants.testBizID = item.BID;
@@ -359,77 +391,49 @@ function changeBU(appSettings) {
 
     return constants.testBizID;
 }
-function testAddNewRecordForm(testConfig) {
+
+export function testAddNewRecordForm(testConfig) {
     cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
 
-    // get form name
-    let formName = testConfig.form;
-
-    // get form selector
-    let formSelector = selectors.getFormSelector(formName);
-
-    common.addNewFormTest(formName, formSelector, testConfig);
-
-    // Check Business Unit field must be disabled and have value REX
-    common.BUDFieldTest();
-
-    // Check button's visibility
-    common.buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
-
-    // -- Close the form. And assert that form isn't visible. --
-    common.closeFormTests(formSelector);
+    addNewFormTest(testConfig);
 }
 
-function testGridRecords(testConfig) {
-    // records list of module from the API response
-    let recordsAPIResponse;
+export function testRecordDetailForm(recordsAPIResponse, testConfig) {
+    cy.log("Tests for detail record form");
 
-    // number of records in API response
-    let noRecordsInAPIResponse;
-
-    // list of columns from the grid
-    let w2uiGridColumns;
+    // -- detail record testing --
+    const id = recordsAPIResponse[0][testConfig.primaryId];
 
     // Starting a server to begin routing responses to cy.route()
     cy.server();
 
-    // To manage the behavior of network requests. Routing the response for the requests.
-    cy.route(testConfig.methodType, getAPIEndPoint(testConfig.sidebarID)).as('getRecords');
+    // Routing response to detail record's api requests.
+    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
 
-    // Node should be visible and selected
-    /************************
-     * Select right side node
-     *************************/
-    cy.get(selectors.getNodeSelector(testConfig.sidebarID))
-        .scrollIntoView()
-        .should('be.visible')
-        .click().wait(constants.WAIT_TIME)
-        .should('have.class', 'w2ui-selected');
+    // click on the first record of grid
+    cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
-    // If have date navigation bar than change from and to Date to get in between data
-    if (testConfig.haveDateValue) {
-        changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
-    }
+    // check response status of API end point
+    cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
 
-    // Check http status
-    cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
+    // perform tests on record detail form
+    cy.get('@getDetailRecord').then(function (xhr) {
 
-    // get API endpoint's responseBody
-    cy.get('@getRecords').then(function (xhr) {
+        let recordDetailFromAPIResponse = xhr.response.body.record;
 
-        // Check key `status` in responseBody
-        expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+        cy.log(recordDetailFromAPIResponse);
 
-        // get records list from the API response
-        recordsAPIResponse = xhr.response.body.records;
+        detailFormTest(recordDetailFromAPIResponse, testConfig);
 
-        // -- Assigning number of records to 0 if no records are available in response --
-        if (recordsAPIResponse) {
-            noRecordsInAPIResponse = xhr.response.body.records.length;
-        } else {
-            noRecordsInAPIResponse = 0;
-        }
     });
+
+}
+
+export function testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig) {
+
+    // list of columns from the grid
+    let w2uiGridColumns;
+
 
     /**********************************************************
      * Tests for grid records
@@ -437,31 +441,26 @@ function testGridRecords(testConfig) {
      * 2. Check visibility of cell in the row
      * 3. Check value of cells in the row
      **********************************************************/
-    // ----------------------------
-    // -- Tests for grid records --
-    // ----------------------------
-    cy.log("Tests for grid records");
 
     // Check visibility of grid
     cy.get(selectors.getGridSelector(testConfig.grid)).should('be.visible').wait(constants.WAIT_TIME);
 
     // get length from the window and perform tests
-    cy.window().then(win => {
+    cy.window()
+        .then(win => {
 
-        // get list of columns in the grid
-        w2uiGridColumns = win.w2ui[testConfig.grid].columns;
+            // get list of columns in the grid
+            w2uiGridColumns = win.w2ui[testConfig.grid].columns;
 
-        // Match grid record length with total rows in receiptsGrid
-        cy.get(selectors.getRowsInGridSelector(testConfig.grid)).should(($trs) => {
-            expect($trs).to.have.length(noRecordsInAPIResponse);
+            // Match grid record length with total rows in receiptsGrid
+            cy.get(selectors.getRowsInGridSelector(testConfig.grid)).should(($trs) => {
+                expect($trs).to.have.length(noRecordsInAPIResponse);
+            });
+
+            // Perform test only if there is/are record(s) exists in API response.
+            if (noRecordsInAPIResponse > 0) {
+                // tests for grid cells visibility and value matching with api response records
+                gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
+            }
         });
-
-        // Perform test only if there is/are record(s) exists in API response.
-        if (noRecordsInAPIResponse > 0) {
-            // tests for grid cells visibility and value matching with api response records
-            gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
-
-        }
-
-    });
 }
