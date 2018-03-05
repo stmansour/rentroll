@@ -365,7 +365,9 @@ CREATE TABLE `sessions` (
   `UID` bigint(20) NOT NULL,
   `UserName` varchar(40) NOT NULL DEFAULT '',
   `Cookie` varchar(40) NOT NULL DEFAULT '',
-  `DtExpire` timestamp NOT NULL DEFAULT '2000-01-01 08:00:00'
+  `DtExpire` timestamp NOT NULL DEFAULT '2000-01-01 08:00:00',
+  `UserAgent` varchar(256) NOT NULL DEFAULT '',
+  `IP` varchar(40) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -387,4 +389,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-02-22 15:33:56
+-- Dump completed on 2018-03-05 11:41:56

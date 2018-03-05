@@ -1219,7 +1219,7 @@ doCypressUITest () {
 
 	if [ "x${2}" != "x" ]; then
 		echo "${CYPRESSTEST} ${2} >${1} 2>&1"
-		${CYPRESSTEST} ${2} >${1} 2>&1
+		${CYPRESSTEST} ${2} 2>&1 | tee ${1}
 	fi
 
 	checkPause
