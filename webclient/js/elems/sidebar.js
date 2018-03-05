@@ -65,7 +65,6 @@ function buildSidebar(flag) {
                            //{ id: 'RPTasmrpt',     text: 'Assessments',                     icon: 'fa fa-file-text-o' },
                            //{ id: 'RPTb',          text: 'Business Units',                  icon: 'fa fa-file-text-o' },
                            { id: 'RPTar',           text: 'Account Rules',                   icon: 'fa fa-file-text-o' },
-                           { id: 'RPTar',           text: 'Account Rules',                   icon: 'fa fa-file-text-o' },
                            { id: 'RPTcoa',          text: 'Chart Of Accounts',               icon: 'fa fa-file-text-o' },
                            //{ id: 'RPTdpm',        text: 'Deposit Methods',                 icon: 'fa fa-file-text-o' },
                            //{ id: 'RPTdep',        text: 'Depository Accounts',             icon: 'fa fa-file-text-o' },

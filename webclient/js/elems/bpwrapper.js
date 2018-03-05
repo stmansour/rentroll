@@ -1,17 +1,17 @@
 /*global
-	buildDepositElements, buildAppLayout, buildSidebar, buildAllocFundsGrid, buildAccountElements, 
-    buildTransactElements, buildRentableTypeElements, buildRentableElements, 
-    buildRAElements, buildRAPayorPicker, buildRUserPicker, buildRentablePicker, 
-    buildRAPicker, buildReceiptElements, buildAssessmentElements, buildExpenseElements, 
-    buildARElements, buildPaymentTypeElements, buildDepositoryElements, buildDepositElements, 
-    buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElements, 
+	buildDepositElements, buildAppLayout, buildSidebar, buildAllocFundsGrid, buildAccountElements,
+    buildTransactElements, buildRentableTypeElements, buildRentableElements,
+    buildRAElements, buildRAPayorPicker, buildRUserPicker, buildRentablePicker,
+    buildRAPicker, buildReceiptElements, buildAssessmentElements, buildExpenseElements,
+    buildARElements, buildPaymentTypeElements, buildDepositoryElements, buildDepositElements,
+    buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElements,
     buildDepositMethodElements, buildPayorStatementElements, buildRentRollElements, buildLoginForm,
     buildAppLayout, buildROVReceiptElements,
 */
 
 "use strict";
 
-// buildPageElementsWrapper calls all the routines that build UI 
+// buildPageElementsWrapper calls all the routines that build UI
 // elements.
 //
 // INPUTS:
@@ -51,5 +51,4 @@ function buildPageElementsWrapper(uitype) {
     buildPayorStatementElements();
     buildRentRollElements();
     buildLoginForm();
-
 }
