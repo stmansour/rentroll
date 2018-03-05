@@ -206,6 +206,7 @@ function handleBlankScreen(isLoggedIn) {
         $("#blank_screen").hide();
     } else {
         $("#blank_screen").show();
+        popupLoginDialogBox(); // if it's not logged in then show popup
     }
 }
 
@@ -232,7 +233,6 @@ function ensureSession() {
 
     var c = getCookieValue("air");          // Do we have an "air" cookie?
     if (c === null || c.length === 0) {     // if not...
-        popupLoginDialogBox();              // ...then get logged in
         handleBlankScreen(false);
         return;
     }
@@ -268,7 +268,6 @@ function logoff() {
         console.log('Error with /v1/logoff');
         deleteCookie("air");  // no matter what, delete the cookie after this call completes
     });
-    popupLoginDialogBox();
     handleBlankScreen(false);
 }
 

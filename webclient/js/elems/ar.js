@@ -14,7 +14,7 @@ function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, previousForm
         BID: BID,
         BUD: BUD,
         ARID: 0,
-        ARType: 0,
+        ARType: -1,
         DebitLID: post_accounts_pre_selected,
         CreditLID: post_accounts_pre_selected,
         Name: '',
@@ -170,8 +170,8 @@ $().w2grid({
                         return;
                     }
                     else {
-                        // var artype_pre_selected = {id: 0, text: " -- Select AR type -- "};
-                        var artype_items = [];
+                        var artype_pre_selected = {id: -1, text: " -- Select AR type -- "};
+                        var artype_items = [artype_pre_selected];
                         Object.keys(app.ARTypes).forEach(function(id){
                             var artype_id = parseInt(id);
                             artype_items.push({id: artype_id, text: app.ARTypes[artype_id]});
@@ -182,7 +182,7 @@ $().w2grid({
                         post_accounts_items = post_accounts_items.concat(app.post_accounts[BUD]);
 
                         w2ui.arsForm.get('ARType').options.items = artype_items;
-                        // w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
+                        w2ui.arsForm.get('ARType').options.selected = artype_pre_selected;
                         w2ui.arsForm.get('DebitLID').options.items = post_accounts_items;
                         w2ui.arsForm.get('DebitLID').options.selected = post_accounts_pre_selected;
                         w2ui.arsForm.get('CreditLID').options.items = post_accounts_items;
