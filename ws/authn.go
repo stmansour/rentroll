@@ -62,8 +62,8 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		a.RemoteAddr = r.RemoteAddr // this needs to be the user's value, not our server's value
 		a.UserAgent = r.UserAgent() // this needs to be the user's value, not our server's value
 		fwdaddr := r.Header.Get("X-Forwarded-For")
+		rlib.Console("Forwarded-For address: %q\n", fwdaddr)
 		if len(fwdaddr) > 0 {
-			rlib.Console("Detected Forwarded-For address: %s\n", fwdaddr)
 			a.RemoteAddr = fwdaddr
 		}
 
