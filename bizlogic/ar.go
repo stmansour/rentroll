@@ -11,10 +11,10 @@ type ARType int64
 
 // AssessmentAR etc... are all constant for Account Rule Type
 const (
-	AssessmentAR    ARType = 0
-	ReceiptAR       ARType = 1
-	ExpenseAR       ARType = 2
-	SubAssessmentAR ARType = 3
+	AssessmentAR    ARType = rlib.ARASSESSMENT
+	ReceiptAR       ARType = rlib.ARRECEIPT
+	ExpenseAR       ARType = rlib.AREXPENSE
+	SubAssessmentAR ARType = rlib.ARSUBASSESSMENT
 )
 
 // IsValid checks the validity of ARType ar
