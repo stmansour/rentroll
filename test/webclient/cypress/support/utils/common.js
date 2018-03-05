@@ -2,6 +2,7 @@
 
 import * as selectors from './get_selectors';
 import * as constants from './constants';
+import './../commands'
 
 // Check element's existence(value) in array
 export function isInArray(value, array) {
@@ -338,4 +339,129 @@ export function changeDate(dateFieldName, fromDt, toDt) {
     cy.get('[class="w2ui-jump-month"][name=' + toMonth + ']').click();
     cy.get('[class="w2ui-jump-year"][name=' + toYear + ']').click().wait(constants.WAIT_TIME);
     cy.get('[date="' + toDate + '"]').click();
+}
+
+// change business unit as per the constants.testBiz
+// return updated testBizID
+function changeBU(appSettings) {
+// get business id from appSettings variable for 'REX'
+    appSettings.BizMap.forEach(function (item) {
+        if (item.BUD === constants.testBiz) {
+            constants.testBizID = item.BID;
+        }
+    });
+
+    // Now change the business to REX
+    cy.get('[name="BusinessSelect"]').select(constants.testBiz);
+
+    // Check BusinessSelect value is set per the expected BID from appSettings variable
+    cy.get('[name="BusinessSelect"]').should('have.value', constants.testBizID.toString());
+
+    return constants.testBizID;
+}
+function testAddNewRecordForm(testConfig) {
+    cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+
+    // get form name
+    let formName = testConfig.form;
+
+    // get form selector
+    let formSelector = selectors.getFormSelector(formName);
+
+    common.addNewFormTest(formName, formSelector, testConfig);
+
+    // Check Business Unit field must be disabled and have value REX
+    common.BUDFieldTest();
+
+    // Check button's visibility
+    common.buttonsTest(testConfig.buttonNamesInForm, testConfig.notVisibleButtonNamesInForm);
+
+    // -- Close the form. And assert that form isn't visible. --
+    common.closeFormTests(formSelector);
+}
+
+function testGridRecords(testConfig) {
+    // records list of module from the API response
+    let recordsAPIResponse;
+
+    // number of records in API response
+    let noRecordsInAPIResponse;
+
+    // list of columns from the grid
+    let w2uiGridColumns;
+
+    // Starting a server to begin routing responses to cy.route()
+    cy.server();
+
+    // To manage the behavior of network requests. Routing the response for the requests.
+    cy.route(testConfig.methodType, getAPIEndPoint(testConfig.sidebarID)).as('getRecords');
+
+    // Node should be visible and selected
+    /************************
+     * Select right side node
+     *************************/
+    cy.get(selectors.getNodeSelector(testConfig.sidebarID))
+        .scrollIntoView()
+        .should('be.visible')
+        .click().wait(constants.WAIT_TIME)
+        .should('have.class', 'w2ui-selected');
+
+    // If have date navigation bar than change from and to Date to get in between data
+    if (testConfig.haveDateValue) {
+        changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
+    }
+
+    // Check http status
+    cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    // get API endpoint's responseBody
+    cy.get('@getRecords').then(function (xhr) {
+
+        // Check key `status` in responseBody
+        expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+
+        // get records list from the API response
+        recordsAPIResponse = xhr.response.body.records;
+
+        // -- Assigning number of records to 0 if no records are available in response --
+        if (recordsAPIResponse) {
+            noRecordsInAPIResponse = xhr.response.body.records.length;
+        } else {
+            noRecordsInAPIResponse = 0;
+        }
+    });
+
+    /**********************************************************
+     * Tests for grid records
+     * 1. Iterate through each row
+     * 2. Check visibility of cell in the row
+     * 3. Check value of cells in the row
+     **********************************************************/
+    // ----------------------------
+    // -- Tests for grid records --
+    // ----------------------------
+    cy.log("Tests for grid records");
+
+    // Check visibility of grid
+    cy.get(selectors.getGridSelector(testConfig.grid)).should('be.visible').wait(constants.WAIT_TIME);
+
+    // get length from the window and perform tests
+    cy.window().then(win => {
+
+        // get list of columns in the grid
+        w2uiGridColumns = win.w2ui[testConfig.grid].columns;
+
+        // Match grid record length with total rows in receiptsGrid
+        cy.get(selectors.getRowsInGridSelector(testConfig.grid)).should(($trs) => {
+            expect($trs).to.have.length(noRecordsInAPIResponse);
+        });
+
+        // Perform test only if there is/are record(s) exists in API response.
+        if (noRecordsInAPIResponse > 0) {
+            // tests for grid cells visibility and value matching with api response records
+            gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
+
+        }
+
+    });
 }
