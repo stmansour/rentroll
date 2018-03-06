@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Assessments/Receipts --
-const section = require('../support/components/asms'); // Assess Charges
+const section = require('../support/components/expenses'); // Expenses
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Assessment Charges', function () {
+describe('AIR Roller UI Tests - Expenses', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -113,30 +113,6 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
         common.testRecordDetailForm(recordsAPIResponse, testConfig, true, false);
     });
 
-    // TODO(Akshay): UI Test for Rental Agreement popup
-    // it('Find Rental Agreement popup', function () {
-    //     // Open adding new record form
-    //     cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
-    //
-    //     // Click Find... button
-    //     cy.get('.w2ui-btn').contains('Find...').click().wait(constants.WAIT_TIME);
-    //
-    //     // PopUp should be visibile
-    //     cy.get('#w2ui-popup').should('be.visible');
-    //
-    //     // Check title of Rental Agreement PopUp
-    //     cy.get('.w2ui-popup-title').should('be.visible').should('contain', 'Find Rental Agreement');
-    //
-    //     cy.server();
-    //
-    //     cy.route('GET', '/v1/rentalagrtd/1?request={"search":"john0001","max":250}').as('searchResult');
-    //
-    //     // Get and Type into Payor field
-    //     cy.get('.w2ui-field-helper.w2ui-list').type('john0001');
-    //
-    //     cy.wait('@searchResult').its('status').should('eq', constants.HTTP_OK_STATUS);
-    //
-    // });
 
     it('Add new record form', function () {
         // ---------------------------------------
