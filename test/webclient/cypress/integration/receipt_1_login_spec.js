@@ -13,14 +13,14 @@ describe('AIR Roller UI Tests', function () {
     it('Assert the title of Roller application', function () {
 
         // It visit baseUrl(from cypress.json) + applicationPath
-        cy.visit(constants.ROLLER_APPLICATION_PATH).wait(constants.PAGE_LOAD_TIME);
+        cy.visit(constants.RECEIPT_APPLICATION_PATH).wait(constants.PAGE_LOAD_TIME);
 
         // Assert application title
-        cy.title().should('include', 'AIR Roller');
+        cy.title().should('include', 'AIR Receipt');
 
     });
 
-    it('Login into AIR Roller Application', function () {
+    it('Login into AIR Receipt Application', function () {
 
         /*
         * Clear cookies before login into application. Because We are preserving cookies to use it all test suit.

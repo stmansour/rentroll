@@ -107,7 +107,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 }
 
 // -- perform test on detail record form's field --
-export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
+export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
     console.log(recordDetailFromAPIResponse);
 
     let fieldValue;
@@ -242,6 +242,16 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
 
     // -- Check buttons visibility --
     buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
+
+    // -- Check Unallocated section's visibility and class --
+    if (doUnallocatedSectionTest) {
+        unallocatedSectionTest();
+    }
+
+    // -- Check print receipt UI --
+    if (doPrintReceiptUITest) {
+        printReceiptUITest();
+    }
 
     // -- Close the form. And assert that form isn't visible. --
     closeFormTests(formSelector);
@@ -398,7 +408,7 @@ export function testAddNewRecordForm(testConfig) {
     addNewFormTest(testConfig);
 }
 
-export function testRecordDetailForm(recordsAPIResponse, testConfig) {
+export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
     cy.log("Tests for detail record form");
 
     // -- detail record testing --
@@ -423,7 +433,7 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig) {
 
         cy.log(recordDetailFromAPIResponse);
 
-        detailFormTest(recordDetailFromAPIResponse, testConfig);
+        detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest);
 
     });
 
@@ -463,4 +473,64 @@ export function testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, test
                 gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConfig);
             }
         });
+}
+
+// Check position of allocated section in detail form
+function allocatedSectionPositionTest() {
+
+    // get co-ordinate of allocated section
+    const allocatedSection = Cypress.$(selectors.getAllocatedSectionSelector()).get(0).getBoundingClientRect();
+
+    // get co-ordinate of button section
+    const buttonSection = Cypress.$('.w2ui-buttons').get(0).getBoundingClientRect();
+
+    // get difference of y co-ordinate of element
+    let sectionDiff = allocatedSection.y - buttonSection.y;
+
+    // Check difference must be 1
+    // expect(sectionDiff).to.equal(1);
+}
+
+// -- Check Unallocated section's visibility and class --
+function unallocatedSectionTest() {
+
+    // Check visibility and class of
+    cy.get(selectors.getAllocatedSectionSelector())
+        .scrollIntoView()
+        .should('be.visible')
+        .should('have.class', 'FLAGReportContainer');
+
+    // Check position of allocated section in detail form
+    allocatedSectionPositionTest();
+}
+
+// test for print receipt ui in detail record form
+function printReceiptUITest() {
+
+    // Open print receipt UI
+    cy.get(selectors.getFormPrintButtonSelector()).should('be.visible').click();
+
+    // Check print receipt pop up should open
+    cy.get(selectors.getPrintReceiptPopUpSelector()).should('be.visible').wait(constants.WAIT_TIME);
+
+    // Check format list visibility
+    cy.get(selectors.getPrintReceiptPopUpSelector())
+        .find('.w2ui-field-helper').should('be.visible');
+
+    // Check default permanent_resident radio button is checked
+    cy.get(selectors.getPermanentResidentRadioButtonSelector())
+        .should('be.visible')
+        .should('be.checked');
+
+    // Check hotel radio button is unchecked
+    cy.get(selectors.getHotelRadioButtonSelector())
+        .should('be.visible')
+        .should('not.be.checked');
+
+    // Check button visibility
+    let printReceiptButtons = ["print", "close"];
+    buttonsTest(printReceiptButtons, []);
+
+    // Close the popup
+    cy.get(selectors.getClosePopupButtonSelector()).click();
 }
