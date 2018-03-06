@@ -2,8 +2,45 @@ package bizlogic
 
 import (
 	"context"
+	"fmt"
 	"rentroll/rlib"
 )
+
+// ARType user defined type of account rule
+type ARType int64
+
+// AssessmentAR etc... are all constant for Account Rule Type
+const (
+	AssessmentAR    ARType = rlib.ARASSESSMENT
+	ReceiptAR       ARType = rlib.ARRECEIPT
+	ExpenseAR       ARType = rlib.AREXPENSE
+	SubAssessmentAR ARType = rlib.ARSUBASSESSMENT
+)
+
+// IsValid checks the validity of ARType ar
+func (ar ARType) IsValid() bool {
+	if ar < AssessmentAR || ar > SubAssessmentAR {
+		return false
+	}
+
+	return true
+}
+
+// String representation of ARType
+func (ar ARType) String() string {
+	names := [...]string{
+		"Assessment",
+		"Receipt",
+		"Expense",
+		"Sub-Assessment",
+	}
+
+	if ar < AssessmentAR || ar > SubAssessmentAR {
+		return "Unknown"
+	}
+
+	return names[ar]
+}
 
 // ValidateAcctRule ensures that the data in the supplied
 // account rule is valid. It returns descriptive errors for data
@@ -17,6 +54,13 @@ import (
 //                 no errors were found
 func ValidateAcctRule(ctx context.Context, a *rlib.AR) []BizError {
 	var e []BizError
+
+	if !ARType(a.ARType).IsValid() {
+		rlib.Console("*** ERROR *** invalid ARType: %d for a.ARID = %d\n", a.ARID)
+		s := fmt.Sprintf(BizErrors[UnknownARType].Message, a.ARType, a.ARID)
+		b := BizError{Errno: UnknownARType, Message: s}
+		e = append(e, b)
+	}
 
 	if a.CreditLID == 0 {
 		rlib.Console("*** ERROR ***  a.CreditLid = %d\n", a.CreditLID)

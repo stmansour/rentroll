@@ -55,6 +55,7 @@ const (
 	UnknownRID                      = 31 // Unknown Rentable
 	UnknownRTID                     = 32 // Unknown Rentable Type
 	UnknownRAID                     = 33 // Unknown Rental Agreement
+	UnknownARType                   = 34 // Unknown ARType
 )
 
 // InitBizLogic loads the error messages needed for validation errors

@@ -20,6 +20,7 @@
         "reverse_confirm_options": true,
         "switchToGrid": true,
         "showReport": true,
+        "buildLoginForm": true,
         "buildAllocFundsGrid": true,
         "buildAccountElements": true,
         "buildRentableTypeElements": true,
