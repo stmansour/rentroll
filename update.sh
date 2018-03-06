@@ -123,12 +123,12 @@ fi
 readConfig
 configure
 
-#echo -n "Shutting down rentroll server."; $(./activate.sh stop) >/dev/null 2>&1
-#echo -n "."
-#echo -n "."; cd ${RELDIR}/..
-#echo -n "."; rm -f rentroll*.tar
-#echo
-#echo -n "Retrieving latest released Rentroll..."
+echo -n "Shutting down rentroll server."; $(./activate.sh stop) >/dev/null 2>&1
+echo -n "."
+echo -n "."; cd ${RELDIR}/..
+echo -n "."; rm -f rentroll*.tar
+echo
+echo -n "Retrieving latest released Rentroll..."
 
 GetLatestRepoRelease "rentroll"
 
