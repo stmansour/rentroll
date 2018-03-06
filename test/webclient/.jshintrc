@@ -12,6 +12,7 @@
         "before": true,
         "formName": true,
         "require": true,
-        "recordDetailFromAPIResponse": true
+        "recordDetailFromAPIResponse": true,
+        "after": true
     }
 }
