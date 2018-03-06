@@ -2,7 +2,6 @@ package ws
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -275,17 +274,18 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	appData["account_stuff"] = accountStuff
 
-	b, err := json.Marshal(appData)
-	if err != nil {
-		e := fmt.Errorf("Error marshaling json data: %s", err.Error())
-		rlib.Ulog("Error in AJAXLIST marshaling: %s\n", e.Error())
-	} else {
-		rlib.Console("AJAXLIST sent to server:  %s\n", string(b))
-	}
+	// b, err := json.Marshal(appData)
+	// if err != nil {
+	// 	e := fmt.Errorf("Error marshaling json data: %s", err.Error())
+	// 	rlib.Ulog("Error in AJAXLIST marshaling: %s\n", e.Error())
+	// } else {
+	// 	rlib.Console("AJAXLIST sent to server:  %s\n", string(b))
+	// }
 
-	// send down then json stuff
-	if err := json.NewEncoder(w).Encode(appData); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
+	// // send down then json stuff
+	// if err := json.NewEncoder(w).Encode(appData); err != nil {
+	// 	SvcErrorReturn(w, err, funcname)
+	// 	return
+	// }
+	SvcWriteResponse(-1, appData, w)
 }
