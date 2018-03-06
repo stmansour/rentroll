@@ -13,7 +13,7 @@ describe('AIR Roller UI Tests - Login', function () {
     it('Assert the title of Roller application', function () {
 
         // It visit baseUrl(from cypress.json) + applicationPath
-        cy.visit(constants.ROLLER_APPLICATION_PATH).wait(constants.PAGE_LOAD_TIME);
+        cy.visit(constants.ROLLER_APPLICATION_PATH).wait(constants.LOGIN_WAIT_TIME);
 
         // Assert application title
         cy.title().should('include', 'AIR Roller');

@@ -3,7 +3,11 @@
 import * as constants from '../support/utils/constants';
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Login', function () {
+describe('AIR Receipt UI Tests - Login', function () {
+
+    before(function () {
+        cy.clearCookie(constants.APPLICATION_COOKIE);
+    });
 
     /**********************************
      * Assert the title of Roller application
@@ -13,7 +17,7 @@ describe('AIR Roller UI Tests - Login', function () {
     it('Assert the title of Roller application', function () {
 
         // It visit baseUrl(from cypress.json) + applicationPath
-        cy.visit(constants.RECEIPT_APPLICATION_PATH).wait(constants.PAGE_LOAD_TIME);
+        cy.visit(constants.RECEIPT_APPLICATION_PATH).wait(constants.LOGIN_WAIT_TIME);
 
         // Assert application title
         cy.title().should('include', 'AIR Receipt');
@@ -26,7 +30,7 @@ describe('AIR Roller UI Tests - Login', function () {
         * Clear cookies before login into application. Because We are preserving cookies to use it all test suit.
         * Running test suit multiple times require new session to login into application.
         */
-        cy.clearCookie(constants.APPLICATION_COOKIE);
+        // cy.clearCookie(constants.APPLICATION_COOKIE);
 
 
         /************************************

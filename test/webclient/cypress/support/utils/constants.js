@@ -33,4 +33,4 @@ export const APPLICATION_COOKIE = 'air';
 // wait time in application
 export const WAIT_TIME = 2000;
 export const PAGE_LOAD_TIME = 2000;
-export const LOGIN_WAIT_TIME = 2000;
+export const LOGIN_WAIT_TIME = 4000;
