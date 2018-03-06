@@ -3,7 +3,7 @@
 import * as constants from '../support/utils/constants';
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests', function () {
+describe('AIR Roller UI Tests - Login', function () {
 
     /**********************************
      * Assert the title of Roller application

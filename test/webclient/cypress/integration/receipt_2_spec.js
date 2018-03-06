@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Receipt UI Tests', function () {
+describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -114,6 +114,11 @@ describe('AIR Receipt UI Tests', function () {
         // ----------------------------------
         // -- Tests for detail record form --
         // ----------------------------------
+        // Params:
+        // recordsAPIResponse: list of record from the api response,
+        // testConfig: configuration for running tests
+        // doUnallocatedSectionTest: true
+        // doPrintReceiptUITest: true
         common.testRecordDetailForm(recordsAPIResponse, testConfig, true, true);
     });
 

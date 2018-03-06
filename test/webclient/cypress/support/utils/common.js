@@ -2,7 +2,7 @@
 
 import * as selectors from './get_selectors';
 import * as constants from './constants';
-import './../commands'
+import './../commands';
 
 // Check element's existence(value) in array
 export function isInArray(value, array) {
@@ -81,7 +81,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         valueForCell = appSettings.ARTypes[valueForCell];
                         break;
                     case "Status":
-                        types = appSettings.account_stuff["statusList"];
+                        types = appSettings.account_stuff.statusList;
                         type = types.find(types => types.id === valueForCell);
                         valueForCell = type.text;
                         break;
@@ -190,7 +190,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                         break;
                     case  "Status":
                         // Chart of accounts
-                        types = appSettings.account_stuff["statusList"];
+                        types = appSettings.account_stuff.statusList;
                         type = types.find(types => types.id === fieldValue);
                         fieldValue = type.text;
                         break;

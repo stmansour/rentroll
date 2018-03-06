@@ -105,7 +105,12 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
         // ----------------------------------
         // -- Tests for detail record form --
         // ----------------------------------
-        common.testRecordDetailForm(recordsAPIResponse, testConfig);
+        // Params:
+        // recordsAPIResponse: list of record from the api response,
+        // testConfig: configuration for running tests
+        // doUnallocatedSectionTest: true
+        // doPrintReceiptUITest: false
+        common.testRecordDetailForm(recordsAPIResponse, testConfig, true, false);
     });
 
     it('Add new record form', function () {

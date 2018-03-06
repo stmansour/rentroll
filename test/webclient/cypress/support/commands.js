@@ -43,7 +43,7 @@ Cypress.Commands.add("login", function () {
                 return {
                     username: username,
                     password: password
-                }
+                };
             }
         });
 
@@ -51,7 +51,7 @@ Cypress.Commands.add("login", function () {
         cy.request('POST', constants.LOGIN_END_POINT, {"user": username, "pass": password})
             .then((resp) => {
                 cy.log(resp);
-                expect(resp.status).to.eq(200)
+                expect(resp.status).to.eq(200);
             });
 
         // Check Cookie exists after login into application
