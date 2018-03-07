@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Assessments/Receipts --
-const section = require('../support/components/tenderReceipts'); // Tendered payment Receipt
+const section = require('../support/components/deposits'); // Expenses
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
+describe('AIR Roller UI Tests - Expenses', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -52,8 +52,6 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
         if (testConfig.haveDateValue) {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
-
-        cy.wait(constants.WAIT_TIME);
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
@@ -110,10 +108,11 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: false
+        // doUnallocatedSectionTest: true
         // doPrintReceiptUITest: false
         common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
     });
+
 
     it('Add new record form', function () {
         // ---------------------------------------
