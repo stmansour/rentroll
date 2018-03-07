@@ -111,6 +111,9 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
         // doUnallocatedSectionTest: true
         // doPrintReceiptUITest: false
         common.testRecordDetailForm(recordsAPIResponse, testConfig, true, false);
+
+        // -- Close the form. And assert that form isn't visible. --
+        closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     // TODO(Akshay): UI Test for Rental Agreement popup

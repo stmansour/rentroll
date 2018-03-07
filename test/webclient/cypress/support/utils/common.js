@@ -254,9 +254,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
     if (doPrintReceiptUITest) {
         printReceiptUITest();
     }
-
-    // -- Close the form. And assert that form isn't visible. --
-    closeFormTests(formSelector);
 }
 
 // -- perform test on add new record form's field --

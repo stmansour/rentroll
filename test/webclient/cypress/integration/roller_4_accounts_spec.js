@@ -111,6 +111,9 @@ describe('AIR Roller UI Tests - Chart of accounts', function () {
         // doUnallocatedSectionTest: false
         // doPrintReceiptUITest: false
         common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
+
+        // -- Close the form. And assert that form isn't visible. --
+        closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     it('Add new record form', function () {
