@@ -211,6 +211,8 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                             ruleName = "AssessmentRules";
                         } else if (formName === "receiptForm") {
                             ruleName = "ReceiptRules";
+                        } else if (formName === "expenseForm"){
+                            ruleName = "ExpenseRules";
                         }
                         types = appSettings[ruleName][constants.testBiz];
                         type = types.find(types => types.id === fieldValue);

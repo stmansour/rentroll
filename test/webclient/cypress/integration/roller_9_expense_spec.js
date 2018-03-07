@@ -110,7 +110,7 @@ describe('AIR Roller UI Tests - Expenses', function () {
         // testConfig: configuration for running tests
         // doUnallocatedSectionTest: true
         // doPrintReceiptUITest: false
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, true, false);
+        common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
     });
 
 
