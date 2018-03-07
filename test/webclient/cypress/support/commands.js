@@ -48,7 +48,7 @@ Cypress.Commands.add("login", function () {
         });
 
         // login steps
-        cy.request('POST', constants.LOGIN_END_POINT, {"user": "abosamiya", "pass": "admin1"})
+        cy.request('POST', constants.LOGIN_END_POINT, {"user": username, "pass": password})
             .then((resp) => {
                 cy.log(resp);
                 expect(resp.status).to.eq(200);
