@@ -122,7 +122,7 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         common.testRecordDetailForm(recordsAPIResponse, testConfig, true, true);
 
         // -- Close the form. And assert that form isn't visible. --
-        closeFormTests(selectors.getFormSelector(testConfig.form));
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     it('Add new record form', function () {

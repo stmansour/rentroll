@@ -113,7 +113,7 @@ describe('AIR Roller UI Tests - Account Rules', function () {
         common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
 
         // -- Close the form. And assert that form isn't visible. --
-        closeFormTests(selectors.getFormSelector(testConfig.form));
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     it('Add new record form', function () {
