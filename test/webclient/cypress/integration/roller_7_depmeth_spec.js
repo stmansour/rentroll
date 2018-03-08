@@ -4,7 +4,7 @@ import * as constants from '../support/utils/constants';
 import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
-// --- Assessments/Receipts --
+// --- Setup --
 const section = require('../support/components/depMeth'); // Deposit Methods
 
 // this contain app variable of the application

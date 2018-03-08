@@ -4,7 +4,7 @@ import * as constants from '../support/utils/constants';
 import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
-// --- Assessments/Receipts --
+// --- Setup --
 const section = require('../support/components/accounts'); // Chart of accounts
 
 // this contain app variable of the application
