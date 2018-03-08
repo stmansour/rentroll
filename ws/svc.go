@@ -235,6 +235,22 @@ func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error 
 			}
 			rlib.Console("*** GetSession found sess: %s\n", d.sess.Token)
 			rlib.Console("Session.Username: %s\n", d.sess.Username)
+
+			//---------------------------------------------
+			// make sure that the cookie is still valid...
+			//---------------------------------------------
+			rlib.Console("*** FIND SESSION calling ValidateSessionCookie\n")
+			c, err := rlib.ValidateSessionCookie(*r)
+			if err != nil {
+				return err
+			}
+			if c.Status != "success" {
+				rlib.SessionDelete(d.sess, w, *r)
+				d.sess = nil
+				e := fmt.Errorf("No session, please log in")
+				return e
+			}
+
 			d.sess.Refresh(w, (*r)) // they actively tried to use the session, extend timeout
 		}
 		// get session in the request context

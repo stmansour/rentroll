@@ -15,6 +15,7 @@ import (
 // ValidateCookie describes what the auth server wants to
 // validate the cookie value
 type ValidateCookie struct {
+	Status    string `json:"status"`
 	CookieVal string `json:"cookieval"`
 	IP        string `json:"ip"`
 	UserAgent string `json:"useragent"`
@@ -250,12 +251,70 @@ func IsUnrecognizedCookieError(err error) bool {
 	return strings.Contains(err.Error(), UnrecognizedCookie)
 }
 
+// ValidateSessionCookie is used to ensure that the session is still valid.
+// Even the session is found in our internal table, the 'air' is cookie used
+// other applications in the suite. Someone may have logged out from a
+// different app. If the cookie is not validated, then destroy the session
+//
+// INPUTS
+//  r  - pointer to the http request, which may be updated after we add the
+//       context value to it.
+//  d  - our service data struct
+//
+// RETURNS
+//  cookie - the http cookie or nil if it doesn't exist
+//-----------------------------------------------------------------------------
+func ValidateSessionCookie(r *http.Request) (ValidateCookie, error) {
+	funcname := "ValidateSessionCookie"
+	Console("Entered %s\n", funcname)
+	var vc ValidateCookie
+	c, err := r.Cookie(SessionCookieName)
+	if err != nil {
+		if strings.Contains(err.Error(), "no air cookie in request headers") {
+			return vc, nil
+		}
+		return vc, nil
+	}
+	vc.CookieVal = c.Value
+
+	pbr, err := json.Marshal(&vc)
+	if err != nil {
+		return vc, fmt.Errorf("Error marshaling json data: %s", err.Error())
+	}
+
+	//-----------------------------------------------------------------------
+	// Send to the authenication server
+	//-----------------------------------------------------------------------
+	url := AppConfig.AuthNHost + "v1/validatecookie"
+	Console("posting request to: %s\n", url)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(pbr))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return vc, fmt.Errorf("%s: failed to execute client.Do:  %s", funcname, err.Error())
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	// Console("response Body: %s\n", string(body))
+
+	if err := json.Unmarshal([]byte(body), &vc); err != nil {
+		return vc, fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
+	}
+	Console("Successfully unmarshaled response: %s\n", string(body))
+	if vc.Status != "success" {
+		vc.CookieVal = ""
+	}
+	return vc, nil
+}
+
 // GetSession returns the session based on the cookie in the supplied
 // HTTP connection.  It does NOT refresh the cookie. If you want it refreshed
 // you can simply call the Refresh method on the returned pointer.
 //
 // INPUT
-//  r - the request where w should look for the cookie
+//  r - the request where we look for the cookie
 //
 // RETURNS
 //  session - pointer to the new session
@@ -322,19 +381,23 @@ func GetSession(ctx context.Context, w http.ResponseWriter, r *http.Request) (*S
 		defer resp.Body.Close()
 
 		body, _ := ioutil.ReadAll(resp.Body)
-		// Console("response Body: %s\n", string(body))
+		Console("response Body: %s\n", string(body))
 
 		if err := json.Unmarshal([]byte(body), &b); err != nil {
 			e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 			return nil, e
 		}
-		// Console("Successfully unmarshaled response: %s\n", string(body))
+		Console("Successfully unmarshaled response: %s\n", string(body))
 		//-------------------------------------
 		// build a session from this data...
 		//-------------------------------------
 		switch b.Status {
 		case "success":
-			// Console("Authentication succeeded\n")
+			Console("Authentication succeeded\n")
+		case "failure":
+			Console("Cookie was not found. Could be logged off by another app.\n")
+			e := fmt.Errorf("%s", b.Message)
+			return nil, e
 		default:
 			e := fmt.Errorf("%s", b.Message)
 			return nil, e
@@ -403,7 +466,7 @@ func (s *Session) ExpireCookie(w http.ResponseWriter, r *http.Request) {
 //  r        - the request where w should look for the cookie
 //
 // RETURNS
-//  session - pointer to the new session
+//  session  - pointer to the new session
 //-----------------------------------------------------------------------------
 func SessionDelete(s *Session, w http.ResponseWriter, r *http.Request) {
 	if nil == s {
