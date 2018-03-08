@@ -22,7 +22,6 @@ export let conf = {
     skipFields: [],
     primaryId: "TCID",
     haveDateValue: false,
+    gridInForm: 'unpaidasms'
 };
-
-//TODO(Akshay): Find button in form
 
