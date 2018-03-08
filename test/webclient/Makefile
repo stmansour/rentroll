@@ -15,7 +15,7 @@ test: webclient
 
 jshint:
 	@touch fail
-	jshint  --config .jshintrc  cypress/integration/*.js
+	jshint  --config .jshintrc  cypress
 	@rm -rf fail
 
 clean:
