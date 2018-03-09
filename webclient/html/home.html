@@ -326,13 +326,9 @@ function finishInitialization() {
 $(function () {
     $.get('/v1/uilists/' + app.language + '/' + app.template)
     .done(function(data, textStatus, jqXHR) {
-        if (data.substring(11,14) == "err") {
-            console.log('ERROR: '+data);
-        }
         if (jqXHR.status == 200) {
-            var app_data = JSON.parse(data);
-            for( var key in app_data ) {   // fit all lists, values, maps in app variable
-                app[key] = app_data[key];
+            for( var key in data ) {   // fit all lists, values, maps in app variable
+                app[key] = data[key];
             }
         } else {
             console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + textStatus);

@@ -232,7 +232,8 @@ function ensureSession() {
     if (w2popup.status == "open") {return;} // just return now if we're trying to log in
 
     var c = getCookieValue("air");          // Do we have an "air" cookie?
-    if (c === null || c.length === 0) {     // if not...
+    if (c === null || c.length < 20) {   // if not...
+        deleteCookie("air");
         handleBlankScreen(false);
         return;
     }
