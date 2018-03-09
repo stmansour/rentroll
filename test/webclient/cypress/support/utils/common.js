@@ -92,6 +92,15 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                             valueForCell = "";
                         }
                         break;
+                    case "RentCycle":
+                    case "Proration":
+                    case "GSRPC":
+                        valueForCell = appSettings.cycleFreq[valueForCell];
+                        break;
+                    case "ManageToBudget":
+                        cy.log(valueForCell);
+                        valueForCell = appSettings.manageToBudgetList[valueForCell].text;
+                        break;
                 }
 
                 // Check visibility and default value of cell in the grid
@@ -211,7 +220,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                             ruleName = "AssessmentRules";
                         } else if (formName === "receiptForm") {
                             ruleName = "ReceiptRules";
-                        } else if (formName === "expenseForm"){
+                        } else if (formName === "expenseForm") {
                             ruleName = "ExpenseRules";
                         }
                         types = appSettings[ruleName][constants.testBiz];
@@ -226,7 +235,11 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                     case "ERentableName":
                         fieldValue = recordDetailFromAPIResponse.RentableName;
                         break;
-
+                    case "RentCycle":
+                    case "Proration":
+                    case "GSRPC":
+                        fieldValue = appSettings.cycleFreq[fieldValue];
+                        break;
                 }
 
                 // check fields visibility and respective value
@@ -407,6 +420,35 @@ export function testAddNewRecordForm(testConfig) {
     addNewFormTest(testConfig);
 }
 
+export function testMarketRulesDetailForm(testConfig) {
+
+    // Open Market Rules tab
+    cy.get('#tabs_rtDetailLayout_main_tabs_tab_rmrGrid').should('contain', 'Market Rates').click().wait(constants.WAIT_TIME);
+
+    // Test on `Add New` and `Delete` button
+    cy.get('#tb_rmrGrid_toolbar_item_w2ui-add').should('be.visible');
+    cy.get('#tb_rmrGrid_toolbar_item_w2ui-delete').should('be.visible').should('have.class', 'disabled');
+
+
+    // check response status of API end point
+    cy.wait('@getMarketRulesRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    // perform tests on record detail form
+    cy.get('@getMarketRulesRecords').then(function (xhr) {
+
+        let recordsFromAPIResponse = xhr.response.body.records;
+        cy.log(recordsFromAPIResponse);
+        testConfig.grid = 'rmrGrid';
+        if(recordsFromAPIResponse.length > 0){
+            testGridRecords(recordsFromAPIResponse, recordsFromAPIResponse.length, testConfig);
+
+            // Click on first record and check delete button is enabled.
+            cy.get(selectors.getFirstRecordInGridSelector('rmrGrid')).click();
+            cy.get('#tb_rmrGrid_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
+        }
+    });
+}
+
 export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
     cy.log("Tests for detail record form");
 
@@ -418,6 +460,12 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocat
 
     // Routing response to detail record's api requests.
     cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
+
+    // Route rmr(Marketing Rates) endpoint while testing Rentable Types
+    if (testConfig.module === "rt") {
+        cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rmr', id)).as('getMarketRulesRecords');
+    }
+
 
     // click on the first record of grid
     cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
