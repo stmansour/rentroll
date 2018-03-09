@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Setup --
-const section = require('../support/components/rentableTypes'); // Expenses
+const section = require('../support/components/rentables'); // Expenses
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Rentable Types', function () {
+describe('AIR Roller UI Tests - Rentables', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -112,7 +112,8 @@ describe('AIR Roller UI Tests - Rentable Types', function () {
         // doPrintReceiptUITest: false
         common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
 
-        common.testMarketRulesDetailForm(testConfig);
+        common.testGridInTabbedDetailForm('rentableStatusGrid', 'getRentableStatusRecords',testConfig);
+        common.testGridInTabbedDetailForm('rentableTypeRefGrid', 'getRentableTypeRef',testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));

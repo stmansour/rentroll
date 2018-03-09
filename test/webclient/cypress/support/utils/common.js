@@ -67,6 +67,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 
                 // get defaultValue of cell from w2uiGrid
                 let valueForCell = record[w2uiGridColumn.field];
+                cy.log(valueForCell);
 
                 // format money type value
                 if (w2uiGridColumn.render === "money") {
@@ -95,11 +96,19 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "RentCycle":
                     case "Proration":
                     case "GSRPC":
+                    case "OverrideProrationCycle":
+                    case "OverrideRentCycle":
                         valueForCell = appSettings.cycleFreq[valueForCell];
                         break;
                     case "ManageToBudget":
                         cy.log(valueForCell);
                         valueForCell = appSettings.manageToBudgetList[valueForCell].text;
+                        break;
+                    case "UseStatus":
+                        valueForCell = appSettings.RSUseStatus[valueForCell];
+                        break;
+                    case "LeaseStatus":
+                        valueForCell = appSettings.RSLeaseStatus[valueForCell];
                         break;
                 }
 
@@ -239,6 +248,17 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                     case "Proration":
                     case "GSRPC":
                         fieldValue = appSettings.cycleFreq[fieldValue];
+                        break;
+                    case "UseStatus":
+                        fieldValue = appSettings.RSUseStatus[fieldValue];
+                        break;
+                    case "LeaseStatus":
+                        fieldValue = appSettings.RSLeaseStatus[fieldValue];
+                        break;
+                    case "AssignmentTime":
+                        types = appSettings.renewalMap;
+                        type = types.find(types => types.id === fieldValue);
+                        fieldValue = type.text;
                         break;
                 }
 
@@ -449,6 +469,36 @@ export function testMarketRulesDetailForm(testConfig) {
     });
 }
 
+export function testGridInTabbedDetailForm(gridName, routeName, testConfig) {
+
+    // Open Market Rules tab
+    cy.get('#tabs_rentableDetailLayout_main_tabs_tab_' + gridName).click().wait(constants.WAIT_TIME);
+    //.should('contain', 'Market Rates')
+
+    // Test on `Add New` and `Delete` button
+    cy.get('#tb_' + gridName + '_toolbar_item_w2ui-add').should('be.visible');
+    cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('have.class', 'disabled');
+
+
+    // check response status of API end point
+    cy.wait('@' + routeName).its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    // perform tests on record detail form
+    cy.get('@' + routeName).then(function (xhr) {
+
+        let recordsFromAPIResponse = xhr.response.body.records;
+        cy.log(recordsFromAPIResponse);
+        testConfig.grid = gridName;
+        if(recordsFromAPIResponse.length > 0){
+            testGridRecords(recordsFromAPIResponse, recordsFromAPIResponse.length, testConfig);
+
+            // Click on first record and check delete button is enabled.
+            cy.get(selectors.getFirstRecordInGridSelector(gridName)).click();
+            cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
+        }
+    });
+}
+
 export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
     cy.log("Tests for detail record form");
 
@@ -460,6 +510,16 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocat
 
     // Routing response to detail record's api requests.
     cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
+
+    switch (testConfig.module){
+        case "rt":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rmr', id)).as('getMarketRulesRecords');
+            break;
+        case "rentable":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentablestatus', id)).as('getRentableStatusRecords');
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentabletyperef', id)).as('getRentableTypeRef');
+            break;
+    }
 
     // Route rmr(Marketing Rates) endpoint while testing Rentable Types
     if (testConfig.module === "rt") {
