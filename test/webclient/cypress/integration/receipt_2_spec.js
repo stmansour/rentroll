@@ -53,6 +53,8 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
 
+        cy.wait(constants.WAIT_TIME);
+
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
 
@@ -120,6 +122,9 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         // doUnallocatedSectionTest: true
         // doPrintReceiptUITest: true
         common.testRecordDetailForm(recordsAPIResponse, testConfig, true, true);
+
+        // -- Close the form. And assert that form isn't visible. --
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     it('Add new record form', function () {

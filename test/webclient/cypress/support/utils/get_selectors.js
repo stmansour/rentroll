@@ -60,6 +60,11 @@ export function getFirstRecordInGridSelector(gridName) {
     return '#grid_' + gridName + '_rec_0';
 }
 
+// return selector for second record in grid
+export function getSecondRecordInGridSelector(gridName) {
+    return '#grid_' + gridName + '_rec_1';
+}
+
 // return selector for formName
 export function getFormSelector(formName) {
     return 'div[name=' + formName + ']';

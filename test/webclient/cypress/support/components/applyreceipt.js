@@ -1,24 +1,27 @@
 "use strict";
 
-const GRID = "pmtsGrid";
-const SIDEBAR_ID = "pmts";
-const FORM = "pmtForm";
-const MODULE = "pmts";
+const GRID = "allocfundsGrid";
+const SIDEBAR_ID = "allocfunds";
+const FORM = "allocfundsForm";
+const MODULE = "allocfunds";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
-// For Module: Charts of Account
+// For Module: Deposit accounts
 export let conf = {
     grid: GRID,
     form: FORM,
     sidebarID: SIDEBAR_ID,
     module: MODULE,
-    endPoint: "/{0}/pmts/{1}",
+    endPoint: "/{0}/allocfunds/{1}",
     methodType: 'POST',
     excludeGridColumns: [],
-    buttonNamesInForm: ["save", "saveadd"],
+    buttonNamesInForm: [],
     notVisibleButtonNamesInForm: ["close"],
-    buttonNamesInDetailForm: ["save", "saveadd", "delete"],
+    buttonNamesInDetailForm: ["save"],
     skipColumns: [],
     skipFields: [],
-    primaryId: "PMTID"
+    primaryId: "TCID",
+    haveDateValue: false,
+    gridInForm: 'unpaidasms'
 };
+

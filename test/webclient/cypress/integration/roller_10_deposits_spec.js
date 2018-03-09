@@ -4,8 +4,8 @@ import * as constants from '../support/utils/constants';
 import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
-// --- Setup --
-const section = require('../support/components/ars'); // Account Rules
+// --- Assessments/Receipts --
+const section = require('../support/components/deposits'); // Expenses
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Account Rules', function () {
+describe('AIR Roller UI Tests - Expenses', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -102,19 +102,51 @@ describe('AIR Roller UI Tests - Account Rules', function () {
     });
 
     it('Record Detail Form', function () {
+
+        // route the endpoint for grid records in deposit's record detail form
+        const id = recordsAPIResponse[0][testConfig.primaryId];
+        cy.server();
+        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint(testConfig.gridInForm, id)).as('getDepositListGrid');
+
         // ----------------------------------
         // -- Tests for detail record form --
         // ----------------------------------
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: false
+        // doUnallocatedSectionTest: true
         // doPrintReceiptUITest: false
         common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
+
+
+        // perform tests on grid record (depositListGrid) in deposit detail record form
+        cy.get('@getDepositListGrid').then(function (xhr) {
+
+            expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+
+            let recordsAPIResponse = xhr.response.body.records;
+
+            cy.log(recordsAPIResponse);
+
+            // -- Assigning number of records to 0 if no records are available in response --
+            if (recordsAPIResponse) {
+                noRecordsInAPIResponse = xhr.response.body.records.length;
+            } else {
+                noRecordsInAPIResponse = 0;
+            }
+
+            // assign grid name
+            testConfig.grid = "depositListGrid";
+
+            // Perform test on each cell of grid records
+            common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+
+        });
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
+
 
     it('Add new record form', function () {
         // ---------------------------------------

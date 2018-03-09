@@ -4,7 +4,7 @@ import * as constants from '../support/utils/constants';
 import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
-// --- Assessments/Receipts --
+// --- Setup --
 const section = require('../support/components/accounts'); // Chart of accounts
 
 // this contain app variable of the application
@@ -111,6 +111,9 @@ describe('AIR Roller UI Tests - Chart of accounts', function () {
         // doUnallocatedSectionTest: false
         // doPrintReceiptUITest: false
         common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
+
+        // -- Close the form. And assert that form isn't visible. --
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     it('Add new record form', function () {
