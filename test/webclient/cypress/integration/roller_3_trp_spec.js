@@ -53,7 +53,7 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
 
-        cy.wait(constants.WAIT_TIME);
+        cy.wait(5000);
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);

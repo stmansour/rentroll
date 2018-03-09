@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../support/utils/constants';
-import * as selectors from '../support/utils/get_selectors';
-import * as common from '../support/utils/common';
+import * as constants from '../utils/constants';
+import * as selectors from '../utils/get_selectors';
+import * as common from '../utils/common';
 
 // --- Assessments/Receipts --
-const section = require('../support/components/applyreceipt'); // Expenses
+const section = require('../components/applyreceipt'); // Expenses
 
 // this contain app variable of the application
 let appSettings;
