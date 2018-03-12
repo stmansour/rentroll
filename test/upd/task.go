@@ -44,8 +44,27 @@ func Tasks(ctx context.Context, biz *rlib.Business) {
 	//----------------------------------------------
 	// Now, create an instance of this task list.
 	//----------------------------------------------
+	CreateTaskListInstance(ctx, tldef.TLDID)
 
 }
 
 // CreateTaskListInstance creates a new task list based on the supplied
 // definition and Epoch Date.
+//
+// INPUTS
+//  ctx    - context for database transactions
+//  TLDID  - Task List Definition ID
+//
+// RETURNS
+//  error  - any error encountered
+//
+//-----------------------------------------------------------------------------
+func CreateTaskListInstance(ctx context.Context, TLDID int64) error {
+	tld, err := rlib.GetTaskListDefinition(ctx, TLDID)
+	if err != nil {
+		return err
+	}
+
+	rlib.Console("Found tld.TLDID = %d, name = %s\n", tld.TLDID, tld.Name)
+	return nil
+}

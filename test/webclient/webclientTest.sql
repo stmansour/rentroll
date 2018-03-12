@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
 --
--- Host: 127.0.0.1    Database: rentroll
+-- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.21
+-- Server version	5.7.16
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2122,10 +2122,10 @@ CREATE TABLE `Task` (
   `TLID` bigint(20) NOT NULL DEFAULT '0',
   `Name` varchar(256) NOT NULL DEFAULT '',
   `Worker` varchar(80) NOT NULL DEFAULT '',
-  `DtDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtPreDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtPreDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtPreDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtPreDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2157,8 +2157,8 @@ CREATE TABLE `TaskDescriptor` (
   `TLDID` bigint(20) NOT NULL DEFAULT '0',
   `Name` varchar(256) NOT NULL DEFAULT '',
   `Worker` varchar(80) NOT NULL DEFAULT '',
-  `EpochDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `EpochPreDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `EpochDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `EpochPreDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2189,10 +2189,10 @@ CREATE TABLE `TaskList` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Name` varchar(256) NOT NULL DEFAULT '',
   `Cycle` bigint(20) NOT NULL DEFAULT '0',
-  `DtDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtPreDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtPreDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtPreDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtPreDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2223,10 +2223,10 @@ CREATE TABLE `TaskListDefinition` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Name` varchar(256) NOT NULL DEFAULT '',
   `Cycle` bigint(20) NOT NULL DEFAULT '0',
-  `DtDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtPreDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
-  `DtPreDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtPreDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DtPreDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2803,4 +2803,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-11 20:39:46
+-- Dump completed on 2018-03-12 15:04:38

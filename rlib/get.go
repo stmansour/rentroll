@@ -6654,6 +6654,42 @@ func GetTaskDescriptor(ctx context.Context, id int64) (TaskDescriptor, error) {
 	return a, ReadTaskDescriptor(row, &a)
 }
 
+// GetTaskListDescriptors reads all TaskListDescriptor structures belonging to
+// the TaskListDefinition with the the supplied id
+//-----------------------------------------------------------------------------
+func GetTaskListDescriptors(ctx context.Context, id int64) ([]TaskDescriptor, error) {
+	var err error
+	var m []TaskDescriptor
+	if authCheck(ctx) {
+		return m, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskListDescriptors)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetTaskListDescriptors.Query(fields...)
+	}
+
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var a TaskDescriptor
+		if err = ReadTaskDescriptors(rows, &a); err != nil {
+			return m, err
+		}
+		m = append(m, a)
+	}
+
+	return m, rows.Err()
+}
+
 // GetTaskListDefinition returns the tasklist with the supplied id
 func GetTaskListDefinition(ctx context.Context, id int64) (TaskListDefinition, error) {
 	var a TaskListDefinition

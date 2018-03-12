@@ -1741,22 +1741,7 @@ type RRprepSQL struct {
 	DeleteTaskListDefinition                *sql.Stmt
 	GetEpochAssessmentsByRentalAgreement    *sql.Stmt
 	GetAllRentalAgreementRentables          *sql.Stmt
-	// GetTask                                 *sql.Stmt
-	// InsertTask                              *sql.Stmt
-	// UpdateTask                              *sql.Stmt
-	// DeleteTask                              *sql.Stmt
-	// GetTaskList                             *sql.Stmt
-	// InsertTaskList                          *sql.Stmt
-	// UpdateTaskList                          *sql.Stmt
-	// DeleteTaskList                          *sql.Stmt
-	// GetTaskDescriptor                       *sql.Stmt
-	// InsertTaskDescriptor                    *sql.Stmt
-	// UpdateTaskDescriptor                    *sql.Stmt
-	// DeleteTaskDescriptor                    *sql.Stmt
-	// GetTaskListDefinition                   *sql.Stmt
-	// InsertTaskListDefinition                *sql.Stmt
-	// UpdateTaskListDefinition                *sql.Stmt
-	// DeleteTaskListDefinition                *sql.Stmt
+	GetTaskListDescriptors                  *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

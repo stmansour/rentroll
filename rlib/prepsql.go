@@ -1194,6 +1194,8 @@ func buildPreparedStatements() {
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.GetTaskDescriptor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskDescriptor WHERE TDID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetTaskListDescriptors, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskDescriptor WHERE TLDID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.InsertTaskDescriptor, err = RRdb.Dbrr.Prepare("INSERT INTO TaskDescriptor (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateTaskDescriptor, err = RRdb.Dbrr.Prepare("UPDATE TaskDescriptor SET " + s3 + " WHERE TDID=?")

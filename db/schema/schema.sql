@@ -453,10 +453,10 @@ CREATE TABLE Task (
     TLID BIGINT NOT NULL DEFAULT 0,                             -- the TaskList to which this task belongs
     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- Task text
     Worker VARCHAR(80) NOT NULL DEFAULT '',                     -- Name of the associated work function
-    DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',              -- Task Due Date
-    DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- Pre Completion due date
-    DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',             -- Task completion Date
-    DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',          -- Task Pre Completion Date
+    DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',     -- Task Due Date
+    DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Pre Completion due date
+    DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',    -- Task completion Date
+    DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00', -- Task Pre Completion Date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
                                                                 -- 1<<1 PreCompletion done (if 0 it is not yet done)
                                                                 -- 1<<2 Completion done (if 0 it is not yet done)
@@ -472,10 +472,10 @@ CREATE TABLE TaskList (
     BID BIGINT NOT NULL DEFAULT 0,
     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (not editable)
-    DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',              -- All tasks in task list are due on this date
-    DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- All tasks in task list pre-completion date
-    DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',             -- Task completion Date
-    DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',          -- Task Pre Completion Date
+    DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',     -- All tasks in task list are due on this date
+    DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- All tasks in task list pre-completion date
+    DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',    -- Task completion Date
+    DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00', -- Task Pre Completion Date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
@@ -489,10 +489,10 @@ CREATE TABLE TaskListDefinition (
     BID BIGINT NOT NULL DEFAULT 0,
     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (editable)
-    DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',              -- All tasks in task list are due on this date
-    DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- All tasks in task list pre-completion date
-    DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',             -- Task completion Date
-    DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',          -- Task Pre Completion Date
+    DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',     -- All tasks in task list are due on this date
+    DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- All tasks in task list pre-completion date
+    DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',    -- Task completion Date
+    DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00', -- Task Pre Completion Date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
@@ -507,8 +507,8 @@ CREATE TABLE TaskDescriptor (
     TLDID BIGINT NOT NULL DEFAULT 0,                            -- the TaskListDefinition to which this taskDescr belongs
     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- Task text
     Worker VARCHAR(80) NOT NULL DEFAULT '',                     -- Name of the associated work function
-    EpochDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- Task Due Date
-    EpochPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',        -- Pre Completion due date
+    EpochDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Task Due Date
+    EpochPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
