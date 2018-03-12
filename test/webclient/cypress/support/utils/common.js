@@ -58,6 +58,29 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
     // Iterate through each row
     recordsAPIResponse.forEach(function (record, rowNo) {
 
+        if(record.FLAGS === 4 && testConfig.grid === "rrGrid"){
+            // continue;
+        }
+
+        if(testConfig.grid === "rrGrid"){
+            // noinspection JSAnnotator
+            switch (record.FLAGS){
+                // Main row
+                case 1:
+                    testConfig.skipColumns = ["UsePeriod", "RentPeriod", "BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    break;
+                // Subtotal row
+                case 2:
+                    break;
+                // Blank row
+                case 4:
+                    // Skipping tests on blank row
+                    return;
+            }
+        }
+
+
+
         // Iterate through each column in row
         w2uiGridColumns.forEach(function (w2uiGridColumn, columnNo) {
 
@@ -69,10 +92,19 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 let valueForCell = record[w2uiGridColumn.field];
                 cy.log(valueForCell);
 
-                // format money type value
-                if (w2uiGridColumn.render === "money") {
-                    valueForCell = win.w2utils.formatters.money(valueForCell);
+                // Format Value
+                switch (w2uiGridColumn.render){
+                    // format money type value
+                    case "money":
+                        valueForCell = win.w2utils.formatters.money(valueForCell);
+                        break;
+                    // format float type value
+                    case "float:2":
+                        valueForCell = win.w2utils.formatters.float(valueForCell, 2);
+                        break;
                 }
+
+
 
                 let types;
                 let type;
@@ -88,9 +120,35 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         break;
                     case "AcctRule":
                     case "Payor":
+                    case "Sqft":
+                    case "SqFt":
                         // Chart of accounts
                         if (valueForCell === null) {
                             valueForCell = "";
+                        }
+                        break;
+                    case "Description":
+                        if(record.FLAGS === 1 && testConfig.grid === "rrGrid"){
+                            if (valueForCell === null) {
+                                valueForCell = "";
+                            }
+                        }
+                        break;
+                    case "RentableName":
+                    case "RentableType":
+                    case "Users":
+                    case "Payors":
+                    case "RAIDREP":
+                    case "RAID":
+                    case "UsePeriod":
+                    case "RentPeriod":
+                    case "RentCycleREP":
+                    case "RentCycleGSR":
+
+                        if(record.FLAGS === 2 && testConfig.grid === "rrGrid"){
+                            if (valueForCell === null) {
+                                valueForCell = "";
+                            }
                         }
                         break;
                     case "RentCycle":
