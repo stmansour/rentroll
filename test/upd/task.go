@@ -44,7 +44,10 @@ func Tasks(ctx context.Context, biz *rlib.Business) {
 	//----------------------------------------------
 	// Now, create an instance of this task list.
 	//----------------------------------------------
-	CreateTaskListInstance(ctx, tldef.TLDID)
+	err = CreateTaskListInstance(ctx, tldef.TLDID)
+	if err != nil {
+		fmt.Printf("CreateTaskListInstance:  error = %s\n", err.Error())
+	}
 
 }
 
@@ -66,5 +69,11 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64) error {
 	}
 
 	rlib.Console("Found tld.TLDID = %d, name = %s\n", tld.TLDID, tld.Name)
+
+	td, err := rlib.GetTaskListDescriptors(ctx, tld.TLDID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
