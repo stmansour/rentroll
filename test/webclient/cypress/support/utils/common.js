@@ -245,6 +245,12 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                         fieldValue = recordDetailFromAPIResponse.RentableName;
                         break;
                     case "RentCycle":
+                        // In Rentable Type form(rtForm), RentCycle have integer value.
+                        if (formName === "rtForm"){
+                            fieldValue = appSettings.cycleFreq[fieldValue];
+                        }
+                        break;
+                    // case "RentCycle": Initially RentCycle had integer value in Endpoint response. Now it have string value in Assess Charges form.
                     case "Proration":
                     case "GSRPC":
                         fieldValue = appSettings.cycleFreq[fieldValue];
