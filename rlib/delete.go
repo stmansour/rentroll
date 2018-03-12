@@ -1402,6 +1402,104 @@ func DeleteSubARs(ctx context.Context, arid int64) error {
 	return err
 }
 
+func delContextProblem(ctx context.Context) bool {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return true
+		}
+	}
+	return false
+}
+
+//*****************************************************************
+// TASK, TASKLIST, TASK LIST DEFINITION, TASK LIST DESCRIPTOR
+//*****************************************************************
+
+// DeleteTask deletes the Task with the specified id from the database
+func DeleteTask(ctx context.Context, id int64) error {
+	var err error
+	if delContextProblem(ctx) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteTask)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteTask.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting Task id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteTaskList deletes the TaskList with the specified id from the database
+func DeleteTaskList(ctx context.Context, id int64) error {
+	var err error
+	if delContextProblem(ctx) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteTaskList)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteTaskList.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting TaskList id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteTaskDescriptor deletes the TaskDescriptor with the specified id from the database
+func DeleteTaskDescriptor(ctx context.Context, id int64) error {
+	var err error
+	if delContextProblem(ctx) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteTaskDescriptor)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteTaskDescriptor.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting TaskDescriptor id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+// DeleteTaskListDefinition deletes the TaskListDefinition with the specified id from the database
+func DeleteTaskListDefinition(ctx context.Context, id int64) error {
+	var err error
+	if delContextProblem(ctx) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteTaskListDefinition)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteTaskListDefinition.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting TaskListDefinition id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
+//*****************************************************************************
+//  TRANSACTANT, PAYOR, USER, PROSPECT
+//*****************************************************************************
+
 // DeleteTransactant deletes the Transactant with the specified id from the database
 func DeleteTransactant(ctx context.Context, id int64) error {
 	var err error

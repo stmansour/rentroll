@@ -629,6 +629,62 @@ func ReadSLStrings(rows *sql.Rows, a *SLString) error {
 	return rows.Scan(&a.SLSID, &a.BID, &a.SLID, &a.Value, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
+//---------------------
+//  TASKS
+//---------------------
+
+// ReadTask reads a full Task structure from the database based on the supplied row object
+func ReadTask(row *sql.Row, a *Task) error {
+	err := row.Scan(&a.TID, &a.BID, &a.TLID, &a.Name, &a.Worker, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadTasks reads a full Task structure from the database based on the supplied rows
+func ReadTasks(rows *sql.Rows, a *Task) error {
+	return rows.Scan(&a.TID, &a.BID, &a.TLID, &a.Name, &a.Worker, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadTaskList reads a full TaskList structure from the database based on the supplied row object
+func ReadTaskList(row *sql.Row, a *TaskList) error {
+	err := row.Scan(&a.TLID, &a.BID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadTaskLists reads a full TaskList structure from the database based on the supplied rows
+func ReadTaskLists(rows *sql.Rows, a *TaskList) error {
+	return rows.Scan(&a.TLID, &a.BID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadTaskDescriptor reads a full TaskDescriptor structure from the database based on the supplied row object
+func ReadTaskDescriptor(row *sql.Row, a *TaskDescriptor) error {
+	err := row.Scan(&a.TDID, &a.BID, &a.TLDID, &a.Name, &a.Worker, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadTaskDescriptors reads a full TaskDescriptor structure from the database based on the supplied rows
+func ReadTaskDescriptors(rows *sql.Rows, a *TaskDescriptor) error {
+	return rows.Scan(&a.TDID, &a.BID, &a.TLDID, &a.Name, &a.Worker, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+// ReadTaskListDefinition reads a full TaskListDefinition structure from the database based on the supplied row object
+func ReadTaskListDefinition(row *sql.Row, a *TaskListDefinition) error {
+	err := row.Scan(&a.TLDID, &a.BID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadTaskListDefinitions reads a full TaskListDefinition structure from the database based on the supplied rows
+func ReadTaskListDefinitions(rows *sql.Rows, a *TaskListDefinition) error {
+	return rows.Scan(&a.TLDID, &a.BID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+//---------------------
+//  TRANSACTANT
+//---------------------
+
 // ReadTransactant reads a full Transactant structure from the database based on the supplied row object
 func ReadTransactant(row *sql.Row, a *Transactant) error {
 	err := row.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName,

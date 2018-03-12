@@ -447,7 +447,6 @@ CREATE TABLE Business (
 -- ===========================================
 --   TASKLIST AND TASK
 -- ===========================================
-/*
 CREATE TABLE Task (
     TID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,
@@ -485,22 +484,6 @@ CREATE TABLE TaskList (
     PRIMARY KEY(TLID)
 );
 
-CREATE TABLE TaskDescriptor (
-    TDID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,
-    TLDID BIGINT NOT NULL DEFAULT 0,                            -- the TaskListDefinition to which this taskDescr belongs
-    Name VARCHAR(256) NOT NULL DEFAULT '',                      -- Task text
-    Worker VARCHAR(80) NOT NULL DEFAULT '',                     -- Name of the associated work function
-    EpochDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- Task Due Date
-    EpochPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',        -- Pre Completion due date
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
-    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
-    PRIMARY KEY(TID)
-);
-
 CREATE TABLE TaskListDefinition (
     TLDID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,
@@ -515,10 +498,24 @@ CREATE TABLE TaskListDefinition (
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
-    PRIMARY KEY(TLID)
+    PRIMARY KEY(TLDID)
 );
 
-*/
+CREATE TABLE TaskDescriptor (
+    TDID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,
+    TLDID BIGINT NOT NULL DEFAULT 0,                            -- the TaskListDefinition to which this taskDescr belongs
+    Name VARCHAR(256) NOT NULL DEFAULT '',                      -- Task text
+    Worker VARCHAR(80) NOT NULL DEFAULT '',                     -- Name of the associated work function
+    EpochDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- Task Due Date
+    EpochPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',        -- Pre Completion due date
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
+    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY(TDID)
+);
 
 
 -- ===========================================

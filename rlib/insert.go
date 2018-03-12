@@ -6,6 +6,23 @@ import (
 	"extres"
 )
 
+// insertSessionProblem is a convenience function that replaces 8 lines
+// of code with about 4. Since these lines are needed for every insert call
+// it saves a lot of lines.  Added this routine at the time Task,TaskList,
+// TaskDescriptor and  TaskListDefinition were added.
+//-----------------------------------------------------------------------------
+func insertSessionProblem(ctx context.Context, id *int64) error {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		(*id) = sess.UID
+		return nil
+	}
+	return nil
+}
+
 func insertError(err error, n string, a interface{}) error {
 	if nil != err {
 		Ulog("Insert%s: error inserting %s:  %v\n", n, n, err)
@@ -2218,6 +2235,138 @@ func InsertSubAR(ctx context.Context, a *SubAR) (int64, error) {
 	}
 	return rid, err
 }
+
+//*****************************************************************
+// TASK, TASKLIST, TASK LIST DEFINITION, TASK LIST DESCRIPTOR
+//*****************************************************************
+
+// InsertTask writes a new Task record to the database
+func InsertTask(ctx context.Context, a *Task) error {
+	var id = int64(0)
+	var err error
+	var res sql.Result
+
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return err
+	}
+	a.LastModBy = a.CreateBy
+
+	fields := []interface{}{a.TID, a.BID, a.TLID, a.Name, a.Worker, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.CreateTS, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertTask)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertTask.Exec(fields...)
+	}
+
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			id = int64(x)
+			a.TID = id
+		}
+	} else {
+		err = insertError(err, "Task", *a)
+	}
+	return err
+}
+
+// InsertTaskList writes a new TaskList record to the database
+func InsertTaskList(ctx context.Context, a *TaskList) error {
+	var id = int64(0)
+	var err error
+	var res sql.Result
+
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return err
+	}
+	a.LastModBy = a.CreateBy
+	fields := []interface{}{a.TLID, a.BID, a.Name, a.Cycle, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.CreateTS, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskList)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertTaskList.Exec(fields...)
+	}
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			id = int64(x)
+			a.TLID = id
+		}
+	} else {
+		err = insertError(err, "TaskList", *a)
+	}
+	return err
+}
+
+// InsertTaskDescriptor writes a new TaskDescriptor record to the database
+func InsertTaskDescriptor(ctx context.Context, a *TaskDescriptor) error {
+	var id = int64(0)
+	var err error
+	var res sql.Result
+
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return err
+	}
+	a.LastModBy = a.CreateBy
+	fields := []interface{}{a.BID, a.TLDID, a.Name, a.Worker, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModBy, a.TDID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskDescriptor)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertTaskDescriptor.Exec(fields...)
+	}
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			id = int64(x)
+			a.TDID = id
+		}
+	} else {
+		err = insertError(err, "TaskDescriptor", *a)
+	}
+	return err
+}
+
+// InsertTaskListDefinition writes a new TaskListDefinition record to the database
+func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error {
+	var id = int64(0)
+	var err error
+	var res sql.Result
+
+	if err = insertSessionProblem(ctx, &a.CreateBy); err != nil {
+		return err
+	}
+	a.LastModBy = a.CreateBy
+
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.LastModBy, a.TLDID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskListDefinition)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertTaskListDefinition.Exec(fields...)
+	}
+
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			id = int64(x)
+			a.TLDID = id
+		}
+	} else {
+		err = insertError(err, "TaskListDefinition", *a)
+	}
+	return err
+}
+
+//*****************************************************************************
+//  TRANSACTANT, PAYOR, USER, PROSPECT
+//*****************************************************************************
 
 // InsertTransactant writes a new Transactant record to the database
 func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {

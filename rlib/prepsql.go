@@ -1156,63 +1156,67 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteSubARs, err = RRdb.Dbrr.Prepare("DELETE from SubAR WHERE ARID=?")
 	Errcheck(err)
 
-	/*
-		//==========================================
-		// TASK
-		//==========================================
-		flds = "TID,BID,TLID,Name,Worker,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,LastModTime,LastModBy"
-		RRdb.DBFields["Task"] = flds
-		RRdb.Prepstmt.GetTask, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Task WHERE TID=?")
-		Errcheck(err)
-		RRdb.Prepstmt.InsertTask, err = RRdb.Dbrr.Prepare("INSERT INTO Task (" + s1 + ") VALUES(" + s2 + ")")
-		Errcheck(err)
-		RRdb.Prepstmt.UpdateTask, err = RRdb.Dbrr.Prepare("UPDATE Task SET " + s3 + " WHERE TID=?")
-		Errcheck(err)
-		RRdb.Prepstmt.DeleteTask, err = RRdb.Dbrr.Prepare("DELETE from Task WHERE TID=?")
-		Errcheck(err)
+	//==========================================
+	// TASK
+	//==========================================
+	flds = "TID,BID,TLID,Name,Worker,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["Task"] = flds
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.GetTask, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Task WHERE TID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertTask, err = RRdb.Dbrr.Prepare("INSERT INTO Task (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateTask, err = RRdb.Dbrr.Prepare("UPDATE Task SET " + s3 + " WHERE TID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteTask, err = RRdb.Dbrr.Prepare("DELETE from Task WHERE TID=?")
+	Errcheck(err)
 
-		//==========================================
-		// TASKLIST
-		//==========================================
-		flds = "TLID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,LastModTime,LastModBy"
-		RRdb.DBFields["TaskList"] = flds
-		RRdb.Prepstmt.GetTaskList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE TLID=?")
-		Errcheck(err)
-		RRdb.Prepstmt.InsertTaskList, err = RRdb.Dbrr.Prepare("INSERT INTO TaskList (" + s1 + ") VALUES(" + s2 + ")")
-		Errcheck(err)
-		RRdb.Prepstmt.UpdateTaskList, err = RRdb.Dbrr.Prepare("UPDATE TaskList SET " + s3 + " WHERE TLID=?")
-		Errcheck(err)
-		RRdb.Prepstmt.DeleteTaskList, err = RRdb.Dbrr.Prepare("DELETE from TaskList WHERE TLID=?")
-		Errcheck(err)
+	//==========================================
+	// TASKLIST
+	//==========================================
+	flds = "TLID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["TaskList"] = flds
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.GetTaskList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE TLID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertTaskList, err = RRdb.Dbrr.Prepare("INSERT INTO TaskList (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateTaskList, err = RRdb.Dbrr.Prepare("UPDATE TaskList SET " + s3 + " WHERE TLID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteTaskList, err = RRdb.Dbrr.Prepare("DELETE from TaskList WHERE TLID=?")
+	Errcheck(err)
 
-		//==========================================
-		// TASKDESCRIPTOR
-		//==========================================
-		flds = "TDID,BID,TLDID,Name,Worker,EpochDue,EpochPreDue,FLAGS,LastModTime,LastModBy"
-		RRdb.DBFields["TaskDescriptor"] = flds
-		RRdb.Prepstmt.GetTaskDescriptor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskDescriptor WHERE TDID=?")
-		Errcheck(err)
-		RRdb.Prepstmt.InsertTaskDescriptor, err = RRdb.Dbrr.Prepare("INSERT INTO TaskDescriptor (" + s1 + ") VALUES(" + s2 + ")")
-		Errcheck(err)
-		RRdb.Prepstmt.UpdateTaskDescriptor, err = RRdb.Dbrr.Prepare("UPDATE TaskDescriptor SET " + s3 + " WHERE TDID=?")
-		Errcheck(err)
-		RRdb.Prepstmt.DeleteTaskDescriptor, err = RRdb.Dbrr.Prepare("DELETE from TaskDescriptor WHERE TDID=?")
-		Errcheck(err)
+	//==========================================
+	// TASKDESCRIPTOR
+	//==========================================
+	flds = "TDID,BID,TLDID,Name,Worker,EpochDue,EpochPreDue,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["TaskDescriptor"] = flds
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.GetTaskDescriptor, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskDescriptor WHERE TDID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.InsertTaskDescriptor, err = RRdb.Dbrr.Prepare("INSERT INTO TaskDescriptor (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateTaskDescriptor, err = RRdb.Dbrr.Prepare("UPDATE TaskDescriptor SET " + s3 + " WHERE TDID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteTaskDescriptor, err = RRdb.Dbrr.Prepare("DELETE from TaskDescriptor WHERE TDID=?")
+	Errcheck(err)
 
-		//==========================================
-		// TASK LIST DEFINITION
-		//==========================================
-		flds = "TLDID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,LastModTime,LastModBy"
-		RRdb.DBFields["TaskListDefinition"] = flds
-		RRdb.Prepstmt.GetTaskListDefinition, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskListDefinition WHERE TLDID=?")
-		Errcheck(err)
-		RRdb.Prepstmt.InsertTaskListDefinition, err = RRdb.Dbrr.Prepare("INSERT INTO TaskListDefinition (" + s1 + ") VALUES(" + s2 + ")")
-		Errcheck(err)
-		RRdb.Prepstmt.UpdateTaskListDefinition, err = RRdb.Dbrr.Prepare("UPDATE TaskListDefinition SET " + s3 + " WHERE TLDID=?")
-		Errcheck(err)
-		RRdb.Prepstmt.DeleteTaskListDefinition, err = RRdb.Dbrr.Prepare("DELETE from TaskListDefinition WHERE TLDID=?")
-		Errcheck(err)
-	*/
+	//==========================================
+	// TASK LIST DEFINITION
+	//==========================================
+	flds = "TLDID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["TaskListDefinition"] = flds
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.GetTaskListDefinition, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskListDefinition WHERE TLDID=?")
+	Errcheck(err)
+	// qry := "INSERT INTO TaskListDefinition (" + s1 + ") VALUES(" + s2 + ")"
+	// Console("qry = %s\n", qry)
+	RRdb.Prepstmt.InsertTaskListDefinition, err = RRdb.Dbrr.Prepare("INSERT INTO TaskListDefinition (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateTaskListDefinition, err = RRdb.Dbrr.Prepare("UPDATE TaskListDefinition SET " + s3 + " WHERE TLDID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteTaskListDefinition, err = RRdb.Dbrr.Prepare("DELETE from TaskListDefinition WHERE TLDID=?")
+	Errcheck(err)
 
 	//==========================================
 	// TRANSACTANT

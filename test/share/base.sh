@@ -1228,7 +1228,7 @@ doCypressUITest () {
 	#  Read the number of tests from the output file
 	#-----------------------------------------------------
 	n=$(egrep 'Passes:' ${1} | sed 's/^  *- Passes:  [^ \t]*//')
-	TESTCOUNT=$((TESTCOUNT + ${n}))
+	TESTCOUNT=$(( TESTCOUNT + ${n} ))
 
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath

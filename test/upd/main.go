@@ -108,6 +108,7 @@ func main() {
 	updateRAPayor(ctx, &biz)
 	updateRUser(ctx, &biz)
 	updateRAR(ctx, &biz)
+	Tasks(ctx, &biz)
 }
 
 func updateRAR(ctx context.Context, biz *rlib.Business) {

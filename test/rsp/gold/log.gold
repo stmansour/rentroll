@@ -1,6 +1,0 @@
-Test Name:    RentalSpecialtyRefs, Assessment Check
-Test Purpose: Tests RentalSpecialtyRefs associated with Rentables. Based on test/engine, init.sql specialty code was replaced with csvloader.
-Date/Time:    Fri Sep  2 13:56:25 PDT 2016
-
-Create new database...  successful
-Test completed: Fri Sep  2 13:56:26 PDT 2016

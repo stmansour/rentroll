@@ -14,9 +14,8 @@ MYSQL="mysql --no-defaults"
 MYSQLDUMP="mysqldump --no-defaults"
 
 #=====================================================
-#  Put modifications to schema in the lines below
+#  History of db mods
 #=====================================================
-cat >${MODFILE} <<EOF
 # # Sep 25, 2017
 # ALTER TABLE RentalAgreement ADD COLUMN FLAGS BIGINT NOT NULL DEFAULT 0 AFTER RightOfFirstRefusal;
 # # Sep 26, 2017
@@ -116,19 +115,101 @@ cat >${MODFILE} <<EOF
 
 # # 15 Feb, 2018
 # ALTER TABLE rentroll.Business ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER DefaultGSRPC;
+
+
+# 11-MAR-2018
+# CREATE TABLE Task (
+#     TID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,
+#     TLID BIGINT NOT NULL DEFAULT 0,                             -- the TaskList to which this task belongs
+#     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- Task text
+#     Worker VARCHAR(80) NOT NULL DEFAULT '',                     -- Name of the associated work function
+#     DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',              -- Task Due Date
+#     DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- Pre Completion due date
+#     DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',             -- Task completion Date
+#     DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',          -- Task Pre Completion Date
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
+#                                                                 -- 1<<1 PreCompletion done (if 0 it is not yet done)
+#                                                                 -- 1<<2 Completion done (if 0 it is not yet done)
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY(TID)
+# );
+
+# CREATE TABLE TaskList (
+#     TLID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,
+#     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
+#     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (not editable)
+#     DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',              -- All tasks in task list are due on this date
+#     DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- All tasks in task list pre-completion date
+#     DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',             -- Task completion Date
+#     DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',          -- Task Pre Completion Date
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY(TLID)
+# );
+
+# CREATE TABLE TaskListDefinition (
+#     TLDID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,
+#     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
+#     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (editable)
+#     DtDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',              -- All tasks in task list are due on this date
+#     DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- All tasks in task list pre-completion date
+#     DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',             -- Task completion Date
+#     DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01',          -- Task Pre Completion Date
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY(TLDID)
+# );
+
+# CREATE TABLE TaskDescriptor (
+#     TDID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,
+#     TLDID BIGINT NOT NULL DEFAULT 0,                            -- the TaskListDefinition to which this taskDescr belongs
+#     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- Task text
+#     Worker VARCHAR(80) NOT NULL DEFAULT '',                     -- Name of the associated work function
+#     EpochDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',           -- Task Due Date
+#     EpochPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01',        -- Pre Completion due date
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY(TDID)
+# );
+
+#=====================================================
+#  Put modifications to schema in the lines below
+#=====================================================
+cat >${MODFILE} <<EOF
 EOF
 
 #=====================================================
 #  Put dir/sqlfilename in the list below
 #=====================================================
 declare -a dbs=(
-	'acctbal/baltest.sql'
-	'websvc1/asmtest.sql'
-	'payorstmt/pstmt.sql'
-	'rr/rr.sql'
-	'webclient/webclientTest.sql'
-	'roller/prodrr.sql'
-	'workerasm/rr.sql'
+    'acctbal/baltest.sql'
+    'payorstmt/pstmt.sql'
+    'rfix/rcptfixed.sql'
+    'rfix/receipts.sql'
+    'roller/prodrr.sql'
+    'roller/rr.sql'
+    'rr/rr.sql'
+    'setup/accord.sql'
+    'setup/old.sql'
+    'webclient/webclientTest.sql'
+    'websvc1/asmtest.sql'
+    'workerasm/rr.sql'
 )
 
 for f in "${dbs[@]}"

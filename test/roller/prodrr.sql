@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.21-0ubuntu0.16.04.1-log
+-- Server version	5.7.16
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2097,6 +2097,142 @@ INSERT INTO `TWS` VALUES (2,'CreateAssessmentInstances','','CreateAssessmentInst
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Task`
+--
+
+DROP TABLE IF EXISTS `Task`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Task` (
+  `TID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `TLID` bigint(20) NOT NULL DEFAULT '0',
+  `Name` varchar(256) NOT NULL DEFAULT '',
+  `Worker` varchar(80) NOT NULL DEFAULT '',
+  `DtDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtPreDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtPreDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`TID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Task`
+--
+
+LOCK TABLES `Task` WRITE;
+/*!40000 ALTER TABLE `Task` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Task` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `TaskDescriptor`
+--
+
+DROP TABLE IF EXISTS `TaskDescriptor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `TaskDescriptor` (
+  `TDID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `TLDID` bigint(20) NOT NULL DEFAULT '0',
+  `Name` varchar(256) NOT NULL DEFAULT '',
+  `Worker` varchar(80) NOT NULL DEFAULT '',
+  `EpochDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `EpochPreDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`TDID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `TaskDescriptor`
+--
+
+LOCK TABLES `TaskDescriptor` WRITE;
+/*!40000 ALTER TABLE `TaskDescriptor` DISABLE KEYS */;
+/*!40000 ALTER TABLE `TaskDescriptor` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `TaskList`
+--
+
+DROP TABLE IF EXISTS `TaskList`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `TaskList` (
+  `TLID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `Name` varchar(256) NOT NULL DEFAULT '',
+  `Cycle` bigint(20) NOT NULL DEFAULT '0',
+  `DtDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtPreDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtPreDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`TLID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `TaskList`
+--
+
+LOCK TABLES `TaskList` WRITE;
+/*!40000 ALTER TABLE `TaskList` DISABLE KEYS */;
+/*!40000 ALTER TABLE `TaskList` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `TaskListDefinition`
+--
+
+DROP TABLE IF EXISTS `TaskListDefinition`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `TaskListDefinition` (
+  `TLDID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `BID` bigint(20) NOT NULL DEFAULT '0',
+  `Name` varchar(256) NOT NULL DEFAULT '',
+  `Cycle` bigint(20) NOT NULL DEFAULT '0',
+  `DtDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtPreDue` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `DtPreDone` timestamp NOT NULL DEFAULT '1970-01-01 08:00:00',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
+  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`TLDID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `TaskListDefinition`
+--
+
+LOCK TABLES `TaskListDefinition` WRITE;
+/*!40000 ALTER TABLE `TaskListDefinition` DISABLE KEYS */;
+/*!40000 ALTER TABLE `TaskListDefinition` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `Tax`
 --
 
@@ -2291,4 +2427,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-02-22 12:20:42
+-- Dump completed on 2018-03-11 20:39:40

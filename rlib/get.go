@@ -6587,6 +6587,91 @@ func GetSubARs(ctx context.Context, id int64) ([]SubAR, error) {
 	return m, rows.Err()
 }
 
+func authCheck(ctx context.Context) bool {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		return !ok
+	}
+	return false
+}
+
+//============================================================
+//  TASKS
+//  TaskListDefintion, TaskListDescriptor, TaskList, Task
+//============================================================
+
+// GetTask returns the task with the supplied id
+func GetTask(ctx context.Context, id int64) (Task, error) {
+	var a Task
+	if authCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTask)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTask.QueryRow(fields...)
+	}
+	return a, ReadTask(row, &a)
+}
+
+// GetTaskList returns the tasklist with the supplied id
+func GetTaskList(ctx context.Context, id int64) (TaskList, error) {
+	var a TaskList
+	if authCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskList)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTaskList.QueryRow(fields...)
+	}
+	return a, ReadTaskList(row, &a)
+}
+
+// GetTaskDescriptor returns the tasklist with the supplied id
+func GetTaskDescriptor(ctx context.Context, id int64) (TaskDescriptor, error) {
+	var a TaskDescriptor
+	if authCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskDescriptor)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTaskDescriptor.QueryRow(fields...)
+	}
+	return a, ReadTaskDescriptor(row, &a)
+}
+
+// GetTaskListDefinition returns the tasklist with the supplied id
+func GetTaskListDefinition(ctx context.Context, id int64) (TaskListDefinition, error) {
+	var a TaskListDefinition
+	if authCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskListDefinition)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTaskListDefinition.QueryRow(fields...)
+	}
+	return a, ReadTaskListDefinition(row, &a)
+}
+
 //=======================================================
 //  TRANSACTANT
 //  Transactant, Prospect, User, Payor, XPerson

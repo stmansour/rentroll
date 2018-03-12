@@ -208,10 +208,10 @@ type TaskList struct {
 	DtDone      time.Time
 	DtPreDone   time.Time
 	FLAGS       int64
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
 }
 
 // TaskDescriptor is the definition of a task. It is used to make instance
@@ -242,10 +242,10 @@ type TaskListDefinition struct {
 	DtDone      time.Time
 	DtPreDone   time.Time
 	FLAGS       int64
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
+	LastModTime time.Time // when was this record last written
+	LastModBy   int64     // employee UID (from phonebook) that modified it
 }
 
 // AIRAuthenticateResponse is the reply structure from Accord Directory
@@ -1741,6 +1741,22 @@ type RRprepSQL struct {
 	DeleteTaskListDefinition                *sql.Stmt
 	GetEpochAssessmentsByRentalAgreement    *sql.Stmt
 	GetAllRentalAgreementRentables          *sql.Stmt
+	// GetTask                                 *sql.Stmt
+	// InsertTask                              *sql.Stmt
+	// UpdateTask                              *sql.Stmt
+	// DeleteTask                              *sql.Stmt
+	// GetTaskList                             *sql.Stmt
+	// InsertTaskList                          *sql.Stmt
+	// UpdateTaskList                          *sql.Stmt
+	// DeleteTaskList                          *sql.Stmt
+	// GetTaskDescriptor                       *sql.Stmt
+	// InsertTaskDescriptor                    *sql.Stmt
+	// UpdateTaskDescriptor                    *sql.Stmt
+	// DeleteTaskDescriptor                    *sql.Stmt
+	// GetTaskListDefinition                   *sql.Stmt
+	// InsertTaskListDefinition                *sql.Stmt
+	// UpdateTaskListDefinition                *sql.Stmt
+	// DeleteTaskListDefinition                *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

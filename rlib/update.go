@@ -1027,6 +1027,58 @@ func UpdateSubAR(ctx context.Context, a *SubAR) error {
 	return updateError(err, "SubAR", *a)
 }
 
+//**************************************************************
+// TASK, TASKLIST, TASK DESCRIPTOR, TASK LIST DEFINITION
+//**************************************************************
+
+func authProblem(ctx context.Context, uid *int64) bool {
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return true
+		}
+		*uid = sess.UID
+	}
+	return false
+}
+
+// UpdateTask updates a Task record in the database
+func UpdateTask(ctx context.Context, a *Task) error {
+	var err error
+	if authProblem(ctx, &a.LastModBy) {
+		return ErrSessionRequired
+	}
+
+	fields := []interface{}{a.BID, a.TLID, a.Name, a.Worker, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.LastModTime, a.LastModBy, a.TID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateTask.Exec(fields...)
+	}
+	return updateError(err, "Task", *a)
+}
+
+// UpdateTaskList updates a TaskList record in the database
+func UpdateTaskList(ctx context.Context, a *TaskList) error {
+	var err error
+	if authProblem(ctx, &a.LastModBy) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.LastModTime, a.LastModBy, a.TLID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateTaskList.Exec(fields...)
+	}
+	return updateError(err, "TaskList", *a)
+}
+
+//*****************************************************************************
+
 // UpdateTransactant updates a Transactant record in the database
 func UpdateTransactant(ctx context.Context, a *Transactant) error {
 	var err error
