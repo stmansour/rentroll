@@ -4,8 +4,8 @@ import * as constants from '../support/utils/constants';
 import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
-// --- Setup --
-const section = require('../support/components/ars'); // Account Rules
+// --- Assessments/Receipts --
+const section = require('../support/components/expenses'); // Expenses
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Account Rules', function () {
+describe('AIR Roller UI Tests - Expenses', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -108,13 +108,14 @@ describe('AIR Roller UI Tests - Account Rules', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: false
+        // doUnallocatedSectionTest: true
         // doPrintReceiptUITest: false
         common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
+
 
     it('Add new record form', function () {
         // ---------------------------------------

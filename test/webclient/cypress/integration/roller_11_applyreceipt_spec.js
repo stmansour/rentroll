@@ -4,8 +4,8 @@ import * as constants from '../support/utils/constants';
 import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
-// --- Setup --
-const section = require('../support/components/ars'); // Account Rules
+// --- Assessments/Receipts --
+const section = require('../support/components/applyreceipt'); // Expenses
 
 // this contain app variable of the application
 let appSettings;
@@ -14,12 +14,18 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Account Rules', function () {
+describe('AIR Roller UI Tests - Apply Receipt', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
 
     let noRecordsInAPIResponse;
+
+    let allocfundsRecordLength;
+
+    let unpaidasmsRecordsLength;
+
+    let payorRecordsLength;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
     before(function () {
@@ -105,22 +111,83 @@ describe('AIR Roller UI Tests - Account Rules', function () {
         // ----------------------------------
         // -- Tests for detail record form --
         // ----------------------------------
-        // Params:
-        // recordsAPIResponse: list of record from the api response,
-        // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: false
-        // doPrintReceiptUITest: false
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
+
+        // route the endpoint for grid records in deposit's record detail form
+        cy.server();
+        cy.route(testConfig.methodType, common.getAPIEndPoint(testConfig.module, 1)).as('getDetailRecord');
+        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint('unpaidasms', 5)).as('getUnpaidAsms');
+        cy.route('GET', common.getDetailRecordAPIEndPoint('payorfund', 5)).as('getPayorFundResponse');
+
+        // First record is blank. So temporary perform tests on second record.
+        // TODO(Akshay): Perform tests on first record after fixing bugs
+        cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+
+        // check response status of API end point
+        cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+        cy.wait('@getUnpaidAsms').its('status').should('eq', constants.HTTP_OK_STATUS);
+        cy.wait('@getPayorFundResponse').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+        // perform tests on record detail form
+        cy.get('@getDetailRecord').then(function (xhr) {
+            cy.log(xhr);
+
+            let allocfundsRecords = xhr.response.body.records;
+            cy.log(allocfundsRecords);
+
+            if (allocfundsRecords) {
+                allocfundsRecordLength = allocfundsRecords.length;
+            } else {
+                allocfundsRecordLength = 0;
+            }
+
+            let payorName = allocfundsRecords[1].Name;
+
+            // Check payor name in detailed form
+            cy.get('[name=unallocForm]').should('contain', payorName);
+
+            // Check Auto-Allocate button
+            cy.get('#auto_allocate_btn').should('have.text', 'Auto-Allocate');
+        });
+
+        cy.get('@getPayorFundResponse').then(function (xhr) {
+            cy.log(xhr);
+
+            let unpaidasmsRecords = xhr.response.body.records;
+            cy.log(unpaidasmsRecords);
+
+            if (unpaidasmsRecords) {
+                unpaidasmsRecordsLength = unpaidasmsRecords.length;
+            } else {
+                unpaidasmsRecordsLength = 0;
+            }
+
+            let fund = xhr.response.body.record.fund;
+
+            // Verify fund value
+            cy.get('#total_fund_amount').should('contain', fund);
+        });
+
+        cy.get('@getUnpaidAsms').then(function (xhr) {
+            cy.log(xhr);
+
+            let payorRecords = xhr.response.body.records;
+            cy.log(payorRecords);
+
+            if (payorRecords) {
+                payorRecordsLength = payorRecords.length;
+            } else {
+                payorRecordsLength = 0;
+            }
+        });
+
+
+        // assign grid name
+        // testConfig.grid = 'unpaidASMsGrid';
+        // Perform test on each cell of grid records
+        // TODO(Akshay): common.testGridRecords(unpaidasmsRecords, unpaidasmsRecordsLength, testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
-    });
-
-    it('Add new record form', function () {
-        // ---------------------------------------
-        // ----- Tests for add new record form ---
-        // ---------------------------------------
-        common.testAddNewRecordForm(testConfig);
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

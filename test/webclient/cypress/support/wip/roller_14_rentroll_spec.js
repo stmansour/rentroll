@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../support/utils/constants';
-import * as selectors from '../support/utils/get_selectors';
-import * as common from '../support/utils/common';
+import * as constants from '../utils/constants';
+import * as selectors from '../utils/get_selectors';
+import * as common from '../utils/common';
 
-// --- Setup --
-const section = require('../support/components/ars'); // Account Rules
+// --- Collections --
+const section = require('../components/rentroll'); // Rent Roll
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - Account Rules', function () {
+describe('AIR Roller UI Tests - Rent Roll', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -99,28 +99,6 @@ describe('AIR Roller UI Tests - Account Rules', function () {
 
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
-    });
-
-    it('Record Detail Form', function () {
-        // ----------------------------------
-        // -- Tests for detail record form --
-        // ----------------------------------
-        // Params:
-        // recordsAPIResponse: list of record from the api response,
-        // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: false
-        // doPrintReceiptUITest: false
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
-
-        // -- Close the form. And assert that form isn't visible. --
-        common.closeFormTests(selectors.getFormSelector(testConfig.form));
-    });
-
-    it('Add new record form', function () {
-        // ---------------------------------------
-        // ----- Tests for add new record form ---
-        // ---------------------------------------
-        common.testAddNewRecordForm(testConfig);
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
