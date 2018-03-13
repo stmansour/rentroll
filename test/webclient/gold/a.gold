@@ -1,107 +1,110 @@
 
-Started video recording: /home/akshay/go/src/rentroll/test/webclient/cypress/videos/ok9yf.mp4
+Started video recording: /home/akshay/go/src/rentroll/test/webclient/cypress/videos/bzfra.mp4
 
   (Tests Starting)
-(node:10104) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 close listeners added. Use emitter.setMaxListeners() to increase limit
+(node:14983) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 close listeners added. Use emitter.setMaxListeners() to increase limit
 
 
   AIR Receipt UI Tests - Login
-    ✓ Assert the title of Roller application (4907ms)
-    ✓ Login into AIR Receipt Application (3118ms)
+    ✓ Assert the title of Roller application (4845ms)
+    ✓ Login into AIR Receipt Application (2985ms)
 
   AIR Receipt UI Tests - Tendered Receipt Payment
-    ✓ Change business to REX (425ms)
-    ✓ CSV and Print button in toolbar (61ms)
-    ✓ Grid Records (8147ms)
-    ✓ Record Detail Form (9313ms)
-    ✓ Add new record form (6164ms)
+    ✓ Change business to REX (296ms)
+    ✓ CSV and Print button in toolbar
+    ✓ Grid Records (8948ms)
+    ✓ Record Detail Form (8655ms)
+    ✓ Add new record form (5468ms)
 
   AIR Roller UI Tests - Login
-    ✓ Assert the title of Roller application (4216ms)
-    ✓ Login into AIR Roller Application (2910ms)
+    ✓ Assert the title of Roller application (4147ms)
+    ✓ Login into AIR Roller Application (2856ms)
 
   AIR Roller UI Tests - Expenses
-    ✓ Change business to REX (288ms)
-    ✓ Grid Records (2640ms)
-    ✓ Record Detail Form (8841ms)
-    ✓ Add new record form (5854ms)
+    ✓ Change business to REX (396ms)
+    ✓ Grid Records (2758ms)
+    ✓ Record Detail Form (8625ms)
+    ✓ Add new record form (5756ms)
 
   AIR Roller UI Tests - Apply Receipt
-    ✓ Change business to REX (352ms)
-    ✓ Grid Records (2221ms)
-    ✓ Record Detail Form (5185ms)
+    ✓ Change business to REX (324ms)
+    ✓ Grid Records (2211ms)
+    ✓ Record Detail Form (4826ms)
 
   AIR Roller UI Tests - Rentable Types
-    ✓ Change business to REX (264ms)
-    ✓ Grid Records (4132ms)
-    ✓ Record Detail Form (11022ms)
-    ✓ Add new record form (5572ms)
+    ✓ Change business to REX (316ms)
+    ✓ Grid Records (5263ms)
+    ✓ Record Detail Form (10961ms)
+    ✓ Add new record form (5447ms)
 
   AIR Roller UI Tests - Rentables
-    ✓ Change business to REX (249ms)
-    ✓ Grid Records (4820ms)
-    ✓ Record Detail Form (15782ms)
-    ✓ Add new record form (5321ms)
+    ✓ Change business to REX (257ms)
+    ✓ Grid Records (5684ms)
+    ✓ Record Detail Form (15978ms)
+    ✓ Add new record form (5280ms)
+
+  AIR Roller UI Tests - Rent Roll
+    ✓ Change business to REX (457ms)
+    ✓ Grid Records (36624ms)
+    ✓ CSV and Print button in toolbar (71ms)
 
   AIR Roller UI Tests - Assessment Charges
-    ✓ Change business to REX (251ms)
-    ✓ Grid Records (7150ms)
-    ✓ Record Detail Form (6125ms)
-    ✓ Add new record form (5637ms)
+    ✓ Change business to REX (250ms)
+    ✓ Grid Records (9887ms)
+    ✓ Record Detail Form (6019ms)
+    ✓ Add new record form (6022ms)
 
   AIR Roller UI Tests - Tendered payment Receipt
-    ✓ Change business to REX (256ms)
-    ✓ Grid Records (6320ms)
-    ✓ Record Detail Form (6111ms)
-    ✓ Add new record form (5791ms)
+    ✓ Change business to REX (264ms)
+    ✓ Grid Records (8469ms)
+    ✓ Record Detail Form (6184ms)
+    ✓ Add new record form (5730ms)
 
   AIR Roller UI Tests - Chart of accounts
-    ✓ Change business to REX (332ms)
-    ✓ Grid Records (81996ms)
-    ✓ Record Detail Form (5775ms)
-    ✓ Add new record form (5430ms)
+    ✓ Change business to REX (300ms)
+    ✓ Record Detail Form (5994ms)
+    ✓ Add new record form (5533ms)
 
   AIR Roller UI Tests - Payment types
-    ✓ Change business to REX (299ms)
-    ✓ Grid Records (2660ms)
-    ✓ Record Detail Form (5310ms)
-    ✓ Add new record form (5270ms)
+    ✓ Change business to REX (306ms)
+    ✓ Grid Records (2918ms)
+    ✓ Record Detail Form (5646ms)
+    ✓ Add new record form (4945ms)
 
   AIR Roller UI Tests - Deposit Accounts
-    ✓ Change business to REX (299ms)
-    ✓ Grid Records (2478ms)
-    ✓ Record Detail Form (6125ms)
-    ✓ Add new record form (5848ms)
+    ✓ Change business to REX (343ms)
+    ✓ Grid Records (2642ms)
+    ✓ Record Detail Form (5228ms)
+    ✓ Add new record form (5124ms)
 
   AIR Roller UI Tests - Deposit Methods
-    ✓ Change business to REX (309ms)
-    ✓ Grid Records (2334ms)
-    ✓ Record Detail Form (5358ms)
-    ✓ Add new record form (5288ms)
+    ✓ Change business to REX (294ms)
+    ✓ Grid Records (2407ms)
+    ✓ Record Detail Form (5156ms)
+    ✓ Add new record form (4953ms)
 
   AIR Roller UI Tests - Account Rules
-    ✓ Change business to REX (297ms)
-    ✓ Grid Records (83671ms)
-    ✓ Record Detail Form (6170ms)
-    ✓ Add new record form (5610ms)
+    ✓ Change business to REX (344ms)
+    ✓ Record Detail Form (6065ms)
+    ✓ Add new record form (5550ms)
 
   AIR Roller UI Tests - Expenses
-    ✓ Change business to REX (289ms)
-    ✓ Grid Records (2952ms)
-    ✓ Record Detail Form (6423ms)
-    ✓ Add new record form (5974ms)
+    ✓ Change business to REX (360ms)
+    ✓ Grid Records (3229ms)
+    ✓ Record Detail Form (5550ms)
+    ✓ Add new record form (6067ms)
 
 
-  56 passing (10m)
+  57 passing (13m)
 
 
   (Tests Finished)
 
-  - Tests:           56
-  - Passes:          56
+  - Tests:           57
+  - Passes:          57
   - Failures:        0
   - Pending:         0
-  - Duration:        9 minutes, 49 seconds
+  - Duration:        13 minutes, 17 seconds
   - Screenshots:     0
   - Video Recorded:  true
   - Cypress Version: 2.1.0
@@ -110,7 +113,7 @@ Started video recording: /home/akshay/go/src/rentroll/test/webclient/cypress/vid
   (Video)
 
   - Started processing:   Compressing to 32 CRF
-  - Finished processing:  /home/akshay/go/src/rentroll/test/webclient/cypress/videos/ok9yf.mp4 (2 minutes, 54 seconds)
+  - Finished processing:  /home/akshay/go/src/rentroll/test/webclient/cypress/videos/bzfra.mp4 (4 minutes, 23 seconds)
 
 
   (All Done)
