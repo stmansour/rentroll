@@ -1206,7 +1206,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// TASK LIST DEFINITION
 	//==========================================
-	flds = "TLDID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TLDID,BID,Name,Cycle,EpochDue,EpochPreDue,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["TaskListDefinition"] = flds
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.GetTaskListDefinition, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskListDefinition WHERE TLDID=?")

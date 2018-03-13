@@ -207,7 +207,7 @@ type TaskList struct {
 	DtPreDue    time.Time
 	DtDone      time.Time
 	DtPreDone   time.Time
-	FLAGS       int64
+	FLAGS       int64     // 1<<0 - 0 = active, 1 = inactive
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
 	LastModTime time.Time // when was this record last written
@@ -237,10 +237,8 @@ type TaskListDefinition struct {
 	BID         int64
 	Name        string
 	Cycle       int64
-	DtDue       time.Time
-	DtPreDue    time.Time
-	DtDone      time.Time
-	DtPreDone   time.Time
+	EpochDue    time.Time
+	EpochPreDue time.Time
 	FLAGS       int64
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it

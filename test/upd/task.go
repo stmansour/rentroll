@@ -15,8 +15,8 @@ func Tasks(ctx context.Context, biz *rlib.Business) {
 	tldef.BID = biz.BID
 	tldef.Cycle = rlib.CYCLEMONTHLY
 	tldef.Name = "Monthly Close"
-	tldef.DtDue = time.Date(2018, time.January, 31, 17, 0, 0, 0, time.UTC)
-	tldef.DtPreDue = time.Date(2018, time.January, 20, 17, 0, 0, 0, time.UTC)
+	tldef.EpochDue = time.Date(2018, time.January, 31, 17, 0, 0, 0, time.UTC)
+	tldef.EpochPreDue = time.Date(2018, time.January, 20, 17, 0, 0, 0, time.UTC)
 
 	err := rlib.InsertTaskListDefinition(ctx, &tldef)
 	if err != nil {
@@ -44,36 +44,9 @@ func Tasks(ctx context.Context, biz *rlib.Business) {
 	//----------------------------------------------
 	// Now, create an instance of this task list.
 	//----------------------------------------------
-	err = CreateTaskListInstance(ctx, tldef.TLDID)
+	pivot := time.Date(2018, time.February, 3, 12, 32, 13, 0, time.UTC)
+	err = rlib.CreateTaskListInstance(ctx, tldef.TLDID, &pivot)
 	if err != nil {
 		fmt.Printf("CreateTaskListInstance:  error = %s\n", err.Error())
 	}
-
-}
-
-// CreateTaskListInstance creates a new task list based on the supplied
-// definition and Epoch Date.
-//
-// INPUTS
-//  ctx    - context for database transactions
-//  TLDID  - Task List Definition ID
-//
-// RETURNS
-//  error  - any error encountered
-//
-//-----------------------------------------------------------------------------
-func CreateTaskListInstance(ctx context.Context, TLDID int64) error {
-	tld, err := rlib.GetTaskListDefinition(ctx, TLDID)
-	if err != nil {
-		return err
-	}
-
-	rlib.Console("Found tld.TLDID = %d, name = %s\n", tld.TLDID, tld.Name)
-
-	td, err := rlib.GetTaskListDescriptors(ctx, tld.TLDID)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

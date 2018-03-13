@@ -211,7 +211,21 @@ MYSQLDUMP="mysqldump --no-defaults"
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-
+DROP TABLE IF EXISTS TaskListDefinition;
+CREATE TABLE TaskListDefinition (
+    TLDID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,
+    Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
+    Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (editable)
+    EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
+    EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
+    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY(TLDID)
+);
 EOF
 
 #=====================================================

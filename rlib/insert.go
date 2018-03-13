@@ -2251,7 +2251,7 @@ func InsertTask(ctx context.Context, a *Task) error {
 	}
 	a.LastModBy = a.CreateBy
 
-	fields := []interface{}{a.TID, a.BID, a.TLID, a.Name, a.Worker, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.CreateTS, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.TLID, a.Name, a.Worker, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTask)
 		defer stmt.Close()
@@ -2282,7 +2282,7 @@ func InsertTaskList(ctx context.Context, a *TaskList) error {
 		return err
 	}
 	a.LastModBy = a.CreateBy
-	fields := []interface{}{a.TLID, a.BID, a.Name, a.Cycle, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.CreateTS, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskList)
 		defer stmt.Close()
@@ -2343,7 +2343,7 @@ func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 	}
 	a.LastModBy = a.CreateBy
 
-	fields := []interface{}{a.BID, a.Name, a.Cycle, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.LastModBy, a.TLDID}
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModBy, a.TLDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskListDefinition)
 		defer stmt.Close()

@@ -1077,6 +1077,41 @@ func UpdateTaskList(ctx context.Context, a *TaskList) error {
 	return updateError(err, "TaskList", *a)
 }
 
+// UpdateTaskDescriptor updates a TaskDescriptor record in the database
+func UpdateTaskDescriptor(ctx context.Context, a *TaskDescriptor) error {
+	var err error
+	if authProblem(ctx, &a.LastModBy) {
+		return ErrSessionRequired
+	}
+
+	fields := []interface{}{a.BID, a.TLDID, a.Name, a.Worker, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModTime, a.LastModBy, a.TDID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateTaskDescriptor.Exec(fields...)
+	}
+	return updateError(err, "TaskDescriptor", *a)
+}
+
+// UpdateTaskListDefinition updates a TaskListDefinition record in the database
+func UpdateTaskListDefinition(ctx context.Context, a *TaskListDefinition) error {
+	var err error
+	if authProblem(ctx, &a.LastModBy) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModTime, a.LastModBy, a.TLDID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateTaskListDefinition.Exec(fields...)
+	}
+	return updateError(err, "TaskListDefinition", *a)
+}
+
 //*****************************************************************************
 
 // UpdateTransactant updates a Transactant record in the database
