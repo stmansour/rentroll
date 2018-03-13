@@ -102,10 +102,10 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
     // -- Check export CSV and export to Print button in grid toolbar --
     it('CSV and Print button in toolbar', function () {
         // Check visibility of export to CSV button
-        cy.get(selectors.getExportCSVButtonSelector()).should('be.visible');
+        cy.get(selectors.getExportCSVButtonSelector(testConfig.grid)).should('be.visible');
 
         // Check visibility of export to PDF button
-        cy.get(selectors.getExportPDFButtonSelector()).should('be.visible');
+        cy.get(selectors.getExportPDFButtonSelector(testConfig.grid)).should('be.visible');
     });
 
     it('Grid Records', function () {

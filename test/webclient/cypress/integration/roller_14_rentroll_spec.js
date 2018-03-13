@@ -92,13 +92,30 @@ describe('AIR Roller UI Tests - Rent Roll', function () {
     });
 
     // -- Change business to REX --
-    it('Change business to REX', function () {
-        // onSuccessful test set BID value. If above test get fail below code will not be executed.
-        constants.BID = common.changeBU(appSettings);
-    });
+    // it('Change business to REX', function () {
+    //     // onSuccessful test set BID value. If above test get fail below code will not be executed.
+    //     constants.BID = common.changeBU(appSettings);
+    // });
+    //
+    // it('Grid Records', function () {
+    //     common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+    // });
 
-    it('Grid Records', function () {
-        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+    // -- Check export CSV and export to Print button in grid toolbar --
+    it('CSV and Print button in toolbar', function () {
+        // Check visibility of export to CSV button
+        cy.get(selectors.getExportCSVButtonSelector(testConfig.grid)).should('be.visible');
+
+        // Check visibility of export to PDF button
+        cy.get(selectors.getExportPDFButtonSelector(testConfig.grid)).should('be.visible');
+
+        // Check visibility of Page Size
+        cy.get('#tb_rrGrid_toolbar_item_page_size').should('be.visible');
+
+        // Check visibility of Orientation
+        cy.get('#tb_rrGrid_toolbar_item_orientation').should('be.visible');
+
+
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
