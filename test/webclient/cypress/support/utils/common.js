@@ -58,10 +58,6 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
     // Iterate through each row
     recordsAPIResponse.forEach(function (record, rowNo) {
 
-        if(record.FLAGS === 4 && testConfig.grid === "rrGrid"){
-            // continue;
-        }
-
         if(testConfig.grid === "rrGrid"){
             // noinspection JSAnnotator
             switch (record.FLAGS){
@@ -71,14 +67,19 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     break;
                 // Subtotal row
                 case 2:
+                    testConfig.skipColumns = ["UsePeriod", "RentPeriod"];
                     break;
                 // Blank row
                 case 4:
                     // Skipping tests on blank row
+                    testConfig.skipColumns = [];
                     return;
             }
         }
 
+        cy.log("++++++++++++++++++++++");
+        cy.log(testConfig.skipColumns);
+        cy.log("++++++++++++++++++++++");
 
 
         // Iterate through each column in row
@@ -90,7 +91,9 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 
                 // get defaultValue of cell from w2uiGrid
                 let valueForCell = record[w2uiGridColumn.field];
+                cy.log(w2uiGridColumn.field);
                 cy.log(valueForCell);
+                cy.log(record);
 
                 // Format Value
                 switch (w2uiGridColumn.render){
@@ -103,7 +106,6 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         valueForCell = win.w2utils.formatters.float(valueForCell, 2);
                         break;
                 }
-
 
 
                 let types;
@@ -144,7 +146,6 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "RentPeriod":
                     case "RentCycleREP":
                     case "RentCycleGSR":
-
                         if(record.FLAGS === 2 && testConfig.grid === "rrGrid"){
                             if (valueForCell === null) {
                                 valueForCell = "";
@@ -176,9 +177,10 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     .should('be.visible')
                     .should('contain', valueForCell);
             }
-
         });
 
+        // Scroll grid to left after performing tests on all columns of the grid
+        cy.get(selectors.getGridRecordsSelector(testConfig.grid, rowNo)).scrollTo('left');
     });
 }
 
@@ -219,7 +221,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
 
         let appSettings = win.app;
 
-
         // perform tests on form fields
         cy.get(formSelector)
             .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
@@ -228,7 +229,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                 // get id of the field
                 fieldID = $el.context.id;
                 cy.log(fieldID);
-
 
                 // get default value of field
                 fieldValue = recordDetailFromAPIResponse[fieldID];

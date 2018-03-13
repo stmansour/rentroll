@@ -55,6 +55,12 @@ export function getCellSelector(gridName, rowNo, columnNo) {
     return '#grid_' + gridName + '_data_' + rowNo + '_' + columnNo;
 }
 
+// return row selector
+export function getGridRecordsSelector(gridName, rowNo){
+    // return '#grid_' + gridName + '_rec_' + rowNo;
+    return '#grid_' + gridName + '_records';
+}
+
 // return selector for first record in grid
 export function getFirstRecordInGridSelector(gridName) {
     return '#grid_' + gridName + '_rec_0';
