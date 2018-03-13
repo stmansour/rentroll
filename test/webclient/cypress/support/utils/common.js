@@ -180,7 +180,9 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
         });
 
         // Scroll grid to left after performing tests on all columns of the grid
-        cy.get(selectors.getGridRecordsSelector(testConfig.grid, rowNo)).scrollTo('left');
+        if(testConfig.grid === "rrGrid"){
+            cy.get(selectors.getGridRecordsSelector(testConfig.grid, rowNo)).scrollTo('left');
+        }
     });
 }
 
