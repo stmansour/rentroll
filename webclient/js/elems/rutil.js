@@ -1142,3 +1142,19 @@ function EDIEnabledForBUD(BUD) {
     }
     return false;
 }
+
+//---------------------------------------------------------------------------------
+// prepareW2UIStuff - it will prepare lists, items, other things which are
+//                    required by w2ui objects. It will feed those in "w2ui"
+//                    of app variable
+//
+// @params  app  - app variable of application
+//---------------------------------------------------------------------------------
+function prepareW2UIStuff(app) {
+
+    // cycle frequencies
+    app.w2ui.listItems.cycleFreq = [];
+    app.cycleFreq.forEach(function(freq, index) {
+        app.w2ui.listItems.cycleFreq.push({ id: index, text: freq });
+    });
+}
