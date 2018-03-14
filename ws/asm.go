@@ -26,8 +26,8 @@ type AssessmentSendForm struct {
 	Amount         float64
 	Start          rlib.JSONDate
 	Stop           rlib.JSONDate
-	RentCycle      rlib.XJSONCycleFreq
-	ProrationCycle rlib.XJSONCycleFreq
+	RentCycle      int64
+	ProrationCycle int64
 	InvoiceNo      int64
 	ARID           int64
 	Comment        string
@@ -451,23 +451,12 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.BID = d.BID
 		gg.BUD = getBUDFromBIDList(gg.BID)
 
-		var rentCycle, prorationCycle int64
-
-		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &rentCycle, &prorationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy, &gg.FLAGS)
+		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &gg.RentCycle, &gg.ProrationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy, &gg.FLAGS)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		gg.ExpandPastInst = 1 // assume we don't expand unless told otherwise
-
-		for freqStr, freqNo := range rlib.CycleFreqMap {
-			if rentCycle == freqNo {
-				gg.RentCycle = rlib.XJSONCycleFreq(freqStr)
-			}
-			if prorationCycle == freqNo {
-				gg.ProrationCycle = rlib.XJSONCycleFreq(freqStr)
-			}
-		}
 
 		gg.CreateByUser = rlib.GetNameForUID(r.Context(), gg.CreateBy)
 		gg.LastModByUser = rlib.GetNameForUID(r.Context(), gg.LastModBy)

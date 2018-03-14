@@ -9,6 +9,17 @@
 function getAsmsInitRecord(BID, BUD, previousFormRecord){
     var y = new Date();
     var y1 = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+
+    var initRentCycle, initProrationCycle;
+    for (var i = 0; i < app.cycleFreq.length; i++) {
+        if (app.cycleFreq[i] === "Monthly") {
+            initRentCycle = i;
+        }
+        if (app.cycleFreq[i] === "Daily") {
+            initProrationCycle = i;
+        }
+    }
+
     var defaultFormData = {
         ARID: 0,
         recid: 0,
@@ -22,8 +33,8 @@ function getAsmsInitRecord(BID, BUD, previousFormRecord){
         BUD: BUD,
         Start: w2uiDateControlString(y),
         Stop: w2uiDateControlString(y1),
-        RentCycle: 'Monthly',
-        ProrationCycle: 'Daily',
+        RentCycle: initRentCycle,
+        ProrationCycle: initProrationCycle,
         TCID: 0,
         Amount: 0,
         Rentable: '',
@@ -186,6 +197,7 @@ function buildAssessmentElements() {
                             if ('status' in data && data.status !== 'success') {
                                 f.message(data.message);
                             } else {
+                                var cycleFreqItems = [];
                                 f.get('ARID').options.items = app.AssessmentRules[BUD];
                                 f.refresh();
                                 setToForm(f.name, myurl, 450, true);
@@ -281,8 +293,8 @@ function buildAssessmentElements() {
             { field: 'Amount',        type: 'money',    required: true },
             { field: 'Start',         type: 'date',     required: true },
             { field: 'Stop',          type: 'date',     required: true },
-            { field: 'RentCycle',     type: 'list',     required: true, options: {items: app.cycleFreq}, },
-            { field: 'ProrationCycle',type: 'list',     required: true, options: {items: app.cycleFreq}, },
+            { field: 'RentCycle',     type: 'list',     required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
+            { field: 'ProrationCycle',type: 'list',     required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
             { field: 'Comment',       type: 'text',     required: false },
             { field: 'LastModTime',   type: 'hidden',   required: false },
             { field: 'LastModBy',     type: 'hidden',   required: false },
@@ -581,8 +593,8 @@ function buildAssessmentElements() {
             { field: 'Amount',        type: 'money',  required: true },
             { field: 'Start',         type: 'date',   required: true },
             { field: 'Stop',          type: 'date',   required: true },
-            { field: 'RentCycle',     type: 'list',   options:  {items: app.cycleFreq}, required: true },
-            { field: 'ProrationCycle',type: 'list',   options:  {items: app.cycleFreq}, required: true },
+            { field: 'RentCycle',     type: 'list',   options:  {items: app.w2ui.listItems.cycleFreq}, required: true },
+            { field: 'ProrationCycle',type: 'list',   options:  {items: app.w2ui.listItems.cycleFreq}, required: true },
             { field: 'Comment',       type: 'text',   required: false },
             { field: 'LastModTime',   type: 'hidden', required: false },
             { field: 'LastModBy',     type: 'hidden', required: false },

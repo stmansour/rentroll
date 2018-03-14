@@ -320,8 +320,8 @@ func loadOneSiteCSV(
 		// for rentable status exists in csvRow, get set of csv types which can be allowed
 		// to perform write data for csv
 		// need to call validation function as in to get the values
-		_, rrStatus, _ := IsValidRentableStatus(csvRentableStatus)
-		csvTypesSet := canWriteCSVStatusMap[rrStatus]
+		_, rrUseStatus, _ := IsValidRentableUseStatus(csvRentableStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrUseStatus]
 		var canWriteData bool
 
 		// mark Unit value with row index value
@@ -726,8 +726,8 @@ func loadOneSiteCSV(
 		// for rentable status exists in csvRow, get set of csv types which can be allowed
 		// to perform write data for csv
 		// need to call validation function as in get values
-		_, rrStatus, _ := IsValidRentableStatus(csvRow.UnitLeaseStatus)
-		csvTypesSet := canWriteCSVStatusMap[rrStatus]
+		_, rrUseStatus, _ := IsValidRentableUseStatus(csvRow.UnitLeaseStatus)
+		csvTypesSet := canWriteCSVStatusMap[rrUseStatus]
 		var canWriteData bool
 
 		// check first that for this row's status rentable data can be written
@@ -746,7 +746,7 @@ func loadOneSiteCSV(
 				&oneSiteFieldMap.RentableCSV,
 				traceTCIDMap,
 				csvErrors,
-				rrStatus,
+				rrUseStatus,
 			)
 		}
 

@@ -206,7 +206,7 @@ func GetRUserSpec(
 
 	// check if status is occupied then return only RUserSpec otherwise
 	// just return "" (blank string, not ",," with two comma separated blank string!)
-	if _, rrStatus, _ := IsValidRentableStatus(csvRow.UnitLeaseStatus); rrStatus != "occupied" {
+	if _, rrUseStatus, _ := IsValidRentableUseStatus(csvRow.UnitLeaseStatus); rrUseStatus != "occupied" {
 		return ""
 	}
 
@@ -237,22 +237,19 @@ func GetRUserSpec(
 func GetRentableStatus(csvRow *CSVRow,
 	defaults map[string]string) (string, bool) {
 
-	var tempRS, rRS string
+	var rrUseStatus string
 	ok := false
 	orderedFields := []string{}
 
 	// first find that passed string contains any status key
-	validStatus, _, tempRS := IsValidRentableStatus(csvRow.UnitLeaseStatus)
+	validStatus, _, rrUseStatus := IsValidRentableUseStatus(csvRow.UnitLeaseStatus)
 
 	// if contains then try to get status according rentroll system
 	if validStatus {
-		rRS, ok = RRRentableStatus[tempRS]
-	}
+		ok = true
 
-	// return true if ok
-	if ok {
 		// append unitleasestatus
-		orderedFields = append(orderedFields, rRS)
+		orderedFields = append(orderedFields, rrUseStatus)
 
 		// append today start date
 		orderedFields = append(orderedFields, defaults["DtStart"])
