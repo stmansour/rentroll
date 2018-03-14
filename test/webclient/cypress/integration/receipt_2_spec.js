@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Assessments/Receipts --
-const section = require('../support/components/receipts'); // Assess Charges
+const section = require('../support/components/receipts'); // Tendered Payment Receipt
 
 // this contain app variable of the application
 let appSettings;
@@ -22,6 +22,14 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
     let noRecordsInAPIResponse;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
+    /********************************
+     * Login into application
+     * Select node from left sidebar
+     * Route the response for grid records
+     *
+     * Expect:
+     * Grid records response must have status flag as success.
+     ********************************/
     before(function () {
 
         testConfig = section.conf;
@@ -53,6 +61,7 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
 
+        // Wait more some time to render UI Properly
         cy.wait(constants.WAIT_TIME);
 
         // Check http status
@@ -90,7 +99,6 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         });
 
         cy.log(appSettings);
-
     });
 
     // -- Change business to REX --
@@ -108,10 +116,35 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         cy.get(selectors.getExportPDFButtonSelector(testConfig.grid)).should('be.visible');
     });
 
+    /***********************
+     * Iterate through each cell.
+     *
+     * Expect:
+     * Cell value must be same as record's field value from API Response.
+     ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
+    /*******************************
+     * Click on first record of grid
+     *
+     * Expect:
+     * Each field must have value set same as detail record api response.
+     * Button must be visible(Save, Cancel etc.)
+     *
+     *
+     * Open Print Receipt popup
+     *
+     * Expect:
+     * Check pop up visibility
+     * Check two radio button visibility(Permanat Resident and Hotel)
+     * Check permanent_resident is checked default and hotel radio button isn't checked
+     * Check Print and Close button visibility"
+     *
+     *
+     * Close the form
+     ********************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
@@ -127,6 +160,13 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
+    /************************************************************
+     * Click Add new in toolbar
+     *
+     * Expect:
+     * Each field must set to be its default value
+     * Button must be visible(Save, Save and Add Another etc.)
+     ************************************************************/
     it('Add new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
