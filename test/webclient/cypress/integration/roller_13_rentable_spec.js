@@ -112,8 +112,8 @@ describe('AIR Roller UI Tests - Rentables', function () {
         // doPrintReceiptUITest: false
         common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
 
-        common.testGridInTabbedDetailForm('rentableStatusGrid', 'getRentableStatusRecords',testConfig);
-        common.testGridInTabbedDetailForm('rentableTypeRefGrid', 'getRentableTypeRef',testConfig);
+        common.testGridInTabbedDetailForm('rentableStatusGrid', 'rentableDetailLayout', 'getRentableStatusRecords',testConfig);
+        common.testGridInTabbedDetailForm('rentableTypeRefGrid', 'rentableDetailLayout', 'getRentableTypeRef',testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
