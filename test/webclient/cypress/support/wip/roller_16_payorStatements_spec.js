@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../support/utils/constants';
-import * as selectors from '../support/utils/get_selectors';
-import * as common from '../support/utils/common';
+import * as constants from '../utils/constants';
+import * as selectors from '../utils/get_selectors';
+import * as common from '../utils/common';
 
 // --- Collections ---
-const section = require('../support/components/payorStatements'); // Payor Statements
+const section = require('../components/payorStatements'); // Payor Statements
 
 // this contain app variable of the application
 let appSettings;
@@ -110,7 +110,7 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
         // testConfig: configuration for running tests
         // doUnallocatedSectionTest: true
         // doPrintReceiptUITest: false
-        // common.testRecordDetailForm(recordsAPIResponse, testConfig, true, false);
+        common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
         // common.closeFormTests(selectors.getFormSelector(testConfig.form));

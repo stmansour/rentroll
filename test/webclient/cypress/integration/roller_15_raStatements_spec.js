@@ -94,11 +94,11 @@ describe('AIR Roller UI Tests - RA Statements', function () {
     // -- Change business to REX --
     it('Change business to REX', function () {
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
-        constants.BID = common.changeBU(appSettings);
+        // constants.BID = common.changeBU(appSettings);
     });
 
     it('Grid Records', function () {
-        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+        // common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
     it('Record Detail Form', function () {
@@ -108,12 +108,13 @@ describe('AIR Roller UI Tests - RA Statements', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: true
-        // doPrintReceiptUITest: false
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, true, false);
-        common.testDetailFormWithGrid(recordsAPIResponse, testConfig, true, false);
+        common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
 
-        common.testGridInTabbedDetailForm('rentableStatusGrid', 'rentableDetailLayout', 'getRentableStatusRecords',testConfig);
+        // Check visibility of export to CSV button
+        cy.get(selectors.getExportCSVButtonSelector(testConfig.form)).should('be.visible');
+
+        // Check visibility of export to PDF button
+        cy.get('#tb_stmtDetailForm_toolbar_item_pdfexport').should('be.visible');
 
         // -- Close the form. And assert that form isn't visible. --
         // common.closeFormTests(selectors.getFormSelector(testConfig.form));
