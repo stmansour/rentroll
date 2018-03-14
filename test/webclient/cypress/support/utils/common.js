@@ -77,11 +77,6 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
             }
         }
 
-        cy.log("++++++++++++++++++++++");
-        cy.log(testConfig.skipColumns);
-        cy.log("++++++++++++++++++++++");
-
-
         // Iterate through each column in row
         w2uiGridColumns.forEach(function (w2uiGridColumn, columnNo) {
 
@@ -535,10 +530,10 @@ export function testMarketRulesDetailForm(testConfig) {
     });
 }
 
-export function testGridInTabbedDetailForm(gridName, routeName, testConfig) {
+export function testGridInTabbedDetailForm(gridName, layoutName, routeName, testConfig) {
 
     // Open Market Rules tab
-    cy.get('#tabs_rentableDetailLayout_main_tabs_tab_' + gridName).click().wait(constants.WAIT_TIME);
+    cy.get('#tabs_' + layoutName + '_main_tabs_tab_' + gridName).click().wait(constants.WAIT_TIME);
     //.should('contain', 'Market Rates')
 
     // Test on `Add New` and `Delete` button
@@ -563,6 +558,53 @@ export function testGridInTabbedDetailForm(gridName, routeName, testConfig) {
             cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
         }
     });
+}
+
+export function testDetailFormWithGrid(recordsAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
+    cy.log("Tests for detail record form");
+
+    // -- detail record testing --
+    const id = recordsAPIResponse[0][testConfig.primaryId];
+
+    // Starting a server to begin routing responses to cy.route()
+    cy.server();
+
+    // Routing response to detail record's api requests.
+    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
+
+    switch (testConfig.module){
+        case "rt":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rmr', id)).as('getMarketRulesRecords');
+            break;
+        case "rentable":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentablestatus', id)).as('getRentableStatusRecords');
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rentabletyperef', id)).as('getRentableTypeRef');
+            break;
+    }
+
+    // Route rmr(Marketing Rates) endpoint while testing Rentable Types
+    if (testConfig.module === "rt") {
+        cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rmr', id)).as('getMarketRulesRecords');
+    }
+
+
+    // click on the first record of grid
+    cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+
+    // check response status of API end point
+    cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    // perform tests on record detail form
+    cy.get('@getDetailRecord').then(function (xhr) {
+
+        let recordDetailFromAPIResponse = xhr.response.body.record;
+
+        cy.log(recordDetailFromAPIResponse);
+
+        detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest);
+
+    });
+
 }
 
 export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
