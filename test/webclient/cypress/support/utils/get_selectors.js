@@ -55,6 +55,12 @@ export function getCellSelector(gridName, rowNo, columnNo) {
     return '#grid_' + gridName + '_data_' + rowNo + '_' + columnNo;
 }
 
+// return row selector
+export function getGridRecordsSelector(gridName, rowNo){
+    // return '#grid_' + gridName + '_rec_' + rowNo;
+    return '#grid_' + gridName + '_records';
+}
+
 // return selector for first record in grid
 export function getFirstRecordInGridSelector(gridName) {
     return '#grid_' + gridName + '_rec_0';
@@ -91,11 +97,11 @@ export function getAllocatedSectionSelector() {
 }
 
 // return selector for export csv button in grid toolbar
-export function getExportCSVButtonSelector() {
-    return '#tb_receiptsGrid_toolbar_item_csvexport';
+export function getExportCSVButtonSelector(gridname) {
+    return '#tb_' + gridname + '_toolbar_item_csvexport';
 }
 
 // return selector for export pdf button in grid toolbar
-export function getExportPDFButtonSelector() {
-    return '#tb_receiptsGrid_toolbar_item_printreport';
+export function getExportPDFButtonSelector(gridname) {
+    return '#tb_'+ gridname + '_toolbar_item_printreport';
 }

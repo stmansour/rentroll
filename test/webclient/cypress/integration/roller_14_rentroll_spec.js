@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../utils/constants';
-import * as selectors from '../utils/get_selectors';
-import * as common from '../utils/common';
+import * as constants from '../support/utils/constants';
+import * as selectors from '../support/utils/get_selectors';
+import * as common from '../support/utils/common';
 
 // --- Collections --
-const section = require('../components/rentroll'); // Rent Roll
+const section = require('../support/components/rentroll'); // Rent Roll
 
 // this contain app variable of the application
 let appSettings;
@@ -99,6 +99,23 @@ describe('AIR Roller UI Tests - Rent Roll', function () {
 
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+    });
+
+    // -- Check export CSV and export to Print button in grid toolbar --
+    it('CSV and Print button in toolbar', function () {
+        // Check visibility of export to CSV button
+        cy.get(selectors.getExportCSVButtonSelector(testConfig.grid)).should('be.visible');
+
+        // Check visibility of export to PDF button
+        cy.get(selectors.getExportPDFButtonSelector(testConfig.grid)).should('be.visible');
+
+        // Check visibility of Page Size
+        cy.get('#tb_rrGrid_toolbar_item_page_size').should('be.visible');
+
+        // Check visibility of Orientation
+        cy.get('#tb_rrGrid_toolbar_item_orientation').should('be.visible');
+
+
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
