@@ -42,21 +42,11 @@ var prefixCSVFile = map[string]string{
 	"custom_attribute": "customAttribute_",
 }
 
-// RRRentableStatus is status for rentable in rentroll system
-var RRRentableStatus = map[string]string{
-	"unknown":        "0",
-	"online":         "1",
-	"admin":          "2",
-	"employee":       "3",
-	"owner occupied": "4",
-	"offline":        "5",
-}
-
-// RentableStatusCSV is mapping for rentable status between onesite and rentroll
-var RentableStatusCSV = map[string]string{
-	"vacant":   "online",
-	"occupied": "online",
-	"model":    "admin",
+// RentableUseStatusCSV is mapping for rentable status between onesite and rentroll
+var RentableUseStatusCSV = map[string]string{
+	"vacant":   "1",
+	"occupied": "1",
+	"model":    "7",
 }
 
 // CSVLoadHandler struct is for routines that want to table-ize their loading.
