@@ -120,7 +120,10 @@ var app = {
     },
     tabKeyPressed : false, // flag to maintain default tab key behaviour
     shiftTabKeyPressed : false, // flag to maintain default tab+shift key behaviour
-    dateFormatRegex : /^(0?[1-9]|1[0-2])\/(0?[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/
+    dateFormatRegex : /^(0?[1-9]|1[0-2])\/(0?[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/,
+    w2ui: {
+        listItems: {}, // stores all list items{id, text} here
+    },
 };
 
 // delete confirmation dialog box options
@@ -330,6 +333,7 @@ $(function () {
             for( var key in data ) {   // fit all lists, values, maps in app variable
                 app[key] = data[key];
             }
+            prepareW2UIStuff(app);
         } else {
             console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + textStatus);
         }

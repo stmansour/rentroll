@@ -107,6 +107,7 @@
         "saveCustomDims": true,
         "setDefaultFormFieldAsPreviousRecord": true,
         "downloadMediaFromURL": true,
-        "EDIEnabledForBUD": true
+        "EDIEnabledForBUD": true,
+        "prepareW2UIStuff": true
     }
 }
