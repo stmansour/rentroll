@@ -94,11 +94,11 @@ describe('AIR Roller UI Tests - RA Statements', function () {
     // -- Change business to REX --
     it('Change business to REX', function () {
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
-        // constants.BID = common.changeBU(appSettings);
+        constants.BID = common.changeBU(appSettings);
     });
 
     it('Grid Records', function () {
-        // common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
     it('Record Detail Form', function () {
@@ -117,7 +117,7 @@ describe('AIR Roller UI Tests - RA Statements', function () {
         cy.get('#tb_stmtDetailForm_toolbar_item_pdfexport').should('be.visible');
 
         // -- Close the form. And assert that form isn't visible. --
-        // common.closeFormTests(selectors.getFormSelector(testConfig.form));
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

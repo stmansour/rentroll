@@ -610,10 +610,14 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
         cy.log(xhr);
 
         let recordDetailFromAPIResponse = xhr.response.body.record;
-
-        cy.get('#RAInfo');
-
         cy.log(recordDetailFromAPIResponse);
+
+        cy.get('#RAInfo').within(() => {
+            cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
+            cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
+            cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
+            cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
+        });
 
     });
 
