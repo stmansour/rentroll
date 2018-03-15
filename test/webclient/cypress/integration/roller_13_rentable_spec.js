@@ -22,6 +22,14 @@ describe('AIR Roller UI Tests - Rentables', function () {
     let noRecordsInAPIResponse;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
+    /********************************
+    * Login into application
+    * Select node from left sidebar
+    * Route the response for grid records
+    *
+    * Expect:
+    * Grid records response must have status flag as success.
+    ********************************/
     before(function () {
 
         testConfig = section.conf;
@@ -108,9 +116,7 @@ describe('AIR Roller UI Tests - Rentables', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: true
-        // doPrintReceiptUITest: false
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
+        common.testRecordDetailForm(recordsAPIResponse, testConfig);
 
         common.testGridInTabbedDetailForm('rentableStatusGrid', 'rentableDetailLayout', 'getRentableStatusRecords',testConfig);
         common.testGridInTabbedDetailForm('rentableTypeRefGrid', 'rentableDetailLayout', 'getRentableTypeRef',testConfig);
