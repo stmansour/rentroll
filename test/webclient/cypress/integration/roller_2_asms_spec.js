@@ -132,9 +132,10 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: true
-        // doPrintReceiptUITest: false
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, true, false);
+        common.testRecordDetailForm(recordsAPIResponse, testConfig);
+
+        // -- Check Unallocated section's visibility and class --
+        common.unallocatedSectionTest();
 
         // Verify visibility of white box
         cy.get('#AssessmentInfo').should('be.visible');

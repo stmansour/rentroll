@@ -361,16 +361,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
 
     // -- Check buttons visibility --
     buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
-
-    // -- Check Unallocated section's visibility and class --
-    if (doUnallocatedSectionTest) {
-        unallocatedSectionTest();
-    }
-
-    // -- Check print receipt UI --
-    if (doPrintReceiptUITest) {
-        printReceiptUITest();
-    }
 }
 
 // -- perform test on add new record form's field --
@@ -648,7 +638,7 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
 
 }
 
-export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
+export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.log("Tests for detail record form");
 
     // -- detail record testing --
@@ -689,7 +679,7 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocat
 
         cy.log(recordDetailFromAPIResponse);
 
-        detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest);
+        detailFormTest(recordDetailFromAPIResponse, testConfig);
 
     });
 
@@ -748,7 +738,7 @@ function allocatedSectionPositionTest() {
 }
 
 // -- Check Unallocated section's visibility and class --
-function unallocatedSectionTest() {
+export function unallocatedSectionTest() {
 
     // Check visibility and class of
     cy.get(selectors.getAllocatedSectionSelector())
