@@ -5,6 +5,7 @@ import * as constants from '../support/utils/constants';
 // -- Start Cypress UI tests for AIR Roller Application --
 describe('AIR Receipt UI Tests - Login', function () {
 
+    // It runs before all tests get executed.
     before(function () {
         cy.clearCookie(constants.APPLICATION_COOKIE);
     });
@@ -24,21 +25,18 @@ describe('AIR Receipt UI Tests - Login', function () {
 
     });
 
+    /************************************
+     * Login into application
+     * 1. Fill username and password
+     * 2. Click Login button
+     *
+     * Expect:
+     * Username and Password field must be visible.
+     * It must have proper value which match with typed text.
+     * Login button must be visible.
+     * After clicking on login button it must be authenticated with valid username and password
+     * ***********************************/
     it('Login into AIR Receipt Application', function () {
-
-        /*
-        * Clear cookies before login into application. Because We are preserving cookies to use it all test suit.
-        * Running test suit multiple times require new session to login into application.
-        */
-        // cy.clearCookie(constants.APPLICATION_COOKIE);
-
-
-        /************************************
-         * Login into application
-         * 1. Fill username and password
-         * 2. Click Login button
-         * ***********************************/
-
         let username;
         let password;
         let log;
@@ -65,24 +63,41 @@ describe('AIR Receipt UI Tests - Login', function () {
                 }
             });
 
+            // Route the Login endpoint
+            cy.server();
+            cy.route('POST', constants.LOGIN_END_POINT).as('getLogin');
+
             // login steps
             cy
-                .get('input[name=user]').type(username).should('have.value', username) // enter username
-                .get('input[name=pass]').type(password).should('have.value', password) // enter password
-                .get('button[name=login]').click().wait(2000); // click on login and wait for 1s to get the dashboard page
+                .get('input[name=user]').should('be.visible').type(username).should('have.value', username) // enter username
+                .get('input[name=pass]').should('be.visible').type(password).should('have.value', password) // enter password
+                .get('button[name=login]').should('be.visible').click().wait(2000); // click on login and wait for 1s to get the dashboard page
 
+            // Check Login endpoint response and status
+            cy.wait('@getLogin').its('status').should('eq', constants.HTTP_OK_STATUS);
+            cy.get('@getLogin').then(function (xhr) {
+                expect(xhr.response.body.status).to.be.eq(constants.API_RESPONSE_SUCCESS_FLAG);
+                cy.log(xhr);
+            });
         });
     });
 
-    // it('Check Basic Layout', function () {
-    //    // TODO(Akshay): Write tests for basic layout of application
-    // });
+    /**********************************
+     * Check Basic Layout of application after login.
+     *
+     * Expect:
+     * Sidebar panel, top layout panel, main layout must be visible
+     ************************************/
+    it('Check Basic Layout', function () {
+       cy.get('#layout_toplayout_panel_left').should('be.visible');
+       cy.get('#layout_toplayout_panel_main').should('be.visible');
+       cy.get('#layout_mainlayout_panel_top').should('be.visible');
+    });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --
     after(function () {
-
         // --- Logout from the Application after finishing all tests ---
-        // Check custom login command for more detail. File path: ./../support/commands.js
+        // Check custom logout command for more detail. File path: ./../support/commands.js
         cy.logout();
     });
 });

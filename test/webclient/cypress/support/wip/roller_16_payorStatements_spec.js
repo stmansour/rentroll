@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../support/utils/constants';
-import * as selectors from '../support/utils/get_selectors';
-import * as common from '../support/utils/common';
+import * as constants from '../utils/constants';
+import * as selectors from '../utils/get_selectors';
+import * as common from '../utils/common';
 
-// --- Assessments/Receipts --
-const section = require('../support/components/receipts'); // Tendered Payment Receipt
+// --- Collections ---
+const section = require('../components/payorStatements'); // Payor Statements
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
+describe('AIR Roller UI Tests - Payor Statements', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -22,14 +22,6 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
     let noRecordsInAPIResponse;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
-    /********************************
-     * Login into application
-     * Select node from left sidebar
-     * Route the response for grid records
-     *
-     * Expect:
-     * Grid records response must have status flag as success.
-     ********************************/
     before(function () {
 
         testConfig = section.conf;
@@ -38,7 +30,7 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         // Check custom login command for more detail. File path: ./../support/commands.js
         cy.login();
 
-        cy.visit(constants.RECEIPT_APPLICATION_PATH).wait(constants.PAGE_LOAD_TIME);
+        cy.visit(constants.ROLLER_APPLICATION_PATH).wait(constants.PAGE_LOAD_TIME);
 
         // Starting a server to begin routing responses to cy.route()
         cy.server();
@@ -60,9 +52,6 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         if (testConfig.haveDateValue) {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
-
-        // Wait more some time to render UI Properly
-        cy.wait(constants.WAIT_TIME);
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
@@ -99,6 +88,7 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         });
 
         cy.log(appSettings);
+
     });
 
     // -- Change business to REX --
@@ -107,44 +97,10 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         constants.BID = common.changeBU(appSettings);
     });
 
-    // -- Check export CSV and export to Print button in grid toolbar --
-    it('CSV and Print button in toolbar', function () {
-        // Check visibility of export to CSV button
-        cy.get(selectors.getExportCSVButtonSelector(testConfig.grid)).should('be.visible');
-
-        // Check visibility of export to PDF button
-        cy.get(selectors.getExportPDFButtonSelector(testConfig.grid)).should('be.visible');
-    });
-
-    /***********************
-     * Iterate through each cell.
-     *
-     * Expect:
-     * Cell value must be same as record's field value from API Response.
-     ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
-    /*******************************
-     * Click on first record of grid
-     *
-     * Expect:
-     * Each field must have value set same as detail record api response.
-     * Button must be visible(Save, Cancel etc.)
-     *
-     *
-     * Open Print Receipt popup
-     *
-     * Expect:
-     * Check pop up visibility
-     * Check two radio button visibility(Permanat Resident and Hotel)
-     * Check permanent_resident is checked default and hotel radio button isn't checked
-     * Check Print and Close button visibility"
-     *
-     *
-     * Close the form
-     ********************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
@@ -153,25 +109,11 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
         // doUnallocatedSectionTest: true
-        // doPrintReceiptUITest: true
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, true, true);
+        // doPrintReceiptUITest: false
+        common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
-        common.closeFormTests(selectors.getFormSelector(testConfig.form));
-    });
-
-    /************************************************************
-     * Click Add new in toolbar
-     *
-     * Expect:
-     * Each field must set to be its default value
-     * Button must be visible(Save, Save and Add Another etc.)
-     ************************************************************/
-    it('Add new record form', function () {
-        // ---------------------------------------
-        // ----- Tests for add new record form ---
-        // ---------------------------------------
-        common.testAddNewRecordForm(testConfig);
+        // common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

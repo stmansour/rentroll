@@ -21,6 +21,14 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
 
     let noRecordsInAPIResponse;
 
+    /********************************
+     * Login into application
+     * Select node from left sidebar
+     * Route the response for grid records
+     *
+     * Expect:
+     * Grid records response must have status flag as success.
+     ********************************/
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
     before(function () {
 
@@ -99,10 +107,26 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
         constants.BID = common.changeBU(appSettings);
     });
 
+    /***********************
+     * Iterate through each cell.
+     *
+     * Expect:
+     * Cell value must be same as record's field value from API Response.
+     ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
+    /*******************************
+     * Click on first record of grid
+     *
+     * Expect:
+     * Each field must have value set same as detail record api response.
+     * Button must be visible(Save, Cancel etc.)
+     *
+     *
+     * Close the form
+     ********************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
@@ -118,6 +142,13 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
+    /*********************************************************
+     * Click Add new in toolbar
+     *
+     * Expect:
+     * Each field must set to be its default value
+     * Button must be visible(Save, Save and Add Another etc.)
+     *********************************************************/
     it('Add new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---

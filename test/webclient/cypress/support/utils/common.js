@@ -58,9 +58,9 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
     // Iterate through each row
     recordsAPIResponse.forEach(function (record, rowNo) {
 
-        if(testConfig.grid === "rrGrid"){
+        if (testConfig.grid === "rrGrid") {
             // noinspection JSAnnotator
-            switch (record.FLAGS){
+            switch (record.FLAGS) {
                 // Main row
                 case 1:
                     testConfig.skipColumns = ["UsePeriod", "RentPeriod", "BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
@@ -77,11 +77,6 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
             }
         }
 
-        cy.log("++++++++++++++++++++++");
-        cy.log(testConfig.skipColumns);
-        cy.log("++++++++++++++++++++++");
-
-
         // Iterate through each column in row
         w2uiGridColumns.forEach(function (w2uiGridColumn, columnNo) {
 
@@ -96,7 +91,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 cy.log(record);
 
                 // Format Value
-                switch (w2uiGridColumn.render){
+                switch (w2uiGridColumn.render) {
                     // format money type value
                     case "money":
                         valueForCell = win.w2utils.formatters.money(valueForCell);
@@ -130,11 +125,26 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         }
                         break;
                     case "Description":
-                        if(record.FLAGS === 1 && testConfig.grid === "rrGrid"){
+                        if (record.FLAGS === 1 && testConfig.grid === "rrGrid") {
                             if (valueForCell === null) {
                                 valueForCell = "";
                             }
                         }
+                        break;
+                    case "AsmtAmount":
+                    case "RcptAmount":
+                        // --- stmtDetailGrid ---
+                        if (testConfig.grid === "stmtDetailGrid") {
+                            if (record.Descr !== "Closing Balance") {
+                                valueForCell = "";
+                            } else {
+                                valueForCell = win.w2utils.formatters.float(valueForCell, 2);
+                            }
+                        }
+                        break;
+                    case "Balance":
+                        // --- stmtDetailGrid ---
+                        valueForCell = win.w2utils.formatters.float(valueForCell, 2);
                         break;
                     case "RentableName":
                     case "RentableType":
@@ -146,7 +156,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "RentPeriod":
                     case "RentCycleREP":
                     case "RentCycleGSR":
-                        if(record.FLAGS === 2 && testConfig.grid === "rrGrid"){
+                        if (record.FLAGS === 2 && testConfig.grid === "rrGrid") {
                             if (valueForCell === null) {
                                 valueForCell = "";
                             }
@@ -180,7 +190,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
         });
 
         // Scroll grid to left after performing tests on all columns of the grid
-        if(testConfig.grid === "rrGrid"){
+        if (testConfig.grid === "rrGrid") {
             cy.get(selectors.getGridRecordsSelector(testConfig.grid, rowNo)).scrollTo('left');
         }
     });
@@ -305,12 +315,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                         fieldValue = recordDetailFromAPIResponse.RentableName;
                         break;
                     case "RentCycle":
-                        // In Rentable Type form(rtForm), RentCycle have integer value.
-                        if (formName === "rtForm"){
-                            fieldValue = appSettings.cycleFreq[fieldValue];
-                        }
-                        break;
-                    // case "RentCycle": Initially RentCycle had integer value in Endpoint response. Now it have string value in Assess Charges form.
+                    case "ProrationCycle":
                     case "Proration":
                     case "GSRPC":
                         fieldValue = appSettings.cycleFreq[fieldValue];
@@ -525,7 +530,7 @@ export function testMarketRulesDetailForm(testConfig) {
         let recordsFromAPIResponse = xhr.response.body.records;
         cy.log(recordsFromAPIResponse);
         testConfig.grid = 'rmrGrid';
-        if(recordsFromAPIResponse.length > 0){
+        if (recordsFromAPIResponse.length > 0) {
             testGridRecords(recordsFromAPIResponse, recordsFromAPIResponse.length, testConfig);
 
             // Click on first record and check delete button is enabled.
@@ -535,10 +540,10 @@ export function testMarketRulesDetailForm(testConfig) {
     });
 }
 
-export function testGridInTabbedDetailForm(gridName, routeName, testConfig) {
+export function testGridInTabbedDetailForm(gridName, layoutName, routeName, testConfig) {
 
     // Open Market Rules tab
-    cy.get('#tabs_rentableDetailLayout_main_tabs_tab_' + gridName).click().wait(constants.WAIT_TIME);
+    cy.get('#tabs_' + layoutName + '_main_tabs_tab_' + gridName).click().wait(constants.WAIT_TIME);
     //.should('contain', 'Market Rates')
 
     // Test on `Add New` and `Delete` button
@@ -555,7 +560,7 @@ export function testGridInTabbedDetailForm(gridName, routeName, testConfig) {
         let recordsFromAPIResponse = xhr.response.body.records;
         cy.log(recordsFromAPIResponse);
         testConfig.grid = gridName;
-        if(recordsFromAPIResponse.length > 0){
+        if (recordsFromAPIResponse.length > 0) {
             testGridRecords(recordsFromAPIResponse, recordsFromAPIResponse.length, testConfig);
 
             // Click on first record and check delete button is enabled.
@@ -563,6 +568,71 @@ export function testGridInTabbedDetailForm(gridName, routeName, testConfig) {
             cy.get('#tb_' + gridName + '_toolbar_item_w2ui-delete').should('be.visible').should('not.have.class', 'disabled');
         }
     });
+}
+
+export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
+    cy.log("Tests for detail record form");
+
+    // -- detail record testing --
+    const id = recordsAPIResponse[0][testConfig.primaryId];
+
+    // Starting a server to begin routing responses to cy.route()
+    cy.server();
+
+    // Routing response to detail record's api requests.
+    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
+
+    switch (testConfig.grid) {
+        case "stmtGrid":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('stmtdetail', id)).as('getGridRecordsInDetailedForm');
+            testConfig.skipColumns = ["Reverse", "dummy"];
+            break;
+        case "payorstmtGrid":
+            cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('payorstmt', id)).as('getGridRecordsInDetailedForm');
+            testConfig.skipColumns = [];
+            break;
+    }
+
+    // click on the first record of grid
+    cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
+
+
+    // check response status of API end point
+    // cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    // perform tests on record detail form
+    cy.get('@getDetailRecord').then(function (xhr) {
+        cy.log(xhr);
+
+        let recordDetailFromAPIResponse = xhr.response.body.record;
+        cy.log(recordDetailFromAPIResponse);
+
+        cy.get('#RAInfo').within(() => {
+            cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
+            cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
+            cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
+            cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
+        });
+
+    });
+
+    // check response status of API end point
+    // cy.wait('@getGridRecordsInDetailedForm').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    // perform tests on record detail form
+    cy.get('@getGridRecordsInDetailedForm').then(function (xhr) {
+        cy.log(xhr);
+
+        let recordDetailFromAPIResponse = xhr.response.body.records;
+        if (recordDetailFromAPIResponse.length > 0) {
+            testConfig.grid = testConfig.gridInForm;
+            cy.log(testConfig.grid);
+            testGridRecords(recordDetailFromAPIResponse, recordDetailFromAPIResponse.length, testConfig);
+        }
+        cy.log(recordDetailFromAPIResponse);
+
+    });
+
 }
 
 export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
@@ -577,7 +647,7 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocat
     // Routing response to detail record's api requests.
     cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, id)).as('getDetailRecord');
 
-    switch (testConfig.module){
+    switch (testConfig.module) {
         case "rt":
             cy.route(testConfig.methodType, getDetailRecordAPIEndPoint('rmr', id)).as('getMarketRulesRecords');
             break;
