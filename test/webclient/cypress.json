@@ -5,6 +5,5 @@
   "viewportWidth": 1920,
   "responseTimeout": 30000,
   "requestTimeout": 5000,
-  "pluginsFile": false,
   "watchForFileChanges": false
 }

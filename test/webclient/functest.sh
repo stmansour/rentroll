@@ -47,10 +47,10 @@ fi
 
 if [ "${IAMJENKINS}" == "jenkins" ]; then
     # if build machine then record the activity
-    doCypressUITest "a" "--spec ${CYPRESS_SPEC} --record" "CypressUITesting"
+    doCypressUITest "a" "--env configFile=build --spec ${CYPRESS_SPEC} --record" "CypressUITesting"
 else
     # run cypress test with only receipt_2_spec.js with videoRecording false as of now
-    doCypressUITest "a" "--spec ${CYPRESS_SPEC} --config videoRecording=false" "CypressUITesting"
+    doCypressUITest "a" "--env configFile=development --spec ${CYPRESS_SPEC}" "CypressUITesting"
 fi
 
 # logcheck
