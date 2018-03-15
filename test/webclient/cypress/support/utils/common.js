@@ -240,6 +240,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
 
                 // get id of the field
                 fieldID = $el.context.id;
+                cy.log($el);
                 cy.log(fieldID);
 
                 // get default value of field
@@ -252,6 +253,18 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                 // Convert fieldValue to w2ui money type
                 if (field.type === "money") {
                     fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
+                }
+
+                // Modify fieldValue if field is checkbox
+                if($el.context.type === "checkbox"){
+                    switch(fieldValue){
+                        case 0:
+                            fieldValue = 'off';
+                            break;
+                        case 1:
+                            fieldValue = 'on';
+                            break;
+                    }
                 }
 
                 let types;
