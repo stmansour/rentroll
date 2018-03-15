@@ -240,7 +240,6 @@ declare -a dbs=(
     'rfix/rcptfixed.sql'
     'rfix/receipts.sql'
     'roller/prodrr.sql'
-    'roller/rr.sql'
     'rr/rr.sql'
     'setup/accord.sql'
     'setup/old.sql'
@@ -252,6 +251,7 @@ declare -a dbs=(
 
 for f in "${dbs[@]}"
 do
+    if [ -f ${f} ]; then
 	echo -n "${f}: loading... "
 	${MYSQL} rentroll < ${f}
 	echo -n "updating... "
@@ -259,4 +259,7 @@ do
 	echo -n "saving... "
 	${MYSQLDUMP} rentroll > ${f}
 	echo "done"
+    else
+	echo "file not found: ${f}"
+    fi
 done
