@@ -1358,19 +1358,19 @@ CREATE TABLE LedgerMarkerAudit (
 
 -- **************************************
 -- ****                              ****
--- ****       TEMP FLOW DATA         ****
+-- ****       TEMP FLOW PART         ****
 -- ****                              ****
 -- **************************************
-CREATE TABLE FlowData (
-    FlowDataID BIGINT NOT NULL AUTO_INCREMENT,
+CREATE TABLE FlowPart (
+    FlowPartID BIGINT NOT NULL AUTO_INCREMENT,
     Flow VARCHAR(50) NOT NULL DEFAULT '',                                                  -- for which flow we're storing data ("RA=Rental Agreement Flow")
-    FlowID VARCHAR(50) NOT NULL DEFAULT '',                                               -- unique random flow ID for which we will store relavant json data
-    DataStructID VARCHAR(50) NOT NULL DEFAULT '',                                          -- for which structure of data ("ASM", "PET", "VEHICLE")
+    FlowID VARCHAR(50) NOT NULL DEFAULT '',                                                -- unique random flow ID for which we will store relavant json data
+    PartType SMALLINT NOT NULL DEFAULT 0,                                              -- for which part type ("ASM", "PET", "VEHICLE")
     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated
     LastModBy BIGINT NOT NULL DEFAULT 0,                                                   -- who modified it last
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                                 -- when was it created
     CreateBy BIGINT NOT NULL DEFAULT 0,                                                    -- who created it
-    PRIMARY KEY(FlowDataID),
-    UNIQUE KEY `FlowDataID` (`FlowDataID`, `FlowID`)
+    PRIMARY KEY(FlowPartID),
+    UNIQUE KEY `FlowPartID` (`FlowPartID`, `FlowID`)
 );

@@ -1277,4 +1277,13 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteVehicle, err = RRdb.Dbrr.Prepare("DELETE from Vehicle WHERE VID=?")
 	Errcheck(err)
 
+	//==========================================
+	// Flow Part
+	//==========================================
+	flds = "FlowPartID,Flow,FlowID,PartType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["FlowPart"] = flds
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertFlowPart, err = RRdb.Dbrr.Prepare("INSERT INTO FlowPart (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+
 }
