@@ -1,0 +1,39 @@
+BUD,Name,ARType,Debit,Credit,Allocated,ShowOnRA,RAIDRequired,SubARSpec,Description
+REX,Application Fee,Assessment,12001,Application Fees,0,,,,
+REX,Application Fee (no assessment),Receipt,11000,Application Fees,1,0,1,,"Application fee taken, no assessment made"
+REX,Apply Payment,Receipt,12999,Rent Roll Receivables,0,,,,
+REX,Bad Debt Write-Off,Expense,50002,Rent Roll Receivables,0,,,,
+REX,Bank Service Fee (Deposit Account),Expense,50003,FRB 96953 (deposit account),0,,,,
+REX,Bank Service Fee (Operating Account),Expense,50003,FRB 54320 (operating account),0,,,,
+REX,Broken Window charge,Assessment,12001,Damage Fee,0,,,,
+REX,Damage Fee,Assessment,12001,Damage Fee,0,,,,
+REX,Deposit to Deposit Account (FRB96953),Receipt,10105,Undeposited Funds,0,,,,
+REX,Deposit to Operating Account (FRB54320),Receipt,10104,Undeposited Funds,0,,,,
+REX,Electric Base Fee,Assessment,12001,Electric Base Fee,0,,,,
+REX,Electric Overage,Assessment,12001,Electric Overage,0,,,,
+REX,Eviction Fee Reimbursement,Assessment,12001,Eviction Fee Reimbursement,0,,,,
+REX,Auto-Generated Floating Deposit Assessment,Sub-Assessment,Rent Roll Receivables,Floating Security Deposits,,,,,
+REX,Receive Floating Security Deposit,Receipt,Undeposited Funds,Rent Roll Receivables,1,0,1,Auto-Generated Floating Deposit Assessment,
+REX,Gas Base Fee,Assessment,12001,Gas Base Fee,0,,,,
+REX,Gas Base Overage,Assessment,12001,Gas Overage,0,,,,
+REX,Insufficient Funds Fee,Assessment,12001,Insufficient Funds Fee,0,,,,
+REX,Late Fee,Assessment,12001,Late Fees,0,,,,
+REX,Month to Month Fee,Assessment,12001,Month to Month Fee,0,,,,
+REX,No Show / Termination Fee,Assessment,12001,No Show or Termination Fee,0,,,,
+REX,Other Special Tenant Charges,Assessment,12001,Other Special Tenant Charges,0,,,,
+REX,Pet Fee,Assessment,12001,Pet Fees,0,,,,
+REX,Pet Rent,Assessment,12001,Pet Rent,0,,,,
+REX,Receive a Payment,Receipt,10999,Unapplied Funds,0,,,,
+REX,Rent Non-Taxable,Assessment,12001,Gross Scheduled Rent-Not Taxable,0,,,,
+REX,Rent Taxable,Assessment,12001,Gross Scheduled Rent-Taxable,0,,,,
+REX,Security Deposit Assessment,Assessment,12001,Security Deposit Liability,0,,,,normal deposit
+REX,Security Deposit Forfeiture,Assessment,30000,Security Deposit Forfeiture,0,,,,Forfeit
+REX,Security Deposit Refund,Assessment,30000,Security Deposit Refund,0,,,,Refund
+REX,Special Cleaning Fee,Assessment,12001,Special Cleaning Fee,0,,,,
+REX,Tenant Expense Chargeback,Assessment,12001,Tenant Expense Chargeback,0,,,,
+REX,Vending Income,Receipt,11000,Vending Income,1,0,1,,
+REX,Water and Sewer Base Fee,Assessment,12001,Water and Sewer Base Fee,0,,,,
+REX,Water and Sewer Overage,Assessment,12001,Water and Sewer Overage,0,,,,
+REX,Auto-gen Application Fee Asmt,Sub-Assessment,Rent Roll Receivables,Application Fees,,,,,
+REX,Receive Application Fee (auto-gen asmt),Receipt,Undeposited Funds,Rent Roll Receivables,1,0,1,Auto-gen Application Fee Asmt,"Application fee taken, autogen asmt"
+REX,XFER  Operating to SecDep,Expense,FRB 96953 (deposit account),FRB 54320 (operating account),,,,,Move money from Operating acct to Sec Dep

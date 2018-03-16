@@ -231,14 +231,14 @@ func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *S
 
 }
 
-// deleteDepositMethod deletes a payment type from the database
+// deleteDepositMethod deletes a deposit method from the database
 // wsdoc {
-//  @Title  Delete Payment Type
-//	@URL /v1/deposit/:BUI/:RAID
+//  @Title  Delete Deposit Method
+//	@URL /v1/deposit/:BUI/DMID
 //  @Method  POST
-//	@Synopsis Delete a Payment Type
+//	@Synopsis Delete a Deposit Method
 //  @Desc  This service deletes a DepositMethod.
-//	@Input DeletePmtForm
+//	@Input DeleteDepMethForm
 //  @Response SvcStatusResponse
 // wsdoc }
 func deleteDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -340,7 +340,7 @@ func saveDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(d.BID, w)
 }
 
-// GetDepositMethod returns the requested assessment
+// GetDepositMethod returns the requested DepositMethod
 // wsdoc {
 //  @Title  Get Payment Type
 //	@URL /v1/deposit/:BUI/:DPMID

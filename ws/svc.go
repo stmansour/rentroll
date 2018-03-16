@@ -198,6 +198,8 @@ var Svcs = []ServiceHandler{
 	{Cmd: "stmt", Handler: SvcStatement, NeedBiz: true, NeedSession: true},
 	{Cmd: "stmtdetail", Handler: SvcStatementDetail, NeedBiz: true, NeedSession: true},
 	{Cmd: "stmtinfo", Handler: SvcGetStatementInfo, NeedBiz: true, NeedSession: true},
+	{Cmd: "tld", Handler: SvcHandlerTaskListDefinition, NeedBiz: true, NeedSession: true},
+	{Cmd: "tlds", Handler: SvcSearchHandlerTaskListDefs, NeedBiz: true, NeedSession: true},
 	{Cmd: "transactants", Handler: SvcSearchHandlerTransactants, NeedBiz: true, NeedSession: true},
 	{Cmd: "transactantstd", Handler: SvcTransactantTypeDown, NeedBiz: true, NeedSession: true},
 	{Cmd: "tws", Handler: SvcTWS, NeedBiz: true, NeedSession: true},
@@ -709,7 +711,15 @@ func SvcWriteSuccessResponse(BID int64, w http.ResponseWriter) {
 	SvcWriteResponse(BID, &g, w)
 }
 
-// SvcWriteSuccessResponseWithID is used to complete a successful write operation on w2ui form save requests.
+// SvcWriteSuccessResponseWithID is used to complete a successful write
+// operation on w2ui form save requests, when a new entity is created. The
+// unique id of the new entity is returned along with the success response.
+//
+// INPUTS:
+//  BID  - biz id
+//  w    - response stream back to caller
+//  id   - id of the newly created record
+//-----------------------------------------------------------------------------
 func SvcWriteSuccessResponseWithID(BID int64, w http.ResponseWriter, id int64) {
 	var g = SvcStatusResponse{Status: "success", Recid: id}
 	w.Header().Set("Content-Type", "application/json")

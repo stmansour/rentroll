@@ -2343,7 +2343,7 @@ func InsertTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 	}
 	a.LastModBy = a.CreateBy
 
-	fields := []interface{}{a.BID, a.Name, a.Cycle, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModBy, a.TLDID}
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.Epoch, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModBy, a.TLDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTaskListDefinition)
 		defer stmt.Close()

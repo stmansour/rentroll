@@ -1,0 +1,6 @@
+BUD,Name,Description
+REX,Cash,Cash
+REX,Check,Personal check from payor
+REX,VISA,Credit card charge
+REX,AMEX,American Express credit card
+REX,ACH,

@@ -6708,6 +6708,24 @@ func GetTaskListDefinition(ctx context.Context, id int64) (TaskListDefinition, e
 	return a, ReadTaskListDefinition(row, &a)
 }
 
+// GetTaskListDefinitionByName returns the tasklist with the supplied namd in the BID
+func GetTaskListDefinitionByName(ctx context.Context, bid int64, name string) (TaskListDefinition, error) {
+	var a TaskListDefinition
+	if authCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{bid, name}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskListDefinitionByName)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTaskListDefinitionByName.QueryRow(fields...)
+	}
+	return a, ReadTaskListDefinition(row, &a)
+}
+
 //=======================================================
 //  TRANSACTANT
 //  Transactant, Prospect, User, Payor, XPerson

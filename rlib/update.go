@@ -1101,7 +1101,7 @@ func UpdateTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 	if authProblem(ctx, &a.LastModBy) {
 		return ErrSessionRequired
 	}
-	fields := []interface{}{a.BID, a.Name, a.Cycle, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModTime, a.LastModBy, a.TLDID}
+	fields := []interface{}{a.BID, a.Name, a.Cycle, a.Epoch, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModBy, a.TLDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
 		defer stmt.Close()
