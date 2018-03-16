@@ -40,8 +40,8 @@ type SaveTaskListDef struct {
 	FLAGS       int64
 }
 
-// TLDQry holds the task list definition list
-type TLDQry struct {
+// SearchTLDResponse holds the task list definition list
+type SearchTLDResponse struct {
 	Status  string         `json:"status"`
 	Total   int64          `json:"total"`
 	Records []TaskListDefs `json:"records"`
@@ -55,8 +55,8 @@ type TaskListDefinitionInput struct {
 	Record   TaskListDefs `json:"record"`
 }
 
-// TaskListDefinitionGetResponse is the response to a GetTaskListDefinition request
-type TaskListDefinitionGetResponse struct {
+// GetTLDResponse is the response to a GetTaskListDefinition request
+type GetTLDResponse struct {
 	Status string       `json:"status"`
 	Record TaskListDefs `json:"record"`
 }
@@ -119,19 +119,18 @@ func TaskListDefsRowScan(rows *sql.Rows) (TaskListDefs, error) {
 // business d.BID
 // wsdoc {
 //  @Title  Search TaskListDefs
-//	@URL /v1/tld/:BUI
+//	@URL /v1/tlds/:BUI
 //  @Method  POST
 //	@Synopsis Search TaskListDefs
 //  @Description  Search all TaskListDefs and return those that match the Search Logic.
 //	@Input wsSearchReq
-//  @Response TLDQry
+//  @Response SearchTLDResponse
 // wsdoc }
 //-----------------------------------------------------------------------------
 func SvcSearchHandlerTaskListDefs(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcSearchHandlerTaskListDefs"
-	var g TLDQry
+	funcname := "SvcSearchHandlerTaskListDefs"
+	var g SearchTLDResponse
 	var err error
-
 	rlib.Console("Entered %s\n", funcname)
 
 	whr := `TaskListDefinition.BID = %d AND TaskListDefinition.FLAGS & 1 = 0` // only get the Active tasklistdefinitions
@@ -259,7 +258,7 @@ func SvcHandlerTaskListDefinition(w http.ResponseWriter, r *http.Request, d *Ser
 // deleteTaskListDefinition makes the secified TaskListDefinition inactive
 // wsdoc {
 //  @Title  Delete TaskListDefinition
-//	@URL /v1/deposit/:BUI/TLDID
+//	@URL /v1/tld/:BUI/TLDID
 //  @Method  POST
 //	@Synopsis Make a TaskListDefinition inactive
 //  @Desc  This service makes a TaskListDefinition inactive. We do not deliete
@@ -280,28 +279,24 @@ func deleteTaskListDefinition(w http.ResponseWriter, r *http.Request, d *Service
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("Reading TLDID = %d\n", d.ID)
 	tld, err := rlib.GetTaskListDefinition(r.Context(), d.ID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	rlib.Console("deleteTaskListDefinition: read %d\n", tld.TLDID)
 	tld.FLAGS |= 0x1 // bit 0 set means it is inactive
-	rlib.Console("deleteTaskListDefinition: updated FLAGS to: %d\n", tld.FLAGS)
 	err = rlib.UpdateTaskListDefinition(r.Context(), &tld)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	rlib.Console("deleteTaskListDefinition: updated successfully\n")
 	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetTaskListDefinition returns the requested assessment
 // wsdoc {
 //  @Title  Save TaskListDefinition
-//	@URL /v1/deposit/:BUI/TLDID
+//	@URL /v1/tld/:BUI/TLDID
 //  @Method  GET
 //	@Synopsis Update the information on a TaskListDefinition with the supplied data
 //  @Description This service updates TaskListDefinition :TLDID with the
@@ -377,17 +372,17 @@ func saveTaskListDefinition(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // GetTaskListDefinition returns the requested TaskListDefinition
 // wsdoc {
 //  @Title  Get TaskListDefinition
-//	@URL /v1/deposit/:BUI/:TLDID
+//	@URL /v1/tld/:BUI/:TLDID
 //  @Method  GET
 //	@Synopsis Get information on a TaskListDefinition
 //  @Description  Return all fields for assessment :TLDID
 //	@Input WebGridSearchRequest
-//  @Response TaskListDefinitionGetResponse
+//  @Response GetTLDResponse
 // wsdoc }
 //-----------------------------------------------------------------------------
 func getTaskListDefinition(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getTaskListDefinition"
-	var g TaskListDefinitionGetResponse
+	var g GetTLDResponse
 	var a rlib.TaskListDefinition
 	var err error
 

@@ -56,6 +56,8 @@ const (
 	UnknownRTID                     = 32 // Unknown Rentable Type
 	UnknownRAID                     = 33 // Unknown Rental Agreement
 	UnknownARType                   = 34 // Unknown ARType
+	UnknownTLDID                    = 35 // task list definition does not exist
+	ImproperTLDID                   = 36 // task list definition does not belong to the specified business
 )
 
 // InitBizLogic loads the error messages needed for validation errors

@@ -1,0 +1,51 @@
+{
+    "records": [
+        {
+            "BID": 0,
+            "CreateBy": 0,
+            "CreateTS": "2018-03-14T12:50:32Z",
+            "EpochDue": "2018-01-31T20:00:00Z",
+            "EpochPreDue": "2018-01-20T20:00:00Z",
+            "FLAGS": 0,
+            "LastModBy": 0,
+            "LastModTime": "2018-03-14T12:50:32Z",
+            "Name": "Delinquency Report",
+            "TDID": 1,
+            "TLDID": 1,
+            "Worker": "Manual",
+            "recid": 0
+        },
+        {
+            "BID": 0,
+            "CreateBy": 0,
+            "CreateTS": "2018-03-14T12:50:32Z",
+            "EpochDue": "2018-01-31T20:00:00Z",
+            "EpochPreDue": "2018-01-20T20:00:00Z",
+            "FLAGS": 0,
+            "LastModBy": 0,
+            "LastModTime": "2018-03-14T12:50:32Z",
+            "Name": "Walk the Units",
+            "TDID": 2,
+            "TLDID": 1,
+            "Worker": "Manual",
+            "recid": 1
+        },
+        {
+            "BID": 0,
+            "CreateBy": 0,
+            "CreateTS": "2018-03-14T12:50:32Z",
+            "EpochDue": "2018-01-31T20:00:00Z",
+            "EpochPreDue": "2018-01-20T20:00:00Z",
+            "FLAGS": 0,
+            "LastModBy": 0,
+            "LastModTime": "2018-03-14T12:50:32Z",
+            "Name": "Generate Offsets",
+            "TDID": 3,
+            "TLDID": 1,
+            "Worker": "OffsetBot",
+            "recid": 2
+        }
+    ],
+    "status": "success",
+    "total": 3
+}

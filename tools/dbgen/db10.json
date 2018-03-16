@@ -31,10 +31,5 @@
     "SecDepDepositoryName": "Bank Of America",
     "PTypeCheckName": "Check",
     "PeopleCount": 10,
-    "RACount": 10,
-    "Randomize": 1,
-    "RandNames": 1,
-    "RSeed": 0,
-    "RandMissPayment": 20,
-    "RandMissApply": 20
+    "RACount": 10
 }
