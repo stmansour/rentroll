@@ -2218,6 +2218,7 @@ CREATE TABLE `TaskListDefinition` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Name` varchar(256) NOT NULL DEFAULT '',
   `Cycle` bigint(20) NOT NULL DEFAULT '0',
+  `Epoch` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `EpochDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `EpochPreDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
@@ -2798,4 +2799,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-13 12:43:01
+-- Dump completed on 2018-03-15  1:31:41

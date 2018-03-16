@@ -484,21 +484,6 @@ CREATE TABLE TaskList (
     PRIMARY KEY(TLID)
 );
 
-CREATE TABLE TaskListDefinition (
-    TLDID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,
-    Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
-    Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (editable)
-    EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
-    EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0
-    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
-    PRIMARY KEY(TLDID)
-);
-
 CREATE TABLE TaskDescriptor (
     TDID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,
@@ -513,6 +498,22 @@ CREATE TABLE TaskDescriptor (
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY(TDID)
+);
+
+CREATE TABLE TaskListDefinition (
+    TLDID BIGINT NOT NULL AUTO_INCREMENT,
+    BID BIGINT NOT NULL DEFAULT 0,
+    Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
+    Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (editable)
+    Epoch DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',      -- TaskList Start Date - day on which the instance is initiated
+    EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
+    EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- Pre Completion due date
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 : 0 = active, 1 = inactive
+    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY(TLDID)
 );
 
 
@@ -1363,7 +1364,7 @@ CREATE TABLE LedgerMarkerAudit (
 CREATE TABLE FlowData (
     FlowDataID BIGINT NOT NULL AUTO_INCREMENT,
     Flow VARCHAR(50) NOT NULL DEFAULT '',                                                  -- for which flow we're storing data ("RA=Rental Agreement Flow")
-    FlowID VARCHAR(100) NOT NULL DEFAULT '',                                               -- unique random flow ID for which we will store relavant json data
+    FlowID VARCHAR(50) NOT NULL DEFAULT '',                                               -- unique random flow ID for which we will store relavant json data
     DataStructID VARCHAR(50) NOT NULL DEFAULT '',                                          -- for which structure of data ("ASM", "PET", "VEHICLE")
     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated

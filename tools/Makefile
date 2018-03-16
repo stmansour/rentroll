@@ -1,4 +1,4 @@
-DIRS = dbgen
+DIRS = dbgen schemacmp bashtools
 
 tools:
 	for dir in $(DIRS); do make -C $$dir; done

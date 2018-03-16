@@ -207,25 +207,28 @@ MYSQLDUMP="mysqldump --no-defaults"
 # ALTER TABLE TaskDescriptor MODIFY EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00';
 # ALTER TABLE TaskDescriptor MODIFY EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00';
 
+# # March 14, 2018
+# DROP TABLE IF EXISTS TaskListDefinition;
+# CREATE TABLE TaskListDefinition (
+#     TLDID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,
+#     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
+#     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (editable)
+#     Epoch DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',      -- TaskList start Date
+#     EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- TaskList Due Date
+#     EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY(TLDID)
+# );
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-DROP TABLE IF EXISTS TaskListDefinition;
-CREATE TABLE TaskListDefinition (
-    TLDID BIGINT NOT NULL AUTO_INCREMENT,
-    BID BIGINT NOT NULL DEFAULT 0,
-    Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
-    Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (editable)
-    EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
-    EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
-    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
-    PRIMARY KEY(TLDID)
-);
 EOF
 
 #=====================================================
@@ -237,17 +240,18 @@ declare -a dbs=(
     'rfix/rcptfixed.sql'
     'rfix/receipts.sql'
     'roller/prodrr.sql'
-    'roller/rr.sql'
     'rr/rr.sql'
     'setup/accord.sql'
     'setup/old.sql'
     'webclient/webclientTest.sql'
     'websvc1/asmtest.sql'
+    'websvc3/tasks.sql'
     'workerasm/rr.sql'
 )
 
 for f in "${dbs[@]}"
 do
+    if [ -f ${f} ]; then
 	echo -n "${f}: loading... "
 	${MYSQL} rentroll < ${f}
 	echo -n "updating... "
@@ -255,4 +259,7 @@ do
 	echo -n "saving... "
 	${MYSQLDUMP} rentroll > ${f}
 	echo "done"
+    else
+	echo "file not found: ${f}"
+    fi
 done

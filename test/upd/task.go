@@ -15,6 +15,7 @@ func Tasks(ctx context.Context, biz *rlib.Business) {
 	tldef.BID = biz.BID
 	tldef.Cycle = rlib.CYCLEMONTHLY
 	tldef.Name = "Monthly Close"
+	tldef.Epoch = time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC)
 	tldef.EpochDue = time.Date(2018, time.January, 31, 17, 0, 0, 0, time.UTC)
 	tldef.EpochPreDue = time.Date(2018, time.January, 20, 17, 0, 0, 0, time.UTC)
 
