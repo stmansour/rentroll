@@ -75,6 +75,15 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     testConfig.skipColumns = [];
                     return;
             }
+        }else if(testConfig.grid === "payorStmtDetailGrid"){
+            switch (record.Description){
+                case "*** RECEIPT SUMMARY ***":
+                case "*** UNAPPLIED FUNDS ***":
+                case "*** RENTAL AGREEMENT 1 ***":
+                case "":
+                    testConfig.skipColumns = ["Reverse", "spacer"];
+                    return;
+            }
         }
 
         // Iterate through each column in row
@@ -142,9 +151,15 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                             }
                         }
                         break;
-                    case "Balance":
-                        // --- stmtDetailGrid ---
-                        valueForCell = win.w2utils.formatters.float(valueForCell, 2);
+                    case "Balance": // --- stmtDetailGrid, payorStmtDetailGrid ---
+                    case "UnappliedAmount": // --- payorStmtDetailGrid ---
+                    case "AppliedAmount": // --- payorStmtDetailGrid ---
+                    case "Assessment": // --- payorStmtDetailGrid ---
+                        if(valueForCell !== 0){
+                            valueForCell = win.w2utils.formatters.float(valueForCell, 2);
+                        }else {
+                            valueForCell = "";
+                        }
                         break;
                     case "RentableName":
                     case "RentableType":
@@ -190,7 +205,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
         });
 
         // Scroll grid to left after performing tests on all columns of the grid
-        if (testConfig.grid === "rrGrid") {
+        if (testConfig.grid === "rrGrid" || testConfig.grid === "payorStmtDetailGrid") {
             cy.get(selectors.getGridRecordsSelector(testConfig.grid, rowNo)).scrollTo('left');
         }
     });
@@ -599,10 +614,6 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
     // click on the first record of grid
     cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
-
-    // check response status of API end point
-    // cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
-
     // perform tests on record detail form
     cy.get('@getDetailRecord').then(function (xhr) {
         cy.log(xhr);
@@ -611,10 +622,15 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
         cy.log(recordDetailFromAPIResponse);
 
         cy.get('#RAInfo').within(() => {
-            cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
-            cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
-            cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
-            cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
+            if(testConfig.grid === "stmtGrid"){
+                cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
+                cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
+                cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
+                cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
+            }else if(testConfig.grid === "payorstmtGrid"){
+                cy.get('#bannerTCID').should('be.visible').should('contain', recordDetailFromAPIResponse.FirstName).should('contain', recordDetailFromAPIResponse.MiddleName).should('contain', recordDetailFromAPIResponse.LastName);
+                cy.get('#payorstmtaddr').should('be.visible').should('contain', recordDetailFromAPIResponse.Address);
+            }
         });
 
     });

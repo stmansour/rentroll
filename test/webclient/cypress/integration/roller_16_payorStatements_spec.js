@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../utils/constants';
-import * as selectors from '../utils/get_selectors';
-import * as common from '../utils/common';
+import * as constants from '../support/utils/constants';
+import * as selectors from '../support/utils/get_selectors';
+import * as common from '../support/utils/common';
 
 // --- Collections ---
-const section = require('../components/payorStatements'); // Payor Statements
+const section = require('../support/components/payorStatements'); // Payor Statements
 
 // this contain app variable of the application
 let appSettings;
@@ -94,11 +94,11 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
     // -- Change business to REX --
     it('Change business to REX', function () {
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
-        constants.BID = common.changeBU(appSettings);
+        // constants.BID = common.changeBU(appSettings);
     });
 
     it('Grid Records', function () {
-        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+        // common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
     it('Record Detail Form', function () {
@@ -108,8 +108,6 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: true
-        // doPrintReceiptUITest: false
         common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
