@@ -1358,6 +1358,19 @@ type GLAccount struct {
 	// RARequired  int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 }
 
+// FlowData is a structure for to store temporarity flow data latest one
+type FlowData struct {
+	FlowDataID   int64     // primary auto increment key
+	Flow         string    // RA="Rental Agreement Flow" etc...
+	FlowID       string    // Unique ID across all relavant data for this flow
+	DataStructID string    // structure of data ("ASM","PET","VEHICLE")
+	Data         []byte    // json data in mysql
+	LastModTime  time.Time // last modified time
+	LastModBy    int64     // last modified by whom
+	CreateTS     time.Time // created time
+	CreateBy     int64     // created by whom
+}
+
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
 	CountBusinessCustomAttributes           *sql.Stmt

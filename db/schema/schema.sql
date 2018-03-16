@@ -491,7 +491,7 @@ CREATE TABLE TaskListDefinition (
     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (editable)
     EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Task Due Date
     EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
-    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
@@ -1355,3 +1355,21 @@ CREATE TABLE LedgerMarkerAudit (
     CreateBy BIGINT NOT NULL DEFAULT 0                             -- employee UID (from phonebook) that created this record
 );
 
+-- **************************************
+-- ****                              ****
+-- ****       TEMP FLOW DATA         ****
+-- ****                              ****
+-- **************************************
+CREATE TABLE FlowData (
+    FlowDataID BIGINT NOT NULL AUTO_INCREMENT,
+    Flow VARCHAR(50) NOT NULL DEFAULT '',                                                  -- for which flow we're storing data ("RA=Rental Agreement Flow")
+    FlowID VARCHAR(100) NOT NULL DEFAULT '',                                               -- unique random flow ID for which we will store relavant json data
+    DataStructID VARCHAR(50) NOT NULL DEFAULT '',                                          -- for which structure of data ("ASM", "PET", "VEHICLE")
+    Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
+    LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated
+    LastModBy BIGINT NOT NULL DEFAULT 0,                                                   -- who modified it last
+    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                                 -- when was it created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                                                    -- who created it
+    PRIMARY KEY(FlowDataID),
+    UNIQUE KEY `FlowDataID` (`FlowDataID`, `FlowID`)
+);
