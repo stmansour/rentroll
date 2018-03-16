@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Setup --
-const section = require('../support/components/rentables'); // Expenses
+const section = require('../support/components/rentables'); // Rentables
 
 // this contain app variable of the application
 let appSettings;
@@ -105,10 +105,26 @@ describe('AIR Roller UI Tests - Rentables', function () {
         constants.BID = common.changeBU(appSettings);
     });
 
+    /***********************
+    * Iterate through each cell.
+    *
+    * Expect:
+    * Cell value must be same as record's field value from API Response.
+    ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
+    /*******************************
+    * Click on first record of grid
+    *
+    * Expect:
+    * Each field must have value set same as detail record api response.
+    * Each tab's grid cell have value which same as api response of that grid
+    * Button must be visible(Save, Cancel etc.)
+    *
+    * Close the form
+    ********************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
@@ -126,6 +142,13 @@ describe('AIR Roller UI Tests - Rentables', function () {
     });
 
 
+    /************************************************************
+    * Click Add new in toolbar
+    *
+    * Expect:
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
     it('Add new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---

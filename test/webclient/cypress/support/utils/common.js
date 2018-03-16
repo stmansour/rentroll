@@ -155,10 +155,12 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "UnappliedAmount": // --- payorStmtDetailGrid ---
                     case "AppliedAmount": // --- payorStmtDetailGrid ---
                     case "Assessment": // --- payorStmtDetailGrid ---
-                        if(valueForCell !== 0){
-                            valueForCell = win.w2utils.formatters.float(valueForCell, 2);
-                        }else {
-                            valueForCell = "";
+                        if (testConfig.grid !== "unpaidASMsGrid"){
+                            if(valueForCell !== 0){
+                                valueForCell = win.w2utils.formatters.float(valueForCell, 2);
+                            }else {
+                                valueForCell = "";
+                            }
                         }
                         break;
                     case "RentableName":
@@ -212,7 +214,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 }
 
 // -- perform test on detail record form's field --
-export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
+export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
     console.log(recordDetailFromAPIResponse);
 
     let fieldValue;

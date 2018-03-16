@@ -105,10 +105,27 @@ describe('AIR Roller UI Tests - Rentable Types', function () {
         constants.BID = common.changeBU(appSettings);
     });
 
+    /***********************
+    * Iterate through each cell.
+    *
+    * Expect:
+    * Cell value must be same as record's field value from API Response.
+    ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
+    /*******************************
+    * Click on first record of grid
+    *
+    * Expect:
+    * Each field must have value set same as detail record api response.
+    * Second Market tab must have grid and respect records. Delete button only enable if any record is clicked.
+    * Button must be visible(Save, Cancel etc.)
+    *
+    *
+    * Close the form
+    ********************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --

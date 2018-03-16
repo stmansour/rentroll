@@ -97,10 +97,23 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
         constants.BID = common.changeBU(appSettings);
     });
 
+    /***********************
+    * Iterate through each cell.
+    *
+    * Expect:
+    * Cell value must be same as record's field value from API Response.
+    ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
+    /************************************************************
+    * Click Add new in toolbar
+    *
+    * Expect:
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
