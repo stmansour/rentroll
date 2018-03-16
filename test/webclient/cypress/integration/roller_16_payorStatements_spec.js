@@ -94,11 +94,11 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
     // -- Change business to REX --
     it('Change business to REX', function () {
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
-        // constants.BID = common.changeBU(appSettings);
+        constants.BID = common.changeBU(appSettings);
     });
 
     it('Grid Records', function () {
-        // common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
     it('Record Detail Form', function () {
