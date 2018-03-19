@@ -1084,7 +1084,7 @@ func UpdateTaskDescriptor(ctx context.Context, a *TaskDescriptor) error {
 		return ErrSessionRequired
 	}
 
-	fields := []interface{}{a.BID, a.TLDID, a.Name, a.Worker, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModTime, a.LastModBy, a.TDID}
+	fields := []interface{}{a.BID, a.TLDID, a.Name, a.Worker, a.EpochDue, a.EpochPreDue, a.FLAGS, a.LastModBy, a.TDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
 		defer stmt.Close()
