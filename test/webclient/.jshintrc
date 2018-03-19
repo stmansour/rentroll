@@ -13,6 +13,7 @@
         "formName": true,
         "require": true,
         "recordDetailFromAPIResponse": true,
-        "after": true
+        "after": true,
+        "module": true
     }
 }
