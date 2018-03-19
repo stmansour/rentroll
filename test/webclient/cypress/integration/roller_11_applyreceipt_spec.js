@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Assessments/Receipts --
-const section = require('../support/components/applyreceipt'); // Expenses
+const section = require('../support/components/applyreceipt'); // Apply receipt
 
 // this contain app variable of the application
 let appSettings;
@@ -28,6 +28,14 @@ describe('AIR Roller UI Tests - Apply Receipt', function () {
     let payorRecordsLength;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
+    /********************************
+    * Login into application
+    * Select node from left sidebar
+    * Route the response for grid records
+    *
+    * Expect:
+    * Grid records response must have status flag as success.
+    ********************************/
     before(function () {
 
         testConfig = section.conf;
@@ -115,11 +123,10 @@ describe('AIR Roller UI Tests - Apply Receipt', function () {
         // route the endpoint for grid records in deposit's record detail form
         cy.server();
         cy.route(testConfig.methodType, common.getAPIEndPoint(testConfig.module, 1)).as('getDetailRecord');
-        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint('unpaidasms', 5)).as('getUnpaidAsms');
-        cy.route('GET', common.getDetailRecordAPIEndPoint('payorfund', 5)).as('getPayorFundResponse');
+        cy.route(testConfig.methodType, common.getDetailRecordAPIEndPoint('unpaidasms', 1)).as('getUnpaidAsms');
+        cy.route('GET', common.getDetailRecordAPIEndPoint('payorfund', 1)).as('getPayorFundResponse');
 
         // First record is blank. So temporary perform tests on second record.
-        // TODO(Akshay): Perform tests on first record after fixing bugs
         cy.get(selectors.getSecondRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
         // check response status of API end point
@@ -163,6 +170,8 @@ describe('AIR Roller UI Tests - Apply Receipt', function () {
 
             let fund = xhr.response.body.record.fund;
 
+
+
             // Verify fund value
             cy.get('#total_fund_amount').should('contain', fund);
         });
@@ -178,13 +187,13 @@ describe('AIR Roller UI Tests - Apply Receipt', function () {
             } else {
                 payorRecordsLength = 0;
             }
+
+            // assign grid name
+            // testConfig.grid = 'unpaidASMsGrid';
+            // Perform test on each cell of grid records
+            testConfig.grid = 'unpaidASMsGrid';
+            common.testGridRecords(payorRecords, payorRecordsLength, testConfig);
         });
-
-
-        // assign grid name
-        // testConfig.grid = 'unpaidASMsGrid';
-        // Perform test on each cell of grid records
-        // TODO(Akshay): common.testGridRecords(unpaidasmsRecords, unpaidasmsRecordsLength, testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));

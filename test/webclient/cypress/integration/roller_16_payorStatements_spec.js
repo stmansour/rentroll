@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../utils/constants';
-import * as selectors from '../utils/get_selectors';
-import * as common from '../utils/common';
+import * as constants from '../support/utils/constants';
+import * as selectors from '../support/utils/get_selectors';
+import * as common from '../support/utils/common';
 
 // --- Collections ---
-const section = require('../components/payorStatements'); // Payor Statements
+const section = require('../support/components/payorStatements'); // Payor Statements
 
 // this contain app variable of the application
 let appSettings;
@@ -97,10 +97,23 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
         constants.BID = common.changeBU(appSettings);
     });
 
+    /***********************
+    * Iterate through each cell.
+    *
+    * Expect:
+    * Cell value must be same as record's field value from API Response.
+    ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
+    /************************************************************
+    * Click Add new in toolbar
+    *
+    * Expect:
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
@@ -108,12 +121,10 @@ describe('AIR Roller UI Tests - Payor Statements', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: true
-        // doPrintReceiptUITest: false
         common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
-        // common.closeFormTests(selectors.getFormSelector(testConfig.form));
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

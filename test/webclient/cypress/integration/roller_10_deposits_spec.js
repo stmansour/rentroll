@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Assessments/Receipts --
-const section = require('../support/components/deposits'); // Expenses
+const section = require('../support/components/deposits'); // Deposits
 
 // this contain app variable of the application
 let appSettings;
@@ -22,6 +22,14 @@ describe('AIR Roller UI Tests - Expenses', function () {
     let noRecordsInAPIResponse;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
+    /********************************
+    * Login into application
+    * Select node from left sidebar
+    * Route the response for grid records
+    *
+    * Expect:
+    * Grid records response must have status flag as success.
+    ********************************/
     before(function () {
 
         testConfig = section.conf;
@@ -114,9 +122,7 @@ describe('AIR Roller UI Tests - Expenses', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: true
-        // doPrintReceiptUITest: false
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, false, false);
+        common.testRecordDetailForm(recordsAPIResponse, testConfig);
 
 
         // perform tests on grid record (depositListGrid) in deposit detail record form

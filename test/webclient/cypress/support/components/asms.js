@@ -6,7 +6,7 @@ const FORM = "asmEpochForm";
 const MODULE = "asm";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
-// For Module: Deposit accounts
+// For Module: Assess Charges
 export let conf = {
     grid: GRID,
     form: FORM,
@@ -19,12 +19,12 @@ export let conf = {
     notVisibleButtonNamesInForm: ["close"],
     buttonNamesInDetailForm: ["save", "saveadd", "reverse"],
     skipColumns: ["epoch", "reversed", "Invoice"],
-    skipFields: ["ExpandPastInst"], //TODO(Akshay): Write UI test for checkboxes
+    skipFields: [],
     primaryId: "ASMID",
     haveDateValue: true,
     fromDate: new Date(2018, 1, 1), // year, month-1, day : 1st Feb 2018
     toDate: new Date(2018, 2, 1) // 1st March 2018
 };
 
-//TODO(Akshay): UI Test for Unpaid section(Green Color), White Color section, Find button in form
+//TODO(Akshay): Find button in form
 

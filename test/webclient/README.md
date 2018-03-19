@@ -16,8 +16,11 @@ List of covered use cases:
 
 ## AIR Roller application (/home)
 
-List of covered use cases for Assess Charges, Tendered Receipt Payment, Chart of accounts, Payment Types, Deposit Methods, Deposit Accounts, Account Rules, Expense, Deposit:
-- An assertion of application title
+List of covered use cases for Assess Charges, Tendered Receipt Payment, 
+Chart of accounts, Payment Types, 
+Deposit Methods, Deposit Accounts, 
+Account Rules, Expense, 
+Deposit:
 - Left side node selection
 - Grid rendering after selection of a node
 - Assertion of cell value in the  grid with API response(/v1/<grid_name>/1) 
@@ -26,6 +29,14 @@ List of covered use cases for Assess Charges, Tendered Receipt Payment, Chart of
 - Buttons visibility in add new record form/detail record form
 - Visibility and class of Unallocated section(IF Exists) in detail record from
 - Close the form and checking that form is closed properly.
+
+Rent Roll, RA Statements,
+Payor Staments:
+- Left side node selection
+- Grid rendering after selection of a node
+- Assertion of cell value in the  grid with API response(/v1/<grid_name>/1) 
+- Checking visibility and value of input fields/Grids in form/tabbed form for detail record. (We're clicking on the first record in a grid and performing tests on detail record form.)
+- Close the form and checking that form is closed properly.  
 
 ## Deposit section
 - Deposit list grid test in detailed record form
