@@ -169,6 +169,14 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
     //
     // });
 
+    /************************************************************
+    * Click Add new in toolbar
+    *
+    * Expect:
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    * Asset closing the form
+    ************************************************************/
     it('Add new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---

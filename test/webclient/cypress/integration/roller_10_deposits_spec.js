@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Assessments/Receipts --
-const section = require('../support/components/deposits'); // Expenses
+const section = require('../support/components/deposits'); // Deposits
 
 // this contain app variable of the application
 let appSettings;

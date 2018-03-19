@@ -5,7 +5,7 @@ import * as selectors from '../support/utils/get_selectors';
 import * as common from '../support/utils/common';
 
 // --- Setup --
-const section = require('../support/components/rentableTypes'); // Expenses
+const section = require('../support/components/rentableTypes'); // Rentable types
 
 // this contain app variable of the application
 let appSettings;
