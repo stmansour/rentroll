@@ -1,0 +1,18 @@
+{
+    "record": {
+        "BID": 1,
+        "CreateBy": 0,
+        "CreateTS": "2018-03-15T19:13:38Z",
+        "EpochDue": "2018-01-31T20:00:00Z",
+        "EpochPreDue": "2018-01-20T20:00:00Z",
+        "FLAGS": 0,
+        "LastModBy": 0,
+        "LastModTime": "2018-03-15T19:13:38Z",
+        "Name": "Validate Washing Room Totals",
+        "TDID": 4,
+        "TLDID": 1,
+        "Worker": "Manual",
+        "recid": 4
+    },
+    "status": "success"
+}

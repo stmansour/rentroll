@@ -225,6 +225,52 @@ MYSQLDUMP="mysqldump --no-defaults"
 #     PRIMARY KEY(TLDID)
 # );
 
+# March 16, 2018
+# DROP TABLE IF EXISTS Task;
+# CREATE TABLE Task (
+#     TID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,
+#     TLID BIGINT NOT NULL DEFAULT 0,                             -- the TaskList to which this task belongs
+#     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- Task text
+#     Worker VARCHAR(80) NOT NULL DEFAULT '',                     -- Name of the associated work function
+#     DtDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',      -- Task Due Date
+#     DtPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- Pre Completion due date
+#     DtDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- Task completion Date
+#     DtPreDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Task Pre Completion Date
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 pre-completion required (if 0 then there is no pre-completion required)
+#                                                                 -- 1<<1 PreCompletion done (if 0 it is not yet done)
+#                                                                 -- 1<<2 Completion done (if 0 it is not yet done)
+#     DoneUID BIGINT NOT NULL DEFAULT 0,                          -- user who marked this task done
+#     PreDoneUID BIGINT NOT NULL DEFAULT 0,                       -- user who marked this task predone
+#     Comment VARCHAR(2048) NOT NULL DEFAULT '',                  -- any user comments
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY(TID)
+# );
+
+# DROP TABLE IF EXISTS TaskList;
+# CREATE TABLE TaskList (
+#     TLID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,
+#     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
+#     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (not editable)
+#     DtDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',      -- All tasks in task list are due on this date
+#     DtPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- All tasks in task list pre-completion date
+#     DtDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',     -- Task completion Date
+#     DtPreDone DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',  -- Task Pre Completion Date
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 - 0 = active, 1 = inactive
+#     DoneUID BIGINT NOT NULL DEFAULT 0,                          -- user who marked this task done
+#     PreDoneUID BIGINT NOT NULL DEFAULT 0,                       -- user who marked this task predone
+#     Comment VARCHAR(2048) NOT NULL DEFAULT '',                  -- any user comments
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+#     PRIMARY KEY(TLID)
+# );
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
