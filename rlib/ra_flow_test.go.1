@@ -1,0 +1,151 @@
+package rlib
+
+import (
+	"context"
+	"database/sql"
+	"extres"
+	"log"
+	"os"
+	"testing"
+)
+
+var App struct {
+	dbdir       *sql.DB // phonebook db
+	dbrr        *sql.DB // rentroll db
+	configFPath string  // config.json folder path
+	noAuth      bool
+}
+
+var flowID string
+var flowPartID int64
+var firstFlowPart FlowPart
+
+const (
+	flow = "RA"
+	BID  = 1
+)
+
+// init some app variables
+func init() {
+	App.configFPath = "../"
+	App.noAuth = true
+}
+
+func TestMain(m *testing.M) {
+
+	var (
+		err error
+	)
+
+	// read config
+	if err = RRReadConfig(App.configFPath); err != nil {
+		log.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", AppConfig.RRDbname, AppConfig.RRDbuser, err)
+		os.Exit(1)
+	}
+
+	//----------------------------
+	// Open RentRoll database
+	//----------------------------
+	s := extres.GetSQLOpenString(AppConfig.RRDbname, &AppConfig)
+	App.dbrr, err = sql.Open("mysql", s)
+	if nil != err {
+		log.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", AppConfig.RRDbname, AppConfig.RRDbuser, err)
+		os.Exit(1)
+	}
+	defer App.dbrr.Close()
+	err = App.dbrr.Ping()
+	if nil != err {
+		log.Printf("DBRR.Ping for database=%s, dbuser=%s: Error = %v\n", AppConfig.RRDbname, AppConfig.RRDbuser, err)
+		os.Exit(1)
+	}
+
+	//----------------------------
+	// Open Phonebook database
+	//----------------------------
+	s = extres.GetSQLOpenString(AppConfig.Dbname, &AppConfig)
+	App.dbdir, err = sql.Open("mysql", s)
+	if nil != err {
+		log.Printf("sql.Open: Error = %v\n", err)
+		os.Exit(1)
+	}
+	err = App.dbdir.Ping()
+	if nil != err {
+		log.Printf("dbdir.Ping: Error = %v\n", err)
+		os.Exit(1)
+	}
+
+	// init db helpers
+	InitDBHelpers(App.dbrr, App.dbdir)
+
+	// set auth flag
+	SetAuthFlag(App.noAuth)
+
+	// now run test
+	os.Exit(m.Run())
+}
+
+// TestInsertInitialRAFlow tests initial rental agreement flow
+func TestInsertInitialRAFlow(t *testing.T) {
+	ctx := context.Background()
+	var err error
+	flowID, err = InsertInitialRAFlow(ctx, BID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Inserted flowID: %s\n", flowID)
+}
+
+// TestGetRAFlowPartsByFlowID get all flow parts by global flowID
+func TestGetRAFlowPartsByFlowID(t *testing.T) {
+	log.Printf("global flowID: %s\n", flowID)
+	ctx := context.Background()
+	flowParts, err := GetFlowPartsByFlowID(ctx, flowID)
+	for _, fp := range flowParts {
+		log.Printf("flowPartID: %04d, data: %s, flow: %s, flowID: %s\n", fp.FlowPartID, string(fp.Data), fp.Flow, fp.FlowID)
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// TestGetRAFlowPartsByFlow get all flow parts by global flow, BID
+func TestGetRAFlowPartsByFlow(t *testing.T) {
+	log.Printf("global flow: %s, BID: %d\n", flow, BID)
+	ctx := context.Background()
+	flowParts, err := GetFlowPartsByFlow(ctx, flow, BID)
+	for _, fp := range flowParts {
+		log.Printf("BID: %2d, flowPartID: %04d, data: %s, flow: %s, flowID: %s\n", fp.BID, fp.FlowPartID, string(fp.Data), fp.Flow, fp.FlowID)
+	}
+	flowPartID = flowParts[0].FlowPartID
+	firstFlowPart = flowParts[0]
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// TestUpdateRAFlowParts get all flow parts by global flow, BID
+func TestUpdateRAFlowParts(t *testing.T) {
+	var data = `{"Doctor": "Doom"}`
+	firstFlowPart.Data = []byte(data)
+	log.Printf("global flow: %s, BID: %d, flowPartID to update: %d\n", flow, BID, flowPartID)
+	ctx := context.Background()
+	err := UpdateFlowPart(ctx, &firstFlowPart)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// TestDeleteRAFlowParts deletes flowParts
+func TestDeleteRAFlowParts(t *testing.T) {
+	ctx := context.Background()
+	flowParts, err := GetFlowPartsByFlowID(ctx, flowID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, fp := range flowParts {
+		err := DeleteFlowPart(ctx, fp.FlowPartID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}

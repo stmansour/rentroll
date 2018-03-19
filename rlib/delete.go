@@ -1603,3 +1603,29 @@ func DeletePayor(ctx context.Context, id int64) error {
 	}
 	return err
 }
+
+// DeleteFlowPart deletes AR records with the given ID
+func DeleteFlowPart(ctx context.Context, ID int64) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	fields := []interface{}{ID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteFlowPart)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteFlowPart.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting FlowPart for ID = %d, error: %v\n", ID, err)
+	}
+	return err
+}

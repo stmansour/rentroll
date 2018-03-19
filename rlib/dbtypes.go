@@ -1362,6 +1362,7 @@ type GLAccount struct {
 // FlowPart is a structure for to store temporarity flow data latest one
 type FlowPart struct {
 	FlowPartID  int64     // primary auto increment key
+	BID         int64     // Business unit associated with this FlowPart
 	Flow        string    // RA="Rental Agreement Flow" etc...
 	FlowID      string    // Unique ID across all relavant data for this flow -- UnixNano(32 bits) + User ID
 	PartType    int       // flow part type ("ASM","PET","VEHICLE")
@@ -1435,6 +1436,7 @@ type RRprepSQL struct {
 	DeleteTransactant                       *sql.Stmt
 	DeleteUser                              *sql.Stmt
 	DeleteVehicle                           *sql.Stmt
+	DeleteFlowPart                          *sql.Stmt
 	FindAgreementByRentable                 *sql.Stmt
 	FindTCIDByNote                          *sql.Stmt
 	FindTransactantByPhoneOrEmail           *sql.Stmt
@@ -1602,6 +1604,9 @@ type RRprepSQL struct {
 	GetVehiclesByBID                        *sql.Stmt
 	GetVehiclesByLicensePlate               *sql.Stmt
 	GetVehiclesByTransactant                *sql.Stmt
+	GetFlowPart                             *sql.Stmt
+	GetFlowPartsByFlowID                    *sql.Stmt
+	GetFlowPartsByFlow                      *sql.Stmt
 	InsertAR                                *sql.Stmt
 	InsertAssessment                        *sql.Stmt
 	InsertAssessmentType                    *sql.Stmt
@@ -1703,6 +1708,7 @@ type RRprepSQL struct {
 	UpdateTransactant                       *sql.Stmt
 	UpdateUser                              *sql.Stmt
 	UpdateVehicle                           *sql.Stmt
+	UpdateFlowPart                          *sql.Stmt
 	GetAssessmentInstancesByParent          *sql.Stmt
 	GetJournalAllocationsByASMID            *sql.Stmt
 	GetRentableTypeRefs                     *sql.Stmt

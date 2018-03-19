@@ -1280,10 +1280,19 @@ func buildPreparedStatements() {
 	//==========================================
 	// Flow Part
 	//==========================================
-	flds = "FlowPartID,Flow,FlowID,PartType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "FlowPartID,BID,Flow,FlowID,PartType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["FlowPart"] = flds
+	RRdb.Prepstmt.GetFlowPart, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where FlowPartID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetFlowPartsByFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where Flow=? AND BID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetFlowPartsByFlowID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where FlowID=?")
+	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertFlowPart, err = RRdb.Dbrr.Prepare("INSERT INTO FlowPart (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-
+	RRdb.Prepstmt.UpdateFlowPart, err = RRdb.Dbrr.Prepare("UPDATE FlowPart SET " + s3 + " WHERE FlowPartID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteFlowPart, err = RRdb.Dbrr.Prepare("DELETE from FlowPart WHERE FlowPartID=?")
+	Errcheck(err)
 }

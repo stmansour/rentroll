@@ -739,3 +739,17 @@ func ReadVehicles(rows *sql.Rows, a *Vehicle) error {
 		&a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
+
+// ReadFlowPart reads a full FlowPart structure from the database based on the supplied row object
+func ReadFlowPart(row *sql.Row, a *FlowPart) error {
+	err := row.Scan(&a.FlowPartID, &a.BID, &a.Flow, &a.FlowID, &a.PartType,
+		&a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadFlowParts reads a full FlowPart structure from the database based on the supplied rows object
+func ReadFlowParts(rows *sql.Rows, a *FlowPart) error {
+	return rows.Scan(&a.FlowPartID, &a.BID, &a.Flow, &a.FlowID, &a.PartType,
+		&a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}

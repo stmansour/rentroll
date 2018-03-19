@@ -2600,104 +2600,50 @@ func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
 	return rid, err
 }
 
-// InsertInitialRAFlow writes a bunch of flow's sections record for a particular RA
-// This should be run under atomic transaction mode as per DB design of flow
-// This is very special case that we're not returning primary key generated from database
-// instead we're generating in form of string which we return if tx will be succeed.
-func InsertInitialRAFlow(ctx context.Context) (string, error) {
-
+// InsertFlowPart inserts the flow part with data provided in "a".
+func InsertFlowPart(ctx context.Context, a *FlowPart) (int64, error) {
 	var (
-		rid  string
-		err  error
-		sess *Session
-		ok   bool
-		// res  sql.Result
+		rid = int64(0)
+		err error
+		res sql.Result
 	)
 
 	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok = SessionFromContext(ctx)
+		sess, ok := SessionFromContext(ctx)
 		if !ok {
 			return rid, ErrSessionRequired
 		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
 	}
 
-	// ------------
-	// SPECIAL CASE
-	// ------------
-	var (
-		insertStmt *sql.Stmt
-		newTx      bool
-		tx         *sql.Tx
-	)
+	// make sure that json is valid before inserting it in database
+	if !(IsFlowDataJSON(a.Data)) {
+		return rid, ErrFlowInvalidJSONData
+	}
 
-	if tx, ok = DBTxFromContext(ctx); ok { // if transaction is supplied
-		insertStmt = tx.Stmt(RRdb.Prepstmt.InsertFlowPart)
+	// transaction... context
+	fields := []interface{}{a.BID, a.Flow, a.FlowID, a.PartType, a.Data, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertFlowPart)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
 	} else {
-		newTx = true
-		tx, err = RRdb.Dbrr.Begin()
-		if err != nil {
-			return rid, err
+		res, err = RRdb.Prepstmt.InsertFlowPart.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.FlowPartID = rid
 		}
-		insertStmt = tx.Stmt(RRdb.Prepstmt.InsertFlowPart)
+	} else {
+		err = insertError(err, "FlowPart", *a)
 	}
-	defer insertStmt.Close()
-
-	// getFlowID first
-	flowID := getFlowID(sess.UID)
-
-	// initRAFlowPart
-	initRAFlowPart := FlowPart{
-		Flow:      RAFlow,
-		FlowID:    flowID,
-		PartType:  0,
-		Data:      []byte{},
-		CreateBy:  sess.UID,
-		LastModBy: sess.UID,
-	}
-
-	// Rental agreement flow parts map init
-	// maybe we can just override the above pre-defined initFlowPart struct
-	initRAFlowMap := map[RAFlowPartType]FlowPart{
-		DatesRAFlowPart:          FlowPart{},
-		PeopleRAFlowPart:         FlowPart{},
-		PetsRAFlowPart:           FlowPart{},
-		VehiclesRAFlowPart:       FlowPart{},
-		BackGroundInfoRAFlowPart: FlowPart{},
-		RentablesRAFlowPart:      FlowPart{},
-		FeesTermsRAFlowPart:      FlowPart{},
-	}
-
-	// assign part type
-	for partTypeID := range initRAFlowMap {
-		// get blank flow part
-		a := initRAFlowMap[partTypeID]
-
-		// assign pre-defined init flow data
-		a = initRAFlowPart
-
-		// modify part type
-		a.PartType = int(partTypeID)
-
-		// now insert this "a" struct data in the current transaction context
-		fields := []interface{}{a.Flow, a.FlowID, a.PartType, a.Data, a.CreateBy, a.LastModBy}
-		_, err = insertStmt.Exec(fields...)
-
-		// After getting result...
-		if nil != err {
-			Ulog("Error while inserting SLString BULK-WRITE: %s\n", err.Error())
-		}
-	}
-
-	if newTx { // if new transaction then commit it
-		// if error then rollback
-		if err = tx.Commit(); err != nil {
-			tx.Rollback()
-			Ulog("Error while Committing transaction | inserting SLString BULK-WRITE: %s\n", err.Error())
-			err = insertError(err, "InitialRAFlow", nil)
-			return rid, err
-		}
-	}
-
 	return rid, err
 }

@@ -7407,3 +7407,125 @@ func GetCountBusinessRentalAgreements(ctx context.Context, bid int64) (int, erro
 	}
 	return count, row.Scan(&count)
 }
+
+// GetFlowPart reads a FlowPart structure based on the supplied flowPartId
+func GetFlowPart(ctx context.Context, id int64) (FlowPart, error) {
+
+	var (
+		// err error
+		a FlowPart
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return a, ErrSessionRequired
+		}
+	}
+
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowPart)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetFlowPart.QueryRow(fields...)
+	}
+	return a, ReadFlowPart(row, &a)
+}
+
+// getFlowPartsForRows uses the given rows argument, gets all the FlowPart records
+// and returns them in a slice of FlorPart struct
+func getFlowPartsForRows(ctx context.Context, rows *sql.Rows) ([]FlowPart, error) {
+
+	var (
+		err error
+		t   []FlowPart
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+	defer rows.Close()
+
+	for i := 0; rows.Next(); i++ {
+		var a FlowPart
+		err = ReadFlowParts(rows, &a)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, a)
+	}
+
+	return t, rows.Err()
+}
+
+// GetFlowPartsByFlowID reads all FlowPart for the given flow ID
+func GetFlowPartsByFlowID(ctx context.Context, flowID string) ([]FlowPart, error) {
+
+	var (
+		err error
+		t   []FlowPart
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{flowID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowPartsByFlowID)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetFlowPartsByFlowID.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getFlowPartsForRows(ctx, rows)
+}
+
+// GetFlowPartsByFlow reads all FlowPart for the given flow and BID
+func GetFlowPartsByFlow(ctx context.Context, flow string, BID int64) ([]FlowPart, error) {
+
+	var (
+		err error
+		t   []FlowPart
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{flow, BID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowPartsByFlow)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetFlowPartsByFlow.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getFlowPartsForRows(ctx, rows)
+}
