@@ -102,7 +102,7 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
     // -- Change business to REX --
     it('Change business to REX', function () {
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
-        // constants.BID = common.changeBU(appSettings);
+        constants.BID = common.changeBU(appSettings);
     });
 
     /***********************
@@ -112,7 +112,7 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
     * Cell value must be same as record's field value from API Response.
     ***********************/
     it('Grid Records', function () {
-        // common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
     /*******************************
@@ -173,7 +173,7 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
         // ---------------------------------------
-        // common.testAddNewRecordForm(testConfig);
+        common.testAddNewRecordForm(testConfig);
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

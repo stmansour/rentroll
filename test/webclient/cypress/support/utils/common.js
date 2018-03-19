@@ -455,6 +455,13 @@ export function addNewFormTest(testConfig) {
                 case "ERentableName":
                     defaultValue = getW2UIFormRecords.RentableName;
                     break;
+                case "ExpandPastInst":
+                    if (defaultValue === true){
+                        defaultValue = 'on';
+                    }else {
+                        defaultValue = 'off';
+                    }
+                    break;
             }
 
             // Check field visibility and match default value from w2ui
@@ -766,7 +773,7 @@ export function unallocatedSectionTest() {
         .should('have.class', 'FLAGReportContainer');
 
     // Check position of allocated section in detail form
-    allocatedSectionPositionTest();
+    // allocatedSectionPositionTest();
 }
 
 // test for print receipt ui in detail record form
