@@ -191,6 +191,9 @@ type Task struct {
 	DtDone      time.Time // Task completion Date
 	DtPreDone   time.Time // Task Pre Completion Date
 	FLAGS       int64
+	DoneUID     int64     // user who marked task as done
+	PreDoneUID  int64     // user who marked task as predone
+	Comment     string    // any user comments
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created
@@ -208,6 +211,9 @@ type TaskList struct {
 	DtDone      time.Time
 	DtPreDone   time.Time
 	FLAGS       int64     // 1<<0 - 0 = active, 1 = inactive
+	DoneUID     int64     // user who marked task as done
+	PreDoneUID  int64     // user who marked task as predone
+	Comment     string    // any user comments
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
 	LastModTime time.Time // when was this record last written

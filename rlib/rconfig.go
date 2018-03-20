@@ -28,16 +28,12 @@ func RRReadConfig(fPath ...string) error {
 		log.Fatal(err)
 	}
 	// as of now, just limit the parameters upto 1 length only
-	// Console("A\n")
 	if len(fPath) > 0 && len(fPath[0]) > 0 {
-		// Console("B len(fPath) = %d, fPath = %s\n", len(fPath), fPath)
 		folderPath = fPath[0]
 		adjustEnv = folderPath == expath // is it in the release directory
 	} else {
-		// Console("C\n")
 		folderPath = expath
 		if len(folderPath) == 0 {
-			// Console("D\n")
 			folderPath = "."
 		}
 		// Console("E\n")
@@ -45,7 +41,6 @@ func RRReadConfig(fPath ...string) error {
 	}
 
 	fname := path.Join(folderPath, "config.json")
-	// Console("ReadConfig( %q ),  expath = %s, folderpath = %s\n", fname, expath, folderPath)
 	err = extres.ReadConfig(fname, &AppConfig)
 	if err != nil {
 		log.Fatal(err)
