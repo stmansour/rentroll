@@ -59,15 +59,14 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
     recordsAPIResponse.forEach(function (record, rowNo) {
 
         if (testConfig.grid === "rrGrid") {
-            // noinspection JSAnnotator
             switch (record.FLAGS) {
                 // Main row
                 case 1:
-                    testConfig.skipColumns = ["UsePeriod", "RentPeriod", "BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
                     break;
                 // Subtotal row
                 case 2:
-                    testConfig.skipColumns = ["UsePeriod", "RentPeriod"];
+                    testConfig.skipColumns = [];
                     break;
                 // Blank row
                 case 4:
@@ -170,8 +169,6 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "Payors":
                     case "RAIDREP":
                     case "RAID":
-                    case "UsePeriod":
-                    case "RentPeriod":
                     case "RentCycleREP":
                     case "RentCycleGSR":
                         if (record.FLAGS === 2 && testConfig.grid === "rrGrid") {
@@ -179,6 +176,19 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                                 valueForCell = "";
                             }
                         }
+                        break;
+                    case "UsePeriod":
+                    case "RentPeriod":
+                        if(testConfig.grid === "rrGrid"){
+                            if (record.FLAGS === 2) {
+                                valueForCell = "";
+                            }else if(record.FLAGS === 1 && w2uiGridColumn.field === "UsePeriod"){
+                                valueForCell = record['AgreementStart'];
+                            }else if(record.FLAGS === 1 && w2uiGridColumn.field === "RentPeriod"){
+                                valueForCell = record['RentStart'];
+                            }
+                        }
+
                         break;
                     case "RentCycle":
                     case "Proration":
