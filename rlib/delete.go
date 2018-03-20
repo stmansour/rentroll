@@ -1604,8 +1604,8 @@ func DeletePayor(ctx context.Context, id int64) error {
 	return err
 }
 
-// DeleteFlowPart deletes AR records with the given ID
-func DeleteFlowPart(ctx context.Context, ID int64) error {
+// DeleteFlowPart deletes a flow part record with the given FlowPartID
+func DeleteFlowPart(ctx context.Context, FlowPartID int64) error {
 	var err error
 
 	// session... context
@@ -1616,7 +1616,7 @@ func DeleteFlowPart(ctx context.Context, ID int64) error {
 		}
 	}
 
-	fields := []interface{}{ID}
+	fields := []interface{}{FlowPartID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.DeleteFlowPart)
 		defer stmt.Close()
@@ -1625,7 +1625,33 @@ func DeleteFlowPart(ctx context.Context, ID int64) error {
 		_, err = RRdb.Prepstmt.DeleteFlowPart.Exec(fields...)
 	}
 	if err != nil {
-		Ulog("Error deleting FlowPart for ID = %d, error: %v\n", ID, err)
+		Ulog("Error deleting FlowPart for FlowPartID = %d, error: %v\n", FlowPartID, err)
+	}
+	return err
+}
+
+// DeleteFlowPartsByFlowID deletes all flow parts with the given FlowID
+func DeleteFlowPartsByFlowID(ctx context.Context, FlowID string) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+	}
+
+	fields := []interface{}{FlowID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteFlowPartsByFlowID)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteFlowPartsByFlowID.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting FlowParts for FlowID = %d, error: %v\n", FlowID, err)
 	}
 	return err
 }

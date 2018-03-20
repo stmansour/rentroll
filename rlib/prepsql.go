@@ -1295,4 +1295,6 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteFlowPart, err = RRdb.Dbrr.Prepare("DELETE from FlowPart WHERE FlowPartID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.DeleteFlowPartsByFlowID, err = RRdb.Dbrr.Prepare("DELETE from FlowPart WHERE FlowID=?")
+	Errcheck(err)
 }
