@@ -60,6 +60,10 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
 
         if (testConfig.grid === "rrGrid") {
             switch (record.FLAGS) {
+                // Normal row
+                case 0:
+                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    break;
                 // Main row
                 case 1:
                     testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
@@ -70,7 +74,6 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     break;
                 // Blank row
                 case 4:
-                case 0: // Skiping normal row for now. TODO(Akshay): Enable tests for normal row
                     // Skipping tests on blank row
                     testConfig.skipColumns = [];
                     return;
@@ -98,6 +101,10 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 cy.log(w2uiGridColumn.field);
                 cy.log(valueForCell);
                 cy.log(record);
+
+                if(valueForCell === null || valueForCell === undefined){
+                    valueForCell = "";
+                }
 
                 // Format Value
                 switch (w2uiGridColumn.render) {
@@ -188,7 +195,6 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                                 valueForCell = record['RentStart'];
                             }
                         }
-
                         break;
                     case "RentCycle":
                     case "Proration":
