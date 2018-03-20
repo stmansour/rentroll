@@ -73,17 +73,17 @@ getSchema "${DEF1}" "${REFDB}"
 #--------------------------------------------------
 declare -a dblist=(
     'acctbal/baltest.sql'
-    'payorstmt/pstmt.sql'
-    'rfix/rcptfixed.sql'
-    'rfix/receipts.sql'
-    'roller/prodrr.sql'
-    'rr/rr.sql'
-    'setup/accord.sql'
-    'setup/old.sql'
-    'webclient/webclientTest.sql'
-    'websvc1/asmtest.sql'
-    'websvc3/tasks.sql'
-    'workerasm/rr.sql'
+    # 'payorstmt/pstmt.sql'
+    # 'rfix/rcptfixed.sql'
+    # 'rfix/receipts.sql'
+    # 'roller/prodrr.sql'
+    # 'rr/rr.sql'
+    # 'setup/accord.sql'
+    # 'setup/old.sql'
+    # 'webclient/webclientTest.sql'
+    # 'websvc1/asmtest.sql'
+    # 'websvc3/tasks.sql'
+    # 'workerasm/rr.sql'
 )
 
 echo "SCHEMA DIFFS" > report.txt
