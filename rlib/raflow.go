@@ -28,7 +28,7 @@ const (
 
 // IsValid checks the validity of RAFlowPartType raftp
 func (raftp RAFlowPartType) IsValid() bool {
-	if raftp+1 < DatesRAFlowPart || raftp+1 > FeesTermsRAFlowPart {
+	if raftp < DatesRAFlowPart || raftp > FeesTermsRAFlowPart {
 		return false
 	}
 
@@ -47,7 +47,8 @@ func (raftp RAFlowPartType) String() string {
 		"Fess-Terms",
 	}
 
-	if raftp < DatesRAFlowPart || raftp > FeesTermsRAFlowPart {
+	// if not valid then return unknown
+	if !(raftp.IsValid()) {
 		return "Unknown-RAFlowPart"
 	}
 
