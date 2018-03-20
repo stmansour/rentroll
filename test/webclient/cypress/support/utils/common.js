@@ -71,8 +71,18 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     break;
                 // Blank row
                 case 4:
+                case 0: // Skiping normal row for now. TODO(Akshay): Enable tests for normal row
                     // Skipping tests on blank row
                     testConfig.skipColumns = [];
+                    return;
+            }
+        }else if(testConfig.grid === "payorStmtDetailGrid"){
+            switch (record.Description){
+                case "*** RECEIPT SUMMARY ***":
+                case "*** UNAPPLIED FUNDS ***":
+                case "*** RENTAL AGREEMENT 1 ***":
+                case "":
+                    testConfig.skipColumns = ["Reverse", "spacer"];
                     return;
             }
         }
@@ -142,9 +152,17 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                             }
                         }
                         break;
-                    case "Balance":
-                        // --- stmtDetailGrid ---
-                        valueForCell = win.w2utils.formatters.float(valueForCell, 2);
+                    case "Balance": // --- stmtDetailGrid, payorStmtDetailGrid ---
+                    case "UnappliedAmount": // --- payorStmtDetailGrid ---
+                    case "AppliedAmount": // --- payorStmtDetailGrid ---
+                    case "Assessment": // --- payorStmtDetailGrid ---
+                        if (testConfig.grid !== "unpaidASMsGrid"){
+                            if(valueForCell !== 0){
+                                valueForCell = win.w2utils.formatters.float(valueForCell, 2);
+                            }else {
+                                valueForCell = "";
+                            }
+                        }
                         break;
                     case "RentableName":
                     case "RentableType":
@@ -190,14 +208,14 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
         });
 
         // Scroll grid to left after performing tests on all columns of the grid
-        if (testConfig.grid === "rrGrid") {
+        if (testConfig.grid === "rrGrid" || testConfig.grid === "payorStmtDetailGrid") {
             cy.get(selectors.getGridRecordsSelector(testConfig.grid, rowNo)).scrollTo('left');
         }
     });
 }
 
 // -- perform test on detail record form's field --
-export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
+export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
     console.log(recordDetailFromAPIResponse);
 
     let fieldValue;
@@ -240,6 +258,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
 
                 // get id of the field
                 fieldID = $el.context.id;
+                cy.log($el);
                 cy.log(fieldID);
 
                 // get default value of field
@@ -252,6 +271,18 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
                 // Convert fieldValue to w2ui money type
                 if (field.type === "money") {
                     fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
+                }
+
+                // Modify fieldValue if field is checkbox
+                if($el.context.type === "checkbox"){
+                    switch(fieldValue){
+                        case 0:
+                            fieldValue = 'off';
+                            break;
+                        case 1:
+                            fieldValue = 'on';
+                            break;
+                    }
                 }
 
                 let types;
@@ -348,16 +379,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallo
 
     // -- Check buttons visibility --
     buttonsTest(testConfig.buttonNamesInDetailForm, testConfig.notVisibleButtonNamesInForm);
-
-    // -- Check Unallocated section's visibility and class --
-    if (doUnallocatedSectionTest) {
-        unallocatedSectionTest();
-    }
-
-    // -- Check print receipt UI --
-    if (doPrintReceiptUITest) {
-        printReceiptUITest();
-    }
 }
 
 // -- perform test on add new record form's field --
@@ -433,6 +454,13 @@ export function addNewFormTest(testConfig) {
                     break;
                 case "ERentableName":
                     defaultValue = getW2UIFormRecords.RentableName;
+                    break;
+                case "ExpandPastInst":
+                    if (defaultValue === true){
+                        defaultValue = 'on';
+                    }else {
+                        defaultValue = 'off';
+                    }
                     break;
             }
 
@@ -596,10 +624,6 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
     // click on the first record of grid
     cy.get(selectors.getFirstRecordInGridSelector(testConfig.grid)).click().wait(constants.WAIT_TIME);
 
-
-    // check response status of API end point
-    // cy.wait('@getDetailRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
-
     // perform tests on record detail form
     cy.get('@getDetailRecord').then(function (xhr) {
         cy.log(xhr);
@@ -608,10 +632,15 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
         cy.log(recordDetailFromAPIResponse);
 
         cy.get('#RAInfo').within(() => {
-            cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
-            cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
-            cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
-            cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
+            if(testConfig.grid === "stmtGrid"){
+                cy.get('#bannerPayors').should('be.visible').should('contain', recordDetailFromAPIResponse.Payors);
+                cy.get('#RentalAgreementDates').should('be.visible').should('contain', recordDetailFromAPIResponse.AgreementStart).should('contain', recordDetailFromAPIResponse.AgreementStop);
+                cy.get('#PossessionDates').should('be.visible').should('contain', recordDetailFromAPIResponse.PossessionStart).should('contain', recordDetailFromAPIResponse.PossessionStop);
+                cy.get('#RentDates').should('be.visible').should('contain', recordDetailFromAPIResponse.RentStart).should('contain', recordDetailFromAPIResponse.RentStop);
+            }else if(testConfig.grid === "payorstmtGrid"){
+                cy.get('#bannerTCID').should('be.visible').should('contain', recordDetailFromAPIResponse.FirstName).should('contain', recordDetailFromAPIResponse.MiddleName).should('contain', recordDetailFromAPIResponse.LastName);
+                // cy.get('#payorstmtaddr').should('be.visible').should('contain', recordDetailFromAPIResponse.Address); TODO(Akshay): Uncomment afterwards
+            }
         });
 
     });
@@ -635,7 +664,7 @@ export function testDetailFormWithGrid(recordsAPIResponse, testConfig) {
 
 }
 
-export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest) {
+export function testRecordDetailForm(recordsAPIResponse, testConfig) {
     cy.log("Tests for detail record form");
 
     // -- detail record testing --
@@ -676,7 +705,7 @@ export function testRecordDetailForm(recordsAPIResponse, testConfig, doUnallocat
 
         cy.log(recordDetailFromAPIResponse);
 
-        detailFormTest(recordDetailFromAPIResponse, testConfig, doUnallocatedSectionTest, doPrintReceiptUITest);
+        detailFormTest(recordDetailFromAPIResponse, testConfig);
 
     });
 
@@ -735,7 +764,7 @@ function allocatedSectionPositionTest() {
 }
 
 // -- Check Unallocated section's visibility and class --
-function unallocatedSectionTest() {
+export function unallocatedSectionTest() {
 
     // Check visibility and class of
     cy.get(selectors.getAllocatedSectionSelector())
@@ -744,11 +773,11 @@ function unallocatedSectionTest() {
         .should('have.class', 'FLAGReportContainer');
 
     // Check position of allocated section in detail form
-    allocatedSectionPositionTest();
+    // allocatedSectionPositionTest();
 }
 
 // test for print receipt ui in detail record form
-function printReceiptUITest() {
+export function printReceiptUITest() {
 
     // Open print receipt UI
     cy.get(selectors.getFormPrintButtonSelector()).should('be.visible').click();

@@ -22,6 +22,14 @@ describe('AIR Roller UI Tests - Rent Roll', function () {
     let noRecordsInAPIResponse;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
+    /********************************
+    * Login into application
+    * Select node from left sidebar
+    * Route the response for grid records
+    *
+    * Expect:
+    * Grid records response must have status flag as success.
+    ********************************/
     before(function () {
 
         testConfig = section.conf;

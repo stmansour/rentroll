@@ -26,6 +26,3 @@ export let conf = {
     toDate: new Date(2018, 3, 1), // 1st April 2018
     gridInForm: 'depositlist'
 };
-
-//TODO(Akshay): Grid in form
-

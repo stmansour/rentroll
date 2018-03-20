@@ -152,9 +152,13 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
         // Params:
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
-        // doUnallocatedSectionTest: true
-        // doPrintReceiptUITest: true
-        common.testRecordDetailForm(recordsAPIResponse, testConfig, true, true);
+        common.testRecordDetailForm(recordsAPIResponse, testConfig);
+
+        // -- Check Unallocated section's visibility and class --
+        common.unallocatedSectionTest();
+
+        // -- Check print receipt UI --
+        common.printReceiptUITest();
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
