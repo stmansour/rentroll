@@ -79,9 +79,9 @@ declare -a dblist=(
     # 'roller/prodrr.sql'
     # 'rr/rr.sql'
     # 'webclient/webclientTest.sql'
-    'websvc1/asmtest.sql'
+    # 'websvc1/asmtest.sql'
     # 'websvc3/tasks.sql'
-    # 'workerasm/rr.sql'
+    'workerasm/rr.sql'
 )
 
 echo "SCHEMA DIFFS" > report.txt
