@@ -15,6 +15,8 @@ clean:
 
 test:
 	@echo "FUNCTIONAL TEST Report" > ${TESTREPORT}
+	@echo "VALIDATING LOCAL DATABASE SCHEMAS" | tee -a ${TESTREPORT}
+	@./localcmp.sh
 	@echo "Report Start: \c" >> ${TESTREPORT}
 	@date >> ${TESTREPORT}
 	@echo >> ${TESTREPORT}
