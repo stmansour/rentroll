@@ -14,14 +14,14 @@ package: rrrestore
 	cp rrrestore ${TOP}/tmp/rentroll/
 	cp *.1 ${TOP}/tmp/rentroll/man/man1/
 	@echo "*** Packaging completed in rrrestore ***"
-	rm -f fail
+	@rm -f fail
 
 packageqa: rrrestore
 	touch fail
 	cp rrrestore ${TOP}/tmp/rentroll/
 	cp *.1 ${TOP}/tmp/rentrollqa/man/man1/
 	@echo "*** Packaging completed in rrrestore ***"
-	rm -f fail
+	@rm -f fail
 
 test:
 	@echo "*** Testing completed in rrrestore ***"

@@ -4,7 +4,7 @@ notes: *.go config.json
 	golint
 	go build
 	@echo "*** Completed in Notes ***"
-	rm -f fail
+	@rm -f fail
 
 clean:
 	rm -f notes.log log *.g ./gold/*.g err.txt notes [a-z] fail conf*.json
@@ -18,7 +18,7 @@ test:	notes
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in Notes ***"
-	rm -f fail
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in Notes ***"

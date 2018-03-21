@@ -9,7 +9,7 @@ test:
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in ccc ***"
-	rm -f fail
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in ccc ***"

@@ -12,7 +12,7 @@ test:
 	if [ ! -f coa.csv ]; then cp ../../../jm1/coa.csv .;cat coa.csv|sed 's/^REX/OKC/' > x; mv x coa.csv; fi
 	./functest.sh
 	@echo "*** TEST completed in test/importers/onesite/onesite_exported_mr_1 ***"
-	rm -f fail
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in test/importers/onesite/onesite_exported_mr_1 ***"

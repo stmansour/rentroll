@@ -9,7 +9,7 @@ test:
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in test/rr_use_cases/test01 ***"
-	rm -f fail
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in test/rr_use_cases/test01 ***"

@@ -15,14 +15,14 @@ package: rrnewdb
 	cp rrnewdb ${TOP}/tmp/rentroll/
 	cp *.1 ${TOP}/tmp/rentroll/man/man1/
 	@echo "*** Packaging completed in admin/rrnewdb ***"
-	rm -f fail
+	@rm -f fail
 
 packageqa: rrnewdb
 	touch fail
 	cp rrnewdb ${TOP}/tmp/rentroll/
 	cp *.1 ${TOP}/tmp/rentrollqa/man/man1/
 	@echo "*** Packaging completed in admin/rrnewdb ***"
-	rm -f fail
+	@rm -f fail
 
 test:
 	@echo "*** Testing completed in admin/rrnewdb ***"
