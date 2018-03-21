@@ -137,3 +137,8 @@ echo "------------------------------------------------------------------------" 
 stop=$(date)
 echo "Start time:  ${start}" | tee -a ${DBREPORT}
 echo "Stop time:   ${stop}" | tee -a ${DBREPORT}
+
+if [ ${BADSCHCOUNT} -gt 0 -o ${missing} -gt 0 -o ${extra} -gt 0 ]; then
+	exit 2
+fi
+exit 0
