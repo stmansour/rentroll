@@ -19,7 +19,7 @@ test: workerasm
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in ${THISDIR} ***"
-	rm -f fail
+	@rm -f fail
 
 
 package:

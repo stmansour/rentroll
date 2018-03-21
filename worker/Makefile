@@ -22,7 +22,7 @@ test:
 clean:
 	rm -f ver.go
 	go clean
-	rm -f fail GoAnalyzerError.log
+	@rm -f fail GoAnalyzerError.log
 	@echo "*** ${THISDIR}: completed clean ***"
 
 package:

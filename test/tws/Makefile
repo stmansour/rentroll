@@ -19,7 +19,7 @@ test: tws tws.sql
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in ${THISDIR} ***"
-	rm -f fail
+	@rm -f fail
 
 tws.sql:
 	cp $TOP/../tws/db/schema/tws.sql .

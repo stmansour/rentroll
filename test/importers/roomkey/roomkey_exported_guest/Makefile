@@ -13,7 +13,7 @@ test:
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in test/importers/roomkey_exported_guest ***"
-	rm -f fail
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in test/importers/roomkey_exported_guest ***"

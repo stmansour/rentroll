@@ -18,7 +18,7 @@ test:
 
 clean:
 	go clean
-	rm -f fail GoAnalyzerError.log
+	@rm -f fail GoAnalyzerError.log
 
 package:
 	@touch fail

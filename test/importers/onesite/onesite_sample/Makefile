@@ -12,7 +12,7 @@ test:
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in test/importers/onesite/sample ***"
-	rm -f fail
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in test/importers/onesite/sample ***"

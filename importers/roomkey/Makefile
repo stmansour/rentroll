@@ -12,7 +12,7 @@ roomkey: *.go config.json
 
 clean:
 	go clean
-	rm -f fail conf*.json
+	@rm -f fail conf*.json
 	@echo "*** CLEAN completed in importers/roomkey ***"
 
 config.json:
