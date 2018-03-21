@@ -27,7 +27,7 @@ DBREPORT="dbreport.txt"
 ###############################################################################
 getSchema() {
 	if [ "${2}" = "${REFDB}" ]; then
-		${BINDIR}/rrnewdb
+		${BINDIR}/rrnewdb > /dev/null
 	fi
 
 	rm -rf ${2}
@@ -93,13 +93,11 @@ for db in ${dblist[@]}
 do
 	echo "------------------------------------------------------------------------" | tee -a ${DBREPORT}
 	echo "CHECKING SCHEMA: ${db}" | tee -a ${DBREPORT}
-	echo | tee -a ${DBREPORT}
-	${BINDIR}/rrnewdb
+	${BINDIR}/rrnewdb > /dev/null
 	mysql --no-defaults rentroll < ${db}
 	getSchema "${DEF2}" "${CHECKDB}"
 	BADSCHCOUNT=0
 	ls -l ${REFDB} | awk '{print $9}' | while read f; do
-		# echo "checking ${f}"
 		if [ "x${f}" != "x" -a "${f}" != "TABLES" ]; then
 			if [ -f "${REFDB}/${f}" -a -f "${CHECKDB}/${f}" ]; then
 			    sort ${REFDB}/${f} > x ; cp x ${REFDB}/${f}
@@ -129,6 +127,10 @@ do
 		echo "The following tables exist in ${db} but not in defined schema:" | tee -a ${DBREPORT}
 		comm -23 checkdb/TABLES refdb/TABLES | tee -a ${DBREPORT}
 		echo | tee -a ${DBREPORT}
+	fi
+
+	if [ ${BADSCHCOUNT} -eq 0 -a ${missing} -eq 0 -a ${extra} -eq 0 ]; then
+		echo "no issues found" | tee -a ${DBREPORT}
 	fi
 done
 echo "------------------------------------------------------------------------" | tee -a ${DBREPORT}
