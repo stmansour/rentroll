@@ -59,19 +59,21 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
     recordsAPIResponse.forEach(function (record, rowNo) {
 
         if (testConfig.grid === "rrGrid") {
-            // noinspection JSAnnotator
             switch (record.FLAGS) {
+                // Normal row
+                case 0:
+                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    break;
                 // Main row
                 case 1:
-                    testConfig.skipColumns = ["UsePeriod", "RentPeriod", "BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
+                    testConfig.skipColumns = ["BeginReceivable", "DeltaReceivable", "EndReceivable", "BeginSecDep", "DeltaSecDep", "EndSecDep"];
                     break;
                 // Subtotal row
                 case 2:
-                    testConfig.skipColumns = ["UsePeriod", "RentPeriod"];
+                    testConfig.skipColumns = [];
                     break;
                 // Blank row
                 case 4:
-                case 0: // Skiping normal row for now. TODO(Akshay): Enable tests for normal row
                     // Skipping tests on blank row
                     testConfig.skipColumns = [];
                     return;
@@ -99,6 +101,10 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                 cy.log(w2uiGridColumn.field);
                 cy.log(valueForCell);
                 cy.log(record);
+
+                if(valueForCell === null || valueForCell === undefined){
+                    valueForCell = "";
+                }
 
                 // Format Value
                 switch (w2uiGridColumn.render) {
@@ -170,13 +176,23 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "Payors":
                     case "RAIDREP":
                     case "RAID":
-                    case "UsePeriod":
-                    case "RentPeriod":
                     case "RentCycleREP":
                     case "RentCycleGSR":
                         if (record.FLAGS === 2 && testConfig.grid === "rrGrid") {
                             if (valueForCell === null) {
                                 valueForCell = "";
+                            }
+                        }
+                        break;
+                    case "UsePeriod":
+                    case "RentPeriod":
+                        if(testConfig.grid === "rrGrid"){
+                            if (record.FLAGS === 2) {
+                                valueForCell = "";
+                            }else if(record.FLAGS === 1 && w2uiGridColumn.field === "UsePeriod"){
+                                valueForCell = record.AgreementStart;
+                            }else if(record.FLAGS === 1 && w2uiGridColumn.field === "RentPeriod"){
+                                valueForCell = record.RentStart;
                             }
                         }
                         break;
