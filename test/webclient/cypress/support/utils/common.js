@@ -190,9 +190,9 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                             if (record.FLAGS === 2) {
                                 valueForCell = "";
                             }else if(record.FLAGS === 1 && w2uiGridColumn.field === "UsePeriod"){
-                                valueForCell = record['AgreementStart'];
+                                valueForCell = record.AgreementStart;
                             }else if(record.FLAGS === 1 && w2uiGridColumn.field === "RentPeriod"){
-                                valueForCell = record['RentStart'];
+                                valueForCell = record.RentStart;
                             }
                         }
                         break;
