@@ -1,0 +1,46 @@
+{
+    "records": [
+        {
+            "BID": 1,
+            "Comment": "An instance of TLDID 1",
+            "CreateBy": 0,
+            "CreateTS": "3/19/2018",
+            "Cycle": 6,
+            "DoneUID": 0,
+            "DtDone": "1/1/1900",
+            "DtDue": "2/28/2018",
+            "DtPreDone": "1/1/1900",
+            "DtPreDue": "2/20/2018",
+            "FLAGS": 0,
+            "LastModBy": 0,
+            "LastModTime": "3/19/2018",
+            "Name": "Monthly Close",
+            "PreDoneUID": 0,
+            "TLDID": 0,
+            "TLID": 1,
+            "recid": 0
+        },
+        {
+            "BID": 1,
+            "Comment": "Another instance of TLDID 1",
+            "CreateBy": 0,
+            "CreateTS": "3/19/2018",
+            "Cycle": 6,
+            "DoneUID": 0,
+            "DtDone": "1/1/1900",
+            "DtDue": "2/28/2018",
+            "DtPreDone": "1/1/1900",
+            "DtPreDue": "2/20/2018",
+            "FLAGS": 0,
+            "LastModBy": 0,
+            "LastModTime": "3/19/2018",
+            "Name": "Monthly Close",
+            "PreDoneUID": 0,
+            "TLDID": 0,
+            "TLID": 2,
+            "recid": 1
+        }
+    ],
+    "status": "success",
+    "total": 2
+}

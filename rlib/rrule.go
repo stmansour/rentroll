@@ -200,7 +200,6 @@ func genYearlyRecurSeq(d, start, stop *time.Time, n int64) []time.Time {
 //   an array of instances
 func GetRecurrences(start, stop, aStart, aStop *time.Time, cycleFreq int64) []time.Time {
 	var m []time.Time
-	// fmt.Printf("GetRecurrences: A\n")
 	//-------------------------------------------
 	// first ensure that the data is not bad...
 	//-------------------------------------------
@@ -208,31 +207,23 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, cycleFreq int64) []ti
 		return m
 	}
 
-	// fmt.Printf("GetRecurrences: B\n")
 	//-------------------------------------------
 	// next, ensure that the assessment falls in the time range...
 	//-------------------------------------------
-	if cycleFreq > RECURNONE &&
-		(aStop.Equal(*start) || aStop.Before(*start) ||
-			aStart.After(*stop) || aStart.Equal(*stop)) {
+	if cycleFreq > RECURNONE && (aStop.Equal(*start) || aStop.Before(*start) || aStart.After(*stop) || aStart.Equal(*stop)) {
 		return m
 	}
 
-	// fmt.Printf("GetRecurrences: C\n")
 	//-------------------------------------------
 	// first insure that the data is not bad...
 	//-------------------------------------------
-
 	switch cycleFreq {
 	case RECURNONE: // no recurrence
-		// fmt.Printf("GetRecurrences: D\n")
-		// if dateRangeOverlap(aStart, aStop, start, stop) {
 		if DateInRange(aStart, start, stop) {
 			m = append(m, *aStart)
 			return m
 		}
 	case RECURDAILY: // daily
-		// fmt.Printf("GetRecurrences: E\n")
 		d := start.Day()
 		if start.Day() < aStart.Day() {
 			d = aStart.Day()
@@ -240,22 +231,17 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, cycleFreq int64) []ti
 		dt := time.Date(start.Year(), start.Month(), d, aStart.Hour(), aStart.Minute(), aStart.Second(), 0, time.UTC)
 		return genRegularRecurSeq(&dt, aStop, start, stop, 24*time.Hour)
 	case RECURWEEKLY: // weekly
-		// fmt.Printf("GetRecurrences: F\n")
 		dt := time.Date(start.Year(), start.Month(), start.Day(), aStart.Hour(), aStart.Minute(), aStart.Second(), 0, time.UTC)
 		return genRegularRecurSeq(&dt, aStop, start, stop, 7*24*time.Hour)
 	case RECURMONTHLY: // monthly
-		// fmt.Printf("GetRecurrences: G\n")
 		// dt := time.Date(start.Year(), start.Month(), aStart.Day(), aStart.Hour(), aStart.Minute(), aStart.Second(), 0, time.UTC)
 		return genMonthlyRecurSeq(aStart, aStop, start, stop, 1)
 	case RECURQUARTERLY: // quarterly
-		// fmt.Printf("GetRecurrences: H\n")
 		dt := time.Date(start.Year(), start.Month(), aStart.Day(), aStart.Hour(), aStart.Minute(), aStart.Second(), 0, time.UTC)
 		return genMonthlyRecurSeq(&dt, aStop, start, stop, 3)
 	case RECURYEARLY: // yearly
-		// fmt.Printf("GetRecurrences: I\n")
 		dt := time.Date(start.Year(), aStart.Month(), aStart.Day(), aStart.Hour(), aStart.Minute(), aStart.Second(), 0, time.UTC)
 		return genYearlyRecurSeq(&dt, start, stop, 1)
 	}
-	// fmt.Printf("GetRecurrences: J\n")
 	return m
 }

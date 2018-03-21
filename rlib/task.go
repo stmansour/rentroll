@@ -18,10 +18,11 @@ import (
 //  error  - any error encountered
 //
 //-----------------------------------------------------------------------------
-func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) error {
+func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) (int64, error) {
+	var tlid = int64(0)
 	tld, err := GetTaskListDefinition(ctx, TLDID)
 	if err != nil {
-		return err
+		return tlid, err
 	}
 
 	//------------------------------------------------------
@@ -34,11 +35,11 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	tl.FLAGS = tld.FLAGS
 	tl.DtDue, err = NextInstanceDate(&tld.EpochDue, pivot, tld.Cycle)
 	if err != nil {
-		return err
+		return tlid, err
 	}
 	tl.DtPreDue, err = NextInstanceDate(&tld.EpochPreDue, pivot, tld.Cycle)
 	if err != nil {
-		return err
+		return tlid, err
 	}
 
 	//----------------------------------------------------
@@ -46,15 +47,16 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	//----------------------------------------------------
 	err = InsertTaskList(ctx, &tl)
 	if err != nil {
-		return err
+		return tlid, err
 	}
+	tlid = tl.TLID
 
 	//----------------------------------------------------
 	// Get the associated tasks...
 	//----------------------------------------------------
 	tds, err := GetTaskListDescriptors(ctx, tld.TLDID)
 	if err != nil {
-		return err
+		return tlid, err
 	}
 
 	Console("Found tld.TLDID = %d, TaskCount = %d, name = %s\n", tld.TLDID, len(tds), tld.Name)
@@ -62,11 +64,11 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 		var t Task
 		t.DtDue, err = NextInstanceDate(&tds[i].EpochDue, pivot, tld.Cycle)
 		if err != nil {
-			return err
+			return tlid, err
 		}
 		t.DtPreDue, err = NextInstanceDate(&tds[i].EpochPreDue, pivot, tld.Cycle)
 		if err != nil {
-			return err
+			return tlid, err
 		}
 		// Console("%2d. %s, DtDue: %s, DtPreDue: %s\n", i, tds[i].Name, t.DtDue.Format(RRDATEREPORTFMT), t.DtPreDue.Format(RRDATEREPORTFMT))
 		t.Name = tds[i].Name
@@ -76,11 +78,11 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 		t.BID = tld.BID
 
 		if err = InsertTask(ctx, &t); err != nil {
-			return err
+			return tlid, err
 		}
 	}
 
-	return nil
+	return tlid, nil
 }
 
 // NextInstanceDate computes the next instance date after the pivot

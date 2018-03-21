@@ -36,7 +36,6 @@ func InitLedgerCache() {
 // then a ledger with LID = 0 is returned.
 //-----------------------------------------------------------------------------
 func GetCachedLedgerByGL(ctx context.Context, bid int64, s string) (GLAccount, error) {
-
 	var (
 		l   GLAccount
 		ok  bool
