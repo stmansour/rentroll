@@ -1,4 +1,5 @@
-DIRS=setup newbiz workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller receipts webclient
+# DIRS=setup newbiz workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller receipts webclient
+DIRS=setup newbiz workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller receipts
 TESTREPORT="testreport.txt"
 
 db:
@@ -6,7 +7,7 @@ db:
 	@echo "*** MAKE completed in test ***"
 
 clean:
-	rm -f testreport.txt dbqqqmods.sql
+	rm -rf testreport.txt dbqqqmods.sql cmds x y t refdb checkdb def1.sh def2.sh
 	for dir in $(DIRS); do make -C $$dir clean;done
 	cd ./testdb;make clean
 	cd ./importers/onesite/okc;make clean
@@ -14,6 +15,8 @@ clean:
 
 test:
 	@echo "FUNCTIONAL TEST Report" > ${TESTREPORT}
+	@echo "VALIDATING LOCAL DATABASE SCHEMAS" | tee -a ${TESTREPORT}
+	@./localcmp.sh
 	@echo "Report Start: \c" >> ${TESTREPORT}
 	@date >> ${TESTREPORT}
 	@echo >> ${TESTREPORT}

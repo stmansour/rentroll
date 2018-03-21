@@ -28,11 +28,9 @@ type PayorStatementInfo struct {
 //          any error that occurred or nil if no errors
 //---------------------------------------------------------------------------
 func PayorsStatement(ctx context.Context, bid int64, payors []int64, d1, d2 *time.Time) (PayorStatementInfo, error) {
+	var err error
+	var psi PayorStatementInfo
 
-	var (
-		err error
-		psi PayorStatementInfo
-	)
 	// Console("PayorsStatement:  bid = %d, d1 = %s, d2 = %s\n", bid, d1.Format(RRDATEREPORTFMT), d2.Format(RRDATEREPORTFMT))
 	// for i := 0; i < len(payors); i++ {
 	// Console("payors[%d] = %d\n", i, payors[i])

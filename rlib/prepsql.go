@@ -1159,7 +1159,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// TASK
 	//==========================================
-	flds = "TID,BID,TLID,Name,Worker,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TID,BID,TLID,Name,Worker,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,DoneUID,PreDoneUID,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Task"] = flds
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.GetTask, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Task WHERE TID=?")
@@ -1174,7 +1174,8 @@ func buildPreparedStatements() {
 	//==========================================
 	// TASKLIST
 	//==========================================
-	flds = "TLID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	//      1    2   3    4     5     6        7      8          9    10      11         12      13       14       15          16
+	flds = "TLID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,DoneUID,PreDoneUID,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["TaskList"] = flds
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.GetTaskList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE TLID=?")

@@ -135,17 +135,23 @@ func PayorStatement(ctx context.Context, bid, tcid int64, d1, d2 *time.Time, int
 	//------------------------------------------------------
 	// Unapplied Funds...
 	//------------------------------------------------------
+	rlib.Console("PayorStatment: A\n")
 	if internal {
+		rlib.Console("PayorStatment: B\n")
 		t.AddRow()
 		t.Puts(-1, Description, "*** UNAPPLIED FUNDS ***")
 		if len(m.RL) == 0 {
+			rlib.Console("PayorStatment: C\n")
 			t.AddRow()
 			t.Puts(-1, Description, "No allocations in this period")
 		} else {
+			rlib.Console("PayorStatment: D\n")
 			for i := 0; i < lenmRL; i++ {
+				rlib.Console("PayorStatment: E\n")
 				if m.RL[i].R.TCID == tcid {
 					continue
 				}
+				rlib.Console("PayorStatment: F\n")
 				t.AddRow()
 				t.Putd(-1, Date, m.RL[i].R.Dt)
 				t.Puts(-1, Payor, rlib.GetNameFromTransactantCache(ctx, m.RL[i].R.TCID, payorcache))
@@ -156,11 +162,14 @@ func PayorStatement(ctx context.Context, bid, tcid int64, d1, d2 *time.Time, int
 				//----------------------------------------------------
 				l1, err := rlib.GetRentalAgreementsByPayorRange(ctx, bid, m.RL[i].R.TCID, d1, d2)
 				if err != nil {
+					rlib.Console("PayorStatment: G\n")
 					rlib.LogAndPrintError("PayorStatement", err)
 					continue
 				}
 
+				rlib.Console("PayorStatment: H\n")
 				if len(l1) == 1 {
+					rlib.Console("PayorStatment: I\n")
 					t.Puts(-1, RAID, rlib.IDtoShortString("RA", l1[0].RAID))
 					t.Puts(-1, RCPTID, rlib.IDtoShortString("RCPT", m.RL[i].R.RCPTID))
 					t.Puts(-1, Description, "Receipt "+m.RL[i].R.DocNo)
@@ -168,6 +177,7 @@ func PayorStatement(ctx context.Context, bid, tcid int64, d1, d2 *time.Time, int
 					t.Putf(-1, AppliedFunds, m.RL[i].Allocated)
 					t.Putf(-1, Balance, m.RL[i].R.Amount)
 				} else {
+					rlib.Console("PayorStatment: J\n")
 					t.Puts(-1, Description, "TBD")
 				}
 			}

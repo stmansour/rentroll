@@ -113,11 +113,17 @@ func GetRAIDBalance(ctx context.Context, raid int64, dt *time.Time) (float64, er
 // involving the RAID provided and computes a total.  The total is computed
 // up-to-and-including d2.
 //
+//     |<----Gap--->|
+//  ---+------------+-----------------------------------------------------
+//     |            |
+//   LmStart        d1
+//
 // Parameters
 //     raid  = Rental Agreement ID
 //     d1,d2 = date range for which balance is computed
 //
 // Returns
+//  RAAcctBal which has the following members:
 //     LmStart
 //         is the starting balance for calculations - LmStart.Balance is
 //         the opening balance for LmStart.Dt, which is the nearest date on
@@ -156,8 +162,10 @@ func GetRAIDStatementInfo(ctx context.Context, raid int64, d1, d2 *time.Time) (R
 		return m, err
 	}
 	if m.LmStart.LMID == 0 { // if there's no marker on or prior to d1
-		// TODO(Steve): ignore error?
-		m.LmStart, _ = GetRALedgerMarkerOnOrAfter(ctx, raid, d1) // see where the first marker happens
+		m.LmStart, err = GetRALedgerMarkerOnOrAfter(ctx, raid, d1) // see where the first marker happens
+		if err != nil {
+			return m, err
+		}
 		if m.LmStart.LMID == 0 {
 			err = fmt.Errorf("*** ERROR ***  could not find ledger marker for RAID %d", raid)
 			return m, err

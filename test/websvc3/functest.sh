@@ -103,8 +103,32 @@ dojsonPOST "http://localhost:8270/v1/td/337/0" "request" "c1"  "WebService--Inse
 echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22EpochDue%22%3A%222018-01-31T20%3A00%3A00Z%22%2C%22EpochPreDue%22%3A%222018-01-20T20%3A00%3A00Z%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22%22%2C%22TDID%22%3A0%2C%22TLDID%22%3A1%2C%22Worker%22%3A%22Manual%22%2C%22recid%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/td/1/0" "request" "c2"  "WebService--Insert_TaskDescriptor"
 
-stopRentRollServer
+#------------------------------------------------------------------------------
+#  TEST d
+#  TaskList Test Suite
+#
+#  Scenario:
+#		Break all the bizlogic rules and make sure it gets caught.
+#
+#  Expected Results:
+#	d0 - Insert a new instance of TLD 1
+#   d1 - Insert another instance of TLD 2
+#   d2 - Read instance 1 (TLID = 1)
+#   d3 - update instnce 2
+#   d4 - read back the update
+#   d5 - delete instance 2
+#------------------------------------------------------------------------------
+echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22recid%22%3A3%2C%22Cycle%22%3A6%2C%22DtDue%22%3A%221%2F31%2F2018%22%2C%22DtPreDue%22%3A%221%2F20%2F2018%22%2C%22Pivot%22%3A%222%2F14%2F2018%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Tucasa%20Period%20Close%22%2C%22TLID%22%3A0%2C%22TLDID%22%3A1%2C%22DoneUID%22%3A0%2C%22PreDoneUID%22%3A0%2C%22Comment%22%3A%22An%20instance%20of%20TLDID%201%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/tl/1/0" "request" "d0"  "WebService--Insert_TaskList"
+echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22recid%22%3A3%2C%22Cycle%22%3A6%2C%22DtDue%22%3A%221%2F31%2F2018%22%2C%22DtPreDue%22%3A%221%2F20%2F2018%22%2C%22Pivot%22%3A%222%2F14%2F2018%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Tucasa%20Period%20Close%22%2C%22TLID%22%3A0%2C%22TLDID%22%3A1%2C%22DoneUID%22%3A0%2C%22PreDoneUID%22%3A0%2C%22Comment%22%3A%22Another%20instance%20of%20TLDID%201%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/tl/1/0" "request" "d1"  "WebService--Insert_TaskList"
+echo "%7B%22recid%22%3A1%2C%22cmd%22%3A%22get%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22recid%22%3A3%2C%22Cycle%22%3A6%2C%22DtDue%22%3A%221%2F31%2F2018%22%2C%22DtPreDue%22%3A%221%2F20%2F2018%22%2C%22Pivot%22%3A%223%2F3%2F2018%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Tucasa%20Period%20Close%22%2C%22TLID%22%3A1%2C%22TLDID%22%3A1%2C%22DoneUID%22%3A0%2C%22PreDoneUID%22%3A0%2C%22Comment%22%3A%22An%20instance%20of%20TLDID%201%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/tl/1/1" "request" "d2"  "WebService--Read_TaskList"
+echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%222%2F28%2F2018%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/tls/1/0" "request" "d3"  "WebService--Search_TaskList"
+echo "%7B%22cmd%22%3A%22delete%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/tl/1/2" "request" "d4"  "WebService--Delete_TaskList"
+
 echo "RENTROLL SERVER STOPPED"
-
-
+stopRentRollServer
 logcheck
