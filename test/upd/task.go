@@ -46,7 +46,7 @@ func Tasks(ctx context.Context, biz *rlib.Business) {
 	// Now, create an instance of this task list.
 	//----------------------------------------------
 	pivot := time.Date(2018, time.February, 3, 12, 32, 13, 0, time.UTC)
-	err = rlib.CreateTaskListInstance(ctx, tldef.TLDID, &pivot)
+	_, err = rlib.CreateTaskListInstance(ctx, tldef.TLDID, &pivot)
 	if err != nil {
 		fmt.Printf("CreateTaskListInstance:  error = %s\n", err.Error())
 	}

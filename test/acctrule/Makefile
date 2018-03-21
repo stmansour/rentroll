@@ -14,7 +14,7 @@ test: upd
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in upd ***"
-	rm -f fail
+	@rm -f fail
 
 package:
 	@echo "*** PACKAGE completed in upd ***"

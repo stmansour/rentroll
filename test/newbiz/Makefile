@@ -9,6 +9,6 @@ test:
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in newbiz ***"
-	rm -f fail
+	@rm -f fail
 package:
 	@echo "*** PACKAGE completed in newbiz ***"

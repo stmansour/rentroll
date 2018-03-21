@@ -21,7 +21,7 @@ test:
 
 clean:
 	go clean
-	rm -f fail GoAnalyzerError.log ver.go
+	@rm -f fail GoAnalyzerError.log ver.go
 
 package:
 	@echo "*** PACKAGE completed in rlib ***"

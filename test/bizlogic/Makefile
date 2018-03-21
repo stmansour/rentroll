@@ -19,7 +19,7 @@ test: bizlogic rex.sql
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in ${THISDIR} ***"
-	rm -f fail
+	@rm -f fail
 
 rex.sql:
 	cp ../jm1/rex.sql .

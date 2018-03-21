@@ -10,7 +10,7 @@ test:
 	./functest.sh
 	mysqldump --no-defaults rentroll >rex.sql
 	cp rex.sql ../testdb/
-	rm -f fail
+	@rm -f fail
 	@echo "*** TEST completed in jm1 ***"
 
 package:
@@ -18,7 +18,7 @@ package:
 	cp *.csv ../../tmp/rentroll/example/csv/
 	cp *.html ../../tmp/rentroll/example/csv/
 	@echo "*** PACKAGE completed in jm1 ***"
-	rm -f fail
+	@rm -f fail
 
 pubsandboxdb:
 	mysqldump --no-defaults rentroll >rentrolldb.sql ; gzip rentrolldb.sql ; /usr/local/accord/bin/deployfile.sh rentrolldb.sql.gz accord/db

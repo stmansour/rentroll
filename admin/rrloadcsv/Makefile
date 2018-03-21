@@ -8,7 +8,7 @@ rrloadcsv: *.go config.json
 	${COUNTOL} golint
 	go build
 	go test
-	rm -f fail
+	@rm -f fail
 
 clean:
 	rm -f rrloadcsv ver.go fail conf*.json
@@ -30,4 +30,4 @@ package:
 	cp rrloadcsv config.json ${BINDIR}/
 	cp rrloadcsv.1 ${BINDIR}/man/man1
 	echo "*** PACKAGE completed in rrloadcsv ***"
-	rm -f fail
+	@rm -f fail
