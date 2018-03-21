@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.21-0ubuntu0.16.04.1-log
+-- Server version	5.7.16
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2158,6 +2158,9 @@ CREATE TABLE `Task` (
   `DtDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtPreDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `DoneUID` bigint(20) NOT NULL DEFAULT '0',
+  `PreDoneUID` bigint(20) NOT NULL DEFAULT '0',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2225,6 +2228,9 @@ CREATE TABLE `TaskList` (
   `DtDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `DtPreDone` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `DoneUID` bigint(20) NOT NULL DEFAULT '0',
+  `PreDoneUID` bigint(20) NOT NULL DEFAULT '0',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2833,4 +2839,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-16 15:06:34
+-- Dump completed on 2018-03-20 19:27:29
