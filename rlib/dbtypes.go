@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"extres"
 	"fmt"
 	"strings"
@@ -1367,16 +1368,16 @@ type GLAccount struct {
 
 // FlowPart is a structure for to store temporarity flow data latest one
 type FlowPart struct {
-	FlowPartID  int64     // primary auto increment key
-	BID         int64     // Business unit associated with this FlowPart
-	Flow        string    // RA="Rental Agreement Flow" etc...
-	FlowID      string    // Unique ID across all relavant data for this flow -- UnixNano(32 bits) + User ID
-	PartType    int       // flow part type ("ASM","PET","VEHICLE")
-	Data        []byte    // json data in mysql
-	LastModTime time.Time // last modified time
-	LastModBy   int64     // last modified by whom
-	CreateTS    time.Time // created time
-	CreateBy    int64     // created by whom
+	FlowPartID  int64           // primary auto increment key
+	BID         int64           // Business unit associated with this FlowPart
+	Flow        string          // RA="Rental Agreement Flow" etc...
+	FlowID      string          // Unique ID across all relavant data for this flow -- UnixNano(32 bits) + User ID
+	PartType    int             // flow part type ("ASM","PET","VEHICLE")
+	Data        json.RawMessage // json data in mysql
+	LastModTime time.Time       // last modified time
+	LastModBy   int64           // last modified by whom
+	CreateTS    time.Time       // created time
+	CreateBy    int64           // created by whom
 }
 
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db

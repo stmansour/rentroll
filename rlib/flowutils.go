@@ -16,9 +16,15 @@ func getFlowID(UserID int64) string {
 	return fmt.Sprintf("%x-%x", u, UserID)
 }
 
-// IsFlowDataJSON checks that passed flow data is valid json or not
-// This data will be inserted/updated to data with json type column
-func IsFlowDataJSON(b []byte) bool {
+/*// IsByteDataValidJSON checks that passed bytes data is valid json or not
+func IsByteDataValidJSON(b []byte) bool {
 	var raw json.RawMessage
 	return json.Unmarshal(b, &raw) == nil
+}*/
+
+// IsFlowDataValidJSON checks that passed flow data is valid json or not
+// This data will be inserted/updated to data with json type column
+func IsFlowDataValidJSON(raw json.RawMessage) bool {
+	_, err := json.Marshal(&raw)
+	return err == nil
 }

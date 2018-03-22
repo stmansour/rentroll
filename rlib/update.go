@@ -1204,11 +1204,13 @@ func UpdateFlowPart(ctx context.Context, a *FlowPart) error {
 	}
 
 	// make sure that json is valid before inserting it in database
-	if !(IsFlowDataJSON(a.Data)) {
+	if !(IsFlowDataValidJSON(a.Data)) {
 		return ErrFlowInvalidJSONData
 	}
 
-	fields := []interface{}{a.BID, a.Flow, a.FlowID, a.PartType, a.Data, a.LastModBy, a.FlowPartID}
+	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
+	// in mysql `json` type column
+	fields := []interface{}{a.BID, a.Flow, a.FlowID, a.PartType, []byte(a.Data), a.LastModBy, a.FlowPartID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowPart)
 		defer stmt.Close()

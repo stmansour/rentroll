@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"extres"
 	"sort"
 )
@@ -104,7 +105,7 @@ func InsertInitialRAFlow(ctx context.Context, BID int64) (string, error) {
 		Flow:      RAFlow,
 		FlowID:    flowID,
 		PartType:  0,
-		Data:      []byte("null"), // JSON "null" primitive type
+		Data:      json.RawMessage([]byte("null")), // JSON "null" primitive type
 		CreateBy:  UID,
 		LastModBy: UID,
 	}
