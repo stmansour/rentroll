@@ -1164,6 +1164,8 @@ func buildPreparedStatements() {
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.GetTask, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Task WHERE TID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetTasks, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Task WHERE TLID=?")
+	Errcheck(err)
 	RRdb.Prepstmt.InsertTask, err = RRdb.Dbrr.Prepare("INSERT INTO Task (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateTask, err = RRdb.Dbrr.Prepare("UPDATE Task SET " + s3 + " WHERE TID=?")
