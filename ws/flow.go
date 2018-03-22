@@ -52,10 +52,10 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rlib.Console("Entered %s\n", funcname)
 
-	if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
+	// if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
+	// 	SvcErrorReturn(w, err, funcname)
+	// 	return
+	// }
 
 	rlib.Console("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
@@ -110,7 +110,7 @@ func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	g.FlowID = flowID
-	SvcWriteResponse(d.BID, g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // getFlow returns all flowparts associated with given flowID
@@ -137,7 +137,7 @@ func getFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	g.Status = "success"
-	SvcWriteResponse(d.BID, g, w)
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteFlow delete the flow from database with associated all flow parts
