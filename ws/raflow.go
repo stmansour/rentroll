@@ -4,17 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"rentroll/rlib"
-	"time"
 )
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
-	AgreementStart  time.Time `json:"AgreementStart"` // TermStart
-	AgreementStop   time.Time `json:"AgreementStop"`  // TermStop
-	RentStart       time.Time `json:"RentStart"`
-	RentStop        time.Time `json:"RentStop"`
-	PossessionStart time.Time `json:"PossessionStart"`
-	PossessionStop  time.Time `json:"PossessionStop"`
+	AgreementStart  rlib.JSONDate `json:"AgreementStart"` // TermStart
+	AgreementStop   rlib.JSONDate `json:"AgreementStop"`  // TermStop
+	RentStart       rlib.JSONDate `json:"RentStart"`
+	RentStop        rlib.JSONDate `json:"RentStop"`
+	PossessionStart rlib.JSONDate `json:"PossessionStart"`
+	PossessionStop  rlib.JSONDate `json:"PossessionStop"`
 }
 
 // RAPeopleFlowData contains data in the people part of RA flow
@@ -48,6 +47,8 @@ func isValidUpdateRAFlowPartJSONData(data json.RawMessage, partType int) bool {
 		err error
 		a   interface{}
 	)
+
+	// TODO: Add validation on field level, it must be done.
 
 	switch rlib.RAFlowPartType(partType) {
 	case rlib.DatesRAFlowPart:

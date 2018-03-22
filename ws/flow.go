@@ -270,10 +270,17 @@ func saveFlowPart(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// check that such flowPartID instance does exist or not
+	existFP, _ := rlib.GetFlowPart(r.Context(), fpJSONData.FlowPartID)
+	if existFP.FlowPartID == 0 { // returned flow part is zero then raise an error
+		err = fmt.Errorf("given flowpart with ID (%d) doesn't exist", fpJSONData.FlowPartID)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
 	// migrate request json data to flow part struct
 	var fp rlib.FlowPart
 	rlib.MigrateStructVals(&fpJSONData, &fp) // the variables that don't need special handling
-	fp.Data = []byte(fpJSONData.Data)
 
 	// get flow part by its ID
 	err = rlib.UpdateFlowPart(r.Context(), &fp)
