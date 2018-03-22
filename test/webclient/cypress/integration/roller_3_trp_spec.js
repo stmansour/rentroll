@@ -137,7 +137,7 @@ describe('AIR Roller UI Tests - Tendered payment Receipt', function () {
         common.testRecordDetailForm(recordsAPIResponse, testConfig);
 
         // -- Check Unallocated section's visibility and class --
-        common.unallocatedSectionTest(); // TODO(Akshay): Enable unallocatedSectionTest
+        common.unallocatedSectionTest();
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));

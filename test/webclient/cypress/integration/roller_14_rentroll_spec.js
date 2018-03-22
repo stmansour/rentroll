@@ -102,7 +102,7 @@ describe('AIR Roller UI Tests - Rent Roll', function () {
     // -- Change business to REX --
     it('Change business to REX', function () {
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
-        constants.BID = common.changeBU(appSettings);
+        // constants.BID = common.changeBU(appSettings);
     });
 
     it('Grid Records', function () {
@@ -122,7 +122,6 @@ describe('AIR Roller UI Tests - Rent Roll', function () {
 
         // Check visibility of Orientation
         cy.get('#tb_rrGrid_toolbar_item_orientation').should('be.visible');
-
 
     });
 
