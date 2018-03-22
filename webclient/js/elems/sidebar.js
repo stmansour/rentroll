@@ -60,6 +60,12 @@ function buildSidebar(flag) {
                             { id: 'invntory',    text: 'Inventory',                      icon: 'fa fa-shopping-cart',  hint: 'Preventative Maintenance' },
                     ]
                 },
+                { id: 'tasks', text: 'Tasks', img: 'icon-folder', expanded: false, group: true,
+                    nodes: [
+                            { id: 'tasklistdef', text: 'Task List Definitions',          icon: 'fa fa-list-alt',       hint: 'Task List Definitions' },
+                            { id: 'tasklists',   text: 'Task Lists',                     icon: 'fa fa-list-ul',        hint: 'Task Lists' },
+                    ]
+                },
                 { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
                     nodes: [
                            //{ id: 'RPTasmrpt',     text: 'Assessments',                     icon: 'fa fa-file-text-o' },
