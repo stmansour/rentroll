@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../support/utils/constants';
-import * as selectors from '../support/utils/get_selectors';
-import * as common from '../support/utils/common';
+import * as constants from '../utils/constants';
+import * as selectors from '../utils/get_selectors';
+import * as common from '../utils/common';
 
 // --- Collections ---
-const section = require('../support/components/raStatements'); // RA Statements
+const section = require('../components/payorStatements'); // Payor Statements
 
 // this contain app variable of the application
 let appSettings;
@@ -14,7 +14,7 @@ let appSettings;
 let testConfig;
 
 // -- Start Cypress UI tests for AIR Roller Application --
-describe('AIR Roller UI Tests - RA Statements', function () {
+describe('AIR Roller UI Tests - Payor Statements', function () {
 
     // // records list of module from the API response
     let recordsAPIResponse;
@@ -22,14 +22,6 @@ describe('AIR Roller UI Tests - RA Statements', function () {
     let noRecordsInAPIResponse;
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
-    /********************************
-    * Login into application
-    * Select node from left sidebar
-    * Route the response for grid records
-    *
-    * Expect:
-    * Grid records response must have status flag as success.
-    ********************************/
     before(function () {
 
         testConfig = section.conf;
@@ -115,17 +107,13 @@ describe('AIR Roller UI Tests - RA Statements', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
-    /*******************************
-    * Click on first record of grid
+    /************************************************************
+    * Click Add new in toolbar
     *
     * Expect:
-    * White section must have proper detail same as api response
-    * Grid's value must be same as record's field value from API Response
-    *
-    * Check visibility of CSV/PDF Button
-    *
-    * Close the form
-    ********************************/
+    * Each field must set to be its default value
+    * Button must be visible(Save, Save and Add Another etc.)
+    ************************************************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
@@ -134,12 +122,6 @@ describe('AIR Roller UI Tests - RA Statements', function () {
         // recordsAPIResponse: list of record from the api response,
         // testConfig: configuration for running tests
         common.testDetailFormWithGrid(recordsAPIResponse, testConfig);
-
-        // Check visibility of export to CSV button
-        cy.get(selectors.getExportCSVButtonSelector(testConfig.form)).should('be.visible');
-
-        // Check visibility of export to PDF button
-        cy.get('#tb_stmtDetailForm_toolbar_item_pdfexport').should('be.visible');
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
