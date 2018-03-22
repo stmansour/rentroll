@@ -76,16 +76,16 @@ getSchema "${DEF1}" "${REFDB}"
 #  STEP 2  -- compare each table def and report diffs
 #--------------------------------------------------
 declare -a dblist=(
-    # 'acctbal/baltest.sql'
-    # 'payorstmt/pstmt.sql'
-    # 'rfix/rcptfixed.sql'
-    # 'rfix/receipts.sql'
-    # 'roller/prodrr.sql'
-    # 'rr/rr.sql'
+    'acctbal/baltest.sql'
+    'payorstmt/pstmt.sql'
+    'rfix/rcptfixed.sql'
+    'rfix/receipts.sql'
+    'roller/prodrr.sql'
+    'rr/rr.sql'
     'webclient/webclientTest.sql'
-    # 'websvc1/asmtest.sql'
-    # 'websvc3/tasks.sql'
-    # 'workerasm/rr.sql'
+    'websvc1/asmtest.sql'
+    'websvc3/tasks.sql'
+    'workerasm/rr.sql'
 )
 
 echo "SCHEMA DIFFS" > ${DBREPORT}
