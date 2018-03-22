@@ -76,16 +76,16 @@ getSchema "${DEF1}" "${REFDB}"
 #  STEP 2  -- compare each table def and report diffs
 #--------------------------------------------------
 declare -a dblist=(
-    'acctbal/baltest.sql'
-    'payorstmt/pstmt.sql'
-    'rfix/rcptfixed.sql'
-    'rfix/receipts.sql'
-    'roller/prodrr.sql'
-    'rr/rr.sql'
+    # 'acctbal/baltest.sql'
+    # 'payorstmt/pstmt.sql'
+    # 'rfix/rcptfixed.sql'
+    # 'rfix/receipts.sql'
+    # 'roller/prodrr.sql'
+    # 'rr/rr.sql'
     'webclient/webclientTest.sql'
-    'websvc1/asmtest.sql'
-    'websvc3/tasks.sql'
-    'workerasm/rr.sql'
+    # 'websvc1/asmtest.sql'
+    # 'websvc3/tasks.sql'
+    # 'workerasm/rr.sql'
 )
 
 echo "SCHEMA DIFFS" > ${DBREPORT}
@@ -113,19 +113,21 @@ do
 		fi
 	done
 
-	missing=$(comm -13 checkdb/TABLES refdb/TABLES | wc -l)
+	# sort ${CHECKDB}/TABLES > t ; mv t ${CHECKDB}/TABLES
+	# sort ${REFDB}/TABLES > t ; mv t ${REFDB}
+	missing=$(comm -13 ${CHECKDB}/TABLES ${REFDB}/TABLES | wc -l)
 	if [ ${missing} -gt 0 ]; then
 		echo "Miscompare MISSING TABLES" | tee -a ${DBREPORT}
 		echo "The following tables are defined in the schema but are missing in ${db}:" | tee -a ${DBREPORT}
-		comm -23 checkdb/TABLES refdb/TABLES | tee -a ${DBREPORT}
+		comm -23 ${CHECKDB}/TABLES ${REFDB}/TABLES | tee -a ${DBREPORT}
 		echo | tee -a ${DBREPORT}
 	fi
 
-	extra=$(comm -23 checkdb/TABLES refdb/TABLES | wc -l)
+	extra=$(comm -23 ${CHECKDB}/TABLES ${REFDB}/TABLES | wc -l)
 	if [ ${extra} -gt 0 ]; then
 		echo "Miscompare EXTRA TABLES" | tee -a ${DBREPORT}
 		echo "The following tables exist in ${db} but not in defined schema:" | tee -a ${DBREPORT}
-		comm -23 checkdb/TABLES refdb/TABLES | tee -a ${DBREPORT}
+		comm -23 ${CHECKDB}/TABLES ${REFDB}/TABLES | tee -a ${DBREPORT}
 		echo | tee -a ${DBREPORT}
 	fi
 

@@ -117,6 +117,11 @@ var csvCols = []CSVColumn{
 	{"RAID", RAID},
 }
 
+func rcsvCopyString(p *string, s string) error {
+	*p = s
+	return nil
+}
+
 // CSV file format:
 //  |<------------------------------------------------------------------  TRANSACTANT ----------------------------------------------------------------------------->|  |<-------------------------------------------------------------------------------------------------------------  rlib.User  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------>|<----------------------------------------------------------------------------- rlib.Payor ------------------------------------------------->|
 //   0   1          2           3         4            5          6             7               8          9          10       11        12    13     14          15       16      17       18        19        20       21                 22                  23                   24          25           26                    27                       28                         29              30                31                          32        33            34           35         36            37                     38            39             40                  41             42             43          44             45    46                     47                      48        49                  50                51            52       53            54               55
@@ -147,6 +152,63 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		x        float64
 		userNote string
 	)
+
+	var rcsvPeopleHandlers = []struct {
+		ID      int
+		Handler func(*string, string) error
+		p       *string
+	}{
+		{BUD, nil, nil},
+		{FirstName, rcsvCopyString, &tr.FirstName},
+		{MiddleName, rcsvCopyString, &tr.MiddleName},
+		{LastName, rcsvCopyString, &tr.LastName},
+		{CompanyName, rcsvCopyString, &tr.CompanyName},
+		{IsCompany, nil, nil},
+		{PrimaryEmail, rcsvCopyString, &tr.PrimaryEmail},
+		{SecondaryEmail, rcsvCopyString, &tr.SecondaryEmail},
+		{WorkPhone, rcsvCopyString, &tr.WorkPhone},
+		{CellPhone, nil, nil},
+		{Address, rcsvCopyString, &tr.Address},
+		{Address2, rcsvCopyString, &tr.Address2},
+		{City, rcsvCopyString, &tr.City},
+		{State, rcsvCopyString, &tr.State},
+		{PostalCode, rcsvCopyString, &tr.PostalCode},
+		{Country, rcsvCopyString, &tr.Country},
+		{Points, nil, nil},
+		{AccountRep, nil, nil},
+		{DateofBirth, nil, nil},
+		{EmergencyContactName, rcsvCopyString, &t.EmergencyContactName},
+		{EmergencyContactAddress, rcsvCopyString, &t.EmergencyContactAddress},
+		{EmergencyContactTelephone, rcsvCopyString, &t.EmergencyContactTelephone},
+		{EmergencyEmail, rcsvCopyString, &t.EmergencyEmail},
+		{AlternateAddress, rcsvCopyString, &t.AlternateAddress},
+		{EligibleFutureUser, nil, nil},
+		{Industry, rcsvCopyString, &t.Industry},
+		{SourceSLSID, nil, nil},
+		{CreditLimit, nil, nil},
+		{TaxpayorID, rcsvCopyString, &p.TaxpayorID},
+		{EmployerName, rcsvCopyString, &pr.EmployerName},
+		{EmployerStreetAddress, rcsvCopyString, &pr.EmployerStreetAddress},
+		{EmployerCity, rcsvCopyString, &pr.EmployerCity},
+		{EmployerState, rcsvCopyString, &pr.EmployerState},
+		{EmployerPostalCode, rcsvCopyString, &pr.EmployerPostalCode},
+		{EmployerEmail, rcsvCopyString, &pr.EmployerEmail},
+		{EmployerPhone, rcsvCopyString, &pr.EmployerPhone},
+		{Occupation, rcsvCopyString, &pr.Occupation},
+		{ApplicationFee, nil, nil},
+		{Notes, nil, nil},
+		{DesiredUsageStartDate, nil, nil},
+		{RentableTypePreference, nil, nil},
+		{Approver, nil, nil},
+		{DeclineReasonSLSID, nil, nil},
+		{OtherPreferences, nil, nil},
+		{FollowUpDate, nil, nil},
+		{CSAgent, nil, nil},
+		{OutcomeSLSID, nil, nil},
+		{FloatingDeposit, nil, nil},
+		{RAID, nil, nil},
+	}
+
 	ignoreDupPhone := false
 
 	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
@@ -162,6 +224,10 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 
 	for i := 0; i < len(sa); i++ {
 		s := strings.TrimSpace(sa[i])
+		if rcsvPeopleHandlers[i].p != nil {
+			rcsvPeopleHandlers[i].Handler(rcsvPeopleHandlers[i].p, s)
+			continue
+		}
 		switch i {
 		case BUD: // business
 			des := strings.ToLower(strings.TrimSpace(sa[0])) // this should be BUD
@@ -179,14 +245,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				}
 				tr.BID = b1.BID
 			}
-		case FirstName:
-			tr.FirstName = s
-		case MiddleName:
-			tr.MiddleName = s
-		case LastName:
-			tr.LastName = s
-		case CompanyName:
-			tr.CompanyName = s
 		case IsCompany:
 			if len(s) > 0 {
 				ic, err := rlib.YesNoToInt(s)
@@ -195,30 +253,12 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				}
 				tr.IsCompany = int64(ic)
 			}
-		case PrimaryEmail:
-			tr.PrimaryEmail = s
-		case SecondaryEmail:
-			tr.SecondaryEmail = s
-		case WorkPhone:
-			tr.WorkPhone = s
 		case CellPhone:
 			if len(s) > 0 && s[0] == '*' {
 				s = s[1:]
 				ignoreDupPhone = true
 			}
 			tr.CellPhone = s
-		case Address:
-			tr.Address = s
-		case Address2:
-			tr.Address2 = s
-		case City:
-			tr.City = s
-		case State:
-			tr.State = s
-		case PostalCode:
-			tr.PostalCode = s
-		case Country:
-			tr.Country = s
 		case Points:
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
@@ -227,26 +267,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				}
 				t.Points = int64(i)
 			}
-		// case VehicleMake:
-		// 	t.VehicleMake = s
-		// case VehicleModel:
-		// 	t.VehicleModel = s
-		// case VehicleColor:
-		// 	t.VehicleColor = s
-		// case VehicleYear:
-		// 	if len(s) > 0 {
-		// 		i, err := strconv.Atoi(strings.TrimSpace(s))
-		// 		if err != nil {
-		// 			return CsvErrorSensitivity, fmt.Errorf("%s: line %d - VehicleYear value is invalid: %s", funcname, lineno, s)
-		// 		}
-		// 		t.VehicleYear = int64(i)
-		// 	}
-		// case LicensePlateState:
-		// 	t.LicensePlateState = s
-		// case LicensePlateNumber:
-		// 	t.LicensePlateNumber = s
-		// case ParkingPermitNumber:
-		// 	t.ParkingPermitNumber = s
 		case AccountRep:
 			if len(s) > 0 {
 				i, err := strconv.Atoi(strings.TrimSpace(s))
@@ -262,16 +282,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Bad date of birth: %s, error = %s", funcname, lineno, s, err.Error())
 				}
 			}
-		case EmergencyContactName:
-			t.EmergencyContactName = s
-		case EmergencyContactAddress:
-			t.EmergencyContactAddress = s
-		case EmergencyContactTelephone:
-			t.EmergencyContactTelephone = s
-		case EmergencyEmail:
-			t.EmergencyEmail = s
-		case AlternateAddress:
-			t.AlternateAddress = s
 		case EligibleFutureUser:
 			if len(s) > 0 {
 				var err error
@@ -280,8 +290,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s", funcname, lineno, err.Error())
 				}
 			}
-		case Industry:
-			t.Industry = s
 		case SourceSLSID:
 			if len(s) > 0 {
 				var y int64
@@ -297,24 +305,6 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 				}
 				p.CreditLimit = x
 			}
-		case TaxpayorID:
-			p.TaxpayorID = s
-		case EmployerName:
-			pr.EmployerName = s
-		case EmployerStreetAddress:
-			pr.EmployerStreetAddress = s
-		case EmployerCity:
-			pr.EmployerCity = s
-		case EmployerState:
-			pr.EmployerState = s
-		case EmployerPostalCode:
-			pr.EmployerPostalCode = s
-		case EmployerEmail:
-			pr.EmployerEmail = s
-		case EmployerPhone:
-			pr.EmployerPhone = s
-		case Occupation:
-			pr.Occupation = s
 		case ApplicationFee:
 			if len(s) > 0 {
 				if x, err = strconv.ParseFloat(strings.TrimSpace(s), 64); err != nil {

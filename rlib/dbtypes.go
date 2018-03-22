@@ -1729,6 +1729,7 @@ type RRprepSQL struct {
 	GetJournalAllocationsByASMandRCPTID     *sql.Stmt
 	GetJournalByTypeAndID                   *sql.Stmt
 	GetTask                                 *sql.Stmt
+	GetTasks                                *sql.Stmt
 	GetTaskList                             *sql.Stmt
 	GetTaskDescriptor                       *sql.Stmt
 	GetTaskListDefinition                   *sql.Stmt

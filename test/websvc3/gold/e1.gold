@@ -1,0 +1,23 @@
+{
+    "record": {
+        "BID": 1,
+        "Comment": "",
+        "CreateBy": 0,
+        "CreateTS": "2018-03-21T19:55:52Z",
+        "DoneUID": 0,
+        "DtDone": "0001-01-01T00:00:00Z",
+        "DtDue": "2018-02-28T20:00:00Z",
+        "DtPreDone": "0001-01-01T00:00:00Z",
+        "DtPreDue": "2018-02-20T20:00:00Z",
+        "FLAGS": 0,
+        "LastModBy": 0,
+        "LastModTime": "2018-03-21T19:55:52Z",
+        "Name": "Walk the Units",
+        "PreDoneUID": 0,
+        "TID": 5,
+        "TLID": 2,
+        "Worker": "Manual",
+        "recid": 5
+    },
+    "status": "success"
+}

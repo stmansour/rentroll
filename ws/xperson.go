@@ -423,6 +423,82 @@ func SvcFormHandlerXPerson(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	}
 }
 
+func xpUpdatePerson(w http.ResponseWriter, r *http.Request, xp *rlib.XPerson) bool {
+	funcname := "xpUpdatePerson"
+	err := rlib.UpdateTransactant(r.Context(), &xp.Trn)
+	if err != nil {
+		e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return true
+	}
+
+	err = rlib.UpdateUser(r.Context(), &xp.Usr)
+	if err != nil {
+		e := fmt.Errorf("%s: UpdateUser error:  %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return true
+	}
+
+	err = rlib.UpdateProspect(r.Context(), &xp.Psp)
+	if err != nil {
+		e := fmt.Errorf("%s: UpdateProspect error:  %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return true
+	}
+
+	err = rlib.UpdatePayor(r.Context(), &xp.Pay)
+	if err != nil {
+		e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return true
+	}
+	return false
+
+}
+
+func xpInsertPerson(w http.ResponseWriter, r *http.Request, xp *rlib.XPerson) bool {
+	funcname := "xpInsertPerson"
+	tcid, err := rlib.InsertTransactant(r.Context(), &xp.Trn)
+	if err != nil {
+		e := fmt.Errorf("%s: Insert Transactant error:  %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return true
+	}
+
+	errlist := bizlogic.FinalizeTransactant(r.Context(), &xp.Trn)
+	if len(errlist) > 0 {
+		SvcErrListReturn(w, errlist, funcname)
+		return true
+	}
+
+	// update tcid in user, prospect, payor struct
+	xp.Usr.TCID = tcid
+	xp.Pay.TCID = tcid
+	xp.Psp.TCID = tcid
+
+	_, err = rlib.InsertUser(r.Context(), &xp.Usr)
+	if err != nil {
+		e := fmt.Errorf("%s: Insert User error:  %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return true
+	}
+
+	_, err = rlib.InsertProspect(r.Context(), &xp.Psp)
+	if err != nil {
+		e := fmt.Errorf("%s: Insert Prospect error:  %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return true
+	}
+
+	_, err = rlib.InsertPayor(r.Context(), &xp.Pay)
+	if err != nil {
+		e := fmt.Errorf("%s: Insert Payor error:  %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return true
+	}
+	return false
+}
+
 // saveXPerson handles the Save action from the Transactant Form
 // wsdoc {
 //  @Title  Save Transactant
@@ -510,71 +586,12 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if xp.Trn.TCID == 0 {
 		// this is new transactant record
 		fmt.Println(">>> Inserting New Transactant Record")
-		tcid, err := rlib.InsertTransactant(r.Context(), &xp.Trn)
-		if err != nil {
-			e := fmt.Errorf("%s: Insert Transactant error:  %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-
-		errlist := bizlogic.FinalizeTransactant(r.Context(), &xp.Trn)
-		if len(errlist) > 0 {
-			SvcErrListReturn(w, errlist, funcname)
-			return
-		}
-
-		// update tcid in user, prospect, payor struct
-		xp.Usr.TCID = tcid
-		xp.Pay.TCID = tcid
-		xp.Psp.TCID = tcid
-
-		_, err = rlib.InsertUser(r.Context(), &xp.Usr)
-		if err != nil {
-			e := fmt.Errorf("%s: Insert User error:  %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-
-		_, err = rlib.InsertProspect(r.Context(), &xp.Psp)
-		if err != nil {
-			e := fmt.Errorf("%s: Insert Prospect error:  %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-
-		_, err = rlib.InsertPayor(r.Context(), &xp.Pay)
-		if err != nil {
-			e := fmt.Errorf("%s: Insert Payor error:  %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
+		if xpInsertPerson(w, r, &xp) {
 			return
 		}
 	} else {
 		fmt.Printf("Updating Transactant record with TCID: %d\n", xp.Trn.TCID)
-		err = rlib.UpdateTransactant(r.Context(), &xp.Trn)
-		if err != nil {
-			e := fmt.Errorf("%s: UpdateTransactant error:  %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-
-		err = rlib.UpdateUser(r.Context(), &xp.Usr)
-		if err != nil {
-			e := fmt.Errorf("%s: UpdateUser error:  %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-
-		err = rlib.UpdateProspect(r.Context(), &xp.Psp)
-		if err != nil {
-			e := fmt.Errorf("%s: UpdateProspect error:  %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-
-		err = rlib.UpdatePayor(r.Context(), &xp.Pay)
-		if err != nil {
-			e := fmt.Errorf("%s: UpdatePayor err.Pay %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
+		if xpUpdatePerson(w, r, &xp) {
 			return
 		}
 	}

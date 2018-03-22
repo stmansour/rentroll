@@ -14,12 +14,17 @@ type SearchTask struct {
 	Recid       int64 `json:"recid"`
 	TID         int64
 	BID         int64
-	TLDID       int64
-	Name        string
-	Worker      string
-	EpochDue    time.Time
-	EpochPreDue time.Time
+	TLID        int64     // the TaskList to which this task belongs
+	Name        string    // Task text
+	Worker      string    // Name of the associated work function
+	DtDue       time.Time // Task Due Date
+	DtPreDue    time.Time // Pre Completion due date
+	DtDone      time.Time // Task completion Date
+	DtPreDone   time.Time // Task Pre Completion Date
 	FLAGS       int64
+	DoneUID     int64     // user who marked task as done
+	PreDoneUID  int64     // user who marked task as predone
+	Comment     string    // any user comments
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created
@@ -48,15 +53,15 @@ type GetTaskResponse struct {
 }
 
 // SvcSearchTaskHandler returns the Tasks associated with the supplied
-// TLDID. This search handler was not implemented like many of the other
+// TLID. This search handler was not implemented like many of the other
 // handlers because the only use case we are supporting for Tasks
 // is to search for those that belong to a particular Task.
 // wsdoc {
 //  @Title  Search Tasks
-//	@URL /v1/tds/:BUI/TLDID
+//	@URL /v1/tasks/:BUI/TLID
 //  @Method  POST
 //	@Synopsis Search Tasks
-//  @Description  Search all Tasks associated with the supplied TLDID.
+//  @Description  Search all Tasks associated with the supplied TDID.
 //  @Description  This call ignores any limit and simply returns all TDs.
 //	@Input wsSearchReq
 //  @Response SearchTaskResponse
@@ -66,7 +71,7 @@ func SvcSearchTaskHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 	funcname := "SvcSearchTaskHandler"
 	rlib.Console("Entered %s.  d.ID = %d\n", funcname, d.ID)
 
-	tds, err := rlib.GetTaskListDescriptors(r.Context(), d.ID)
+	tds, err := rlib.GetTasks(r.Context(), d.ID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -99,7 +104,7 @@ func SvcHandlerTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var err error
 
 	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("Request: %s:  BID = %d,  TLDID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+	rlib.Console("Request: %s:  BID = %d,  TDID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -126,7 +131,7 @@ func SvcHandlerTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //	@URL /v1/task/:BUI/TID
 //  @Method  POST
 //	@Synopsis Delete Task Descriptor TID
-//  @Desc  This service deletes the Task with the supplied TLDID.
+//  @Desc  This service deletes the Task with the supplied TDID.
 //	@Input DeletePmtForm
 //  @Response SvcStatusResponse
 // wsdoc }
@@ -207,7 +212,7 @@ func saveTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if err != nil {
-		e := fmt.Errorf("%s: Error saving Task : %s (%d)", funcname, a.Name, a.TID)
+		e := fmt.Errorf("%s: Error saving Task %s (%d): %s", funcname, a.Name, a.TID, err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
@@ -232,7 +237,7 @@ func getTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	var a rlib.Task
 	var err error
 
-	rlib.Console("entered %s\n", funcname)
+	rlib.Console("entered %s, getting TID = %d\n", funcname, d.ID)
 	a, err = rlib.GetTask(r.Context(), d.ID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)

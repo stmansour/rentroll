@@ -6618,6 +6618,36 @@ func GetTask(ctx context.Context, id int64) (Task, error) {
 	return a, ReadTask(row, &a)
 }
 
+// GetTasks returns a slice of tasks with the supplied id
+func GetTasks(ctx context.Context, id int64) ([]Task, error) {
+	var m []Task
+	var err error
+	if authCheck(ctx) {
+		return m, ErrSessionRequired
+	}
+	var rows *sql.Rows
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTasks)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetTasks.Query(fields...)
+	}
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var a Task
+		if err = ReadTasks(rows, &a); err != nil {
+			return m, err
+		}
+		m = append(m, a)
+	}
+	return m, rows.Err()
+}
+
 // GetTaskList returns the tasklist with the supplied id
 func GetTaskList(ctx context.Context, id int64) (TaskList, error) {
 	var a TaskList
