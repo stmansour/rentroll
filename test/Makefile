@@ -7,7 +7,7 @@ db:
 	@echo "*** MAKE completed in test ***"
 
 clean:
-	rm -rf testreport.txt dbqqqmods.sql cmds x y t refdb checkdb def1.sh def2.sh
+	rm -rf dbreport.txt testreport.txt dbqqqmods.sql cmds x y t refdb checkdb def1.sh def2.sh
 	for dir in $(DIRS); do make -C $$dir clean;done
 	cd ./testdb;make clean
 	cd ./importers/onesite/okc;make clean

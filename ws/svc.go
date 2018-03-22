@@ -198,6 +198,8 @@ var Svcs = []ServiceHandler{
 	{Cmd: "stmt", Handler: SvcStatement, NeedBiz: true, NeedSession: true},
 	{Cmd: "stmtdetail", Handler: SvcStatementDetail, NeedBiz: true, NeedSession: true},
 	{Cmd: "stmtinfo", Handler: SvcGetStatementInfo, NeedBiz: true, NeedSession: true},
+	{Cmd: "task", Handler: SvcHandlerTask, NeedBiz: true, NeedSession: true},
+	{Cmd: "tasks", Handler: SvcSearchTaskHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "td", Handler: SvcHandlerTaskDescriptor, NeedBiz: true, NeedSession: true},
 	{Cmd: "tds", Handler: SvcSearchTDHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "tl", Handler: SvcHandlerTaskList, NeedBiz: true, NeedSession: true},
