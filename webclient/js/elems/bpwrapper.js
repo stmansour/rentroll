@@ -56,8 +56,8 @@ function buildPageElementsWrapper(uitype) {
     buildPayorStatementElements();
     buildRentRollElements();
     buildLoginForm();
-    // buildTaskListElements();
-    // buildTaskListDefElements();
+    buildTaskListElements();
+    buildTaskListDefElements();
     finishForms();
 }
 
@@ -66,5 +66,5 @@ function finishForms() {
     createStmtForm();
     createPayorStmtForm();
     createDepositForm();
-    // finishTaskListForm();
+    finishTaskListForm();
 }
