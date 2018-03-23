@@ -1188,3 +1188,35 @@ func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 	}
 	return updateError(err, "Vehicle", *a)
 }
+
+// UpdateFlowPart updates the flow part by data provided in flowpart
+func UpdateFlowPart(ctx context.Context, a *FlowPart) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		// user from session, CreateBy, LastModBy
+		a.LastModBy = sess.UID
+	}
+
+	// make sure that json is valid before inserting it in database
+	if !(IsFlowDataValidJSON(a.Data)) {
+		return ErrFlowInvalidJSONData
+	}
+
+	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
+	// in mysql `json` type column
+	fields := []interface{}{a.BID, a.Flow, a.FlowID, a.PartType, []byte(a.Data), a.LastModBy, a.FlowPartID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowPart)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateFlowPart.Exec(fields...)
+	}
+	return updateError(err, "FlowPart", *a)
+}

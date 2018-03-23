@@ -1,13 +1,13 @@
 /*global
 	buildDepositElements, buildAppLayout, buildSidebar, buildAllocFundsGrid,
     buildAccountElements, buildTransactElements, buildRentableTypeElements,
-    buildRentableElements, buildRAElements, buildRAPayorPicker, 
-    buildRUserPicker, buildRentablePicker, buildRAPicker, buildReceiptElements, 
-    buildAssessmentElements, buildExpenseElements, buildARElements, 
+    buildRentableElements, buildRAElements, buildRAPayorPicker,
+    buildRUserPicker, buildRentablePicker, buildRAPicker, buildReceiptElements,
+    buildAssessmentElements, buildExpenseElements, buildARElements,
     buildPaymentTypeElements, buildDepositoryElements, buildDepositElements,
-    buildStatementsElements, buildReportElements, buildLedgerElements, 
-    buildTWSElements, buildDepositMethodElements, buildPayorStatementElements, 
-    buildRentRollElements, buildLoginForm, buildAppLayout, 
+    buildStatementsElements, buildReportElements, buildLedgerElements,
+    buildTWSElements, buildDepositMethodElements, buildPayorStatementElements,
+    buildRentRollElements, buildLoginForm, buildAppLayout,
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
     createStmtForm, createRentalAgreementForm,
@@ -56,8 +56,8 @@ function buildPageElementsWrapper(uitype) {
     buildPayorStatementElements();
     buildRentRollElements();
     buildLoginForm();
-    buildTaskListElements();
-    buildTaskListDefElements();
+    // buildTaskListElements();
+    // buildTaskListDefElements();
     finishForms();
 }
 
@@ -66,5 +66,5 @@ function finishForms() {
     createStmtForm();
     createPayorStmtForm();
     createDepositForm();
-    finishTaskListForm();
+    // finishTaskListForm();
 }

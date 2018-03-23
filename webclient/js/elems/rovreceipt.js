@@ -190,8 +190,8 @@ function buildROVReceiptElements() {
     addDateNavToToolbar('receipts');
     w2ui.receiptsGrid.toolbar.add([
         { type: 'spacer',},
-        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-        { type: 'button', id: 'printreport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+        { type: 'button', id: 'csvexport', icon: 'fas fa-table', tooltip: 'export to CSV' },
+        { type: 'button', id: 'printreport', icon: 'far fa-file-pdf', tooltip: 'export to PDF' },
         ]);
 
     //------------------------------------------------------------------------
@@ -246,10 +246,10 @@ function buildROVReceiptElements() {
         ],
         toolbar: {
             items: [
-                // { id: 'btnNotes',    type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'print',       type: 'button', icon: 'fa fa-print',        tooltip: 'print receipt' },
+                // { id: 'btnNotes',    type: 'button', icon: 'far fa-sticky-note' },
+                { id: 'print',       type: 'button', icon: 'fas fa-print',        tooltip: 'print receipt' },
                 { id: 'bt3',         type: 'spacer' },
-                { id: 'btnClose',    type: 'button', icon: 'fa fa-times' },
+                { id: 'btnClose',    type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 switch(event.target) {
