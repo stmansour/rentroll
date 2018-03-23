@@ -1,6 +1,6 @@
 "use strict";
 
-const webpackConfig = require('./webpack.config.js');
+var webpackConfig = require('./webpack.config.js');
 
 /* global module */
 module.exports = function gruntInit(grunt) {
@@ -90,10 +90,10 @@ module.exports = function gruntInit(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    // grunt.loadNpmTasks('grunt-webpack');
+    // grunt.loadNpmTasks('grunt-webpack'); // To run webpack via grunt
 
     // ========== REGISTERED TASKS ==========
 
-    grunt.registerTask('default', ['clean', 'jshint', 'concat', 'uglify']);
+    grunt.registerTask('default', ['clean', 'concat', 'uglify']); // TODO(Akshay): Enable 'jshint' after discussing with steve.
     grunt.registerTask('dev', ['watch']);
 };

@@ -470,7 +470,7 @@ window.tcidRAPayorPickerRender = function (item) {
         CompanyName: item.CompanyName
     };
     return s;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getFullName - returns a string with the full name based on the item supplied.

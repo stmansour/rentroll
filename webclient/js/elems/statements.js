@@ -242,7 +242,7 @@ window.stmtRenderHandler = function (record,index,col_index,amt,bRemoveZero) {
         }
     }
     return GridMoneyFormat(amt);
-}
+};
 
 //-----------------------------------------------------------------------------
 // setToStmtForm -  enable the Statement form in toplayout.  Also, set
