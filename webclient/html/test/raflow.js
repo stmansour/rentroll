@@ -53,7 +53,7 @@ function saveRAFlowPartData(record, partType) {
     var targetFlowID = app.flowIDList[0];
     var flowPartID;
 
-    var flowParts = app.flowData[targetFlowID];
+    var flowParts = app.flowData[targetFlowID] || [];
 
     for (var i = 0; i < flowParts.length; i++) {
         if(partType == flowParts[i].PartType) {
@@ -111,7 +111,7 @@ function getAllFlow(flow) {
         dataType: "json",
         data: JSON.stringify({"cmd": "getAllFlows", "flow": flow}),
         success: function(data) {
-            app.flowIDList = data.records;
+            app.flowIDList = data.records || [];
             for (var i = 0; i < app.flowIDList.length; i++) {
                 getAllFlowParts(app.flowIDList[i]);
             }
