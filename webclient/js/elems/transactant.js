@@ -1,5 +1,5 @@
 "use strict";
-function getTransactantInitRecord(BID, BUD) {
+window.getTransactantInitRecord = function (BID, BUD) {
     var y = new Date();
 
     return {
@@ -62,10 +62,10 @@ function getTransactantInitRecord(BID, BUD) {
         FloatingDeposit: 0.00,
         RAID: 0,
     };
-}
+};
 
 
-function buildTransactElements() {
+window.buildTransactElements = function() {
 
 //------------------------------------------------------------------------
 //          transactantsGrid
@@ -408,4 +408,4 @@ $().w2grid({
         },
     });
 
-}
+};

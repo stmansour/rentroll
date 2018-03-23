@@ -16,7 +16,7 @@
 //                  is 'receipts'.
 // @return  <no return value>
 //-----------------------------------------------------------------------------
-function handleDateToolbarAction(event,prefix) {
+window.handleDateToolbarAction = function (event,prefix) {
     console.log('handleDateToolbarAction: target = ' + event.target + ' prefix = ' + prefix);
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
@@ -60,7 +60,7 @@ function handleDateToolbarAction(event,prefix) {
             break;
     }
     console.log('handleDateToolbarAction:  D1 = ' + app.D1 + '  D2 = ' + app.D2);
-}
+};
 
 //-----------------------------------------------------------------------------
 // setDateControlsInToolbar
@@ -72,13 +72,13 @@ function handleDateToolbarAction(event,prefix) {
 //            'receipts'.
 // @return  <no return value>
 //-----------------------------------------------------------------------------
-function setDateControlsInToolbar(prefix) {
+window.setDateControlsInToolbar = function (prefix) {
     var xd1 = document.getElementsByName(prefix + 'D1')[0];
     var xd2 = document.getElementsByName(prefix + 'D2')[0];
     var x = app.D2;
     if (typeof xd1 != "undefined") { xd1.value = app.D1; }
     if (typeof xd2 != "undefined") { xd2.value = x; }
-}
+};
 
 
 //-----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ function setDateControlsInToolbar(prefix) {
 //            'receipts'.
 // @return  an array of fields that can be passed into toolbar.add()
 //-----------------------------------------------------------------------------
-function genDateRangeNavigator(prefix) {
+window.genDateRangeNavigator = function (prefix) {
     var html1 = '<div class="w2ui-field" style="padding: 0px 5px;">From: <input type="us-dateA" name="' + prefix + 'D1"></div>';
     var html2 = '<div class="w2ui-field" style="padding: 0px 5px;">To: <input  type="us-dateB" name="' + prefix + 'D2">' + '</div>';
     var tmp = [{ type: 'break', id: 'break1' },
@@ -130,7 +130,7 @@ function genDateRangeNavigator(prefix) {
         { type: 'button', id: 'monthfwd', icon: 'fa fa-forward', tooltip: 'month forward' },
     ];
     return tmp;
-}
+};
 
 //-----------------------------------------------------------------------------
 // updateGridPostDataDates
@@ -141,13 +141,13 @@ function genDateRangeNavigator(prefix) {
 //   grid   the grid of interest
 // @return  <no return value>
 //-----------------------------------------------------------------------------
-function updateGridPostDataDates(grid) {
+window.updateGridPostDataDates = function (grid) {
     var x = typeof grid.postData.searchDtStart;
     if (x === "string" || x === "undefined") {
         grid.postData.searchDtStart = app.D1;
         grid.postData.searchDtStop  = app.D2;
     }
-}
+};
 
 
 //-----------------------------------------------------------------------------
@@ -158,7 +158,7 @@ function updateGridPostDataDates(grid) {
 //            convention:  prefix + 'Grid'
 // @return  <no return value>
 //-----------------------------------------------------------------------------
-function addDateNavToToolbar(prefix) {
+window.addDateNavToToolbar = function (prefix) {
     var grid = w2ui[prefix+'Grid'];
     grid.toolbar.add( genDateRangeNavigator(prefix) );
     grid.toolbar.on('click', function(event) {
@@ -286,4 +286,4 @@ function addDateNavToToolbar(prefix) {
             }
         }
     });
-}
+};

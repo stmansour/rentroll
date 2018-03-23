@@ -4,7 +4,7 @@
     w2utils, formRefreshCallBack, setDefaultFormFieldAsPreviousRecord
 */
 "use strict";
-function getAccountInitRecord(BID, BUD, previousFormRecord){
+window.getAccountInitRecord = function (BID, BUD, previousFormRecord){
     var y = new Date();
 
     var defaultFormData = {
@@ -38,10 +38,10 @@ function getAccountInitRecord(BID, BUD, previousFormRecord){
     }
 
     return defaultFormData;
-}
+};
 
 
-function buildAccountElements() {
+window.buildAccountElements = function() {
 
     //------------------------------------------------------------------------
     //          accountsGrid
@@ -427,10 +427,10 @@ function buildAccountElements() {
         },
     });
 
-}
+};
 
 // exportGLAccounts downloads csv file containing all accounts info
-function exportGLAccounts() {
+window.exportGLAccounts = function () {
     var x = getCurrentBusiness(),
         BID=parseInt(x.value);
 
@@ -442,10 +442,10 @@ function exportGLAccounts() {
             downloadMediaFromURL(downloadURL);
         }
     });
-}
+};
 
 // popupImportFileDialog invoked when user wants to import file of accounts
-function popupImportFileDialog() {
+window.popupImportFileDialog = function () {
 
     var BizSelHTML = '<select id="importGLAcctsBizSel" class="w2ui-select" style="cursor: default; width: 100%; outline: none; opacity: 1; margin: 0px; border: 1px solid transparent; padding: 4px 4px 4px 0px;">';
     app.businesses.forEach(function(bud) {
@@ -473,10 +473,10 @@ function popupImportFileDialog() {
             $("select[id=importGLAcctsBizSel]").val(""); //onOpen reset selection
         }
     });
-}
+};
 
 // importAccountsFile request to server for importing accounts file
-function importAccountsFile() {
+window.importAccountsFile = function () {
     var x = getCurrentBusiness(),
         BID=parseInt(x.value),
         BUD = getBUDfromBID(BID);
@@ -524,4 +524,4 @@ function importAccountsFile() {
             }
         }
    });
-}
+};

@@ -4,7 +4,7 @@
 
 "use strict";
 
-function getDepMethInitRecord(BID, BUD){
+window.getDepMethInitRecord = function (BID, BUD){
     return {
         recid: 0,
         DPMID: 0,
@@ -12,9 +12,9 @@ function getDepMethInitRecord(BID, BUD){
         BUD: BUD,
         Name: '',
     };
-}
+};
 
-function buildDepositMethodElements() {
+window.buildDepositMethodElements = function () {
     //------------------------------------------------------------------------
     //          Deposit Methods Grid
     //------------------------------------------------------------------------
@@ -270,4 +270,4 @@ function buildDepositMethodElements() {
             getFormSubmitData(data.postData.record);
         },
     });
-}
+};

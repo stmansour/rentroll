@@ -1,5 +1,5 @@
 "use strict";
-function defineDateFmts() {
+window.defineDateFmts = function () {
     var month = (new Date()).getMonth() + 1;
     var year  = (new Date()).getFullYear();
     // // US Format
@@ -19,7 +19,7 @@ function defineDateFmts() {
     $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
     $('input[type=eu-time]').w2field('time',  { format: 'h24' });
     $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
-}
+};
 
 // // GLOBAL AJAX SETUP
 // $.ajaxSetup({

@@ -1,5 +1,5 @@
 "use strict";
-function buildAppLayout(){
+window.buildAppLayout = function(){
      //------------------------------------------------------------------------
     //          toplayout
     //------------------------------------------------------------------------
@@ -55,4 +55,4 @@ function buildAppLayout(){
             { type: 'right', hidden: true }
         ]
     });
-}
+};

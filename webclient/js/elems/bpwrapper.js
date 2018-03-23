@@ -20,7 +20,7 @@
 //
 // RETURNS:
 //  nothing
-function buildPageElementsWrapper(uitype) {
+window.buildPageElementsWrapper = function (uitype) {
     buildAppLayout();
     buildSidebar(uitype);
     buildAllocFundsGrid();
@@ -51,4 +51,4 @@ function buildPageElementsWrapper(uitype) {
     buildPayorStatementElements();
     buildRentRollElements();
     buildLoginForm();
-}
+};

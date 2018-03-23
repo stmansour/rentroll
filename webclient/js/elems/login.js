@@ -24,7 +24,7 @@ var loginPopupOptions = {
     },
 };
 
-function userProfileToUI() {
+window.userProfileToUI = function() {
     var name = app.name;
     if (name.length === 0 || app.uid === 0) { name = "?";}
     $("#user_menu_container").find("#username").text(name);
@@ -38,9 +38,9 @@ function userProfileToUI() {
             $('#node_receipts').trigger('click');
         }, 500); // wait for some time meanwhile left sidebar render done!
     }
-}
+};
 
-function buildLoginForm() {
+window.buildLoginForm = function() {
     var loginTmplURL = loginRoURL;
     if (app.client == "receipts") {
         loginTmplURL = loginRcURL;
@@ -127,7 +127,7 @@ function buildLoginForm() {
             };
         }
     });
-}
+};
 
 //---------------------------------------------------------------------------------
 // startNewSession - encapsulates the steps needed to launch a new login session
@@ -137,10 +137,10 @@ function buildLoginForm() {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function startNewSession() {
+window.startNewSession = function () {
     ensureSession(); // get the user logged in
     startSessionChecker(); // have the user log in if the session expires
-}
+};
 
 //---------------------------------------------------------------------------------
 // getUserInfo - get the user profile information
@@ -148,7 +148,7 @@ function startNewSession() {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function getUserInfo() {
+window.getUserInfo = function () {
     $.get('/v1/userprofile/')
     .done(function(data, textStatus, jqXHR) {
         if (data.status == "success") {
@@ -162,7 +162,7 @@ function getUserInfo() {
     .fail( function() {
         console.log('Error getting /v1/userprofile');
     });
-}
+};
 //---------------------------------------------------------------------------------
 // launchSession - if a valid sessionid exists, use it and get user profile info
 //                 if not, log in.
@@ -170,7 +170,7 @@ function getUserInfo() {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function launchSession() {
+window.launchSession = function () {
     var x = getCookieValue("air");
     // console.log('launchSession: getCookieValue(air) = '+x);
     if (x !== null && x.length > 0) {
@@ -178,7 +178,7 @@ function launchSession() {
         handleBlankScreen(true);
     }
     startNewSession();
-}
+};
 
 
 //---------------------------------------------------------------------------------
@@ -187,12 +187,12 @@ function launchSession() {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function startSessionChecker() {
+window.startSessionChecker = function () {
     loginSessionChecker = setInterval(
     function() {
         ensureSession();
     }, 5000); // watch out for session expiring
-}
+};
 
 //---------------------------------------------------------------------------------
 // handleBlankScreen - hide the content of screen if user is not logged in as in
@@ -201,16 +201,16 @@ function startSessionChecker() {
 // @params  - isLoggedIn
 // @returns <none>
 //---------------------------------------------------------------------------------
-function handleBlankScreen(isLoggedIn) {
+window.handleBlankScreen = function (isLoggedIn) {
     if (isLoggedIn) {
         $("#blank_screen").hide();
     } else {
         $("#blank_screen").show();
         popupLoginDialogBox(); // if it's not logged in then show popup
     }
-}
+};
 
-function popupLoginDialogBox() {
+window.popupLoginDialogBox = function () {
     $().w2popup('open', loginPopupOptions);
     var f = w2ui.passwordform;
     if (f) {
@@ -219,7 +219,7 @@ function popupLoginDialogBox() {
         $(f.box).find("#LoginMessage").find(".errors").append("<p>" + message + "</p>");
         $(f.box).find("#LoginMessage").removeClass("hidden");
     }
-}
+};
 
 //---------------------------------------------------------------------------------
 // ensureSession - check to see if we have our session cookie.  If not, we need to
@@ -228,7 +228,7 @@ function popupLoginDialogBox() {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function ensureSession() {
+window.ensureSession = function () {
     if (w2popup.status == "open") {return;} // just return now if we're trying to log in
 
     var c = getCookieValue("air");          // Do we have an "air" cookie?
@@ -242,7 +242,7 @@ function ensureSession() {
     if (app.name.length === 0) {    // if we don't have user info
         getUserInfo();              // then get it
     }
-}
+};
 
 //---------------------------------------------------------------------------------
 // logoff - sign out of the current session
@@ -250,7 +250,7 @@ function ensureSession() {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function logoff() {
+window.logoff = function () {
     app.uid = 0;
     app.name = "";
     app.username = "";
@@ -270,7 +270,7 @@ function logoff() {
         deleteCookie("air");  // no matter what, delete the cookie after this call completes
     });
     handleBlankScreen(false);
-}
+};
 
 
 //---------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ function logoff() {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function resetPW() {
+window.resetPW = function () {
     var f = w2ui.passwordform;
     var username = f.record.user;
     var params = {username: username };
@@ -307,4 +307,4 @@ function resetPW() {
         w2ui.passwordform.error("Reset password failed");
         return;
     });
-}
+};

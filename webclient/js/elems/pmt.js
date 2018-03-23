@@ -6,7 +6,7 @@
 //          BUD   - the BUD for the business of interest
 // @return  the initial record for pmtForm
 //-----------------------------------------------------------------------------
-function getPmtInitRecord(BID, BUD){
+window.getPmtInitRecord = function (BID, BUD){
     return {
         recid: 0,
         PMTID: 0,
@@ -15,7 +15,7 @@ function getPmtInitRecord(BID, BUD){
         Name: '',
         Description: '',
     };
-}
+};
 
 //-----------------------------------------------------------------------------
 // getPaymentType - searches BUD's Payment Types for PMTID.  If found the
@@ -24,7 +24,7 @@ function getPmtInitRecord(BID, BUD){
 //          PMTID - the payment type id for which we want the name
 // @return  the Payment Type (or empty object if not found)
 //-----------------------------------------------------------------------------
-function getPaymentType(BUD, reqPMTID) {
+window.getPaymentType = function (BUD, reqPMTID) {
     var pmt = {};
     if (typeof BUD === "undefined") {
         return pmt;
@@ -36,7 +36,7 @@ function getPaymentType(BUD, reqPMTID) {
         }
     });
     return pmt;
-}
+};
 
 //-----------------------------------------------------------------------------
 // updatePmtTypeList - get the latest payment types from server with requested
@@ -44,7 +44,7 @@ function getPaymentType(BUD, reqPMTID) {
 // @params  BID   - the BID for the business of interest
 //          BUD   - the BUD for the business of interest
 //-----------------------------------------------------------------------------
-function updatePmtTypeList(BID, BUD) {
+window.updatePmtTypeList = function (BID, BUD) {
     var payload = {"cmd":"get","selected":[],"limit":100,"offset":0};
 
     $.ajax({
@@ -61,9 +61,9 @@ function updatePmtTypeList(BID, BUD) {
             app.pmtTypes[BUD] = tempList;
         }
     });
-}
+};
 
-function buildPaymentTypeElements() {
+window.buildPaymentTypeElements = function () {
 //------------------------------------------------------------------------
 //          payment types Grid
 //------------------------------------------------------------------------
@@ -338,7 +338,7 @@ $().w2grid({
             delete data.postData.record.CreateBy;
             // modify form data for server request
             getFormSubmitData(data.postData.record);
-        },
+        }
     });
 
-}
+};

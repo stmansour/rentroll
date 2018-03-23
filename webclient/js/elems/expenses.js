@@ -5,7 +5,7 @@
     setDefaultFormFieldAsPreviousRecord
 */
 "use strict";
-function getExpenseInitRecord(BID, BUD, previousFormRecord){
+window.getExpenseInitRecord = function (BID, BUD, previousFormRecord){
     var y = new Date();
     var defaultFormData = {
         recid: 0,
@@ -39,7 +39,7 @@ function getExpenseInitRecord(BID, BUD, previousFormRecord){
     }
 
     return defaultFormData;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getBusinessExpenseRules - return the promise object of request to get latest
@@ -49,7 +49,7 @@ function getExpenseInitRecord(BID, BUD, previousFormRecord){
 //          - BUD : Business Unit Designation
 // @return  - promise object from $.get
 //-----------------------------------------------------------------------------
-function getBusinessExpenseRules(BID, BUD) {
+window.getBusinessExpenseRules = function (BID, BUD) {
     // if not BUD in app.ExpenseRules then initialize it with blank list
     if (!(BUD in app.ExpenseRules)) {
         app.ExpenseRules[BUD] = [];
@@ -62,10 +62,9 @@ function getBusinessExpenseRules(BID, BUD) {
                 app.ExpenseRules[BUD] = data[BUD];
             }
         });
-}
+};
 
-
-function renderExpReversalIcon(record /*, index, col_index*/) {
+window.renderExpReversalIcon = function (record /*, index, col_index*/) {
     if (typeof record === "undefined") {
         return;
     }
@@ -73,9 +72,9 @@ function renderExpReversalIcon(record /*, index, col_index*/) {
         return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
     }
     return '';
-}
+};
 
-function buildExpenseElements() {
+window.buildExpenseElements = function () {
     //------------------------------------------------------------------------
     //          expenseGrid
     //------------------------------------------------------------------------
@@ -492,16 +491,16 @@ function buildExpenseElements() {
         },
     });
 
-}
+};
 
-function expOpenRASelect() {
+window.expOpenRASelect = function () {
     rafinder.cb = expFormRASelect;
     popupRentalAgrPicker();
-}
+};
 
-function expFormRASelect() {
+window.expFormRASelect = function () {
     w2ui.expenseForm.record.RAID = w2ui.rentalAgrPicker.record.RAID;
     w2ui.expenseForm.record.RName = w2ui.rentalAgrPicker.record.RentableName.text;
     w2ui.expenseForm.record.RID = w2ui.rentalAgrPicker.record.RentableName.id;
     w2ui.expenseForm.refresh();
-}
+};

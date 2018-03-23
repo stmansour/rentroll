@@ -4,7 +4,7 @@
     w2confirm,w2utils,getFormSubmitData,int_to_bool,formRefreshCallBack,formRecDiffer,
 */
 "use strict";
-function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, previousFormRecord){
+window.getARRulesInitRecord = function (BID, BUD, post_accounts_pre_selected, previousFormRecord){
     var y1 = new Date();
     var y = new Date(y1.getFullYear(), 0, 1, 0,0,0);
     var ny = new Date(9999, 11, 31, 0, 0, 0);
@@ -39,9 +39,9 @@ function getARRulesInitRecord(BID, BUD, post_accounts_pre_selected, previousForm
     }
 
     return defaultFormData;
-}
+};
 
-function buildARElements() {
+window.buildARElements = function () {
 
 //------------------------------------------------------------------------
 //          Account Rules Grid
@@ -398,4 +398,4 @@ $().w2grid({
             };
         }
     });
-}
+};

@@ -5,7 +5,7 @@
 */
 "use strict";
 
-function buildPayorStatementElements() {
+window.buildPayorStatementElements = function () {
     //------------------------------------------------------------------------
     //  payorstmt  -  lists all the assessments and receipts for
     //                     the selected Payors
@@ -265,9 +265,9 @@ function buildPayorStatementElements() {
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
-}
+};
 
-function payorstmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
+window.payorstmtRenderHandler = function (record,index,col_index,amt,bRemoveZero) {
     var f = w2ui.payorStmtDetailGrid.columns[col_index];
     if (record.Reverse && f.field == "Balance") { return; }  // don't update balance if it's a reversal
     if (record.Description.includes("***") || record.Description.length == 0) {return;} // blank if it's a header or spacer
@@ -277,9 +277,9 @@ function payorstmtRenderHandler(record,index,col_index,amt,bRemoveZero) {
         }
     }
     return GridMoneyFormat(amt);
-}
+};
 
-function renderPayorStmtReversal(record /*, index, col_index*/) {
+window.renderPayorStmtReversal = function (record /*, index, col_index*/) {
     if (typeof record === "undefined") {
         return;
     }
@@ -287,16 +287,16 @@ function renderPayorStmtReversal(record /*, index, col_index*/) {
         return getGridReversalSymbolHTML();
     }
     return '';
-}
+};
 
-function renderPayorStmtDate(s) {
+window.renderPayorStmtDate = function (s) {
     //var d = new Date(y);
     var d = dateFromString(s);
     if (d.getFullYear() < 1971) {
         return '';
     }
     return dateFmtStr(d);
-}
+};
 
 //-----------------------------------------------------------------------------
 // renderPayorStmtID - render the ID number for RAID, ASMID, and RCPTID.
@@ -311,7 +311,7 @@ function renderPayorStmtDate(s) {
 //      an empty string if the id is 0
 //      the number if ID >= 1
 //-----------------------------------------------------------------------------
-function renderPayorStmtID(record, index, col_index) {
+window.renderPayorStmtID = function (record, index, col_index) {
     var f = w2ui.payorStmtDetailGrid.columns[col_index];
     var n = 0;
     switch ( f.field ) {
@@ -325,7 +325,7 @@ function renderPayorStmtID(record, index, col_index) {
         return ''+n;
     }
     return '';
-}
+};
 
 //-----------------------------------------------------------------------------
 // setToPayorStmtForm -  enable the Statement form in toplayout.  Also, set
@@ -335,7 +335,7 @@ function renderPayorStmtID(record, index, col_index) {
 //  tcid = Payor's TCID
 // d1,d2 = date range to use
 //-----------------------------------------------------------------------------
-function setToPayorStmtForm(bid, tcid, d1,d2) {
+window.setToPayorStmtForm = function (bid, tcid, d1,d2) {
     if (tcid > 0) {
         w2ui.payorStmtDetailGrid.url = '/v1/payorstmt/' + bid + '/' + tcid;
         w2ui.payorStmtInfoForm.url = '/v1/payorstmtinfo/' + bid + '/' + tcid;
@@ -354,7 +354,7 @@ function setToPayorStmtForm(bid, tcid, d1,d2) {
         app.new_form_rec = false;  // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
     }
-}
+};
 
 //-----------------------------------------------------------------------------
 // createPayorStmtForm - add the grid and form to the statement layout.  I'm not
@@ -362,7 +362,7 @@ function setToPayorStmtForm(bid, tcid, d1,d2) {
 //      into the layout when it gets created, they do not work correctly.
 // @params
 //-----------------------------------------------------------------------------
-function createPayorStmtForm() {
+window.createPayorStmtForm = function () {
     w2ui.payorstmtLayout.content('top',w2ui.payorStmtInfoForm);
     w2ui.payorstmtLayout.content('main',w2ui.payorStmtDetailGrid);
-}
+};

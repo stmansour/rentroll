@@ -4,7 +4,7 @@
     w2uiDateControlString
 */
 "use strict";
-function showReport(rptname, elToFocus) {
+window.showReport = function (rptname, elToFocus) {
     if (rptname === '') {
         return;
     }
@@ -29,9 +29,9 @@ function showReport(rptname, elToFocus) {
     //     };
     // }
     w2ui.reportslayout.load('main', url, null, null /*callBack*/);
-}
+};
 
-function buildReportElements(){
+window.buildReportElements = function (){
     //------------------------------------------------------------------------
     //          reportslayout
     //------------------------------------------------------------------------
@@ -195,4 +195,4 @@ function buildReportElements(){
         app.D2 = dateControlString(d2);
         showReport(app.last.report, "dateD2");
     });
-}
+};

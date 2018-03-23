@@ -10,7 +10,7 @@
 //  uitype - 0 means build the full roller interface
 //           1 means build the Receipt-only interface
 //----------------------------------------------------------------------------
-function buildSidebar(flag) {
+window.buildSidebar = function(flag) {
     var sbdata;
     if (flag === 0) {
         sbdata = {
@@ -386,7 +386,7 @@ function buildSidebar(flag) {
         };
     }
     w2ui.toplayout.content('left',$().w2sidebar(sbdata));
-}
+};
 
 
 //---------------------------------------------------------------------------------
@@ -396,7 +396,7 @@ function buildSidebar(flag) {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function getAboutInfo() {
+window.getAboutInfo = function () {
     $.get('/v1/version/')
     .done( function(data) {
         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
@@ -409,4 +409,4 @@ function getAboutInfo() {
     .fail( function() {
         console.log('Error getting /v1/version/');
     });
-}
+};
