@@ -75,8 +75,9 @@ function buildTaskListElements() {
         formURL: '/webclient/html/formtl.html',
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 event.onComplete = function() {

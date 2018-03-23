@@ -53,14 +53,20 @@ function buildSidebar(flag) {
                 },
                 { id: 'facilities', text: 'Facilities Management', img: 'icon-folder', expanded: false, group: true,
                     nodes: [
-                            { id: 'svcreq',      text: 'Create Service Request',         icon: 'far fa-square',       hint: 'Create Service Request' },
-                            { id: 'svcreqcmp',   text: 'Complete Service Request',       icon: 'far fa-check-square', hint: 'Complete Service Request' },
+                            { id: 'svcreq',      text: 'Create Service Request',         icon: 'far fa-square',         hint: 'Create Service Request' },
+                            { id: 'svcreqcmp',   text: 'Complete Service Request',       icon: 'far fa-check-square',   hint: 'Complete Service Request' },
                             { id: 'housekpg',    text: 'Housekeeping',                   icon: 'fas fa-home',           hint: 'Housekeeping' },
                             { id: 'prvmaint',    text: 'Preventative Maintenance',       icon: 'fas fa-wrench',         hint: 'Preventative Maintenance' },
                             { id: 'invntory',    text: 'Inventory',                      icon: 'fas fa-shopping-cart',  hint: 'Preventative Maintenance' },
                     ]
                 },
-                { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
+                { id: 'tasks', text: 'Tasks', img: 'icon-folder', expanded: false, group: true,
+                    nodes: [
+                            { id: 'tlds',       text: 'Task List Definitions',           icon: 'far fa-list-ul',        hint: 'Task List Definitions' },
+                            { id: 'tls',        text: 'Task Lists',                      icon: 'fas fa-list-alt',       hint: 'Task Lists' },
+                    ]
+                },
+                 { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
                     nodes: [
                            //{ id: 'RPTasmrpt',     text: 'Assessments',                     icon: 'far fa-file-alt' },
                            //{ id: 'RPTb',          text: 'Business Units',                  icon: 'far fa-file-alt' },

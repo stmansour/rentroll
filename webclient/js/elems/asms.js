@@ -282,7 +282,7 @@ function buildAssessmentElements() {
             { field: 'ARID',          type: 'list',     required: true, options: { items: app.AssessmentRules }},
             { field: 'recid',         type: 'int',      required: false },
             { field: 'ASMID',         type: 'int',      required: false },
-            { field: 'BID',           type: 'int',     required: true },
+            { field: 'BID',           type: 'int',      required: true },
             { field: 'BUD',           type: 'list',     required: true, options: {items: app.businesses} },
             { field: 'PASMID',        type: 'w2int',    required: false },
             { field: 'Rentable',      type: 'text',     required: false },
