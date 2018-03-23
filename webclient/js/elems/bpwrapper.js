@@ -1,12 +1,16 @@
 /*global
-	buildDepositElements, buildAppLayout, buildSidebar, buildAllocFundsGrid, buildAccountElements,
-    buildTransactElements, buildRentableTypeElements, buildRentableElements,
-    buildRAElements, buildRAPayorPicker, buildRUserPicker, buildRentablePicker,
-    buildRAPicker, buildReceiptElements, buildAssessmentElements, buildExpenseElements,
-    buildARElements, buildPaymentTypeElements, buildDepositoryElements, buildDepositElements,
-    buildStatementsElements, buildReportElements, buildLedgerElements, buildTWSElements,
-    buildDepositMethodElements, buildPayorStatementElements, buildRentRollElements, buildLoginForm,
-    buildAppLayout, buildROVReceiptElements,
+	buildDepositElements, buildAppLayout, buildSidebar, buildAllocFundsGrid,
+    buildAccountElements, buildTransactElements, buildRentableTypeElements,
+    buildRentableElements, buildRAElements, buildRAPayorPicker, 
+    buildRUserPicker, buildRentablePicker, buildRAPicker, buildReceiptElements, 
+    buildAssessmentElements, buildExpenseElements, buildARElements, 
+    buildPaymentTypeElements, buildDepositoryElements, buildDepositElements,
+    buildStatementsElements, buildReportElements, buildLedgerElements, 
+    buildTWSElements, buildDepositMethodElements, buildPayorStatementElements, 
+    buildRentRollElements, buildLoginForm, buildAppLayout, 
+    buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
+    finishTaskListForm, createDepositForm, createPayorStmtForm,
+    createStmtForm, createRentalAgreementForm,
 */
 
 "use strict";
@@ -20,6 +24,7 @@
 //
 // RETURNS:
 //  nothing
+//------------------------------------------------------------------
 function buildPageElementsWrapper(uitype) {
     buildAppLayout();
     buildSidebar(uitype);
@@ -51,4 +56,15 @@ function buildPageElementsWrapper(uitype) {
     buildPayorStatementElements();
     buildRentRollElements();
     buildLoginForm();
+    buildTaskListElements();
+    buildTaskListDefElements();
+    finishForms();
+}
+
+function finishForms() {
+    createRentalAgreementForm();
+    createStmtForm();
+    createPayorStmtForm();
+    createDepositForm();
+    finishTaskListForm();
 }
