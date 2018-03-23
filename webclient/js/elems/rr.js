@@ -314,10 +314,10 @@ function buildRentRollElements() {
     // now add items for csv/pdf export report options
     w2ui.rrGrid.toolbar.add([
         { type: 'spacer',},
-        { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-        { type: 'button', id: 'printreport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+        { type: 'button', id: 'csvexport', icon: 'fas fa-table', tooltip: 'export to CSV' },
+        { type: 'button', id: 'printreport', icon: 'far fa-file-pdf', tooltip: 'export to PDF' },
         { type: 'break', id: 'break2' },
-        { type: 'menu-radio', id: 'page_size', icon: 'fa fa-print',
+        { type: 'menu-radio', id: 'page_size', icon: 'fas fa-print',
             tooltip: 'exported PDF page size',
             text: function (item) {
             //var text = item.selected;
@@ -335,7 +335,7 @@ function buildRentRollElements() {
                 { id: 'Custom', text: 'Custom'},
             ]
         },
-        { type: 'menu-radio', id: 'orientation', icon: 'fa fa-clone',
+        { type: 'menu-radio', id: 'orientation', icon: 'far fa-clone fa-rotate-90',
             tooltip: 'exported PDF orientation',
             text: function (item) {
             //var text = item.selected;

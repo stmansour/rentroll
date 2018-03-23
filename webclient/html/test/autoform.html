@@ -47,13 +47,13 @@ var config = {
                       '</div>'
             },
             { type: 'break', id: 'break1' },
-            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
-                { text: 'Directory',          icon: 'fa fa-user' },
-                { text: 'RentRoll',           icon: 'fa fa-building-o' },
-                { text: 'Forms & Procedures', icon: 'fa fa-book' },
+            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fas fa-sitemap', items: [
+                { text: 'Directory',          icon: 'fas fa-user' },
+                { text: 'RentRoll',           icon: 'far fa-building' },
+                { text: 'Forms & Procedures', icon: 'fas fa-book' },
             ]},
             { type: 'break', id: 'break2' },
-            { type: 'button', id: 'rentableform', caption: 'Rentables Form', icon: 'fa fa-star',
+            { type: 'button', id: 'rentableform', caption: 'Rentables Form', icon: 'fas fa-star',
                 onClick: function (/*event*/) {
                     w2ui.mainlayout.content('main', w2ui.rentablesForm);
                 }

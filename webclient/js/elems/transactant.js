@@ -94,7 +94,7 @@ $().w2grid({
                     return;
                 }
                 if (record.IsCompany === 0) {
-                    s += '<span style="color:#999;font-size:16px"><i class="fa fa-handshake-o" aria-hidden="true"></i></span>';
+                    s += '<span style="color:#999;font-size:16px"><i class="far fa-handshake" aria-hidden="true"></i></span>';
                 }
                 return s + ' ' + record.LastName;
             }
@@ -106,7 +106,7 @@ $().w2grid({
                     return;
                 }
                 if (record.IsCompany > 0) {
-                    s += '<span style="color:#999;font-size:16px"><i class="fa fa-handshake-o" aria-hidden="true"></i></span>';
+                    s += '<span style="color:#999;font-size:16px"><i class="far fa-handshake" aria-hidden="true"></i></span>';
                 }
                 return s + ' ' + record.CompanyName;
             }
@@ -251,9 +251,9 @@ $().w2grid({
         ],
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                 { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 if (event.target == 'btnClose') {

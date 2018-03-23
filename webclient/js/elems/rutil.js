@@ -125,7 +125,7 @@ function ChangeBusiness() {
 // @returns a string with HTML
 //---------------------------------------------------------------------------------
 function getGridReversalSymbolHTML() {
-    return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+    return '<i class="fas fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
 }
 
 //---------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ function getGridReversalSymbolHTML() {
 // @returns a string with HTML
 //---------------------------------------------------------------------------------
 function get2XReversalSymbolHTML() {
-    return "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
+    return "<div class='reverseIconContainer'><i class='fas fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
 }
 
 //---------------------------------------------------------------------------------

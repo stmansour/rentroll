@@ -64,24 +64,24 @@ function BuildUI() {
             { type: 'html',  id: 'prodid',
                 html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<emphasis>Desk</emphasis>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
             },
-            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
-                { text: 'Directory',          icon: 'fa fa-user' },
-                { text: 'Roller',             icon: 'fa fa-building-o' },
-                { text: 'Mojo',               icon: 'fa fa-envelope-o' },
+            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fas fa-sitemap', items: [
+                { text: 'Directory',          icon: 'fas fa-user' },
+                { text: 'Roller',             icon: 'far fa-building' },
+                { text: 'Mojo',               icon: 'far fa-envelope' },
             ]},
             { type: 'html',  id: 'BUD',
-                html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-building-o"></i> &nbsp;Business Unit:&nbsp;&nbsp;' +
+                html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="far fa-building"></i> &nbsp;Business Unit:&nbsp;&nbsp;' +
                     '<select name="BusinessSelect" onchange="ChangeBusiness();">'+
                     '<option value="BID" name="Designation">-- Select Business Unit --</option></select>'
             },
             { type: 'html',  id: 'Dept',
-                html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-user-circle"></i> &nbsp;Department:&nbsp;&nbsp;' +
+                html: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-user-circle"></i> &nbsp;Department:&nbsp;&nbsp;' +
                     '<select name="Dept"">'+
                     '<option value="DeptID" name="Department">Department</option></select>'
             },
             { type: 'break',  id: 'break2' },
             { id: 'bt3', type: 'spacer' },
-            { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
+            { id: 'help', text: 'Help', type: 'button', icon: 'fas fa-question-circle' },
         ],
         onClick: function (event) {
             console.log('target = ' + event.target);
@@ -97,7 +97,7 @@ function BuildUI() {
                         w2ui.toplayout.toggle('top',true);
                         w2ui.toplayout.set('top',{ content: w2ui.newsLayout});
                         w2ui.newsLayout.load('main', '/webclient/html/news.html', 'flip-down', function () {console.log('content loaded');});
-                        w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'});
+                        w2ui.toptoolbar.set('msgButton', {icon: 'far fa-newspaper'});
                         break;
             }
         },
@@ -110,32 +110,32 @@ function BuildUI() {
         nodes: [
             { id: 'reports', text: 'Reports & Forms', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
-                        { id: 'shiftrpt',             text: 'Shift Report',  icon: 'fa fa-star-o' },
-                        { id: 'RegistrationCard',     text: 'Registration Card',  icon: 'fa fa-star-o' },
-                        { id: 'AutoLease',            text: 'Auto Lease',  icon: 'fa fa-star-o' },
-                        { id: 'IncidentReport',       text: 'Incident Report',  icon: 'fa fa-star-o' },
-                        { id: 'CourtesyCarAgreement', text: 'Courtesy Car Agreement',  icon: 'fa fa-star-o' },
-                        { id: 'SpecialEventForm',     text: 'Special Event Form',  icon: 'fa fa-star-o' },
-                        { id: 'FAAReceiptForm',       text: 'FAA Receipt Form',  icon: 'fa fa-star-o' },
-                        { id: 'PTORequestForm',       text: 'Paid Time Off Request Form',  icon: 'fa fa-star-o' },
-                        { id: 'AssocChangeStatus',    text: 'Associate Change of Status',  icon: 'fa fa-star-o' },
+                        { id: 'shiftrpt',             text: 'Shift Report',  icon: 'far fa-star' },
+                        { id: 'RegistrationCard',     text: 'Registration Card',  icon: 'far fa-star' },
+                        { id: 'AutoLease',            text: 'Auto Lease',  icon: 'far fa-star' },
+                        { id: 'IncidentReport',       text: 'Incident Report',  icon: 'far fa-star' },
+                        { id: 'CourtesyCarAgreement', text: 'Courtesy Car Agreement',  icon: 'far fa-star' },
+                        { id: 'SpecialEventForm',     text: 'Special Event Form',  icon: 'far fa-star' },
+                        { id: 'FAAReceiptForm',       text: 'FAA Receipt Form',  icon: 'far fa-star' },
+                        { id: 'PTORequestForm',       text: 'Paid Time Off Request Form',  icon: 'far fa-star' },
+                        { id: 'AssocChangeStatus',    text: 'Associate Change of Status',  icon: 'far fa-star' },
                ]
             },
             { id: 'procman', text: 'Procedures & Manuals', img: 'icon-folder', expanded: true, group: true,
                 nodes: [
-                        { id: 'GuestServicesManual',  text: 'Guest Services Manual',  icon: 'fa fa-star-o' },
-                        { id: 'RoomKeyTrainingManual',text: 'Room Key Training Manual',  icon: 'fa fa-star-o' },
-                        { id: 'OneSiteTrainingManual',text: 'One Site Training Manual',  icon: 'fa fa-star-o' },
+                        { id: 'GuestServicesManual',  text: 'Guest Services Manual',  icon: 'far fa-star' },
+                        { id: 'RoomKeyTrainingManual',text: 'Room Key Training Manual',  icon: 'far fa-star' },
+                        { id: 'OneSiteTrainingManual',text: 'One Site Training Manual',  icon: 'far fa-star' },
                 ]
             },
-            { id: 'deptinfo', text: 'Department Information', icon: 'fa-book', expanded: true, group: true,
+            { id: 'deptinfo', text: 'Department Information', icon: 'fas fa-book', expanded: true, group: true,
                 nodes: [
-                        { id: 'pricing',          text: 'Pricing',            icon: 'fa fa-line-chart' },
-                        { id: 'passwd',           text: 'Passwords', icon: 'fa fa-pie-chart' },
-                        { id: 'hoursofoperation', text: 'Hours of Operation',        icon: 'fa fa-star-half-o' },
-                        { id: 'shuttleSched',     text: 'Shuttle Schedule',     icon: 'fa fa-star-half-o fa-flip-horizontal' },
-                        { id: 'assocsched', text: 'Associate Schedule', icon: 'fa-calendar'},
-                        { id: 'passdownlog', text: 'Passdown Log', icon: 'fa fa-pie-chart' },
+                        { id: 'pricing',          text: 'Pricing',            icon: 'fas fa-chart-line' },
+                        { id: 'passwd',           text: 'Passwords', icon: 'fas fa-chart-pie' },
+                        { id: 'hoursofoperation', text: 'Hours of Operation',        icon: 'fas fa-star-half' },
+                        { id: 'shuttleSched',     text: 'Shuttle Schedule',     icon: 'fas fa-star-half fa-flip-horizontal' },
+                        { id: 'assocsched', text: 'Associate Schedule', icon: 'far fa-calendar-alt'},
+                        { id: 'passdownlog', text: 'Passdown Log', icon: 'fas fa-chart-pie' },
                 ]
             },
         ],
