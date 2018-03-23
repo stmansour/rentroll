@@ -1287,6 +1287,10 @@ func buildPreparedStatements() {
 	RRdb.DBFields["FlowPart"] = flds
 	RRdb.Prepstmt.GetFlowPart, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where FlowPartID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetFlowPartByPartType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where FlowID=? AND PartType=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetFlowIDsByUser, err = RRdb.Dbrr.Prepare("SELECT DISTINCT FlowID FROM FlowPart where Flow=? AND CreateBy=?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetFlowPartsByFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where Flow=? AND BID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetFlowPartsByFlowID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where FlowID=?")

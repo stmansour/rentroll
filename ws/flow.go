@@ -18,6 +18,12 @@ type FlowPartJSONData struct {
 	flowPartStruct interface{}
 }
 
+// GetAllFlowsResponse response struct to get a whole flow with its all part
+type GetAllFlowsResponse struct {
+	Status  string   `json:"status"`
+	Records []string `json:"records"`
+}
+
 // GetFlowResponse response struct to get a whole flow with its all part
 type GetFlowResponse struct {
 	Status  string          `json:"status"`
@@ -60,8 +66,11 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
-	case "get":
-		getFlow(w, r, d)
+	case "getAllFlows":
+		getAllFlowsByUser(w, r, d)
+		break
+	case "getFlowParts":
+		getFlowParts(w, r, d)
 		break
 	case "init":
 		initiateFlow(w, r, d)
@@ -113,9 +122,9 @@ func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(d.BID, &g, w)
 }
 
-// getFlow returns all flowparts associated with given flowID
-func getFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "getFlow"
+// getFlowParts returns all flowparts associated with given flowID
+func getFlowParts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getFlowParts"
 	var (
 		err error
 		g   GetFlowResponse
@@ -131,6 +140,33 @@ func getFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	g.Records, err = rlib.GetFlowPartsByFlowID(r.Context(), f.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+
+// getAllFlowsByUser returns all flows for the current user and given flow
+func getAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getAllFlowsByUser"
+	var (
+		err error
+		g   GetAllFlowsResponse
+		f   FlowRequest
+	)
+
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &f); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	g.Records, err = rlib.GetFlowIDsByUser(r.Context(), f.Flow)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return

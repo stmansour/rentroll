@@ -1612,7 +1612,9 @@ type RRprepSQL struct {
 	GetVehiclesByBID                        *sql.Stmt
 	GetVehiclesByLicensePlate               *sql.Stmt
 	GetVehiclesByTransactant                *sql.Stmt
+	GetFlowIDsByUser                        *sql.Stmt
 	GetFlowPart                             *sql.Stmt
+	GetFlowPartByPartType                   *sql.Stmt
 	GetFlowPartsByFlowID                    *sql.Stmt
 	GetFlowPartsByFlow                      *sql.Stmt
 	InsertAR                                *sql.Stmt

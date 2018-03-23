@@ -19,6 +19,17 @@ var manageToBudget = rlib.Str2Int64Map{
 	"Yes (Market Rate required)": 1,
 }
 
+// rental agreement flow part types
+var raFlowPartTypes = rlib.Str2Int64Map{
+	"DatesRAFlowPart":          int64(rlib.DatesRAFlowPart),
+	"PeopleRAFlowPart":         int64(rlib.PeopleRAFlowPart),
+	"PetsRAFlowPart":           int64(rlib.PetsRAFlowPart),
+	"VehiclesRAFlowPart":       int64(rlib.VehiclesRAFlowPart),
+	"BackGroundInfoRAFlowPart": int64(rlib.BackGroundInfoRAFlowPart),
+	"RentablesRAFlowPart":      int64(rlib.RentablesRAFlowPart),
+	"FeesTermsRAFlowPart":      int64(rlib.FeesTermsRAFlowPart),
+}
+
 // rentroll report row flags
 var rrFLAGS = rlib.Str2Int64Map{
 	"RentRollMainRow":       rlib.RentRollMainRow,
@@ -177,6 +188,9 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// --------------- LIST DOWN rentroll report FLAGS --------------
 	appData["rrFLAGS"] = rrFLAGS
+
+	// --------------- LIST DOWN ra flow part types --------------
+	appData["raFlowPartTypes"] = raFlowPartTypes
 
 	// --------------- MAPPING - smapToJS ----------------------
 	for i := 0; i < len(smapToJS); i++ {
