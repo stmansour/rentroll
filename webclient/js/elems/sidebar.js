@@ -62,8 +62,8 @@ function buildSidebar(flag) {
                 },
                 { id: 'tasks', text: 'Tasks', img: 'icon-folder', expanded: false, group: true,
                     nodes: [
-                            { id: 'tasklistdef', text: 'Task List Definitions',          icon: 'fa fa-list-alt',       hint: 'Task List Definitions' },
-                            { id: 'tasklists',   text: 'Task Lists',                     icon: 'fa fa-list-ul',        hint: 'Task Lists' },
+                            { id: 'tlds',        text: 'Task List Definitions',          icon: 'fa fa-list-alt',       hint: 'Task List Definitions' },
+                            { id: 'tls',         text: 'Task Lists',                     icon: 'fa fa-list-ul',        hint: 'Task Lists' },
                     ]
                 },
                 { id: 'reports', text: 'Reports', img: 'icon-folder', expanded: false, group: true,
@@ -172,6 +172,8 @@ function buildSidebar(flag) {
                         case 'deposit':
                         case 'expense':
                         case 'payorstmt':
+                        case 'tls':
+                        case 'tlds':
                         case 'rr':
                             // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             switchToGrid(target);

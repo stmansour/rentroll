@@ -282,10 +282,6 @@ function buildPageElements() {
 function finishInitialization() {
     defineDateFmts();
     buildPageElements();
-    createRentalAgreementForm();
-    createStmtForm();
-    createPayorStmtForm();
-    createDepositForm();
     var d1 = new Date();
     d1.setDate(1);
     app.D1 = dateControlString(d1);
