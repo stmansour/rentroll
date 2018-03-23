@@ -45,6 +45,22 @@ else
     exit 1
 fi
 
+#--------------------------------------------------------------------
+#  Generate instrumented bundle.js to measure code coverage
+#--------------------------------------------------------------------
+echo "*** Generate instrumented bundle.js to measure javascript code coverage ***"
+pushd ../../webclient/
+webpack --progress --color
+if [[ $? == 0 ]]; then
+    echo "*** Generated instrumented bundle.js to measure javascript code coverage ***"
+else
+    exit 1
+fi
+popd
+
+#--------------------------------------------------------------------
+#  Run Cypress UI Tests
+#--------------------------------------------------------------------
 if [ "${IAMJENKINS}" == "jenkins" ]; then
     # if build machine then record the activity
     doCypressUITest "a" "--env configFile=build --spec ${CYPRESS_SPEC} --record" "CypressUITesting"
@@ -52,5 +68,28 @@ else
     # run cypress test with only receipt_2_spec.js with videoRecording false as of now
     doCypressUITest "a" "--env configFile=development --spec ${CYPRESS_SPEC}" "CypressUITesting"
 fi
+
+#--------------------------------------------------------------------
+#  Display code coverage report
+#--------------------------------------------------------------------
+nyc report
+if [[ $? == 0 ]]; then
+    echo "*** Code coverage report display failed. ***"
+else
+    exit 1
+fi
+
+#--------------------------------------------------------------------
+#  Generate bundle.js without instrumented code.
+#--------------------------------------------------------------------
+echo "*** Generate bundle.js without instrumented code. ***"
+pushd ../../webclient/
+grunt
+if [[ $? == 0 ]]; then
+    echo "*** Generated bundle.js without instrumented code. ***"
+else
+    exit 1
+fi
+popd
 
 # logcheck
