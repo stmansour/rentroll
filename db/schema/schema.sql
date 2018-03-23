@@ -1379,5 +1379,5 @@ CREATE TABLE FlowPart (
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                                 -- when was it created
     CreateBy BIGINT NOT NULL DEFAULT 0,                                                    -- who created it
     PRIMARY KEY(FlowPartID),
-    UNIQUE KEY `FlowPartID` (`FlowPartID`, `BID`, `FlowID`)
+    UNIQUE KEY FlowPartUnique (FlowPartID, BID, FlowID)
 );

@@ -147,7 +147,7 @@ MYSQLDUMP="mysqldump --no-defaults"
 #     DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- All tasks in task list pre-completion date
 #     DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',    -- Task completion Date
 #     DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00', -- Task Pre Completion Date
-#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0
 #     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
 #     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
 #     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
@@ -164,7 +164,7 @@ MYSQLDUMP="mysqldump --no-defaults"
 #     DtPreDue TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',  -- All tasks in task list pre-completion date
 #     DtDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',    -- Task completion Date
 #     DtPreDone TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00', -- Task Pre Completion Date
-#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0
 #     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
 #     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
 #     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
@@ -217,7 +217,7 @@ MYSQLDUMP="mysqldump --no-defaults"
 #     Epoch DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',      -- TaskList start Date
 #     EpochDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',   -- TaskList Due Date
 #     EpochPreDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00', -- Pre Completion due date
-#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 
+#     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0
 #     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
 #     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
 #     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
@@ -271,6 +271,23 @@ MYSQLDUMP="mysqldump --no-defaults"
 #     PRIMARY KEY(TLID)
 # );
 
+# 23 Mar, 2018
+# DROP TABLE IF EXISTS FlowPart;
+# CREATE TABLE FlowPart (
+#     FlowPartID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,                                                         -- Business id
+#     Flow VARCHAR(50) NOT NULL DEFAULT '',                                                  -- for which flow we're storing data ("RA=Rental Agreement Flow")
+#     FlowID VARCHAR(50) NOT NULL DEFAULT '',                                                -- unique random flow ID for which we will store relavant json data
+#     PartType SMALLINT NOT NULL DEFAULT 0,                                                  -- for which part type ("ASM", "PET", "VEHICLE")
+#     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                                                   -- who modified it last
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                                 -- when was it created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                                                    -- who created it
+#     PRIMARY KEY(FlowPartID),
+#     UNIQUE KEY FlowPartUnique (FlowPartID, BID, FlowID)
+# );
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
@@ -287,8 +304,6 @@ declare -a dbs=(
     'rfix/receipts.sql'
     'roller/prodrr.sql'
     'rr/rr.sql'
-    'setup/accord.sql'
-    'setup/old.sql'
     'webclient/webclientTest.sql'
     'websvc1/asmtest.sql'
     'websvc3/tasks.sql'
