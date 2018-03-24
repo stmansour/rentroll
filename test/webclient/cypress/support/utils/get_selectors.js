@@ -2,12 +2,12 @@
 
 // return selector for close button of form
 export function getFormCloseButtonSelector() {
-    return '[class="fa fa-times"]';
+    return '[class="fas fa-times"]';
 }
 
 // return selector for print button of form
 export function getFormPrintButtonSelector() {
-    return '[class="fa fa-print"]';
+    return '[class="fas fa-print"]';
 }
 
 // return selector for print receipt popup
