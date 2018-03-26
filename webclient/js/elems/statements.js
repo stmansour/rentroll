@@ -261,14 +261,33 @@ function setToStmtForm(bid, raid, d1,d2) {
             searchDtStart: d1,
             searchDtStop: d2,
         };
-        w2ui.stmtDetailForm.request();
 
-        w2ui.toplayout.content('right', w2ui.stmtLayout);
-        w2ui.toplayout.show('right', true);
-        w2ui.toplayout.sizeTo('right', 850);
-        w2ui.toplayout.render();
-        app.new_form_rec = false;  // mark as record exists
-        app.form_is_dirty = false; // mark as no changes yet
+        // ==================
+        // INTERNAL FUNCTION
+        // ==================
+        var showForm = function() {
+            w2ui.toplayout.content('right', w2ui.stmtLayout);
+            w2ui.toplayout.show('right', true);
+            w2ui.toplayout.sizeTo('right', 850);
+            w2ui.toplayout.render();
+            app.new_form_rec = false;  // mark as record exists
+            app.form_is_dirty = false; // mark as no changes yet
+            // NOTE: remove any error tags bound to field from previous form
+            $().w2tag();
+            // SHOW the right panel now
+            w2ui.toplayout.show('right', true);
+        };
+
+        w2ui.stmtDetailForm.request(function(event) {
+            if (event.status === "success") {
+                showForm();
+                return true;
+            } else {
+                showForm();
+                w2ui.stmtDetailForm.message("Could not get form data from server...!!");
+                return false;
+            }
+        });
     }
 }
 
