@@ -111,9 +111,9 @@ describe('AIR Roller UI Tests - Payment types', function () {
     * Expect:
     * Cell value must be same as record's field value from API Response.
     ***********************/
-    it('Grid Records', function () {
-        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
-    });
+    // it('Grid Records', function () {
+    //     common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+    // });
 
     /*******************************
     * Click on first record of grid
@@ -125,18 +125,18 @@ describe('AIR Roller UI Tests - Payment types', function () {
     *
     * Close the form
     ********************************/
-    it('Record Detail Form', function () {
-        // ----------------------------------
-        // -- Tests for detail record form --
-        // ----------------------------------
-        // Params:
-        // recordsAPIResponse: list of record from the api response,
-        // testConfig: configuration for running tests
-        common.testRecordDetailForm(recordsAPIResponse, testConfig);
-
-        // -- Close the form. And assert that form isn't visible. --
-        common.closeFormTests(selectors.getFormSelector(testConfig.form));
-    });
+    // it('Record Detail Form', function () {
+    //     // ----------------------------------
+    //     // -- Tests for detail record form --
+    //     // ----------------------------------
+    //     // Params:
+    //     // recordsAPIResponse: list of record from the api response,
+    //     // testConfig: configuration for running tests
+    //     common.testRecordDetailForm(recordsAPIResponse, testConfig);
+    //
+    //     // -- Close the form. And assert that form isn't visible. --
+    //     common.closeFormTests(selectors.getFormSelector(testConfig.form));
+    // });
 
     /************************************************************
     * Click Add new in toolbar
@@ -145,11 +145,47 @@ describe('AIR Roller UI Tests - Payment types', function () {
     * Each field must set to be its default value
     * Button must be visible(Save, Save and Add Another etc.)
     ************************************************************/
-    it('Add new record form', function () {
-        // ---------------------------------------
-        // ----- Tests for add new record form ---
-        // ---------------------------------------
-        common.testAddNewRecordForm(testConfig);
+    // it('Check default value of fields for new record form', function () {
+    //     // ---------------------------------------
+    //     // ----- Tests for add new record form ---
+    //     // ---------------------------------------
+    //     // common.testAddNewRecordForm(testConfig);
+    // });
+
+    /**************************************************
+     * Click Add new bitton in toolbar
+     * Fill value in the forms for each field from the fixture
+     * Click save button
+     *
+     * Expect:
+     * After saving the record, response must have status flag to be 'success'
+     **************************************************/
+    it('Add new record', function () {
+        // Click add new button and open a form
+        cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
+
+        // cy.fixture('paymentTypes.json').as('pmtJson');
+        cy.fixture('paymentTypes.json').then((json) => {
+            cy.get('#Name').type(json['record']['Name']);
+
+            cy.get('#Description').type(json['record']['Description']);
+        });
+
+        cy.server();
+
+        cy.route('POST', common.getDetailRecordAPIEndPoint('pmts', 0)).as('addRecord');
+
+        cy.get(selectors.getButtonSelector('save')).click();
+
+        // check response status of API end point
+        cy.wait('@addRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+        // perform tests on record detail form
+        cy.get('@addRecord').then(function (xhr) {
+            cy.log(xhr);
+            cy.log(xhr.responseBody);
+            expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+        });
     });
 
     // -- Perform operation after all tests finish. It runs once after all tests in the block --

@@ -171,7 +171,7 @@ describe('AIR Receipt UI Tests - Tendered Receipt Payment', function () {
      * Each field must set to be its default value
      * Button must be visible(Save, Save and Add Another etc.)
      ************************************************************/
-    it('Add new record form', function () {
+    it('Check default value of fields for new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
         // ---------------------------------------
