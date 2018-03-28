@@ -93,7 +93,6 @@ module.exports = function gruntInit(grunt) {
     // grunt.loadNpmTasks('grunt-webpack'); // To run webpack via grunt
 
     // ========== REGISTERED TASKS ==========
-
-    grunt.registerTask('default', ['clean', 'jshint', 'uglify']); // TODO(Akshay): Enable 'jshint' after discussing with steve.
+    grunt.registerTask('default', ['clean', 'jshint', 'concat', 'uglify']);
     grunt.registerTask('dev', ['watch']);
 };
