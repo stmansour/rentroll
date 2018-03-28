@@ -1,6 +1,6 @@
 "use strict";
 /*global
-  console, app,
+  console, app, setDateControl, dateMonthBack
 */
 
 //-----------------------------------------------------------------------------
@@ -10,11 +10,11 @@
 //   dc = date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function dayBack(dc) {
+window.dayBack = function (dc) {
     var x = dateFromString(dc.value);
     x.setDate(x.getDate() - 1);
     return setDateControl(dc, x);
-}
+};
 
 //-----------------------------------------------------------------------------
 // dayFwd - supply the date control and this function will go to the next day.
@@ -22,11 +22,11 @@ function dayBack(dc) {
 //   dc = date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function dayFwd(dc) {
+window.dayFwd = function (dc) {
     var x = dateFromString(dc.value);
     x.setDate(x.getDate() + 1);
     return setDateControl(dc, x);
-}
+};
 
 //-----------------------------------------------------------------------------
 // dateMonthFwd - return a date that is one month from the supplied date. It
@@ -36,7 +36,7 @@ function dayFwd(dc) {
 //   y = starting date
 // @return - a date that is one month from y
 //-----------------------------------------------------------------------------
-function dateMonthFwd(y) {
+window.dateMonthFwd = function (y) {
 
     var m = (y.getMonth() + 1) % 12; // set m to the correct next month value
     var my = (y.getMonth() + 1) / 12; // number of years to add for next month
@@ -58,7 +58,7 @@ function dateMonthFwd(y) {
     // console.log('dateMonthFwd:  m = ' + m + '   d = ' + d);
     var d2 = new Date(y.getFullYear() + my, m, d, 0, 0, 0);
     return d2;
-}
+};
 
 //-----------------------------------------------------------------------------
 // monthFwd - supply the date control and this function will go to the next
@@ -70,14 +70,14 @@ function dateMonthFwd(y) {
 //            date rather than the value of the supplied date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function monthFwd(dc,strval) {
+window.monthFwd = function (dc,strval) {
     var y = dateFromString(dc.value);
     if (typeof strval == "string") {
         y = dateFromString(strval);
     }
     var d2 = dateMonthFwd(y);
     return setDateControl(dc, d2);
-}
+};
 
 //-----------------------------------------------------------------------------
 // setToCurrentMonth
@@ -87,11 +87,11 @@ function monthFwd(dc,strval) {
 //   dc = date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function setToCurrentMonth(dc) {
+window.setToCurrentMonth = function (dc) {
     var y = new Date();
     var d2 = new Date(y.getFullYear(), y.getMonth(), 1, 0, 0, 0, 0);
     return setDateControl(dc, d2);
-}
+};
 
 //-----------------------------------------------------------------------------
 // setToNextMonth
@@ -103,7 +103,7 @@ function setToCurrentMonth(dc) {
 //   dc = date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function setToNextMonth(dc) {
+window.setToNextMonth = function (dc) {
     var y = new Date();
     var my = (y.getMonth() + 1) / 12; // number of years to add for next month
     var m = (y.getMonth() + 1) % 12;  // next month
@@ -124,7 +124,7 @@ function setToNextMonth(dc) {
 
     // return s;
     return dc.value;
-}
+};
 
 //-----------------------------------------------------------------------------
 // dateMonthBack - return a date which is a month prior to the supplied date
@@ -132,7 +132,7 @@ function setToNextMonth(dc) {
 //   y = input date
 // @return date which is y - 1 month
 //-----------------------------------------------------------------------------
-function dateMonthBack(y) {
+window.dateMonthBack = function (y) {
     var yb = 0; // assume same year
     var m = y.getMonth() - 1;
     if (m < 0) {
@@ -149,7 +149,7 @@ function dateMonthBack(y) {
         d = daysInPrevMonth;
     }
     return new Date(y.getFullYear() - yb, m, d, 0, 0, 0);
-}
+};
 
 //-----------------------------------------------------------------------------
 // monthBack - supply the date control, this function will go to the previous
@@ -159,11 +159,11 @@ function dateMonthBack(y) {
 //   dc = date control
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function monthBack(dc) {
+window.monthBack = function (dc) {
     var y = dateFromString(dc.value);
     var d2 =  dateMonthBack(y);
     return setDateControl(dc, d2);
-}
+};
 
 //-----------------------------------------------------------------------------
 // dateControlString
@@ -174,7 +174,7 @@ function monthBack(dc) {
 //   dt = java date value
 // @return string value m/d/yyyy
 //-----------------------------------------------------------------------------
-function dateControlString(dt) {
+window.dateControlString = function (dt) {
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
     // if (m < 10) { s += '0'; }
@@ -183,7 +183,7 @@ function dateControlString(dt) {
     s += d;
     s += '/' + dt.getFullYear() + '';
     return s;
-}
+};
 
 //-----------------------------------------------------------------------------
 // w2uiDateControlString
@@ -195,12 +195,12 @@ function dateControlString(dt) {
 //   dt = java date value
 // @return string value mm-dd-yyyy
 //-----------------------------------------------------------------------------
-function w2uiDateControlString(dt) {
+window.w2uiDateControlString = function (dt) {
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
     var s = '' + m + '/' + d+'/' + dt.getFullYear();
     return s;
-}
+};
 
 //-----------------------------------------------------------------------------
 // setDateControl
@@ -213,11 +213,11 @@ function w2uiDateControlString(dt) {
 //   dt = java date value to set in dc
 // @return string value that was set in dc
 //-----------------------------------------------------------------------------
-function setDateControl(dc, dt) {
+window.setDateControl = function (dc, dt) {
     var s = w2uiDateControlString(dt);
     dc.value = s;
     return s;
-}
+};
 
 //-----------------------------------------------------------------------------
 // dateFromString - return a java date value equal to the date in the supplied
@@ -226,7 +226,7 @@ function setDateControl(dc, dt) {
 //   ds = date string value
 // @return - java date value
 //-----------------------------------------------------------------------------
-function dateFromString(ds) {
+window.dateFromString = function (ds) {
     // Strange thing about javascript dates
     // new Date("2017-06-28") gives a date with offset value with local timezone i.e, Wed Jun 28 2017 05:30:00 GMT+0530 (IST)
     // new Date("2017/06/28") gives a date without offset value with local timezone i.e, Wed Jun 28 2017 00:00:00 GMT+0530 (IST)
@@ -234,7 +234,7 @@ function dateFromString(ds) {
     ds = ds.replace(/-/g,"\/");
     ds = ds.replace(/T.+/, ''); // first replace `/` with `-` and also remove `hh:mm:ss` value we don't need it
     return new Date(ds);
-}
+};
 
 //-----------------------------------------------------------------------------
 // dateTodayStr - return a string with today's date in the form d/m/yyyy
@@ -242,10 +242,10 @@ function dateFromString(ds) {
 //   <none>
 // @return - formatted date string
 //-----------------------------------------------------------------------------
-function dateTodayStr() {
+window.dateTodayStr = function () {
     var today = new Date();
     return dateFmtStr(today);
-}
+};
 
 //-----------------------------------------------------------------------------
 // dateFmtStr - return a string with the supplied date in the form d/m/yyyy
@@ -253,12 +253,12 @@ function dateTodayStr() {
 //    date
 // @return - formatted date string
 //-----------------------------------------------------------------------------
-function dateFmtStr(today) {
+window.dateFmtStr = function (today) {
     var dd = today.getDate();
     var mm = today.getMonth() + 1; //January is 0!
     var yyyy = today.getFullYear();
     return mm + '/' + dd + '/' + yyyy;
-}
+};
 
 //-----------------------------------------------------------------------------
 // isDatePriorToCurrentDate - return boolean value
@@ -266,7 +266,7 @@ function dateFmtStr(today) {
 //    date object
 // @return - boolean
 //-----------------------------------------------------------------------------
-function isDatePriorToCurrentDate(date) {
+window.isDatePriorToCurrentDate = function (date) {
     var dd = date.getDate();
     var mm = date.getMonth() + 1; //January is 0!
     var yyyy = date.getFullYear();
@@ -279,9 +279,7 @@ function isDatePriorToCurrentDate(date) {
         }
     }
     return false;
-}
-
-
+};
 
 $(function() {
      $(document).on("blur change", "input[type=us-date1], input[type=us-date2]", function(e) {

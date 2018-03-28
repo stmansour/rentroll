@@ -111,9 +111,9 @@ describe('AIR Roller UI Tests - Payment types', function () {
     * Expect:
     * Cell value must be same as record's field value from API Response.
     ***********************/
-    // it('Grid Records', function () {
-    //     common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
-    // });
+    it('Grid Records', function () {
+        common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
+    });
 
     /*******************************
     * Click on first record of grid
@@ -125,18 +125,18 @@ describe('AIR Roller UI Tests - Payment types', function () {
     *
     * Close the form
     ********************************/
-    // it('Record Detail Form', function () {
-    //     // ----------------------------------
-    //     // -- Tests for detail record form --
-    //     // ----------------------------------
-    //     // Params:
-    //     // recordsAPIResponse: list of record from the api response,
-    //     // testConfig: configuration for running tests
-    //     common.testRecordDetailForm(recordsAPIResponse, testConfig);
-    //
-    //     // -- Close the form. And assert that form isn't visible. --
-    //     common.closeFormTests(selectors.getFormSelector(testConfig.form));
-    // });
+    it('Record Detail Form', function () {
+        // ----------------------------------
+        // -- Tests for detail record form --
+        // ----------------------------------
+        // Params:
+        // recordsAPIResponse: list of record from the api response,
+        // testConfig: configuration for running tests
+        common.testRecordDetailForm(recordsAPIResponse, testConfig);
+
+        // -- Close the form. And assert that form isn't visible. --
+        common.closeFormTests(selectors.getFormSelector(testConfig.form));
+    });
 
     /************************************************************
     * Click Add new in toolbar
@@ -145,12 +145,12 @@ describe('AIR Roller UI Tests - Payment types', function () {
     * Each field must set to be its default value
     * Button must be visible(Save, Save and Add Another etc.)
     ************************************************************/
-    // it('Check default value of fields for new record form', function () {
-    //     // ---------------------------------------
-    //     // ----- Tests for add new record form ---
-    //     // ---------------------------------------
-    //    // common.testAddNewRecordForm(testConfig);
-    // });
+    it('Check default value of fields for new record form', function () {
+        // ---------------------------------------
+        // ----- Tests for add new record form ---
+        // ---------------------------------------
+       common.testAddNewRecordForm(testConfig);
+    });
 
     /**************************************************
      * Click Add new bitton in toolbar
@@ -160,6 +160,7 @@ describe('AIR Roller UI Tests - Payment types', function () {
      * Expect:
      * After saving the record, response must have status flag to be 'success'
      **************************************************/
+    //TODO(Akshay): Use this Save new record tests for other modules also later on
     it('Save new record', function () {
         // Click add new button and open a form
         cy.contains('Add New', {force: true}).click().wait(constants.WAIT_TIME);
@@ -205,7 +206,7 @@ describe('AIR Roller UI Tests - Payment types', function () {
                     cy.log(getW2UIFormRecords);
 
                     // get default value of field
-                    fieldValue = json['record'][fieldID];
+                    fieldValue = json.record[fieldID];
 
                     // get field from w2ui form field list
                     field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
