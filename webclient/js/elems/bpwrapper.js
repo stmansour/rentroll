@@ -60,10 +60,10 @@ window.buildPageElementsWrapper = function (uitype) {
     finishForms();
 };
 
-function finishForms() {
+window.finishForms = function () {
     createRentalAgreementForm();
     createStmtForm();
     createPayorStmtForm();
     createDepositForm();
     finishTaskListForm();
-}
+};

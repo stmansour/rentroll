@@ -4,7 +4,7 @@
     form_dirty_alert, addDateNavToToolbar
 */
 
-function buildTaskListElements() {
+window.buildTaskListElements = function () {
     //------------------------------------------------------------------------
     //          tlsGrid  -  TASK LISTS in the date range
     //------------------------------------------------------------------------
@@ -265,13 +265,13 @@ function buildTaskListElements() {
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
-}
+};
 
-function finishTaskListForm() {
+window.finishTaskListForm = function () {
     w2ui.tlLayout.content('top',   w2ui.tlsInfoForm);
     // w2ui.tlLayout.content('main',  w2ui.depositListGrid);
     // w2ui.tlLayout.content('bottom',w2ui.depositFormBtns);
-}
+};
 
 //-----------------------------------------------------------------------------
 // setToTLForm -  enable the Statement form in toplayout.  Also, set
@@ -281,7 +281,7 @@ function finishTaskListForm() {
 //    id = Task List TLID
 // d1,d2 = date range to use
 //-----------------------------------------------------------------------------
-function setToTLForm(bid, id, d1,d2) {
+window.setToTLForm = function (bid, id, d1,d2) {
     if (id > 0) {
         w2ui.tlsGrid.url = '/v1/tl/' + bid + '/' + id;
         w2ui.tlsInfoForm.url = '/v1/tl/' + bid + '/' + id;
@@ -299,4 +299,4 @@ function setToTLForm(bid, id, d1,d2) {
         app.new_form_rec = false;  // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
     }
-}
+};
