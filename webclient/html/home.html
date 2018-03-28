@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="/webclient/js/w2ui-1.5.rc1.min.css" />
     <script src="/webclient/js/jquery.min.js"></script>
     <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
-    <link rel="stylesheet" href="/webclient/html/fa/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/webclient/html/fa/css/fontawesome-all.min.css">
     <link rel="stylesheet" href="/webclient/html/rentroll.css">
     <link rel="icon" type="image/png" href="/webclient/html/images/roller-32.png">
 </head>
@@ -204,26 +204,26 @@ function buildPageElements() {
                       '<td><img src="/webclient/html/images/roller-32.png"></td></tr></table></div>'
             },
             { type: 'break', id: 'break1' },
-            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fa fa-sitemap', items: [
-                { text: 'Directory',          icon: 'fa fa-user' },
-                { text: 'Roller',             icon: 'fa fa-building-o' },
-                { text: 'Mojo',               icon: 'fa fa-envelope-o' },
-                { text: 'Forms & Procedures', icon: 'fa fa-book' },
+            { type: 'menu',    id: 'moduleMenu', caption: 'Select Module',    icon: 'fas fa-sitemap', items: [
+                { text: 'Directory',          icon: 'fas fa-user' },
+                { text: 'Roller',             icon: 'far fa-building' },
+                { text: 'Mojo',               icon: 'far fa-envelope' },
+                { text: 'Forms & Procedures', icon: 'fas fa-book' },
             ]},
              { type: 'html',  id: 'BUD',
                 html: //'<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">'+
-                    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-building-o"></i> &nbsp;' + app.sBusinessUnit +
+                    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="far fa-building"></i> &nbsp;' + app.sBusinessUnit +
                     ': <select name="BusinessSelect" onchange="ChangeBusiness();">'+
                     '{{range .BL}}<option value="{{.BID}}" name="{{.Designation}}">{{.Designation}}</option>{{end}}'+
                     '</select>&nbsp;&nbsp;&nbsp;' //+ '</div>'
             },
             { type: 'break',  id: 'break2' },
-            { type: 'button', id: 'msgButton',  caption: 'News Flash', icon: 'fa fa-spinner fa-pulse fa-3x fa-fw'},
-            { type: 'menu',   id: 'menuButton', caption: 'Developer',  icon: 'fa fa-user-circle', items: [
-                { text: 'Webdocs',       icon: 'fa fa-book' },
-                { text: 'Template-Dflt', icon: 'fa fa-language' },
-                { text: 'Template-Apts', icon: 'fa fa-language' },
-                { text: 'Messages',      icon: 'fa fa-folder-o' },
+            { type: 'button', id: 'msgButton',  caption: 'News Flash', icon: 'fas fa-spinner fa-pulse fa-3x fa-fw'},
+            { type: 'menu',   id: 'menuButton', caption: 'Developer',  icon: 'fas fa-user-circle', items: [
+                { text: 'Webdocs',       icon: 'fas fa-book' },
+                { text: 'Template-Dflt', icon: 'fas fa-language' },
+                { text: 'Template-Apts', icon: 'fas fa-language' },
+                { text: 'Messages',      icon: 'far fa-folder' },
             ]},
             { id: 'bt3', type: 'spacer' },
             { type: 'menu',   id: 'userMenu',
@@ -232,12 +232,12 @@ function buildPageElements() {
                       '<img src="" />'+
                       '</div>',
                 items: [
-                    { id: 'Profile'  , text: 'Profile' , icon: 'fa fa-user' },
-                    { id: 'Settings' , text: 'Settings', icon: 'fa fa-gear' },
-                    { id: 'Signout'  , text: 'Sign Out', icon: 'fa fa-sign-out' },
+                    { id: 'Profile'  , text: 'Profile' , icon: 'fas fa-user' },
+                    { id: 'Settings' , text: 'Settings', icon: 'fas fa-cog' },
+                    { id: 'Signout'  , text: 'Sign Out', icon: 'fas fa-sign-out-alt' },
                 ],
             },
-            { id: 'help', text: 'Help', type: 'button', icon: 'fa fa-question-circle' },
+            { id: 'help', text: 'Help', type: 'button', icon: 'fas fa-question-circle' },
         ],
         onRender: function(event) {
             event.onComplete = function() {
@@ -272,7 +272,7 @@ function buildPageElements() {
                         w2ui.toplayout.toggle('top',true);
                         w2ui.toplayout.set('top',{ content: w2ui.newsLayout});
                         w2ui.newsLayout.load('main', '/webclient/html/news.html', 'flip-down', function () {console.log('content loaded');});
-                        w2ui.toptoolbar.set('msgButton', {icon: 'fa fa-newspaper-o'});
+                        w2ui.toptoolbar.set('msgButton', {icon: 'far fa-newspaper'});
                         break;
                 case "userMenu:Profile": break;
                 case "userMenu:Settings": break;
@@ -313,10 +313,6 @@ function buildPageElements() {
 function finishInitialization() {
     defineDateFmts();
     buildPageElements();
-    createRentalAgreementForm();
-    createStmtForm();
-    createPayorStmtForm();
-    createDepositForm();
     var d1 = new Date();
     d1.setDate(1);
     app.D1 = dateControlString(d1);

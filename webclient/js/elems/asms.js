@@ -131,13 +131,13 @@ window.buildAssessmentElements = function () {
                                 record.w2ui = {class:""};
                             }
                             record.w2ui.class = "asmEpochRow";
-                            return '<i class="fa fa-refresh" title="epoch" aria-hidden="true"></i>';
+                            return '<i class="fas fa-sync-alt" title="epoch" aria-hidden="true"></i>';
                         } else if (record.RentCycle) { // if recurring assessment then put refresh icon
                             if (record.w2ui === undefined) {
                                 record.w2ui = {class:""};
                             }
                             record.w2ui.class = "asmInstRow";
-                            return '<i class="fa fa-refresh" title="recurring" aria-hidden="true"></i>';
+                            return '<i class="fas fa-sync-alt" title="recurring" aria-hidden="true"></i>';
                         }
                         return ''; // if non-recur assessment then do nothing
                     },
@@ -282,7 +282,7 @@ window.buildAssessmentElements = function () {
             { field: 'ARID',          type: 'list',     required: true, options: { items: app.AssessmentRules }},
             { field: 'recid',         type: 'int',      required: false },
             { field: 'ASMID',         type: 'int',      required: false },
-            { field: 'BID',           type: 'int',     required: true },
+            { field: 'BID',           type: 'int',      required: true },
             { field: 'BUD',           type: 'list',     required: true, options: {items: app.businesses} },
             { field: 'PASMID',        type: 'w2int',    required: false },
             { field: 'Rentable',      type: 'text',     required: false },
@@ -308,9 +308,9 @@ window.buildAssessmentElements = function () {
         ],
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                 { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 switch(event.target) {
@@ -441,7 +441,7 @@ window.buildAssessmentElements = function () {
                 }
 
                 // Assessment Info at the top of form in white box
-                var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Assessment Series Definition</p>'.format(r.ASMID);
+                var info = '<p><i class="fas fa-sync-alt" style="margin-right: 5px;"></i> Repeating Assessment Series Definition</p>'.format(r.ASMID);
                 $(f.box).find("#AssessmentInfo").html(info);
 
                 // FLAG reports
@@ -607,9 +607,9 @@ window.buildAssessmentElements = function () {
         ],
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                 { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 switch(event.target) {

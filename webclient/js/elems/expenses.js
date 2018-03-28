@@ -69,7 +69,7 @@ window.renderExpReversalIcon = function (record /*, index, col_index*/) {
         return;
     }
     if ( (record.FLAGS & app.asmFLAGS.ASMREVERSED) !== 0 ) { // if reversed then
-        return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+        return '<i class="fas fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
     }
     return '';
 };
@@ -245,9 +245,9 @@ window.buildExpenseElements = function () {
         ],
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                 { id: 'bt3',      type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 switch(event.target) {
@@ -407,7 +407,7 @@ window.buildExpenseElements = function () {
                 }
 
                 // Expense Info at the top of form in white box
-                var info = '<p><i class="fa fa-refresh" style="margin-right: 5px;"></i> Repeating Expense Series Definition</p>'.format(r.EXPID);
+                var info = '<p><i class="fas fa-sync-alt" style="margin-right: 5px;"></i> Repeating Expense Series Definition</p>'.format(r.EXPID);
                 $(f.box).find("#ExpenseInfo").html(info);
 
                 // FLAG reports

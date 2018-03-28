@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"extres"
 	"fmt"
 	"strings"
@@ -1365,6 +1366,20 @@ type GLAccount struct {
 	// RARequired  int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 }
 
+// FlowPart is a structure for to store temporarity flow data latest one
+type FlowPart struct {
+	FlowPartID  int64           // primary auto increment key
+	BID         int64           // Business unit associated with this FlowPart
+	Flow        string          // RA="Rental Agreement Flow" etc...
+	FlowID      string          // Unique ID across all relavant data for this flow -- UnixNano(32 bits) + User ID
+	PartType    int             // flow part type ("ASM","PET","VEHICLE")
+	Data        json.RawMessage // json data in mysql
+	LastModTime time.Time       // last modified time
+	LastModBy   int64           // last modified by whom
+	CreateTS    time.Time       // created time
+	CreateBy    int64           // created by whom
+}
+
 // RRprepSQL is a collection of prepared sql statements for the RentRoll db
 type RRprepSQL struct {
 	CountBusinessCustomAttributes           *sql.Stmt
@@ -1428,6 +1443,8 @@ type RRprepSQL struct {
 	DeleteTransactant                       *sql.Stmt
 	DeleteUser                              *sql.Stmt
 	DeleteVehicle                           *sql.Stmt
+	DeleteFlowPart                          *sql.Stmt
+	DeleteFlowPartsByFlowID                 *sql.Stmt
 	FindAgreementByRentable                 *sql.Stmt
 	FindTCIDByNote                          *sql.Stmt
 	FindTransactantByPhoneOrEmail           *sql.Stmt
@@ -1595,6 +1612,11 @@ type RRprepSQL struct {
 	GetVehiclesByBID                        *sql.Stmt
 	GetVehiclesByLicensePlate               *sql.Stmt
 	GetVehiclesByTransactant                *sql.Stmt
+	GetFlowIDsByUser                        *sql.Stmt
+	GetFlowPart                             *sql.Stmt
+	GetFlowPartByPartType                   *sql.Stmt
+	GetFlowPartsByFlowID                    *sql.Stmt
+	GetFlowPartsByFlow                      *sql.Stmt
 	InsertAR                                *sql.Stmt
 	InsertAssessment                        *sql.Stmt
 	InsertAssessmentType                    *sql.Stmt
@@ -1649,6 +1671,7 @@ type RRprepSQL struct {
 	InsertTransactant                       *sql.Stmt
 	InsertUser                              *sql.Stmt
 	InsertVehicle                           *sql.Stmt
+	InsertFlowPart                          *sql.Stmt
 	ReadRatePlan                            *sql.Stmt
 	ReadRatePlanRef                         *sql.Stmt
 	UIRAGrid                                *sql.Stmt
@@ -1695,6 +1718,7 @@ type RRprepSQL struct {
 	UpdateTransactant                       *sql.Stmt
 	UpdateUser                              *sql.Stmt
 	UpdateVehicle                           *sql.Stmt
+	UpdateFlowPart                          *sql.Stmt
 	GetAssessmentInstancesByParent          *sql.Stmt
 	GetJournalAllocationsByASMID            *sql.Stmt
 	GetRentableTypeRefs                     *sql.Stmt

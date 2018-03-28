@@ -123,7 +123,7 @@ window.ChangeBusiness = function () {
 // @returns a string with HTML
 //---------------------------------------------------------------------------------
 window.getGridReversalSymbolHTML = function () {
-    return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+    return '<i class="fas fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
 };
 
 //---------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ window.getGridReversalSymbolHTML = function () {
 // @returns a string with HTML
 //---------------------------------------------------------------------------------
 window.get2XReversalSymbolHTML = function () {
-    return "<div class='reverseIconContainer'><i class='fa fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
+    return "<div class='reverseIconContainer'><i class='fas fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
 };
 
 //---------------------------------------------------------------------------------

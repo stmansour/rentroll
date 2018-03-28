@@ -72,12 +72,12 @@ window.buildStatementsElements = function () {
         formURL: '/webclient/html/formstmtdet.html',
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                 { type: 'break' },
-                { type: 'button', id: 'csvexport', icon: 'fa fa-table', tooltip: 'export to CSV' },
-                { type: 'button', id: 'pdfexport', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+                { type: 'button', id: 'csvexport', icon: 'fas fa-table', tooltip: 'export to CSV' },
+                { type: 'button', id: 'pdfexport', icon: 'far fa-file-pdf', tooltip: 'export to PDF' },
                 { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 var r = w2ui.stmtDetailForm.record;
@@ -229,7 +229,7 @@ window.renderStmtReversal = function (record /*, index, col_index*/) {
         return;
     }
     if ( record.Reverse ) { // if reversed then
-        return '<i class="fa fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
+        return '<i class="fas fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
     }
     return '';
 };
@@ -260,14 +260,33 @@ window.setToStmtForm = function (bid, raid, d1,d2) {
             searchDtStart: d1,
             searchDtStop: d2,
         };
-        w2ui.stmtDetailForm.request();
 
-        w2ui.toplayout.content('right', w2ui.stmtLayout);
-        w2ui.toplayout.show('right', true);
-        w2ui.toplayout.sizeTo('right', 850);
-        w2ui.toplayout.render();
-        app.new_form_rec = false;  // mark as record exists
-        app.form_is_dirty = false; // mark as no changes yet
+        // ==================
+        // INTERNAL FUNCTION
+        // ==================
+        var showForm = function() {
+            w2ui.toplayout.content('right', w2ui.stmtLayout);
+            w2ui.toplayout.show('right', true);
+            w2ui.toplayout.sizeTo('right', 850);
+            w2ui.toplayout.render();
+            app.new_form_rec = false;  // mark as record exists
+            app.form_is_dirty = false; // mark as no changes yet
+            // NOTE: remove any error tags bound to field from previous form
+            $().w2tag();
+            // SHOW the right panel now
+            w2ui.toplayout.show('right', true);
+        };
+
+        w2ui.stmtDetailForm.request(function(event) {
+            if (event.status === "success") {
+                showForm();
+                return true;
+            } else {
+                showForm();
+                w2ui.stmtDetailForm.message("Could not get form data from server...!!");
+                return false;
+            }
+        });
     }
 };
 

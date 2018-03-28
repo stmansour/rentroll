@@ -9,6 +9,9 @@ bashtools:
 package:
 	@echo "*** ${THISDIR}: package build ***"
 
+test:
+	@echo "*** ${THISDIR}: test build ***"
+
 clean:
 	rm -f *.json 
 install:

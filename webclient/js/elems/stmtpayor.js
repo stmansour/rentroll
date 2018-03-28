@@ -77,15 +77,15 @@ window.buildPayorStatementElements = function () {
         formURL: '/webclient/html/formpayorstmtdet.html',
         toolbar: {
             items: [
-                { id: 'btnNotes',     type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'btnNotes',     type: 'button', icon: 'far fa-sticky-note' },
                 {                     type: 'break' },
-                { id: 'payorstmtint', type: 'radio', group: '1', text: 'Internal', icon: 'fa fa-file-text-o', checked: true },
-                { id: 'payorstmtext', type: 'radio', group: '1', text: 'External', icon: 'fa fa-file-o' },
+                { id: 'payorstmtint', type: 'radio', group: '1', text: 'Internal', icon: 'far fa-file-alt', checked: true },
+                { id: 'payorstmtext', type: 'radio', group: '1', text: 'External', icon: 'far fa-file' },
                 {                     type: 'break' },
-                { id: 'csvexport',    type: 'button', icon: 'fa fa-table', tooltip: 'export to CSV' },
-                { id: 'pdfexport',    type: 'button', icon: 'fa fa-file-pdf-o', tooltip: 'export to PDF' },
+                { id: 'csvexport',    type: 'button', icon: 'fas fa-table', tooltip: 'export to CSV' },
+                { id: 'pdfexport',    type: 'button', icon: 'far fa-file-pdf', tooltip: 'export to PDF' },
                 {                     type: 'spacer' },
-                { id: 'btnClose',     type: 'button', icon: 'fa fa-times' },
+                { id: 'btnClose',     type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function (event) {
                 event.onComplete = function() {
@@ -344,15 +344,34 @@ window.setToPayorStmtForm = function (bid, tcid, d1,d2) {
             searchDtStop: d2,
             Bool1: app.PayorStmtExt,
         };
-        w2ui.payorStmtInfoForm.header = 'Payor Statement for TCID ' + tcid;
-        w2ui.payorStmtInfoForm.request();
 
-        w2ui.toplayout.content('right', w2ui.payorstmtLayout);
-        w2ui.toplayout.show('right', true);
-        w2ui.toplayout.sizeTo('right', 1000);
-        w2ui.toplayout.render();
-        app.new_form_rec = false;  // mark as record exists
-        app.form_is_dirty = false; // mark as no changes yet
+        // ==================
+        // INTERNAL FUNCTION
+        // ==================
+        var showForm = function() {
+            w2ui.toplayout.content('right', w2ui.payorstmtLayout);
+            w2ui.toplayout.show('right', true);
+            w2ui.toplayout.sizeTo('right', 1000);
+            w2ui.toplayout.render();
+            app.new_form_rec = false;  // mark as record exists
+            app.form_is_dirty = false; // mark as no changes yet
+            // NOTE: remove any error tags bound to field from previous form
+            $().w2tag();
+            // SHOW the right panel now
+            w2ui.toplayout.show('right', true);
+        };
+
+        w2ui.payorStmtInfoForm.header = 'Payor Statement for TCID ' + tcid;
+        w2ui.payorStmtInfoForm.request(function(event) {
+            if (event.status === "success") {
+                showForm();
+                return true;
+            } else {
+                showForm();
+                w2ui.payorStmtInfoForm.message("Could not get form data from server...!!");
+                return false;
+            }
+        });
     }
 };
 

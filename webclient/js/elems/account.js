@@ -68,8 +68,8 @@ window.buildAccountElements = function() {
         toolbar: {
             items: [
                 { type: 'break' },
-                { type: 'button', id: 'export', caption: 'Export', icon: 'fa fa-download' },
-                { type: 'button', id: 'import', caption: 'Import', icon: 'fa fa-upload' }
+                { type: 'button', id: 'export', caption: 'Export', icon: 'fas fa-download' },
+                { type: 'button', id: 'import', caption: 'Import', icon: 'fas fa-upload' }
             ],
             onClick: function(event) {
                 event.onComplete = function() {
@@ -240,9 +240,9 @@ window.buildAccountElements = function() {
         ],
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'fa fa-sticky-note-o' },
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                 { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fa fa-times' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
             ],
             onClick: function(event) {
                 switch(event.target) {

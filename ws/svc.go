@@ -214,6 +214,8 @@ var Svcs = []ServiceHandler{
 	{Cmd: "unpaidasms", Handler: SvcHandlerGetUnpaidAsms, NeedBiz: true, NeedSession: true},
 	{Cmd: "userprofile", Handler: SvcUserProfile, NeedBiz: false, NeedSession: true},
 	{Cmd: "version", Handler: SvcHandlerVersion, NeedBiz: false, NeedSession: false},
+	{Cmd: "flow", Handler: SvcHandlerFlow, NeedBiz: true, NeedSession: true},
+	{Cmd: "flowpart", Handler: SvcHandlerFlowPart, NeedBiz: true, NeedSession: true},
 }
 
 // SvcCtx contains information global to the Svc handlers
