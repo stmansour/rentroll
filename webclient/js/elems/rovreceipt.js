@@ -5,7 +5,8 @@
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, formRecDiffer, getCurrentBID, getBUDfromBID,
-    exportItemReportCSV, exportItemReportPDF, exportReportCSV, exportReportPDF
+    exportItemReportCSV, exportItemReportPDF, exportReportCSV, exportReportPDF, getROVReceiptInitRecord, popupReceiptPrintChoice,
+    doRcptSave, receiptChoicePrint, loadReceiptChoiceForm
 */
 "use strict";
 window.getROVReceiptInitRecord = function (BID, BUD, ptInit, previousFormRecord){

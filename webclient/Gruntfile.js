@@ -94,6 +94,6 @@ module.exports = function gruntInit(grunt) {
 
     // ========== REGISTERED TASKS ==========
 
-    grunt.registerTask('default', ['clean', 'concat', 'uglify']); // TODO(Akshay): Enable 'jshint' after discussing with steve.
+    grunt.registerTask('default', ['clean', 'jshint', 'uglify']); // TODO(Akshay): Enable 'jshint' after discussing with steve.
     grunt.registerTask('dev', ['watch']);
 };

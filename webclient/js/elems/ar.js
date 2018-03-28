@@ -2,6 +2,7 @@
     w2ui,console,$,setDefaultFormFieldAsPreviousRecord,w2uiDateControlString,
     app,getBUDfromBID,getPostAccounts,setToForm,getCurrentBusiness,form_dirty_alert,
     w2confirm,w2utils,getFormSubmitData,int_to_bool,formRefreshCallBack,formRecDiffer,
+    getARRulesInitRecord
 */
 "use strict";
 window.getARRulesInitRecord = function (BID, BUD, post_accounts_pre_selected, previousFormRecord){

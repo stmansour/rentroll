@@ -3,7 +3,8 @@
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, w2confirm, form_dirty_alert,
     delete_confirm_options, formRefreshCallBack, getFormSubmitData, addDateNavToToolbar,
     ridRentablePickerRender,ridRentableDropRender,ridRentableCompare,tcidRUserPickerRender,
-    tcidPickerDropRender, tcidPickerCompare, tcidRAPayorPickerRender, calcRarGridContractRent,
+    tcidPickerDropRender, tcidPickerCompare, tcidRAPayorPickerRender, calcRarGridContractRent, popupRidRentablePicker,
+    popupTcidRAPayorPicker, popupTcidRUserPicker, saveNewRAPayor, saveNewRUser, saveNewRARentable
 */
 
 "use strict";

@@ -1,7 +1,7 @@
 "use strict";
 /*global
     GridMoneyFormat, number_format, w2ui, $, app, console,setToStmtForm,
-    form_dirty_alert, addDateNavToToolbar
+    form_dirty_alert, addDateNavToToolbar, setToTLForm
 */
 
 window.buildTaskListElements = function () {

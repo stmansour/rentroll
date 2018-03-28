@@ -1,6 +1,6 @@
 /*global
     $,w2ui,app,console,refreshUnallocAmtSummaries,unallocAmountRemaining,_unAllocRcpts,
-    parseFloat,getPayorFund,number_format,
+    parseFloat,getPayorFund,number_format, computeAmountRemaining
 
 */
 "use strict";

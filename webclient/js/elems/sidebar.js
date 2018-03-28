@@ -1,5 +1,5 @@
 /*global
-    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions,
+    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions, getAboutInfo
 */
 "use strict";
 

@@ -10,7 +10,7 @@
     buildRentRollElements, buildLoginForm, buildAppLayout,
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
-    createStmtForm, createRentalAgreementForm,
+    createStmtForm, createRentalAgreementForm, finishForms
 */
 
 "use strict";

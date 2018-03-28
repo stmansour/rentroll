@@ -1,3 +1,6 @@
+/*global
+    getPmtInitRecord, updatePmtTypeList
+*/
 "use strict";
 
 //-----------------------------------------------------------------------------

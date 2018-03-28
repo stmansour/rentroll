@@ -1,5 +1,5 @@
 /*global
-    parseInt, w2ui, app
+    parseInt, w2ui, app, getDepMethInitRecord
 */
 
 "use strict";

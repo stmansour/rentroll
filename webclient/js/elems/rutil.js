@@ -1,5 +1,7 @@
 /*global
-    app, w2ui, $, form_dirty_alert, jQuery, console, w2popup,
+    app, w2ui, $, form_dirty_alert, jQuery, console, w2popup, number_format, getFullName, getTCIDName, finishReportCSV,
+    finishReportPDF
+
 */
 
 "use strict";

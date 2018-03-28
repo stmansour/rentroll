@@ -1,6 +1,6 @@
 /*global
     app, w2ui, $, monthBack, monthFwd, dayBack, dayFwd, setToCurrentMonth, setToNextMonth,
-    console, dateFromString, dateControlString, w2uiDateControlString, setDateControl
+    console, dateFromString, dateControlString, w2uiDateControlString, setDateControl, updateGridPostDataDates
 */
 "use strict";
 

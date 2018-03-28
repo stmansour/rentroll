@@ -1,7 +1,7 @@
 /*global
     w2ui, app, $, console, setToForm, form_dirty_alert, formRefreshCallBack, formRecDiffer,
     getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness,
-    addDateNavToToolbar,
+    addDateNavToToolbar, setRTLayout, getRTInitRecord
 */
 "use strict";
 window.getRTInitRecord = function (BID, BUD){

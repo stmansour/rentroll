@@ -1,7 +1,9 @@
 /*global
     $, console, w2ui, w2confirm, app, getBUDfromBID, getCurrentBusiness, getParentAccounts,
     setToForm, form_dirty_alert, formRecDiffer, getFormSubmitData, delete_confirm_options,
-    w2utils, formRefreshCallBack, setDefaultFormFieldAsPreviousRecord
+    w2utils, formRefreshCallBack, setDefaultFormFieldAsPreviousRecord, exportGLAccounts, popupImportFileDialog,
+    getAccountInitRecord, computeAmountRemaining, getARRulesInitRecord, renderReversalIcon, getBusinessAssessmentRules,
+    getAsmsInitRecord, popupAsmRevMode, asmFormRASelect, updateGridPostDataDates
 */
 "use strict";
 window.getAccountInitRecord = function (BID, BUD, previousFormRecord){

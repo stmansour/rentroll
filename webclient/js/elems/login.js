@@ -2,7 +2,8 @@
 
 /*global
     $, console, app, w2ui, w2popup, setInterval, getCookieValue, triggerReceiptsGrid,
-    deleteCookie
+    deleteCookie, userProfileToUI, handleBlankScreen, ensureSession, startSessionChecker,
+    getUserInfo, startNewSession, popupLoginDialogBox
 */
 
 var loginRoURL = "/webclient/html/formlogin.html";

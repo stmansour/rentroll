@@ -1,6 +1,6 @@
 /*global
     $,w2ui,console,app,form_dirty_alert,addDateNavToToolbar,exportReportCSV,
-    exportReportPDF, popupPDFCustomDimensions, w2utils,
+    exportReportPDF, popupPDFCustomDimensions, w2utils, calculateRRPagination
 */
 
 //

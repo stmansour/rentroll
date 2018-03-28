@@ -2,7 +2,9 @@
     popupRentalAgrPicker, $, console, w2ui, w2uiDateControlString, app,
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, rafinder, get2XReversalSymbolHTML,
     getGridReversalSymbolHTML, setDefaultFormFieldAsPreviousRecord, isDatePriorToCurrentDate,
-    form_dirty_alert,setToForm,addDateNavToToolbar,getCurrentBID,formRefreshCallBack,
+    form_dirty_alert,setToForm,addDateNavToToolbar,getCurrentBID,formRefreshCallBack, renderReversalIcon,
+    getBusinessAssessmentRules, getAsmsInitRecord, popupAsmRevMode, asmFormRASelect
+
 */
 "use strict";
 

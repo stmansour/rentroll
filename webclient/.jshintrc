@@ -1,6 +1,7 @@
 {
     "strict": "global",
     "globals": {
+        "require": true,
         "$": true,
         "FormData": true,
         "window": true,

@@ -1,3 +1,6 @@
+/*global
+    getDepoInitRecord
+*/
 "use strict";
 window.getDepoInitRecord = function (BID, BUD){
     return {

@@ -1,6 +1,7 @@
 /*global
     $, w2ui, console, app, getTCIDName, w2popup, getCurrentBusiness,
-    asmFormRASelect, expFormRASelect,
+    asmFormRASelect, expFormRASelect, rentalAgrPickerRender, rentalAgrPickerDropRender, rentalAgrPickerCompare,
+    rafinder
 */
 "use strict";
 

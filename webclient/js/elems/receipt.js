@@ -4,7 +4,8 @@
     addDateNavToToolbar, tcidReceiptPayorPickerRender, tcidPickerDropRender, tcidPickerCompare,
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
-    setDefaultFormFieldAsPreviousRecord, formRecDiffer
+    setDefaultFormFieldAsPreviousRecord, formRecDiffer, getBusinessReceiptRules, getReceiptInitRecord,
+    handleReceiptRAID
 */
 "use strict";
 window.getReceiptInitRecord = function (BID, BUD, ptInit, previousFormRecord){

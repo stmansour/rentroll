@@ -2,7 +2,7 @@
     w2ui, app, $, w2uiDateControlString, addDateNavToToolbar, console, getCurrentBusiness, getBUDfromBID,
     popupRentalAgrPicker, rafinder, form_dirty_alert, setToForm, setDateControlsInToolbar, formRefreshCallBack,
     formRecDiffer, getFormSubmitData, w2confirm, w2utils, get2XReversalSymbolHTML, getGridReversalSymbolHTML,
-    setDefaultFormFieldAsPreviousRecord
+    setDefaultFormFieldAsPreviousRecord, getBusinessExpenseRules, getExpenseInitRecord, expFormRASelect, renderExpReversalIcon
 */
 "use strict";
 window.getExpenseInitRecord = function (BID, BUD, previousFormRecord){

@@ -1,6 +1,6 @@
 "use strict";
 /*global
-  console, app,
+  console, app, setDateControl, dateMonthBack
 */
 
 //-----------------------------------------------------------------------------

@@ -2,7 +2,8 @@
     parseInt, w2ui, getDepMeth, getDepository, $, app, getBUDfromBID, getCurrentBusiness, console,
     form_dirty_alert, getFormSubmitData, formRecDiffer, formRefreshCallBack, addDateNavToToolbar,
     getGridReversalSymbolHTML, dateControlString, w2utils, saveDepositForm, w2confirm,
-    delete_confirm_options,
+    delete_confirm_options, getBusinessDepMethods, getBusinessDepositories, setToDepositForm, getDepositInitRecord,
+    calcTotalCheckedReceipts, saveDepositFormAndAnother, getCheckedReceipts
 */
 
 "use strict";

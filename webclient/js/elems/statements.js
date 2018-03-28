@@ -1,7 +1,7 @@
 "use strict";
 /*global
     GridMoneyFormat, number_format, w2ui, $, app, console,
-    form_dirty_alert, addDateNavToToolbar
+    form_dirty_alert, addDateNavToToolbar, setToStmtForm, renderStmtReversal
 */
 
 window.buildStatementsElements = function () {

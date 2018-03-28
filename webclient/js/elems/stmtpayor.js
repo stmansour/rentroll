@@ -1,7 +1,7 @@
 /*global
     GridMoneyFormat, number_format, w2ui, $, app, console,
     form_dirty_alert, addDateNavToToolbar, renderPayorStmtReversal, payorstmtRenderHandler,
-    dateFromString, exportReportCSV, exportReportPDF,getGridReversalSymbolHTML,
+    dateFromString, exportReportCSV, exportReportPDF,getGridReversalSymbolHTML, setToPayorStmtForm, renderPayorStmtDate
 */
 "use strict";
 
