@@ -2,14 +2,12 @@ var path = require('path');
 var webpack = require('webpack');
 
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const glob = require('glob');
 
-const sourcePath = path.join(__dirname, './js/elems');
 const outPath = path.join(__dirname, './js');
 
 const config = {
-    context: sourcePath,
-    // If created new js file than add into entry list
-    entry: ['account.js', 'allocFunds.js', 'ar.js', 'asms.js', 'bpwrapper.js', 'datenav.js', 'datetimeutil.js', 'depmeth.js', 'deposit.js', 'depository.js', 'dirtyforms.js', 'expenses.js', 'init.js', 'layout.js', 'ledger.js', 'login.js', 'notes.js', 'pmt.js', 'ra.js', 'rapicker.js', 'receipt.js', 'rentable.js', 'report.js', 'rovreceipt.js', 'rr.js', 'rt.js', 'rutil.js', 'sidebar.js', 'statements.js', 'stmtpayor.js', 'transactant.js', 'tws.js'],
+    entry: glob.sync('./js/elems/*.js'),
     output: {
         path: outPath,
         publicPath: '/',
