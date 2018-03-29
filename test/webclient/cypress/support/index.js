@@ -42,6 +42,6 @@ after(() => {
         }
 
         cy.writeFile('.nyc_output/out.json', JSON.stringify(map));
-        cy.exec('nyc report --reporter=html');
+        cy.exec('nyc report --reporter=cobertura');
     });
 });
