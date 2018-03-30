@@ -110,28 +110,28 @@ function buildTaskListElements() {
             },
         },
         fields: [
-            { field: 'recid',        caption: 'recid',       type: 'int',       required: false },
-            { field: 'TLID',         caption: 'TLID',        type: 'int',       required: false },
-            { field: 'BID',          caption: 'BID',         type: 'int',       required: false },
-            { field: 'BUD',          caption: 'BUD',         type: 'list',      required: true, options: {items: app.businesses} },
-            { field: 'Name',         caption: 'Name',        type: 'text',      required: true },
-            { field: 'Cycle',        caption: 'Cycle',       type: 'list',      required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
-            { field: 'DtDue',        caption: 'DtDue',       type: 'date',      required: false },
-            { field: 'DtPreDue',     caption: 'DtPreDue',    type: 'date',      required: false },
-            { field: 'DtDone',       caption: 'DtDone',      type: 'date',      required: false },
-            { field: 'DtPreDone',    caption: 'DtPreDone',   type: 'date',      required: false },
-            { field: 'FLAGS',        caption: 'FLAGS',       type: 'int',       required: false },
-            { field: 'DoneUID',      caption: 'DoneUID',     type: 'int',       required: false },
-            { field: 'PreDoneUID',   caption: 'PreDoneUID',  type: 'int',       required: false },
-            { field: 'Comment',      caption: 'Comment',     type: 'text',      required: false },
-            { field: 'CreateTS',     caption: 'CreateTS',    type: 'date',      required: false },
-            { field: 'CreateBy',     caption: 'CreateBy',    type: 'int',       required: false },
-            { field: 'LastModTime',  caption: 'LastModTime', type: 'date',      required: false },
-            { field: 'LastModBy',    caption: 'LastModBy',   type: 'int',       required: false },
-            { field: 'ChkDtDue',     caption: 'ChkDtDue',    type: 'checkbox',  required: false },
-            { field: 'ChkDtDone',    caption: 'ChkDtDone',   type: 'checkbox',  required: false },
-            { field: 'ChkDtPreDue',  caption: 'ChkDtPreDue', type: 'checkbox',  required: false },
-            { field: 'ChkDtPreDone', caption: 'ChkDtPreDone',type: 'checkbox',  required: false },
+            { field: 'recid',        type: 'int',       required: false },
+            { field: 'TLID',         type: 'int',       required: false },
+            { field: 'BID',          type: 'int',       required: false },
+            { field: 'BUD',          type: 'list',      required: true, options: {items: app.businesses} },
+            { field: 'Name',         type: 'text',      required: true },
+            { field: 'Cycle',        type: 'list',      required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
+            { field: 'DtDue',        type: 'date',      required: false },
+            { field: 'DtPreDue',     type: 'date',      required: false },
+            { field: 'DtDone',       type: 'date',      required: false },
+            { field: 'DtPreDone',    type: 'date',      required: false },
+            { field: 'FLAGS',        type: 'int',       required: false },
+            { field: 'DoneUID',      type: 'int',       required: false },
+            { field: 'PreDoneUID',   type: 'int',       required: false },
+            { field: 'Comment',      type: 'text',      required: false },
+            { field: 'CreateTS',     type: 'date',      required: false },
+            { field: 'CreateBy',     type: 'int',       required: false },
+            { field: 'LastModTime',  type: 'date',      required: false },
+            { field: 'LastModBy',    type: 'int',       required: false },
+            { field: 'ChkDtDue',     type: 'checkbox',  required: false },
+            { field: 'ChkDtDone',    type: 'checkbox',  required: false },
+            { field: 'ChkDtPreDue',  type: 'checkbox',  required: false },
+            { field: 'ChkDtPreDone', type: 'checkbox',  required: false },
         ],
         onRefresh: function(event) {
             // var f = this;
@@ -144,71 +144,19 @@ function buildTaskListElements() {
                 if (typeof r.DtPreDue === "undefined") {
                     return;
                 }
-                if (r.DtPreDue !== null && r.DtPreDue.length > 0) {
-                    y = dateFromString(r.DtPreDue);
-                    r.ChkDtPreDue = y.getFullYear() >= 2000;
-                    if (r.ChkDtPreDue) {
-                        s = taskDateRender(r.DtPreDue); 
-                    } else {
-                        s = 'No pre-due date';
-                    }
-                    document.getElementById("sDtPreDue").innerHTML = s;
-                }
-                if (r.DtPreDone !== null && r.DtPreDone.length > 0) {
-                    y = dateFromString(r.DtPreDone);
-                    r.ChkDtPreDone = y.getFullYear() >= 2000;
-                    if (r.ChkDtPreDone) {
-                        s = taskDateRender(r.DtPreDone); 
-                    } else {
-                        dt = dateFromString(r.DtPreDone);
-                        if (now > dt) {
-                            s = '<span style="color:#FC0D1B;">overdue</span>';
-                        }
-                    }
-                    document.getElementById("sDtPreDone").innerHTML = s;
-                }
-                if (r.DtDue !== null && r.DtDue.length > 0) {
-                    y = dateFromString(r.DtDue);
-                    r.ChkDtDue = y.getFullYear() >= 2000;
-                    if (r.ChkDtDue) {
-                        s = taskDateRender(r.DtDue); 
-                    } else {
-                        s = 'No due date';
-                    }
-                    document.getElementById("sDtDue").innerHTML = s;
-                }
-                if (r.DtDone !== null && r.DtDone.length > 0) {
-                    y = dateFromString(r.DtDone);
-                    r.ChkDtDone = y.getFullYear() >= 2000;
-                    if (r.ChkDtDone) {
-                        s = taskDateRender(r.DtDone); 
-                    } else {
-                        dt = dateFromString(r.DtDone);
-                        if (now > dt) {
-                            s = '<span style="color:#FC0D1B;">overdue</span>';
-                        }
-                    }
-                    document.getElementById("sDtDone").innerHTML = s;
-                }
+                r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
+                r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'sDtDone');
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'sDtPreDone');
             };
         },
         onChange: function(event) {
             event.onComplete = function() {
                 var s = '';
                 if (event.target === "ChkDtPreDone") {
-                    if (event.value_new) { // marked as complete?
-                        s = '<span style="color:blue;">will mark as completed when Save is clicked</span>';
-                    } else {
-                        s = '<span style="color:blue;">will mark as not completed when Save is clicked</span>';
-                    }
-                    document.getElementById("sDtPreDone").innerHTML = s;
+                    taskCompletionChange(event.value_new,"sDtPreDone");
                 } else if (event.target === "ChkDtDone") {
-                    if (event.value_new) { // marked as complete?
-                        s = '<span style="color:blue;">will mark as completed when Save is clicked</span>';
-                    } else {
-                        s = '<span style="color:blue;">will mark as not completed when Save is clicked</span>';
-                    }
-                    document.getElementById("sDtDone").innerHTML = s;
+                    taskCompletionChange(event.value_new,"sDtDone");
                 }
             };
         },
@@ -255,6 +203,69 @@ function buildTaskListElements() {
             event.onComplete = function (event) {
                 var r = w2ui.tlsDetailGrid.records[event.recid];
                 console.log( 'detail clicked: v1/tasks/' + r.BID + '/'+ r.TID);
+                popupTaskForm(r.BID,r.TID);
+            };
+        },
+    });
+
+    //------------------------------------------------------------------------
+    //  taskForm
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'taskForm',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/webclient/html/formtask.html',
+        url: '/v1/task',
+        fields: [
+            { field: 'recid',        type: 'text',     required: false },
+            { field: 'TID',          type: 'text',     required: false },
+            { field: 'BID',          type: 'text',     required: false },
+            { field: 'TLID',         type: 'text',     required: false },
+            { field: 'Name',         type: 'text',     required: true  },
+            { field: 'Worker',       type: 'text',     required: false },
+            { field: 'DtDue',        type: 'text',     required: false },
+            { field: 'DtPreDue',     type: 'text',     required: false },
+            { field: 'DtDone',       type: 'text',     required: false },
+            { field: 'DtPreDone',    type: 'text',     required: false },
+            { field: 'FLAGS',        type: 'text',     required: false },
+            { field: 'DoneUID',      type: 'text',     required: false },
+            { field: 'PreDoneUID',   type: 'text',     required: false },
+            { field: 'Comment',      type: 'text',     required: false },
+            { field: 'LastModTime',  type: 'date',     required: false },
+            { field: 'LastModBy',    type: 'date',     required: false },
+            { field: 'CreateTS',     type: 'date',     required: false },
+            { field: 'CreateBy',     type: 'date',     required: false },
+            { field: 'ChkDtDue',     type: 'checkbox', required: false },
+            { field: 'ChkDtDone',    type: 'checkbox', required: false },
+            { field: 'ChkDtPreDue',  type: 'checkbox', required: false },
+            { field: 'ChkDtPreDone', type: 'checkbox', required: false },
+        ],
+        actions: {
+            save: function(target, data){
+                console.log("save task");
+            },
+        },
+       onRefresh: function(event) {
+            // var f = this;
+            event.onComplete = function(event) {
+                var r = w2ui.taskForm.record;
+                if (typeof r.DtPreDue === "undefined") {
+                    return;
+                }
+                r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue','no pre-due date');
+                r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',   'no due date');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'tskDtDone');
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'tskDtPreDone');
+            };
+        },
+        onChange: function(event) {
+            event.onComplete = function() {
+                var s = '';
+                if (event.target === "ChkDtPreDone") {
+                    taskCompletionChange(event.value_new,"tskDtPreDone");
+                } else if (event.target === "ChkDtDone") {
+                    taskCompletionChange(event.value_new,"tskDtDone");
+                }
             };
         },
     });
@@ -320,6 +331,9 @@ function finishTaskListForm() {
     w2ui.tlLayout.content('bottom',w2ui.tlsCloseForm);
 }
 
+
+
+
 //-----------------------------------------------------------------------------
 // setToTLForm -  enable the Statement form in toplayout.  Also, set
 //                the forms url and request data from the server
@@ -367,4 +381,120 @@ function taskDateRender(x) {
         return '';
     }
     return dtTextRender(x,0,0);
+}
+
+//-----------------------------------------------------------------------------
+// popupTaskForm - Bring up the task edit form
+// 
+// @params
+//     bid = business id
+//     tid = task id
+//  
+// @returns
+//  
+//-----------------------------------------------------------------------------
+function popupTaskForm(bid,tid) {
+    w2ui.taskForm.url = '/v1/task/' + bid + '/' + tid;
+    w2ui.taskForm.request();
+    $().w2popup('open', {
+        title   : 'Task',
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 600,
+        height  : 500,
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.taskForm.box).hide();
+            event.onComplete = function () {
+                $(w2ui.taskForm.box).show();
+                w2ui.taskForm.resize();
+            };
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                $('#w2ui-popup #form').w2render('taskForm');
+            };
+        }
+    });
+}
+
+//-----------------------------------------------------------------------------
+// taskFormDueDate - form formatting
+// 
+// @params
+//       dt = datetime string
+//       b  = boolean check box value (false = unchecked)
+//      id  = html element id for string update
+//      txt = string for no date value 
+//  
+// @returns 
+//      updated value for ChkDt...  true if year >= 2000
+//  
+//-----------------------------------------------------------------------------
+function taskFormDueDate(dt,b,id,txt) {
+    if (dt !== null && dt.length > 0) {
+        var y = dateFromString(dt);
+        var s = '';
+        b = y.getFullYear() >= 2000;
+        if (b) {
+            s = taskDateRender(dt); 
+        } else {
+            s = 'No pre-due date';
+        }
+        document.getElementById(id).innerHTML = s;
+    }
+    return b;
+}
+
+//-----------------------------------------------------------------------------
+// taskFormDoneDate - form formatting
+// 
+// @params
+//       dt = datetime string
+//       b  = boolean check box value (false = unchecked)
+//      id  = html element id for string update
+//      txt = string for no date value 
+//  
+// @returns 
+//      updated value for ChkDt...  true if year >= 2000
+//  
+//-----------------------------------------------------------------------------
+function taskFormDoneDate(dt,dtd,b,id) {
+    var now = new Date();
+    if (dt !== null && dt.length > 0) {
+        var y = dateFromString(dt);
+        var s = '';
+        b = y.getFullYear() >= 2000;
+        if (b) {
+            s = taskDateRender(dt); 
+        } else {
+            dt = dateFromString(dtd);
+            if (now > dt) {
+                s = '<span style="color:#FC0D1B;">overdue</span>';
+            }
+        }
+        document.getElementById(id).innerHTML = s;
+    }
+    return b;
+}
+
+//-----------------------------------------------------------------------------
+// taskCompletionChange - form formatting
+// 
+// @params
+//       b  = boolean check box value (false = unchecked)
+//      id  = html element id for string update
+//  
+// @returns 
+//      updated value for ChkDt...  true if year >= 2000
+//  
+//-----------------------------------------------------------------------------
+function taskCompletionChange(b,id) {
+    var s;
+    if (b) { // marked as complete?
+        s = '<span style="color:blue;">will mark as completed when Save is clicked</span>';
+    } else {
+        s = '<span style="color:blue;">will mark as not completed when Save is clicked</span>';
+    }
+    document.getElementById(id).innerHTML = s;
 }

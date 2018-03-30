@@ -30,6 +30,33 @@ type SearchTask struct {
 	CreateBy    int64             // employee UID (from phonebook) that created it
 }
 
+// FormTask holds the task definition for a task form
+type FormTask struct {
+	Recid        int64 `json:"recid"`
+	TID          int64
+	BID          int64
+	BUD          rlib.XJSONBud
+	TLID         int64             // the TaskList to which this task belongs
+	Name         string            // Task text
+	Worker       string            // Name of the associated work function
+	DtDue        rlib.JSONDateTime // Task Due Date
+	DtPreDue     rlib.JSONDateTime // Pre Completion due date
+	DtDone       rlib.JSONDateTime // Task completion Date
+	DtPreDone    rlib.JSONDateTime // Task Pre Completion Date
+	ChkDtDue     bool              // enable disable
+	ChkDtPreDue  bool              // enable/disable
+	ChkDtDone    bool              // actual date/time
+	ChkDtPreDone bool              // actual date/time
+	FLAGS        int64             // special circumstance indicators
+	DoneUID      int64             // user who marked task as done
+	PreDoneUID   int64             // user who marked task as predone
+	Comment      string            // any user comments
+	LastModTime  rlib.JSONDateTime // when was this record last written
+	LastModBy    int64             // employee UID (from phonebook) that modified it
+	CreateTS     rlib.JSONDateTime // when was this record created
+	CreateBy     int64             // employee UID (from phonebook) that created it
+}
+
 // SearchTaskResponse holds the task list definition list
 type SearchTaskResponse struct {
 	Status  string       `json:"status"`
@@ -47,8 +74,8 @@ type SaveTaskInput struct {
 
 // GetTaskResponse is the response to a GetTask request
 type GetTaskResponse struct {
-	Status string     `json:"status"`
-	Record SearchTask `json:"record"`
+	Status string   `json:"status"`
+	Record FormTask `json:"record"`
 }
 
 // SvcSearchTaskHandler returns the Tasks associated with the supplied
@@ -243,7 +270,7 @@ func getTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	if a.TID > 0 {
-		var gg SearchTask
+		var gg FormTask
 		rlib.MigrateStructVals(&a, &gg)
 		gg.Recid = gg.TID
 		g.Record = gg
