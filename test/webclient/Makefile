@@ -4,7 +4,7 @@ THISDIR="webclient"
 
 .PHONY: test
 
-webclient: config.json accord.sql
+webclient: config.json accord.sql linkNodeModule
 	@echo "*** Completed in ${THISDIR} ***"
 
 test: webclient
@@ -19,12 +19,22 @@ jshint:
 	@rm -rf fail
 
 clean:
-	@rm -f *log *.g [a-z] err.txt fail ./accord.sql ./conf*.json .nyc_output/*
+	@rm -f *log *.g [a-z] err.txt fail ./accord.sql ./conf*.json
 
 all: clean jshint test
 
 link:
 	ln -s
+
+linkNodeModule:
+	if [ ! -d node_modules ]; then \
+		echo "node_modules does not exits.  Will attempt to create..."; \
+		sh -c "ln -s `npm root -g`"; \
+	fi ;\
+	if [ ! -d node_modules ]; then \
+		echo "Could not make node_modules directory" ;\
+		exit 1 ;\
+	fi
 
 config.json:
 	@/usr/local/accord/bin/getfile.sh accord/webclient/confdev.json
