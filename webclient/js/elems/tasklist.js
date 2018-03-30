@@ -2,10 +2,10 @@
 /*global
     w2ui, $, app, console, w2utils,
     form_dirty_alert, addDateNavToToolbar, getFormSubmitData,
-    dtTextRender, dateFromString, 
+    dtTextRender, dateFromString, taskDateRender, setToTLForm
 */
 
-function buildTaskListElements() {
+window.buildTaskListElements = function () {
     //------------------------------------------------------------------------
     //          tlsGrid  -  TASK LISTS in the date range
     //------------------------------------------------------------------------
@@ -312,13 +312,13 @@ function buildTaskListElements() {
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
-}
+};
 
-function finishTaskListForm() {
+window.finishTaskListForm = function () {
     w2ui.tlLayout.content('top',   w2ui.tlsInfoForm);
     w2ui.tlLayout.content('main',  w2ui.tlsDetailGrid);
     w2ui.tlLayout.content('bottom',w2ui.tlsCloseForm);
-}
+};
 
 //-----------------------------------------------------------------------------
 // setToTLForm -  enable the Statement form in toplayout.  Also, set
@@ -328,7 +328,7 @@ function finishTaskListForm() {
 //    id = Task List TLID
 // d1,d2 = date range to use
 //-----------------------------------------------------------------------------
-function setToTLForm(bid, id, d1,d2) {
+window.setToTLForm = function (bid, id, d1,d2) {
     if (id > 0) {
         w2ui.tlsGrid.url = '/v1/tls/' + bid;                    // the grid of tasklists
         w2ui.tlsDetailGrid.url = '/v1/tasks/' + bid + '/' + id; // the tasks associated with the selected tasklist
@@ -347,7 +347,7 @@ function setToTLForm(bid, id, d1,d2) {
         app.new_form_rec = false;  // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
     }
-}
+};
 
 //-----------------------------------------------------------------------------
 // taskDateRender - If the date is less than year 2000 then return a blank
@@ -357,7 +357,7 @@ function setToTLForm(bid, id, d1,d2) {
 // @returns
 //   the string to print
 //-----------------------------------------------------------------------------
-function taskDateRender(x) {
+window.taskDateRender = function (x) {
     if (x === null) {
         return '';
     }
@@ -367,4 +367,4 @@ function taskDateRender(x) {
         return '';
     }
     return dtTextRender(x,0,0);
-}
+};
