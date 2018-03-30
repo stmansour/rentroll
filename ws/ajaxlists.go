@@ -21,13 +21,13 @@ var manageToBudget = rlib.Str2Int64Map{
 
 // rental agreement flow part types
 var raFlowPartTypes = rlib.Str2Int64Map{
-	"DatesRAFlowPart":          int64(rlib.DatesRAFlowPart),
-	"PeopleRAFlowPart":         int64(rlib.PeopleRAFlowPart),
-	"PetsRAFlowPart":           int64(rlib.PetsRAFlowPart),
-	"VehiclesRAFlowPart":       int64(rlib.VehiclesRAFlowPart),
-	"BackGroundInfoRAFlowPart": int64(rlib.BackGroundInfoRAFlowPart),
-	"RentablesRAFlowPart":      int64(rlib.RentablesRAFlowPart),
-	"FeesTermsRAFlowPart":      int64(rlib.FeesTermsRAFlowPart),
+	"dates":     int64(rlib.DatesRAFlowPart),
+	"people":    int64(rlib.PeopleRAFlowPart),
+	"pets":      int64(rlib.PetsRAFlowPart),
+	"vehicles":  int64(rlib.VehiclesRAFlowPart),
+	"bginfo":    int64(rlib.BackGroundInfoRAFlowPart),
+	"rentables": int64(rlib.RentablesRAFlowPart),
+	"feesterms": int64(rlib.FeesTermsRAFlowPart),
 }
 
 // rentroll report row flags

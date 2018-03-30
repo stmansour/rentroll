@@ -12,9 +12,11 @@
     var app = {
       "language": "en-us",
       "template": "default",
-      "flow": "RA",
-      "flowIDList": [],
-      "flowData": {} // "flowID": [list of flowparts]
+      "raflow": {
+        "name": "RA",
+        "data": {},
+        "activeflowID": "",
+      }
     };
   </script>
 </head>
@@ -90,7 +92,7 @@
 
   <!-- pets section -->
   <section class="ra-form-component" id="pets">
-    <div class="form-container">Pets Section</div>
+    <div class="form-container"></div>
   </section>
 
   <!-- vehicle section -->
