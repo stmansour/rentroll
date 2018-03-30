@@ -1,7 +1,8 @@
 "use strict";
 /*global
-    GridMoneyFormat, number_format, w2ui, $, app, console,setToStmtForm,
-    form_dirty_alert, addDateNavToToolbar
+    w2ui, $, app, console, w2utils,
+    form_dirty_alert, addDateNavToToolbar, getFormSubmitData,
+    dtTextRender, dateFromString, 
 */
 
 function buildTaskListElements() {
@@ -32,10 +33,23 @@ function buildTaskListElements() {
             {field: 'recid',     hidden: true,  caption: 'recid',             size: '40px',  sortable: true},
             {field: 'BID',       hidden: true,  caption: 'BID',               size: '40px',  sortable: true},
             {field: 'Name',      hidden: false, caption: 'Name',              size: '110px', sortable: true},
-            {field: 'DtDue',     hidden: false, caption: 'Due',               size: '110px', sortable: true},
-            {field: 'DtDone',    hidden: false, caption: 'Due completed',     size: '110px', sortable: true},
-            {field: 'DtPreDue',  hidden: false, caption: 'Pre Due',           size: '110px', sortable: true},
-            {field: 'DtPreDone', hidden: false, caption: 'Pre Due completed', size: '110px', sortable: true},
+            {field: 'DtDue',     hidden: false, caption: 'Due',               size: '150px', sortable: true,
+                render: function (record, index, col_index) {
+                    if (typeof record === "undefined") {
+                        return '';
+                    }
+                    return taskDateRender(record.DtDue);
+                }
+            },
+            {field: 'DtDone',    hidden: false, caption: 'Due completed',     size: '150px', sortable: true,
+                render: function (record, index, col_index) { if (typeof record === "undefined") {return '';} return taskDateRender(record.DtDone); }
+            },
+            {field: 'DtPreDue',  hidden: false, caption: 'Pre Due',           size: '150px', sortable: true,
+                render: function (record, index, col_index) { if (typeof record === "undefined") {return '';} return taskDateRender(record.DtPreDue); }
+            },
+            {field: 'DtPreDone', hidden: false, caption: 'Pre Due completed', size: '150px', sortable: true,
+                render: function (record, index, col_index) { if (typeof record === "undefined") {return '';} return taskDateRender(record.DtPreDone); }
+            },
         ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -55,8 +69,6 @@ function buildTaskListElements() {
                         console.log( 'BID = ' + rec.BID + ',   TLID = ' + rec.TLID);
                         setToTLForm(rec.BID, rec.TLID, app.D1, app.D2);
                     };
-
-                // warn user if form content has been changed
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
@@ -81,113 +93,123 @@ function buildTaskListElements() {
             ],
             onClick: function (event) {
                 event.onComplete = function() {
-                    var g = w2ui.tlsDetailGrid;
-                    var r = w2ui.tlsInfoForm.record;
-                    var d1, d2, url;
+                    // var g = w2ui.tlsDetailGrid;
+                    // var r = w2ui.tlsInfoForm.record;
+                    // var d1, d2, url;
                     switch(event.target) {
                     case 'btnClose':
                         var no_callBack = function() { return false; },
                             yes_callBack = function() {
                                 w2ui.toplayout.hide('right',true);
-                                w2ui.payorstmtGrid.render();
+                                w2ui.tlsGrid.render();
                             };
                         form_dirty_alert(yes_callBack, no_callBack);
                         break;
-                    // case 'payorstmtint':
-                    //     app.PayorStmtExt = false;
-                    //     g.postData.Bool1 = false;
-                    //     g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
-                    //     g.reload();
-                    //     break;
-                    // case 'payorstmtext':
-                    //     app.PayorStmtExt = true;
-                    //     g.postData.Bool1 = true;
-                    //     g.url = '/v1/payorstmt/' + r.BID + '/' + r.TCID;
-                    //     g.reload();
-                    //     break;
-                    // case 'csvexport':
-                    //     d1 = document.getElementsByName("tlsDetailD1")[0].value;
-                    //     d2 = document.getElementsByName("tlsDetailD2")[0].value;
-                    //     url = exportReportCSV("RPTpayorstmt", d1, d2, true);
-                    //     url += "&internal=" + !app.PayorStmtExt;
-                    //     url += "&tcid=" + r.TCID;
-                    //     downloadMediaFromURL(url);
-                    //     break;
-                    // case 'pdfexport':
-                    //     d1 = document.getElementsByName("tlsDetailD1")[0].value;
-                    //     d2 = document.getElementsByName("tlsDetailD2")[0].value;
-                    //     url = exportReportPDF("RPTpayorstmt", d1, d2, true);
-                    //     url += "&internal=" + !app.PayorStmtExt;
-                    //     url += "&tcid=" + r.TCID;
-                    //     downloadMediaFromURL(url);
-                    //     break;
                     }
                 };
             },
         },
         fields: [
-            { field: 'recid',      type: 'int',  required: false },
-            { field: 'TLID',       type: 'int',  required: false },
-            { field: 'BID',        type: 'int',  required: false },
-            { field: 'Name',       type: 'text', required: false },
-            { field: 'Cycle',      type: 'int',  required: false },
-            { field: 'DtDue',      type: 'date', required: false },
-            { field: 'DtPreDue',   type: 'date', required: false },
-            { field: 'DtDone',     type: 'date', required: false },
-            { field: 'DtPreDone',  type: 'date', required: false },
-            { field: 'FLAGS',      type: 'int',  required: false },
-            { field: 'DoneUID',    type: 'int',  required: false },
-            { field: 'PreDoneUID', type: 'int',  required: false },
-            { field: 'Comment',    type: 'text', required: false },
-            { field: 'CreateTS',   type: 'date', required: false },
-            { field: 'CreateBy',   type: 'int',  required: false },
-            { field: 'LastModTime',type: 'date', required: false },
-            { field: 'LastModBy',  type: 'int',  required: false },
+            { field: 'recid',        caption: 'recid',       type: 'int',       required: false },
+            { field: 'TLID',         caption: 'TLID',        type: 'int',       required: false },
+            { field: 'BID',          caption: 'BID',         type: 'int',       required: false },
+            { field: 'BUD',          caption: 'BUD',         type: 'list',      required: true, options: {items: app.businesses} },
+            { field: 'Name',         caption: 'Name',        type: 'text',      required: true },
+            { field: 'Cycle',        caption: 'Cycle',       type: 'list',      required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
+            { field: 'DtDue',        caption: 'DtDue',       type: 'date',      required: false },
+            { field: 'DtPreDue',     caption: 'DtPreDue',    type: 'date',      required: false },
+            { field: 'DtDone',       caption: 'DtDone',      type: 'date',      required: false },
+            { field: 'DtPreDone',    caption: 'DtPreDone',   type: 'date',      required: false },
+            { field: 'FLAGS',        caption: 'FLAGS',       type: 'int',       required: false },
+            { field: 'DoneUID',      caption: 'DoneUID',     type: 'int',       required: false },
+            { field: 'PreDoneUID',   caption: 'PreDoneUID',  type: 'int',       required: false },
+            { field: 'Comment',      caption: 'Comment',     type: 'text',      required: false },
+            { field: 'CreateTS',     caption: 'CreateTS',    type: 'date',      required: false },
+            { field: 'CreateBy',     caption: 'CreateBy',    type: 'int',       required: false },
+            { field: 'LastModTime',  caption: 'LastModTime', type: 'date',      required: false },
+            { field: 'LastModBy',    caption: 'LastModBy',   type: 'int',       required: false },
+            { field: 'ChkDtDue',     caption: 'ChkDtDue',    type: 'checkbox',  required: false },
+            { field: 'ChkDtDone',    caption: 'ChkDtDone',   type: 'checkbox',  required: false },
+            { field: 'ChkDtPreDue',  caption: 'ChkDtPreDue', type: 'checkbox',  required: false },
+            { field: 'ChkDtPreDone', caption: 'ChkDtPreDone',type: 'checkbox',  required: false },
         ],
         onRefresh: function(event) {
             // var f = this;
+            event.onComplete = function(event) {
+                var r = w2ui.tlsInfoForm.record;
+                var y;
+                var s = '';
+                var dt;
+                var now = new Date();
+                if (typeof r.DtPreDue === "undefined") {
+                    return;
+                }
+                if (r.DtPreDue !== null && r.DtPreDue.length > 0) {
+                    y = dateFromString(r.DtPreDue);
+                    r.ChkDtPreDue = y.getFullYear() >= 2000;
+                    if (r.ChkDtPreDue) {
+                        s = taskDateRender(r.DtPreDue); 
+                    } else {
+                        s = 'No pre-due date';
+                    }
+                    document.getElementById("sDtPreDue").innerHTML = s;
+                }
+                if (r.DtPreDone !== null && r.DtPreDone.length > 0) {
+                    y = dateFromString(r.DtPreDone);
+                    r.ChkDtPreDone = y.getFullYear() >= 2000;
+                    if (r.ChkDtPreDone) {
+                        s = taskDateRender(r.DtPreDone); 
+                    } else {
+                        dt = dateFromString(r.DtPreDone);
+                        if (now > dt) {
+                            s = '<span style="color:#FC0D1B;">overdue</span>';
+                        }
+                    }
+                    document.getElementById("sDtPreDone").innerHTML = s;
+                }
+                if (r.DtDue !== null && r.DtDue.length > 0) {
+                    y = dateFromString(r.DtDue);
+                    r.ChkDtDue = y.getFullYear() >= 2000;
+                    if (r.ChkDtDue) {
+                        s = taskDateRender(r.DtDue); 
+                    } else {
+                        s = 'No due date';
+                    }
+                    document.getElementById("sDtDue").innerHTML = s;
+                }
+                if (r.DtDone !== null && r.DtDone.length > 0) {
+                    y = dateFromString(r.DtDone);
+                    r.ChkDtDone = y.getFullYear() >= 2000;
+                    if (r.ChkDtDone) {
+                        s = taskDateRender(r.DtDone); 
+                    } else {
+                        dt = dateFromString(r.DtDone);
+                        if (now > dt) {
+                            s = '<span style="color:#FC0D1B;">overdue</span>';
+                        }
+                    }
+                    document.getElementById("sDtDone").innerHTML = s;
+                }
+            };
+        },
+        onChange: function(event) {
             event.onComplete = function() {
-                // var r = f.record;
-                // var x = document.getElementById("bannerTCID");
-                // if (x !== null) {
-                //     var title;
-                //     if (r.PayorIsCompany) {
-                //         title = r.CompanyName;
-                //     } else {
-                //         title = r.FirstName + ' ';
-                //         if (typeof r.MiddleName == "string") {
-                //             if (r.MiddleName.length > 0 ) {
-                //                 title += r.MiddleName + ' ';
-                //             }
-                //         }
-                //         title += r.LastName + ' ';
-                //     }
-                //     x.innerHTML = title;
-                // }
-                // x = document.getElementById("payorstmtaddr");
-                // if (x !== null) {
-                //     x.innerHTML = '' + r.Address;
-                // }
-                // x = document.getElementById("RentalAgreementDates");
-                // if (x !== null) {
-                //     x.innerHTML = '' + this.record.AgreementStart + ' - ' + this.record.AgreementStop;
-                // }
-                // x = document.getElementById("PossessionDates");
-                // if (x !== null) {
-                //     x.innerHTML = '' + this.record.PossessionStart + ' - ' + this.record.PossessionStop;
-                // }
-                // x = document.getElementById("RentDates");
-                // if (x !== null) {
-                //     x.innerHTML = '' + this.record.RentStart + ' - ' + this.record.RentStop;
-                // }
-                // x = document.getElementById("CurrentStatementBalance");
-                // if (x !== null) {
-                //     x.innerHTML = '$ ' + number_format(this.record.Balance ,2);
-                // }
-                // x = document.getElementById("payorunalloc");
-                // if (x !== null) {
-                //     x.innerHTML = '' + this.record.PayorUnalloc;
-                // }
+                var s = '';
+                if (event.target === "ChkDtPreDone") {
+                    if (event.value_new) { // marked as complete?
+                        s = '<span style="color:blue;">will mark as completed when Save is clicked</span>';
+                    } else {
+                        s = '<span style="color:blue;">will mark as not completed when Save is clicked</span>';
+                    }
+                    document.getElementById("sDtPreDone").innerHTML = s;
+                } else if (event.target === "ChkDtDone") {
+                    if (event.value_new) { // marked as complete?
+                        s = '<span style="color:blue;">will mark as completed when Save is clicked</span>';
+                    } else {
+                        s = '<span style="color:blue;">will mark as not completed when Save is clicked</span>';
+                    }
+                    document.getElementById("sDtDone").innerHTML = s;
+                }
             };
         },
 
@@ -196,56 +218,81 @@ function buildTaskListElements() {
     // addDateNavToToolbar('tlsInfoForm');
 
     //------------------------------------------------------------------------
-    //  tlsDetailGrid  -  lists all the assessments and receipts for
-    //                     the selected Rental Agreement from the stmtGrid
+    //  tlsTaskGrid  -  lists all the assessments and receipts for
+    //                  the selected Rental Agreement from the stmtGrid
     //------------------------------------------------------------------------
-    // $().w2grid({
-    //     name: 'tlsDetailGrid',
-    //     url: '/v1/payorstmt',
-    //     multiSelect: false,
-    //     postData: {searchDtStart: app.D1, searchDtStop: app.D2, Bool1: app.PayorStmtExt},
-    //     show: {
-    //         toolbar         : true,
-    //         footer          : true,
-    //         toolbarAdd      : false,   // indicates if toolbar add new button is visible
-    //         toolbarDelete   : false,   // indicates if toolbar delete button is visible
-    //         toolbarSave     : false,   // indicates if toolbar save button is visible
-    //         selectColumn    : false,
-    //         expandColumn    : false,
-    //         toolbarEdit     : false,
-    //         toolbarSearch   : false,
-    //         toolbarInput    : false,   // the text area for searches
-    //         searchAll       : false,
-    //         toolbarReload   : false,
-    //         toolbarColumns  : false,
-    //     },
-    //     columns: [
-    //         {field: 'recid',           caption: 'recid',           size: '35px',  sortable: true, hidden: true},
-    //         {field: 'Date',            caption: 'Date',            size: '70px',  sortable: true, render: function(rec) {return renderPayorStmtDate(rec.Date); }},
-    //         {field: 'Reverse',         caption: ' ',               size: '12px',  sortable: true, render: renderPayorStmtReversal },
-    //         {field: 'Payor',           caption: 'Payor',           size: '100px', sortable: true},
-    //         {field: 'TCID',            caption: 'TCID',            size: '80px',  sortable: true, hidden: true},
-    //         {field: 'RAID',            caption: 'RAID',            size: '45px',  sortable: true },
-    //         {field: 'ASMID',           caption: 'ASMID',           size: '55px',  sortable: true },
-    //         {field: 'RCPTID',          caption: 'RCPTID',          size: '60px',  sortable: true },
-    //         {field: 'RentableName',    caption: app.sRentable,     size: '30%',   sortable: true},
-    //         {field: 'Description',     caption: 'Description',     size: '60%',   sortable: true},
-    //         {field: 'UnappliedAmount', caption: 'Unapplied Funds', size: '90px',  sortable: true, style: 'text-align: right',
-    //                 render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.UnappliedAmount,true); },
-    //         },
-    //         {field: 'AppliedAmount',   caption: 'Applied Funds',   size: '95px', sortable: true, style: 'text-align: right',
-    //                 render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.AppliedAmount,true); },
-    //         },
-    //         {field: 'Assessment',      caption: 'Assessment',      size: '90px',  sortable: true, style: 'text-align: right',
-    //                 render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.Assessment,true); },
-    //         },
-    //         {field: 'Balance',         caption: 'Balance',         size: '90px', sortable: true, style: 'text-align: right',
-    //                 render: function (record,index,col_index) { return payorstmtRenderHandler(record,index,col_index,record.Balance,false); },
-    //         },
-    //         {field: 'spacer',          caption: ' ',               size: '7px'},
+    $().w2grid({
+        name: 'tlsDetailGrid',
+        url: '/v1/tasks/',
+        multiSelect: false,
+        postData: {searchDtStart: app.D1, searchDtStop: app.D2, Bool1: app.PayorStmtExt},
+        columns: [
+            {field: 'recid',        caption: 'recid',       size: '35px', sortable: true, hidden: true},
+            { field: 'TID',         caption: 'TID',         size: '35px', sotrable: true, hidden: true},
+            { field: 'BID',         caption: 'BID',         size: '35px', sotrable: true, hidden: true},
+            { field: 'TLID',        caption: 'TLID',        size: '35px', sotrable: true, hidden: true},
+            { field: 'Name',        caption: 'Name',        size: '120px', sotrable: true, hidden: false},
+            { field: 'Worker',      caption: 'Worker',      size: '75px', sotrable: true, hidden: false},
+            { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false},
+            { field: 'DtPreDone',   caption: 'DtPreDone',   size: '80px', sotrable: true, hidden: false,
+                render: function (record, index, col_index) { if (typeof record == "undefined") {return '';} return taskDateRender(record.DtPreDone); }
+            },
+            { field: 'DtDue',       caption: 'DtDue',       size: '80px', sotrable: true, hidden: false},
+            { field: 'DtDone',      caption: 'DtDone',      size: '80px', sotrable: true, hidden: false,
+                render: function (record, index, col_index) { if (typeof record == "undefined") {return '';} return taskDateRender(record.DtDone); }
+            },
+            { field: 'FLAGS',       caption: 'FLAGS',       size: '35px', sotrable: true, hidden: true},
+            { field: 'DoneUID',     caption: 'DoneUID',     size: '35px', sotrable: true, hidden: true},
+            { field: 'PreDoneUID',  caption: 'PreDoneUID',  size: '35px', sotrable: true, hidden: true},
+            { field: 'Comment',     caption: 'Comment',     size: '35px', sotrable: true, hidden: true},
+            { field: 'LastModTime', caption: 'LastModTime', size: '35px', sotrable: true, hidden: true},
+            { field: 'LastModBy',   caption: 'LastModBy',   size: '35px', sotrable: true, hidden: true},
+            { field: 'CreateTS',    caption: 'CreateTS',    size: '35px', sotrable: true, hidden: true},
+            { field: 'CreateBy',    caption: 'CreateBy',    size: '35px', sotrable: true, hidden: true},
+        ],
+        onClick: function(event) {
 
-    //     ],
-    // });
+            event.onComplete = function (event) {
+                var r = w2ui.tlsDetailGrid.records[event.recid];
+                console.log( 'detail clicked: v1/tasks/' + r.BID + '/'+ r.TID);
+            };
+        },
+    });
+
+    //------------------------------------------------------------------------
+    //  tlsCloseForm
+    //------------------------------------------------------------------------
+    $().w2form({
+        name: 'tlsCloseForm',
+        style: 'border: 0px; background-color: transparent;',
+        formURL: '/webclient/html/formtlclose.html',
+        url: '',
+        fields: [],
+        actions: {
+            save: function(target, data){
+                // getFormSubmitData(data.postData.record);
+                var tl = {
+                    cmd: "save",
+                    record: w2ui.tlsInfoForm.record
+                };
+                var dat=JSON.stringify(tl);
+                var url='/v1/tl/' + w2ui.tlsInfoForm.record.BID + '/' + w2ui.tlsInfoForm.record.TLID;
+                $.post(url,dat)
+                .done(function(data) {
+                    if (data.status === "error") {
+                        w2ui.tlsInfoForm.error(w2utils.lang(data.message));
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.tlsGrid.render();
+                })
+                .fail(function(/*data*/){
+                    w2ui.tlsInfoForm.error("Save Tasklist failed.");
+                    return;
+                });
+            },
+        },
+    });
 
 
     //------------------------------------------------------------------------
@@ -258,10 +305,10 @@ function buildTaskListElements() {
         padding: 0,
         panels: [
             { type: 'left',    size: 0,     hidden: true },
-            { type: 'top',     size: '40%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
-            { type: 'main',    size: '70%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
+            { type: 'top',     size: '35%', hidden: false, content: 'top',  resizable: true, style: app.pstyle },
+            { type: 'main',    size: '65%', hidden: false, content: 'main', resizable: true, style: app.pstyle },
             { type: 'preview', size: 0,     hidden: true,  content: 'PREVIEW'  },
-            { type: 'bottom',  size: 0,     hidden: true },
+            { type: 'bottom',  size: 50,    hidden: false, content: 'bottom', resizable: false, style: app.pstyle },
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
@@ -269,8 +316,8 @@ function buildTaskListElements() {
 
 function finishTaskListForm() {
     w2ui.tlLayout.content('top',   w2ui.tlsInfoForm);
-    // w2ui.tlLayout.content('main',  w2ui.depositListGrid);
-    // w2ui.tlLayout.content('bottom',w2ui.depositFormBtns);
+    w2ui.tlLayout.content('main',  w2ui.tlsDetailGrid);
+    w2ui.tlLayout.content('bottom',w2ui.tlsCloseForm);
 }
 
 //-----------------------------------------------------------------------------
@@ -283,8 +330,9 @@ function finishTaskListForm() {
 //-----------------------------------------------------------------------------
 function setToTLForm(bid, id, d1,d2) {
     if (id > 0) {
-        w2ui.tlsGrid.url = '/v1/tl/' + bid + '/' + id;
-        w2ui.tlsInfoForm.url = '/v1/tl/' + bid + '/' + id;
+        w2ui.tlsGrid.url = '/v1/tls/' + bid;                    // the grid of tasklists
+        w2ui.tlsDetailGrid.url = '/v1/tasks/' + bid + '/' + id; // the tasks associated with the selected tasklist
+        w2ui.tlsInfoForm.url = '/v1/tl/' + bid + '/' + id;      // the tasklist details
         w2ui.tlsInfoForm.postData = {
             searchDtStart: d1,
             searchDtStop: d2,
@@ -294,9 +342,29 @@ function setToTLForm(bid, id, d1,d2) {
 
         w2ui.toplayout.content('right', w2ui.tlLayout);
         w2ui.toplayout.show('right', true);
-        w2ui.toplayout.sizeTo('right', 500);
+        w2ui.toplayout.sizeTo('right', 600);
         w2ui.toplayout.render();
         app.new_form_rec = false;  // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
     }
+}
+
+//-----------------------------------------------------------------------------
+// taskDateRender - If the date is less than year 2000 then return a blank
+//                otherwise return the date as a string.
+// @params
+//   y - the date to be printed
+// @returns
+//   the string to print
+//-----------------------------------------------------------------------------
+function taskDateRender(x) {
+    if (x === null) {
+        return '';
+    }
+    var y = dateFromString(x);
+    var yr = y.getFullYear();
+    if ( yr < 2000) {
+        return '';
+    }
+    return dtTextRender(x,0,0);
 }

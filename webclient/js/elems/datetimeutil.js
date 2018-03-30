@@ -220,17 +220,84 @@ function setDateControl(dc, dt) {
 }
 
 //-----------------------------------------------------------------------------
-// dateFromString - return a java date value equal to the date in the supplied
-//              date control
+// getTimeFromDT
+//           - If the string is a datetime string, this function will return
+//             the time portion. If there is no time portion, it returns null.
+//             Datetime strings come in this format: 2018-02-28T17:00:00Z
+//             if the T is present it will return 17:00:00Z .  
 // @params
-//   ds = date string value
+//   dt = a datetime string
+// @return time portion of datetime string 
+//         or the original string if no time is present
+//-----------------------------------------------------------------------------
+function getTimeFromDT(dt) {
+    var i = dt.indexOf("T");
+    var l = dt.length;
+    var s = dt;
+    if (i >= 0 &&  i+1 < l) {
+        s = dt.substr(i+1,l-1);
+    }
+    return s;
+}
+//-----------------------------------------------------------------------------
+// getDateFromDT
+//           - If the string is a datetime string, this function will return
+//             the date portion. If there is no date portion, it returns null.
+//             Datetime strings come in this format: 2018-02-28T17:00:00Z
+//             if the T is present it will return 2018-02-28.  
+// @params
+//   dt = a datetime string
+// @return date portion of datetime string
+//         or the original string if no date is present
+//-----------------------------------------------------------------------------
+function getDateFromDT(dt) {
+    var i = dt.indexOf("T");
+    var l = dt.length;
+    if (i > 0 && l > i) {
+        var s = dt.substr(0,i);
+        return s;
+    }
+    return dt;
+}
+
+//-----------------------------------------------------------------------------
+// dtTextRender - enable the Statement form in toplayout.  Also, set
+//                the forms url and request data from the server
+// @params
+//   bid = business id (or the BUD)
+//    id = Task List TLID
+// d1,d2 = date range to use
+//-----------------------------------------------------------------------------
+function dtTextRender(dt, index, col_index) { 
+    var d = getDateFromDT(dt);
+    var t = getTimeFromDT(dt);
+    if (d != t) {
+        return d + ' ' + t;
+    }
+    return d;
+}
+
+//-----------------------------------------------------------------------------
+// dateFromString - return a java date value equal to the date in the supplied
+//      date control.  Datetime strings come in this format: 2018-02-28T17:00:00Z
+//      if the T is present, discard everthing to the right of it before
+//      doing any parsing
+//
+//
+// @params
+//   dt = date or datetime string value
 // @return - java date value
 //-----------------------------------------------------------------------------
-function dateFromString(ds) {
+function dateFromString(dt) {
+    if (dt === null) {
+        return null;
+    }
+
+    var ds = getDateFromDT(dt);
+
     // Strange thing about javascript dates
     // new Date("2017-06-28") gives a date with offset value with local timezone i.e, Wed Jun 28 2017 05:30:00 GMT+0530 (IST)
     // new Date("2017/06/28") gives a date without offset value with local timezone i.e, Wed Jun 28 2017 00:00:00 GMT+0530 (IST)
-
     ds = ds.replace(/-/g,"\/");
     ds = ds.replace(/T.+/, ''); // first replace `/` with `-` and also remove `hh:mm:ss` value we don't need it
     return new Date(ds);
