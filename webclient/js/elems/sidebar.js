@@ -40,8 +40,8 @@ window.buildSidebar = function(flag) {
                     nodes: [
                             { id: 'rr',           text: 'Rent Roll',                     icon: 'fas fa-chart-line',   hint: 'Rent Roll' },
                             // { id: 'dlnq',         text: 'Delinquency Analysis',          icon: 'fas fa-chart-pie',   hint: 'Delinquency Analysis' },
-                            { id: 'stmt',         text: 'RA Statements',                 icon: 'fas fa-star-half', hint: 'Rental Agreement Statements' },
-                            { id: 'payorstmt',    text: 'Payor Statements',              icon: 'fas fa-star-half fa-flip-horizontal', hint: 'Payor Statements' },
+                            { id: 'stmt',         text: 'RA Statements',                 icon: 'fas fa-clipboard', hint: 'Rental Agreement Statements' },
+                            { id: 'payorstmt',    text: 'Payor Statements',              icon: 'far fa-clipboard', hint: 'Payor Statements' },
                             // { id: 'prepnotice',   text: 'Prepare Notices',               icon: 'far fa-file-alt', hint: 'Prepare Notices' },
                     ]
                 },
@@ -60,7 +60,7 @@ window.buildSidebar = function(flag) {
                             { id: 'invntory',    text: 'Inventory',                      icon: 'fas fa-shopping-cart',  hint: 'Preventative Maintenance' },
                     ]
                 },
-                { id: 'tasks', text: 'Tasks', img: 'icon-folder', expanded: false, group: true,
+                { id: 'tasks', text: 'Tasks', img: 'icon-folder', expanded: true, group: true,
                     nodes: [
                             { id: 'tlds',       text: 'Task List Definitions',           icon: 'far fa-list-ul',        hint: 'Task List Definitions' },
                             { id: 'tls',        text: 'Task Lists',                      icon: 'fas fa-list-alt',       hint: 'Task Lists' },
