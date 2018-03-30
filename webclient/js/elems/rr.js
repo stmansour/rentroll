@@ -1,6 +1,6 @@
 /*global
     $,w2ui,console,app,form_dirty_alert,addDateNavToToolbar,exportReportCSV,
-    exportReportPDF, popupPDFCustomDimensions, w2utils,
+    exportReportPDF, popupPDFCustomDimensions, w2utils, calculateRRPagination
 */
 
 //
@@ -9,7 +9,7 @@
 
 "use strict";
 
-function getRentRollViewInitRecord(){
+window.getRentRollViewInitRecord = function (){
     return {
         recid: 0,
         BID: 0,
@@ -47,14 +47,14 @@ function getRentRollViewInitRecord(){
         EndSecDep: "",
         FLAGS: -1,
     };
-}
+};
 
 var grey_fields = [
     "BeginReceivable", "DeltaReceivable", "EndReceivable",
     "BeginSecDep","DeltaSecDep","EndSecDep"
 ];
 
-function buildRentRollElements() {
+window.buildRentRollElements = function () {
     //------------------------------------------------------------------------
     //  rr  -  lists all the assessments and receipts for
     //                     the selected Payors
@@ -368,10 +368,10 @@ function buildRentRollElements() {
             exportReportPDF("RPTrr", app.D1, app.D2);
         }
     });
-}
+};
 
 
-function calculateRRPagination() {
+window.calculateRRPagination = function () {
     // perform virtual scroll
     var g = w2ui.rrGrid;
     var url  = (typeof g.url != 'object' ? g.url : g.url.get);
@@ -414,4 +414,4 @@ function calculateRRPagination() {
         (g.show.statusRange ? w2utils.formatNumber(startPageNo) + '-' + w2utils.formatNumber(endPageNo) +
         (g._total_main_rows != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(g._total_main_rows) : '') : '')
     );
-}
+};

@@ -1,5 +1,7 @@
 "use strict";
 
+var webpackConfig = require('./webpack.config.js');
+
 /* global module */
 module.exports = function gruntInit(grunt) {
 
@@ -20,7 +22,7 @@ module.exports = function gruntInit(grunt) {
             dist:{
                 src: ['<%= distInput %>'],
                 dest: '<%= distConcatOutput %>'
-            },
+            }
         },
 
         // validate files with JSHINT
@@ -54,7 +56,7 @@ module.exports = function gruntInit(grunt) {
         // minification options
         uglify: {
             options: {
-                banner: '<%= banner %>',
+                banner: '<%= banner %>'
             },
             build: {
                 files: {
@@ -69,7 +71,16 @@ module.exports = function gruntInit(grunt) {
                 files: ['<%= distInput %>', '<%= distHTMLs %>', '.jshintrc'],
                 tasks: ['clean', 'jshint', 'concat', 'uglify']
             }
-        },
+        }
+
+        // Load webpack configuration
+        // webpack: {
+        //     options: {
+        //         stats: !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+        //     },
+        //     prod: webpackConfig,
+        //     dev: Object.assign({ watch: false }, webpackConfig)
+        // }
 
     }); // initConfig::END
 
@@ -79,6 +90,7 @@ module.exports = function gruntInit(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    // grunt.loadNpmTasks('grunt-webpack'); // To run webpack via grunt
 
     // ========== REGISTERED TASKS ==========
     grunt.registerTask('default', ['clean', 'jshint', 'concat', 'uglify']);

@@ -4,7 +4,7 @@
     form_dirty_alert, addDateNavToToolbar
 */
 
-function buildTaskListDefElements() {
+window.buildTaskListDefElements = function () {
     //------------------------------------------------------------------------
     //          tldsGrid  -  THE LIST OF ALL Task List Definitions
     //------------------------------------------------------------------------
@@ -59,4 +59,4 @@ function buildTaskListDefElements() {
     });
 
     addDateNavToToolbar('tlds'); // "Grid" is appended to the 
-}
+};

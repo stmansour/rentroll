@@ -1,10 +1,10 @@
 /*global
     w2ui, app, $, console, setToForm, form_dirty_alert, formRefreshCallBack, formRecDiffer,
     getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness,
-    addDateNavToToolbar,
+    addDateNavToToolbar, setRTLayout, getRTInitRecord
 */
 "use strict";
-function getRTInitRecord(BID, BUD){
+window.getRTInitRecord = function (BID, BUD){
     var y = new Date();
     return {
         recid: 0,
@@ -22,9 +22,9 @@ function getRTInitRecord(BID, BUD){
         LastModBy: 0,
         FLAGS: 0,
     };
-}
+};
 
-function buildRentableTypeElements() {
+window.buildRentableTypeElements = function () {
 
     //------------------------------------------------------------------------
     //          rentable types Grid
@@ -840,9 +840,9 @@ function buildRentableTypeElements() {
             };
         }
     });
-}
+};
 
-function setRTLayout(BID, RTID) {
+window.setRTLayout = function (BID, RTID) {
     var rtF = w2ui.rtForm,
         rtG = w2ui.rtGrid,
         rmrG = w2ui.rmrGrid;
@@ -916,4 +916,4 @@ function setRTLayout(BID, RTID) {
         w2ui.rtDetailLayout.get("main").tabs.click("rtForm");
         w2ui.toplayout.show('right', true);
     }
-}
+};

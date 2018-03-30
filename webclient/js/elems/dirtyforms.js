@@ -9,7 +9,7 @@
 // @return
 //      Object with difference from `record` to `original`
 //-----------------------------------------------------------------------------
-var formRecDiffer = function(record, original, result) {
+window.formRecDiffer = function(record, original, result) {
 
     for (var i in record) {
         if (typeof record[i] == "object") {
@@ -37,7 +37,7 @@ var formRecDiffer = function(record, original, result) {
 // @return
 //      Object with Transactant record
 //-----------------------------------------------------------------------------
-function getPersonDetailsByTCID(BID, TCID) {
+window.getPersonDetailsByTCID = function (BID, TCID) {
 
 
     // we need to use this structure to get person details from given TCID
@@ -45,7 +45,7 @@ function getPersonDetailsByTCID(BID, TCID) {
         dat = JSON.stringify(params);
 
     return $.post("/v1/person/"+BID+"/"+TCID, dat, null, "json");
-}
+};
 
 // form dirty alert confirmation dialog box options
 var form_dirty_alert_options = {
@@ -85,7 +85,7 @@ var form_dirty_alert_options = {
 //   no_args = no callback arguments
 // @return: true or false
 //-----------------------------------------------------------------------------
-function form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args) {
+window.form_dirty_alert = function (yes_callBack, no_callBack, yes_args, no_args) {
     if (app.form_is_dirty) {
         w2confirm(form_dirty_alert_options)
         .yes(function() {
@@ -117,7 +117,7 @@ function form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args) {
             }
         }
     }
-}
+};
 
 // =================================================
 // WINDOW BEFORE UNLOAD EVENT
@@ -125,7 +125,7 @@ function form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args) {
 // warn user if active form content has been changed
 // for security reason you can't just popup your custom dialog
 // see the thread: https://stackoverflow.com/questions/30712377/jquery-beforeunload-custom-pop-up-window-for-leaving-a-page
-function form_dirty_alert_window_unload(e) {
+window.form_dirty_alert_window_unload = function (e) {
     if (app.form_is_dirty){
         if(!e) e = window.event;
 
@@ -139,6 +139,7 @@ function form_dirty_alert_window_unload(e) {
         }
         return "Changes in the form that you made may not be saved.";
     }
-}
+};
+
 window.onbeforeunload=form_dirty_alert_window_unload;
 // =================================================

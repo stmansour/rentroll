@@ -142,7 +142,7 @@ describe('AIR Roller UI Tests - Rentable Types', function () {
     });
 
 
-    it('Add new record form', function () {
+    it('Check default value of fields for new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
         // ---------------------------------------

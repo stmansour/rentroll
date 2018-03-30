@@ -1,11 +1,13 @@
 "use strict";
 /*global
     w2ui, $, app, console, w2utils,
-    form_dirty_alert, addDateNavToToolbar, getFormSubmitData,
-    dtTextRender, dateFromString, 
+    form_dirty_alert, addDateNavToToolbar, 
+    dtTextRender, dateFromString, taskDateRender, setToTLForm,
+    taskFormDueDate,taskCompletionChange,taskFormDoneDate,
+    popupTaskForm,
 */
 
-function buildTaskListElements() {
+window.buildTaskListElements = function () {
     //------------------------------------------------------------------------
     //          tlsGrid  -  TASK LISTS in the date range
     //------------------------------------------------------------------------
@@ -137,10 +139,6 @@ function buildTaskListElements() {
             // var f = this;
             event.onComplete = function(event) {
                 var r = w2ui.tlsInfoForm.record;
-                var y;
-                var s = '';
-                var dt;
-                var now = new Date();
                 if (typeof r.DtPreDue === "undefined") {
                     return;
                 }
@@ -323,15 +321,13 @@ function buildTaskListElements() {
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
-}
+};
 
-function finishTaskListForm() {
+window.finishTaskListForm = function () {
     w2ui.tlLayout.content('top',   w2ui.tlsInfoForm);
     w2ui.tlLayout.content('main',  w2ui.tlsDetailGrid);
     w2ui.tlLayout.content('bottom',w2ui.tlsCloseForm);
-}
-
-
+};
 
 
 //-----------------------------------------------------------------------------
@@ -342,7 +338,7 @@ function finishTaskListForm() {
 //    id = Task List TLID
 // d1,d2 = date range to use
 //-----------------------------------------------------------------------------
-function setToTLForm(bid, id, d1,d2) {
+window.setToTLForm = function (bid, id, d1,d2) {
     if (id > 0) {
         w2ui.tlsGrid.url = '/v1/tls/' + bid;                    // the grid of tasklists
         w2ui.tlsDetailGrid.url = '/v1/tasks/' + bid + '/' + id; // the tasks associated with the selected tasklist
@@ -361,7 +357,7 @@ function setToTLForm(bid, id, d1,d2) {
         app.new_form_rec = false;  // mark as record exists
         app.form_is_dirty = false; // mark as no changes yet
     }
-}
+};
 
 //-----------------------------------------------------------------------------
 // taskDateRender - If the date is less than year 2000 then return a blank
@@ -371,7 +367,7 @@ function setToTLForm(bid, id, d1,d2) {
 // @returns
 //   the string to print
 //-----------------------------------------------------------------------------
-function taskDateRender(x) {
+window.taskDateRender = function (x) {
     if (x === null) {
         return '';
     }
@@ -381,7 +377,7 @@ function taskDateRender(x) {
         return '';
     }
     return dtTextRender(x,0,0);
-}
+};
 
 //-----------------------------------------------------------------------------
 // popupTaskForm - Bring up the task edit form
@@ -393,7 +389,7 @@ function taskDateRender(x) {
 // @returns
 //  
 //-----------------------------------------------------------------------------
-function popupTaskForm(bid,tid) {
+window.popupTaskForm = function (bid,tid) {
     w2ui.taskForm.url = '/v1/task/' + bid + '/' + tid;
     w2ui.taskForm.request();
     $().w2popup('open', {
@@ -416,7 +412,7 @@ function popupTaskForm(bid,tid) {
             };
         }
     });
-}
+};
 
 //-----------------------------------------------------------------------------
 // taskFormDueDate - form formatting
@@ -431,7 +427,7 @@ function popupTaskForm(bid,tid) {
 //      updated value for ChkDt...  true if year >= 2000
 //  
 //-----------------------------------------------------------------------------
-function taskFormDueDate(dt,b,id,txt) {
+window.taskFormDueDate = function (dt,b,id,txt) {
     if (dt !== null && dt.length > 0) {
         var y = dateFromString(dt);
         var s = '';
@@ -444,7 +440,7 @@ function taskFormDueDate(dt,b,id,txt) {
         document.getElementById(id).innerHTML = s;
     }
     return b;
-}
+};
 
 //-----------------------------------------------------------------------------
 // taskFormDoneDate - form formatting
@@ -459,7 +455,7 @@ function taskFormDueDate(dt,b,id,txt) {
 //      updated value for ChkDt...  true if year >= 2000
 //  
 //-----------------------------------------------------------------------------
-function taskFormDoneDate(dt,dtd,b,id) {
+window.taskFormDoneDate = function (dt,dtd,b,id) {
     var now = new Date();
     if (dt !== null && dt.length > 0) {
         var y = dateFromString(dt);
@@ -476,7 +472,7 @@ function taskFormDoneDate(dt,dtd,b,id) {
         document.getElementById(id).innerHTML = s;
     }
     return b;
-}
+};
 
 //-----------------------------------------------------------------------------
 // taskCompletionChange - form formatting
@@ -489,7 +485,7 @@ function taskFormDoneDate(dt,dtd,b,id) {
 //      updated value for ChkDt...  true if year >= 2000
 //  
 //-----------------------------------------------------------------------------
-function taskCompletionChange(b,id) {
+window.taskCompletionChange = function (b,id) {
     var s;
     if (b) { // marked as complete?
         s = '<span style="color:blue;">will mark as completed when Save is clicked</span>';
@@ -497,4 +493,4 @@ function taskCompletionChange(b,id) {
         s = '<span style="color:blue;">will mark as not completed when Save is clicked</span>';
     }
     document.getElementById(id).innerHTML = s;
-}
+};
