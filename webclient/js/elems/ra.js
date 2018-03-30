@@ -3,7 +3,8 @@
     getCurrentBusiness, getBUDfromBID, w2popup, w2utils, w2confirm, form_dirty_alert,
     delete_confirm_options, formRefreshCallBack, getFormSubmitData, addDateNavToToolbar,
     ridRentablePickerRender,ridRentableDropRender,ridRentableCompare,tcidRUserPickerRender,
-    tcidPickerDropRender, tcidPickerCompare, tcidRAPayorPickerRender, calcRarGridContractRent,
+    tcidPickerDropRender, tcidPickerCompare, tcidRAPayorPickerRender, calcRarGridContractRent, popupRidRentablePicker,
+    popupTcidRAPayorPicker, popupTcidRUserPicker, saveNewRAPayor, saveNewRUser, saveNewRARentable
 */
 
 "use strict";
@@ -15,7 +16,7 @@
 //  raid = Rental Agreement ID
 //     d = date to use for time sensitive data
 //-----------------------------------------------------------------------------
-function setToRAForm(bid, raid, d) {
+window.setToRAForm = function (bid, raid, d) {
 
     if (raid > 0) {
         var f = w2ui.rentalagrForm;
@@ -80,9 +81,9 @@ function setToRAForm(bid, raid, d) {
     // console.log('xrapets url = ' + w2ui.rarGrid.url);
     w2ui.raPetGrid.request();
     w2ui.raPetGrid.header = 'Pets as of ' + dateFmtStr(d);
-}
+};
 
-function saveNewRUser() {
+window.saveNewRUser = function () {
     var myRID = -1;
     var rname = w2ui.tcidRUserPicker.record.RentableName.text;
     var url = '/v1/ruser/';
@@ -126,9 +127,9 @@ function saveNewRUser() {
     .fail(function(data) {
         console.log('data = ' + data);
     });
-}
+};
 
-function saveNewRARentable() {
+window.saveNewRARentable = function () {
     var rec = {
         recid: 0,                                                   // new
         BUI: w2ui.rentalagrForm.record.BUD.text,                         // BID of RID we're editing
@@ -159,9 +160,9 @@ function saveNewRARentable() {
     .fail(function(data) {
         console.log('data = ' + data);
     });
-}
+};
 
-function buildRAElements() {
+window.buildRAElements = function() {
     //------------------------------------------------------------------------
     //          rentalagrsGrid
     //------------------------------------------------------------------------
@@ -794,9 +795,9 @@ function buildRAElements() {
         }
 
      });
-}
+};
 
-function popupTcidRAPayorPicker(sTitle,bid) {
+window.popupTcidRAPayorPicker = function (sTitle,bid) {
     app.TcidRAPayorPicker = {BID: bid, Title: sTitle};  // used by tcidRAPayorPicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -831,9 +832,9 @@ function popupTcidRAPayorPicker(sTitle,bid) {
             };
         }
     });
-}
+};
 
-function popupRidRentablePicker(sTitle,bid) {
+window.popupRidRentablePicker = function (sTitle,bid) {
     app.ridRentablePicker = {BID: bid, Title: sTitle};  // used by RidRentablePicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -867,9 +868,9 @@ function popupRidRentablePicker(sTitle,bid) {
             };
         }
     });
-}
+};
 
-function popupTcidRUserPicker(sTitle,bid,raid) {
+window.popupTcidRUserPicker = function (sTitle,bid,raid) {
     app.TcidRUserPicker = {BID: bid, Title: sTitle, RAID: raid, RARentablesNames: [], RAR: []};  // used by tcidRUserPicker form
     var y = new Date();
     var ny = new Date(y.getFullYear() + 1, y.getMonth(), y.getDate(), 0, 0, 0);
@@ -917,9 +918,9 @@ function popupTcidRUserPicker(sTitle,bid,raid) {
             };
         }
     });
-}
+};
 
-function saveNewRAPayor() {
+window.saveNewRAPayor = function () {
 
     var rec = {
         recid: w2ui.rapGrid.records.length,                 // + 1
@@ -950,9 +951,9 @@ function saveNewRAPayor() {
         console.log('data = ' + data);
     });
 
-}
+};
 
-function buildRAPayorPicker(){
+window.buildRAPayorPicker = function (){
     //------------------------------------------------------------------------
     //          tcidRAPayorPicker
     //------------------------------------------------------------------------
@@ -997,16 +998,16 @@ function buildRAPayorPicker(){
                 }
                 w2popup.close();
                 saveNewRAPayor();
-            },
+            }
         },
         onSubmit: function(target, data){
             // server request form data
             getFormSubmitData(data.postData.record);
-        },
+        }
     });
-}
+};
 
-function buildRUserPicker(){
+window.buildRUserPicker = function (){
     //------------------------------------------------------------------------
     //          tcidRUserPicker
     //------------------------------------------------------------------------
@@ -1044,7 +1045,7 @@ function buildRUserPicker(){
             event.onComplete = function() {
                 w2ui.tcidRUserPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRUserPicker.BID;
                 w2ui.tcidRUserPicker.fields[2].options.items = app.TcidRUserPicker.RARentablesNames;
-                if (app.TcidRUserPicker.RARentablesNames.length == 1) {
+                if (app.TcidRUserPicker.RARentablesNames.length === 1) {
                     w2ui.tcidRUserPicker.record.RentableName = app.TcidRUserPicker.RARentablesNames[0];
                 }
             };
@@ -1056,16 +1057,16 @@ function buildRUserPicker(){
                 console.log('SAVE tcidRUserPicker: TCID = ' + w2ui.tcidRUserPicker.record.TCID + '  DtStart = ' + w2ui.tcidRUserPicker.record.DtStart + '  DtStop = ' + w2ui.tcidRUserPicker.record.DtStop);
                 w2popup.close();
                 saveNewRUser();
-            },
+            }
         },
         onSubmit: function(target, data){
             // server request form data
             getFormSubmitData(data.postData.record);
-        },
+        }
     });
-}
+};
 
-function buildRentablePicker(){
+window.buildRentablePicker = function (){
     //------------------------------------------------------------------------
     //          ridRentablePicker
     //------------------------------------------------------------------------
@@ -1114,8 +1115,9 @@ function buildRentablePicker(){
             getFormSubmitData(data.postData.record);
         },
     });
-}
-function createRentalAgreementForm() {
+};
+
+window.createRentalAgreementForm = function () {
     w2ui.raLayout.content('left', w2ui.rentalagrForm);
     w2ui.raLayout.content('main', w2ui.raLayoutSub1);
 
@@ -1128,4 +1130,4 @@ function createRentalAgreementForm() {
     w2ui.rauGrid.header = plural(app.sUser);
     w2ui.raLayoutSub1.content('bottom', w2ui.raPetGrid);
     w2ui.raPetGrid.header = "Pets";
-}
+};

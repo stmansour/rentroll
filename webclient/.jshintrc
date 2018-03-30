@@ -1,6 +1,7 @@
 {
-    "strict": "global" ,
+    "strict": "global",
     "globals": {
+        "require": true,
         "$": true,
         "FormData": true,
         "window": true,
@@ -108,6 +109,8 @@
         "setDefaultFormFieldAsPreviousRecord": true,
         "downloadMediaFromURL": true,
         "EDIEnabledForBUD": true,
-        "prepareW2UIStuff": true
+        "prepareW2UIStuff": true,
+        "stmtRenderHandler": true,
+        "getTransactantInitRecord": false
     }
 }

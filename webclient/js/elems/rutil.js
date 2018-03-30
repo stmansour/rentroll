@@ -1,5 +1,7 @@
 /*global
-    app, w2ui, $, form_dirty_alert, jQuery, console, w2popup,
+    app, w2ui, $, form_dirty_alert, jQuery, console, w2popup, number_format, getFullName, getTCIDName, finishReportCSV,
+    finishReportPDF
+
 */
 
 "use strict";
@@ -17,8 +19,6 @@ String.prototype.format = function() {
     });
 };
 
-
-
 //---------------------------------------------------------------------------------
 // getCookieValue - looks for a cookie with the supplied name. If found it returns
 //          the cookie value. Otherwise it returns null
@@ -26,7 +26,7 @@ String.prototype.format = function() {
 // @params  name  - name of the cookie
 // @returns the value of the cookie if found, null if not found
 //---------------------------------------------------------------------------------
-function getCookieValue(name) {
+window.getCookieValue = function (name) {
     var nameEQ = name + "=";
     var ca = document.cookie.split(';');
     for(var i=0;i < ca.length;i++) {
@@ -35,7 +35,7 @@ function getCookieValue(name) {
         if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
     }
     return null;
-}
+};
 
 //---------------------------------------------------------------------------------
 // deleteCookie - looks for a cookie with the supplied name. If found it returns
@@ -44,9 +44,9 @@ function getCookieValue(name) {
 // @params  name  - name of the cookie
 // @returns nothing at this time
 //---------------------------------------------------------------------------------
-function deleteCookie(name) {
+window.deleteCookie = function (name) {
   document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-}
+};
 
 //---------------------------------------------------------------------------------
 // ChangeBusiness updates the UI to the newly selected business.
@@ -54,7 +54,7 @@ function deleteCookie(name) {
 // is embedded in a string defining the OnClick handler for a button
 // in the main toolbar.
 // ---------------------------------------------------------------------------------
-function ChangeBusiness() {
+window.ChangeBusiness = function () {
     var bizName = $("select[name=BusinessSelect]").find(":selected").attr("name"),
         bizVal = $("select[name=BusinessSelect]").val();
 
@@ -115,7 +115,7 @@ function ChangeBusiness() {
 
     // warn user if active form has been changed
     form_dirty_alert(yes_callBack, no_callBack);
-}
+};
 
 //---------------------------------------------------------------------------------
 // getGridReversalSymbolHTML - returns the HTML to insert into a grid cell to
@@ -124,9 +124,9 @@ function ChangeBusiness() {
 // @params  <none>
 // @returns a string with HTML
 //---------------------------------------------------------------------------------
-function getGridReversalSymbolHTML() {
+window.getGridReversalSymbolHTML = function () {
     return '<i class="fas fa-exclamation-triangle" title="reversed" aria-hidden="true" style="color: #FFA500;"></i>';
-}
+};
 
 //---------------------------------------------------------------------------------
 // get2XReversalSymbolHTML - returns the HTML to insert into a grid cell to
@@ -135,9 +135,9 @@ function getGridReversalSymbolHTML() {
 // @params  <none>
 // @returns a string with HTML
 //---------------------------------------------------------------------------------
-function get2XReversalSymbolHTML() {
+window.get2XReversalSymbolHTML = function () {
     return "<div class='reverseIconContainer'><i class='fas fa-exclamation-triangle fa-2x reverseIcon' aria-hidden='true'></i></div>";
-}
+};
 
 //---------------------------------------------------------------------------------
 // switchToGrid - changes the main view of the program to a grid with
@@ -148,7 +148,7 @@ function get2XReversalSymbolHTML() {
 //                match the name of the svc
 //
 //---------------------------------------------------------------------------------
-function switchToGrid(svc,svcOverride) {
+window.switchToGrid = function (svc, svcOverride) {
     var grid = svc + 'Grid'; // this builds the name of the w2ui grid we want
     var x = getCurrentBusiness();
     var websvc = svc;
@@ -162,28 +162,28 @@ function switchToGrid(svc,svcOverride) {
     app.active_grid = grid; // mark active grid in app.active_grid
     w2ui.toplayout.content('main', w2ui[grid]);
     w2ui.toplayout.hide('right',true);
-}
+};
 
 //---------------------------------------------------------------------------------
 // opeinInNewTab simply opens a new tab in the browser and load the provided url
 //---------------------------------------------------------------------------------
-function openInNewTab(url) {
+window.openInNewTab = function (url) {
     var win = window.open(url, '_blank');
     win.focus();
-}
+};
 
 //-----------------------------------------------------------------------------
 // GridMoneyFormat  - format comma-delimited money amount.
 // @params  x   - value to be formatted
 // @return  HTML string for the amount, suitable for render in w2ui grid cells
 //-----------------------------------------------------------------------------
-function GridMoneyFormat(x) {
+window.GridMoneyFormat = function (x) {
     var h = '';
     if (x !== 0) {
         h = '$ ' + number_format(x,2);
     }
     return h;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getBIDfromBUD  - given the BUD return the associated BID. Returns
@@ -191,7 +191,7 @@ function GridMoneyFormat(x) {
 // @params  BUD   - the BUD for the business of interest
 // @return  the BID (or `undefined` if not found)
 //-----------------------------------------------------------------------------
-function getBIDfromBUD(BUD) {
+window.getBIDfromBUD = function (BUD) {
 
     var BID;
     for (var i=0; i<app.BizMap.length; i++) {
@@ -200,7 +200,7 @@ function getBIDfromBUD(BUD) {
         }
     }
     return BID;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getDepMeth     - searches BUD's Deposit Methods for id.  If found the
@@ -210,7 +210,7 @@ function getBIDfromBUD(BUD) {
 //          id - the Deposit Method id for which we want the name
 // @return  the Deposit Method (or empty object if not found)
 //-----------------------------------------------------------------------------
-function getDepMeth(BUD, id) {
+window.getDepMeth = function (BUD, id) {
     var dpm = {};
     if (typeof BUD === "undefined") {
         return dpm;
@@ -223,7 +223,7 @@ function getDepMeth(BUD, id) {
         }
     }
     return dpm;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getDepository - searches BUD's Depositories for id.  If found the
@@ -233,7 +233,7 @@ function getDepMeth(BUD, id) {
 //          id   - the Depository id for which we want the name
 // @return  the Depository (or empty object if not found)
 //-----------------------------------------------------------------------------
-function getDepository(BUD, id) {
+window.getDepository = function (BUD, id) {
     var val = {};
     if (typeof BUD === "undefined") {
         return val;
@@ -248,7 +248,7 @@ function getDepository(BUD, id) {
         }
     }
     return val;
-}
+};
 
 //-----------------------------------------------------------------------------
 // buildPaymentTypeSelectList - creates a list suitable for a dropdown menu
@@ -256,7 +256,7 @@ function getDepository(BUD, id) {
 // @params  BUD   - the BUD for the business of interest
 // @return  the list of Payment Type Names (or empty list if BUD not found)
 //-----------------------------------------------------------------------------
-function buildPaymentTypeSelectList(BUD) {
+window.buildPaymentTypeSelectList = function (BUD) {
 
     var options = [{id:0, text: " -- Select Payment Type -- "}];
     if (typeof BUD == "undefined") {
@@ -266,7 +266,7 @@ function buildPaymentTypeSelectList(BUD) {
         options.push({ id: pt.PMTID, text: pt.Name });
     });
     return options;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getCurrentBusiness - return the Business Unit currently slected in the
@@ -274,10 +274,10 @@ function buildPaymentTypeSelectList(BUD) {
 // @params
 // @return  the HTML elements of the currently selected business
 //-----------------------------------------------------------------------------
-function getCurrentBusiness() {
+window.getCurrentBusiness = function () {
     var x = document.getElementsByName("BusinessSelect");
     return x[0];
-}
+};
 
 //-----------------------------------------------------------------------------
 // getCurrentBID - return the BID for selected Business Unit currently in the
@@ -285,13 +285,13 @@ function getCurrentBusiness() {
 // @params
 // @return  - the BID of the currently selected business | "-1" if not exists
 //-----------------------------------------------------------------------------
-function getCurrentBID() {
+window.getCurrentBID = function () {
     var x = document.getElementsByName("BusinessSelect");
     if (x.length > 0) {
         return parseInt(x[0].value);
     }
     return -1;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getBUDfromBID  - given the BID return the associated BUD. Returns
@@ -300,7 +300,7 @@ function getCurrentBID() {
 //          PMTID - the payment type id for which we want the name
 // @return  the BUD (or empty string if not found)
 //-----------------------------------------------------------------------------
-function getBUDfromBID(BID) {
+window.getBUDfromBID = function (BID) {
     //
     var BUD = '';
     for (var i=0; i<app.BizMap.length; i++) {
@@ -309,7 +309,7 @@ function getBUDfromBID(BID) {
         }
     }
     return BUD;
-}
+};
 
 //-----------------------------------------------------------------------------
 // setToForm -  enable form sform in toplayout.  Also, set the forms url and
@@ -320,7 +320,7 @@ function getBUDfromBID(BID) {
 //   [width] = optional, if specified it is the width of the form
 //   doRequest =
 //-----------------------------------------------------------------------------
-function setToForm(sform, url, width, doRequest) {
+window.setToForm = function (sform, url, width, doRequest) {
     // if not url defined then return
     var url_len=url.length > 0;
     if (!url_len) {
@@ -402,7 +402,7 @@ function setToForm(sform, url, width, doRequest) {
         showForm();
         return true;
     }
-}
+};
 
 //-----------------------------------------------------------------------------
 // ridRentablePickerRender - renders a name during typedown.
@@ -410,10 +410,10 @@ function setToForm(sform, url, width, doRequest) {
 //   item = an object with RentableName
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
-function ridRentablePickerRender(item) {
+window.ridRentablePickerRender = function (item) {
     w2ui.ridRentablePicker.record.RID = item.recid;
     return item.RentableName + '  (RID: ' + item.recid + ')';
-}
+};
 
 //-----------------------------------------------------------------------------
 // asmFormRentablePickerRender - renders a name during typedown.
@@ -421,10 +421,10 @@ function ridRentablePickerRender(item) {
 //   item = Object with RentableName
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
-function asmFormRentablePickerRender(item) {
+window.asmFormRentablePickerRender = function (item) {
     w2ui.asmEpochForm.record.RID = item.recid;
     return item.RentableName + '  (RID: ' + item.recid + ')';
-}
+};
 
 //-----------------------------------------------------------------------------
 // ridRentableDropRender - renders a name during typedown.
@@ -432,9 +432,9 @@ function asmFormRentablePickerRender(item) {
 //   item = an object with RentableName
 // @return - the name to render
 //-----------------------------------------------------------------------------
-function ridRentableDropRender (item) {
+window.ridRentableDropRender = function (item) {
     return item.RentableName + '  (RID: ' + item.recid + ')';
-}
+};
 
 //-----------------------------------------------------------------------------
 // ridRentableCompare - Compare two items to see if they match
@@ -442,10 +442,10 @@ function ridRentableDropRender (item) {
 //   item = an object assumed to have a RentableName
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
-function ridRentableCompare(item, search) {
+window.ridRentableCompare = function (item, search) {
     var s = item.RentableName.toLowerCase();
     return s.includes(search.toLowerCase());
-}
+};
 
 //-----------------------------------------------------------------------------
 // tcidRAPayorPickerRender - renders a name during typedown.
@@ -453,7 +453,7 @@ function ridRentableCompare(item, search) {
 //   item = an object assumed to have a FirstName and LastName
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
-function tcidRAPayorPickerRender(item) {
+window.tcidRAPayorPickerRender = function (item) {
 
     var s="";
     if (item.IsCompany > 0) {
@@ -472,7 +472,7 @@ function tcidRAPayorPickerRender(item) {
         CompanyName: item.CompanyName
     };
     return s;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getFullName - returns a string with the full name based on the item supplied.
@@ -480,13 +480,13 @@ function tcidRAPayorPickerRender(item) {
 //   item = an object assumed to have a FirstName, MiddleName, and LastName
 // @return - the full name concatenated together
 //-----------------------------------------------------------------------------
-function getFullName(item) {
+window.getFullName = function (item) {
 
     var s = item.FirstName;
     if (item.MiddleName.length > 0) { s += ' ' + item.MiddleName; }
     if (item.LastName.length > 0 ) { s += ' ' + item.LastName; }
     return s;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getTCIDName - returns an appropriate name for the supplied item. If
@@ -497,7 +497,7 @@ function getFullName(item) {
 //          IsCompany, and CompanyName.
 // @return - the name to render
 //-----------------------------------------------------------------------------
-function getTCIDName(item) {
+window.getTCIDName = function (item) {
 
     var s = (item.IsCompany > 0) ? item.CompanyName : getFullName(item);
 
@@ -509,7 +509,7 @@ function getTCIDName(item) {
         s += ')';
     }
     return s;
-}
+};
 
 //-----------------------------------------------------------------------------
 // tcidPickerCompare - Compare item to the search string. Verify that the
@@ -518,14 +518,14 @@ function getTCIDName(item) {
 //   item = an object assumed to have a FirstName and LastName
 // @return - true if the search string is found, false otherwise
 //-----------------------------------------------------------------------------
-function tcidPickerCompare(item, search) {
+window.tcidPickerCompare = function (item, search) {
 
     var s = getTCIDName(item);
     s = s.toLowerCase();
     var srch = search.toLowerCase();
     var match = (s.indexOf(srch) >= 0);
     return match;
-}
+};
 
 //-----------------------------------------------------------------------------
 // tcidPickerDropRender - renders a name during typedown.
@@ -533,10 +533,10 @@ function tcidPickerCompare(item, search) {
 //   item = an object assumed to have a FirstName and LastName
 // @return - the name to render
 //-----------------------------------------------------------------------------
-function tcidPickerDropRender(item) {
+window.tcidPickerDropRender = function (item) {
 
     return getTCIDName(item);
-}
+};
 
 //-----------------------------------------------------------------------------
 // tcidReceiptPayorPickerRender - renders a name during typedown in the
@@ -545,13 +545,13 @@ function tcidPickerDropRender(item) {
 //   item = an object assumed to have a FirstName and LastName
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
-function tcidReceiptPayorPickerRender(item) {
+window.tcidReceiptPayorPickerRender = function (item) {
 
     var s = getTCIDName(item);
     w2ui.receiptForm.record.TCID = item.TCID;
     w2ui.receiptForm.record.Payor = s;
     return s;
-}
+};
 
 //-----------------------------------------------------------------------------
 // tcidRUserPickerRender - renders a name during typedown.
@@ -559,7 +559,7 @@ function tcidReceiptPayorPickerRender(item) {
 //   item = an object assumed to have a FirstName and LastName
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
-function tcidRUserPickerRender(item) {
+window.tcidRUserPickerRender = function (item) {
 
     var s;
     if (item.IsCompany > 0) {
@@ -579,7 +579,7 @@ function tcidRUserPickerRender(item) {
         CompanyName: item.CompanyName
     };
     return s;
-}
+};
 
 
 //-----------------------------------------------------------------------------
@@ -590,10 +590,10 @@ function tcidRUserPickerRender(item) {
 //   s = the word to pluralize
 // @return - the plural of word s
 //-----------------------------------------------------------------------------
-function plural(s) {
+window.plural = function(s) {
 
     return s + 's';
-}
+};
 
 //-----------------------------------------------------------------------------
 // calcRarGridContractRent
@@ -603,7 +603,7 @@ function plural(s) {
 //          grid - The grid to work on
 // @return  The total of the column
 //-----------------------------------------------------------------------------
-function calcRarGridContractRent(grid) {
+window.calcRarGridContractRent = function (grid) {
 
     grid = w2ui.rarGrid || grid;
     var chgs = grid.getChanges();
@@ -635,14 +635,14 @@ function calcRarGridContractRent(grid) {
         total += amts[i].ContractRent;
     }
     grid.set('s-1', { ContractRent: total });
-}
+};
 
 //-----------------------------------------------------------------------------
 // getAccountsList - return the GLAccounts list with respect of BUD
 // @params
 // @return the list of accounts
 //-----------------------------------------------------------------------------
-function getAccountsList(BID) {
+window.getAccountsList = function (BID) {
 
     return jQuery.ajax({
         type: "GET",
@@ -658,14 +658,14 @@ function getAccountsList(BID) {
             }
         }
     });
-}
+};
 
 //-----------------------------------------------------------------------------
 // getPostAccounts - return the list of post accounts with respect of BUD
 // @params
 // @return the list of post accounts
 //-----------------------------------------------------------------------------
-function getPostAccounts(BID) {
+window.getPostAccounts = function (BID) {
 
     return jQuery.ajax({
         type: "GET",
@@ -681,7 +681,7 @@ function getPostAccounts(BID) {
             }
         }
     });
-}
+};
 
 //-----------------------------------------------------------------------------
 // getParentAccounts - return the list of Parent accounts with respect of BUD
@@ -690,7 +690,7 @@ function getPostAccounts(BID) {
 //      - delLID: account id which needs to be substracted from the return list
 // @return the list of parent accounts excluding delLID (current account ID from accountForm)
 //-----------------------------------------------------------------------------
-function getParentAccounts(BID, delLID) {
+window.getParentAccounts = function (BID, delLID) {
 
     return jQuery.ajax({
         type: "GET",
@@ -715,7 +715,7 @@ function getParentAccounts(BID, delLID) {
             }
         }
     });
-}
+};
 
 
 //-----------------------------------------------------------------------------
@@ -726,13 +726,13 @@ function getParentAccounts(BID, delLID) {
 //   boolean:  returns false if i == 0
 //             otherwise it returns true
 //-----------------------------------------------------------------------------
-function int_to_bool(i){
+window.int_to_bool = function (i){
     if (i>0) {
         return true;
     } else {
         return false;
     }
-}
+};
 
 
 //-----------------------------------------------------------------------------
@@ -742,7 +742,7 @@ function int_to_bool(i){
 // @description Helps to build form submit data, it modify record object so that each
 // item in record has just a value instead of another object
 //-----------------------------------------------------------------------------
-function getFormSubmitData(record) {
+window.getFormSubmitData = function (record) {
     // check that it is typeof object or not
     if (typeof record !== "object") {
         return;
@@ -757,7 +757,7 @@ function getFormSubmitData(record) {
     }
 
     return record;
-}
+};
 
 //-----------------------------------------------------------------------------
 // formRefreshCallBack -  callBack for form refresh event
@@ -768,7 +768,7 @@ function getFormSubmitData(record) {
 //   id_name  = form's primary Id
 //   form_header = header (title) of form
 //-----------------------------------------------------------------------------
-function formRefreshCallBack(w2frm, primary_id, form_header, disable_header) {
+window.formRefreshCallBack = function (w2frm, primary_id, form_header, disable_header) {
 
     var record = w2frm.record,
         id = record[primary_id];
@@ -800,10 +800,10 @@ function formRefreshCallBack(w2frm, primary_id, form_header, disable_header) {
     if (!disable_header) {
         w2frm.header = header;
     }
-}
+};
 
 
-function number_format(number, decimals, dec_point, thousands_sep) {
+window.number_format = function (number, decimals, dec_point, thousands_sep) {
     // http://kevin.vanzonneveld.net
     // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
     // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
@@ -866,7 +866,7 @@ function number_format(number, decimals, dec_point, thousands_sep) {
         s[1] += new Array(prec - s[1].length + 1).join('0');
     }
     return s.join(dec);
-}
+};
 
 // var exampleNumber = 1;
 // function test(expected, number, decimals, dec_point, thousands_sep)
@@ -912,7 +912,7 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 // @returns
 //   defaultFormRecord  : Object
 //-----------------------------------------------------------------------------
-function setDefaultFormFieldAsPreviousRecord(formFields, defaultFormRecord, previousFormRecord) {
+window.setDefaultFormFieldAsPreviousRecord = function (formFields, defaultFormRecord, previousFormRecord) {
     if (formFields.length === 0) {
         return previousFormRecord;
     }
@@ -923,7 +923,7 @@ function setDefaultFormFieldAsPreviousRecord(formFields, defaultFormRecord, prev
         previousFormRecord[formFields[i]] = defaultFormRecord[formFields[i]];
     }
     return previousFormRecord;
-}
+};
 
 //-------------------------------------------------------------------------------
 // Download the CSV report for given report name, date range
@@ -936,7 +936,7 @@ function setDefaultFormFieldAsPreviousRecord(formFields, defaultFormRecord, prev
 //                downloads the report from built url in separate window
 //   id         : id for the report to detail
 //-------------------------------------------------------------------------------
-function exportItemReportCSV(rptname,id,dtStart,dtStop,returnURL) {
+window.exportItemReportCSV = function (rptname,id,dtStart,dtStop,returnURL) {
     var BID = getCurrentBID();
     var BUD = getBUDfromBID(BID);
     var bizEDIEnabled = EDIEnabledForBUD(BUD);
@@ -947,7 +947,7 @@ function exportItemReportCSV(rptname,id,dtStart,dtStop,returnURL) {
         return finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
     }
     finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
-}
+};
 
 //-------------------------------------------------------------------------------
 // Download the CSV report for given report name, date range
@@ -959,7 +959,7 @@ function exportItemReportCSV(rptname,id,dtStart,dtStop,returnURL) {
 //   returnURL          : it true then returns the url otherwise
 //                        downloads the report from built url in separate window
 //-------------------------------------------------------------------------------
-function exportReportCSV(rptname, dtStart, dtStop, returnURL){
+window.exportReportCSV = function (rptname, dtStart, dtStop, returnURL){
     if (rptname === '') {
         return;
     }
@@ -975,9 +975,9 @@ function exportReportCSV(rptname, dtStart, dtStop, returnURL){
         return finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
     }
     finishReportCSV(url,rptname, dtStart, dtStop, returnURL);
-}
+};
 
-function finishReportCSV(url,rptname, dtStart, dtStop, returnURL) {
+window.finishReportCSV = function (url,rptname, dtStart, dtStop, returnURL) {
     // if both dates are available then only append dtstart and dtstop in query params
     if (dtStart && dtStop) {
         url += '&dtstart=' + dtStart; // StartDate
@@ -994,12 +994,12 @@ function finishReportCSV(url,rptname, dtStart, dtStop, returnURL) {
     } else {
         downloadMediaFromURL(url);
     }
-}
+};
 
 //-------------------------------------------------------------------------------
 // Pops up dialog to get custom width and height from user's input
 //-------------------------------------------------------------------------------
-function popupPDFCustomDimensions() {
+window.popupPDFCustomDimensions = function () {
     w2popup.open({
         title     : 'PDF custom width and height',
         body      : '<div class="w2ui-centered">' +
@@ -1017,12 +1017,12 @@ function popupPDFCustomDimensions() {
         modal     : true,
         showClose : true,
     });
-}
+};
 
 //-------------------------------------------------------------------------------
 // Remembers custom dimensions set up by user locally in app variable
 //-------------------------------------------------------------------------------
-function saveCustomDims() {
+window.saveCustomDims = function () {
     var width = parseFloat($("input[name='custom_pdf_width']").val());
     if (!isNaN(width)) {
         app.pdfPageWidth = width;
@@ -1032,7 +1032,7 @@ function saveCustomDims() {
         app.pdfPageHeight = height;
     }
     w2popup.close();
-}
+};
 
 //-------------------------------------------------------------------------------
 // Download the PDF report for given id-focused report, date range
@@ -1045,7 +1045,7 @@ function saveCustomDims() {
 //   returnURL          : it true then returns the url otherwise
 //                        downloads the report from built url in separate window
 //-------------------------------------------------------------------------------
-function exportItemReportPDF(rptname,id, dtStart, dtStop, returnURL){
+window.exportItemReportPDF = function (rptname,id, dtStart, dtStop, returnURL){
     if (rptname === '') {
         return;
     }
@@ -1059,7 +1059,7 @@ function exportItemReportPDF(rptname,id, dtStart, dtStop, returnURL){
         return finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
     }
     finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
-}
+};
 
 //-------------------------------------------------------------------------------
 // Download the PDF report for given report name, date range
@@ -1071,7 +1071,7 @@ function exportItemReportPDF(rptname,id, dtStart, dtStop, returnURL){
 //   returnURL          : it true then returns the url otherwise
 //                        downloads the report from built url in separate window
 //-------------------------------------------------------------------------------
-function exportReportPDF(rptname, dtStart, dtStop, returnURL){
+window.exportReportPDF = function (rptname, dtStart, dtStop, returnURL){
     if (rptname === '') {
         return;
     }
@@ -1086,9 +1086,9 @@ function exportReportPDF(rptname, dtStart, dtStop, returnURL){
         return finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
     }
     finishReportPDF(url,rptname, dtStart, dtStop, returnURL);
-}
+};
 
-function finishReportPDF(url,rptname, dtStart, dtStop, returnURL) {
+window.finishReportPDF = function (url,rptname, dtStart, dtStop, returnURL) {
     // if both dates are available then only append dtstart and dtstop in query params
     if (dtStart && dtStop) {
         url += '&dtstart=' + dtStart; // StartDate
@@ -1108,7 +1108,7 @@ function finishReportPDF(url,rptname, dtStart, dtStop, returnURL) {
     } else {
         downloadMediaFromURL(url);
     }
-}
+};
 
 //-------------------------------------------------------------------------------
 // Download the media using provided URL
@@ -1116,7 +1116,7 @@ function finishReportPDF(url,rptname, dtStart, dtStop, returnURL) {
 // @params
 //   url            : the url to download the media
 //-------------------------------------------------------------------------------
-function downloadMediaFromURL(url) {
+window.downloadMediaFromURL = function (url) {
     var idown = $('#down_iframe');
     if (idown.length > 0) {
         idown.attr('src', url);
@@ -1128,7 +1128,7 @@ function downloadMediaFromURL(url) {
     setTimeout(function() {
         idown.attr('src', '');
     }, 1000);
-}
+};
 
 //-------------------------------------------------------------------------------
 // returns true/false tells whether EDI mode enabled for business BUD
@@ -1136,12 +1136,12 @@ function downloadMediaFromURL(url) {
 // @params
 //   BUD            : business designation
 //-------------------------------------------------------------------------------
-function EDIEnabledForBUD(BUD) {
+window.EDIEnabledForBUD = function(BUD) {
     if (app.bizFLAGS && app.bizFLAGS[BUD]) {
         return (app.bizFLAGS[BUD]&1) > 0;
     }
     return false;
-}
+};
 
 //---------------------------------------------------------------------------------
 // prepareW2UIStuff - it will prepare lists, items, other things which are
@@ -1150,11 +1150,11 @@ function EDIEnabledForBUD(BUD) {
 //
 // @params  app  - app variable of application
 //---------------------------------------------------------------------------------
-function prepareW2UIStuff(app) {
+window.prepareW2UIStuff = function prepareW2UIStuff(app) {
 
     // cycle frequencies
     app.w2ui.listItems.cycleFreq = [];
     app.cycleFreq.forEach(function(freq, index) {
         app.w2ui.listItems.cycleFreq.push({ id: index, text: freq });
     });
-}
+};

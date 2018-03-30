@@ -177,7 +177,7 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
     * Button must be visible(Save, Save and Add Another etc.)
     * Asset closing the form
     ************************************************************/
-    it('Add new record form', function () {
+    it('Check default value of fields for new record form', function () {
         // ---------------------------------------
         // ----- Tests for add new record form ---
         // ---------------------------------------

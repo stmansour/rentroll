@@ -1,5 +1,5 @@
 /*global
-    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions,
+    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions, getAboutInfo
 */
 "use strict";
 
@@ -10,7 +10,7 @@
 //  uitype - 0 means build the full roller interface
 //           1 means build the Receipt-only interface
 //----------------------------------------------------------------------------
-function buildSidebar(flag) {
+window.buildSidebar = function(flag) {
     var sbdata;
     if (flag === 0) {
         sbdata = {
@@ -40,8 +40,8 @@ function buildSidebar(flag) {
                     nodes: [
                             { id: 'rr',           text: 'Rent Roll',                     icon: 'fas fa-chart-line',   hint: 'Rent Roll' },
                             // { id: 'dlnq',         text: 'Delinquency Analysis',          icon: 'fas fa-chart-pie',   hint: 'Delinquency Analysis' },
-                            { id: 'stmt',         text: 'RA Statements',                 icon: 'fas fa-star-half', hint: 'Rental Agreement Statements' },
-                            { id: 'payorstmt',    text: 'Payor Statements',              icon: 'fas fa-star-half fa-flip-horizontal', hint: 'Payor Statements' },
+                            { id: 'stmt',         text: 'RA Statements',                 icon: 'fas fa-clipboard', hint: 'Rental Agreement Statements' },
+                            { id: 'payorstmt',    text: 'Payor Statements',              icon: 'far fa-clipboard', hint: 'Payor Statements' },
                             // { id: 'prepnotice',   text: 'Prepare Notices',               icon: 'far fa-file-alt', hint: 'Prepare Notices' },
                     ]
                 },
@@ -60,7 +60,7 @@ function buildSidebar(flag) {
                             { id: 'invntory',    text: 'Inventory',                      icon: 'fas fa-shopping-cart',  hint: 'Preventative Maintenance' },
                     ]
                 },
-                { id: 'tasks', text: 'Tasks', img: 'icon-folder', expanded: false, group: true,
+                { id: 'tasks', text: 'Tasks', img: 'icon-folder', expanded: true, group: true,
                     nodes: [
                             { id: 'tlds',       text: 'Task List Definitions',           icon: 'far fa-list-ul',        hint: 'Task List Definitions' },
                             { id: 'tls',        text: 'Task Lists',                      icon: 'fas fa-list-alt',       hint: 'Task Lists' },
@@ -394,7 +394,7 @@ function buildSidebar(flag) {
         };
     }
     w2ui.toplayout.content('left',$().w2sidebar(sbdata));
-}
+};
 
 
 //---------------------------------------------------------------------------------
@@ -404,7 +404,7 @@ function buildSidebar(flag) {
 // @params  <none>
 // @returns <none>
 //---------------------------------------------------------------------------------
-function getAboutInfo() {
+window.getAboutInfo = function () {
     $.get('/v1/version/')
     .done( function(data) {
         if (typeof data == 'string') {  // it's weird, a successful data add gets parsed as an object, an error message does not
@@ -417,4 +417,4 @@ function getAboutInfo() {
     .fail( function() {
         console.log('Error getting /v1/version/');
     });
-}
+};

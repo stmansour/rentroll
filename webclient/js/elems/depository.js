@@ -1,5 +1,8 @@
+/*global
+    getDepoInitRecord
+*/
 "use strict";
-function getDepoInitRecord(BID, BUD){
+window.getDepoInitRecord = function (BID, BUD){
     return {
         recid: 0,
         DEPID: 0,
@@ -9,9 +12,9 @@ function getDepoInitRecord(BID, BUD){
         Name: "",
         AccountNo: "",
     };
-}
+};
 
-function buildDepositoryElements() {
+window.buildDepositoryElements = function() {
 
     //------------------------------------------------------------------------
     //          depository Grid
@@ -308,4 +311,4 @@ function buildDepositoryElements() {
             getFormSubmitData(data.postData.record);
         },
     });
-}
+};

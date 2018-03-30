@@ -1,6 +1,7 @@
 /*global
     $, w2ui, console, app, getTCIDName, w2popup, getCurrentBusiness,
-    asmFormRASelect, expFormRASelect,
+    asmFormRASelect, expFormRASelect, rentalAgrPickerRender, rentalAgrPickerDropRender, rentalAgrPickerCompare,
+    rafinder
 */
 "use strict";
 
@@ -8,7 +9,7 @@
 //          rental Agreement Finder
 //------------------------------------------------------------------------
 
-var rafinder = {
+window.rafinder = {
     cb: null,
 };
 
@@ -21,7 +22,7 @@ var rafinder = {
 // @params
 // @return
 //-----------------------------------------------------------------------------
-function buildRAPicker(){
+window.buildRAPicker = function (){
     $().w2form({
         name: 'rentalAgrPicker',
         style: 'border: 0px; background-color: transparent;',
@@ -72,14 +73,14 @@ function buildRAPicker(){
             },
         },
     });
-}
+};
 
 // popupRentalAgrPicker comes up when the user clicks on the Find... button
 // while creating an assessment. It is used to locate a rental agreement by payor.
 // @PARAMS
 //    s - caller name
 //----------------------------------------------------------------------------------
-function popupRentalAgrPicker(s) {
+window.popupRentalAgrPicker = function (s) {
     rafinder.caller = s;
     var x = getCurrentBusiness();
     app.RentalAgrPicker = {BID: x.value, RAID: 0, TCID: 0, RID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []};
@@ -117,7 +118,7 @@ function popupRentalAgrPicker(s) {
             };
         }
     });
-}
+};
 
 
 //-----------------------------------------------------------------------------
@@ -127,13 +128,13 @@ function popupRentalAgrPicker(s) {
 //   item = an object assumed to have a FirstName and LastName
 // @return - true if the search string is found, false otherwise
 //-----------------------------------------------------------------------------
-function rentalAgrPickerCompare(item, search) {
+window.rentalAgrPickerCompare = function (item, search) {
     var s = getTCIDName(item);
     s = s.toLowerCase();
     var srch = search.toLowerCase();
     var match = (s.indexOf(srch) >= 0);
     return match;
-}
+};
 
 //-----------------------------------------------------------------------------
 // rentalAgrPickerDropRender - renders a name during typedown.
@@ -141,9 +142,9 @@ function rentalAgrPickerCompare(item, search) {
 //   item = an object assumed to have a FirstName and LastName
 // @return - the name to render
 //-----------------------------------------------------------------------------
-function rentalAgrPickerDropRender(item) {
+window.rentalAgrPickerDropRender = function (item) {
     return getTCIDName(item);
-}
+};
 
 // //-----------------------------------------------------------------------------
 // // rentalAgrPickerRender - renders a name during typedown in the
@@ -166,7 +167,7 @@ function rentalAgrPickerDropRender(item) {
 //   item = an object assumed to have a FirstName and LastName
 // @return - true if the names match, false otherwise
 //-----------------------------------------------------------------------------
-function rentalAgrPickerRender(item) {
+window.rentalAgrPickerRender = function (item) {
     var s;
     if (item.IsCompany > 0) {
         s = item.CompanyName;
@@ -207,6 +208,6 @@ function rentalAgrPickerRender(item) {
         w2ui.rentalAgrPicker.refresh();
     });
     return s;
-}
+};
 
 

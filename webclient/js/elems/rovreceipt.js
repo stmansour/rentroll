@@ -5,10 +5,11 @@
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
     setDefaultFormFieldAsPreviousRecord, formRecDiffer, getCurrentBID, getBUDfromBID,
-    exportItemReportCSV, exportItemReportPDF, exportReportCSV, exportReportPDF
+    exportItemReportCSV, exportItemReportPDF, exportReportCSV, exportReportPDF, getROVReceiptInitRecord, popupReceiptPrintChoice,
+    doRcptSave, receiptChoicePrint, loadReceiptChoiceForm
 */
 "use strict";
-function getROVReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
+window.getROVReceiptInitRecord = function (BID, BUD, ptInit, previousFormRecord){
     var y = new Date();
     var defaultFormData = {
         recid: 0,
@@ -47,10 +48,10 @@ function getROVReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
     }
 
     return defaultFormData;
-}
+};
 
 
-function buildROVReceiptElements() {
+window.buildROVReceiptElements = function () {
     //------------------------------------------------------------------------
     //          receiptsGrid
     //------------------------------------------------------------------------
@@ -480,9 +481,9 @@ function buildROVReceiptElements() {
         },
 
    });
-}
+};
 
-function doRcptSave(f,prnt) {
+window.doRcptSave = function (f, prnt) {
     var r = f.record;
     var grid = w2ui.receiptsGrid;
 
@@ -507,12 +508,12 @@ function doRcptSave(f,prnt) {
             popupReceiptPrintChoice();
         }
     });
-}
+};
 
 //--------------------------------------------------------------------------------
 // This contains the definition part of receiptChoiceForm, loads the form on call
 //--------------------------------------------------------------------------------
-function loadReceiptChoiceForm() {
+window.loadReceiptChoiceForm = function () {
     $().w2form({
         name: 'receiptChoiceForm',
         style: 'border: 0px; background-color: transparent;',
@@ -559,12 +560,12 @@ function loadReceiptChoiceForm() {
             },
         }
     });
-}
+};
 
 //--------------------------------------------------------------------------------
 // Pops up dialog to get print choice for the receipt (permanent resident / hotel)
 //--------------------------------------------------------------------------------
-function popupReceiptPrintChoice() {
+window.popupReceiptPrintChoice = function () {
 
     // if receipt form is not loaded then load it first
     if (!w2ui.receiptChoiceForm) {
@@ -590,12 +591,12 @@ function popupReceiptPrintChoice() {
             };
         }
     });
-}
+};
 
 //--------------------------------------------------------------------------------------------
 // Sends the request to print receipt based upon a choice by user (permanent resident / hotel)
 //--------------------------------------------------------------------------------------------
-function receiptChoicePrint() {
+window.receiptChoicePrint = function () {
     // decide function call based on format first
     var exportFormatFunc;
     switch(w2ui.receiptChoiceForm.record.report_format.id) {
@@ -625,5 +626,5 @@ function receiptChoicePrint() {
         w2popup.close();
         // TODO(Sudip): should we close the right panel after save/print succeed?
     }, 500);
-}
+};
 

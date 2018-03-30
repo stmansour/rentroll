@@ -11,66 +11,74 @@ import (
 	"time"
 )
 
-// TaskList is the structure describing a task list definition
-type TaskList struct {
-	Recid       int64 `json:"recid"`
-	TLID        int64
-	TLDID       int64
-	BID         int64
-	Name        string
-	Cycle       int64
-	DtDone      rlib.JSONDate
-	DtDue       rlib.JSONDate
-	DtPreDue    rlib.JSONDate
-	DtPreDone   rlib.JSONDate
-	FLAGS       uint64
-	DoneUID     int64
-	PreDoneUID  int64
-	Comment     string
-	CreateTS    rlib.JSONDate // when was this record created
-	CreateBy    int64         // employee UID (from phonebook) that created it
-	LastModTime rlib.JSONDate // when was this record last written
-	LastModBy   int64         // employee UID (from phonebook) that modified it
+// SvcTaskList is the structure describing a task list definition
+type SvcTaskList struct {
+	Recid        int64 `json:"recid"`
+	TLID         int64
+	TLDID        int64
+	BID          int64
+	BUD          rlib.XJSONBud
+	Name         string
+	Cycle        int64
+	DtDone       rlib.JSONDateTime
+	DtDue        rlib.JSONDateTime
+	DtPreDue     rlib.JSONDateTime
+	DtPreDone    rlib.JSONDateTime
+	ChkDtDone    bool
+	ChkDtDue     bool
+	ChkDtPreDue  bool
+	ChkDtPreDone bool
+	FLAGS        uint64
+	DoneUID      int64
+	PreDoneUID   int64
+	Comment      string
+	CreateTS     rlib.JSONDateTime // when was this record created
+	CreateBy     int64             // employee UID (from phonebook) that created it
+	LastModTime  rlib.JSONDateTime // when was this record last written
+	LastModBy    int64             // employee UID (from phonebook) that modified it
 }
 
 // SaveTaskList defines the fields supplied when Saving a TaskList
 type SaveTaskList struct {
-	Recid      int64 `json:"recid"`
-	TLID       int64
-	TLDID      int64
-	BID        int64
-	Name       string
-	Cycle      int64
-	Pivot      rlib.JSONDate
-	DtDone     rlib.JSONDate
-	DtDue      rlib.JSONDate
-	DtPreDue   rlib.JSONDate
-	DtPreDone  rlib.JSONDate
-	FLAGS      int64
-	DoneUID    int64
-	PreDoneUID int64
-	Comment    string
+	Recid        int64 `json:"recid"`
+	TLID         int64
+	TLDID        int64
+	BID          int64
+	Name         string
+	Pivot        rlib.JSONDateTime
+	DtDone       rlib.JSONDateTime
+	DtDue        rlib.JSONDateTime
+	DtPreDue     rlib.JSONDateTime
+	DtPreDone    rlib.JSONDateTime
+	ChkDtDone    bool
+	ChkDtDue     bool
+	ChkDtPreDue  bool
+	ChkDtPreDone bool
+	FLAGS        int64
+	DoneUID      int64
+	PreDoneUID   int64
+	Comment      string
 }
 
 // SearchTLResponse holds the task list definition list
 type SearchTLResponse struct {
-	Status  string     `json:"status"`
-	Total   int64      `json:"total"`
-	Records []TaskList `json:"records"`
+	Status  string        `json:"status"`
+	Total   int64         `json:"total"`
+	Records []SvcTaskList `json:"records"`
 }
 
 // TaskListInput is the input data format for a Save command
 type TaskListInput struct {
-	Recid    int64    `json:"recid"`
-	Status   string   `json:"status"`
-	FormName string   `json:"name"`
-	Record   TaskList `json:"record"`
+	Recid    int64       `json:"recid"`
+	Status   string      `json:"status"`
+	FormName string      `json:"name"`
+	Record   SvcTaskList `json:"record"`
 }
 
 // GetTLResponse is the response to a GetTaskList request
 type GetTLResponse struct {
-	Status string   `json:"status"`
-	Record TaskList `json:"record"`
+	Status string      `json:"status"`
+	Record SvcTaskList `json:"record"`
 }
 
 // SaveTaskListInput is the input data format for a Save command
@@ -127,8 +135,8 @@ var tlQuerySelectFields = []string{
 // RETURNS
 //  TaskList
 //-----------------------------------------------------------------------------
-func TaskListRowScan(rows *sql.Rows) (TaskList, error) {
-	var q TaskList
+func TaskListRowScan(rows *sql.Rows) (SvcTaskList, error) {
+	var q SvcTaskList
 	err := rows.Scan(&q.TLID, &q.BID, &q.Name, &q.Cycle, &q.DtDone, &q.DtDue,
 		&q.DtPreDue, &q.DtPreDone, &q.FLAGS, &q.DoneUID, &q.PreDoneUID, &q.Comment,
 		&q.CreateTS, &q.CreateBy, &q.LastModTime, &q.LastModBy)
@@ -306,11 +314,11 @@ func deleteTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(d.BID, w)
 }
 
-// GetTaskList returns the requested assessment
+// saveTaskList returns the requested assessment
 // wsdoc {
-//  @Title  Save TaskList
+//  @Title  Save Task List
 //	@URL /v1/tl/:BUI/TLID
-//  @Method  GET
+//  @Method  GET,POST
 //	@Synopsis Update the information on a TaskList with the supplied data
 //  @Description This service updates TaskList TLID with the info
 //  @Description information supplied.
@@ -322,6 +330,8 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "saveTaskList"
 	var foo SaveTaskListInput
 	var err error
+	var blank rlib.TaskList
+	var now = time.Now()
 
 	rlib.Console("Entered %s\n", funcname)
 	rlib.Console("record data = %s\n", d.data)
@@ -354,6 +364,22 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// Bizlogic checks done. Insert or update as needed...
 	//-------------------------------------------------------
 	if a.TLID == 0 && d.ID == 0 {
+		//-------------------------------------------------------
+		// Chk values dictate the dates.
+		//-------------------------------------------------------
+		if !foo.Record.ChkDtDue {
+			a.DtDue = blank.DtDue
+		}
+		if !foo.Record.ChkDtPreDue {
+			a.DtPreDue = blank.DtPreDue
+		}
+		if foo.Record.ChkDtPreDone {
+			a.DtPreDone = now
+		}
+		if foo.Record.ChkDtDone {
+			a.DtDone = now
+		}
+
 		if foo.Record.TLDID == 0 {
 			e := fmt.Errorf("%s: Could not create TaskList because definition id (%d) does not exist", funcname, foo.Record.TLDID)
 			SvcErrorReturn(w, e, funcname)
@@ -387,6 +413,30 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 	} else {
+		b, err := rlib.GetTaskList(r.Context(), a.TLID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		//------------------------------------------------------------------
+		// Due and PreDue dates are not changable.  If those
+		// need to be changed, you'll need to change the definition.
+		// If the PreDue date changes from unset to set, record the
+		// datetime.  If it changes from set to unset, reset the datetime.
+		// Identical operations for Due date.
+		//------------------------------------------------------------------
+		if b.DtPreDone.Year() > 1999 && !foo.Record.ChkDtPreDone { // current db DtPreDone is set, but user unset it
+			a.DtPreDone = rlib.TIME0
+		}
+		if b.DtPreDone.Year() <= 1999 && foo.Record.ChkDtPreDone { // current db DtPreDone is unset, but user set it
+			a.DtPreDone = now
+		}
+		if b.DtDone.Year() > 1999 && !foo.Record.ChkDtDone { // current db DtDone is set, but user unset it
+			a.DtDone = rlib.TIME0
+		}
+		if b.DtDone.Year() <= 1999 && foo.Record.ChkDtDone { // current db DtPreDone is unset, but user set it
+			a.DtDone = now
+		}
 		err = rlib.UpdateTaskList(r.Context(), &a)
 	}
 
@@ -403,7 +453,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc {
 //  @Title  Get TaskList
 //	@URL /v1/tl/:BUI/:TLID
-//  @Method  GET
+//  @Method  GET,POST
 //	@Synopsis Get information on a TaskList
 //  @Description  Return all fields for assessment :TLID
 //	@Input WebGridSearchRequest
@@ -423,8 +473,21 @@ func getTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 	if a.TLID > 0 {
-		var gg TaskList
+		var gg SvcTaskList
 		rlib.MigrateStructVals(&a, &gg)
+		gg.BUD = getBUDFromBIDList(gg.BID)
+		if a.DtDone.Year() > 1999 {
+			gg.ChkDtDone = true
+		}
+		if a.DtDue.Year() > 1999 {
+			gg.ChkDtDue = true
+		}
+		if a.DtPreDone.Year() > 1999 {
+			gg.ChkDtPreDone = true
+		}
+		if a.DtPreDue.Year() > 1999 {
+			gg.ChkDtPreDue = true
+		}
 		g.Record = gg
 	}
 	g.Status = "success"

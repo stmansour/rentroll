@@ -10,7 +10,7 @@
     buildRentRollElements, buildLoginForm, buildAppLayout,
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
-    createStmtForm, createRentalAgreementForm,
+    createStmtForm, createRentalAgreementForm, finishForms
 */
 
 "use strict";
@@ -24,8 +24,7 @@
 //
 // RETURNS:
 //  nothing
-//------------------------------------------------------------------
-function buildPageElementsWrapper(uitype) {
+window.buildPageElementsWrapper = function (uitype) {
     buildAppLayout();
     buildSidebar(uitype);
     buildAllocFundsGrid();
@@ -59,12 +58,12 @@ function buildPageElementsWrapper(uitype) {
     buildTaskListElements();
     buildTaskListDefElements();
     finishForms();
-}
+};
 
-function finishForms() {
+window.finishForms = function () {
     createRentalAgreementForm();
     createStmtForm();
     createPayorStmtForm();
     createDepositForm();
     finishTaskListForm();
-}
+};

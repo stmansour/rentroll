@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"time"
 )
 
 // SearchTask is the definition of a task. It is used to make instance
@@ -14,21 +13,21 @@ type SearchTask struct {
 	Recid       int64 `json:"recid"`
 	TID         int64
 	BID         int64
-	TLID        int64     // the TaskList to which this task belongs
-	Name        string    // Task text
-	Worker      string    // Name of the associated work function
-	DtDue       time.Time // Task Due Date
-	DtPreDue    time.Time // Pre Completion due date
-	DtDone      time.Time // Task completion Date
-	DtPreDone   time.Time // Task Pre Completion Date
-	FLAGS       int64
-	DoneUID     int64     // user who marked task as done
-	PreDoneUID  int64     // user who marked task as predone
-	Comment     string    // any user comments
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
-	CreateTS    time.Time // when was this record created
-	CreateBy    int64     // employee UID (from phonebook) that created it
+	TLID        int64             // the TaskList to which this task belongs
+	Name        string            // Task text
+	Worker      string            // Name of the associated work function
+	DtDue       rlib.JSONDate     // Task Due Date
+	DtPreDue    rlib.JSONDate     // Pre Completion due date
+	DtDone      rlib.JSONDate     // Task completion Date
+	DtPreDone   rlib.JSONDate     // Task Pre Completion Date
+	FLAGS       int64             // special circumstance indicators
+	DoneUID     int64             // user who marked task as done
+	PreDoneUID  int64             // user who marked task as predone
+	Comment     string            // any user comments
+	LastModTime rlib.JSONDateTime // when was this record last written
+	LastModBy   int64             // employee UID (from phonebook) that modified it
+	CreateTS    rlib.JSONDateTime // when was this record created
+	CreateBy    int64             // employee UID (from phonebook) that created it
 }
 
 // SearchTaskResponse holds the task list definition list
