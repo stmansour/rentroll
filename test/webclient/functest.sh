@@ -51,6 +51,20 @@ fi
 }
 
 #--------------------------------------------------------------------
+#  link node_modules to tmp/rentroll/test/webclient
+#--------------------------------------------------------------------
+pushd ${RRBIN}/test/webclient
+	if [ ! -d node_modules ]; then \
+		echo "node_modules does not exits.  Will attempt to create..."; \
+		sh -c "ln -s `npm root -g`"; \
+	fi ;\
+	if [ ! -d node_modules ]; then \
+		echo "Could not make node_modules directory" ;\
+		exit 1 ;\
+	fi
+popd
+
+#--------------------------------------------------------------------
 #  Use custom dumped "rentroll" .sql file for the webclient UI tests
 #--------------------------------------------------------------------
 echo "*** loading data from webclientTest.sql into rentroll db ***"
