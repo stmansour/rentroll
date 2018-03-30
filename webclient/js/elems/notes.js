@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------
 //          notesPopUp
 //------------------------------------------------------------------------
-function notesPopUp() {
+window.notesPopUp = function () {
     w2popup.open({
         width   : 580,
         height  : 350,
@@ -14,4 +14,4 @@ function notesPopUp() {
         buttons : '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'+
                   '<button class="w2ui-btn" onclick="w2popup.close()">Cancel</button>'
     });
-}
+};

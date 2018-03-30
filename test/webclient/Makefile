@@ -19,7 +19,7 @@ jshint:
 	@rm -rf fail
 
 clean:
-	@rm -f *log *.g [a-z] err.txt fail ./accord.sql ./conf*.json
+	@rm -f *log *.g [a-z] err.txt fail ./accord.sql ./conf*.json .nyc_output/*
 
 all: clean jshint test
 

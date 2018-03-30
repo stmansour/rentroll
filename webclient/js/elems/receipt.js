@@ -4,10 +4,11 @@
     addDateNavToToolbar, tcidReceiptPayorPickerRender, tcidPickerDropRender, tcidPickerCompare,
     getPersonDetailsByTCID, getPaymentType, formRefreshCallBack, w2utils, reverse_confirm_options,
     getFormSubmitData, w2uiDateControlString, getGridReversalSymbolHTML, get2XReversalSymbolHTML,
-    setDefaultFormFieldAsPreviousRecord, formRecDiffer
+    setDefaultFormFieldAsPreviousRecord, formRecDiffer, getBusinessReceiptRules, getReceiptInitRecord,
+    handleReceiptRAID
 */
 "use strict";
-function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
+window.getReceiptInitRecord = function (BID, BUD, ptInit, previousFormRecord){
     var y = new Date();
     var defaultFormData = {
         recid: 0,
@@ -45,7 +46,7 @@ function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
     }
 
     return defaultFormData;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getBusinessReceiptRules - return the promise object of request to get latest
@@ -55,7 +56,7 @@ function getReceiptInitRecord(BID, BUD, ptInit, previousFormRecord){
 //          - BUD : Business Unit Designation
 // @return  - promise object from $.get
 //-----------------------------------------------------------------------------
-function getBusinessReceiptRules(BID, BUD) {
+window.getBusinessReceiptRules = function (BID, BUD) {
     // if not BUD in app.ReceiptRules then initialize it with blank list
     if (!(BUD in app.ReceiptRules)) {
         app.ReceiptRules[BUD] = [];
@@ -68,9 +69,9 @@ function getBusinessReceiptRules(BID, BUD) {
                 app.ReceiptRules[BUD] = data[BUD];
             }
         });
-}
+};
 
-function buildReceiptElements() {
+window.buildReceiptElements = function () {
     //------------------------------------------------------------------------
     //          receiptsGrid
     //------------------------------------------------------------------------
@@ -632,9 +633,9 @@ function buildReceiptElements() {
             },
         },
    });
-}
+};
 
-function handleReceiptRAID(url, f) {
+window.handleReceiptRAID = function (url, f) {
     var params = {"cmd":"get","recid":0,"name":"receiptForm","client": app.client};
     var dat = JSON.stringify(params);
     $.post(url, dat, null, "json")
@@ -649,4 +650,4 @@ function handleReceiptRAID(url, f) {
     .fail(function(/*data*/){
         f.error(url + " failed to get Receipt Rule details.");
     });
-}
+};

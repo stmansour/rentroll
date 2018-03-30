@@ -1,9 +1,10 @@
 /*global
     setDefaultFormFieldAsPreviousRecord, w2uiDateControlString, $, w2ui, app, getCurrentBusiness, parseInt, getBUDfromBID,
-    getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar,
+    getRentableTypes, setToForm, form_dirty_alert, console, getFormSubmitData, addDateNavToToolbar, setRentableLayout,
+    getRentableInitRecord
 */
 "use strict";
-function getRentableInitRecord(BID, BUD, previousFormRecord){
+window.getRentableInitRecord = function (BID, BUD, previousFormRecord){
     var y = new Date();
     var defaultFormData = {
         recid: 0,
@@ -37,7 +38,7 @@ function getRentableInitRecord(BID, BUD, previousFormRecord){
     }
 
     return defaultFormData;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getRentableTypes - return the RentableTypes list with respect of BUD
@@ -45,7 +46,7 @@ function getRentableInitRecord(BID, BUD, previousFormRecord){
 //      - BUD: current business designation
 // @return  the Rentable Types List
 //-----------------------------------------------------------------------------
-function getRentableTypes(BUD) {
+window.getRentableTypes = function (BUD) {
     return jQuery.ajax({
         type: "GET",
         url: "/v1/rtlist/"+BUD,
@@ -59,9 +60,9 @@ function getRentableTypes(BUD) {
             }
         }
     });
-}
+};
 
-function buildRentableElements() {
+window.buildRentableElements = function () {
     // inside rentable part, we need this items
     app.cycleFreqItems = []; // cycle freq items
     app.cycleFreq.forEach(function(item, index) {
@@ -953,9 +954,9 @@ function buildRentableElements() {
             reactivate: function() {}, // TODO(Sudip): reactivate action
          },
     });
-}
+};
 
-function setRentableLayout(BID, RID) {
+window.setRentableLayout = function (BID, RID) {
 
     // set the url for rentableForm
     w2ui.rentableForm.url = '/v1/rentable/' + BID + '/' + RID;
@@ -1033,4 +1034,4 @@ function setRentableLayout(BID, RID) {
         w2ui.rentableDetailLayout.get("main").tabs.click("rentableForm");
         w2ui.toplayout.show('right', true);
     }
-}
+};

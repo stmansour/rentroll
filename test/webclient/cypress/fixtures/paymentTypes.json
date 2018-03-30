@@ -1,0 +1,13 @@
+{
+  "cmd": "save",
+  "recid": 0,
+  "name": "pmtForm",
+  "record": {
+    "recid": 0,
+    "PMTID": 0,
+    "BID": 1,
+    "BUD": "REX",
+    "Name": "Payment+Type+Name",
+    "Description": "Automatic+Save+Button+Tests"
+  }
+}

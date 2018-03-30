@@ -2,12 +2,13 @@
     parseInt, w2ui, getDepMeth, getDepository, $, app, getBUDfromBID, getCurrentBusiness, console,
     form_dirty_alert, getFormSubmitData, formRecDiffer, formRefreshCallBack, addDateNavToToolbar,
     getGridReversalSymbolHTML, dateControlString, w2utils, saveDepositForm, w2confirm,
-    delete_confirm_options,
+    delete_confirm_options, getBusinessDepMethods, getBusinessDepositories, setToDepositForm, getDepositInitRecord,
+    calcTotalCheckedReceipts, saveDepositFormAndAnother, getCheckedReceipts
 */
 
 "use strict";
 
-function getDepositInitRecord(BID, BUD, previousFormRecord){
+window.getDepositInitRecord = function (BID, BUD, previousFormRecord){
     var y = new Date();
     var defaultFormData = {
         recid:          0,
@@ -40,7 +41,7 @@ function getDepositInitRecord(BID, BUD, previousFormRecord){
     }
 
     return defaultFormData;
-}
+};
 
 //-----------------------------------------------------------------------------
 // getBusinessDepMethods - return the promise object of request to get latest
@@ -50,7 +51,7 @@ function getDepositInitRecord(BID, BUD, previousFormRecord){
 //          - BUD : Business Unit Designation
 // @return  - promise object from $.get
 //-----------------------------------------------------------------------------
-function getBusinessDepMethods(BID, BUD) {
+window.getBusinessDepMethods = function (BID, BUD) {
     // if not BUD in app.DepMethods then initialize it with blank list
     if (!(BUD in app.DepMethods)) {
         app.DepMethods[BUD] = [];
@@ -63,7 +64,7 @@ function getBusinessDepMethods(BID, BUD) {
                 app.DepMethods[BUD] = data[BUD];
             }
         });
-}
+};
 
 //-----------------------------------------------------------------------------
 // getBusinessDepositories - return the promise object of request to get latest
@@ -73,7 +74,7 @@ function getBusinessDepMethods(BID, BUD) {
 //          - BUD : Business Unit Designation
 // @return  - promise object from $.get
 //-----------------------------------------------------------------------------
-function getBusinessDepositories(BID, BUD) {
+window.getBusinessDepositories = function (BID, BUD) {
     // if not BUD in app.Depositories then initialize it with blank list
     if (!(BUD in app.Depositories)) {
         app.Depositories[BUD] = [];
@@ -86,7 +87,7 @@ function getBusinessDepositories(BID, BUD) {
                 app.Depositories[BUD] = data[BUD];
             }
         });
-}
+};
 
 
 //---------------------------------------------------------------------------------
@@ -94,7 +95,7 @@ function getBusinessDepositories(BID, BUD) {
 //                variable name svc + 'Grid'
 //
 //---------------------------------------------------------------------------------
-function buildDepositElements() {
+window.buildDepositElements = function () {
     //------------------------------------------------------------------------
     //          deposit Grid
     //------------------------------------------------------------------------
@@ -477,7 +478,7 @@ function buildDepositElements() {
             { type: 'right',   size: 0,     hidden: true }
         ]
     });
-}
+};
 
 
 //-----------------------------------------------------------------------------
@@ -485,7 +486,7 @@ function buildDepositElements() {
 //      and save the form.
 // @params
 //-----------------------------------------------------------------------------
-function saveDepositForm() {
+window.saveDepositForm = function () {
     var rcpts = getCheckedReceipts();
     var f = w2ui.depositForm;
     f.record.DPMID = f.record.DPMName.id;
@@ -509,14 +510,14 @@ function saveDepositForm() {
         app.last.grid_sel_recid  =-1;// clear the grid select recid
         w2ui.depositGrid.render();
     });
-}
+};
 
 //-----------------------------------------------------------------------------
 // saveDepositFormAndAnother - pull the checked Receipts, extend the return values
 //      and save the form and add another initial object to depositForm.
 // @params
 //-----------------------------------------------------------------------------
-function saveDepositFormAndAnother() {
+window.saveDepositFormAndAnother = function () {
     var rcpts = getCheckedReceipts();
     var f = w2ui.depositForm,
         grid = w2ui.receiptsGrid,
@@ -556,7 +557,7 @@ function saveDepositFormAndAnother() {
         w2ui.depositListGrid.clear();
         */
     });
-}
+};
 
 //-----------------------------------------------------------------------------
 // calcTotalCheckedReceipts - go through all the depositListGrid items and
@@ -564,7 +565,7 @@ function saveDepositFormAndAnother() {
 //      summary row with the total.
 // @params
 //-----------------------------------------------------------------------------
-function calcTotalCheckedReceipts() {
+window.calcTotalCheckedReceipts = function () {
     var t = 0.0;
     var grid = w2ui.depositListGrid;
     var checkcol=0;
@@ -588,7 +589,7 @@ function calcTotalCheckedReceipts() {
     if (grid.records.length > 0) {
         grid.set('s-1', { Amount: t });
     }
-}
+};
 
 //-----------------------------------------------------------------------------
 // getCheckedReceipts - go through depositListGrid items and build a list
@@ -598,7 +599,7 @@ function calcTotalCheckedReceipts() {
 // @returns
 //      a list of selected receipts
 //-----------------------------------------------------------------------------
-function getCheckedReceipts() {
+window.getCheckedReceipts = function () {
     var t = [];
     var grid = w2ui.depositListGrid;
     var i=0;
@@ -620,7 +621,7 @@ function getCheckedReceipts() {
         }
     }
     return t;
-}
+};
 
 //-----------------------------------------------------------------------------
 // createDepositForm - add the grid and form to the statement layout.  I'm not
@@ -628,11 +629,11 @@ function getCheckedReceipts() {
 //      into the layout when it gets created, they do not work correctly.
 // @params
 //-----------------------------------------------------------------------------
-function createDepositForm() {
+window.createDepositForm = function () {
     w2ui.depositLayout.content('top',   w2ui.depositForm);
     w2ui.depositLayout.content('main',  w2ui.depositListGrid);
     w2ui.depositLayout.content('bottom',w2ui.depositFormBtns);
-}
+};
 
 //-----------------------------------------------------------------------------
 // setToDepositForm - set to the Deposit Form - puts the depositLayout in
@@ -645,7 +646,7 @@ function createDepositForm() {
 //   [width] = optional, if specified it is the width of the form
 //   doRequest =
 //-----------------------------------------------------------------------------
-function setToDepositForm(slayout, sform, url, urlgrid, width, doRequest) {
+window.setToDepositForm = function (slayout, sform, url, urlgrid, width, doRequest) {
     // if not url defined then return
     var url_len=url.length > 0;
     if (!url_len) {
@@ -711,4 +712,4 @@ function setToDepositForm(slayout, sform, url, urlgrid, width, doRequest) {
         showForm();
         return true;
     }
-}
+};
