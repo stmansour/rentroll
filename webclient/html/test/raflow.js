@@ -161,6 +161,8 @@ $("#add-new-flow").on("click", function() {
 
 $(document).on("click", ".flowID-link", function() {
 
+    // load first slide
+    $("#ra-form footer button#previous").addClass("disable");
     $(".ra-form-component").hide();
     $(".ra-form-component#dates").show();
     $("#progressbar li").removeClass("active");
