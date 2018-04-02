@@ -171,8 +171,8 @@ function initRAFlow() {
         dataType: "json",
         data: JSON.stringify({"cmd": "init", "flow": app.raflow.name}),
         success: function(data) {
-            app.raflow.data[data.flowID] = {};
-            $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.flowID+"'>"+data.flowID+"</li>");
+            app.raflow.data[data.FlowID] = {};
+            $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.FlowID+"'>"+data.FlowID+"</li>");
         },
         error: function(data) {
             console.log(data);
@@ -222,8 +222,8 @@ var RACompConfig = {
         w2uiComp: "RAVehiclesGrid",
     },
     "bginfo": {
-        loader: null,
-        w2uiComp: "",
+        loader: loadRABGInfoForm,
+        w2uiComp: "RABGInfoForm",
     },
     "rentables": {
         loader: null,
@@ -267,10 +267,10 @@ function loadTargetSection(target, activeCompID) {
             data = w2ui.RAPetsGrid.records;
             break
         case "vehicles":
-            data = {};
+            data = w2ui.RAVehiclesGrid.records;
             break
         case "bginfo":
-            data = {};
+            data = w2ui.RABGInfoForm.record;
             break
         case "rentables":
             data = {};
@@ -410,9 +410,9 @@ function loadRAPeopleForm() {
             reset: function () {
                 this.clear();
             },
-            save: function () {
+            /*save: function () {
                 this.save();
-            }
+            }*/
         }
     });
 
@@ -595,19 +595,19 @@ function getVehicleGridInitalRecord(BID, gridLen) {
 
     return {
         recid:                 gridLen,
-        PETID:                 0,
+        VID:                   0,
         BID:                   BID,
-        RAID:                  0,
-        Name:                  "",
+        TCID:                  0,
+        // VIN:                   "",
         Type:                  "",
-        Breed:                 "",
+        Make:                  "",
+        Model:                 "",
         Color:                 "",
-        Weight:                0,
+        LicensePlateState:     "",
+        LicensePlateNumber:    "",
+        ParkingPermitNumber:   "",
         DtStart:               w2uiDateControlString(t),
         DtStop:                w2uiDateControlString(nyd),
-        RefundablePetDeposit:  0.0,
-        RecurringPetFee:       0.0,
-        NonRefundablePetFee:   0.0
     }
 }
 
@@ -689,22 +689,19 @@ function loadRAVehiclesGrid() {
                 field:   'LicensePlateState',
                 caption: 'License Plate<br>State',
                 size:    '100px',
-                render:  'money',
-                editable:{ type: 'money' }
+                editable:{ type: 'text' }
             },
             {
                 field:   'LicensePlateNumber',
                 caption: 'License Plate<br>Number',
                 size:    '100px',
-                render:  'money',
-                editable:{ type: 'money' }
+                editable:{ type: 'text' }
             },
             {
                 field:   'ParkingPermitNumber',
                 caption: 'Parking Permit <br>Number',
                 size:    '100px',
-                render:  'money',
-                editable:{ type: 'money' }
+                editable:{ type: 'text' }
             },
             {
                 field:   'DtStart',
@@ -736,5 +733,51 @@ function loadRAVehiclesGrid() {
             }
         }
     }, 500);
+}
 
+// -------------------------------------------------------------------------------
+// Rental Agreement - Background info form
+// -------------------------------------------------------------------------------
+function loadRABGInfoForm() {
+
+    // if form is loaded then return
+    if ("RABGInfoForm" in w2ui) {
+        return;
+    }
+
+    // people form
+    $('#ra-form #bginfo').w2form({
+        name   : 'RABGInfoForm',
+        header : 'Background Information',
+        style  : 'border: 1px solid black; display: block;',
+        formURL: '/webclient/html/test/formrabginfo.html',
+        focus: -1,
+        fields : [
+            { name: 'Applicant'  , type: 'text'    , required: true, html: { caption: "Applicant Name" } },
+        ],
+        actions: {
+            reset: function () {
+                this.clear();
+            },
+            /*save: function () {
+                this.save();
+            }*/
+        }
+    });
+
+    // load the existing data in people component
+    setTimeout(function() {
+        var partType = app.raFlowPartTypes.bginfo;
+        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
+            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
+                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
+                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
+                        w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
+                        w2ui.RABGInfoForm.refresh();
+                        break;
+                    }
+                }
+            }
+        }
+    }, 500);
 }

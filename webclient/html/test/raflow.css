@@ -19,9 +19,10 @@ html, body {
 
 #manage-flows ul li.flowID-link {
     padding: 12px;
-    min-width: 80px;
+    width: 180px;
+    margin: 10px auto;
     text-align: center;
-    display: inline-block;
+    display: block;
     font-size: 14px;
     text-decoration: none;
     color: white;
