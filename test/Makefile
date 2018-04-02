@@ -1,5 +1,5 @@
-DIRS=setup newbiz workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller receipts webclient
-# DIRS=setup newbiz workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller receipts
+#DIRS=setup newbiz workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller receipts webclient
+DIRS=setup newbiz workerasm mrr rrr rr1 rr rr_use_cases jm1 gsr notes ccc upd acctbal gap importers bizdelete testdb bizlogic ws websvc1 websvc2 websvc3 payorstmt roller receipts
 TESTREPORT="testreport.txt"
 
 db:
@@ -13,10 +13,9 @@ clean:
 	cd ./importers/onesite/okc;make clean
 	@echo "*** CLEAN completed in test ***"
 
-test:
-	@echo "FUNCTIONAL TEST Report" > ${TESTREPORT}
-	@echo "VALIDATING LOCAL DATABASE SCHEMAS" | tee -a ${TESTREPORT}
-	@./localcmp.sh
+test: validate functest
+
+functest:
 	@echo "Report Start: \c" >> ${TESTREPORT}
 	@date >> ${TESTREPORT}
 	@echo >> ${TESTREPORT}
@@ -29,6 +28,11 @@ test:
 	@date >> ${TESTREPORT}
 	@echo "*** TEST completed in test ***"
 	@cat ${TESTREPORT}
+
+validate:
+	@echo "FUNCTIONAL TEST Report" > ${TESTREPORT}
+	@echo "VALIDATING LOCAL DATABASE SCHEMAS" | tee -a ${TESTREPORT}
+	@./localcmp.sh
 
 package:
 	for dir in $(DIRS); do make -C $$dir package;done

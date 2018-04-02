@@ -10,7 +10,7 @@
     buildRentRollElements, buildLoginForm, buildAppLayout,
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
-    createStmtForm, createRentalAgreementForm, finishForms
+    createStmtForm, createRentalAgreementForm, finishForms, finishTLDForm,
 */
 
 "use strict";
@@ -66,4 +66,5 @@ window.finishForms = function () {
     createPayorStmtForm();
     createDepositForm();
     finishTaskListForm();
+    finishTLDForm();
 };

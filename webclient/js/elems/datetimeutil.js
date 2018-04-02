@@ -231,6 +231,7 @@ window.setDateControl = function (dc, dt) {
 //         or the original string if no time is present
 //-----------------------------------------------------------------------------
 window.getTimeFromDT = function (dt) {
+    if (typeof dt === "undefined") { return ""; }
     var i = dt.indexOf("T");
     var l = dt.length;
     var s = dt;
@@ -252,6 +253,7 @@ window.getTimeFromDT = function (dt) {
 //         or the original string if no date is present
 //-----------------------------------------------------------------------------
 window.getDateFromDT = function (dt) {
+    if (typeof dt === "undefined") { return ""; }
     var i = dt.indexOf("T");
     var l = dt.length;
     if (i > 0 && l > i) {
