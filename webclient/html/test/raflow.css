@@ -8,6 +8,34 @@ html, body {
     clear: both;
 }
 
+#manage-flows {
+    text-align: center;
+}
+
+#manage-flows ul {
+    list-style: none;
+    padding: 0;
+}
+
+#manage-flows ul li.flowID-link {
+    padding: 12px;
+    min-width: 80px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    text-decoration: none;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-image: linear-gradient(to right, #86D3FF 0%, #8AF03E 100%);
+}
+
+#manage-flows ul li a {
+    text-decoration: none;
+    color: white;
+}
+
 #progressbar-nav {
     margin: 0;
     padding: 0;
@@ -100,6 +128,33 @@ html, body {
     border: none;
 }
 
+#ra-form-container {
+    width: 100%;
+    z-index: 10;
+    position: fixed;
+    top: 0;
+    left: 100%;
+    background-color: white;
+    height: 100%;
+}
+
+#ra-form-container #back-to-flow-list {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    padding: 12px;
+    min-width: 80px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    text-decoration: none;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-image: linear-gradient(to right, #6FA36F 0%, #fda085 100%);
+}
+
 #ra-form {
     width: 70%;
     margin: 0 auto;
@@ -131,7 +186,7 @@ html, body {
     padding: 10px 20px;
 }
 
-#ra-form footer button {
+.btn, #ra-form footer button {
     padding: 12px;
     min-width: 80px;
     text-align: center;

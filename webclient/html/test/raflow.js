@@ -112,6 +112,12 @@ function getRAFlowAllParts(flowID) {
         data: JSON.stringify({"cmd": "getFlowParts", "flowID": flowID}),
         success: function(data) {
             app.raflow.data[flowID] = data.records;
+            // load form container
+            $("#ra-form-container").animate({"left": "0"}, 100);
+            // load first dates section
+            loadRADatesForm();
+            // as we load the first section
+            $("#ra-form footer button#previous").addClass("disable");
         },
         error: function(data) {
             console.log(data);
@@ -127,21 +133,35 @@ function getAllRAFlows() {
         dataType: "json",
         data: JSON.stringify({"cmd": "getAllFlows", "flow": app.raflow.name}),
         success: function(data) {
+
+            $("#flow-list").empty();
+            $("#manage-flows #loader").show();
+
             data.records = data.records || [];
             for (var i = 0; i < data.records.length; i++) {
-                getRAFlowAllParts(data.records[i]);
+                $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.records[i]+"'>"+data.records[i]+"</li>");
             }
 
-            // TODO: make it dynamic later
-            if (data.records.length > 0) {
-                app.raflow.activeflowID = data.records[0];
-            }
+            $("#manage-flows #loader").hide();
         },
         error: function(data) {
             console.log(data);
         },
     });
 }
+
+$("#back-to-flow-list").on("click", function() {
+    $("#ra-form-container").animate({"left": "100%"}, 100);
+});
+
+$("#add-new-flow").on("click", function() {
+    initRAFlow();
+});
+
+$(document).on("click", ".flowID-link", function() {
+    app.raflow.activeflowID = $(this).attr("data-flow-id");
+    getRAFlowAllParts(app.raflow.activeflowID);
+});
 
 function initRAFlow() {
     $.ajax({
@@ -152,6 +172,7 @@ function initRAFlow() {
         data: JSON.stringify({"cmd": "init", "flow": app.raflow.name}),
         success: function(data) {
             app.raflow.data[data.flowID] = {};
+            $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.flowID+"'>"+data.flowID+"</li>");
         },
         error: function(data) {
             console.log(data);
@@ -171,16 +192,6 @@ $(function() {
 
             // get all flows list
             getAllRAFlows(app.raflow.name);
-
-            // initiate flow
-            // initRAFlow(app.raflow.name);
-
-            setTimeout(function() {
-                loadRADatesForm();
-            }, 1000);
-
-            // as we load the first section
-            $("#ra-form footer button#previous").addClass("disable");
 
         } else {
             console.log( '**** YIPES! ****  status on /v1/uilists/ = ' + textStatus);
@@ -256,16 +267,16 @@ function loadTargetSection(target, activeCompID) {
             data = w2ui.RAPetsGrid.records;
             break
         case "vehicles":
-            data = w2ui.RAPetsGrid.records;
+            data = {};
             break
         case "bginfo":
-            data = w2ui.RAPetsGrid.records;
+            data = {};
             break
         case "rentables":
-            data = w2ui.RAPetsGrid.records;
+            data = {};
             break
         case "feesterms":
-            data = w2ui.RAPetsGrid.records;
+            data = {};
             break
         default:
             alert("invalid active comp: ", activeCompID);
@@ -353,10 +364,16 @@ function loadRADatesForm() {
     // load the existing data in dates component
     setTimeout(function() {
         var partType = app.raFlowPartTypes.dates;
-        for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-            if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                w2ui.RADatesForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
-                w2ui.RADatesForm.refresh();
+        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
+            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
+                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
+                    console.log(app.raflow.data[app.raflow.activeflowID]);
+                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
+                        w2ui.RADatesForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
+                        w2ui.RADatesForm.refresh();
+                        break;
+                    }
+                }
             }
         }
     }, 500);
@@ -382,7 +399,7 @@ function loadRAPeopleForm() {
         fields : [
             { name: 'Transactant', type: 'combo',    required: true, html: { caption: "Transactant" },
                 options: {
-                    items: ["Captain America","Iron Man","Doctor Strange","Thanos"]
+                    items: ["Captain America", "Iron Man", "Doctor Strange", "Thanos"]
                 }
             },
             { name: 'Payor',       type: 'checkbox', required: true, html: { caption: "Payor" } },
@@ -402,10 +419,15 @@ function loadRAPeopleForm() {
     // load the existing data in people component
     setTimeout(function() {
         var partType = app.raFlowPartTypes.people;
-        for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-            if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
-                w2ui.RAPeopleForm.refresh();
+        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
+            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
+                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
+                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
+                        w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
+                        w2ui.RAPeopleForm.refresh();
+                        break;
+                    }
+                }
             }
         }
     }, 500);
@@ -549,10 +571,15 @@ function loadRAPetsGrid() {
     // load the existing data in pets component
     setTimeout(function() {
         var partType = app.raFlowPartTypes.pets;
-        for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-            if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                w2ui.RAPetsGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
-                w2ui.RAPetsGrid.refresh();
+        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
+            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
+                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
+                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
+                        w2ui.RAPetsGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
+                        w2ui.RAPetsGrid.refresh();
+                        break;
+                    }
+                }
             }
         }
     }, 500);
@@ -697,10 +724,15 @@ function loadRAVehiclesGrid() {
     // load the existing data in vehicles component
     setTimeout(function() {
         var partType = app.raFlowPartTypes.vehicles;
-        for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-            if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                w2ui.RAVehiclesGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
-                w2ui.RAVehiclesGrid.refresh();
+        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
+            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
+                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
+                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
+                        w2ui.RAVehiclesGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
+                        w2ui.RAVehiclesGrid.refresh();
+                        break;
+                    }
+                }
             }
         }
     }, 500);
