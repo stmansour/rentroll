@@ -1169,6 +1169,7 @@ type Rentable struct {
 	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
 	CreateTS time.Time // when was this record created
 	CreateBy int64     // employee UID (from phonebook) that created it
+	Comment  string    // for notes such as Alarm codes and other things
 }
 
 // MRHistory is the basic structure for Make Ready status history
