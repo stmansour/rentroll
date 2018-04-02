@@ -95,7 +95,7 @@ function saveActiveCompData(record, partType) {
         dataType: "json",
         data: JSON.stringify(data),
         success: function(data) {
-            alert("data has been saved");
+            console.log("data has been saved for: ", app.raflow.activeflowID, ", partType: ", partType);
         },
         error: function(data) {
             console.log(data);
@@ -151,6 +151,7 @@ function getAllRAFlows() {
 }
 
 $("#back-to-flow-list").on("click", function() {
+    app.raflow.activeflowID = "";
     $("#ra-form-container").animate({"left": "100%"}, 100);
 });
 
@@ -159,6 +160,12 @@ $("#add-new-flow").on("click", function() {
 });
 
 $(document).on("click", ".flowID-link", function() {
+
+    $(".ra-form-component").hide();
+    $(".ra-form-component#dates").show();
+    $("#progressbar li").removeClass("active");
+    $("#progressbar li[data-target='#dates']").addClass("active");
+
     app.raflow.activeflowID = $(this).attr("data-flow-id");
     getRAFlowAllParts(app.raflow.activeflowID);
 });
@@ -226,12 +233,12 @@ var RACompConfig = {
         w2uiComp: "RABGInfoForm",
     },
     "rentables": {
-        loader: null,
-        w2uiComp: "",
+        loader: loadRARentablesGrid,
+        w2uiComp: "RARentablesGrid",
     },
     "feesterms": {
-        loader: null,
-        w2uiComp: "",
+        loader: loadRAFeesTermsGrid,
+        w2uiComp: "RAFeesTermsGrid",
     },
     "final": {
         loader: null,
@@ -273,18 +280,23 @@ function loadTargetSection(target, activeCompID) {
             data = w2ui.RABGInfoForm.record;
             break
         case "rentables":
-            data = {};
+            data = w2ui.RARentablesGrid.records;
             break
         case "feesterms":
-            data = {};
+            data = w2ui.RAFeesTermsGrid.records;
+            break
+        case "final":
+            data = null;
             break
         default:
             alert("invalid active comp: ", activeCompID);
             return
     }
 
-    // save the content on server for active component
-    saveActiveCompData(data, partType);
+    if (data) {
+        // save the content on server for active component
+        saveActiveCompData(data, partType);
+    }
 
     // hide active component
     $("#progressbar li[data-target='#" + activeCompID + "']").removeClass("active");
@@ -332,34 +344,34 @@ function loadTargetSection(target, activeCompID) {
 function loadRADatesForm() {
 
     // if form is loaded then return
-    if ("RADatesForm" in w2ui) {
-        return;
-    }
+    if (!("RADatesForm" in w2ui)) {
 
-    // dates form
-    $('#ra-form #dates').w2form({
-        name   : 'RADatesForm',
-        header : 'Dates',
-        style  : 'border: 1px black solid; display: block;',
-        focus  : -1,
-        formURL: '/webclient/html/test/formradates.html',
-        fields : [
-            { name: 'AgreementStart',  type: 'date', required: true, html: { caption: "Term Start" } },
-            { name: 'AgreementStop',   type: 'date', required: true, html: { caption: "Term Stop"  } },
-            { name: 'RentStart',       type: 'date', required: true, html: { caption: "Rent Start" } },
-            { name: 'RentStop',        type: 'date', required: true, html: { caption: "Rent Stop"  } },
-            { name: 'PossessionStart', type: 'date', required: true, html: { caption: "Possession Start" } },
-            { name: 'PossessionStop',  type: 'date', required: true, html: { caption: "Possession Stop"  } },
-        ],
-        actions: {
-            reset: function () {
-                this.clear();
-            },
-            /*save: function () {
-                this.save();
-            }*/
-        }
-    });
+        // dates form
+        $('#ra-form #dates').w2form({
+            name   : 'RADatesForm',
+            header : 'Dates',
+            style  : 'border: 1px black solid; display: block;',
+            focus  : -1,
+            formURL: '/webclient/html/test/formradates.html',
+            fields : [
+                { name: 'AgreementStart',  type: 'date', required: true, html: { caption: "Term Start" } },
+                { name: 'AgreementStop',   type: 'date', required: true, html: { caption: "Term Stop"  } },
+                { name: 'RentStart',       type: 'date', required: true, html: { caption: "Rent Start" } },
+                { name: 'RentStop',        type: 'date', required: true, html: { caption: "Rent Stop"  } },
+                { name: 'PossessionStart', type: 'date', required: true, html: { caption: "Possession Start" } },
+                { name: 'PossessionStop',  type: 'date', required: true, html: { caption: "Possession Stop"  } },
+            ],
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                /*save: function () {
+                    this.save();
+                }*/
+            }
+        });
+
+    }
 
     // load the existing data in dates component
     setTimeout(function() {
@@ -367,12 +379,13 @@ function loadRADatesForm() {
         if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
             for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
                 if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                    console.log(app.raflow.data[app.raflow.activeflowID]);
                     if (app.raflow.data[app.raflow.activeflowID][i].Data) {
                         w2ui.RADatesForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
                         w2ui.RADatesForm.refresh();
-                        break;
+                    } else {
+                        w2ui.RADatesForm.clear();
                     }
+                    break;
                 }
             }
         }
@@ -385,36 +398,35 @@ function loadRADatesForm() {
 function loadRAPeopleForm() {
 
     // if form is loaded then return
-    if ("RAPeopleForm" in w2ui) {
-        return;
-    }
+    if (!("RAPeopleForm" in w2ui)) {
 
-    // people form
-    $('#ra-form #people').w2form({
-        name   : 'RAPeopleForm',
-        header : 'People',
-        style  : 'border: 1px solid black; display: block;',
-        formURL: '/webclient/html/test/formrapeople.html',
-        focus: -1,
-        fields : [
-            { name: 'Transactant', type: 'combo',    required: true, html: { caption: "Transactant" },
-                options: {
-                    items: ["Captain America", "Iron Man", "Doctor Strange", "Thanos"]
-                }
-            },
-            { name: 'Payor',       type: 'checkbox', required: true, html: { caption: "Payor" } },
-            { name: 'User',        type: 'checkbox', required: true, html: { caption: "User" } },
-            { name: 'Guarantor',   type: 'checkbox', required: true, html: { caption: "Guarantor" } },
-        ],
-        actions: {
-            reset: function () {
-                this.clear();
-            },
-            /*save: function () {
-                this.save();
-            }*/
-        }
-    });
+        // people form
+        $('#ra-form #people').w2form({
+            name   : 'RAPeopleForm',
+            header : 'People',
+            style  : 'border: 1px solid black; display: block;',
+            formURL: '/webclient/html/test/formrapeople.html',
+            focus: -1,
+            fields : [
+                { name: 'Transactant', type: 'combo',    required: true, html: { caption: "Transactant" },
+                    options: {
+                        items: ["Captain America", "Iron Man", "Doctor Strange", "Thanos"]
+                    }
+                },
+                { name: 'Payor',       type: 'checkbox', required: true, html: { caption: "Payor" } },
+                { name: 'User',        type: 'checkbox', required: true, html: { caption: "User" } },
+                { name: 'Guarantor',   type: 'checkbox', required: true, html: { caption: "Guarantor" } },
+            ],
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                /*save: function () {
+                    this.save();
+                }*/
+            }
+        });
+    }
 
     // load the existing data in people component
     setTimeout(function() {
@@ -425,8 +437,10 @@ function loadRAPeopleForm() {
                     if (app.raflow.data[app.raflow.activeflowID][i].Data) {
                         w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
                         w2ui.RAPeopleForm.refresh();
-                        break;
+                    } else {
+                        w2ui.RAPeopleForm.clear();
                     }
+                    break;
                 }
             }
         }
@@ -460,113 +474,117 @@ function getPetsGridInitalRecord(BID, gridLen) {
 
 function loadRAPetsGrid() {
     // if form is loaded then return
-    if ("RAPetsGrid" in w2ui) {
-        return;
-    }
+    if (!("RAPetsGrid" in w2ui)) {
 
-    // pets grid
-    $('#ra-form #pets').w2grid({
-        name   : 'RAPetsGrid',
-        header : 'Pets',
-        show   : {
-                    toolbar: true,
-                    footer: true,
-                    toolbarSave: true
-                 },
-        style  : 'border: 1px solid black; display: block;',
-        toolbar: {
-            items: [
-                { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
-            ],
-            onClick: function(event) {
-                if (event.target == 'add') {
-                    var inital = getPetsGridInitalRecord(1, w2ui.RAPetsGrid.records.length);
-                    w2ui.RAPetsGrid.add(inital);
+        // pets grid
+        $('#ra-form #pets').w2grid({
+            name   : 'RAPetsGrid',
+            header : 'Pets',
+            show   : {
+                        toolbar: true,
+                        footer: true,
+                        // toolbarSave: true
+                     },
+            style  : 'border: 1px solid black; display: block;',
+            toolbar: {
+                items: [
+                    { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
+                ],
+                onClick: function(event) {
+                    if (event.target == 'add') {
+                        var inital = getPetsGridInitalRecord(1, w2ui.RAPetsGrid.records.length);
+                        w2ui.RAPetsGrid.add(inital);
+                    }
                 }
+            },
+            columns: [
+                {
+                    field: 'recid',
+                    hidden: true,
+                },
+                {
+                    field:   'PETID',
+                    hidden:  true
+                },
+                {
+                    field:   'BID',
+                    hidden:  true
+                },
+                {
+                    field:   'RAID',
+                    hidden:  true
+                },
+                {
+                    field:   'Name',
+                    caption: 'Name',
+                    size:    '150px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'Type',
+                    caption: 'Type',
+                    size:    '80px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'Breed',
+                    caption: 'Breed',
+                    size:    '80px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'Color',
+                    caption: 'Color',
+                    size:    '80px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'Weight',
+                    caption: 'Weight',
+                    size:    '80px',
+                    editable:{ type: 'int' }
+                },
+                {
+                    field:   'DtStart',
+                    caption: 'DtStart',
+                    size:    '100px',
+                    editable:{ type: 'date' }
+                },
+                {
+                    field:   'DtStop',
+                    caption: 'DtStop',
+                    size:    '100px',
+                    editable:{ type: 'date' }
+                },
+                {
+                    field:   'NonRefundablePetFee',
+                    caption: 'NonRefundable<br>PetFee',
+                    size:    '70px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'RefundablePetDeposit',
+                    caption: 'Refundable<br>PetDeposit',
+                    size:    '70px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'RecurringPetFee',
+                    caption: 'Recurring<br>PetFee',
+                    size:    '100%',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+            ],
+            onChange: function(event) {
+                event.onComplete = function() {
+                    this.save();
+                };
             }
-        },
-        columns: [
-            {
-                field: 'recid',
-                hidden: true,
-            },
-            {
-                field:   'PETID',
-                hidden:  true
-            },
-            {
-                field:   'BID',
-                hidden:  true
-            },
-            {
-                field:   'RAID',
-                hidden:  true
-            },
-            {
-                field:   'Name',
-                caption: 'Name',
-                size:    '150px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'Type',
-                caption: 'Type',
-                size:    '80px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'Breed',
-                caption: 'Breed',
-                size:    '80px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'Color',
-                caption: 'Color',
-                size:    '80px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'Weight',
-                caption: 'Weight',
-                size:    '80px',
-                editable:{ type: 'int' }
-            },
-            {
-                field:   'DtStart',
-                caption: 'DtStart',
-                size:    '100px',
-                editable:{ type: 'date' }
-            },
-            {
-                field:   'DtStop',
-                caption: 'DtStop',
-                size:    '100px',
-                editable:{ type: 'date' }
-            },
-            {
-                field:   'NonRefundablePetFee',
-                caption: 'NonRefundable<br>PetFee',
-                size:    '70px',
-                render:  'money',
-                editable:{ type: 'money' }
-            },
-            {
-                field:   'RefundablePetDeposit',
-                caption: 'Refundable<br>PetDeposit',
-                size:    '70px',
-                render:  'money',
-                editable:{ type: 'money' }
-            },
-            {
-                field:   'RecurringPetFee',
-                caption: 'Recurring<br>PetFee',
-                size:    '100%',
-                render:  'money',
-                editable:{ type: 'money' }
-            },
-        ]
-    });
+        });
+    }
 
     // load the existing data in pets component
     setTimeout(function() {
@@ -577,8 +595,10 @@ function loadRAPetsGrid() {
                     if (app.raflow.data[app.raflow.activeflowID][i].Data) {
                         w2ui.RAPetsGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
                         w2ui.RAPetsGrid.refresh();
-                        break;
+                    } else {
+                        w2ui.RAPetsGrid.clear();
                     }
+                    break;
                 }
             }
         }
@@ -613,110 +633,114 @@ function getVehicleGridInitalRecord(BID, gridLen) {
 
 function loadRAVehiclesGrid() {
     // if form is loaded then return
-    if ("RAVehiclesGrid" in w2ui) {
-        return;
-    }
+    if (!("RAVehiclesGrid" in w2ui)) {
 
-    // vehicles grid
-    $('#ra-form #vehicles').w2grid({
-        name   : 'RAVehiclesGrid',
-        header : 'Vehicles',
-        show   : {
-                    toolbar: true,
-                    footer: true,
-                    toolbarSave: true
-                 },
-        style  : 'border: 1px solid black; display: block;',
-        toolbar: {
-            items: [
-                { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
-            ],
-            onClick: function(event) {
-                if (event.target == 'add') {
-                    var inital = getVehicleGridInitalRecord(1, w2ui.RAVehiclesGrid.records.length);
-                    w2ui.RAVehiclesGrid.add(inital);
+        // vehicles grid
+        $('#ra-form #vehicles').w2grid({
+            name   : 'RAVehiclesGrid',
+            header : 'Vehicles',
+            show   : {
+                        toolbar: true,
+                        footer: true,
+                        // toolbarSave: true
+                     },
+            style  : 'border: 1px solid black; display: block;',
+            toolbar: {
+                items: [
+                    { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
+                ],
+                onClick: function(event) {
+                    if (event.target == 'add') {
+                        var inital = getVehicleGridInitalRecord(1, w2ui.RAVehiclesGrid.records.length);
+                        w2ui.RAVehiclesGrid.add(inital);
+                    }
                 }
+            },
+            columns: [
+                {
+                    field: 'recid',
+                    hidden: true,
+                },
+                {
+                    field:   'VID',
+                    hidden:  true
+                },
+                {
+                    field:   'BID',
+                    hidden:  true
+                },
+                {
+                    field:   'TCID',
+                    hidden:  true
+                },
+                {
+                    field:   'Type',
+                    caption: 'Type',
+                    size:    '80px',
+                    editable:{ type: 'text' }
+                },
+                /*{
+                    field:   'VIN',
+                    caption: 'VIN',
+                    size:    '80px',
+                    editable:{ type: 'text' }
+                },*/
+                {
+                    field:   'Make',
+                    caption: 'Make',
+                    size:    '80px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'Model',
+                    caption: 'Model',
+                    size:    '80px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'Color',
+                    caption: 'Color',
+                    size:    '80px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'LicensePlateState',
+                    caption: 'License Plate<br>State',
+                    size:    '100px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'LicensePlateNumber',
+                    caption: 'License Plate<br>Number',
+                    size:    '100px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'ParkingPermitNumber',
+                    caption: 'Parking Permit <br>Number',
+                    size:    '100px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'DtStart',
+                    caption: 'DtStart',
+                    size:    '100px',
+                    editable:{ type: 'date' }
+                },
+                {
+                    field:   'DtStop',
+                    caption: 'DtStop',
+                    size:    '100%',
+                    editable:{ type: 'date' }
+                },
+            ],
+            onChange: function(event) {
+                event.onComplete = function() {
+                    this.save();
+                };
             }
-        },
-        columns: [
-            {
-                field: 'recid',
-                hidden: true,
-            },
-            {
-                field:   'VID',
-                hidden:  true
-            },
-            {
-                field:   'BID',
-                hidden:  true
-            },
-            {
-                field:   'TCID',
-                hidden:  true
-            },
-            {
-                field:   'Type',
-                caption: 'Type',
-                size:    '80px',
-                editable:{ type: 'text' }
-            },
-            /*{
-                field:   'VIN',
-                caption: 'VIN',
-                size:    '80px',
-                editable:{ type: 'text' }
-            },*/
-            {
-                field:   'Make',
-                caption: 'Make',
-                size:    '80px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'Model',
-                caption: 'Model',
-                size:    '80px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'Color',
-                caption: 'Color',
-                size:    '80px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'LicensePlateState',
-                caption: 'License Plate<br>State',
-                size:    '100px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'LicensePlateNumber',
-                caption: 'License Plate<br>Number',
-                size:    '100px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'ParkingPermitNumber',
-                caption: 'Parking Permit <br>Number',
-                size:    '100px',
-                editable:{ type: 'text' }
-            },
-            {
-                field:   'DtStart',
-                caption: 'DtStart',
-                size:    '100px',
-                editable:{ type: 'date' }
-            },
-            {
-                field:   'DtStop',
-                caption: 'DtStop',
-                size:    '100%',
-                editable:{ type: 'date' }
-            },
-        ]
-    });
+        });
+    }
 
     // load the existing data in vehicles component
     setTimeout(function() {
@@ -727,8 +751,10 @@ function loadRAVehiclesGrid() {
                     if (app.raflow.data[app.raflow.activeflowID][i].Data) {
                         w2ui.RAVehiclesGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
                         w2ui.RAVehiclesGrid.refresh();
-                        break;
+                    } else {
+                        w2ui.RAVehiclesGrid.clear();
                     }
+                    break;
                 }
             }
         }
@@ -741,29 +767,28 @@ function loadRAVehiclesGrid() {
 function loadRABGInfoForm() {
 
     // if form is loaded then return
-    if ("RABGInfoForm" in w2ui) {
-        return;
-    }
+    if (!("RABGInfoForm" in w2ui)) {
 
-    // people form
-    $('#ra-form #bginfo').w2form({
-        name   : 'RABGInfoForm',
-        header : 'Background Information',
-        style  : 'border: 1px solid black; display: block;',
-        formURL: '/webclient/html/test/formrabginfo.html',
-        focus: -1,
-        fields : [
-            { name: 'Applicant'  , type: 'text'    , required: true, html: { caption: "Applicant Name" } },
-        ],
-        actions: {
-            reset: function () {
-                this.clear();
-            },
-            /*save: function () {
-                this.save();
-            }*/
-        }
-    });
+        // background info form
+        $('#ra-form #bginfo').w2form({
+            name   : 'RABGInfoForm',
+            header : 'Background Information',
+            style  : 'border: 1px solid black; display: block;',
+            formURL: '/webclient/html/test/formrabginfo.html',
+            focus: -1,
+            fields : [
+                { name: 'Applicant'  , type: 'text'    , required: true, html: { caption: "Applicant Name" } },
+            ],
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                /*save: function () {
+                    this.save();
+                }*/
+            }
+        });
+    }
 
     // load the existing data in people component
     setTimeout(function() {
@@ -774,10 +799,294 @@ function loadRABGInfoForm() {
                     if (app.raflow.data[app.raflow.activeflowID][i].Data) {
                         w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
                         w2ui.RABGInfoForm.refresh();
-                        break;
+                    } else {
+                        w2ui.RABGInfoForm.clear();
                     }
+                    break;
                 }
             }
         }
     }, 500);
 }
+
+// -------------------------------------------------------------------------------
+// Rental Agreement - Rentables Grid
+// -------------------------------------------------------------------------------
+function getRentablesGridInitalRecord(BID, gridLen) {
+    return {
+        recid:                 gridLen,
+        RID:                   0,
+        BID:                   BID,
+        RTID:                  0,
+        RentableName:          "",
+        ContractRent:          0.0,
+        ProrateAmt:            0.0,
+        TaxableAmt:            0.0,
+        SalesTax:              0.0,
+        TransOCC:              0.0,
+    }
+}
+
+function loadRARentablesGrid() {
+    // if form is loaded then return
+    if (!("RARentablesGrid" in w2ui)) {
+
+        // rentables grid
+        $('#ra-form #rentables').w2grid({
+            name   : 'RARentablesGrid',
+            header : 'Rentables',
+            show   : {
+                        toolbar: true,
+                        footer: true,
+                        // toolbarSave: true
+                     },
+            style  : 'border: 1px solid black; display: block;',
+            toolbar: {
+                items: [
+                    { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
+                ],
+                onClick: function(event) {
+                    if (event.target == 'add') {
+                        var inital = getRentablesGridInitalRecord(1, w2ui.RARentablesGrid.records.length);
+                        w2ui.RARentablesGrid.add(inital);
+                    }
+                }
+            },
+            columns: [
+                {
+                    field: 'recid',
+                    hidden: true,
+                },
+                {
+                    field:   'RID',
+                    hidden:  true
+                },
+                {
+                    field:   'BID',
+                    hidden:  true
+                },
+                {
+                    field:   'RTID',
+                    hidden:  true
+                },
+                {
+                    field:   'RentableName',
+                    caption: 'Rentable',
+                    size:    '350px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'ContractRent',
+                    caption: 'At Signing',
+                    size:    '100px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'ProrateAmt',
+                    caption: 'Prorate',
+                    size:    '100px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'TaxableAmt',
+                    caption: 'Taxable Amt',
+                    size:    '100px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'SalesTax',
+                    caption: 'Sales Tax',
+                    size:    '100px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'TransOCC',
+                    caption: 'Trans OCC',
+                    size:    '100%',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                }
+            ],
+            onChange: function(event) {
+                event.onComplete = function() {
+                    this.save();
+                };
+            }
+        });
+    }
+
+    // load the existing data in rentables component
+    setTimeout(function() {
+        var partType = app.raFlowPartTypes.rentables;
+        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
+            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
+                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
+                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
+                        w2ui.RARentablesGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
+                        w2ui.RARentablesGrid.refresh();
+                    } else {
+                        w2ui.RARentablesGrid.clear();
+                    }
+                    break;
+                }
+            }
+        }
+    }, 500);
+}
+
+
+// -------------------------------------------------------------------------------
+// Rental Agreement - Fees Terms Grid
+// -------------------------------------------------------------------------------
+function getFeesTermsGridInitalRecord(BID, gridLen) {
+    return {
+        recid:                 gridLen,
+        RID:                   0,
+        BID:                   BID,
+        RTID:                  0,
+        RentableName:          "",
+        Fee:                   "",
+        Amount:                0.0,
+        Cycle:                 6,
+        SigningAmt:            0.0,
+        ProrateAmt:            0.0,
+        TaxableAmt:            0.0,
+        SalesTax:              0.0,
+        TransOCC:              0.0,
+    }
+}
+
+function loadRAFeesTermsGrid() {
+    // if form is loaded then return
+    if (!("RAFeesTermsGrid" in w2ui)) {
+
+        // feesterms grid
+        $('#ra-form #feesterms').w2grid({
+            name   : 'RAFeesTermsGrid',
+            header : 'FeesTerms',
+            show   : {
+                        toolbar: true,
+                        footer: true,
+                        // toolbarSave: true
+                     },
+            style  : 'border: 1px solid black; display: block;',
+            toolbar: {
+                items: [
+                    { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
+                ],
+                onClick: function(event) {
+                    if (event.target == 'add') {
+                        var inital = getFeesTermsGridInitalRecord(1, w2ui.RAFeesTermsGrid.records.length);
+                        w2ui.RAFeesTermsGrid.add(inital);
+                    }
+                }
+            },
+            columns: [
+                {
+                    field: 'recid',
+                    hidden: true,
+                },
+                {
+                    field:   'RID',
+                    hidden:  true
+                },
+                {
+                    field:   'BID',
+                    hidden:  true
+                },
+                {
+                    field:   'RTID',
+                    hidden:  true
+                },
+                {
+                    field:   'RentableName',
+                    caption: 'Rentable',
+                    size:    '180px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'Fee',
+                    caption: 'Fee',
+                    size:    '120px',
+                    editable:{ type: 'text' }
+                },
+                {
+                    field:   'Amount',
+                    caption: 'Amount',
+                    size:    '80px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'Cycle',
+                    caption: 'Cycle',
+                    size:    '80px',
+                    editable:{ type: 'int' }
+                },
+                {
+                    field:   'SigningAmt',
+                    caption: 'At Signing',
+                    size:    '80px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'ProrateAmt',
+                    caption: 'Prorate',
+                    size:    '80px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'TaxableAmt',
+                    caption: 'Taxable Amt',
+                    size:    '80px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'SalesTax',
+                    caption: 'Sales Tax',
+                    size:    '80px',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                },
+                {
+                    field:   'TransOCC',
+                    caption: 'Trans OCC',
+                    size:    '100%',
+                    render:  'money',
+                    editable:{ type: 'money' }
+                }
+            ],
+            onChange: function(event) {
+                event.onComplete = function() {
+                    this.save();
+                };
+            }
+        });
+    }
+
+    // load the existing data in feesterms component
+    setTimeout(function() {
+        var partType = app.raFlowPartTypes.feesterms;
+        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
+            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
+                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
+                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
+                        w2ui.RAFeesTermsGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
+                        w2ui.RAFeesTermsGrid.refresh();
+                    } else {
+                        w2ui.RAFeesTermsGrid.clear();
+                    }
+                    break;
+                }
+            }
+        }
+    }, 500);
+}
+
