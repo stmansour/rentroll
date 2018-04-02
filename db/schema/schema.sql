@@ -690,6 +690,7 @@ CREATE TABLE Rentable (
     LastModBy BIGINT NOT NULL DEFAULT 0,                            -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,          -- when was this record created
     CreateBy BIGINT NOT NULL DEFAULT 0,                             -- employee UID (from phonebook) that created this record
+    Comment VARCHAR(2048) NOT NULL DEFAULT '',                      -- For notes such as Alarm codes, and other things
     PRIMARY KEY (RID)
     -- RentalPeriodDefault SMALLINT NOT NULL DEFAULT 0,             -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
     -- RentCycle SMALLINT NOT NULL DEFAULT 0,                       -- 0 = one time only, 1 = secondly, 2 = minutely, 3 = hourly, 4 = daily, 5 = weekly, 6 = monthly, 7 = quarterly, 8 = yearly
