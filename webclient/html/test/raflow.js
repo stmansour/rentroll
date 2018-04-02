@@ -95,7 +95,14 @@ function saveActiveCompData(record, partType) {
         dataType: "json",
         data: JSON.stringify(data),
         success: function(data) {
-            console.log("data has been saved for: ", app.raflow.activeflowID, ", partType: ", partType);
+            if (data.status != "error") {
+                console.log("data has been saved for: ", app.raflow.activeflowID, ", partType: ", partType);
+
+                $("#manage-flows #message").hide();
+
+            } else {
+                $("#manage-flows #message").text(data.message).show();
+            }
         },
         error: function(data) {
             console.log(data);
@@ -111,13 +118,19 @@ function getRAFlowAllParts(flowID) {
         dataType: "json",
         data: JSON.stringify({"cmd": "getFlowParts", "flowID": flowID}),
         success: function(data) {
-            app.raflow.data[flowID] = data.records;
-            // load form container
-            $("#ra-form-container").animate({"left": "0"}, 100);
-            // load first dates section
-            loadRADatesForm();
-            // as we load the first section
-            $("#ra-form footer button#previous").addClass("disable");
+            if (data.status != "error") {
+                app.raflow.data[flowID] = data.records;
+                // load form container
+                $("#ra-form-container").animate({"left": "0"}, 100);
+                // load first dates section
+                loadRADatesForm();
+                // as we load the first section
+                $("#ra-form footer button#previous").addClass("disable");
+
+                $("#manage-flows #message").hide();
+            } else {
+                $("#manage-flows #message").text(data.message).show();
+            }
         },
         error: function(data) {
             console.log(data);
@@ -134,15 +147,22 @@ function getAllRAFlows() {
         data: JSON.stringify({"cmd": "getAllFlows", "flow": app.raflow.name}),
         success: function(data) {
 
-            $("#flow-list").empty();
-            $("#manage-flows #loader").show();
+            if (data.status != "error") {
 
-            data.records = data.records || [];
-            for (var i = 0; i < data.records.length; i++) {
-                $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.records[i]+"'>"+data.records[i]+"</li>");
+                $("#flow-list").empty();
+                $("#manage-flows #loader").show();
+
+                data.records = data.records || [];
+                for (var i = 0; i < data.records.length; i++) {
+                    $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.records[i]+"'>"+data.records[i]+"</li>");
+                }
+
+                $("#manage-flows #message").hide();
+                $("#manage-flows #loader").hide();
+            } else {
+                $("#manage-flows #message").text(data.message).show();
+                $("#manage-flows #loader").hide();
             }
-
-            $("#manage-flows #loader").hide();
         },
         error: function(data) {
             console.log(data);
@@ -180,8 +200,14 @@ function initRAFlow() {
         dataType: "json",
         data: JSON.stringify({"cmd": "init", "flow": app.raflow.name}),
         success: function(data) {
-            app.raflow.data[data.FlowID] = {};
-            $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.FlowID+"'>"+data.FlowID+"</li>");
+            if (data.status != "error") {
+                app.raflow.data[data.FlowID] = {};
+                $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.FlowID+"'>"+data.FlowID+"</li>");
+
+                $("#manage-flows #message").hide();
+            } else {
+                $("#manage-flows #message").text(data.message).show();
+            }
         },
         error: function(data) {
             console.log(data);
@@ -268,31 +294,31 @@ function loadTargetSection(target, activeCompID) {
     switch(activeCompID) {
         case "dates":
             data = w2ui.RADatesForm.record;
-            break
+            break;
         case "people":
             data = w2ui.RAPeopleForm.record;
-            break
+            break;
         case "pets":
             data = w2ui.RAPetsGrid.records;
-            break
+            break;
         case "vehicles":
             data = w2ui.RAVehiclesGrid.records;
-            break
+            break;
         case "bginfo":
             data = w2ui.RABGInfoForm.record;
-            break
+            break;
         case "rentables":
             data = w2ui.RARentablesGrid.records;
-            break
+            break;
         case "feesterms":
             data = w2ui.RAFeesTermsGrid.records;
-            break
+            break;
         case "final":
             data = null;
-            break
+            break;
         default:
             alert("invalid active comp: ", activeCompID);
-            return
+            return;
     }
 
     if (data) {
@@ -471,7 +497,7 @@ function getPetsGridInitalRecord(BID, gridLen) {
         RefundablePetDeposit:  0.0,
         RecurringPetFee:       0.0,
         NonRefundablePetFee:   0.0
-    }
+    };
 }
 
 function loadRAPetsGrid() {
@@ -630,7 +656,7 @@ function getVehicleGridInitalRecord(BID, gridLen) {
         ParkingPermitNumber:   "",
         DtStart:               w2uiDateControlString(t),
         DtStop:                w2uiDateControlString(nyd),
-    }
+    };
 }
 
 function loadRAVehiclesGrid() {
@@ -826,7 +852,7 @@ function getRentablesGridInitalRecord(BID, gridLen) {
         TaxableAmt:            0.0,
         SalesTax:              0.0,
         TransOCC:              0.0,
-    }
+    };
 }
 
 function loadRARentablesGrid() {
@@ -959,7 +985,7 @@ function getFeesTermsGridInitalRecord(BID, gridLen) {
         TaxableAmt:            0.0,
         SalesTax:              0.0,
         TransOCC:              0.0,
-    }
+    };
 }
 
 function loadRAFeesTermsGrid() {
