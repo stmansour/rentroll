@@ -6,6 +6,7 @@ DEF2="def2.sh"
 S1="schema1"
 LOCAL="local"
 REMOTE="remote"
+DBREPORT="report.txt"
 
 ##############################################################################################
 # getSchema
@@ -40,8 +41,10 @@ grep -v "Tables_in" t | sed -e 's/\(.*\)/	"\1"/' >> ${1}
 cat >>${1} <<FEOF
 )
 
+echo  "TABLES" > ${2}/TABLES
 for f in "\${out_filters[@]}"
 do
+	echo "\${f}" >> ${2}/TABLES
 	echo "DESCRIBE \${f};" > t
 	${MYSQL} ${OPTS} ${DBNAME} < t > ${2}/\${f}
 done
@@ -73,20 +76,36 @@ getSchema "${DEF2}" "${REMOTE}"
 #  STEP 2  -- compare each table def and report diffs
 #--------------------------------------------------
 BADSCHCOUNT=0
-echo "SCHEMA DIFFS" > report.txt
+echo "SCHEMA DIFFS" > ${DBREPORT}
 ls -l ${LOCAL} | awk '{print $9}' | while read f; do
-	if [ "x${f}" != "x" ]; then
+	if [ "x${f}" != "x" -a "${f}" != "TABLES" ]; then
 	    sort ${LOCAL}/${f} > x ; cp x ${LOCAL}/${f}
 	    sort ${REMOTE}/${f} > y ; cp y ${REMOTE}/${f}
 	    UDIFFS=$(diff x y | wc -l)
 	    if [ ${UDIFFS} -ne 0 ]; then
-	        echo "TABLE ${f} has differences:" >> report.txt
-	        diff x y >> report.txt
+	        echo "TABLE ${f} has differences:" >> ${DBREPORT}
+	        diff x y >> ${DBREPORT}
 	        BADSCHCOUNT=$((BADSCHCOUNT + 1))
 	        echo "Miscompare on TABLE ${f} = ${BADSCHCOUNT}"
 	    fi
 	fi
 done
+
+missing=$(comm -13 ${REMOTE}/TABLES ${LOCAL}/TABLES | wc -l)
+if [ ${missing} -gt 0 ]; then
+	echo "Miscompare MISSING TABLES" | tee -a ${DBREPORT}
+	echo "The following tables are defined in the schema but are missing in ${db}:" | tee -a ${DBREPORT}
+	comm -23 ${REMOTE}/TABLES ${LOCAL}/TABLES | tee -a ${DBREPORT}
+	echo | tee -a ${DBREPORT}
+fi
+
+extra=$(comm -23 ${REMOTE}/TABLES ${LOCAL}/TABLES | wc -l)
+if [ ${extra} -gt 0 ]; then
+	echo "Miscompare EXTRA TABLES" | tee -a ${DBREPORT}
+	echo "The following tables exist in ${db} but not in defined schema:" | tee -a ${DBREPORT}
+	comm -23 ${REMOTE}/TABLES ${LOCAL}/TABLES | tee -a ${DBREPORT}
+	echo | tee -a ${DBREPORT}
+fi
 
 stop=$(date)
 echo "Start time:  ${start}"
