@@ -1163,13 +1163,13 @@ type Rentable struct {
 	AssignmentTime int64             // can we pre-assign or assign only at commencement
 	MRStatus       int64             // Make Ready Status - current value as of DtMR, when this value changes it goes into a MRHistory record
 	DtMRStart      time.Time         // Time that MRStatus was set
-	LastModTime    time.Time         // time of last update to the db record
-	LastModBy      int64             // who made the update (Phonebook UID)
+	Comment        string            // for notes such as Alarm codes and other things
 	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
 	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
+	LastModTime    time.Time         // time of last update to the db record
+	LastModBy      int64             // who made the update (Phonebook UID)
 	CreateTS time.Time // when was this record created
 	CreateBy int64     // employee UID (from phonebook) that created it
-	Comment  string    // for notes such as Alarm codes and other things
 }
 
 // MRHistory is the basic structure for Make Ready status history

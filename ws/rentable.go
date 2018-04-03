@@ -589,6 +589,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rentable.BID = requestedBID
 		rentable.RentableName = rfRecord.RentableName
 		rentable.AssignmentTime = rfRecord.AssignmentTime
+		rentable.Comment = rfRecord.Comment
 		// Now just update the Rentable Record
 		err = rlib.UpdateRentable(r.Context(), &rentable)
 		if err != nil {
@@ -672,6 +673,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rentable.BID = requestedBID
 		rentable.RentableName = rfRecord.RentableName
 		rentable.AssignmentTime = rfRecord.AssignmentTime
+		rentable.Comment = rfRecord.Comment
 		rid, err := rlib.InsertRentable(r.Context(), &rentable)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
