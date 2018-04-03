@@ -538,10 +538,10 @@ function loadRAPetsGrid() {
                     field:   'BID',
                     hidden:  true
                 },
-                {
+/*                {
                     field:   'RAID',
                     hidden:  true
-                },
+                },*/
                 {
                     field:   'Name',
                     caption: 'Name',
@@ -646,7 +646,7 @@ function getVehicleGridInitalRecord(BID, gridLen) {
         VID:                   0,
         BID:                   BID,
         TCID:                  0,
-        // VIN:                   "",
+        VIN:                   "",
         Type:                  "",
         Make:                  "",
         Model:                 "",
@@ -707,12 +707,12 @@ function loadRAVehiclesGrid() {
                     size:    '80px',
                     editable:{ type: 'text' }
                 },
-                /*{
+                {
                     field:   'VIN',
                     caption: 'VIN',
                     size:    '80px',
                     editable:{ type: 'text' }
-                },*/
+                },
                 {
                     field:   'Make',
                     caption: 'Make',
@@ -977,7 +977,7 @@ function getFeesTermsGridInitalRecord(BID, gridLen) {
         BID:                   BID,
         RTID:                  0,
         RentableName:          "",
-        Fee:                   "",
+        FeeName:                   "",
         Amount:                0.0,
         Cycle:                 6,
         SigningAmt:            0.0,
@@ -1037,7 +1037,7 @@ function loadRAFeesTermsGrid() {
                     editable:{ type: 'text' }
                 },
                 {
-                    field:   'Fee',
+                    field:   'FeeName',
                     caption: 'Fee',
                     size:    '120px',
                     editable:{ type: 'text' }

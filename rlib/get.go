@@ -7467,7 +7467,7 @@ func GetFlowPart(ctx context.Context, id int64) (FlowPart, error) {
 }
 
 // GetFlowPartByPartType reads a FlowPart structure based on the supplied partType and flowID
-func GetFlowPartByPartType(ctx context.Context, flowID int64, partType int) (FlowPart, error) {
+func GetFlowPartByPartType(ctx context.Context, flowID string, partType int) (FlowPart, error) {
 
 	var (
 		// err error

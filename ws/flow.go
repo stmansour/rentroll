@@ -40,6 +40,12 @@ type FlowIDRequest struct {
 	FlowID string `json:"FlowID"`
 }
 
+// SaveFlowRequest holds the struct for save flow request
+type SaveFlowRequest struct {
+	Flow   string `json:"Flow"`
+	FlowID string `json:"FlowID"`
+}
+
 // SvcHandlerFlow handles operations on a whole flow which affects on its
 // all flow parts associated with given flowID
 // For this call, we expect the URI to contain the BID and the FlowID as follows:
@@ -77,6 +83,9 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		break
 	case "delete":
 		deleteFlow(w, r, d)
+		break
+	case "save":
+		saveFlow(w, r, d)
 		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
@@ -203,6 +212,40 @@ func deleteFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteSuccessResponse(d.BID, w)
 }
 
+// saveFlow saves the data from temp data stored in flowPart with flowID into actual
+// database instance for the given flow type
+func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveFlow"
+	var (
+		err error
+		f   SaveFlowRequest
+	)
+
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &f); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	switch f.Flow {
+	case "RA":
+		err = saveRentalAgreementFlow(r.Context(), f.FlowID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		break
+	default:
+		err = fmt.Errorf("unrecognized flow type: %s", f.Flow)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(d.BID, w)
+}
+
 // GetFlowPartResponse response struct to get flow part
 type GetFlowPartResponse struct {
 	Status string        `json:"status"`
@@ -288,24 +331,6 @@ func saveFlowPart(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// handle data for update based on flow and part type
-	var validDataFormat bool
-	switch fpJSONData.Flow {
-	case "RA":
-		validDataFormat = isValidUpdateRAFlowPartJSONData(fpJSONData.Data, fpJSONData.PartType)
-	default:
-		err = fmt.Errorf("unrecognized flow: %s", fpJSONData.Flow)
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// check if any error occured in previous switch case
-	if !validDataFormat {
-		err = fmt.Errorf("Data is not in valid format for flow: %s, partType: %d", fpJSONData.Flow, fpJSONData.PartType)
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
 	// check that such flowPartID instance does exist or not
 	existFP, _ := rlib.GetFlowPart(r.Context(), fpJSONData.FlowPartID)
 	if existFP.FlowPartID == 0 { // returned flow part is zero then raise an error
@@ -317,6 +342,25 @@ func saveFlowPart(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// migrate request json data to flow part struct
 	var fp rlib.FlowPart
 	rlib.MigrateStructVals(&fpJSONData, &fp) // the variables that don't need special handling
+
+	// handle data for update based on flow and part type
+	var jsBtData []byte
+	switch fpJSONData.Flow {
+	case "RA":
+		jsBtData, err = getUpdateRAFlowPartJSONData(fpJSONData.Data, fpJSONData.PartType)
+		if err != nil {
+			err1 := fmt.Errorf("Data is not in valid format for flow: %s, partType: %d, Error: %s", fpJSONData.Flow, fpJSONData.PartType, err.Error())
+			SvcErrorReturn(w, err1, funcname)
+			return
+		}
+	default:
+		err = fmt.Errorf("unrecognized flow: %s", fpJSONData.Flow)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// now feed custom jsBtData to flow part json Data field
+	fp.Data = json.RawMessage(jsBtData)
 
 	// get flow part by its ID
 	err = rlib.UpdateFlowPart(r.Context(), &fp)
