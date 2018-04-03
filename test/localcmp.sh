@@ -82,6 +82,7 @@ declare -a dblist=(
     'rfix/receipts.sql'
     'roller/prodrr.sql'
     'rr/rr.sql'
+    'tws/rr.sql'
     'webclient/webclientTest.sql'
     'websvc1/asmtest.sql'
     'websvc3/tasks.sql'

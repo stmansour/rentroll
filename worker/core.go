@@ -6,7 +6,9 @@ import "tws"
 // space is reserved for automated processes.
 const (
 	WorkerAsmt    = -1
-	WorkerAsmtDes = "AsmtCreator"
+	WorkerAsmtDes = "Asm Bot"
+	TaskManual    = -2
+	WorkerTskMan  = "Task Manual"
 )
 
 // Worker describes a tws-based worker function
@@ -21,6 +23,7 @@ type Worker struct {
 // WorkerRegistry is where workers register themselves to the infrastructure
 var WorkerRegistry = map[string]Worker{
 	WorkerAsmtDes: {WorkerAsmtDes, "Assessment Instance Creator", WorkerAsmt, uint64(0), CreateAssessmentInstances},
+	WorkerTskMan:  {WorkerTskMan, "Manual Task", TaskManual, uint64(1), ProcessManualTask},
 }
 
 // Register is used if there are workers created outside this package
