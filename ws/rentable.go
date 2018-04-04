@@ -71,11 +71,11 @@ type RentableDetails struct {
 	RID            int64
 	RentableName   string
 	AssignmentTime int64
+	Comment        string // for notes such as Alarm codes and other things
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
 	CreateBy       int64
-	Comment        string // for notes such as Alarm codes and other things
 }
 
 // SvcRentableTypeDown handles typedown requests for Rentables.  It returns
@@ -787,7 +787,7 @@ type RentableStatusGridRec struct {
 
 // rsGridRowScan scans a result from sql row and dump it in a struct for rentableStatusGridRec
 func rsGridRowScan(rows *sql.Rows, q RentableStatusGridRec) (RentableStatusGridRec, error) {
-	err := rows.Scan(&q.RSID, &q.RID, &q.UseStatus, &q.LeaseStatus, &q.DtStart, &q.DtStop, &q.DtNoticeToVacate, &q.CreateBy, &q.LastModBy, &q.Comment)
+	err := rows.Scan(&q.RSID, &q.RID, &q.UseStatus, &q.LeaseStatus, &q.DtStart, &q.DtStop, &q.DtNoticeToVacate, &q.CreateBy, &q.LastModBy)
 	if err == nil {
 		// Year 2000 date in UTC
 		Y2KDt := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
