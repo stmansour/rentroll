@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.21-0ubuntu0.16.04.1-log
+-- Server version	5.7.16
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2192,7 +2192,7 @@ CREATE TABLE `TaskDescriptor` (
 
 LOCK TABLES `TaskDescriptor` WRITE;
 /*!40000 ALTER TABLE `TaskDescriptor` DISABLE KEYS */;
-INSERT INTO `TaskDescriptor` VALUES (1,0,1,'Delinquency Report','Manual','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(2,0,1,'Walk the Units','Manual','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0),(3,0,1,'Generate Offsets','OffsetBot','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
+INSERT INTO `TaskDescriptor` VALUES (1,1,1,'Delinquency Report','Manual','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'2018-04-04 03:59:44',0,'2018-03-14 19:50:32',0),(2,1,1,'Walk the Units','Manual','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'2018-04-04 03:59:44',0,'2018-03-14 19:50:32',0),(3,1,1,'Generate Offsets','OffsetBot','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'2018-04-04 03:59:44',0,'2018-03-14 19:50:32',0);
 /*!40000 ALTER TABLE `TaskDescriptor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2462,4 +2462,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-23 13:05:49
+-- Dump completed on 2018-04-03 21:00:04

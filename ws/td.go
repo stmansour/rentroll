@@ -18,8 +18,9 @@ type SearchTaskDescriptor struct {
 	TLDID       int64
 	Name        string
 	Worker      string
-	EpochDue    time.Time
-	EpochPreDue time.Time
+	Epoch       rlib.JSONDateTime
+	EpochDue    rlib.JSONDateTime
+	EpochPreDue rlib.JSONDateTime
 	FLAGS       int64
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it

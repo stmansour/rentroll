@@ -100,7 +100,6 @@ window.buildTaskListDefElements = function () {
             { field: 'BID',         type: 'int',  required: false },
             { field: 'BUD',         type: 'list', required: true, options: {items: app.businesses} },
             { field: 'Name',        type: 'text', required: true },
-            { field: 'Worker',      type: 'list', required: true },
             { field: 'Cycle',       type: 'list', required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
             { field: 'Epoch',       type: 'date', required: false },
             { field: 'EpochDue',    type: 'date', required: false },
@@ -115,7 +114,7 @@ window.buildTaskListDefElements = function () {
             // var f = this;
             event.onComplete = function(event) {
                 var r = w2ui.tldsInfoForm.record;
-                if (typeof r.DtPreDue === "undefined") {
+                if (typeof r.EpochPreDue === "undefined") {
                     return;
                 }
             };
@@ -178,26 +177,27 @@ window.buildTaskListDefElements = function () {
         formURL: '/webclient/html/formtd.html',
         url: '/v1/td',
         fields: [
-            { field: 'recid',          type: 'text',     required: false },
-            { field: 'TID',            type: 'text',     required: false },
-            { field: 'BID',            type: 'text',     required: false },
-            { field: 'TLID',           type: 'text',     required: false },
-            { field: 'Name',           type: 'text',     required: true  },
-            { field: 'Worker',         type: 'list',     required: false },
-            { field: 'EpochDue',       type: 'date',     required: false },
-            { field: 'EpochPreDue',    type: 'date',     required: false },
-            { field: 'Epoch',          type: 'date',     required: false },
-            { field: 'ChkEpoch',       type: 'checkbox', required: false },
-            { field: 'ChkEpochDue',    type: 'checkbox', required: false },
-            { field: 'ChkEpochPreDue', type: 'checkbox', required: false },
-            { field: 'FLAGS',          type: 'text',     required: false },
-            { field: 'DoneUID',        type: 'text',     required: false },
-            { field: 'PreDoneUID',     type: 'text',     required: false },
-            { field: 'Comment',        type: 'text',     required: false },
-            { field: 'LastModTime',    type: 'date',     required: false },
-            { field: 'LastModBy',      type: 'date',     required: false },
-            { field: 'CreateTS',       type: 'date',     required: false },
-            { field: 'CreateBy',       type: 'date',     required: false },
+            { field: 'recid',          type: 'int',         required: false },
+            { field: 'TDID',           type: 'int',         required: false },
+            { field: 'BID',            type: 'int',         required: false },
+            { field: 'TLID',           type: 'int',         required: false },
+            { field: 'Name',           type: 'text',        required: true  },
+            { field: 'Worker',         type: 'text',        required: false },
+            { field: 'lstWorker',      type: 'list',        required: false, options: {items: app.workers}, },
+            { field: 'EpochDue',       type: 'datetime',    required: false },
+            { field: 'EpochPreDue',    type: 'datetime',    required: false },
+            { field: 'Epoch',          type: 'datetime',    required: false },
+            { field: 'ChkEpoch',       type: 'checkbox',    required: false },
+            { field: 'ChkEpochDue',    type: 'checkbox',    required: false },
+            { field: 'ChkEpochPreDue', type: 'checkbox',    required: false },
+            { field: 'FLAGS',          type: 'text',        required: false },
+            { field: 'DoneUID',        type: 'int',         required: false },
+            { field: 'PreDoneUID',     type: 'int',         required: false },
+            { field: 'Comment',        type: 'text',        required: false },
+            { field: 'LastModTime',    type: 'date',        required: false },
+            { field: 'LastModBy',      type: 'date',        required: false },
+            { field: 'CreateTS',       type: 'date',        required: false },
+            { field: 'CreateBy',       type: 'date',        required: false },
         ],
         actions: {
             save: function(target, data){
@@ -206,7 +206,7 @@ window.buildTaskListDefElements = function () {
                 var r = f.record;
                 var d = {cmd: "save", record: r};
                 var dat=JSON.stringify(d);
-                f.url = '/v1/td/' + r.BID + '/' + r.TID;
+                f.url = '/v1/td/' + r.BID + '/' + r.TDID;
                 $.post(f.url,dat)
                 .done(function(data) {
                     if (data.status === "error") {
@@ -297,27 +297,27 @@ window.finishTLDForm = function () {
 };
 
 //-----------------------------------------------------------------------------
-// popupTaskDescForm - Bring up the task edit form
+// popupTaskDescForm - Bring up the task descriptor edit form
 // 
 // @params
 //     bid = business id
-//     tdid = task id
+//     tdid = task descriptor id
 //  
 // @returns
 //  
 //-----------------------------------------------------------------------------
 window.popupTaskDescForm = function (bid,tdid) {
-    w2ui.taskForm.url = '/v1/task/' + bid + '/' + tdid;
-    w2ui.taskForm.request();
+    w2ui.taskDescForm.url = '/v1/td/' + bid + '/' + tdid;
+    w2ui.taskDescForm.request();
     $().w2popup('open', {
         title   : 'Task',
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
         style   : 'padding: 15px 0px 0px 0px',
         width   : 600,
-        height  : 400,
+        height  : 450,
         showMax : true,
         onToggle: function (event) {
-            $(w2ui.taskForm.box).hide();
+            $(w2ui.taskDescForm.box).hide();
             event.onComplete = function () {
                 $(w2ui.taskDescForm.box).show();
                 w2ui.taskDescForm.resize();

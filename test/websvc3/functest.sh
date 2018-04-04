@@ -73,7 +73,7 @@ dojsonPOST "http://localhost:8270/v1/tlds/1" "request" "a6"  "WebService--Search
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%223%2F1%2F2018%22%2C%22searchDtStop%22%3A%223%2F31%2F2018%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/tds/1/1" "request" "b0"  "WebService--Search_TaskDescriptors"
-echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%3A0%2C%22EpochDue%22%3A%222018-01-31T20%3A00%3A00Z%22%2C%22EpochPreDue%22%3A%222018-01-20T20%3A00%3A00Z%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Validate%20Washing%20Room%20Totals%22%2C%22TDID%22%3A0%2C%22TLDID%22%3A1%2C%22Worker%22%3A%22Manual%22%2C%22recid%22%3A2%7D%7D" > request
+echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22EpochDue%22%3A%222018-01-31T20%3A00%3A00Z%22%2C%22EpochPreDue%22%3A%222018-01-20T20%3A00%3A00Z%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Validate%20Washing%20Room%20Totals%22%2C%22TDID%22%3A0%2C%22TLDID%22%3A1%2C%22Worker%22%3A%22Manual%22%2C%22recid%22%3A2%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/td/1/0" "request" "b1"  "WebService--Insert_TaskDescriptor"
 echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%223%2F1%2F2018%22%2C%22searchDtStop%22%3A%223%2F31%2F2018%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/td/1/4" "request" "b2"  "WebService--Read_TaskDescriptor"
