@@ -1,0 +1,25 @@
+calling doWork()
+Entered doWork
+Calling InitCore
+Waiting for signal from workers...
+
+
+------------------------------------------------
+Entered TWSAsmtBotChecker.  App.Idx = 0, len(checkTimes) = 2
+Created ctx
+Calling CreateAsmInstCore
+got businesses: len(m) = 1
+PROCESS JOURNAL ENTRIES FOR BIZ: REX - JGM First, LLC,  Mar 1, 2018, Apr 1, 2018
+Incr App.Idx.  new value: 1
+Rescheduled another pass
+
+
+------------------------------------------------
+Entered TWSAsmtBotChecker.  App.Idx = 1, len(checkTimes) = 2
+Created ctx
+Calling CreateAsmInstCore
+got businesses: len(m) = 1
+PROCESS JOURNAL ENTRIES FOR BIZ: REX - JGM First, LLC,  Apr 1, 2018, May 1, 2018
+Incr App.Idx.  new value: 2
+Done, signaling completion
+Received completion signal. done = 1

@@ -1,7 +1,8 @@
 <div class="w2ui-page page-0">
+    <!-- Task List Definition -->
     <div class="w2ui-field"><input type="hidden" name="recid" /></div>
     <div class="w2ui-field"><input type="hidden" name="BID" /></div>
-    <div class="w2ui-field"><input type="hidden" name="TID" /></div>
+    <div class="w2ui-field"><input type="hidden" name="TLDID" /></div>
     <div class="w2ui-field"><input type="hidden" name="TLID" /></div>
     <div class="w2ui-field"><input type="hidden" name="FLAGS" /></div>
     <div class="w2ui-field"><input type="hidden" name="PreDoneUID" /></div>
@@ -16,24 +17,20 @@
         <div><input name="Name" type="text" style="width:100%"></input></div>
     </div>
     <div class="w2ui-field">
-        <label>Worker:</label>
-        <div><input name="Worker" type="list" style="width:100%"></input></div>
-    </div>
-    <div class="w2ui-field">
         <label>Cycle:</label>
         <div><input name="Cycle" type="list" style="width:100%"></input></div>
     </div>
     <div class="w2ui-field">
         <label>Epoch:</label>
-        <div><input name="ChkEpoch" type="checkbox" disabled></input>&nbsp;<input type="us-date1" id="Epoch"></div>
+        <div><input name="ChkEpoch" type="checkbox" disabled></input>&nbsp;<input type="us-date1" name="Epoch"></div>
     </div>
     <div class="w2ui-field">
         <label>Pre Due:</label>
-        <div><input name="ChkEpochPreDue" type="checkbox" disabled></input>&nbsp;<input type="us-date1" id="EpochPreDue"></div>
+        <div><input name="ChkEpochPreDue" type="checkbox" disabled></input>&nbsp;<input type="us-date1" name="EpochPreDue"></div>
     </div>
      <div class="w2ui-field">
         <label>Pre-Completed:</label>
-        <div><input name="ChkEpochDue" type="checkbox"></input>&nbsp;<input type="us-date1" id="EpochDue"></div>
+        <div><input name="ChkEpochDue" type="checkbox"></input>&nbsp;<input type="us-date1" name="EpochDue"></div>
     </div>
     <div class="w2ui-field">
         <label>Comment:</label>

@@ -103,8 +103,8 @@ func main() {
 	doWork()
 }
 
-var wrk = []worker.TWSWorker{
-	{"TWSAsmtBotChecker", TWSAsmtBotChecker},
+var wrk = map[string]worker.Worker{
+	"TWSAsmtBotChecker": {"TWSAsmtBotChecker", "TWS Test Worker", -9999, uint64(0), TWSAsmtBotChecker},
 }
 
 var checkTimes = []time.Time{
