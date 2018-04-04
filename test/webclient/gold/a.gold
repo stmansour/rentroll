@@ -1,120 +1,115 @@
   (Tests Starting)
-(node:32586) Warning: Possible EventEmitter memory leak detected. 11 close listeners added. Use emitter.setMaxListeners() to increase limit
+(node:19028) Warning: Possible EventEmitter memory leak detected. 11 close listeners added. Use emitter.setMaxListeners() to increase limit
 
 
   AIR Receipt UI Tests - Login
-    ✓ Assert the title of Roller application (4872ms)
-    ✓ Login into AIR Receipt Application (3169ms)
-    ✓ Check Basic Layout (39ms)
+    ✓ Assert the title of Roller application (4918ms)
+    ✓ Login into AIR Receipt Application (3242ms)
+    ✓ Check Basic Layout
 
   AIR Receipt UI Tests - Tendered Receipt Payment
-    ✓ Change business to REX (314ms)
+    ✓ Change business to REX (303ms)
     ✓ CSV and Print button in toolbar
-    ✓ Grid Records (10613ms)
+    ✓ Grid Records (10538ms)
     ✓ Record Detail Form
     ✓ Check default value of fields for new record form
 
   AIR Roller UI Tests - Login
-    ✓ Assert the title of Roller application (4522ms)
-    ✓ Login into AIR Roller Application (3086ms)
-    ✓ Check Basic Layout
+    ✓ Assert the title of Roller application (4938ms)
+    ✓ Login into AIR Roller Application (3082ms)
+    ✓ Check Basic Layout (40ms)
 
   AIR Roller UI Tests - Expenses
-    ✓ Change business to REX (432ms)
-    ✓ Grid Records (2865ms)
-    ✓ Record Detail Form (11636ms)
-    ✓ Check default value of fields for new record form (5546ms)
+    ✓ Change business to REX (379ms)
+    ✓ Grid Records (3029ms)
+    ✓ Record Detail Form (11442ms)
+    ✓ Check default value of fields for new record form (5641ms)
 
   AIR Roller UI Tests - Apply Receipt
-    ✓ Change business to REX (344ms)
-    ✓ Grid Records (2459ms)
-    ✓ Record Detail Form (12450ms)
+    ✓ Change business to REX (371ms)
+    ✓ Grid Records (2471ms)
+    ✓ Record Detail Form (14498ms)
 
   AIR Roller UI Tests - Rentable Types
-    ✓ Change business to REX (333ms)
-    ✓ Grid Records (5957ms)
-    ✓ Record Detail Form (11759ms)
-    ✓ Check default value of fields for new record form (5833ms)
+    ✓ Change business to REX (362ms)
+    ✓ Grid Records (6025ms)
+    ✓ Record Detail Form (11421ms)
+    ✓ Check default value of fields for new record form (5496ms)
 
   AIR Roller UI Tests - Rentables
-    ✓ Change business to REX (307ms)
-    ✓ Grid Records (6673ms)
-    ✓ Record Detail Form (16656ms)
-    ✓ Check default value of fields for new record form (5290ms)
-
-  AIR Roller UI Tests - Rent Roll
-    ✓ Change business to REX
-    ✓ Grid Records (66044ms)
-    ✓ CSV and Print button in toolbar (58ms)
+    ✓ Change business to REX (432ms)
+    ✓ Grid Records (6927ms)
+    ✓ Record Detail Form (16652ms)
+    ✓ Check default value of fields for new record form (5248ms)
 
   AIR Roller UI Tests - RA Statements
-    ✓ Change business to REX (357ms)
-    ✓ Grid Records (2895ms)
-    ✓ Record Detail Form (12850ms)
+    ✓ Change business to REX (339ms)
+    ✓ Grid Records (2925ms)
+    ✓ Record Detail Form (12502ms)
 
   AIR Roller UI Tests - Payor Statements
-    ✓ Change business to REX (393ms)
-    ✓ Grid Records (4228ms)
-    ✓ Record Detail Form (23965ms)
+    ✓ Change business to REX (370ms)
+    ✓ Grid Records (3740ms)
+    ✓ Record Detail Form (23045ms)
 
   AIR Roller UI Tests - Assessment Charges
-    ✓ Change business to REX (388ms)
-    ✓ Grid Records (12785ms)
-    ✓ Record Detail Form (6802ms)
-    ✓ Check default value of fields for new record form (5783ms)
+    ✓ Change business to REX (318ms)
+    ✓ Grid Records (11948ms)
+    ✓ Record Detail Form (6603ms)
+    ✓ Check default value of fields for new record form (6007ms)
 
   AIR Roller UI Tests - Tendered payment Receipt
-    ✓ Change business to REX (289ms)
-    ✓ Grid Records (10501ms)
-    ✓ Record Detail Form (6307ms)
-    ✓ Check default value of fields for new record form (5998ms)
+    ✓ Change business to REX (323ms)
+    ✓ Grid Records (10251ms)
+    ✓ Record Detail Form (6227ms)
+    ✓ Check default value of fields for new record form (5678ms)
 
   AIR Roller UI Tests - Chart of accounts
-    ✓ Change business to REX (329ms)
-    ✓ Record Detail Form (5908ms)
-    ✓ Check default value of fields for new record form (5550ms)
+    ✓ Change business to REX (351ms)
+    ✓ Record Detail Form (6270ms)
+    ✓ Check default value of fields for new record form (5522ms)
 
   AIR Roller UI Tests - Payment types
-    ✓ Change business to REX (358ms)
-    ✓ Grid Records (3284ms)
-    ✓ Record Detail Form (5326ms)
-    ✓ Check default value of fields for new record form (4998ms)
-    ✓ Save new record (4647ms)
+    ✓ Change business to REX (373ms)
+    ✓ Grid Records (3245ms)
+    ✓ Record Detail Form (6087ms)
+    ✓ Check default value of fields for new record form (5223ms)
+    ✓ Save new record (4767ms)
 
   AIR Roller UI Tests - Deposit Accounts
-    ✓ Change business to REX (429ms)
-    ✓ Grid Records (2967ms)
-    ✓ Record Detail Form (6101ms)
-    ✓ Check default value of fields for new record form (6949ms)
+    ✓ Change business to REX (344ms)
+    ✓ Grid Records (2910ms)
+    ✓ Record Detail Form (5443ms)
+    ✓ Check default value of fields for new record form (5260ms)
 
   AIR Roller UI Tests - Deposit Methods
-    ✓ Change business to REX (463ms)
-    ✓ Grid Records (2579ms)
-    ✓ Record Detail Form (5396ms)
-    ✓ Check default value of fields for new record form (5095ms)
+    ✓ Change business to REX (323ms)
+    ✓ Grid Records (2474ms)
+    ✓ Record Detail Form (5415ms)
+    ✓ Check default value of fields for new record form (5919ms)
 
   AIR Roller UI Tests - Account Rules
-    ✓ Change business to REX (328ms)
-    ✓ Record Detail Form (6542ms)
-    ✓ Check default value of fields for new record form (5768ms)
+    ✓ Change business to REX (326ms)
+    ✓ Record Detail Form (6543ms)
+    ✓ Check default value of fields for new record form (5586ms)
 
   AIR Roller UI Tests - Expenses
-    ✓ Change business to REX (665ms)
-    ✓ Grid Records (3267ms)
-    ✓ Record Detail Form (5744ms)
-    ✓ Check default value of fields for new record form (5525ms)
+    ✓ Change business to REX (403ms)
+    ✓ Grid Records (3572ms)
+    ✓ Record Detail Form (5810ms)
+    ✓ Check default value of fields for new record form (5572ms)
 
 
-  66 passing (16m)
+  63 passing (14m)
 
 
   (Tests Finished)
 
-  - Tests:           66
-  - Passes:          66
+  - Tests:           63
+  - Passes:          63
   - Failures:        0
   - Pending:         0
-  - Duration:        16 minutes, 3 seconds
+  - Duration:        14 minutes, 27 seconds
   - Screenshots:     0
   - Video Recorded:  false
   - Cypress Version: 1.4.2

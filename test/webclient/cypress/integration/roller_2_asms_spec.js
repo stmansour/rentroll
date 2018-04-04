@@ -59,6 +59,7 @@ describe('AIR Roller UI Tests - Assessment Charges', function () {
         // If have date navigation bar than change from and to Date to get in between data
         if (testConfig.haveDateValue) {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
+            cy.wait(constants.WAIT_TIME);
         }
 
         // Check http status

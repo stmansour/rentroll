@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+//-------------------------------------------------------------------
+//  SEARCH
+//-------------------------------------------------------------------
+
 // SvcTaskList is the structure describing a task list definition
 type SvcTaskList struct {
 	Recid        int64 `json:"recid"`
@@ -38,6 +42,17 @@ type SvcTaskList struct {
 	LastModBy    int64             // employee UID (from phonebook) that modified it
 }
 
+// SearchTLResponse holds the task list definition list
+type SearchTLResponse struct {
+	Status  string        `json:"status"`
+	Total   int64         `json:"total"`
+	Records []SvcTaskList `json:"records"`
+}
+
+//-------------------------------------------------------------------
+//  SAVE
+//-------------------------------------------------------------------
+
 // SaveTaskList defines the fields supplied when Saving a TaskList
 type SaveTaskList struct {
 	Recid        int64 `json:"recid"`
@@ -45,11 +60,11 @@ type SaveTaskList struct {
 	TLDID        int64
 	BID          int64
 	Name         string
-	Pivot        rlib.JSONDateTime
 	DtDone       rlib.JSONDateTime
 	DtDue        rlib.JSONDateTime
 	DtPreDue     rlib.JSONDateTime
 	DtPreDone    rlib.JSONDateTime
+	Pivot        rlib.JSONDateTime // Required for creating a new TaskList instance
 	ChkDtDone    bool
 	ChkDtDue     bool
 	ChkDtPreDue  bool
@@ -60,11 +75,12 @@ type SaveTaskList struct {
 	Comment      string
 }
 
-// SearchTLResponse holds the task list definition list
-type SearchTLResponse struct {
-	Status  string        `json:"status"`
-	Total   int64         `json:"total"`
-	Records []SvcTaskList `json:"records"`
+// SaveTaskListInput is the input data format for a Save command
+type SaveTaskListInput struct {
+	Recid    int64        `json:"recid"`
+	Status   string       `json:"status"`
+	FormName string       `json:"name"`
+	Record   SaveTaskList `json:"record"`
 }
 
 // TaskListInput is the input data format for a Save command
@@ -75,18 +91,14 @@ type TaskListInput struct {
 	Record   SvcTaskList `json:"record"`
 }
 
+//-------------------------------------------------------------------
+//  GET
+//-------------------------------------------------------------------
+
 // GetTLResponse is the response to a GetTaskList request
 type GetTLResponse struct {
 	Status string      `json:"status"`
 	Record SvcTaskList `json:"record"`
-}
-
-// SaveTaskListInput is the input data format for a Save command
-type SaveTaskListInput struct {
-	Recid    int64        `json:"recid"`
-	Status   string       `json:"status"`
-	FormName string       `json:"name"`
-	Record   SaveTaskList `json:"record"`
 }
 
 // which fields needs to be fetched for SQL query for assessment grid

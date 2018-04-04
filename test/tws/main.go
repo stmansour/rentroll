@@ -5,24 +5,31 @@ package main
 //=============================================================================
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
 	"fmt"
 	"os"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"rentroll/worker"
+	"rentroll/ws"
 	"time"
 	"tws"
 )
 
 // App is the global application structure
 var App struct {
-	dbdir  *sql.DB // phonebook db
-	dbtws  *sql.DB // tws db
-	DBDir  string  // phonebook database
-	DBtws  string  // name of TWS database
-	DBUser string  // user for all databases
-	Action string  // action to perform
+	dbdir  *sql.DB  // phonebook db
+	dbrr   *sql.DB  // tws db
+	DBDir  string   // phonebook database
+	DBtws  string   // name of TWS database
+	DBUser string   // user for all databases
+	Action string   // action to perform
+	NoAuth bool     // if true then skip authentication
+	Idx    int      // which test index
+	Comm   chan int //
 }
 
 var testOwner = string("TWS Basic Tester1")
@@ -30,12 +37,14 @@ var testOwner = string("TWS Basic Tester1")
 func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
-	dbtwsPtr := flag.String("M", "tws", "database name (tws)")
+	dbrrPtr := flag.String("M", "tws", "database name (tws)")
 	aptr := flag.String("a", "add", "add, wait, reschedule, or complete a work item")
+	noauth := flag.Bool("noauth", false, "run server in no-auth mode")
 	flag.Parse()
 
 	App.DBDir = *dbnmPtr
-	App.DBtws = *dbtwsPtr
+	App.NoAuth = *noauth
+	App.DBtws = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.Action = *aptr
 }
@@ -54,13 +63,13 @@ func main() {
 	}
 
 	s := extres.GetSQLOpenString(rlib.AppConfig.RRDbname, &rlib.AppConfig)
-	App.dbtws, err = sql.Open("mysql", s)
+	App.dbrr, err = sql.Open("mysql", s)
 	if nil != err {
 		fmt.Printf("sql.Open for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
 	}
-	defer App.dbtws.Close()
-	err = App.dbtws.Ping()
+	defer App.dbrr.Close()
+	err = App.dbrr.Ping()
 	if nil != err {
 		fmt.Printf("DBtws.Ping for database=%s, dbuser=%s: Error = %v\n", rlib.AppConfig.RRDbname, rlib.AppConfig.RRDbuser, err)
 		os.Exit(1)
@@ -81,64 +90,72 @@ func main() {
 		os.Exit(1)
 	}
 
+	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	rlib.RpnInit()
-	tws.Init(App.dbtws, App.dbdir)
-	fmt.Printf("Successfully opened databases\n")
-	fmt.Printf("Node = %s\n", tws.TWSctx.Node)
-	tws.RegisterWorker("WorkHandler", WorkHandler)
-
+	bizlogic.InitBizLogic()
+	ws.InitReports()
+	rlib.SetAuthFlag(App.NoAuth)
+	ws.SvcInit(App.NoAuth)        // currently needed for testing
+	tws.Init(App.dbrr, App.dbdir) //
+	// worker.Init()              // don't init these, it introduces randomness
+	rlib.SessionInit(15) //
+	rlib.Console("calling doWork()\n")
 	doWork()
 }
 
-// WorkHandler is a test work handling function
-func WorkHandler(item *tws.Item) {
-	tws.ItemWorking(item)
-	fmt.Printf("I am work handler %s\n", item.Owner)
-	os.Exit(0)
+var wrk = map[string]worker.Worker{
+	"TWSAsmtBotChecker": {"TWSAsmtBotChecker", "TWS Test Worker", -9999, uint64(0), TWSAsmtBotChecker},
+}
+
+var checkTimes = []time.Time{
+	time.Date(2018, time.March, 1, 0, 0, 0, 0, time.UTC),
+	time.Date(2018, time.April, 1, 0, 0, 0, 0, time.UTC),
 }
 
 func doWork() {
-	fmt.Printf("Entered doWork()\n")
-	switch App.Action {
-	case "add":
-		fmt.Printf("\tdoWork->add\n")
-		item := tws.Item{
-			Owner:        testOwner,
-			OwnerData:    "I have no data",
-			WorkerName:   "WorkHandler",
-			ActivateTime: time.Now(),
-		}
-		tws.InsertItem(&item)
-	case "wait":
-		fmt.Printf("\tdoWork->wait\n")
-		select {
-		case <-time.After(15 * time.Second):
-			fmt.Printf("15 seconds have elapsed and WorkHandler was not called\n")
-			os.Exit(1)
-		}
-	case "reschedule":
-		fmt.Printf("\tdoWork->reschedule\n")
-		item := findItem(testOwner)
-		fmt.Printf("Rescheduling for 5 seconds from now\n")
-		tws.RescheduleItem(&item, time.Now().Add(5*time.Second))
-	case "complete":
-		fmt.Printf("\tdoWork->complete\n")
-		item := findItem(testOwner)
-		tws.CompleteItem(&item)
-	}
+	rlib.Console("Entered doWork\n")
+	//------------------------------------------------
+	// 1. Register a new handler
+	//------------------------------------------------
+	rlib.Console("Calling InitCore\n")
+	worker.InitCore(wrk)
+
+	//------------------------------------------------
+	// 2. Make a channel for the worker thread to
+	//    communicate when it is finished
+	//------------------------------------------------
+	App.Comm = make(chan int)
+
+	//------------------------------------------------
+	// 3. wait for us to get notification of completion
+	//------------------------------------------------
+	rlib.Console("Waiting for signal from workers...\n")
+	done := <-App.Comm
+	rlib.Console("Received completion signal. done = %d\n", done)
 }
 
-func findItem(o string) tws.Item {
-	fmt.Printf("Entered findItem(%s)\n", o)
-	m, err := tws.FindItem(o)
-	if err != nil {
-		fmt.Printf("Error with FindItem = %s\n", err.Error())
-		os.Exit(1)
+// TWSAsmtBotChecker is a checker function.
+//-----------------------------------------------------------------------------
+func TWSAsmtBotChecker(item *tws.Item) {
+	rlib.Console("\n\n------------------------------------------------\n")
+	rlib.Console("Entered TWSAsmtBotChecker.  App.Idx = %d, len(checkTimes) = %d\n", App.Idx, len(checkTimes))
+	tws.ItemWorking(item)
+	now := time.Now().In(rlib.RRdb.Zone)
+	ctx := context.Background()
+	rlib.Console("Created ctx\n")
+
+	if App.Idx < len(checkTimes) {
+		rlib.Console("Calling CreateAsmInstCore\n")
+		worker.CreateAsmInstCore(ctx, &checkTimes[App.Idx])
 	}
-	if len(m) == 0 {
-		fmt.Printf("Could not find any items for Owner = %s\n", o)
-		os.Exit(1)
+
+	App.Idx++
+	rlib.Console("Incr App.Idx.  new value: %d\n", App.Idx)
+	if App.Idx < len(checkTimes) {
+		rlib.Console("Rescheduled another pass\n")
+		tws.RescheduleItem(item, now)
+	} else {
+		rlib.Console("Done, signaling completion\n")
+		App.Comm <- 1 // signal completion
 	}
-	fmt.Printf("Found Item: Owner = %s, OwnerData = %s, WorkerName = %s\n", m[0].Owner, m[0].OwnerData, m[0].WorkerName)
-	return m[0]
 }

@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"rentroll/rlib"
+	"rentroll/worker"
 	"sort"
 	"strings"
 
@@ -21,13 +22,13 @@ var manageToBudget = rlib.Str2Int64Map{
 
 // rental agreement flow part types
 var raFlowPartTypes = rlib.Str2Int64Map{
-	"DatesRAFlowPart":          int64(rlib.DatesRAFlowPart),
-	"PeopleRAFlowPart":         int64(rlib.PeopleRAFlowPart),
-	"PetsRAFlowPart":           int64(rlib.PetsRAFlowPart),
-	"VehiclesRAFlowPart":       int64(rlib.VehiclesRAFlowPart),
-	"BackGroundInfoRAFlowPart": int64(rlib.BackGroundInfoRAFlowPart),
-	"RentablesRAFlowPart":      int64(rlib.RentablesRAFlowPart),
-	"FeesTermsRAFlowPart":      int64(rlib.FeesTermsRAFlowPart),
+	"dates":     int64(rlib.DatesRAFlowPart),
+	"people":    int64(rlib.PeopleRAFlowPart),
+	"pets":      int64(rlib.PetsRAFlowPart),
+	"vehicles":  int64(rlib.VehiclesRAFlowPart),
+	"bginfo":    int64(rlib.BackGroundInfoRAFlowPart),
+	"rentables": int64(rlib.RentablesRAFlowPart),
+	"feesterms": int64(rlib.FeesTermsRAFlowPart),
 }
 
 // rentroll report row flags
@@ -137,6 +138,7 @@ func GetJSDepositMethods(ctx context.Context) map[string][]DepMethMap {
 //	@Input WebGridSearchRequest
 //  @Response JSONResponse
 // wsdoc }
+//-----------------------------------------------------------------------------
 func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcUILists"
 	fmt.Printf("Entered %s\n", funcname)
@@ -172,6 +174,15 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		businessList = append(businessList, bizMap{BID: bid, BUD: bud})
 	}
 	appData["BizMap"] = businessList
+
+	// --------------- LIST DOWN Workers ----------------------
+	var wa []IDTextMap
+	ss := worker.GetWorkerList()
+	for i := 0; i < len(ss); i++ {
+		var p = IDTextMap{ID: int64(i), Text: ss[i]}
+		wa = append(wa, p)
+	}
+	appData["workers"] = wa
 
 	// --------------- LIST DOWN Business FLAGS ----------------------
 	bizFLAGS := make(map[string]int64)

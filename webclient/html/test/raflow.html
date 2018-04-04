@@ -5,24 +5,35 @@
   <meta charset="UTF-8">
   <title>Multi Step Form with Progress Bar using jQuery and CSS3</title>
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"> -->
-  <link rel="stylesheet" href="/webclient/html/raflow.css">
+  <link rel="stylesheet" href="/webclient/html/test/raflow.css">
   <link rel="stylesheet" href="/webclient/js/w2ui-1.5.rc1.min.css">
   <script type="text/javascript">
     "use strict";
     var app = {
       "language": "en-us",
       "template": "default",
-      "flow": "RA",
-      "flowIDList": [],
-      "flowData": {} // "flowID": [list of flowparts]
+      "raflow": {
+        "name": "RA",
+        "data": {},
+        "activeflowID": "",
+      }
     };
   </script>
 </head>
 
 <body>
 
-<section id="ra-form"> <!-- RA Form Section -->
+<section id="manage-flows">
+  <p id="message" style="display: none; color: red; font-size: 16px;"></p>
+  <p id="loader">loading...</p>
+  <ul id="flow-list">
+  </ul>
+  <button class="btn" id="add-new-flow">Add New Rental Agreement Flow</button>
+</section>
 
+<div id="ra-form-container">
+<button id="back-to-flow-list">Back</button>
+<section id="ra-form"> <!-- RA Form Section -->
   <nav id="progressbar-nav">
     <!-- progressbar -->
     <ul id="progressbar">
@@ -50,7 +61,7 @@
           <span class="title">Vehicles</span>
         </a>
       </li>
-      <li data-target="#bg-info">
+      <li data-target="#bginfo">
         <a href="#">
           <span class="step">5</span>
           <span class="title">Background Info</span>
@@ -62,7 +73,7 @@
           <span class="title">Rentables</span>
         </a>
       </li>
-      <li data-target="#fees-terms">
+      <li data-target="#feesterms">
         <a href="#">
           <span class="step">7</span>
           <span class="title">Fees, Terms</span>
@@ -90,7 +101,7 @@
 
   <!-- pets section -->
   <section class="ra-form-component" id="pets">
-    <div class="form-container">Pets Section</div>
+    <div class="form-container"></div>
   </section>
 
   <!-- vehicle section -->
@@ -99,7 +110,7 @@
   </section>
 
   <!-- background info section -->
-  <section class="ra-form-component" id="bg-info">
+  <section class="ra-form-component" id="bginfo">
     <div class="form-container">Background Information Section</div>
   </section>
 
@@ -109,7 +120,7 @@
   </section>
 
   <!-- fees, terms section -->
-  <section class="ra-form-component" id="fees-terms">
+  <section class="ra-form-component" id="feesterms">
     <div class="form-container">Fees Terms Section</div>
   </section>
 
@@ -126,6 +137,7 @@
   </footer>
 
 </section> <!-- RA Form Section -->
+</div>
 
 <script src="/webclient/js/jquery.min.js"></script>
 <script src="/webclient/js/w2ui-1.5.rc1.js"></script>

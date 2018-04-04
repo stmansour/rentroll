@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../support/utils/constants';
-import * as selectors from '../support/utils/get_selectors';
-import * as common from '../support/utils/common';
+import * as constants from '../utils/constants';
+import * as selectors from '../utils/get_selectors';
+import * as common from '../utils/common';
 
 // --- Collections --
-const section = require('../support/components/rentroll'); // Rent Roll
+const section = require('../components/rentroll'); // Rent Roll
 
 // this contain app variable of the application
 let appSettings;
@@ -102,7 +102,7 @@ describe('AIR Roller UI Tests - Rent Roll', function () {
     // -- Change business to REX --
     it('Change business to REX', function () {
         // onSuccessful test set BID value. If above test get fail below code will not be executed.
-        // constants.BID = common.changeBU(appSettings);
+        constants.BID = common.changeBU(appSettings);
     });
 
     it('Grid Records', function () {

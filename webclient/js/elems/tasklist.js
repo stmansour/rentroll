@@ -4,7 +4,7 @@
     form_dirty_alert, addDateNavToToolbar, 
     dtTextRender, dateFromString, taskDateRender, setToTLForm,
     taskFormDueDate,taskCompletionChange,taskFormDoneDate,
-    popupTaskForm,
+    popupTaskForm,setInnerHTML,w2popup,
 */
 
 window.buildTaskListElements = function () {
@@ -35,22 +35,17 @@ window.buildTaskListElements = function () {
             {field: 'recid',     hidden: true,  caption: 'recid',             size: '40px',  sortable: true},
             {field: 'BID',       hidden: true,  caption: 'BID',               size: '40px',  sortable: true},
             {field: 'Name',      hidden: false, caption: 'Name',              size: '110px', sortable: true},
-            {field: 'DtDue',     hidden: false, caption: 'Due',               size: '150px', sortable: true,
-                render: function (record, index, col_index) {
-                    if (typeof record === "undefined") {
-                        return '';
-                    }
-                    return taskDateRender(record.DtDue);
-                }
-            },
-            {field: 'DtDone',    hidden: false, caption: 'Due completed',     size: '150px', sortable: true,
-                render: function (record, index, col_index) { if (typeof record === "undefined") {return '';} return taskDateRender(record.DtDone); }
-            },
             {field: 'DtPreDue',  hidden: false, caption: 'Pre Due',           size: '150px', sortable: true,
                 render: function (record, index, col_index) { if (typeof record === "undefined") {return '';} return taskDateRender(record.DtPreDue); }
             },
             {field: 'DtPreDone', hidden: false, caption: 'Pre Due completed', size: '150px', sortable: true,
                 render: function (record, index, col_index) { if (typeof record === "undefined") {return '';} return taskDateRender(record.DtPreDone); }
+            },
+            {field: 'DtDue',     hidden: false, caption: 'Due',               size: '150px', sortable: true,
+                render: function (record, index, col_index) {if (typeof record === "undefined") {return ''; } return taskDateRender(record.DtDue); }
+            },
+            {field: 'DtDone',    hidden: false, caption: 'Due completed',     size: '150px', sortable: true,
+                render: function (record, index, col_index) { if (typeof record === "undefined") {return '';} return taskDateRender(record.DtDone); }
             },
         ],
         onClick: function(event) {
@@ -197,7 +192,6 @@ window.buildTaskListElements = function () {
             { field: 'CreateBy',    caption: 'CreateBy',    size: '35px', sotrable: true, hidden: true},
         ],
         onClick: function(event) {
-
             event.onComplete = function (event) {
                 var r = w2ui.tlsDetailGrid.records[event.recid];
                 console.log( 'detail clicked: v1/tasks/' + r.BID + '/'+ r.TID);
@@ -240,7 +234,26 @@ window.buildTaskListElements = function () {
         ],
         actions: {
             save: function(target, data){
-                console.log("save task");
+                // console.log("save task");
+                var f = w2ui.taskForm;
+                var r = f.record;
+                var d = {cmd: "save", record: r};
+                var dat=JSON.stringify(d);
+                f.url = '/v1/task/' + r.BID + '/' + r.TID;
+                $.post(f.url,dat)
+                .done(function(data) {
+                    if (data.status === "error") {
+                        f.error(w2utils.lang(data.message));
+                        return;
+                    }
+                    //w2ui.tlsDetailGrid.url = '/v1/tl/'
+                    w2ui.tlsDetailGrid.reload();
+                    w2popup.close();
+                })
+                .fail(function(/*data*/){
+                    f.error("Save Tasklist failed.");
+                    return;
+                });
             },
         },
        onRefresh: function(event) {
@@ -397,7 +410,7 @@ window.popupTaskForm = function (bid,tid) {
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
         style   : 'padding: 15px 0px 0px 0px',
         width   : 600,
-        height  : 500,
+        height  : 400,
         showMax : true,
         onToggle: function (event) {
             $(w2ui.taskForm.box).hide();
@@ -412,6 +425,23 @@ window.popupTaskForm = function (bid,tid) {
             };
         }
     });
+};
+
+//-----------------------------------------------------------------------------
+// setInnerHTML - form formatting.  saves a few lines by handling the null case.
+// 
+// @params
+//      id  = html element id for string update
+//      s   = string for no date value 
+//  
+// @returns 
+//  
+//-----------------------------------------------------------------------------
+window.setInnerHTML = function (id,s) {
+    var e = document.getElementById(id);
+    if (e != null) {
+        e.innerHTML = s;
+    }
 };
 
 //-----------------------------------------------------------------------------
@@ -437,7 +467,7 @@ window.taskFormDueDate = function (dt,b,id,txt) {
         } else {
             s = 'No pre-due date';
         }
-        document.getElementById(id).innerHTML = s;
+        setInnerHTML(id,s);
     }
     return b;
 };
@@ -469,7 +499,7 @@ window.taskFormDoneDate = function (dt,dtd,b,id) {
                 s = '<span style="color:#FC0D1B;">overdue</span>';
             }
         }
-        document.getElementById(id).innerHTML = s;
+        setInnerHTML(id,s);
     }
     return b;
 };
@@ -492,5 +522,5 @@ window.taskCompletionChange = function (b,id) {
     } else {
         s = '<span style="color:blue;">will mark as not completed when Save is clicked</span>';
     }
-    document.getElementById(id).innerHTML = s;
+    setInnerHTML(id,s);
 };
