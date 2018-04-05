@@ -71,6 +71,7 @@ type RentableDetails struct {
 	RID            int64
 	RentableName   string
 	AssignmentTime int64
+	Comment        string // for notes such as Alarm codes and other things
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
@@ -588,6 +589,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rentable.BID = requestedBID
 		rentable.RentableName = rfRecord.RentableName
 		rentable.AssignmentTime = rfRecord.AssignmentTime
+		rentable.Comment = rfRecord.Comment
 		// Now just update the Rentable Record
 		err = rlib.UpdateRentable(r.Context(), &rentable)
 		if err != nil {
@@ -671,6 +673,7 @@ func saveRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rentable.BID = requestedBID
 		rentable.RentableName = rfRecord.RentableName
 		rentable.AssignmentTime = rfRecord.AssignmentTime
+		rentable.Comment = rfRecord.Comment
 		rid, err := rlib.InsertRentable(r.Context(), &rentable)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
@@ -779,6 +782,7 @@ type RentableStatusGridRec struct {
 	DtNoticeToVacateIsSet bool
 	CreateBy              int64
 	LastModBy             int64
+	Comment               string
 }
 
 // rsGridRowScan scans a result from sql row and dump it in a struct for rentableStatusGridRec
