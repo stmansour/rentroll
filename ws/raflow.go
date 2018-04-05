@@ -167,7 +167,7 @@ func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
 
 	// first check that such a given flowID does exist or not
 	var found bool
-	ids, err := rlib.GetFlowIDsByUser(ctx, "RA")
+	ids, err := rlib.GetFlowIDsByUser(ctx, rlib.RAFlow)
 	if err != nil {
 		return err
 	}

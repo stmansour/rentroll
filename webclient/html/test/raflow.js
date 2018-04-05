@@ -396,6 +396,18 @@ function loadRADatesForm() {
                 /*save: function () {
                     this.save();
                 }*/
+            },
+            onRefresh: function(event) {
+                var t   = new Date(),
+                    nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+
+                // set default values with start=current day, stop=next year day, if record is blank
+                this.record.AgreementStart = this.record.AgreementStart || w2uiDateControlString(t);
+                this.record.AgreementStop = this.record.AgreementStop || w2uiDateControlString(nyd);
+                this.record.RentStart = this.record.RentStart || w2uiDateControlString(t);
+                this.record.RentStop = this.record.RentStop || w2uiDateControlString(nyd);
+                this.record.PossessionStart = this.record.PossessionStart || w2uiDateControlString(t);
+                this.record.PossessionStop = this.record.PossessionStop || w2uiDateControlString(nyd);
             }
         });
 
@@ -423,24 +435,154 @@ function loadRADatesForm() {
 // -------------------------------------------------------------------------------
 // Rental Agreement - People form
 // -------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// getFullName - returns a string with the full name based on the item supplied.
+// @params
+//   item = an object assumed to have a FirstName, MiddleName, and LastName
+// @return - the full name concatenated together
+//-----------------------------------------------------------------------------
+window.getFullName = function (item) {
+
+    var s = item.FirstName;
+    if (item.MiddleName.length > 0) { s += ' ' + item.MiddleName; }
+    if (item.LastName.length > 0 ) { s += ' ' + item.LastName; }
+    return s;
+};
+
+//-----------------------------------------------------------------------------
+// getTCIDName - returns an appropriate name for the supplied item. If
+//          the item is a person, then the person's full name is returned.
+//          If the item is a company, then the company name is returned.
+// @params
+//   item = an object assumed to have a FirstName, MiddleName, LastName,
+//          IsCompany, and CompanyName.
+// @return - the name to render
+//-----------------------------------------------------------------------------
+window.getTCIDName = function (item) {
+
+    var s = (item.IsCompany > 0) ? item.CompanyName : getFullName(item);
+
+    if (item.TCID > 0) {
+        s += ' (TCID: '+ String(item.TCID) + ')';
+    }
+    return s;
+};
+
+//-----------------------------------------------------------------------------
+// acceptTransactant - add transactant to the list of payor/user/guarantor
+//
+// @params
+//   item = an object assumed to have a FirstName, MiddleName, LastName,
+//          IsCompany, and CompanyName.
+// @return - the name to render
+//-----------------------------------------------------------------------------
+window.acceptTransactant = function() {
+    var IsPayor = w2ui.RAPeopleForm.record.Payor;
+    var IsUser = w2ui.RAPeopleForm.record.User;
+    var IsGuarantor = w2ui.RAPeopleForm.record.Guarantor;
+
+    // if not set anything then alert the user to select any one of them
+    if (!(IsPayor || IsUser || IsGuarantor)) {
+        alert("Please, select the role");
+        return false;
+    }
+
+    var frec = w2ui.RAPeopleForm.record;
+    var s = (frec.IsCompany > 0) ? frec.CompanyName : getFullName(frec);;
+
+    var peopleListingItem = '<li data-tcid="' + frec.TCID + '">';
+    peopleListingItem += '<span>' + s + '</span>';
+    peopleListingItem += '<i class="remove-item fas fa-times-circle fa-sm"></i>'
+    peopleListingItem += '</li>';
+
+    // add into payor list
+    if (IsPayor) {
+        $('#payor-list .people-listing').append(peopleListingItem);
+    }
+
+    // add into user list
+    if (IsUser) {
+        $('#user-list .people-listing').append(peopleListingItem);
+    }
+
+    // add into guarantor list
+    if (IsGuarantor) {
+        $('#guarantor-list .people-listing').append(peopleListingItem);
+    }
+
+    // clear the form
+    w2ui.RAPeopleForm.clear();
+};
+
+// remove people from the listing
+$(document).on('click', '.remove-item', function() {
+    $(this).closest('li').remove();
+});
+
 function loadRAPeopleForm() {
 
     // if form is loaded then return
     if (!("RAPeopleForm" in w2ui)) {
 
         // people form
-        $('#ra-form #people').w2form({
+        $('#ra-form #people .form-container').w2form({
             name   : 'RAPeopleForm',
             header : 'People',
-            style  : 'border: 1px solid black; display: block;',
+            style  : 'display: block;',
             formURL: '/webclient/html/test/formrapeople.html',
             focus: -1,
             fields : [
-                { name: 'Transactant', type: 'combo',    required: true, html: { caption: "Transactant" },
+                { name: 'Transactant', type: 'enum',     required: true, html: { caption: "Transactant" },
+                    type: 'enum',
                     options: {
-                        items: ["Captain America", "Iron Man", "Doctor Strange", "Thanos"]
-                    }
+                        url:        '/v1/transactantstd/' + app.raflow.BID,
+                        max:        1,
+                        renderItem: function(item) {
+                            var s = getTCIDName(item);
+                            w2ui.RAPeopleForm.record.TCID = item.TCID;
+                            w2ui.RAPeopleForm.record.FirstName = item.FirstName;
+                            w2ui.RAPeopleForm.record.LastName = item.LastName;
+                            w2ui.RAPeopleForm.record.MiddleName = item.MiddleName;
+                            w2ui.RAPeopleForm.record.CompanyName = item.CompanyName;
+                            w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
+                            return s;
+                        },
+                        renderDrop: function(item) {
+                            return getTCIDName(item);
+                        },
+                        compare:    function(item, search) {
+                            var s = getTCIDName(item);
+                            s = s.toLowerCase();
+                            var srch = search.toLowerCase();
+                            var match = (s.indexOf(srch) >= 0);
+                            return match;
+                        },
+                        onNew:      function (event) {
+                            //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                            $.extend(event.item, { FirstName: '', LastName : event.item.text });
+                        },
+                        onRemove:   function(event) {
+                            event.onComplete = function() {
+                                var f = w2ui.RAPeopleForm;
+                                // reset payor field related data when removed
+                                f.record.TCID = 0;
+
+                                // NOTE: have to trigger manually, b'coz we manually change the record,
+                                // otherwise it triggers the change event but it won't get change (Object: {})
+                                var event = f.trigger({ phase: 'before', target: f.name, type: 'change', event: event }); // event before
+                                if (event.cancelled === true) return false;
+                                f.trigger($.extend(event, { phase: 'after' })); // event after
+                            };
+                        }
+                    },
                 },
+                { name: 'TCID',        type: 'int',      required: true, html: { caption: "TCID" } },
+                { name: 'FirstName',   type: 'text',     required: true, html: { caption: "FirstName" } },
+                { name: 'LastName',    type: 'text',     required: true, html: { caption: "LastName" } },
+                { name: 'MiddleName',  type: 'text',     required: true, html: { caption: "MiddleName" } },
+                { name: 'CompanyName', type: 'text',     required: true, html: { caption: "CompanyName" } },
+                { name: 'IsCompany',   type: 'int',      required: true, html: { caption: "IsCompany" } },
                 { name: 'Payor',       type: 'checkbox', required: true, html: { caption: "Payor" } },
                 { name: 'User',        type: 'checkbox', required: true, html: { caption: "User" } },
                 { name: 'Guarantor',   type: 'checkbox', required: true, html: { caption: "Guarantor" } },

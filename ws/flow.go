@@ -114,8 +114,8 @@ func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// initiate flow for given string
 	var flowID string
 	switch f.Flow {
-	case "RA":
-		flowID, err = rlib.InsertInitialRAFlow(r.Context(), d.BID)
+	case rlib.RAFlow:
+		flowID, err = InsertInitialRAFlow(r.Context(), d.BID)
 		break
 	default:
 		err = fmt.Errorf("unrecognized flow: %s", f.Flow)
@@ -230,7 +230,7 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	switch f.Flow {
-	case "RA":
+	case rlib.RAFlow:
 		err = saveRentalAgreementFlow(r.Context(), f.FlowID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
@@ -346,8 +346,8 @@ func saveFlowPart(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// handle data for update based on flow and part type
 	var jsBtData []byte
 	switch fpJSONData.Flow {
-	case "RA":
-		jsBtData, err = getUpdateRAFlowPartJSONData(fpJSONData.Data, fpJSONData.PartType)
+	case rlib.RAFlow:
+		jsBtData, err = rlib.GetRAFlowPartJSONData(fpJSONData.Data, fpJSONData.PartType)
 		if err != nil {
 			err1 := fmt.Errorf("Data is not in valid format for flow: %s, partType: %d, Error: %s", fpJSONData.Flow, fpJSONData.PartType, err.Error())
 			SvcErrorReturn(w, err1, funcname)
