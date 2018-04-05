@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
--- Host: localhost    Database: rentroll
+-- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.16
+-- Server version	5.7.21
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1534,6 +1534,7 @@ CREATE TABLE `Rentable` (
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
+  `Comment` varchar(2048) NOT NULL DEFAULT '',
   PRIMARY KEY (`RID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1544,7 +1545,7 @@ CREATE TABLE `Rentable` (
 
 LOCK TABLES `Rentable` WRITE;
 /*!40000 ALTER TABLE `Rentable` DISABLE KEYS */;
-INSERT INTO `Rentable` VALUES (1,1,'309 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0),(2,1,'309 1/2 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0),(3,1,'311 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0),(4,1,'311 1/2 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0);
+INSERT INTO `Rentable` VALUES (1,1,'309 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(2,1,'309 1/2 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(3,1,'311 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,''),(4,1,'311 1/2 Rexford',1,0,'0000-00-00 00:00:00','2017-11-28 03:52:45',0,'2017-11-28 03:52:45',0,'');
 /*!40000 ALTER TABLE `Rentable` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2480,4 +2481,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-03 11:14:56
+-- Dump completed on 2018-04-04 17:00:05
