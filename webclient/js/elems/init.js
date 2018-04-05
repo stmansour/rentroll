@@ -1,8 +1,12 @@
+/*global
+    $, w2obj, app, 
+*/
 "use strict";
 window.defineDateFmts = function () {
     var month = (new Date()).getMonth() + 1;
     var year  = (new Date()).getFullYear();
     // // US Format
+    $('input[type=us-datetime]').w2field('datetime');
     $('input[type=us-date]').w2field('date',  { format: 'm/d/yyy' });
     $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
     $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});

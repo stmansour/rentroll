@@ -22,7 +22,7 @@ test: tws tws.sql
 	@rm -f fail
 
 tws.sql:
-	cp $TOP/../tws/db/schema/tws.sql .
+	cp ${TOP}/../tws/db/schema/tws.sql .
 	
 package:
 	@echo "*** PACKAGE completed in ${THISDIR} ***"

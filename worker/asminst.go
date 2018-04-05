@@ -15,10 +15,11 @@ import (
 //-----------------------------------------------------------------------------
 func CreateAssessmentInstances(item *tws.Item) {
 	tws.ItemWorking(item)
-	now := time.Now()
+	now := time.Now().In(rlib.RRdb.Zone)
+	ctx := context.Background()
+	CreateAsmInstCore(ctx, &now)
 
 	// reschedule for midnight tomorrow...
-	now = time.Now().In(rlib.RRdb.Zone)
 	resched := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, time.UTC).In(rlib.RRdb.Zone)
 	tws.RescheduleItem(item, resched)
 }
@@ -26,17 +27,10 @@ func CreateAssessmentInstances(item *tws.Item) {
 // CreateAsmInstCore provides a more testable calling routine for creating
 // assessment instances
 //-----------------------------------------------------------------------------
-func CreateAsmInstCore(now *time.Time) {
-	rlib.Console("Entered CreateAsmInstCore\n")
-	// create background context
-	ctx := context.Background()
-	rlib.Console("Created ctx\n")
-
+func CreateAsmInstCore(ctx context.Context, now *time.Time) {
 	expire := now.Add(10 * time.Minute)
 	s := rlib.SessionNew("workerToken", "tws-worker", "tws-session", -1, "", -1, &expire)
-	rlib.Console("Created Session\n")
 	ctx = rlib.SetSessionContextKey(ctx, s)
-	rlib.Console("Session context set\n")
 
 	// add any new recurring instances for this day...
 	m, err := rlib.GetAllBusinesses(ctx)
