@@ -276,6 +276,10 @@ button.save-ra {
     margin: 3px 0px;
 }
 
+.people-listing li span {
+    font-size: 14px;
+}
+
 i.remove-item {
     cursor: pointer;
     position: absolute;
