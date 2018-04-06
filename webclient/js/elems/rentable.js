@@ -25,6 +25,7 @@ window.getRentableInitRecord = function (BID, BUD, previousFormRecord) {
         RSDtStart: w2uiDateControlString(y),
         RSDtStop: "1/1/9999",
         AssignmentTime: 0,
+        Comment: ""
     };
 
     // if it called after 'save and add another' action there previous form record is passed as Object
