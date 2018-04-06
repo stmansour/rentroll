@@ -478,6 +478,98 @@ window.getTCIDName = function (item) {
 };
 
 //-----------------------------------------------------------------------------
+// loadTransactantListingItem - adds transactant into categories list
+// @params
+//   transactantRec = an object assumed to have a FirstName, MiddleName, LastName,
+//                    IsCompany, and CompanyName.
+//   IsPayor        = flag to indicate payor or not
+//   IsUser         = flag to indicate user or not
+//   IsGuarantor    = flag to indicate guarantor or not
+// @return - nothing
+//-----------------------------------------------------------------------------
+window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, IsGuarantor) {
+
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    if (peoplePartIndex < 0) {
+        alert("flow data could not be found");
+        return false;
+    }
+
+    // check that "Payors", "Users", "Guarantors" keys do exist in Data of people
+    var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data);
+    var payorsIndex = peopleTypeKeys.indexOf("Payors");
+    var usersIndex = peopleTypeKeys.indexOf("Users");
+    var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
+    if (payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0) {
+        alert("flow data could not be found");
+        return false;
+    }
+
+
+    // listing item to be appended in ul
+    var s = (transactantRec.IsCompany > 0) ? transactantRec.CompanyName : getFullName(transactantRec);;
+    var peopleListingItem = '<li data-tcid="' + transactantRec.TCID + '">';
+    peopleListingItem += '<span>' + s + '</span>';
+    peopleListingItem += '<i class="remove-item fas fa-times-circle fa-sm"></i>'
+    peopleListingItem += '</li>';
+
+    // add into payor list
+    if (IsPayor) {
+        // check for duplicacy
+        var found = false;
+        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.length;
+        for(var i = length - 1; i >= 0; i--) {
+            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors[i].TCID) {
+                found = true;
+                break;
+            }
+        }
+        if (!(found)) {
+            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
+                app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.push(app.raflow.activeTransactant);
+            }
+            $('#payor-list .people-listing').append(peopleListingItem);
+        }
+    }
+
+    // add into user list
+    if (IsUser) {
+        var found = false;
+        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.length;
+        for(var i = length - 1; i >= 0; i--) {
+            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users[i].TCID) {
+                found = true;
+                break;
+            }
+        }
+        if (!(found)) {
+            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
+                app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.push(app.raflow.activeTransactant);
+            }
+            $('#user-list .people-listing').append(peopleListingItem);
+        }
+    }
+
+    // add into guarantor list
+    if (IsGuarantor) {
+        var found = false;
+        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.length;
+        for(var i = length - 1; i >= 0; i--) {
+            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors[i].TCID) {
+                found = true;
+                break;
+            }
+        }
+        if (!(found)) {
+            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
+                app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.push(app.raflow.activeTransactant);
+            }
+            $('#guarantor-list .people-listing').append(peopleListingItem);
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
 // acceptTransactant - add transactant to the list of payor/user/guarantor
 //
 // @params
@@ -496,83 +588,11 @@ window.acceptTransactant = function() {
         return false;
     }
 
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    if (peoplePartIndex < 0) {
-        alert("flow data could not be found");
-        return false;
-    }
-
-    // check that "Payors", "Users", "Guarantors" keys do exist in Data of people
-    var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data);
-    var payorsIndex = peopleTypeKeys.indexOf("Payors");
-    var usersIndex = peopleTypeKeys.indexOf("Users");
-    var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
-    if (payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0) {
-        alert("flow data could not be found");
-        return false;
-    }
-
-    // get form record
-    var frec = w2ui.RAPeopleForm.record;
-    var s = (frec.IsCompany > 0) ? frec.CompanyName : getFullName(frec);;
-
-    // listing item to be appended in ul
-    var peopleListingItem = '<li data-tcid="' + frec.TCID + '">';
-    peopleListingItem += '<span>' + s + '</span>';
-    peopleListingItem += '<i class="remove-item fas fa-times-circle fa-sm"></i>'
-    peopleListingItem += '</li>';
-
-    // add into payor list
-    if (IsPayor) {
-        // check for duplicacy
-        var found = false;
-        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.length;
-        for(var i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors[i].TCID) {
-                found = true;
-                break;
-            }
-        }
-        if (!(found)) {
-            app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.push(app.raflow.activeTransactant);
-        }
-        $('#payor-list .people-listing').append(peopleListingItem);
-    }
-
-    // add into user list
-    if (IsUser) {
-        var found = false;
-        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.length;
-        for(var i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users[i].TCID) {
-                found = true;
-                break;
-            }
-        }
-        if (!(found)) {
-            app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.push(app.raflow.activeTransactant);
-        }
-        $('#user-list .people-listing').append(peopleListingItem);
-    }
-
-    // add into guarantor list
-    if (IsGuarantor) {
-        var found = false;
-        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.length;
-        for(var i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors[i].TCID) {
-                found = true;
-                break;
-            }
-        }
-        if (!(found)) {
-            app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.push(app.raflow.activeTransactant);
-        }
-        $('#guarantor-list .people-listing').append(peopleListingItem);
-    }
+    // load item in the DOM
+    loadTransactantListingItem(w2ui.RAPeopleForm.record, IsPayor, IsUser, IsGuarantor);
 
     // clear the form
-    app.raflow.activeTransactant = null;
+    app.raflow.activeTransactant = {};
     w2ui.RAPeopleForm.clear();
 };
 
@@ -622,6 +642,34 @@ $(document).on('click', '.remove-item', function() {
 
 function loadRAPeopleForm() {
 
+    // have to list down all people into different categories
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    if (peoplePartIndex < 0) {
+        alert("flow data could not be found");
+        return false;
+    }
+
+    // check that "Payors", "Users", "Guarantors" keys do exist in Data of people
+    var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data);
+    var payorsIndex = peopleTypeKeys.indexOf("Payors");
+    var usersIndex = peopleTypeKeys.indexOf("Users");
+    var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
+    if (!(payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0)) { // valid then
+        // load payors list
+        app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.forEach(function(item) {
+            loadTransactantListingItem(item, true, false, false);
+        });
+        // load users list
+        app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.forEach(function(item) {
+            loadTransactantListingItem(item, false, true, false);
+        });
+        // load guarantors list
+        app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.forEach(function(item) {
+            loadTransactantListingItem(item, false, false, true);
+        });
+    }
+
+
     // if form is loaded then return
     if (!("RAPeopleForm" in w2ui)) {
 
@@ -666,8 +714,8 @@ function loadRAPeopleForm() {
                         },
                         onRemove:   function(event) {
                             event.onComplete = function() {
-                                // reset active Transactant to null
-                                app.raflow.activeTransactant = null;
+                                // reset active Transactant to blank object
+                                app.raflow.activeTransactant = {};
 
                                 var f = w2ui.RAPeopleForm;
                                 // reset payor field related data when removed
