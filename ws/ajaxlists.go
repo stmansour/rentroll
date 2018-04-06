@@ -20,17 +20,6 @@ var manageToBudget = rlib.Str2Int64Map{
 	"Yes (Market Rate required)": 1,
 }
 
-// rental agreement flow part types
-var raFlowPartTypes = rlib.Str2Int64Map{
-	"dates":     int64(rlib.DatesRAFlowPart),
-	"people":    int64(rlib.PeopleRAFlowPart),
-	"pets":      int64(rlib.PetsRAFlowPart),
-	"vehicles":  int64(rlib.VehiclesRAFlowPart),
-	"bginfo":    int64(rlib.BackGroundInfoRAFlowPart),
-	"rentables": int64(rlib.RentablesRAFlowPart),
-	"feesterms": int64(rlib.FeesTermsRAFlowPart),
-}
-
 // rentroll report row flags
 var rrFLAGS = rlib.Str2Int64Map{
 	"RentRollMainRow":       rlib.RentRollMainRow,
