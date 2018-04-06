@@ -1423,7 +1423,7 @@ func InsertRentable(ctx context.Context, a *Rentable) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.BID, a.RentableName, a.AssignmentTime, a.MRStatus, a.DtMRStart, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.RentableName, a.AssignmentTime, a.MRStatus, a.DtMRStart, a.Comment, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentable)
 		defer stmt.Close()

@@ -292,6 +292,9 @@ MYSQLDUMP="mysqldump --no-defaults"
 # ALTER TABLE TaskListDefinition ADD Comment VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
 # ALTER TABLE TaskDescriptor ADD Comment VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
 
+# 16th March, 2018
+# ALTER TABLE Rentable ADD Comment VARCHAR(2048) NOT NULL DEFAULT ''; -- Add Comment textfield to Rentable table
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

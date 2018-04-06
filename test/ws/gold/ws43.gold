@@ -3,6 +3,7 @@
         {
             "BID": 1,
             "BUD": "REX",
+            "Comment": "",
             "CreateBy": 0,
             "DtNoticeToVacate": "1/1/1900",
             "DtNoticeToVacateIsSet": false,

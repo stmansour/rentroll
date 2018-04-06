@@ -7,15 +7,18 @@
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"> -->
   <link rel="stylesheet" href="/webclient/html/test/raflow.css">
   <link rel="stylesheet" href="/webclient/js/w2ui-1.5.rc1.min.css">
+  <link rel="stylesheet" href="/webclient/html/fa/css/fontawesome-all.min.css">
   <script type="text/javascript">
     "use strict";
     var app = {
       "language": "en-us",
       "template": "default",
       "raflow": {
-        "name": "RA",
-        "data": {},
-        "activeflowID": "",
+        "name":                 "RA",
+        "data":                 {},
+        "activeflowID":         "",
+        "BID":                  1,
+        "activeTransactant":    {},
       }
     };
   </script>
@@ -96,7 +99,22 @@
 
   <!-- payors, users section -->
   <section class="ra-form-component" id="people">
-    <div class="form-container"></div>
+    <div class="form-container" style="height: 130px;"></div>
+    <section id="people-type-containers" style="height: 270px;">
+      <div id="payor-list" class="people-type">
+        <label>Payors</label>
+        <ul class="people-listing" data-people-type="payors"></ul>
+      </div>
+      <div id="user-list" class="people-type">
+        <label>Users</label>
+        <ul class="people-listing" data-people-type="users"></ul>
+      </div>
+      <div id="guarantor-list" class="people-type">
+        <label>Guarantors</label>
+        <ul class="people-listing" data-people-type="guarantors"></ul>
+      </div>
+      <div class="clearfix"></div>
+    </section>
   </section>
 
   <!-- pets section -->
@@ -127,6 +145,9 @@
   <!-- final section -->
   <section class="ra-form-component" id="final">
     <div class="form-container">Final Section</div>
+    <div id="save-ra-btn-container">
+      <button class="save-ra">Save Rental Agreement</button>
+    </div>
   </section>
 
   <!-- RA form footer part -->

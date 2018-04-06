@@ -795,7 +795,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rentable
 	//===============================
-	flds = "RID,BID,RentableName,AssignmentTime,MRStatus,DtMRStart,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "RID,BID,RentableName,AssignmentTime,MRStatus,DtMRStart,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Rentable"] = flds
 	RRdb.Prepstmt.CountBusinessRentables, err = RRdb.Dbrr.Prepare("SELECT COUNT(RID) FROM Rentable WHERE BID=?")
 	Errcheck(err)
