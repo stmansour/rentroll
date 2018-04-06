@@ -1,9 +1,20 @@
 "use strict";
 /*global
-    GridMoneyFormat, number_format, w2ui, $, app, console,setToTLDForm,
-    form_dirty_alert, addDateNavToToolbar, w2utils, w2popup, taskDateRender,
-    popupTaskDescForm
+    w2ui, $, app, console,setToTLDForm,
+    form_dirty_alert, addDateNavToToolbar, w2utils, w2popup,
+    popupTaskDescForm, ensureSession, dtFormatISOToW2ui,
+    dtFormatISOToW2ui, localtimeToUTC,
 */
+
+// Temporary storage for when a date is toggled off
+var TaskDescData = {
+    sEpochDue: '',
+    sEpochPreDue: '',
+};
+var TLData = {
+    sEpochDue: '',
+    sEpochPreDue: '',
+};
 
 window.buildTaskListDefElements = function () {
     //------------------------------------------------------------------------
@@ -32,7 +43,7 @@ window.buildTaskListDefElements = function () {
         columns: [
             {field: 'recid',     hidden: true,  caption: 'recid',                   size: '40px',  sortable: true},
             {field: 'BID',       hidden: true,  caption: 'BID',                     size: '40px',  sortable: true},
-            {field: 'Name',      hidden: false, caption: 'Name',                    size: '110px', sortable: true},
+            {field: 'Name',      hidden: false, caption: 'Name',                    size: '250px', sortable: true},
         ],
         onClick: function(event) {
             event.onComplete = function () {
@@ -95,32 +106,68 @@ window.buildTaskListDefElements = function () {
             },
         },
         fields: [
-            { field: 'recid',       type: 'int',  required: false },
-            { field: 'TLDID',       type: 'int',  required: false },
-            { field: 'BID',         type: 'int',  required: false },
-            { field: 'BUD',         type: 'list', required: true, options: {items: app.businesses} },
-            { field: 'Name',        type: 'text', required: true },
-            { field: 'Cycle',       type: 'list', required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
-            { field: 'Epoch',       type: 'date', required: false },
-            { field: 'EpochDue',    type: 'date', required: false },
-            { field: 'EpochPreDue', type: 'date', required: false },
-            { field: 'FLAGS',       type: 'int',  required: false },
-            { field: 'CreateTS',    type: 'date', required: false },
-            { field: 'CreateBy',    type: 'int',  required: false },
-            { field: 'LastModTime', type: 'date', required: false },
-            { field: 'LastModBy',   type: 'int',  required: false },
+            { field: 'recid',          type: 'int',      required: false },
+            { field: 'TLDID',          type: 'int',      required: false },
+            { field: 'BID',            type: 'int',      required: false },
+            { field: 'Name',           type: 'text',     required: true },
+            { field: 'Cycle',          type: 'list',     required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
+            { field: 'ChkEpochDue',    type: 'checkbox', required: false },
+            { field: 'ChkEpochPreDue', type: 'checkbox', required: false },
+            { field: 'Epoch',          type: 'datetime', required: false },
+            { field: 'EpochDue',       type: 'datetime', required: false },
+            { field: 'EpochPreDue',    type: 'datetime', required: false },
+            { field: 'FLAGS',          type: 'int',      required: false },
+            { field: 'CreateTS',       type: 'date',     required: false },
+            { field: 'CreateBy',       type: 'int',      required: false },
+            { field: 'LastModTime',    type: 'date',     required: false },
+            { field: 'LastModBy',      type: 'int',      required: false },
         ],
-        onRefresh: function(event) {
-            // var f = this;
+        onLoad: function(event) {
             event.onComplete = function(event) {
                 var r = w2ui.tldsInfoForm.record;
                 if (typeof r.EpochPreDue === "undefined") {
                     return;
                 }
+                r.EpochPreDue = dtFormatISOToW2ui(r.EpochPreDue);
+                r.EpochDue    = dtFormatISOToW2ui(r.EpochDue);
+                r.Epoch       = dtFormatISOToW2ui(r.Epoch);
             };
         },
+        // onRefresh: function(event) {
+        //     // var f = this;
+        //     event.onComplete = function(event) {
+        //     };
+        // },
         onChange: function(event) {
             event.onComplete = function() {
+                var f = this;
+                var r = f.record;
+                switch (event.target) {
+                case "ChkEpochPreDue":
+                    $(f.box).find("input[name=EpochPreDue]").prop( "disabled", !r.ChkEpochPreDue );
+                    if (r.ChkEpochPreDue) {
+                        if (r.EpochPreDue === "" && TLData.sEpochPreDue.length > 1) {
+                            r.EpochPreDue = TLData.sEpochPreDue;
+                        }
+                    } else {
+                        TLData.sEpochPreDue = r.EpochPreDue;
+                        r.EpochPreDue = '';
+                    }
+                    f.refresh();
+                    break;
+                case "ChkEpochDue":
+                    $(f.box).find("input[name=EpochDue]").prop( "disabled", !r.ChkEpochDue );
+                    if (r.ChkEpochDue) {
+                        if (r.EpochDue === "" && TLData.sEpochDue.length > 1) {
+                            r.EpochDue = TLData.sEpochDue;
+                        }
+                    } else {
+                        TLData.sEpochDue = r.EpochDue;
+                        r.EpochDue = '';
+                    }
+                    f.refresh();
+                    break;
+                }
             };
         },
 
@@ -136,28 +183,26 @@ window.buildTaskListDefElements = function () {
         multiSelect: false,
         postData: {searchDtStart: app.D1, searchDtStop: app.D2, Bool1: app.PayorStmtExt},
         columns: [
-            {field: 'recid',        caption: 'recid',       size: '35px', sortable: true, hidden: true},
-            { field: 'TDID',        caption: 'TDID',        size: '35px', sotrable: true, hidden: true},
-            { field: 'BID',         caption: 'BID',         size: '35px', sotrable: true, hidden: true},
-            { field: 'TLDID',       caption: 'TLDID',       size: '35px', sotrable: true, hidden: true},
+            { field: 'recid',       caption: 'recid',       size: '35px',  sortable: true, hidden: true},
+            { field: 'TDID',        caption: 'TDID',        size: '35px',  sotrable: true, hidden: true},
+            { field: 'BID',         caption: 'BID',         size: '35px',  sotrable: true, hidden: true},
+            { field: 'TLDID',       caption: 'TLDID',       size: '35px',  sotrable: true, hidden: true},
             { field: 'Name',        caption: 'Name',        size: '120px', sotrable: true, hidden: false},
-            { field: 'Worker',      caption: 'Worker',      size: '75px', sotrable: true, hidden: false},
-            { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false},
-            { field: 'DtPreDone',   caption: 'DtPreDone',   size: '80px', sotrable: true, hidden: false,
-                render: function (record, index, col_index) { if (typeof record == "undefined") {return '';} return taskDateRender(record.DtPreDone); }
+            { field: 'Worker',      caption: 'Worker',      size: '75px',  sotrable: true, hidden: false},
+            { field: 'EpochPreDue', caption: 'Pre Due',     size: '130px', sotrable: true, hidden: false,
+                render: function (rec, idx, col) {if (typeof rec === "undefined") {return ''; } return dtFormatISOToW2ui(rec.EpochPreDue); }
             },
-            { field: 'DtDue',       caption: 'DtDue',       size: '80px', sotrable: true, hidden: false},
-            { field: 'DtDone',      caption: 'DtDone',      size: '80px', sotrable: true, hidden: false,
-                render: function (record, index, col_index) { if (typeof record == "undefined") {return '';} return taskDateRender(record.DtDone); }
+            { field: 'EpochDue',    caption: 'Due',         size: '130px', sotrable: true, hidden: false,
+                render: function (rec, idx, col) {if (typeof rec === "undefined") {return ''; } return dtFormatISOToW2ui(rec.EpochDue); }
             },
-            { field: 'FLAGS',       caption: 'FLAGS',       size: '35px', sotrable: true, hidden: true},
-            { field: 'DoneUID',     caption: 'DoneUID',     size: '35px', sotrable: true, hidden: true},
-            { field: 'PreDoneUID',  caption: 'PreDoneUID',  size: '35px', sotrable: true, hidden: true},
-            { field: 'Comment',     caption: 'Comment',     size: '35px', sotrable: true, hidden: true},
-            { field: 'LastModTime', caption: 'LastModTime', size: '35px', sotrable: true, hidden: true},
-            { field: 'LastModBy',   caption: 'LastModBy',   size: '35px', sotrable: true, hidden: true},
-            { field: 'CreateTS',    caption: 'CreateTS',    size: '35px', sotrable: true, hidden: true},
-            { field: 'CreateBy',    caption: 'CreateBy',    size: '35px', sotrable: true, hidden: true},
+            { field: 'FLAGS',       caption: 'FLAGS',       size: '35px',  sotrable: true, hidden: true},
+            { field: 'DoneUID',     caption: 'DoneUID',     size: '35px',  sotrable: true, hidden: true},
+            { field: 'PreDoneUID',  caption: 'PreDoneUID',  size: '35px',  sotrable: true, hidden: true},
+            { field: 'Comment',     caption: 'Comment',     size: '35px',  sotrable: true, hidden: true},
+            { field: 'LastModTime', caption: 'LastModTime', size: '35px',  sotrable: true, hidden: true},
+            { field: 'LastModBy',   caption: 'LastModBy',   size: '35px',  sotrable: true, hidden: true},
+            { field: 'CreateTS',    caption: 'CreateTS',    size: '35px',  sotrable: true, hidden: true},
+            { field: 'CreateBy',    caption: 'CreateBy',    size: '35px',  sotrable: true, hidden: true},
         ],
         onClick: function(event) {
             event.onComplete = function (event) {
@@ -186,8 +231,6 @@ window.buildTaskListDefElements = function () {
             { field: 'lstWorker',      type: 'list',        required: false, options: {items: app.workers}, },
             { field: 'EpochDue',       type: 'datetime',    required: false },
             { field: 'EpochPreDue',    type: 'datetime',    required: false },
-            { field: 'Epoch',          type: 'datetime',    required: false },
-            { field: 'ChkEpoch',       type: 'checkbox',    required: false },
             { field: 'ChkEpochDue',    type: 'checkbox',    required: false },
             { field: 'ChkEpochPreDue', type: 'checkbox',    required: false },
             { field: 'FLAGS',          type: 'text',        required: false },
@@ -201,20 +244,39 @@ window.buildTaskListDefElements = function () {
         ],
         actions: {
             save: function(target, data){
-                // console.log("save task");
+                //---------------------------------------------------------
+                // When the w2popup is active, it suspends the operation
+                // of things like setInterval() handling.  So the session
+                // may have expired by the time we close this dialog. So,
+                // we need to explicity call ensureSession to make sure
+                // we have a session before proceeding.
+                //---------------------------------------------------------
+                ensureSession();
+
+                //---------------------------
+                // Now, on with the save...
+                //---------------------------
                 var f = w2ui.taskDescForm;
                 var r = f.record;
+                r.Worker = r.lstWorker.text;
+
+                //------------------------------------------------
+                // convert times to UTC before saving
+                //------------------------------------------------
+                r.EpochDue = localtimeToUTC(r.EpochDue);
+                r.EpochPreDue = localtimeToUTC(r.EpochPreDue);
+
                 var d = {cmd: "save", record: r};
                 var dat=JSON.stringify(d);
                 f.url = '/v1/td/' + r.BID + '/' + r.TDID;
+
                 $.post(f.url,dat)
                 .done(function(data) {
                     if (data.status === "error") {
                         f.error(w2utils.lang(data.message));
                         return;
                     }
-                    //w2ui.tlsDetailGrid.url = '/v1/tl/'
-                    w2ui.tlsDetailGrid.reload();
+                    w2ui.tldsDetailGrid.reload();
                     w2popup.close();
                 })
                 .fail(function(/*data*/){
@@ -223,13 +285,47 @@ window.buildTaskListDefElements = function () {
                 });
             },
         },
-       onRefresh: function(event) {
+       onLoad: function(event) {
             // var f = this;
             event.onComplete = function(event) {
+                var r = w2ui.taskDescForm.record;
+                if (typeof r.EpochPreDue === "undefined") {
+                    return;
+                }
+                r.EpochPreDue = dtFormatISOToW2ui(r.EpochPreDue);
+                r.EpochDue    = dtFormatISOToW2ui(r.EpochDue);
             };
         },
         onChange: function(event) {
             event.onComplete = function() {
+                var f = this;
+                var r = f.record;
+                switch (event.target) {
+                case "ChkEpochPreDue":
+                    $(f.box).find("input[name=EpochPreDue]").prop( "disabled", !r.ChkEpochPreDue );
+                    if (r.ChkEpochPreDue) {
+                        if (r.EpochPreDue === "" && TaskDescData.sEpochPreDue.length > 1) {
+                            r.EpochPreDue = TaskDescData.sEpochPreDue;
+                        }
+                    } else {
+                        TaskDescData.sEpochPreDue = r.EpochPreDue;
+                        r.EpochPreDue = '';
+                    }
+                    f.refresh();
+                    break;
+                case "ChkEpochDue":
+                    $(f.box).find("input[name=EpochDue]").prop( "disabled", !r.ChkEpochDue );
+                    if (r.ChkEpochDue) {
+                        if (r.EpochDue === "" && TaskDescData.sEpochDue.length > 1) {
+                            r.EpochDue = TaskDescData.sEpochDue;
+                        }
+                    } else {
+                        TaskDescData.sEpochDue = r.EpochDue;
+                        r.EpochDue = '';
+                    }
+                    f.refresh();
+                    break;
+                }
             };
         },
     });
@@ -247,13 +343,18 @@ window.buildTaskListDefElements = function () {
         actions: {
             save: function(target, data){
                 // getFormSubmitData(data.postData.record);
+                var tmp         = w2ui.tldsInfoForm.record;
+                var y           = tmp.Cycle.id;
+                tmp.Cycle       = y; // we don't want the struct, we just want the ID
+                tmp.Epoch       = localtimeToUTC(tmp.Epoch);
+                tmp.EpochDue    = localtimeToUTC(tmp.EpochDue);
+                tmp.EpochPreDue = localtimeToUTC(tmp.EpochPreDue);
                 var tl = {
                     cmd: "save",
-                    record: w2ui.tldsInfoForm.record
+                    record: tmp,
                 };
-                var dat=JSON.stringify(tl);
-                var url='/v1/tld/' + w2ui.tldsInfoForm.record.BID + '/' + w2ui.tldsInfoForm.record.TLDID;
-                console.log( 'url = ' + url + '  dat = ' + dat);
+                var dat = JSON.stringify(tl);
+                var url = '/v1/tld/' + w2ui.tldsInfoForm.record.BID + '/' + w2ui.tldsInfoForm.record.TLDID;
                 $.post(url,dat)
                 .done(function(data) {
                     if (data.status === "error") {
@@ -309,8 +410,10 @@ window.finishTLDForm = function () {
 window.popupTaskDescForm = function (bid,tdid) {
     w2ui.taskDescForm.url = '/v1/td/' + bid + '/' + tdid;
     w2ui.taskDescForm.request();
+    var n = '' + tdid;
+    var s = 'Task Descriptor  ('+ (n === '0' ? 'new':n)  + ')';
     $().w2popup('open', {
-        title   : 'Task',
+        title   : s,
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
         style   : 'padding: 15px 0px 0px 0px',
         width   : 600,

@@ -660,26 +660,26 @@ func ReadTaskLists(rows *sql.Rows, a *TaskList) error {
 
 // ReadTaskDescriptor reads a full TaskDescriptor structure from the database based on the supplied row object
 func ReadTaskDescriptor(row *sql.Row, a *TaskDescriptor) error {
-	err := row.Scan(&a.TDID, &a.BID, &a.TLDID, &a.Name, &a.Worker, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.TDID, &a.BID, &a.TLDID, &a.Name, &a.Worker, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadTaskDescriptors reads a full TaskDescriptor structure from the database based on the supplied rows
 func ReadTaskDescriptors(rows *sql.Rows, a *TaskDescriptor) error {
-	return rows.Scan(&a.TDID, &a.BID, &a.TLDID, &a.Name, &a.Worker, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.TDID, &a.BID, &a.TLDID, &a.Name, &a.Worker, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadTaskListDefinition reads a full TaskListDefinition structure from the database based on the supplied row object
 func ReadTaskListDefinition(row *sql.Row, a *TaskListDefinition) error {
-	err := row.Scan(&a.TLDID, &a.BID, &a.Name, &a.Cycle, &a.Epoch, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.TLDID, &a.BID, &a.Name, &a.Cycle, &a.Epoch, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadTaskListDefinitions reads a full TaskListDefinition structure from the database based on the supplied rows
 func ReadTaskListDefinitions(rows *sql.Rows, a *TaskListDefinition) error {
-	return rows.Scan(&a.TLDID, &a.BID, &a.Name, &a.Cycle, &a.Epoch, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.TLDID, &a.BID, &a.Name, &a.Cycle, &a.Epoch, &a.EpochDue, &a.EpochPreDue, &a.FLAGS, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 //---------------------

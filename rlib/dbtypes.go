@@ -145,17 +145,18 @@ const (
 	// Use these values:	Mon Jan 2 15:04:05 MST 2006
 	// const RRDATEFMT = "02-Jan-2006 3:04PM MST"
 	// const RRDATEFMT = "01/02/06 3:04PM MST"
-	RRDATEFMT        = "01/02/06"
-	RRDATEFMT2       = "1/2/06"
-	RRDATEFMT3       = "1/2/2006"
-	RRDATEFMT4       = "01/02/2006"
-	RRDATEINPFMT     = "2006-01-02"
-	RRDATEFMTSQL     = RRDATEINPFMT
-	RRDATETIMEINPFMT = "2006-01-02 15:04:00 MST"
-	RRDATETIMEFMT    = "2006-01-02T15:04:00Z"
-	RRDATETIMEJSFMT  = "2006-01-02T15:04:00.000Z"
-	RRDATEREPORTFMT  = "Jan 2, 2006"
-	RRDATERECEIPTFMT = "January 2, 2006"
+	RRDATEFMT         = "01/02/06"
+	RRDATEFMT2        = "1/2/06"
+	RRDATEFMT3        = "1/2/2006"
+	RRDATEFMT4        = "01/02/2006"
+	RRDATEINPFMT      = "2006-01-02"
+	RRDATEFMTSQL      = RRDATEINPFMT
+	RRJSUTCDATETIME   = "Mon, 02 Jan 2006 15:04:05 MST"
+	RRDATETIMEINPFMT  = "2006-01-02 15:04:00 MST"
+	RRDATETIMEFMT     = "2006-01-02T15:04:00Z"
+	RRDATETIMEW2UIFMT = "1/2/2006 3:04 pm"
+	RRDATEREPORTFMT   = "Jan 2, 2006"
+	RRDATERECEIPTFMT  = "January 2, 2006"
 )
 
 // ARTypesList is the readable, csv loadable names for the different rule types
@@ -232,6 +233,7 @@ type TaskDescriptor struct {
 	EpochDue    time.Time
 	EpochPreDue time.Time
 	FLAGS       int64
+	Comment     string    //
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created
@@ -248,6 +250,7 @@ type TaskListDefinition struct {
 	EpochDue    time.Time // when task list is due
 	EpochPreDue time.Time // when task list pre-work is due
 	FLAGS       int64     // 1<<0 0 means it is still active, 1 means it is no longer active
+	Comment     string    //
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
 	LastModTime time.Time // when was this record last written

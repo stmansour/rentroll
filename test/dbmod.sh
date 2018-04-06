@@ -288,6 +288,10 @@ MYSQLDUMP="mysqldump --no-defaults"
 #     UNIQUE KEY FlowPartUnique (FlowPartID, BID, FlowID)
 # );
 
+# April 4, 2018
+# ALTER TABLE TaskListDefinition ADD Comment VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
+# ALTER TABLE TaskDescriptor ADD Comment VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

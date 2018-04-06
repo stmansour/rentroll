@@ -9,23 +9,29 @@ import (
 	"time"
 )
 
+//-------------------------------------------------------------------
+//                        **** SEARCH ****
+//-------------------------------------------------------------------
+
 // SearchTaskDescriptor is the definition of a task. It is used to make instance
 // which become Tasks
 type SearchTaskDescriptor struct {
-	Recid       int64 `json:"recid"`
-	TDID        int64
-	BID         int64
-	TLDID       int64
-	Name        string
-	Worker      string
-	Epoch       rlib.JSONDateTime
-	EpochDue    rlib.JSONDateTime
-	EpochPreDue rlib.JSONDateTime
-	FLAGS       int64
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
-	CreateTS    time.Time // when was this record created
-	CreateBy    int64     // employee UID (from phonebook) that created it
+	Recid          int64 `json:"recid"`
+	TDID           int64
+	BID            int64
+	TLDID          int64
+	Name           string
+	Worker         string
+	EpochDue       rlib.JSONDateTime
+	EpochPreDue    rlib.JSONDateTime
+	ChkEpochDue    bool
+	ChkEpochPreDue bool
+	FLAGS          int64
+	Comment        string
+	LastModTime    time.Time // when was this record last written
+	LastModBy      int64     // employee UID (from phonebook) that modified it
+	CreateTS       time.Time // when was this record created
+	CreateBy       int64     // employee UID (from phonebook) that created it
 }
 
 // SearchTDResponse holds the task list definition list
@@ -35,13 +41,36 @@ type SearchTDResponse struct {
 	Records []SearchTaskDescriptor `json:"records"`
 }
 
+//-------------------------------------------------------------------
+//                         **** SAVE ****
+//-------------------------------------------------------------------
+
+// SaveTaskDescriptor is the definition of a task to be saved.
+type SaveTaskDescriptor struct {
+	Recid          int64 `json:"recid"`
+	TDID           int64
+	BID            int64
+	TLDID          int64
+	Name           string
+	Worker         string
+	EpochDue       rlib.JSONDateTime
+	EpochPreDue    rlib.JSONDateTime
+	ChkEpochDue    bool
+	ChkEpochPreDue bool
+	Comment        string
+}
+
 // SaveTaskDescriptorInput is the input data format for a Save command
 type SaveTaskDescriptorInput struct {
-	Recid    int64                `json:"recid"`
-	Status   string               `json:"status"`
-	FormName string               `json:"name"`
-	Record   SearchTaskDescriptor `json:"record"`
+	Recid    int64              `json:"recid"`
+	Status   string             `json:"status"`
+	FormName string             `json:"name"`
+	Record   SaveTaskDescriptor `json:"record"`
 }
+
+//-------------------------------------------------------------------
+//                         **** GET ****
+//-------------------------------------------------------------------
 
 // GetTDResponse is the response to a GetTaskDescriptor request
 type GetTDResponse struct {
@@ -182,6 +211,7 @@ func saveTaskDescriptor(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
+	rlib.Console("*** AFTER UNMARSHAL *** foo.Record.Comment = %s\n", foo.Record.Comment)
 	var a rlib.TaskDescriptor
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	a.Name = foo.Record.Name
@@ -244,6 +274,8 @@ func getTaskDescriptor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg SearchTaskDescriptor
 		rlib.MigrateStructVals(&a, &gg)
 		gg.Recid = gg.TDID
+		gg.ChkEpochDue = a.EpochDue.Year() > 1900
+		gg.ChkEpochPreDue = a.EpochPreDue.Year() > 1900
 		g.Record = gg
 	}
 	g.Status = "success"

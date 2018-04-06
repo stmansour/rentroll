@@ -2,9 +2,10 @@
     "records": [
         {
             "BID": 1,
+            "ChkEpochDue": false,
+            "ChkEpochPreDue": false,
             "CreateBy": 0,
             "CreateTS": "2018-03-14T12:50:32Z",
-            "Epoch": "1900-01-01T00:00:00Z",
             "EpochDue": "2018-01-31T20:00:00Z",
             "EpochPreDue": "2018-01-20T20:00:00Z",
             "FLAGS": 0,
@@ -18,9 +19,10 @@
         },
         {
             "BID": 1,
+            "ChkEpochDue": false,
+            "ChkEpochPreDue": false,
             "CreateBy": 0,
             "CreateTS": "2018-03-14T12:50:32Z",
-            "Epoch": "1900-01-01T00:00:00Z",
             "EpochDue": "2018-01-31T20:00:00Z",
             "EpochPreDue": "2018-01-20T20:00:00Z",
             "FLAGS": 0,
@@ -34,9 +36,10 @@
         },
         {
             "BID": 1,
+            "ChkEpochDue": false,
+            "ChkEpochPreDue": false,
             "CreateBy": 0,
             "CreateTS": "2018-03-14T12:50:32Z",
-            "Epoch": "1900-01-01T00:00:00Z",
             "EpochDue": "2018-01-31T20:00:00Z",
             "EpochPreDue": "2018-01-20T20:00:00Z",
             "FLAGS": 0,

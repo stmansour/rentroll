@@ -10,34 +10,30 @@ import (
 	"strings"
 )
 
+//-------------------------------------------------------------------
+//
+//                        **** SEARCH ****
+//
+//-------------------------------------------------------------------
+
 // TaskListDefs is the structure describing a task list definition
 type TaskListDefs struct {
-	Recid       int64 `json:"recid"`
-	TLDID       int64
-	BID         int64
-	Name        string
-	Cycle       int64
-	Epoch       rlib.JSONDate
-	EpochDue    rlib.JSONDate
-	EpochPreDue rlib.JSONDate
-	FLAGS       int64
-	CreateTS    rlib.JSONDate // when was this record created
-	CreateBy    int64         // employee UID (from phonebook) that created it
-	LastModTime rlib.JSONDate // when was this record last written
-	LastModBy   int64         // employee UID (from phonebook) that modified it
-}
-
-// SaveTaskListDef defines the fields supplied when Saving a TaskListDefinition
-type SaveTaskListDef struct {
-	Recid       int64 `json:"recid"`
-	TLDID       int64
-	BID         int64
-	Name        string
-	Cycle       int64
-	Epoch       rlib.JSONDate
-	EpochDue    rlib.JSONDate
-	EpochPreDue rlib.JSONDate
-	FLAGS       int64
+	Recid          int64 `json:"recid"`
+	TLDID          int64
+	BID            int64
+	Name           string
+	Cycle          int64
+	Epoch          rlib.JSONDateTime
+	EpochDue       rlib.JSONDateTime
+	EpochPreDue    rlib.JSONDateTime
+	ChkEpochDue    bool
+	ChkEpochPreDue bool
+	FLAGS          int64
+	Comment        string
+	CreateTS       rlib.JSONDate
+	CreateBy       int64
+	LastModTime    rlib.JSONDate
+	LastModBy      int64
 }
 
 // SearchTLDResponse holds the task list definition list
@@ -45,28 +41,6 @@ type SearchTLDResponse struct {
 	Status  string         `json:"status"`
 	Total   int64          `json:"total"`
 	Records []TaskListDefs `json:"records"`
-}
-
-// TaskListDefinitionInput is the input data format for a Save command
-type TaskListDefinitionInput struct {
-	Recid    int64        `json:"recid"`
-	Status   string       `json:"status"`
-	FormName string       `json:"name"`
-	Record   TaskListDefs `json:"record"`
-}
-
-// GetTLDResponse is the response to a GetTaskListDefinition request
-type GetTLDResponse struct {
-	Status string       `json:"status"`
-	Record TaskListDefs `json:"record"`
-}
-
-// SaveTaskListDefinitionInput is the input data format for a Save command
-type SaveTaskListDefinitionInput struct {
-	Recid    int64           `json:"recid"`
-	Status   string          `json:"status"`
-	FormName string          `json:"name"`
-	Record   SaveTaskListDef `json:"record"`
 }
 
 // which fields needs to be fetched for SQL query for assessment grid
@@ -100,6 +74,50 @@ var tldQuerySelectFields = []string{
 	"TaskListDefinition.LastModTime",
 	"TaskListDefinition.LastModBy",
 }
+
+//-------------------------------------------------------------------
+//
+//                         **** SAVE ****
+//
+//-------------------------------------------------------------------
+
+// SaveTaskListDef defines the fields supplied when Saving a TaskListDefinition
+type SaveTaskListDef struct {
+	Recid          int64 `json:"recid"`
+	TLDID          int64
+	BID            int64
+	Name           string
+	Cycle          int64
+	Epoch          rlib.JSONDateTime
+	EpochDue       rlib.JSONDateTime
+	EpochPreDue    rlib.JSONDateTime
+	ChkEpochDue    bool
+	ChkEpochPreDue bool
+	FLAGS          int64
+	Comment        string
+}
+
+// SaveTaskListDefinitionInput is the input data format for a Save command
+type SaveTaskListDefinitionInput struct {
+	Recid    int64           `json:"recid"`
+	Status   string          `json:"status"`
+	FormName string          `json:"name"`
+	Record   SaveTaskListDef `json:"record"`
+}
+
+//-------------------------------------------------------------------
+//
+//                         **** GET ****
+//
+//-------------------------------------------------------------------
+
+// GetTLDResponse is the response to a GetTaskListDefinition request
+type GetTLDResponse struct {
+	Status string       `json:"status"`
+	Record TaskListDefs `json:"record"`
+}
+
+// ############################################################################
 
 // TaskListDefsRowScan scans a result from sql row and dump it in a
 // TaskListDefs struct
@@ -395,6 +413,8 @@ func getTaskListDefinition(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	if a.TLDID > 0 {
 		var gg TaskListDefs
 		rlib.MigrateStructVals(&a, &gg)
+		gg.ChkEpochPreDue = a.EpochPreDue.Year() > 1900
+		gg.ChkEpochDue = a.EpochDue.Year() > 1900
 		g.Record = gg
 	}
 	g.Status = "success"

@@ -1,7 +1,75 @@
 "use strict";
 /*global
-  console, app, setDateControl, dateMonthBack, getDateFromDT, getTimeFromDT
+  app, setDateControl, dateMonthBack, getDateFromDT, getTimeFromDT, dateFromString,
+  dateFmtStr, zeroPad, 
 */
+
+
+//-----------------------------------------------------------------------------
+// zeroPad - if the string value of the number is < size, 
+//           left pad it with '0' to make it the requested size.
+//           LIMITATION - at most, it will pad 10 '0's.  This is 
+//           extreme overkill for working with date/time strings.
+// @params
+//   n    = the number of interest
+//   size = number of characters the output number should be
+// @return string version of the number left-padded with '0's
+//         to achieve a length of size.
+//-----------------------------------------------------------------------------
+window.zeroPad = function (n, size) {
+    var s = "0000000000" + n;
+    return s.substr(s.length-size);
+};
+
+//-----------------------------------------------------------------------------
+// dtFormatISOToW2ui - return a w2ui datetime string from the provided
+//          ISO 8601 formatted date string -- the format of JSONDateTIme 
+//          strings.  The returned string is in the format:
+//          m/dd/yyyy H:MM {am|pm} . It is suitable for use in a w2ui
+//          form control of type 'datetime'. For example, when s is
+//          "2018-04-04T23:38:00Z", the return value will be:
+//          '4/04/2018 11:38 pm'.
+//
+//          If the year is prior to year 2000, it returns a 0 length string.
+// @params
+//   s    = JSONDateTime string
+// @return 
+//         localtime string
+//-----------------------------------------------------------------------------
+window.dtFormatISOToW2ui = function (ds) {
+    if (typeof ds != "string") {return ds;}  // handle error case of bad data type
+    if (ds.indexOf('T') < 0) {return ds;}    // handle case where it's not in ISO format
+
+    var dt = new Date(Date.parse(ds));
+    if (dt.getFullYear() < 2000) {return '';}
+    var hr = dt.getHours();
+    var am = true;
+    if (hr > 12) {
+        hr -= 12;
+        am = false;
+    }
+    var s = 1+dt.getMonth() + '/' + zeroPad(dt.getDate(),2) + '/' +
+            dt.getFullYear() + ' ' + hr + ':' + zeroPad(dt.getMinutes(),2) +
+            ' ' + (am ? 'am' : 'pm');
+    return s;
+};
+
+//-----------------------------------------------------------------------------
+// localtimeToUTC - return a UTC datetime string from the localtime string
+//          created by a w2ui datetime control.  That is, change a string
+//          like this PDT string, "1/20/2018 1:00 am", to a UTC string
+//          like this: "Sat, 20 Jan 2018 09:00:00 GMT"
+// @params
+//   s    = localtime string
+// @return  UTC string
+//-----------------------------------------------------------------------------
+window.localtimeToUTC = function (s) {
+    if (typeof s === "string" && s.length > 0) {
+        var dt = new Date(s);
+        return dt.toUTCString(); 
+    }
+    return '';
+};
 
 //-----------------------------------------------------------------------------
 // dayBack - supply the date control and this function will go to the previous
@@ -46,8 +114,8 @@ window.dateMonthFwd = function (y) {
     // If there is a chance that there is no such date next month, then let's make sure we
     // do this right. If the date is >= 28, then always snap it to the end of the month.
     if (d >= 28) {
-        var d0 = new Date(y.getFullYear() + my, m, 0, 0, 0, 0);
-        var daysInCurrentMonth = d0.getDate();
+        // var d0 = new Date(y.getFullYear() + my, m, 0, 0, 0, 0);
+        // var daysInCurrentMonth = d0.getDate();
         var m2 = (y.getMonth() + 2) % 12; // used to find # days in month m
         var m2y = (y.getMonth() + 2) / 12; // number of years to add for month m
         var d3 = new Date(y.getFullYear() + m2y, m2, 0, 0, 0, 0);
@@ -181,7 +249,7 @@ window.dateControlString = function (dt) {
     var s = '' + m + '/';
     // if (d < 10) { s += '0'; }
     s += d;
-    s += '/' + dt.getFullYear() + '';
+    s += '/' + dt.getFullYear();
     return s;
 };
 
@@ -199,6 +267,32 @@ window.w2uiDateControlString = function (dt) {
     var m = dt.getMonth() + 1;
     var d = dt.getDate();
     var s = '' + m + '/' + d+'/' + dt.getFullYear();
+    return s;
+};
+
+//-----------------------------------------------------------------------------
+// w2uiDateTimeControlString
+//           - return a datetime string formatted the way the w2ui datetimes
+//             are expected, based on the supplied date that can be
+//             used as the .value attribute of a date control.  That is, in
+//             the format  m/d/yyyy HH:MM {am|pm}.
+// @params
+//   dt = java date value
+// @return string value mm-dd-yyyy HH:MM {am|pm}
+//-----------------------------------------------------------------------------
+window.w2uiDateTimeControlString = function (dt) {
+    var m = dt.getMonth() + 1;
+    var d = dt.getDate();
+    var H = dt.getHours();
+    var M = dt.getMinutes();
+    var bPM = true;
+    if (H > 12) { H = H-12; }
+    var s = m + '/' + d + '/' + dt.getFullYear() + ' ' + H;
+    if (M < 10) {
+        s += '0';
+        bPM = false;
+    }
+    s += M + (bPM) ? 'p':'a' + 'm';
     return s;
 };
 
