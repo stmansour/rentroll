@@ -5,6 +5,7 @@ package main
 //=============================================================================
 
 import (
+	"context"
 	"database/sql"
 	"extres"
 	"flag"
@@ -95,5 +96,6 @@ func main() {
 	//-----------------------------------------
 	// Generate the assessment for March...
 	//-----------------------------------------
-	worker.CreateAsmInstCore(&App.Dt)
+	ctx := context.Background()
+	worker.CreateAsmInstCore(ctx, &App.Dt)
 }
