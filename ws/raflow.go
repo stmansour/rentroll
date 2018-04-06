@@ -128,7 +128,7 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 		}
 		return json.Marshal(&a)
 	case rlib.PetsRAFlowPart:
-		a := make([]RAPetsFlowData, 0)
+		a := []RAPetsFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
@@ -137,7 +137,7 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 		}
 		return json.Marshal(&a)
 	case rlib.VehiclesRAFlowPart:
-		a := make([]RAVehiclesFlowData, 0)
+		a := []RAVehiclesFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
@@ -155,7 +155,7 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 		}
 		return json.Marshal(&a)
 	case rlib.RentablesRAFlowPart:
-		a := make([]RARentablesFlowData, 0)
+		a := []RARentablesFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
@@ -164,7 +164,7 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 		}
 		return json.Marshal(&a)
 	case rlib.FeesTermsRAFlowPart:
-		a := make([]RAFeesTermsFlowData, 0)
+		a := []RAFeesTermsFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
