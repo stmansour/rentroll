@@ -11,6 +11,28 @@ import (
 	"time"
 )
 
+// rental agreement flow part types
+var raFlowPartTypes = rlib.Str2Int64Map{
+	"dates":     int64(rlib.DatesRAFlowPart),
+	"people":    int64(rlib.PeopleRAFlowPart),
+	"pets":      int64(rlib.PetsRAFlowPart),
+	"vehicles":  int64(rlib.VehiclesRAFlowPart),
+	"bginfo":    int64(rlib.BackGroundInfoRAFlowPart),
+	"rentables": int64(rlib.RentablesRAFlowPart),
+	"feesterms": int64(rlib.FeesTermsRAFlowPart),
+}
+
+/*// RAFlowJSONData holds the struct for all the parts being involed in rental agreement flow
+type RAFlowJSONData struct {
+	RADatesFlowData          `json:"dates"`
+	RAPeopleFlowData         `json:"people"`
+	RAPetsFlowData           `json:"pets"`
+	RAVehiclesFlowData       `json:"vehicles"`
+	RABackgroundInfoFlowData `json:"bginfo"`
+	RARentablesFlowData      `json:"rentables"`
+	RAFeesTermsFlowData      `json:"feesterms"`
+}*/
+
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
 	AgreementStart  rlib.JSONDate `json:"AgreementStart"` // TermStart
@@ -104,9 +126,19 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 	// JSON Marshal with address
 	// REF: https://stackoverflow.com/questions/21390979/custom-marshaljson-never-gets-called-in-go
 
+	currentDateTime := time.Now()
+	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
+
 	switch rlib.RAFlowPartType(partType) {
 	case rlib.DatesRAFlowPart:
-		var a RADatesFlowData
+		a := RADatesFlowData{
+			RentStart:       rlib.JSONDate(currentDateTime),
+			RentStop:        rlib.JSONDate(nextYearDateTime),
+			AgreementStart:  rlib.JSONDate(currentDateTime),
+			AgreementStop:   rlib.JSONDate(nextYearDateTime),
+			PossessionStart: rlib.JSONDate(currentDateTime),
+			PossessionStop:  rlib.JSONDate(nextYearDateTime),
+		}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {

@@ -215,6 +215,19 @@ function initRAFlow() {
     });
 }
 
+window.getRAFlowPartTypeIndex = function(partType) {
+    var partTypeIndex = -1;
+    if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
+        for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
+            if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
+                partTypeIndex = i;
+                break;
+            }
+        }
+    }
+    return partTypeIndex;
+};
+
 // load first section in main part
 $(function() {
 
@@ -296,7 +309,9 @@ function loadTargetSection(target, activeCompID) {
             data = w2ui.RADatesForm.record;
             break;
         case "people":
-            data = w2ui.RAPeopleForm.record;
+            var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+            data = app.raflow.data[app.raflow.activeflowID][i].Data;
+            // data = w2ui.RAPeopleForm.record;
             break;
         case "pets":
             data = w2ui.RAPetsGrid.records;
@@ -415,19 +430,12 @@ function loadRADatesForm() {
 
     // load the existing data in dates component
     setTimeout(function() {
-        var partType = app.raFlowPartTypes.dates;
-        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
-            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
-                        w2ui.RADatesForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
-                        w2ui.RADatesForm.refresh();
-                    } else {
-                        w2ui.RADatesForm.clear();
-                    }
-                    break;
-                }
-            }
+        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.dates);
+        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
+            w2ui.RADatesForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
+            w2ui.RADatesForm.refresh();
+        } else {
+            w2ui.RADatesForm.clear();
         }
     }, 500);
 }
@@ -488,9 +496,27 @@ window.acceptTransactant = function() {
         return false;
     }
 
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    if (peoplePartIndex < 0) {
+        alert("flow data could not be found");
+        return false;
+    }
+
+    // check that "Payors", "Users", "Guarantors" keys do exist in Data of people
+    var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data);
+    var payorsIndex = peopleTypeKeys.indexOf("Payors");
+    var usersIndex = peopleTypeKeys.indexOf("Users");
+    var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
+    if (payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0) {
+        alert("flow data could not be found");
+        return false;
+    }
+
+    // get form record
     var frec = w2ui.RAPeopleForm.record;
     var s = (frec.IsCompany > 0) ? frec.CompanyName : getFullName(frec);;
 
+    // listing item to be appended in ul
     var peopleListingItem = '<li data-tcid="' + frec.TCID + '">';
     peopleListingItem += '<span>' + s + '</span>';
     peopleListingItem += '<i class="remove-item fas fa-times-circle fa-sm"></i>'
@@ -498,25 +524,99 @@ window.acceptTransactant = function() {
 
     // add into payor list
     if (IsPayor) {
+        // check for duplicacy
+        var found = false;
+        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.length;
+        for(var i = length - 1; i >= 0; i--) {
+            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors[i].TCID) {
+                found = true;
+                break;
+            }
+        }
+        if (!(found)) {
+            app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.push(app.raflow.activeTransactant);
+        }
         $('#payor-list .people-listing').append(peopleListingItem);
     }
 
     // add into user list
     if (IsUser) {
+        var found = false;
+        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.length;
+        for(var i = length - 1; i >= 0; i--) {
+            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users[i].TCID) {
+                found = true;
+                break;
+            }
+        }
+        if (!(found)) {
+            app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.push(app.raflow.activeTransactant);
+        }
         $('#user-list .people-listing').append(peopleListingItem);
     }
 
     // add into guarantor list
     if (IsGuarantor) {
+        var found = false;
+        var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.length;
+        for(var i = length - 1; i >= 0; i--) {
+            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors[i].TCID) {
+                found = true;
+                break;
+            }
+        }
+        if (!(found)) {
+            app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.push(app.raflow.activeTransactant);
+        }
         $('#guarantor-list .people-listing').append(peopleListingItem);
     }
 
     // clear the form
+    app.raflow.activeTransactant = null;
     w2ui.RAPeopleForm.clear();
 };
 
 // remove people from the listing
 $(document).on('click', '.remove-item', function() {
+    var tcid = parseInt($(this).closest('li').attr('data-tcid'));
+
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+
+    // remove entry from data
+    if (peoplePartIndex >= 0) {
+        // check that "Payors", "Users", "Guarantors" keys do exist in Data of people
+        var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data);
+        var payorsIndex = peopleTypeKeys.indexOf("Payors");
+        var usersIndex = peopleTypeKeys.indexOf("Users");
+        var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
+
+        if (!(payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0)) {
+            var peopleType = $(this).closest('ul.people-listing').attr('data-people-type');
+            switch(peopleType) {
+                case "payors":
+                    var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.length;
+                    for(var i = length - 1; i >= 0; i--) {
+                        app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.splice(i, 1);
+                    }
+                    break;
+                case "users":
+                    var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.length;
+                    for(var i = length - 1; i >= 0; i--) {
+                        app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.splice(i, 1);
+                    }
+                    break;
+                case "guarantors":
+                    var length = app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.length;
+                    for(var i = length - 1; i >= 0; i--) {
+                        app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.splice(i, 1);
+                    }
+                    break;
+            }
+        }
+    }
+
+
     $(this).closest('li').remove();
 });
 
@@ -539,6 +639,8 @@ function loadRAPeopleForm() {
                         url:        '/v1/transactantstd/' + app.raflow.BID,
                         max:        1,
                         renderItem: function(item) {
+                            // mark this as transactant as an active
+                            app.raflow.activeTransactant = item;
                             var s = getTCIDName(item);
                             w2ui.RAPeopleForm.record.TCID = item.TCID;
                             w2ui.RAPeopleForm.record.FirstName = item.FirstName;
@@ -564,6 +666,9 @@ function loadRAPeopleForm() {
                         },
                         onRemove:   function(event) {
                             event.onComplete = function() {
+                                // reset active Transactant to null
+                                app.raflow.activeTransactant = null;
+
                                 var f = w2ui.RAPeopleForm;
                                 // reset payor field related data when removed
                                 f.record.TCID = 0;
@@ -600,19 +705,12 @@ function loadRAPeopleForm() {
 
     // load the existing data in people component
     setTimeout(function() {
-        var partType = app.raFlowPartTypes.people;
-        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
-            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
-                        w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
-                        w2ui.RAPeopleForm.refresh();
-                    } else {
-                        w2ui.RAPeopleForm.clear();
-                    }
-                    break;
-                }
-            }
+        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
+            // w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
+            w2ui.RAPeopleForm.refresh();
+        } else {
+            w2ui.RAPeopleForm.clear();
         }
     }, 500);
 }
@@ -758,19 +856,12 @@ function loadRAPetsGrid() {
 
     // load the existing data in pets component
     setTimeout(function() {
-        var partType = app.raFlowPartTypes.pets;
-        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
-            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
-                        w2ui.RAPetsGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
-                        w2ui.RAPetsGrid.refresh();
-                    } else {
-                        w2ui.RAPetsGrid.clear();
-                    }
-                    break;
-                }
-            }
+        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.pets);
+        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
+            w2ui.RAPetsGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
+            w2ui.RAPetsGrid.refresh();
+        } else {
+            w2ui.RAPetsGrid.clear();
         }
     }, 500);
 
@@ -914,19 +1005,12 @@ function loadRAVehiclesGrid() {
 
     // load the existing data in vehicles component
     setTimeout(function() {
-        var partType = app.raFlowPartTypes.vehicles;
-        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
-            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
-                        w2ui.RAVehiclesGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
-                        w2ui.RAVehiclesGrid.refresh();
-                    } else {
-                        w2ui.RAVehiclesGrid.clear();
-                    }
-                    break;
-                }
-            }
+        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.vehicles);
+        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
+            w2ui.RAVehiclesGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
+            w2ui.RAVehiclesGrid.refresh();
+        } else {
+            w2ui.RAVehiclesGrid.clear();
         }
     }, 500);
 }
@@ -962,19 +1046,12 @@ function loadRABGInfoForm() {
 
     // load the existing data in people component
     setTimeout(function() {
-        var partType = app.raFlowPartTypes.bginfo;
-        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
-            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
-                        w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
-                        w2ui.RABGInfoForm.refresh();
-                    } else {
-                        w2ui.RABGInfoForm.clear();
-                    }
-                    break;
-                }
-            }
+        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
+        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
+            w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
+            w2ui.RABGInfoForm.refresh();
+        } else {
+            w2ui.RABGInfoForm.clear();
         }
     }, 500);
 }
@@ -1091,19 +1168,12 @@ function loadRARentablesGrid() {
 
     // load the existing data in rentables component
     setTimeout(function() {
-        var partType = app.raFlowPartTypes.rentables;
-        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
-            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
-                        w2ui.RARentablesGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
-                        w2ui.RARentablesGrid.refresh();
-                    } else {
-                        w2ui.RARentablesGrid.clear();
-                    }
-                    break;
-                }
-            }
+        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
+            w2ui.RARentablesGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
+            w2ui.RARentablesGrid.refresh();
+        } else {
+            w2ui.RARentablesGrid.clear();
         }
     }, 500);
 }
@@ -1243,19 +1313,12 @@ function loadRAFeesTermsGrid() {
 
     // load the existing data in feesterms component
     setTimeout(function() {
-        var partType = app.raFlowPartTypes.feesterms;
-        if (app.raflow.activeflowID && app.raflow.data[app.raflow.activeflowID]) {
-            for (var i = 0; i < app.raflow.data[app.raflow.activeflowID].length; i++) {
-                if (partType == app.raflow.data[app.raflow.activeflowID][i].PartType) {
-                    if (app.raflow.data[app.raflow.activeflowID][i].Data) {
-                        w2ui.RAFeesTermsGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
-                        w2ui.RAFeesTermsGrid.refresh();
-                    } else {
-                        w2ui.RAFeesTermsGrid.clear();
-                    }
-                    break;
-                }
-            }
+        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.feesterms);
+        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
+            w2ui.RAFeesTermsGrid.records = app.raflow.data[app.raflow.activeflowID][i].Data;
+            w2ui.RAFeesTermsGrid.refresh();
+        } else {
+            w2ui.RAFeesTermsGrid.clear();
         }
     }, 500);
 }

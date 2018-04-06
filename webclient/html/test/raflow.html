@@ -14,10 +14,11 @@
       "language": "en-us",
       "template": "default",
       "raflow": {
-        "name":         "RA",
-        "data":         {},
-        "activeflowID": "",
-        "BID":          1,
+        "name":                 "RA",
+        "data":                 {},
+        "activeflowID":         "",
+        "BID":                  1,
+        "activeTransactant":    null,
       }
     };
   </script>
@@ -102,15 +103,15 @@
     <section id="people-type-containers" style="height: 270px;">
       <div id="payor-list" class="people-type">
         <label>Payors</label>
-        <ul class="people-listing"></ul>
+        <ul class="people-listing" data-people-type="payors"></ul>
       </div>
       <div id="user-list" class="people-type">
         <label>Users</label>
-        <ul class="people-listing"></ul>
+        <ul class="people-listing" data-people-type="users"></ul>
       </div>
       <div id="guarantor-list" class="people-type">
         <label>Guarantors</label>
-        <ul class="people-listing"></ul>
+        <ul class="people-listing" data-people-type="guarantors"></ul>
       </div>
       <div class="clearfix"></div>
     </section>
