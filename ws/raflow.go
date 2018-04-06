@@ -1,10 +1,13 @@
 package ws
 
 import (
+	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"rentroll/rlib"
+	"sort"
 	"time"
 )
 
@@ -20,10 +23,9 @@ type RADatesFlowData struct {
 
 // RAPeopleFlowData contains data in the people part of RA flow
 type RAPeopleFlowData struct {
-	Transactant string `json:"Transactant"`
-	Payor       bool   `json:"Payor"`
-	User        bool   `json:"User"`
-	Guarantor   bool   `json:"Guarantor"`
+	Payors     []rlib.TransactantTypeDown `json:"Payors"`
+	Users      []rlib.TransactantTypeDown `json:"Users"`
+	Guarantors []rlib.TransactantTypeDown `json:"Guarantors"`
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
@@ -105,56 +107,173 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 	switch rlib.RAFlowPartType(partType) {
 	case rlib.DatesRAFlowPart:
 		var a RADatesFlowData
-		err := json.Unmarshal(data, &a)
-		if err != nil {
-			return []byte(nil), err
+		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+			err := json.Unmarshal(data, &a)
+			if err != nil {
+				return []byte(nil), err
+			}
 		}
 		return json.Marshal(&a)
 	case rlib.PeopleRAFlowPart:
-		var a RAPeopleFlowData
-		err := json.Unmarshal(data, &a)
-		if err != nil {
-			return []byte(nil), err
+		a := RAPeopleFlowData{
+			Payors:     []rlib.TransactantTypeDown{},
+			Users:      []rlib.TransactantTypeDown{},
+			Guarantors: []rlib.TransactantTypeDown{},
+		}
+		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+			err := json.Unmarshal(data, &a)
+			if err != nil {
+				return []byte(nil), err
+			}
 		}
 		return json.Marshal(&a)
 	case rlib.PetsRAFlowPart:
-		var a []RAPetsFlowData
-		err := json.Unmarshal(data, &a)
-		if err != nil {
-			return []byte(nil), err
+		a := make([]RAPetsFlowData, 0)
+		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+			err := json.Unmarshal(data, &a)
+			if err != nil {
+				return []byte(nil), err
+			}
 		}
 		return json.Marshal(&a)
 	case rlib.VehiclesRAFlowPart:
-		var a []RAVehiclesFlowData
-		err := json.Unmarshal(data, &a)
-		if err != nil {
-			return []byte(nil), err
+		a := make([]RAVehiclesFlowData, 0)
+		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+			err := json.Unmarshal(data, &a)
+			if err != nil {
+				return []byte(nil), err
+			}
 		}
 		return json.Marshal(&a)
 	case rlib.BackGroundInfoRAFlowPart:
 		var a RABackgroundInfoFlowData
-		err := json.Unmarshal(data, &a)
-		if err != nil {
-			return []byte(nil), err
+		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+			err := json.Unmarshal(data, &a)
+			if err != nil {
+				return []byte(nil), err
+			}
 		}
 		return json.Marshal(&a)
 	case rlib.RentablesRAFlowPart:
-		var a []RARentablesFlowData
-		err := json.Unmarshal(data, &a)
-		if err != nil {
-			return []byte(nil), err
+		a := make([]RARentablesFlowData, 0)
+		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+			err := json.Unmarshal(data, &a)
+			if err != nil {
+				return []byte(nil), err
+			}
 		}
 		return json.Marshal(&a)
 	case rlib.FeesTermsRAFlowPart:
-		var a []RAFeesTermsFlowData
-		err := json.Unmarshal(data, &a)
-		if err != nil {
-			return []byte(nil), err
+		a := make([]RAFeesTermsFlowData, 0)
+		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+			err := json.Unmarshal(data, &a)
+			if err != nil {
+				return []byte(nil), err
+			}
 		}
 		return json.Marshal(&a)
 	default:
 		return []byte(nil), fmt.Errorf("unrecognized part type in RA flow: %d", partType)
 	}
+}
+
+// insertInitialRAFlow writes a bunch of flow's sections record for a particular RA
+// This should be run under atomic transaction mode as per DB design of flow
+// This is very special case that we're not returning primary key generated from database
+// instead we're generating in form of string which we return if tx will be succeed.
+func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
+
+	var (
+		flowID string
+		err    error
+		ok     bool
+	)
+
+	// ------------
+	// SPECIAL CASE
+	// ------------
+	var (
+		newTx bool
+		tx    *sql.Tx
+	)
+
+	if tx, ok = rlib.DBTxFromContext(ctx); !ok { // if transaction is NOT supplied
+		newTx = true
+		tx, err = rlib.RRdb.Dbrr.Begin()
+		if err != nil {
+			return flowID, err
+		}
+		ctx = rlib.SetDBTxContextKey(ctx, tx)
+	}
+
+	// getFlowID first
+	flowID = rlib.GetFlowID(UID)
+
+	// initRAFlowPart
+	initRAFlowPart := rlib.FlowPart{
+		BID:       BID,
+		Flow:      rlib.RAFlow,
+		FlowID:    flowID,
+		PartType:  0,
+		Data:      json.RawMessage([]byte("null")), // JSON "null" primitive type
+		CreateBy:  UID,
+		LastModBy: UID,
+	}
+
+	// Rental agreement flow parts map init
+	// maybe we can just override the above pre-defined initFlowPart struct
+	initRAFlowMap := map[rlib.RAFlowPartType]rlib.FlowPart{
+		rlib.DatesRAFlowPart:          rlib.FlowPart{},
+		rlib.PeopleRAFlowPart:         rlib.FlowPart{},
+		rlib.PetsRAFlowPart:           rlib.FlowPart{},
+		rlib.VehiclesRAFlowPart:       rlib.FlowPart{},
+		rlib.BackGroundInfoRAFlowPart: rlib.FlowPart{},
+		rlib.RentablesRAFlowPart:      rlib.FlowPart{},
+		rlib.FeesTermsRAFlowPart:      rlib.FlowPart{},
+	}
+
+	// insert in order to ease
+	var keys rlib.Int64Range
+	for k := range initRAFlowMap {
+		keys = append(keys, int64(k))
+	}
+	sort.Sort(keys)
+
+	// assign part type
+	for _, v := range keys {
+		partTypeID := rlib.RAFlowPartType(v)
+		// fmt.Printf("partTypeID: %s: %d\n", partTypeID, partTypeID)
+
+		// get blank flow part
+		a := initRAFlowMap[rlib.RAFlowPartType(partTypeID)]
+
+		// assign pre-defined init flow data
+		a = initRAFlowPart
+
+		// modify part type
+		a.PartType = int(partTypeID)
+
+		// get json strctured data from go struct
+		a.Data, _ = getUpdateRAFlowPartJSONData(a.Data, a.PartType)
+
+		// insert each flowpart of RA flow
+		_, err = rlib.InsertFlowPart(ctx, &a)
+		if err != nil {
+			rlib.Ulog("Error while inserting FlowPart BULK-WRITE: %s\n", err.Error())
+		}
+	}
+
+	if newTx { // if new transaction then commit it
+		// if error then rollback
+		if err = tx.Commit(); err != nil {
+			tx.Rollback()
+			rlib.Ulog("Error while Committing transaction | inserting FlowPart BULK-WRITE: %s\n", err.Error())
+			// err = insertError(err, "InitialRAFlow", nil)
+			return flowID, err
+		}
+	}
+
+	return flowID, err
 }
 
 // saveRentalAgreementFlow saves data for the given flowID to real multi variant database instances

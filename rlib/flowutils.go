@@ -10,8 +10,8 @@ import (
 // ErrFlowInvalidJSONData etc.. all are error constants used for flows
 var ErrFlowInvalidJSONData = errors.New("Invalid JSON data")
 
-// getFlowID will return unique ID with combination of unix nano, userid
-func getFlowID(UserID int64) string {
+// GetFlowID will return unique ID with combination of unix nano, userid
+func GetFlowID(UserID int64) string {
 	u := uint32(time.Now().UTC().UnixNano())
 	return fmt.Sprintf("%x-%x", u, UserID)
 }
