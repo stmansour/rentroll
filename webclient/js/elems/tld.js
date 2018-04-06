@@ -12,6 +12,7 @@ var TaskDescData = {
     sEpochPreDue: '',
 };
 var TLData = {
+    sEpoch: '',
     sEpochDue: '',
     sEpochPreDue: '',
 };
@@ -117,6 +118,7 @@ window.buildTaskListDefElements = function () {
             { field: 'EpochDue',       type: 'datetime', required: false },
             { field: 'EpochPreDue',    type: 'datetime', required: false },
             { field: 'FLAGS',          type: 'int',      required: false },
+            { field: 'Comment',        type: 'text',     required: false },
             { field: 'CreateTS',       type: 'date',     required: false },
             { field: 'CreateBy',       type: 'int',      required: false },
             { field: 'LastModTime',    type: 'date',     required: false },
@@ -142,6 +144,7 @@ window.buildTaskListDefElements = function () {
             event.onComplete = function() {
                 var f = this;
                 var r = f.record;
+                var b;
                 switch (event.target) {
                 case "ChkEpochPreDue":
                     $(f.box).find("input[name=EpochPreDue]").prop( "disabled", !r.ChkEpochPreDue );
@@ -167,6 +170,20 @@ window.buildTaskListDefElements = function () {
                     }
                     f.refresh();
                     break;
+                case "Cycle":
+                    b = r.Cycle.id < 5; // 5 is weekly
+                    $(f.box).find("input[name=Epoch]").prop( "disabled", b);
+                    if (b && event.value_previous.id >= 5) {  // change from need date to don't need date
+                        TLData.sEpoch = r.Epoch;
+                        r.Epoch = '';
+                    } else if (!b && event.value_previous.id < 5 ) { // change from don't need date to need date
+                        if (r.Epoch === "" && TLData.sEpoch.length > 1) {
+                            r.Epoch = TLData.sEpoch;
+                        }
+                    }
+                    f.refresh();
+                    break;
+
                 }
             };
         },
