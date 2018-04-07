@@ -26,9 +26,10 @@ window.zeroPad = function (n, size) {
 //          ISO 8601 formatted date string -- the format of JSONDateTIme 
 //          strings.  The returned string is in the format:
 //          m/dd/yyyy H:MM {am|pm} . It is suitable for use in a w2ui
-//          form control of type 'datetime'. For example, when s is
-//          "2018-04-04T23:38:00Z", the return value will be:
-//          '4/04/2018 11:38 pm'.
+//          form control of type 'datetime'. For example:
+//
+//          input: "2018-04-04T23:38:00Z"
+//          output: '4/04/2018 11:38 pm'.
 //
 //          If the year is prior to year 2000, it returns a 0 length string.
 // @params

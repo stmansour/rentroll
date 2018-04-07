@@ -4,7 +4,7 @@
     form_dirty_alert, addDateNavToToolbar, w2utils, w2popup,
     popupTaskDescForm, ensureSession, dtFormatISOToW2ui,
     dtFormatISOToW2ui, localtimeToUTC, setDefaultFormFieldAsPreviousRecord,
-    getTLDInitRecord, getCurrentBID,
+    getTLDInitRecord, getCurrentBID, getTDInitRecord,
 */
 
 // Temporary storage for when a date is toggled off
@@ -34,6 +34,55 @@ window.getTLDInitRecord = function (BID, previousFormRecord){
 
     var defaultFormData = {
         TLDID: 0,
+        BID: BID,
+        Name: '',
+        Cycle: 6,
+        ChkEpochDue: true,
+        ChkEpochPreDue: true,
+        Epoch: dtFormatISOToW2ui(y1.toString()),
+        EpochDue: dtFormatISOToW2ui(epochDue.toString()),
+        EpochPreDue: dtFormatISOToW2ui(epochPreDue.toString()),
+        FLAGS: 0,
+        Comment: '',
+        CreateTS: y.toString(),
+        CreateBy: app.uid,
+        LastModTime: y.toString(),
+        LastModBy: app.uid,
+    };
+
+    // if called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'ChkEpochDue', 'ChkEpochPreDue', 'EpochDue', 'EpochPreDue'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );
+    }
+    return defaultFormData;
+};
+
+window.getTDInitRecord = function (BID, previousFormRecord){
+    var y = new Date();
+    var y1 = new Date( y.getFullYear(), y.getMonth(), 1);
+    var month = (y.getMonth() + 1) % 12;
+    var epochPreDue = new Date(y.getFullYear(), y.getMonth(), 20);
+    var epochDue = new Date(y.getFullYear(), month, 0); 
+
+    // var Cycle;
+    // for (var i = 0; i < app.cycleFreq.length; i++) {
+    //     if (app.cycleFreq[i] === "Monthly") {
+    //         Cycle = i;
+    //     }
+    // }
+
+    var defaultFormData = {
+        TDID: 0,
+        Worker: '',
+        lstWorker: '',
+        DoneUID: 0,
+        PreDoneUID: 0,
+        TLDID: w2ui.tldsInfoForm.TLDID,
         BID: BID,
         Name: '',
         Cycle: 6,
@@ -298,10 +347,12 @@ window.buildTaskListDefElements = function () {
         onClick: function(event) {
             event.onComplete = function (event) {
                 var r = w2ui.tldsDetailGrid.records[event.recid];
-                console.log( 'detail clicked: v1/tasks/' + r.BID + '/'+ r.TDID);
                 popupTaskDescForm(r.BID,r.TDID);
             };
         },
+        onAdd: function (event) {
+            popupTaskDescForm(w2ui.tldsInfoForm.record.BID,0);
+        }
     });
 
     //------------------------------------------------------------------------
@@ -316,7 +367,7 @@ window.buildTaskListDefElements = function () {
             { field: 'recid',          type: 'int',         required: false },
             { field: 'TDID',           type: 'int',         required: false },
             { field: 'BID',            type: 'int',         required: false },
-            { field: 'TLID',           type: 'int',         required: false },
+            { field: 'TLDID',          type: 'int',         required: false },
             { field: 'Name',           type: 'text',        required: true  },
             { field: 'Worker',         type: 'text',        required: false },
             { field: 'lstWorker',      type: 'list',        required: false, options: {items: app.workers}, },
@@ -374,6 +425,9 @@ window.buildTaskListDefElements = function () {
                     f.error("Save Tasklist failed.");
                     return;
                 });
+            },
+            delete: function(target, data) {
+
             },
         },
        onLoad: function(event) {
@@ -460,6 +514,26 @@ window.buildTaskListDefElements = function () {
                     return;
                 });
             },
+            delete: function(target, data) {
+                var tl = {
+                    cmd: "delete",
+                };
+                var dat = JSON.stringify(tl);
+                var url = '/v1/tld/' + w2ui.tldsInfoForm.record.BID + '/' + w2ui.tldsInfoForm.record.TLDID;
+                $.post(url,dat)
+                .done(function(data) {
+                    if (data.status === "error") {
+                        w2ui.tldsInfoForm.error(w2utils.lang(data.message));
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.tldsGrid.render();
+                })
+                .fail(function(/*data*/){
+                    w2ui.tldsInfoForm.error("Delete Tasklist Definition failed.");
+                    return;
+                });
+            }
         },
     });
 
@@ -499,8 +573,13 @@ window.finishTLDForm = function () {
 //  
 //-----------------------------------------------------------------------------
 window.popupTaskDescForm = function (bid,tdid) {
-    w2ui.taskDescForm.url = '/v1/td/' + bid + '/' + tdid;
-    w2ui.taskDescForm.request();
+    if (tdid > 0) {
+        w2ui.taskDescForm.url = '/v1/td/' + bid + '/' + tdid;
+        w2ui.taskDescForm.request();
+    } else {
+        w2ui.taskDescForm.url = '';
+        w2ui.taskDescForm.record = getTDInitRecord(tdid, null);
+    }
     var n = '' + tdid;
     var s = 'Task Descriptor  ('+ (n === '0' ? 'new':n)  + ')';
     $().w2popup('open', {
