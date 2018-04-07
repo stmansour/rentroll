@@ -142,8 +142,8 @@ window.buildTaskListElements = function () {
                 // r.ChkDtPreDone = dtFormatISOToW2ui(r.ChkDtPreDone );
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'sDtDone');
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'sDtPreDone');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone, 'sDtDone', 'tlOverdue');
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone, 'sDtPreDone', 'tlPreOverdue');
             };
         },
         onChange: function(event) {
@@ -279,8 +279,8 @@ window.buildTaskListElements = function () {
                 }
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue','no pre-due date');
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',   'no due date');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'tskDtDone');
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'tskDtPreDone');
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'tskDtPreDone', 'tskPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'tskDtDone', 'tskOverdue');
             };
         },
         onChange: function(event) {
@@ -403,7 +403,8 @@ window.taskDateRender = function (x) {
     if ( yr < 2000) {
         return '';
     }
-    return dtTextRender(x,0,0);
+    // return dtTextRender(x,0,0);
+    return dtFormatISOToW2ui(x);
 };
 
 //-----------------------------------------------------------------------------
@@ -499,7 +500,7 @@ window.taskFormDueDate = function (dt,b,id,txt) {
 //      updated value for ChkDt...  true if year >= 2000
 //  
 //-----------------------------------------------------------------------------
-window.taskFormDoneDate = function (dt,dtd,b,id) {
+window.taskFormDoneDate = function (dt,dtd,b,id,id2) {
     var now = new Date();
     if (dt !== null && dt.length > 0) {
         var y = dateFromString(dt);
@@ -507,13 +508,15 @@ window.taskFormDoneDate = function (dt,dtd,b,id) {
         b = y.getFullYear() >= 2000;
         if (b) {
             s = taskDateRender(dt); 
-        } else {
-            dt = dateFromString(dtd);
-            if (now > dt) {
-                s = '<span style="color:#FC0D1B;">overdue</span>';
-            }
         }
         setInnerHTML(id,s);
+        dt = dateFromString(dtd);
+        if (now > dt) {
+            s = '<span style="color:#FC0D1B;">&nbsp;(late)</span>';
+        } else {
+            s = '';
+        }
+        setInnerHTML(id2,s);
     }
     return b;
 };
