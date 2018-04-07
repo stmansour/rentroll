@@ -156,30 +156,37 @@ func DateToString(t time.Time) string {
 	return t.Format("01/02/2006")
 }
 
-var acceptedDateFmts = []string{
+// AcceptedDateFmts is the array of string formats that StringToDate accepts
+var AcceptedDateFmts = []string{
 	RRDATEINPFMT,
 	RRDATEFMT2,
 	RRDATEFMT,
 	RRDATEFMT3,
-	RRDATETIMEJSFMT,
+	RRJSUTCDATETIME,
+	RRDATETIMEW2UIFMT,
 	RRDATETIMEINPFMT,
 	RRDATETIMEFMT,
+	RRDATEREPORTFMT,
+	RRDATERECEIPTFMT,
 }
 
 // StringToDate tries to convert the supplied string to a time.Time value. It will use the
 // formats called out in dbtypes.go:  RRDATEFMT, RRDATEINPFMT, RRDATEINPFMT2, ...
+//
+// for further experimentation, try: https://play.golang.org/p/JNUnA5zbMoz
+//----------------------------------------------------------------------------------
 func StringToDate(s string) (time.Time, error) {
 	// try the ansi std date format first
 	var Dt time.Time
 	var err error
 	s = strings.TrimSpace(s)
-	for i := 0; i < len(acceptedDateFmts); i++ {
-		Dt, err = time.Parse(acceptedDateFmts[i], s)
+	for i := 0; i < len(AcceptedDateFmts); i++ {
+		Dt, err = time.Parse(AcceptedDateFmts[i], s)
 		if nil == err {
-			break
+			return Dt, nil
 		}
 	}
-	return Dt, err
+	return Dt, fmt.Errorf("Date could not be decoded")
 }
 
 // DateAtTimeZero returns the supplied date at time 0 UTC of its day,month,year

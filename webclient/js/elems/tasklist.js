@@ -4,7 +4,7 @@
     form_dirty_alert, addDateNavToToolbar, 
     dtTextRender, dateFromString, taskDateRender, setToTLForm,
     taskFormDueDate,taskCompletionChange,taskFormDoneDate,
-    popupTaskForm,setInnerHTML,w2popup,
+    popupTaskForm,setInnerHTML,w2popup,ensureSession,dtFormatISOToW2ui,
 */
 
 window.buildTaskListElements = function () {
@@ -113,10 +113,10 @@ window.buildTaskListElements = function () {
             { field: 'BUD',          type: 'list',      required: true, options: {items: app.businesses} },
             { field: 'Name',         type: 'text',      required: true },
             { field: 'Cycle',        type: 'list',      required: true, options: {items: app.w2ui.listItems.cycleFreq}, },
-            { field: 'DtDue',        type: 'date',      required: false },
-            { field: 'DtPreDue',     type: 'date',      required: false },
-            { field: 'DtDone',       type: 'date',      required: false },
-            { field: 'DtPreDone',    type: 'date',      required: false },
+            { field: 'DtDue',        type: 'datetime',  required: false },
+            { field: 'DtPreDue',     type: 'datetime',  required: false },
+            { field: 'DtDone',       type: 'datetime',  required: false },
+            { field: 'DtPreDone',    type: 'datetime',  required: false },
             { field: 'FLAGS',        type: 'int',       required: false },
             { field: 'DoneUID',      type: 'int',       required: false },
             { field: 'PreDoneUID',   type: 'int',       required: false },
@@ -130,17 +130,20 @@ window.buildTaskListElements = function () {
             { field: 'ChkDtPreDue',  type: 'checkbox',  required: false },
             { field: 'ChkDtPreDone', type: 'checkbox',  required: false },
         ],
-        onRefresh: function(event) {
-            // var f = this;
+        onLoad: function(event) {
             event.onComplete = function(event) {
                 var r = w2ui.tlsInfoForm.record;
                 if (typeof r.DtPreDue === "undefined") {
                     return;
                 }
+                // r.ChkDtPreDue  = dtFormatISOToW2ui(r.ChkDtPreDue );
+                // r.ChkDtDue     = dtFormatISOToW2ui(r.ChkDtDue );
+                // r.ChkDtDone    = dtFormatISOToW2ui(r.ChkDtDone );
+                // r.ChkDtPreDone = dtFormatISOToW2ui(r.ChkDtPreDone );
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'sDtDone');
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'sDtPreDone');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone, 'sDtDone', 'tlOverdue');
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone, 'sDtPreDone', 'tlPreOverdue');
             };
         },
         onChange: function(event) {
@@ -234,7 +237,18 @@ window.buildTaskListElements = function () {
         ],
         actions: {
             save: function(target, data){
-                // console.log("save task");
+                //---------------------------------------------------------
+                // When the w2popup is active, it suspends the operation
+                // of things like setInterval() handling.  So the session
+                // may have expired by the time we close this dialog. So,
+                // we need to explicity call ensureSession to make sure
+                // we have a session before proceeding.
+                //---------------------------------------------------------
+                ensureSession();
+
+                //---------------------------
+                // Now, on with the save...
+                //---------------------------
                 var f = w2ui.taskForm;
                 var r = f.record;
                 var d = {cmd: "save", record: r};
@@ -265,8 +279,8 @@ window.buildTaskListElements = function () {
                 }
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue','no pre-due date');
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',   'no due date');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'tskDtDone');
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'tskDtPreDone');
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'tskDtPreDone', 'tskPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'tskDtDone', 'tskOverdue');
             };
         },
         onChange: function(event) {
@@ -389,7 +403,8 @@ window.taskDateRender = function (x) {
     if ( yr < 2000) {
         return '';
     }
-    return dtTextRender(x,0,0);
+    // return dtTextRender(x,0,0);
+    return dtFormatISOToW2ui(x);
 };
 
 //-----------------------------------------------------------------------------
@@ -485,7 +500,7 @@ window.taskFormDueDate = function (dt,b,id,txt) {
 //      updated value for ChkDt...  true if year >= 2000
 //  
 //-----------------------------------------------------------------------------
-window.taskFormDoneDate = function (dt,dtd,b,id) {
+window.taskFormDoneDate = function (dt,dtd,b,id,id2) {
     var now = new Date();
     if (dt !== null && dt.length > 0) {
         var y = dateFromString(dt);
@@ -493,13 +508,15 @@ window.taskFormDoneDate = function (dt,dtd,b,id) {
         b = y.getFullYear() >= 2000;
         if (b) {
             s = taskDateRender(dt); 
-        } else {
-            dt = dateFromString(dtd);
-            if (now > dt) {
-                s = '<span style="color:#FC0D1B;">overdue</span>';
-            }
         }
         setInnerHTML(id,s);
+        dt = dateFromString(dtd);
+        if (now > dt) {
+            s = '<span style="color:#FC0D1B;">&nbsp;(late)</span>';
+        } else {
+            s = '';
+        }
+        setInnerHTML(id2,s);
     }
     return b;
 };
@@ -518,9 +535,9 @@ window.taskFormDoneDate = function (dt,dtd,b,id) {
 window.taskCompletionChange = function (b,id) {
     var s;
     if (b) { // marked as complete?
-        s = '<span style="color:blue;">will mark as completed when Save is clicked</span>';
+        s = '<span style="color:blue;">mark as completed when Save is clicked</span>';
     } else {
-        s = '<span style="color:blue;">will mark as not completed when Save is clicked</span>';
+        s = '<span style="color:blue;">mark as not completed when Save is clicked</span>';
     }
     setInnerHTML(id,s);
 };

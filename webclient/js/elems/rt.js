@@ -561,7 +561,6 @@ window.buildRentableTypeElements = function () {
             },
             reactivate: function() {
                 var rtF = w2ui.rtForm;
-
                 var rtG = w2ui.rtGrid;
                 var params = {cmd: 'reactivate', formname: rtF.name, ID: rtF.record.RTID };
                 var dat = JSON.stringify(params);
@@ -577,7 +576,7 @@ window.buildRentableTypeElements = function () {
                     rtG.render();
                 })
                 .fail(function(/*data*/){
-                    rtF.error("Delete Payment failed.");
+                    rtF.error("Deactivate Rentable Type failed.");
                     return;
                 });
             },
