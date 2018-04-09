@@ -18,7 +18,7 @@ window.getAccountInitRecord = function (BID, BUD, previousFormRecord){
         RAID: 0,
         TCID: 0,
         GLNumber: '',
-        Status: 2,
+        Status: 2, // Default Status state is Active.
         Name: '',
         AcctType: '',
         AllowPost: 1,
