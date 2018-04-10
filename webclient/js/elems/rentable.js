@@ -994,11 +994,7 @@ window.buildRentableElements = function () {
                         }
                     });
                 });
-            },
-            deactivate: function () {
-            }, // TODO(Sudip): deactivate action
-            reactivate: function () {
-            }, // TODO(Sudip): reactivate action
+            }
         },
     });
 };
