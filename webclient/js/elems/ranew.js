@@ -160,7 +160,6 @@ window.buildNewRAElements = function() {
                     return false;
                 },
                 yes_callBack = function(grid, recid) {
-                    alert("I'm being called twice");
                     initRAFlowAJAX()
                     .done(function(data, textStatus, jqXHR) {
                         var bid = getCurrentBID(),
@@ -176,9 +175,6 @@ window.buildNewRAElements = function() {
                             FlowID: data.FlowID,
                         });
 
-                        console.log(data);
-
-                        alert("refreshing the grid...");
                         grid.refresh();
 
                         app.last.grid_sel_recid = parseInt(newRecid);
@@ -228,7 +224,7 @@ window.buildNewRAElements = function() {
                             var no_callBack = function() { return false; },
                                 yes_callBack = function() {
                                     w2ui.toplayout.hide('right',true);
-                                    w2ui.rentalagrsGrid.render();
+                                    w2ui.newrentalagrsGrid.render();
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
