@@ -1016,8 +1016,8 @@ window.loadRABGInfoForm = function () {
     // load the existing data in people component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
-        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
-            w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
+        if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
+            w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
             w2ui.RABGInfoForm.refresh();
         } else {
             w2ui.RABGInfoForm.clear();
