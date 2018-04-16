@@ -603,7 +603,6 @@ window.loadRAPeopleForm = function () {
                 reset: function () {
                     this.clear();
                 }
-                },
             }
         });
     }
