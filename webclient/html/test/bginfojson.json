@@ -1,0 +1,69 @@
+{
+  "applicant": {
+    "firstName": "Akshay",
+    "middleName": "",
+    "lastName": "",
+    "birthDate": "",
+    "ssn": "",
+    "driverLicNo": "",
+    "telephoneNo": "",
+    "emailAddress": "",
+    "employer": "",
+    "phone": "",
+    "address": "",
+    "position": "",
+    "grossWages": ""
+  },
+  "coApplicant": {
+    "firstName": "Sudip",
+    "middleName": "",
+    "lastName": "",
+    "birthDate": "",
+    "ssn": "",
+    "driverLicNo": "",
+    "telephoneNo": "",
+    "emailAddress": "",
+    "employer": "",
+    "phone": "",
+    "address": "",
+    "position": "",
+    "grossWages": ""
+  },
+  "noPerson": 5,
+  "pets": [
+    {},
+    {}
+  ],
+  "vehicles": [
+    {
+      "tagNo": "",
+      "state": "",
+      "make": "",
+      "model": "",
+      "color": ""
+    },
+    {
+      "tagNo": "",
+      "state": "",
+      "make": "",
+      "model": "",
+      "color": ""
+    }
+  ],
+  "haveYouEverBeen": {
+    "evicted": false,
+    "convictedOfACrime": false,
+    "bankruptcy": false
+  },
+  "emergencyContact": {
+    "name": "",
+    "phone": "",
+    "address": ""
+  },
+  "comment": "In an effort to accommodate you, please advise us of any special needs.",
+  "applicationDate": "",
+  "moveInDate": "",
+  "apartmentNo": "",
+  "leaseTerm": "",
+  "applicationReceivedBy": ""
+}
