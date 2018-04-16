@@ -10,7 +10,7 @@
 "use strict";
 
 // Next button handling
-$(document).on('click', '#ra-form #next', function() {
+$(document).on('click', '#ra-form #next', function () {
     // get the current component (to be previous one)
     var active_comp = $(".ra-form-component:visible");
 
@@ -27,7 +27,7 @@ $(document).on('click', '#ra-form #next', function() {
 });
 
 // Previous button handling
-$(document).on('click', '#ra-form #previous', function() {
+$(document).on('click', '#ra-form #previous', function () {
     // get the current component (to be previous one)
     var active_comp = $(".ra-form-component:visible");
 
@@ -44,7 +44,7 @@ $(document).on('click', '#ra-form #previous', function() {
 });
 
 // link click handling
-$(document).on('click', '#ra-form #progressbar a', function() {
+$(document).on('click', '#ra-form #progressbar a', function () {
     var active_comp = $(".ra-form-component:visible");
 
     // load target form
@@ -58,13 +58,13 @@ $(document).on('click', '#ra-form #progressbar a', function() {
 });
 
 // TODO: we should pass FlowID, flowPartID here in arguments
-window.saveActiveCompData = function(record, partType) {
+window.saveActiveCompData = function (record, partType) {
 
     var flowPartID;
     var flowParts = app.raflow.data[app.raflow.activeFlowID] || [];
 
     for (var i = 0; i < flowParts.length; i++) {
-        if(partType == flowParts[i].PartType) {
+        if (partType == flowParts[i].PartType) {
             flowPartID = flowParts[i].FlowPartID;
         }
     }
@@ -86,7 +86,7 @@ window.saveActiveCompData = function(record, partType) {
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify(data),
-        success: function(data) {
+        success: function (data) {
             if (data.status != "error") {
                 console.log("data has been saved for: ", app.raflow.activeFlowID, ", partType: ", partType);
 
@@ -96,20 +96,20 @@ window.saveActiveCompData = function(record, partType) {
                 $("#manage-flows #message").text(data.message).show();
             }
         },
-        error: function(data) {
+        error: function (data) {
             console.log(data);
         },
     });
 };
 
-window.getRAFlowAllParts = function(FlowID) {
+window.getRAFlowAllParts = function (FlowID) {
     $.ajax({
         url: "/v1/flow/1/0",
         method: "POST",
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify({"cmd": "getFlowParts", "FlowID": FlowID}),
-        success: function(data) {
+        success: function (data) {
             if (data.status != "error") {
                 app.raflow.data[FlowID] = data.records;
                 // load form container
@@ -124,13 +124,13 @@ window.getRAFlowAllParts = function(FlowID) {
                 $("#manage-flows #message").text(data.message).show();
             }
         },
-        error: function(data) {
+        error: function (data) {
             console.log(data);
         },
     });
 };
 
-window.initRAFlowAJAX = function() {
+window.initRAFlowAJAX = function () {
     var bid = getCurrentBID();
 
     return $.ajax({
@@ -139,18 +139,18 @@ window.initRAFlowAJAX = function() {
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify({"cmd": "init", "flow": app.raflow.name}),
-        success: function(data) {
+        success: function (data) {
             if (data.status != "error") {
                 app.raflow.data[data.FlowID] = {};
             }
         },
-        error: function(data) {
+        error: function (data) {
             console.log(data);
         },
     });
 };
 
-window.getRAFlowPartTypeIndex = function(partType) {
+window.getRAFlowPartTypeIndex = function (partType) {
     var partTypeIndex = -1;
     if (app.raflow.activeFlowID && app.raflow.data[app.raflow.activeFlowID]) {
         for (var i = 0; i < app.raflow.data[app.raflow.activeFlowID].length; i++) {
@@ -164,14 +164,14 @@ window.getRAFlowPartTypeIndex = function(partType) {
 };
 
 // load form according to target
-window.loadTargetSection = function(target, activeCompID) {
+window.loadTargetSection = function (target, activeCompID) {
 
     // get part type from the class index
     var partType = $("#progressbar li[data-target='#" + activeCompID + "']").index() + 1;
     var data = null;
-    if($("#progressbar li[data-target='#" + target + "']").hasClass("done")){
+    if ($("#progressbar li[data-target='#" + target + "']").hasClass("done")) {
         console.log("target has been saved", target);
-    } else{
+    } else {
         // TODO: switch cases for each part type, so that we can mark the section "done"
         // if it's completed
 
@@ -180,7 +180,7 @@ window.loadTargetSection = function(target, activeCompID) {
     }
 
     // decide data based on type
-    switch(activeCompID) {
+    switch (activeCompID) {
         case "dates":
             data = w2ui.RADatesForm.record;
             break;
@@ -252,7 +252,7 @@ window.loadTargetSection = function(target, activeCompID) {
                 }
             }
         }, 500);*/
-    } else{
+    } else {
         console.log("unknown target from nav li: ", target);
     }
 };
@@ -260,25 +260,25 @@ window.loadTargetSection = function(target, activeCompID) {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Info Dates form
 // -------------------------------------------------------------------------------
-window.loadRADatesForm = function() {
+window.loadRADatesForm = function () {
 
     // if form is loaded then return
     if (!("RADatesForm" in w2ui)) {
 
         // dates form
         $('#ra-form #dates').w2form({
-            name   : 'RADatesForm',
-            header : 'Dates',
-            style  : 'border: 1px black solid; display: block;',
-            focus  : -1,
+            name: 'RADatesForm',
+            header: 'Dates',
+            style: 'border: 1px black solid; display: block;',
+            focus: -1,
             formURL: '/webclient/html/test/formradates.html',
-            fields : [
-                { name: 'AgreementStart',  type: 'date', required: true, html: { caption: "Term Start" } },
-                { name: 'AgreementStop',   type: 'date', required: true, html: { caption: "Term Stop"  } },
-                { name: 'RentStart',       type: 'date', required: true, html: { caption: "Rent Start" } },
-                { name: 'RentStop',        type: 'date', required: true, html: { caption: "Rent Stop"  } },
-                { name: 'PossessionStart', type: 'date', required: true, html: { caption: "Possession Start" } },
-                { name: 'PossessionStop',  type: 'date', required: true, html: { caption: "Possession Stop"  } },
+            fields: [
+                {name: 'AgreementStart', type: 'date', required: true, html: {caption: "Term Start"}},
+                {name: 'AgreementStop', type: 'date', required: true, html: {caption: "Term Stop"}},
+                {name: 'RentStart', type: 'date', required: true, html: {caption: "Rent Start"}},
+                {name: 'RentStop', type: 'date', required: true, html: {caption: "Rent Stop"}},
+                {name: 'PossessionStart', type: 'date', required: true, html: {caption: "Possession Start"}},
+                {name: 'PossessionStop', type: 'date', required: true, html: {caption: "Possession Stop"}},
             ],
             actions: {
                 reset: function () {
@@ -288,8 +288,8 @@ window.loadRADatesForm = function() {
                     this.save();
                 }*/
             },
-            onRefresh: function(event) {
-                var t   = new Date(),
+            onRefresh: function (event) {
+                var t = new Date(),
                     nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
                 // set default values with start=current day, stop=next year day, if record is blank
@@ -305,7 +305,7 @@ window.loadRADatesForm = function() {
     }
 
     // load the existing data in dates component
-    setTimeout(function() {
+    setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.dates);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RADatesForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
@@ -330,7 +330,7 @@ window.loadRADatesForm = function() {
 //   IsGuarantor    = flag to indicate guarantor or not
 // @return - nothing
 //-----------------------------------------------------------------------------
-window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, IsGuarantor) {
+window.loadTransactantListingItem = function (transactantRec, IsPayor, IsUser, IsGuarantor) {
 
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
     if (peoplePartIndex < 0) {
@@ -352,7 +352,7 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
     // listing item to be appended in ul
     var s = (transactantRec.IsCompany > 0) ? transactantRec.CompanyName : getFullName(transactantRec);
     if (transactantRec.TCID > 0) {
-        s += ' (TCID: '+ String(transactantRec.TCID) + ')';
+        s += ' (TCID: ' + String(transactantRec.TCID) + ')';
     }
 
     var peopleListingItem = '<li data-tcid="' + transactantRec.TCID + '">';
@@ -367,7 +367,7 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
         // check for duplicacy
         found = false;
         length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.length;
-        for(i = length - 1; i >= 0; i--) {
+        for (i = length - 1; i >= 0; i--) {
             if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors[i].TCID) {
                 found = true;
                 break;
@@ -379,7 +379,7 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
             }
 
             // if with this tcid element exists in DOM then not append
-            if ($('#payor-list .people-listing li[data-tcid="'+transactantRec.TCID+'"]').length < 1) {
+            if ($('#payor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
                 $('#payor-list .people-listing').append(peopleListingItem);
             }
         }
@@ -389,7 +389,7 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
     if (IsUser) {
         found = false;
         length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.length;
-        for(i = length - 1; i >= 0; i--) {
+        for (i = length - 1; i >= 0; i--) {
             if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users[i].TCID) {
                 found = true;
                 break;
@@ -401,7 +401,7 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
             }
 
             // if with this tcid element exists in DOM then not append
-            if ($('#user-list .people-listing li[data-tcid="'+transactantRec.TCID+'"]').length < 1) {
+            if ($('#user-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
                 $('#user-list .people-listing').append(peopleListingItem);
             }
         }
@@ -411,7 +411,7 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
     if (IsGuarantor) {
         found = false;
         length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.length;
-        for(i = length - 1; i >= 0; i--) {
+        for (i = length - 1; i >= 0; i--) {
             if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors[i].TCID) {
                 found = true;
                 break;
@@ -423,7 +423,7 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
             }
 
             // if with this tcid element exists in DOM then not append
-            if ($('#guarantor-list .people-listing li[data-tcid="'+transactantRec.TCID+'"]').length < 1) {
+            if ($('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
                 $('#guarantor-list .people-listing').append(peopleListingItem);
             }
         }
@@ -438,7 +438,7 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
 //          IsCompany, and CompanyName.
 // @return - the name to render
 //-----------------------------------------------------------------------------
-window.acceptTransactant = function() {
+window.acceptTransactant = function () {
     var IsPayor = w2ui.RAPeopleForm.record.Payor;
     var IsUser = w2ui.RAPeopleForm.record.User;
     var IsGuarantor = w2ui.RAPeopleForm.record.Guarantor;
@@ -458,7 +458,7 @@ window.acceptTransactant = function() {
 };
 
 // remove people from the listing
-$(document).on('click', '.remove-item', function() {
+$(document).on('click', '.remove-item', function () {
     var tcid = parseInt($(this).closest('li').attr('data-tcid'));
 
     // get part type index
@@ -475,22 +475,22 @@ $(document).on('click', '.remove-item', function() {
         if (!(payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0)) {
             var peopleType = $(this).closest('ul.people-listing').attr('data-people-type');
             var i, length;
-            switch(peopleType) {
+            switch (peopleType) {
                 case "payors":
                     length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.length;
-                    for(i = length - 1; i >= 0; i--) {
+                    for (i = length - 1; i >= 0; i--) {
                         app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.splice(i, 1);
                     }
                     break;
                 case "users":
                     length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.length;
-                    for(i = length - 1; i >= 0; i--) {
+                    for (i = length - 1; i >= 0; i--) {
                         app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.splice(i, 1);
                     }
                     break;
                 case "guarantors":
                     length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.length;
-                    for(i = length - 1; i >= 0; i--) {
+                    for (i = length - 1; i >= 0; i--) {
                         app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.splice(i, 1);
                     }
                     break;
@@ -502,7 +502,7 @@ $(document).on('click', '.remove-item', function() {
     $(this).closest('li').remove();
 });
 
-window.loadRAPeopleForm = function() {
+window.loadRAPeopleForm = function () {
 
     // have to list down all people into different categories
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
@@ -518,15 +518,15 @@ window.loadRAPeopleForm = function() {
     var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
     if (!(payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0)) { // valid then
         // load payors list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.forEach(function(item) {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.forEach(function (item) {
             loadTransactantListingItem(item, true, false, false);
         });
         // load users list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.forEach(function(item) {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.forEach(function (item) {
             loadTransactantListingItem(item, false, true, false);
         });
         // load guarantors list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.forEach(function(item) {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.forEach(function (item) {
             loadTransactantListingItem(item, false, false, true);
         });
     }
@@ -537,17 +537,18 @@ window.loadRAPeopleForm = function() {
 
         // people form
         $('#ra-form #people .form-container').w2form({
-            name   : 'RAPeopleForm',
-            header : 'People',
-            style  : 'display: block;',
+            name: 'RAPeopleForm',
+            header: 'People',
+            style: 'display: block;',
             formURL: '/webclient/html/test/formrapeople.html',
             focus: -1,
-            fields : [
-                { name: 'Transactant', type: 'enum',     required: true, html: { caption: "Transactant" },
+            fields: [
+                {
+                    name: 'Transactant', type: 'enum', required: true, html: {caption: "Transactant"},
                     options: {
-                        url:        '/v1/transactantstd/' + app.raflow.BID,
-                        max:        1,
-                        renderItem: function(item) {
+                        url: '/v1/transactantstd/' + app.raflow.BID,
+                        max: 1,
+                        renderItem: function (item) {
                             // mark this as transactant as an active
                             app.raflow.activeTransactant = item;
                             var s = getTCIDName(item);
@@ -559,22 +560,22 @@ window.loadRAPeopleForm = function() {
                             w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
                             return s;
                         },
-                        renderDrop: function(item) {
+                        renderDrop: function (item) {
                             return getTCIDName(item);
                         },
-                        compare:    function(item, search) {
+                        compare: function (item, search) {
                             var s = getTCIDName(item);
                             s = s.toLowerCase();
                             var srch = search.toLowerCase();
                             var match = (s.indexOf(srch) >= 0);
                             return match;
                         },
-                        onNew:      function (event) {
+                        onNew: function (event) {
                             //console.log('++ New Item: Do not forget to submit it to the server too', event);
-                            $.extend(event.item, { FirstName: '', LastName : event.item.text });
+                            $.extend(event.item, {FirstName: '', LastName: event.item.text});
                         },
-                        onRemove:   function(event) {
-                            event.onComplete = function() {
+                        onRemove: function (event) {
+                            event.onComplete = function () {
                                 // reset active Transactant to blank object
                                 app.raflow.activeTransactant = {};
 
@@ -584,22 +585,22 @@ window.loadRAPeopleForm = function() {
 
                                 // NOTE: have to trigger manually, b'coz we manually change the record,
                                 // otherwise it triggers the change event but it won't get change (Object: {})
-                                var event = f.trigger({ phase: 'before', target: f.name, type: 'change', event: event }); // event before
+                                var event = f.trigger({phase: 'before', target: f.name, type: 'change', event: event}); // event before
                                 if (event.cancelled === true) return false;
-                                f.trigger($.extend(event, { phase: 'after' })); // event after
+                                f.trigger($.extend(event, {phase: 'after'})); // event after
                             };
                         }
                     },
                 },
-                { name: 'TCID',        type: 'int',      required: true, html: { caption: "TCID" } },
-                { name: 'FirstName',   type: 'text',     required: true, html: { caption: "FirstName" } },
-                { name: 'LastName',    type: 'text',     required: true, html: { caption: "LastName" } },
-                { name: 'MiddleName',  type: 'text',     required: true, html: { caption: "MiddleName" } },
-                { name: 'CompanyName', type: 'text',     required: true, html: { caption: "CompanyName" } },
-                { name: 'IsCompany',   type: 'int',      required: true, html: { caption: "IsCompany" } },
-                { name: 'Payor',       type: 'checkbox', required: true, html: { caption: "Payor" } },
-                { name: 'User',        type: 'checkbox', required: true, html: { caption: "User" } },
-                { name: 'Guarantor',   type: 'checkbox', required: true, html: { caption: "Guarantor" } },
+                {name: 'TCID', type: 'int', required: true, html: {caption: "TCID"}},
+                {name: 'FirstName', type: 'text', required: true, html: {caption: "FirstName"}},
+                {name: 'LastName', type: 'text', required: true, html: {caption: "LastName"}},
+                {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
+                {name: 'CompanyName', type: 'text', required: true, html: {caption: "CompanyName"}},
+                {name: 'IsCompany', type: 'int', required: true, html: {caption: "IsCompany"}},
+                {name: 'Payor', type: 'checkbox', required: true, html: {caption: "Payor"}},
+                {name: 'User', type: 'checkbox', required: true, html: {caption: "User"}},
+                {name: 'Guarantor', type: 'checkbox', required: true, html: {caption: "Guarantor"}},
             ],
             actions: {
                 reset: function () {
@@ -613,7 +614,7 @@ window.loadRAPeopleForm = function() {
     }
 
     // load the existing data in people component
-    setTimeout(function() {
+    setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             // w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
@@ -627,47 +628,47 @@ window.loadRAPeopleForm = function() {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Pets Grid
 // -------------------------------------------------------------------------------
-window.getPetsGridInitalRecord = function(BID, gridLen) {
-    var t   = new Date(),
+window.getPetsGridInitalRecord = function (BID, gridLen) {
+    var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     return {
-        recid:                 gridLen,
-        PETID:                 0,
-        BID:                   BID,
-        RAID:                  0,
-        Name:                  "",
-        Type:                  "",
-        Breed:                 "",
-        Color:                 "",
-        Weight:                0,
-        DtStart:               w2uiDateControlString(t),
-        DtStop:                w2uiDateControlString(nyd),
-        RefundablePetDeposit:  0.0,
-        RecurringPetFee:       0.0,
-        NonRefundablePetFee:   0.0
+        recid: gridLen,
+        PETID: 0,
+        BID: BID,
+        RAID: 0,
+        Name: "",
+        Type: "",
+        Breed: "",
+        Color: "",
+        Weight: 0,
+        DtStart: w2uiDateControlString(t),
+        DtStop: w2uiDateControlString(nyd),
+        RefundablePetDeposit: 0.0,
+        RecurringPetFee: 0.0,
+        NonRefundablePetFee: 0.0
     };
 };
 
-window.loadRAPetsGrid = function() {
+window.loadRAPetsGrid = function () {
     // if form is loaded then return
     if (!("RAPetsGrid" in w2ui)) {
 
         // pets grid
         $('#ra-form #pets').w2grid({
-            name   : 'RAPetsGrid',
-            header : 'Pets',
-            show   : {
-                        toolbar: true,
-                        footer: true,
-                        // toolbarSave: true
-                     },
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RAPetsGrid',
+            header: 'Pets',
+            show: {
+                toolbar: true,
+                footer: true,
+                // toolbarSave: true
+            },
+            style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
-                    { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
+                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
                 ],
-                onClick: function(event) {
+                onClick: function (event) {
                     if (event.target == 'add') {
                         var inital = getPetsGridInitalRecord(1, w2ui.RAPetsGrid.records.length);
                         w2ui.RAPetsGrid.add(inital);
@@ -680,83 +681,83 @@ window.loadRAPetsGrid = function() {
                     hidden: true,
                 },
                 {
-                    field:   'PETID',
-                    hidden:  true
+                    field: 'PETID',
+                    hidden: true
                 },
                 {
-                    field:   'BID',
-                    hidden:  true
+                    field: 'BID',
+                    hidden: true
                 },
-/*                {
-                    field:   'RAID',
-                    hidden:  true
-                },*/
+                /*                {
+                                    field:   'RAID',
+                                    hidden:  true
+                                },*/
                 {
-                    field:   'Name',
+                    field: 'Name',
                     caption: 'Name',
-                    size:    '150px',
-                    editable:{ type: 'text' }
+                    size: '150px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'Type',
+                    field: 'Type',
                     caption: 'Type',
-                    size:    '80px',
-                    editable:{ type: 'text' }
+                    size: '80px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'Breed',
+                    field: 'Breed',
                     caption: 'Breed',
-                    size:    '80px',
-                    editable:{ type: 'text' }
+                    size: '80px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'Color',
+                    field: 'Color',
                     caption: 'Color',
-                    size:    '80px',
-                    editable:{ type: 'text' }
+                    size: '80px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'Weight',
+                    field: 'Weight',
                     caption: 'Weight',
-                    size:    '80px',
-                    editable:{ type: 'int' }
+                    size: '80px',
+                    editable: {type: 'int'}
                 },
                 {
-                    field:   'DtStart',
+                    field: 'DtStart',
                     caption: 'DtStart',
-                    size:    '100px',
-                    editable:{ type: 'date' }
+                    size: '100px',
+                    editable: {type: 'date'}
                 },
                 {
-                    field:   'DtStop',
+                    field: 'DtStop',
                     caption: 'DtStop',
-                    size:    '100px',
-                    editable:{ type: 'date' }
+                    size: '100px',
+                    editable: {type: 'date'}
                 },
                 {
-                    field:   'NonRefundablePetFee',
+                    field: 'NonRefundablePetFee',
                     caption: 'NonRefundable<br>PetFee',
-                    size:    '70px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '70px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'RefundablePetDeposit',
+                    field: 'RefundablePetDeposit',
                     caption: 'Refundable<br>PetDeposit',
-                    size:    '70px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '70px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'RecurringPetFee',
+                    field: 'RecurringPetFee',
                     caption: 'Recurring<br>PetFee',
-                    size:    '100%',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '100%',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
             ],
-            onChange: function(event) {
-                event.onComplete = function() {
+            onChange: function (event) {
+                event.onComplete = function () {
                     this.save();
                 };
             }
@@ -764,7 +765,7 @@ window.loadRAPetsGrid = function() {
     }
 
     // load the existing data in pets component
-    setTimeout(function() {
+    setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.pets);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RAPetsGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
@@ -779,47 +780,47 @@ window.loadRAPetsGrid = function() {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
-window.getVehicleGridInitalRecord = function(BID, gridLen) {
-    var t   = new Date(),
+window.getVehicleGridInitalRecord = function (BID, gridLen) {
+    var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     return {
-        recid:                 gridLen,
-        VID:                   0,
-        BID:                   BID,
-        TCID:                  0,
-        VIN:                   "",
-        Type:                  "",
-        Make:                  "",
-        Model:                 "",
-        Color:                 "",
-        LicensePlateState:     "",
-        LicensePlateNumber:    "",
-        ParkingPermitNumber:   "",
-        DtStart:               w2uiDateControlString(t),
-        DtStop:                w2uiDateControlString(nyd),
+        recid: gridLen,
+        VID: 0,
+        BID: BID,
+        TCID: 0,
+        VIN: "",
+        Type: "",
+        Make: "",
+        Model: "",
+        Color: "",
+        LicensePlateState: "",
+        LicensePlateNumber: "",
+        ParkingPermitNumber: "",
+        DtStart: w2uiDateControlString(t),
+        DtStop: w2uiDateControlString(nyd),
     };
 };
 
-window.loadRAVehiclesGrid = function() {
+window.loadRAVehiclesGrid = function () {
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
 
         // vehicles grid
         $('#ra-form #vehicles').w2grid({
-            name   : 'RAVehiclesGrid',
-            header : 'Vehicles',
-            show   : {
-                        toolbar: true,
-                        footer: true,
-                        // toolbarSave: true
-                     },
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RAVehiclesGrid',
+            header: 'Vehicles',
+            show: {
+                toolbar: true,
+                footer: true,
+                // toolbarSave: true
+            },
+            style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
-                    { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
+                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
                 ],
-                onClick: function(event) {
+                onClick: function (event) {
                     if (event.target == 'add') {
                         var inital = getVehicleGridInitalRecord(1, w2ui.RAVehiclesGrid.records.length);
                         w2ui.RAVehiclesGrid.add(inital);
@@ -832,80 +833,80 @@ window.loadRAVehiclesGrid = function() {
                     hidden: true,
                 },
                 {
-                    field:   'VID',
-                    hidden:  true
+                    field: 'VID',
+                    hidden: true
                 },
                 {
-                    field:   'BID',
-                    hidden:  true
+                    field: 'BID',
+                    hidden: true
                 },
                 {
-                    field:   'TCID',
-                    hidden:  true
+                    field: 'TCID',
+                    hidden: true
                 },
                 {
-                    field:   'Type',
+                    field: 'Type',
                     caption: 'Type',
-                    size:    '80px',
-                    editable:{ type: 'text' }
+                    size: '80px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'VIN',
+                    field: 'VIN',
                     caption: 'VIN',
-                    size:    '80px',
-                    editable:{ type: 'text' }
+                    size: '80px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'Make',
+                    field: 'Make',
                     caption: 'Make',
-                    size:    '80px',
-                    editable:{ type: 'text' }
+                    size: '80px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'Model',
+                    field: 'Model',
                     caption: 'Model',
-                    size:    '80px',
-                    editable:{ type: 'text' }
+                    size: '80px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'Color',
+                    field: 'Color',
                     caption: 'Color',
-                    size:    '80px',
-                    editable:{ type: 'text' }
+                    size: '80px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'LicensePlateState',
+                    field: 'LicensePlateState',
                     caption: 'License Plate<br>State',
-                    size:    '100px',
-                    editable:{ type: 'text' }
+                    size: '100px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'LicensePlateNumber',
+                    field: 'LicensePlateNumber',
                     caption: 'License Plate<br>Number',
-                    size:    '100px',
-                    editable:{ type: 'text' }
+                    size: '100px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'ParkingPermitNumber',
+                    field: 'ParkingPermitNumber',
                     caption: 'Parking Permit <br>Number',
-                    size:    '100px',
-                    editable:{ type: 'text' }
+                    size: '100px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'DtStart',
+                    field: 'DtStart',
                     caption: 'DtStart',
-                    size:    '100px',
-                    editable:{ type: 'date' }
+                    size: '100px',
+                    editable: {type: 'date'}
                 },
                 {
-                    field:   'DtStop',
+                    field: 'DtStop',
                     caption: 'DtStop',
-                    size:    '100%',
-                    editable:{ type: 'date' }
+                    size: '100%',
+                    editable: {type: 'date'}
                 },
             ],
-            onChange: function(event) {
-                event.onComplete = function() {
+            onChange: function (event) {
+                event.onComplete = function () {
                     this.save();
                 };
             }
@@ -913,7 +914,7 @@ window.loadRAVehiclesGrid = function() {
     }
 
     // load the existing data in vehicles component
-    setTimeout(function() {
+    setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.vehicles);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RAVehiclesGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
@@ -927,25 +928,81 @@ window.loadRAVehiclesGrid = function() {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Background info form
 // -------------------------------------------------------------------------------
-window.loadRABGInfoForm = function() {
+function loadRABGInfoForm() {
 
     // if form is loaded then return
     if (!("RABGInfoForm" in w2ui)) {
 
         // background info form
         $('#ra-form #bginfo').w2form({
-            name   : 'RABGInfoForm',
-            header : 'Background Information',
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RABGInfoForm',
+            header: 'Background Information',
+            style: 'border: 1px solid black; display: block;',
             formURL: '/webclient/html/test/formrabginfo.html',
             focus: -1,
-            fields : [
-                { name: 'Applicant'  , type: 'text'    , required: true, html: { caption: "Applicant Name" } },
+            fields: [
+                {field: 'application_date', type: 'date', required: true},
+                {field: 'move_in_date', type: 'date', required: true},
+                {field: 'apt_no', type: 'alphanumeric', required: true}, // Apartment number
+                {field: 'lt', type: 'text', required: true}, // Lease term
+                {field: 'applicant_first_name', type: 'text', required: true},
+                {field: 'applicant_middle_name', type: 'text', required: true},
+                {field: 'applicant_last_name', type: 'text', required: true},
+                {field: 'applicant_dob', type: 'date', required: true}, // Date of births of applicants
+                {field: 'applicant_ssn', type: 'int', required: true}, // Social security number of applicants
+                {field: 'applicant_dln', type: 'alphanumeric', required: true}, // Driving licence number of applicants
+                {field: 'applicant_telno', type: 'int', required: true}, // Telephone no of applicants
+                {field: 'applicant_email', type: 'email', required: true}, // Email Address of applicants
+                {field: 'co_applicant_first_name', type: 'text'},
+                {field: 'co_applicant_middle_name', type: 'text'},
+                {field: 'co_applicant_last_name', type: 'text'},
+                {field: 'co_applicant_dob', type: 'date'}, // Date of births of co-applicants
+                {field: 'co_applicant_ssn', type: 'int'}, // Social security number of co-applicants
+                {field: 'co_applicant_dln', type: 'alphanumeric'}, // Driving licence number of co-applicants
+                {field: 'co_applicant_telno', type: 'int'}, // Telephone no of co-applicants
+                {field: 'co_applicant_email', type: 'email'}, // Email Address of co-applicants
+                {field: 'no_people_apt', type: 'int', required: true}, // No. of people occupying apartment
+                {field: 'c_address', type: 'text', required: true}, // Current Address
+                {field: 'cll_name', type: 'text', required: true}, // Current landlord's name
+                {field: 'cll_phone', type: 'int', required: true}, // Current landlord's phone number
+                {field: 'clr', type: 'text', required: true}, // Length of residency at current address
+                {field: 'cresmove', type: 'text', required: true}, // Reason of moving from current address
+                {field: 'p_address', type: 'text'}, // Prior Address
+                {field: 'pll_name', type: 'text'}, // Prior landlord's name
+                {field: 'pll_phone', type: 'int'}, // Prior landlord's phone number
+                {field: 'plr', type: 'text'}, // Length of residency at Prior address
+                {field: 'presmove', type: 'text'}, // Reason of moving from Prior address
+                {field: 'evicted', type: 'checkbox', required: false}, // have you ever been evicted
+                {field: 'crime', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
+                {field: 'bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
+
+                {field: 'applicant_employer', type: 'text', required: true},
+                {field: 'applicant_phone', type: 'int', required: true},
+                {field: 'applicant_address', type: 'text', required: true},
+                {field: 'applicant_position', type: 'text', required: true},
+                {field: 'applicant_gw', type: 'int', required: true},
+                {field: 'co_applicant_employer', type: 'text'},
+                {field: 'co_applicant_phone', type: 'int'},
+                {field: 'co_applicant_address', type: 'text'},
+                {field: 'co_applicant_position', type: 'text'},
+                {field: 'co_applicant_gw', type: 'int'},
+                {field: 'comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
+                {field: 'ec_name', type: 'text', required: true}, // Name of emergency contact
+                {field: 'ec_phone', type: 'int', required: true}, // Phone number of emergency contact
+                {field: 'ec_address', type: 'text', required: true}, // Address of emergency contact
+                {field: 'address1', type: 'text', required: true},
+                {field: 'address2', type: 'text'},
+                {field: 'city', type: 'text', required: true},
+                {field: 'state', type: 'text', required: true},
+                {field: 'zip', type: 'int', required: true},
+                {field: 'short_bio', type: 'text'},
+                {field: 'talk_name', type: 'text', required: true},
+                {field: 'description', type: 'text'}
             ],
             actions: {
                 reset: function () {
                     this.clear();
-                },
+                }
                 /*save: function () {
                     this.save();
                 }*/
@@ -954,54 +1011,54 @@ window.loadRABGInfoForm = function() {
     }
 
     // load the existing data in people component
-    setTimeout(function() {
+    setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
-        if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
+        if (i >= 0 && app.raflow.data[app.raflow.activeflowID][i].Data) {
+            w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeflowID][i].Data;
             w2ui.RABGInfoForm.refresh();
         } else {
             w2ui.RABGInfoForm.clear();
         }
     }, 500);
-};
+}
 
 // -------------------------------------------------------------------------------
 // Rental Agreement - Rentables Grid
 // -------------------------------------------------------------------------------
-window.getRentablesGridInitalRecord = function(BID, gridLen) {
+window.getRentablesGridInitalRecord = function (BID, gridLen) {
     return {
-        recid:                 gridLen,
-        RID:                   0,
-        BID:                   BID,
-        RTID:                  0,
-        RentableName:          "",
-        ContractRent:          0.0,
-        ProrateAmt:            0.0,
-        TaxableAmt:            0.0,
-        SalesTax:              0.0,
-        TransOCC:              0.0,
+        recid: gridLen,
+        RID: 0,
+        BID: BID,
+        RTID: 0,
+        RentableName: "",
+        ContractRent: 0.0,
+        ProrateAmt: 0.0,
+        TaxableAmt: 0.0,
+        SalesTax: 0.0,
+        TransOCC: 0.0,
     };
 };
 
-window.loadRARentablesGrid = function() {
+window.loadRARentablesGrid = function () {
     // if form is loaded then return
     if (!("RARentablesGrid" in w2ui)) {
 
         // rentables grid
         $('#ra-form #rentables').w2grid({
-            name   : 'RARentablesGrid',
-            header : 'Rentables',
-            show   : {
-                        toolbar: true,
-                        footer: true,
-                        // toolbarSave: true
-                     },
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RARentablesGrid',
+            header: 'Rentables',
+            show: {
+                toolbar: true,
+                footer: true,
+                // toolbarSave: true
+            },
+            style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
-                    { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
+                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
                 ],
-                onClick: function(event) {
+                onClick: function (event) {
                     if (event.target == 'add') {
                         var inital = getRentablesGridInitalRecord(1, w2ui.RARentablesGrid.records.length);
                         w2ui.RARentablesGrid.add(inital);
@@ -1014,61 +1071,61 @@ window.loadRARentablesGrid = function() {
                     hidden: true,
                 },
                 {
-                    field:   'RID',
-                    hidden:  true
+                    field: 'RID',
+                    hidden: true
                 },
                 {
-                    field:   'BID',
-                    hidden:  true
+                    field: 'BID',
+                    hidden: true
                 },
                 {
-                    field:   'RTID',
-                    hidden:  true
+                    field: 'RTID',
+                    hidden: true
                 },
                 {
-                    field:   'RentableName',
+                    field: 'RentableName',
                     caption: 'Rentable',
-                    size:    '350px',
-                    editable:{ type: 'text' }
+                    size: '350px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'ContractRent',
+                    field: 'ContractRent',
                     caption: 'At Signing',
-                    size:    '100px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '100px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'ProrateAmt',
+                    field: 'ProrateAmt',
                     caption: 'Prorate',
-                    size:    '100px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '100px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'TaxableAmt',
+                    field: 'TaxableAmt',
                     caption: 'Taxable Amt',
-                    size:    '100px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '100px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'SalesTax',
+                    field: 'SalesTax',
                     caption: 'Sales Tax',
-                    size:    '100px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '100px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'TransOCC',
+                    field: 'TransOCC',
                     caption: 'Trans OCC',
-                    size:    '100%',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '100%',
+                    render: 'money',
+                    editable: {type: 'money'}
                 }
             ],
-            onChange: function(event) {
-                event.onComplete = function() {
+            onChange: function (event) {
+                event.onComplete = function () {
                     this.save();
                 };
             }
@@ -1076,7 +1133,7 @@ window.loadRARentablesGrid = function() {
     }
 
     // load the existing data in rentables component
-    setTimeout(function() {
+    setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RARentablesGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
@@ -1091,43 +1148,43 @@ window.loadRARentablesGrid = function() {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Fees Terms Grid
 // -------------------------------------------------------------------------------
-window.getFeesTermsGridInitalRecord = function(BID, gridLen) {
+window.getFeesTermsGridInitalRecord = function (BID, gridLen) {
     return {
-        recid:                 gridLen,
-        RID:                   0,
-        BID:                   BID,
-        RTID:                  0,
-        RentableName:          "",
-        FeeName:                   "",
-        Amount:                0.0,
-        Cycle:                 6,
-        SigningAmt:            0.0,
-        ProrateAmt:            0.0,
-        TaxableAmt:            0.0,
-        SalesTax:              0.0,
-        TransOCC:              0.0,
+        recid: gridLen,
+        RID: 0,
+        BID: BID,
+        RTID: 0,
+        RentableName: "",
+        FeeName: "",
+        Amount: 0.0,
+        Cycle: 6,
+        SigningAmt: 0.0,
+        ProrateAmt: 0.0,
+        TaxableAmt: 0.0,
+        SalesTax: 0.0,
+        TransOCC: 0.0,
     };
 };
 
-window.loadRAFeesTermsGrid = function() {
+window.loadRAFeesTermsGrid = function () {
     // if form is loaded then return
     if (!("RAFeesTermsGrid" in w2ui)) {
 
         // feesterms grid
         $('#ra-form #feesterms').w2grid({
-            name   : 'RAFeesTermsGrid',
-            header : 'FeesTerms',
-            show   : {
-                        toolbar: true,
-                        footer: true,
-                        // toolbarSave: true
-                     },
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RAFeesTermsGrid',
+            header: 'FeesTerms',
+            show: {
+                toolbar: true,
+                footer: true,
+                // toolbarSave: true
+            },
+            style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
-                    { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
+                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
                 ],
-                onClick: function(event) {
+                onClick: function (event) {
                     if (event.target == 'add') {
                         var inital = getFeesTermsGridInitalRecord(1, w2ui.RAFeesTermsGrid.records.length);
                         w2ui.RAFeesTermsGrid.add(inital);
@@ -1140,80 +1197,80 @@ window.loadRAFeesTermsGrid = function() {
                     hidden: true,
                 },
                 {
-                    field:   'RID',
-                    hidden:  true
+                    field: 'RID',
+                    hidden: true
                 },
                 {
-                    field:   'BID',
-                    hidden:  true
+                    field: 'BID',
+                    hidden: true
                 },
                 {
-                    field:   'RTID',
-                    hidden:  true
+                    field: 'RTID',
+                    hidden: true
                 },
                 {
-                    field:   'RentableName',
+                    field: 'RentableName',
                     caption: 'Rentable',
-                    size:    '180px',
-                    editable:{ type: 'text' }
+                    size: '180px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'FeeName',
+                    field: 'FeeName',
                     caption: 'Fee',
-                    size:    '120px',
-                    editable:{ type: 'text' }
+                    size: '120px',
+                    editable: {type: 'text'}
                 },
                 {
-                    field:   'Amount',
+                    field: 'Amount',
                     caption: 'Amount',
-                    size:    '80px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '80px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'Cycle',
+                    field: 'Cycle',
                     caption: 'Cycle',
-                    size:    '80px',
-                    editable:{ type: 'int' }
+                    size: '80px',
+                    editable: {type: 'int'}
                 },
                 {
-                    field:   'SigningAmt',
+                    field: 'SigningAmt',
                     caption: 'At Signing',
-                    size:    '80px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '80px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'ProrateAmt',
+                    field: 'ProrateAmt',
                     caption: 'Prorate',
-                    size:    '80px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '80px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'TaxableAmt',
+                    field: 'TaxableAmt',
                     caption: 'Taxable Amt',
-                    size:    '80px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '80px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'SalesTax',
+                    field: 'SalesTax',
                     caption: 'Sales Tax',
-                    size:    '80px',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '80px',
+                    render: 'money',
+                    editable: {type: 'money'}
                 },
                 {
-                    field:   'TransOCC',
+                    field: 'TransOCC',
                     caption: 'Trans OCC',
-                    size:    '100%',
-                    render:  'money',
-                    editable:{ type: 'money' }
+                    size: '100%',
+                    render: 'money',
+                    editable: {type: 'money'}
                 }
             ],
-            onChange: function(event) {
-                event.onComplete = function() {
+            onChange: function (event) {
+                event.onComplete = function () {
                     this.save();
                 };
             }
@@ -1221,7 +1278,7 @@ window.loadRAFeesTermsGrid = function() {
     }
 
     // load the existing data in feesterms component
-    setTimeout(function() {
+    setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.feesterms);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RAFeesTermsGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
