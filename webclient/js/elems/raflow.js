@@ -4,7 +4,7 @@
     loadRAPetsGrid, loadRAVehiclesGrid, loadRABGInfoForm, loadRARentablesGrid,
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
-    getPetsGridInitalRecord, saveActiveCompData,
+    getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm
 */
 
 "use strict";
@@ -928,7 +928,7 @@ window.loadRAVehiclesGrid = function () {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Background info form
 // -------------------------------------------------------------------------------
-function loadRABGInfoForm() {
+window.loadRABGInfoForm = function() {
 
     // if form is loaded then return
     if (!("RABGInfoForm" in w2ui)) {
@@ -1020,7 +1020,7 @@ function loadRABGInfoForm() {
             w2ui.RABGInfoForm.clear();
         }
     }, 500);
-}
+};
 
 // -------------------------------------------------------------------------------
 // Rental Agreement - Rentables Grid
