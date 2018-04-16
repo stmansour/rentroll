@@ -28,6 +28,7 @@ window.buildSidebar = function(flag) {
                 },
                 { id: 'rentagr', text: plural(app.sRentalAgreement), img: 'icon-folder', expanded: true, group: true,
                     nodes: [
+                            { id: 'newrentalagrs',  text: plural(app.sRentalAgreement) + " (*new)",    icon: 'fas fa-certificate', hint: 'Rental Agreements' },
                             { id: 'rentalagrs',   text: plural(app.sRentalAgreement),    icon: 'fas fa-certificate', hint: 'Rental Agreements' },
                             { id: 'transactants', text: plural(app.sTransactant),        icon: 'fas fa-users' },
                             // { id: 'assignrnt',    text: 'Assign A ' + app.sRentable,     icon: 'far fa-check-square' },
@@ -177,6 +178,10 @@ window.buildSidebar = function(flag) {
                         case 'rr':
                             // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             switchToGrid(target);
+                            break;
+                        case 'newrentalagrs':
+                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
+                            switchToGrid(target, "flow");
                             break;
                         case 'goRatePlan':
                             // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view

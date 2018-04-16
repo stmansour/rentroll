@@ -369,3 +369,11 @@ func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
 
 	return nil
 }
+
+// GridRAFlowResponse is a struct to hold info for rental agreement for the grid response
+type GridRAFlowResponse struct {
+	Recid  int64 `json:"recid"`
+	BID    int64
+	BUD    string
+	FlowID string
+}

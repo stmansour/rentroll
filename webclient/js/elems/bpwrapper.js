@@ -33,6 +33,7 @@ window.buildPageElementsWrapper = function (uitype) {
     buildRentableTypeElements();
     buildRentableElements();
     buildRAElements();
+    buildNewRAElements();
     buildRAPayorPicker();
     buildRUserPicker();
     buildRentablePicker();

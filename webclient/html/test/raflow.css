@@ -237,13 +237,31 @@ button.save-ra {
     float: right;
 }
 
+.ra-form-component#people .form-container {
+    height: 130px;
+}
+
+.ra-form-component#people .form-container label {
+    margin-right: 20px;
+}
+
+.ra-form-component#people .form-container input[type="checkbox"] {
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+}
+
+.ra-form-component#people .form-container input[name="Transactant"] {
+    width: 60%;
+}
+
 #people-type-containers {
     width: 100%;
     display: block;
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 280px;
+    height: 270px;
 }
 
 #people-type-containers .people-type {
@@ -274,6 +292,10 @@ button.save-ra {
     text-align: left;
     position: relative;
     margin: 3px 0px;
+}
+
+.people-listing li span {
+    font-size: 14px;
 }
 
 i.remove-item {

@@ -20,8 +20,8 @@ type FlowPartJSONData struct {
 
 // GetAllFlowsResponse response struct to get a whole flow with its all part
 type GetAllFlowsResponse struct {
-	Status  string   `json:"status"`
-	Records []string `json:"records"`
+	Status  string               `json:"status"`
+	Records []GridRAFlowResponse `json:"records"`
 }
 
 // GetFlowResponse response struct to get a whole flow with its all part
@@ -175,10 +175,21 @@ func getAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	g.Records, err = rlib.GetFlowIDsByUser(r.Context(), f.Flow)
+	var recs []string
+	recs, err = rlib.GetFlowIDsByUser(r.Context(), f.Flow)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
+	}
+
+	for i, rec := range recs {
+		var t = GridRAFlowResponse{
+			Recid:  int64(i),
+			BID:    d.BID,
+			FlowID: rec,
+			BUD:    string(getBUDFromBIDList(d.BID)),
+		}
+		g.Records = append(g.Records, t)
 	}
 
 	g.Status = "success"
