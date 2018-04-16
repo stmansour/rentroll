@@ -102,7 +102,6 @@ ul {
 
 #ra-form-container {
     width: 100%;
-    background-color: white;
     height: 100%;
     font-family: "Lato", "Lucida Grande", "Lucida Sans Unicode", Tahoma, Sans-Serif;
 }
@@ -129,12 +128,13 @@ ul {
     margin: 0 auto;
     padding: 20px 40px 0px 40px;
     text-align: center;
+    position: relative;
 }
 
 .ra-form-component {
     /*width: 80%;*/
     margin: 0 auto;
-    min-height: 380px;
+    min-height: 350px;
     height: 70%;
     border: 1px #555 solid;
     position: relative;
@@ -248,7 +248,7 @@ button.save-ra {
 .people-type .people-listing {
     padding: 5px;
     box-sizing: border-box;
-    height: 205px;
+    height: 180px;
     display: block;
     border: 1px black solid;
     background-color: #F2F2F2;

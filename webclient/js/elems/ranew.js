@@ -64,7 +64,6 @@ window.buildNewRAElements = function () {
     // ------------------------------------------------------
     $().w2grid({
         name: 'newrentalagrsGrid',
-        // url:                '/v1/ras/',
         multiSelect: false,
         show: {
             toolbar: true,
@@ -215,7 +214,31 @@ window.buildNewRAElements = function () {
         panels: [
             {type: 'left', hidden: true},
             {type: 'top', hidden: true},
-            {type: 'main', size: '60%', resizable: true, style: app.pstyle, content: 'main'},
+            {
+                type: 'main', size: '60%', resizable: true, style: app.pstyle,
+                content: 'main',
+                toolbar: {
+                    items: [
+                        {id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note'},
+                        {id: 'bt3', type: 'spacer'},
+                        {id: 'btnClose', type: 'button', icon: 'fas fa-times'},
+                    ],
+                    onClick: function (event) {
+                        switch (event.target) {
+                            case 'btnClose':
+                                var no_callBack = function () {
+                                        return false;
+                                    },
+                                    yes_callBack = function () {
+                                        w2ui.toplayout.hide('right', true);
+                                        w2ui.rentalagrsGrid.render();
+                                    };
+                                form_dirty_alert(yes_callBack, no_callBack);
+                                break;
+                        }
+                    },
+                }
+            },
             {type: 'preview', hidden: true},
             {type: 'bottom', hidden: true},
             {type: 'right', hidden: true}
