@@ -113,7 +113,7 @@ window.getRAFlowAllParts = function(FlowID) {
             if (data.status != "error") {
                 app.raflow.data[FlowID] = data.records;
                 // load form container
-                $("#ra-form-container").animate({"left": "0"}, 100);
+                // $("#ra-form-container").animate({"left": "0"}, 100);
                 // load first dates section
                 loadRADatesForm();
                 // as we load the first section
