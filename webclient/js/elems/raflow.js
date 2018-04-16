@@ -271,19 +271,19 @@ window.loadRADatesForm = function () {
             header: 'Dates',
             style: 'border: 1px black solid; display: block;',
             focus: -1,
-            formURL: '/webclient/html/test/formradates.html',
+            formURL: '/webclient/html/formradates.html',
             fields: [
                 {name: 'AgreementStart', type: 'date', required: true, html: {caption: "Term Start"}},
                 {name: 'AgreementStop', type: 'date', required: true, html: {caption: "Term Stop"}},
                 {name: 'RentStart', type: 'date', required: true, html: {caption: "Rent Start"}},
                 {name: 'RentStop', type: 'date', required: true, html: {caption: "Rent Stop"}},
                 {name: 'PossessionStart', type: 'date', required: true, html: {caption: "Possession Start"}},
-                {name: 'PossessionStop', type: 'date', required: true, html: {caption: "Possession Stop"}},
+                {name: 'PossessionStop', type: 'date', required: true, html: {caption: "Possession Stop"}}
             ],
             actions: {
                 reset: function () {
                     this.clear();
-                },
+                }
                 /*save: function () {
                     this.save();
                 }*/
@@ -540,7 +540,7 @@ window.loadRAPeopleForm = function () {
             name: 'RAPeopleForm',
             header: 'People',
             style: 'display: block;',
-            formURL: '/webclient/html/test/formrapeople.html',
+            formURL: '/webclient/html/formrapeople.html',
             focus: -1,
             fields: [
                 {
@@ -605,7 +605,7 @@ window.loadRAPeopleForm = function () {
             actions: {
                 reset: function () {
                     this.clear();
-                },
+                }
                 /*save: function () {
                     this.save();
                 }*/
@@ -938,7 +938,7 @@ function loadRABGInfoForm() {
             name: 'RABGInfoForm',
             header: 'Background Information',
             style: 'border: 1px solid black; display: block;',
-            formURL: '/webclient/html/test/formrabginfo.html',
+            formURL: '/webclient/html/formrabginfo.html',
             focus: -1,
             fields: [
                 {field: 'application_date', type: 'date', required: true},
