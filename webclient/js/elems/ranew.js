@@ -64,7 +64,6 @@ window.buildNewRAElements = function() {
     // ------------------------------------------------------
     $().w2grid({
         name:               'newrentalagrsGrid',
-        // url:                '/v1/ras/',
         multiSelect:        false,
         show: {
             toolbar: true,

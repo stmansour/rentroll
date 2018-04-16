@@ -60,6 +60,8 @@ $(document).on('click', '#ra-form #progressbar a', function() {
 // TODO: we should pass FlowID, flowPartID here in arguments
 window.saveActiveCompData = function(record, partType) {
 
+    var bid = getCurrentBID();
+
     var flowPartID;
     var flowParts = app.raflow.data[app.raflow.activeFlowID] || [];
 
@@ -75,13 +77,13 @@ window.saveActiveCompData = function(record, partType) {
         "FlowPartID": flowPartID,
         "Flow": app.raflow.name,
         "FlowID": app.raflow.activeFlowID,
-        "BID": 1,
+        "BID": bid,
         "PartType": partType,
         "Data": record,
     };
 
     $.ajax({
-        url: "/v1/flowpart/1/0",
+        url: "/v1/flowpart/" + bid.toString() + "/0",
         method: "POST",
         contentType: "application/json",
         dataType: "json",
@@ -89,11 +91,8 @@ window.saveActiveCompData = function(record, partType) {
         success: function(data) {
             if (data.status != "error") {
                 console.log("data has been saved for: ", app.raflow.activeFlowID, ", partType: ", partType);
-
-                $("#manage-flows #message").hide();
-
             } else {
-                $("#manage-flows #message").text(data.message).show();
+                console.error(data.message);
             }
         },
         error: function(data) {
@@ -103,8 +102,10 @@ window.saveActiveCompData = function(record, partType) {
 };
 
 window.getRAFlowAllParts = function(FlowID) {
+    var bid = getCurrentBID();
+
     $.ajax({
-        url: "/v1/flow/1/0",
+        url: "/v1/flow/" + bid.toString() + "/0",
         method: "POST",
         contentType: "application/json",
         dataType: "json",
@@ -112,16 +113,14 @@ window.getRAFlowAllParts = function(FlowID) {
         success: function(data) {
             if (data.status != "error") {
                 app.raflow.data[FlowID] = data.records;
-                // load form container
-                // $("#ra-form-container").animate({"left": "0"}, 100);
+
                 // load first dates section
                 loadRADatesForm();
+
                 // as we load the first section
                 $("#ra-form footer button#previous").addClass("disable");
-
-                $("#manage-flows #message").hide();
             } else {
-                $("#manage-flows #message").text(data.message).show();
+                console.error(data.message);
             }
         },
         error: function(data) {
@@ -668,8 +667,9 @@ window.loadRAPetsGrid = function() {
                     { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
                 ],
                 onClick: function(event) {
+                    var bid = getCurrentBID();
                     if (event.target == 'add') {
-                        var inital = getPetsGridInitalRecord(1, w2ui.RAPetsGrid.records.length);
+                        var inital = getPetsGridInitalRecord(bid, w2ui.RAPetsGrid.records.length);
                         w2ui.RAPetsGrid.add(inital);
                     }
                 }
@@ -820,8 +820,9 @@ window.loadRAVehiclesGrid = function() {
                     { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
                 ],
                 onClick: function(event) {
+                    var bid = getCurrentBID();
                     if (event.target == 'add') {
-                        var inital = getVehicleGridInitalRecord(1, w2ui.RAVehiclesGrid.records.length);
+                        var inital = getVehicleGridInitalRecord(bid, w2ui.RAVehiclesGrid.records.length);
                         w2ui.RAVehiclesGrid.add(inital);
                     }
                 }
@@ -1002,8 +1003,9 @@ window.loadRARentablesGrid = function() {
                     { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
                 ],
                 onClick: function(event) {
+                    var bid = getCurrentBID();
                     if (event.target == 'add') {
-                        var inital = getRentablesGridInitalRecord(1, w2ui.RARentablesGrid.records.length);
+                        var inital = getRentablesGridInitalRecord(bid, w2ui.RARentablesGrid.records.length);
                         w2ui.RARentablesGrid.add(inital);
                     }
                 }
@@ -1120,7 +1122,6 @@ window.loadRAFeesTermsGrid = function() {
             show   : {
                         toolbar: true,
                         footer: true,
-                        // toolbarSave: true
                      },
             style  : 'border: 1px solid black; display: block;',
             toolbar: {
@@ -1128,8 +1129,9 @@ window.loadRAFeesTermsGrid = function() {
                     { id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus' }
                 ],
                 onClick: function(event) {
+                    var bid = getCurrentBID();
                     if (event.target == 'add') {
-                        var inital = getFeesTermsGridInitalRecord(1, w2ui.RAFeesTermsGrid.records.length);
+                        var inital = getFeesTermsGridInitalRecord(bid, w2ui.RAFeesTermsGrid.records.length);
                         w2ui.RAFeesTermsGrid.add(inital);
                     }
                 }
