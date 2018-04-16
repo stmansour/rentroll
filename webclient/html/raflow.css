@@ -127,14 +127,14 @@ ul {
 #ra-form {
     width: 100%;
     margin: 0 auto;
-    padding: 20px 40px;
+    padding: 20px 40px 0px 40px;
     text-align: center;
 }
 
 .ra-form-component {
     /*width: 80%;*/
     margin: 0 auto;
-    min-height: 350px;
+    min-height: 380px;
     height: 70%;
     border: 1px #555 solid;
     position: relative;
@@ -173,8 +173,7 @@ button.save-ra {
 
 #ra-form footer {
     /*width: 80%;*/
-    margin: 20px auto;
-    margin-bottom: 0px;
+    margin: 10px auto 0px auto;
     position: relative;
     padding: 10px 20px;
 }
@@ -231,7 +230,6 @@ button.save-ra {
     bottom: 0;
     left: 0;
     top: 130px;
-    height: 100%;
 }
 
 #people-type-containers .people-type {
@@ -250,8 +248,7 @@ button.save-ra {
 .people-type .people-listing {
     padding: 5px;
     box-sizing: border-box;
-    /*height: 100%;*/
-    height: 150px;
+    height: 205px;
     display: block;
     border: 1px black solid;
     background-color: #F2F2F2;
@@ -273,6 +270,6 @@ i.remove-item {
     cursor: pointer;
     position: absolute;
     right: 5px;
+    top: 6px;
     color: red;
-    margin: 3px 0 0 0;
 }

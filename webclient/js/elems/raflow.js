@@ -271,7 +271,7 @@ window.loadRADatesForm = function() {
             header : 'Dates',
             style  : 'border: 1px black solid; display: block;',
             focus  : -1,
-            formURL: '/webclient/html/test/formradates.html',
+            formURL: '/webclient/html/formradates.html',
             fields : [
                 { name: 'AgreementStart',  type: 'date', required: true, html: { caption: "Term Start" } },
                 { name: 'AgreementStop',   type: 'date', required: true, html: { caption: "Term Stop"  } },
@@ -540,7 +540,7 @@ window.loadRAPeopleForm = function() {
             name   : 'RAPeopleForm',
             header : 'People',
             style  : 'display: block;',
-            formURL: '/webclient/html/test/formrapeople.html',
+            formURL: '/webclient/html/formrapeople.html',
             focus: -1,
             fields : [
                 { name: 'Transactant', type: 'enum',     required: true, html: { caption: "Transactant" },
@@ -937,7 +937,7 @@ window.loadRABGInfoForm = function() {
             name   : 'RABGInfoForm',
             header : 'Background Information',
             style  : 'border: 1px solid black; display: block;',
-            formURL: '/webclient/html/test/formrabginfo.html',
+            formURL: '/webclient/html/formrabginfo.html',
             focus: -1,
             fields : [
                 { name: 'Applicant'  , type: 'text'    , required: true, html: { caption: "Applicant Name" } },
