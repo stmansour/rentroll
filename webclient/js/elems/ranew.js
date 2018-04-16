@@ -159,22 +159,12 @@ window.buildNewRAElements = function () {
                     grid.select(app.last.grid_sel_recid);
                     return false;
                 },
-                yes_callBack = function (grid, recid) {
-                    alert("I'm being called twice");
+                yes_callBack = function(grid, recid) {
                     initRAFlowAJAX()
                         .done(function (data, textStatus, jqXHR) {
                             var bid = getCurrentBID(),
                                 bud = getBUDfromBID(bid);
-
-                            var newRecid = grid.records.length;
-
-                            // add new record
-                            grid.add({
-                                recid: newRecid,
-                                BID: bid,
-                                BUD: bud,
-                                FlowID: data.FlowID,
-                            });
+                        grid.refresh();
 
                             console.log(data);
 
@@ -224,17 +214,15 @@ window.buildNewRAElements = function () {
                         {id: 'btnClose', type: 'button', icon: 'fas fa-times'},
                     ],
                     onClick: function (event) {
-                        switch (event.target) {
-                            case 'btnClose':
-                                var no_callBack = function () {
-                                        return false;
-                                    },
-                                    yes_callBack = function () {
-                                        w2ui.toplayout.hide('right', true);
-                                        w2ui.rentalagrsGrid.render();
-                                    };
-                                form_dirty_alert(yes_callBack, no_callBack);
-                                break;
+                        switch(event.target) {
+                        case 'btnClose':
+                            var no_callBack = function() { return false; },
+                                yes_callBack = function() {
+                                    w2ui.toplayout.hide('right',true);
+                                    w2ui.newrentalagrsGrid.render();
+                                };
+                            form_dirty_alert(yes_callBack, no_callBack);
+                            break;
                         }
                     },
                 }

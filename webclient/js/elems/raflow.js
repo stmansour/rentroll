@@ -4,7 +4,7 @@
     loadRAPetsGrid, loadRAVehiclesGrid, loadRABGInfoForm, loadRARentablesGrid,
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
-    getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm
+    getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render
 */
 
 "use strict";
@@ -263,13 +263,12 @@ window.loadRADatesForm = function () {
 
     // if form is loaded then return
     if (!("RADatesForm" in w2ui)) {
-
         // dates form
-        $('#ra-form #dates').w2form({
-            name: 'RADatesForm',
-            header: 'Dates',
-            style: 'border: 1px black solid; display: block;',
-            focus: -1,
+        $().w2form({
+            name   : 'RADatesForm',
+            header : 'Dates',
+            style  : 'border: 1px black solid; display: block;',
+            focus  : -1,
             formURL: '/webclient/html/formradates.html',
             fields: [
                 {name: 'AgreementStart', type: 'date', required: true, html: {caption: "Term Start"}},
@@ -282,10 +281,7 @@ window.loadRADatesForm = function () {
             actions: {
                 reset: function () {
                     this.clear();
-                }
-                /*save: function () {
-                    this.save();
-                }*/
+                },
             },
             onRefresh: function (event) {
                 var t = new Date(),
@@ -300,8 +296,10 @@ window.loadRADatesForm = function () {
                 this.record.PossessionStop = this.record.PossessionStop || w2uiDateControlString(nyd);
             }
         });
-
     }
+
+    // now render the form in specifiec targeted division
+    $('#ra-form #dates').w2render(w2ui.RADatesForm);
 
     // load the existing data in dates component
     setTimeout(function () {
@@ -457,7 +455,7 @@ window.acceptTransactant = function () {
 };
 
 // remove people from the listing
-$(document).on('click', '.remove-item', function () {
+$(document).on('click', '.people-listing .remove-item', function() {
     var tcid = parseInt($(this).closest('li').attr('data-tcid'));
 
     // get part type index
@@ -535,10 +533,10 @@ window.loadRAPeopleForm = function () {
     if (!("RAPeopleForm" in w2ui)) {
 
         // people form
-        $('#ra-form #people .form-container').w2form({
-            name: 'RAPeopleForm',
-            header: 'People',
-            style: 'display: block;',
+        $().w2form({
+            name   : 'RAPeopleForm',
+            header : 'People',
+            style  : 'display: block;',
             formURL: '/webclient/html/formrapeople.html',
             focus: -1,
             fields: [
@@ -605,12 +603,13 @@ window.loadRAPeopleForm = function () {
                 reset: function () {
                     this.clear();
                 }
-                /*save: function () {
-                    this.save();
-                }*/
+                },
             }
         });
     }
+
+    // load form in div
+    $('#ra-form #people .form-container').w2render(w2ui.RAPeopleForm);
 
     // load the existing data in people component
     setTimeout(function () {
@@ -654,15 +653,14 @@ window.loadRAPetsGrid = function () {
     if (!("RAPetsGrid" in w2ui)) {
 
         // pets grid
-        $('#ra-form #pets').w2grid({
-            name: 'RAPetsGrid',
-            header: 'Pets',
-            show: {
-                toolbar: true,
-                footer: true,
-                // toolbarSave: true
-            },
-            style: 'border: 1px solid black; display: block;',
+        $().w2grid({
+            name   : 'RAPetsGrid',
+            header : 'Pets',
+            show   : {
+                        toolbar: true,
+                        footer: true,
+                     },
+            style  : 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
@@ -688,10 +686,6 @@ window.loadRAPetsGrid = function () {
                     field: 'BID',
                     hidden: true
                 },
-                /*                {
-                                    field:   'RAID',
-                                    hidden:  true
-                                },*/
                 {
                     field: 'Name',
                     caption: 'Name',
@@ -764,6 +758,9 @@ window.loadRAPetsGrid = function () {
         });
     }
 
+    // now load grid in division
+    $('#ra-form #pets').w2render(w2ui.RAPetsGrid);
+
     // load the existing data in pets component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.pets);
@@ -807,15 +804,14 @@ window.loadRAVehiclesGrid = function () {
     if (!("RAVehiclesGrid" in w2ui)) {
 
         // vehicles grid
-        $('#ra-form #vehicles').w2grid({
-            name: 'RAVehiclesGrid',
-            header: 'Vehicles',
-            show: {
-                toolbar: true,
-                footer: true,
-                // toolbarSave: true
-            },
-            style: 'border: 1px solid black; display: block;',
+        $().w2grid({
+            name   : 'RAVehiclesGrid',
+            header : 'Vehicles',
+            show   : {
+                        toolbar: true,
+                        footer: true,
+                     },
+            style  : 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
@@ -914,6 +910,9 @@ window.loadRAVehiclesGrid = function () {
         });
     }
 
+    // now load grid in target division
+    $('#ra-form #vehicles').w2render(w2ui.RAVehiclesGrid);
+
     // load the existing data in vehicles component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.vehicles);
@@ -935,10 +934,10 @@ window.loadRABGInfoForm = function () {
     if (!("RABGInfoForm" in w2ui)) {
 
         // background info form
-        $('#ra-form #bginfo').w2form({
-            name: 'RABGInfoForm',
-            header: 'Background Information',
-            style: 'border: 1px solid black; display: block;',
+        $().w2form({
+            name   : 'RABGInfoForm',
+            header : 'Background Information',
+            style  : 'border: 1px solid black; display: block;',
             formURL: '/webclient/html/formrabginfo.html',
             focus: -1,
             fields: [
@@ -1011,6 +1010,9 @@ window.loadRABGInfoForm = function () {
         });
     }
 
+    // now load form in div
+    $('#ra-form #bginfo').w2render(w2ui.RABGInfoForm);
+
     // load the existing data in people component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
@@ -1046,15 +1048,14 @@ window.loadRARentablesGrid = function () {
     if (!("RARentablesGrid" in w2ui)) {
 
         // rentables grid
-        $('#ra-form #rentables').w2grid({
-            name: 'RARentablesGrid',
-            header: 'Rentables',
-            show: {
-                toolbar: true,
-                footer: true,
-                // toolbarSave: true
-            },
-            style: 'border: 1px solid black; display: block;',
+        $().w2grid({
+            name   : 'RARentablesGrid',
+            header : 'Rentables',
+            show   : {
+                        toolbar: true,
+                        footer: true,
+                     },
+            style  : 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
@@ -1134,6 +1135,9 @@ window.loadRARentablesGrid = function () {
         });
     }
 
+    // now load grid in division
+    $('#ra-form #rentables').w2render(w2ui.RARentablesGrid);
+
     // load the existing data in rentables component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
@@ -1173,14 +1177,14 @@ window.loadRAFeesTermsGrid = function () {
     if (!("RAFeesTermsGrid" in w2ui)) {
 
         // feesterms grid
-        $('#ra-form #feesterms').w2grid({
-            name: 'RAFeesTermsGrid',
-            header: 'FeesTerms',
-            show: {
-                toolbar: true,
-                footer: true,
-            },
-            style: 'border: 1px solid black; display: block;',
+        $().w2grid({
+            name   : 'RAFeesTermsGrid',
+            header : 'FeesTerms',
+            show   : {
+                        toolbar: true,
+                        footer: true,
+                     },
+            style  : 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
@@ -1278,6 +1282,9 @@ window.loadRAFeesTermsGrid = function () {
             }
         });
     }
+
+    // load grid in division
+    $('#ra-form #feesterms').w2render(w2ui.RAFeesTermsGrid);
 
     // load the existing data in feesterms component
     setTimeout(function () {
