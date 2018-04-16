@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Background info</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css"/>
+</head>
+<body>
+
+<div id="form" style="width: 750px;">
+
+    <div class="w2ui-page page-0">
+        <!-- header section -->
+        <div>
+            <div class="w2ui-field w2ui-span4" style="display: inline-block;">
+                <label>Application Date:</label>
+                <div>
+                    <input name="application_date" type="us-date" style="width: 100%">
+                </div>
+            </div>
+            <div class="w2ui-field w2ui-span4" style="display: inline-block;">
+                <label>Move In Date:</label>
+                <div>
+                    <input name="move_in_date" type="us-date" style="width: 100%">
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="w2ui-field w2ui-span4" style="display: inline-block;">
+                <label>Apt #:</label>
+                <div>
+                    <input name="apt_no" style="width: 100%">
+                </div>
+            </div>
+            <div class="w2ui-field w2ui-span4" style="display: inline-block;">
+                <label>Lease Term:</label>
+                <div>
+                    <input name="lt" type="text" style="width: 100%">
+                </div>
+            </div>
+        </div>
+        <!-- End header section -->
+
+        <!-- Applicant/Co-Applicant section -->
+        <div>
+            <div style="width: 340px; display: inline-block;">
+                <div style="padding: 3px; font-weight: bold; color: #777;">Applicant Detail</div>
+                <div class="w2ui-group">
+                    <div class="w2ui-field w2ui-span4">
+                        <label>First Name:</label>
+                        <div>
+                            <input name="applicant_first_name" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Middle Name:</label>
+                        <div>
+                            <input name="applicant_middle_name" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Last Name:</label>
+                        <div>
+                            <input name="applicant_last_name" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Date of Birth:</label>
+                        <div>
+                            <input name="applicant_dob" type="us-date" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Soc. Sec. No.:</label>
+                        <div>
+                            <input name="applicant_ssn" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Driver's Lic. No.:</label>
+                        <div>
+                            <input name="applicant_dln" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Telephone No.:</label>
+                        <div>
+                            <input name="applicant_telno" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Eamil Address:</label>
+                        <div>
+                            <input name="applicant_email" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 380px; display: inline-block;">
+                <div style="padding: 3px; font-weight: bold; color: #777;">Co-Applicant Detail</div>
+                <div class="w2ui-group">
+                    <div class="w2ui-field w2ui-span4">
+                        <label>First Name:</label>
+                        <div>
+                            <input name="co_applicant_first_name" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Middle Name:</label>
+                        <div>
+                            <input name="co_applicant_middle_name" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Last Name:</label>
+                        <div>
+                            <input name="co_applicant_last_name" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Date of Birth:</label>
+                        <div>
+                            <input name="co_applicant_dob" type="us-date" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Soc. Sec. No.:</label>
+                        <div>
+                            <input name="co_applicant_ssn" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Driver's Lic. No.:</label>
+                        <div>
+                            <input name="co_applicant_dln" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Telephone No.:</label>
+                        <div>
+                            <input name="co_applicant_telno" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Eamil Address:</label>
+                        <div>
+                            <input name="co_applicant_email" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- End Applicant/Co-Applicant section -->
+
+        <!-- No. People section -->
+        <div>
+            <label style="display: inline-block; font-weight: bold; color: #777;">No. of people occupying apartment:</label>
+            <div class="w2ui-field" style="display: inline-block">
+                <input name="no_people_apt">
+            </div>
+        </div>
+        <!-- End No. People section -->
+
+        <!-- Previous addresses section -->
+        <div>
+            <div style="padding-top: 3%;">
+                <div style="padding: 3px; font-weight: bold; color: #777;">Current Information</div>
+                <div class="w2ui-group">
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Current Address:</label>
+                        <div>
+                            <input name="c_address" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Landlord's Name:</label>
+                        <div>
+                            <input name="cll_name" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Landlord's Phone Number:</label>
+                        <div>
+                            <input name="cll_phone" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Length of Residency:</label>
+                        <div>
+                            <input name="clr" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Reason for Moving:</label>
+                        <div>
+                            <input name="cresmove" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div style="padding: 3px; font-weight: bold; color: #777;">Prior Information</div>
+                <div class="w2ui-group">
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Prior Address:</label>
+                        <div>
+                            <input name="p_address" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Landlord's Name:</label>
+                        <div>
+                            <input name="pll_name" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Landlord's Phone Number:</label>
+                        <div>
+                            <input name="pll_phone" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Length of Residency:</label>
+                        <div>
+                            <input name="plr" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Reason for Moving:</label>
+                        <div>
+                            <input name="presmove" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Previous addresses section -->
+
+        <!-- have you ever been section -->
+        <div>
+            <div style="padding: 3px; font-weight: bold; color: #777; display: inline-block;">Have you ever been:</div>
+            <div class="w2ui-field" style="display: inline-block;">
+                <label>Evicted</label>
+                <input name="evicted" type="checkbox">
+            </div>
+            <div class="w2ui-field" style="display: inline-block;">
+                <label>Arrested or convicted of a crime</label>
+                <input name="crime" type="checkbox">
+            </div>
+            <div class="w2ui-field" style="display: inline-block;">
+                <label>Declared Bankruptcy</label>
+                <input name="bankruptcy" type="checkbox">
+            </div>
+        </div>
+        <!-- have you ever been section end-->
+
+        <!-- Applicant/Co-Applicant additonal detail seciton -->
+
+        <div>
+            <div style="width: 340px; padding-top: 15px; display: inline-block;">
+                <div style="padding: 3px; font-weight: bold; color: #777;">Applicant</div>
+                <div class="w2ui-group">
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Employer:</label>
+                        <div>
+                            <input name="applicant_employer" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Phone:</label>
+                        <div>
+                            <input name="applicant_phone" type="int" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Address:</label>
+                        <div>
+                            <input name="applicant_address" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Position:</label>
+                        <div>
+                            <input name="applicant_position" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Gross wages:</label>
+                        <div>
+                            <input name="applicant_gw" type="int" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 340px; padding-top: 15px; display: inline-block;">
+                <div style="padding: 3px; font-weight: bold; color: #777;">Co-Applicant</div>
+                <div class="w2ui-group">
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Employer:</label>
+                        <div>
+                            <input name="co_applicant_employer" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Phone:</label>
+                        <div>
+                            <input name="co_applicant_phone" type="int" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Address:</label>
+                        <div>
+                            <input name="co_applicant_address" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Position:</label>
+                        <div>
+                            <input name="co_applicant_position" type="text" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="w2ui-field w2ui-span4">
+                        <label>Gross wages:</label>
+                        <div>
+                            <input name="co_applicant_gw" type="int" maxlength="100" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Applicant/Co-Applicant additonal detail seciton -->
+        <!-- Extra comment section -->
+        <div>
+            <span style="padding: 3px; font-weight: bold; color: #777;">
+                    In an effort to accommodate you, please advise us of any special needs:
+                </span>
+            <div class="w2ui-field">
+                <textarea name="comment" cols="1" rows="3"
+                          style="width: 100%; padding-top: 4%; resize: none;"></textarea>
+            </div>
+
+        </div>
+        <!-- End Extra comment section -->
+
+        <!-- Emergency contact section -->
+        <div style="padding-top: 10px;">
+            <div style="padding: 3px; font-weight: bold; color: #777;">Emergency Contact</div>
+            <div class="w2ui-field w2ui-span4">
+                <label>Name:</label>
+                <div>
+                    <input name="ec_name" type="text" maxlength="100" style="width: 100%">
+                </div>
+            </div>
+            <div class="w2ui-field w2ui-span4">
+                <label>Phone:</label>
+                <div>
+                    <input name="ec_phone" type="int" maxlength="100" style="width: 100%">
+                </div>
+            </div>
+            <div class="w2ui-field w2ui-span4">
+                <label>Address:</label>
+                <div>
+                    <input name="ec_address" type="text" maxlength="100" style="width: 100%">
+                </div>
+            </div>
+        </div>
+        <!-- End Emergency contact section -->
+
+
+    </div>
+
+    <div class="w2ui-buttons">
+        <button class="w2ui-btn" name="reset">Reset</button>
+        <button class="w2ui-btn" name="save">Save</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#form').w2form({
+            name: 'form',
+            header: 'Background info',
+            url: 'server/post',
+            fields: [
+                {field: 'application_date', type: 'date', required: true},
+                {field: 'move_in_date', type: 'date', required: true},
+                {field: 'apt_no', type: 'alphanumeric', required: true}, // Apartment number
+                {field: 'lt', type: 'text', required: true}, // Lease term
+                {field: 'applicant_first_name', type: 'text', required: true},
+                {field: 'applicant_middle_name', type: 'text', required: true},
+                {field: 'applicant_last_name', type: 'text', required: true},
+                {field: 'applicant_dob', type: 'date', required: true}, // Date of births of applicants
+                {field: 'applicant_ssn', type: 'int', required: true}, // Social security number of applicants
+                {field: 'applicant_dln', type: 'alphanumeric', required: true}, // Driving licence number of applicants
+                {field: 'applicant_telno', type: 'int', required: true}, // Telephone no of applicants
+                {field: 'applicant_email', type: 'email', required: true}, // Email Address of applicants
+                {field: 'co_applicant_first_name', type: 'text'},
+                {field: 'co_applicant_middle_name', type: 'text'},
+                {field: 'co_applicant_last_name', type: 'text'},
+                {field: 'co_applicant_dob', type: 'date'}, // Date of births of co-applicants
+                {field: 'co_applicant_ssn', type: 'int'}, // Social security number of co-applicants
+                {field: 'co_applicant_dln', type: 'alphanumeric'}, // Driving licence number of co-applicants
+                {field: 'co_applicant_telno', type: 'int'}, // Telephone no of co-applicants
+                {field: 'co_applicant_email', type: 'email'}, // Email Address of co-applicants
+                {field: 'no_people_apt', type: 'int', required: true}, // No. of people occupying apartment
+                {field: 'c_address', type: 'text', required: true}, // Current Address
+                {field: 'cll_name', type: 'text', required: true}, // Current landlord's name
+                {field: 'cll_phone', type: 'int', required: true}, // Current landlord's phone number
+                {field: 'clr', type: 'text', required: true}, // Length of residency at current address
+                {field: 'cresmove', type: 'text', required: true}, // Reason of moving from current address
+                {field: 'p_address', type: 'text'}, // Prior Address
+                {field: 'pll_name', type: 'text'}, // Prior landlord's name
+                {field: 'pll_phone', type: 'int'}, // Prior landlord's phone number
+                {field: 'plr', type: 'text'}, // Length of residency at Prior address
+                {field: 'presmove', type: 'text'}, // Reason of moving from Prior address
+                {field: 'evicted', type: 'checkbox', required: false}, // have you ever been evicted
+                {field: 'crime', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
+                {field: 'bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
+
+                {field: 'applicant_employer', type: 'text', required: true},
+                {field: 'applicant_phone', type: 'int', required: true},
+                {field: 'applicant_address', type: 'text', required: true},
+                {field: 'applicant_position', type: 'text', required: true},
+                {field: 'applicant_gw', type: 'int', required: true},
+                {field: 'co_applicant_employer', type: 'text'},
+                {field: 'co_applicant_phone', type: 'int'},
+                {field: 'co_applicant_address', type: 'text'},
+                {field: 'co_applicant_position', type: 'text'},
+                {field: 'co_applicant_gw', type: 'int'},
+                {field: 'comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
+                {field: 'ec_name', type: 'text', required: true}, // Name of emergency contact
+                {field: 'ec_phone', type: 'int', required: true}, // Phone number of emergency contact
+                {field: 'ec_address', type: 'text', required: true}, // Address of emergency contact
+                {field: 'address1', type: 'text', required: true},
+                {field: 'address2', type: 'text'},
+                {field: 'city', type: 'text', required: true},
+                {field: 'state', type: 'text', required: true},
+                {field: 'zip', type: 'int', required: true},
+                {field: 'short_bio', type: 'text'},
+                {field: 'talk_name', type: 'text', required: true},
+                {field: 'description', type: 'text'}
+            ],
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                save: function () {
+                    this.save();
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
