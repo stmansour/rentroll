@@ -146,8 +146,7 @@ window.buildRentableElements = function () {
                 if (app.active_grid == this.name && sel_recid > -1) {
                     if (app.new_form_rec) {
                         this.selectNone();
-                    }
-                    else {
+                    } else {
                         this.select(app.last.grid_sel_recid);
                     }
                 }

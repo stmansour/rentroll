@@ -154,7 +154,7 @@ function getAllRAFlows() {
 
                 data.records = data.records || [];
                 for (var i = 0; i < data.records.length; i++) {
-                    $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.records[i]+"'>"+data.records[i]+"</li>");
+                    $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.records[i].FlowID+"'>"+data.records[i].FlowID+"</li>");
                 }
 
                 $("#manage-flows #message").hide();
