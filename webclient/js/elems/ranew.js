@@ -114,14 +114,19 @@ window.buildNewRAElements = function() {
         },
         onRefresh: function(event) {
             event.onComplete = function() {
-                var sel_recid = parseInt(this.last.sel_recid);
-
+                // var sel_recid = parseInt(this.last.sel_recid);
                 if (app.active_grid == this.name) {
-                    if (app.new_form_rec) {
+                    this.select(app.last.grid_sel_recid);
+                    // This one is special case, you need to set last sel_recid when you're adding
+                    // new record with help of onAdd event handler, so new record automatically
+                    // will be selected
+
+                    /*if (app.new_form_rec) {
                         this.unselect(sel_recid);
-                    } else {
-                        this.select(sel_recid);
                     }
+                    else{
+                        this.select(sel_recid);
+                    }*/
                 }
             };
         },
@@ -148,55 +153,53 @@ window.buildNewRAElements = function() {
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
             };
         },
-        onAdd: function(event) {
-            event.onComplete = function () {
-                var yes_args = [this],
-                    no_args = [this],
-                    no_callBack = function(grid) {
-                        grid.select(app.last.grid_sel_recid);
-                        return false;
-                    },
-                    yes_callBack = function(grid, recid) {
-                        alert("I'm being called twice");
-                        initRAFlowAJAX()
-                        .done(function(data, textStatus, jqXHR) {
-                            var bid = getCurrentBID(),
-                                bud = getBUDfromBID(bid);
+        onAdd: function(/*event*/) {
+            var yes_args = [this],
+                no_args = [this],
+                no_callBack = function(grid) {
+                    grid.select(app.last.grid_sel_recid);
+                    return false;
+                },
+                yes_callBack = function(grid, recid) {
+                    alert("I'm being called twice");
+                    initRAFlowAJAX()
+                    .done(function(data, textStatus, jqXHR) {
+                        var bid = getCurrentBID(),
+                            bud = getBUDfromBID(bid);
 
-                            var newRecid = grid.records.length;
+                        var newRecid = grid.records.length;
 
-                            // add new record
-                            grid.add({
-                                recid:  newRecid,
-                                BID:    bid,
-                                BUD:    bud,
-                                FlowID: data.FlowID,
-                            });
-
-                            console.log(data);
-
-                            alert("refreshing the grid...");
-                            grid.refresh();
-
-                            app.last.grid_sel_recid = parseInt(newRecid);
-
-                            // keep highlighting current row in any case
-                            grid.select(app.last.grid_sel_recid);
-
-                            var rec = grid.get(newRecid);
-                            var d = new Date();  // we'll use today for time-sensitive data
-                            setToNewRAForm(rec.BID, rec.FlowID);
-
-                        })
-                        .fail(function() {
-                            console.log("error while creating new flow ID");
+                        // add new record
+                        grid.add({
+                            recid:  newRecid,
+                            BID:    bid,
+                            BUD:    bud,
+                            FlowID: data.FlowID,
                         });
 
-                    };
+                        console.log(data);
 
-                // warn user if form content has been changed
-                form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
-            };
+                        alert("refreshing the grid...");
+                        grid.refresh();
+
+                        app.last.grid_sel_recid = parseInt(newRecid);
+
+                        // keep highlighting current row in any case
+                        grid.select(app.last.grid_sel_recid);
+
+                        var rec = grid.get(newRecid);
+                        var d = new Date();  // we'll use today for time-sensitive data
+                        setToNewRAForm(rec.BID, rec.FlowID);
+
+                    })
+                    .fail(function() {
+                        console.log("error while creating new flow ID");
+                    });
+
+                };
+
+            // warn user if form content has been changed
+            form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
         },
     });
 
