@@ -92,10 +92,10 @@ type RABackgroundInfoFlowData struct {
 	ApplicantBirthDate    string `json:"applicant_dob"`
 	ApplicantSSN          int    `json:"applicant_ssn"`
 	ApplicantDriverLicNo  string `json:"applicant_dln"`
-	ApplicantTelephoneNo  int    `json:"applicant_telno"`
+	ApplicantTelephoneNo  string `json:"applicant_telno"`
 	ApplicantEmailAddress string `json:"applicant_email"`
 	ApplicantEmployer     string `json:"applicant_employer"`
-	ApplicantPhone        int    `json:"applicant_phone"`
+	ApplicantPhone        string `json:"applicant_phone"`
 	ApplicantAddress      string `json:"applicant_address"`
 	ApplicantPosition     string `json:"applicant_position"`
 	ApplicantGrossWages   int    `json:"applicant_gw"`
@@ -107,10 +107,10 @@ type RABackgroundInfoFlowData struct {
 	CoApplicantBirthDate    string `json:"co_applicant_dob"`
 	CoApplicantSSN          int16  `json:"co_applicant_ssn"`
 	CoApplicantDriverLicNo  string `json:"co_applicant_dln"`
-	CoApplicantTelephoneNo  int16  `json:"co_applicant_telno"`
+	CoApplicantTelephoneNo  string `json:"co_applicant_telno"`
 	CoApplicantEmailAddress string `json:"co_applicant_email"`
 	CoApplicantEmployer     string `json:"co_applicant_employer"`
-	CoApplicantPhone        int16  `json:"co_applicant_phone"`
+	CoApplicantPhone        string `json:"co_applicant_phone"`
 	CoApplicantAddress      string `json:"co_applicant_address"`
 	CoApplicantPosition     string `json:"co_applicant_position"`
 	CoApplicantGrossWages   int16  `json:"co_applicant_gw"`
@@ -122,14 +122,14 @@ type RABackgroundInfoFlowData struct {
 	CurrentAddress      string `json:"c_address"`
 	CLandLoardName      string `json:"cll_name"`
 	CLandLoardResidency string `json:"clr"`
-	CLandLoardPhoneNo   int    `json:"cll_phone"`
+	CLandLoardPhoneNo   string `json:"cll_phone"`
 	CReasonForMoving    string `json:"cresmove"` // Reason for moving
 
 	// Prior Address information
 	PriorAddress        string `json:"p_address"`
 	PLandLoardName      string `json:"pll_name"`
 	PLandLoardResidency string `json:"plr"`
-	PLandLoardPhoneNo   int    `json:"pll_phone"`
+	PLandLoardPhoneNo   string `json:"pll_phone"`
 	PReasonForMoving    string `json:"presmove"` // Reason for moving
 
 	// Have you ever been
@@ -139,7 +139,7 @@ type RABackgroundInfoFlowData struct {
 
 	// Emergency contact information
 	ECName    string `json:"ec_name"`
-	ECPhone   int    `json:"ec_phone"`
+	ECPhone   string `json:"ec_phone"`
 	ECAddress string `json:"ec_address"`
 
 	// RA Application information

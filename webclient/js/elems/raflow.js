@@ -116,7 +116,7 @@ window.getRAFlowAllParts = function (FlowID) {
                 app.raflow.data[FlowID] = data.records;
 
                 // show "done" mark on each li of navigation bar
-                for(var comp in app.raFlowPartTypes) {
+                for (var comp in app.raFlowPartTypes) {
                     // if required fields are fulfilled then mark this slide as done
                     if (requiredFieldsFulFilled(comp)) {
                         // hide active component
@@ -172,7 +172,7 @@ window.getRAFlowPartTypeIndex = function (partType) {
     return partTypeIndex;
 };
 
-window.requiredFieldsFulFilled = function(compID) {
+window.requiredFieldsFulFilled = function (compID) {
     var done = false;
 
     // if not active flow id then return
@@ -224,6 +224,24 @@ window.requiredFieldsFulFilled = function(compID) {
             }
             break;
         case "bginfo":
+            // TODO(Akshay): Add for integer fields e.g., phone, gross wage.
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            validData = true;
+            // list of fields which must have value and it's type string
+            var listOfRequiredField = ["application_date", "move_in_date",
+                "apt_no", "lt", "applicant_first_name", "applicant_middle_name",
+                "applicant_last_name", "applicant_dob", "applicant_ssn",
+                "applicant_dln", "applicant_telno", "applicant_email",
+                "no_people_apt", "c_address", "cll_name", "cll_phone",
+                "clr", "cresmove", "applicant_employer", "applicant_phone", "applicant_address",
+                "applicant_position", "ec_name", "ec_phone", "ec_address"];
+            for (var field in listOfRequiredField) {
+                if (data[field] === "") {
+                    validData = false;
+                    break;
+                }
+            }
+            done = validData;
             break;
         case "rentables":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
@@ -346,10 +364,10 @@ window.loadRADatesForm = function () {
     if (!("RADatesForm" in w2ui)) {
         // dates form
         $().w2form({
-            name   : 'RADatesForm',
-            header : 'Dates',
-            style  : 'border: 1px black solid; display: block;',
-            focus  : -1,
+            name: 'RADatesForm',
+            header: 'Dates',
+            style: 'border: 1px black solid; display: block;',
+            focus: -1,
             formURL: '/webclient/html/formradates.html',
             fields: [
                 {name: 'AgreementStart', type: 'date', required: true, html: {caption: "Term Start"}},
@@ -536,7 +554,7 @@ window.acceptTransactant = function () {
 };
 
 // remove people from the listing
-$(document).on('click', '.people-listing .remove-item', function() {
+$(document).on('click', '.people-listing .remove-item', function () {
     var tcid = parseInt($(this).closest('li').attr('data-tcid'));
 
     // get part type index
@@ -615,9 +633,9 @@ window.loadRAPeopleForm = function () {
 
         // people form
         $().w2form({
-            name   : 'RAPeopleForm',
-            header : 'People',
-            style  : 'display: block;',
+            name: 'RAPeopleForm',
+            header: 'People',
+            style: 'display: block;',
             formURL: '/webclient/html/formrapeople.html',
             focus: -1,
             fields: [
@@ -734,13 +752,13 @@ window.loadRAPetsGrid = function () {
 
         // pets grid
         $().w2grid({
-            name   : 'RAPetsGrid',
-            header : 'Pets',
-            show   : {
-                        toolbar: true,
-                        footer: true,
-                     },
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RAPetsGrid',
+            header: 'Pets',
+            show: {
+                toolbar: true,
+                footer: true,
+            },
+            style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
@@ -885,13 +903,13 @@ window.loadRAVehiclesGrid = function () {
 
         // vehicles grid
         $().w2grid({
-            name   : 'RAVehiclesGrid',
-            header : 'Vehicles',
-            show   : {
-                        toolbar: true,
-                        footer: true,
-                     },
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RAVehiclesGrid',
+            header: 'Vehicles',
+            show: {
+                toolbar: true,
+                footer: true,
+            },
+            style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
@@ -1015,9 +1033,9 @@ window.loadRABGInfoForm = function () {
 
         // background info form
         $().w2form({
-            name   : 'RABGInfoForm',
-            header : 'Background Information',
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RABGInfoForm',
+            header: 'Background Information',
+            style: 'border: 1px solid black; display: block;',
             formURL: '/webclient/html/formrabginfo.html',
             focus: -1,
             fields: [
@@ -1031,7 +1049,7 @@ window.loadRABGInfoForm = function () {
                 {field: 'applicant_dob', type: 'date', required: true}, // Date of births of applicants
                 {field: 'applicant_ssn', type: 'int', required: true}, // Social security number of applicants
                 {field: 'applicant_dln', type: 'alphanumeric', required: true}, // Driving licence number of applicants
-                {field: 'applicant_telno', type: 'int', required: true}, // Telephone no of applicants
+                {field: 'applicant_telno', type: 'text', required: true}, // Telephone no of applicants
                 {field: 'applicant_email', type: 'email', required: true}, // Email Address of applicants
                 {field: 'co_applicant_first_name', type: 'text'},
                 {field: 'co_applicant_middle_name', type: 'text'},
@@ -1039,35 +1057,35 @@ window.loadRABGInfoForm = function () {
                 {field: 'co_applicant_dob', type: 'date'}, // Date of births of co-applicants
                 {field: 'co_applicant_ssn', type: 'int'}, // Social security number of co-applicants
                 {field: 'co_applicant_dln', type: 'alphanumeric'}, // Driving licence number of co-applicants
-                {field: 'co_applicant_telno', type: 'int'}, // Telephone no of co-applicants
+                {field: 'co_applicant_telno', type: 'text'}, // Telephone no of co-applicants
                 {field: 'co_applicant_email', type: 'email'}, // Email Address of co-applicants
                 {field: 'no_people_apt', type: 'int', required: true}, // No. of people occupying apartment
                 {field: 'c_address', type: 'text', required: true}, // Current Address
                 {field: 'cll_name', type: 'text', required: true}, // Current landlord's name
-                {field: 'cll_phone', type: 'int', required: true}, // Current landlord's phone number
+                {field: 'cll_phone', type: 'text', required: true}, // Current landlord's phone number
                 {field: 'clr', type: 'text', required: true}, // Length of residency at current address
                 {field: 'cresmove', type: 'text', required: true}, // Reason of moving from current address
                 {field: 'p_address', type: 'text'}, // Prior Address
                 {field: 'pll_name', type: 'text'}, // Prior landlord's name
-                {field: 'pll_phone', type: 'int'}, // Prior landlord's phone number
+                {field: 'pll_phone', type: 'text'}, // Prior landlord's phone number
                 {field: 'plr', type: 'text'}, // Length of residency at Prior address
                 {field: 'presmove', type: 'text'}, // Reason of moving from Prior address
                 {field: 'evicted', type: 'checkbox', required: false}, // have you ever been evicted
                 {field: 'crime', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
                 {field: 'bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
                 {field: 'applicant_employer', type: 'text', required: true},
-                {field: 'applicant_phone', type: 'int', required: true},
+                {field: 'applicant_phone', type: 'text', required: true},
                 {field: 'applicant_address', type: 'text', required: true},
                 {field: 'applicant_position', type: 'text', required: true},
                 {field: 'applicant_gw', type: 'money', required: true},
                 {field: 'co_applicant_employer', type: 'text'},
-                {field: 'co_applicant_phone', type: 'int'},
+                {field: 'co_applicant_phone', type: 'text'},
                 {field: 'co_applicant_address', type: 'text'},
                 {field: 'co_applicant_position', type: 'text'},
                 {field: 'co_applicant_gw', type: 'money'},
                 {field: 'comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
                 {field: 'ec_name', type: 'text', required: true}, // Name of emergency contact
-                {field: 'ec_phone', type: 'int', required: true}, // Phone number of emergency contact
+                {field: 'ec_phone', type: 'text', required: true}, // Phone number of emergency contact
                 {field: 'ec_address', type: 'text', required: true} // Address of emergency contact
             ],
             actions: {
@@ -1120,13 +1138,13 @@ window.loadRARentablesGrid = function () {
 
         // rentables grid
         $().w2grid({
-            name   : 'RARentablesGrid',
-            header : 'Rentables',
-            show   : {
-                        toolbar: true,
-                        footer: true,
-                     },
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RARentablesGrid',
+            header: 'Rentables',
+            show: {
+                toolbar: true,
+                footer: true,
+            },
+            style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
@@ -1249,13 +1267,13 @@ window.loadRAFeesTermsGrid = function () {
 
         // feesterms grid
         $().w2grid({
-            name   : 'RAFeesTermsGrid',
-            header : 'FeesTerms',
-            show   : {
-                        toolbar: true,
-                        footer: true,
-                     },
-            style  : 'border: 1px solid black; display: block;',
+            name: 'RAFeesTermsGrid',
+            header: 'FeesTerms',
+            show: {
+                toolbar: true,
+                footer: true,
+            },
+            style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
