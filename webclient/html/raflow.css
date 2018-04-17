@@ -26,12 +26,12 @@ ul {
     float: left;
     width: 12.5%;
     text-align: center;
-    height: 100px;
+    height: 84px;
 }
 
 #progressbar li:before {
     background-color: #DDD;
-    top: 22px;
+    top: 20px;
     display: block;
     width: 100%;
     left: -50%;
@@ -54,12 +54,12 @@ ul {
 }
 
 #progressbar li a span.step {
-    width: 40px;
-    height: 40px;
-    padding-top: 10px;
-    margin: 0 auto 15px auto;
+    width: 34px;
+    height: 34px;
+    padding-top: 9px;
+    margin: 0 auto 10px auto;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 13px;
     border-radius: 50%;
     background-color: #9D9D9D;
     color: white;
@@ -69,6 +69,7 @@ ul {
     text-align: center;
     box-sizing: border-box;
     max-width: 100%;
+    border: 1px transparent solid;
 }
 
 #progressbar li a span.title {
@@ -77,6 +78,7 @@ ul {
     position: relative;
     z-index: 10;
     text-align: center;
+    font-size: 14px;
 }
 
 #progressbar li.active a span.step {
@@ -134,7 +136,7 @@ ul {
 .ra-form-component {
     /*width: 80%;*/
     margin: 0 auto;
-    min-height: 350px;
+    min-height: 360px;
     height: 70%;
     border: 1px #555 solid;
     position: relative;
@@ -179,7 +181,7 @@ button.save-ra {
 }
 
 .btn, #ra-form footer button {
-    padding: 12px;
+    padding: 10px 12px;
     min-width: 80px;
     text-align: center;
     display: inline-block;
