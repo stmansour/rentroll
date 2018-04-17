@@ -1,5 +1,5 @@
 /*global
-    getRAFlowAllParts, initRAFlowAJAX
+    getRAFlowAllParts, initRAFlowAJAX, requiredFieldsFulFilled
 */
 
 "use strict";
@@ -16,7 +16,11 @@ window.setToNewRAForm = function (bid, FlowID) {
         return false;
     }
 
-    var f = w2ui.rentalagrForm;
+    // reset some part
+    $("#ra-form footer button#previous").addClass("disable");
+    $(".ra-form-component").hide();
+    $("#progressbar li").removeClass("active done"); // remove activeClass from all li
+
     w2ui.toplayout.content('right', w2ui.newraLayout);
     w2ui.toplayout.show('right', true);
     w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
@@ -24,8 +28,7 @@ window.setToNewRAForm = function (bid, FlowID) {
     $.get('/webclient/html/raflowtmpl.html', function(data) {
         w2ui.newraLayout.content('main', data);
     });
-    // f.url = '/v1/rentalagr/' + bid + '/' + FlowID;
-    // f.request();
+
     w2ui.toplayout.render();
 
     // mark this flag as is this new record
@@ -35,18 +38,6 @@ window.setToNewRAForm = function (bid, FlowID) {
     // as new content will be loaded for this form
     // mark form dirty flag as false
     app.form_is_dirty = false;
-
-    // click on first tab
-    if (typeof f.tabs.name == "string") {
-        f.tabs.click('tab1');
-    }
-
-    // load first slide
-    $("#ra-form footer button#previous").addClass("disable");
-    $(".ra-form-component").hide();
-    $(".ra-form-component#dates").show();
-    $("#progressbar li").removeClass("active");
-    $("#progressbar li[data-target='#dates']").addClass("active");
 
     // set this flow id as in active
     app.raflow.activeFlowID = FlowID;
@@ -225,6 +216,7 @@ window.buildNewRAElements = function() {
                                 yes_callBack = function() {
                                     w2ui.toplayout.hide('right',true);
                                     w2ui.newrentalagrsGrid.render();
+                                    app.raflow.activeFlowID = "";
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
                             break;
