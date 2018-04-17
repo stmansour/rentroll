@@ -4,7 +4,8 @@
     loadRAPetsGrid, loadRAVehiclesGrid, loadRABGInfoForm, loadRARentablesGrid,
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
-    getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render
+    getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
+    requiredFieldsFulFilled
 */
 
 "use strict";
@@ -114,11 +115,20 @@ window.getRAFlowAllParts = function (FlowID) {
             if (data.status != "error") {
                 app.raflow.data[FlowID] = data.records;
 
-                // load first dates section
+                // show "done" mark on each li of navigation bar
+                for(var comp in app.raFlowPartTypes) {
+                    // if required fields are fulfilled then mark this slide as done
+                    if (requiredFieldsFulFilled(comp)) {
+                        // hide active component
+                        $("#progressbar li[data-target='#" + comp + "']").addClass("done");
+                    }
+                }
+
+                // mark first slide as active
+                $(".ra-form-component#dates").show();
+                $("#progressbar li[data-target='#dates']").removeClass("done").addClass("active");
                 loadRADatesForm();
 
-                // as we load the first section
-                $("#ra-form footer button#previous").addClass("disable");
             } else {
                 console.error(data.message);
             }
@@ -162,23 +172,93 @@ window.getRAFlowPartTypeIndex = function (partType) {
     return partTypeIndex;
 };
 
+window.requiredFieldsFulFilled = function(compID) {
+    var done = false;
+
+    // if not active flow id then return
+    if (app.raflow.activeFlowID === "") {
+        console.log("no active flow ID");
+        return done;
+    }
+
+    // get part type index for the component
+    var partType = app.raFlowPartTypes[compID];
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+    if (partTypeIndex === -1) {
+        console.log("no index found this part type");
+        return done;
+    }
+
+    var data;
+
+    switch (compID) {
+        case "dates":
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            var validData = true;
+            for (var dateKey in data) {
+                // if anything else then break and mark as invalid
+                if (!(typeof data[dateKey] === "string" && data[dateKey] !== "")) {
+                    validData = false;
+                    break;
+                }
+            }
+            // if loop passed successfully then mark it as successfully
+            done = validData;
+            break;
+        case "people":
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            if (data.Users.length > 0 && data.Payors.length > 0) {
+                done = true;
+            }
+            break;
+        case "pets":
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            if (data.length > 0) {
+                done = true;
+            }
+            break;
+        case "vehicles":
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            if (data.length > 0) {
+                done = true;
+            }
+            break;
+        case "bginfo":
+            break;
+        case "rentables":
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            if (data.length > 0) {
+                done = true;
+            }
+            break;
+        case "feesterms":
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            if (data.length > 0) {
+                done = true;
+            }
+            break;
+        case "final":
+            break;
+    }
+
+    return done;
+};
+
 // load form according to target
 window.loadTargetSection = function (target, activeCompID) {
 
-    // get part type from the class index
-    var partType = $("#progressbar li[data-target='#" + activeCompID + "']").index() + 1;
-    var data = null;
-    if ($("#progressbar li[data-target='#" + target + "']").hasClass("done")) {
+    /*if ($("#progressbar li[data-target='#" + target + "']").hasClass("done")) {
         console.log("target has been saved", target);
-    } else {
-        // TODO: switch cases for each part type, so that we can mark the section "done"
-        // if it's completed
+    } else {}*/
 
-        // // add class "done" to mark the section tab as done
-        // $("#progressbar li[data-target='#" + activeCompID + "']").addClass("done");
+    // if required fields are fulfilled then mark this slide as done
+    if (requiredFieldsFulFilled(activeCompID)) {
+        // hide active component
+        $("#progressbar li[data-target='#" + activeCompID + "']").addClass("done");
     }
 
     // decide data based on type
+    var data = null;
     switch (activeCompID) {
         case "dates":
             data = w2ui.RADatesForm.record;
@@ -186,7 +266,6 @@ window.loadTargetSection = function (target, activeCompID) {
         case "people":
             var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
             data = app.raflow.data[app.raflow.activeFlowID][i].Data;
-            // data = w2ui.RAPeopleForm.record;
             break;
         case "pets":
             data = w2ui.RAPetsGrid.records;
@@ -211,6 +290,8 @@ window.loadTargetSection = function (target, activeCompID) {
             return;
     }
 
+    // get part type from the class index
+    var partType = $("#progressbar li[data-target='#" + activeCompID + "']").index() + 1;
     if (data) {
         // save the content on server for active component
         saveActiveCompData(data, partType);
@@ -221,7 +302,7 @@ window.loadTargetSection = function (target, activeCompID) {
     $(".ra-form-component#" + activeCompID).hide();
 
     // show target component
-    $("#progressbar li[data-target='#" + target + "']").addClass("active");
+    $("#progressbar li[data-target='#" + target + "']").removeClass("done").addClass("active");
     $(".ra-form-component#" + target).show();
 
     // hide previous navigation button if the target is in first section
