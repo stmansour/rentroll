@@ -974,29 +974,20 @@ window.loadRABGInfoForm = function () {
                 {field: 'evicted', type: 'checkbox', required: false}, // have you ever been evicted
                 {field: 'crime', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
                 {field: 'bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
-
                 {field: 'applicant_employer', type: 'text', required: true},
                 {field: 'applicant_phone', type: 'int', required: true},
                 {field: 'applicant_address', type: 'text', required: true},
                 {field: 'applicant_position', type: 'text', required: true},
-                {field: 'applicant_gw', type: 'int', required: true},
+                {field: 'applicant_gw', type: 'money', required: true},
                 {field: 'co_applicant_employer', type: 'text'},
                 {field: 'co_applicant_phone', type: 'int'},
                 {field: 'co_applicant_address', type: 'text'},
                 {field: 'co_applicant_position', type: 'text'},
-                {field: 'co_applicant_gw', type: 'int'},
+                {field: 'co_applicant_gw', type: 'money'},
                 {field: 'comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
                 {field: 'ec_name', type: 'text', required: true}, // Name of emergency contact
                 {field: 'ec_phone', type: 'int', required: true}, // Phone number of emergency contact
-                {field: 'ec_address', type: 'text', required: true}, // Address of emergency contact
-                {field: 'address1', type: 'text', required: true},
-                {field: 'address2', type: 'text'},
-                {field: 'city', type: 'text', required: true},
-                {field: 'state', type: 'text', required: true},
-                {field: 'zip', type: 'int', required: true},
-                {field: 'short_bio', type: 'text'},
-                {field: 'talk_name', type: 'text', required: true},
-                {field: 'description', type: 'text'}
+                {field: 'ec_address', type: 'text', required: true} // Address of emergency contact
             ],
             actions: {
                 reset: function () {
