@@ -133,23 +133,23 @@ type RABackgroundInfoFlowData struct {
 	PReasonForMoving    string `json:"presmove"` // Reason for moving
 
 	// Have you ever been
-	Evicted    bool `json:"evicted"` // Evicted
-	Convicted  bool `json:"crime"` // Arrested or convicted of a crime
+	Evicted    bool `json:"evicted"`    // Evicted
+	Convicted  bool `json:"crime"`      // Arrested or convicted of a crime
 	Bankruptcy bool `json:"bankruptcy"` // Declared Bankruptcy
 
 	// Emergency contact information
 	ECName    string `json:"ec_name"`
-	ECPhone   int16  `json:"ec_phone"`
+	ECPhone   int    `json:"ec_phone"`
 	ECAddress string `json:"ec_address"`
 
 	// RA Application information
-	NoPerson              int    `json:"no_people_apt"` // No. of people occupying apartment
-	Comment               string `json:"comment"`       // In an effort to accommodate you, please advise us of any special needs
-	ApplicationDate       string `json:"applicationDate"`
-	MoveInDate            string `json:"applicationDate"`
-	ApartmentNo           string `json:"apartmentNo"`
-	LeaseTerm             string `json:"leaseTerm"`
-	ApplicationReceivedBy string `json:"applicationReceivedBy"`
+	NoPerson        int    `json:"no_people_apt"` // No. of people occupying apartment
+	Comment         string `json:"comment"`       // In an effort to accommodate you, please advise us of any special needs
+	ApplicationDate string `json:"application_date"`
+	MoveInDate      string `json:"move_in_date"`
+	ApartmentNo     string `json:"apt_no"`
+	LeaseTerm       string `json:"lt"`
+	// TODO(Akshay): ApplicationReceivedBy string `json:"applicationReceivedBy"`
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
