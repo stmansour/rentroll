@@ -1,4 +1,4 @@
-/*global
+/*global w2ui,
     getFullName, getTCIDName, loadTransactantListingItem,
     initRAFlowAJAX, getRAFlowAllParts, getAllRAFlows, loadRADatesForm, loadRAPeopleForm,
     loadRAPetsGrid, loadRAVehiclesGrid, loadRABGInfoForm, loadRARentablesGrid,
@@ -122,6 +122,12 @@ window.getRAFlowAllParts = function (FlowID) {
                         // hide active component
                         $("#progressbar li[data-target='#" + comp + "']").addClass("done");
                     }
+
+                    /*// reset w2ui component as well
+                    if(RACompConfig[comp].w2uiComp in w2ui) {
+                        // clear inputs
+                        w2ui[RACompConfig[comp].w2uiComp].clear();
+                    }*/
                 }
 
                 // mark first slide as active
@@ -825,7 +831,7 @@ window.loadRAPetsGrid = function () {
                 {
                     field: 'RecurringPetFee',
                     caption: 'Recurring<br>PetFee',
-                    size: '100%',
+                    size: '70px',
                     render: 'money',
                     editable: {type: 'money'}
                 },
@@ -978,7 +984,7 @@ window.loadRAVehiclesGrid = function () {
                 {
                     field: 'DtStop',
                     caption: 'DtStop',
-                    size: '100%',
+                    size: '100px',
                     editable: {type: 'date'}
                 },
             ],
@@ -1202,7 +1208,7 @@ window.loadRARentablesGrid = function () {
                 {
                     field: 'TransOCC',
                     caption: 'Trans OCC',
-                    size: '100%',
+                    size: '100px',
                     render: 'money',
                     editable: {type: 'money'}
                 }
@@ -1350,7 +1356,7 @@ window.loadRAFeesTermsGrid = function () {
                 {
                     field: 'TransOCC',
                     caption: 'Trans OCC',
-                    size: '100%',
+                    size: '80px',
                     render: 'money',
                     editable: {type: 'money'}
                 }

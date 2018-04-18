@@ -1,5 +1,6 @@
 /*global
-    getRAFlowAllParts, initRAFlowAJAX, requiredFieldsFulFilled
+    getRAFlowAllParts, initRAFlowAJAX, requiredFieldsFulFilled,
+    RACompConfig, w2ui
 */
 
 "use strict";
