@@ -558,6 +558,9 @@ window.acceptTransactant = function () {
     // clear the form
     app.raflow.activeTransactant = {};
     w2ui.RAPeopleForm.clear();
+
+    // disable check boxes
+    $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", true);
 };
 
 // remove people from the listing
@@ -652,6 +655,9 @@ window.loadRAPeopleForm = function () {
                         url: '/v1/transactantstd/' + app.raflow.BID,
                         max: 1,
                         renderItem: function (item) {
+                            // enable user-role checkboxes
+                            $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", false);
+
                             // mark this as transactant as an active
                             app.raflow.activeTransactant = item;
                             var s = getTCIDName(item);
