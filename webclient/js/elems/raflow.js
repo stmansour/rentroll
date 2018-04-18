@@ -233,13 +233,13 @@ window.requiredFieldsFulFilled = function (compID) {
             // TODO(Akshay): Add for integer fields e.g., phone, gross wage.
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             // list of fields which must have value and it's type string
-            var listOfRequiredField = ["application_date", "move_in_date",
-                "apt_no", "lt", "applicant_first_name", "applicant_middle_name",
-                "applicant_last_name", "applicant_dob", "applicant_ssn",
-                "applicant_dln", "applicant_telno", "applicant_email",
-                "no_people_apt", "c_address", "cll_name", "cll_phone",
-                "cresmove", "applicant_employer", "applicant_phone", "applicant_address",
-                "applicant_position", "ec_name", "ec_phone", "ec_address"];
+            var listOfRequiredField = ["ApplicationDate", "MoveInDate",
+                "ApartmentNo", "LeaseTerm", "ApplicantFirstName", "ApplicantMiddleName",
+                "ApplicantLastName", "ApplicantBirthDate", "ApplicantSSN",
+                "ApplicantDriverLicNo", "ApplicantTelephoneNo", "ApplicantEmailAddress",
+                "NoPeople", "CurrentAddress", "CurrentLandLoardName", "CurrentLandLoardPhoneNo",
+                "CurrentReasonForMoving", "ApplicantEmployer", "ApplicantPhone", "ApplicantAddress",
+                "ApplicantPosition", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
 
             listOfRequiredField.forEach(function(field) {
                 if (!data[field]) {
@@ -1052,54 +1052,54 @@ window.loadRABGInfoForm = function () {
             formURL: '/webclient/html/formrabginfo.html',
             focus: -1,
             fields: [
-                {field: 'application_date', type: 'date', required: true},
-                {field: 'move_in_date', type: 'date', required: true},
-                {field: 'apt_no', type: 'alphanumeric', required: true}, // Apartment number
-                {field: 'lt', type: 'text', required: true}, // Lease term
-                {field: 'applicant_first_name', type: 'text', required: true},
-                {field: 'applicant_middle_name', type: 'text', required: true},
-                {field: 'applicant_last_name', type: 'text', required: true},
-                {field: 'applicant_dob', type: 'date', required: true}, // Date of births of applicants
-                {field: 'applicant_ssn', type: 'text', required: true}, // Social security number of applicants
-                {field: 'applicant_dln', type: 'text', required: true}, // Driving licence number of applicants
-                {field: 'applicant_telno', type: 'text', required: true}, // Telephone no of applicants
-                {field: 'applicant_email', type: 'email', required: true}, // Email Address of applicants
-                {field: 'co_applicant_first_name', type: 'text'},
-                {field: 'co_applicant_middle_name', type: 'text'},
-                {field: 'co_applicant_last_name', type: 'text'},
-                {field: 'co_applicant_dob', type: 'date'}, // Date of births of co-applicants
-                {field: 'co_applicant_ssn', type: 'text'}, // Social security number of co-applicants
-                {field: 'co_applicant_dln', type: 'text'}, // Driving licence number of co-applicants
-                {field: 'co_applicant_telno', type: 'text'}, // Telephone no of co-applicants
-                {field: 'co_applicant_email', type: 'email'}, // Email Address of co-applicants
-                {field: 'no_people_apt', type: 'int', required: true}, // No. of people occupying apartment
-                {field: 'c_address', type: 'text', required: true}, // Current Address
-                {field: 'cll_name', type: 'text', required: true}, // Current landlord's name
-                {field: 'cll_phone', type: 'text', required: true}, // Current landlord's phone number
-                {field: 'clr', type: 'int', required: true}, // Length of residency at current address
-                {field: 'cresmove', type: 'text', required: true}, // Reason of moving from current address
-                {field: 'p_address', type: 'text'}, // Prior Address
-                {field: 'pll_name', type: 'text'}, // Prior landlord's name
-                {field: 'pll_phone', type: 'text'}, // Prior landlord's phone number
-                {field: 'plr', type: 'int'}, // Length of residency at Prior address
-                {field: 'presmove', type: 'text'}, // Reason of moving from Prior address
-                {field: 'evicted', type: 'checkbox', required: false}, // have you ever been evicted
-                {field: 'crime', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
-                {field: 'bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
-                {field: 'applicant_employer', type: 'text', required: true},
-                {field: 'applicant_phone', type: 'text', required: true},
-                {field: 'applicant_address', type: 'text', required: true},
-                {field: 'applicant_position', type: 'text', required: true},
-                {field: 'applicant_gw', type: 'money', required: true},
-                {field: 'co_applicant_employer', type: 'text'},
-                {field: 'co_applicant_phone', type: 'text'},
-                {field: 'co_applicant_address', type: 'text'},
-                {field: 'co_applicant_position', type: 'text'},
-                {field: 'co_applicant_gw', type: 'money'},
-                {field: 'comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
-                {field: 'ec_name', type: 'text', required: true}, // Name of emergency contact
-                {field: 'ec_phone', type: 'text', required: true}, // Phone number of emergency contact
-                {field: 'ec_address', type: 'text', required: true} // Address of emergency contact
+                {field: 'ApplicationDate', type: 'date', required: true},
+                {field: 'MoveInDate', type: 'date', required: true},
+                {field: 'ApartmentNo', type: 'alphanumeric', required: true}, // Apartment number
+                {field: 'LeaseTerm', type: 'text', required: true}, // Lease term
+                {field: 'ApplicantFirstName', type: 'text', required: true},
+                {field: 'ApplicantMiddleName', type: 'text', required: true},
+                {field: 'ApplicantLastName', type: 'text', required: true},
+                {field: 'ApplicantBirthDate', type: 'date', required: true}, // Date of births of applicants
+                {field: 'ApplicantSSN', type: 'text', required: true}, // Social security number of applicants
+                {field: 'ApplicantDriverLicNo', type: 'text', required: true}, // Driving licence number of applicants
+                {field: 'ApplicantTelephoneNo', type: 'text', required: true}, // Telephone no of applicants
+                {field: 'ApplicantEmailAddress', type: 'email', required: true}, // Email Address of applicants
+                {field: 'CoApplicantFirstName', type: 'text'},
+                {field: 'CoApplicantMiddleName', type: 'text'},
+                {field: 'CoApplicantLastName', type: 'text'},
+                {field: 'CoApplicantBirthDate', type: 'date'}, // Date of births of co-applicants
+                {field: 'CoApplicantSSN', type: 'text'}, // Social security number of co-applicants
+                {field: 'CoApplicantDriverLicNo', type: 'text'}, // Driving licence number of co-applicants
+                {field: 'CoApplicantTelephoneNo', type: 'text'}, // Telephone no of co-applicants
+                {field: 'CoApplicantEmailAddress', type: 'email'}, // Email Address of co-applicants
+                {field: 'NoPeople', type: 'int', required: true}, // No. of people occupying apartment
+                {field: 'CurrentAddress', type: 'text', required: true}, // Current Address
+                {field: 'CurrentLandLoardName', type: 'text', required: true}, // Current landlord's name
+                {field: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
+                {field: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
+                {field: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
+                {field: 'PriorAddress', type: 'text'}, // Prior Address
+                {field: 'PriorLandLoardName', type: 'text'}, // Prior landlord's name
+                {field: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
+                {field: 'PriorLandLoardName', type: 'int'}, // Length of residency at Prior address
+                {field: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
+                {field: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
+                {field: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
+                {field: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
+                {field: 'ApplicantEmployer', type: 'text', required: true},
+                {field: 'ApplicantPhone', type: 'text', required: true},
+                {field: 'ApplicantAddress', type: 'text', required: true},
+                {field: 'ApplicantPosition', type: 'text', required: true},
+                {field: 'ApplicantGrossWages', type: 'money', required: true},
+                {field: 'CoApplicantEmployer', type: 'text'},
+                {field: 'CoApplicantPhone', type: 'text'},
+                {field: 'CoApplicantAddress', type: 'text'},
+                {field: 'CoApplicantPosition', type: 'text'},
+                {field: 'CoApplicantGrossWages', type: 'money'},
+                {field: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
+                {field: 'EmergencyContactName', type: 'text', required: true}, // Name of emergency contact
+                {field: 'EmergencyContactPhone', type: 'text', required: true}, // Phone number of emergency contact
+                {field: 'EmergencyContactAddress', type: 'text', required: true} // Address of emergency contact
             ],
             actions: {
                 reset: function () {

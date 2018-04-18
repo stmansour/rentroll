@@ -86,68 +86,68 @@ type RAVehiclesFlowData struct {
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
 	// Applicant information
-	ApplicantFirstName    string `json:"applicant_first_name"`
-	ApplicantMiddleName   string `json:"applicant_middle_name"`
-	ApplicantLastName     string `json:"applicant_last_name"`
-	ApplicantBirthDate    string `json:"applicant_dob"`
-	ApplicantSSN          string `json:"applicant_ssn"`
-	ApplicantDriverLicNo  string `json:"applicant_dln"`
-	ApplicantTelephoneNo  string `json:"applicant_telno"`
-	ApplicantEmailAddress string `json:"applicant_email"`
-	ApplicantEmployer     string `json:"applicant_employer"`
-	ApplicantPhone        string `json:"applicant_phone"`
-	ApplicantAddress      string `json:"applicant_address"`
-	ApplicantPosition     string `json:"applicant_position"`
-	ApplicantGrossWages   int    `json:"applicant_gw"`
+	ApplicantFirstName    string `json:"ApplicantFirstName"`
+	ApplicantMiddleName   string `json:"ApplicantMiddleName"`
+	ApplicantLastName     string `json:"ApplicantLastName"`
+	ApplicantBirthDate    string `json:"ApplicantBirthDate"`
+	ApplicantSSN          string `json:"ApplicantSSN"`
+	ApplicantDriverLicNo  string `json:"ApplicantDriverLicNo"`
+	ApplicantTelephoneNo  string `json:"ApplicantTelephoneNo"`
+	ApplicantEmailAddress string `json:"ApplicantEmailAddress"`
+	ApplicantEmployer     string `json:"ApplicantEmployer"`
+	ApplicantPhone        string `json:"ApplicantPhone"`
+	ApplicantAddress      string `json:"ApplicantAddress"`
+	ApplicantPosition     string `json:"ApplicantPosition"`
+	ApplicantGrossWages   int    `json:"ApplicantGrossWages"`
 
 	// CoApplicant information
-	CoApplicantFirstName    string `json:"co_applicant_first_name"`
-	CoApplicantMiddleName   string `json:"co_applicant_middle_name"`
-	CoApplicantLastName     string `json:"co_applicant_last_name"`
-	CoApplicantBirthDate    string `json:"co_applicant_dob"`
-	CoApplicantSSN          string `json:"co_applicant_ssn"`
-	CoApplicantDriverLicNo  string `json:"co_applicant_dln"`
-	CoApplicantTelephoneNo  string `json:"co_applicant_telno"`
-	CoApplicantEmailAddress string `json:"co_applicant_email"`
-	CoApplicantEmployer     string `json:"co_applicant_employer"`
-	CoApplicantPhone        string `json:"co_applicant_phone"`
-	CoApplicantAddress      string `json:"co_applicant_address"`
-	CoApplicantPosition     string `json:"co_applicant_position"`
-	CoApplicantGrossWages   int    `json:"co_applicant_gw"`
+	CoApplicantFirstName    string `json:"CoApplicantFirstName"`
+	CoApplicantMiddleName   string `json:"CoApplicantMiddleName"`
+	CoApplicantLastName     string `json:"CoApplicantLastName"`
+	CoApplicantBirthDate    string `json:"CoApplicantBirthDate"`
+	CoApplicantSSN          string `json:"CoApplicantSSN"`
+	CoApplicantDriverLicNo  string `json:"CoApplicantDriverLicNo"`
+	CoApplicantTelephoneNo  string `json:"CoApplicantTelephoneNo"`
+	CoApplicantEmailAddress string `json:"CoApplicantEmailAddress"`
+	CoApplicantEmployer     string `json:"CoApplicantEmployer"`
+	CoApplicantPhone        string `json:"CoApplicantPhone"`
+	CoApplicantAddress      string `json:"CoApplicantAddress"`
+	CoApplicantPosition     string `json:"CoApplicantPosition"`
+	CoApplicantGrossWages   int    `json:"CoApplicantGrossWages"`
 
 	// TODO(Akshay): Pets information
 	// TODO(Akshay): Vehicle information
 
 	// Current Address information
-	CurrentAddress     string `json:"c_address"`
-	CLandLoardName     string `json:"cll_name"`
-	CLengthOfResidency int    `json:"clr"`
-	CLandLoardPhoneNo  string `json:"cll_phone"`
-	CReasonForMoving   string `json:"cresmove"` // Reason for moving
+	CurrentAddress           string `json:"CurrentAddress"`
+	CurrentLandLoardName     string `json:"CurrentLandLoardName"`
+	CurrentLengthOfResidency int    `json:"CurrentLengthOfResidency"`
+	CurrentLandLoardPhoneNo  string `json:"CurrentLandLoardPhoneNo"`
+	CurrentReasonForMoving   string `json:"CurrentReasonForMoving"` // Reason for moving
 
 	// Prior Address information
-	PriorAddress       string `json:"p_address"`
-	PLandLoardName     string `json:"pll_name"`
-	PLengthOfResidency int    `json:"plr"`
-	PLandLoardPhoneNo  string `json:"pll_phone"`
-	PReasonForMoving   string `json:"presmove"` // Reason for moving
+	PriorAddress           string `json:"PriorAddress"`
+	PriorLandLoardName     string `json:"PriorLandLoardName"`
+	PriorLengthOfResidency int    `json:"PriorLandLoardName"`
+	PriorLandLoardPhoneNo  string `json:"PriorLandLoardPhoneNo"`
+	PriorReasonForMoving   string `json:"PriorReasonForMoving"` // Reason for moving
 
 	// Have you ever been
-	Evicted    bool `json:"evicted"`    // Evicted
-	Convicted  bool `json:"crime"`      // Arrested or convicted of a crime
-	Bankruptcy bool `json:"bankruptcy"` // Declared Bankruptcy
+	Evicted    bool `json:"Evicted"`    // Evicted
+	Convicted  bool `json:"Convicted"`  // Arrested or convicted of a Convicted
+	Bankruptcy bool `json:"Bankruptcy"` // Declared Bankruptcy
 
 	// Emergency contact information
-	ECName    string `json:"ec_name"`
-	ECPhone   string `json:"ec_phone"`
-	ECAddress string `json:"ec_address"`
+	EmergencyContactName    string `json:"EmergencyContactName"`
+	EmergencyContactPhone   string `json:"EmergencyContactPhone"`
+	EmergencyContactAddress string `json:"EmergencyContactAddress"`
 
 	// RA Application information
-	NoPerson        int    `json:"no_people_apt"` // No. of people occupying apartment
-	Comment         string `json:"comment"`       // In an effort to accommodate you, please advise us of any special needs
-	ApplicationDate string `json:"application_date"`
-	MoveInDate      string `json:"move_in_date"`
-	ApartmentNo     string `json:"apt_no"`
+	NoPeople        int    `json:"NoPeople"` // No. of people occupying apartment
+	Comment         string `json:"Comment"`       // In an effort to accommodate you, please advise us of any special needs
+	ApplicationDate string `json:"ApplicationDate"`
+	MoveInDate      string `json:"MoveInDate"`
+	ApartmentNo     string `json:"ApartmentNo"`
 	LeaseTerm       string `json:"lt"`
 	// TODO(Akshay): ApplicationReceivedBy string `json:"applicationReceivedBy"`
 }
