@@ -90,7 +90,7 @@ type RABackgroundInfoFlowData struct {
 	ApplicantMiddleName   string `json:"applicant_middle_name"`
 	ApplicantLastName     string `json:"applicant_last_name"`
 	ApplicantBirthDate    string `json:"applicant_dob"`
-	ApplicantSSN          int    `json:"applicant_ssn"`
+	ApplicantSSN          string `json:"applicant_ssn"`
 	ApplicantDriverLicNo  string `json:"applicant_dln"`
 	ApplicantTelephoneNo  string `json:"applicant_telno"`
 	ApplicantEmailAddress string `json:"applicant_email"`
@@ -105,7 +105,7 @@ type RABackgroundInfoFlowData struct {
 	CoApplicantMiddleName   string `json:"co_applicant_middle_name"`
 	CoApplicantLastName     string `json:"co_applicant_last_name"`
 	CoApplicantBirthDate    string `json:"co_applicant_dob"`
-	CoApplicantSSN          int16  `json:"co_applicant_ssn"`
+	CoApplicantSSN          string `json:"co_applicant_ssn"`
 	CoApplicantDriverLicNo  string `json:"co_applicant_dln"`
 	CoApplicantTelephoneNo  string `json:"co_applicant_telno"`
 	CoApplicantEmailAddress string `json:"co_applicant_email"`
@@ -113,24 +113,24 @@ type RABackgroundInfoFlowData struct {
 	CoApplicantPhone        string `json:"co_applicant_phone"`
 	CoApplicantAddress      string `json:"co_applicant_address"`
 	CoApplicantPosition     string `json:"co_applicant_position"`
-	CoApplicantGrossWages   int16  `json:"co_applicant_gw"`
+	CoApplicantGrossWages   int    `json:"co_applicant_gw"`
 
 	// TODO(Akshay): Pets information
 	// TODO(Akshay): Vehicle information
 
 	// Current Address information
-	CurrentAddress      string `json:"c_address"`
-	CLandLoardName      string `json:"cll_name"`
-	CLandLoardResidency string `json:"clr"`
-	CLandLoardPhoneNo   string `json:"cll_phone"`
-	CReasonForMoving    string `json:"cresmove"` // Reason for moving
+	CurrentAddress     string `json:"c_address"`
+	CLandLoardName     string `json:"cll_name"`
+	CLengthOfResidency int    `json:"clr"`
+	CLandLoardPhoneNo  string `json:"cll_phone"`
+	CReasonForMoving   string `json:"cresmove"` // Reason for moving
 
 	// Prior Address information
-	PriorAddress        string `json:"p_address"`
-	PLandLoardName      string `json:"pll_name"`
-	PLandLoardResidency string `json:"plr"`
-	PLandLoardPhoneNo   string `json:"pll_phone"`
-	PReasonForMoving    string `json:"presmove"` // Reason for moving
+	PriorAddress       string `json:"p_address"`
+	PLandLoardName     string `json:"pll_name"`
+	PLengthOfResidency int    `json:"plr"`
+	PLandLoardPhoneNo  string `json:"pll_phone"`
+	PReasonForMoving   string `json:"presmove"` // Reason for moving
 
 	// Have you ever been
 	Evicted    bool `json:"evicted"`    // Evicted

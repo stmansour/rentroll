@@ -190,11 +190,11 @@ window.requiredFieldsFulFilled = function (compID) {
     }
 
     var data;
+    var validData = true;
 
     switch (compID) {
         case "dates":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            var validData = true;
             for (var dateKey in data) {
                 // if anything else then break and mark as invalid
                 if (!(typeof data[dateKey] === "string" && data[dateKey] !== "")) {
@@ -226,7 +226,6 @@ window.requiredFieldsFulFilled = function (compID) {
         case "bginfo":
             // TODO(Akshay): Add for integer fields e.g., phone, gross wage.
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            validData = true;
             // list of fields which must have value and it's type string
             var listOfRequiredField = ["application_date", "move_in_date",
                 "apt_no", "lt", "applicant_first_name", "applicant_middle_name",
@@ -1047,28 +1046,28 @@ window.loadRABGInfoForm = function () {
                 {field: 'applicant_middle_name', type: 'text', required: true},
                 {field: 'applicant_last_name', type: 'text', required: true},
                 {field: 'applicant_dob', type: 'date', required: true}, // Date of births of applicants
-                {field: 'applicant_ssn', type: 'int', required: true}, // Social security number of applicants
-                {field: 'applicant_dln', type: 'alphanumeric', required: true}, // Driving licence number of applicants
+                {field: 'applicant_ssn', type: 'text', required: true}, // Social security number of applicants
+                {field: 'applicant_dln', type: 'text', required: true}, // Driving licence number of applicants
                 {field: 'applicant_telno', type: 'text', required: true}, // Telephone no of applicants
                 {field: 'applicant_email', type: 'email', required: true}, // Email Address of applicants
                 {field: 'co_applicant_first_name', type: 'text'},
                 {field: 'co_applicant_middle_name', type: 'text'},
                 {field: 'co_applicant_last_name', type: 'text'},
                 {field: 'co_applicant_dob', type: 'date'}, // Date of births of co-applicants
-                {field: 'co_applicant_ssn', type: 'int'}, // Social security number of co-applicants
-                {field: 'co_applicant_dln', type: 'alphanumeric'}, // Driving licence number of co-applicants
+                {field: 'co_applicant_ssn', type: 'text'}, // Social security number of co-applicants
+                {field: 'co_applicant_dln', type: 'text'}, // Driving licence number of co-applicants
                 {field: 'co_applicant_telno', type: 'text'}, // Telephone no of co-applicants
                 {field: 'co_applicant_email', type: 'email'}, // Email Address of co-applicants
                 {field: 'no_people_apt', type: 'int', required: true}, // No. of people occupying apartment
                 {field: 'c_address', type: 'text', required: true}, // Current Address
                 {field: 'cll_name', type: 'text', required: true}, // Current landlord's name
                 {field: 'cll_phone', type: 'text', required: true}, // Current landlord's phone number
-                {field: 'clr', type: 'text', required: true}, // Length of residency at current address
+                {field: 'clr', type: 'int', required: true}, // Length of residency at current address
                 {field: 'cresmove', type: 'text', required: true}, // Reason of moving from current address
                 {field: 'p_address', type: 'text'}, // Prior Address
                 {field: 'pll_name', type: 'text'}, // Prior landlord's name
                 {field: 'pll_phone', type: 'text'}, // Prior landlord's phone number
-                {field: 'plr', type: 'text'}, // Length of residency at Prior address
+                {field: 'plr', type: 'int'}, // Length of residency at Prior address
                 {field: 'presmove', type: 'text'}, // Reason of moving from Prior address
                 {field: 'evicted', type: 'checkbox', required: false}, // have you ever been evicted
                 {field: 'crime', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
