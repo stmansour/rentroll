@@ -85,7 +85,71 @@ type RAVehiclesFlowData struct {
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
-	Applicant string `json:"Applicant"`
+	// Applicant information
+	ApplicantFirstName    string `json:"applicant_first_name"`
+	ApplicantMiddleName   string `json:"applicant_middle_name"`
+	ApplicantLastName     string `json:"applicant_last_name"`
+	ApplicantBirthDate    string `json:"applicant_dob"`
+	ApplicantSSN          string `json:"applicant_ssn"`
+	ApplicantDriverLicNo  string `json:"applicant_dln"`
+	ApplicantTelephoneNo  string `json:"applicant_telno"`
+	ApplicantEmailAddress string `json:"applicant_email"`
+	ApplicantEmployer     string `json:"applicant_employer"`
+	ApplicantPhone        string `json:"applicant_phone"`
+	ApplicantAddress      string `json:"applicant_address"`
+	ApplicantPosition     string `json:"applicant_position"`
+	ApplicantGrossWages   int    `json:"applicant_gw"`
+
+	// CoApplicant information
+	CoApplicantFirstName    string `json:"co_applicant_first_name"`
+	CoApplicantMiddleName   string `json:"co_applicant_middle_name"`
+	CoApplicantLastName     string `json:"co_applicant_last_name"`
+	CoApplicantBirthDate    string `json:"co_applicant_dob"`
+	CoApplicantSSN          string `json:"co_applicant_ssn"`
+	CoApplicantDriverLicNo  string `json:"co_applicant_dln"`
+	CoApplicantTelephoneNo  string `json:"co_applicant_telno"`
+	CoApplicantEmailAddress string `json:"co_applicant_email"`
+	CoApplicantEmployer     string `json:"co_applicant_employer"`
+	CoApplicantPhone        string `json:"co_applicant_phone"`
+	CoApplicantAddress      string `json:"co_applicant_address"`
+	CoApplicantPosition     string `json:"co_applicant_position"`
+	CoApplicantGrossWages   int    `json:"co_applicant_gw"`
+
+	// TODO(Akshay): Pets information
+	// TODO(Akshay): Vehicle information
+
+	// Current Address information
+	CurrentAddress     string `json:"c_address"`
+	CLandLoardName     string `json:"cll_name"`
+	CLengthOfResidency int    `json:"clr"`
+	CLandLoardPhoneNo  string `json:"cll_phone"`
+	CReasonForMoving   string `json:"cresmove"` // Reason for moving
+
+	// Prior Address information
+	PriorAddress       string `json:"p_address"`
+	PLandLoardName     string `json:"pll_name"`
+	PLengthOfResidency int    `json:"plr"`
+	PLandLoardPhoneNo  string `json:"pll_phone"`
+	PReasonForMoving   string `json:"presmove"` // Reason for moving
+
+	// Have you ever been
+	Evicted    bool `json:"evicted"`    // Evicted
+	Convicted  bool `json:"crime"`      // Arrested or convicted of a crime
+	Bankruptcy bool `json:"bankruptcy"` // Declared Bankruptcy
+
+	// Emergency contact information
+	ECName    string `json:"ec_name"`
+	ECPhone   string `json:"ec_phone"`
+	ECAddress string `json:"ec_address"`
+
+	// RA Application information
+	NoPerson        int    `json:"no_people_apt"` // No. of people occupying apartment
+	Comment         string `json:"comment"`       // In an effort to accommodate you, please advise us of any special needs
+	ApplicationDate string `json:"application_date"`
+	MoveInDate      string `json:"move_in_date"`
+	ApartmentNo     string `json:"apt_no"`
+	LeaseTerm       string `json:"lt"`
+	// TODO(Akshay): ApplicationReceivedBy string `json:"applicationReceivedBy"`
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
