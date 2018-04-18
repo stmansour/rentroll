@@ -128,7 +128,7 @@ type RABackgroundInfoFlowData struct {
 	// Prior Address information
 	PriorAddress           string `json:"PriorAddress"`
 	PriorLandLoardName     string `json:"PriorLandLoardName"`
-	PriorLengthOfResidency int    `json:"PriorLandLoardName"`
+	PriorLengthOfResidency int    `json:"PriorLengthOfResidency"`
 	PriorLandLoardPhoneNo  string `json:"PriorLandLoardPhoneNo"`
 	PriorReasonForMoving   string `json:"PriorReasonForMoving"` // Reason for moving
 
@@ -144,7 +144,7 @@ type RABackgroundInfoFlowData struct {
 
 	// RA Application information
 	NoPeople        int    `json:"NoPeople"` // No. of people occupying apartment
-	Comment         string `json:"Comment"`       // In an effort to accommodate you, please advise us of any special needs
+	Comment         string `json:"Comment"`  // In an effort to accommodate you, please advise us of any special needs
 	ApplicationDate string `json:"ApplicationDate"`
 	MoveInDate      string `json:"MoveInDate"`
 	ApartmentNo     string `json:"ApartmentNo"`
