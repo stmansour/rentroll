@@ -232,10 +232,10 @@ window.requiredFieldsFulFilled = function (compID) {
                 "applicant_last_name", "applicant_dob", "applicant_ssn",
                 "applicant_dln", "applicant_telno", "applicant_email",
                 "no_people_apt", "c_address", "cll_name", "cll_phone",
-                "clr", "cresmove", "applicant_employer", "applicant_phone", "applicant_address",
+                "cresmove", "applicant_employer", "applicant_phone", "applicant_address",
                 "applicant_position", "ec_name", "ec_phone", "ec_address"];
             for (var field in listOfRequiredField) {
-                if (data[field] === "") {
+                if (data[field] !== "string" || data[field] === "") {
                     validData = false;
                     break;
                 }
