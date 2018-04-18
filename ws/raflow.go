@@ -303,7 +303,7 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	}
 
 	// getFlowID first
-	flowID = rlib.GetFlowID(UID)
+	flowID = rlib.GetFlowID()
 
 	// initRAFlowPart
 	initRAFlowPart := rlib.FlowPart{
