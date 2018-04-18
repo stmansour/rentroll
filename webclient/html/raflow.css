@@ -82,7 +82,7 @@ ul {
 }
 
 #progressbar li.active a span.step {
-    border: 1px #333 solid;
+    border: 1px transparent solid;
     background-color: #0091d9;
 }
 

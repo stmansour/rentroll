@@ -123,11 +123,11 @@ window.getRAFlowAllParts = function (FlowID) {
                         $("#progressbar li[data-target='#" + comp + "']").addClass("done");
                     }
 
-                    /*// reset w2ui component as well
+                    // reset w2ui component as well
                     if(RACompConfig[comp].w2uiComp in w2ui) {
                         // clear inputs
                         w2ui[RACompConfig[comp].w2uiComp].clear();
-                    }*/
+                    }
                 }
 
                 // mark first slide as active
@@ -240,12 +240,14 @@ window.requiredFieldsFulFilled = function (compID) {
                 "no_people_apt", "c_address", "cll_name", "cll_phone",
                 "cresmove", "applicant_employer", "applicant_phone", "applicant_address",
                 "applicant_position", "ec_name", "ec_phone", "ec_address"];
-            for (var field in listOfRequiredField) {
-                if (data[field] !== "string" || data[field] === "") {
+
+            listOfRequiredField.forEach(function(field) {
+                if (!data[field]) {
                     validData = false;
-                    break;
+                    return false;
                 }
-            }
+            });
+
             done = validData;
             break;
         case "rentables":
