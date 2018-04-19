@@ -258,3 +258,22 @@ i.remove-item {
     top: 6px;
     color: red;
 }
+
+.ra-form-component#bginfo .w2ui-field > label {
+    width: auto !important;
+}
+
+#bginfo {
+    text-align: left;
+}
+
+.ra-form-component#bginfo .w2ui-field.w2ui-span4 > div {
+    margin-left: 128px;
+}
+
+.ra-form-component#bginfo input[type="checkbox"] {
+    vertical-align: middle;
+    width: 15px;
+    height: 16px;
+    margin-right: 3px;
+}

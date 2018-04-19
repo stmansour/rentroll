@@ -1081,7 +1081,7 @@ window.loadRABGInfoForm = function () {
                 {field: 'PriorAddress', type: 'text'}, // Prior Address
                 {field: 'PriorLandLoardName', type: 'text'}, // Prior landlord's name
                 {field: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
-                {field: 'PriorLandLoardName', type: 'int'}, // Length of residency at Prior address
+                {field: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
                 {field: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
                 {field: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
                 {field: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
