@@ -231,20 +231,18 @@ button.save-ra {
 }
 
 .people-type .people-listing {
-    padding: 5px;
     box-sizing: border-box;
     height: 185px;
     display: block;
     border: 1px black solid;
     background-color: #F2F2F2;
-    overflow-x: none;
     overflow-y: auto;
 }
 
 .people-listing li {
+    padding: 3px 5px;
     text-align: left;
     position: relative;
-    margin: 3px 0px;
 }
 
 .people-listing li span {
@@ -255,7 +253,7 @@ i.remove-item {
     cursor: pointer;
     position: absolute;
     right: 5px;
-    top: 6px;
+    top: 8px;
     color: red;
 }
 
