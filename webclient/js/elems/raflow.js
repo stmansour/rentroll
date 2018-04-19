@@ -768,22 +768,11 @@ window.loadRAPetsGrid = function () {
             name: 'RAPetsGrid',
             header: 'Pets',
             show: {
-                toolbar: true,
-                footer: true,
+                toolbar         : true,
+                footer          : true,
+                toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
             style: 'border: 1px solid black; display: block;',
-            toolbar: {
-                items: [
-                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
-                ],
-                onClick: function (event) {
-                    var bid = getCurrentBID();
-                    if (event.target == 'add') {
-                        var inital = getPetsGridInitalRecord(bid, w2ui.RAPetsGrid.records.length);
-                        w2ui.RAPetsGrid.add(inital);
-                    }
-                }
-            },
             columns: [
                 {
                     field: 'recid',
@@ -865,7 +854,46 @@ window.loadRAPetsGrid = function () {
                 event.onComplete = function () {
                     this.save();
                 };
+            },
+            onAdd: function (event) {
+                alert("I'm from the pet section");
+                var f = w2ui.RAPetForm;
+                w2ui.toplayout.content('right', f);
+                w2ui.toplayout.sizeTo('right', 500);
+                w2ui.toplayout.render();
             }
+        });
+
+        // pet form
+        $().w2form({
+            name    : 'RAPetForm',
+            header  : 'Add Pet information',
+            // url: '/v1/pmts',
+            style: 'border: 0px; background-color: transparent;display: block;',
+            formURL : '/webclient/html/formraaddpetinfo.html',
+            toolbar : {
+                items: [
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            w2ui.toplayout.hide('right', true);
+                            break;
+                    }
+                }
+            },
+            fields  : [
+                { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 }, hidden: true },
+                { field: 'BUD', type: 'list', options: { items: app.businesses }, required: true, html: { caption: 'BUD', page: 0, column: 0 } },
+                { field: 'PMTID', type: 'int', required: false, html: { caption: 'PMTID', page: 0, column: 0 }, hidden: true },
+                { field: 'Name', type: 'text', required: true, html: { caption: 'Name', page: 0, column: 0 }, sortable: true },
+                { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0 }, sortable: true },
+                { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+                { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            ]
+
         });
     }
 
