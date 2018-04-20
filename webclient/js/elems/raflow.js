@@ -856,11 +856,13 @@ window.loadRAPetsGrid = function () {
                 };
             },
             onAdd: function (event) {
-                alert("I'm from the pet section");
                 var f = w2ui.RAPetForm;
-                w2ui.toplayout.content('right', f);
-                w2ui.toplayout.sizeTo('right', 500);
-                w2ui.toplayout.render();
+
+                w2ui.newraLayout.content('right', w2ui.newRAFormLayout);
+                w2ui.newraLayout.show('right', true);
+                w2ui.newraLayout.sizeTo('right', 300);
+
+                w2ui.newRAFormLayout.content('main', f);
             }
         });
 
@@ -873,23 +875,27 @@ window.loadRAPetsGrid = function () {
             formURL : '/webclient/html/formraaddpetinfo.html',
             toolbar : {
                 items: [
+                    { id: 'bt3', type: 'spacer' },
                     { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
                 ],
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            w2ui.toplayout.hide('right', true);
+                            w2ui.newraLayout.hide('right', true);
                             break;
                     }
                 }
             },
             fields  : [
                 { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'BID', type: 'int', required: false, html: { caption: 'BID', page: 0, column: 0 }, hidden: true },
-                { field: 'BUD', type: 'list', options: { items: app.businesses }, required: true, html: { caption: 'BUD', page: 0, column: 0 } },
-                { field: 'PMTID', type: 'int', required: false, html: { caption: 'PMTID', page: 0, column: 0 }, hidden: true },
-                { field: 'Name', type: 'text', required: true, html: { caption: 'Name', page: 0, column: 0 }, sortable: true },
-                { field: 'Description', type: 'text', required: false, html: { caption: 'Description', page: 0, column: 0 }, sortable: true },
+                { field: 'Name', type: 'text', required: true},
+                { field: 'Breed', type: 'text', required: true},
+                { field: 'Type', type: 'text', required: true},
+                { field: 'Color', type: 'text', required: true},
+                { field: 'Weight', type: 'text', required: true},
+                { field: 'NonRefundablePetFee', type: 'money', required: false},
+                { field: 'RefundablePetDeposit', type: 'money', required: false},
+                { field: 'ReccurringPetFee', type: 'money', required: false},
                 { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
                 { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             ]
@@ -1046,6 +1052,33 @@ window.loadRAVehiclesGrid = function () {
                     this.save();
                 };
             }
+        });
+
+        // Add vehicle information form
+        $().w2form({
+            name: 'RAVehicleForm',
+            header: 'Add Vehicle form',
+            formURL: '/webclient/html/formraaddvehicleinfo.html',
+            toolbar:{
+                items: [
+                    { id: 'bt3', type: 'spacer' },
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ]
+            },
+            fields : [
+                { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'Type', type: 'text', required: true},
+                { field: 'Make', type: 'list', required: true},
+                { field: 'Model', type: 'text', required: true},
+                { field: 'Color', type: 'text', required: true},
+                { field: 'LicPlateState', type: 'text', required: true},
+                { field: 'LicPlateNo', type: 'text', required: true},
+                { field: 'VIN', type: 'text', required: true},
+                { field: 'PermitNo', type: 'text', required: true},
+                { field: 'PermitFee', type: 'text', required: true}
+                { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+                { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            ]
         });
     }
 

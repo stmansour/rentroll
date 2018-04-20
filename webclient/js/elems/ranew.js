@@ -208,7 +208,7 @@ window.buildNewRAElements = function() {
                     items: [
                         { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                         { id: 'bt3', type: 'spacer' },
-                        { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
+                        { id: 'btnClose', type: 'button', icon: 'fas fa-times' }
                     ],
                     onClick: function (event) {
                         switch(event.target) {
@@ -227,7 +227,19 @@ window.buildNewRAElements = function() {
             },
             { type: 'preview',      hidden: true },
             { type: 'bottom',       hidden: true },
-            { type: 'right',        hidden: true }
+            { type: 'right',        hidden: true, size: '200', resizable: true }
+        ]
+    });
+
+    $().w2layout({
+        name: 'newRAFormLayout',
+        panels: [
+            {type: 'left', hidden: true},
+            {type: 'top', hidden: true},
+            {type: 'main', content: 'main', resizable: true},
+            {type: 'preview', hidden: true},
+            {type: 'bottom', hidden: true},
+            {type: 'right', hidden: true}
         ]
     });
 };
