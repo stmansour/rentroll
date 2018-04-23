@@ -62,19 +62,12 @@ window.getTLDInitRecord = function (BID, previousFormRecord){
     return defaultFormData;
 };
 
-window.getTDInitRecord = function (BID, previousFormRecord){
+window.getTDInitRecord = function (BID, TDID, previousFormRecord){
     var y = new Date();
     var y1 = new Date( y.getFullYear(), y.getMonth(), 1);
     var month = (y.getMonth() + 1) % 12;
     var epochPreDue = new Date(y.getFullYear(), y.getMonth(), 20);
     var epochDue = new Date(y.getFullYear(), month, 0); 
-
-    // var Cycle;
-    // for (var i = 0; i < app.cycleFreq.length; i++) {
-    //     if (app.cycleFreq[i] === "Monthly") {
-    //         Cycle = i;
-    //     }
-    // }
 
     var defaultFormData = {
         TDID: 0,
@@ -82,7 +75,7 @@ window.getTDInitRecord = function (BID, previousFormRecord){
         lstWorker: '',
         DoneUID: 0,
         PreDoneUID: 0,
-        TLDID: w2ui.tldsInfoForm.TLDID,
+        TLDID: w2ui.tldsInfoForm.record.TLDID,
         BID: BID,
         Name: '',
         Cycle: 6,
@@ -422,16 +415,33 @@ window.buildTaskListDefElements = function () {
                     w2popup.close();
                 })
                 .fail(function(/*data*/){
-                    f.error("Save Tasklist failed.");
+                    f.error("Save TaskDescriptor failed.");
                     return;
                 });
             },
             delete: function(target, data) {
-
+                ensureSession();
+                var f = w2ui.taskDescForm;
+                var r = f.record;
+                var d = {cmd: "delete"};
+                var dat=JSON.stringify(d);
+                f.url = '/v1/td/' + r.BID + '/' + r.TDID;
+                $.post(f.url,dat)
+                .done(function(data) {
+                    if (data.status === "error") {
+                        f.error(w2utils.lang(data.message));
+                        return;
+                    }
+                    w2ui.tldsDetailGrid.reload();
+                    w2popup.close();
+                })
+                .fail(function(/*data*/){
+                    f.error("Delete TaskDescriptor failed.");
+                    return;
+                });
             },
         },
        onLoad: function(event) {
-            // var f = this;
             event.onComplete = function(event) {
                 var r = w2ui.taskDescForm.record;
                 if (typeof r.EpochPreDue === "undefined") {
@@ -578,7 +588,7 @@ window.popupTaskDescForm = function (bid,tdid) {
         w2ui.taskDescForm.request();
     } else {
         w2ui.taskDescForm.url = '';
-        w2ui.taskDescForm.record = getTDInitRecord(tdid, null);
+        w2ui.taskDescForm.record = getTDInitRecord(bid, tdid, null);
     }
     var n = '' + tdid;
     var s = 'Task Descriptor  ('+ (n === '0' ? 'new':n)  + ')';

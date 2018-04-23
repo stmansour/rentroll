@@ -311,7 +311,7 @@ func deleteTaskListDefinition(w http.ResponseWriter, r *http.Request, d *Service
 	SvcWriteSuccessResponse(d.BID, w)
 }
 
-// GetTaskListDefinition returns the requested assessment
+// SaveTaskListDefinition returns the requested assessment
 // wsdoc {
 //  @Title  Save TaskListDefinition
 //	@URL /v1/tld/:BUI/TLDID
