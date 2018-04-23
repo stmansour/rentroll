@@ -5,7 +5,7 @@
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
-    requiredFieldsFulFilled
+    requiredFieldsFulFilled, getPetFormInitRecord
 */
 
 "use strict";
@@ -83,7 +83,7 @@ window.saveActiveCompData = function (record, partType) {
         "Data": record,
     };
 
-    $.ajax({
+    return $.ajax({
         url: "/v1/flowpart/" + bid.toString() + "/0",
         method: "POST",
         contentType: "application/json",
@@ -734,6 +734,40 @@ window.loadRAPeopleForm = function () {
     }, 500);
 };
 
+window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
+    var y = new Date();
+
+    var defaultFormData = {
+        recid: 0,
+        PETID: 0,
+        BID: BID,
+        // BUD: BUD,
+        Name: "",
+        Breed: "",
+        Type: "",
+        Color: "",
+        Weight: 0,
+        NonRefundablePetFee: 0,
+        RefundablePetDeposit: 0,
+        ReccurringPetFee: 0,
+        LastModTime: y.toISOString(),
+        LastModBy: 0,
+    };
+
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'Name', 'Breed', 'Type', 'Color', 'Weight',
+              'NonRefundablePetFee', 'RefundablePetDeposit', 'ReccurringPetFee' ], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );
+    }
+
+    return defaultFormData;
+};
+
 window.loadRAPetsGrid = function () {
     // if form is loaded then return
     if (!("RAPetsGrid" in w2ui)) {
@@ -760,18 +794,78 @@ window.loadRAPetsGrid = function () {
             },
             fields  : [
                 { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'BID', type: 'int', hidden: true, html: { caption: 'BID', page: 0, column: 0 } },
+                // { field: 'BUD', type: 'text', hidden: false, html: { caption: 'BUD', page: 0, column: 0 } },
+                { field: 'PETID', type: 'int', hidden: false, html: { caption: 'PETID', page: 0, column: 0 } },
                 { field: 'Name', type: 'text', required: true},
                 { field: 'Breed', type: 'text', required: true},
                 { field: 'Type', type: 'text', required: true},
                 { field: 'Color', type: 'text', required: true},
-                { field: 'Weight', type: 'text', required: true},
+                { field: 'Weight', type: 'int', required: true},
                 { field: 'NonRefundablePetFee', type: 'money', required: false},
                 { field: 'RefundablePetDeposit', type: 'money', required: false},
                 { field: 'ReccurringPetFee', type: 'money', required: false},
                 { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
                 { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
-            ]
+            ],
+            actions: {
+                save: function() {
+                    var form = this;
+                    var errors = form.validate();
+                    if (errors.length > 0) return;
+                    var record = $.extend(true, { recid: w2ui.RAPetsGrid.records.length + 1 }, form.record);
+                    var recordsData = $.extend(true, [], w2ui.RAPetsGrid.records);
+                    recordsData.push(record);
 
+                    // save this records in json Data
+                    saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
+                    .done(function(data) {
+                        if (data.status === 'success') {
+                            w2ui.RAPetsGrid.add(record);
+                            form.clear();
+
+                            // close the form
+                            $("#component-form-instance-container").hide();
+                            $("#component-form-instance-container #form-instance").empty();
+                        } else {
+                            form.message(data.message);
+                        }
+                    })
+                    .fail(function(data) {
+                        console.log("failure " + data);
+                    });
+                },
+                saveadd: function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    var form = this;
+                    var errors = form.validate();
+                    if (errors.length > 0) return;
+                    var record = $.extend(true, { recid: w2ui.RAPetsGrid.records.length + 1 }, form.record);
+                    var recordsData = $.extend(true, [], w2ui.RAPetsGrid.records);
+                    recordsData.push(record);
+
+                    // save this records in json Data
+                    saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
+                    .done(function(data) {
+                        if (data.status === 'success') {
+                            w2ui.RAPetsGrid.add(record);
+                            var record = getPetFormInitRecord(BID, BUD, form.record);
+                            form.record = record;
+                            form.refresh();
+                        } else {
+                            form.message(data.message);
+                        }
+                    })
+                    .fail(function(data) {
+                        console.log("failure " + data);
+                    });
+                },
+                delete: function() {
+                    alert("delete");
+                },
+            },
         });
 
         // pets grid
@@ -797,68 +891,62 @@ window.loadRAPetsGrid = function () {
                     field: 'BID',
                     hidden: true
                 },
+                /*{
+                    field: 'BUD',
+                    hidden: true
+                },*/
                 {
                     field: 'Name',
                     caption: 'Name',
                     size: '150px',
-                    editable: {type: 'text'}
                 },
                 {
                     field: 'Type',
                     caption: 'Type',
                     size: '80px',
-                    editable: {type: 'text'}
                 },
                 {
                     field: 'Breed',
                     caption: 'Breed',
                     size: '80px',
-                    editable: {type: 'text'}
                 },
                 {
                     field: 'Color',
                     caption: 'Color',
                     size: '80px',
-                    editable: {type: 'text'}
                 },
                 {
                     field: 'Weight',
                     caption: 'Weight',
                     size: '80px',
-                    editable: {type: 'int'}
                 },
                 {
                     field: 'DtStart',
                     caption: 'DtStart',
                     size: '100px',
-                    editable: {type: 'date'}
                 },
                 {
                     field: 'DtStop',
                     caption: 'DtStop',
                     size: '100px',
-                    editable: {type: 'date'}
                 },
                 {
                     field: 'NonRefundablePetFee',
                     caption: 'NonRefundable<br>PetFee',
                     size: '70px',
                     render: 'money',
-                    editable: {type: 'money'}
                 },
                 {
                     field: 'RefundablePetDeposit',
                     caption: 'Refundable<br>PetDeposit',
                     size: '70px',
                     render: 'money',
-                    editable: {type: 'money'}
                 },
                 {
                     field: 'RecurringPetFee',
                     caption: 'Recurring<br>PetFee',
                     size: '70px',
                     render: 'money',
-                    editable: {type: 'money'}
                 },
             ],
             onChange: function (event) {
@@ -867,7 +955,14 @@ window.loadRAPetsGrid = function () {
                 };
             },
             onAdd: function (/*event*/) {
+                var BID = getCurrentBID(),
+                    BUD = getBUDfromBID(BID);
+
                 $("#component-form-instance-container").show();
+                var record = getPetFormInitRecord(BID, BUD, null);
+                w2ui.RAPetForm.record = record;
+                w2ui.RAPetForm.refresh();
+
                 $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
             }
         });
