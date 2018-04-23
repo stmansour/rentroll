@@ -856,6 +856,8 @@ window.loadRAPetsGrid = function () {
                 };
             },
             onAdd: function (event) {
+
+                // TODO(Akshay): Open pets adding information form. Move this code to function.
                 var f = w2ui.RAPetForm;
 
                 w2ui.newraLayout.content('right', w2ui.newRAFormLayout);
@@ -953,22 +955,11 @@ window.loadRAVehiclesGrid = function () {
             name: 'RAVehiclesGrid',
             header: 'Vehicles',
             show: {
-                toolbar: true,
-                footer: true,
+                toolbar         : true,
+                footer          : true,
+                toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
             style: 'border: 1px solid black; display: block;',
-            toolbar: {
-                items: [
-                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
-                ],
-                onClick: function (event) {
-                    var bid = getCurrentBID();
-                    if (event.target == 'add') {
-                        var inital = getVehicleGridInitalRecord(bid, w2ui.RAVehiclesGrid.records.length);
-                        w2ui.RAVehiclesGrid.add(inital);
-                    }
-                }
-            },
             columns: [
                 {
                     field: 'recid',
@@ -1051,6 +1042,17 @@ window.loadRAVehiclesGrid = function () {
                 event.onComplete = function () {
                     this.save();
                 };
+            },
+            onAdd: function(event) {
+
+                // TODO(Akshay): Open vehicle adding information form. Move this code to function.
+                var f = w2ui.RAVehicleForm;
+
+                w2ui.newraLayout.content('right', w2ui.newRAFormLayout);
+                w2ui.newraLayout.show('right', true);
+                w2ui.newraLayout.sizeTo('right', 300);
+
+                w2ui.newRAFormLayout.content('main', f);
             }
         });
 
@@ -1063,7 +1065,14 @@ window.loadRAVehiclesGrid = function () {
                 items: [
                     { id: 'bt3', type: 'spacer' },
                     { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
-                ]
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            w2ui.newraLayout.hide('right', true);
+                            break;
+                    }
+                }
             },
             fields : [
                 { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
@@ -1071,11 +1080,12 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'Make', type: 'list', required: true},
                 { field: 'Model', type: 'text', required: true},
                 { field: 'Color', type: 'text', required: true},
+                { field: 'Year', type: 'text', required: true},
                 { field: 'LicPlateState', type: 'text', required: true},
                 { field: 'LicPlateNo', type: 'text', required: true},
                 { field: 'VIN', type: 'text', required: true},
                 { field: 'PermitNo', type: 'text', required: true},
-                { field: 'PermitFee', type: 'text', required: true}
+                { field: 'PermitFee', type: 'text', required: true},
                 { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
                 { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             ]
