@@ -1047,16 +1047,9 @@ window.loadRAVehiclesGrid = function () {
                     this.save();
                 };
             },
-            onAdd: function(event) {
-
-                // TODO(Akshay): Open vehicle adding information form. Move this code to function.
-                var f = w2ui.RAVehicleForm;
-
-                w2ui.newraLayout.content('right', w2ui.newRAFormLayout);
-                w2ui.newraLayout.show('right', true);
-                w2ui.newraLayout.sizeTo('right', 300);
-
-                w2ui.newRAFormLayout.content('main', f);
+            onAdd: function (/*event*/) {
+                $("#component-form-instance-container").show();
+                $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
             }
         });
 
@@ -1073,7 +1066,8 @@ window.loadRAVehiclesGrid = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            w2ui.newraLayout.hide('right', true);
+                            $("#component-form-instance-container").hide();
+                            $("#component-form-instance-container #form-instance").empty();
                             break;
                     }
                 }
@@ -1081,7 +1075,7 @@ window.loadRAVehiclesGrid = function () {
             fields : [
                 { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
                 { field: 'Type', type: 'text', required: true},
-                { field: 'Make', type: 'list', required: true},
+                { field: 'Make', type: 'text', required: true},
                 { field: 'Model', type: 'text', required: true},
                 { field: 'Color', type: 'text', required: true},
                 { field: 'Year', type: 'text', required: true},
