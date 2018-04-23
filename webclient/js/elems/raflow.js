@@ -871,42 +871,6 @@ window.loadRAPetsGrid = function () {
                 $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
             }
         });
-
-        // pet form
-        $().w2form({
-            name    : 'RAPetForm',
-            header  : 'Add Pet information',
-            // url: '/v1/pmts',
-            style: 'border: 0px; background-color: transparent;display: block;',
-            formURL : '/webclient/html/formraaddpetinfo.html',
-            toolbar : {
-                items: [
-                    { id: 'bt3', type: 'spacer' },
-                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
-                ],
-                onClick: function (event) {
-                    switch (event.target){
-                        case 'btnClose':
-                            w2ui.newraLayout.hide('right', true);
-                            break;
-                    }
-                }
-            },
-            fields  : [
-                { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'Name', type: 'text', required: true},
-                { field: 'Breed', type: 'text', required: true},
-                { field: 'Type', type: 'text', required: true},
-                { field: 'Color', type: 'text', required: true},
-                { field: 'Weight', type: 'text', required: true},
-                { field: 'NonRefundablePetFee', type: 'money', required: false},
-                { field: 'RefundablePetDeposit', type: 'money', required: false},
-                { field: 'ReccurringPetFee', type: 'money', required: false},
-                { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-                { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
-            ]
-
-        });
     }
 
     // now load grid in division
@@ -953,6 +917,62 @@ window.getVehicleGridInitalRecord = function (BID, gridLen) {
 window.loadRAVehiclesGrid = function () {
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
+
+        // Add vehicle information form
+        $().w2form({
+            name: 'RAVehicleForm',
+            header: 'Add Vehicle form',
+            formURL: '/webclient/html/formravehicles.html',
+            toolbar:{
+                items: [
+                    { id: 'bt3', type: 'spacer' },
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            $("#component-form-instance-container").hide();
+                            $("#component-form-instance-container #form-instance").empty();
+                            break;
+                    }
+                }
+            },
+            fields : [
+                { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'Type', type: 'text', required: true},
+                { field: 'Make', type: 'text', required: true},
+                { field: 'Model', type: 'text', required: true},
+                { field: 'Color', type: 'text', required: true},
+                { field: 'Year', type: 'text', required: true},
+                { field: 'LicPlateState', type: 'text', required: true},
+                { field: 'LicPlateNo', type: 'text', required: true},
+                { field: 'VIN', type: 'text', required: true},
+                { field: 'PermitNo', type: 'text', required: true},
+                { field: 'PermitFee', type: 'text', required: true},
+                { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+                { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            ],
+            actions : {
+                saveadd: function () {
+
+                },
+                save: function () {
+                    var f = this,
+                        tgrid = w2ui.RAVehiclesGrid;
+
+                    f.save({}, function (data) {
+                        if (data.status == 'error'){
+                            console.log('ERROR: ' + data.message);
+                            return;
+                        }
+                        $("#component-form-instance-container").hide();
+                        $("#component-form-instance-container #form-instance").empty();
+                        tgrid.render();
+                    });
+
+                }
+            }
+        });
 
         // vehicles grid
         $().w2grid({
@@ -1051,42 +1071,6 @@ window.loadRAVehiclesGrid = function () {
                 $("#component-form-instance-container").show();
                 $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
             }
-        });
-
-        // Add vehicle information form
-        $().w2form({
-            name: 'RAVehicleForm',
-            header: 'Add Vehicle form',
-            formURL: '/webclient/html/formraaddvehicleinfo.html',
-            toolbar:{
-                items: [
-                    { id: 'bt3', type: 'spacer' },
-                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
-                ],
-                onClick: function (event) {
-                    switch (event.target){
-                        case 'btnClose':
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
-                            break;
-                    }
-                }
-            },
-            fields : [
-                { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'Type', type: 'text', required: true},
-                { field: 'Make', type: 'text', required: true},
-                { field: 'Model', type: 'text', required: true},
-                { field: 'Color', type: 'text', required: true},
-                { field: 'Year', type: 'text', required: true},
-                { field: 'LicPlateState', type: 'text', required: true},
-                { field: 'LicPlateNo', type: 'text', required: true},
-                { field: 'VIN', type: 'text', required: true},
-                { field: 'PermitNo', type: 'text', required: true},
-                { field: 'PermitFee', type: 'text', required: true},
-                { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-                { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
-            ]
         });
     }
 
