@@ -734,34 +734,45 @@ window.loadRAPeopleForm = function () {
     }, 500);
 };
 
-// -------------------------------------------------------------------------------
-// Rental Agreement - Pets Grid
-// -------------------------------------------------------------------------------
-window.getPetsGridInitalRecord = function (BID, gridLen) {
-    var t = new Date(),
-        nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-
-    return {
-        recid: gridLen,
-        PETID: 0,
-        BID: BID,
-        RAID: 0,
-        Name: "",
-        Type: "",
-        Breed: "",
-        Color: "",
-        Weight: 0,
-        DtStart: w2uiDateControlString(t),
-        DtStop: w2uiDateControlString(nyd),
-        RefundablePetDeposit: 0.0,
-        RecurringPetFee: 0.0,
-        NonRefundablePetFee: 0.0
-    };
-};
-
 window.loadRAPetsGrid = function () {
     // if form is loaded then return
     if (!("RAPetsGrid" in w2ui)) {
+
+        // pet form
+        $().w2form({
+            name    : 'RAPetForm',
+            header  : 'Add Pet information',
+            style   : 'border: 0px; background-color: transparent;display: block;',
+            formURL : '/webclient/html/formrapets.html',
+            toolbar : {
+                items: [
+                    { id: 'bt3', type: 'spacer' },
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            $("#component-form-instance-container").hide();
+                            $("#component-form-instance-container #form-instance").empty();
+                            break;
+                    }
+                }
+            },
+            fields  : [
+                { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'Name', type: 'text', required: true},
+                { field: 'Breed', type: 'text', required: true},
+                { field: 'Type', type: 'text', required: true},
+                { field: 'Color', type: 'text', required: true},
+                { field: 'Weight', type: 'text', required: true},
+                { field: 'NonRefundablePetFee', type: 'money', required: false},
+                { field: 'RefundablePetDeposit', type: 'money', required: false},
+                { field: 'ReccurringPetFee', type: 'money', required: false},
+                { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+                { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+            ]
+
+        });
 
         // pets grid
         $().w2grid({
@@ -769,21 +780,10 @@ window.loadRAPetsGrid = function () {
             header: 'Pets',
             show: {
                 toolbar: true,
+                toolbarAdd: true,
                 footer: true,
             },
             style: 'border: 1px solid black; display: block;',
-            toolbar: {
-                items: [
-                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
-                ],
-                onClick: function (event) {
-                    var bid = getCurrentBID();
-                    if (event.target == 'add') {
-                        var inital = getPetsGridInitalRecord(bid, w2ui.RAPetsGrid.records.length);
-                        w2ui.RAPetsGrid.add(inital);
-                    }
-                }
-            },
             columns: [
                 {
                     field: 'recid',
@@ -865,6 +865,10 @@ window.loadRAPetsGrid = function () {
                 event.onComplete = function () {
                     this.save();
                 };
+            },
+            onAdd: function (/*event*/) {
+                $("#component-form-instance-container").show();
+                $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
             }
         });
     }
