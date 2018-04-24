@@ -216,6 +216,7 @@ window.buildRAElements = function() {
         ],
         onRefresh: function(event) {
             event.onComplete = function() {
+                // var sel_recid = parseInt(this.last.sel_recid);
                 if (app.active_grid == this.name) {
                     this.select(app.last.grid_sel_recid);
                     // This one is special case, you need to set last sel_recid when you're adding

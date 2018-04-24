@@ -154,7 +154,7 @@ function getAllRAFlows() {
 
                 data.records = data.records || [];
                 for (var i = 0; i < data.records.length; i++) {
-                    $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.records[i]+"'>"+data.records[i]+"</li>");
+                    $("#flow-list").append("<li class='flowID-link' data-flow-id='"+data.records[i].FlowID+"'>"+data.records[i].FlowID+"</li>");
                 }
 
                 $("#manage-flows #message").hide();
@@ -507,7 +507,11 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
 
 
     // listing item to be appended in ul
-    var s = (transactantRec.IsCompany > 0) ? transactantRec.CompanyName : getFullName(transactantRec);;
+    var s = (transactantRec.IsCompany > 0) ? transactantRec.CompanyName : getFullName(transactantRec);
+    if (transactantRec.TCID > 0) {
+        s += ' (TCID: '+ String(transactantRec.TCID) + ')';
+    }
+
     var peopleListingItem = '<li data-tcid="' + transactantRec.TCID + '">';
     peopleListingItem += '<span>' + s + '</span>';
     peopleListingItem += '<i class="remove-item fas fa-times-circle fa-sm"></i>'
@@ -528,7 +532,11 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
             if (!($.isEmptyObject(app.raflow.activeTransactant))) {
                 app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Payors.push(app.raflow.activeTransactant);
             }
-            $('#payor-list .people-listing').append(peopleListingItem);
+
+            // if with this tcid element exists in DOM then not append
+            if (!($('#payor-list .people-listing li[data-tcid="'+transactantRec.TCID+'"]').length > 0)) {
+                $('#payor-list .people-listing').append(peopleListingItem);
+            }
         }
     }
 
@@ -546,7 +554,11 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
             if (!($.isEmptyObject(app.raflow.activeTransactant))) {
                 app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Users.push(app.raflow.activeTransactant);
             }
-            $('#user-list .people-listing').append(peopleListingItem);
+
+            // if with this tcid element exists in DOM then not append
+            if (!($('#user-list .people-listing li[data-tcid="'+transactantRec.TCID+'"]').length > 0)) {
+                $('#user-list .people-listing').append(peopleListingItem);
+            }
         }
     }
 
@@ -564,7 +576,11 @@ window.loadTransactantListingItem = function(transactantRec, IsPayor, IsUser, Is
             if (!($.isEmptyObject(app.raflow.activeTransactant))) {
                 app.raflow.data[app.raflow.activeflowID][peoplePartIndex].Data.Guarantors.push(app.raflow.activeTransactant);
             }
-            $('#guarantor-list .people-listing').append(peopleListingItem);
+
+            // if with this tcid element exists in DOM then not append
+            if (!($('#guarantor-list .people-listing li[data-tcid="'+transactantRec.TCID+'"]').length > 0)) {
+                $('#guarantor-list .people-listing').append(peopleListingItem);
+            }
         }
     }
 }

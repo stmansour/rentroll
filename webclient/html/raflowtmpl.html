@@ -1,41 +1,8 @@
-<!DOCTYPE html>
-<html lang="en" >
-
-<head>
-  <meta charset="UTF-8">
-  <title>Multi Step Form with Progress Bar using jQuery and CSS3</title>
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"> -->
-  <link rel="stylesheet" href="/webclient/html/test/raflow.css">
-  <link rel="stylesheet" href="/webclient/js/w2ui-1.5.rc1.min.css">
-  <link rel="stylesheet" href="/webclient/html/fa/css/fontawesome-all.min.css">
-  <script type="text/javascript">
-    "use strict";
-    var app = {
-      "language": "en-us",
-      "template": "default",
-      "raflow": {
-        "name":                 "RA",
-        "data":                 {},
-        "activeflowID":         "",
-        "BID":                  1,
-        "activeTransactant":    {},
-      }
-    };
-  </script>
-</head>
-
-<body>
-
-<section id="manage-flows">
-  <p id="message" style="display: none; color: red; font-size: 16px;"></p>
-  <p id="loader">loading...</p>
-  <ul id="flow-list">
-  </ul>
-  <button class="btn" id="add-new-flow">Add New Rental Agreement Flow</button>
-</section>
-
 <div id="ra-form-container">
-<button id="back-to-flow-list">Back</button>
+<section id="component-form-instance-container">
+  <div id="form-instance"></div>
+  <div class="clearfix"></div>
+</section>
 <section id="ra-form"> <!-- RA Form Section -->
   <nav id="progressbar-nav">
     <!-- progressbar -->
@@ -152,16 +119,10 @@
 
   <!-- RA form footer part -->
   <footer>
-    <button id="previous">Previous</button>
-    <button id="next">Next</button>
+    <button id="previous" class="w2ui-btn">Previous</button>
+    <button id="next" class="w2ui-btn">Next</button>
     <div class="clearfix"></div>
   </footer>
 
 </section> <!-- RA Form Section -->
 </div>
-
-<script src="/webclient/js/jquery.min.js"></script>
-<script src="/webclient/js/w2ui-1.5.rc1.js"></script>
-<script src="/webclient/html/test/raflow.js"></script>
-</body>
-</html>
