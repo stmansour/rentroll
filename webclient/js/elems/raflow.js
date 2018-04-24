@@ -739,7 +739,7 @@ window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     var defaultFormData = {
-        recid: w2ui.RAPetsGrid.records.length + 1,
+        recid: 0,
         PETID: 0,
         BID: BID,
         // BUD: BUD,
@@ -761,7 +761,7 @@ window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
     // else it is null
     if ( previousFormRecord ) {
         defaultFormData = setDefaultFormFieldAsPreviousRecord(
-            [ 'recid', 'Name', 'Breed', 'Type', 'Color', 'Weight',
+            [ 'Name', 'Breed', 'Type', 'Color', 'Weight',
               'NonRefundablePetFee', 'RefundablePetDeposit', 'ReccurringPetFee' ], // Fields to Reset
             defaultFormData,
             previousFormRecord
@@ -841,7 +841,11 @@ window.loadRAPetsGrid = function () {
                     if (errors.length > 0) return;
                     var record = $.extend(true, { recid: w2ui.RAPetsGrid.records.length + 1 }, form.record);
                     var recordsData = $.extend(true, [], w2ui.RAPetsGrid.records);
-                    recordsData.push(record);
+
+                    // if it doesn't exist then only push
+                    if (w2ui.RAPetsGrid.get(record.recid, true) === null) {
+                        recordsData.push(record);
+                    }
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -880,8 +884,11 @@ window.loadRAPetsGrid = function () {
                     var recordsData = $.extend(true, [], w2ui.RAPetsGrid.records);
 
                     // if it doesn't exist then only push
+                    console.log(record);
+                    console.log("index:", w2ui.RAPetsGrid.get(record.recid, true));
                     if (w2ui.RAPetsGrid.get(record.recid, true) === null) {
                         recordsData.push(record);
+                        console.log("push the new record");
                     }
 
                     // clean dirty flag of form
@@ -896,12 +903,16 @@ window.loadRAPetsGrid = function () {
                             // if null
                             if (w2ui.RAPetsGrid.get(record.recid, true) === null) {
                                 // add this record to grid
+                                console.debug("add new record");
                                 w2ui.RAPetsGrid.add(record);
                             } else {
+                                console.debug("set record");
                                 w2ui.RAPetsGrid.set(record.recid, record);
                             }
                             // add new formatted record to current form
                             form.record = getPetFormInitRecord(BID, BUD, form.record);
+                            // set record id
+                            form.record.recid = w2ui.RAPetsGrid.records.length + 1;
                             form.refresh();
                             form.refresh();
                         } else {
@@ -1043,10 +1054,9 @@ window.loadRAPetsGrid = function () {
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
 
-                            w2ui.RAPetForm.record = grid.get(app.last.grid_sel_recid);
-
                             $("#component-form-instance-container").show();
                             $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                            w2ui.RAPetForm.record = grid.get(app.last.grid_sel_recid);
                             w2ui.RAPetForm.refresh();
                             w2ui.RAPetForm.refresh(); // need to two calls for the refresh
                         };
@@ -1067,11 +1077,12 @@ window.loadRAPetsGrid = function () {
                         var BID = getCurrentBID(),
                             BUD = getBUDfromBID(BID);
 
-                        var record = getPetFormInitRecord(BID, BUD, null);
-                        w2ui.RAPetForm.record = record;
-
                         $("#component-form-instance-container").show();
                         $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                        var record = getPetFormInitRecord(BID, BUD, null);
+                        // set record id
+                        record.recid = w2ui.RAPetsGrid.records.length + 1;
+                        w2ui.RAPetForm.record = record;
                         w2ui.RAPetForm.refresh();
                         w2ui.RAPetForm.refresh(); // need to two calls for the refresh
                     };
