@@ -1,10 +1,10 @@
 "use strict";
 /*global
-    w2ui, $, app, console,setToTLDForm,
+    w2ui, $, app, console,setToTLDForm, w2alert,
     form_dirty_alert, addDateNavToToolbar, w2utils, w2popup,
     popupTaskDescForm, ensureSession, dtFormatISOToW2ui,
     dtFormatISOToW2ui, localtimeToUTC, setDefaultFormFieldAsPreviousRecord,
-    getTLDInitRecord, getCurrentBID, getTDInitRecord,
+    getTLDInitRecord, getCurrentBID, getTDInitRecord, saveTaskListDefinition,
 */
 
 // Temporary storage for when a date is toggled off
@@ -292,8 +292,8 @@ window.buildTaskListDefElements = function () {
     });
 
     //------------------------------------------------------------------------
-    //  tldsTaskGrid  -  lists all the assessments and receipts for
-    //                  the selected Rental Agreement from the stmtGrid
+    //  tldsTaskGrid  -  lists all the tasks associated with the task list
+    //                   definition currently being edited.
     //------------------------------------------------------------------------
     $().w2grid({
         name: 'tldsDetailGrid',
@@ -344,6 +344,13 @@ window.buildTaskListDefElements = function () {
             };
         },
         onAdd: function (event) {
+            // make sure that task list definition itself has been saved, if not, we'll need to save it.
+            var r = w2ui.tldsInfoForm.record;
+            if (r.TLDID === 0) {
+                if (saveTaskListDefinition(false,true) > 0) {
+                    return;  // an error occurred.
+                }
+            }
             popupTaskDescForm(w2ui.tldsInfoForm.record.BID,0);
         }
     });
@@ -394,6 +401,9 @@ window.buildTaskListDefElements = function () {
                 var f = w2ui.taskDescForm;
                 var r = f.record;
                 r.Worker = r.lstWorker.text;
+                if (r.TLDID === 0) {
+                    r.TLDID = w2ui.tldsInfoForm.record.TLDID;  // this should no longer be 
+                }
 
                 //------------------------------------------------
                 // convert times to UTC before saving
@@ -411,6 +421,7 @@ window.buildTaskListDefElements = function () {
                         f.error(w2utils.lang(data.message));
                         return;
                     }
+                    w2ui.tldsDetailGrid.url='/v1/tds/'+w2ui.taskDescForm.record.BID+'/'+w2ui.taskDescForm.record.TLDID;
                     w2ui.tldsDetailGrid.reload();
                     w2popup.close();
                 })
@@ -497,32 +508,7 @@ window.buildTaskListDefElements = function () {
         fields: [],
         actions: {
             save: function(target, data){
-                // getFormSubmitData(data.postData.record);
-                var tmp         = w2ui.tldsInfoForm.record;
-                var y           = tmp.Cycle.id;
-                tmp.Cycle       = y; // we don't want the struct, we just want the ID
-                tmp.Epoch       = localtimeToUTC(tmp.Epoch);
-                tmp.EpochDue    = localtimeToUTC(tmp.EpochDue);
-                tmp.EpochPreDue = localtimeToUTC(tmp.EpochPreDue);
-                var tl = {
-                    cmd: "save",
-                    record: tmp,
-                };
-                var dat = JSON.stringify(tl);
-                var url = '/v1/tld/' + w2ui.tldsInfoForm.record.BID + '/' + w2ui.tldsInfoForm.record.TLDID;
-                $.post(url,dat)
-                .done(function(data) {
-                    if (data.status === "error") {
-                        w2ui.tldsInfoForm.error(w2utils.lang(data.message));
-                        return;
-                    }
-                    w2ui.toplayout.hide('right',true);
-                    w2ui.tldsGrid.render();
-                })
-                .fail(function(/*data*/){
-                    w2ui.tldsInfoForm.error("Save Tasklist failed.");
-                    return;
-                });
+                saveTaskListDefinition(true,false);
             },
             delete: function(target, data) {
                 var tl = {
@@ -570,6 +556,61 @@ window.finishTLDForm = function () {
     w2ui.tldLayout.content('top',   w2ui.tldsInfoForm);
     w2ui.tldLayout.content('main',  w2ui.tldsDetailGrid);
     w2ui.tldLayout.content('bottom',w2ui.tldsCloseForm);
+};
+
+//-----------------------------------------------------------------------------
+// saveTaskListDefinition - save the task list definition, called from 
+// multiple places.
+// 
+// @params
+//     hide = boolean - indicates whether or not the dialog should close
+//            after the save is complete
+//     reloadTldsInfo = boolean - indicates if we need to explicitly reload
+//            w2ui.tldsInfoForm.record
+//  
+// @returns
+//     0 = no errors, just continue
+//     1 = error message was popped up.
+//  
+//-----------------------------------------------------------------------------
+window.saveTaskListDefinition = function (hide, reloadTldsInfo) {
+    var tmp         = w2ui.tldsInfoForm.record;
+    var y           = tmp.Cycle.id;
+    tmp.Cycle       = y; // we don't want the struct, we just want the ID
+    tmp.Epoch       = localtimeToUTC(tmp.Epoch);
+    tmp.EpochDue    = localtimeToUTC(tmp.EpochDue);
+    tmp.EpochPreDue = localtimeToUTC(tmp.EpochPreDue);
+    if (tmp.Name.length === 0) {
+        w2alert('Please name the task list definition, then try again.');
+        return 1;
+    }
+    var tl = {
+        cmd: "save",
+        record: tmp,
+    };
+    var dat = JSON.stringify(tl);
+    var url = '/v1/tld/' + w2ui.tldsInfoForm.record.BID + '/' + w2ui.tldsInfoForm.record.TLDID;
+    $.post(url,dat)
+    .done(function(data) {
+        if (data.status === "error") {
+            w2ui.tldsInfoForm.error(w2utils.lang(data.message));
+            return;
+        }
+        if (hide) {
+            w2ui.toplayout.hide('right',true);
+        }
+        w2ui.tldsGrid.render();
+        w2ui.tldsInfoForm.record.TLDID = data.recid;
+        if (reloadTldsInfo) {
+            w2ui.tldsInfoForm.reload();
+        }
+
+    })
+    .fail(function(/*data*/){
+        w2ui.tldsInfoForm.error("Save Tasklist failed.");
+        return;
+    });
+    return 0;
 };
 
 //-----------------------------------------------------------------------------
