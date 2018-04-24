@@ -21,8 +21,22 @@
 function secureIt {
 	COUNT=$(egrep "^secure:" ${1} | wc -l)
 	if [ ${COUNT} -eq 0 ]; then
+		echo "secure:" >> ${1}
+
+		#-------------------------------------------------
+		# Handle the case where the Makefile has DIRS...
+		#-------------------------------------------------
+		COUNT=$(egrep "^DIRS[ \t]*=" ${f} | wc -l)
+		if [ ${COUNT} -gt 0 ]; then
+			cat >> ${1} << FEOF
+	for dir in \$(DIRS); do make -C \$\${dir} secure;done
+FEOF
+		fi
+
+		#-------------------------------------------------
+		# and now the code for all Makefiles...
+		#-------------------------------------------------
 		cat >> ${1} << EOF
-secure:
 	@rm -f config.json confdev.json confprod.json
 EOF
 	fi
