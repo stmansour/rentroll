@@ -122,8 +122,9 @@ type AcctDeleteForm struct {
 }
 
 // acctStatus map
+// Status cannot have an Unknown state. It's either active or inactive. Default state is Active.
 var acctStatus = map[int64]string{
-	0: "Unknown",
+	//0: "Unknown",
 	1: "Inactive",
 	2: "Active",
 }

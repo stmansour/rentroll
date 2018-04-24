@@ -1,10 +1,4 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    font-family: "Lato", "Lucida Grande", "Lucida Sans Unicode", Tahoma, Sans-Serif;
-}
-
-ul {
+#ra-form-container ul {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -12,30 +6,6 @@ ul {
 
 .clearfix {
     clear: both;
-}
-
-#manage-flows {
-    text-align: center;
-}
-
-#manage-flows ul li.flowID-link {
-    padding: 12px;
-    width: 180px;
-    margin: 10px auto;
-    text-align: center;
-    display: block;
-    font-size: 14px;
-    text-decoration: none;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-image: linear-gradient(to right, #86D3FF 0%, #8AF03E 100%);
-}
-
-#manage-flows ul li a {
-    text-decoration: none;
-    color: white;
 }
 
 #progressbar-nav {
@@ -56,19 +26,19 @@ ul {
     float: left;
     width: 12.5%;
     text-align: center;
-    height: 100px;
+    height: 84px;
 }
 
 #progressbar li:before {
     background-color: #DDD;
-    top: 22px;
+    top: 20px;
     display: block;
     width: 100%;
     left: -50%;
     content: "";
     position: relative;
     height: 3px;
-    z-index: -1;
+    z-index: 1;
 }
 
 #progressbar li:first-child:before {
@@ -84,12 +54,12 @@ ul {
 }
 
 #progressbar li a span.step {
-    width: 40px;
-    height: 40px;
-    padding-top: 11px;
-    margin: 0 auto 15px auto;
+    width: 34px;
+    height: 34px;
+    padding-top: 9px;
+    margin: 0 auto 10px auto;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 13px;
     border-radius: 50%;
     background-color: #9D9D9D;
     color: white;
@@ -99,6 +69,7 @@ ul {
     text-align: center;
     box-sizing: border-box;
     max-width: 100%;
+    border: 1px transparent solid;
 }
 
 #progressbar li a span.title {
@@ -107,10 +78,11 @@ ul {
     position: relative;
     z-index: 10;
     text-align: center;
+    font-size: 14px;
 }
 
 #progressbar li.active a span.step {
-    border: 1px #333 solid;
+    border: 1px transparent solid;
     background-color: #0091d9;
 }
 
@@ -132,42 +104,24 @@ ul {
 
 #ra-form-container {
     width: 100%;
-    z-index: 10;
-    position: fixed;
-    top: 0;
-    left: 100%;
-    background-color: white;
     height: 100%;
-}
-
-#ra-form-container #back-to-flow-list {
-    position: absolute;
-    top: 20px;
-    left: 30px;
-    padding: 12px;
-    min-width: 80px;
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    text-decoration: none;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-image: linear-gradient(to right, #6FA36F 0%, #fda085 100%);
+    font-family: "Lato", "Lucida Grande", "Lucida Sans Unicode", Tahoma, Sans-Serif;
+    position: relative;
 }
 
 #ra-form {
-    width: 70%;
+    width: 100%;
     margin: 0 auto;
-    padding: 20px 100px;
+    padding: 20px 40px 0px 40px;
     text-align: center;
+    position: relative;
 }
 
 .ra-form-component {
     /*width: 80%;*/
     margin: 0 auto;
-    min-height: 400px;
+    min-height: 360px;
+    height: 70%;
     border: 1px #555 solid;
     position: relative;
 }
@@ -205,28 +159,9 @@ button.save-ra {
 
 #ra-form footer {
     /*width: 80%;*/
-    margin: 20px auto;
+    margin: 10px auto 0px auto;
     position: relative;
     padding: 10px 20px;
-}
-
-.btn, #ra-form footer button {
-    padding: 12px;
-    min-width: 80px;
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    text-decoration: none;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-image: linear-gradient(to right, #f6d365 0%, #fda085 100%);
-}
-
-#ra-form footer button.disable {
-    color: white;
-    background-image: linear-gradient(to right, #999 100%, #999 100%);
 }
 
 #ra-form footer button#previous {
@@ -261,7 +196,7 @@ button.save-ra {
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 270px;
+    top: 130px;
 }
 
 #people-type-containers .people-type {
@@ -269,7 +204,7 @@ button.save-ra {
     margin: 0 1.5%;
     float: left;
     box-sizing: border-box;
-    height: 280px;
+    height: 100%;
     display: block;
 }
 
@@ -278,30 +213,65 @@ button.save-ra {
 }
 
 .people-type .people-listing {
-    padding: 5px;
     box-sizing: border-box;
-    height: 230px;
+    height: 185px;
     display: block;
     border: 1px black solid;
     background-color: #F2F2F2;
-    overflow-x: none;
     overflow-y: auto;
 }
 
 .people-listing li {
+    padding: 3px 5px;
     text-align: left;
     position: relative;
-    margin: 3px 0px;
 }
 
 .people-listing li span {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 i.remove-item {
     cursor: pointer;
     position: absolute;
     right: 5px;
+    top: 8px;
     color: red;
-    margin: 3px 0 0 0;
+}
+
+.ra-form-component#bginfo .w2ui-field > label {
+    width: auto !important;
+}
+
+#bginfo {
+    text-align: left;
+}
+
+.ra-form-component#bginfo .w2ui-field.w2ui-span4 > div {
+    margin-left: 128px;
+}
+
+.ra-form-component#bginfo input[type="checkbox"] {
+    vertical-align: middle;
+    width: 15px;
+    height: 16px;
+    margin-right: 3px;
+}
+
+#ra-form-container #component-form-instance-container {
+    position: absolute;
+    right: 0px;
+    width: 900px;
+    z-index: 130;
+    display: none;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#ra-form-container #component-form-instance-container #form-instance {
+    width: 400px;
+    float: right;
+    height: 100%;
+    background-color: #EFEFEF !important;
+    border-left: 2px solid rgb(207, 207, 207);
 }

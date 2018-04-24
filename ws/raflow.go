@@ -52,12 +52,13 @@ type RAPeopleFlowData struct {
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
+	Recid                int           `json:"recid"` // this is for the grid widget
 	PETID                int64         `json:"PETID"`
 	BID                  int64         `json:"BID"`
 	Name                 string        `json:"Name"`
 	Type                 string        `json:"Type"`
 	Breed                string        `json:"Breed"`
-	Coloe                string        `json:"Coloe"`
+	Color                string        `json:"Color"`
 	Weight               int           `json:"Weight"`
 	DtStart              rlib.JSONDate `json:"DtStart"`
 	DtStop               rlib.JSONDate `json:"DtStop"`
@@ -68,6 +69,7 @@ type RAPetsFlowData struct {
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
+	Recid               int           `json:"recid"` // this is for the grid widget
 	VID                 int64         `json:"VID"`
 	BID                 int64         `json:"BID"`
 	TCID                int64         `json:"TCID"`
@@ -76,20 +78,84 @@ type RAVehiclesFlowData struct {
 	Make                string        `json:"Make"`
 	Model               string        `json:"Model"`
 	Color               string        `json:"Color"`
+	Year                string        `json:"Year"`
 	LicensePlateState   string        `json:"LicensePlateState"`
 	LicensePlateNumber  string        `json:"LicensePlateNumber"`
 	ParkingPermitNumber string        `json:"ParkingPermitNumber"`
+	ParkingPermitFee    float64       `json:"ParkingPermitFee"`
 	DtStart             rlib.JSONDate `json:"DtStart"`
 	DtStop              rlib.JSONDate `json:"DtStop"`
 }
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
-	Applicant string `json:"Applicant"`
+	// Applicant information
+	ApplicantFirstName    string  `json:"ApplicantFirstName"`
+	ApplicantMiddleName   string  `json:"ApplicantMiddleName"`
+	ApplicantLastName     string  `json:"ApplicantLastName"`
+	ApplicantBirthDate    string  `json:"ApplicantBirthDate"`
+	ApplicantSSN          string  `json:"ApplicantSSN"`
+	ApplicantDriverLicNo  string  `json:"ApplicantDriverLicNo"`
+	ApplicantTelephoneNo  string  `json:"ApplicantTelephoneNo"`
+	ApplicantEmailAddress string  `json:"ApplicantEmailAddress"`
+	ApplicantEmployer     string  `json:"ApplicantEmployer"`
+	ApplicantPhone        string  `json:"ApplicantPhone"`
+	ApplicantAddress      string  `json:"ApplicantAddress"`
+	ApplicantPosition     string  `json:"ApplicantPosition"`
+	ApplicantGrossWages   float64 `json:"ApplicantGrossWages"`
+
+	// CoApplicant information
+	CoApplicantFirstName    string  `json:"CoApplicantFirstName"`
+	CoApplicantMiddleName   string  `json:"CoApplicantMiddleName"`
+	CoApplicantLastName     string  `json:"CoApplicantLastName"`
+	CoApplicantBirthDate    string  `json:"CoApplicantBirthDate"`
+	CoApplicantSSN          string  `json:"CoApplicantSSN"`
+	CoApplicantDriverLicNo  string  `json:"CoApplicantDriverLicNo"`
+	CoApplicantTelephoneNo  string  `json:"CoApplicantTelephoneNo"`
+	CoApplicantEmailAddress string  `json:"CoApplicantEmailAddress"`
+	CoApplicantEmployer     string  `json:"CoApplicantEmployer"`
+	CoApplicantPhone        string  `json:"CoApplicantPhone"`
+	CoApplicantAddress      string  `json:"CoApplicantAddress"`
+	CoApplicantPosition     string  `json:"CoApplicantPosition"`
+	CoApplicantGrossWages   float64 `json:"CoApplicantGrossWages"`
+
+	// Current Address information
+	CurrentAddress           string `json:"CurrentAddress"`
+	CurrentLandLoardName     string `json:"CurrentLandLoardName"`
+	CurrentLengthOfResidency int    `json:"CurrentLengthOfResidency"`
+	CurrentLandLoardPhoneNo  string `json:"CurrentLandLoardPhoneNo"`
+	CurrentReasonForMoving   string `json:"CurrentReasonForMoving"` // Reason for moving
+
+	// Prior Address information
+	PriorAddress           string `json:"PriorAddress"`
+	PriorLandLoardName     string `json:"PriorLandLoardName"`
+	PriorLengthOfResidency int    `json:"PriorLengthOfResidency"`
+	PriorLandLoardPhoneNo  string `json:"PriorLandLoardPhoneNo"`
+	PriorReasonForMoving   string `json:"PriorReasonForMoving"` // Reason for moving
+
+	// Have you ever been
+	Evicted    bool `json:"Evicted"`    // Evicted
+	Convicted  bool `json:"Convicted"`  // Arrested or convicted of a Convicted
+	Bankruptcy bool `json:"Bankruptcy"` // Declared Bankruptcy
+
+	// Emergency contact information
+	EmergencyContactName    string `json:"EmergencyContactName"`
+	EmergencyContactPhone   string `json:"EmergencyContactPhone"`
+	EmergencyContactAddress string `json:"EmergencyContactAddress"`
+
+	// RA Application information
+	NoPeople        int    `json:"NoPeople"` // No. of people occupying apartment
+	Comment         string `json:"Comment"`  // In an effort to accommodate you, please advise us of any special needs
+	ApplicationDate string `json:"ApplicationDate"`
+	MoveInDate      string `json:"MoveInDate"`
+	ApartmentNo     string `json:"ApartmentNo"`
+	LeaseTerm       string `json:"LeaseTerm"`
+	// TODO(Akshay): ApplicationReceivedBy string `json:"applicationReceivedBy"`
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
+	Recid        int     `json:"recid"` // this is for the grid widget
 	RID          int64   `json:"RID"`
 	BID          int64   `json:"BID"`
 	RTID         int64   `json:"RTID"`
@@ -103,6 +169,7 @@ type RARentablesFlowData struct {
 
 // RAFeesTermsFlowData contains data in the fees-terms part of RA flow
 type RAFeesTermsFlowData struct {
+	Recid        int     `json:"recid"` // this is for the grid widget
 	RID          int64   `json:"RID"`
 	BID          int64   `json:"BID"`
 	RTID         int64   `json:"RTID"`
@@ -239,7 +306,7 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	}
 
 	// getFlowID first
-	flowID = rlib.GetFlowID(UID)
+	flowID = rlib.GetFlowID()
 
 	// initRAFlowPart
 	initRAFlowPart := rlib.FlowPart{
@@ -368,4 +435,12 @@ func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
 	fmt.Printf("Newly created rental agreement with RAID: %d\n", RAID)
 
 	return nil
+}
+
+// GridRAFlowResponse is a struct to hold info for rental agreement for the grid response
+type GridRAFlowResponse struct {
+	Recid  int64 `json:"recid"`
+	BID    int64
+	BUD    string
+	FlowID string
 }

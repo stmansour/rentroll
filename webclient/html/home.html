@@ -7,6 +7,7 @@
     <script src="/webclient/js/w2ui-1.5.rc1.js"></script>
     <link rel="stylesheet" href="/webclient/html/fa/css/fontawesome-all.min.css">
     <link rel="stylesheet" href="/webclient/html/rentroll.css">
+    <link rel="stylesheet" href="/webclient/html/raflow.css">
     <link rel="icon" type="image/png" href="/webclient/html/images/roller-32.png">
 </head>
 <body>
@@ -124,6 +125,12 @@ var app = {
     w2ui: {
         listItems: {}, // stores all list items{id, text} here
     },
+    raflow: {
+        name:                 "RA",
+        data:                 {},
+        activeFlowID:         "",
+        activeTransactant:    {},
+    }
 };
 
 // delete confirmation dialog box options
