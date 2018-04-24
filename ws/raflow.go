@@ -79,6 +79,7 @@ type RAVehiclesFlowData struct {
 	LicensePlateState   string        `json:"LicensePlateState"`
 	LicensePlateNumber  string        `json:"LicensePlateNumber"`
 	ParkingPermitNumber string        `json:"ParkingPermitNumber"`
+	ParkingPermitFee    float64       `json:"ParkingPermitFee"`
 	DtStart             rlib.JSONDate `json:"DtStart"`
 	DtStop              rlib.JSONDate `json:"DtStop"`
 }
@@ -86,34 +87,34 @@ type RAVehiclesFlowData struct {
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
 	// Applicant information
-	ApplicantFirstName    string `json:"ApplicantFirstName"`
-	ApplicantMiddleName   string `json:"ApplicantMiddleName"`
-	ApplicantLastName     string `json:"ApplicantLastName"`
-	ApplicantBirthDate    string `json:"ApplicantBirthDate"`
-	ApplicantSSN          string `json:"ApplicantSSN"`
-	ApplicantDriverLicNo  string `json:"ApplicantDriverLicNo"`
-	ApplicantTelephoneNo  string `json:"ApplicantTelephoneNo"`
-	ApplicantEmailAddress string `json:"ApplicantEmailAddress"`
-	ApplicantEmployer     string `json:"ApplicantEmployer"`
-	ApplicantPhone        string `json:"ApplicantPhone"`
-	ApplicantAddress      string `json:"ApplicantAddress"`
-	ApplicantPosition     string `json:"ApplicantPosition"`
-	ApplicantGrossWages   int    `json:"ApplicantGrossWages"`
+	ApplicantFirstName    string  `json:"ApplicantFirstName"`
+	ApplicantMiddleName   string  `json:"ApplicantMiddleName"`
+	ApplicantLastName     string  `json:"ApplicantLastName"`
+	ApplicantBirthDate    string  `json:"ApplicantBirthDate"`
+	ApplicantSSN          string  `json:"ApplicantSSN"`
+	ApplicantDriverLicNo  string  `json:"ApplicantDriverLicNo"`
+	ApplicantTelephoneNo  string  `json:"ApplicantTelephoneNo"`
+	ApplicantEmailAddress string  `json:"ApplicantEmailAddress"`
+	ApplicantEmployer     string  `json:"ApplicantEmployer"`
+	ApplicantPhone        string  `json:"ApplicantPhone"`
+	ApplicantAddress      string  `json:"ApplicantAddress"`
+	ApplicantPosition     string  `json:"ApplicantPosition"`
+	ApplicantGrossWages   float64 `json:"ApplicantGrossWages"`
 
 	// CoApplicant information
-	CoApplicantFirstName    string `json:"CoApplicantFirstName"`
-	CoApplicantMiddleName   string `json:"CoApplicantMiddleName"`
-	CoApplicantLastName     string `json:"CoApplicantLastName"`
-	CoApplicantBirthDate    string `json:"CoApplicantBirthDate"`
-	CoApplicantSSN          string `json:"CoApplicantSSN"`
-	CoApplicantDriverLicNo  string `json:"CoApplicantDriverLicNo"`
-	CoApplicantTelephoneNo  string `json:"CoApplicantTelephoneNo"`
-	CoApplicantEmailAddress string `json:"CoApplicantEmailAddress"`
-	CoApplicantEmployer     string `json:"CoApplicantEmployer"`
-	CoApplicantPhone        string `json:"CoApplicantPhone"`
-	CoApplicantAddress      string `json:"CoApplicantAddress"`
-	CoApplicantPosition     string `json:"CoApplicantPosition"`
-	CoApplicantGrossWages   int    `json:"CoApplicantGrossWages"`
+	CoApplicantFirstName    string  `json:"CoApplicantFirstName"`
+	CoApplicantMiddleName   string  `json:"CoApplicantMiddleName"`
+	CoApplicantLastName     string  `json:"CoApplicantLastName"`
+	CoApplicantBirthDate    string  `json:"CoApplicantBirthDate"`
+	CoApplicantSSN          string  `json:"CoApplicantSSN"`
+	CoApplicantDriverLicNo  string  `json:"CoApplicantDriverLicNo"`
+	CoApplicantTelephoneNo  string  `json:"CoApplicantTelephoneNo"`
+	CoApplicantEmailAddress string  `json:"CoApplicantEmailAddress"`
+	CoApplicantEmployer     string  `json:"CoApplicantEmployer"`
+	CoApplicantPhone        string  `json:"CoApplicantPhone"`
+	CoApplicantAddress      string  `json:"CoApplicantAddress"`
+	CoApplicantPosition     string  `json:"CoApplicantPosition"`
+	CoApplicantGrossWages   float64 `json:"CoApplicantGrossWages"`
 
 	// TODO(Akshay): Pets information
 	// TODO(Akshay): Vehicle information
