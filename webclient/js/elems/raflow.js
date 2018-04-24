@@ -906,7 +906,7 @@ window.loadRAPetsGrid = function () {
                     // backup the records
                     var records = $.extend(true, [], w2ui.RAPetsGrid.records);
                     for (var i = 0; i < records.length; i++) {
-                        if(records[i].recid == form.recid) {
+                        if(records[i].recid == form.record.recid) {
                             records.splice(i, 1);
                         }
                     }
@@ -915,7 +915,7 @@ window.loadRAPetsGrid = function () {
                     saveActiveCompData(records, app.raFlowPartTypes.pets)
                     .done(function(data) {
                         if (data.status === 'success') {
-                            w2ui.RAPetsGrid.remove(form.recid);
+                            w2ui.RAPetsGrid.remove(form.record.recid);
                             form.clear();
                             // close the form
                             $("#component-form-instance-container").hide();
