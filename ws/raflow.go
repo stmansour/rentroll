@@ -149,7 +149,7 @@ type RABackgroundInfoFlowData struct {
 	ApplicationDate string `json:"ApplicationDate"`
 	MoveInDate      string `json:"MoveInDate"`
 	ApartmentNo     string `json:"ApartmentNo"`
-	LeaseTerm       string `json:"lt"`
+	LeaseTerm       string `json:"LeaseTerm"`
 	// TODO(Akshay): ApplicationReceivedBy string `json:"applicationReceivedBy"`
 }
 
