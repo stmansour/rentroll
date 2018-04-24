@@ -1075,7 +1075,7 @@ window.loadRAVehiclesGrid = function () {
                     recordsData.push(record);
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
+                    saveActiveCompData(recordsData, app.raFlowPartTypes.vehicles)
                         .done(function(data) {
                             if (data.status === 'success') {
                                 w2ui.RAVehiclesGrid.add(record);
@@ -1108,7 +1108,7 @@ window.loadRAVehiclesGrid = function () {
             columns: [
                 {
                     field: 'recid',
-                    hidden: true,
+                    hidden: true
                 },
                 {
                     field: 'VID',
@@ -1180,7 +1180,7 @@ window.loadRAVehiclesGrid = function () {
                     caption: 'DtStop',
                     size: '100px',
                     editable: {type: 'date'}
-                },
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
