@@ -1052,19 +1052,30 @@ window.loadRAVehiclesGrid = function () {
 
                 },
                 save: function () {
-                    var f = this,
-                        tgrid = w2ui.RAVehiclesGrid;
+                    var form = this;
+                    var errors = form.validate();
+                    if (errors.length > 0) return;
+                    var record = $.extend(true, { recid: w2ui.RAVehiclesGrid.records.length + 1 }, form.record);
+                    var recordsData = $.extend(true, [], w2ui.RAVehiclesGrid.records);
+                    recordsData.push(record);
 
-                    f.save({}, function (data) {
-                        if (data.status == 'error'){
-                            console.log('ERROR: ' + data.message);
-                            return;
-                        }
-                        $("#component-form-instance-container").hide();
-                        $("#component-form-instance-container #form-instance").empty();
-                        tgrid.render();
-                    });
+                    // save this records in json Data
+                    saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
+                        .done(function(data) {
+                            if (data.status === 'success') {
+                                w2ui.RAVehiclesGrid.add(record);
+                                form.clear();
 
+                                // close the form
+                                $("#component-form-instance-container").hide();
+                                $("#component-form-instance-container #form-instance").empty();
+                            } else {
+                                form.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
                 }
             }
         });
