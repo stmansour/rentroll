@@ -123,6 +123,4 @@ pub: pubjs pubimages pubdb pubfa
 secure:
 	for dir in $(DIRS); do make -C $${dir} secure;done
 	@rm -f config.json confdev.json confprod.json
-	if [ -d ${DIST} ]; then
-		find . -name config.json -exec rm {} \;
-	fi
+	if [ -d ${DIST} ]; then find ${DIST}/ -name config.json -exec rm {} \;; fi
