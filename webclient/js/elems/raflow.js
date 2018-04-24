@@ -213,7 +213,7 @@ window.requiredFieldsFulFilled = function (compID) {
             break;
         case "people":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.Users.length > 0 && data.Payors.length > 0) {
+            if (data.Payors.length > 0) {
                 done = true;
             }
             break;
