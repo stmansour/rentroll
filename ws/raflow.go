@@ -76,6 +76,7 @@ type RAVehiclesFlowData struct {
 	Make                string        `json:"Make"`
 	Model               string        `json:"Model"`
 	Color               string        `json:"Color"`
+	Year                string        `json:"Year"`
 	LicensePlateState   string        `json:"LicensePlateState"`
 	LicensePlateNumber  string        `json:"LicensePlateNumber"`
 	ParkingPermitNumber string        `json:"ParkingPermitNumber"`
@@ -115,9 +116,6 @@ type RABackgroundInfoFlowData struct {
 	CoApplicantAddress      string  `json:"CoApplicantAddress"`
 	CoApplicantPosition     string  `json:"CoApplicantPosition"`
 	CoApplicantGrossWages   float64 `json:"CoApplicantGrossWages"`
-
-	// TODO(Akshay): Pets information
-	// TODO(Akshay): Vehicle information
 
 	// Current Address information
 	CurrentAddress           string `json:"CurrentAddress"`
