@@ -958,9 +958,30 @@ window.loadRAPetsGrid = function () {
             name: 'RAPetsGrid',
             header: 'Pets',
             show: {
-                toolbar         : true,
-                footer          : true,
-                toolbarAdd      : true   // indicates if toolbar add new button is visible
+                toolbar: true,
+                toolbarSearch: false,
+                toolbarAdd: true,
+                toolbarReload: true,
+                toolbarInput: false,
+                toolbarColumns: false,
+                footer: true,
+            },
+            toolbar: {
+                items: [
+                    { type: 'break' },
+                    { type: 'html',  id: 'havePets',
+                        html: function (item) {
+                            var html =
+                              '<div>'+
+                              '<label style="cursor: pointer;">'+
+                              '<input type="checkbox" onchange="" style="margin-right: 10px;" />'+
+                              'Have Pets?'+
+                              '</label>'+
+                              '</div>';
+                            return html;
+                        }
+                    },
+                ]
             },
             multiSelect: false,
             style: 'border: 1px solid black; display: block;',
