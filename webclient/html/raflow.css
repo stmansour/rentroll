@@ -164,25 +164,6 @@ button.save-ra {
     padding: 10px 20px;
 }
 
-.btn, #ra-form footer button {
-    padding: 10px 12px;
-    min-width: 80px;
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    text-decoration: none;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-image: linear-gradient(to right, #f6d365 0%, #fda085 100%);
-}
-
-#ra-form footer button.disable {
-    color: white;
-    background-image: linear-gradient(to right, #999 100%, #999 100%);
-}
-
 #ra-form footer button#previous {
     float: left;
 }

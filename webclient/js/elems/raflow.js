@@ -332,16 +332,16 @@ window.loadTargetSection = function (target, activeCompID) {
 
     // hide previous navigation button if the target is in first section
     if ($(".ra-form-component#" + target).is($(".ra-form-component").first())) {
-        $("#ra-form footer button#previous").addClass("disable");
+        $("#ra-form footer button#previous").prop("disabled", true);
     } else {
-        $("#ra-form footer button#previous").removeClass("disable");
+        $("#ra-form footer button#previous").prop("disabled", false);
     }
 
     // hide next navigation button if the target is in last section
     if ($(".ra-form-component#" + target).is($(".ra-form-component").last())) {
-        $("#ra-form footer button#next").addClass("disable");
+        $("#ra-form footer button#next").prop("disabled", true);
     } else {
-        $("#ra-form footer button#next").removeClass("disable");
+        $("#ra-form footer button#next").prop("disabled", false);
     }
 
     // load the content in the component using loader function

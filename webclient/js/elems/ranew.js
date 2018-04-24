@@ -17,37 +17,38 @@ window.setToNewRAForm = function (bid, FlowID) {
         return false;
     }
 
-    // reset some part
-    $("#ra-form footer button#previous").addClass("disable");
-    $(".ra-form-component").hide();
-    $("#progressbar li").removeClass("active done"); // remove activeClass from all li
-
     w2ui.toplayout.content('right', w2ui.newraLayout);
     w2ui.toplayout.show('right', true);
     w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
 
     $.get('/webclient/html/raflowtmpl.html', function(data) {
         w2ui.newraLayout.content('main', data);
+        w2ui.toplayout.render();
+        $(".ra-form-component").hide();
+        $("#progressbar li").removeClass("active done"); // remove activeClass from all li
+
+        setTimeout(function() {
+            $("#ra-form footer button#previous").prop("disabled", true);
+
+            // mark this flag as is this new record
+            // record created already
+            app.new_form_rec = false;
+
+            // as new content will be loaded for this form
+            // mark form dirty flag as false
+            app.form_is_dirty = false;
+
+            // set this flow id as in active
+            app.raflow.activeFlowID = FlowID;
+
+            // set BID in raflow settings
+            app.raflow.BID = bid;
+
+            // get all flow part related to this flow ID
+            getRAFlowAllParts(app.raflow.activeFlowID);
+
+        }, 0);
     });
-
-    w2ui.toplayout.render();
-
-    // mark this flag as is this new record
-    // record created already
-    app.new_form_rec = false;
-
-    // as new content will be loaded for this form
-    // mark form dirty flag as false
-    app.form_is_dirty = false;
-
-    // set this flow id as in active
-    app.raflow.activeFlowID = FlowID;
-
-    // set BID in raflow settings
-    app.raflow.BID = bid;
-
-    // get all flow part related to this flow ID
-    getRAFlowAllParts(app.raflow.activeFlowID);
 };
 
 window.buildNewRAElements = function() {
