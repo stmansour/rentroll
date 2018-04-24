@@ -26,3 +26,5 @@ package:
 	cp db.sql ../../tmp/rentroll/schema.sql
 	@echo "*** PACKAGE completed in db/schema ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

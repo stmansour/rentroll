@@ -47,3 +47,5 @@ jshint-unused:
 	# @echo "*** jshint with --show-non-errors in client ***"
 
 
+secure:
+	@rm -f config.json confdev.json confprod.json

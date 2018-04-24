@@ -14,3 +14,5 @@ test:
 package:
 	@echo "*** PACKAGE completed in test/rr_use_cases/test03 ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

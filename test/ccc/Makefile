@@ -14,3 +14,5 @@ test:
 package:
 	@echo "*** PACKAGE completed in ccc ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

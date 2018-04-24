@@ -18,3 +18,5 @@ test:
 package:
 	@echo "*** PACKAGE completed in test/importers/roomkey_exported_guest ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

@@ -26,3 +26,5 @@ package:
 	@rm -f fail
 	@echo "*** PACKAGE completed in rlib ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

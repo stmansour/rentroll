@@ -32,3 +32,5 @@ test:
 package: onesite
 	@echo "*** PACKAGE completed in importers/onesite ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

@@ -17,3 +17,5 @@ test:
 package:
 	@echo "*** PACKAGE completed in test/importers/onesite/onesite_exported_1 ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

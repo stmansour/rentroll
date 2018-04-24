@@ -17,3 +17,5 @@ clean:
 install:
 	cp release.sh snapshot.sh rollback.sh /usr/local/accord/bin/
 
+secure:
+	@rm -f config.json confdev.json confprod.json

@@ -28,3 +28,5 @@ test:
 package: roomkey
 	@echo "*** PACKAGE completed in importers/roomkey ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

@@ -46,3 +46,5 @@ accord.sql:
 package:
 	@echo "*** PACKAGE completed in test/webclient ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

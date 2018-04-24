@@ -23,3 +23,5 @@ test:	notes
 package:
 	@echo "*** PACKAGE completed in Notes ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

@@ -2,6 +2,7 @@ DIRS = db rlib rrpt rcsv worker bizlogic ws admin importers webclient tools test
 TOP = .
 COUNTOL=${TOP}/tools/bashtools/countol.sh
 THISDIR=.
+DIST=tmp
 
 .PHONY:  test
 
@@ -72,41 +73,41 @@ dev:
 	ln -s ./webclient/html
 
 instman:
-	pushd tmp/rentroll;./installman.sh;popd
+	pushd ${DIST}/rentroll;./installman.sh;popd
 
 package: rentroll
 	@find . -name "fail" -exec rm -r "{}" \;
 	@touch fail
-	rm -rf tmp
-	mkdir -p tmp/rentroll
-	mkdir -p tmp/rentroll/man/man1/
-	mkdir -p tmp/rentroll/example/csv
-	cp rentroll.1 tmp/rentroll/man/man1
+	rm -rf ${DIST}
+	mkdir -p ${DIST}/rentroll
+	mkdir -p ${DIST}/rentroll/man/man1/
+	mkdir -p ${DIST}/rentroll/example/csv
+	cp rentroll.1 ${DIST}/rentroll/man/man1
 	for dir in $(DIRS); do make -C $$dir package;done
-	cp rentroll ./tmp/rentroll/
-	# cp config.json ./tmp/rentroll/
-	cp ../gotable/pdfinstall.sh tmp/rentroll/
-	# if [ -e js ]; then cp -r js ./tmp/rentroll/ ; fi
-	cp activate.sh update.sh ./tmp/rentroll/
+	cp rentroll ./${DIST}/rentroll/
+	# cp config.json ./${DIST}/rentroll/
+	cp ../gotable/pdfinstall.sh ${DIST}/rentroll/
+	# if [ -e js ]; then cp -r js ./${DIST}/rentroll/ ; fi
+	cp activate.sh update.sh ./${DIST}/rentroll/
 	rm -f ./rrnewdb ./rrbkup ./rrrestore
-	ln -s tmp/rentroll/rrnewdb
-	ln -s tmp/rentroll/rrbkup
-	ln -s tmp/rentroll/rrrestore
+	ln -s ${DIST}/rentroll/rrnewdb
+	ln -s ${DIST}/rentroll/rrbkup
+	ln -s ${DIST}/rentroll/rrrestore
 	@rm -f fail
 	@echo "*** PACKAGE COMPLETED ***"
 	@tools/bashtools/buildcheck.sh PACKAGE
 
 publish: package
-	cd tmp;if [ -f ./rentroll/config.json ]; then mv ./rentroll/config.json .; fi
-	cd tmp;tar cvf rentroll.tar rentroll; gzip rentroll.tar
-	cd tmp;/usr/local/accord/bin/deployfile.sh rentroll.tar.gz jenkins-snapshot/rentroll/latest
-	cd tmp;if [ -f ./config.json ]; then mv ./config.json ./rentroll/config.json; fi
+	cd ${DIST};if [ -f ./rentroll/config.json ]; then mv ./rentroll/config.json .; fi
+	cd ${DIST};tar cvf rentroll.tar rentroll; gzip rentroll.tar
+	cd ${DIST};/usr/local/accord/bin/deployfile.sh rentroll.tar.gz jenkins-snapshot/rentroll/latest
+	cd ${DIST};if [ -f ./config.json ]; then mv ./config.json ./rentroll/config.json; fi
 
 pubimages:
-	cd tmp/rentroll;find . -name "*.png" | tar -cf rrimages.tar -T - ;gzip rrimages.tar ;/usr/local/accord/bin/deployfile.sh rrimages.tar.gz jenkins-snapshot/rentroll/latest
+	cd ${DIST}/rentroll;find . -name "*.png" | tar -cf rrimages.tar -T - ;gzip rrimages.tar ;/usr/local/accord/bin/deployfile.sh rrimages.tar.gz jenkins-snapshot/rentroll/latest
 
 pubjs:
-	cd tmp/rentroll;mv js/bundle*.js .;tar czvf rrjs.tar.gz ./js;mv bundle*.js js/;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
+	cd ${DIST}/rentroll;mv js/bundle*.js .;tar czvf rrjs.tar.gz ./js;mv bundle*.js js/;/usr/local/accord/bin/deployfile.sh rrjs.tar.gz jenkins-snapshot/rentroll/latest
 
 pubdb:
 	# testing db
@@ -114,8 +115,14 @@ pubdb:
 
 pubfa:
 	# font awesome
-	cd tmp/rentroll;tar czvf fa.tar.gz ./webclient/html/fa;/usr/local/accord/bin/deployfile.sh fa.tar.gz jenkins-snapshot/rentroll/latest
+	cd ${DIST}/rentroll;tar czvf fa.tar.gz ./webclient/html/fa;/usr/local/accord/bin/deployfile.sh fa.tar.gz jenkins-snapshot/rentroll/latest
 
 # publish all the non-os-dependent files to the repo
 pub: pubjs pubimages pubdb pubfa
 
+secure:
+	for dir in $(DIRS); do make -C $${dir} secure;done
+	@rm -f config.json confdev.json confprod.json
+	if [ -d ${DIST} ]; then
+		find . -name config.json -exec rm {} \;
+	fi

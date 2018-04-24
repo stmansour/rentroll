@@ -13,3 +13,5 @@ test:
 package:
 	@echo "*** PACKAGE completed in newbiz ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

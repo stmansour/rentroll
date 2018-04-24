@@ -17,3 +17,5 @@ package: rrwatchdog
 test:
 	@echo "*** Testing completed in rrwatchdog ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

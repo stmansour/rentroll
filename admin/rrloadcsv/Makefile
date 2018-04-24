@@ -32,3 +32,5 @@ package:
 	echo "*** PACKAGE completed in rrloadcsv ***"
 	@rm -f fail
 
+secure:
+	@rm -f config.json confdev.json confprod.json

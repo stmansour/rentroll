@@ -38,3 +38,6 @@ package:
 	for dir in $(DIRS); do make -C $$dir package;done
 	@echo "*** PACKAGE completed in test ***"
 
+secure:
+	for dir in $(DIRS); do make -C $${dir} secure;done
+	@rm -f config.json confdev.json confprod.json

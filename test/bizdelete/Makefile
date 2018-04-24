@@ -13,3 +13,5 @@ test:
 package:
 	@echo "*** PACKAGE completed in bizdelete ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

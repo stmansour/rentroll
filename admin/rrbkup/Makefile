@@ -29,3 +29,5 @@ test:
 man:
 	nroff -man rrbkup.1
 
+secure:
+	@rm -f config.json confdev.json confprod.json

@@ -29,3 +29,5 @@ package:
 	@cp -r doc ${BINDIR}/
 	@echo "*** ${THISDIR}: completed package ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

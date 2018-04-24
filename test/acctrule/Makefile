@@ -19,3 +19,5 @@ test: upd
 package:
 	@echo "*** PACKAGE completed in upd ***"
 
+secure:
+	@rm -f config.json confdev.json confprod.json

@@ -12,3 +12,6 @@ test:
 
 package:
 	for dir in $(DIRS); do make -C $$dir package;done
+secure:
+	for dir in $(DIRS); do make -C $${dir} secure;done
+	@rm -f config.json confdev.json confprod.json
