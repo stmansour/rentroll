@@ -773,6 +773,8 @@ window.formRefreshCallBack = function (w2frm, primary_id, form_header, disable_h
     var record = w2frm.record,
         id = record[primary_id];
 
+    // console.log(record);
+
     if (id === undefined) {
         console.log("given id_name '{0}' does not exist in form's '{1}' record".format(primary_id, w2frm.name));
         return false;
@@ -787,14 +789,14 @@ window.formRefreshCallBack = function (w2frm, primary_id, form_header, disable_h
     // if new record then disable delete button
     // and format the equivalent header
     var header = "";
-    if (id === 0) {
-        header = form_header.format("new");
-        $(w2frm.box).find("button[name=delete]").addClass("hidden");
-        $(w2frm.box).find("button[name=reverse]").addClass("hidden");
-    } else {
+    if (id > 0) {
         header = form_header.format(id);
         $(w2frm.box).find("button[name=delete]").removeClass("hidden");
         $(w2frm.box).find("button[name=reverse]").removeClass("hidden");
+    } else {
+        header = form_header.format("new");
+        $(w2frm.box).find("button[name=delete]").addClass("hidden");
+        $(w2frm.box).find("button[name=reverse]").addClass("hidden");
     }
 
     if (!disable_header) {
@@ -1154,7 +1156,9 @@ window.prepareW2UIStuff = function prepareW2UIStuff(app) {
 
     // cycle frequencies
     app.w2ui.listItems.cycleFreq = [];
-    app.cycleFreq.forEach(function(freq, index) {
-        app.w2ui.listItems.cycleFreq.push({ id: index, text: freq });
-    });
+    if (app.cycleFreq) {
+        app.cycleFreq.forEach(function(freq, index) {
+            app.w2ui.listItems.cycleFreq.push({ id: index, text: freq });
+        });
+    }
 };
