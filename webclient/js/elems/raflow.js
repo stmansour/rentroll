@@ -1193,7 +1193,11 @@ window.loadRAVehiclesGrid = function () {
                     if (errors.length > 0) return;
                     var record = $.extend(true, { recid: w2ui.RAVehiclesGrid.records.length + 1 }, form.record);
                     var recordsData = $.extend(true, [], w2ui.RAVehiclesGrid.records);
-                    recordsData.push(record);
+
+                    // if it doesn't exist then only push
+                    if (w2ui.RAVehiclesGrid.get(record.recid, true) === null) {
+                        recordsData.push(record);
+                    }
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -1362,14 +1366,12 @@ window.loadRAVehiclesGrid = function () {
                 {
                     field: 'DtStart',
                     caption: 'DtStart',
-                    size: '100px',
-                    editable: {type: 'date'}
+                    size: '100px'
                 },
                 {
                     field: 'DtStop',
                     caption: 'DtStop',
-                    size: '100px',
-                    editable: {type: 'date'}
+                    size: '100px'
                 }
             ],
             onChange: function (event) {
