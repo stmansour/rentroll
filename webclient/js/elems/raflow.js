@@ -1054,11 +1054,11 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'Model', type: 'text', required: true},
                 { field: 'Color', type: 'text', required: true},
                 { field: 'Year', type: 'text', required: true},
-                { field: 'LicPlateState', type: 'text', required: true},
-                { field: 'LicPlateNo', type: 'text', required: true},
+                { field: 'LicensePlateState', type: 'text', required: true},
+                { field: 'LicensePlateNumber', type: 'text', required: true},
                 { field: 'VIN', type: 'text', required: true},
-                { field: 'PermitNo', type: 'text', required: true},
-                { field: 'PermitFee', type: 'text', required: true},
+                { field: 'ParkingPermitNumber', type: 'text', required: true},
+                { field: 'ParkingPermitFee', type: 'money', required: true},
                 { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
                 { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
@@ -1131,44 +1131,43 @@ window.loadRAVehiclesGrid = function () {
                 {
                     field: 'VIN',
                     caption: 'VIN',
-                    size: '80px',
-                    editable: {type: 'text'}
+                    size: '80px'
                 },
                 {
                     field: 'Make',
                     caption: 'Make',
-                    size: '80px',
-                    editable: {type: 'text'}
+                    size: '80px'
                 },
                 {
                     field: 'Model',
                     caption: 'Model',
-                    size: '80px',
-                    editable: {type: 'text'}
+                    size: '80px'
                 },
                 {
                     field: 'Color',
                     caption: 'Color',
-                    size: '80px',
-                    editable: {type: 'text'}
+                    size: '80px'
                 },
                 {
                     field: 'LicensePlateState',
                     caption: 'License Plate<br>State',
-                    size: '100px',
-                    editable: {type: 'text'}
+                    size: '100px'
                 },
                 {
                     field: 'LicensePlateNumber',
                     caption: 'License Plate<br>Number',
-                    size: '100px',
-                    editable: {type: 'text'}
+                    size: '100px'
                 },
                 {
                     field: 'ParkingPermitNumber',
                     caption: 'Parking Permit <br>Number',
+                    size: '100px'
+                },
+                {
+                    field: 'ParkingPermitFee',
+                    caption: 'Parking Permit <br>Fee',
                     size: '100px',
-                    editable: {type: 'text'}
+                    render: 'money'
                 },
                 {
                     field: 'DtStart',
