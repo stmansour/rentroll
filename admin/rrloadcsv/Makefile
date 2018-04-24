@@ -31,3 +31,4 @@ package:
 	cp rrloadcsv.1 ${BINDIR}/man/man1
 	echo "*** PACKAGE completed in rrloadcsv ***"
 	@rm -f fail
+

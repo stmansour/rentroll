@@ -23,3 +23,4 @@ test: acctbal
 
 package:
 	@echo "*** PACKAGE completed in ${THISDIR} ***"
+

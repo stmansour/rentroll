@@ -5,6 +5,7 @@
     dtTextRender, dateFromString, taskDateRender, setToTLForm,
     taskFormDueDate,taskCompletionChange,taskFormDoneDate,
     popupTaskForm,setInnerHTML,w2popup,ensureSession,dtFormatISOToW2ui,
+    localtimeToUTC, 
 */
 
 window.buildTaskListElements = function () {
@@ -67,6 +68,45 @@ window.buildTaskListElements = function () {
                         setToTLForm(rec.BID, rec.TLID, app.D1, app.D2);
                     };
                 form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+            };
+        },
+        onAdd: function(event) {
+            event.onComplete = function () {
+                ensureSession();
+
+                //---------------------------
+                // Now, on with the save...
+                //---------------------------
+                var f = w2ui.taskInfoForm;
+                var r = f.record;
+                if (r.TLID === 0) {
+                    r.TLID = w2ui.tldsInfoForm.record.TLID;  // this should no longer be 
+                }
+
+                //------------------------------------------------
+                // convert times to UTC before saving
+                //------------------------------------------------
+                r.EpochDue = localtimeToUTC(r.EpochDue);
+                r.EpochPreDue = localtimeToUTC(r.EpochPreDue);
+
+                var d = {cmd: "save", record: r};
+                var dat=JSON.stringify(d);
+                f.url = '/v1/tl/' + r.BID + '/' + r.TDID;
+
+                $.post(f.url,dat)
+                .done(function(data) {
+                    if (data.status === "error") {
+                        f.error(w2utils.lang(data.message));
+                        return;
+                    }
+                    w2ui.tldsDetailGrid.url='/v1/tds/'+w2ui.taskDescForm.record.BID+'/'+w2ui.taskDescForm.record.TLID;
+                    w2ui.tldsDetailGrid.reload();
+                    w2popup.close();
+                })
+                .fail(function(/*data*/){
+                    f.error("Save TaskDescriptor failed.");
+                    return;
+                });
             };
         },
     });

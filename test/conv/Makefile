@@ -10,3 +10,4 @@ all: *.go
 
 clean:
 	rm -f conv
+

@@ -13,3 +13,4 @@ test:
 package:
 	for dir in $(DIRS); do make -C $$dir package;done
 	@echo "*** PACKAGE completed in db/schema ***"
+

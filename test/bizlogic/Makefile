@@ -26,3 +26,4 @@ rex.sql:
 
 package:
 	@echo "*** PACKAGE completed in ${THISDIR} ***"
+

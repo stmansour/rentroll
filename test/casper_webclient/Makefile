@@ -40,3 +40,4 @@ link:
 db4:
 	@echo "*** loading database with db4.json ***"
 	cd ${DBGENDIR};./dbgen -f db4.json -noauth
+

@@ -29,3 +29,4 @@ test:
 
 man:
 	nroff -man rrnewdb.1
+

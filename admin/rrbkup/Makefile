@@ -28,3 +28,4 @@ test:
 
 man:
 	nroff -man rrbkup.1
+

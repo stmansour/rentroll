@@ -39,3 +39,4 @@ clean:
 package:
 	@cp -r doc ${BINDIR}/
 	@echo "*** ${THISDIR}: completed package ***"
+

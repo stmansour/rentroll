@@ -16,3 +16,4 @@ clean:
 	rm -f *.json 
 install:
 	cp release.sh snapshot.sh rollback.sh /usr/local/accord/bin/
+

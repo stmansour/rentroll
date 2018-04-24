@@ -15,3 +15,4 @@ test:
 package:
 	for dir in $(DIRS); do make -C $$dir package;done
 	@echo "*** PACKAGING COMPLETE IN test/importers/onesite ***"
+

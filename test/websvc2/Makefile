@@ -21,3 +21,4 @@ get:
 	@touch fail
 	../../tools/bashtools/getdb.sh
 	@rm -f fail
+

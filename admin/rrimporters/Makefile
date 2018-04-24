@@ -18,3 +18,4 @@ test:
 package: rrimporters
 	for dir in $(DIRS); do make -C $$dir package;done
 	@echo "*** PACKAGE completed in rrimporters ***"
+

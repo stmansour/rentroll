@@ -31,3 +31,4 @@ package: onesite
 	cp ./onesite ${TOP}/tmp/rentroll/importers/onesite/onesiteload
 	@echo "*** PACKAGE completed in rrimporters/onesite ***"
 	@rm -f fail
+
