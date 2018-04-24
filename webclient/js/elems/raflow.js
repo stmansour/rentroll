@@ -1379,7 +1379,7 @@ window.loadRAVehiclesGrid = function () {
 
                     // warn user if form content has been changed
                     form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
-                }
+                };
             },
             onAdd   : function (/*event*/) {
                 var yes_args = [this],
