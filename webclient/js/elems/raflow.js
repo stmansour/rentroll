@@ -1183,6 +1183,8 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'VIN', type: 'text', required: true},
                 { field: 'ParkingPermitNumber', type: 'text', required: true},
                 { field: 'ParkingPermitFee', type: 'money', required: true},
+                { field: 'DtStart', type: 'date', required: false, html: { caption: 'DtStart', page: 0, column: 0 } },
+                { field: 'DtStop', type: 'date', required: false, html: { caption: 'DtStop', page: 0, column: 0 } },
                 { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
                 { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
@@ -1399,7 +1401,7 @@ window.loadRAVehiclesGrid = function () {
                             $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
                             w2ui.RAVehicleForm.refresh();
                             w2ui.RAVehicleForm.refresh(); // need to two calls for the refresh
-                            
+
                         };
 
                     // warn user if form content has been changed

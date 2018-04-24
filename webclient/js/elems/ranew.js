@@ -231,16 +231,4 @@ window.buildNewRAElements = function() {
             { type: 'right',        hidden: true, size: '200', resizable: true }
         ]
     });
-
-    $().w2layout({
-        name: 'newRAFormLayout',
-        panels: [
-            {type: 'left', hidden: true},
-            {type: 'top', hidden: true},
-            {type: 'main', content: 'main', resizable: true},
-            {type: 'preview', hidden: true},
-            {type: 'bottom', hidden: true},
-            {type: 'right', hidden: true}
-        ]
-    });
 };
