@@ -1089,12 +1089,12 @@ window.loadRAPetsGrid = function () {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
-window.getVehicleGridInitalRecord = function (BID, gridLen) {
+window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
     var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
-    return {
-        recid: gridLen,
+    var defaultFormData = {
+        recid: w2ui.RAVehiclesGrid.records.length + 1,
         VID: 0,
         BID: BID,
         TCID: 0,
@@ -1106,9 +1106,23 @@ window.getVehicleGridInitalRecord = function (BID, gridLen) {
         LicensePlateState: "",
         LicensePlateNumber: "",
         ParkingPermitNumber: "",
+        ParkingPermitFee: 0,
         DtStart: w2uiDateControlString(t),
-        DtStop: w2uiDateControlString(nyd),
+        DtStop: w2uiDateControlString(nyd)
     };
+
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'Type', 'Make', 'Model', 'Color', 'Year', 'LicensePlateState', 'LicensePlateNumber', 'VIN',
+                'ParkingPermitNumber', 'ParkingPermitFee'], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );
+    }
+
+    return defaultFormData;
 };
 
 window.loadRAVehiclesGrid = function () {
@@ -1117,10 +1131,10 @@ window.loadRAVehiclesGrid = function () {
 
         // Add vehicle information form
         $().w2form({
-            name: 'RAVehicleForm',
-            header: 'Add Vehicle form',
-            formURL: '/webclient/html/formravehicles.html',
-            toolbar:{
+            name    : 'RAVehicleForm',
+            header  : 'Add Vehicle form',
+            formURL : '/webclient/html/formravehicles.html',
+            toolbar :{
                 items: [
                     { id: 'bt3', type: 'spacer' },
                     { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
@@ -1134,7 +1148,7 @@ window.loadRAVehiclesGrid = function () {
                     }
                 }
             },
-            fields : [
+            fields  : [
                 { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
                 { field: 'Type', type: 'text', required: true},
                 { field: 'Make', type: 'text', required: true},
@@ -1150,9 +1164,6 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
             actions : {
-                saveadd: function () {
-
-                },
                 save: function () {
                     var form = this;
                     var errors = form.validate();
@@ -1161,11 +1172,19 @@ window.loadRAVehiclesGrid = function () {
                     var recordsData = $.extend(true, [], w2ui.RAVehiclesGrid.records);
                     recordsData.push(record);
 
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
                     // save this records in json Data
                     saveActiveCompData(recordsData, app.raFlowPartTypes.vehicles)
                         .done(function(data) {
                             if (data.status === 'success') {
-                                w2ui.RAVehiclesGrid.add(record);
+                                // if null
+                                if(w2ui.RAVehiclesGrid.get(record.recid, true) === null) {
+                                    w2ui.RAVehiclesGrid.add(record);
+                                }else {
+                                    w2ui.RAVehiclesGrid.set(record.recid, record);
+                                }
                                 form.clear();
 
                                 // close the form
@@ -1178,21 +1197,82 @@ window.loadRAVehiclesGrid = function () {
                         .fail(function(data) {
                             console.log("failure " + data);
                         });
+                },
+                saveadd: function () {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    var form = this;
+                    var errors = form.validate();
+                    if (errors.length > 0) return;
+                    var record = $.extend(true, { recid: w2ui.RAVehiclesGrid.records.length + 1 }, form.record);
+                    var recordsData = $.extend(true, [], w2ui.RAVehiclesGrid.records);
+                    recordsData.push(record);
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+                    // clear the grid select recid
+                    app.last.grid_sel_recid  = -1;
+
+                    // save this records in json Data
+                    saveActiveCompData(recordsData, app.raFlowPartTypes.vehicles)
+                        .done(function(data) {
+                            if (data.status === 'success') {
+                                w2ui.RAVehiclesGrid.add(record);
+                                var record = getVehicleGridInitalRecord(BID, BUD, form.record);
+                                form.record = record;
+                                form.refresh();
+                            } else {
+                                form.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
+                },
+                delete: function () {
+                    var form = this;
+
+                    // backup the records
+                    var records = $.extend(true, [], w2ui.RAVehiclesGrid.records);
+                    for (var i = 0; i < records.length; i++) {
+                        if(records[i].recid == form.record.recid) {
+                            records.splice(i, 1);
+                        }
+                    }
+
+                    // save this records in json Data
+                    saveActiveCompData(records, app.raFlowPartTypes.vehicles)
+                        .done(function(data) {
+                            if (data.status === 'success') {
+                                w2ui.RAVehiclesGrid.remove(form.record.recid);
+                                form.clear();
+                                // close the form
+                                $("#component-form-instance-container").hide();
+                                $("#component-form-instance-container #form-instance").empty();
+                            } else {
+                                form.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
+
                 }
             }
         });
 
         // vehicles grid
         $().w2grid({
-            name: 'RAVehiclesGrid',
-            header: 'Vehicles',
-            show: {
+            name    : 'RAVehiclesGrid',
+            header  : 'Vehicles',
+            show    : {
                 toolbar         : true,
                 footer          : true,
                 toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
-            style: 'border: 1px solid black; display: block;',
-            columns: [
+            style   : 'border: 1px solid black; display: block;',
+            columns : [
                 {
                     field: 'recid',
                     hidden: true
@@ -1274,9 +1354,55 @@ window.loadRAVehiclesGrid = function () {
                     this.save();
                 };
             },
-            onAdd: function (/*event*/) {
-                $("#component-form-instance-container").show();
-                $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
+            onClick : function (event){
+                event.onComplete = function () {
+                    var yes_args = [this, event.recid],
+                        no_args = [this],
+                        no_callBack = function(grid) {
+                            grid.select(app.last.grid_sel_recid);
+                            return false;
+                        },
+                        yes_callBack = function (grid, recid) {
+                            app.last.grid_sel_recid = parseInt(recid);
+
+                            // keep highlighting current row in any case
+                            grid.select(app.last.grid_sel_recid);
+
+                            w2ui.RAVehicleForm.record = grid.get(app.last.grid_sel_recid);
+
+                            $("#component-form-instance-container").show();
+                            $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
+                            w2ui.RAVehicleForm.refresh();
+                            w2ui.RAVehicleForm.refresh(); // need to two calls for the refresh
+                            
+                        };
+
+                    // warn user if form content has been changed
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+                }
+            },
+            onAdd   : function (/*event*/) {
+                var yes_args = [this],
+                    no_callBack = function() {
+                        return false;
+                    },
+                    yes_callBack = function(grid) {
+                        app.last.grid_sel_recid = -1;
+                        grid.selectNone();
+
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
+
+                        var record = getVehicleGridInitalRecord(BID, BUD, null);
+                        w2ui.RAVehicleForm.record = record;
+                        $("#component-form-instance-container").show();
+                        $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
+                        w2ui.RAVehicleForm.refresh();
+                        w2ui.RAVehicleForm.refresh(); // need to two calls for the refresh
+                    };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args);
             }
         });
     }
