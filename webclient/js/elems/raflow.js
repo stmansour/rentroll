@@ -735,10 +735,11 @@ window.loadRAPeopleForm = function () {
 };
 
 window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
-    var y = new Date();
+    var t = new Date(),
+        nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     var defaultFormData = {
-        recid: 0,
+        recid: w2ui.RAPetsGrid.records.length + 1,
         PETID: 0,
         BID: BID,
         // BUD: BUD,
@@ -747,10 +748,12 @@ window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
         Type: "",
         Color: "",
         Weight: 0,
+        DtStart: w2uiDateControlString(t),
+        DtStop: w2uiDateControlString(nyd),
         NonRefundablePetFee: 0,
         RefundablePetDeposit: 0,
-        ReccurringPetFee: 0,
-        LastModTime: y.toISOString(),
+        RecurringPetFee: 0,
+        LastModTime: t.toISOString(),
         LastModBy: 0,
     };
 
@@ -804,10 +807,33 @@ window.loadRAPetsGrid = function () {
                 { field: 'Weight', type: 'int', required: true},
                 { field: 'NonRefundablePetFee', type: 'money', required: false},
                 { field: 'RefundablePetDeposit', type: 'money', required: false},
-                { field: 'ReccurringPetFee', type: 'money', required: false},
+                { field: 'RecurringPetFee', type: 'money', required: false},
+                { field: 'DtStart', type: 'date', required: false, html: { caption: 'DtStart', page: 0, column: 0 } },
+                { field: 'DtStop', type: 'date', required: false, html: { caption: 'DtStop', page: 0, column: 0 } },
                 { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
                 { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
+            onRefresh: function(event) {
+                event.onComplete = function() {
+                    var f = w2ui.RAPetForm,
+                        header = "Edit Rental Agreement Pets ({0})";
+
+                    // there is NO PETID actually, so have to work around with recid key
+                    formRefreshCallBack(f, "recid", header);
+                };
+            },
+            onChange: function(event) {
+                event.onComplete = function() {
+                    // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                    var diff = formRecDiffer(this.record, app.active_form_original, {});
+                    // if diff == {} then make dirty flag as false, else true
+                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                        app.form_is_dirty = false;
+                    } else {
+                        app.form_is_dirty = true;
+                    }
+                };
+            },
             actions: {
                 save: function() {
                     var form = this;
@@ -817,11 +843,19 @@ window.loadRAPetsGrid = function () {
                     var recordsData = $.extend(true, [], w2ui.RAPetsGrid.records);
                     recordsData.push(record);
 
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
                     // save this records in json Data
                     saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
                     .done(function(data) {
                         if (data.status === 'success') {
-                            w2ui.RAPetsGrid.add(record);
+                            // if null
+                            if (w2ui.RAPetsGrid.get(record.recid, true) === null) {
+                                w2ui.RAPetsGrid.add(record);
+                            } else {
+                                w2ui.RAPetsGrid.set(record.recid, record);
+                            }
                             form.clear();
 
                             // close the form
@@ -846,6 +880,11 @@ window.loadRAPetsGrid = function () {
                     var recordsData = $.extend(true, [], w2ui.RAPetsGrid.records);
                     recordsData.push(record);
 
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+                    // clear the grid select recid
+                    app.last.grid_sel_recid  =-1;
+
                     // save this records in json Data
                     saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
                     .done(function(data) {
@@ -863,7 +902,31 @@ window.loadRAPetsGrid = function () {
                     });
                 },
                 delete: function() {
-                    alert("delete");
+                    var form = this;
+                    // backup the records
+                    var records = $.extend(true, [], w2ui.RAPetsGrid.records);
+                    for (var i = 0; i < records.length; i++) {
+                        if(records[i].recid == form.recid) {
+                            records.splice(i, 1);
+                        }
+                    }
+
+                    // save this records in json Data
+                    saveActiveCompData(records, app.raFlowPartTypes.pets)
+                    .done(function(data) {
+                        if (data.status === 'success') {
+                            w2ui.RAPetsGrid.remove(form.recid);
+                            form.clear();
+                            // close the form
+                            $("#component-form-instance-container").hide();
+                            $("#component-form-instance-container #form-instance").empty();
+                        } else {
+                            form.message(data.message);
+                        }
+                    })
+                    .fail(function(data) {
+                        console.log("failure " + data);
+                    });
                 },
             },
         });
@@ -957,28 +1020,52 @@ window.loadRAPetsGrid = function () {
             },
             onClick: function(event) {
                 event.onComplete = function() {
-                    var recs = this.getSelection();
-                    var record;
-                    if (recs.length > 0) {
-                        record = recs[0];
-                    }
-                    w2ui.RAPetForm.record = record;
-                    w2ui.RAPetForm.refresh();
+                    var yes_args = [this, event.recid],
+                        no_args = [this],
+                        no_callBack = function(grid) {
+                            grid.select(app.last.grid_sel_recid);
+                            return false;
+                        },
+                        yes_callBack = function(grid, recid) {
+                            app.last.grid_sel_recid = parseInt(recid);
 
-                    $("#component-form-instance-container").show();
-                    $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                            // keep highlighting current row in any case
+                            grid.select(app.last.grid_sel_recid);
+
+                            w2ui.RAPetForm.record = grid.get(app.last.grid_sel_recid);
+
+                            $("#component-form-instance-container").show();
+                            $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                            w2ui.RAPetForm.refresh();
+                            w2ui.RAPetForm.refresh(); // need to two calls for the refresh
+                        };
+
+                    // warn user if form content has been changed
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
                 };
             },
             onAdd: function (/*event*/) {
-                var BID = getCurrentBID(),
-                    BUD = getBUDfromBID(BID);
+                var yes_args = [this],
+                    no_callBack = function() {
+                        return false;
+                    },
+                    yes_callBack = function(grid) {
+                        app.last.grid_sel_recid = -1;
+                        grid.selectNone();
 
-                var record = getPetFormInitRecord(BID, BUD, null);
-                w2ui.RAPetForm.record = record;
-                w2ui.RAPetForm.refresh();
+                        var BID = getCurrentBID(),
+                            BUD = getBUDfromBID(BID);
 
-                $("#component-form-instance-container").show();
-                $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                        var record = getPetFormInitRecord(BID, BUD, null);
+                        w2ui.RAPetForm.record = record;
+                        $("#component-form-instance-container").show();
+                        $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                        w2ui.RAPetForm.refresh();
+                        w2ui.RAPetForm.refresh(); // need to two calls for the refresh
+                    };
+
+                // warn user if form content has been changed
+                form_dirty_alert(yes_callBack, no_callBack, yes_args);
             }
         });
     }
