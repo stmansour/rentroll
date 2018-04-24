@@ -877,6 +877,7 @@ window.loadRAPetsGrid = function () {
                 footer          : true,
                 toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
+            multiSelect: false,
             style: 'border: 1px solid black; display: block;',
             columns: [
                 {
@@ -954,15 +955,29 @@ window.loadRAPetsGrid = function () {
                     this.save();
                 };
             },
+            onClick: function(event) {
+                event.onComplete = function() {
+                    var recs = this.getSelection();
+                    var record;
+                    if (recs.length > 0) {
+                        record = recs[0];
+                    }
+                    w2ui.RAPetForm.record = record;
+                    w2ui.RAPetForm.refresh();
+
+                    $("#component-form-instance-container").show();
+                    $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                };
+            },
             onAdd: function (/*event*/) {
                 var BID = getCurrentBID(),
                     BUD = getBUDfromBID(BID);
 
-                $("#component-form-instance-container").show();
                 var record = getPetFormInitRecord(BID, BUD, null);
                 w2ui.RAPetForm.record = record;
                 w2ui.RAPetForm.refresh();
 
+                $("#component-form-instance-container").show();
                 $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
             }
         });
