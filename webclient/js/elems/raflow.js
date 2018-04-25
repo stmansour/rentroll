@@ -76,17 +76,20 @@ window.lockOnGrid = function (gridName) {
     }
 
     if( recordsLength > 0 ){
-        window.toggleHaveCheckBoxDisablity(gridName);
-        w2ui[gridName].unlock();
+        $("#" + gridName + "_checkbox")[0].disabled = true;
     }
 };
 
+// toggleHaveCheckBoxDisablity
+// Enable checkbox if there is no record
+// lock/unlock grid based on checkbox value
 window.toggleHaveCheckBoxDisablity = function (gridName) {
     var recordsLength = w2ui[gridName].records.length;
     if (recordsLength > 0){
         $("#" + gridName + "_checkbox")[0].disabled = true;
     }else if(recordsLength === 0){
         $("#" + gridName + "_checkbox")[0].disabled = false;
+        window.lockOnGrid(gridName);
     }
 };
 
@@ -1026,56 +1029,56 @@ window.loadRAPetsGrid = function () {
                 {
                     field: 'Name',
                     caption: 'Name',
-                    size: '150px',
+                    size: '150px'
                 },
                 {
                     field: 'Type',
                     caption: 'Type',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Breed',
                     caption: 'Breed',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Color',
                     caption: 'Color',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Weight',
                     caption: 'Weight',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'DtStart',
                     caption: 'DtStart',
-                    size: '100px',
+                    size: '100px'
                 },
                 {
                     field: 'DtStop',
                     caption: 'DtStop',
-                    size: '100px',
+                    size: '100px'
                 },
                 {
                     field: 'NonRefundablePetFee',
                     caption: 'NonRefundable<br>PetFee',
                     size: '70px',
-                    render: 'money',
+                    render: 'money'
                 },
                 {
                     field: 'RefundablePetDeposit',
                     caption: 'Refundable<br>PetDeposit',
                     size: '70px',
-                    render: 'money',
+                    render: 'money'
                 },
                 {
                     field: 'RecurringPetFee',
                     caption: 'Recurring<br>PetFee',
                     size: '70px',
-                    render: 'money',
-                },
+                    render: 'money'
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
