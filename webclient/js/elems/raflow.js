@@ -58,11 +58,11 @@ $(document).on('click', '#ra-form #progressbar a', function () {
     return false;
 });
 
-// toggleLockOnGrid
+// lockOnGrid
 // Lock grid if chebox is unchecked(false). Unlock grid if checkbox is checked(true).
 // Lock grid when there is no record in the grid.
-window.toggleLockOnGrid = function (gridName) {
-    console.log("toggleLockOnGrid");
+window.lockOnGrid = function (gridName) {
+    console.log("lockOnGrid");
     var isChecked = $("#" + gridName + "_checkbox")[0].checked;
     var recordsLength = w2ui[gridName].records.length;
     console.log(isChecked);
@@ -1138,15 +1138,16 @@ window.loadRAPetsGrid = function () {
     // now load grid in division
     $('#ra-form #pets .form-container').w2render(w2ui.RAPetsGrid);
 
-    // lock the grid until "Have pets?" checkbox checked.
-    window.toggleLockOnGrid('RAPetsGrid');
-
     // load the existing data in pets component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.pets);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RAPetsGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
             w2ui.RAPetsGrid.refresh();
+
+            // lock the grid until "Have pets?" checkbox checked.
+            window.lockOnGrid('RAPetsGrid');
+
         } else {
             w2ui.RAPetsGrid.clear();
         }
@@ -1497,15 +1498,16 @@ window.loadRAVehiclesGrid = function () {
     // now load grid in target division
     $('#ra-form #vehicles .form-container').w2render(w2ui.RAVehiclesGrid);
 
-    // lock the grid until "Have vehicles?" checkbox checked.
-    window.toggleLockOnGrid('RAVehiclesGrid');
-
     // load the existing data in vehicles component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.vehicles);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RAVehiclesGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
             w2ui.RAVehiclesGrid.refresh();
+
+            // lock the grid until "Have vehicles?" checkbox checked.
+            window.lockOnGrid('RAVehiclesGrid');
+
         } else {
             w2ui.RAVehiclesGrid.clear();
         }
