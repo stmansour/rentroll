@@ -820,6 +820,14 @@ window.loadRAPetsGrid = function () {
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid", header);
+
+                    // hide delete button if it is NewRecord
+                    var isNewRecord = (w2ui.RAPetsGrid.get(f.record.recid, true) === null);
+                    if (isNewRecord) {
+                        $(f.box).find("button[name=delete]").addClass("hidden");
+                    } else {
+                        $(f.box).find("button[name=delete]").removeClass("hidden");
+                    }
                 };
             },
             onChange: function(event) {
@@ -1226,6 +1234,14 @@ window.loadRAVehiclesGrid = function () {
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid", header);
+
+                    // hide delete button if it is NewRecord
+                    var isNewRecord = (w2ui.RAVehiclesGrid.get(f.record.recid, true) === null);
+                    if (isNewRecord) {
+                        $(f.box).find("button[name=delete]").addClass("hidden");
+                    } else {
+                        $(f.box).find("button[name=delete]").removeClass("hidden");
+                    }
                 };
             },
             actions : {
