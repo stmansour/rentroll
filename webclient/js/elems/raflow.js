@@ -1169,6 +1169,10 @@ window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
     return defaultFormData;
 };
 
+window.disableVehiclesGrid = function () {
+
+};
+
 window.loadRAVehiclesGrid = function () {
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
@@ -1318,6 +1322,10 @@ window.loadRAVehiclesGrid = function () {
             header  : 'Vehicles',
             show    : {
                 toolbar         : true,
+                toolbarSearch   : false,
+                toolbarReload   : true,
+                toolbarInput    : false,
+                toolbarColumns  : false,
                 footer          : true,
                 toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
