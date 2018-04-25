@@ -58,6 +58,37 @@ $(document).on('click', '#ra-form #progressbar a', function () {
     return false;
 });
 
+// lockOnGrid
+// Lock grid if chebox is unchecked(false). Unlock grid if checkbox is checked(true).
+// Lock grid when there is no record in the grid.
+window.lockOnGrid = function (gridName) {
+    var isChecked = $("#" + gridName + "_checkbox")[0].checked;
+    var recordsLength = w2ui[gridName].records.length;
+
+    if (!isChecked && recordsLength === 0){
+        w2ui[gridName].lock('');
+    }else{
+        w2ui[gridName].unlock();
+    }
+
+    if( recordsLength > 0 ){
+        $("#" + gridName + "_checkbox")[0].disabled = true;
+    }
+};
+
+// toggleHaveCheckBoxDisablity
+// Enable checkbox if there is no record
+// lock/unlock grid based on checkbox value
+window.toggleHaveCheckBoxDisablity = function (gridName) {
+    var recordsLength = w2ui[gridName].records.length;
+    if (recordsLength > 0){
+        $("#" + gridName + "_checkbox")[0].disabled = true;
+    }else if(recordsLength === 0){
+        $("#" + gridName + "_checkbox")[0].disabled = false;
+        window.lockOnGrid(gridName);
+    }
+};
+
 // TODO: we should pass FlowID, flowPartID here in arguments
 window.saveActiveCompData = function (record, partType) {
 
@@ -197,6 +228,7 @@ window.requiredFieldsFulFilled = function (compID) {
 
     var data;
     var validData = true;
+    var isChecked;
 
     switch (compID) {
         case "dates":
@@ -219,14 +251,30 @@ window.requiredFieldsFulFilled = function (compID) {
             break;
         case "pets":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.length > 0) {
+
+            isChecked = $('#RAPetsGrid_checkbox')[0].checked;
+            if(!isChecked){
                 done = true;
+            }else{
+                if (data.length > 0) {
+                    done = true;
+                }else{
+                    done = false;
+                }
             }
             break;
         case "vehicles":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.length > 0) {
+
+            isChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
+            if(!isChecked){
                 done = true;
+            }else{
+                if (data.length > 0) {
+                    done = true;
+                }else{
+                    done = false;
+                }
             }
             break;
         case "bginfo":
@@ -820,6 +868,14 @@ window.loadRAPetsGrid = function () {
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid", header);
+
+                    // hide delete button if it is NewRecord
+                    var isNewRecord = (w2ui.RAPetsGrid.get(f.record.recid, true) === null);
+                    if (isNewRecord) {
+                        $(f.box).find("button[name=delete]").addClass("hidden");
+                    } else {
+                        $(f.box).find("button[name=delete]").removeClass("hidden");
+                    }
                 };
             },
             onChange: function(event) {
@@ -841,9 +897,10 @@ window.loadRAPetsGrid = function () {
                     if (errors.length > 0) return;
                     var record = $.extend(true, { recid: w2ui.RAPetsGrid.records.length + 1 }, form.record);
                     var recordsData = $.extend(true, [], w2ui.RAPetsGrid.records);
+                    var isNewRecord = (w2ui.RAPetsGrid.get(record.recid, true) === null);
 
                     // if it doesn't exist then only push
-                    if (w2ui.RAPetsGrid.get(record.recid, true) === null) {
+                    if (isNewRecord) {
                         recordsData.push(record);
                     }
 
@@ -855,12 +912,15 @@ window.loadRAPetsGrid = function () {
                     .done(function(data) {
                         if (data.status === 'success') {
                             // if null
-                            if (w2ui.RAPetsGrid.get(record.recid, true) === null) {
+                            if (isNewRecord) {
                                 w2ui.RAPetsGrid.add(record);
                             } else {
                                 w2ui.RAPetsGrid.set(record.recid, record);
                             }
                             form.clear();
+
+                            // Disable "have pets?" checkbox if there is any record.
+                            window.toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // close the form
                             $("#component-form-instance-container").hide();
@@ -882,31 +942,30 @@ window.loadRAPetsGrid = function () {
                     if (errors.length > 0) return;
                     var record = $.extend(true, {}, form.record);
                     var recordsData = $.extend(true, [], w2ui.RAPetsGrid.records);
+                    var isNewRecord = (w2ui.RAPetsGrid.get(record.recid, true) === null);
 
                     // if it doesn't exist then only push
-                    console.log(record);
-                    console.log("index:", w2ui.RAPetsGrid.get(record.recid, true));
-                    if (w2ui.RAPetsGrid.get(record.recid, true) === null) {
+                    if (isNewRecord) {
                         recordsData.push(record);
-                        console.log("push the new record");
                     }
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
-                    // clear the grid select recid
-                    app.last.grid_sel_recid  =-1;
 
                     // save this records in json Data
                     saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
                     .done(function(data) {
                         if (data.status === 'success') {
+                            // clear the grid select recid
+                            app.last.grid_sel_recid  =-1;
+                            // selectNone
+                            w2ui.RAPetsGrid.selectNone();
+
                             // if null
-                            if (w2ui.RAPetsGrid.get(record.recid, true) === null) {
+                            if (isNewRecord) {
                                 // add this record to grid
-                                console.debug("add new record");
                                 w2ui.RAPetsGrid.add(record);
                             } else {
-                                console.debug("set record");
                                 w2ui.RAPetsGrid.set(record.recid, record);
                             }
                             // add new formatted record to current form
@@ -939,6 +998,10 @@ window.loadRAPetsGrid = function () {
                         if (data.status === 'success') {
                             w2ui.RAPetsGrid.remove(form.record.recid);
                             form.clear();
+
+                            // Disable "have pets?" checkbox if there is any record.
+                            window.toggleHaveCheckBoxDisablity('RAPetsGrid');
+
                             // close the form
                             $("#component-form-instance-container").hide();
                             $("#component-form-instance-container #form-instance").empty();
@@ -966,25 +1029,8 @@ window.loadRAPetsGrid = function () {
                 toolbarColumns: false,
                 footer: true,
             },
-            toolbar: {
-                items: [
-                    { type: 'break' },
-                    { type: 'html',  id: 'havePets',
-                        html: function (item) {
-                            var html =
-                              '<div>'+
-                              '<label style="cursor: pointer;">'+
-                              '<input type="checkbox" onchange="" style="margin-right: 10px;" />'+
-                              'Have Pets?'+
-                              '</label>'+
-                              '</div>';
-                            return html;
-                        }
-                    },
-                ]
-            },
             multiSelect: false,
-            style: 'border: 1px solid black; display: block;',
+            style: 'border: 0px solid black; display: block;',
             columns: [
                 {
                     field: 'recid',
@@ -1005,56 +1051,56 @@ window.loadRAPetsGrid = function () {
                 {
                     field: 'Name',
                     caption: 'Name',
-                    size: '150px',
+                    size: '150px'
                 },
                 {
                     field: 'Type',
                     caption: 'Type',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Breed',
                     caption: 'Breed',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Color',
                     caption: 'Color',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Weight',
                     caption: 'Weight',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'DtStart',
                     caption: 'DtStart',
-                    size: '100px',
+                    size: '100px'
                 },
                 {
                     field: 'DtStop',
                     caption: 'DtStop',
-                    size: '100px',
+                    size: '100px'
                 },
                 {
                     field: 'NonRefundablePetFee',
                     caption: 'NonRefundable<br>PetFee',
                     size: '70px',
-                    render: 'money',
+                    render: 'money'
                 },
                 {
                     field: 'RefundablePetDeposit',
                     caption: 'Refundable<br>PetDeposit',
                     size: '70px',
-                    render: 'money',
+                    render: 'money'
                 },
                 {
                     field: 'RecurringPetFee',
                     caption: 'Recurring<br>PetFee',
                     size: '70px',
-                    render: 'money',
-                },
+                    render: 'money'
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
@@ -1074,16 +1120,23 @@ window.loadRAPetsGrid = function () {
 
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
+                            w2ui.RAPetForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
                             $("#component-form-instance-container").show();
                             $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
-                            w2ui.RAPetForm.record = grid.get(app.last.grid_sel_recid);
-                            w2ui.RAPetForm.refresh();
-                            w2ui.RAPetForm.refresh(); // need to two calls for the refresh
+                            w2ui.RAPetForm.refresh(); // need to refresh for header changes
                         };
 
                     // warn user if form content has been changed
                     form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+                };
+            },
+            onRefresh: function(event) {
+                // have to manage recid on every refresh of this grid
+                event.onComplete = function() {
+                    for (var j = 0; j < w2ui.RAPetsGrid.records.length; j++) {
+                        w2ui.RAPetsGrid.records[j].recid = j + 1;
+                    }
                 };
             },
             onAdd: function (/*event*/) {
@@ -1098,14 +1151,13 @@ window.loadRAPetsGrid = function () {
                         var BID = getCurrentBID(),
                             BUD = getBUDfromBID(BID);
 
+                        w2ui.RAPetForm.record = getPetFormInitRecord(BID, BUD, null);
+                        // set record id
+                        w2ui.RAPetForm.record.recid = w2ui.RAPetsGrid.records.length + 1;
+
                         $("#component-form-instance-container").show();
                         $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
-                        var record = getPetFormInitRecord(BID, BUD, null);
-                        // set record id
-                        record.recid = w2ui.RAPetsGrid.records.length + 1;
-                        w2ui.RAPetForm.record = record;
                         w2ui.RAPetForm.refresh();
-                        w2ui.RAPetForm.refresh(); // need to two calls for the refresh
                     };
 
                 // warn user if form content has been changed
@@ -1115,14 +1167,22 @@ window.loadRAPetsGrid = function () {
     }
 
     // now load grid in division
-    $('#ra-form #pets').w2render(w2ui.RAPetsGrid);
+    $('#ra-form #pets .form-container').w2render(w2ui.RAPetsGrid);
 
     // load the existing data in pets component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.pets);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RAPetsGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
+            // assign recid
+            for (var j = 0; j < w2ui.RAPetsGrid.records.length; j++) {
+                w2ui.RAPetsGrid.records[j].recid = j + 1;
+            }
             w2ui.RAPetsGrid.refresh();
+
+            // lock the grid until "Have pets?" checkbox checked.
+            window.lockOnGrid('RAPetsGrid');
+
         } else {
             w2ui.RAPetsGrid.clear();
         }
@@ -1138,7 +1198,7 @@ window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     var defaultFormData = {
-        recid: w2ui.RAVehiclesGrid.records.length + 1,
+        recid: 0,
         VID: 0,
         BID: BID,
         TCID: 0,
@@ -1209,6 +1269,23 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
                 { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
+            onRefresh: function(event) {
+                event.onComplete = function() {
+                    var f = w2ui.RAVehicleForm,
+                        header = "Edit Rental Agreement Vehicles ({0})";
+
+                    // there is NO PETID actually, so have to work around with recid key
+                    formRefreshCallBack(f, "recid", header);
+
+                    // hide delete button if it is NewRecord
+                    var isNewRecord = (w2ui.RAVehiclesGrid.get(f.record.recid, true) === null);
+                    if (isNewRecord) {
+                        $(f.box).find("button[name=delete]").addClass("hidden");
+                    } else {
+                        $(f.box).find("button[name=delete]").removeClass("hidden");
+                    }
+                };
+            },
             actions : {
                 save: function () {
                     var form = this;
@@ -1216,9 +1293,10 @@ window.loadRAVehiclesGrid = function () {
                     if (errors.length > 0) return;
                     var record = $.extend(true, { recid: w2ui.RAVehiclesGrid.records.length + 1 }, form.record);
                     var recordsData = $.extend(true, [], w2ui.RAVehiclesGrid.records);
+                    var isNewRecord = (w2ui.RAVehiclesGrid.get(record.recid, true) === null);
 
                     // if it doesn't exist then only push
-                    if (w2ui.RAVehiclesGrid.get(record.recid, true) === null) {
+                    if (isNewRecord) {
                         recordsData.push(record);
                     }
 
@@ -1230,12 +1308,15 @@ window.loadRAVehiclesGrid = function () {
                         .done(function(data) {
                             if (data.status === 'success') {
                                 // if null
-                                if(w2ui.RAVehiclesGrid.get(record.recid, true) === null) {
+                                if(isNewRecord) {
                                     w2ui.RAVehiclesGrid.add(record);
                                 }else {
                                     w2ui.RAVehiclesGrid.set(record.recid, record);
                                 }
                                 form.clear();
+
+                                // Disable "have vehicles?" checkbox if there is any record.
+                                window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
                                 // close the form
                                 $("#component-form-instance-container").hide();
@@ -1257,20 +1338,32 @@ window.loadRAVehiclesGrid = function () {
                     if (errors.length > 0) return;
                     var record = $.extend(true, { recid: w2ui.RAVehiclesGrid.records.length + 1 }, form.record);
                     var recordsData = $.extend(true, [], w2ui.RAVehiclesGrid.records);
-                    recordsData.push(record);
+                    var isNewRecord = (w2ui.RAVehiclesGrid.get(record.recid, true) === null);
+
+                    if (isNewRecord) {
+                        recordsData.push(record);
+                    }
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
-                    // clear the grid select recid
-                    app.last.grid_sel_recid  = -1;
 
                     // save this records in json Data
                     saveActiveCompData(recordsData, app.raFlowPartTypes.vehicles)
                         .done(function(data) {
                             if (data.status === 'success') {
-                                w2ui.RAVehiclesGrid.add(record);
-                                var record = getVehicleGridInitalRecord(BID, BUD, form.record);
-                                form.record = record;
+                                // clear the grid select recid
+                                app.last.grid_sel_recid  = -1;
+                                // selectNone
+                                w2ui.RAVehiclesGrid.selectNone();
+
+                                if (isNewRecord) {
+                                    w2ui.RAVehiclesGrid.add(record);
+                                } else {
+                                    w2ui.RAVehiclesGrid.set(record.recid, record);
+                                }
+                                form.record = getVehicleGridInitalRecord(BID, BUD, form.record);
+                                form.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
+                                form.refresh();
                                 form.refresh();
                             } else {
                                 form.message(data.message);
@@ -1297,6 +1390,10 @@ window.loadRAVehiclesGrid = function () {
                             if (data.status === 'success') {
                                 w2ui.RAVehiclesGrid.remove(form.record.recid);
                                 form.clear();
+
+                                // Disable "have vehicles?" checkbox if there is any record.
+                                window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+
                                 // close the form
                                 $("#component-form-instance-container").hide();
                                 $("#component-form-instance-container #form-instance").empty();
@@ -1318,10 +1415,15 @@ window.loadRAVehiclesGrid = function () {
             header  : 'Vehicles',
             show    : {
                 toolbar         : true,
+                toolbarSearch   : false,
+                toolbarReload   : true,
+                toolbarInput    : false,
+                toolbarColumns  : false,
                 footer          : true,
                 toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
-            style   : 'border: 1px solid black; display: block;',
+            multiSelect: false,
+            style   : 'border: 0px solid black; display: block;',
             columns : [
                 {
                     field: 'recid',
@@ -1402,6 +1504,14 @@ window.loadRAVehiclesGrid = function () {
                     this.save();
                 };
             },
+            onRefresh: function(event) {
+                // have to manage recid on every refresh of this grid
+                event.onComplete = function() {
+                    for (var j = 0; j < w2ui.RAVehiclesGrid.records.length; j++) {
+                        w2ui.RAVehiclesGrid.records[j].recid = j + 1;
+                    }
+                };
+            },
             onClick : function (event){
                 event.onComplete = function () {
                     var yes_args = [this, event.recid],
@@ -1416,12 +1526,11 @@ window.loadRAVehiclesGrid = function () {
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
 
-                            w2ui.RAVehicleForm.record = grid.get(app.last.grid_sel_recid);
+                            w2ui.RAVehicleForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
                             $("#component-form-instance-container").show();
                             $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
                             w2ui.RAVehicleForm.refresh();
-                            w2ui.RAVehicleForm.refresh(); // need to two calls for the refresh
 
                         };
 
@@ -1441,12 +1550,11 @@ window.loadRAVehiclesGrid = function () {
                         var BID = getCurrentBID(),
                             BUD = getBUDfromBID(BID);
 
-                        var record = getVehicleGridInitalRecord(BID, BUD, null);
-                        w2ui.RAVehicleForm.record = record;
+                        w2ui.RAVehicleForm.record = getVehicleGridInitalRecord(BID, BUD, null);
+                        w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
                         $("#component-form-instance-container").show();
                         $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
                         w2ui.RAVehicleForm.refresh();
-                        w2ui.RAVehicleForm.refresh(); // need to two calls for the refresh
                     };
 
                 // warn user if form content has been changed
@@ -1456,14 +1564,21 @@ window.loadRAVehiclesGrid = function () {
     }
 
     // now load grid in target division
-    $('#ra-form #vehicles').w2render(w2ui.RAVehiclesGrid);
+    $('#ra-form #vehicles .form-container').w2render(w2ui.RAVehiclesGrid);
 
     // load the existing data in vehicles component
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.vehicles);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RAVehiclesGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
+            for (var j = 0; j < w2ui.RAVehiclesGrid.records.length; j++) {
+                w2ui.RAVehiclesGrid.records[j].recid = j + 1;
+            }
             w2ui.RAVehiclesGrid.refresh();
+
+            // lock the grid until "Have vehicles?" checkbox checked.
+            window.lockOnGrid('RAVehiclesGrid');
+
         } else {
             w2ui.RAVehiclesGrid.clear();
         }

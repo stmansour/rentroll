@@ -6,7 +6,7 @@ const FORM = "rentableForm";
 const MODULE = "rentable";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
-// For Module: Deposit accounts
+// For Module: Rentables
 export let conf = {
     grid: GRID,
     form: FORM,
@@ -15,9 +15,9 @@ export let conf = {
     endPoint: "/{0}/rentables/{1}",
     methodType: 'POST',
     excludeGridColumns: [],
-    buttonNamesInForm: ["save", "saveadd", "deactivate"],
-    notVisibleButtonNamesInForm: ["reactivate"],
-    buttonNamesInDetailForm: ["save", "saveadd", "deactivate"],
+    buttonNamesInForm: ["save", "saveadd"],
+    notVisibleButtonNamesInForm: [],
+    buttonNamesInDetailForm: ["save", "saveadd"],
     skipColumns: ["RTID"],
     skipFields: [],
     primaryId: "RID",

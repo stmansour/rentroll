@@ -6,7 +6,7 @@ const FORM = "arsForm";
 const MODULE = "ar";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
-// For Module: Deposit accounts
+// For Module: Account Rules
 export let conf = {
     grid: GRID,
     form: FORM,
