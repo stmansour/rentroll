@@ -62,12 +62,8 @@ $(document).on('click', '#ra-form #progressbar a', function () {
 // Lock grid if chebox is unchecked(false). Unlock grid if checkbox is checked(true).
 // Lock grid when there is no record in the grid.
 window.lockOnGrid = function (gridName) {
-    console.log("lockOnGrid");
     var isChecked = $("#" + gridName + "_checkbox")[0].checked;
     var recordsLength = w2ui[gridName].records.length;
-    console.log(isChecked);
-    console.log(recordsLength);
-
 
     if (!isChecked && recordsLength === 0){
         w2ui[gridName].lock('');
