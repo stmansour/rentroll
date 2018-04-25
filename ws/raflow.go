@@ -52,7 +52,7 @@ type RAPeopleFlowData struct {
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
-	Recid                int           `json:"recid"` // this is for the grid widget
+	// Recid                int           `json:"recid"` // this is for the grid widget
 	PETID                int64         `json:"PETID"`
 	BID                  int64         `json:"BID"`
 	Name                 string        `json:"Name"`
@@ -69,7 +69,7 @@ type RAPetsFlowData struct {
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
-	Recid               int           `json:"recid"` // this is for the grid widget
+	// Recid               int           `json:"recid"` // this is for the grid widget
 	VID                 int64         `json:"VID"`
 	BID                 int64         `json:"BID"`
 	TCID                int64         `json:"TCID"`
@@ -155,7 +155,7 @@ type RABackgroundInfoFlowData struct {
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	Recid        int     `json:"recid"` // this is for the grid widget
+	// Recid        int     `json:"recid"` // this is for the grid widget
 	RID          int64   `json:"RID"`
 	BID          int64   `json:"BID"`
 	RTID         int64   `json:"RTID"`
@@ -169,7 +169,7 @@ type RARentablesFlowData struct {
 
 // RAFeesTermsFlowData contains data in the fees-terms part of RA flow
 type RAFeesTermsFlowData struct {
-	Recid        int     `json:"recid"` // this is for the grid widget
+	// Recid        int     `json:"recid"` // this is for the grid widget
 	RID          int64   `json:"RID"`
 	BID          int64   `json:"BID"`
 	RTID         int64   `json:"RTID"`
