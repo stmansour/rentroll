@@ -232,6 +232,7 @@ window.requiredFieldsFulFilled = function (compID) {
 
     var data;
     var validData = true;
+    var isChecked;
 
     switch (compID) {
         case "dates":
@@ -254,12 +255,28 @@ window.requiredFieldsFulFilled = function (compID) {
             break;
         case "pets":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+
+            isChecked = $('#RAPetsGrid_checkbox')[0].checked;
+            if(!isChecked){
+                done = true;
+            }else{
+                done = false;
+            }
+
             if (data.length > 0) {
                 done = true;
             }
             break;
         case "vehicles":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+
+            isChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
+            if(!isChecked){
+                done = true;
+            }else{
+                done = false;
+            }
+
             if (data.length > 0) {
                 done = true;
             }
@@ -1016,6 +1033,7 @@ window.loadRAPetsGrid = function () {
                 toolbarColumns: false,
                 footer: true,
             },
+            multiSelect: false,
             style: 'border: 0px solid black; display: block;',
             columns: [
                 {
@@ -1215,10 +1233,6 @@ window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
     return defaultFormData;
 };
 
-window.disableVehiclesGrid = function () {
-
-};
-
 window.loadRAVehiclesGrid = function () {
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
@@ -1412,6 +1426,7 @@ window.loadRAVehiclesGrid = function () {
                 footer          : true,
                 toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
+            multiSelect: false,
             style   : 'border: 0px solid black; display: block;',
             columns : [
                 {
