@@ -6,7 +6,7 @@ const MODULE = "stmtinfo";
 const FORM = "stmtDetailForm";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
-// For Module: Deposit accounts
+// For Module: RA Statements
 export let conf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,

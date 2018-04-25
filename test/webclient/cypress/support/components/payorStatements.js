@@ -5,7 +5,7 @@ const SIDEBAR_ID = "payorstmt";
 const MODULE = "payorstmtinfo";
 
 // Below configurations are in use while performing tests via roller_spec.js for AIR Roller application
-// For Module: Deposit accounts
+// For Module: Payor Statements
 export let conf = {
     grid: GRID,
     sidebarID: SIDEBAR_ID,
