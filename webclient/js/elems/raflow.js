@@ -58,6 +58,20 @@ $(document).on('click', '#ra-form #progressbar a', function () {
     return false;
 });
 
+// toggleLockOnGrid
+// Lock grid if chebox is unchecked(false). Unlock grid if checkbox is checked(true).
+window.toggleLockOnGrid = function (gridName) {
+    console.log("toggleLockOnGrid");
+    var isChecked = $("#" + gridName + "_checkbox")[0].checked;
+    console.log(isChecked);
+    if (isChecked){
+        w2ui[gridName].unlock();
+    }else{
+        w2ui[gridName].lock('');
+    }
+
+};
+
 // TODO: we should pass FlowID, flowPartID here in arguments
 window.saveActiveCompData = function (record, partType) {
 
@@ -966,25 +980,7 @@ window.loadRAPetsGrid = function () {
                 toolbarColumns: false,
                 footer: true,
             },
-            toolbar: {
-                items: [
-                    { type: 'break' },
-                    { type: 'html',  id: 'havePets',
-                        html: function (item) {
-                            var html =
-                              '<div>'+
-                              '<label style="cursor: pointer;">'+
-                              '<input type="checkbox" onchange="" style="margin-right: 10px;" />'+
-                              'Have Pets?'+
-                              '</label>'+
-                              '</div>';
-                            return html;
-                        }
-                    },
-                ]
-            },
-            multiSelect: false,
-            style: 'border: 1px solid black; display: block;',
+            style: 'border: 0px solid black; display: block;',
             columns: [
                 {
                     field: 'recid',
@@ -1115,7 +1111,10 @@ window.loadRAPetsGrid = function () {
     }
 
     // now load grid in division
-    $('#ra-form #pets').w2render(w2ui.RAPetsGrid);
+    $('#ra-form #pets .form-container').w2render(w2ui.RAPetsGrid);
+
+    // lock the grid until "Have pets?" checkbox checked.
+    window.toggleLockOnGrid('RAPetsGrid');
 
     // load the existing data in pets component
     setTimeout(function () {
@@ -1329,7 +1328,7 @@ window.loadRAVehiclesGrid = function () {
                 footer          : true,
                 toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
-            style   : 'border: 1px solid black; display: block;',
+            style   : 'border: 0px solid black; display: block;',
             columns : [
                 {
                     field: 'recid',
@@ -1464,7 +1463,10 @@ window.loadRAVehiclesGrid = function () {
     }
 
     // now load grid in target division
-    $('#ra-form #vehicles').w2render(w2ui.RAVehiclesGrid);
+    $('#ra-form #vehicles .form-container').w2render(w2ui.RAVehiclesGrid);
+
+    // lock the grid until "Have vehicles?" checkbox checked.
+    window.toggleLockOnGrid('RAVehiclesGrid');
 
     // load the existing data in vehicles component
     setTimeout(function () {
