@@ -60,16 +60,34 @@ $(document).on('click', '#ra-form #progressbar a', function () {
 
 // toggleLockOnGrid
 // Lock grid if chebox is unchecked(false). Unlock grid if checkbox is checked(true).
+// Lock grid when there is no record in the grid.
 window.toggleLockOnGrid = function (gridName) {
     console.log("toggleLockOnGrid");
     var isChecked = $("#" + gridName + "_checkbox")[0].checked;
+    var recordsLength = w2ui[gridName].records.length;
     console.log(isChecked);
-    if (isChecked){
-        w2ui[gridName].unlock();
-    }else{
+    console.log(recordsLength);
+
+
+    if (!isChecked && recordsLength === 0){
         w2ui[gridName].lock('');
+    }else{
+        w2ui[gridName].unlock();
     }
 
+    if( recordsLength > 0 ){
+        window.toggleHaveCheckBoxDisablity(gridName);
+        w2ui[gridName].unlock();
+    }
+};
+
+window.toggleHaveCheckBoxDisablity = function (gridName) {
+    var recordsLength = w2ui[gridName].records.length;
+    if (recordsLength > 0){
+        $("#" + gridName + "_checkbox")[0].disabled = true;
+    }else if(recordsLength === 0){
+        $("#" + gridName + "_checkbox")[0].disabled = false;
+    }
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -876,6 +894,9 @@ window.loadRAPetsGrid = function () {
                             }
                             form.clear();
 
+                            // Disable "have pets?" checkbox if there is any record.
+                            window.toggleHaveCheckBoxDisablity('RAPetsGrid');
+
                             // close the form
                             $("#component-form-instance-container").hide();
                             $("#component-form-instance-container #form-instance").empty();
@@ -953,6 +974,10 @@ window.loadRAPetsGrid = function () {
                         if (data.status === 'success') {
                             w2ui.RAPetsGrid.remove(form.record.recid);
                             form.clear();
+
+                            // Disable "have pets?" checkbox if there is any record.
+                            window.toggleHaveCheckBoxDisablity('RAPetsGrid');
+
                             // close the form
                             $("#component-form-instance-container").hide();
                             $("#component-form-instance-container #form-instance").empty();
@@ -1240,6 +1265,9 @@ window.loadRAVehiclesGrid = function () {
                                 }
                                 form.clear();
 
+                                // Disable "have vehicles?" checkbox if there is any record.
+                                window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+
                                 // close the form
                                 $("#component-form-instance-container").hide();
                                 $("#component-form-instance-container #form-instance").empty();
@@ -1300,6 +1328,10 @@ window.loadRAVehiclesGrid = function () {
                             if (data.status === 'success') {
                                 w2ui.RAVehiclesGrid.remove(form.record.recid);
                                 form.clear();
+
+                                // Disable "have vehicles?" checkbox if there is any record.
+                                window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+
                                 // close the form
                                 $("#component-form-instance-container").hide();
                                 $("#component-form-instance-container #form-instance").empty();
