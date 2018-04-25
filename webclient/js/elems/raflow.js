@@ -256,11 +256,11 @@ window.requiredFieldsFulFilled = function (compID) {
             if(!isChecked){
                 done = true;
             }else{
-                done = false;
-            }
-
-            if (data.length > 0) {
-                done = true;
+                if (data.length > 0) {
+                    done = true;
+                }else{
+                    done = false;
+                }
             }
             break;
         case "vehicles":
@@ -270,11 +270,11 @@ window.requiredFieldsFulFilled = function (compID) {
             if(!isChecked){
                 done = true;
             }else{
-                done = false;
-            }
-
-            if (data.length > 0) {
-                done = true;
+                if (data.length > 0) {
+                    done = true;
+                }else{
+                    done = false;
+                }
             }
             break;
         case "bginfo":
