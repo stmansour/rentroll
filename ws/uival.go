@@ -36,21 +36,25 @@ func getListTypes(ctx context.Context, bid int64, s string, t int) (map[string][
 }
 
 // GetAssessmentList returns all assessments for the supplied business
+//-----------------------------------------------------------------------------
 func GetAssessmentList(ctx context.Context, bid int64) (map[string][]IDTextMap, error) {
 	return getListTypes(ctx, bid, " -- Select Account Rule -- ", rlib.ARASSESSMENT)
 }
 
 // GetExpenseList returns all assessments for the supplied business
+//-----------------------------------------------------------------------------
 func GetExpenseList(ctx context.Context, bid int64) (map[string][]IDTextMap, error) {
 	return getListTypes(ctx, bid, " -- Select Expense Rule -- ", rlib.AREXPENSE)
 }
 
 // GetReceiptList returns all assessments for the supplied business
+//-----------------------------------------------------------------------------
 func GetReceiptList(ctx context.Context, bid int64) (map[string][]IDTextMap, error) {
 	return getListTypes(ctx, bid, " -- Select Receipt Rule -- ", rlib.ARRECEIPT)
 }
 
 // GetDepositoryList returns all assessments for the supplied business
+//-----------------------------------------------------------------------------
 func GetDepositoryList(ctx context.Context, bid int64) (map[string][]IDTextMap, error) {
 
 	// initialize list with 0-id value
@@ -73,9 +77,52 @@ func GetDepositoryList(ctx context.Context, bid int64) (map[string][]IDTextMap, 
 	return appData, nil
 }
 
+// GetTLDs returns a map of TaskListDefinitions for the UI
+//-----------------------------------------------------------------------------
+func GetTLDs(ctx context.Context, bid int64) (map[string][]IDTextMap, error) {
+	rlib.Console("Entered GetTLDS\n")
+	// initialize list with 0-id value
+	list := []IDTextMap{{ID: 0, Text: " -- Select TaskList -- "}}
+	appData := make(map[string][]IDTextMap)
+	bud, err := BIDToBUD(bid)
+	if err != nil {
+		return appData, err
+	}
+
+	// m, err := rlib.GetAllTaskListDefinitions(ctx, bid)
+	// if err != nil {
+	// 	return appData, err
+	// }
+	// rlib.Console("GetAllTaskListDefinitions return m, len = %d\n", len(m))
+
+	var m []rlib.TaskListDefinition
+	q := fmt.Sprintf("SELECT %s FROM TaskListDefinition WHERE BID=%d AND FLAGS & 1 = 0", rlib.RRdb.DBFields["TaskListDefinition"], bid)
+	rows, err := rlib.RRdb.Dbrr.Query(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var a rlib.TaskListDefinition
+		if err = rlib.ReadTaskListDefinitions(rows, &a); err != nil {
+			return nil, err
+		}
+		m = append(m, a)
+	}
+
+	for i := 0; i < len(m); i++ {
+		list = append(list, IDTextMap{ID: m[i].TLDID, Text: m[i].Name})
+	}
+	appData[bud] = list
+
+	return appData, nil
+
+}
+
 // SvcUIErrAndVarResponse encapsulates a lot of lines that would need to appear
 // in each case of a switch.  This just makes things a lot more readable and
 // it bottlenecks the handling so it is easy to extend or modify.
+//-----------------------------------------------------------------------------
 func SvcUIErrAndVarResponse(w http.ResponseWriter, funcname string, err error, x interface{}) {
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -104,6 +151,7 @@ func SvcUIErrAndVarResponse(w http.ResponseWriter, funcname string, err error, x
 //	@Input
 //  @Response JSONResponse
 // wsdoc }
+//-----------------------------------------------------------------------------
 func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	funcname := "SvcUIVal"
 	rlib.Console("Entered %s\n", funcname)
@@ -123,6 +171,9 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "app.DepMethods":
 		depmeth := GetJSDepositMethods(r.Context())
 		SvcUIErrAndVarResponse(w, funcname, nil, depmeth)
+	case "app.TaskListDefinitions":
+		tlds, err := GetTLDs(r.Context(), d.BID)
+		SvcUIErrAndVarResponse(w, funcname, err, tlds)
 	default:
 		e := fmt.Errorf("Unknown variable requested: %s", d.DetVal)
 		SvcErrorReturn(w, e, funcname)

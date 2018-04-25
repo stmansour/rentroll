@@ -199,7 +199,6 @@ window.buildAssessmentElements = function () {
                             if ('status' in data && data.status !== 'success') {
                                 f.message(data.message);
                             } else {
-                                var cycleFreqItems = [];
                                 f.get('ARID').options.items = app.AssessmentRules[BUD];
                                 f.refresh();
                                 setToForm(f.name, myurl, 450, true);

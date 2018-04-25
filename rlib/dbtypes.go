@@ -1169,10 +1169,10 @@ type Rentable struct {
 	Comment        string            // for notes such as Alarm codes and other things
 	RT             []RentableTypeRef // the list of RTIDs and timestamps for this Rentable
 	//-- RentalPeriodDefault int64          // 0 =unset, 1 = short term, 2=longterm
-	LastModTime    time.Time         // time of last update to the db record
-	LastModBy      int64             // who made the update (Phonebook UID)
-	CreateTS time.Time // when was this record created
-	CreateBy int64     // employee UID (from phonebook) that created it
+	LastModTime time.Time // time of last update to the db record
+	LastModBy   int64     // who made the update (Phonebook UID)
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // MRHistory is the basic structure for Make Ready status history
@@ -1761,6 +1761,7 @@ type RRprepSQL struct {
 	GetTaskList                             *sql.Stmt
 	GetTaskDescriptor                       *sql.Stmt
 	GetTaskListDefinition                   *sql.Stmt
+	GetAllTaskListDefinitions               *sql.Stmt
 	InsertTask                              *sql.Stmt
 	InsertTaskList                          *sql.Stmt
 	InsertTaskDescriptor                    *sql.Stmt

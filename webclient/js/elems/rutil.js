@@ -192,7 +192,6 @@ window.GridMoneyFormat = function (x) {
 // @return  the BID (or `undefined` if not found)
 //-----------------------------------------------------------------------------
 window.getBIDfromBUD = function (BUD) {
-
     var BID;
     for (var i=0; i<app.BizMap.length; i++) {
         if (BUD == app.BizMap[i].BUD) {

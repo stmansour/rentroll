@@ -288,6 +288,9 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 	appData["account_stuff"] = accountStuff
 
+	// --------------- TASK LIST DEFINITIONS ----------------------
+	appData["TaskListDefinitions"] = new([]string)
+
 	// b, err := json.Marshal(appData)
 	// if err != nil {
 	// 	e := fmt.Errorf("Error marshaling json data: %s", err.Error())

@@ -6720,6 +6720,51 @@ func GetTaskListDescriptors(ctx context.Context, id int64) ([]TaskDescriptor, er
 	return m, rows.Err()
 }
 
+// GetAllTaskListDefinitions returns the active tasklist definitions for the
+// supplied bid
+//
+// INPUTS:
+//	id = BID of the business of interest
+//
+// RETURNS
+//  slice of active TaskListDefintions defined for the business
+//  any error encountered
+//-----------------------------------------------------------------------------
+func GetAllTaskListDefinitions(ctx context.Context, id int64) ([]TaskListDefinition, error) {
+	var m []TaskListDefinition
+	var err error
+
+	if authCheck(ctx) {
+		return m, ErrSessionRequired
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{id}
+
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskListDefinition)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetTaskListDefinition.Query(fields...)
+	}
+
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var a TaskListDefinition
+		if err = ReadTaskListDefinitions(rows, &a); err != nil {
+			return m, err
+		}
+		m = append(m, a)
+	}
+
+	return m, rows.Err()
+}
+
 // GetTaskListDefinition returns the tasklist with the supplied id
 func GetTaskListDefinition(ctx context.Context, id int64) (TaskListDefinition, error) {
 	var a TaskListDefinition
