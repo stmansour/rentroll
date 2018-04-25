@@ -275,3 +275,17 @@ i.remove-item {
     background-color: #EFEFEF !important;
     border-left: 2px solid rgb(207, 207, 207);
 }
+
+.ra-form-component#pets .form-container {
+    height: 325px;
+}
+
+.ra-form-component#vehicles .form-container {
+    height: 325px;
+}
+
+.cb-section {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    text-align: left;
+}

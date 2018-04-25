@@ -58,6 +58,37 @@ $(document).on('click', '#ra-form #progressbar a', function () {
     return false;
 });
 
+// lockOnGrid
+// Lock grid if chebox is unchecked(false). Unlock grid if checkbox is checked(true).
+// Lock grid when there is no record in the grid.
+window.lockOnGrid = function (gridName) {
+    var isChecked = $("#" + gridName + "_checkbox")[0].checked;
+    var recordsLength = w2ui[gridName].records.length;
+
+    if (!isChecked && recordsLength === 0){
+        w2ui[gridName].lock('');
+    }else{
+        w2ui[gridName].unlock();
+    }
+
+    if( recordsLength > 0 ){
+        $("#" + gridName + "_checkbox")[0].disabled = true;
+    }
+};
+
+// toggleHaveCheckBoxDisablity
+// Enable checkbox if there is no record
+// lock/unlock grid based on checkbox value
+window.toggleHaveCheckBoxDisablity = function (gridName) {
+    var recordsLength = w2ui[gridName].records.length;
+    if (recordsLength > 0){
+        $("#" + gridName + "_checkbox")[0].disabled = true;
+    }else if(recordsLength === 0){
+        $("#" + gridName + "_checkbox")[0].disabled = false;
+        window.lockOnGrid(gridName);
+    }
+};
+
 // TODO: we should pass FlowID, flowPartID here in arguments
 window.saveActiveCompData = function (record, partType) {
 
@@ -197,6 +228,7 @@ window.requiredFieldsFulFilled = function (compID) {
 
     var data;
     var validData = true;
+    var isChecked;
 
     switch (compID) {
         case "dates":
@@ -219,14 +251,30 @@ window.requiredFieldsFulFilled = function (compID) {
             break;
         case "pets":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.length > 0) {
+
+            isChecked = $('#RAPetsGrid_checkbox')[0].checked;
+            if(!isChecked){
                 done = true;
+            }else{
+                if (data.length > 0) {
+                    done = true;
+                }else{
+                    done = false;
+                }
             }
             break;
         case "vehicles":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.length > 0) {
+
+            isChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
+            if(!isChecked){
                 done = true;
+            }else{
+                if (data.length > 0) {
+                    done = true;
+                }else{
+                    done = false;
+                }
             }
             break;
         case "bginfo":
@@ -871,6 +919,9 @@ window.loadRAPetsGrid = function () {
                             }
                             form.clear();
 
+                            // Disable "have pets?" checkbox if there is any record.
+                            window.toggleHaveCheckBoxDisablity('RAPetsGrid');
+
                             // close the form
                             $("#component-form-instance-container").hide();
                             $("#component-form-instance-container #form-instance").empty();
@@ -947,6 +998,10 @@ window.loadRAPetsGrid = function () {
                         if (data.status === 'success') {
                             w2ui.RAPetsGrid.remove(form.record.recid);
                             form.clear();
+
+                            // Disable "have pets?" checkbox if there is any record.
+                            window.toggleHaveCheckBoxDisablity('RAPetsGrid');
+
                             // close the form
                             $("#component-form-instance-container").hide();
                             $("#component-form-instance-container #form-instance").empty();
@@ -974,25 +1029,8 @@ window.loadRAPetsGrid = function () {
                 toolbarColumns: false,
                 footer: true,
             },
-            toolbar: {
-                items: [
-                    { type: 'break' },
-                    { type: 'html',  id: 'havePets',
-                        html: function (item) {
-                            var html =
-                              '<div>'+
-                              '<label style="cursor: pointer;">'+
-                              '<input type="checkbox" onchange="" style="margin-right: 10px;" />'+
-                              'Have Pets?'+
-                              '</label>'+
-                              '</div>';
-                            return html;
-                        }
-                    },
-                ]
-            },
             multiSelect: false,
-            style: 'border: 1px solid black; display: block;',
+            style: 'border: 0px solid black; display: block;',
             columns: [
                 {
                     field: 'recid',
@@ -1013,56 +1051,56 @@ window.loadRAPetsGrid = function () {
                 {
                     field: 'Name',
                     caption: 'Name',
-                    size: '150px',
+                    size: '150px'
                 },
                 {
                     field: 'Type',
                     caption: 'Type',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Breed',
                     caption: 'Breed',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Color',
                     caption: 'Color',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'Weight',
                     caption: 'Weight',
-                    size: '80px',
+                    size: '80px'
                 },
                 {
                     field: 'DtStart',
                     caption: 'DtStart',
-                    size: '100px',
+                    size: '100px'
                 },
                 {
                     field: 'DtStop',
                     caption: 'DtStop',
-                    size: '100px',
+                    size: '100px'
                 },
                 {
                     field: 'NonRefundablePetFee',
                     caption: 'NonRefundable<br>PetFee',
                     size: '70px',
-                    render: 'money',
+                    render: 'money'
                 },
                 {
                     field: 'RefundablePetDeposit',
                     caption: 'Refundable<br>PetDeposit',
                     size: '70px',
-                    render: 'money',
+                    render: 'money'
                 },
                 {
                     field: 'RecurringPetFee',
                     caption: 'Recurring<br>PetFee',
                     size: '70px',
-                    render: 'money',
-                },
+                    render: 'money'
+                }
             ],
             onChange: function (event) {
                 event.onComplete = function () {
@@ -1129,7 +1167,7 @@ window.loadRAPetsGrid = function () {
     }
 
     // now load grid in division
-    $('#ra-form #pets').w2render(w2ui.RAPetsGrid);
+    $('#ra-form #pets .form-container').w2render(w2ui.RAPetsGrid);
 
     // load the existing data in pets component
     setTimeout(function () {
@@ -1141,6 +1179,10 @@ window.loadRAPetsGrid = function () {
                 w2ui.RAPetsGrid.records[j].recid = j + 1;
             }
             w2ui.RAPetsGrid.refresh();
+
+            // lock the grid until "Have pets?" checkbox checked.
+            window.lockOnGrid('RAPetsGrid');
+
         } else {
             w2ui.RAPetsGrid.clear();
         }
@@ -1273,6 +1315,9 @@ window.loadRAVehiclesGrid = function () {
                                 }
                                 form.clear();
 
+                                // Disable "have vehicles?" checkbox if there is any record.
+                                window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+
                                 // close the form
                                 $("#component-form-instance-container").hide();
                                 $("#component-form-instance-container #form-instance").empty();
@@ -1345,6 +1390,10 @@ window.loadRAVehiclesGrid = function () {
                             if (data.status === 'success') {
                                 w2ui.RAVehiclesGrid.remove(form.record.recid);
                                 form.clear();
+
+                                // Disable "have vehicles?" checkbox if there is any record.
+                                window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+
                                 // close the form
                                 $("#component-form-instance-container").hide();
                                 $("#component-form-instance-container #form-instance").empty();
@@ -1366,10 +1415,15 @@ window.loadRAVehiclesGrid = function () {
             header  : 'Vehicles',
             show    : {
                 toolbar         : true,
+                toolbarSearch   : false,
+                toolbarReload   : true,
+                toolbarInput    : false,
+                toolbarColumns  : false,
                 footer          : true,
                 toolbarAdd      : true   // indicates if toolbar add new button is visible
             },
-            style   : 'border: 1px solid black; display: block;',
+            multiSelect: false,
+            style   : 'border: 0px solid black; display: block;',
             columns : [
                 {
                     field: 'recid',
@@ -1510,7 +1564,7 @@ window.loadRAVehiclesGrid = function () {
     }
 
     // now load grid in target division
-    $('#ra-form #vehicles').w2render(w2ui.RAVehiclesGrid);
+    $('#ra-form #vehicles .form-container').w2render(w2ui.RAVehiclesGrid);
 
     // load the existing data in vehicles component
     setTimeout(function () {
@@ -1521,6 +1575,10 @@ window.loadRAVehiclesGrid = function () {
                 w2ui.RAVehiclesGrid.records[j].recid = j + 1;
             }
             w2ui.RAVehiclesGrid.refresh();
+
+            // lock the grid until "Have vehicles?" checkbox checked.
+            window.lockOnGrid('RAVehiclesGrid');
+
         } else {
             w2ui.RAVehiclesGrid.clear();
         }
