@@ -5,7 +5,7 @@
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
-    requiredFieldsFulFilled, getPetFormInitRecord
+    requiredFieldsFulFilled, getPetFormInitRecord, getRAFlowPartData
 */
 
 "use strict";
@@ -87,6 +87,52 @@ window.toggleHaveCheckBoxDisablity = function (gridName) {
         $("#" + gridName + "_checkbox")[0].disabled = false;
         window.lockOnGrid(gridName);
     }
+};
+
+// getRAFlowPartData
+window.getRAFlowPartData = function (partType) {
+
+    var bid = getCurrentBID();
+
+    var flowPartID;
+    var flowParts = app.raflow.data[app.raflow.activeFlowID] || [];
+
+    for (var i = 0; i < flowParts.length; i++) {
+        if (partType == flowParts[i].PartType) {
+            flowPartID = flowParts[i].FlowPartID;
+        }
+    }
+
+    // temporary data
+    var data = {
+        "cmd": "get",
+        "FlowPartID": flowPartID,
+        "Flow": app.raflow.name,
+        "FlowID": app.raflow.activeFlowID,
+        "BID": bid,
+        "PartType": partType
+    };
+
+
+    return $.ajax({
+        url: "/v1/flowpart/" + bid.toString() + "/" + flowPartID,
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status != "error"){
+                // app.raflow[app.raflow.activeFlowID]
+                console.log("Received data for activeFlowID:", app.raflow.activeFlowID, ", partType:", partType);
+            }else {
+                console.error(data.message);
+            }
+        },
+        error: function () {
+            console.log("Error:" + JSON.stringify(data));
+        }
+    });
+
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -820,6 +866,25 @@ window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
 };
 
 window.loadRAPetsGrid = function () {
+
+    var partType = app.raFlowPartTypes.pets;
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                // TODO(Akshay): Assign data to client side.
+                console.log(JSON.stringify(data));
+            }else {
+                console.log(data.message);
+            }
+            // app.raflow[app.raflow.activeFlowID]
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
+
     // if form is loaded then return
     if (!("RAPetsGrid" in w2ui)) {
 
@@ -1230,6 +1295,24 @@ window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
 };
 
 window.loadRAVehiclesGrid = function () {
+
+    var partType = app.raFlowPartTypes.vehicles;
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                // TODO(Akshay): Assign data to client side.
+                console.log(JSON.stringify(data));
+            }else {
+                console.log(data.message);
+            }
+            // app.raflow[app.raflow.activeFlowID]
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
 
@@ -1953,34 +2036,34 @@ window.loadRAFeesTermsGrid = function () {
 var RACompConfig = {
     "dates": {
         loader: loadRADatesForm,
-        w2uiComp: "RADatesForm",
+        w2uiComp: "RADatesForm"
     },
     "people": {
         loader: loadRAPeopleForm,
-        w2uiComp: "RAPeopleForm",
+        w2uiComp: "RAPeopleForm"
     },
     "pets": {
         loader: loadRAPetsGrid,
-        w2uiComp: "RAPetsGrid",
+        w2uiComp: "RAPetsGrid"
     },
     "vehicles": {
         loader: loadRAVehiclesGrid,
-        w2uiComp: "RAVehiclesGrid",
+        w2uiComp: "RAVehiclesGrid"
     },
     "bginfo": {
         loader: loadRABGInfoForm,
-        w2uiComp: "RABGInfoForm",
+        w2uiComp: "RABGInfoForm"
     },
     "rentables": {
         loader: loadRARentablesGrid,
-        w2uiComp: "RARentablesGrid",
+        w2uiComp: "RARentablesGrid"
     },
     "feesterms": {
         loader: loadRAFeesTermsGrid,
-        w2uiComp: "RAFeesTermsGrid",
+        w2uiComp: "RAFeesTermsGrid"
     },
     "final": {
         loader: null,
-        w2uiComp: "",
-    },
+        w2uiComp: ""
+    }
 };
