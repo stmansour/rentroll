@@ -12,7 +12,7 @@
 window.getNewTaskListRecord = function (bid) {
     var rec = {
         BID: bid,
-        TLID: 0,
+        TLDID: 0,
         Name: '',
         Pivot: w2uiDateControlString(new Date()),
     };
@@ -345,6 +345,26 @@ window.buildTaskListElements = function () {
                     return;
                 });
             },
+            delete: function(target,data) {
+                var tl = {
+                    cmd: "delete",
+                };
+                var dat=JSON.stringify(tl);
+                var url='/v1/tl/' + w2ui.tlsInfoForm.record.BID + '/' + w2ui.tlsInfoForm.record.TLID;
+                $.post(url,dat)
+                .done(function(data) {
+                    if (data.status === "error") {
+                        w2ui.tlsInfoForm.error(w2utils.lang(data.message));
+                        return;
+                    }
+                    w2ui.toplayout.hide('right',true);
+                    w2ui.tlsGrid.render();
+                })
+                .fail(function(/*data*/){
+                    w2ui.tlsInfoForm.error("Save Tasklist failed.");
+                    return;
+                });
+            },
         },
     });
 
@@ -376,13 +396,38 @@ window.buildTaskListElements = function () {
         url: '/v1/tl',
         fields: [
             { field: 'BID',   type: 'int',  required: false },
-            { field: 'TLID',  type: 'int',  required: false },
+            { field: 'TLDID',  type: 'int',  required: false },
             { field: 'Name',  type: 'list', required: true, options:  {items: [], selected: {}},  },
             { field: 'Pivot', type: 'date', required: true },
         ],
         actions: {
-            // save: function(target, data){
-            // },
+            save: function(target, data){
+                var f = w2ui.newTaskListForm;
+                var r = f.record;
+                f.url = '/v1/tl/' + r.BID + '/0';
+                var s = r.Name.text;
+                r.TLDID = r.Name.id;
+                r.Name = s;
+                var params = {cmd: 'save', formname: f.name, record: r };
+                var dat = JSON.stringify(params);
+                var BID = r.BID;
+
+                // submit request
+                $.post(f.url, dat, null, "json")
+                .done(function(data) {
+                    if (data.status != "success") {
+                        return;
+                    }
+                    w2ui.tlsGrid.reload();
+                    var tlid = data.recid;
+                    setToTLForm(BID, tlid, app.D1, app.D2);                    
+                    w2popup.close();
+                })
+                .fail(function(/*data*/){
+                    console.log("Payor Fund Allocation failed.");
+                });
+
+            },
         },
         // onLoad: function(event) {
         //     event.onComplete = function(event) {

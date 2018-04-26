@@ -6742,11 +6742,11 @@ func GetAllTaskListDefinitions(ctx context.Context, id int64) ([]TaskListDefinit
 	fields := []interface{}{id}
 
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskListDefinition)
+		stmt := tx.Stmt(RRdb.Prepstmt.GetAllTaskListDefinitions)
 		defer stmt.Close()
 		rows, err = stmt.Query(fields...)
 	} else {
-		rows, err = RRdb.Prepstmt.GetTaskListDefinition.Query(fields...)
+		rows, err = RRdb.Prepstmt.GetAllTaskListDefinitions.Query(fields...)
 	}
 
 	if err != nil {

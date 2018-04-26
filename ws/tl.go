@@ -393,7 +393,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		if foo.Record.TLDID == 0 {
-			e := fmt.Errorf("%s: Could not create TaskList because definition id (%d) does not exist", funcname, foo.Record.TLDID)
+			e := fmt.Errorf("%s: Could not create TaskList because definition id (TLDID = %d) does not exist", funcname, foo.Record.TLDID)
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
@@ -413,6 +413,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+		rlib.Console("Created tlid = %d\n", tlid)
 		tl, err := rlib.GetTaskList(r.Context(), tlid)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
@@ -424,6 +425,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+		a.TLID = tlid // ensure that the return value is correct
 	} else {
 		b, err := rlib.GetTaskList(r.Context(), a.TLID)
 		if err != nil {
@@ -457,6 +459,8 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
+
+	rlib.Console("a.TLID = %d\n", a.TLID)
 
 	SvcWriteSuccessResponseWithID(d.BID, w, a.TLID)
 }
