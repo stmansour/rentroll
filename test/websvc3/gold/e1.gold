@@ -1,27 +1,27 @@
 {
     "record": {
-        "BID": 1,
+        "BID": 0,
         "ChkDtDone": false,
         "ChkDtDue": false,
         "ChkDtPreDone": false,
         "ChkDtPreDue": false,
         "Comment": "",
         "CreateBy": 0,
-        "CreateTS": "2018-04-02T11:20:00Z",
+        "CreateTS": "1900-01-01T00:00:00Z",
         "DoneUID": 0,
         "DtDone": "1900-01-01T00:00:00Z",
-        "DtDue": "2018-02-28T20:00:00Z",
+        "DtDue": "1900-01-01T00:00:00Z",
         "DtPreDone": "1900-01-01T00:00:00Z",
-        "DtPreDue": "2018-02-20T20:00:00Z",
+        "DtPreDue": "1900-01-01T00:00:00Z",
         "FLAGS": 0,
         "LastModBy": 0,
-        "LastModTime": "2018-04-02T11:20:00Z",
-        "Name": "Walk the Units",
+        "LastModTime": "1900-01-01T00:00:00Z",
+        "Name": "",
         "PreDoneUID": 0,
-        "TID": 5,
-        "TLID": 2,
-        "Worker": "Manual",
-        "recid": 5
+        "TID": 0,
+        "TLID": 0,
+        "Worker": "",
+        "recid": 0
     },
     "status": "success"
 }
