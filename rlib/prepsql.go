@@ -1188,6 +1188,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.DeleteTaskList, err = RRdb.Dbrr.Prepare("DELETE from TaskList WHERE TLID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.DeleteTaskListTasks, err = RRdb.Dbrr.Prepare("DELETE from Task WHERE TLID=?")
+	Errcheck(err)
 
 	//==========================================
 	// TASKDESCRIPTOR

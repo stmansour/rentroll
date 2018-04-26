@@ -323,6 +323,10 @@ func deleteTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
+	//--------------------------------------------------
+	// delete all tasks associated with tasklist d.ID
+	//--------------------------------------------------
+	rlib.DeleteTaskListTasks(r.Context(), d.ID)
 	SvcWriteSuccessResponse(d.BID, w)
 }
 

@@ -1777,6 +1777,7 @@ type RRprepSQL struct {
 	GetEpochAssessmentsByRentalAgreement    *sql.Stmt
 	GetAllRentalAgreementRentables          *sql.Stmt
 	GetTaskListDescriptors                  *sql.Stmt
+	DeleteTaskListTasks                     *sql.Stmt
 	GetTaskListDefinitionByName             *sql.Stmt
 }
 

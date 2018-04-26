@@ -1456,6 +1456,27 @@ func DeleteTaskList(ctx context.Context, id int64) error {
 	return err
 }
 
+// DeleteTaskListTasks deletes the Tasks tied to the TaskList with
+// the specified id from the database
+func DeleteTaskListTasks(ctx context.Context, id int64) error {
+	var err error
+	if delContextProblem(ctx) {
+		return ErrSessionRequired
+	}
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.DeleteTaskListTasks)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.DeleteTaskListTasks.Exec(fields...)
+	}
+	if err != nil {
+		Ulog("Error deleting Tasks id=%d error: %v\n", id, err)
+	}
+	return err
+}
+
 // DeleteTaskDescriptor deletes the TaskDescriptor with the specified id from the database
 func DeleteTaskDescriptor(ctx context.Context, id int64) error {
 	var err error
