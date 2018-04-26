@@ -5,7 +5,7 @@
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
-    requiredFieldsFulFilled, getPetFormInitRecord
+    requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid
 */
 
 "use strict";
@@ -66,13 +66,14 @@ window.lockOnGrid = function (gridName) {
     var recordsLength = w2ui[gridName].records.length;
 
     if (!isChecked && recordsLength === 0){
-        w2ui[gridName].lock('');
+        w2ui[gridName].lock();
     }else{
         w2ui[gridName].unlock();
     }
 
     if( recordsLength > 0 ){
         $("#" + gridName + "_checkbox")[0].disabled = true;
+        $("#" + gridName + "_checkbox")[0].checked = true;
     }
 };
 
@@ -85,7 +86,7 @@ window.toggleHaveCheckBoxDisablity = function (gridName) {
         $("#" + gridName + "_checkbox")[0].disabled = true;
     }else if(recordsLength === 0){
         $("#" + gridName + "_checkbox")[0].disabled = false;
-        window.lockOnGrid(gridName);
+        lockOnGrid(gridName);
     }
 };
 
@@ -255,7 +256,7 @@ window.requiredFieldsFulFilled = function (compID) {
             isChecked = $('#RAPetsGrid_checkbox')[0].checked;
             if(!isChecked){
                 done = true;
-            }else{
+            } else {
                 if (data.length > 0) {
                     done = true;
                 }else{
@@ -996,6 +997,11 @@ window.loadRAPetsGrid = function () {
                     saveActiveCompData(records, app.raFlowPartTypes.pets)
                     .done(function(data) {
                         if (data.status === 'success') {
+                            // clear the grid select recid
+                            app.last.grid_sel_recid  =-1;
+                            // selectNone
+                            w2ui.RAPetsGrid.selectNone();
+
                             w2ui.RAPetsGrid.remove(form.record.recid);
                             form.clear();
 
@@ -1181,7 +1187,7 @@ window.loadRAPetsGrid = function () {
             w2ui.RAPetsGrid.refresh();
 
             // lock the grid until "Have pets?" checkbox checked.
-            window.lockOnGrid('RAPetsGrid');
+            lockOnGrid('RAPetsGrid');
 
         } else {
             w2ui.RAPetsGrid.clear();
@@ -1388,6 +1394,11 @@ window.loadRAVehiclesGrid = function () {
                     saveActiveCompData(records, app.raFlowPartTypes.vehicles)
                         .done(function(data) {
                             if (data.status === 'success') {
+                                // clear the grid select recid
+                                app.last.grid_sel_recid  =-1;
+                                // selectNone
+                                w2ui.RAPetsGrid.selectNone();
+
                                 w2ui.RAVehiclesGrid.remove(form.record.recid);
                                 form.clear();
 
@@ -1577,7 +1588,7 @@ window.loadRAVehiclesGrid = function () {
             w2ui.RAVehiclesGrid.refresh();
 
             // lock the grid until "Have vehicles?" checkbox checked.
-            window.lockOnGrid('RAVehiclesGrid');
+            lockOnGrid('RAVehiclesGrid');
 
         } else {
             w2ui.RAVehiclesGrid.clear();
