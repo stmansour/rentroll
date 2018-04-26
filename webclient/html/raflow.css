@@ -289,3 +289,7 @@ i.remove-item {
     padding-top: 10px;
     text-align: left;
 }
+
+.cb-section label {
+    cursor: pointer;
+}
