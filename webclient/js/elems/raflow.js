@@ -45,7 +45,7 @@ $(document).on('click', '#ra-form #previous', function () {
 });
 
 // link click handling
-$(document).on('click', '#ra-form #progressbar a', function () {
+$(document).on('click', '#ra-form #progressbar #steps-list a', function () {
     var active_comp = $(".ra-form-component:visible");
 
     // load target form
@@ -200,7 +200,7 @@ window.getRAFlowAllParts = function (FlowID) {
                     // if required fields are fulfilled then mark this slide as done
                     if (requiredFieldsFulFilled(comp)) {
                         // hide active component
-                        $("#progressbar li[data-target='#" + comp + "']").addClass("done");
+                        $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
                     }
 
                     // reset w2ui component as well
@@ -212,7 +212,7 @@ window.getRAFlowAllParts = function (FlowID) {
 
                 // mark first slide as active
                 $(".ra-form-component#dates").show();
-                $("#progressbar li[data-target='#dates']").removeClass("done").addClass("active");
+                $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
                 loadRADatesForm();
 
             } else {
@@ -369,14 +369,14 @@ window.requiredFieldsFulFilled = function (compID) {
 // load form according to target
 window.loadTargetSection = function (target, activeCompID) {
 
-    /*if ($("#progressbar li[data-target='#" + target + "']").hasClass("done")) {
+    /*if ($("#progressbar #steps-list li[data-target='#" + target + "']").hasClass("done")) {
         console.log("target has been saved", target);
     } else {}*/
 
     // if required fields are fulfilled then mark this slide as done
     if (requiredFieldsFulFilled(activeCompID)) {
         // hide active component
-        $("#progressbar li[data-target='#" + activeCompID + "']").addClass("done");
+        $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").addClass("done");
     }
 
     // decide data based on type
@@ -413,18 +413,18 @@ window.loadTargetSection = function (target, activeCompID) {
     }
 
     // get part type from the class index
-    var partType = $("#progressbar li[data-target='#" + activeCompID + "']").index() + 1;
+    var partType = $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").index() + 1;
     if (data) {
         // save the content on server for active component
         saveActiveCompData(data, partType);
     }
 
     // hide active component
-    $("#progressbar li[data-target='#" + activeCompID + "']").removeClass("active");
+    $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").removeClass("active");
     $(".ra-form-component#" + activeCompID).hide();
 
     // show target component
-    $("#progressbar li[data-target='#" + target + "']").removeClass("done").addClass("active");
+    $("#progressbar #steps-list li[data-target='#" + target + "']").removeClass("done").addClass("active");
     $(".ra-form-component#" + target).show();
 
     // hide previous navigation button if the target is in first section
@@ -450,7 +450,7 @@ window.loadTargetSection = function (target, activeCompID) {
             if (typeof w2ui[validateForm] !== "undefined") {
                 var issues = w2ui[validateForm].validate();
                 if (!(Array.isArray(issues) && issues.length > 0)) {
-                    // $("#progressbar li[data-target='#" + activeCompID + "']").addClass("done");
+                    // $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").addClass("done");
                 }
             }
         }, 500);*/
@@ -948,8 +948,8 @@ window.loadRAPetsGrid = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
                             break;
                     }
                 }
@@ -1035,8 +1035,8 @@ window.loadRAPetsGrid = function () {
                             window.toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // close the form
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
                         } else {
                             form.message(data.message);
                         }
@@ -1126,8 +1126,8 @@ window.loadRAPetsGrid = function () {
                             reassignGridRecids(grid.name);
 
                             // close the form
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
                         } else {
                             form.message(data.message);
                         }
@@ -1245,8 +1245,8 @@ window.loadRAPetsGrid = function () {
                             grid.select(app.last.grid_sel_recid);
                             w2ui.RAPetForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                            $("#component-form-instance-container").show();
-                            $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                            $("#raflow-container #slider").show();
+                            $("#raflow-container #slider #slider-content").w2render(w2ui.RAPetForm);
                             w2ui.RAPetForm.refresh(); // need to refresh for header changes
                         };
 
@@ -1270,8 +1270,8 @@ window.loadRAPetsGrid = function () {
                         // set record id
                         w2ui.RAPetForm.record.recid = w2ui.RAPetsGrid.records.length + 1;
 
-                        $("#component-form-instance-container").show();
-                        $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                        $("#raflow-container #slider").show();
+                        $("#raflow-container #slider #slider-content").w2render(w2ui.RAPetForm);
                         w2ui.RAPetForm.refresh();
                     };
 
@@ -1379,8 +1379,8 @@ window.loadRAVehiclesGrid = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
                             break;
                     }
                 }
@@ -1453,8 +1453,8 @@ window.loadRAVehiclesGrid = function () {
                                 window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
                                 // close the form
-                                $("#component-form-instance-container").hide();
-                                $("#component-form-instance-container #form-instance").empty();
+                                $("#raflow-container #slider").hide();
+                                $("#raflow-container #slider #slider-content").empty();
                             } else {
                                 form.message(data.message);
                             }
@@ -1539,8 +1539,8 @@ window.loadRAVehiclesGrid = function () {
                                 reassignGridRecids(grid.name);
 
                                 // close the form
-                                $("#component-form-instance-container").hide();
-                                $("#component-form-instance-container #form-instance").empty();
+                                $("#raflow-container #slider").hide();
+                                $("#raflow-container #slider #slider-content").empty();
                             } else {
                                 form.message(data.message);
                             }
@@ -1672,8 +1672,8 @@ window.loadRAVehiclesGrid = function () {
 
                             w2ui.RAVehicleForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                            $("#component-form-instance-container").show();
-                            $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
+                            $("#raflow-container #slider").show();
+                            $("#raflow-container #slider #slider-content").w2render(w2ui.RAVehicleForm);
                             w2ui.RAVehicleForm.refresh();
 
                         };
@@ -1696,8 +1696,8 @@ window.loadRAVehiclesGrid = function () {
 
                         w2ui.RAVehicleForm.record = getVehicleGridInitalRecord(BID, BUD, null);
                         w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
-                        $("#component-form-instance-container").show();
-                        $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
+                        $("#raflow-container #slider").show();
+                        $("#raflow-container #slider #slider-content").w2render(w2ui.RAVehicleForm);
                         w2ui.RAVehicleForm.refresh();
                     };
 
