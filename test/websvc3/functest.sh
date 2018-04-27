@@ -145,7 +145,7 @@ dojsonPOST "http://localhost:8270/v1/tl/1/2" "request" "d4"  "WebService--Delete
 #   e5 - 
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%7D" > request
-dojsonPOST "http://localhost:8270/v1/tasks/1/2" "request" "e0"  "WebService--Get_Tasks"
+dojsonPOST "http://localhost:8270/v1/tasks/1/1" "request" "e0"  "WebService--Get_Tasks"
 echo "%7B%22cmd%22%3A%22get%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/task/1/5" "request" "e1"  "WebService--Get_Task"
 echo "%7B%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22Comment%22%3A%22This%20is%20an%20update%22%2C%22CreateBy%22%3A0%2C%22CreateTS%22%3A%222018-03-21T20%3A07%3A00Z%22%2C%22DoneUID%22%3A0%2C%22DtDone%22%3A%222018-02-28T17%3A00%3A00Z%22%2C%22DtDue%22%3A%222018-02-28T20%3A00%3A00Z%22%2C%22DtPreDone%22%3A%222018-02-19T23%3A12%3A00Z%22%2C%22DtPreDue%22%3A%222018-02-20T20%3A00%3A00Z%22%2C%22FLAGS%22%3A0%2C%22LastModBy%22%3A0%2C%22LastModTime%22%3A%222018-03-21T20%3A07%3A00Z%22%2C%22Name%22%3A%22Walk%20the%20Units%22%2C%22PreDoneUID%22%3A0%2C%22TID%22%3A5%2C%22TLID%22%3A2%2C%22Worker%22%3A%22Manual%22%2C%22recid%22%3A5%7D%7D" > request
