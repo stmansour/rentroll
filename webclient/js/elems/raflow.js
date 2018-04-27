@@ -5,7 +5,7 @@
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
-    requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids
+    requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData
 */
 
 "use strict";
@@ -45,7 +45,7 @@ $(document).on('click', '#ra-form #previous', function () {
 });
 
 // link click handling
-$(document).on('click', '#ra-form #progressbar a', function () {
+$(document).on('click', '#ra-form #progressbar #steps-list a', function () {
     var active_comp = $(".ra-form-component:visible");
 
     // load target form
@@ -90,6 +90,53 @@ window.toggleHaveCheckBoxDisablity = function (gridName) {
     }
 };
 
+// getRAFlowPartData
+window.getRAFlowPartData = function (partType) {
+
+    var bid = getCurrentBID();
+
+    var flowPartID;
+    var flowParts = app.raflow.data[app.raflow.activeFlowID] || [];
+
+    for (var i = 0; i < flowParts.length; i++) {
+        if (partType == flowParts[i].PartType) {
+            flowPartID = flowParts[i].FlowPartID;
+            break;
+        }
+    }
+
+    // temporary data
+    var data = {
+        "cmd": "get",
+        "FlowPartID": flowPartID,
+        "Flow": app.raflow.name,
+        "FlowID": app.raflow.activeFlowID,
+        "BID": bid,
+        "PartType": partType
+    };
+
+
+    return $.ajax({
+        url: "/v1/flowpart/" + bid.toString() + "/" + flowPartID,
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status != "error"){
+                // app.raflow[app.raflow.activeFlowID]
+                console.log("Received data for activeFlowID:", app.raflow.activeFlowID, ", partType:", partType);
+            }else {
+                console.error(data.message);
+            }
+        },
+        error: function () {
+            console.log("Error:" + JSON.stringify(data));
+        }
+    });
+
+};
+
 // TODO: we should pass FlowID, flowPartID here in arguments
 window.saveActiveCompData = function (record, partType) {
 
@@ -101,6 +148,7 @@ window.saveActiveCompData = function (record, partType) {
     for (var i = 0; i < flowParts.length; i++) {
         if (partType == flowParts[i].PartType) {
             flowPartID = flowParts[i].FlowPartID;
+            break;
         }
     }
 
@@ -152,7 +200,7 @@ window.getRAFlowAllParts = function (FlowID) {
                     // if required fields are fulfilled then mark this slide as done
                     if (requiredFieldsFulFilled(comp)) {
                         // hide active component
-                        $("#progressbar li[data-target='#" + comp + "']").addClass("done");
+                        $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
                     }
 
                     // reset w2ui component as well
@@ -164,7 +212,7 @@ window.getRAFlowAllParts = function (FlowID) {
 
                 // mark first slide as active
                 $(".ra-form-component#dates").show();
-                $("#progressbar li[data-target='#dates']").removeClass("done").addClass("active");
+                $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
                 loadRADatesForm();
 
             } else {
@@ -321,14 +369,14 @@ window.requiredFieldsFulFilled = function (compID) {
 // load form according to target
 window.loadTargetSection = function (target, activeCompID) {
 
-    /*if ($("#progressbar li[data-target='#" + target + "']").hasClass("done")) {
+    /*if ($("#progressbar #steps-list li[data-target='#" + target + "']").hasClass("done")) {
         console.log("target has been saved", target);
     } else {}*/
 
     // if required fields are fulfilled then mark this slide as done
     if (requiredFieldsFulFilled(activeCompID)) {
         // hide active component
-        $("#progressbar li[data-target='#" + activeCompID + "']").addClass("done");
+        $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").addClass("done");
     }
 
     // decide data based on type
@@ -365,18 +413,18 @@ window.loadTargetSection = function (target, activeCompID) {
     }
 
     // get part type from the class index
-    var partType = $("#progressbar li[data-target='#" + activeCompID + "']").index() + 1;
+    var partType = $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").index() + 1;
     if (data) {
         // save the content on server for active component
         saveActiveCompData(data, partType);
     }
 
     // hide active component
-    $("#progressbar li[data-target='#" + activeCompID + "']").removeClass("active");
+    $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").removeClass("active");
     $(".ra-form-component#" + activeCompID).hide();
 
     // show target component
-    $("#progressbar li[data-target='#" + target + "']").removeClass("done").addClass("active");
+    $("#progressbar #steps-list li[data-target='#" + target + "']").removeClass("done").addClass("active");
     $(".ra-form-component#" + target).show();
 
     // hide previous navigation button if the target is in first section
@@ -402,7 +450,7 @@ window.loadTargetSection = function (target, activeCompID) {
             if (typeof w2ui[validateForm] !== "undefined") {
                 var issues = w2ui[validateForm].validate();
                 if (!(Array.isArray(issues) && issues.length > 0)) {
-                    // $("#progressbar li[data-target='#" + activeCompID + "']").addClass("done");
+                    // $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").addClass("done");
                 }
             }
         }, 500);*/
@@ -415,6 +463,27 @@ window.loadTargetSection = function (target, activeCompID) {
 // Rental Agreement - Info Dates form
 // -------------------------------------------------------------------------------
 window.loadRADatesForm = function () {
+
+    var partType = app.raFlowPartTypes.dates;
+
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
 
     // if form is loaded then return
     if (!("RADatesForm" in w2ui)) {
@@ -686,6 +755,26 @@ window.loadRAPeopleForm = function () {
         });
     }
 
+    var partType = app.raFlowPartTypes.people;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
 
     // if form is loaded then return
     if (!("RAPeopleForm" in w2ui)) {
@@ -821,6 +910,27 @@ window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
 };
 
 window.loadRAPetsGrid = function () {
+
+    var partType = app.raFlowPartTypes.pets;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RAPetsGrid" in w2ui)) {
 
@@ -838,8 +948,8 @@ window.loadRAPetsGrid = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
                             break;
                     }
                 }
@@ -925,8 +1035,8 @@ window.loadRAPetsGrid = function () {
                             window.toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // close the form
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
                         } else {
                             form.message(data.message);
                         }
@@ -1016,8 +1126,8 @@ window.loadRAPetsGrid = function () {
                             reassignGridRecids(grid.name);
 
                             // close the form
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
                         } else {
                             form.message(data.message);
                         }
@@ -1135,8 +1245,8 @@ window.loadRAPetsGrid = function () {
                             grid.select(app.last.grid_sel_recid);
                             w2ui.RAPetForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                            $("#component-form-instance-container").show();
-                            $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                            $("#raflow-container #slider").show();
+                            $("#raflow-container #slider #slider-content").w2render(w2ui.RAPetForm);
                             w2ui.RAPetForm.refresh(); // need to refresh for header changes
                         };
 
@@ -1160,8 +1270,8 @@ window.loadRAPetsGrid = function () {
                         // set record id
                         w2ui.RAPetForm.record.recid = w2ui.RAPetsGrid.records.length + 1;
 
-                        $("#component-form-instance-container").show();
-                        $("#component-form-instance-container #form-instance").w2render(w2ui.RAPetForm);
+                        $("#raflow-container #slider").show();
+                        $("#raflow-container #slider #slider-content").w2render(w2ui.RAPetForm);
                         w2ui.RAPetForm.refresh();
                     };
 
@@ -1232,6 +1342,27 @@ window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
 };
 
 window.loadRAVehiclesGrid = function () {
+
+    var partType = app.raFlowPartTypes.vehicles;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
 
@@ -1248,8 +1379,8 @@ window.loadRAVehiclesGrid = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            $("#component-form-instance-container").hide();
-                            $("#component-form-instance-container #form-instance").empty();
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
                             break;
                     }
                 }
@@ -1322,8 +1453,8 @@ window.loadRAVehiclesGrid = function () {
                                 window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
                                 // close the form
-                                $("#component-form-instance-container").hide();
-                                $("#component-form-instance-container #form-instance").empty();
+                                $("#raflow-container #slider").hide();
+                                $("#raflow-container #slider #slider-content").empty();
                             } else {
                                 form.message(data.message);
                             }
@@ -1408,8 +1539,8 @@ window.loadRAVehiclesGrid = function () {
                                 reassignGridRecids(grid.name);
 
                                 // close the form
-                                $("#component-form-instance-container").hide();
-                                $("#component-form-instance-container #form-instance").empty();
+                                $("#raflow-container #slider").hide();
+                                $("#raflow-container #slider #slider-content").empty();
                             } else {
                                 form.message(data.message);
                             }
@@ -1541,8 +1672,8 @@ window.loadRAVehiclesGrid = function () {
 
                             w2ui.RAVehicleForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                            $("#component-form-instance-container").show();
-                            $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
+                            $("#raflow-container #slider").show();
+                            $("#raflow-container #slider #slider-content").w2render(w2ui.RAVehicleForm);
                             w2ui.RAVehicleForm.refresh();
 
                         };
@@ -1565,8 +1696,8 @@ window.loadRAVehiclesGrid = function () {
 
                         w2ui.RAVehicleForm.record = getVehicleGridInitalRecord(BID, BUD, null);
                         w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
-                        $("#component-form-instance-container").show();
-                        $("#component-form-instance-container #form-instance").w2render(w2ui.RAVehicleForm);
+                        $("#raflow-container #slider").show();
+                        $("#raflow-container #slider #slider-content").w2render(w2ui.RAVehicleForm);
                         w2ui.RAVehicleForm.refresh();
                     };
 
@@ -1600,6 +1731,26 @@ window.loadRAVehiclesGrid = function () {
 // Rental Agreement - Background info form
 // -------------------------------------------------------------------------------
 window.loadRABGInfoForm = function () {
+
+    var partType = app.raFlowPartTypes.bginfo;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
 
     // if form is loaded then return
     if (!("RABGInfoForm" in w2ui)) {
@@ -1706,6 +1857,27 @@ window.getRentablesGridInitalRecord = function (BID, gridLen) {
 };
 
 window.loadRARentablesGrid = function () {
+
+    var partType = app.raFlowPartTypes.rentables;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RARentablesGrid" in w2ui)) {
 
@@ -1812,7 +1984,6 @@ window.loadRARentablesGrid = function () {
     }, 500);
 };
 
-
 // -------------------------------------------------------------------------------
 // Rental Agreement - Fees Terms Grid
 // -------------------------------------------------------------------------------
@@ -1835,6 +2006,27 @@ window.getFeesTermsGridInitalRecord = function (BID, gridLen) {
 };
 
 window.loadRAFeesTermsGrid = function () {
+
+    var partType = app.raFlowPartTypes.feesterms;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RAFeesTermsGrid" in w2ui)) {
 
@@ -1964,34 +2156,34 @@ window.loadRAFeesTermsGrid = function () {
 var RACompConfig = {
     "dates": {
         loader: loadRADatesForm,
-        w2uiComp: "RADatesForm",
+        w2uiComp: "RADatesForm"
     },
     "people": {
         loader: loadRAPeopleForm,
-        w2uiComp: "RAPeopleForm",
+        w2uiComp: "RAPeopleForm"
     },
     "pets": {
         loader: loadRAPetsGrid,
-        w2uiComp: "RAPetsGrid",
+        w2uiComp: "RAPetsGrid"
     },
     "vehicles": {
         loader: loadRAVehiclesGrid,
-        w2uiComp: "RAVehiclesGrid",
+        w2uiComp: "RAVehiclesGrid"
     },
     "bginfo": {
         loader: loadRABGInfoForm,
-        w2uiComp: "RABGInfoForm",
+        w2uiComp: "RABGInfoForm"
     },
     "rentables": {
         loader: loadRARentablesGrid,
-        w2uiComp: "RARentablesGrid",
+        w2uiComp: "RARentablesGrid"
     },
     "feesterms": {
         loader: loadRAFeesTermsGrid,
-        w2uiComp: "RAFeesTermsGrid",
+        w2uiComp: "RAFeesTermsGrid"
     },
     "final": {
         loader: null,
-        w2uiComp: "",
-    },
+        w2uiComp: ""
+    }
 };
