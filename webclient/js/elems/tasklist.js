@@ -1,12 +1,13 @@
 "use strict";
 /*global
     w2ui, $, app, console, w2utils,
-    form_dirty_alert, addDateNavToToolbar, 
-    dtTextRender, dateFromString, taskDateRender, setToTLForm,
+    form_dirty_alert, addDateNavToToolbar, w2uiDateControlString,
+    dateFromString, taskDateRender, setToTLForm,
     taskFormDueDate,taskCompletionChange,taskFormDoneDate,
     openTaskForm,setInnerHTML,w2popup,ensureSession,dtFormatISOToW2ui,
     localtimeToUTC, createNewTaskList, getBUDfromBID,
     popupNewTaskListForm, getTLDs, getCurrentBID, getNewTaskListRecord,
+    closeTaskForm, setTaskButtonsState,
 */
 
 var TL = {
@@ -121,6 +122,7 @@ window.buildTaskListElements = function () {
                     case 'btnClose':
                         var no_callBack = function() { return false; },
                             yes_callBack = function() {
+                                closeTaskForm();
                                 w2ui.toplayout.hide('right',true);
                                 w2ui.tlsGrid.render();
                             };
@@ -225,6 +227,16 @@ window.buildTaskListElements = function () {
                 openTaskForm(r.BID,r.TID);
             };
         },
+        onRender: function (event) {
+            event.onComplete = function (event) {
+                setTaskButtonsState();
+            };
+        },
+        onReload: function(event) {
+            event.onComplete = function (event) {
+                setTaskButtonsState();
+            };
+        },
     });
 
     //------------------------------------------------------------------------
@@ -235,6 +247,27 @@ window.buildTaskListElements = function () {
         style: 'border: 0px; background-color: transparent;',
         formURL: '/webclient/html/formtask.html',
         url: '/v1/task',
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
+            ],
+            onClick: function (event) {
+                event.onComplete = function() {
+                    switch(event.target) {
+                    case 'btnClose':
+                        var no_callBack = function() { return false; },
+                            yes_callBack = function() {
+                                closeTaskForm();
+                                w2ui.tlLayout.render();
+                            };
+                        form_dirty_alert(yes_callBack, no_callBack);
+                        break;
+                    }
+                };
+            },
+        },
         fields: [
             { field: 'recid',        type: 'text',     required: false },
             { field: 'TID',          type: 'text',     required: false },
@@ -286,7 +319,9 @@ window.buildTaskListElements = function () {
                     }
                     //w2ui.tlsDetailGrid.url = '/v1/tl/'
                     w2ui.tlsDetailGrid.reload();
-                    w2popup.close();
+                    // w2popup.close();
+                    closeTaskForm();
+                    setTaskButtonsState();
                 })
                 .fail(function(/*data*/){
                     f.error("Save Tasklist failed.");
@@ -315,6 +350,11 @@ window.buildTaskListElements = function () {
                 } else if (event.target === "ChkDtDone") {
                     taskCompletionChange(event.value_new,"tskDtDone");
                 }
+            };
+        },
+        onRender: function(event) {
+            event.onComplete = function(event) {
+                setTaskButtonsState();
             };
         },
     });
@@ -600,28 +640,53 @@ window.taskDateRender = function (x) {
 //  
 //-----------------------------------------------------------------------------
 window.openTaskForm = function (bid,tid) {
+    TL.formBtnsDisabled = true;
     w2ui.taskForm.url = '/v1/task/' + bid + '/' + tid;
     w2ui.taskForm.request();
-    $().w2popup('open', {
-        title   : 'Task',
-        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
-        style   : 'padding: 15px 0px 0px 0px',
-        width   : 600,
-        height  : 400,
-        showMax : true,
-        onToggle: function (event) {
-            $(w2ui.taskForm.box).hide();
-            event.onComplete = function () {
-                $(w2ui.taskForm.box).show();
-                w2ui.taskForm.resize();
-            };
-        },
-        onOpen: function (event) {
-            event.onComplete = function () {
-                $('#w2ui-popup #form').w2render('taskForm');
-            };
-        }
-    });
+    var n = '' + tid;
+    w2ui.taskForm.header = 'Task ('+ (n === '0' ? 'new':n)  + ')';
+    w2ui.tlLayout.content('right', w2ui.taskForm);
+    w2ui.tlLayout.sizeTo('right', TL.TaskWidth);
+    w2ui.tlLayout.show('right');
+    w2ui.tlLayout.render();
+
+    // $().w2popup('open', {
+    //     title   : 'Task',
+    //     body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+    //     style   : 'padding: 15px 0px 0px 0px',
+    //     width   : 600,
+    //     height  : 400,
+    //     showMax : true,
+    //     onToggle: function (event) {
+    //         $(w2ui.taskForm.box).hide();
+    //         event.onComplete = function () {
+    //             $(w2ui.taskForm.box).show();
+    //             w2ui.taskForm.resize();
+    //         };
+    //     },
+    //     onOpen: function (event) {
+    //         event.onComplete = function () {
+    //             $('#w2ui-popup #form').w2render('taskForm');
+    //         };
+    //     }
+    // });
+};
+
+//-----------------------------------------------------------------------------
+// closeTaskForm - Close the task descriptor edit form
+// 
+// @params
+//     bid = business id
+//     tdid = task descriptor id
+//  
+// @returns
+//  
+//-----------------------------------------------------------------------------
+window.closeTaskForm = function (bid,tdid) {
+    w2ui.tlLayout.hide('right');
+    w2ui.tlLayout.sizeTo('right', 0);
+    w2ui.tlsDetailGrid.render();
+    TL.formBtnsDisabled = false;
 };
 
 //-----------------------------------------------------------------------------
@@ -724,3 +789,16 @@ window.taskCompletionChange = function (b,id) {
     setInnerHTML(id,s);
 };
 
+//-----------------------------------------------------------------------------
+// setTaskButtonsState - set the form Save / Delete button state to 
+//                       the value in TL.
+// 
+// @params
+//  
+// @returns 
+//  
+//-----------------------------------------------------------------------------
+window.setTaskButtonsState = function() {
+    $(w2ui.tlsCloseForm.box).find("button[name=save]").prop( "disabled", TL.formBtnsDisabled );
+    $(w2ui.tlsCloseForm.box).find("button[name=delete]").prop( "disabled", TL.formBtnsDisabled );
+};

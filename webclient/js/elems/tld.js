@@ -5,7 +5,7 @@
     openTaskDescForm, ensureSession, dtFormatISOToW2ui,
     dtFormatISOToW2ui, localtimeToUTC, setDefaultFormFieldAsPreviousRecord,
     getTLDInitRecord, getCurrentBID, getTDInitRecord, saveTaskListDefinition,
-    closeTaskDescForm,
+    closeTaskDescForm,setTaskDescButtonsState,
 */
 
 // Temporary storage for when a date is toggled off
@@ -353,8 +353,7 @@ window.buildTaskListDefElements = function () {
         },
         onRender: function (event) {
             event.onComplete = function (event) {
-                $(w2ui.tldsCloseForm.box).find("button[name=save]").prop( "disabled", TLD.formBtnsDisabled );
-                $(w2ui.tldsCloseForm.box).find("button[name=delete]").prop( "disabled", TLD.formBtnsDisabled );
+                setTaskDescButtonsState();
             };
         },
         onAdd: function (event) {
@@ -460,6 +459,7 @@ window.buildTaskListDefElements = function () {
                     w2ui.tldsDetailGrid.reload();
                     // w2popup.close();
                     closeTaskDescForm();
+                    setTaskDescButtonsState();
                 })
                 .fail(function(/*data*/){
                     f.error("Save TaskDescriptor failed.");
@@ -501,8 +501,7 @@ window.buildTaskListDefElements = function () {
         },
        onRender: function(event) {
             event.onComplete = function(event) {
-                $(w2ui.tldsCloseForm.box).find("button[name=save]").prop( "disabled", TLD.formBtnsDisabled );
-                $(w2ui.tldsCloseForm.box).find("button[name=delete]").prop( "disabled", TLD.formBtnsDisabled );
+                setTaskDescButtonsState();
             };
         },
         onChange: function(event) {
@@ -732,4 +731,16 @@ window.setToTLDForm = function (bid, id, d1,d2) {
     app.new_form_rec = false;  // mark as record exists
     app.form_is_dirty = false; // mark as no changes yet
 };
-
+//-----------------------------------------------------------------------------
+// setTaskDescButtonsState - set the form Save / Delete button state to 
+//                       the value in TL.
+// 
+// @params
+//  
+// @returns 
+//  
+//-----------------------------------------------------------------------------
+window.setTaskDescButtonsState = function() {
+    $(w2ui.tldsCloseForm.box).find("button[name=save]").prop( "disabled", TLD.formBtnsDisabled );
+    $(w2ui.tldsCloseForm.box).find("button[name=delete]").prop( "disabled", TLD.formBtnsDisabled );
+};
