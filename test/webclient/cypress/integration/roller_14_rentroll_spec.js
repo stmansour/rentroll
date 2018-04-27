@@ -1,11 +1,11 @@
 "use strict";
 
-import * as constants from '../utils/constants';
-import * as selectors from '../utils/get_selectors';
-import * as common from '../utils/common';
+import * as constants from '../support/utils/constants';
+import * as selectors from '../support/utils/get_selectors';
+import * as common from '../support/utils/common';
 
 // --- Collections --
-const section = require('../components/rentroll'); // Rent Roll
+const section = require('../support/components/rentroll'); // Rent Roll
 
 // this contain app variable of the application
 let appSettings;
@@ -60,6 +60,8 @@ describe('AIR Roller UI Tests - Rent Roll', function () {
         if (testConfig.haveDateValue) {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
+
+        cy.wait(constants.WAIT_TIME);
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
