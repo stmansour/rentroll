@@ -167,6 +167,11 @@
     height: 100%;
 }
 
+/* SPECIAL CASE FOR PETS, VEHICLES */
+.ra-form-component#pets .form-container, .ra-form-component#vehicles .form-container {
+    height: calc(100% - 40px);
+}
+
 div#save-ra-btn-container {
     position: absolute;
     width: 100%;
@@ -289,9 +294,9 @@ i.remove-item {
 }
 
 .cb-section {
-    padding-bottom: 10px;
-    padding-top: 10px;
+    padding: 10px;
     text-align: left;
+    height: 40px;
 }
 
 .cb-section label {
