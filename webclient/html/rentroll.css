@@ -4,6 +4,11 @@
 
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
+div, section {
+    box-sizing: border-box;
+    display: block;
+}
+
 table, td {
     border-collapse: collapse;
     font-family: "Open Sans","Roboto",sans-serif;

@@ -1,140 +1,142 @@
-<div id="ra-form-container">
-<section id="component-form-instance-container">
-  <div id="form-instance"></div>
-  <div class="clearfix"></div>
-</section>
-<section id="ra-form"> <!-- RA Form Section -->
-  <nav id="progressbar-nav">
-    <!-- progressbar -->
-    <ul id="progressbar">
-      <li class="active" data-target="#dates">
-        <a href="#">
-          <span class="step">1</span>
-          <span class="title">Info - Dates</span>
-        </a>
-      </li>
-      <li data-target="#people">
-        <a href="#">
-          <span class="step">2</span>
-          <span class="title">Payors, Users</span>
-        </a>
-      </li>
-      <li data-target="#pets">
-        <a href="#">
-          <span class="step">3</span>
-          <span class="title">Pets</span>
-        </a>
-      </li>
-      <li data-target="#vehicles">
-        <a href="#">
-          <span class="step">4</span>
-          <span class="title">Vehicles</span>
-        </a>
-      </li>
-      <li data-target="#bginfo">
-        <a href="#">
-          <span class="step">5</span>
-          <span class="title">Background Info</span>
-        </a>
-      </li>
-      <li data-target="#rentables">
-        <a href="#">
-          <span class="step">6</span>
-          <span class="title">Rentables</span>
-        </a>
-      </li>
-      <li data-target="#feesterms">
-        <a href="#">
-          <span class="step">7</span>
-          <span class="title">Fees, Terms</span>
-        </a>
-      </li>
-      <li data-target="#final">
-        <a href="#">
-          <span class="step">8</span>
-          <span class="title">Finish</span>
-        </a>
-      </li>
-    </ul>
-    <div class="clearfix"></div>
-  </nav>
-
-  <!-- info dates section -->
-  <section class="ra-form-component" id="dates">
-    <div class="form-container"></div>
-  </section>
-
-  <!-- payors, users section -->
-  <section class="ra-form-component" id="people">
-    <div class="form-container"></div>
-    <section id="people-type-containers">
-      <div id="payor-list" class="people-type">
-        <label>Payors</label>
-        <ul class="people-listing" data-people-type="payors"></ul>
-      </div>
-      <div id="user-list" class="people-type">
-        <label>Users</label>
-        <ul class="people-listing" data-people-type="users"></ul>
-      </div>
-      <div id="guarantor-list" class="people-type">
-        <label>Guarantors</label>
-        <ul class="people-listing" data-people-type="guarantors"></ul>
-      </div>
-      <div class="clearfix"></div>
-    </section>
-  </section>
-
-  <!-- pets section -->
-  <section class="ra-form-component" id="pets">
-      <section class="cb-section">
-          <label>
-              <input type="checkbox" id="RAPetsGrid_checkbox" onchange="lockOnGrid('RAPetsGrid')" />
-              Have pets?
-          </label>
-      </section>
-    <div class="form-container"></div>
-  </section>
-
-  <!-- vehicle section -->
-  <section class="ra-form-component" id="vehicles">
-      <section class="cb-section">
-          <label>
-              <input type="checkbox" id="RAVehiclesGrid_checkbox" onchange="lockOnGrid('RAVehiclesGrid')" />
-              Have vehicles?
-          </label>
-      </section>
-      <div class="form-container">Vehicles Section</div>
-  </section>
-
-  <!-- background info section -->
-  <section class="ra-form-component" id="bginfo">
-    <div class="form-container">Background Information Section</div>
-  </section>
-
-  <!-- rentables section -->
-  <section class="ra-form-component" id="rentables">
-    <div class="form-container">Rentables Section</div>
-  </section>
-
-  <!-- fees, terms section -->
-  <section class="ra-form-component" id="feesterms">
-    <div class="form-container">Fees Terms Section</div>
-  </section>
-
-  <!-- final section -->
-  <section class="ra-form-component" id="final">
-    <div class="form-container">Final Section</div>
-    <div id="save-ra-btn-container">
-      <button class="save-ra">Save Rental Agreement</button>
+<div id="raflow-container">
+    <div id="slider">
+        <section id="slider-content"></section>
+        <div class="clearfix"></div>
     </div>
-  </section>
+    <div id="ra-form"> <!-- RA Form Section -->
+        <nav id="progressbar">
+            <!-- progressbar -->
+            <ul id="steps-list">
+                <li class="active" data-target="#dates">
+                    <a href="#">
+                        <span class="step">1</span>
+                        <span class="title">Info - Dates</span>
+                    </a>
+                </li>
+                <li data-target="#people">
+                    <a href="#">
+                        <span class="step">2</span>
+                        <span class="title">Payors, Users</span>
+                    </a>
+                </li>
+                <li data-target="#pets">
+                    <a href="#">
+                        <span class="step">3</span>
+                        <span class="title">Pets</span>
+                    </a>
+                </li>
+                <li data-target="#vehicles">
+                    <a href="#">
+                        <span class="step">4</span>
+                        <span class="title">Vehicles</span>
+                    </a>
+                </li>
+                <li data-target="#bginfo">
+                    <a href="#">
+                        <span class="step">5</span>
+                        <span class="title">Background Info</span>
+                    </a>
+                </li>
+                <li data-target="#rentables">
+                    <a href="#">
+                        <span class="step">6</span>
+                        <span class="title">Rentables</span>
+                    </a>
+                </li>
+                <li data-target="#feesterms">
+                    <a href="#">
+                        <span class="step">7</span>
+                        <span class="title">Fees, Terms</span>
+                    </a>
+                </li>
+                <li data-target="#final">
+                    <a href="#">
+                        <span class="step">8</span>
+                        <span class="title">Finish</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="clearfix"></div>
+        </nav>
 
-  <!-- RA form footer part -->
-  <footer>
-    <button id="previous" class="w2ui-btn">Previous</button>
-    <button id="next" class="w2ui-btn">Next</button>
-    <div class="clearfix"></div>
-  </footer>
+        <!-- info dates section -->
+        <div id="section-wrapper">
+            <section class="ra-form-component" id="dates">
+                <div class="form-container"></div>
+            </section>
 
-</section> <!-- RA Form Section -->
+            <!-- payors, users section -->
+            <section class="ra-form-component" id="people">
+                <div class="form-container"></div>
+                <section id="people-type-containers">
+                    <div id="payor-list" class="people-type">
+                        <label>Payors</label>
+                        <ul class="people-listing" data-people-type="payors"></ul>
+                    </div>
+                    <div id="user-list" class="people-type">
+                        <label>Users</label>
+                        <ul class="people-listing" data-people-type="users"></ul>
+                    </div>
+                    <div id="guarantor-list" class="people-type">
+                        <label>Guarantors</label>
+                        <ul class="people-listing" data-people-type="guarantors"></ul>
+                    </div>
+                    <div class="clearfix"></div>
+                </section>
+            </section>
+
+            <!-- pets section -->
+            <section class="ra-form-component" id="pets">
+                    <section class="cb-section">
+                            <label>
+                                    <input type="checkbox" id="RAPetsGrid_checkbox" onchange="lockOnGrid('RAPetsGrid')" />
+                                    Have pets?
+                            </label>
+                    </section>
+                <div class="form-container"></div>
+            </section>
+
+            <!-- vehicle section -->
+            <section class="ra-form-component" id="vehicles">
+                    <section class="cb-section">
+                            <label>
+                                    <input type="checkbox" id="RAVehiclesGrid_checkbox" onchange="lockOnGrid('RAVehiclesGrid')" />
+                                    Have vehicles?
+                            </label>
+                    </section>
+                    <div class="form-container">Vehicles Section</div>
+            </section>
+
+            <!-- background info section -->
+            <section class="ra-form-component" id="bginfo">
+                <div class="form-container">Background Information Section</div>
+            </section>
+
+            <!-- rentables section -->
+            <section class="ra-form-component" id="rentables">
+                <div class="form-container">Rentables Section</div>
+            </section>
+
+            <!-- fees, terms section -->
+            <section class="ra-form-component" id="feesterms">
+                <div class="form-container">Fees Terms Section</div>
+            </section>
+
+            <!-- final section -->
+            <section class="ra-form-component" id="final">
+                <div class="form-container">Final Section</div>
+                <div id="save-ra-btn-container">
+                    <button class="save-ra">Save Rental Agreement</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- RA form footer part -->
+        <footer>
+            <button id="previous" class="w2ui-btn">Previous</button>
+            <button id="next" class="w2ui-btn">Next</button>
+            <div class="clearfix"></div>
+        </footer>
+
+    </div> <!-- RA Form Section -->
 </div>
