@@ -73,6 +73,9 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 		if err != nil {
 			return tlid, err
 		}
+		if t.DtPreDue.After(t.DtDue) {
+			t.DtPreDue = time.Date(t.DtDue.Year(), t.DtDue.Month(), t.DtPreDue.Day(), t.DtPreDue.Hour(), t.DtPreDue.Minute(), 0, 0, time.UTC)
+		}
 		// Console("%2d. %s, DtDue: %s, DtPreDue: %s\n", i, tds[i].Name, t.DtDue.Format(RRDATEREPORTFMT), t.DtPreDue.Format(RRDATEREPORTFMT))
 		t.Name = tds[i].Name
 		t.Worker = tds[i].Worker
