@@ -5,7 +5,7 @@
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
-    requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids
+    requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData
 */
 
 "use strict";
@@ -90,6 +90,53 @@ window.toggleHaveCheckBoxDisablity = function (gridName) {
     }
 };
 
+// getRAFlowPartData
+window.getRAFlowPartData = function (partType) {
+
+    var bid = getCurrentBID();
+
+    var flowPartID;
+    var flowParts = app.raflow.data[app.raflow.activeFlowID] || [];
+
+    for (var i = 0; i < flowParts.length; i++) {
+        if (partType == flowParts[i].PartType) {
+            flowPartID = flowParts[i].FlowPartID;
+            break;
+        }
+    }
+
+    // temporary data
+    var data = {
+        "cmd": "get",
+        "FlowPartID": flowPartID,
+        "Flow": app.raflow.name,
+        "FlowID": app.raflow.activeFlowID,
+        "BID": bid,
+        "PartType": partType
+    };
+
+
+    return $.ajax({
+        url: "/v1/flowpart/" + bid.toString() + "/" + flowPartID,
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status != "error"){
+                // app.raflow[app.raflow.activeFlowID]
+                console.log("Received data for activeFlowID:", app.raflow.activeFlowID, ", partType:", partType);
+            }else {
+                console.error(data.message);
+            }
+        },
+        error: function () {
+            console.log("Error:" + JSON.stringify(data));
+        }
+    });
+
+};
+
 // TODO: we should pass FlowID, flowPartID here in arguments
 window.saveActiveCompData = function (record, partType) {
 
@@ -101,6 +148,7 @@ window.saveActiveCompData = function (record, partType) {
     for (var i = 0; i < flowParts.length; i++) {
         if (partType == flowParts[i].PartType) {
             flowPartID = flowParts[i].FlowPartID;
+            break;
         }
     }
 
@@ -416,6 +464,27 @@ window.loadTargetSection = function (target, activeCompID) {
 // -------------------------------------------------------------------------------
 window.loadRADatesForm = function () {
 
+    var partType = app.raFlowPartTypes.dates;
+
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RADatesForm" in w2ui)) {
         // dates form
@@ -686,6 +755,26 @@ window.loadRAPeopleForm = function () {
         });
     }
 
+    var partType = app.raFlowPartTypes.people;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
 
     // if form is loaded then return
     if (!("RAPeopleForm" in w2ui)) {
@@ -821,6 +910,27 @@ window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
 };
 
 window.loadRAPetsGrid = function () {
+
+    var partType = app.raFlowPartTypes.pets;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RAPetsGrid" in w2ui)) {
 
@@ -1232,6 +1342,27 @@ window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
 };
 
 window.loadRAVehiclesGrid = function () {
+
+    var partType = app.raFlowPartTypes.vehicles;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
 
@@ -1601,6 +1732,26 @@ window.loadRAVehiclesGrid = function () {
 // -------------------------------------------------------------------------------
 window.loadRABGInfoForm = function () {
 
+    var partType = app.raFlowPartTypes.bginfo;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RABGInfoForm" in w2ui)) {
 
@@ -1706,6 +1857,27 @@ window.getRentablesGridInitalRecord = function (BID, gridLen) {
 };
 
 window.loadRARentablesGrid = function () {
+
+    var partType = app.raFlowPartTypes.rentables;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RARentablesGrid" in w2ui)) {
 
@@ -1812,7 +1984,6 @@ window.loadRARentablesGrid = function () {
     }, 500);
 };
 
-
 // -------------------------------------------------------------------------------
 // Rental Agreement - Fees Terms Grid
 // -------------------------------------------------------------------------------
@@ -1835,6 +2006,27 @@ window.getFeesTermsGridInitalRecord = function (BID, gridLen) {
 };
 
 window.loadRAFeesTermsGrid = function () {
+
+    var partType = app.raFlowPartTypes.feesterms;
+    var partTypeIndex = getRAFlowPartTypeIndex(partType);
+
+    if (partTypeIndex < 0){
+        return;
+    }
+
+    // Fetch data from the server if there is any record available.
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
+
     // if form is loaded then return
     if (!("RAFeesTermsGrid" in w2ui)) {
 
@@ -1964,34 +2156,34 @@ window.loadRAFeesTermsGrid = function () {
 var RACompConfig = {
     "dates": {
         loader: loadRADatesForm,
-        w2uiComp: "RADatesForm",
+        w2uiComp: "RADatesForm"
     },
     "people": {
         loader: loadRAPeopleForm,
-        w2uiComp: "RAPeopleForm",
+        w2uiComp: "RAPeopleForm"
     },
     "pets": {
         loader: loadRAPetsGrid,
-        w2uiComp: "RAPetsGrid",
+        w2uiComp: "RAPetsGrid"
     },
     "vehicles": {
         loader: loadRAVehiclesGrid,
-        w2uiComp: "RAVehiclesGrid",
+        w2uiComp: "RAVehiclesGrid"
     },
     "bginfo": {
         loader: loadRABGInfoForm,
-        w2uiComp: "RABGInfoForm",
+        w2uiComp: "RABGInfoForm"
     },
     "rentables": {
         loader: loadRARentablesGrid,
-        w2uiComp: "RARentablesGrid",
+        w2uiComp: "RARentablesGrid"
     },
     "feesterms": {
         loader: loadRAFeesTermsGrid,
-        w2uiComp: "RAFeesTermsGrid",
+        w2uiComp: "RAFeesTermsGrid"
     },
     "final": {
         loader: null,
-        w2uiComp: "",
-    },
+        w2uiComp: ""
+    }
 };
