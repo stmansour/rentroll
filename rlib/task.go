@@ -41,6 +41,9 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	if err != nil {
 		return tlid, err
 	}
+	if tl.DtPreDue.After(tl.DtDue) {
+		tl.DtPreDue = time.Date(tl.DtDue.Year(), tl.DtDue.Month(), tl.DtPreDue.Day(), tl.DtPreDue.Hour(), tl.DtPreDue.Minute(), 0, 0, time.UTC)
+	}
 
 	//----------------------------------------------------
 	// Create the new TaskList
