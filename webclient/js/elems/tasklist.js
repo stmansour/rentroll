@@ -4,10 +4,16 @@
     form_dirty_alert, addDateNavToToolbar, 
     dtTextRender, dateFromString, taskDateRender, setToTLForm,
     taskFormDueDate,taskCompletionChange,taskFormDoneDate,
-    popupTaskForm,setInnerHTML,w2popup,ensureSession,dtFormatISOToW2ui,
+    openTaskForm,setInnerHTML,w2popup,ensureSession,dtFormatISOToW2ui,
     localtimeToUTC, createNewTaskList, getBUDfromBID,
     popupNewTaskListForm, getTLDs, getCurrentBID, getNewTaskListRecord,
 */
+
+var TL = {
+    FormWidth: 450,
+    TaskWidth: 400,
+    formBtnsDisabled: false,
+};
 
 window.getNewTaskListRecord = function (bid) {
     var rec = {
@@ -216,7 +222,7 @@ window.buildTaskListElements = function () {
             event.onComplete = function (event) {
                 var r = w2ui.tlsDetailGrid.records[event.recid];
                 console.log( 'detail clicked: v1/tasks/' + r.BID + '/'+ r.TID);
-                popupTaskForm(r.BID,r.TID);
+                openTaskForm(r.BID,r.TID);
             };
         },
     });
@@ -584,7 +590,7 @@ window.taskDateRender = function (x) {
 };
 
 //-----------------------------------------------------------------------------
-// popupTaskForm - Bring up the task edit form
+// openTaskForm - Bring up the task edit form
 // 
 // @params
 //     bid = business id
@@ -593,7 +599,7 @@ window.taskDateRender = function (x) {
 // @returns
 //  
 //-----------------------------------------------------------------------------
-window.popupTaskForm = function (bid,tid) {
+window.openTaskForm = function (bid,tid) {
     w2ui.taskForm.url = '/v1/task/' + bid + '/' + tid;
     w2ui.taskForm.request();
     $().w2popup('open', {
