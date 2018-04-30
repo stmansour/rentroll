@@ -1775,15 +1775,6 @@ window.loadRABGInfoForm = function () {
                 {field: 'ApplicantDriverLicNo', type: 'text', required: true}, // Driving licence number of applicants
                 {field: 'ApplicantTelephoneNo', type: 'text', required: true}, // Telephone no of applicants
                 {field: 'ApplicantEmailAddress', type: 'email', required: true}, // Email Address of applicants
-                {field: 'CoApplicantFirstName', type: 'text'},
-                {field: 'CoApplicantMiddleName', type: 'text'},
-                {field: 'CoApplicantLastName', type: 'text'},
-                {field: 'CoApplicantBirthDate', type: 'date'}, // Date of births of co-applicants
-                {field: 'CoApplicantSSN', type: 'text'}, // Social security number of co-applicants
-                {field: 'CoApplicantDriverLicNo', type: 'text'}, // Driving licence number of co-applicants
-                {field: 'CoApplicantTelephoneNo', type: 'text'}, // Telephone no of co-applicants
-                {field: 'CoApplicantEmailAddress', type: 'email'}, // Email Address of co-applicants
-                {field: 'NoPeople', type: 'int', required: true}, // No. of people occupying apartment
                 {field: 'CurrentAddress', type: 'text', required: true}, // Current Address
                 {field: 'CurrentLandLoardName', type: 'text', required: true}, // Current landlord's name
                 {field: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
@@ -1802,11 +1793,6 @@ window.loadRABGInfoForm = function () {
                 {field: 'ApplicantAddress', type: 'text', required: true},
                 {field: 'ApplicantPosition', type: 'text', required: true},
                 {field: 'ApplicantGrossWages', type: 'money', required: true},
-                {field: 'CoApplicantEmployer', type: 'text'},
-                {field: 'CoApplicantPhone', type: 'text'},
-                {field: 'CoApplicantAddress', type: 'text'},
-                {field: 'CoApplicantPosition', type: 'text'},
-                {field: 'CoApplicantGrossWages', type: 'money'},
                 {field: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
                 {field: 'EmergencyContactName', type: 'text', required: true}, // Name of emergency contact
                 {field: 'EmergencyContactPhone', type: 'text', required: true}, // Phone number of emergency contact
@@ -1821,19 +1807,151 @@ window.loadRABGInfoForm = function () {
                 }*/
             }
         });
+
+        // transanctants info grid
+        $().w2grid({
+            name    : 'RABGInfoGrid',
+            header  : 'Background information',
+            show    : {
+                footer          : true
+            },
+            style   : 'border: 1px solid black; display: block;',
+            multiselect: false,
+            columns : [
+                {
+                    field: 'recid',
+                    hidden: true
+                },
+                {
+                    field: 'TCID',
+                    caption: 'TCID',
+                    size: '50px'
+                },
+                {
+                    field: 'FirstName',
+                    caption: 'First Name',
+                    size: '150px'
+                },
+                {
+                    field: 'MiddleName',
+                    caption: 'Middle Name',
+                    size: '150px'
+                },
+                {
+                    field: 'LastName',
+                    caption: 'Last Name',
+                    size: '150px'
+                },
+                {
+                    field: 'IsCompany',
+                    caption: 'Is Company',
+                    size: '100px',
+                    render: function (record){
+                        if(record.IsCompany){
+                            return '<i class="fas fa-check" title="IsCompany" aria-hidden="true"></i>';
+                        }else {
+                            return '<i class="fas fa-times" title="IsCompany" aria-hidden="true"></i>';
+                        }
+                    }
+                },
+                {
+                    field: 'CompanyName',
+                    caption: 'Company Name',
+                    size: '100px'
+                },
+                {
+                    field: 'IsPayor',
+                    caption: 'Is Payor',
+                    size: '100px',
+                    render: function (record){
+                        if(record.IsPayor){
+                            return '<i class="fas fa-check" title="IsPayor" aria-hidden="true"></i>';
+                        }
+                    }
+                },
+                {
+                    field: 'IsUser',
+                    caption: 'Is User',
+                    size: '100px',
+                    render: function (record){
+                        if(record.IsUser){
+                            return '<i class="fas fa-check" title="IsUser" aria-hidden="true"></i>';
+                        }
+                    }
+                },
+                {
+                    field: 'IsGuarantor',
+                    caption: 'Is Guarantor',
+                    size: '100px',
+                    render: function (record){
+                        if(record.IsGuarantor){
+                            return '<i class="fas fa-check" title="IsGuarantor" aria-hidden="true"></i>';
+                        }
+                    }
+                }
+            ]
+        });
+
     }
 
     // now load form in div
-    $('#ra-form #bginfo').w2render(w2ui.RABGInfoForm);
+    $('#ra-form #bginfo').w2render(w2ui.RABGInfoGrid);
 
-    // load the existing data in people component
+    var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    var data = app.raflow.data[app.raflow.activeFlowID][i].Data;
+
+    console.log(data);
+
+    var usersInfo = data.Users;
+    var payorsInfo = data.Payors;
+    var gurantorsInfo = data.Guarantors;
+
+    // Peopleinfo list      0           1           2
+    var peopleInfoList = [usersInfo, payorsInfo, gurantorsInfo];
+
+    var raBGInfoGridRecords = [];
+    for(i = 0; i < peopleInfoList.length; i++){
+        for(var j = 0; j < peopleInfoList[i].length; j++){
+
+            // Assign checks for peoplelists
+            switch (i){
+                case 0: // userInfo
+                    peopleInfoList[i][j].IsPayor = true;
+                    break;
+                case 1: // payorsInfo
+                    peopleInfoList[i][j].IsUser = true;
+                    break;
+                case 2: // gurantorsInfo
+                    peopleInfoList[i][j].IsGuarantor = true;
+                    break;
+            }
+
+            // // Is Company ?
+            // console.log(peopleInfoList[i][j].IsCompany);
+            // console.log(typeof peopleInfoList[i][j].IsCompany);
+            // if(peopleInfoList[i][j].IsCompany != 0){
+            //     peopleInfoList[i][j].IsCompany = 'Yes';
+            // }else {
+            //     peopleInfoList[i][j].IsCompany = 'No';
+            // }
+
+            raBGInfoGridRecords.push(peopleInfoList[i][j]);
+        }
+    }
+
+    console.log(raBGInfoGridRecords);
+
+    // load the existing data in Background Info grid
     setTimeout(function () {
+        var grid = w2ui.RABGInfoGrid;
+
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
-            w2ui.RABGInfoForm.refresh();
+            grid.records = raBGInfoGridRecords;
+            // w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
+            // w2ui.RABGInfoForm.refresh();
         } else {
-            w2ui.RABGInfoForm.clear();
+            grid.clear();
         }
     }, 500);
 };
