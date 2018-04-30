@@ -5,7 +5,8 @@
     loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
-    requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData
+    requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
+    openNewTransactantForm, getRAAddTransactantFormInitRec
 */
 
 "use strict";
@@ -652,6 +653,53 @@ window.loadTransactantListingItem = function (transactantRec, IsPayor, IsUser, I
 };
 
 //-----------------------------------------------------------------------------
+// openNewTransactantForm - popup new transactant form
+//-----------------------------------------------------------------------------
+window.openNewTransactantForm = function() {
+    var BID = getCurrentBID(),
+        BUD = getBUDfromBID(BID);
+
+    // this is new form so TCID is set to zero
+    w2ui.RAAddTransactantForm.url = "/v1/person/" + BID.toString() + "/0";
+    w2ui.RAAddTransactantForm.record = getRAAddTransactantFormInitRec(BID, BUD, null);
+    $("#raflow-container #slider").show();
+    $("#raflow-container #slider #slider-content").w2render(w2ui.RAAddTransactantForm);
+    w2ui.RAAddTransactantForm.refresh(); // need to refresh for header changes
+};
+
+//-----------------------------------------------------------------------------
+// getRAAddTransactantFormInitRec - returns object with default values for
+//                                  fields
+//-----------------------------------------------------------------------------
+window.getRAAddTransactantFormInitRec = function(BID, BUD, previousFormRecord) {
+
+    var defaultFormData = {
+        TCID: 0,
+        BID: BID,
+        BUD: BUD,
+        FirstName: "",
+        MiddleName: "",
+        LastName: "",
+        IsCompany: false,
+        CompanyName: "",
+        EligibleFutureUser: "yes",
+        EligibleFuturePayor: "yes",
+    };
+
+    // if it called after 'save and add another' action there previous form record is passed as Object
+    // else it is null
+    if ( previousFormRecord ) {
+        defaultFormData = setDefaultFormFieldAsPreviousRecord(
+            [ 'FirstName', 'MiddleName', 'LastName', 'IsCompany', 'CompanyName' ], // Fields to Reset
+            defaultFormData,
+            previousFormRecord
+        );
+    }
+
+    return defaultFormData;
+};
+
+//-----------------------------------------------------------------------------
 // acceptTransactant - add transactant to the list of payor/user/guarantor
 //
 // @params
@@ -853,6 +901,124 @@ window.loadRAPeopleForm = function () {
                 reset: function () {
                     this.clear();
                 }
+            }
+        });
+
+        // new transactant form especially for this RA flow
+        $().w2form({
+            name: 'RAAddTransactantForm',
+            header: 'Add New Transactant',
+            style: 'display: block;',
+            formURL: '/webclient/html/formra-addtransactant.html',
+            focus: -1,
+            fields: [
+                {name: 'BID', type: 'int', required: true, html: {page: 0, column: 0}},
+                {name: 'BUD', type: 'list', required: true, options: {items: app.businesses}, html: {page: 0, column: 0}},
+                {name: 'TCID', type: 'int', hidden: false, html: { caption: 'TCID', page: 0, column: 0 } },
+                {name: 'EligibleFuturePayor', type: 'text', required: true, html: {caption: "EligibleFuturePayor"}},
+                {name: 'EligibleFutureUser', type: 'text', required: true, html: {caption: "EligibleFutureUser"}},
+                {name: 'FirstName', type: 'text', required: true, html: {caption: "FirstName"}},
+                {name: 'LastName', type: 'text', required: true, html: {caption: "LastName"}},
+                {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
+                {name: 'CompanyName', type: 'text', required: false, html: {caption: "CompanyName"}},
+                {name: 'IsCompany', type: 'bool', required: false, html: {caption: "IsCompany"}},
+            ],
+            toolbar : {
+                items: [
+                    { id: 'bt3', type: 'spacer' },
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
+                            break;
+                    }
+                }
+            },
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                save: function() {
+                    var f = this;
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    f.save({}, function(data) {
+                        if (data.status === 'error') {
+                            f.message(data.message);
+                            return;
+                        }
+
+                        $("#raflow-container #slider").hide();
+                        $("#raflow-container #slider #slider-content").empty();
+                    });
+                },
+                saveadd: function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID),
+                        f = this;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    f.save({}, function(data) {
+                        if (data.status === 'error') {
+                            f.message(data.message);
+                            return;
+                        }
+
+                        f.record = getRAAddTransactantFormInitRec(BID, BUD, f.record);
+                        f.refresh();
+                    });
+                },
+            },
+            onSubmit: function(target, data) {
+                if (data.postData.record.IsCompany) {
+                    data.postData.record.IsCompany = 1;
+                } else {
+                    data.postData.record.IsCompany = 0;
+                }
+            },
+            onChange: function(event) {
+                event.onComplete = function() {
+                    if (this.record.IsCompany) {
+                        this.get("FirstName").required = false;
+                        this.get("MiddleName").required = false;
+                        this.get("LastName").required = false;
+                        this.get("CompanyName").required = true;
+                    } else {
+                        this.get("FirstName").required = true;
+                        this.get("MiddleName").required = true;
+                        this.get("LastName").required = true;
+                        this.get("CompanyName").required = false;
+                    }
+                    this.refresh();
+
+                    // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                    var diff = formRecDiffer(this.record, app.active_form_original, {});
+                    // if diff == {} then make dirty flag as false, else true
+                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                        app.form_is_dirty = false;
+                    } else {
+                        app.form_is_dirty = true;
+                    }
+                };
+            },
+            onRefresh: function(event) {
+                var f = this;
+                event.onComplete = function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    f.record.BID = BID;
+                    f.record.BUD = BUD;
+
+                    // there is NO PETID actually, so have to work around with recid key
+                    formRefreshCallBack(f, "TCID");
+                };
             }
         });
     }
