@@ -41,6 +41,9 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	if err != nil {
 		return tlid, err
 	}
+	if tl.DtPreDue.After(tl.DtDue) {
+		tl.DtPreDue = time.Date(tl.DtDue.Year(), tl.DtDue.Month(), tl.DtPreDue.Day(), tl.DtPreDue.Hour(), tl.DtPreDue.Minute(), 0, 0, time.UTC)
+	}
 
 	//----------------------------------------------------
 	// Create the new TaskList
@@ -69,6 +72,9 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 		t.DtPreDue, err = NextInstanceDate(&tds[i].EpochPreDue, pivot, tld.Cycle)
 		if err != nil {
 			return tlid, err
+		}
+		if t.DtPreDue.After(t.DtDue) {
+			t.DtPreDue = time.Date(t.DtDue.Year(), t.DtDue.Month(), t.DtPreDue.Day(), t.DtPreDue.Hour(), t.DtPreDue.Minute(), 0, 0, time.UTC)
 		}
 		// Console("%2d. %s, DtDue: %s, DtPreDue: %s\n", i, tds[i].Name, t.DtDue.Format(RRDATEREPORTFMT), t.DtPreDue.Format(RRDATEREPORTFMT))
 		t.Name = tds[i].Name

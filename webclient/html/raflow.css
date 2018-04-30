@@ -1,35 +1,65 @@
-#ra-form-container ul {
+.clearfix {
+    clear: both;
+}
+
+#raflow-container {
+    width: 100%;
+    height: 100%;
+    font-family: "Lato", "Lucida Grande", "Lucida Sans Unicode", Tahoma, Sans-Serif;
+    position: relative;
+}
+
+#raflow-container #slider {
+    position: absolute;
+    right: 0px;
+    width: 900px;
+    z-index: 100;
+    display: none;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#raflow-container #slider #slider-content {
+    width: 400px;
+    float: right;
+    height: 100%;
+    background-color: #EFEFEF !important;
+    border-left: 2px solid rgb(207, 207, 207);
+}
+
+/* ----------- */
+/* PROGRESSBAR */
+/* ----------- */
+#raflow-container ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.clearfix {
-    clear: both;
-}
-
-#progressbar-nav {
-    margin: 0;
-    padding: 0;
-    display: block;
-}
-
 #progressbar {
+    width: 100%;
+    height: 100px;
+    padding-top: 20px;
+    margin: 0;
+}
+
+#progressbar #steps-list {
     list-style-type: none;
     padding: 0;
     margin: 0;
+    height: 100%;
     counter-reset: step;
 }
 
-#progressbar li {
+#progressbar #steps-list li {
     display: block;
     float: left;
     width: 12.5%;
     text-align: center;
-    height: 84px;
+    height: 100%;
 }
 
-#progressbar li:before {
+#progressbar #steps-list li:before {
     background-color: #DDD;
     top: 20px;
     display: block;
@@ -41,19 +71,19 @@
     z-index: 1;
 }
 
-#progressbar li:first-child:before {
+#progressbar #steps-list li:first-child:before {
     left: 100%;
 }
 
-#progressbar li:after {
+#progressbar #steps-list li:after {
     margin-bottom: 40px;
 }
 
-#progressbar li a {
+#progressbar #steps-list li a {
     text-decoration: none;
 }
 
-#progressbar li a span.step {
+#progressbar #steps-list li a span.step {
     width: 34px;
     height: 34px;
     padding-top: 9px;
@@ -64,15 +94,14 @@
     background-color: #9D9D9D;
     color: white;
     position: relative;
-    z-index: 100;
+    z-index: 50;
     display: inline-block;
     text-align: center;
-    box-sizing: border-box;
     max-width: 100%;
     border: 1px transparent solid;
 }
 
-#progressbar li a span.title {
+#progressbar #steps-list li a span.title {
     display: block;
     color: #BDBDBD;
     position: relative;
@@ -81,47 +110,49 @@
     font-size: 14px;
 }
 
-#progressbar li.active a span.step {
+#progressbar #steps-list li.active a span.step {
     border: 1px transparent solid;
     background-color: #0091d9;
 }
 
-#progressbar li.active a span.title {
+#progressbar #steps-list li.active a span.title {
     color: black;
 }
 
-#progressbar li.done a span.step {
+#progressbar #steps-list li.done a span.step {
     background-color: #00AF00;
 }
 
-#progressbar li.done a span.title {
+#progressbar #steps-list li.done a span.title {
     color: #00af00;
 }
 
-#progressbar li.done.active a span.step {
+#progressbar #steps-list li.done.active a span.step {
     border: none;
 }
 
-#ra-form-container {
-    width: 100%;
-    height: 100%;
-    font-family: "Lato", "Lucida Grande", "Lucida Sans Unicode", Tahoma, Sans-Serif;
-    position: relative;
-}
+/* ------------- */
+/* RA FLOW PARTS */
+/* ------------- */
 
 #ra-form {
     width: 100%;
+    height: 100%;
     margin: 0 auto;
-    padding: 20px 40px 0px 40px;
+    padding: 0 40px;
     text-align: center;
     position: relative;
 }
 
+#section-wrapper {
+    height: calc(100% - (100px + 70px));
+    height: -webkit-calc(100% - (100px + 70px));
+    height: -moz-calc(100% - (100px + 70px));
+}
+
 .ra-form-component {
-    /*width: 80%;*/
     margin: 0 auto;
-    min-height: 360px;
-    height: 70%;
+    height: 100%;
     border: 1px #555 solid;
     position: relative;
 }
@@ -134,6 +165,11 @@
     display: block;
     width: 100%;
     height: 100%;
+}
+
+/* SPECIAL CASE FOR PETS, VEHICLES */
+.ra-form-component#pets .form-container, .ra-form-component#vehicles .form-container {
+    height: calc(100% - 40px);
 }
 
 div#save-ra-btn-container {
@@ -158,10 +194,11 @@ button.save-ra {
 }
 
 #ra-form footer {
-    /*width: 80%;*/
-    margin: 10px auto 0px auto;
+    width: 100%;
+    margin: 0px auto;
     position: relative;
-    padding: 10px 20px;
+    padding: 20px 10px 10px;
+    height: 70px;
 }
 
 #ra-form footer button#previous {
@@ -173,7 +210,7 @@ button.save-ra {
 }
 
 .ra-form-component#people .form-container {
-    height: 130px;
+    height: 100%;
 }
 
 .ra-form-component#people .form-container label {
@@ -203,7 +240,6 @@ button.save-ra {
     width: 30%;
     margin: 0 1.5%;
     float: left;
-    box-sizing: border-box;
     height: 100%;
     display: block;
 }
@@ -213,8 +249,7 @@ button.save-ra {
 }
 
 .people-type .people-listing {
-    box-sizing: border-box;
-    height: 185px;
+    height: calc(100% - 45px);
     display: block;
     border: 1px black solid;
     background-color: #F2F2F2;
@@ -258,36 +293,10 @@ i.remove-item {
     margin-right: 3px;
 }
 
-#ra-form-container #component-form-instance-container {
-    position: absolute;
-    right: 0px;
-    width: 900px;
-    z-index: 130;
-    display: none;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-#ra-form-container #component-form-instance-container #form-instance {
-    width: 400px;
-    float: right;
-    height: 100%;
-    background-color: #EFEFEF !important;
-    border-left: 2px solid rgb(207, 207, 207);
-}
-
-.ra-form-component#pets .form-container {
-    height: 325px;
-}
-
-.ra-form-component#vehicles .form-container {
-    height: 325px;
-}
-
 .cb-section {
-    padding-bottom: 10px;
-    padding-top: 10px;
+    padding: 10px;
     text-align: left;
+    height: 40px;
 }
 
 .cb-section label {

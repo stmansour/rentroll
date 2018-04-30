@@ -2,9 +2,10 @@
 /*global
     w2ui, $, app, console,setToTLDForm, w2alert,
     form_dirty_alert, addDateNavToToolbar, w2utils, w2popup,
-    popupTaskDescForm, ensureSession, dtFormatISOToW2ui,
+    openTaskDescForm, ensureSession, dtFormatISOToW2ui,
     dtFormatISOToW2ui, localtimeToUTC, setDefaultFormFieldAsPreviousRecord,
     getTLDInitRecord, getCurrentBID, getTDInitRecord, saveTaskListDefinition,
+    closeTaskDescForm,setTaskDescButtonsState,
 */
 
 // Temporary storage for when a date is toggled off
@@ -16,6 +17,12 @@ var TLData = {
     sEpoch: '',
     sEpochDue: '',
     sEpochPreDue: '',
+};
+
+var TLD = {
+    FormWidth: 450,
+    TaskDescWidth: 400,
+    formBtnsDisabled: false,
 };
 
 window.getTLDInitRecord = function (BID, previousFormRecord){
@@ -199,6 +206,7 @@ window.buildTaskListDefElements = function () {
                     case 'btnClose':
                         var no_callBack = function() { return false; },
                             yes_callBack = function() {
+                                closeTaskDescForm();
                                 w2ui.toplayout.hide('right',true);
                                 w2ui.tlsGrid.render();
                             };
@@ -340,7 +348,12 @@ window.buildTaskListDefElements = function () {
         onClick: function(event) {
             event.onComplete = function (event) {
                 var r = w2ui.tldsDetailGrid.records[event.recid];
-                popupTaskDescForm(r.BID,r.TDID);
+                openTaskDescForm(r.BID,r.TDID);
+            };
+        },
+        onRender: function (event) {
+            event.onComplete = function (event) {
+                setTaskDescButtonsState();
             };
         },
         onAdd: function (event) {
@@ -351,7 +364,7 @@ window.buildTaskListDefElements = function () {
                     return;  // an error occurred.
                 }
             }
-            popupTaskDescForm(w2ui.tldsInfoForm.record.BID,0);
+            openTaskDescForm(w2ui.tldsInfoForm.record.BID,0);
         }
     });
 
@@ -363,6 +376,27 @@ window.buildTaskListDefElements = function () {
         style: 'border: 0px; background-color: transparent;',
         formURL: '/webclient/html/formtd.html',
         url: '/v1/td',
+        toolbar: {
+            items: [
+                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
+            ],
+            onClick: function (event) {
+                event.onComplete = function() {
+                    switch(event.target) {
+                    case 'btnClose':
+                        var no_callBack = function() { return false; },
+                            yes_callBack = function() {
+                                closeTaskDescForm();
+                                w2ui.tldLayout.render();
+                            };
+                        form_dirty_alert(yes_callBack, no_callBack);
+                        break;
+                    }
+                };
+            },
+        },
         fields: [
             { field: 'recid',          type: 'int',         required: false },
             { field: 'TDID',           type: 'int',         required: false },
@@ -423,7 +457,9 @@ window.buildTaskListDefElements = function () {
                     }
                     w2ui.tldsDetailGrid.url='/v1/tds/'+w2ui.taskDescForm.record.BID+'/'+w2ui.taskDescForm.record.TLDID;
                     w2ui.tldsDetailGrid.reload();
-                    w2popup.close();
+                    // w2popup.close();
+                    closeTaskDescForm();
+                    setTaskDescButtonsState();
                 })
                 .fail(function(/*data*/){
                     f.error("Save TaskDescriptor failed.");
@@ -444,7 +480,8 @@ window.buildTaskListDefElements = function () {
                         return;
                     }
                     w2ui.tldsDetailGrid.reload();
-                    w2popup.close();
+                    // w2popup.close();
+                    closeTaskDescForm();
                 })
                 .fail(function(/*data*/){
                     f.error("Delete TaskDescriptor failed.");
@@ -460,6 +497,11 @@ window.buildTaskListDefElements = function () {
                 }
                 r.EpochPreDue = dtFormatISOToW2ui(r.EpochPreDue);
                 r.EpochDue    = dtFormatISOToW2ui(r.EpochDue);
+            };
+        },
+       onRender: function(event) {
+            event.onComplete = function(event) {
+                setTaskDescButtonsState();
             };
         },
         onChange: function(event) {
@@ -604,7 +646,6 @@ window.saveTaskListDefinition = function (hide, reloadTldsInfo) {
         if (reloadTldsInfo) {
             w2ui.tldsInfoForm.reload();
         }
-
     })
     .fail(function(/*data*/){
         w2ui.tldsInfoForm.error("Save Tasklist failed.");
@@ -614,7 +655,7 @@ window.saveTaskListDefinition = function (hide, reloadTldsInfo) {
 };
 
 //-----------------------------------------------------------------------------
-// popupTaskDescForm - Bring up the task descriptor edit form
+// openTaskDescForm - Bring up the task descriptor edit form
 // 
 // @params
 //     bid = business id
@@ -623,7 +664,8 @@ window.saveTaskListDefinition = function (hide, reloadTldsInfo) {
 // @returns
 //  
 //-----------------------------------------------------------------------------
-window.popupTaskDescForm = function (bid,tdid) {
+window.openTaskDescForm = function (bid,tdid) {
+    TLD.formBtnsDisabled = true;
     if (tdid > 0) {
         w2ui.taskDescForm.url = '/v1/td/' + bid + '/' + tdid;
         w2ui.taskDescForm.request();
@@ -632,29 +674,29 @@ window.popupTaskDescForm = function (bid,tdid) {
         w2ui.taskDescForm.record = getTDInitRecord(bid, tdid, null);
     }
     var n = '' + tdid;
-    var s = 'Task Descriptor  ('+ (n === '0' ? 'new':n)  + ')';
-    $().w2popup('open', {
-        title   : s,
-        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
-        style   : 'padding: 15px 0px 0px 0px',
-        width   : 600,
-        height  : 450,
-        showMax : true,
-        onToggle: function (event) {
-            $(w2ui.taskDescForm.box).hide();
-            event.onComplete = function () {
-                $(w2ui.taskDescForm.box).show();
-                w2ui.taskDescForm.resize();
-            };
-        },
-        onOpen: function (event) {
-            event.onComplete = function () {
-                $('#w2ui-popup #form').w2render('taskDescForm');
-            };
-        }
-    });
+    w2ui.taskDescForm.header = 'Task Descriptor  ('+ (n === '0' ? 'new':n)  + ')';
+    w2ui.tldLayout.content('right', w2ui.taskDescForm);
+    w2ui.tldLayout.sizeTo('right', TLD.TaskDescWidth);
+    w2ui.tldLayout.show('right');
+    w2ui.tldLayout.render();
 };
 
+//-----------------------------------------------------------------------------
+// closeTaskDescForm - Close the task descriptor edit form
+// 
+// @params
+//     bid = business id
+//     tdid = task descriptor id
+//  
+// @returns
+//  
+//-----------------------------------------------------------------------------
+window.closeTaskDescForm = function (bid,tdid) {
+    w2ui.tldLayout.hide('right');
+    w2ui.tldLayout.sizeTo('right', 0);
+    w2ui.tldsDetailGrid.render();
+    TLD.formBtnsDisabled = false;
+};
 
 //-----------------------------------------------------------------------------
 // setToTLDForm - enable the Task List Definition form.  Also, set
@@ -684,9 +726,21 @@ window.setToTLDForm = function (bid, id, d1,d2) {
     }
     w2ui.toplayout.content('right', w2ui.tldLayout);
     w2ui.toplayout.show('right', true);
-    w2ui.toplayout.sizeTo('right', 600);
+    w2ui.toplayout.sizeTo('right', 700);
     w2ui.toplayout.render();
     app.new_form_rec = false;  // mark as record exists
     app.form_is_dirty = false; // mark as no changes yet
 };
-
+//-----------------------------------------------------------------------------
+// setTaskDescButtonsState - set the form Save / Delete button state to 
+//                       the value in TL.
+// 
+// @params
+//  
+// @returns 
+//  
+//-----------------------------------------------------------------------------
+window.setTaskDescButtonsState = function() {
+    $(w2ui.tldsCloseForm.box).find("button[name=save]").prop( "disabled", TLD.formBtnsDisabled );
+    $(w2ui.tldsCloseForm.box).find("button[name=delete]").prop( "disabled", TLD.formBtnsDisabled );
+};

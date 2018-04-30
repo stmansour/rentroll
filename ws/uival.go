@@ -89,26 +89,11 @@ func GetTLDs(ctx context.Context, bid int64) (map[string][]IDTextMap, error) {
 		return appData, err
 	}
 
-	// m, err := rlib.GetAllTaskListDefinitions(ctx, bid)
-	// if err != nil {
-	// 	return appData, err
-	// }
-	// rlib.Console("GetAllTaskListDefinitions return m, len = %d\n", len(m))
-
-	var m []rlib.TaskListDefinition
-	q := fmt.Sprintf("SELECT %s FROM TaskListDefinition WHERE BID=%d AND FLAGS & 1 = 0", rlib.RRdb.DBFields["TaskListDefinition"], bid)
-	rows, err := rlib.RRdb.Dbrr.Query(q)
+	m, err := rlib.GetAllTaskListDefinitions(ctx, bid)
 	if err != nil {
-		return nil, err
+		return appData, err
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var a rlib.TaskListDefinition
-		if err = rlib.ReadTaskListDefinitions(rows, &a); err != nil {
-			return nil, err
-		}
-		m = append(m, a)
-	}
+	rlib.Console("GetAllTaskListDefinitions return m, len = %d\n", len(m))
 
 	for i := 0; i < len(m); i++ {
 		list = append(list, IDTextMap{ID: m[i].TLDID, Text: m[i].Name})

@@ -25,7 +25,7 @@ window.setToNewRAForm = function (bid, FlowID) {
         w2ui.newraLayout.content('main', data);
         w2ui.toplayout.render();
         $(".ra-form-component").hide();
-        $("#progressbar li").removeClass("active done"); // remove activeClass from all li
+        $("#progressbar #steps-list li").removeClass("active done"); // remove activeClass from all li
 
         setTimeout(function() {
             $("#ra-form footer button#previous").prop("disabled", true);
