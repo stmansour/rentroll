@@ -23,13 +23,13 @@ describe('AIR Roller UI Tests - RA Statements', function () {
 
     // -- Perform operation before all tests starts. It runs once before all tests in the block --
     /********************************
-    * Login into application
-    * Select node from left sidebar
-    * Route the response for grid records
-    *
-    * Expect:
-    * Grid records response must have status flag as success.
-    ********************************/
+     * Login into application
+     * Select node from left sidebar
+     * Route the response for grid records
+     *
+     * Expect:
+     * Grid records response must have status flag as success.
+     ********************************/
     before(function () {
 
         testConfig = section.conf;
@@ -60,6 +60,8 @@ describe('AIR Roller UI Tests - RA Statements', function () {
         if (testConfig.haveDateValue) {
             common.changeDate(testConfig.sidebarID, testConfig.fromDate, testConfig.toDate);
         }
+
+        cy.wait(constants.WAIT_TIME);
 
         // Check http status
         cy.wait('@getRecords').its('status').should('eq', constants.HTTP_OK_STATUS);
@@ -106,26 +108,26 @@ describe('AIR Roller UI Tests - RA Statements', function () {
     });
 
     /***********************
-    * Iterate through each cell.
-    *
-    * Expect:
-    * Cell value must be same as record's field value from API Response.
-    ***********************/
+     * Iterate through each cell.
+     *
+     * Expect:
+     * Cell value must be same as record's field value from API Response.
+     ***********************/
     it('Grid Records', function () {
         common.testGridRecords(recordsAPIResponse, noRecordsInAPIResponse, testConfig);
     });
 
     /*******************************
-    * Click on first record of grid
-    *
-    * Expect:
-    * White section must have proper detail same as api response
-    * Grid's value must be same as record's field value from API Response
-    *
-    * Check visibility of CSV/PDF Button
-    *
-    * Close the form
-    ********************************/
+     * Click on first record of grid
+     *
+     * Expect:
+     * White section must have proper detail same as api response
+     * Grid's value must be same as record's field value from API Response
+     *
+     * Check visibility of CSV/PDF Button
+     *
+     * Close the form
+     ********************************/
     it('Record Detail Form', function () {
         // ----------------------------------
         // -- Tests for detail record form --
