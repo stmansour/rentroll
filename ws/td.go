@@ -20,14 +20,14 @@ type SearchTaskDescriptor struct {
 	TDID           int64
 	BID            int64
 	TLDID          int64
-	Name           string
+	Name           string `json:"TDName"`
 	Worker         string
 	EpochDue       rlib.JSONDateTime
 	EpochPreDue    rlib.JSONDateTime
 	ChkEpochDue    bool
 	ChkEpochPreDue bool
 	FLAGS          int64
-	Comment        string
+	Comment        string    `json:"TDComment"`
 	LastModTime    time.Time // when was this record last written
 	LastModBy      int64     // employee UID (from phonebook) that modified it
 	CreateTS       time.Time // when was this record created
@@ -51,13 +51,13 @@ type SaveTaskDescriptor struct {
 	TDID           int64
 	BID            int64
 	TLDID          int64
-	Name           string
+	Name           string `json:"TDName"`
 	Worker         string
 	EpochDue       rlib.JSONDateTime
 	EpochPreDue    rlib.JSONDateTime
 	ChkEpochDue    bool
 	ChkEpochPreDue bool
-	Comment        string
+	Comment        string `json:"TDComment"`
 }
 
 // SaveTaskDescriptorInput is the input data format for a Save command

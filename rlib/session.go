@@ -402,7 +402,7 @@ func GetSession(ctx context.Context, w http.ResponseWriter, r *http.Request) (*S
 			e := fmt.Errorf("%s", b.Message)
 			return nil, e
 		}
-		// Console("Directory Service Expire time = %s\n", time.Time(b.Expire).Format(RRDATETIMEINPFMT))
+		Console("Directory Service Expire time = %s\n", time.Time(b.Expire).Format(RRDATETIMEINPFMT))
 		s, err := CreateSession(ctx, &b)
 		if err != nil {
 			return nil, err
@@ -412,6 +412,11 @@ func GetSession(ctx context.Context, w http.ResponseWriter, r *http.Request) (*S
 		return s, nil
 	}
 	// Console("GetSession 7\n")
+	Console("sess.Username = %s\n", sess.Username)
+	Console("sess.UID = %d\n", sess.UID)
+	Console("sess.Token = %s\n", sess.Token)
+	Console("sess.Name = %s\n", sess.Name)
+	Console("sess.Expires = %s\n", sess.Expire.Format(RRDATETIMEINPFMT))
 	return sess, nil
 }
 

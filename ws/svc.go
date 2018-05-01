@@ -231,18 +231,24 @@ func SvcInit(noauth bool) {
 
 func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error {
 	var err error
+	// rlib.Console("A\n")
 	if !SvcCtx.NoAuth {
+		// rlib.Console("B\n")
 		rlib.Console("calling GetSession\n")
 		d.sess, err = rlib.GetSession((*r).Context(), w, (*r))
 		if err != nil {
+			// rlib.Console("C\n")
 			rlib.Console("*** GetSession returned error: %s\n", err.Error())
 			// SvcErrorReturn(w, err, funcname)
 			return err
 		}
+		// rlib.Console("D\n")
 		if d.sess != nil {
+			rlib.Console("E, d.sess.UID = %d, d.sess.Username = %s\n", d.sess.UID, d.sess.Username)
 			if d.sess.UID == 0 || len(d.sess.Username) == 0 {
 				return fmt.Errorf("SessionToken expired, please log in")
 			}
+			// rlib.Console("F\n")
 			rlib.Console("*** GetSession found sess: %s\n", d.sess.Token)
 			rlib.Console("Session.Username: %s\n", d.sess.Username)
 
@@ -254,19 +260,24 @@ func findSession(w http.ResponseWriter, r **http.Request, d *ServiceData) error 
 			if err != nil {
 				return err
 			}
+			// rlib.Console("G\n")
 			if c.Status != "success" {
+				// rlib.Console("H\n")
 				rlib.SessionDelete(d.sess, w, *r)
 				d.sess = nil
 				e := fmt.Errorf("No session, please log in")
 				return e
 			}
+			// rlib.Console("I\n")
 
 			d.sess.Refresh(w, (*r)) // they actively tried to use the session, extend timeout
 		}
+		// rlib.Console("J\n")
 		// get session in the request context
 		ctx := rlib.SetSessionContextKey((*r).Context(), d.sess)
 		(*r) = (*r).WithContext(ctx)
 	}
+	// rlib.Console("K\n")
 	return nil
 }
 

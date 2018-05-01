@@ -201,7 +201,7 @@ window.buildTaskListElements = function () {
             { field: 'TID',         caption: 'TID',         size: '35px', sotrable: true, hidden: true},
             { field: 'BID',         caption: 'BID',         size: '35px', sotrable: true, hidden: true},
             { field: 'TLID',        caption: 'TLID',        size: '35px', sotrable: true, hidden: true},
-            { field: 'Name',        caption: 'Name',        size: '120px', sotrable: true, hidden: false},
+            { field: 'TaskName',    caption: 'Name',        size: '120px', sotrable: true, hidden: false},
             { field: 'Worker',      caption: 'Worker',      size: '75px', sotrable: true, hidden: false},
             { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false},
             { field: 'DtPreDone',   caption: 'DtPreDone',   size: '80px', sotrable: true, hidden: false,
@@ -214,7 +214,7 @@ window.buildTaskListElements = function () {
             { field: 'FLAGS',       caption: 'FLAGS',       size: '35px', sotrable: true, hidden: true},
             { field: 'DoneUID',     caption: 'DoneUID',     size: '35px', sotrable: true, hidden: true},
             { field: 'PreDoneUID',  caption: 'PreDoneUID',  size: '35px', sotrable: true, hidden: true},
-            { field: 'Comment',     caption: 'Comment',     size: '35px', sotrable: true, hidden: true},
+            { field: 'TaskComment', caption: 'Comment',     size: '35px', sotrable: true, hidden: true},
             { field: 'LastModTime', caption: 'LastModTime', size: '35px', sotrable: true, hidden: true},
             { field: 'LastModBy',   caption: 'LastModBy',   size: '35px', sotrable: true, hidden: true},
             { field: 'CreateTS',    caption: 'CreateTS',    size: '35px', sotrable: true, hidden: true},
@@ -273,7 +273,7 @@ window.buildTaskListElements = function () {
             { field: 'TID',          type: 'text',     required: false },
             { field: 'BID',          type: 'text',     required: false },
             { field: 'TLID',         type: 'text',     required: false },
-            { field: 'Name',         type: 'text',     required: true  },
+            { field: 'TaskName',     type: 'text',     required: true  },
             { field: 'Worker',       type: 'text',     required: false },
             { field: 'DtDue',        type: 'text',     required: false },
             { field: 'DtPreDue',     type: 'text',     required: false },
@@ -282,7 +282,7 @@ window.buildTaskListElements = function () {
             { field: 'FLAGS',        type: 'text',     required: false },
             { field: 'DoneUID',      type: 'text',     required: false },
             { field: 'PreDoneUID',   type: 'text',     required: false },
-            { field: 'Comment',      type: 'text',     required: false },
+            { field: 'TaskComment',  type: 'text',     required: false },
             { field: 'LastModTime',  type: 'date',     required: false },
             { field: 'LastModBy',    type: 'int',      required: false },
             { field: 'CreateTS',     type: 'date',     required: false },
@@ -336,10 +336,10 @@ window.buildTaskListElements = function () {
                 if (typeof r.DtPreDue === "undefined") {
                     return;
                 }
-                r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue','no pre-due date');
-                r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',   'no due date');
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone,  'tskDtPreDone', 'tskPreOverdue');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone,     'tskDtDone', 'tskOverdue');
+                r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue',  'no pre-due date'               );
+                r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',     'no due date'                   );
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, 'tskDtPreDone',  'tskPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    'tskDtDone',     'tskOverdue'   );
             };
         },
         onChange: function(event) {
