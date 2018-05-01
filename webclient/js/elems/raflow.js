@@ -989,11 +989,13 @@ window.loadRAPeopleForm = function () {
                         this.get("MiddleName").required = false;
                         this.get("LastName").required = false;
                         this.get("CompanyName").required = true;
+                        this.get("IsCompany").required = true;
                     } else {
                         this.get("FirstName").required = true;
                         this.get("MiddleName").required = true;
                         this.get("LastName").required = true;
                         this.get("CompanyName").required = false;
+                        this.get("IsCompany").required = false;
                     }
                     this.refresh();
 
