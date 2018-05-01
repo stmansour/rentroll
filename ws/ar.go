@@ -14,29 +14,31 @@ import (
 // ARSendForm is a structure specifically for the UI. It will be
 // automatically populated from an rlib.AR struct
 type ARSendForm struct {
-	Recid            int64 `json:"recid"` // this is to support the w2ui form
-	ARID             int64
-	BUD              rlib.XJSONBud
-	BID              int64
-	Name             string
-	ARType           int64
-	DebitLID         int64
-	DebitLedgerName  string
-	CreditLID        int64
-	CreditLedgerName string
-	Description      string
-	DtStart          rlib.JSONDate
-	DtStop           rlib.JSONDate
-	FLAGS            uint64
-	raRequired       int
-	PriorToRAStart   bool // is it ok to charge prior to RA start
-	PriorToRAStop    bool // is it ok to charge after RA stop
-	ApplyRcvAccts    bool // if true, mark the receipt as fully paid based on RcvAccts
-	RAIDrqd          bool // if true, it will require receipts to supply a RAID
-	LastModTime      rlib.JSONDateTime
-	LastModBy        int64
-	CreateTS         rlib.JSONDateTime
-	CreateBy         int64
+	Recid               int64 `json:"recid"` // this is to support the w2ui form
+	ARID                int64
+	BUD                 rlib.XJSONBud
+	BID                 int64
+	Name                string
+	ARType              int64
+	DebitLID            int64
+	DebitLedgerName     string
+	CreditLID           int64
+	CreditLedgerName    string
+	Description         string
+	DtStart             rlib.JSONDate
+	DtStop              rlib.JSONDate
+	FLAGS               uint64
+	AutoPopulateToNewRA bool
+	raRequired          int
+	PriorToRAStart      bool    // is it ok to charge prior to RA start
+	PriorToRAStop       bool    // is it ok to charge after RA stop
+	ApplyRcvAccts       bool    // if true, mark the receipt as fully paid based on RcvAccts
+	RAIDrqd             bool    // if true, it will require receipts to supply a RAID
+	DefaultAmount       float64 // default amount for this account rule
+	LastModTime         rlib.JSONDateTime
+	LastModBy           int64
+	CreateTS            rlib.JSONDateTime
+	CreateBy            int64
 }
 
 // ARSaveForm is a structure specifically for the return value from w2ui.
@@ -47,21 +49,23 @@ type ARSendForm struct {
 // the data that has changed, which is in the xxxSaveOther struct.  All this data
 // is merged into the appropriate database structure using MigrateStructData.
 type ARSaveForm struct {
-	Recid          int64 `json:"recid"` // this is to support the w2ui form
-	ARID           int64
-	BID            int64
-	BUD            rlib.XJSONBud
-	CreditLID      int64
-	DebitLID       int64
-	ARType         int64
-	Name           string
-	Description    string
-	DtStart        rlib.JSONDate
-	DtStop         rlib.JSONDate
-	PriorToRAStart bool // is it ok to charge prior to RA start
-	PriorToRAStop  bool // is it ok to charge after RA stop
-	ApplyRcvAccts  bool
-	RAIDrqd        bool
+	Recid               int64 `json:"recid"` // this is to support the w2ui form
+	ARID                int64
+	BID                 int64
+	BUD                 rlib.XJSONBud
+	CreditLID           int64
+	DebitLID            int64
+	ARType              int64
+	Name                string
+	Description         string
+	DtStart             rlib.JSONDate
+	DtStop              rlib.JSONDate
+	PriorToRAStart      bool // is it ok to charge prior to RA start
+	PriorToRAStop       bool // is it ok to charge after RA stop
+	ApplyRcvAccts       bool
+	RAIDrqd             bool
+	DefaultAmount       float64
+	AutoPopulateToNewRA bool
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -370,9 +374,12 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 	}
 
-	a.FLAGS &= ^uint64(0x4 & 0x1) // 1<<0 and 1<<2:  these are the two flags that can be set.  Assume we turn them off
+	a.FLAGS &= ^uint64(0x4 & 0x2 & 0x1) // 1<<0 and 1<< 1 and 1<<2:  these are the three flags that can be set.  Assume we turn them off
 	if foo.Record.ApplyRcvAccts {
 		a.FLAGS |= 0x1
+	}
+	if foo.Record.AutoPopulateToNewRA {
+		a.FLAGS |= 0x2
 	}
 	if foo.Record.RAIDrqd && a.ARType == rlib.ARRECEIPT {
 		a.FLAGS |= 0x4
@@ -418,6 +425,7 @@ var getARQuerySelectFields = rlib.SelectQueryFields{
 	"AR.DtStart",
 	"AR.DtStop",
 	"AR.RARequired",
+	"AR.DefaultAmount",
 	"AR.FLAGS",
 	"AR.LastModTime",
 	"AR.LastModBy",
@@ -485,7 +493,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName,
 			&gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop,
-			&gg.raRequired, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
+			&gg.raRequired, &gg.DefaultAmount, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -500,6 +508,9 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		if gg.FLAGS&0x4 != 0 {
 			gg.RAIDrqd = true
+		}
+		if gg.FLAGS&0x2 != 0 {
+			gg.AutoPopulateToNewRA = true
 		}
 		g.Record = gg
 		rlib.Console("g.Record.BUD = %s\n", g.Record.BUD)
