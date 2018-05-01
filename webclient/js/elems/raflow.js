@@ -6,7 +6,7 @@
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
-    openNewTransactantForm, getRAAddTransactantFormInitRec
+    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity
 */
 
 "use strict";
@@ -1200,7 +1200,7 @@ window.loadRAPetsGrid = function () {
                             form.clear();
 
                             // Disable "have pets?" checkbox if there is any record.
-                            window.toggleHaveCheckBoxDisablity('RAPetsGrid');
+                            toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // close the form
                             $("#raflow-container #slider").hide();
@@ -1288,7 +1288,7 @@ window.loadRAPetsGrid = function () {
                             form.clear();
 
                             // Disable "have pets?" checkbox if there is any record.
-                            window.toggleHaveCheckBoxDisablity('RAPetsGrid');
+                            toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // need to refresh the grid as it will re-assign new recid
                             reassignGridRecids(grid.name);
@@ -1618,7 +1618,7 @@ window.loadRAVehiclesGrid = function () {
                                 form.clear();
 
                                 // Disable "have vehicles?" checkbox if there is any record.
-                                window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+                                toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
                                 // close the form
                                 $("#raflow-container #slider").hide();
@@ -1701,7 +1701,7 @@ window.loadRAVehiclesGrid = function () {
                                 form.clear();
 
                                 // Disable "have vehicles?" checkbox if there is any record.
-                                window.toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+                                toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
                                 // need to refresh the grid as it will re-assign new recid
                                 reassignGridRecids(grid.name);
