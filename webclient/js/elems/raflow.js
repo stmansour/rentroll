@@ -2064,7 +2064,7 @@ window.loadRABGInfoForm = function () {
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             grid.records = raBGInfoGridRecords;
             grid.refresh();
-            // reassignGridRecids(grid.name);
+            reassignGridRecids(grid.name);
         } else {
             grid.clear();
         }
