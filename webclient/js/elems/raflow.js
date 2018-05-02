@@ -811,7 +811,7 @@ window.loadRAPeopleForm = function () {
     }
 
     // Fetch data from the server if there is any record available.
-    getRAFlowPartData(partType)
+/*    getRAFlowPartData(partType)
         .done(function(data){
             if(data.status === 'success'){
                 app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
@@ -821,7 +821,7 @@ window.loadRAPeopleForm = function () {
         })
         .fail(function(data){
             console.log("failure" + data);
-        });
+        });*/
 
 
     // if form is loaded then return
@@ -1908,17 +1908,17 @@ window.loadRABGInfoForm = function () {
     }
 
     // Fetch data from the server if there is any record available.
-    getRAFlowPartData(partType)
-        .done(function(data){
-            if(data.status === 'success'){
-                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
-            }else {
-                console.log(data.message);
-            }
-        })
-        .fail(function(data){
-            console.log("failure" + data);
-        });
+    // getRAFlowPartData(partType)
+    //     .done(function(data){
+    //         if(data.status === 'success'){
+    //             app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+    //         }else {
+    //             console.log(data.message);
+    //         }
+    //     })
+    //     .fail(function(data){
+    //         console.log("failure" + data);
+    //     });
 
     // if form is loaded then return
     if (!("RABGInfoForm" in w2ui)) {
@@ -2029,12 +2029,15 @@ window.loadRABGInfoForm = function () {
     var payorsInfo = data.Payors;
     var gurantorsInfo = data.Guarantors;
 
+    console.log(usersInfo);
     console.log(payorsInfo);
     console.log(gurantorsInfo);
 
     var raBGInfoGridRecords = [];
 
-    console.log(app.raflow.data);
+    console.log(usersInfo[0] === payorsInfo[0]);
+    console.log(usersInfo[0]);
+    console.log(payorsInfo[0]);
 
     for(var j = 0; j < payorsInfo.length; j++){
         console.log(typeof payorsInfo);
@@ -2044,8 +2047,18 @@ window.loadRABGInfoForm = function () {
             raBGInfoGridRecords.push(payorsInfo[j]);
         }
         console.log("RABFInfoLength: " + raBGInfoGridRecords.length);
+        console.log(raBGInfoGridRecords);
     }
-    console.log(app.raflow.data);
+    for(j = 0; j < usersInfo.length; j++){
+        console.log(typeof usersInfo);
+        console.log($.inArray(usersInfo[j], raBGInfoGridRecords));
+        if($.inArray(usersInfo[j], raBGInfoGridRecords)){
+            // raBGInfoGridRecords.push($.extend(true, { }, usersInfo[j]));
+            raBGInfoGridRecords.push(usersInfo[j]);
+        }
+        console.log("RABFInfoLength: " + raBGInfoGridRecords.length);
+        console.log(raBGInfoGridRecords);
+    }
     for(j = 0; j < gurantorsInfo.length; j++){
         console.log(typeof gurantorsInfo);
         console.log($.inArray(gurantorsInfo[j], raBGInfoGridRecords));
@@ -2054,8 +2067,11 @@ window.loadRABGInfoForm = function () {
             raBGInfoGridRecords.push(gurantorsInfo[j]);
         }
         console.log("RABFInfoLength: " + raBGInfoGridRecords.length);
+        console.log(raBGInfoGridRecords);
     }
     console.log(app.raflow.data);
+
+    console.log(raBGInfoGridRecords[0] === raBGInfoGridRecords[1]);
 
 
     // load the existing data in Background Info grid
