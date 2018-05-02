@@ -223,8 +223,31 @@ button.save-ra {
     height: 16px;
 }
 
-.ra-form-component#people .form-container input[name="Transactant"] {
-    width: 60%;
+.ra-form-component#people .form-container #transactant-field #user-inputs {
+    display: flex;
+    display: -webkit-flex;
+    display: -moz-flex;
+    text-align: center;
+}
+
+.ra-form-component#people .form-container #transactant-field #user-inputs input[name="Transactant"] {
+    -webkit-flex: 5;
+    flex: 5;
+    -moz-flex: 5;
+}
+
+.ra-form-component#people .form-container #transactant-field #user-inputs button {
+    -webkit-flex: 1;
+    flex: 1;
+    -moz-flex: 1;
+}
+
+.ra-form-component#people .form-container {
+    height: 190px;
+}
+
+.ra-form-component#people .form-container #transactant-field button {
+    float: right;
 }
 
 #people-type-containers {
@@ -233,7 +256,7 @@ button.save-ra {
     position: absolute;
     bottom: 0;
     left: 0;
-    top: 130px;
+    top: 190px;
 }
 
 #people-type-containers .people-type {

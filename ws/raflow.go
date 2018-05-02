@@ -104,21 +104,6 @@ type RABackgroundInfoFlowData struct {
 	ApplicantPosition     string  `json:"ApplicantPosition"`
 	ApplicantGrossWages   float64 `json:"ApplicantGrossWages"`
 
-	// CoApplicant information
-	CoApplicantFirstName    string  `json:"CoApplicantFirstName"`
-	CoApplicantMiddleName   string  `json:"CoApplicantMiddleName"`
-	CoApplicantLastName     string  `json:"CoApplicantLastName"`
-	CoApplicantBirthDate    string  `json:"CoApplicantBirthDate"`
-	CoApplicantSSN          string  `json:"CoApplicantSSN"`
-	CoApplicantDriverLicNo  string  `json:"CoApplicantDriverLicNo"`
-	CoApplicantTelephoneNo  string  `json:"CoApplicantTelephoneNo"`
-	CoApplicantEmailAddress string  `json:"CoApplicantEmailAddress"`
-	CoApplicantEmployer     string  `json:"CoApplicantEmployer"`
-	CoApplicantPhone        string  `json:"CoApplicantPhone"`
-	CoApplicantAddress      string  `json:"CoApplicantAddress"`
-	CoApplicantPosition     string  `json:"CoApplicantPosition"`
-	CoApplicantGrossWages   float64 `json:"CoApplicantGrossWages"`
-
 	// Current Address information
 	CurrentAddress           string `json:"CurrentAddress"`
 	CurrentLandLoardName     string `json:"CurrentLandLoardName"`

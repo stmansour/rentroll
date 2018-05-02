@@ -1,30 +1,34 @@
-<div class="w2ui-page page-0">
+<div class="w2ui-page page-0" style="text-align: left;">
     <div class="w2ui-field"><input type="hidden" name="TCID" /></div>
     <div class="w2ui-field"><input type="hidden" name="FirstName" /></div>
     <div class="w2ui-field"><input type="hidden" name="LastName" /></div>
     <div class="w2ui-field"><input type="hidden" name="MiddleName" /></div>
     <div class="w2ui-field"><input type="hidden" name="CompanyName" /></div>
     <div class="w2ui-field"><input type="hidden" name="IsCompany" /></div>
-    <div class="w2ui-field">
+    <div class="w2ui-field" id="transactant-field">
         <label>Transactant:</label>
-        <div>
+        <div id="user-inputs">
             <input name="Transactant" type="enum" tabindex="1" />
             <button class="w2ui-btn" onclick="acceptTransactant();" tabindex="5" >Accept</button>
             <button class="w2ui-btn" onclick="openNewTransactantForm();" tabindex="6" > + Transactant</button>
         </div>
     </div>
     <div class="w2ui-field">
-        <label></label>
+        <label>Payor:</label>
         <div>
-            <label>
-                <input name="Payor" type="checkbox" tabindex="2" disabled /> Payor
-            </label>
-            <label>
-                <input name="User" type="checkbox" tabindex="3" disabled /> User
-            </label>
-            <label>
-                <input name="Guarantor" type="checkbox" tabindex="4" disabled /> Guarantor
-            </label>
+            <input name="Payor" type="checkbox" tabindex="2" disabled />
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>User:</label>
+        <div>
+            <input name="User" type="checkbox" tabindex="3" disabled />
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Guarantor:</label>
+        <div>
+            <input name="Guarantor" type="checkbox" tabindex="4" disabled />
         </div>
     </div>
 </div>
