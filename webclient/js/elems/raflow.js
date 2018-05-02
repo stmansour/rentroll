@@ -2084,6 +2084,7 @@ window.loadRABGInfoForm = function () {
                                         formRecord.ApplicantLastName = record.LastName;
                                         console.log("Transactants detail:\n");
                                         console.log(data.record.FirstName);
+                                        w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
                                     }else {
                                         console.log(data.message);
                                     }
@@ -2091,9 +2092,6 @@ window.loadRABGInfoForm = function () {
                                 .fail(function (data) {
                                     console.log("failure" + data);
                                 });
-
-                            //
-                            w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
                         };
 
                     // warn user if form content has been changed
