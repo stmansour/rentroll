@@ -12,7 +12,9 @@
 //   bid = business id (or the BUD)
 //-----------------------------------------------------------------------------
 window.setToNewRAForm = function (bid, FlowID) {
-
+    // if (typeof FlowID === "undefined") {
+    //     return false;
+    // }
     if (FlowID.length < 1) {
         return false;
     }

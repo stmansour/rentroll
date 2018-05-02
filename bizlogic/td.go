@@ -41,13 +41,15 @@ func ValidateTaskDescriptor(ctx context.Context, a *rlib.TaskDescriptor) []BizEr
 		s := fmt.Sprintf(BizErrors[ImproperTLDID].Message, a.TLDID, a.BID)
 		b := BizError{Errno: ImproperTLDID, Message: s}
 		e = append(e, b)
+		return e
 	}
 
 	//----------------------------------------------------------------
 	// Ensure that there is a name.
 	//----------------------------------------------------------------
 	if len(a.Name) == 0 {
-		s := fmt.Sprintf(BizErrors[MissingName].Message, a.TLDID, a.BID)
+		rlib.Console("*** MISSING NAME.  Task Descriptor a.TDID = %d has 0 length name\n", a.TDID)
+		s := fmt.Sprintf(BizErrors[TaskDescrMissingName].Message, a.TLDID, a.BID)
 		b := BizError{Errno: MissingName, Message: s}
 		e = append(e, b)
 	}

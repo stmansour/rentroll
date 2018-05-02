@@ -11,11 +11,11 @@ import (
 // SearchTask is the definition of a task. It is used to make instance
 // which become Tasks
 type SearchTask struct {
-	Recid       int64 `json:"recid"`
-	TID         int64
-	BID         int64
+	Recid       int64             `json:"recid"` //
+	TID         int64             //
+	BID         int64             //
 	TLID        int64             // the TaskList to which this task belongs
-	Name        string            // Task text
+	Name        string            `json:"TaskName"` // Task text
 	Worker      string            // Name of the associated work function
 	DtDue       rlib.JSONDate     // Task Due Date
 	DtPreDue    rlib.JSONDate     // Pre Completion due date
@@ -24,7 +24,7 @@ type SearchTask struct {
 	FLAGS       int64             // special circumstance indicators
 	DoneUID     int64             // user who marked task as done
 	PreDoneUID  int64             // user who marked task as predone
-	Comment     string            // any user comments
+	Comment     string            `json:"TaskComment"` // any user comments
 	LastModTime rlib.JSONDateTime // when was this record last written
 	LastModBy   int64             // employee UID (from phonebook) that modified it
 	CreateTS    rlib.JSONDateTime // when was this record created
@@ -37,7 +37,7 @@ type FormTask struct {
 	TID          int64
 	BID          int64
 	TLID         int64             // the TaskList to which this task belongs
-	Name         string            // Task text
+	Name         string            `json:"TaskName"` // Task text
 	Worker       string            // Name of the associated work function
 	DtDue        rlib.JSONDateTime // Task Due Date
 	DtPreDue     rlib.JSONDateTime // Pre Completion due date
@@ -50,7 +50,7 @@ type FormTask struct {
 	FLAGS        int64             // special circumstance indicators
 	DoneUID      int64             // user who marked task as done
 	PreDoneUID   int64             // user who marked task as predone
-	Comment      string            // any user comments
+	Comment      string            `json:"TaskComment"` // any user comments
 	LastModTime  rlib.JSONDateTime // when was this record last written
 	LastModBy    int64             // employee UID (from phonebook) that modified it
 	CreateTS     rlib.JSONDateTime // when was this record created
@@ -63,7 +63,7 @@ type FormSaveTask struct {
 	TID          int64
 	BID          int64
 	TLID         int64             // the TaskList to which this task belongs
-	Name         string            // Task text
+	Name         string            `json:"TaskName"` // Task text
 	Worker       string            // Name of the associated work function
 	DtDue        rlib.JSONDateTime // Task Due Date
 	DtPreDue     rlib.JSONDateTime // Pre Completion due date
@@ -76,7 +76,7 @@ type FormSaveTask struct {
 	FLAGS        int64             // special circumstance indicators
 	DoneUID      int64             // user who marked task as done
 	PreDoneUID   int64             // user who marked task as predone
-	Comment      string            // any user comments
+	Comment      string            `json:"TaskComment"` // any user comments
 }
 
 // SearchTaskResponse holds the task list definition list
@@ -349,6 +349,7 @@ func getTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.TID > 0 {
 		var gg FormTask
 		rlib.MigrateStructVals(&a, &gg)
+
 		gg.Recid = gg.TID
 		g.Record = gg
 	}

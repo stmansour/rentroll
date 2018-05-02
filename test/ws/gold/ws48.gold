@@ -1,0 +1,29 @@
+{
+    "record": {
+        "ARID": 13,
+        "ARType": 0,
+        "ApplyRcvAccts": false,
+        "AutoPopulateToNewRA": true,
+        "BID": 1,
+        "BUD": "REX",
+        "CreateBy": 0,
+        "CreateTS": "2018-05-01T23:12:00Z",
+        "CreditLID": 71,
+        "CreditLedgerName": "Cash BofA",
+        "DebitLID": 72,
+        "DebitLedgerName": "Unapplied Funds",
+        "DefaultAmount": 1,
+        "Description": "this is test account rule",
+        "DtStart": "1/1/2018",
+        "DtStop": "12/31/9999",
+        "FLAGS": 2,
+        "LastModBy": 0,
+        "LastModTime": "2018-05-01T23:12:00Z",
+        "Name": "test",
+        "PriorToRAStart": true,
+        "PriorToRAStop": true,
+        "RAIDrqd": false,
+        "recid": 0
+    },
+    "status": "success"
+}

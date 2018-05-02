@@ -1,4 +1,4 @@
 {
-    "message": "Error: Missing required Name field. %!(EXTRA int64=1, int64=1)\n\n",
+    "message": "Error: Task Descriptor missing required Name field: TDID = 1, BID=1. \n\n",
     "status": "error"
 }
