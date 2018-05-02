@@ -861,7 +861,7 @@ window.loadRAPeopleForm = function () {
         $().w2form({
             name: 'RAPeopleForm',
             header: 'People',
-            style: 'display: block;',
+            style: 'display: block; border: none;',
             formURL: '/webclient/html/formrapeople.html',
             focus: -1,
             fields: [
@@ -923,9 +923,9 @@ window.loadRAPeopleForm = function () {
                 {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
                 {name: 'CompanyName', type: 'text', required: true, html: {caption: "CompanyName"}},
                 {name: 'IsCompany', type: 'int', required: true, html: {caption: "IsCompany"}},
-                {name: 'Payor', type: 'checkbox', required: true, html: {caption: "Payor"}},
-                {name: 'User', type: 'checkbox', required: true, html: {caption: "User"}},
-                {name: 'Guarantor', type: 'checkbox', required: true, html: {caption: "Guarantor"}},
+                {name: 'Payor', type: 'checkbox', required: false, html: {caption: "Payor"}},
+                {name: 'User', type: 'checkbox', required: false, html: {caption: "User"}},
+                {name: 'Guarantor', type: 'checkbox', required: false, html: {caption: "Guarantor"}},
             ],
             actions: {
                 reset: function () {
@@ -2097,7 +2097,7 @@ window.loadRABGInfoForm = function () {
 
     var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
     var data = app.raflow.data[app.raflow.activeFlowID][i].Data;
-    
+
     /*
     * RABGInfoGrid: It displays payors, users and gurantors list. It have column Full Name, Company Name.
     * */
