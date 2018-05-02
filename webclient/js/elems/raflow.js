@@ -6,7 +6,7 @@
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
-    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity
+    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail
 */
 
 "use strict";
@@ -136,6 +136,37 @@ window.getRAFlowPartData = function (partType) {
         }
     });
 
+};
+
+// get RATransactant detail from the server
+window.getRATransanctantDetail = function(TCID){
+    var bid = getCurrentBID();
+
+    // temporary data
+    var data = {
+        "cmd":"get",
+        "recid":0,
+        "name":"transactantForm"
+    };
+
+
+    return $.ajax({
+        url: "/v1/person/" + bid.toString() + "/" + TCID,
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status != "error"){
+                console.log("Received data for transanctant:", JSON.stringify(data));
+            }else {
+                console.error(data.message);
+            }
+        },
+        error: function () {
+            console.log("Error:" + JSON.stringify(data));
+        }
+    });
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -2034,7 +2065,20 @@ window.loadRABGInfoForm = function () {
 
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
-                            w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+
+                            getRATransanctantDetail(2)
+                                .done(function (data){
+                                    if(data.status === 'success'){
+                                        w2ui.RABGInfoForm.record = data.record.Data;
+                                    }else {
+                                        console.log(data.message);
+                                    }
+                                })
+                                .fail(function (data) {
+                                    console.log("failure" + data);
+                                });
+
+                            // w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
                             $("#raflow-container #slider").show();
                             $("#raflow-container #slider #slider-content").w2render(w2ui.RABGInfoForm);
@@ -2046,7 +2090,6 @@ window.loadRABGInfoForm = function () {
                 };
             }
         });
-
     }
 
     // now load form in div
