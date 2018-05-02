@@ -2054,6 +2054,8 @@ window.loadRABGInfoForm = function () {
             ],
             onClick : function(event) {
                 event.onComplete = function() {
+                    var record = w2ui.RABGInfoGrid.get(event.recid);
+
                     var yes_args = [this, event.recid],
                         no_args = [this],
                         no_callBack = function(grid) {
@@ -2066,10 +2068,22 @@ window.loadRABGInfoForm = function () {
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
 
-                            getRATransanctantDetail(2)
+                            // w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+                            $("#raflow-container #slider").show();
+                            $("#raflow-container #slider #slider-content").w2render(w2ui.RABGInfoForm);
+
+                            // get transanctant information from the server
+                            getRATransanctantDetail(record.TCID)
                                 .done(function (data){
                                     if(data.status === 'success'){
-                                        w2ui.RABGInfoForm.record = data.record.Data;
+                                        var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
+                                        var record = data.record; // record from the server response
+                                        // w2ui.RABGInfoForm.record = data.record.Data;
+                                        formRecord.ApplicantFirstName = record.FirstName;
+                                        formRecord.ApplicantMiddleName = record.MiddleName;
+                                        formRecord.ApplicantLastName = record.LastName;
+                                        console.log("Transactants detail:\n");
+                                        console.log(data.record.FirstName);
                                     }else {
                                         console.log(data.message);
                                     }
@@ -2078,10 +2092,7 @@ window.loadRABGInfoForm = function () {
                                     console.log("failure" + data);
                                 });
 
-                            // w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
-
-                            $("#raflow-container #slider").show();
-                            $("#raflow-container #slider #slider-content").w2render(w2ui.RABGInfoForm);
+                            //
                             w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
                         };
 
