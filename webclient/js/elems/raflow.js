@@ -1105,7 +1105,7 @@ window.loadRAPetsGrid = function () {
         $().w2form({
             name    : 'RAPetForm',
             header  : 'Add Pet information',
-            style   : 'border: 0px; background-color: transparent;display: block;',
+            style   : 'border: 0px; background-color: transparent; display: block;',
             formURL : '/webclient/html/formrapets.html',
             toolbar : {
                 items: [
@@ -1926,9 +1926,22 @@ window.loadRABGInfoForm = function () {
         $().w2form({
             name: 'RABGInfoForm',
             header: 'Background Information',
-            style: 'border: 1px solid black; display: block;',
+            style: 'border: 0px; background-color: transparent; display: block;',
             formURL: '/webclient/html/formrabginfo.html',
-            focus: -1,
+            toolbar : {
+                items: [
+                    { id: 'bt3', type: 'spacer' },
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").empty();
+                            break;
+                    }
+                }
+            },
             fields: [
                 {field: 'ApplicationDate', type: 'date', required: true},
                 {field: 'MoveInDate', type: 'date', required: true},
@@ -2007,7 +2020,31 @@ window.loadRABGInfoForm = function () {
 
                     }
                 }
-            ]
+            ],
+            onClick : function(event) {
+                event.onComplete = function() {
+                    var yes_args = [this, event.recid],
+                        no_args = [this],
+                        no_callBack = function(grid) {
+                            grid.select(app.last.grid_sel_recid);
+                            return false;
+                        },
+                        yes_callBack = function(grid, recid) {
+                            app.last.grid_sel_recid = parseInt(recid);
+
+                            // keep highlighting current row in any case
+                            grid.select(app.last.grid_sel_recid);
+                            w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+
+                            $("#raflow-container #slider").show();
+                            $("#raflow-container #slider #slider-content").w2render(w2ui.RABGInfoForm);
+                            w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+                        };
+
+                    // warn user if form content has been changed
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+                };
+            }
         });
 
     }
