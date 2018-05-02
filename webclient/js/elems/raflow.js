@@ -811,7 +811,7 @@ window.loadRAPeopleForm = function () {
     }
 
     // Fetch data from the server if there is any record available.
-/*    getRAFlowPartData(partType)
+    getRAFlowPartData(partType)
         .done(function(data){
             if(data.status === 'success'){
                 app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
@@ -821,8 +821,7 @@ window.loadRAPeopleForm = function () {
         })
         .fail(function(data){
             console.log("failure" + data);
-        });*/
-
+        });
 
     // if form is loaded then return
     if (!("RAPeopleForm" in w2ui)) {
@@ -1908,17 +1907,17 @@ window.loadRABGInfoForm = function () {
     }
 
     // Fetch data from the server if there is any record available.
-    // getRAFlowPartData(partType)
-    //     .done(function(data){
-    //         if(data.status === 'success'){
-    //             app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
-    //         }else {
-    //             console.log(data.message);
-    //         }
-    //     })
-    //     .fail(function(data){
-    //         console.log("failure" + data);
-    //     });
+    getRAFlowPartData(partType)
+        .done(function(data){
+            if(data.status === 'success'){
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+            }else {
+                console.log(data.message);
+            }
+        })
+        .fail(function(data){
+            console.log("failure" + data);
+        });
 
     // if form is loaded then return
     if (!("RABGInfoForm" in w2ui)) {
@@ -1993,7 +1992,7 @@ window.loadRABGInfoForm = function () {
                 {
                     field: 'TCID',
                     caption: 'TCID',
-                    size: '50px'
+                    size: '50px' // TODO(Akshay): Make TCID field hidden once background info grid work finished.
                 },
                 {
                     field: 'FullName',
@@ -2018,61 +2017,44 @@ window.loadRABGInfoForm = function () {
 
     var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
     var data = app.raflow.data[app.raflow.activeFlowID][i].Data;
-
-    // console.log(data);
     
     /*
-    * RABGInfoGrid: It displays payors and gurantors list. It have column Full Name, Company Name.
+    * RABGInfoGrid: It displays payors, users and gurantors list. It have column Full Name, Company Name.
     * */
 
     var usersInfo = data.Users;
     var payorsInfo = data.Payors;
     var gurantorsInfo = data.Guarantors;
 
-    console.log(usersInfo);
-    console.log(payorsInfo);
-    console.log(gurantorsInfo);
-
     var raBGInfoGridRecords = [];
+    var listOfTCID = [];
 
-    console.log(usersInfo[0] === payorsInfo[0]);
-    console.log(usersInfo[0]);
-    console.log(payorsInfo[0]);
-
+    // Get payors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(var j = 0; j < payorsInfo.length; j++){
-        console.log(typeof payorsInfo);
-        console.log($.inArray(payorsInfo[j], raBGInfoGridRecords));
-        if($.inArray(payorsInfo[j], raBGInfoGridRecords)){
-            // raBGInfoGridRecords.push($.extend(true, { }, payorsInfo[j]));
+        if(listOfTCID.indexOf(payorsInfo[j].TCID) <= -1){
             raBGInfoGridRecords.push(payorsInfo[j]);
+            listOfTCID.push(payorsInfo[j].TCID);
         }
-        console.log("RABFInfoLength: " + raBGInfoGridRecords.length);
-        console.log(raBGInfoGridRecords);
+        payorsInfo[j].IsPayor = true;
     }
+
+    // Get users list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < usersInfo.length; j++){
-        console.log(typeof usersInfo);
-        console.log($.inArray(usersInfo[j], raBGInfoGridRecords));
-        if($.inArray(usersInfo[j], raBGInfoGridRecords)){
-            // raBGInfoGridRecords.push($.extend(true, { }, usersInfo[j]));
+        if(listOfTCID.indexOf(usersInfo[j].TCID) <= -1){
             raBGInfoGridRecords.push(usersInfo[j]);
+            listOfTCID.push(usersInfo[j].TCID);
         }
-        console.log("RABFInfoLength: " + raBGInfoGridRecords.length);
-        console.log(raBGInfoGridRecords);
+        usersInfo[j].IsUser = true;
     }
+
+    // Get gurantors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < gurantorsInfo.length; j++){
-        console.log(typeof gurantorsInfo);
-        console.log($.inArray(gurantorsInfo[j], raBGInfoGridRecords));
-        if($.inArray(gurantorsInfo[j], raBGInfoGridRecords)){
-            // raBGInfoGridRecords.push($.extend(true, { }, gurantorsInfo[j]));
+        if(listOfTCID.indexOf(gurantorsInfo[j].TCID) <= -1){
             raBGInfoGridRecords.push(gurantorsInfo[j]);
+            listOfTCID.push(gurantorsInfo[j].TCID);
         }
-        console.log("RABFInfoLength: " + raBGInfoGridRecords.length);
-        console.log(raBGInfoGridRecords);
+        gurantorsInfo[j].IsGurantor = true;
     }
-    console.log(app.raflow.data);
-
-    console.log(raBGInfoGridRecords[0] === raBGInfoGridRecords[1]);
-
 
     // load the existing data in Background Info grid
     setTimeout(function (raBGInfoGridRecords) {
