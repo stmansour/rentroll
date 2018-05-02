@@ -58,6 +58,7 @@ const (
 	UnknownARType                   = 34 // Unknown ARType
 	UnknownTLDID                    = 35 // task list definition does not exist
 	ImproperTLDID                   = 36 // task list definition does not belong to the specified business
+	TaskDescrMissingName            = 37 // task descriptor missing name
 )
 
 // InitBizLogic loads the error messages needed for validation errors

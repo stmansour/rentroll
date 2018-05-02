@@ -1,4 +1,4 @@
 {
-    "message": "Error: Rental Agreement (RAID: 1000) does not exist in business BID = 1.\nRental Agreement (RAID: 1000) does not exist in business BID = 1.\n\n",
+    "message": "Error: Rental Agreement (RAID: 1000) does not exist in business BID = 1. \nRental Agreement (RAID: 1000) does not exist in business BID = 1. \n\n",
     "status": "error"
 }

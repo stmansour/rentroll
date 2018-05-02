@@ -168,6 +168,20 @@ func RunCommandLine(ctx context.Context, dCtx *DispatchCtx) {
 		// Assessments
 		rlib.Console("Print Assessment report. BID = %d, dtStart = %s, dtStop = %s\n", ri.Bid, ri.D1.Format(rlib.RRDATEREPORTFMT), ri.D2.Format(rlib.RRDATEREPORTFMT))
 		fmt.Println(rrpt.RRreportAssessments(ctx, &ri))
+	case 25:
+		// print task list.   format  -r 25,TLID
+		sa := strings.Split(dCtx.Args, ",")
+		if len(sa) < 2 {
+			fmt.Printf("Missing one or more parameters.  Example:  -r 23,35\n")
+			os.Exit(1)
+		}
+		tlid, ok := rlib.StringToInt64(sa[1])
+		if !ok {
+			fmt.Printf("Bad number: %s\n", sa[1])
+			os.Exit(1)
+		}
+		ri.ID = tlid
+		rrpt.TaskListTextReport(ctx, &ri)
 
 	default:
 		err := rlib.GenerateJournalRecords(ctx, &dCtx.xbiz, &dCtx.DtStart, &dCtx.DtStop, App.SkipVacCheck)
