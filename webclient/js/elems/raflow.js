@@ -1994,65 +1994,16 @@ window.loadRABGInfoForm = function () {
                     size: '50px'
                 },
                 {
-                    field: 'FirstName',
-                    caption: 'First Name',
-                    size: '150px'
-                },
-                {
-                    field: 'MiddleName',
-                    caption: 'Middle Name',
-                    size: '150px'
-                },
-                {
-                    field: 'LastName',
-                    caption: 'Last Name',
-                    size: '150px'
-                },
-                {
-                    field: 'IsCompany',
-                    caption: 'Is Company',
-                    size: '100px',
-                    render: function (record){
-                        if(record.IsCompany){
-                            return '<i class="fas fa-check" title="IsCompany" aria-hidden="true"></i>';
-                        }else {
-                            return '<i class="fas fa-times" title="IsCompany" aria-hidden="true"></i>';
+                    field: 'FullName',
+                    caption: 'Name',
+                    size: '150px',
+                    render: function (record) {
+                        if(!record.IsCompany){
+                            return record.FirstName + " " + record.MiddleName + " " + record.LastName;
+                        }else{
+                            return record.CompanyName;
                         }
-                    }
-                },
-                {
-                    field: 'CompanyName',
-                    caption: 'Company Name',
-                    size: '100px'
-                },
-                {
-                    field: 'IsPayor',
-                    caption: 'Is Payor',
-                    size: '100px',
-                    render: function (record){
-                        if(record.IsPayor){
-                            return '<i class="fas fa-check" title="IsPayor" aria-hidden="true"></i>';
-                        }
-                    }
-                },
-                {
-                    field: 'IsUser',
-                    caption: 'Is User',
-                    size: '100px',
-                    render: function (record){
-                        if(record.IsUser){
-                            return '<i class="fas fa-check" title="IsUser" aria-hidden="true"></i>';
-                        }
-                    }
-                },
-                {
-                    field: 'IsGuarantor',
-                    caption: 'Is Guarantor',
-                    size: '100px',
-                    render: function (record){
-                        if(record.IsGuarantor){
-                            return '<i class="fas fa-check" title="IsGuarantor" aria-hidden="true"></i>';
-                        }
+
                     }
                 }
             ]
@@ -2066,60 +2017,58 @@ window.loadRABGInfoForm = function () {
     var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
     var data = app.raflow.data[app.raflow.activeFlowID][i].Data;
 
-    console.log(data);
+    // console.log(data);
+    
+    /*
+    * RABGInfoGrid: It displays payors and gurantors list. It have column Full Name, Company Name.
+    * */
 
     var usersInfo = data.Users;
     var payorsInfo = data.Payors;
     var gurantorsInfo = data.Guarantors;
 
-    // Peopleinfo list      0           1           2
-    var peopleInfoList = [usersInfo, payorsInfo, gurantorsInfo];
+    console.log(payorsInfo);
+    console.log(gurantorsInfo);
 
     var raBGInfoGridRecords = [];
-    for(i = 0; i < peopleInfoList.length; i++){
-        for(var j = 0; j < peopleInfoList[i].length; j++){
 
-            // Assign checks for peoplelists
-            switch (i){
-                case 0: // userInfo
-                    peopleInfoList[i][j].IsPayor = true;
-                    break;
-                case 1: // payorsInfo
-                    peopleInfoList[i][j].IsUser = true;
-                    break;
-                case 2: // gurantorsInfo
-                    peopleInfoList[i][j].IsGuarantor = true;
-                    break;
-            }
+    console.log(app.raflow.data);
 
-            // // Is Company ?
-            // console.log(peopleInfoList[i][j].IsCompany);
-            // console.log(typeof peopleInfoList[i][j].IsCompany);
-            // if(peopleInfoList[i][j].IsCompany != 0){
-            //     peopleInfoList[i][j].IsCompany = 'Yes';
-            // }else {
-            //     peopleInfoList[i][j].IsCompany = 'No';
-            // }
-
-            raBGInfoGridRecords.push(peopleInfoList[i][j]);
+    for(var j = 0; j < payorsInfo.length; j++){
+        console.log(typeof payorsInfo);
+        console.log($.inArray(payorsInfo[j], raBGInfoGridRecords));
+        if($.inArray(payorsInfo[j], raBGInfoGridRecords)){
+            // raBGInfoGridRecords.push($.extend(true, { }, payorsInfo[j]));
+            raBGInfoGridRecords.push(payorsInfo[j]);
         }
+        console.log("RABFInfoLength: " + raBGInfoGridRecords.length);
     }
+    console.log(app.raflow.data);
+    for(j = 0; j < gurantorsInfo.length; j++){
+        console.log(typeof gurantorsInfo);
+        console.log($.inArray(gurantorsInfo[j], raBGInfoGridRecords));
+        if($.inArray(gurantorsInfo[j], raBGInfoGridRecords)){
+            // raBGInfoGridRecords.push($.extend(true, { }, gurantorsInfo[j]));
+            raBGInfoGridRecords.push(gurantorsInfo[j]);
+        }
+        console.log("RABFInfoLength: " + raBGInfoGridRecords.length);
+    }
+    console.log(app.raflow.data);
 
-    console.log(raBGInfoGridRecords);
 
     // load the existing data in Background Info grid
-    setTimeout(function () {
+    setTimeout(function (raBGInfoGridRecords) {
         var grid = w2ui.RABGInfoGrid;
 
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             grid.records = raBGInfoGridRecords;
-            // w2ui.RABGInfoForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
-            // w2ui.RABGInfoForm.refresh();
+            grid.refresh();
+            // reassignGridRecids(grid.name);
         } else {
             grid.clear();
         }
-    }, 500);
+    }, 500, raBGInfoGridRecords);
 };
 
 // -------------------------------------------------------------------------------
