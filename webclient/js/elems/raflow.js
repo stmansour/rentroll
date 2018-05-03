@@ -12,6 +12,9 @@
 
 "use strict";
 
+// right side slider content div length
+var sliderContentDivLength = 400;
+
 // Next button handling
 $(document).on('click', '#ra-form #next', function () {
     // get the current component (to be previous one)
@@ -2293,13 +2296,15 @@ window.loadRARentablesGrid = function () {
             style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
-                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
+                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
                 ],
                 onClick: function (event) {
-                    var bid = getCurrentBID();
-                    if (event.target == 'add') {
-                        var inital = getRentablesGridInitalRecord(bid, w2ui.RARentablesGrid.records.length);
-                        w2ui.RARentablesGrid.add(inital);
+                    switch(event.target) {
+                        case "add":
+                            $("#raflow-container #slider").show();
+                            $("#raflow-container #slider #slider-content").width(800);
+                            $("#raflow-container #slider #slider-content").w2render(w2ui.RARentablesFeesGrid);
+                            break;
                     }
                 }
             },
@@ -2368,6 +2373,121 @@ window.loadRARentablesGrid = function () {
                 };
             }
         });
+
+        // rentables grid
+        $().w2grid({
+            name: 'RARentablesFeesGrid',
+            header: 'Rentables Fees',
+            show: {
+                toolbar: true,
+                footer: true,
+            },
+            style: 'border: 4px solid silver; display: block;',
+            toolbar: {
+                items: [
+                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
+                    {id: 'bt3', type: 'spacer'},
+                    {id: 'btnClose', type: 'button', icon: 'fas fa-times'},
+                ],
+                onClick: function (event) {
+                    switch(event.target) {
+                        case "add":
+                            console.log("clicked on add");
+                            break;
+                        case "btnClose":
+                            $("#raflow-container #slider").hide();
+                            $("#raflow-container #slider #slider-content").width(sliderContentDivLength);
+                            $("#raflow-container #slider #slider-content").empty();
+                            break;
+                    }
+                }
+            },
+            columns: [
+                {
+                    field: 'recid',
+                    hidden: true,
+                },
+                {
+                    field: 'ARID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    hidden: true
+                },
+                {
+                    field: 'Name',
+                    caption: 'Fee',
+                    size: '250px',
+                },
+                {
+                    field: 'Amount',
+                    caption: 'Amount',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'RentCycle',
+                    caption: 'Cycle',
+                    size: '100px',
+                },
+                {
+                    field: 'Epoch',
+                    caption: 'Epoch',
+                    size: '100px',
+                },
+                {
+                    field: 'RentPeriod',
+                    caption: 'RentPeriod',
+                    size: '100px',
+                },
+                {
+                    field: 'UsePeriod',
+                    caption: 'UsePeriod',
+                    size: '100px',
+                },
+                {
+                    field: 'ContractRent',
+                    caption: 'At Signing',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'ProrateAmt',
+                    caption: 'Prorate',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'SalesTaxAmt',
+                    caption: 'Sales Tax Amt',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'SalesTax',
+                    caption: 'Sales Tax',
+                    size: '100px',
+                },
+                {
+                    field: 'TransOccAmt',
+                    caption: 'Trans Occ Amt',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'TransOcc',
+                    caption: 'Trans Occ',
+                    size: '100px',
+                }
+            ],
+            onChange: function (event) {
+                event.onComplete = function () {
+                    this.save();
+                };
+            }
+        });
+
     }
 
     // now load grid in division
