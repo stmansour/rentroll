@@ -7,7 +7,7 @@
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
-    setRABFInfoFormFields
+    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields
 */
 
 "use strict";
@@ -93,11 +93,23 @@ window.setRABFInfoFormFields = function(record) {
     formRecord.ApplicantPhone = record.WorkPhone;
     formRecord.ApplicantAddress = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
 
-
-    console.log("Transactants detail:\n");
-    console.log(record);
-
     w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+};
+
+// showHideRABGInfoFormFields
+window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
+    if(hidden){
+        $("#cureentInfolabel").hide();
+        $("#priorInfolabel").hide();
+    }else{
+        $("#cureentInfolabel").show();
+        $("#priorInfolabel").show();
+    }
+    for(var fieldIndex=0; fieldIndex < listOfHiddenFields.length; fieldIndex++){
+        console.log(listOfHiddenFields[fieldIndex]);
+        w2ui.RABGInfoForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
+    }
+    w2ui.RABGInfoForm.refresh();
 };
 
 // toggleHaveCheckBoxDisablity
@@ -189,6 +201,18 @@ window.getRATransanctantDetail = function(TCID){
             console.log("Error:" + JSON.stringify(data));
         }
     });
+};
+
+// getRABGInfoGridRecord
+window.getRABGInfoGridRecord = function(records, TCID){
+    var raBGInfoGridrecord;
+    for(var recordIndex=0; recordIndex < records.length; recordIndex++) {
+        if(records[recordIndex].TCID == TCID){
+            raBGInfoGridrecord = records[recordIndex];
+            break;
+        }
+    }
+    return raBGInfoGridrecord;
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -2058,7 +2082,8 @@ window.loadRABGInfoForm = function () {
                 {
                     field: 'TCID',
                     caption: 'TCID',
-                    size: '50px' // TODO(Akshay): Make TCID field hidden once background info grid work finished.
+                    size: '50px',
+                    hidden: true
                 },
                 {
                     field: 'FullName',
@@ -2072,11 +2097,29 @@ window.loadRABGInfoForm = function () {
                         }
 
                     }
+                },
+                {
+                    field: 'IsPayor',
+                    caption: 'IsPayor',
+                    size: '100px',
+                    hidden: true
+                },
+                {
+                    field: 'IsUser',
+                    caption: 'IsUser',
+                    size: '100px',
+                    hidden: true
+                },
+                {
+                    field: 'IsGurantor',
+                    caption: 'IsGurantor',
+                    size: '100px',
+                    hidden: true
                 }
             ],
             onClick : function(event) {
                 event.onComplete = function() {
-                    var record = w2ui.RABGInfoGrid.get(event.recid);
+                    var raBGInfoGridRecord = w2ui.RABGInfoGrid.get(event.recid); // record from the w2ui grid
 
                     var yes_args = [this, event.recid],
                         no_args = [this],
@@ -2095,11 +2138,22 @@ window.loadRABGInfoForm = function () {
                             $("#raflow-container #slider #slider-content").w2render(w2ui.RABGInfoForm);
 
                             // get transanctant information from the server
-                            getRATransanctantDetail(record.TCID)
+                            getRATransanctantDetail(raBGInfoGridRecord.TCID)
                                 .done(function (data){
+                                    // Hide these all fields when transanctant is only user.
+                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLoardName",
+                                        "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
+                                        "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
+                                        "PriorLengthOfResidency", "PriorReasonForMoving"];
+
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
                                         // w2ui.RABGInfoForm.record = data.record.Data;
+                                        if(raBGInfoGridRecord.IsUser && !raBGInfoGridRecord.IsPayor && !raBGInfoGridRecord.IsGurantor){
+                                            showHideRABGInfoFormFields(listOfHiddenFields, true);
+                                        }else{
+                                            showHideRABGInfoFormFields(listOfHiddenFields, false);
+                                        }
                                         setRABFInfoFormFields(record);
                                     }else {
                                         console.log(data.message);
@@ -2132,33 +2186,43 @@ window.loadRABGInfoForm = function () {
     var gurantorsInfo = data.Guarantors;
 
     var raBGInfoGridRecords = [];
+    var raBGInfoGridRecord;
     var listOfTCID = [];
 
     // Get payors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(var j = 0; j < payorsInfo.length; j++){
         if(listOfTCID.indexOf(payorsInfo[j].TCID) <= -1){
+            payorsInfo[j].IsPayor = true;
             raBGInfoGridRecords.push(payorsInfo[j]);
             listOfTCID.push(payorsInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, payorsInfo[j].TCID);
+            raBGInfoGridRecord.IsPayor = true;
         }
-        payorsInfo[j].IsPayor = true;
     }
 
     // Get users list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < usersInfo.length; j++){
         if(listOfTCID.indexOf(usersInfo[j].TCID) <= -1){
+            usersInfo[j].IsUser = true;
             raBGInfoGridRecords.push(usersInfo[j]);
             listOfTCID.push(usersInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, usersInfo[j].TCID);
+            raBGInfoGridRecord.IsUser = true;
         }
-        usersInfo[j].IsUser = true;
     }
 
     // Get gurantors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < gurantorsInfo.length; j++){
         if(listOfTCID.indexOf(gurantorsInfo[j].TCID) <= -1){
+            gurantorsInfo[j].IsGurantor = true;
             raBGInfoGridRecords.push(gurantorsInfo[j]);
             listOfTCID.push(gurantorsInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, gurantorsInfo[j].TCID);
+            raBGInfoGridRecord.IsGurantor = true;
         }
-        gurantorsInfo[j].IsGurantor = true;
     }
 
     // load the existing data in Background Info grid
