@@ -5,7 +5,7 @@
     dateFromString, taskDateRender, setToTLForm,
     taskFormDueDate,taskCompletionChange,taskFormDoneDate,
     openTaskForm,setInnerHTML,w2popup,ensureSession,dtFormatISOToW2ui,
-    localtimeToUTC, createNewTaskList, getBUDfromBID,
+    createNewTaskList, getBUDfromBID, exportItemReportPDF, exportItemReportCSV,
     popupNewTaskListForm, getTLDs, getCurrentBID, getNewTaskListRecord,
     closeTaskForm, setTaskButtonsState,
 */
@@ -109,9 +109,13 @@ window.buildTaskListElements = function () {
         formURL: '/webclient/html/formtl.html',
         toolbar: {
             items: [
-                { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
-                { id: 'bt3', type: 'spacer' },
-                { id: 'btnClose', type: 'button', icon: 'fas fa-times' },
+                // { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
+
+                { type: 'button', id: 'csvexport', icon: 'fas fa-table',    tooltip: 'export to CSV' },
+                { type: 'button', id: 'pdfexport', icon: 'far fa-file-pdf', tooltip: 'export to PDF' },
+                { type: 'spacer', id: 'bt3'  },
+                { type: 'button', id: 'btnClose',  icon: 'fas fa-times' },
+
             ],
             onClick: function (event) {
                 event.onComplete = function() {
@@ -127,6 +131,12 @@ window.buildTaskListElements = function () {
                                 w2ui.tlsGrid.render();
                             };
                         form_dirty_alert(yes_callBack, no_callBack);
+                        break;
+                    case 'csvexport':
+                        exportItemReportCSV("RPTtl", w2ui.tlsInfoForm.record.TLID, app.D1, app.D2);
+                        break;
+                    case 'pdfexport':
+                        exportItemReportPDF("RPTtl", w2ui.tlsInfoForm.record.TLID, app.D1, app.D2);
                         break;
                     }
                 };

@@ -86,7 +86,9 @@ func SvcAuthenticate(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.Console("posting request to: %s\n", url)
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(pbr))
 		req.Header.Set("Content-Type", "application/json")
+		rlib.Console("\n*** req = %#v\n\n", req)
 		client := &http.Client{}
+		rlib.Console("\n*** client = %#v\n\n", client)
 		resp, err := client.Do(req)
 		if err != nil {
 			e := fmt.Errorf("%s: failed to execute client.Do:  %s", funcname, err.Error())

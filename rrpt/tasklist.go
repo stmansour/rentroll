@@ -40,8 +40,10 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		Status        = 0
 		eTask         = iota
 		PreDueDate    = iota
+		PreDoneDate   = iota
 		PreApprovedBy = iota
 		DueDate       = iota
+		DoneDate      = iota
 		ApprovedBy    = iota
 	)
 
@@ -55,17 +57,28 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("Status", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("Task", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("PreDueDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("PreDoneDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("PreApprovedBy", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("DueDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("ApprovedBy", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
-	// prepare table's title, sections
-	err = TableReportHeaderBlock(ctx, &tbl, "Task List", funcname, ri)
+	tl, err := rlib.GetTaskList(ctx, ri.ID)
 	if err != nil {
 		rlib.LogAndPrintError(funcname, err)
 		tbl.SetSection3(err.Error())
 		return tbl
 	}
+	// prepare table's title, sections
+	err = TableReportHeaderBlock(ctx, &tbl, tl.Name, funcname, ri)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		tbl.SetSection3(err.Error())
+		return tbl
+	}
+
+	// overwrite a few things
+	tbl.SetTitle(tl.Name)
+	// tbl.SetSection1(s)
 
 	m, err := rlib.GetTasks(ctx, ri.ID)
 	if err != nil {
@@ -77,7 +90,7 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	for i := 0; i < len(m); i++ {
 		tbl.AddRow()
 		tbl.Puts(-1, Status, "tbd")
-		tbl.Puts(-1, eTask, "tbd")
+		tbl.Puts(-1, eTask, m[i].Name)
 		tbl.Putdt(-1, PreDueDate, m[i].DtPreDue)
 		tbl.Puts(-1, PreApprovedBy, rlib.GetNameForUID(ctx, m[i].PreDoneUID))
 		tbl.Putdt(-1, DueDate, m[i].DtDue)
