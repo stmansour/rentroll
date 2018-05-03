@@ -115,7 +115,6 @@ window.buildTaskListElements = function () {
                 { type: 'button', id: 'pdfexport', icon: 'far fa-file-pdf', tooltip: 'export to PDF' },
                 { type: 'spacer', id: 'bt3'  },
                 { type: 'button', id: 'btnClose',  icon: 'fas fa-times' },
-
             ],
             onClick: function (event) {
                 event.onComplete = function() {
@@ -155,7 +154,9 @@ window.buildTaskListElements = function () {
             { field: 'DtPreDone',    type: 'datetime',  required: false },
             { field: 'FLAGS',        type: 'int',       required: false },
             { field: 'DoneUID',      type: 'int',       required: false },
+            { field: 'DoneName',     type: 'text',      required: false },
             { field: 'PreDoneUID',   type: 'int',       required: false },
+            { field: 'PreDoneName',  type: 'text',      required: false },
             { field: 'Comment',      type: 'text',      required: false },
             { field: 'CreateTS',     type: 'date',      required: false },
             { field: 'CreateBy',     type: 'int',       required: false },
@@ -178,8 +179,8 @@ window.buildTaskListElements = function () {
                 // r.ChkDtPreDone = dtFormatISOToW2ui(r.ChkDtPreDone );
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,   r.ChkDtDone, 'sDtDone', 'tlOverdue');
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,r.ChkDtPreDone, 'sDtPreDone', 'tlPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.PreDoneUID, r.PreDoneName, 'sDtDone',   'tlDoneName',    'tlOverdue');
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.DoneUID,    r.DoneName,    'sDtPreDone','tlPreDoneName', 'tlPreOverdue');
             };
         },
         onChange: function(event) {
@@ -348,8 +349,10 @@ window.buildTaskListElements = function () {
                 }
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue',  'no pre-due date'               );
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',     'no due date'                   );
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, 'tskDtPreDone',  'tskPreOverdue');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    'tskDtDone',     'tskOverdue'   );
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, 0, '*', 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    0, '*', 'tskDtDone',    'tskDoneName',    'tskOverdue'   );
+                // r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.PreDoneName, 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
+                // r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.DoneName,    'tskDtDone',    'tskDoneName',    'tskOverdue'   );
             };
         },
         onChange: function(event) {
@@ -748,18 +751,24 @@ window.taskFormDueDate = function (dt,b,id,txt) {
 // taskFormDoneDate - form formatting
 // 
 // @params
-//       dt = datetime string
-//       b  = boolean check box value (false = unchecked)
-//      id  = html element id for string update
-//      txt = string for no date value 
+//       dt  = datetime string
+//       b   = boolean check box value (false = unchecked)
+//      uid  = uid of user who marked this as done
+//      name = name associated with uid
+//      id   = html element id for string update
+//      id2  = html area for name
+//      id3  = string to indicate late
 //  
 // @returns 
 //      updated value for ChkDt...  true if year >= 2000
 //  
 //-----------------------------------------------------------------------------
-window.taskFormDoneDate = function (dt,dtd,b,id,id2) {
+window.taskFormDoneDate = function (dt,dtd,b,uid,name,id,id2,id3) {
     var now = new Date();
     if (dt !== null && dt.length > 0) {
+        //--------------------------
+        // id: date
+        //--------------------------
         var y = dateFromString(dt);
         var s = '';
         b = y.getFullYear() >= 2000;
@@ -767,13 +776,22 @@ window.taskFormDoneDate = function (dt,dtd,b,id,id2) {
             s = taskDateRender(dt); 
         }
         setInnerHTML(id,s);
+        
+        //--------------------------
+        // id2: name indicator
+        //--------------------------
+        setInnerHTML(id2, (uid > 0) ? '('+name+')' : '');
+
+        //--------------------------
+        // id3: late indicator
+        //--------------------------
         dt = dateFromString(dtd);
         if (now > dt) {
-            s = '<span style="color:#FC0D1B;">&nbsp;(late)</span>';
+            s = '<span style="color:#FC0D1B;">&nbsp;LATE</span>';
         } else {
             s = '';
         }
-        setInnerHTML(id2,s);
+        setInnerHTML(id3,s);
     }
     return b;
 };
