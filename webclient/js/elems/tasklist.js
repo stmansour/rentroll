@@ -166,7 +166,7 @@ window.buildTaskListElements = function () {
             { field: 'ChkDtPreDue',  type: 'checkbox',  required: false },
             { field: 'ChkDtPreDone', type: 'checkbox',  required: false },
         ],
-        onLoad: function(event) {
+        onRefresh: function(event) {
             event.onComplete = function(event) {
                 var r = w2ui.tlsInfoForm.record;
                 if (typeof r.DtPreDue === "undefined") {
