@@ -6,7 +6,8 @@
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
-    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail
+    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
+    setRABFInfoFormFields
 */
 
 "use strict";
@@ -76,6 +77,27 @@ window.lockOnGrid = function (gridName) {
         $("#" + gridName + "_checkbox")[0].disabled = true;
         $("#" + gridName + "_checkbox")[0].checked = true;
     }
+};
+
+// setRABFInfoFormFields It set default fields value from the transanctants to form.
+window.setRABFInfoFormFields = function(record) {
+    var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
+
+    formRecord.ApplicationDate = Date.now();
+    formRecord.MoveInDate = Date.now();
+    formRecord.ApplicantFirstName = record.FirstName;
+    formRecord.ApplicantMiddleName = record.MiddleName;
+    formRecord.ApplicantLastName = record.LastName;
+    formRecord.ApplicantTelephoneNo = record.CellPhone;
+    formRecord.ApplicantEmailAddress = record.PrimaryEmail;
+    formRecord.ApplicantPhone = record.WorkPhone;
+    formRecord.ApplicantAddress = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
+
+
+    console.log("Transactants detail:\n");
+    console.log(record);
+
+    w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
 };
 
 // toggleHaveCheckBoxDisablity
@@ -1974,7 +1996,7 @@ window.loadRABGInfoForm = function () {
                 }
             },
             fields: [
-                {field: 'ApplicationDate', type: 'date', required: true},
+                {field: 'ApplicationDate', type: 'date', required: true, disable: true},
                 {field: 'MoveInDate', type: 'date', required: true},
                 {field: 'ApartmentNo', type: 'alphanumeric', required: true}, // Apartment number
                 {field: 'LeaseTerm', type: 'text', required: true}, // Lease term
@@ -2076,15 +2098,9 @@ window.loadRABGInfoForm = function () {
                             getRATransanctantDetail(record.TCID)
                                 .done(function (data){
                                     if(data.status === 'success'){
-                                        var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
                                         var record = data.record; // record from the server response
                                         // w2ui.RABGInfoForm.record = data.record.Data;
-                                        formRecord.ApplicantFirstName = record.FirstName;
-                                        formRecord.ApplicantMiddleName = record.MiddleName;
-                                        formRecord.ApplicantLastName = record.LastName;
-                                        console.log("Transactants detail:\n");
-                                        console.log(data.record.FirstName);
-                                        w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+                                        setRABFInfoFormFields(record);
                                     }else {
                                         console.log(data.message);
                                     }
