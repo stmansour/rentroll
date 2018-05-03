@@ -6,7 +6,8 @@
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
-    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity
+    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
+    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields
 */
 
 "use strict";
@@ -78,6 +79,36 @@ window.lockOnGrid = function (gridName) {
     }
 };
 
+// setRABFInfoFormFields It set default fields value from the transanctants to form.
+window.setRABFInfoFormFields = function(record) {
+    var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
+
+    formRecord.ApplicationDate = Date.now();
+    formRecord.MoveInDate = Date.now();
+    formRecord.ApplicantFirstName = record.FirstName;
+    formRecord.ApplicantMiddleName = record.MiddleName;
+    formRecord.ApplicantLastName = record.LastName;
+    formRecord.ApplicantTelephoneNo = record.CellPhone;
+    formRecord.ApplicantEmailAddress = record.PrimaryEmail;
+    formRecord.ApplicantPhone = record.WorkPhone;
+    formRecord.ApplicantAddress = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
+};
+
+// showHideRABGInfoFormFields
+window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
+    if(hidden){
+        $("#cureentInfolabel").hide();
+        $("#priorInfolabel").hide();
+    }else{
+        $("#cureentInfolabel").show();
+        $("#priorInfolabel").show();
+    }
+    for(var fieldIndex=0; fieldIndex < listOfHiddenFields.length; fieldIndex++){
+        console.log(listOfHiddenFields[fieldIndex]);
+        w2ui.RABGInfoForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
+    }
+};
+
 // toggleHaveCheckBoxDisablity
 // Enable checkbox if there is no record
 // lock/unlock grid based on checkbox value
@@ -136,6 +167,49 @@ window.getRAFlowPartData = function (partType) {
         }
     });
 
+};
+
+// get RATransactant detail from the server
+window.getRATransanctantDetail = function(TCID){
+    var bid = getCurrentBID();
+
+    // temporary data
+    var data = {
+        "cmd":"get",
+        "recid":0,
+        "name":"transactantForm"
+    };
+
+
+    return $.ajax({
+        url: "/v1/person/" + bid.toString() + "/" + TCID,
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status != "error"){
+                console.log("Received data for transanctant:", JSON.stringify(data));
+            }else {
+                console.error(data.message);
+            }
+        },
+        error: function () {
+            console.log("Error:" + JSON.stringify(data));
+        }
+    });
+};
+
+// getRABGInfoGridRecord
+window.getRABGInfoGridRecord = function(records, TCID){
+    var raBGInfoGridrecord;
+    for(var recordIndex=0; recordIndex < records.length; recordIndex++) {
+        if(records[recordIndex].TCID == TCID){
+            raBGInfoGridrecord = records[recordIndex];
+            break;
+        }
+    }
+    return raBGInfoGridrecord;
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -1943,7 +2017,7 @@ window.loadRABGInfoForm = function () {
                 }
             },
             fields: [
-                {field: 'ApplicationDate', type: 'date', required: true},
+                {field: 'ApplicationDate', type: 'date', required: true, disable: true},
                 {field: 'MoveInDate', type: 'date', required: true},
                 {field: 'ApartmentNo', type: 'alphanumeric', required: true}, // Apartment number
                 {field: 'LeaseTerm', type: 'text', required: true}, // Lease term
@@ -2005,7 +2079,8 @@ window.loadRABGInfoForm = function () {
                 {
                     field: 'TCID',
                     caption: 'TCID',
-                    size: '50px' // TODO(Akshay): Make TCID field hidden once background info grid work finished.
+                    size: '50px',
+                    hidden: true
                 },
                 {
                     field: 'FullName',
@@ -2019,10 +2094,30 @@ window.loadRABGInfoForm = function () {
                         }
 
                     }
+                },
+                {
+                    field: 'IsPayor',
+                    caption: 'IsPayor',
+                    size: '100px',
+                    hidden: true
+                },
+                {
+                    field: 'IsUser',
+                    caption: 'IsUser',
+                    size: '100px',
+                    hidden: true
+                },
+                {
+                    field: 'IsGurantor',
+                    caption: 'IsGurantor',
+                    size: '100px',
+                    hidden: true
                 }
             ],
             onClick : function(event) {
                 event.onComplete = function() {
+                    var raBGInfoGridRecord = w2ui.RABGInfoGrid.get(event.recid); // record from the w2ui grid
+
                     var yes_args = [this, event.recid],
                         no_args = [this],
                         no_callBack = function(grid) {
@@ -2034,11 +2129,38 @@ window.loadRABGInfoForm = function () {
 
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
-                            w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
+                            // w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
                             $("#raflow-container #slider").show();
                             $("#raflow-container #slider #slider-content").w2render(w2ui.RABGInfoForm);
-                            w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+
+                            // get transanctant information from the server
+                            getRATransanctantDetail(raBGInfoGridRecord.TCID)
+                                .done(function (data){
+                                    // Hide these all fields when transanctant is only user.
+                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLoardName",
+                                        "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
+                                        "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
+                                        "PriorLengthOfResidency", "PriorReasonForMoving"];
+
+                                    if(data.status === 'success'){
+                                        var record = data.record; // record from the server response
+                                        // w2ui.RABGInfoForm.record = data.record.Data;
+                                        if(raBGInfoGridRecord.IsUser && !raBGInfoGridRecord.IsPayor && !raBGInfoGridRecord.IsGurantor){
+                                            showHideRABGInfoFormFields(listOfHiddenFields, true);
+                                        }else{
+                                            showHideRABGInfoFormFields(listOfHiddenFields, false);
+                                        }
+                                        setRABFInfoFormFields(record);
+
+                                        w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+                                    }else {
+                                        console.log(data.message);
+                                    }
+                                })
+                                .fail(function (data) {
+                                    console.log("failure" + data);
+                                });
                         };
 
                     // warn user if form content has been changed
@@ -2046,7 +2168,6 @@ window.loadRABGInfoForm = function () {
                 };
             }
         });
-
     }
 
     // now load form in div
@@ -2064,33 +2185,43 @@ window.loadRABGInfoForm = function () {
     var gurantorsInfo = data.Guarantors;
 
     var raBGInfoGridRecords = [];
+    var raBGInfoGridRecord;
     var listOfTCID = [];
 
     // Get payors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(var j = 0; j < payorsInfo.length; j++){
         if(listOfTCID.indexOf(payorsInfo[j].TCID) <= -1){
+            payorsInfo[j].IsPayor = true;
             raBGInfoGridRecords.push(payorsInfo[j]);
             listOfTCID.push(payorsInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, payorsInfo[j].TCID);
+            raBGInfoGridRecord.IsPayor = true;
         }
-        payorsInfo[j].IsPayor = true;
     }
 
     // Get users list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < usersInfo.length; j++){
         if(listOfTCID.indexOf(usersInfo[j].TCID) <= -1){
+            usersInfo[j].IsUser = true;
             raBGInfoGridRecords.push(usersInfo[j]);
             listOfTCID.push(usersInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, usersInfo[j].TCID);
+            raBGInfoGridRecord.IsUser = true;
         }
-        usersInfo[j].IsUser = true;
     }
 
     // Get gurantors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < gurantorsInfo.length; j++){
         if(listOfTCID.indexOf(gurantorsInfo[j].TCID) <= -1){
+            gurantorsInfo[j].IsGurantor = true;
             raBGInfoGridRecords.push(gurantorsInfo[j]);
             listOfTCID.push(gurantorsInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, gurantorsInfo[j].TCID);
+            raBGInfoGridRecord.IsGurantor = true;
         }
-        gurantorsInfo[j].IsGurantor = true;
     }
 
     // load the existing data in Background Info grid
