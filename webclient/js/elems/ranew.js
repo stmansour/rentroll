@@ -231,6 +231,11 @@ window.buildNewRAElements = function() {
             { type: 'preview',      hidden: true },
             { type: 'bottom',       hidden: true },
             { type: 'right',        hidden: true, size: '200', resizable: true }
-        ]
+        ],
+        onResize: function(event) {
+            event.onComplete = function() {
+                $("#raflow-container #slider").width($(this.box).width());
+            };
+        }
     });
 };
