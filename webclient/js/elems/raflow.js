@@ -92,8 +92,6 @@ window.setRABFInfoFormFields = function(record) {
     formRecord.ApplicantEmailAddress = record.PrimaryEmail;
     formRecord.ApplicantPhone = record.WorkPhone;
     formRecord.ApplicantAddress = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
-
-    w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
 };
 
 // showHideRABGInfoFormFields
@@ -109,7 +107,6 @@ window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
         console.log(listOfHiddenFields[fieldIndex]);
         w2ui.RABGInfoForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
     }
-    w2ui.RABGInfoForm.refresh();
 };
 
 // toggleHaveCheckBoxDisablity
@@ -2155,6 +2152,8 @@ window.loadRABGInfoForm = function () {
                                             showHideRABGInfoFormFields(listOfHiddenFields, false);
                                         }
                                         setRABFInfoFormFields(record);
+
+                                        w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
                                     }else {
                                         console.log(data.message);
                                     }
