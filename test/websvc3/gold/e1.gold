@@ -19,7 +19,9 @@
         "TID": 0,
         "TLID": 0,
         "TaskComment": "",
+        "TaskDoneName": "",
         "TaskName": "",
+        "TaskPreDoneName": "",
         "Worker": "",
         "recid": 0
     },
