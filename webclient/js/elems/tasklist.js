@@ -12,7 +12,7 @@
 
 var TL = {
     FormWidth: 450,
-    TaskWidth: 400,
+    TaskWidth: 500,
     formBtnsDisabled: false,
 };
 
@@ -349,10 +349,10 @@ window.buildTaskListElements = function () {
                 }
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue',  'no pre-due date'               );
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',     'no due date'                   );
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, 0, '*', 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    0, '*', 'tskDtDone',    'tskDoneName',    'tskOverdue'   );
-                // r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.PreDoneName, 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
-                // r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.DoneName,    'tskDtDone',    'tskDoneName',    'tskOverdue'   );
+                // r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, 0, '*', 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
+                // r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    0, '*', 'tskDtDone',    'tskDoneName',    'tskOverdue'   );
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.TaskPreDoneName, 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.TaskDoneName,    'tskDtDone',    'tskDoneName',    'tskOverdue'   );
             };
         },
         onChange: function(event) {
@@ -662,27 +662,6 @@ window.openTaskForm = function (bid,tid) {
     w2ui.tlLayout.sizeTo('right', TL.TaskWidth);
     w2ui.tlLayout.show('right');
     w2ui.tlLayout.render();
-
-    // $().w2popup('open', {
-    //     title   : 'Task',
-    //     body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
-    //     style   : 'padding: 15px 0px 0px 0px',
-    //     width   : 600,
-    //     height  : 400,
-    //     showMax : true,
-    //     onToggle: function (event) {
-    //         $(w2ui.taskForm.box).hide();
-    //         event.onComplete = function () {
-    //             $(w2ui.taskForm.box).show();
-    //             w2ui.taskForm.resize();
-    //         };
-    //     },
-    //     onOpen: function (event) {
-    //         event.onComplete = function () {
-    //             $('#w2ui-popup #form').w2render('taskForm');
-    //         };
-    //     }
-    // });
 };
 
 //-----------------------------------------------------------------------------
