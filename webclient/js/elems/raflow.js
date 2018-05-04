@@ -7,7 +7,7 @@
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
-    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields
+    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
     hideSliderContent, showSliderContentW2UIComp
 */
 
