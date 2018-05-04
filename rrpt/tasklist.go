@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gotable"
 	"rentroll/rlib"
+	"time"
 )
 
 // TaskListTextReport generates a status report for the supplied TaskList
@@ -35,6 +36,7 @@ func TaskListTextReport(ctx context.Context, ri *ReporterInfo) {
 func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	const funcname = "TaskListReportTable"
 	var err error
+	var now = time.Now()
 
 	const (
 		Status        = 0
@@ -78,7 +80,21 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 
 	// overwrite a few things
 	tbl.SetTitle(tl.Name)
-	// tbl.SetSection1(s)
+	s := fmt.Sprintf("Due %s", tl.DtDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
+	tbl.SetSection1(s)
+
+	if tl.DoneUID > 0 {
+		s = fmt.Sprintf("Completed %s by %s", tl.DtDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT), rlib.GetNameForUID(ctx, tl.DoneUID))
+		if tl.DtDone.After(tl.DtDue) && tl.DtDue.Year() > 1900 {
+			s = "LATE, " + s
+		}
+	} else {
+		s = "Not Yet Completed"
+		if now.After(tl.DtDue) && tl.DtDue.Year() > 1900 {
+			s = "OVERDUE, " + s
+		}
+	}
+	tbl.SetSection2(s)
 
 	m, err := rlib.GetTasks(ctx, ri.ID)
 	if err != nil {

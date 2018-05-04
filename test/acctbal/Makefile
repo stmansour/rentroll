@@ -13,7 +13,8 @@ clean:
 
 config.json:
 	@/usr/local/accord/bin/getfile.sh accord/db/confdev.json
-	@cp confdev.json config.json
+	# ensure that we use UTC as the timezone
+	@grep -v Timezone confdev.json >config.json
 
 test: acctbal
 	touch fail

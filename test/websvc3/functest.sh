@@ -5,6 +5,7 @@
 # in base.sh to set other useful directories such as ${BASHDIR}
 #---------------------------------------------------------------
 TOP=../..
+BINDIR=${TOP}/tmp/rentroll
 
 TESTNAME="Tasks, Tasklists"
 TESTSUMMARY="Test Tasks, Tasklists, TaskDescriptors, TaskListDefinitions"
@@ -19,6 +20,8 @@ echo "Create new database..."
 mysql --no-defaults rentroll < tasks.sql
 
 source ../share/base.sh
+
+cp config.json ${BINDIR}/config.json
 
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"

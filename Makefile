@@ -85,9 +85,7 @@ package: rentroll
 	cp rentroll.1 ${DIST}/rentroll/man/man1
 	for dir in $(DIRS); do make -C $$dir package;done
 	cp rentroll ./${DIST}/rentroll/
-	# cp config.json ./${DIST}/rentroll/
 	cp ../gotable/pdfinstall.sh ${DIST}/rentroll/
-	# if [ -e js ]; then cp -r js ./${DIST}/rentroll/ ; fi
 	cp activate.sh update.sh ./${DIST}/rentroll/
 	rm -f ./rrnewdb ./rrbkup ./rrrestore
 	ln -s ${DIST}/rentroll/rrnewdb
