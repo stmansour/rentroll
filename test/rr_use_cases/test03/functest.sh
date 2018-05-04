@@ -31,6 +31,9 @@ source ../rr_base.sh
 # look for the report for the entire agreement period
 RRDATERANGE="-j 2016-01-01 -k 2017-01-01" # yyyy-mm-dd
 
+# This test requires UTC timezone, so ensure that no timezone is specified in config.json
+cp config.json ${RRBIN}/config.json
+
 # start the web server
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"

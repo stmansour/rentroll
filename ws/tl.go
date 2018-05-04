@@ -34,7 +34,9 @@ type SvcTaskList struct {
 	ChkDtPreDone bool
 	FLAGS        uint64
 	DoneUID      int64
+	DoneName     string
 	PreDoneUID   int64
+	PreDoneName  string
 	Comment      string
 	CreateTS     rlib.JSONDateTime // when was this record created
 	CreateBy     int64             // employee UID (from phonebook) that created it
@@ -385,15 +387,19 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//-------------------------------------------------------
 		if !foo.Record.ChkDtDue {
 			a.DtDue = blank.DtDue
+			a.DoneUID = 0
 		}
 		if !foo.Record.ChkDtPreDue {
 			a.DtPreDue = blank.DtPreDue
+			a.PreDoneUID = 0
 		}
 		if foo.Record.ChkDtPreDone {
 			a.DtPreDone = now
+			a.PreDoneUID = d.sess.UID
 		}
 		if foo.Record.ChkDtDone {
 			a.DtDone = now
+			a.DoneUID = d.sess.UID
 		}
 
 		if foo.Record.TLDID == 0 {
@@ -445,15 +451,19 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		//------------------------------------------------------------------
 		if b.DtPreDone.Year() > 1999 && !foo.Record.ChkDtPreDone { // current db DtPreDone is set, but user unset it
 			a.DtPreDone = rlib.TIME0
+			a.PreDoneUID = 0
 		}
 		if b.DtPreDone.Year() <= 1999 && foo.Record.ChkDtPreDone { // current db DtPreDone is unset, but user set it
 			a.DtPreDone = now
+			a.PreDoneUID = d.sess.UID
 		}
 		if b.DtDone.Year() > 1999 && !foo.Record.ChkDtDone { // current db DtDone is set, but user unset it
 			a.DtDone = rlib.TIME0
+			a.DoneUID = 0
 		}
 		if b.DtDone.Year() <= 1999 && foo.Record.ChkDtDone { // current db DtPreDone is unset, but user set it
 			a.DtDone = now
+			a.DoneUID = d.sess.UID
 		}
 		err = rlib.UpdateTaskList(r.Context(), &a)
 	}
@@ -507,6 +517,12 @@ func getTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		if a.DtPreDue.Year() > 1999 {
 			gg.ChkDtPreDue = true
+		}
+		if a.DoneUID > 0 {
+			gg.DoneName = rlib.GetNameForUID(r.Context(), a.DoneUID)
+		}
+		if a.PreDoneUID > 0 {
+			gg.PreDoneName = rlib.GetNameForUID(r.Context(), a.PreDoneUID)
 		}
 		g.Record = gg
 	}

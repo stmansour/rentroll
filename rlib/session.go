@@ -252,7 +252,7 @@ func IsUnrecognizedCookieError(err error) bool {
 }
 
 // ValidateSessionCookie is used to ensure that the session is still valid.
-// Even the session is found in our internal table, the 'air' is cookie used
+// Even if the session is found in our internal table, the 'air' is cookie used
 // other applications in the suite. Someone may have logged out from a
 // different app. If the cookie is not validated, then destroy the session
 //
@@ -276,6 +276,7 @@ func ValidateSessionCookie(r *http.Request) (ValidateCookie, error) {
 		return vc, nil
 	}
 	vc.CookieVal = c.Value
+	vc.FLAGS = 1 << 1 // validate AND reset the expire time. This says 15 min (or whatever it is) from now is the new expire time.
 
 	pbr, err := json.Marshal(&vc)
 	if err != nil {
@@ -287,17 +288,22 @@ func ValidateSessionCookie(r *http.Request) (ValidateCookie, error) {
 	//-----------------------------------------------------------------------
 	url := AppConfig.AuthNHost + "v1/validatecookie"
 	Console("posting request to: %s\n", url)
+	Console("              data: %s\n", string(pbr))
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(pbr))
 	req.Header.Set("Content-Type", "application/json")
+	Console("\n*** req = %#v\n\n", req)
 	client := &http.Client{}
+	Console("\n*** client = %#v\n\n", client)
 	resp, err := client.Do(req)
 	if err != nil {
 		return vc, fmt.Errorf("%s: failed to execute client.Do:  %s", funcname, err.Error())
 	}
 	defer resp.Body.Close()
 
+	Console("Response status = %s, status code = %d\n", resp.Status, resp.StatusCode)
+
 	body, _ := ioutil.ReadAll(resp.Body)
-	// Console("response Body: %s\n", string(body))
+	Console("*** Directory Service *** response Body: %s\n", string(body))
 
 	if err := json.Unmarshal([]byte(body), &vc); err != nil {
 		return vc, fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
@@ -369,7 +375,8 @@ func GetSession(ctx context.Context, w http.ResponseWriter, r *http.Request) (*S
 		// Send to the authenication server
 		//-----------------------------------------------------------------------
 		url := AppConfig.AuthNHost + "v1/validatecookie"
-		// Console("posting request to: %s\n", url)
+		Console("%s: posting request to: %s\n", funcname, url)
+		Console("\tbody: %s\n", string(pbr))
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(pbr))
 		req.Header.Set("Content-Type", "application/json")
 		client := &http.Client{}

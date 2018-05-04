@@ -958,11 +958,11 @@ window.exportItemReportCSV = function (rptname,id,dtStart,dtStop,returnURL) {
 // Download the CSV report for given report name, date range
 //
 // @params
-//   rptname            : report name to be downloaded
-//   dtStart            : Start Date
-//   dtStop             : Stop Date
-//   returnURL          : it true then returns the url otherwise
-//                        downloads the report from built url in separate window
+//   rptname   : report name to be downloaded
+//   dtStart   : Start Date
+//   dtStop    : Stop Date
+//   returnURL : it true then returns the url otherwise
+//               downloads the report from built url in separate window
 //-------------------------------------------------------------------------------
 window.exportReportCSV = function (rptname, dtStart, dtStop, returnURL){
     if (rptname === '') {

@@ -50,6 +50,7 @@ var App struct {
 	BatchMode    bool     // if true, then don't start http, the command line request is for a batch process
 	SkipVacCheck bool     // until the code is modified to process on each command entered, if set to false, this inibits batch processing to do vacancy calc.
 	NoAuth       bool     // if true then skip authentication
+	DisableTWS   bool     // if true then don't initialize tws
 	CSVLoad      string   // if loading csv, this string will have index,filename
 	sStart       string   // start time
 	sStop        string   // stop time
@@ -82,6 +83,7 @@ func readCommandLineArgs() {
 	xPtr := flag.Bool("x", false, "if specified, inhibit vacancy checking")
 	noconPtr := flag.Bool("nocon", false, "if specified, inhibit Console output")
 	noauth := flag.Bool("noauth", false, "if specified, inhibit authentication")
+	notws := flag.Bool("notws", false, "if specified, do not run tws")
 	confPtr := flag.String("confdir", "", "override config.json directory path")
 	rsd := flag.String("rsd", "./", "Root Static Directory path") // it will pick static content from provided path, default will be current directory
 
@@ -112,6 +114,7 @@ func readCommandLineArgs() {
 	App.CSVLoad = *pLoad
 	App.RootStaticDir = *rsd
 	App.NoAuth = *noauth
+	App.DisableTWS = *notws
 	App.ConfigPath = *confPtr
 }
 
@@ -215,9 +218,11 @@ func main() {
 		rcsv.InitRCSV(&dCtx.DtStart, &dCtx.DtStop, &dCtx.xbiz)
 		RunCommandLine(ctx, &dCtx)
 	} else {
-		tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir) // starts the scheduler in a go routine. only initialize when we're in server mode
-		worker.Init()                             // register Rentroll's TWS workers
-		initHTTP()                                // identify the handlers
+		if !App.DisableTWS {
+			tws.Init(rlib.RRdb.Dbrr, rlib.RRdb.Dbdir) // starts the scheduler in a go routine. only initialize when we're in server mode
+		}
+		worker.Init() // register Rentroll's TWS workers
+		initHTTP()    // identify the handlers
 		rlib.Ulog("RentRoll initiating HTTP service on port %d and HTTPS on port %d\n", App.PortRR, App.PortRR+1)
 		rlib.SessionInit(rlib.AppConfig.SessionTimeout)
 		rlib.Ulog("RentRoll sessions timeout is %d minutes\n", rlib.AppConfig.SessionTimeout)

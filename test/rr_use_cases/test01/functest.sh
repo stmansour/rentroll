@@ -34,6 +34,9 @@ source ../rr_base.sh
 RRDATERANGE="-j 2016-01-01 -k 2017-01-01" # yyyy-mm-dd
 # CSVLOADRANGE="-G ${BUD} -g 6/1/17,7/1/17" # mm/d/yy, US format
 
+# This test requires UTC timezone, so ensure that no timezone is specified in config.json
+cp config.json ${RRBIN}/config.json
+
 # start the web server
 echo "STARTING RENTROLL SERVER"
 RENTROLLSERVERAUTH="-noauth"

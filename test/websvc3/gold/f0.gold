@@ -1,13 +1,10 @@
-REX Task List
-Nov 1, 2015
-BH Rexford Group, Inc.
-11719 Bee Cave Road
-Suite 301
-Austin, TX 78738 USA
-
-
-Status     Task             PreDueDate            PreApprovedBy         DueDate               ApprovedBy          
----------  ---------------  --------------------  --------------------  --------------------  --------------------
-tbd        tbd              02/20/2018 20:00:00   UID-0                 02/28/2018 20:00:00   UID-0               
-tbd        tbd              02/20/2018 20:00:00   UID-0                 02/28/2018 20:00:00   UID-0               
-tbd        tbd              02/20/2018 20:00:00   UID-0                 02/28/2018 20:00:00   UID-0               
+Monthly Close
+Due Feb 28, 2018 9:00am PST
+OVERDUE, Not Yet Completed
+Status     Task             PreDueDate            PreDoneDate           PreApprovedBy         DueDate               ApprovedBy          
+---------  ---------------  --------------------  --------------------  --------------------  --------------------  --------------------
+tbd        Delinquency      02/20/2018 20:00:00                         UID-0                 02/28/2018 20:00:00                       
+           Report                                                                                                                       
+tbd        Walk the Units   02/20/2018 20:00:00                         UID-0                 02/28/2018 20:00:00                       
+tbd        Generate         02/20/2018 20:00:00                         UID-0                 02/28/2018 20:00:00                       
+           Offsets                                                                                                                      

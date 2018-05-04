@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # USAGE:
-# 	release bundle
+# 	release prodname
 #
 # SYNOPSIS: elevate airepo:/air/snapshot/<bundle> to release status in the 
 #           repository
