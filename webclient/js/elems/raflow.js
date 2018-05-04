@@ -7,7 +7,8 @@
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
-    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields
+    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, hideSliderContent,
+    showSliderContentW2UIComp
 */
 
 "use strict";
@@ -2707,7 +2708,7 @@ window.showSliderContentW2UIComp = function(w2uiComp, width) {
     $("#raflow-container #slider").show();
     $("#raflow-container #slider #slider-content").width(width);
     $("#raflow-container #slider #slider-content").w2render(w2ui.RAAddTransactantForm);
-}
+};
 
 //-----------------------------------------------------------------------------
 // hideSliderContent - hide the slider and empty the content inside
@@ -2718,4 +2719,5 @@ window.hideSliderContent = function() {
     $("#raflow-container #slider").hide();
     $("#raflow-container #slider #slider-content").width(0);
     $("#raflow-container #slider #slider-content").empty();
-}
+};
+
