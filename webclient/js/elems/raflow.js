@@ -685,8 +685,8 @@ window.loadTransactantListingItem = function (transactantRec, IsRenter, IsOccupa
             }
 
             // if with this tcid element exists in DOM then not append
-            if ($('#payor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
-                $('#payor-list .people-listing').append(peopleListingItem);
+            if ($('#renter-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
+                $('#renter-list .people-listing').append(peopleListingItem);
             }
         }
     }
@@ -707,8 +707,8 @@ window.loadTransactantListingItem = function (transactantRec, IsRenter, IsOccupa
             }
 
             // if with this tcid element exists in DOM then not append
-            if ($('#user-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
-                $('#user-list .people-listing').append(peopleListingItem);
+            if ($('#occupant-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
+                $('#occupant-list .people-listing').append(peopleListingItem);
             }
         }
     }
@@ -791,8 +791,8 @@ window.getRAAddTransactantFormInitRec = function(BID, BUD, previousFormRecord) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 window.acceptTransactant = function () {
-    var IsRenter = w2ui.RAPeopleForm.record.Payor;
-    var IsOccupant = w2ui.RAPeopleForm.record.User;
+    var IsRenter = w2ui.RAPeopleForm.record.Renter;
+    var IsOccupant = w2ui.RAPeopleForm.record.Occupant;
     var IsGuarantor = w2ui.RAPeopleForm.record.Guarantor;
 
     // if not set anything then alert the user to select any one of them
@@ -1003,7 +1003,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'LastName', type: 'text', required: true, html: {caption: "LastName"}},
                 {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
                 {name: 'CompanyName', type: 'text', required: false, html: {caption: "CompanyName"}},
-                {name: 'IsCompany', type: 'bool', required: false, html: {caption: "IsCompany"}},
+                {name: 'IsCompany', type: 'bool', required: false, html: {caption: "IsCompany"}}
             ],
             toolbar : {
                 items: [
@@ -2129,12 +2129,12 @@ window.loadRABGInfoForm = function () {
                                     var listOfHiddenFields = ["CurrentAddress", "CurrentLandLoardName",
                                         "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
                                         "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
-                                        "PriorLengthOfResidency", "PriorReasonForMoving", "ApplicantPosition",
-                                        "ApplicantGrossWages"];
+                                        "PriorLengthOfResidency", "PriorReasonForMoving"];
 
                                     // These all fields are not required when transanctant is only user
                                     var listOfNotRequiredFields = ["ApplicantSSN", "ApplicantTelephoneNo",
-                                        "ApplicantPhone", "ApplicantEmailAddress"];
+                                        "ApplicantPhone", "ApplicantEmailAddress", "ApplicantPosition",
+                                        "ApplicantGrossWages"];
 
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
@@ -2740,4 +2740,3 @@ window.hideSliderContent = function() {
     $("#raflow-container #slider #slider-content").width(0);
     $("#raflow-container #slider #slider-content").empty();
 };
-
