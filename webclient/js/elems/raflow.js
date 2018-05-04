@@ -6,10 +6,15 @@
     getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
-    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity
+    openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
+    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, hideSliderContent,
+    showSliderContentW2UIComp
 */
 
 "use strict";
+
+// right side slider content div length
+var sliderContentDivLength = 400;
 
 // Next button handling
 $(document).on('click', '#ra-form #next', function () {
@@ -78,6 +83,36 @@ window.lockOnGrid = function (gridName) {
     }
 };
 
+// setRABFInfoFormFields It set default fields value from the transanctants to form.
+window.setRABFInfoFormFields = function(record) {
+    var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
+
+    formRecord.ApplicationDate = Date.now();
+    formRecord.MoveInDate = Date.now();
+    formRecord.ApplicantFirstName = record.FirstName;
+    formRecord.ApplicantMiddleName = record.MiddleName;
+    formRecord.ApplicantLastName = record.LastName;
+    formRecord.ApplicantTelephoneNo = record.CellPhone;
+    formRecord.ApplicantEmailAddress = record.PrimaryEmail;
+    formRecord.ApplicantPhone = record.WorkPhone;
+    formRecord.ApplicantAddress = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
+};
+
+// showHideRABGInfoFormFields
+window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
+    if(hidden){
+        $("#cureentInfolabel").hide();
+        $("#priorInfolabel").hide();
+    }else{
+        $("#cureentInfolabel").show();
+        $("#priorInfolabel").show();
+    }
+    for(var fieldIndex=0; fieldIndex < listOfHiddenFields.length; fieldIndex++){
+        console.log(listOfHiddenFields[fieldIndex]);
+        w2ui.RABGInfoForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
+    }
+};
+
 // toggleHaveCheckBoxDisablity
 // Enable checkbox if there is no record
 // lock/unlock grid based on checkbox value
@@ -136,6 +171,49 @@ window.getRAFlowPartData = function (partType) {
         }
     });
 
+};
+
+// get RATransactant detail from the server
+window.getRATransanctantDetail = function(TCID){
+    var bid = getCurrentBID();
+
+    // temporary data
+    var data = {
+        "cmd":"get",
+        "recid":0,
+        "name":"transactantForm"
+    };
+
+
+    return $.ajax({
+        url: "/v1/person/" + bid.toString() + "/" + TCID,
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (data.status != "error"){
+                console.log("Received data for transanctant:", JSON.stringify(data));
+            }else {
+                console.error(data.message);
+            }
+        },
+        error: function () {
+            console.log("Error:" + JSON.stringify(data));
+        }
+    });
+};
+
+// getRABGInfoGridRecord
+window.getRABGInfoGridRecord = function(records, TCID){
+    var raBGInfoGridrecord;
+    for(var recordIndex=0; recordIndex < records.length; recordIndex++) {
+        if(records[recordIndex].TCID == TCID){
+            raBGInfoGridrecord = records[recordIndex];
+            break;
+        }
+    }
+    return raBGInfoGridrecord;
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -662,8 +740,7 @@ window.openNewTransactantForm = function() {
     // this is new form so TCID is set to zero
     w2ui.RAAddTransactantForm.url = "/v1/person/" + BID.toString() + "/0";
     w2ui.RAAddTransactantForm.record = getRAAddTransactantFormInitRec(BID, BUD, null);
-    $("#raflow-container #slider").show();
-    $("#raflow-container #slider #slider-content").w2render(w2ui.RAAddTransactantForm);
+    showSliderContentW2UIComp(w2ui.RAAddTransactantForm, RACompConfig.people.sliderWidth);
     w2ui.RAAddTransactantForm.refresh(); // need to refresh for header changes
 };
 
@@ -930,8 +1007,7 @@ window.loadRAPeopleForm = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            $("#raflow-container #slider").hide();
-                            $("#raflow-container #slider #slider-content").empty();
+                            hideSliderContent();
                             break;
                     }
                 }
@@ -950,9 +1026,7 @@ window.loadRAPeopleForm = function () {
                             f.message(data.message);
                             return;
                         }
-
-                        $("#raflow-container #slider").hide();
-                        $("#raflow-container #slider #slider-content").empty();
+                        hideSliderContent();
                     });
                 },
                 saveadd: function() {
@@ -1115,8 +1189,7 @@ window.loadRAPetsGrid = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            $("#raflow-container #slider").hide();
-                            $("#raflow-container #slider #slider-content").empty();
+                            hideSliderContent();
                             break;
                     }
                 }
@@ -1202,8 +1275,7 @@ window.loadRAPetsGrid = function () {
                             toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // close the form
-                            $("#raflow-container #slider").hide();
-                            $("#raflow-container #slider #slider-content").empty();
+                            hideSliderContent();
                         } else {
                             form.message(data.message);
                         }
@@ -1293,8 +1365,7 @@ window.loadRAPetsGrid = function () {
                             reassignGridRecids(grid.name);
 
                             // close the form
-                            $("#raflow-container #slider").hide();
-                            $("#raflow-container #slider #slider-content").empty();
+                            hideSliderContent();
                         } else {
                             form.message(data.message);
                         }
@@ -1412,8 +1483,7 @@ window.loadRAPetsGrid = function () {
                             grid.select(app.last.grid_sel_recid);
                             w2ui.RAPetForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                            $("#raflow-container #slider").show();
-                            $("#raflow-container #slider #slider-content").w2render(w2ui.RAPetForm);
+                            showSliderContentW2UIComp(w2ui.RAPetForm, RACompConfig.pets.sliderWidth);
                             w2ui.RAPetForm.refresh(); // need to refresh for header changes
                         };
 
@@ -1436,9 +1506,7 @@ window.loadRAPetsGrid = function () {
                         w2ui.RAPetForm.record = getPetFormInitRecord(BID, BUD, null);
                         // set record id
                         w2ui.RAPetForm.record.recid = w2ui.RAPetsGrid.records.length + 1;
-
-                        $("#raflow-container #slider").show();
-                        $("#raflow-container #slider #slider-content").w2render(w2ui.RAPetForm);
+                        showSliderContentW2UIComp(w2ui.RAPetForm, RACompConfig.pets.sliderWidth);
                         w2ui.RAPetForm.refresh();
                     };
 
@@ -1546,8 +1614,7 @@ window.loadRAVehiclesGrid = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            $("#raflow-container #slider").hide();
-                            $("#raflow-container #slider #slider-content").empty();
+                            hideSliderContent();
                             break;
                     }
                 }
@@ -1620,8 +1687,7 @@ window.loadRAVehiclesGrid = function () {
                                 toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
                                 // close the form
-                                $("#raflow-container #slider").hide();
-                                $("#raflow-container #slider #slider-content").empty();
+                                hideSliderContent();
                             } else {
                                 form.message(data.message);
                             }
@@ -1706,8 +1772,7 @@ window.loadRAVehiclesGrid = function () {
                                 reassignGridRecids(grid.name);
 
                                 // close the form
-                                $("#raflow-container #slider").hide();
-                                $("#raflow-container #slider #slider-content").empty();
+                                hideSliderContent();
                             } else {
                                 form.message(data.message);
                             }
@@ -1838,9 +1903,7 @@ window.loadRAVehiclesGrid = function () {
                             grid.select(app.last.grid_sel_recid);
 
                             w2ui.RAVehicleForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
-
-                            $("#raflow-container #slider").show();
-                            $("#raflow-container #slider #slider-content").w2render(w2ui.RAVehicleForm);
+                            showSliderContentW2UIComp(w2ui.RAVehicleForm, RACompConfig.vehicles.sliderWidth);
                             w2ui.RAVehicleForm.refresh();
 
                         };
@@ -1863,8 +1926,7 @@ window.loadRAVehiclesGrid = function () {
 
                         w2ui.RAVehicleForm.record = getVehicleGridInitalRecord(BID, BUD, null);
                         w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
-                        $("#raflow-container #slider").show();
-                        $("#raflow-container #slider #slider-content").w2render(w2ui.RAVehicleForm);
+                        showSliderContentW2UIComp(w2ui.RAVehicleForm, RACompConfig.vehicles.sliderWidth);
                         w2ui.RAVehicleForm.refresh();
                     };
 
@@ -1936,14 +1998,13 @@ window.loadRABGInfoForm = function () {
                 onClick: function (event) {
                     switch (event.target){
                         case 'btnClose':
-                            $("#raflow-container #slider").hide();
-                            $("#raflow-container #slider #slider-content").empty();
+                            hideSliderContent();
                             break;
                     }
                 }
             },
             fields: [
-                {field: 'ApplicationDate', type: 'date', required: true},
+                {field: 'ApplicationDate', type: 'date', required: true, disable: true},
                 {field: 'MoveInDate', type: 'date', required: true},
                 {field: 'ApartmentNo', type: 'alphanumeric', required: true}, // Apartment number
                 {field: 'LeaseTerm', type: 'text', required: true}, // Lease term
@@ -2005,7 +2066,8 @@ window.loadRABGInfoForm = function () {
                 {
                     field: 'TCID',
                     caption: 'TCID',
-                    size: '50px' // TODO(Akshay): Make TCID field hidden once background info grid work finished.
+                    size: '50px',
+                    hidden: true
                 },
                 {
                     field: 'FullName',
@@ -2019,10 +2081,30 @@ window.loadRABGInfoForm = function () {
                         }
 
                     }
+                },
+                {
+                    field: 'IsPayor',
+                    caption: 'IsPayor',
+                    size: '100px',
+                    hidden: true
+                },
+                {
+                    field: 'IsUser',
+                    caption: 'IsUser',
+                    size: '100px',
+                    hidden: true
+                },
+                {
+                    field: 'IsGurantor',
+                    caption: 'IsGurantor',
+                    size: '100px',
+                    hidden: true
                 }
             ],
             onClick : function(event) {
                 event.onComplete = function() {
+                    var raBGInfoGridRecord = w2ui.RABGInfoGrid.get(event.recid); // record from the w2ui grid
+
                     var yes_args = [this, event.recid],
                         no_args = [this],
                         no_callBack = function(grid) {
@@ -2034,11 +2116,37 @@ window.loadRABGInfoForm = function () {
 
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
-                            w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                            $("#raflow-container #slider").show();
-                            $("#raflow-container #slider #slider-content").w2render(w2ui.RABGInfoForm);
-                            w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+                            // w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+                            showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.bginfo.sliderWidth);
+
+                            // get transanctant information from the server
+                            getRATransanctantDetail(raBGInfoGridRecord.TCID)
+                                .done(function (data){
+                                    // Hide these all fields when transanctant is only user.
+                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLoardName",
+                                        "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
+                                        "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
+                                        "PriorLengthOfResidency", "PriorReasonForMoving"];
+
+                                    if(data.status === 'success'){
+                                        var record = data.record; // record from the server response
+                                        // w2ui.RABGInfoForm.record = data.record.Data;
+                                        if(raBGInfoGridRecord.IsUser && !raBGInfoGridRecord.IsPayor && !raBGInfoGridRecord.IsGurantor){
+                                            showHideRABGInfoFormFields(listOfHiddenFields, true);
+                                        }else{
+                                            showHideRABGInfoFormFields(listOfHiddenFields, false);
+                                        }
+                                        setRABFInfoFormFields(record);
+
+                                        w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+                                    }else {
+                                        console.log(data.message);
+                                    }
+                                })
+                                .fail(function (data) {
+                                    console.log("failure" + data);
+                                });
                         };
 
                     // warn user if form content has been changed
@@ -2046,7 +2154,6 @@ window.loadRABGInfoForm = function () {
                 };
             }
         });
-
     }
 
     // now load form in div
@@ -2064,33 +2171,43 @@ window.loadRABGInfoForm = function () {
     var gurantorsInfo = data.Guarantors;
 
     var raBGInfoGridRecords = [];
+    var raBGInfoGridRecord;
     var listOfTCID = [];
 
     // Get payors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(var j = 0; j < payorsInfo.length; j++){
         if(listOfTCID.indexOf(payorsInfo[j].TCID) <= -1){
+            payorsInfo[j].IsPayor = true;
             raBGInfoGridRecords.push(payorsInfo[j]);
             listOfTCID.push(payorsInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, payorsInfo[j].TCID);
+            raBGInfoGridRecord.IsPayor = true;
         }
-        payorsInfo[j].IsPayor = true;
     }
 
     // Get users list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < usersInfo.length; j++){
         if(listOfTCID.indexOf(usersInfo[j].TCID) <= -1){
+            usersInfo[j].IsUser = true;
             raBGInfoGridRecords.push(usersInfo[j]);
             listOfTCID.push(usersInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, usersInfo[j].TCID);
+            raBGInfoGridRecord.IsUser = true;
         }
-        usersInfo[j].IsUser = true;
     }
 
     // Get gurantors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < gurantorsInfo.length; j++){
         if(listOfTCID.indexOf(gurantorsInfo[j].TCID) <= -1){
+            gurantorsInfo[j].IsGurantor = true;
             raBGInfoGridRecords.push(gurantorsInfo[j]);
             listOfTCID.push(gurantorsInfo[j].TCID);
+        }else{
+            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, gurantorsInfo[j].TCID);
+            raBGInfoGridRecord.IsGurantor = true;
         }
-        gurantorsInfo[j].IsGurantor = true;
     }
 
     // load the existing data in Background Info grid
@@ -2162,13 +2279,13 @@ window.loadRARentablesGrid = function () {
             style: 'border: 1px solid black; display: block;',
             toolbar: {
                 items: [
-                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'}
+                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
                 ],
                 onClick: function (event) {
-                    var bid = getCurrentBID();
-                    if (event.target == 'add') {
-                        var inital = getRentablesGridInitalRecord(bid, w2ui.RARentablesGrid.records.length);
-                        w2ui.RARentablesGrid.add(inital);
+                    switch(event.target) {
+                        case "add":
+                            showSliderContentW2UIComp(w2ui.RARentablesFeesGrid, RACompConfig.rentables.sliderWidth);
+                            break;
                     }
                 }
             },
@@ -2237,6 +2354,119 @@ window.loadRARentablesGrid = function () {
                 };
             }
         });
+
+        // rentables grid
+        $().w2grid({
+            name: 'RARentablesFeesGrid',
+            header: 'Rentables Fees',
+            show: {
+                toolbar: true,
+                footer: true,
+            },
+            style: 'border: 4px solid silver; display: block;',
+            toolbar: {
+                items: [
+                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
+                    {id: 'bt3', type: 'spacer'},
+                    {id: 'btnClose', type: 'button', icon: 'fas fa-times'},
+                ],
+                onClick: function (event) {
+                    switch(event.target) {
+                        case "add":
+                            console.log("clicked on add");
+                            break;
+                        case "btnClose":
+                            hideSliderContent();
+                            break;
+                    }
+                }
+            },
+            columns: [
+                {
+                    field: 'recid',
+                    hidden: true,
+                },
+                {
+                    field: 'ARID',
+                    hidden: true
+                },
+                {
+                    field: 'BID',
+                    hidden: true
+                },
+                {
+                    field: 'Name',
+                    caption: 'Fee',
+                    size: '250px',
+                },
+                {
+                    field: 'Amount',
+                    caption: 'Amount',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'RentCycle',
+                    caption: 'Cycle',
+                    size: '100px',
+                },
+                {
+                    field: 'Epoch',
+                    caption: 'Epoch',
+                    size: '100px',
+                },
+                {
+                    field: 'RentPeriod',
+                    caption: 'RentPeriod',
+                    size: '100px',
+                },
+                {
+                    field: 'UsePeriod',
+                    caption: 'UsePeriod',
+                    size: '100px',
+                },
+                {
+                    field: 'ContractRent',
+                    caption: 'At Signing',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'ProrateAmt',
+                    caption: 'Prorate',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'SalesTaxAmt',
+                    caption: 'Sales Tax Amt',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'SalesTax',
+                    caption: 'Sales Tax',
+                    size: '100px',
+                },
+                {
+                    field: 'TransOccAmt',
+                    caption: 'Trans Occ Amt',
+                    size: '100px',
+                    render: 'money',
+                },
+                {
+                    field: 'TransOcc',
+                    caption: 'Trans Occ',
+                    size: '100px',
+                }
+            ],
+            onChange: function (event) {
+                event.onComplete = function () {
+                    this.save();
+                };
+            }
+        });
+
     }
 
     // now load grid in division
@@ -2426,34 +2656,68 @@ window.loadRAFeesTermsGrid = function () {
 var RACompConfig = {
     "dates": {
         loader: loadRADatesForm,
-        w2uiComp: "RADatesForm"
+        w2uiComp: "RADatesForm",
+        sliderWidth: 0,
     },
     "people": {
         loader: loadRAPeopleForm,
-        w2uiComp: "RAPeopleForm"
+        w2uiComp: "RAPeopleForm",
+        sliderWidth: 400,
     },
     "pets": {
         loader: loadRAPetsGrid,
-        w2uiComp: "RAPetsGrid"
+        w2uiComp: "RAPetsGrid",
+        sliderWidth: 400,
     },
     "vehicles": {
         loader: loadRAVehiclesGrid,
-        w2uiComp: "RAVehiclesGrid"
+        w2uiComp: "RAVehiclesGrid",
+        sliderWidth: 400,
     },
     "bginfo": {
         loader: loadRABGInfoForm,
-        w2uiComp: "RABGInfoForm"
+        w2uiComp: "RABGInfoForm",
+        sliderWidth: 700,
     },
     "rentables": {
         loader: loadRARentablesGrid,
-        w2uiComp: "RARentablesGrid"
+        w2uiComp: "RARentablesGrid",
+        sliderWidth: 800,
     },
     "feesterms": {
         loader: loadRAFeesTermsGrid,
-        w2uiComp: "RAFeesTermsGrid"
+        w2uiComp: "RAFeesTermsGrid",
+        sliderWidth: 400,
     },
     "final": {
         loader: null,
-        w2uiComp: ""
+        w2uiComp: "",
+        sliderWidth: 0,
     }
 };
+
+//-----------------------------------------------------------------------------
+// showSliderContentW2UIComp - renders the w2ui component into slider-content
+//                             and apply the given width to it
+//
+// @params
+//   w2uiComp = w2ui component
+//   width    = width to apply to slider content div
+//-----------------------------------------------------------------------------
+window.showSliderContentW2UIComp = function(w2uiComp, width) {
+    $("#raflow-container #slider").show();
+    $("#raflow-container #slider #slider-content").width(width);
+    $("#raflow-container #slider #slider-content").w2render(w2uiComp);
+};
+
+//-----------------------------------------------------------------------------
+// hideSliderContent - hide the slider and empty the content inside
+//                     slider-content div
+//
+//-----------------------------------------------------------------------------
+window.hideSliderContent = function() {
+    $("#raflow-container #slider").hide();
+    $("#raflow-container #slider #slider-content").width(0);
+    $("#raflow-container #slider #slider-content").empty();
+};
+
