@@ -83,8 +83,6 @@ window.lockOnGrid = function (gridName) {
 window.setRABFInfoFormFields = function(record) {
     var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
 
-    formRecord.ApplicationDate = Date.now();
-    formRecord.MoveInDate = Date.now();
     formRecord.ApplicantFirstName = record.FirstName;
     formRecord.ApplicantMiddleName = record.MiddleName;
     formRecord.ApplicantLastName = record.LastName;
@@ -2017,16 +2015,12 @@ window.loadRABGInfoForm = function () {
                 }
             },
             fields: [
-                {field: 'ApplicationDate', type: 'date', required: true, disable: true},
-                {field: 'MoveInDate', type: 'date', required: true},
-                {field: 'ApartmentNo', type: 'alphanumeric', required: true}, // Apartment number
-                {field: 'LeaseTerm', type: 'text', required: true}, // Lease term
                 {field: 'ApplicantFirstName', type: 'text', required: true},
                 {field: 'ApplicantMiddleName', type: 'text', required: true},
                 {field: 'ApplicantLastName', type: 'text', required: true},
                 {field: 'ApplicantBirthDate', type: 'date', required: true}, // Date of births of applicants
                 {field: 'ApplicantSSN', type: 'text', required: true}, // Social security number of applicants
-                {field: 'ApplicantDriverLicNo', type: 'text', required: true}, // Driving licence number of applicants
+                {field: 'ApplicantDriverLicNo', type: 'text'}, // Driving licence number of applicants
                 {field: 'ApplicantTelephoneNo', type: 'text', required: true}, // Telephone no of applicants
                 {field: 'ApplicantEmailAddress', type: 'email', required: true}, // Email Address of applicants
                 {field: 'CurrentAddress', type: 'text', required: true}, // Current Address
@@ -2141,7 +2135,8 @@ window.loadRABGInfoForm = function () {
                                     var listOfHiddenFields = ["CurrentAddress", "CurrentLandLoardName",
                                         "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
                                         "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
-                                        "PriorLengthOfResidency", "PriorReasonForMoving"];
+                                        "PriorLengthOfResidency", "PriorReasonForMoving", "ApplicantPosition",
+                                        "ApplicantGrossWages"];
 
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
