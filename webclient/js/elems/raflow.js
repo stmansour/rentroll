@@ -2682,17 +2682,17 @@ var RACompConfig = {
     "people": {
         loader: loadRAPeopleForm,
         w2uiComp: "RAPeopleForm",
-        sliderWidth: 0,
+        sliderWidth: 400,
     },
     "pets": {
         loader: loadRAPetsGrid,
         w2uiComp: "RAPetsGrid",
-        sliderWidth: 500,
+        sliderWidth: 400,
     },
     "vehicles": {
         loader: loadRAVehiclesGrid,
         w2uiComp: "RAVehiclesGrid",
-        sliderWidth: 500,
+        sliderWidth: 400,
     },
     "bginfo": {
         loader: loadRABGInfoForm,
@@ -2707,7 +2707,7 @@ var RACompConfig = {
     "feesterms": {
         loader: loadRAFeesTermsGrid,
         w2uiComp: "RAFeesTermsGrid",
-        sliderWidth: 500,
+        sliderWidth: 400,
     },
     "final": {
         loader: null,

@@ -21,7 +21,7 @@ window.setToNewRAForm = function (bid, FlowID) {
 
     w2ui.toplayout.content('right', w2ui.newraLayout);
     w2ui.toplayout.show('right', true);
-    w2ui.toplayout.sizeTo('right', app.WidestFormWidth);
+    w2ui.toplayout.sizeTo('right', 950);
 
     $.get('/webclient/html/raflowtmpl.html', function(data) {
         w2ui.newraLayout.content('main', data);
