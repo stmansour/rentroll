@@ -131,7 +131,7 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		}
 
 		if m[i].DtDone.Year() > 1970 {
-			tbl.Putdt(-1, DoneDate, m[i].DtPreDone)
+			tbl.Putdt(-1, DoneDate, m[i].DtDone)
 		}
 		if m[i].DoneUID > 0 {
 			tbl.Puts(-1, ApprovedBy, rlib.GetNameForUID(ctx, m[i].DoneUID))
