@@ -11,9 +11,9 @@
 */
 
 var TL = {
-    FormWidth: 450,
-    TaskWidth: 500,
-    formBtnsDisabled: false,
+    TaskWidth: 500,             // width of task form over tasklist grid
+    formBtnsDisabled: false,    // indicates whether the tasklist save/delete buttons should be on/off
+    TIME0: '1/1/1970',          // value of time if date control returns an empty string
 };
 
 window.getNewTaskListRecord = function (bid) {
@@ -173,10 +173,6 @@ window.buildTaskListElements = function () {
                 if (typeof r.DtPreDue === "undefined") {
                     return;
                 }
-                // r.ChkDtPreDue  = dtFormatISOToW2ui(r.ChkDtPreDue );
-                // r.ChkDtDue     = dtFormatISOToW2ui(r.ChkDtDue );
-                // r.ChkDtDone    = dtFormatISOToW2ui(r.ChkDtDone );
-                // r.ChkDtPreDone = dtFormatISOToW2ui(r.ChkDtPreDone );
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
                 r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.PreDoneUID, r.PreDoneName, 'sDtDone',   'tlDoneName',    'tlOverdue');
@@ -349,8 +345,6 @@ window.buildTaskListElements = function () {
                 }
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue',  'no pre-due date'               );
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',     'no due date'                   );
-                // r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, 0, '*', 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
-                // r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    0, '*', 'tskDtDone',    'tskDoneName',    'tskOverdue'   );
                 r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.TaskPreDoneName, 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
                 r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.TaskDoneName,    'tskDtDone',    'tskDoneName',    'tskOverdue'   );
             };
