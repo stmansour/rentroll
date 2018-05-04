@@ -2143,8 +2143,7 @@ window.loadRABGInfoForm = function () {
                                         // w2ui.RABGInfoForm.record = data.record.Data;
 
                                         // Set the form tile
-                                        w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' '
-                                            + record.MiddleName + ' ' + record.LastName;
+                                        w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
 
                                         if(raBGInfoGridRecord.IsUser && !raBGInfoGridRecord.IsPayor && !raBGInfoGridRecord.IsGurantor){
                                             showHideRABGInfoFormFields(listOfHiddenFields, true);

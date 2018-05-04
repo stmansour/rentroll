@@ -309,11 +309,18 @@ i.remove-item {
     margin-left: 128px;
 }
 
-.ra-form-component#bginfo input[type="checkbox"] {
+/*.ra-form-component#bginfo input[type="checkbox"] {
     vertical-align: middle;
     width: 15px;
     height: 16px;
     margin-right: 3px;
+}*/
+
+#bginfoCheckboxes input[type="checkbox"] {
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
 }
 
 .cb-section {
