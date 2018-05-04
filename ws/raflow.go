@@ -45,8 +45,8 @@ type RADatesFlowData struct {
 
 // RAPeopleFlowData contains data in the people part of RA flow
 type RAPeopleFlowData struct {
-	Payors     []rlib.TransactantTypeDown `json:"Payors"`
-	Users      []rlib.TransactantTypeDown `json:"Users"`
+	Renters    []rlib.TransactantTypeDown `json:"Renters"`
+	Occupants  []rlib.TransactantTypeDown `json:"Occupants"`
 	Guarantors []rlib.TransactantTypeDown `json:"Guarantors"`
 }
 
@@ -200,8 +200,8 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 		return json.Marshal(&a)
 	case rlib.PeopleRAFlowPart:
 		a := RAPeopleFlowData{
-			Payors:     []rlib.TransactantTypeDown{},
-			Users:      []rlib.TransactantTypeDown{},
+			Renters:    []rlib.TransactantTypeDown{},
+			Occupants:  []rlib.TransactantTypeDown{},
 			Guarantors: []rlib.TransactantTypeDown{},
 		}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
