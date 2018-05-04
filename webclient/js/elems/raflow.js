@@ -2727,7 +2727,7 @@ var RACompConfig = {
 window.showSliderContentW2UIComp = function(w2uiComp, width) {
     $("#raflow-container #slider").show();
     $("#raflow-container #slider #slider-content").width(width);
-    $("#raflow-container #slider #slider-content").w2render(w2ui.RAAddTransactantForm);
+    $("#raflow-container #slider #slider-content").w2render(w2uiComp);
 };
 
 //-----------------------------------------------------------------------------
