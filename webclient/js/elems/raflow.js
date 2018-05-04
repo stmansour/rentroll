@@ -7,7 +7,7 @@
     getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
-    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields
+    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields
 */
 
 "use strict";
@@ -104,6 +104,14 @@ window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
     for(var fieldIndex=0; fieldIndex < listOfHiddenFields.length; fieldIndex++){
         console.log(listOfHiddenFields[fieldIndex]);
         w2ui.RABGInfoForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
+    }
+};
+
+// setNotRequiredFields
+window.setNotRequiredFields = function(listOfNotRequiredFields, required){
+    for(var fieldIndex=0; fieldIndex < listOfNotRequiredFields.length; fieldIndex++){
+        console.log(listOfNotRequiredFields[fieldIndex]);
+        w2ui.RABGInfoForm.get(listOfNotRequiredFields[fieldIndex]).required = required;
     }
 };
 
@@ -2138,6 +2146,10 @@ window.loadRABGInfoForm = function () {
                                         "PriorLengthOfResidency", "PriorReasonForMoving", "ApplicantPosition",
                                         "ApplicantGrossWages"];
 
+                                    // These all fields are not required when transanctant is only user
+                                    var listOfNotRequiredFields = ["ApplicantSSN", "ApplicantTelephoneNo",
+                                        "ApplicantPhone", "ApplicantEmailAddress"];
+
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
                                         // w2ui.RABGInfoForm.record = data.record.Data;
@@ -2146,9 +2158,18 @@ window.loadRABGInfoForm = function () {
                                         w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
 
                                         if(raBGInfoGridRecord.IsUser && !raBGInfoGridRecord.IsPayor && !raBGInfoGridRecord.IsGurantor){
+                                            // hide fields
                                             showHideRABGInfoFormFields(listOfHiddenFields, true);
+
+                                            // not require fields
+                                            setNotRequiredFields(listOfNotRequiredFields, false);
                                         }else{
+                                            // show fields
                                             showHideRABGInfoFormFields(listOfHiddenFields, false);
+
+                                            // require fields
+                                            setNotRequiredFields(listOfNotRequiredFields, true);
+
                                         }
                                         setRABFInfoFormFields(record);
 
