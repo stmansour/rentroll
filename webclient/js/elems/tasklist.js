@@ -7,7 +7,7 @@
     openTaskForm,setInnerHTML,w2popup,ensureSession,dtFormatISOToW2ui,
     createNewTaskList, getBUDfromBID, exportItemReportPDF, exportItemReportCSV,
     popupNewTaskListForm, getTLDs, getCurrentBID, getNewTaskListRecord,
-    closeTaskForm, setTaskButtonsState,
+    closeTaskForm, setTaskButtonsState, renderTaskGridDate,
 */
 
 var TL = {
@@ -175,8 +175,8 @@ window.buildTaskListElements = function () {
                 }
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.PreDoneUID, r.PreDoneName, 'sDtDone',   'tlDoneName',    'tlOverdue');
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.DoneUID,    r.DoneName,    'sDtPreDone','tlPreDoneName', 'tlPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.DoneName,    'sDtDone',   'tlDoneName',    'tlOverdue');
+                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.PreDoneName, 'sDtPreDone','tlPreDoneName', 'tlPreOverdue');
             };
         },
         onChange: function(event) {
@@ -210,13 +210,19 @@ window.buildTaskListElements = function () {
             { field: 'TLID',        caption: 'TLID',        size: '35px', sotrable: true, hidden: true},
             { field: 'TaskName',    caption: 'Name',        size: '120px', sotrable: true, hidden: false},
             { field: 'Worker',      caption: 'Worker',      size: '75px', sotrable: true, hidden: false},
-            { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false},
-            { field: 'DtPreDone',   caption: 'DtPreDone',   size: '80px', sotrable: true, hidden: false,
-                render: function (record, index, col_index) { if (typeof record == "undefined") {return '';} return taskDateRender(record.DtPreDone); }
+            { field: 'DtPreDue',    caption: 'DtPreDue',    size: '80px', sotrable: true, hidden: false,
+                render: function(record, index, col_index) {return renderTaskGridDate(record.DtPreDue); }
             },
-            { field: 'DtDue',       caption: 'DtDue',       size: '80px', sotrable: true, hidden: false},
+            { field: 'DtPreDone',   caption: 'DtPreDone',   size: '80px', sotrable: true, hidden: false,
+                render: function(record, index, col_index) {return renderTaskGridDate(record.DtPreDone); }
+            },
+            { field: 'DtDue',       caption: 'DtDue',       size: '80px', sotrable: true, hidden: false,
+                render: function(record, index, col_index) {return renderTaskGridDate(record.DtDue); }
+            },
             { field: 'DtDone',      caption: 'DtDone',      size: '80px', sotrable: true, hidden: false,
-                render: function (record, index, col_index) { if (typeof record == "undefined") {return '';} return taskDateRender(record.DtDone); }
+                render: function(record, index, col_index) {
+                    return renderTaskGridDate(record.DtDone); 
+                }
             },
             { field: 'FLAGS',       caption: 'FLAGS',       size: '35px', sotrable: true, hidden: true},
             { field: 'DoneUID',     caption: 'DoneUID',     size: '35px', sotrable: true, hidden: true},
@@ -523,6 +529,25 @@ window.createNewTaskList = function (bid) {
     getTLDs(bid,popupNewTaskListForm);
 };
 
+
+//-----------------------------------------------------------------------------
+// renderTaskGridDate - if the year is 1970 or less return '', otherwise
+//      return the date string (ds).
+// 
+// @params - ds = date string
+//  
+// @return date string or ''
+//  
+//-----------------------------------------------------------------------------
+window.renderTaskGridDate = function (ds) {
+    var d = new Date(ds);
+    if (d.getFullYear() > 1970) {
+        return ds;
+    } 
+    return '';
+};
+
+
 //-----------------------------------------------------------------------------
 // getTLDs - return the promise object of request to get latest
 //           TaskListDefinitions for given BID.
@@ -629,7 +654,7 @@ window.taskDateRender = function (x) {
     }
     var y = dateFromString(x);
     var yr = y.getFullYear();
-    if ( yr < 2000) {
+    if ( yr <= 1970) {
         return '';
     }
     // return dtTextRender(x,0,0);
@@ -713,7 +738,7 @@ window.taskFormDueDate = function (dt,b,id,txt) {
         if (b) {
             s = taskDateRender(dt); 
         } else {
-            s = 'No pre-due date';
+            s = txt;
         }
         setInnerHTML(id,s);
     }
@@ -759,10 +784,11 @@ window.taskFormDoneDate = function (dt,dtd,b,uid,name,id,id2,id3) {
         // id3: late indicator
         //--------------------------
         dt = dateFromString(dtd);
+        s = '';
         if (now > dt) {
-            s = '<span style="color:#FC0D1B;">&nbsp;LATE</span>';
-        } else {
-            s = '';
+            if (dt.getFullYear() > 1970) {
+                s = '<span style="color:#FC0D1B;">&nbsp;LATE</span>';
+            }
         }
         setInnerHTML(id3,s);
     }
