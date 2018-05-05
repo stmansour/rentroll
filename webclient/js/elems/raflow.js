@@ -2,9 +2,8 @@
     getFullName, getTCIDName, loadTransactantListingItem,
     initRAFlowAJAX, getRAFlowAllParts, getAllRAFlows, loadRADatesForm, loadRAPeopleForm,
     loadRAPetsGrid, loadRAVehiclesGrid, loadRABGInfoForm, loadRARentablesGrid,
-    loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
-    getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
-    getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
+    loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection, getFeesTermsGridInitalRecord,
+    saveActiveCompData, loadRABGInfoForm, w2render, getVehicleFormInitalRecord,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
     setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, hideSliderContent,
@@ -1540,7 +1539,7 @@ window.loadRAPetsGrid = function () {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
-window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
+window.getVehicleFormInitalRecord = function (BID, BUD, previousFormRecord) {
     var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
@@ -1729,7 +1728,7 @@ window.loadRAVehiclesGrid = function () {
                                 } else {
                                     grid.set(record.recid, record);
                                 }
-                                form.record = getVehicleGridInitalRecord(BID, BUD, form.record);
+                                form.record = getVehicleFormInitalRecord(BID, BUD, form.record);
                                 form.record.recid =grid.records.length + 1;
                                 form.refresh();
                                 form.refresh();
@@ -1924,7 +1923,7 @@ window.loadRAVehiclesGrid = function () {
                         var BID = getCurrentBID(),
                             BUD = getBUDfromBID(BID);
 
-                        w2ui.RAVehicleForm.record = getVehicleGridInitalRecord(BID, BUD, null);
+                        w2ui.RAVehicleForm.record = getVehicleFormInitalRecord(BID, BUD, null);
                         w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
                         showSliderContentW2UIComp(w2ui.RAVehicleForm, RACompConfig.vehicles.sliderWidth);
                         w2ui.RAVehicleForm.refresh();
@@ -2228,7 +2227,7 @@ window.loadRABGInfoForm = function () {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Rentables Grid
 // -------------------------------------------------------------------------------
-window.getRentablesGridInitalRecord = function (BID, gridLen) {
+window.getRentableFeeFormInitalRecord = function (BID, gridLen) {
     return {
         recid: gridLen,
         RID: 0,
@@ -2241,6 +2240,16 @@ window.getRentablesGridInitalRecord = function (BID, gridLen) {
         SalesTax: 0.0,
         TransOCC: 0.0,
     };
+};
+
+// -------------------------------------------------------------------------------
+// getAutoPopulateARs - pull down all account rules which are set to auto populate
+//                      to new rental agreement
+// -------------------------------------------------------------------------------
+window.getAutoPopulateARs = function() {
+    return $.ajax({
+        url: ''
+    });
 };
 
 window.loadRARentablesGrid = function () {
@@ -2284,7 +2293,7 @@ window.loadRARentablesGrid = function () {
                 onClick: function (event) {
                     switch(event.target) {
                         case "add":
-                            showSliderContentW2UIComp(w2ui.RARentablesFeesGrid, RACompConfig.rentables.sliderWidth);
+                            showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                             break;
                     }
                 }
@@ -2357,13 +2366,14 @@ window.loadRARentablesGrid = function () {
 
         // rentables grid
         $().w2grid({
-            name: 'RARentablesFeesGrid',
+            name: 'RARentableFeesGrid',
             header: 'Rentables Fees',
             show: {
                 toolbar: true,
                 footer: true,
+                header: true,
             },
-            style: 'border: 4px solid silver; display: block;',
+            style: 'border: 2px solid white; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
@@ -2417,12 +2427,12 @@ window.loadRARentablesGrid = function () {
                 },
                 {
                     field: 'RentPeriod',
-                    caption: 'RentPeriod',
+                    caption: 'Rent Period',
                     size: '100px',
                 },
                 {
                     field: 'UsePeriod',
-                    caption: 'UsePeriod',
+                    caption: 'Use Period',
                     size: '100px',
                 },
                 {
