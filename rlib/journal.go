@@ -503,9 +503,9 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 			a1.Stop = dl[i].Add(CycleDuration(a.ProrationCycle, a.Start)) // add enough time so that the recurrence calculator sees this instance
 			a1.ASMID = 0                                                  // ensure this is a new assessment
 			a1.PASMID = a.ASMID                                           // parent assessment
-			Console("****>>>>>>  a1.Start = %s\n", a1.Start.Format(RRDATEFMT4))
-			Console("****>>>>>>  a1.Stop  = %s\n", a1.Stop.Format(RRDATEFMT4))
-			Console("****>>>>>>  CycleDuration( %d, %s ) --->  %d\n", a.ProrationCycle, a.Start.Format(RRDATEFMT4), CycleDuration(a.ProrationCycle, a.Start))
+			// Console("****>>>>>>  a1.Start = %s\n", a1.Start.Format(RRDATEFMT4))
+			// Console("****>>>>>>  a1.Stop  = %s\n", a1.Stop.Format(RRDATEFMT4))
+			// Console("****>>>>>>  CycleDuration( %d, %s ) --->  %d\n", a.ProrationCycle, a.Start.Format(RRDATEFMT4), CycleDuration(a.ProrationCycle, a.Start))
 
 			//--------------------------------------------------------------------------------
 			// Before inserting this, validate that the RentalAgreement for this assessment
