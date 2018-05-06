@@ -503,9 +503,9 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 			a1.Stop = dl[i].Add(CycleDuration(a.ProrationCycle, a.Start)) // add enough time so that the recurrence calculator sees this instance
 			a1.ASMID = 0                                                  // ensure this is a new assessment
 			a1.PASMID = a.ASMID                                           // parent assessment
-			// Console("****>>>>>>  a1.Start = %s\n", a1.Start.Format(RRDATEFMT4))
-			// Console("****>>>>>>  a1.Stop  = %s\n", a1.Stop.Format(RRDATEFMT4))
-			// Console("****>>>>>>  CycleDuration( %d, %s ) --->  %d\n", a.ProrationCycle, a.Start.Format(RRDATEFMT4), CycleDuration(a.ProrationCycle, a.Start))
+			Console("****>>>>>>  a1.Start = %s\n", a1.Start.Format(RRDATEFMT4))
+			Console("****>>>>>>  a1.Stop  = %s\n", a1.Stop.Format(RRDATEFMT4))
+			Console("****>>>>>>  CycleDuration( %d, %s ) --->  %d\n", a.ProrationCycle, a.Start.Format(RRDATEFMT4), CycleDuration(a.ProrationCycle, a.Start))
 
 			//--------------------------------------------------------------------------------
 			// Before inserting this, validate that the RentalAgreement for this assessment
@@ -514,12 +514,16 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 			// when their associated RentalAgreements stopped.
 			//--------------------------------------------------------------------------------
 			if a.RAID > 0 {
+				Console("a.RAID = %d\n", a.RAID)
 				ra, err := GetRentalAgreement(ctx, a.RAID)
 				if err != nil {
 					LogAndPrintError(funcname, err)
 					return err
 				}
+				Console("ra.RentStop = %s\n", ra.RentStop)
+				Console("format", ...)
 				if a1.Start.After(ra.RentStop) || a1.Start.Equal(ra.RentStop) {
+					Console("Do not add the new assessment\n")
 					err = fmt.Errorf("%s:  Cannot add new assessment instance on %s after RentalAgreement (%s) stop date %s", funcname, a1.Start.Format(RRDATEREPORTFMT), ra.IDtoShortString(), ra.RentStop.Format(RRDATEREPORTFMT))
 					LogAndPrintError(funcname, err)
 					return err

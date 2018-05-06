@@ -295,6 +295,23 @@ MYSQLDUMP="mysqldump --no-defaults"
 # 16th March, 2018
 # ALTER TABLE Rentable ADD Comment VARCHAR(2048) NOT NULL DEFAULT ''; -- Add Comment textfield to Rentable table
 
+# May 5, 2018
+# ALTER TABLE TaskList ADD EmailList VARCHAR(2048) NOT NULL DEFAULT '' AFTER PreDoneUID;
+
+# May 5, 2018
+#     Somehow, phonebook schema is getting grafted onto the rentroll database
+# DROP TABLE IF EXISTS classes;
+# DROP TABLE IF EXISTS companies;
+# DROP TABLE IF EXISTS compensation;
+# DROP TABLE IF EXISTS counters;
+# DROP TABLE IF EXISTS deductionlist;
+# DROP TABLE IF EXISTS deductions;
+# DROP TABLE IF EXISTS departments;
+# DROP TABLE IF EXISTS fieldperms;
+# DROP TABLE IF EXISTS jobtitles;
+# DROP TABLE IF EXISTS people;
+# DROP TABLE IF EXISTS roles;
+# DROP TABLE IF EXISTS sessions;
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
@@ -305,30 +322,34 @@ EOF
 #  Put dir/sqlfilename in the list below
 #=====================================================
 declare -a dbs=(
-    'acctbal/baltest.sql'
-    'payorstmt/pstmt.sql'
-    'rfix/rcptfixed.sql'
-    'rfix/receipts.sql'
-    'roller/prodrr.sql'
-    'rr/rr.sql'
-    'tws/rr.sql'
-    'webclient/webclientTest.sql'
-    'websvc1/asmtest.sql'
-    'websvc3/tasks.sql'
-    'workerasm/rr.sql'
+	acctbal/baltest.sql
+	payorstmt/pstmt.sql
+	rfix/rcptfixed.sql
+	rfix/receipts.sql
+	roller/prodrr.sql
+	rr/rr.sql
+	setup/accord.sql
+	tws/rr.sql
+	tws/tws.sql
+	webclient/accord.sql
+	webclient/webclientTest.sql
+	websvc1/asmtest.sql
+	websvc3/tasks.sql
+	workerasm/rex.sql
+	workerasm/rr.sql
 )
 
 for f in "${dbs[@]}"
 do
     if [ -f ${f} ]; then
-	echo -n "${f}: loading... "
-	${MYSQL} rentroll < ${f}
-	echo -n "updating... "
-	${MYSQL} rentroll < ${MODFILE}
-	echo -n "saving... "
-	${MYSQLDUMP} rentroll > ${f}
-	echo "done"
+		echo -n "${f}: loading... "
+		${MYSQL} rentroll < ${f}
+		echo -n "updating... "
+		${MYSQL} rentroll < ${MODFILE}
+		echo -n "saving... "
+		${MYSQLDUMP} rentroll > ${f}
+		echo "done"
     else
-	echo "file not found: ${f}"
+		echo "file not found: ${f}"
     fi
 done
