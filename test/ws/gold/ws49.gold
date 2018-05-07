@@ -1,0 +1,26 @@
+{
+    "records": [
+        {
+            "ARID": 2,
+            "BID": 1,
+            "Name": "Late Fee"
+        },
+        {
+            "ARID": 3,
+            "BID": 1,
+            "Name": "Payment By Check"
+        },
+        {
+            "ARID": 1,
+            "BID": 1,
+            "Name": "Rent Non-Taxable"
+        },
+        {
+            "ARID": 4,
+            "BID": 1,
+            "Name": "Security Deposit Assessment"
+        }
+    ],
+    "status": "success",
+    "total": 4
+}
