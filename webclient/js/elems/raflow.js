@@ -2049,36 +2049,38 @@ window.loadRABGInfoForm = function () {
                 }
             },
             fields: [
-                {field: 'FirstName', type: 'text', required: true},
-                {field: 'MiddleName', type: 'text', required: true},
-                {field: 'LastName', type: 'text', required: true},
-                {field: 'BirthDate', type: 'date', required: true}, // Date of births of applicants
-                {field: 'SSN', type: 'text', required: true}, // Social security number of applicants
-                {field: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants
-                {field: 'TelephoneNo', type: 'text', required: true}, // Telephone no of applicants
-                {field: 'EmailAddress', type: 'email', required: true}, // Email Address of applicants
-                {field: 'CurrentAddress', type: 'text', required: true}, // Current Address
-                {field: 'CurrentLandLoardName', type: 'text', required: true}, // Current landlord's name
-                {field: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
-                {field: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
-                {field: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
-                {field: 'PriorAddress', type: 'text'}, // Prior Address
-                {field: 'PriorLandLoardName', type: 'text'}, // Prior landlord's name
-                {field: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
-                {field: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
-                {field: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
-                {field: 'Evicted', type: 'bool', required: false}, // have you ever been Evicted
-                {field: 'Convicted', type: 'bool', required: false}, // have you ever been Arrested or convicted of a crime
-                {field: 'Bankruptcy', type: 'bool', required: false}, // have you ever been Declared Bankruptcy
-                {field: 'Employer', type: 'text', required: true},
-                {field: 'Phone', type: 'text', required: true},
-                {field: 'Address', type: 'text', required: true},
-                {field: 'Position', type: 'text', required: true},
-                {field: 'GrossWages', type: 'money', required: true},
-                {field: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
-                {field: 'EmergencyContactName', type: 'text', required: true}, // Name of emergency contact
-                {field: 'EmergencyContactPhone', type: 'text', required: true}, // Phone number of emergency contact
-                {field: 'EmergencyContactAddress', type: 'text', required: true} // Address of emergency contact
+                {name: 'BID', type: 'int', required: true, html: { caption: 'BID', page:0, column: 0}},
+                {name: 'TCID', type: 'int', required: true, html: { caption: 'TCID', page:0, column:0}},
+                {name: 'FirstName', type: 'text', required: true},
+                {name: 'MiddleName', type: 'text', required: true},
+                {name: 'LastName', type: 'text', required: true},
+                {name: 'BirthDate', type: 'date', required: true}, // Date of births of applicants
+                {name: 'SSN', type: 'text', required: true}, // Social security number of applicants
+                {name: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants
+                {name: 'TelephoneNo', type: 'text', required: true}, // Telephone no of applicants
+                {name: 'EmailAddress', type: 'email', required: true}, // Email Address of applicants
+                {name: 'CurrentAddress', type: 'text', required: true}, // Current Address
+                {name: 'CurrentLandLoardName', type: 'text', required: true}, // Current landlord's name
+                {name: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
+                {name: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
+                {name: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
+                {name: 'PriorAddress', type: 'text'}, // Prior Address
+                {name: 'PriorLandLoardName', type: 'text'}, // Prior landlord's name
+                {name: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
+                {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
+                {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
+                {name: 'Evicted', type: 'bool', required: false}, // have you ever been Evicted
+                {name: 'Convicted', type: 'bool', required: false}, // have you ever been Arrested or convicted of a crime
+                {name: 'Bankruptcy', type: 'bool', required: false}, // have you ever been Declared Bankruptcy
+                {name: 'Employer', type: 'text', required: true},
+                {name: 'Phone', type: 'text', required: true},
+                {name: 'Address', type: 'text', required: true},
+                {name: 'Position', type: 'text', required: true},
+                {name: 'GrossWages', type: 'money', required: true},
+                {name: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
+                {name: 'EmergencyContactName', type: 'text', required: true}, // Name of emergency contact
+                {name: 'EmergencyContactPhone', type: 'text', required: true}, // Phone number of emergency contact
+                {name: 'EmergencyContactAddress', type: 'text', required: true} // Address of emergency contact
             ],
             actions: {
                 save: function () {
@@ -2095,6 +2097,8 @@ window.loadRABGInfoForm = function () {
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
+
+                    // app.raflow.data[app.raflow.activeFlowID]
 
                     // save this records in json Data
                     saveActiveCompData(recordsData, app.raFlowPartTypes.bginfo)

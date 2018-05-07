@@ -89,6 +89,10 @@ type RAVehiclesFlowData struct {
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
+	// Transanctant id
+	BID  int64 `json:"BID"`
+	TCID int64 `json:"TCID"`
+
 	// Applicant information
 	FirstName    string  `json:"FirstName"`
 	MiddleName   string  `json:"MiddleName"`
