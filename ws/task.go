@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+//-------------------------------------------------------------------
+//                        **** SEARCH ****
+//-------------------------------------------------------------------
+
 // SearchTask is the definition of a task. It is used to make instance
 // which become Tasks
 type SearchTask struct {
@@ -31,31 +35,16 @@ type SearchTask struct {
 	CreateBy    int64             // employee UID (from phonebook) that created it
 }
 
-// FormTask holds the task definition for a task form
-type FormTask struct {
-	Recid        int64 `json:"recid"`
-	TID          int64
-	BID          int64
-	TLID         int64             // the TaskList to which this task belongs
-	Name         string            `json:"TaskName"` // Task text
-	Worker       string            // Name of the associated work function
-	DtDue        rlib.JSONDateTime // Task Due Date
-	DtPreDue     rlib.JSONDateTime // Pre Completion due date
-	DtDone       rlib.JSONDateTime // Task completion Date
-	DtPreDone    rlib.JSONDateTime // Task Pre Completion Date
-	ChkDtDue     bool              // enable disable
-	ChkDtPreDue  bool              // enable/disable
-	ChkDtDone    bool              // actual date/time
-	ChkDtPreDone bool              // actual date/time
-	FLAGS        int64             // special circumstance indicators
-	DoneUID      int64             // user who marked task as done
-	PreDoneUID   int64             // user who marked task as predone
-	Comment      string            `json:"TaskComment"` // any user comments
-	LastModTime  rlib.JSONDateTime // when was this record last written
-	LastModBy    int64             // employee UID (from phonebook) that modified it
-	CreateTS     rlib.JSONDateTime // when was this record created
-	CreateBy     int64             // employee UID (from phonebook) that created it
+// SearchTaskResponse holds the task list definition list
+type SearchTaskResponse struct {
+	Status  string       `json:"status"`
+	Total   int          `json:"total"`
+	Records []SearchTask `json:"records"`
 }
+
+//-------------------------------------------------------------------
+//                         **** SAVE ****
+//-------------------------------------------------------------------
 
 // FormSaveTask holds the task definition for a task form
 type FormSaveTask struct {
@@ -79,13 +68,6 @@ type FormSaveTask struct {
 	Comment      string            `json:"TaskComment"` // any user comments
 }
 
-// SearchTaskResponse holds the task list definition list
-type SearchTaskResponse struct {
-	Status  string       `json:"status"`
-	Total   int          `json:"total"`
-	Records []SearchTask `json:"records"`
-}
-
 // SaveTaskInput is the input data format for a Save command
 type SaveTaskInput struct {
 	Recid    int64        `json:"recid"`
@@ -94,11 +76,47 @@ type SaveTaskInput struct {
 	Record   FormSaveTask `json:"record"`
 }
 
+//-------------------------------------------------------------------
+//                         **** GET ****
+//-------------------------------------------------------------------
+
+// FormTask holds the task definition for a task form
+type FormTask struct {
+	Recid           int64 `json:"recid"`
+	TID             int64
+	BID             int64
+	TLID            int64             // the TaskList to which this task belongs
+	Name            string            `json:"TaskName"` // Task text
+	Worker          string            // Name of the associated work function
+	DtDue           rlib.JSONDateTime // Task Due Date
+	DtPreDue        rlib.JSONDateTime // Pre Completion due date
+	DtDone          rlib.JSONDateTime // Task completion Date
+	DtPreDone       rlib.JSONDateTime // Task Pre Completion Date
+	ChkDtDue        bool              // enable disable
+	ChkDtPreDue     bool              // enable/disable
+	ChkDtDone       bool              // actual date/time
+	ChkDtPreDone    bool              // actual date/time
+	TaskDoneName    string            // name for DoneUID
+	TaskPreDoneName string            // name for PreDoneUID
+	FLAGS           int64             // special circumstance indicators
+	DoneUID         int64             // user who marked task as done
+	PreDoneUID      int64             // user who marked task as predone
+	Comment         string            `json:"TaskComment"` // any user comments
+	LastModTime     rlib.JSONDateTime // when was this record last written
+	LastModBy       int64             // employee UID (from phonebook) that modified it
+	CreateTS        rlib.JSONDateTime // when was this record created
+	CreateBy        int64             // employee UID (from phonebook) that created it
+}
+
 // GetTaskResponse is the response to a GetTask request
 type GetTaskResponse struct {
 	Status string   `json:"status"`
 	Record FormTask `json:"record"`
 }
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 // SvcSearchTaskHandler returns the Tasks associated with the supplied
 // TLID. This search handler was not implemented like many of the other
@@ -287,11 +305,11 @@ func saveTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		err = rlib.InsertTask(r.Context(), &a) // This is a new record
 	} else {
-		b, err := rlib.GetTask(r.Context(), a.TID)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
+		// b, err := rlib.GetTask(r.Context(), a.TID)
+		// if err != nil {
+		// 	SvcErrorReturn(w, err, funcname)
+		// 	return
+		// }
 		//------------------------------------------------------------------
 		// Due and PreDue dates are not changable.  If those
 		// need to be changed, you'll need to change the definition.
@@ -299,17 +317,23 @@ func saveTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// datetime.  If it changes from set to unset, reset the datetime.
 		// Identical operations for Due date.
 		//------------------------------------------------------------------
-		if b.DtPreDone.Year() > 1999 && !foo.Record.ChkDtPreDone { // current db DtPreDone is set, but user unset it
+		rlib.Console("SaveTask: A\n")
+		if !foo.Record.ChkDtPreDone { // current db DtPreDone is set, but user unset it
+			rlib.Console("SaveTask: B\n")
 			a.DtPreDone = rlib.TIME0
-		}
-		if b.DtPreDone.Year() <= 1999 && foo.Record.ChkDtPreDone { // current db DtPreDone is unset, but user set it
+			a.PreDoneUID = 0
+		} else {
 			a.DtPreDone = now
+			a.PreDoneUID = d.sess.UID
 		}
-		if b.DtDone.Year() > 1999 && !foo.Record.ChkDtDone { // current db DtDone is set, but user unset it
+		rlib.Console("SaveTask: C\n")
+		if !foo.Record.ChkDtDone { // current db DtPreDone is unset, but user set it
+			rlib.Console("SaveTask: D\n")
 			a.DtDone = rlib.TIME0
-		}
-		if b.DtDone.Year() <= 1999 && foo.Record.ChkDtDone { // current db DtPreDone is unset, but user set it
+			a.DoneUID = 0
+		} else {
 			a.DtDone = now
+			a.DoneUID = d.sess.UID
 		}
 		err = rlib.UpdateTask(r.Context(), &a)
 	}
@@ -349,6 +373,17 @@ func getTask(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.TID > 0 {
 		var gg FormTask
 		rlib.MigrateStructVals(&a, &gg)
+
+		gg.ChkDtDue = a.DtDue.Year() > 1970
+		gg.ChkDtPreDue = a.DtPreDue.Year() > 1970
+		gg.ChkDtDone = a.DtDone.Year() > 1970
+		gg.ChkDtPreDone = a.DtPreDone.Year() > 1970
+		if a.DoneUID > 0 {
+			gg.TaskDoneName = rlib.GetNameForUID(r.Context(), a.DoneUID)
+		}
+		if a.PreDoneUID > 0 {
+			gg.TaskPreDoneName = rlib.GetNameForUID(r.Context(), a.PreDoneUID)
+		}
 
 		gg.Recid = gg.TID
 		g.Record = gg

@@ -62,6 +62,7 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	tbl.AddColumn("PreDoneDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("PreApprovedBy", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("DueDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("DoneDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("ApprovedBy", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	tl, err := rlib.GetTaskList(ctx, ri.ID)
@@ -105,12 +106,36 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 
 	for i := 0; i < len(m); i++ {
 		tbl.AddRow()
-		tbl.Puts(-1, Status, "tbd")
+		st := " "
+		if m[i].DtDue.Year() > 1970 { // is there a due date?
+			if now.After(m[i].DtDue) {
+				st = "LATE"
+			}
+			if m[i].DtDone.Year() > 1970 { // is there a done date?
+				if !m[i].DtDone.After(m[i].DtDue) {
+					st = "+"
+				}
+			}
+		}
+		tbl.Puts(-1, Status, st)
 		tbl.Puts(-1, eTask, m[i].Name)
+
 		tbl.Putdt(-1, PreDueDate, m[i].DtPreDue)
-		tbl.Puts(-1, PreApprovedBy, rlib.GetNameForUID(ctx, m[i].PreDoneUID))
 		tbl.Putdt(-1, DueDate, m[i].DtDue)
-		tbl.Puts(-1, ApprovedBy, rlib.GetNameForUID(ctx, m[i].DoneUID))
+
+		if m[i].DtPreDone.Year() > 1970 {
+			tbl.Putdt(-1, PreDoneDate, m[i].DtPreDone)
+		}
+		if m[i].PreDoneUID > 0 {
+			tbl.Puts(-1, PreApprovedBy, rlib.GetNameForUID(ctx, m[i].PreDoneUID))
+		}
+
+		if m[i].DtDone.Year() > 1970 {
+			tbl.Putdt(-1, DoneDate, m[i].DtDone)
+		}
+		if m[i].DoneUID > 0 {
+			tbl.Puts(-1, ApprovedBy, rlib.GetNameForUID(ctx, m[i].DoneUID))
+		}
 	}
 	return tbl
 }

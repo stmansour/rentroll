@@ -216,6 +216,7 @@ type TaskList struct {
 	FLAGS       int64     // 1<<0 - 0 = active, 1 = inactive
 	DoneUID     int64     // user who marked task as done
 	PreDoneUID  int64     // user who marked task as predone
+	EmailList   string    // email to this list when due date arrives
 	Comment     string    // any user comments
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it

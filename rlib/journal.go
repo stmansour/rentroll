@@ -514,12 +514,15 @@ func ProcessJournalEntry(ctx context.Context, a *Assessment, xbiz *XBusiness, d1
 			// when their associated RentalAgreements stopped.
 			//--------------------------------------------------------------------------------
 			if a.RAID > 0 {
+				// Console("a.RAID = %d\n", a.RAID)
 				ra, err := GetRentalAgreement(ctx, a.RAID)
 				if err != nil {
 					LogAndPrintError(funcname, err)
 					return err
 				}
+				// Console("ra.RentStop = %s\n", ra.RentStop)
 				if a1.Start.After(ra.RentStop) || a1.Start.Equal(ra.RentStop) {
+					// Console("Do not add the new assessment\n")
 					err = fmt.Errorf("%s:  Cannot add new assessment instance on %s after RentalAgreement (%s) stop date %s", funcname, a1.Start.Format(RRDATEREPORTFMT), ra.IDtoShortString(), ra.RentStop.Format(RRDATEREPORTFMT))
 					LogAndPrintError(funcname, err)
 					return err

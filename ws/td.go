@@ -78,6 +78,10 @@ type GetTDResponse struct {
 	Record SearchTaskDescriptor `json:"record"`
 }
 
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
 // SvcSearchTDHandler returns the TaskDescriptors associated with the supplied
 // TLDID. This search handler was not implemented like many of the other
 // handlers because the only use case we are supporting for TaskDescriptors
@@ -274,8 +278,8 @@ func getTaskDescriptor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg SearchTaskDescriptor
 		rlib.MigrateStructVals(&a, &gg)
 		gg.Recid = gg.TDID
-		gg.ChkEpochDue = a.EpochDue.Year() > 1900
-		gg.ChkEpochPreDue = a.EpochPreDue.Year() > 1900
+		gg.ChkEpochDue = a.EpochDue.Year() > 1970
+		gg.ChkEpochPreDue = a.EpochPreDue.Year() > 1970
 		g.Record = gg
 	}
 	g.Status = "success"

@@ -85,14 +85,6 @@ type SaveTaskListInput struct {
 	Record   SaveTaskList `json:"record"`
 }
 
-// TaskListInput is the input data format for a Save command
-type TaskListInput struct {
-	Recid    int64       `json:"recid"`
-	Status   string      `json:"status"`
-	FormName string      `json:"name"`
-	Record   SvcTaskList `json:"record"`
-}
-
 //-------------------------------------------------------------------
 //  GET
 //-------------------------------------------------------------------
