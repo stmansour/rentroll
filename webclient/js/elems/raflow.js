@@ -86,13 +86,13 @@ window.lockOnGrid = function (gridName) {
 window.setRABFInfoFormFields = function(record) {
     var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
 
-    formRecord.ApplicantFirstName = record.FirstName;
-    formRecord.ApplicantMiddleName = record.MiddleName;
-    formRecord.ApplicantLastName = record.LastName;
-    formRecord.ApplicantTelephoneNo = record.CellPhone;
-    formRecord.ApplicantEmailAddress = record.PrimaryEmail;
-    formRecord.ApplicantPhone = record.WorkPhone;
-    formRecord.ApplicantAddress = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
+    formRecord.FirstName = record.FirstName;
+    formRecord.MiddleName = record.MiddleName;
+    formRecord.LastName = record.LastName;
+    formRecord.TelephoneNo = record.CellPhone;
+    formRecord.EmailAddress = record.PrimaryEmail;
+    formRecord.Phone = record.WorkPhone;
+    formRecord.Address = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
 };
 
 // showHideRABGInfoFormFields hide fields if transanctant is only user
@@ -105,7 +105,6 @@ window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
         $("#priorInfolabel").show();
     }
     for(var fieldIndex=0; fieldIndex < listOfHiddenFields.length; fieldIndex++){
-        console.log(listOfHiddenFields[fieldIndex]);
         w2ui.RABGInfoForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
     }
 };
@@ -113,7 +112,6 @@ window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
 // setNotRequiredFields define fields are not required if transanctant is only user
 window.setNotRequiredFields = function(listOfNotRequiredFields, required){
     for(var fieldIndex=0; fieldIndex < listOfNotRequiredFields.length; fieldIndex++){
-        console.log(listOfNotRequiredFields[fieldIndex]);
         w2ui.RABGInfoForm.get(listOfNotRequiredFields[fieldIndex]).required = required;
     }
 };
@@ -415,12 +413,12 @@ window.requiredFieldsFulFilled = function (compID) {
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             // list of fields which must have value and it's type string
             var listOfRequiredField = ["ApplicationDate", "MoveInDate",
-                "ApartmentNo", "LeaseTerm", "ApplicantFirstName", "ApplicantMiddleName",
-                "ApplicantLastName", "ApplicantBirthDate", "ApplicantSSN",
-                "ApplicantDriverLicNo", "ApplicantTelephoneNo", "ApplicantEmailAddress",
+                "ApartmentNo", "LeaseTerm", "FirstName", "MiddleName",
+                "LastName", "BirthDate", "SSN",
+                "DriverLicNo", "TelephoneNo", "EmailAddress",
                 "NoPeople", "CurrentAddress", "CurrentLandLoardName", "CurrentLandLoardPhoneNo",
-                "CurrentReasonForMoving", "ApplicantEmployer", "ApplicantPhone", "ApplicantAddress",
-                "ApplicantPosition", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
+                "CurrentReasonForMoving", "Employer", "Phone", "Address",
+                "Position", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
 
             listOfRequiredField.forEach(function(field) {
                 if (!data[field]) {
@@ -667,7 +665,7 @@ window.loadTransactantListingItem = function (transactantRec, IsRenter, IsOccupa
 
     var i, length, found = false;
 
-    // add into payor list
+    // add into renter list
     if (IsRenter) {
         // check for duplicacy
         found = false;
@@ -690,7 +688,7 @@ window.loadTransactantListingItem = function (transactantRec, IsRenter, IsOccupa
         }
     }
 
-    // add into user list
+    // add into occupant list
     if (IsOccupant) {
         found = false;
         length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Occupants.length;
@@ -2009,14 +2007,14 @@ window.loadRABGInfoForm = function () {
                 }
             },
             fields: [
-                {field: 'ApplicantFirstName', type: 'text', required: true},
-                {field: 'ApplicantMiddleName', type: 'text', required: true},
-                {field: 'ApplicantLastName', type: 'text', required: true},
-                {field: 'ApplicantBirthDate', type: 'date', required: true}, // Date of births of applicants
-                {field: 'ApplicantSSN', type: 'text', required: true}, // Social security number of applicants
-                {field: 'ApplicantDriverLicNo', type: 'text'}, // Driving licence number of applicants
-                {field: 'ApplicantTelephoneNo', type: 'text', required: true}, // Telephone no of applicants
-                {field: 'ApplicantEmailAddress', type: 'email', required: true}, // Email Address of applicants
+                {field: 'FirstName', type: 'text', required: true},
+                {field: 'MiddleName', type: 'text', required: true},
+                {field: 'LastName', type: 'text', required: true},
+                {field: 'BirthDate', type: 'date', required: true}, // Date of births of applicants
+                {field: 'SSN', type: 'text', required: true}, // Social security number of applicants
+                {field: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants
+                {field: 'TelephoneNo', type: 'text', required: true}, // Telephone no of applicants
+                {field: 'EmailAddress', type: 'email', required: true}, // Email Address of applicants
                 {field: 'CurrentAddress', type: 'text', required: true}, // Current Address
                 {field: 'CurrentLandLoardName', type: 'text', required: true}, // Current landlord's name
                 {field: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
@@ -2030,11 +2028,11 @@ window.loadRABGInfoForm = function () {
                 {field: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
                 {field: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
                 {field: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
-                {field: 'ApplicantEmployer', type: 'text', required: true},
-                {field: 'ApplicantPhone', type: 'text', required: true},
-                {field: 'ApplicantAddress', type: 'text', required: true},
-                {field: 'ApplicantPosition', type: 'text', required: true},
-                {field: 'ApplicantGrossWages', type: 'money', required: true},
+                {field: 'Employer', type: 'text', required: true},
+                {field: 'Phone', type: 'text', required: true},
+                {field: 'Address', type: 'text', required: true},
+                {field: 'Position', type: 'text', required: true},
+                {field: 'GrossWages', type: 'money', required: true},
                 {field: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
                 {field: 'EmergencyContactName', type: 'text', required: true}, // Name of emergency contact
                 {field: 'EmergencyContactPhone', type: 'text', required: true}, // Phone number of emergency contact
@@ -2043,10 +2041,38 @@ window.loadRABGInfoForm = function () {
             actions: {
                 reset: function () {
                     this.clear();
+                },
+                save: function () {
+                    var form = this;
+                    var grid = w2ui.RABGInfoGrid;
+                    var errors = form.validate();
+                    if (errors.length > 0) return;
+
+                    var record = $.extend(true, {}, form.record);
+                    var recordsData = $.extend(true, [], grid.records);
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    // save this records in json Data
+                    saveActiveCompData(recordsData, app.raFlowPartTypes.bginfo)
+                        .done(function(data) {
+                            if (data.status === 'success') {
+
+                                // Set record
+                                grid.set(record.recid, record);
+                                form.clear();
+
+                                // close the form
+                                hideSliderContent();
+                            } else {
+                                form.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
                 }
-                /*save: function () {
-                    this.save();
-                }*/
             }
         });
 
@@ -2117,6 +2143,7 @@ window.loadRABGInfoForm = function () {
 
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
+                            w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
                             // w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
                             showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.bginfo.sliderWidth);
@@ -2131,9 +2158,9 @@ window.loadRABGInfoForm = function () {
                                         "PriorLengthOfResidency", "PriorReasonForMoving"];
 
                                     // These all fields are not required when transanctant is only user
-                                    var listOfNotRequiredFields = ["ApplicantSSN", "ApplicantTelephoneNo",
-                                        "ApplicantPhone", "ApplicantEmailAddress", "ApplicantPosition",
-                                        "ApplicantGrossWages"];
+                                    var listOfNotRequiredFields = ["SSN", "TelephoneNo",
+                                        "Phone", "EmailAddress", "Position",
+                                        "GrossWages"];
 
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
