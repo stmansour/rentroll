@@ -559,3 +559,61 @@ func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	SvcWriteSuccessResponse(d.BID, w)
 }
+
+/*
+// ListedAR is struct to list down individual account rule record
+type ListedAR struct {
+	ARID int64  `json:"id"`   // Account Rule ID
+	Name string `json:"text"` // Account rule name
+}
+
+// ARsListResponse is the response to list down all account rules
+type ARsListResponse struct {
+	Status  string     `json:"status"`
+	Total   int64      `json:"total"`
+	Records []ListedAR `json:"records"`
+}
+
+// SvcARsList generates a list of all ARs with respect of business id specified by d.BID
+// wsdoc {
+//  @Title Get list of ARs
+//  @URL /v1/arslist/:BUI
+//  @Method  GET
+//  @Synopsis Get ARs list
+//  @Description Get all Account rules list for the requested business
+//  @Input WebGridSearchRequest
+//  @Response ARsListResponse
+// wsdoc }
+func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcARsList"
+	var (
+		g ARsListResponse
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	// get rentable types for a business
+	m, err := rlib.GetLedgerList(r.Context(), d.BID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	fmt.Printf("rlib.GetLedgerList returned %d records\n", len(g.Records))
+
+	// append records in ascending order
+	var glAccountList []ListedAccount
+	for _, acct := range m {
+		glAccountList = append(glAccountList,
+			ListedAccount{LID: acct.LID, Name: fmt.Sprintf("%s (%s)", acct.GLNumber, acct.Name)},
+		)
+	}
+
+	// sort based on name, needs version 1.8 later of golang
+	sort.Slice(glAccountList, func(i, j int) bool { return glAccountList[i].Name < glAccountList[j].Name })
+
+	g.Records = glAccountList
+	g.Total = int64(len(g.Records))
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+*/
