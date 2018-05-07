@@ -45,8 +45,8 @@ type RADatesFlowData struct {
 
 // RAPeopleFlowData contains data in the people part of RA flow
 type RAPeopleFlowData struct {
-	Payors     []rlib.TransactantTypeDown `json:"Payors"`
-	Users      []rlib.TransactantTypeDown `json:"Users"`
+	Renters    []rlib.TransactantTypeDown `json:"Renters"`
+	Occupants  []rlib.TransactantTypeDown `json:"Occupants"`
 	Guarantors []rlib.TransactantTypeDown `json:"Guarantors"`
 }
 
@@ -89,20 +89,24 @@ type RAVehiclesFlowData struct {
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
+	// Transanctant id
+	BID  int64 `json:"BID"`
+	TCID int64 `json:"TCID"`
+
 	// Applicant information
-	ApplicantFirstName    string  `json:"ApplicantFirstName"`
-	ApplicantMiddleName   string  `json:"ApplicantMiddleName"`
-	ApplicantLastName     string  `json:"ApplicantLastName"`
-	ApplicantBirthDate    string  `json:"ApplicantBirthDate"`
-	ApplicantSSN          string  `json:"ApplicantSSN"`
-	ApplicantDriverLicNo  string  `json:"ApplicantDriverLicNo"`
-	ApplicantTelephoneNo  string  `json:"ApplicantTelephoneNo"`
-	ApplicantEmailAddress string  `json:"ApplicantEmailAddress"`
-	ApplicantEmployer     string  `json:"ApplicantEmployer"`
-	ApplicantPhone        string  `json:"ApplicantPhone"`
-	ApplicantAddress      string  `json:"ApplicantAddress"`
-	ApplicantPosition     string  `json:"ApplicantPosition"`
-	ApplicantGrossWages   float64 `json:"ApplicantGrossWages"`
+	FirstName    string  `json:"FirstName"`
+	MiddleName   string  `json:"MiddleName"`
+	LastName     string  `json:"LastName"`
+	BirthDate    string  `json:"BirthDate"`
+	SSN          string  `json:"SSN"`
+	DriverLicNo  string  `json:"DriverLicNo"`
+	TelephoneNo  string  `json:"TelephoneNo"`
+	EmailAddress string  `json:"EmailAddress"`
+	Employer     string  `json:"Employer"`
+	Phone        string  `json:"Phone"`
+	Address      string  `json:"Address"`
+	Position     string  `json:"Position"`
+	GrossWages   float64 `json:"GrossWages"`
 
 	// Current Address information
 	CurrentAddress           string `json:"CurrentAddress"`
@@ -129,13 +133,7 @@ type RABackgroundInfoFlowData struct {
 	EmergencyContactAddress string `json:"EmergencyContactAddress"`
 
 	// RA Application information
-	NoPeople        int    `json:"NoPeople"` // No. of people occupying apartment
-	Comment         string `json:"Comment"`  // In an effort to accommodate you, please advise us of any special needs
-	ApplicationDate string `json:"ApplicationDate"`
-	MoveInDate      string `json:"MoveInDate"`
-	ApartmentNo     string `json:"ApartmentNo"`
-	LeaseTerm       string `json:"LeaseTerm"`
-	// TODO(Akshay): ApplicationReceivedBy string `json:"applicationReceivedBy"`
+	Comment string `json:"Comment"` // In an effort to accommodate you, please advise us of any special needs
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
@@ -200,8 +198,8 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 		return json.Marshal(&a)
 	case rlib.PeopleRAFlowPart:
 		a := RAPeopleFlowData{
-			Payors:     []rlib.TransactantTypeDown{},
-			Users:      []rlib.TransactantTypeDown{},
+			Renters:    []rlib.TransactantTypeDown{},
+			Occupants:  []rlib.TransactantTypeDown{},
 			Guarantors: []rlib.TransactantTypeDown{},
 		}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
@@ -230,7 +228,8 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 		}
 		return json.Marshal(&a)
 	case rlib.BackGroundInfoRAFlowPart:
-		var a RABackgroundInfoFlowData
+		//var a RABackgroundInfoFlowData
+		a := []RABackgroundInfoFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {

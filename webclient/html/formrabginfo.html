@@ -1,161 +1,126 @@
 <div class="w2ui-page page-0">
-    <div>
-        <div class="w2ui-field w2ui-span4" style="display: inline-block;">
-            <label>Application Date:</label>
-            <div>
-                <input name="ApplicationDate" type="us-date" style="width: 100%" disabled>
-            </div>
-        </div>
-        <div class="w2ui-field w2ui-span4" style="display: inline-block;">
-            <label>Move In Date:</label>
-            <div>
-                <input name="MoveInDate" type="us-date" style="width: 100%">
-            </div>
-        </div>
-    </div>
-    <div>
-        <div class="w2ui-field w2ui-span4" style="display: inline-block;">
-            <label>Apt #:</label>
-            <div>
-                <input name="ApartmentNo" style="width: 100%">
-            </div>
-        </div>
-        <div class="w2ui-field w2ui-span4" style="display: inline-block;">
-            <label>Lease Term:</label>
-            <div>
-                <input name="LeaseTerm" type="text" style="width: 100%">
-            </div>
-        </div>
-    </div>
-    <!-- End header section -->
-
+    <div class="w2ui-field"><input type="hidden" name="BID"/></div>
+    <div class="w2ui-field"><input type="hidden" name="TCID"/></div>
     <!-- Applicant section -->
-    <div>
-        <div style="width: 340px; display: inline-block;">
-            <div style="padding: 3px; font-weight: bold; color: #777;">
-                Applicant Detail
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>First Name:</label>
-                <div>
-                    <input name="ApplicantFirstName" type="text" maxlength="50" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Middle Name:</label>
-                <div>
-                    <input name="ApplicantMiddleName" type="text" maxlength="50" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Last Name:</label>
-                <div>
-                    <input name="ApplicantLastName" type="text" maxlength="50" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Date of Birth:</label>
-                <div>
-                    <input name="ApplicantBirthDate" type="us-date" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Soc. Sec. No.:</label>
-                <div>
-                    <input name="ApplicantSSN" type="text" maxlength="9" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Driver's Lic. No.:</label>
-                <div>
-                    <input name="ApplicantDriverLicNo" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Telephone No.:</label>
-                <div>
-                    <input name="ApplicantTelephoneNo" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Eamil Address:</label>
-                <div>
-                    <input name="ApplicantEmailAddress" style="width: 100%">
-                </div>
-            </div>
+    <div style="padding: 3px; font-weight: bold; color: #777;">
+        Applicant Detail
+    </div>
+    <div class="w2ui-field">
+        <label>First Name:</label>
+        <div>
+            <input name="FirstName" type="text" maxlength="50" style="width: 100%">
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Middle Name:</label>
+        <div>
+            <input name="MiddleName" type="text" maxlength="50" style="width: 100%">
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Last Name:</label>
+        <div>
+            <input name="LastName" type="text" maxlength="50" style="width: 100%">
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Date of Birth:</label>
+        <div>
+            <input name="BirthDate" type="us-date" style="width: 100%">
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Soc. Sec. No.:</label>
+        <div>
+            <input name="SSN" type="text" maxlength="9" style="width: 100%">
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Driver's Lic. No.:</label>
+        <div>
+            <input name="DriverLicNo" style="width: 100%">
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Telephone No.:</label>
+        <div>
+            <input name="TelephoneNo" style="width: 100%">
+        </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Email Address:</label>
+        <div>
+            <input name="EmailAddress" style="width: 100%">
         </div>
     </div>
     <!-- End Applicant section -->
 
     <!-- Previous addresses section -->
-    <div>
-        <div style="padding-top: 3%;">
-            <div style="padding: 3px; font-weight: bold; color: #777;" id="cureentInfolabel">Current Information</div>
+    <div style="padding-top: 3%;">
+        <div style="padding: 3px; font-weight: bold; color: #777;" id="cureentInfolabel">Current Information</div>
 
-            <div class="w2ui-field w2ui-spa n4">
-                <label>Current Address:</label>
-                <div>
-                    <input name="CurrentAddress" type="text" style="width: 100%">
-                </div>
+        <div class="w2ui-field">
+            <label>Current Address:</label>
+            <div>
+                <input name="CurrentAddress" type="text" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Landlord's Name:</label>
-                <div>
-                    <input name="CurrentLandLoardName" type="text" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Landlord's Phone Number:</label>
-                <div>
-                    <input name="CurrentLandLoardPhoneNo" type="text" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Length of Residency:</label>
-                <div>
-                    <input name="CurrentLengthOfResidency" style="width: 100%">
-                </div>
-            </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Reason for Moving:</label>
-                <div>
-                    <input name="CurrentReasonForMoving" type="text" style="width: 100%">
-                </div>
-            </div>
-
         </div>
-        <div>
-            <div style="padding: 3px; font-weight: bold; color: #777;" id="priorInfolabel">Prior Information</div>
+        <div class="w2ui-field">
+            <label>Landlord's Name:</label>
+            <div>
+                <input name="CurrentLandLoardName" type="text" style="width: 100%">
+            </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Landlord's Phone Number:</label>
+            <div>
+                <input name="CurrentLandLoardPhoneNo" type="text" style="width: 100%">
+            </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Length of Residency:</label>
+            <div>
+                <input name="CurrentLengthOfResidency" style="width: 100%">
+            </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Reason for Moving:</label>
+            <div>
+                <input name="CurrentReasonForMoving" type="text" style="width: 100%">
+            </div>
+        </div>
 
-            <div class="w2ui-field w2ui-span4">
-                <label>Prior Address:</label>
-                <div>
-                    <input name="PriorAddress" type="text" style="width: 100%">
-                </div>
+
+        <div style="padding: 3px; font-weight: bold; color: #777;" id="priorInfolabel">Prior Information</div>
+
+        <div class="w2ui-field">
+            <label>Prior Address:</label>
+            <div>
+                <input name="PriorAddress" type="text" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Landlord's Name:</label>
-                <div>
-                    <input name="PriorLandLoardName" type="text" style="width: 100%">
-                </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Landlord's Name:</label>
+            <div>
+                <input name="PriorLandLoardName" type="text" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Landlord's Phone Number:</label>
-                <div>
-                    <input name="PriorLandLoardPhoneNo" type="text" style="width: 100%">
-                </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Landlord's Phone Number:</label>
+            <div>
+                <input name="PriorLandLoardPhoneNo" type="text" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Length of Residency:</label>
-                <div>
-                    <input name="PriorLengthOfResidency" style="width: 100%">
-                </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Length of Residency:</label>
+            <div>
+                <input name="PriorLengthOfResidency" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Reason for Moving:</label>
-                <div>
-                    <input name="PriorReasonForMoving" type="text" style="width: 100%">
-                </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Reason for Moving:</label>
+            <div>
+                <input name="PriorReasonForMoving" type="text" style="width: 100%">
             </div>
         </div>
     </div>
@@ -163,49 +128,54 @@
 
     <!-- have you ever been section -->
     <div class="w2ui-field">
-        <div style="margin-left: 0px;">
-            <label style="font-weight: bold; color: #777;">Have you ever been:</label><br>
-            <label><input name="Evicted" type="checkbox"/>Evicted</label><br>
-            <label><input name="Convicted" type="checkbox"/>Arrested or convicted of a crime</label><br>
-            <label><input name="Bankruptcy" type="checkbox"/>Declared Bankruptcy</label>
+        <div style="margin-left: 0px;" id="bginfoCheckboxes">
+            <label style="font-weight: bold; color: #777;">Have you ever:</label><br>
+            <div>
+                <input name="Evicted" class="w2ui-input" type="checkbox"/>been evicted<br>
+            </div>
+            <div>
+                <input name="Convicted" class="w2ui-input" type="checkbox"/>been arrested or convicted of a crime<br>
+            </div>
+            <div>
+                <input name="Bankruptcy" class="w2ui-input" type="checkbox"/>declared bankruptcy
+            </div>
         </div>
     </div>
     <!-- have you ever been section end-->
 
+
     <!-- Applicant/Co-Applicant additonal detail seciton -->
 
-    <div>
-        <div style="width: 340px; padding-top: 15px; display: inline-block;">
-            <div style="padding: 3px; font-weight: bold; color: #777;">Applicant</div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Employer:</label>
-                <div>
-                    <input name="ApplicantEmployer" type="text" style="width: 100%">
-                </div>
+    <div style="width: 340px; padding-top: 15px;">
+        <div style="padding: 3px; font-weight: bold; color: #777;">Applicant</div>
+        <div class="w2ui-field">
+            <label>Employer:</label>
+            <div>
+                <input name="Employer" type="text" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Phone:</label>
-                <div>
-                    <input name="ApplicantPhone" style="width: 100%">
-                </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Phone:</label>
+            <div>
+                <input name="Phone" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Address:</label>
-                <div>
-                    <input name="ApplicantAddress" type="text" style="width: 100%">
-                </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Address:</label>
+            <div>
+                <input name="Address" type="text" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Position:</label>
-                <div>
-                    <input name="ApplicantPosition" type="text" style="width: 100%">
-                </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Position:</label>
+            <div>
+                <input name="Position" type="text" style="width: 100%">
             </div>
-            <div class="w2ui-field w2ui-span4">
-                <label>Gross wages:</label>
-                <div>
-                    <input name="ApplicantGrossWages" type="int" style="width: 100%">
-                </div>
+        </div>
+        <div class="w2ui-field">
+            <label>Gross wages:</label>
+            <div>
+                <input name="GrossWages" type="int" style="width: 100%">
             </div>
         </div>
     </div>
@@ -214,31 +184,30 @@
     <div>
             <span style="padding: 3px; font-weight: bold; color: #777;">
                     In an effort to accommodate you, please advise us of any special needs:
-                </span>
+            </span>
         <div class="w2ui-field">
                 <textarea name="Comment" cols="1" rows="3"
                           style="width: 100%; padding-top: 4%; resize: none;"></textarea>
         </div>
-
     </div>
     <!-- End Extra comment section -->
 
     <!-- Emergency contact section -->
     <div style="padding-top: 10px;">
         <div style="padding: 3px; font-weight: bold; color: #777;">Emergency Contact</div>
-        <div class="w2ui-field w2ui-span4">
+        <div class="w2ui-field">
             <label>Name:</label>
             <div>
                 <input name="EmergencyContactName" type="text" style="width: 100%">
             </div>
         </div>
-        <div class="w2ui-field w2ui-span4">
+        <div class="w2ui-field">
             <label>Phone:</label>
             <div>
                 <input name="EmergencyContactPhone" style="width: 100%">
             </div>
         </div>
-        <div class="w2ui-field w2ui-span4">
+        <div class="w2ui-field">
             <label>Address:</label>
             <div>
                 <input name="EmergencyContactAddress" type="text" style="width: 100%">
@@ -250,6 +219,4 @@
 
 <div class="w2ui-buttons">
     <button class="w2ui-btn" name="save">Save</button>
-    <button class="w2ui-btn" name="saveadd">Save and Add Another</button>
-    <button class="w2ui-btn" name="delete">Delete</button>
 </div>
