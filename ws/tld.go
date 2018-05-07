@@ -413,8 +413,8 @@ func getTaskListDefinition(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	if a.TLDID > 0 {
 		var gg TaskListDefs
 		rlib.MigrateStructVals(&a, &gg)
-		gg.ChkEpochPreDue = a.EpochPreDue.Year() > 1900
-		gg.ChkEpochDue = a.EpochDue.Year() > 1900
+		gg.ChkEpochPreDue = a.EpochPreDue.Year() > 1970
+		gg.ChkEpochDue = a.EpochDue.Year() > 1970
 		g.Record = gg
 	}
 	g.Status = "success"

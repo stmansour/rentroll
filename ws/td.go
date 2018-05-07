@@ -278,8 +278,8 @@ func getTaskDescriptor(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg SearchTaskDescriptor
 		rlib.MigrateStructVals(&a, &gg)
 		gg.Recid = gg.TDID
-		gg.ChkEpochDue = a.EpochDue.Year() > 1900
-		gg.ChkEpochPreDue = a.EpochPreDue.Year() > 1900
+		gg.ChkEpochDue = a.EpochDue.Year() > 1970
+		gg.ChkEpochPreDue = a.EpochPreDue.Year() > 1970
 		g.Record = gg
 	}
 	g.Status = "success"

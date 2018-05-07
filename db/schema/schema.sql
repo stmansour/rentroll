@@ -482,6 +482,7 @@ CREATE TABLE TaskList (
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0 - 0 = active, 1 = inactive
     DoneUID BIGINT NOT NULL DEFAULT 0,                          -- user who marked this task done
     PreDoneUID BIGINT NOT NULL DEFAULT 0,                       -- user who marked this task predone
+    EmailList VARCHAR(2048) NOT NULL DEFAULT '',                -- list of email addresses for when due date arrives
     Comment VARCHAR(2048) NOT NULL DEFAULT '',                  -- any user comments
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
