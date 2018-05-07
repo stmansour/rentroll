@@ -7,7 +7,7 @@
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
     setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
-    hideSliderContent, showSliderContentW2UIComp
+    hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord
 */
 
 "use strict";
@@ -196,7 +196,7 @@ window.getRATransanctantDetail = function(TCID){
         data: JSON.stringify(data),
         success: function (data) {
             if (data.status != "error"){
-                console.log("Received data for transanctant:", JSON.stringify(data));
+                // console.log("Received data for transanctant:", JSON.stringify(data));
             }else {
                 console.error(data.message);
             }
@@ -1962,6 +1962,48 @@ window.loadRAVehiclesGrid = function () {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Background info form
 // -------------------------------------------------------------------------------
+
+window.getRABGInfoFormInitRecord = function(){
+    var birthDate = new Date();
+
+    return {
+        recid: 0,
+        TCID: 0,
+        // BID: BID,
+        // BUD: BUD,
+        FirstName: "",
+        MiddleName: "",
+        LastName: "",
+        BirthDate: w2uiDateControlString(birthDate),
+        SSN: "",
+        DriverLicNo: "",
+        TelephoneNo: "",
+        EmailAddress: "",
+        CurrentAddress: "",
+        CurrentLandLoardName: "",
+        CurrentLandLoardPhoneNo: "",
+        CurrentLengthOfResidency: 0,
+        CurrentReasonForMoving: "",
+        PriorAddress: "",
+        PriorLandLoardName: "",
+        PriorLandLoardPhoneNo: "",
+        PriorLengthOfResidency: 0,
+        PriorReasonForMoving: "",
+        Evicted: false,
+        Convicted: false,
+        Bankruptcy: false,
+        Employer: "",
+        Phone: "",
+        Address: "",
+        Position: "",
+        GrossWages: 0,
+        Comment: "",
+        EmergencyContactName: "",
+        EmergencyContactPhone: "",
+        EmergencyContactAddress: ""
+    };
+};
+
 window.loadRABGInfoForm = function () {
 
     var partType = app.raFlowPartTypes.bginfo;
@@ -2025,9 +2067,9 @@ window.loadRABGInfoForm = function () {
                 {field: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
                 {field: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
                 {field: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
-                {field: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
-                {field: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
-                {field: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
+                {field: 'Evicted', type: 'bool', required: false}, // have you ever been Evicted
+                {field: 'Convicted', type: 'bool', required: false}, // have you ever been Arrested or convicted of a crime
+                {field: 'Bankruptcy', type: 'bool', required: false}, // have you ever been Declared Bankruptcy
                 {field: 'Employer', type: 'text', required: true},
                 {field: 'Phone', type: 'text', required: true},
                 {field: 'Address', type: 'text', required: true},
@@ -2039,9 +2081,6 @@ window.loadRABGInfoForm = function () {
                 {field: 'EmergencyContactAddress', type: 'text', required: true} // Address of emergency contact
             ],
             actions: {
-                reset: function () {
-                    this.clear();
-                },
                 save: function () {
                     var form = this;
                     var grid = w2ui.RABGInfoGrid;
@@ -2049,6 +2088,9 @@ window.loadRABGInfoForm = function () {
                     if (errors.length > 0) return;
 
                     var record = $.extend(true, {}, form.record);
+                    // Set record
+                    grid.set(record.recid, record);
+
                     var recordsData = $.extend(true, [], grid.records);
 
                     // clean dirty flag of form
@@ -2059,8 +2101,6 @@ window.loadRABGInfoForm = function () {
                         .done(function(data) {
                             if (data.status === 'success') {
 
-                                // Set record
-                                grid.set(record.recid, record);
                                 form.clear();
 
                                 // close the form
@@ -2143,6 +2183,7 @@ window.loadRABGInfoForm = function () {
 
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
+
                             w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
                             // w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
@@ -2167,7 +2208,14 @@ window.loadRABGInfoForm = function () {
                                         // w2ui.RABGInfoForm.record = data.record.Data;
 
                                         // Set the form tile
-                                        w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
+                                        if(record.IsCompany){
+                                            w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
+                                        }else{
+                                            w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
+                                        }
+
+                                        // Assign default values to form fields
+                                        w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord();
 
                                         if(raBGInfoGridRecord.IsOccupant && !raBGInfoGridRecord.IsRenter && !raBGInfoGridRecord.IsGurantor){
                                             // hide fields
