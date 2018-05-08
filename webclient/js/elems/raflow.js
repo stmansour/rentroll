@@ -7,7 +7,8 @@
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
     setRABGInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
-    hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord, setRABGInfoFormHeader
+    hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord, setRABGInfoFormHeader,
+    updateRABGInfoFormCheckboxes
 */
 
 "use strict";
@@ -83,6 +84,7 @@ window.lockOnGrid = function (gridName) {
 };
 
 // setRABGInfoFormHeader
+// TODO(Akshay): Verify for Companyname use case.
 window.setRABGInfoFormHeader = function(record) {
     if(record.IsCompany){
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
@@ -226,6 +228,13 @@ window.getRABGInfoGridRecord = function(records, TCID){
         }
     }
     return raBGInfoGridrecord;
+};
+
+// updateRABGInfoFormCheckboxes
+window.updateRABGInfoFormCheckboxes = function(record){
+    record.Evicted = int_to_bool(record.Evicted);
+    record.Bankruptcy = int_to_bool(record.Bankruptcy);
+    record.Convicted = int_to_bool(record.Convicted);
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -2078,9 +2087,9 @@ window.loadRABGInfoForm = function () {
                 {name: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
                 {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
                 {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
-                {name: 'Evicted', type: 'bool', required: false}, // have you ever been Evicted
-                {name: 'Convicted', type: 'bool', required: false}, // have you ever been Arrested or convicted of a crime
-                {name: 'Bankruptcy', type: 'bool', required: false}, // have you ever been Declared Bankruptcy
+                {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
+                {name: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
+                {name: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
                 {name: 'Employer', type: 'text', required: true},
                 {name: 'Phone', type: 'text', required: true},
                 {name: 'Address', type: 'text', required: true},
@@ -2096,9 +2105,13 @@ window.loadRABGInfoForm = function () {
                     var form = this;
 
                     var errors = form.validate();
+                    console.log(errors);
                     if (errors.length > 0) return;
 
                     var record = $.extend(true, {}, form.record);
+
+                    // Convert integer to bool checkboxes fields
+                    updateRABGInfoFormCheckboxes(record);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -2226,7 +2239,8 @@ window.loadRABGInfoForm = function () {
                                     // These all fields are not required when transanctant is only user
                                     var listOfNotRequiredFields = ["SSN", "TelephoneNo",
                                         "Phone", "EmailAddress", "Position",
-                                        "GrossWages"];
+                                        "GrossWages", "CurrentAddress", "CurrentLandLoardName",
+                                        "CurrentLandLoardPhoneNo", "CurrentReasonForMoving"];
 
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
