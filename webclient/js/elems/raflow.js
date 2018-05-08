@@ -84,7 +84,7 @@ window.lockOnGrid = function (gridName) {
 };
 
 // setRABGInfoFormHeader
-// TODO(Akshay): Verify for Companyname use case.
+// TODO(Akshay): Ask steve about form fields when transanctant is company.
 window.setRABGInfoFormHeader = function(record) {
     if(record.IsCompany){
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
