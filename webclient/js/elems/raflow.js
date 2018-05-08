@@ -434,7 +434,7 @@ window.requiredFieldsFulFilled = function (compID) {
                 "ApartmentNo", "LeaseTerm", "FirstName", "MiddleName",
                 "LastName", "BirthDate", "SSN",
                 "DriverLicNo", "TelephoneNo", "EmailAddress",
-                "NoPeople", "CurrentAddress", "CurrentLandLoardName", "CurrentLandLoardPhoneNo",
+                "NoPeople", "CurrentAddress", "CurrentLandLordName", "CurrentLandLoardPhoneNo",
                 "CurrentReasonForMoving", "Employer", "Phone", "Address",
                 "Position", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
 
@@ -2030,7 +2030,7 @@ window.getRABGInfoFormInitRecord = function(BID, TCID){
         TelephoneNo: "",
         EmailAddress: "",
         CurrentAddress: "",
-        CurrentLandLoardName: "",
+        CurrentLandLordName: "",
         CurrentLandLoardPhoneNo: "",
         CurrentLengthOfResidency: 0,
         CurrentReasonForMoving: "",
@@ -2110,7 +2110,7 @@ window.loadRABGInfoForm = function () {
                 {name: 'TelephoneNo', type: 'text', required: true}, // Telephone no of applicants
                 {name: 'EmailAddress', type: 'email', required: true}, // Email Address of applicants
                 {name: 'CurrentAddress', type: 'text', required: true}, // Current Address
-                {name: 'CurrentLandLoardName', type: 'text', required: true}, // Current landlord's name
+                {name: 'CurrentLandLordName', type: 'text', required: true}, // Current landlord's name
                 {name: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
                 {name: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
                 {name: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
@@ -2263,7 +2263,7 @@ window.loadRABGInfoForm = function () {
                             getRATransanctantDetail(raBGInfoGridRecord.TCID)
                                 .done(function (data){
                                     // Hide these all fields when transanctant is only user.
-                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLoardName",
+                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLordName",
                                         "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
                                         "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
                                         "PriorLengthOfResidency", "PriorReasonForMoving"];
@@ -2271,7 +2271,7 @@ window.loadRABGInfoForm = function () {
                                     // These all fields are not required when transanctant is only user
                                     var listOfNotRequiredFields = ["SSN", "TelephoneNo",
                                         "Phone", "EmailAddress", "Position",
-                                        "GrossWages", "CurrentAddress", "CurrentLandLoardName",
+                                        "GrossWages", "CurrentAddress", "CurrentLandLordName",
                                         "CurrentLandLoardPhoneNo", "CurrentReasonForMoving"];
 
                                     if(data.status === 'success'){

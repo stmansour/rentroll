@@ -119,7 +119,7 @@ type RABackgroundInfoFlowData struct {
 
 	// Current Address information
 	CurrentAddress           string `json:"CurrentAddress"`
-	CurrentLandLoardName     string `json:"CurrentLandLoardName"`
+	CurrentLandLordName     string `json:"CurrentLandLordName"`
 	CurrentLengthOfResidency int    `json:"CurrentLengthOfResidency"`
 	CurrentLandLoardPhoneNo  string `json:"CurrentLandLoardPhoneNo"`
 	CurrentReasonForMoving   string `json:"CurrentReasonForMoving"` // Reason for moving
