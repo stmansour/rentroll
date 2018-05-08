@@ -8,7 +8,7 @@
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
     setRABGInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
     hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord, setRABGInfoFormHeader,
-    findTransactantIndexByTCIDInPeopleData,
+    updateRABGInfoFormCheckboxes, findTransactantIndexByTCIDInPeopleData
 */
 
 "use strict";
@@ -84,6 +84,7 @@ window.lockOnGrid = function (gridName) {
 };
 
 // setRABGInfoFormHeader
+// TODO(Akshay): Ask steve about form fields when transanctant is company.
 window.setRABGInfoFormHeader = function(record) {
     if(record.IsCompany){
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
@@ -227,6 +228,13 @@ window.getRABGInfoGridRecord = function(records, TCID){
         }
     }
     return raBGInfoGridrecord;
+};
+
+// updateRABGInfoFormCheckboxes
+window.updateRABGInfoFormCheckboxes = function(record){
+    record.Evicted = int_to_bool(record.Evicted);
+    record.Bankruptcy = int_to_bool(record.Bankruptcy);
+    record.Convicted = int_to_bool(record.Convicted);
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -426,7 +434,7 @@ window.requiredFieldsFulFilled = function (compID) {
                 "ApartmentNo", "LeaseTerm", "FirstName", "MiddleName",
                 "LastName", "BirthDate", "SSN",
                 "DriverLicNo", "TelephoneNo", "EmailAddress",
-                "NoPeople", "CurrentAddress", "CurrentLandLoardName", "CurrentLandLoardPhoneNo",
+                "NoPeople", "CurrentAddress", "CurrentLandLordName", "CurrentLandLordPhoneNo",
                 "CurrentReasonForMoving", "Employer", "Phone", "Address",
                 "Position", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
 
@@ -2022,13 +2030,13 @@ window.getRABGInfoFormInitRecord = function(BID, TCID){
         TelephoneNo: "",
         EmailAddress: "",
         CurrentAddress: "",
-        CurrentLandLoardName: "",
-        CurrentLandLoardPhoneNo: "",
+        CurrentLandLordName: "",
+        CurrentLandLordPhoneNo: "",
         CurrentLengthOfResidency: 0,
         CurrentReasonForMoving: "",
         PriorAddress: "",
-        PriorLandLoardName: "",
-        PriorLandLoardPhoneNo: "",
+        PriorLandLordName: "",
+        PriorLandLordPhoneNo: "",
         PriorLengthOfResidency: 0,
         PriorReasonForMoving: "",
         Evicted: false,
@@ -2102,18 +2110,18 @@ window.loadRABGInfoForm = function () {
                 {name: 'TelephoneNo', type: 'text', required: true}, // Telephone no of applicants
                 {name: 'EmailAddress', type: 'email', required: true}, // Email Address of applicants
                 {name: 'CurrentAddress', type: 'text', required: true}, // Current Address
-                {name: 'CurrentLandLoardName', type: 'text', required: true}, // Current landlord's name
-                {name: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
+                {name: 'CurrentLandLordName', type: 'text', required: true}, // Current landlord's name
+                {name: 'CurrentLandLordPhoneNo', type: 'text', required: true}, // Current landlord's phone number
                 {name: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
                 {name: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
                 {name: 'PriorAddress', type: 'text'}, // Prior Address
-                {name: 'PriorLandLoardName', type: 'text'}, // Prior landlord's name
-                {name: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
+                {name: 'PriorLandLordName', type: 'text'}, // Prior landlord's name
+                {name: 'PriorLandLordPhoneNo', type: 'text'}, // Prior landlord's phone number
                 {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
                 {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
-                {name: 'Evicted', type: 'bool', required: false}, // have you ever been Evicted
-                {name: 'Convicted', type: 'bool', required: false}, // have you ever been Arrested or convicted of a crime
-                {name: 'Bankruptcy', type: 'bool', required: false}, // have you ever been Declared Bankruptcy
+                {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
+                {name: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
+                {name: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
                 {name: 'Employer', type: 'text', required: true},
                 {name: 'Phone', type: 'text', required: true},
                 {name: 'Address', type: 'text', required: true},
@@ -2129,9 +2137,13 @@ window.loadRABGInfoForm = function () {
                     var form = this;
 
                     var errors = form.validate();
+                    console.log(errors);
                     if (errors.length > 0) return;
 
                     var record = $.extend(true, {}, form.record);
+
+                    // Convert integer to bool checkboxes fields
+                    updateRABGInfoFormCheckboxes(record);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -2251,15 +2263,16 @@ window.loadRABGInfoForm = function () {
                             getRATransanctantDetail(raBGInfoGridRecord.TCID)
                                 .done(function (data){
                                     // Hide these all fields when transanctant is only user.
-                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLoardName",
-                                        "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
-                                        "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
+                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLordName",
+                                        "CurrentLandLordPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
+                                        "PriorAddress", "PriorLandLordName", "PriorLandLordPhoneNo",
                                         "PriorLengthOfResidency", "PriorReasonForMoving"];
 
                                     // These all fields are not required when transanctant is only user
                                     var listOfNotRequiredFields = ["SSN", "TelephoneNo",
                                         "Phone", "EmailAddress", "Position",
-                                        "GrossWages"];
+                                        "GrossWages", "CurrentAddress", "CurrentLandLordName",
+                                        "CurrentLandLordPhoneNo", "CurrentReasonForMoving"];
 
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
@@ -2326,69 +2339,21 @@ window.loadRABGInfoForm = function () {
     $('#ra-form #bginfo').w2render(w2ui.RABGInfoGrid);
 
     var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    var data = app.raflow.data[app.raflow.activeFlowID][i].Data;
-
-    /*
-    * RABGInfoGrid: It displays renters, occupants and gurantors list. It have column Full Name, Company Name.
-    * */
-
-    var occupantsInfo = data.Occupants;
-    var rentersInfo = data.Renters;
-    var gurantorsInfo = data.Guarantors;
-
-    var raBGInfoGridRecords = [];
-    var raBGInfoGridRecord;
-    var listOfTCID = [];
-
-    // Get renters list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(var j = 0; j < rentersInfo.length; j++){
-        if(listOfTCID.indexOf(rentersInfo[j].TCID) <= -1){
-            rentersInfo[j].IsRenter = true;
-            raBGInfoGridRecords.push(rentersInfo[j]);
-            listOfTCID.push(rentersInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, rentersInfo[j].TCID);
-            raBGInfoGridRecord.IsRenter = true;
-        }
-    }
-
-    // Get occupants list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(j = 0; j < occupantsInfo.length; j++){
-        if(listOfTCID.indexOf(occupantsInfo[j].TCID) <= -1){
-            occupantsInfo[j].IsOccupant = true;
-            raBGInfoGridRecords.push(occupantsInfo[j]);
-            listOfTCID.push(occupantsInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, occupantsInfo[j].TCID);
-            raBGInfoGridRecord.IsOccupant = true;
-        }
-    }
-
-    // Get gurantors list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(j = 0; j < gurantorsInfo.length; j++){
-        if(listOfTCID.indexOf(gurantorsInfo[j].TCID) <= -1){
-            gurantorsInfo[j].IsGuarantor = true;
-            raBGInfoGridRecords.push(gurantorsInfo[j]);
-            listOfTCID.push(gurantorsInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, gurantorsInfo[j].TCID);
-            raBGInfoGridRecord.IsGuarantor = true;
-        }
-    }
+    var peopleData = app.raflow.data[app.raflow.activeFlowID][i].Data;
 
     // load the existing data in Background Info grid
-    setTimeout(function (raBGInfoGridRecords) {
+    setTimeout(function (peopleData) {
         var grid = w2ui.RABGInfoGrid;
 
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            grid.records = raBGInfoGridRecords;
+            grid.records = peopleData;
             grid.refresh();
             reassignGridRecids(grid.name);
         } else {
             grid.clear();
         }
-    }, 500, raBGInfoGridRecords);
+    }, 500, peopleData);
 };
 
 // -------------------------------------------------------------------------------

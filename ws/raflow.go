@@ -119,16 +119,16 @@ type RABackgroundInfoFlowData struct {
 
 	// Current Address information
 	CurrentAddress           string `json:"CurrentAddress"`
-	CurrentLandLoardName     string `json:"CurrentLandLoardName"`
+	CurrentLandLordName     string `json:"CurrentLandLordName"`
 	CurrentLengthOfResidency int    `json:"CurrentLengthOfResidency"`
-	CurrentLandLoardPhoneNo  string `json:"CurrentLandLoardPhoneNo"`
+	CurrentLandLordPhoneNo  string `json:"CurrentLandLordPhoneNo"`
 	CurrentReasonForMoving   string `json:"CurrentReasonForMoving"` // Reason for moving
 
 	// Prior Address information
 	PriorAddress           string `json:"PriorAddress"`
-	PriorLandLoardName     string `json:"PriorLandLoardName"`
+	PriorLandLordName     string `json:"PriorLandLordName"`
 	PriorLengthOfResidency int    `json:"PriorLengthOfResidency"`
-	PriorLandLoardPhoneNo  string `json:"PriorLandLoardPhoneNo"`
+	PriorLandLordPhoneNo  string `json:"PriorLandLordPhoneNo"`
 	PriorReasonForMoving   string `json:"PriorReasonForMoving"` // Reason for moving
 
 	// Have you ever been
