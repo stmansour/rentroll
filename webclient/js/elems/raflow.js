@@ -2093,7 +2093,6 @@ window.loadRABGInfoForm = function () {
             ],
             actions: {
                 save: function () {
-                    alert("In save of RABGInfoForm");
                     var form = this;
 
                     var errors = form.validate();
