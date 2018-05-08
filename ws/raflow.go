@@ -35,6 +35,7 @@ type RAFlowJSONData struct {
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
+	BID             int64
 	AgreementStart  rlib.JSONDate `json:"AgreementStart"` // TermStart
 	AgreementStop   rlib.JSONDate `json:"AgreementStop"`  // TermStop
 	RentStart       rlib.JSONDate `json:"RentStart"`
@@ -45,9 +46,17 @@ type RADatesFlowData struct {
 
 // RAPeopleFlowData contains data in the people part of RA flow
 type RAPeopleFlowData struct {
-	Renters    []rlib.TransactantTypeDown `json:"Renters"`
-	Occupants  []rlib.TransactantTypeDown `json:"Occupants"`
-	Guarantors []rlib.TransactantTypeDown `json:"Guarantors"`
+	BID         int64
+	TCID        int64
+	FirstName   string
+	MiddleName  string
+	LastName    string
+	CompanyName string
+	IsCompany   int64
+	Recid       int64 `json:"recid"`
+	IsRenter    bool
+	IsOccupant  bool
+	IsGuarantor bool
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
@@ -169,7 +178,7 @@ type RAFeesTermsFlowData struct {
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
 // coming from client with checking of flow and part type to update
-func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, error) {
+func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) ([]byte, error) {
 
 	// TODO: Add validation on field level, it must be done.
 
@@ -182,6 +191,7 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 	switch rlib.RAFlowPartType(partType) {
 	case rlib.DatesRAFlowPart:
 		a := RADatesFlowData{
+			BID:             BID,
 			RentStart:       rlib.JSONDate(currentDateTime),
 			RentStop:        rlib.JSONDate(nextYearDateTime),
 			AgreementStart:  rlib.JSONDate(currentDateTime),
@@ -197,11 +207,7 @@ func getUpdateRAFlowPartJSONData(data json.RawMessage, partType int) ([]byte, er
 		}
 		return json.Marshal(&a)
 	case rlib.PeopleRAFlowPart:
-		a := RAPeopleFlowData{
-			Renters:    []rlib.TransactantTypeDown{},
-			Occupants:  []rlib.TransactantTypeDown{},
-			Guarantors: []rlib.TransactantTypeDown{},
-		}
+		a := []RAPeopleFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
@@ -337,7 +343,7 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 		a.PartType = int(partTypeID)
 
 		// get json strctured data from go struct
-		a.Data, _ = getUpdateRAFlowPartJSONData(a.Data, a.PartType)
+		a.Data, _ = getUpdateRAFlowPartJSONData(BID, a.Data, a.PartType)
 
 		// insert each flowpart of RA flow
 		_, err = rlib.InsertFlowPart(ctx, &a)

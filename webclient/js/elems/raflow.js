@@ -8,7 +8,7 @@
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
     setRABGInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
     hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord, setRABGInfoFormHeader,
-    updateRABGInfoFormCheckboxes
+    updateRABGInfoFormCheckboxes, findTransactantIndexByTCIDInPeopleData
 */
 
 "use strict";
@@ -393,14 +393,15 @@ window.requiredFieldsFulFilled = function (compID) {
             done = validData;
             break;
         case "people":
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.Renters.length > 0) {
-                done = true;
-            }
+            app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.forEach(function(item) {
+                if (item.IsRenter) {
+                    done = true;
+                    return false;
+                }
+            });
             break;
         case "pets":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-
             isChecked = $('#RAPetsGrid_checkbox')[0].checked;
             if(!isChecked){
                 done = true;
@@ -414,7 +415,6 @@ window.requiredFieldsFulFilled = function (compID) {
             break;
         case "vehicles":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-
             isChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
             if(!isChecked){
                 done = true;
@@ -489,6 +489,7 @@ window.loadTargetSection = function (target, activeCompID) {
         case "people":
             partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            w2ui.RAPeopleForm.clear();
             break;
         case "pets":
             data = w2ui.RAPetsGrid.records;
@@ -647,30 +648,16 @@ window.loadRADatesForm = function () {
 // loadTransactantListingItem - adds transactant into categories list
 // @params
 //   transactantRec = an object assumed to have a FirstName, MiddleName, LastName,
-//                    IsCompany, and CompanyName.
-//   IsRenter        = flag to indicate payor or not
-//   IsOccupant         = flag to indicate user or not
-//   IsGuarantor    = flag to indicate guarantor or not
+//                    IsCompany, CompanyName, IsGuarantor, IsOccupant, IsRenter
 // @return - nothing
 //-----------------------------------------------------------------------------
-window.loadTransactantListingItem = function (transactantRec, IsRenter, IsOccupant, IsGuarantor) {
+window.loadTransactantListingItem = function (transactantRec) {
 
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
     if (peoplePartIndex < 0) {
-        alert("flow data could not be found");
+        alert("flow data could not be found for people");
         return false;
     }
-
-    // check that "Renters", "occupants", "Guarantors" keys do exist in Data of people
-    var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data);
-    var rentersIndex = peopleTypeKeys.indexOf("Renters");
-    var occupantsIndex = peopleTypeKeys.indexOf("Occupants");
-    var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
-    if (rentersIndex < 0 || occupantsIndex < 0 || guarantorsIndex < 0) {
-        alert("flow data could not be found");
-        return false;
-    }
-
 
     // listing item to be appended in ul
     var s = (transactantRec.IsCompany > 0) ? transactantRec.CompanyName : getFullName(transactantRec);
@@ -683,73 +670,34 @@ window.loadTransactantListingItem = function (transactantRec, IsRenter, IsOccupa
     peopleListingItem += '<i class="remove-item fas fa-times-circle fa-xs"></i>';
     peopleListingItem += '</li>';
 
-    var i, length, found = false;
-
     // add into renter list
-    if (IsRenter) {
-        // check for duplicacy
-        found = false;
-        length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Renters.length;
-        for (i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Renters[i].TCID) {
-                found = true;
-                break;
-            }
+    if (transactantRec.IsRenter) {
+        // if with this tcid element exists in DOM then not append
+        if ($('#renter-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
+            $('#renter-list .people-listing').append(peopleListingItem);
         }
-        if (!(found)) {
-            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
-                app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Renters.push(app.raflow.activeTransactant);
-            }
-
-            // if with this tcid element exists in DOM then not append
-            if ($('#renter-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
-                $('#renter-list .people-listing').append(peopleListingItem);
-            }
-        }
+    } else {
+        $('#renter-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
     }
 
     // add into occupant list
-    if (IsOccupant) {
-        found = false;
-        length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Occupants.length;
-        for (i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Occupants[i].TCID) {
-                found = true;
-                break;
-            }
+    if (transactantRec.IsOccupant) {
+        // if with this tcid element exists in DOM then not append
+        if ($('#occupant-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
+            $('#occupant-list .people-listing').append(peopleListingItem);
         }
-        if (!(found)) {
-            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
-                app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Occupants.push(app.raflow.activeTransactant);
-            }
-
-            // if with this tcid element exists in DOM then not append
-            if ($('#occupant-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
-                $('#occupant-list .people-listing').append(peopleListingItem);
-            }
-        }
+    } else {
+        $('#occupant-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
     }
 
     // add into guarantor list
-    if (IsGuarantor) {
-        found = false;
-        length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.length;
-        for (i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors[i].TCID) {
-                found = true;
-                break;
-            }
+    if (transactantRec.IsGuarantor) {
+        // if with this tcid element exists in DOM then not append
+        if ($('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
+            $('#guarantor-list .people-listing').append(peopleListingItem);
         }
-        if (!(found)) {
-            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
-                app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.push(app.raflow.activeTransactant);
-            }
-
-            // if with this tcid element exists in DOM then not append
-            if ($('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
-                $('#guarantor-list .people-listing').append(peopleListingItem);
-            }
-        }
+    } else {
+        $('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
     }
 };
 
@@ -808,9 +756,9 @@ window.getRAAddTransactantFormInitRec = function(BID, BUD, previousFormRecord) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 window.acceptTransactant = function () {
-    var IsRenter = w2ui.RAPeopleForm.record.Renter;
-    var IsOccupant = w2ui.RAPeopleForm.record.Occupant;
-    var IsGuarantor = w2ui.RAPeopleForm.record.Guarantor;
+    var IsRenter = w2ui.RAPeopleForm.record.IsRenter;
+    var IsOccupant = w2ui.RAPeopleForm.record.IsOccupant;
+    var IsGuarantor = w2ui.RAPeopleForm.record.IsGuarantor;
 
     // if not set anything then alert the user to select any one of them
     if (!(IsRenter || IsOccupant || IsGuarantor)) {
@@ -818,8 +766,26 @@ window.acceptTransactant = function () {
         return false;
     }
 
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    // remove entry from data
+    if (peoplePartIndex < 0) {
+        return false;
+    }
+
+    var transactantRec = $.extend(true, {}, w2ui.RAPeopleForm.record);
+    delete transactantRec.Transactant;
+    var tcidIndex = findTransactantIndexByTCIDInPeopleData(transactantRec.TCID);
+
+    // if not found then push it in the data
+    if (tcidIndex < 0) {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.push(transactantRec);
+    } else {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex] = transactantRec;
+    }
+
     // load item in the DOM
-    loadTransactantListingItem(w2ui.RAPeopleForm.record, IsRenter, IsOccupant, IsGuarantor);
+    loadTransactantListingItem(transactantRec);
 
     // clear the form
     app.raflow.activeTransactant = {};
@@ -829,83 +795,135 @@ window.acceptTransactant = function () {
     $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", true);
 };
 
-// remove people from the listing
-$(document).on('click', '.people-listing .remove-item', function () {
-    var tcid = parseInt($(this).closest('li').attr('data-tcid'));
+//-----------------------------------------------------------------------------
+// findTransactantIndexByTCIDInPeopleData - finds the index of transactant data
+//                in local people data of raflow by TCID
+//
+// @params
+//   TCID = tcid
+//-----------------------------------------------------------------------------
+window.findTransactantIndexByTCIDInPeopleData = function(TCID) {
+    var index = -1;
 
     // get part type index
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-
     // remove entry from data
-    if (peoplePartIndex >= 0) {
-        // check that "Renters", "Occupants", "Guarantors" keys do exist in Data of people
-        var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data);
-        var rentersIndex = peopleTypeKeys.indexOf("Renters");
-        var occupantsIndex = peopleTypeKeys.indexOf("Occupants");
-        var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
-
-        if (!(rentersIndex < 0 || occupantsIndex < 0 || guarantorsIndex < 0)) {
-            var peopleType = $(this).closest('ul.people-listing').attr('data-people-type');
-            var i, length;
-            switch (peopleType) {
-                case "renters":
-                    length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Renters.length;
-                    for (i = length - 1; i >= 0; i--) {
-                        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Renters.splice(i, 1);
-                    }
-                    break;
-                case "occupants":
-                    length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Occupants.length;
-                    for (i = length - 1; i >= 0; i--) {
-                        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Occupants.splice(i, 1);
-                    }
-                    break;
-                case "guarantors":
-                    length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.length;
-                    for (i = length - 1; i >= 0; i--) {
-                        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.splice(i, 1);
-                    }
-                    break;
-            }
-        }
+    if (peoplePartIndex < 0) {
+        return;
     }
 
+    if (typeof app.raflow.data[app.raflow.activeFlowID] !== "undefined") {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.forEach(function(transactantRec, i) {
+            if (transactantRec.TCID === TCID) {
+                index = i;
+                return false;
+            }
+        });
+    }
 
+    return index;
+};
+
+// click on any transactant item in people listing
+$(document).on("click", ".people-listing li", function(e) {
+    console.log("clicked...");
+
+    if($(e.target).hasClass("remove-item")) {
+        return;
+    }
+    var TCID = parseInt($(this).attr("data-tcid"));
+    var tcidIndex = findTransactantIndexByTCIDInPeopleData(TCID);
+    if (tcidIndex < 0) {
+        return;
+    }
+
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    // remove entry from data
+    if (peoplePartIndex < 0) {
+        return;
+    }
+
+    var transactantRec = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex];
+
+    var item = {
+        CompanyName: transactantRec.CompanyName,
+        IsCompany: transactantRec.IsCompany,
+        FirstName: transactantRec.FirstName,
+        LastName: transactantRec.LastName,
+        MiddleName: transactantRec.MiddleName,
+        TCID: transactantRec.TCID,
+        recid: 0,
+    };
+    w2ui.RAPeopleForm.record = transactantRec;
+    w2ui.RAPeopleForm.record.Transactant = item;
+    w2ui.RAPeopleForm.refresh();
+    if ($(w2ui.RAPeopleForm.box).find("input[name=Transactant]").length > 0) {
+        $(w2ui.RAPeopleForm.box).find("input[name=Transactant]").data('selected', [item]).data('w2field').refresh();
+    }
+});
+
+// remove people from the listing
+$(document).on('click', '.people-listing .remove-item', function () {
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    // remove entry from data
+    if (peoplePartIndex < 0) {
+        return;
+    }
+
+    var TCID = parseInt($(this).closest('li').attr('data-tcid'));
+    var peopleType = $(this).closest('ul.people-listing').attr('data-people-type');
+    var tcidIndex = findTransactantIndexByTCIDInPeopleData(TCID);
+    if (tcidIndex < 0) {
+        return;
+    }
+
+    // taka the reference
+    var transactant = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex];
+    switch (peopleType) {
+        case "renters":
+            transactant.IsRenter = false;
+            break;
+        case "occupants":
+            transactant.IsOccupant = false;
+            break;
+        case "guarantors":
+            transactant.IsGuarantor = false;
+            break;
+    }
+
+    // if selected tcid record to be removed, of which all flags are false then remove it from data also
+    if (!(transactant.IsGuarantor || transactant.IsRenter || transactant.IsOccupant)) {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.splice(tcidIndex, 1);
+    }
+
+    // remove item from the DOM
     $(this).closest('li').remove();
+
+    // refresh the form
+    if (w2ui.RAPeopleForm.record.TCID > 0) {
+        var item = {
+            CompanyName: transactant.CompanyName,
+            IsCompany: transactant.IsCompany,
+            FirstName: transactant.FirstName,
+            LastName: transactant.LastName,
+            MiddleName: transactant.MiddleName,
+            TCID: transactant.TCID,
+            recid: 0,
+        };
+        w2ui.RAPeopleForm.record = $.extend(true, transactant, w2ui.RAPeopleForm.record);
+        w2ui.RAPeopleForm.record.Transactant = item;
+        w2ui.RAPeopleForm.refresh();
+        if ($(w2ui.RAPeopleForm.box).find("input[name=Transactant]").length > 0) {
+            $(w2ui.RAPeopleForm.box).find("input[name=Transactant]").data('selected', [item]).data('w2field').refresh();
+        }
+    }
 });
 
 window.loadRAPeopleForm = function () {
-
-    // have to list down all people into different categories
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    if (peoplePartIndex < 0) {
-        alert("flow data could not be found");
-        return false;
-    }
-
-    // check that "Renters", "Occupants", "Guarantors" keys do exist in Data of people
-    var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data);
-    var rentersIndex = peopleTypeKeys.indexOf("Renters");
-    var occupantsIndex = peopleTypeKeys.indexOf("Occupants");
-    var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
-    if (!(rentersIndex < 0 || occupantsIndex < 0 || guarantorsIndex < 0)) { // valid then
-        // load renters list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Renters.forEach(function (item) {
-            loadTransactantListingItem(item, true, false, false);
-        });
-        // load occupants list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Occupants.forEach(function (item) {
-            loadTransactantListingItem(item, false, true, false);
-        });
-        // load guarantors list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.forEach(function (item) {
-            loadTransactantListingItem(item, false, false, true);
-        });
-    }
-
     var partType = app.raFlowPartTypes.people;
     var partTypeIndex = getRAFlowPartTypeIndex(partType);
-
     if (partTypeIndex < 0){
         return;
     }
@@ -914,7 +932,11 @@ window.loadRAPeopleForm = function () {
     getRAFlowPartData(partType)
         .done(function(data){
             if(data.status === 'success'){
-                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data || [];
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.forEach(function (item) {
+                    console.log(item);
+                    loadTransactantListingItem(item);
+                });
             }else {
                 console.log(data.message);
             }
@@ -986,20 +1008,30 @@ window.loadRAPeopleForm = function () {
                         }
                     }
                 },
+                {name: 'BID', type: 'int', required: true, html: {caption: "BID"}},
                 {name: 'TCID', type: 'int', required: true, html: {caption: "TCID"}},
                 {name: 'FirstName', type: 'text', required: true, html: {caption: "FirstName"}},
                 {name: 'LastName', type: 'text', required: true, html: {caption: "LastName"}},
                 {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
                 {name: 'CompanyName', type: 'text', required: true, html: {caption: "CompanyName"}},
                 {name: 'IsCompany', type: 'int', required: true, html: {caption: "IsCompany"}},
-                {name: 'Renter', type: 'checkbox', required: false, html: {caption: "Renter"}},
-                {name: 'Occupant', type: 'checkbox', required: false, html: {caption: "Occupant"}},
-                {name: 'Guarantor', type: 'checkbox', required: false, html: {caption: "Guarantor"}}
+                {name: 'IsRenter', type: 'checkbox', required: false, html: {caption: "Renter"}},
+                {name: 'IsOccupant', type: 'checkbox', required: false, html: {caption: "Occupant"}},
+                {name: 'IsGuarantor', type: 'checkbox', required: false, html: {caption: "Guarantor"}}
             ],
             actions: {
                 reset: function () {
                     this.clear();
                 }
+            },
+            onRefresh: function(event) {
+                var f = this;
+                event.onComplete = function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    f.record.BID = BID;
+                };
             }
         });
 
@@ -2200,8 +2232,8 @@ window.loadRABGInfoForm = function () {
                     hidden: true
                 },
                 {
-                    field: 'IsGurantor',
-                    caption: 'IsGurantor',
+                    field: 'IsGuarantor',
+                    caption: 'IsGuarantor',
                     size: '100px',
                     hidden: true
                 }
@@ -2251,7 +2283,7 @@ window.loadRABGInfoForm = function () {
                                         setRABGInfoFormHeader(record);
 
                                         // Display/Required field based on transanctant type
-                                        if(raBGInfoGridRecord.IsOccupant && !raBGInfoGridRecord.IsRenter && !raBGInfoGridRecord.IsGurantor){
+                                        if(raBGInfoGridRecord.IsOccupant && !raBGInfoGridRecord.IsRenter && !raBGInfoGridRecord.IsGuarantor){
                                             // hide fields
                                             showHideRABGInfoFormFields(listOfHiddenFields, true);
 
@@ -2348,12 +2380,12 @@ window.loadRABGInfoForm = function () {
     // Get gurantors list. Push it into raBGInfoGridRecords only if it doesn't exists.
     for(j = 0; j < gurantorsInfo.length; j++){
         if(listOfTCID.indexOf(gurantorsInfo[j].TCID) <= -1){
-            gurantorsInfo[j].IsGurantor = true;
+            gurantorsInfo[j].IsGuarantor = true;
             raBGInfoGridRecords.push(gurantorsInfo[j]);
             listOfTCID.push(gurantorsInfo[j].TCID);
         }else{
             raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, gurantorsInfo[j].TCID);
-            raBGInfoGridRecord.IsGurantor = true;
+            raBGInfoGridRecord.IsGuarantor = true;
         }
     }
 
