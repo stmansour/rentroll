@@ -733,6 +733,23 @@ window.loadTransactantListingItem = function (transactantRec, IsRenter, IsOccupa
     }
 };
 
+// click on any transactant item in people listing
+$(document).on("click", ".people-listing li", function() {
+/*    var TCID = parseInt($(this).attr("data-tcid"));
+    var item = {
+        CompanyName: record.CompanyName,
+        IsCompany: record.IsCompany,
+        FirstName: record.FirstName,
+        LastName: record.LastName,
+        MiddleName: record.MiddleName,
+        TCID: record.TCID,
+        recid: 0,
+    };
+    if ($(f.box).find("input[name=Payor]").length > 0) {
+        $(f.box).find("input[name=Payor]").data('selected', [item]).data('w2field').refresh();
+    }*/
+});
+
 //-----------------------------------------------------------------------------
 // openNewTransactantForm - popup new transactant form
 //-----------------------------------------------------------------------------
