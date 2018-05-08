@@ -7,9 +7,18 @@ import (
 	"net/http"
 	"rentroll/bizlogic"
 	"rentroll/rlib"
+	"sort"
 	"strconv"
 	"strings"
 )
+
+// account rule FLAGS
+var arFLAGS = rlib.Str2Int64Map{
+	"ApplyFundsToReceiveAccts": 0,
+	"PopulateOnRA":             1,
+	"RAIDRequired":             2,
+	"SubARIDsOnly":             3,
+}
 
 // ARSendForm is a structure specifically for the UI. It will be
 // automatically populated from an rlib.AR struct
@@ -558,4 +567,98 @@ func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	SvcWriteSuccessResponse(d.BID, w)
+}
+
+// ListedAR is struct to list down individual account rule record
+type ListedAR struct {
+	BID  int64  `json:"BID"`
+	ARID int64  `json:"ARID"` // Account Rule ID
+	Name string `json:"Name"` // Account rule name
+}
+
+// ARsListResponse is the response to list down all account rules
+type ARsListResponse struct {
+	Status  string     `json:"status"`
+	Total   int64      `json:"total"`
+	Records []ListedAR `json:"records"`
+}
+
+// ARsListRequestByFLAGS is the request struct for listing down account rules by FLAGS
+type ARsListRequestByFLAGS struct {
+	FLAGS int64 `json:"FLAGS"`
+}
+
+// ARsListRequestType represents for which type of request to list down ARs
+type ARsListRequestType struct {
+	Type string `json:"type"`
+}
+
+// SvcARsList generates a list of all ARs with respect of business id specified by d.BID
+// wsdoc {
+//  @Title Get list of ARs
+//  @URL /v1/arslist/:BUI
+//  @Method  GET
+//  @Synopsis Get ARs list
+//  @Description Get all Account rules list for the requested business
+//  @Input WebGridSearchRequest
+//  @Response ARsListResponse
+// wsdoc }
+func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcARsList"
+	var (
+		g   ARsListResponse
+		foo ARsListRequestType
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	if r.Method != "POST" {
+		err := fmt.Errorf("Only POST method is allowed")
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	data := []byte(d.data)
+
+	// get the type first
+	err := json.Unmarshal(data, &foo)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	switch foo.Type {
+	case "FLAGS":
+		bar := ARsListRequestByFLAGS{}
+		err = json.Unmarshal(data, &bar)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, bar.FLAGS)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// append records in ascending order
+		var arList []ListedAR
+		for _, ar := range m {
+			arList = append(arList, ListedAR{BID: ar.BID, ARID: ar.ARID, Name: ar.Name})
+		}
+
+		// sort based on name, needs version 1.8 later of golang
+		sort.Slice(arList, func(i, j int) bool { return arList[i].Name < arList[j].Name })
+
+		g.Records = arList
+		g.Total = int64(len(g.Records))
+		g.Status = "success"
+		SvcWriteResponse(d.BID, &g, w)
+	default:
+		err := fmt.Errorf("%s: Unhandled %s command", funcname, foo.Type)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
 }

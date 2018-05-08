@@ -231,7 +231,7 @@ func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
 }
 
 // GetARsByType reads all AccountRules for the supplied BID of type artype
-func GetARsByType(ctx context.Context, id int64, artype int) ([]AR, error) {
+func GetARsByType(ctx context.Context, bid int64, artype int) ([]AR, error) {
 
 	var (
 		err error
@@ -247,13 +247,45 @@ func GetARsByType(ctx context.Context, id int64, artype int) ([]AR, error) {
 	}
 
 	var rows *sql.Rows
-	fields := []interface{}{id, artype}
+	fields := []interface{}{bid, artype}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.GetARsByType)
 		defer stmt.Close()
 		rows, err = stmt.Query(fields...)
 	} else {
 		rows, err = RRdb.Prepstmt.GetARsByType.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	return getARsForRows(ctx, rows)
+}
+
+// GetARsByFLAGS reads all AccountRules for the supplied BID with FLAGS
+func GetARsByFLAGS(ctx context.Context, bid int64, FLAGS int64) ([]AR, error) {
+
+	var (
+		err error
+		t   []AR
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{bid, FLAGS}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetARsByFLAGS)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetARsByFLAGS.Query(fields...)
 	}
 
 	if err != nil {
