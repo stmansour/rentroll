@@ -184,15 +184,18 @@ type Period struct {
 //    1<<1 PreCompletion done (if 0 it is not yet done)
 //    1<<2 Completion done (if 0 it is not yet done)
 type Task struct {
-	TID         int64
-	BID         int64
-	TLID        int64     // the TaskList to which this task belongs
-	Name        string    // Task text
-	Worker      string    // Name of the associated work function
-	DtDue       time.Time // Task Due Date
-	DtPreDue    time.Time // Pre Completion due date
-	DtDone      time.Time // Task completion Date
-	DtPreDone   time.Time // Task Pre Completion Date
+	TID       int64
+	BID       int64
+	TLID      int64     // the TaskList to which this task belongs
+	Name      string    // Task text
+	Worker    string    // Name of the associated work function
+	DtDue     time.Time // Task Due Date
+	DtPreDue  time.Time // Pre Completion due date
+	DtDone    time.Time // Task completion Date
+	DtPreDone time.Time // Task Pre Completion Date
+
+	// 1<<1 - 0 = DtPreDue should not be checked, 1 = DtPreDue should be checked
+	// 1<<2 - 0 = DtDue should not be checked, 1 = DtDue should be checked
 	FLAGS       int64
 	DoneUID     int64     // user who marked task as done
 	PreDoneUID  int64     // user who marked task as predone
@@ -205,15 +208,19 @@ type Task struct {
 
 // TaskList is the shell container for a list of tracked tasks
 type TaskList struct {
-	TLID        int64
-	BID         int64
-	Name        string
-	Cycle       int64
-	DtDue       time.Time
-	DtPreDue    time.Time
-	DtDone      time.Time
-	DtPreDone   time.Time
-	FLAGS       int64     // 1<<0 - 0 = active, 1 = inactive
+	TLID      int64
+	BID       int64
+	Name      string
+	Cycle     int64
+	DtDue     time.Time
+	DtPreDue  time.Time
+	DtDone    time.Time
+	DtPreDone time.Time
+
+	// 1<<0 - 0 = active, 1 = inactive
+	// 1<<3 - 0 = DtPreDue should not be checked, 1 = DtPreDue should be checked
+	// 1<<4 - 0 = DtDue should not be checked, 1 = DtDue should be checked
+	FLAGS       int64
 	DoneUID     int64     // user who marked task as done
 	PreDoneUID  int64     // user who marked task as predone
 	EmailList   string    // email to this list when due date arrives

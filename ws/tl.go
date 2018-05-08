@@ -37,6 +37,7 @@ type SvcTaskList struct {
 	DoneName     string
 	PreDoneUID   int64
 	PreDoneName  string
+	EmailList    string
 	Comment      string
 	CreateTS     rlib.JSONDateTime // when was this record created
 	CreateBy     int64             // employee UID (from phonebook) that created it
@@ -74,6 +75,7 @@ type SaveTaskList struct {
 	FLAGS        int64
 	DoneUID      int64
 	PreDoneUID   int64
+	EmailList    string
 	Comment      string
 }
 
@@ -359,6 +361,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	a.Name = foo.Record.Name
 	a.BID = d.BID
+	a.FLAGS = foo.Record.FLAGS
 
 	//----------------------------------------------------------------
 	// Not much business logic to check here.
@@ -371,29 +374,28 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	//-------------------------------------------------------
+	// Chk values dictate the dates.
+	//-------------------------------------------------------
+	if foo.Record.ChkDtPreDone {
+		a.DtPreDone = now
+		a.PreDoneUID = d.sess.UID
+	} else {
+		a.DtPreDone = blank.DtPreDone
+		a.PreDoneUID = 0
+	}
+
+	if foo.Record.ChkDtDone {
+		a.DtDone = now
+		a.DoneUID = d.sess.UID
+	} else {
+		a.DtDone = blank.DtDone
+		a.DoneUID = 0
+	}
+
+	//-------------------------------------------------------
 	// Bizlogic checks done. Insert or update as needed...
 	//-------------------------------------------------------
 	if a.TLID == 0 && d.ID == 0 {
-		//-------------------------------------------------------
-		// Chk values dictate the dates.
-		//-------------------------------------------------------
-		if !foo.Record.ChkDtDue {
-			a.DtDue = blank.DtDue
-			a.DoneUID = 0
-		}
-		if !foo.Record.ChkDtPreDue {
-			a.DtPreDue = blank.DtPreDue
-			a.PreDoneUID = 0
-		}
-		if foo.Record.ChkDtPreDone {
-			a.DtPreDone = now
-			a.PreDoneUID = d.sess.UID
-		}
-		if foo.Record.ChkDtDone {
-			a.DtDone = now
-			a.DoneUID = d.sess.UID
-		}
-
 		if foo.Record.TLDID == 0 {
 			e := fmt.Errorf("%s: Could not create TaskList because definition id (TLDID = %d) does not exist", funcname, foo.Record.TLDID)
 			SvcErrorReturn(w, e, funcname)
@@ -434,6 +436,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
+
 		//------------------------------------------------------------------
 		// Due and PreDue dates are not changable.  If those
 		// need to be changed, you'll need to change the definition.
@@ -441,21 +444,28 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// datetime.  If it changes from set to unset, reset the datetime.
 		// Identical operations for Due date.
 		//------------------------------------------------------------------
-		if b.DtPreDone.Year() > 1999 && !foo.Record.ChkDtPreDone { // current db DtPreDone is set, but user unset it
-			a.DtPreDone = rlib.TIME0
-			a.PreDoneUID = 0
+		if b.DtPreDone.Year() > 1999 { // current db DtPreDone is set, but user unset it
+			if foo.Record.ChkDtPreDone {
+				a.DtPreDone = now
+				a.PreDoneUID = d.sess.UID
+				a.FLAGS |= 1 << 3
+			} else {
+				a.DtPreDone = rlib.TIME0
+				a.PreDoneUID = 0
+				a.FLAGS &= ^(1 << 3)
+			}
 		}
-		if b.DtPreDone.Year() <= 1999 && foo.Record.ChkDtPreDone { // current db DtPreDone is unset, but user set it
-			a.DtPreDone = now
-			a.PreDoneUID = d.sess.UID
-		}
+
 		if b.DtDone.Year() > 1999 && !foo.Record.ChkDtDone { // current db DtDone is set, but user unset it
-			a.DtDone = rlib.TIME0
-			a.DoneUID = 0
-		}
-		if b.DtDone.Year() <= 1999 && foo.Record.ChkDtDone { // current db DtPreDone is unset, but user set it
-			a.DtDone = now
-			a.DoneUID = d.sess.UID
+			if foo.Record.ChkDtDone {
+				a.DtDone = now
+				a.DoneUID = d.sess.UID
+				a.FLAGS |= 1 << 4
+			} else {
+				a.DtDone = rlib.TIME0
+				a.DoneUID = 0
+				a.FLAGS &= ^(1 << 4)
+			}
 		}
 		err = rlib.UpdateTaskList(r.Context(), &a)
 	}
