@@ -434,7 +434,7 @@ window.requiredFieldsFulFilled = function (compID) {
                 "ApartmentNo", "LeaseTerm", "FirstName", "MiddleName",
                 "LastName", "BirthDate", "SSN",
                 "DriverLicNo", "TelephoneNo", "EmailAddress",
-                "NoPeople", "CurrentAddress", "CurrentLandLordName", "CurrentLandLoardPhoneNo",
+                "NoPeople", "CurrentAddress", "CurrentLandLordName", "CurrentLandLordPhoneNo",
                 "CurrentReasonForMoving", "Employer", "Phone", "Address",
                 "Position", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
 
@@ -2031,12 +2031,12 @@ window.getRABGInfoFormInitRecord = function(BID, TCID){
         EmailAddress: "",
         CurrentAddress: "",
         CurrentLandLordName: "",
-        CurrentLandLoardPhoneNo: "",
+        CurrentLandLordPhoneNo: "",
         CurrentLengthOfResidency: 0,
         CurrentReasonForMoving: "",
         PriorAddress: "",
-        PriorLandLoardName: "",
-        PriorLandLoardPhoneNo: "",
+        PriorLandLordName: "",
+        PriorLandLordPhoneNo: "",
         PriorLengthOfResidency: 0,
         PriorReasonForMoving: "",
         Evicted: false,
@@ -2111,12 +2111,12 @@ window.loadRABGInfoForm = function () {
                 {name: 'EmailAddress', type: 'email', required: true}, // Email Address of applicants
                 {name: 'CurrentAddress', type: 'text', required: true}, // Current Address
                 {name: 'CurrentLandLordName', type: 'text', required: true}, // Current landlord's name
-                {name: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
+                {name: 'CurrentLandLordPhoneNo', type: 'text', required: true}, // Current landlord's phone number
                 {name: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
                 {name: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
                 {name: 'PriorAddress', type: 'text'}, // Prior Address
-                {name: 'PriorLandLoardName', type: 'text'}, // Prior landlord's name
-                {name: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
+                {name: 'PriorLandLordName', type: 'text'}, // Prior landlord's name
+                {name: 'PriorLandLordPhoneNo', type: 'text'}, // Prior landlord's phone number
                 {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
                 {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
                 {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
@@ -2264,15 +2264,15 @@ window.loadRABGInfoForm = function () {
                                 .done(function (data){
                                     // Hide these all fields when transanctant is only user.
                                     var listOfHiddenFields = ["CurrentAddress", "CurrentLandLordName",
-                                        "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
-                                        "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
+                                        "CurrentLandLordPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
+                                        "PriorAddress", "PriorLandLordName", "PriorLandLordPhoneNo",
                                         "PriorLengthOfResidency", "PriorReasonForMoving"];
 
                                     // These all fields are not required when transanctant is only user
                                     var listOfNotRequiredFields = ["SSN", "TelephoneNo",
                                         "Phone", "EmailAddress", "Position",
                                         "GrossWages", "CurrentAddress", "CurrentLandLordName",
-                                        "CurrentLandLoardPhoneNo", "CurrentReasonForMoving"];
+                                        "CurrentLandLordPhoneNo", "CurrentReasonForMoving"];
 
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
