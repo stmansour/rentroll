@@ -2339,69 +2339,21 @@ window.loadRABGInfoForm = function () {
     $('#ra-form #bginfo').w2render(w2ui.RABGInfoGrid);
 
     var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    var data = app.raflow.data[app.raflow.activeFlowID][i].Data;
-
-    /*
-    * RABGInfoGrid: It displays renters, occupants and gurantors list. It have column Full Name, Company Name.
-    * */
-
-    var occupantsInfo = data.Occupants;
-    var rentersInfo = data.Renters;
-    var gurantorsInfo = data.Guarantors;
-
-    var raBGInfoGridRecords = [];
-    var raBGInfoGridRecord;
-    var listOfTCID = [];
-
-    // Get renters list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(var j = 0; j < rentersInfo.length; j++){
-        if(listOfTCID.indexOf(rentersInfo[j].TCID) <= -1){
-            rentersInfo[j].IsRenter = true;
-            raBGInfoGridRecords.push(rentersInfo[j]);
-            listOfTCID.push(rentersInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, rentersInfo[j].TCID);
-            raBGInfoGridRecord.IsRenter = true;
-        }
-    }
-
-    // Get occupants list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(j = 0; j < occupantsInfo.length; j++){
-        if(listOfTCID.indexOf(occupantsInfo[j].TCID) <= -1){
-            occupantsInfo[j].IsOccupant = true;
-            raBGInfoGridRecords.push(occupantsInfo[j]);
-            listOfTCID.push(occupantsInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, occupantsInfo[j].TCID);
-            raBGInfoGridRecord.IsOccupant = true;
-        }
-    }
-
-    // Get gurantors list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(j = 0; j < gurantorsInfo.length; j++){
-        if(listOfTCID.indexOf(gurantorsInfo[j].TCID) <= -1){
-            gurantorsInfo[j].IsGuarantor = true;
-            raBGInfoGridRecords.push(gurantorsInfo[j]);
-            listOfTCID.push(gurantorsInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, gurantorsInfo[j].TCID);
-            raBGInfoGridRecord.IsGuarantor = true;
-        }
-    }
+    var peopleData = app.raflow.data[app.raflow.activeFlowID][i].Data;
 
     // load the existing data in Background Info grid
-    setTimeout(function (raBGInfoGridRecords) {
+    setTimeout(function (peopleData) {
         var grid = w2ui.RABGInfoGrid;
 
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            grid.records = raBGInfoGridRecords;
+            grid.records = peopleData;
             grid.refresh();
             reassignGridRecids(grid.name);
         } else {
             grid.clear();
         }
-    }, 500, raBGInfoGridRecords);
+    }, 500, peopleData);
 };
 
 // -------------------------------------------------------------------------------
