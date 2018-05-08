@@ -1499,6 +1499,7 @@ type RRprepSQL struct {
 	GetAR                                   *sql.Stmt
 	GetARByName                             *sql.Stmt
 	GetARsByType                            *sql.Stmt
+	GetARsByFLAGS                           *sql.Stmt
 	GetAssessment                           *sql.Stmt
 	GetAssessmentDuplicate                  *sql.Stmt
 	GetAssessmentInstance                   *sql.Stmt

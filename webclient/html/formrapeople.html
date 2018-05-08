@@ -1,4 +1,5 @@
 <div class="w2ui-page page-0" style="text-align: left;">
+    <div class="w2ui-field"><input type="hidden" name="BID" /></div>
     <div class="w2ui-field"><input type="hidden" name="TCID" /></div>
     <div class="w2ui-field"><input type="hidden" name="FirstName" /></div>
     <div class="w2ui-field"><input type="hidden" name="LastName" /></div>
@@ -14,21 +15,24 @@
         </div>
     </div>
     <div class="w2ui-field">
-        <label>Payor:</label>
+        <label>Renter:</label>
         <div>
-            <input name="Payor" type="checkbox" tabindex="2" disabled />
+            <input name="IsRenter" type="checkbox" tabindex="2" disabled />
+            <small class="text-muted">will be responsible for paying rent</small>
         </div>
     </div>
     <div class="w2ui-field">
-        <label>User:</label>
+        <label>Occupant:</label>
         <div>
-            <input name="User" type="checkbox" tabindex="3" disabled />
+            <input name="IsOccupant" type="checkbox" tabindex="3" disabled />
+            <small class="text-muted">will reside in and/or use the items rented</small>
         </div>
     </div>
     <div class="w2ui-field">
         <label>Guarantor:</label>
         <div>
-            <input name="Guarantor" type="checkbox" tabindex="4" disabled />
+            <input name="IsGuarantor" type="checkbox" tabindex="4" disabled />
+            <small class="text-muted">responsible for making sure all rent is paid</small>
         </div>
     </div>
 </div>

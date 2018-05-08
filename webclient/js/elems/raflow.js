@@ -2,13 +2,13 @@
     getFullName, getTCIDName, loadTransactantListingItem,
     initRAFlowAJAX, getRAFlowAllParts, getAllRAFlows, loadRADatesForm, loadRAPeopleForm,
     loadRAPetsGrid, loadRAVehiclesGrid, loadRABGInfoForm, loadRARentablesGrid,
-    loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection,
-    getVehicleGridInitalRecord, getRentablesGridInitalRecord, getFeesTermsGridInitalRecord,
-    getPetsGridInitalRecord, saveActiveCompData, loadRABGInfoForm, w2render,
+    loadRAFeesTermsGrid, getRAFlowPartTypeIndex, loadTargetSection, getFeesTermsGridInitalRecord,
+    saveActiveCompData, loadRABGInfoForm, w2render, getVehicleFormInitalRecord,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
-    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, hideSliderContent,
-    showSliderContentW2UIComp
+    setRABGInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
+    hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord, setRABGInfoFormHeader,
+    updateRABGInfoFormCheckboxes, findTransactantIndexByTCIDInPeopleData
 */
 
 "use strict";
@@ -83,22 +83,30 @@ window.lockOnGrid = function (gridName) {
     }
 };
 
-// setRABFInfoFormFields It set default fields value from the transanctants to form.
-window.setRABFInfoFormFields = function(record) {
-    var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
-
-    formRecord.ApplicationDate = Date.now();
-    formRecord.MoveInDate = Date.now();
-    formRecord.ApplicantFirstName = record.FirstName;
-    formRecord.ApplicantMiddleName = record.MiddleName;
-    formRecord.ApplicantLastName = record.LastName;
-    formRecord.ApplicantTelephoneNo = record.CellPhone;
-    formRecord.ApplicantEmailAddress = record.PrimaryEmail;
-    formRecord.ApplicantPhone = record.WorkPhone;
-    formRecord.ApplicantAddress = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
+// setRABGInfoFormHeader
+// TODO(Akshay): Ask steve about form fields when transanctant is company.
+window.setRABGInfoFormHeader = function(record) {
+    if(record.IsCompany){
+        w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
+    }else{
+        w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
+    }
 };
 
-// showHideRABGInfoFormFields
+// setRABGInfoFormFields It set default fields value from the transanctants to form.
+window.setRABGInfoFormFields = function(record) {
+    var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
+
+    formRecord.FirstName = record.FirstName;
+    formRecord.MiddleName = record.MiddleName;
+    formRecord.LastName = record.LastName;
+    formRecord.TelephoneNo = record.CellPhone;
+    formRecord.EmailAddress = record.PrimaryEmail;
+    formRecord.Phone = record.WorkPhone;
+    formRecord.Address = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
+};
+
+// showHideRABGInfoFormFields hide fields if transanctant is only user
 window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
     if(hidden){
         $("#cureentInfolabel").hide();
@@ -108,8 +116,14 @@ window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
         $("#priorInfolabel").show();
     }
     for(var fieldIndex=0; fieldIndex < listOfHiddenFields.length; fieldIndex++){
-        console.log(listOfHiddenFields[fieldIndex]);
         w2ui.RABGInfoForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
+    }
+};
+
+// setNotRequiredFields define fields are not required if transanctant is only user
+window.setNotRequiredFields = function(listOfNotRequiredFields, required){
+    for(var fieldIndex=0; fieldIndex < listOfNotRequiredFields.length; fieldIndex++){
+        w2ui.RABGInfoForm.get(listOfNotRequiredFields[fieldIndex]).required = required;
     }
 };
 
@@ -193,7 +207,7 @@ window.getRATransanctantDetail = function(TCID){
         data: JSON.stringify(data),
         success: function (data) {
             if (data.status != "error"){
-                console.log("Received data for transanctant:", JSON.stringify(data));
+                // console.log("Received data for transanctant:", JSON.stringify(data));
             }else {
                 console.error(data.message);
             }
@@ -214,6 +228,13 @@ window.getRABGInfoGridRecord = function(records, TCID){
         }
     }
     return raBGInfoGridrecord;
+};
+
+// updateRABGInfoFormCheckboxes
+window.updateRABGInfoFormCheckboxes = function(record){
+    record.Evicted = int_to_bool(record.Evicted);
+    record.Bankruptcy = int_to_bool(record.Bankruptcy);
+    record.Convicted = int_to_bool(record.Convicted);
 };
 
 // TODO: we should pass FlowID, flowPartID here in arguments
@@ -372,14 +393,15 @@ window.requiredFieldsFulFilled = function (compID) {
             done = validData;
             break;
         case "people":
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.Payors.length > 0) {
-                done = true;
-            }
+            app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.forEach(function(item) {
+                if (item.IsRenter) {
+                    done = true;
+                    return false;
+                }
+            });
             break;
         case "pets":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-
             isChecked = $('#RAPetsGrid_checkbox')[0].checked;
             if(!isChecked){
                 done = true;
@@ -393,7 +415,6 @@ window.requiredFieldsFulFilled = function (compID) {
             break;
         case "vehicles":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-
             isChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
             if(!isChecked){
                 done = true;
@@ -410,12 +431,12 @@ window.requiredFieldsFulFilled = function (compID) {
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             // list of fields which must have value and it's type string
             var listOfRequiredField = ["ApplicationDate", "MoveInDate",
-                "ApartmentNo", "LeaseTerm", "ApplicantFirstName", "ApplicantMiddleName",
-                "ApplicantLastName", "ApplicantBirthDate", "ApplicantSSN",
-                "ApplicantDriverLicNo", "ApplicantTelephoneNo", "ApplicantEmailAddress",
-                "NoPeople", "CurrentAddress", "CurrentLandLoardName", "CurrentLandLoardPhoneNo",
-                "CurrentReasonForMoving", "ApplicantEmployer", "ApplicantPhone", "ApplicantAddress",
-                "ApplicantPosition", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
+                "ApartmentNo", "LeaseTerm", "FirstName", "MiddleName",
+                "LastName", "BirthDate", "SSN",
+                "DriverLicNo", "TelephoneNo", "EmailAddress",
+                "NoPeople", "CurrentAddress", "CurrentLandLordName", "CurrentLandLordPhoneNo",
+                "CurrentReasonForMoving", "Employer", "Phone", "Address",
+                "Position", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
 
             listOfRequiredField.forEach(function(field) {
                 if (!data[field]) {
@@ -460,13 +481,15 @@ window.loadTargetSection = function (target, activeCompID) {
 
     // decide data based on type
     var data = null;
+    var partTypeIndex;
     switch (activeCompID) {
         case "dates":
             data = w2ui.RADatesForm.record;
             break;
         case "people":
-            var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-            data = app.raflow.data[app.raflow.activeFlowID][i].Data;
+            partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            w2ui.RAPeopleForm.clear();
             break;
         case "pets":
             data = w2ui.RAPetsGrid.records;
@@ -475,7 +498,8 @@ window.loadTargetSection = function (target, activeCompID) {
             data = w2ui.RAVehiclesGrid.records;
             break;
         case "bginfo":
-            data = w2ui.RABGInfoForm.record;
+            partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             break;
         case "rentables":
             data = w2ui.RARentablesGrid.records;
@@ -624,30 +648,16 @@ window.loadRADatesForm = function () {
 // loadTransactantListingItem - adds transactant into categories list
 // @params
 //   transactantRec = an object assumed to have a FirstName, MiddleName, LastName,
-//                    IsCompany, and CompanyName.
-//   IsPayor        = flag to indicate payor or not
-//   IsUser         = flag to indicate user or not
-//   IsGuarantor    = flag to indicate guarantor or not
+//                    IsCompany, CompanyName, IsGuarantor, IsOccupant, IsRenter
 // @return - nothing
 //-----------------------------------------------------------------------------
-window.loadTransactantListingItem = function (transactantRec, IsPayor, IsUser, IsGuarantor) {
+window.loadTransactantListingItem = function (transactantRec) {
 
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
     if (peoplePartIndex < 0) {
-        alert("flow data could not be found");
+        alert("flow data could not be found for people");
         return false;
     }
-
-    // check that "Payors", "Users", "Guarantors" keys do exist in Data of people
-    var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data);
-    var payorsIndex = peopleTypeKeys.indexOf("Payors");
-    var usersIndex = peopleTypeKeys.indexOf("Users");
-    var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
-    if (payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0) {
-        alert("flow data could not be found");
-        return false;
-    }
-
 
     // listing item to be appended in ul
     var s = (transactantRec.IsCompany > 0) ? transactantRec.CompanyName : getFullName(transactantRec);
@@ -660,73 +670,34 @@ window.loadTransactantListingItem = function (transactantRec, IsPayor, IsUser, I
     peopleListingItem += '<i class="remove-item fas fa-times-circle fa-xs"></i>';
     peopleListingItem += '</li>';
 
-    var i, length, found = false;
-
-    // add into payor list
-    if (IsPayor) {
-        // check for duplicacy
-        found = false;
-        length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.length;
-        for (i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors[i].TCID) {
-                found = true;
-                break;
-            }
+    // add into renter list
+    if (transactantRec.IsRenter) {
+        // if with this tcid element exists in DOM then not append
+        if ($('#renter-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
+            $('#renter-list .people-listing').append(peopleListingItem);
         }
-        if (!(found)) {
-            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
-                app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.push(app.raflow.activeTransactant);
-            }
-
-            // if with this tcid element exists in DOM then not append
-            if ($('#payor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
-                $('#payor-list .people-listing').append(peopleListingItem);
-            }
-        }
+    } else {
+        $('#renter-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
     }
 
-    // add into user list
-    if (IsUser) {
-        found = false;
-        length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.length;
-        for (i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users[i].TCID) {
-                found = true;
-                break;
-            }
+    // add into occupant list
+    if (transactantRec.IsOccupant) {
+        // if with this tcid element exists in DOM then not append
+        if ($('#occupant-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
+            $('#occupant-list .people-listing').append(peopleListingItem);
         }
-        if (!(found)) {
-            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
-                app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.push(app.raflow.activeTransactant);
-            }
-
-            // if with this tcid element exists in DOM then not append
-            if ($('#user-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
-                $('#user-list .people-listing').append(peopleListingItem);
-            }
-        }
+    } else {
+        $('#occupant-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
     }
 
     // add into guarantor list
-    if (IsGuarantor) {
-        found = false;
-        length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.length;
-        for (i = length - 1; i >= 0; i--) {
-            if (app.raflow.activeTransactant.TCID == app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors[i].TCID) {
-                found = true;
-                break;
-            }
+    if (transactantRec.IsGuarantor) {
+        // if with this tcid element exists in DOM then not append
+        if ($('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
+            $('#guarantor-list .people-listing').append(peopleListingItem);
         }
-        if (!(found)) {
-            if (!($.isEmptyObject(app.raflow.activeTransactant))) {
-                app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.push(app.raflow.activeTransactant);
-            }
-
-            // if with this tcid element exists in DOM then not append
-            if ($('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length < 1) {
-                $('#guarantor-list .people-listing').append(peopleListingItem);
-            }
-        }
+    } else {
+        $('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
     }
 };
 
@@ -785,18 +756,36 @@ window.getRAAddTransactantFormInitRec = function(BID, BUD, previousFormRecord) {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 window.acceptTransactant = function () {
-    var IsPayor = w2ui.RAPeopleForm.record.Payor;
-    var IsUser = w2ui.RAPeopleForm.record.User;
-    var IsGuarantor = w2ui.RAPeopleForm.record.Guarantor;
+    var IsRenter = w2ui.RAPeopleForm.record.IsRenter;
+    var IsOccupant = w2ui.RAPeopleForm.record.IsOccupant;
+    var IsGuarantor = w2ui.RAPeopleForm.record.IsGuarantor;
 
     // if not set anything then alert the user to select any one of them
-    if (!(IsPayor || IsUser || IsGuarantor)) {
+    if (!(IsRenter || IsOccupant || IsGuarantor)) {
         alert("Please, select the role");
         return false;
     }
 
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    // remove entry from data
+    if (peoplePartIndex < 0) {
+        return false;
+    }
+
+    var transactantRec = $.extend(true, {}, w2ui.RAPeopleForm.record);
+    delete transactantRec.Transactant;
+    var tcidIndex = findTransactantIndexByTCIDInPeopleData(transactantRec.TCID);
+
+    // if not found then push it in the data
+    if (tcidIndex < 0) {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.push(transactantRec);
+    } else {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex] = transactantRec;
+    }
+
     // load item in the DOM
-    loadTransactantListingItem(w2ui.RAPeopleForm.record, IsPayor, IsUser, IsGuarantor);
+    loadTransactantListingItem(transactantRec);
 
     // clear the form
     app.raflow.activeTransactant = {};
@@ -806,83 +795,135 @@ window.acceptTransactant = function () {
     $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", true);
 };
 
-// remove people from the listing
-$(document).on('click', '.people-listing .remove-item', function () {
-    var tcid = parseInt($(this).closest('li').attr('data-tcid'));
+//-----------------------------------------------------------------------------
+// findTransactantIndexByTCIDInPeopleData - finds the index of transactant data
+//                in local people data of raflow by TCID
+//
+// @params
+//   TCID = tcid
+//-----------------------------------------------------------------------------
+window.findTransactantIndexByTCIDInPeopleData = function(TCID) {
+    var index = -1;
 
     // get part type index
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-
     // remove entry from data
-    if (peoplePartIndex >= 0) {
-        // check that "Payors", "Users", "Guarantors" keys do exist in Data of people
-        var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data);
-        var payorsIndex = peopleTypeKeys.indexOf("Payors");
-        var usersIndex = peopleTypeKeys.indexOf("Users");
-        var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
-
-        if (!(payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0)) {
-            var peopleType = $(this).closest('ul.people-listing').attr('data-people-type');
-            var i, length;
-            switch (peopleType) {
-                case "payors":
-                    length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.length;
-                    for (i = length - 1; i >= 0; i--) {
-                        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.splice(i, 1);
-                    }
-                    break;
-                case "users":
-                    length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.length;
-                    for (i = length - 1; i >= 0; i--) {
-                        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.splice(i, 1);
-                    }
-                    break;
-                case "guarantors":
-                    length = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.length;
-                    for (i = length - 1; i >= 0; i--) {
-                        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.splice(i, 1);
-                    }
-                    break;
-            }
-        }
+    if (peoplePartIndex < 0) {
+        return;
     }
 
+    if (typeof app.raflow.data[app.raflow.activeFlowID] !== "undefined") {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.forEach(function(transactantRec, i) {
+            if (transactantRec.TCID === TCID) {
+                index = i;
+                return false;
+            }
+        });
+    }
 
+    return index;
+};
+
+// click on any transactant item in people listing
+$(document).on("click", ".people-listing li", function(e) {
+    console.log("clicked...");
+
+    if($(e.target).hasClass("remove-item")) {
+        return;
+    }
+    var TCID = parseInt($(this).attr("data-tcid"));
+    var tcidIndex = findTransactantIndexByTCIDInPeopleData(TCID);
+    if (tcidIndex < 0) {
+        return;
+    }
+
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    // remove entry from data
+    if (peoplePartIndex < 0) {
+        return;
+    }
+
+    var transactantRec = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex];
+
+    var item = {
+        CompanyName: transactantRec.CompanyName,
+        IsCompany: transactantRec.IsCompany,
+        FirstName: transactantRec.FirstName,
+        LastName: transactantRec.LastName,
+        MiddleName: transactantRec.MiddleName,
+        TCID: transactantRec.TCID,
+        recid: 0,
+    };
+    w2ui.RAPeopleForm.record = transactantRec;
+    w2ui.RAPeopleForm.record.Transactant = item;
+    w2ui.RAPeopleForm.refresh();
+    if ($(w2ui.RAPeopleForm.box).find("input[name=Transactant]").length > 0) {
+        $(w2ui.RAPeopleForm.box).find("input[name=Transactant]").data('selected', [item]).data('w2field').refresh();
+    }
+});
+
+// remove people from the listing
+$(document).on('click', '.people-listing .remove-item', function () {
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    // remove entry from data
+    if (peoplePartIndex < 0) {
+        return;
+    }
+
+    var TCID = parseInt($(this).closest('li').attr('data-tcid'));
+    var peopleType = $(this).closest('ul.people-listing').attr('data-people-type');
+    var tcidIndex = findTransactantIndexByTCIDInPeopleData(TCID);
+    if (tcidIndex < 0) {
+        return;
+    }
+
+    // taka the reference
+    var transactant = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex];
+    switch (peopleType) {
+        case "renters":
+            transactant.IsRenter = false;
+            break;
+        case "occupants":
+            transactant.IsOccupant = false;
+            break;
+        case "guarantors":
+            transactant.IsGuarantor = false;
+            break;
+    }
+
+    // if selected tcid record to be removed, of which all flags are false then remove it from data also
+    if (!(transactant.IsGuarantor || transactant.IsRenter || transactant.IsOccupant)) {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.splice(tcidIndex, 1);
+    }
+
+    // remove item from the DOM
     $(this).closest('li').remove();
+
+    // refresh the form
+    if (w2ui.RAPeopleForm.record.TCID > 0) {
+        var item = {
+            CompanyName: transactant.CompanyName,
+            IsCompany: transactant.IsCompany,
+            FirstName: transactant.FirstName,
+            LastName: transactant.LastName,
+            MiddleName: transactant.MiddleName,
+            TCID: transactant.TCID,
+            recid: 0,
+        };
+        w2ui.RAPeopleForm.record = $.extend(true, transactant, w2ui.RAPeopleForm.record);
+        w2ui.RAPeopleForm.record.Transactant = item;
+        w2ui.RAPeopleForm.refresh();
+        if ($(w2ui.RAPeopleForm.box).find("input[name=Transactant]").length > 0) {
+            $(w2ui.RAPeopleForm.box).find("input[name=Transactant]").data('selected', [item]).data('w2field').refresh();
+        }
+    }
 });
 
 window.loadRAPeopleForm = function () {
-
-    // have to list down all people into different categories
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    if (peoplePartIndex < 0) {
-        alert("flow data could not be found");
-        return false;
-    }
-
-    // check that "Payors", "Users", "Guarantors" keys do exist in Data of people
-    var peopleTypeKeys = Object.keys(app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data);
-    var payorsIndex = peopleTypeKeys.indexOf("Payors");
-    var usersIndex = peopleTypeKeys.indexOf("Users");
-    var guarantorsIndex = peopleTypeKeys.indexOf("Guarantors");
-    if (!(payorsIndex < 0 || usersIndex < 0 || guarantorsIndex < 0)) { // valid then
-        // load payors list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Payors.forEach(function (item) {
-            loadTransactantListingItem(item, true, false, false);
-        });
-        // load users list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Users.forEach(function (item) {
-            loadTransactantListingItem(item, false, true, false);
-        });
-        // load guarantors list
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.Guarantors.forEach(function (item) {
-            loadTransactantListingItem(item, false, false, true);
-        });
-    }
-
     var partType = app.raFlowPartTypes.people;
     var partTypeIndex = getRAFlowPartTypeIndex(partType);
-
     if (partTypeIndex < 0){
         return;
     }
@@ -891,7 +932,11 @@ window.loadRAPeopleForm = function () {
     getRAFlowPartData(partType)
         .done(function(data){
             if(data.status === 'success'){
-                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data || [];
+                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.forEach(function (item) {
+                    console.log(item);
+                    loadTransactantListingItem(item);
+                });
             }else {
                 console.log(data.message);
             }
@@ -961,22 +1006,32 @@ window.loadRAPeopleForm = function () {
                                 f.trigger($.extend(event, {phase: 'after'})); // event after
                             };
                         }
-                    },
+                    }
                 },
+                {name: 'BID', type: 'int', required: true, html: {caption: "BID"}},
                 {name: 'TCID', type: 'int', required: true, html: {caption: "TCID"}},
                 {name: 'FirstName', type: 'text', required: true, html: {caption: "FirstName"}},
                 {name: 'LastName', type: 'text', required: true, html: {caption: "LastName"}},
                 {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
                 {name: 'CompanyName', type: 'text', required: true, html: {caption: "CompanyName"}},
                 {name: 'IsCompany', type: 'int', required: true, html: {caption: "IsCompany"}},
-                {name: 'Payor', type: 'checkbox', required: false, html: {caption: "Payor"}},
-                {name: 'User', type: 'checkbox', required: false, html: {caption: "User"}},
-                {name: 'Guarantor', type: 'checkbox', required: false, html: {caption: "Guarantor"}},
+                {name: 'IsRenter', type: 'checkbox', required: false, html: {caption: "Renter"}},
+                {name: 'IsOccupant', type: 'checkbox', required: false, html: {caption: "Occupant"}},
+                {name: 'IsGuarantor', type: 'checkbox', required: false, html: {caption: "Guarantor"}}
             ],
             actions: {
                 reset: function () {
                     this.clear();
                 }
+            },
+            onRefresh: function(event) {
+                var f = this;
+                event.onComplete = function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    f.record.BID = BID;
+                };
             }
         });
 
@@ -997,7 +1052,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'LastName', type: 'text', required: true, html: {caption: "LastName"}},
                 {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
                 {name: 'CompanyName', type: 'text', required: false, html: {caption: "CompanyName"}},
-                {name: 'IsCompany', type: 'bool', required: false, html: {caption: "IsCompany"}},
+                {name: 'IsCompany', type: 'bool', required: false, html: {caption: "IsCompany"}}
             ],
             toolbar : {
                 items: [
@@ -1540,7 +1595,7 @@ window.loadRAPetsGrid = function () {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
-window.getVehicleGridInitalRecord = function (BID, BUD, previousFormRecord) {
+window.getVehicleFormInitalRecord = function (BID, BUD, previousFormRecord) {
     var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
@@ -1729,7 +1784,7 @@ window.loadRAVehiclesGrid = function () {
                                 } else {
                                     grid.set(record.recid, record);
                                 }
-                                form.record = getVehicleGridInitalRecord(BID, BUD, form.record);
+                                form.record = getVehicleFormInitalRecord(BID, BUD, form.record);
                                 form.record.recid =grid.records.length + 1;
                                 form.refresh();
                                 form.refresh();
@@ -1924,7 +1979,7 @@ window.loadRAVehiclesGrid = function () {
                         var BID = getCurrentBID(),
                             BUD = getBUDfromBID(BID);
 
-                        w2ui.RAVehicleForm.record = getVehicleGridInitalRecord(BID, BUD, null);
+                        w2ui.RAVehicleForm.record = getVehicleFormInitalRecord(BID, BUD, null);
                         w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
                         showSliderContentW2UIComp(w2ui.RAVehicleForm, RACompConfig.vehicles.sliderWidth);
                         w2ui.RAVehicleForm.refresh();
@@ -1959,6 +2014,46 @@ window.loadRAVehiclesGrid = function () {
 // -------------------------------------------------------------------------------
 // Rental Agreement - Background info form
 // -------------------------------------------------------------------------------
+
+window.getRABGInfoFormInitRecord = function(BID, TCID){
+
+    return {
+        recid: 0,
+        TCID: TCID,
+        BID: BID,
+        FirstName: "",
+        MiddleName: "",
+        LastName: "",
+        BirthDate: "",
+        SSN: "",
+        DriverLicNo: "",
+        TelephoneNo: "",
+        EmailAddress: "",
+        CurrentAddress: "",
+        CurrentLandLordName: "",
+        CurrentLandLordPhoneNo: "",
+        CurrentLengthOfResidency: 0,
+        CurrentReasonForMoving: "",
+        PriorAddress: "",
+        PriorLandLordName: "",
+        PriorLandLordPhoneNo: "",
+        PriorLengthOfResidency: 0,
+        PriorReasonForMoving: "",
+        Evicted: false,
+        Convicted: false,
+        Bankruptcy: false,
+        Employer: "",
+        Phone: "",
+        Address: "",
+        Position: "",
+        GrossWages: 0,
+        Comment: "",
+        EmergencyContactName: "",
+        EmergencyContactPhone: "",
+        EmergencyContactAddress: ""
+    };
+};
+
 window.loadRABGInfoForm = function () {
 
     var partType = app.raFlowPartTypes.bginfo;
@@ -2004,48 +2099,90 @@ window.loadRABGInfoForm = function () {
                 }
             },
             fields: [
-                {field: 'ApplicationDate', type: 'date', required: true, disable: true},
-                {field: 'MoveInDate', type: 'date', required: true},
-                {field: 'ApartmentNo', type: 'alphanumeric', required: true}, // Apartment number
-                {field: 'LeaseTerm', type: 'text', required: true}, // Lease term
-                {field: 'ApplicantFirstName', type: 'text', required: true},
-                {field: 'ApplicantMiddleName', type: 'text', required: true},
-                {field: 'ApplicantLastName', type: 'text', required: true},
-                {field: 'ApplicantBirthDate', type: 'date', required: true}, // Date of births of applicants
-                {field: 'ApplicantSSN', type: 'text', required: true}, // Social security number of applicants
-                {field: 'ApplicantDriverLicNo', type: 'text', required: true}, // Driving licence number of applicants
-                {field: 'ApplicantTelephoneNo', type: 'text', required: true}, // Telephone no of applicants
-                {field: 'ApplicantEmailAddress', type: 'email', required: true}, // Email Address of applicants
-                {field: 'CurrentAddress', type: 'text', required: true}, // Current Address
-                {field: 'CurrentLandLoardName', type: 'text', required: true}, // Current landlord's name
-                {field: 'CurrentLandLoardPhoneNo', type: 'text', required: true}, // Current landlord's phone number
-                {field: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
-                {field: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
-                {field: 'PriorAddress', type: 'text'}, // Prior Address
-                {field: 'PriorLandLoardName', type: 'text'}, // Prior landlord's name
-                {field: 'PriorLandLoardPhoneNo', type: 'text'}, // Prior landlord's phone number
-                {field: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
-                {field: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
-                {field: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
-                {field: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
-                {field: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
-                {field: 'ApplicantEmployer', type: 'text', required: true},
-                {field: 'ApplicantPhone', type: 'text', required: true},
-                {field: 'ApplicantAddress', type: 'text', required: true},
-                {field: 'ApplicantPosition', type: 'text', required: true},
-                {field: 'ApplicantGrossWages', type: 'money', required: true},
-                {field: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
-                {field: 'EmergencyContactName', type: 'text', required: true}, // Name of emergency contact
-                {field: 'EmergencyContactPhone', type: 'text', required: true}, // Phone number of emergency contact
-                {field: 'EmergencyContactAddress', type: 'text', required: true} // Address of emergency contact
+                {name: 'BID', type: 'int', required: true, html: { caption: 'BID', page:0, column: 0}},
+                {name: 'TCID', type: 'int', required: true, html: { caption: 'TCID', page:0, column:0}},
+                {name: 'FirstName', type: 'text', required: true},
+                {name: 'MiddleName', type: 'text', required: true},
+                {name: 'LastName', type: 'text', required: true},
+                {name: 'BirthDate', type: 'date', required: true}, // Date of births of applicants
+                {name: 'SSN', type: 'text', required: true}, // Social security number of applicants
+                {name: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants
+                {name: 'TelephoneNo', type: 'text', required: true}, // Telephone no of applicants
+                {name: 'EmailAddress', type: 'email', required: true}, // Email Address of applicants
+                {name: 'CurrentAddress', type: 'text', required: true}, // Current Address
+                {name: 'CurrentLandLordName', type: 'text', required: true}, // Current landlord's name
+                {name: 'CurrentLandLordPhoneNo', type: 'text', required: true}, // Current landlord's phone number
+                {name: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
+                {name: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
+                {name: 'PriorAddress', type: 'text'}, // Prior Address
+                {name: 'PriorLandLordName', type: 'text'}, // Prior landlord's name
+                {name: 'PriorLandLordPhoneNo', type: 'text'}, // Prior landlord's phone number
+                {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
+                {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
+                {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
+                {name: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
+                {name: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
+                {name: 'Employer', type: 'text', required: true},
+                {name: 'Phone', type: 'text', required: true},
+                {name: 'Address', type: 'text', required: true},
+                {name: 'Position', type: 'text', required: true},
+                {name: 'GrossWages', type: 'money', required: true},
+                {name: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
+                {name: 'EmergencyContactName', type: 'text', required: true}, // Name of emergency contact
+                {name: 'EmergencyContactPhone', type: 'text', required: true}, // Phone number of emergency contact
+                {name: 'EmergencyContactAddress', type: 'text', required: true} // Address of emergency contact
             ],
             actions: {
-                reset: function () {
-                    this.clear();
+                save: function () {
+                    var form = this;
+
+                    var errors = form.validate();
+                    console.log(errors);
+                    if (errors.length > 0) return;
+
+                    var record = $.extend(true, {}, form.record);
+
+                    // Convert integer to bool checkboxes fields
+                    updateRABGInfoFormCheckboxes(record);
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
+                    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+                    var isTCIDMatched = false;
+
+                    // update record if it is already exists
+                    for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
+                        if(bgInfoRecords[recordIndex].TCID === record.TCID){
+                            bgInfoRecords[recordIndex] = record;
+                            isTCIDMatched = true;
+                            break;
+                        }
+                    }
+                    // push record if it doesn't exists: What about last element
+                    if(!isTCIDMatched){
+                        bgInfoRecords.push(record);
+                    }
+
+                    var recordsData = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+                    // save this records in json Data
+                    saveActiveCompData(recordsData, app.raFlowPartTypes.bginfo)
+                        .done(function(data) {
+                            if (data.status === 'success') {
+
+                                form.clear();
+
+                                // close the form
+                                hideSliderContent();
+                            } else {
+                                form.message(data.message);
+                            }
+                        })
+                        .fail(function(data) {
+                            console.log("failure " + data);
+                        });
                 }
-                /*save: function () {
-                    this.save();
-                }*/
             }
         });
 
@@ -2083,20 +2220,20 @@ window.loadRABGInfoForm = function () {
                     }
                 },
                 {
-                    field: 'IsPayor',
-                    caption: 'IsPayor',
+                    field: 'IsRenter',
+                    caption: 'IsRenter',
                     size: '100px',
                     hidden: true
                 },
                 {
-                    field: 'IsUser',
-                    caption: 'IsUser',
+                    field: 'IsOccupant',
+                    caption: 'IsOccupant',
                     size: '100px',
                     hidden: true
                 },
                 {
-                    field: 'IsGurantor',
-                    caption: 'IsGurantor',
+                    field: 'IsGuarantor',
+                    caption: 'IsGuarantor',
                     size: '100px',
                     hidden: true
                 }
@@ -2117,6 +2254,8 @@ window.loadRABGInfoForm = function () {
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
 
+                            w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+
                             // w2ui.RABGInfoForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
                             showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.bginfo.sliderWidth);
 
@@ -2124,22 +2263,62 @@ window.loadRABGInfoForm = function () {
                             getRATransanctantDetail(raBGInfoGridRecord.TCID)
                                 .done(function (data){
                                     // Hide these all fields when transanctant is only user.
-                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLoardName",
-                                        "CurrentLandLoardPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
-                                        "PriorAddress", "PriorLandLoardName", "PriorLandLoardPhoneNo",
+                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLordName",
+                                        "CurrentLandLordPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
+                                        "PriorAddress", "PriorLandLordName", "PriorLandLordPhoneNo",
                                         "PriorLengthOfResidency", "PriorReasonForMoving"];
+
+                                    // These all fields are not required when transanctant is only user
+                                    var listOfNotRequiredFields = ["SSN", "TelephoneNo",
+                                        "Phone", "EmailAddress", "Position",
+                                        "GrossWages", "CurrentAddress", "CurrentLandLordName",
+                                        "CurrentLandLordPhoneNo", "CurrentReasonForMoving"];
 
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
                                         // w2ui.RABGInfoForm.record = data.record.Data;
-                                        if(raBGInfoGridRecord.IsUser && !raBGInfoGridRecord.IsPayor && !raBGInfoGridRecord.IsGurantor){
-                                            showHideRABGInfoFormFields(listOfHiddenFields, true);
-                                        }else{
-                                            showHideRABGInfoFormFields(listOfHiddenFields, false);
-                                        }
-                                        setRABFInfoFormFields(record);
+                                        var BID = getCurrentBID();
 
-                                        w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+                                        // Set the form tile
+                                        setRABGInfoFormHeader(record);
+
+                                        // Display/Required field based on transanctant type
+                                        if(raBGInfoGridRecord.IsOccupant && !raBGInfoGridRecord.IsRenter && !raBGInfoGridRecord.IsGuarantor){
+                                            // hide fields
+                                            showHideRABGInfoFormFields(listOfHiddenFields, true);
+
+                                            // not require fields
+                                            setNotRequiredFields(listOfNotRequiredFields, false);
+                                        }else{
+                                            // show fields
+                                            showHideRABGInfoFormFields(listOfHiddenFields, false);
+
+                                            // require fields
+                                            setNotRequiredFields(listOfNotRequiredFields, true);
+
+                                        }
+
+                                        // If TCID found than set form fields value else initialize it.
+                                        var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
+                                        var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+                                        var isTCIDMatched = false;
+
+                                        for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
+                                            if(bgInfoRecords[recordIndex].TCID === raBGInfoGridRecord.TCID){
+                                                w2ui.RABGInfoForm.record = bgInfoRecords[recordIndex];
+                                                isTCIDMatched = true;
+                                                break;
+                                            }
+                                        }
+                                        if(!isTCIDMatched){
+                                            // Assign default values to form fields
+                                            w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, raBGInfoGridRecord.TCID);
+                                        }
+
+                                        // Set latest value for transanctant basic information from the server only
+                                        setRABGInfoFormFields(record);
+
+                                        w2ui.RABGInfoForm.refresh(); // need to refresh for form changes
                                     }else {
                                         console.log(data.message);
                                     }
@@ -2160,75 +2339,27 @@ window.loadRABGInfoForm = function () {
     $('#ra-form #bginfo').w2render(w2ui.RABGInfoGrid);
 
     var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    var data = app.raflow.data[app.raflow.activeFlowID][i].Data;
-
-    /*
-    * RABGInfoGrid: It displays payors, users and gurantors list. It have column Full Name, Company Name.
-    * */
-
-    var usersInfo = data.Users;
-    var payorsInfo = data.Payors;
-    var gurantorsInfo = data.Guarantors;
-
-    var raBGInfoGridRecords = [];
-    var raBGInfoGridRecord;
-    var listOfTCID = [];
-
-    // Get payors list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(var j = 0; j < payorsInfo.length; j++){
-        if(listOfTCID.indexOf(payorsInfo[j].TCID) <= -1){
-            payorsInfo[j].IsPayor = true;
-            raBGInfoGridRecords.push(payorsInfo[j]);
-            listOfTCID.push(payorsInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, payorsInfo[j].TCID);
-            raBGInfoGridRecord.IsPayor = true;
-        }
-    }
-
-    // Get users list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(j = 0; j < usersInfo.length; j++){
-        if(listOfTCID.indexOf(usersInfo[j].TCID) <= -1){
-            usersInfo[j].IsUser = true;
-            raBGInfoGridRecords.push(usersInfo[j]);
-            listOfTCID.push(usersInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, usersInfo[j].TCID);
-            raBGInfoGridRecord.IsUser = true;
-        }
-    }
-
-    // Get gurantors list. Push it into raBGInfoGridRecords only if it doesn't exists.
-    for(j = 0; j < gurantorsInfo.length; j++){
-        if(listOfTCID.indexOf(gurantorsInfo[j].TCID) <= -1){
-            gurantorsInfo[j].IsGurantor = true;
-            raBGInfoGridRecords.push(gurantorsInfo[j]);
-            listOfTCID.push(gurantorsInfo[j].TCID);
-        }else{
-            raBGInfoGridRecord = getRABGInfoGridRecord(raBGInfoGridRecords, gurantorsInfo[j].TCID);
-            raBGInfoGridRecord.IsGurantor = true;
-        }
-    }
+    var peopleData = app.raflow.data[app.raflow.activeFlowID][i].Data;
 
     // load the existing data in Background Info grid
-    setTimeout(function (raBGInfoGridRecords) {
+    setTimeout(function (peopleData) {
         var grid = w2ui.RABGInfoGrid;
 
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            grid.records = raBGInfoGridRecords;
+            grid.records = peopleData;
             grid.refresh();
             reassignGridRecids(grid.name);
         } else {
             grid.clear();
         }
-    }, 500, raBGInfoGridRecords);
+    }, 500, peopleData);
 };
 
 // -------------------------------------------------------------------------------
 // Rental Agreement - Rentables Grid
 // -------------------------------------------------------------------------------
-window.getRentablesGridInitalRecord = function (BID, gridLen) {
+window.getRentableFeeFormInitalRecord = function (BID, gridLen) {
     return {
         recid: gridLen,
         RID: 0,
@@ -2241,6 +2372,16 @@ window.getRentablesGridInitalRecord = function (BID, gridLen) {
         SalesTax: 0.0,
         TransOCC: 0.0,
     };
+};
+
+// -------------------------------------------------------------------------------
+// getAutoPopulateARs - pull down all account rules which are set to auto populate
+//                      to new rental agreement
+// -------------------------------------------------------------------------------
+window.getAutoPopulateARs = function() {
+    return $.ajax({
+        url: ''
+    });
 };
 
 window.loadRARentablesGrid = function () {
@@ -2284,7 +2425,7 @@ window.loadRARentablesGrid = function () {
                 onClick: function (event) {
                     switch(event.target) {
                         case "add":
-                            showSliderContentW2UIComp(w2ui.RARentablesFeesGrid, RACompConfig.rentables.sliderWidth);
+                            showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                             break;
                     }
                 }
@@ -2357,13 +2498,14 @@ window.loadRARentablesGrid = function () {
 
         // rentables grid
         $().w2grid({
-            name: 'RARentablesFeesGrid',
+            name: 'RARentableFeesGrid',
             header: 'Rentables Fees',
             show: {
                 toolbar: true,
                 footer: true,
+                header: true,
             },
-            style: 'border: 4px solid silver; display: block;',
+            style: 'border: 2px solid white; display: block;',
             toolbar: {
                 items: [
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
@@ -2417,12 +2559,12 @@ window.loadRARentablesGrid = function () {
                 },
                 {
                     field: 'RentPeriod',
-                    caption: 'RentPeriod',
+                    caption: 'Rent Period',
                     size: '100px',
                 },
                 {
                     field: 'UsePeriod',
-                    caption: 'UsePeriod',
+                    caption: 'Use Period',
                     size: '100px',
                 },
                 {
@@ -2720,4 +2862,3 @@ window.hideSliderContent = function() {
     $("#raflow-container #slider #slider-content").width(0);
     $("#raflow-container #slider #slider-content").empty();
 };
-
