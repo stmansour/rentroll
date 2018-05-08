@@ -6,8 +6,8 @@
     saveActiveCompData, loadRABGInfoForm, w2render, getVehicleFormInitalRecord,
     requiredFieldsFulFilled, getPetFormInitRecord, lockOnGrid, reassignGridRecids, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
-    setRABFInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
-    hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord
+    setRABGInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
+    hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord, setRABGInfoFormHeader
 */
 
 "use strict";
@@ -82,8 +82,17 @@ window.lockOnGrid = function (gridName) {
     }
 };
 
-// setRABFInfoFormFields It set default fields value from the transanctants to form.
-window.setRABFInfoFormFields = function(record) {
+// setRABGInfoFormHeader
+window.setRABGInfoFormHeader = function(record) {
+    if(record.IsCompany){
+        w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
+    }else{
+        w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
+    }
+};
+
+// setRABGInfoFormFields It set default fields value from the transanctants to form.
+window.setRABGInfoFormFields = function(record) {
     var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
 
     formRecord.FirstName = record.FirstName;
@@ -463,13 +472,14 @@ window.loadTargetSection = function (target, activeCompID) {
 
     // decide data based on type
     var data = null;
+    var partTypeIndex;
     switch (activeCompID) {
         case "dates":
             data = w2ui.RADatesForm.record;
             break;
         case "people":
-            var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-            data = app.raflow.data[app.raflow.activeFlowID][i].Data;
+            partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             break;
         case "pets":
             data = w2ui.RAPetsGrid.records;
@@ -478,7 +488,8 @@ window.loadTargetSection = function (target, activeCompID) {
             data = w2ui.RAVehiclesGrid.records;
             break;
         case "bginfo":
-            data = w2ui.RABGInfoForm.record;
+            partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
+            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             break;
         case "rentables":
             data = w2ui.RARentablesGrid.records;
@@ -1980,18 +1991,16 @@ window.loadRAVehiclesGrid = function () {
 // Rental Agreement - Background info form
 // -------------------------------------------------------------------------------
 
-window.getRABGInfoFormInitRecord = function(){
-    var birthDate = new Date();
+window.getRABGInfoFormInitRecord = function(BID, TCID){
 
     return {
         recid: 0,
-        TCID: 0,
-        // BID: BID,
-        // BUD: BUD,
+        TCID: TCID,
+        BID: BID,
         FirstName: "",
         MiddleName: "",
         LastName: "",
-        BirthDate: w2uiDateControlString(birthDate),
+        BirthDate: "",
         SSN: "",
         DriverLicNo: "",
         TelephoneNo: "",
@@ -2102,21 +2111,33 @@ window.loadRABGInfoForm = function () {
             actions: {
                 save: function () {
                     var form = this;
-                    var grid = w2ui.RABGInfoGrid;
+
                     var errors = form.validate();
                     if (errors.length > 0) return;
 
                     var record = $.extend(true, {}, form.record);
-                    // Set record
-                    grid.set(record.recid, record);
-
-                    var recordsData = $.extend(true, [], grid.records);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
-                    // app.raflow.data[app.raflow.activeFlowID]
+                    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
+                    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+                    var isTCIDMatched = false;
 
+                    // update record if it is already exists
+                    for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
+                        if(bgInfoRecords[recordIndex].TCID === record.TCID){
+                            bgInfoRecords[recordIndex] = record;
+                            isTCIDMatched = true;
+                            break;
+                        }
+                    }
+                    // push record if it doesn't exists: What about last element
+                    if(!isTCIDMatched){
+                        bgInfoRecords.push(record);
+                    }
+
+                    var recordsData = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
                     // save this records in json Data
                     saveActiveCompData(recordsData, app.raFlowPartTypes.bginfo)
                         .done(function(data) {
@@ -2227,17 +2248,12 @@ window.loadRABGInfoForm = function () {
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
                                         // w2ui.RABGInfoForm.record = data.record.Data;
+                                        var BID = getCurrentBID();
 
                                         // Set the form tile
-                                        if(record.IsCompany){
-                                            w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
-                                        }else{
-                                            w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
-                                        }
+                                        setRABGInfoFormHeader(record);
 
-                                        // Assign default values to form fields
-                                        w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord();
-
+                                        // Display/Required field based on transanctant type
                                         if(raBGInfoGridRecord.IsOccupant && !raBGInfoGridRecord.IsRenter && !raBGInfoGridRecord.IsGurantor){
                                             // hide fields
                                             showHideRABGInfoFormFields(listOfHiddenFields, true);
@@ -2252,9 +2268,28 @@ window.loadRABGInfoForm = function () {
                                             setNotRequiredFields(listOfNotRequiredFields, true);
 
                                         }
-                                        setRABFInfoFormFields(record);
 
-                                        w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+                                        // If TCID found than set form fields value else initialize it.
+                                        var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
+                                        var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+                                        var isTCIDMatched = false;
+
+                                        for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
+                                            if(bgInfoRecords[recordIndex].TCID === raBGInfoGridRecord.TCID){
+                                                w2ui.RABGInfoForm.record = bgInfoRecords[recordIndex];
+                                                isTCIDMatched = true;
+                                                break;
+                                            }
+                                        }
+                                        if(!isTCIDMatched){
+                                            // Assign default values to form fields
+                                            w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, raBGInfoGridRecord.TCID);
+                                        }
+
+                                        // Set latest value for transanctant basic information from the server only
+                                        setRABGInfoFormFields(record);
+
+                                        w2ui.RABGInfoForm.refresh(); // need to refresh for form changes
                                     }else {
                                         console.log(data.message);
                                     }
