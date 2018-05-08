@@ -818,8 +818,6 @@ window.findTransactantIndexByTCIDInPeopleData = function(TCID) {
 
 // click on any transactant item in people listing
 $(document).on("click", ".people-listing li", function(e) {
-    console.log("clicked...");
-
     if($(e.target).hasClass("remove-item")) {
         return;
     }
@@ -956,7 +954,6 @@ window.loadRAPeopleForm = function () {
                         renderItem: function (item) {
                             // enable user-role checkboxes
                             $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", false);
-
                             // mark this as transactant as an active
                             app.raflow.activeTransactant = item;
                             var s = getTCIDName(item);
@@ -966,6 +963,25 @@ window.loadRAPeopleForm = function () {
                             w2ui.RAPeopleForm.record.MiddleName = item.MiddleName;
                             w2ui.RAPeopleForm.record.CompanyName = item.CompanyName;
                             w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
+
+                            /*// if this transactant is available in local data then try to render the bools
+                            var tcidIndex = findTransactantIndexByTCIDInPeopleData(item.TCID);
+                            var transactantRec;
+                            if (tcidIndex >= 0) {
+                                var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+                                if (peoplePartIndex < 0){
+                                    return;
+                                }
+
+                                // taka the reference
+                                transactantRec = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex];
+
+                                w2ui.RAPeopleForm.record.IsRenter = transactantRec.IsRenter;
+                                w2ui.RAPeopleForm.record.IsOccupant = transactantRec.IsOccupant;
+                                w2ui.RAPeopleForm.record.IsGuarantor = transactantRec.IsGuarantor;
+                                // w2ui.RAPeopleForm.refresh();
+                            }*/
+
                             return s;
                         },
                         renderDrop: function (item) {
@@ -989,7 +1005,9 @@ window.loadRAPeopleForm = function () {
 
                                 var f = w2ui.RAPeopleForm;
                                 // reset payor field related data when removed
-                                f.record.TCID = 0;
+                                f.clear();
+                                // disable user-role checkboxes
+                                $(f.box).find("input[type=checkbox]").prop("disabled", true);
 
                                 // NOTE: have to trigger manually, b'coz we manually change the record,
                                 // otherwise it triggers the change event but it won't get change (Object: {})
