@@ -894,8 +894,23 @@ $(document).on('click', '.people-listing .remove-item', function () {
     $(this).closest('li').remove();
 
     // refresh the form
-    w2ui.RAPeopleForm.record = $.extend(true, transactant, w2ui.RAPeopleForm.record);
-    w2ui.RAPeopleForm.refresh();
+    if (w2ui.RAPeopleForm.record.TCID > 0) {
+        var item = {
+            CompanyName: transactant.CompanyName,
+            IsCompany: transactant.IsCompany,
+            FirstName: transactant.FirstName,
+            LastName: transactant.LastName,
+            MiddleName: transactant.MiddleName,
+            TCID: transactant.TCID,
+            recid: 0,
+        };
+        w2ui.RAPeopleForm.record = $.extend(true, transactant, w2ui.RAPeopleForm.record);
+        w2ui.RAPeopleForm.record.Transactant = item;
+        w2ui.RAPeopleForm.refresh();
+        if ($(w2ui.RAPeopleForm.box).find("input[name=Transactant]").length > 0) {
+            $(w2ui.RAPeopleForm.box).find("input[name=Transactant]").data('selected', [item]).data('w2field').refresh();
+        }
+    }
 });
 
 window.loadRAPeopleForm = function () {
