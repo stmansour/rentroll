@@ -2308,9 +2308,6 @@ window.loadRABGInfoForm = function () {
 
                                         }
 
-                                        // Set latest value for transanctant basic information from the server only
-                                        setRABGInfoFormFields(record);
-
                                         // If TCID found than set form fields value else initialize it.
                                         var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
                                         var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
@@ -2326,6 +2323,9 @@ window.loadRABGInfoForm = function () {
                                         if(!isTCIDMatched){
                                             // Assign default values to form fields
                                             w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, raBGInfoGridRecord.TCID);
+
+                                            // Set latest value for transanctant basic information from the server only
+                                            setRABGInfoFormFields(record);
                                         }
 
 
