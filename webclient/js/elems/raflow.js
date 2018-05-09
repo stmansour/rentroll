@@ -2180,9 +2180,6 @@ window.loadRABGInfoForm = function () {
                     // Convert integer to bool checkboxes fields
                     updateRABGInfoFormCheckboxes(record);
 
-                    console.log("Update RAFlow");
-                    console.log(record);
-
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
