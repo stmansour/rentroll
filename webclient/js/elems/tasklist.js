@@ -157,6 +157,7 @@ window.buildTaskListElements = function () {
             { field: 'DoneName',     type: 'text',      required: false },
             { field: 'PreDoneUID',   type: 'int',       required: false },
             { field: 'PreDoneName',  type: 'text',      required: false },
+            { field: 'EmailList',    type: 'text',      required: false },
             { field: 'Comment',      type: 'text',      required: false },
             { field: 'CreateTS',     type: 'date',      required: false },
             { field: 'CreateBy',     type: 'int',       required: false },

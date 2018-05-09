@@ -37,10 +37,10 @@ func CreateAsmInstCore(ctx context.Context, now *time.Time) {
 	if err != nil {
 		rlib.Ulog("Error with rlib.GetAllBusinesses: %s\n", err.Error())
 	} else {
-		rlib.Console("got businesses: len(m) = %d\n", len(m))
+		// rlib.Console("got businesses: len(m) = %d\n", len(m))
 		d1, d2 := rlib.GetMonthPeriodForDate(now)
 		for i := 0; i < len(m); i++ {
-			rlib.Console("PROCESS JOURNAL ENTRIES FOR BIZ: %s - %s,  %s, %s\n", m[i].Designation, m[i].Name, d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
+			// rlib.Console("PROCESS JOURNAL ENTRIES FOR BIZ: %s - %s,  %s, %s\n", m[i].Designation, m[i].Name, d1.Format(rlib.RRDATEREPORTFMT), d2.Format(rlib.RRDATEREPORTFMT))
 			var xbiz rlib.XBusiness
 			err = rlib.GetXBusiness(ctx, m[i].BID, &xbiz)
 			if err != nil {

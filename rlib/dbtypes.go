@@ -184,15 +184,18 @@ type Period struct {
 //    1<<1 PreCompletion done (if 0 it is not yet done)
 //    1<<2 Completion done (if 0 it is not yet done)
 type Task struct {
-	TID         int64
-	BID         int64
-	TLID        int64     // the TaskList to which this task belongs
-	Name        string    // Task text
-	Worker      string    // Name of the associated work function
-	DtDue       time.Time // Task Due Date
-	DtPreDue    time.Time // Pre Completion due date
-	DtDone      time.Time // Task completion Date
-	DtPreDone   time.Time // Task Pre Completion Date
+	TID       int64
+	BID       int64
+	TLID      int64     // the TaskList to which this task belongs
+	Name      string    // Task text
+	Worker    string    // Name of the associated work function
+	DtDue     time.Time // Task Due Date
+	DtPreDue  time.Time // Pre Completion due date
+	DtDone    time.Time // Task completion Date
+	DtPreDone time.Time // Task Pre Completion Date
+
+	// 1<<1 - 0 = DtPreDue should not be checked, 1 = DtPreDue should be checked
+	// 1<<2 - 0 = DtDue should not be checked, 1 = DtDue should be checked
 	FLAGS       int64
 	DoneUID     int64     // user who marked task as done
 	PreDoneUID  int64     // user who marked task as predone
@@ -205,23 +208,32 @@ type Task struct {
 
 // TaskList is the shell container for a list of tracked tasks
 type TaskList struct {
-	TLID        int64
-	BID         int64
-	Name        string
-	Cycle       int64
-	DtDue       time.Time
-	DtPreDue    time.Time
-	DtDone      time.Time
-	DtPreDone   time.Time
-	FLAGS       int64     // 1<<0 - 0 = active, 1 = inactive
-	DoneUID     int64     // user who marked task as done
-	PreDoneUID  int64     // user who marked task as predone
-	EmailList   string    // email to this list when due date arrives
-	Comment     string    // any user comments
-	CreateTS    time.Time // when was this record created
-	CreateBy    int64     // employee UID (from phonebook) that created it
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
+	TLID      int64
+	BID       int64
+	Name      string
+	Cycle     int64
+	DtDue     time.Time
+	DtPreDue  time.Time
+	DtDone    time.Time
+	DtPreDone time.Time
+
+	// 1<<0 : 0 = active, 1 = inactive
+	// 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
+	// 1<<1 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+	// 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
+	// 1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
+	// 1<<5 : 0 = DtLastNotify has not been set, 1 = it has been set
+	FLAGS        int64
+	DoneUID      int64         // user who marked task as done
+	PreDoneUID   int64         // user who marked task as predone
+	EmailList    string        // email to this list when due date arrives
+	DtLastNotify time.Time     // valid when FLAGS & 32 > 0, last time late notification was sent
+	DurWait      time.Duration // amount of time to wait before next check after late notification
+	Comment      string        // any user comments
+	CreateTS     time.Time     // when was this record created
+	CreateBy     int64         // employee UID (from phonebook) that created it
+	LastModTime  time.Time     // when was this record last written
+	LastModBy    int64         // employee UID (from phonebook) that modified it
 }
 
 // TaskDescriptor is the definition of a task. It is used to make instance
@@ -252,6 +264,7 @@ type TaskListDefinition struct {
 	EpochDue    time.Time // when task list is due
 	EpochPreDue time.Time // when task list pre-work is due
 	FLAGS       int64     // 1<<0 0 means it is still active, 1 means it is no longer active
+	EmailList   string    // email to this list when due date arrives
 	Comment     string    //
 	CreateTS    time.Time // when was this record created
 	CreateBy    int64     // employee UID (from phonebook) that created it
@@ -1782,6 +1795,7 @@ type RRprepSQL struct {
 	GetTaskListDescriptors                  *sql.Stmt
 	DeleteTaskListTasks                     *sql.Stmt
 	GetTaskListDefinitionByName             *sql.Stmt
+	GetDueTaskLists                         *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

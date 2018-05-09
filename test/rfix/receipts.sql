@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 5.7.16, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
@@ -2235,6 +2235,8 @@ CREATE TABLE `TaskList` (
   `DoneUID` bigint(20) NOT NULL DEFAULT '0',
   `PreDoneUID` bigint(20) NOT NULL DEFAULT '0',
   `EmailList` varchar(2048) NOT NULL DEFAULT '',
+  `DtLastNotify` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `DurWait` bigint(20) NOT NULL DEFAULT '0',
   `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2269,6 +2271,7 @@ CREATE TABLE `TaskListDefinition` (
   `EpochDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `EpochPreDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `EmailList` varchar(2048) NOT NULL DEFAULT '',
   `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2482,4 +2485,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-05 13:23:17
+-- Dump completed on 2018-05-08 20:34:45
