@@ -361,7 +361,6 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	a.Name = foo.Record.Name
 	a.BID = d.BID
-	a.FLAGS = foo.Record.FLAGS
 
 	//----------------------------------------------------------------
 	// Not much business logic to check here.
@@ -431,41 +430,24 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 		a.TLID = tlid // ensure that the return value is correct
 	} else {
-		b, err := rlib.GetTaskList(r.Context(), a.TLID)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
+		if foo.Record.ChkDtPreDone {
+			a.DtPreDone = now
+			a.PreDoneUID = d.sess.UID
+			a.FLAGS |= 1 << 3
+		} else {
+			a.DtPreDone = rlib.TIME0
+			a.PreDoneUID = 0
+			a.FLAGS &= ^(1 << 3)
 		}
 
-		//------------------------------------------------------------------
-		// Due and PreDue dates are not changable.  If those
-		// need to be changed, you'll need to change the definition.
-		// If the PreDue date changes from unset to set, record the
-		// datetime.  If it changes from set to unset, reset the datetime.
-		// Identical operations for Due date.
-		//------------------------------------------------------------------
-		if b.DtPreDone.Year() > 1999 { // current db DtPreDone is set, but user unset it
-			if foo.Record.ChkDtPreDone {
-				a.DtPreDone = now
-				a.PreDoneUID = d.sess.UID
-				a.FLAGS |= 1 << 3
-			} else {
-				a.DtPreDone = rlib.TIME0
-				a.PreDoneUID = 0
-				a.FLAGS &= ^(1 << 3)
-			}
-		}
-
-		if b.DtDone.Year() > 1999 && !foo.Record.ChkDtDone { // current db DtDone is set, but user unset it
-			if foo.Record.ChkDtDone {
-				a.DtDone = now
-				a.DoneUID = d.sess.UID
-				a.FLAGS |= 1 << 4
-			} else {
-				a.DtDone = rlib.TIME0
-				a.DoneUID = 0
-				a.FLAGS &= ^(1 << 4)
-			}
+		if foo.Record.ChkDtDone {
+			a.DtDone = now
+			a.DoneUID = d.sess.UID
+			a.FLAGS |= 1 << 4
+		} else {
+			a.DtDone = rlib.TIME0
+			a.DoneUID = 0
+			a.FLAGS &= ^(1 << 4)
 		}
 		err = rlib.UpdateTaskList(r.Context(), &a)
 	}

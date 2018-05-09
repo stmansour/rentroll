@@ -312,6 +312,12 @@ MYSQLDUMP="mysqldump --no-defaults"
 # DROP TABLE IF EXISTS people;
 # DROP TABLE IF EXISTS roles;
 # DROP TABLE IF EXISTS sessions;
+
+# May 8, 2018
+# ALTER TABLE TaskList ADD DtLastNotify DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00' AFTER EmailList;
+# ALTER TABLE TaskList ADD DurWait BIGINT NOT NULL DEFAULT 0 AFTER DtLastNotify;
+# ALTER TABLE TaskListDefinition ADD EmailList VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
