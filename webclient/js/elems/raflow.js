@@ -103,7 +103,12 @@ window.setRABGInfoFormFields = function(record) {
     formRecord.TelephoneNo = record.CellPhone;
     formRecord.EmailAddress = record.PrimaryEmail;
     formRecord.Phone = record.WorkPhone;
-    formRecord.Address = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
+    formRecord.Address = record.Address;
+    formRecord.Address2 = record.Address2;
+    formRecord.City = record.City;
+    formRecord.Country = record.Country;
+    formRecord.PostalCode = record.PostalCode;
+    formRecord.State = record.State;
 };
 
 // showHideRABGInfoFormFields hide fields if transanctant is only user
@@ -2146,6 +2151,11 @@ window.loadRABGInfoForm = function () {
                 {name: 'Employer', type: 'text', required: true},
                 {name: 'Phone', type: 'text', required: true},
                 {name: 'Address', type: 'text', required: true},
+                {name: 'Address2', type: 'text', required: false},
+                {name: 'City', type: 'text', required: false},
+                {name: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false},
+                {name: 'PostalCode', type: 'text', required: false},
+                {name: 'Country', type: 'text', required: false},
                 {name: 'Position', type: 'text', required: true},
                 {name: 'GrossWages', type: 'money', required: true},
                 {name: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
@@ -2334,10 +2344,11 @@ window.loadRABGInfoForm = function () {
                                         if(!isTCIDMatched){
                                             // Assign default values to form fields
                                             w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, raBGInfoGridRecord.TCID);
+
+                                            // Set latest value for transanctant basic information from the server only
+                                            setRABGInfoFormFields(record);
                                         }
 
-                                        // Set latest value for transanctant basic information from the server only
-                                        setRABGInfoFormFields(record);
 
                                         w2ui.RABGInfoForm.refresh(); // need to refresh for form changes
                                     }else {
