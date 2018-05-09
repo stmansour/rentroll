@@ -489,7 +489,7 @@ window.loadTargetSection = function (target, activeCompID) {
         case "people":
             partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            w2ui.RAPeopleForm.clear();
+            w2ui.RAPeopleForm.actions.reset();
             break;
         case "pets":
             data = w2ui.RAPetsGrid.records;
@@ -788,8 +788,7 @@ window.acceptTransactant = function () {
     loadTransactantListingItem(transactantRec);
 
     // clear the form
-    app.raflow.activeTransactant = {};
-    w2ui.RAPeopleForm.clear();
+    w2ui.RAPeopleForm.actions.reset();
 
     // disable check boxes
     $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", true);
@@ -894,6 +893,11 @@ $(document).on('click', '.people-listing .remove-item', function () {
     // if selected tcid record to be removed, of which all flags are false then remove it from data also
     if (!(transactant.IsGuarantor || transactant.IsRenter || transactant.IsOccupant)) {
         app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.splice(tcidIndex, 1);
+
+        //
+        if (app.raflow.activeTransactant.TCID === transactant.TCID) {
+            w2ui.RAPeopleForm.actions.reset(); // clear the form
+        }
     }
 
     // remove item from the DOM
@@ -1008,12 +1012,9 @@ window.loadRAPeopleForm = function () {
                         },
                         onRemove: function (event) {
                             event.onComplete = function () {
-                                // reset active Transactant to blank object
-                                app.raflow.activeTransactant = {};
-
                                 var f = w2ui.RAPeopleForm;
                                 // reset payor field related data when removed
-                                f.clear();
+                                f.actions.reset();
                                 // disable user-role checkboxes
                                 $(f.box).find("input[type=checkbox]").prop("disabled", true);
 
@@ -1039,7 +1040,9 @@ window.loadRAPeopleForm = function () {
             ],
             actions: {
                 reset: function () {
-                    this.clear();
+                    w2ui.RAPeopleForm.clear();
+                    // reset active Transactant to blank object
+                    app.raflow.activeTransactant = {};
                 }
             },
             onRefresh: function(event) {
@@ -1181,7 +1184,7 @@ window.loadRAPeopleForm = function () {
             // w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
             w2ui.RAPeopleForm.refresh();
         } else {
-            w2ui.RAPeopleForm.clear();
+            w2ui.RAPeopleForm.actions.reset();
         }
     }, 500);
 };
