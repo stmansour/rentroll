@@ -13,7 +13,7 @@
     position: relative;
 }
 
-#raflow-container #slider {
+#raflow-container .slider {
     position: absolute;
     right: 0px;
     width: 900px;
@@ -23,7 +23,7 @@
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-#raflow-container #slider #slider-content {
+#raflow-container .slider .slider-content {
     width: 400px;
     float: right;
     height: 100%;

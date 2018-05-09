@@ -8,7 +8,7 @@
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
     setRABGInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
     hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord, setRABGInfoFormHeader,
-    updateRABGInfoFormCheckboxes, findTransactantIndexByTCIDInPeopleData
+    updateRABGInfoFormCheckboxes, findTransactantIndexByTCIDInPeopleData, appendNewSlider
 */
 
 "use strict";
@@ -103,7 +103,12 @@ window.setRABGInfoFormFields = function(record) {
     formRecord.TelephoneNo = record.CellPhone;
     formRecord.EmailAddress = record.PrimaryEmail;
     formRecord.Phone = record.WorkPhone;
-    formRecord.Address = record.Address + ", " + record.City + ", " + record.State + ", " + record.Country + "- " + record.PostalCode;
+    formRecord.Address = record.Address;
+    formRecord.Address2 = record.Address2;
+    formRecord.City = record.City;
+    formRecord.Country = record.Country;
+    formRecord.PostalCode = record.PostalCode;
+    formRecord.State = record.State;
 };
 
 // showHideRABGInfoFormFields hide fields if transanctant is only user
@@ -489,7 +494,7 @@ window.loadTargetSection = function (target, activeCompID) {
         case "people":
             partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            w2ui.RAPeopleForm.clear();
+            w2ui.RAPeopleForm.actions.reset();
             break;
         case "pets":
             data = w2ui.RAPetsGrid.records;
@@ -788,8 +793,7 @@ window.acceptTransactant = function () {
     loadTransactantListingItem(transactantRec);
 
     // clear the form
-    app.raflow.activeTransactant = {};
-    w2ui.RAPeopleForm.clear();
+    w2ui.RAPeopleForm.actions.reset();
 
     // disable check boxes
     $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", true);
@@ -826,8 +830,6 @@ window.findTransactantIndexByTCIDInPeopleData = function(TCID) {
 
 // click on any transactant item in people listing
 $(document).on("click", ".people-listing li", function(e) {
-    console.log("clicked...");
-
     if($(e.target).hasClass("remove-item")) {
         return;
     }
@@ -896,6 +898,11 @@ $(document).on('click', '.people-listing .remove-item', function () {
     // if selected tcid record to be removed, of which all flags are false then remove it from data also
     if (!(transactant.IsGuarantor || transactant.IsRenter || transactant.IsOccupant)) {
         app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.splice(tcidIndex, 1);
+
+        //
+        if (app.raflow.activeTransactant.TCID === transactant.TCID) {
+            w2ui.RAPeopleForm.actions.reset(); // clear the form
+        }
     }
 
     // remove item from the DOM
@@ -964,7 +971,6 @@ window.loadRAPeopleForm = function () {
                         renderItem: function (item) {
                             // enable user-role checkboxes
                             $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", false);
-
                             // mark this as transactant as an active
                             app.raflow.activeTransactant = item;
                             var s = getTCIDName(item);
@@ -974,6 +980,25 @@ window.loadRAPeopleForm = function () {
                             w2ui.RAPeopleForm.record.MiddleName = item.MiddleName;
                             w2ui.RAPeopleForm.record.CompanyName = item.CompanyName;
                             w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
+
+                            /*// if this transactant is available in local data then try to render the bools
+                            var tcidIndex = findTransactantIndexByTCIDInPeopleData(item.TCID);
+                            var transactantRec;
+                            if (tcidIndex >= 0) {
+                                var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+                                if (peoplePartIndex < 0){
+                                    return;
+                                }
+
+                                // taka the reference
+                                transactantRec = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex];
+
+                                w2ui.RAPeopleForm.record.IsRenter = transactantRec.IsRenter;
+                                w2ui.RAPeopleForm.record.IsOccupant = transactantRec.IsOccupant;
+                                w2ui.RAPeopleForm.record.IsGuarantor = transactantRec.IsGuarantor;
+                                // w2ui.RAPeopleForm.refresh();
+                            }*/
+
                             return s;
                         },
                         renderDrop: function (item) {
@@ -992,12 +1017,11 @@ window.loadRAPeopleForm = function () {
                         },
                         onRemove: function (event) {
                             event.onComplete = function () {
-                                // reset active Transactant to blank object
-                                app.raflow.activeTransactant = {};
-
                                 var f = w2ui.RAPeopleForm;
                                 // reset payor field related data when removed
-                                f.record.TCID = 0;
+                                f.actions.reset();
+                                // disable user-role checkboxes
+                                $(f.box).find("input[type=checkbox]").prop("disabled", true);
 
                                 // NOTE: have to trigger manually, b'coz we manually change the record,
                                 // otherwise it triggers the change event but it won't get change (Object: {})
@@ -1021,7 +1045,9 @@ window.loadRAPeopleForm = function () {
             ],
             actions: {
                 reset: function () {
-                    this.clear();
+                    w2ui.RAPeopleForm.clear();
+                    // reset active Transactant to blank object
+                    app.raflow.activeTransactant = {};
                 }
             },
             onRefresh: function(event) {
@@ -1163,7 +1189,7 @@ window.loadRAPeopleForm = function () {
             // w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
             w2ui.RAPeopleForm.refresh();
         } else {
-            w2ui.RAPeopleForm.clear();
+            w2ui.RAPeopleForm.actions.reset();
         }
     }, 500);
 };
@@ -2125,6 +2151,11 @@ window.loadRABGInfoForm = function () {
                 {name: 'Employer', type: 'text', required: true},
                 {name: 'Phone', type: 'text', required: true},
                 {name: 'Address', type: 'text', required: true},
+                {name: 'Address2', type: 'text', required: false},
+                {name: 'City', type: 'text', required: false},
+                {name: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false},
+                {name: 'PostalCode', type: 'text', required: false},
+                {name: 'Country', type: 'text', required: false},
                 {name: 'Position', type: 'text', required: true},
                 {name: 'GrossWages', type: 'money', required: true},
                 {name: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
@@ -2141,6 +2172,10 @@ window.loadRABGInfoForm = function () {
                     if (errors.length > 0) return;
 
                     var record = $.extend(true, {}, form.record);
+
+                    // State filed
+                    // TODO(Akshay): Think another way to modify State field if it is possible.
+                    record.State = record.State.text;
 
                     // Convert integer to bool checkboxes fields
                     updateRABGInfoFormCheckboxes(record);
@@ -2313,10 +2348,11 @@ window.loadRABGInfoForm = function () {
                                         if(!isTCIDMatched){
                                             // Assign default values to form fields
                                             w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, raBGInfoGridRecord.TCID);
+
+                                            // Set latest value for transanctant basic information from the server only
+                                            setRABGInfoFormFields(record);
                                         }
 
-                                        // Set latest value for transanctant basic information from the server only
-                                        setRABGInfoFormFields(record);
 
                                         w2ui.RABGInfoForm.refresh(); // need to refresh for form changes
                                     }else {
@@ -2425,7 +2461,20 @@ window.loadRARentablesGrid = function () {
                 onClick: function (event) {
                     switch(event.target) {
                         case "add":
-                            showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+                            // get auto populated to new RA account rules
+                            var data = {
+                              "type":"FLAGS",
+                              "FLAGS": app.arFLAGS.PopulateOnRA
+                            };
+                            var BID = getCurrentBID();
+                            $.ajax({
+                                url: "/v1/arslist/" + BID.toString() + "/",
+                                method: "POST",
+                                contentType: "application/json",
+                                data: JSON.stringify(data),
+                            }).done(function(data) {
+                                showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+                            });
                             break;
                     }
                 }
@@ -2515,7 +2564,13 @@ window.loadRARentablesGrid = function () {
                 onClick: function (event) {
                     switch(event.target) {
                         case "add":
-                            console.log("clicked on add");
+                            var sliderID = 2;
+                            appendNewSlider(sliderID);
+                            $("#raflow-container")
+                                .find(".slider[data-slider-id="+sliderID+"]")
+                                .find(".slider-content")
+                                .width(400)
+                                .w2render(w2ui.RARentableFeesForm);
                             break;
                         case "btnClose":
                             hideSliderContent();
@@ -2605,6 +2660,93 @@ window.loadRARentablesGrid = function () {
             onChange: function (event) {
                 event.onComplete = function () {
                     this.save();
+                };
+            }
+        });
+
+        // new transactant form especially for this RA flow
+        $().w2form({
+            name: 'RARentableFeesForm',
+            header: 'Add New Rentable Fee',
+            style: 'display: block;',
+            formURL: '/webclient/html/formra-rentablefee.html',
+            focus: -1,
+            fields: [
+                {name: 'BID', type: 'int', required: true, html: {page: 0, column: 0}},
+                {name: 'BUD', type: 'list', required: true, options: {items: app.businesses}, html: {page: 0, column: 0}},
+            ],
+            toolbar : {
+                items: [
+                    { id: 'bt3', type: 'spacer' },
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            hideSliderContent(2);
+                            break;
+                    }
+                }
+            },
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                save: function() {
+                    var f = this;
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    f.save({}, function(data) {
+                        if (data.status === 'error') {
+                            f.message(data.message);
+                            return;
+                        }
+                        hideSliderContent(2);
+                    });
+                },
+                saveadd: function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID),
+                        f = this;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    f.save({}, function(data) {
+                        if (data.status === 'error') {
+                            f.message(data.message);
+                            return;
+                        }
+
+                        // f.record = getRAAddTransactantFormInitRec(BID, BUD, f.record);
+                        f.refresh();
+                    });
+                },
+            },
+            onChange: function(event) {
+                event.onComplete = function() {
+                       // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                    var diff = formRecDiffer(this.record, app.active_form_original, {});
+                    // if diff == {} then make dirty flag as false, else true
+                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                        app.form_is_dirty = false;
+                    } else {
+                        app.form_is_dirty = true;
+                    }
+                };
+            },
+            onRefresh: function(event) {
+                var f = this;
+                event.onComplete = function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    f.record.BID = BID;
+                    f.record.BUD = BUD;
+
+                    // there is NO PETID actually, so have to work around with recid key
+                    formRefreshCallBack(f, "recid");
                 };
             }
         });
@@ -2846,10 +2988,14 @@ var RACompConfig = {
 //   w2uiComp = w2ui component
 //   width    = width to apply to slider content div
 //-----------------------------------------------------------------------------
-window.showSliderContentW2UIComp = function(w2uiComp, width) {
-    $("#raflow-container #slider").show();
-    $("#raflow-container #slider #slider-content").width(width);
-    $("#raflow-container #slider #slider-content").w2render(w2uiComp);
+window.showSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
+    if (!sliderID) {
+        sliderID = 1;
+    }
+
+    $("#raflow-container .slider[data-slider-id="+sliderID+"]").show();
+    $("#raflow-container .slider[data-slider-id="+sliderID+"] .slider-content").width(width);
+    $("#raflow-container .slider[data-slider-id="+sliderID+"] .slider-content").w2render(w2uiComp);
 };
 
 //-----------------------------------------------------------------------------
@@ -2857,8 +3003,32 @@ window.showSliderContentW2UIComp = function(w2uiComp, width) {
 //                     slider-content div
 //
 //-----------------------------------------------------------------------------
-window.hideSliderContent = function() {
-    $("#raflow-container #slider").hide();
-    $("#raflow-container #slider #slider-content").width(0);
-    $("#raflow-container #slider #slider-content").empty();
+window.hideSliderContent = function(sliderID) {
+    if (!sliderID) {
+        sliderID = 1;
+    }
+
+    $("#raflow-container .slider[data-slider-id="+sliderID+"]").hide();
+    $("#raflow-container .slider[data-slider-id="+sliderID+"] .slider-content").width(0);
+    $("#raflow-container .slider[data-slider-id="+sliderID+"] .slider-content").empty();
+};
+
+//-----------------------------------------------------------------------------
+// appendNewSlider - append new right slider in the DOM dynamically
+//-----------------------------------------------------------------------------
+window.appendNewSlider = function(sliderID) {
+    // if sliderID exists then don't append
+    if ($("#raflow-container").find("div[data-slider-id="+ sliderID +"]").length > 0) {
+        return;
+    }
+
+    var slidersLength = $("#raflow-container").find(".slider").length;
+    var recentAddedSlider = $("#raflow-container")
+        .find("div[data-slider-id="+ slidersLength +"]");
+
+    var newSlider = recentAddedSlider.clone();
+    newSlider.attr("data-slider-id", slidersLength + 1);
+    recentAddedSlider.after(newSlider);
+    newSlider.css("z-index", parseInt(recentAddedSlider.css("z-index")) + 10);
+    newSlider.find(".slider-content").empty().width(0);
 };
