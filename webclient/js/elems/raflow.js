@@ -2173,6 +2173,10 @@ window.loadRABGInfoForm = function () {
 
                     var record = $.extend(true, {}, form.record);
 
+                    // State filed
+                    // TODO(Akshay): Think another way to modify State field if it is possible.
+                    record.State = record.State.text;
+
                     // Convert integer to bool checkboxes fields
                     updateRABGInfoFormCheckboxes(record);
 
