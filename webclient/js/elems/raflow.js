@@ -8,7 +8,7 @@
     openNewTransactantForm, getRAAddTransactantFormInitRec, toggleHaveCheckBoxDisablity, getRATransanctantDetail,
     setRABGInfoFormFields, getRABGInfoGridRecord, showHideRABGInfoFormFields, setNotRequiredFields,
     hideSliderContent, showSliderContentW2UIComp, getRABGInfoFormInitRecord, setRABGInfoFormHeader,
-    updateRABGInfoFormCheckboxes, findTransactantIndexByTCIDInPeopleData
+    updateRABGInfoFormCheckboxes, findTransactantIndexByTCIDInPeopleData, appendNewSlider
 */
 
 "use strict";
@@ -2560,7 +2560,13 @@ window.loadRARentablesGrid = function () {
                 onClick: function (event) {
                     switch(event.target) {
                         case "add":
-                            console.log("clicked on add");
+                            var sliderID = 2;
+                            appendNewSlider(sliderID);
+                            $("#raflow-container")
+                                .find(".slider[data-slider-id="+sliderID+"]")
+                                .find(".slider-content")
+                                .width(400)
+                                .w2render(w2ui.RARentableFeesForm);
                             break;
                         case "btnClose":
                             hideSliderContent();
@@ -2650,6 +2656,93 @@ window.loadRARentablesGrid = function () {
             onChange: function (event) {
                 event.onComplete = function () {
                     this.save();
+                };
+            }
+        });
+
+        // new transactant form especially for this RA flow
+        $().w2form({
+            name: 'RARentableFeesForm',
+            header: 'Add New Rentable Fee',
+            style: 'display: block;',
+            formURL: '/webclient/html/formra-rentablefee.html',
+            focus: -1,
+            fields: [
+                {name: 'BID', type: 'int', required: true, html: {page: 0, column: 0}},
+                {name: 'BUD', type: 'list', required: true, options: {items: app.businesses}, html: {page: 0, column: 0}},
+            ],
+            toolbar : {
+                items: [
+                    { id: 'bt3', type: 'spacer' },
+                    { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+                ],
+                onClick: function (event) {
+                    switch (event.target){
+                        case 'btnClose':
+                            hideSliderContent(2);
+                            break;
+                    }
+                }
+            },
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                save: function() {
+                    var f = this;
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    f.save({}, function(data) {
+                        if (data.status === 'error') {
+                            f.message(data.message);
+                            return;
+                        }
+                        hideSliderContent(2);
+                    });
+                },
+                saveadd: function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID),
+                        f = this;
+
+                    // clean dirty flag of form
+                    app.form_is_dirty = false;
+
+                    f.save({}, function(data) {
+                        if (data.status === 'error') {
+                            f.message(data.message);
+                            return;
+                        }
+
+                        // f.record = getRAAddTransactantFormInitRec(BID, BUD, f.record);
+                        f.refresh();
+                    });
+                },
+            },
+            onChange: function(event) {
+                event.onComplete = function() {
+                       // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                    var diff = formRecDiffer(this.record, app.active_form_original, {});
+                    // if diff == {} then make dirty flag as false, else true
+                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                        app.form_is_dirty = false;
+                    } else {
+                        app.form_is_dirty = true;
+                    }
+                };
+            },
+            onRefresh: function(event) {
+                var f = this;
+                event.onComplete = function() {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    f.record.BID = BID;
+                    f.record.BUD = BUD;
+
+                    // there is NO PETID actually, so have to work around with recid key
+                    formRefreshCallBack(f, "recid");
                 };
             }
         });
@@ -2891,10 +2984,14 @@ var RACompConfig = {
 //   w2uiComp = w2ui component
 //   width    = width to apply to slider content div
 //-----------------------------------------------------------------------------
-window.showSliderContentW2UIComp = function(w2uiComp, width) {
-    $("#raflow-container #slider").show();
-    $("#raflow-container #slider #slider-content").width(width);
-    $("#raflow-container #slider #slider-content").w2render(w2uiComp);
+window.showSliderContentW2UIComp = function(w2uiComp, width, sliderID) {
+    if (!sliderID) {
+        sliderID = 1;
+    }
+
+    $("#raflow-container .slider[data-slider-id="+sliderID+"]").show();
+    $("#raflow-container .slider[data-slider-id="+sliderID+"] .slider-content").width(width);
+    $("#raflow-container .slider[data-slider-id="+sliderID+"] .slider-content").w2render(w2uiComp);
 };
 
 //-----------------------------------------------------------------------------
@@ -2902,8 +2999,32 @@ window.showSliderContentW2UIComp = function(w2uiComp, width) {
 //                     slider-content div
 //
 //-----------------------------------------------------------------------------
-window.hideSliderContent = function() {
-    $("#raflow-container #slider").hide();
-    $("#raflow-container #slider #slider-content").width(0);
-    $("#raflow-container #slider #slider-content").empty();
+window.hideSliderContent = function(sliderID) {
+    if (!sliderID) {
+        sliderID = 1;
+    }
+
+    $("#raflow-container .slider[data-slider-id="+sliderID+"]").hide();
+    $("#raflow-container .slider[data-slider-id="+sliderID+"] .slider-content").width(0);
+    $("#raflow-container .slider[data-slider-id="+sliderID+"] .slider-content").empty();
+};
+
+//-----------------------------------------------------------------------------
+// appendNewSlider - append new right slider in the DOM dynamically
+//-----------------------------------------------------------------------------
+window.appendNewSlider = function(sliderID) {
+    // if sliderID exists then don't append
+    if ($("#raflow-container").find("div[data-slider-id="+ sliderID +"]").length > 0) {
+        return;
+    }
+
+    var slidersLength = $("#raflow-container").find(".slider").length;
+    var recentAddedSlider = $("#raflow-container")
+        .find("div[data-slider-id="+ slidersLength +"]");
+
+    var newSlider = recentAddedSlider.clone();
+    newSlider.attr("data-slider-id", slidersLength + 1);
+    recentAddedSlider.after(newSlider);
+    newSlider.css("z-index", parseInt(recentAddedSlider.css("z-index")) + 10);
+    newSlider.find(".slider-content").empty().width(0);
 };
