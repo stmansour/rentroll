@@ -12,14 +12,6 @@ import (
 	"strings"
 )
 
-// account rule FLAGS
-var arFLAGS = rlib.Str2Int64Map{
-	"ApplyFundsToReceiveAccts": 0,
-	"PopulateOnRA":             1,
-	"RAIDRequired":             2,
-	"SubARIDsOnly":             3,
-}
-
 // ARSendForm is a structure specifically for the UI. It will be
 // automatically populated from an rlib.AR struct
 type ARSendForm struct {
@@ -43,6 +35,7 @@ type ARSendForm struct {
 	PriorToRAStop       bool    // is it ok to charge after RA stop
 	ApplyRcvAccts       bool    // if true, mark the receipt as fully paid based on RcvAccts
 	RAIDrqd             bool    // if true, it will require receipts to supply a RAID
+	IsRentAR            bool    // if true, then it represents Rent AR
 	DefaultAmount       float64 // default amount for this account rule
 	LastModTime         rlib.JSONDateTime
 	LastModBy           int64
@@ -75,6 +68,7 @@ type ARSaveForm struct {
 	RAIDrqd             bool
 	DefaultAmount       float64
 	AutoPopulateToNewRA bool
+	IsRentAR            bool
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -393,6 +387,9 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if foo.Record.RAIDrqd && a.ARType == rlib.ARRECEIPT {
 		a.FLAGS |= 0x4
 	}
+	if foo.Record.IsRentAR {
+		a.FLAGS |= 0x8
+	}
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
 	// Ensure that the supplied data is valid
@@ -512,15 +509,22 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		raReqMappedVal := raRequiredMap[gg.raRequired]
 		gg.PriorToRAStart = raReqMappedVal[0]
 		gg.PriorToRAStop = raReqMappedVal[1]
-		if gg.FLAGS&0x1 != 0 {
+
+		switch {
+		case gg.FLAGS&0x1 != 0:
 			gg.ApplyRcvAccts = true
-		}
-		if gg.FLAGS&0x4 != 0 {
-			gg.RAIDrqd = true
-		}
-		if gg.FLAGS&0x2 != 0 {
+			break
+		case gg.FLAGS&0x2 != 0:
 			gg.AutoPopulateToNewRA = true
+			break
+		case gg.FLAGS&0x4 != 0:
+			gg.RAIDrqd = true
+			break
+		case gg.FLAGS&0x8 != 0:
+			gg.IsRentAR = true
+			break
 		}
+
 		g.Record = gg
 		rlib.Console("g.Record.BUD = %s\n", g.Record.BUD)
 	}
@@ -585,7 +589,7 @@ type ARsListResponse struct {
 
 // ARsListRequestByFLAGS is the request struct for listing down account rules by FLAGS
 type ARsListRequestByFLAGS struct {
-	FLAGS int64 `json:"FLAGS"`
+	FLAGS int `json:"FLAGS"`
 }
 
 // ARsListRequestType represents for which type of request to list down ARs
@@ -635,7 +639,18 @@ func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, bar.FLAGS)
+		// get numeric value from bit presentation
+		FlagVal := uint64(1 << uint64(bar.FLAGS))
+
+		// check whether requested FLAG (bit representation) is valid or not
+		if !bizlogic.IsValidARFlag(FlagVal) {
+			err := fmt.Errorf("FLAGS value is invalid: %d", bar.FLAGS)
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// get account rules by FLAGS integer representation from binary value
+		m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, FlagVal)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return

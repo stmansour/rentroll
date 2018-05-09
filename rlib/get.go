@@ -263,7 +263,7 @@ func GetARsByType(ctx context.Context, bid int64, artype int) ([]AR, error) {
 }
 
 // GetARsByFLAGS reads all AccountRules for the supplied BID with FLAGS
-func GetARsByFLAGS(ctx context.Context, bid int64, FLAGS int64) ([]AR, error) {
+func GetARsByFLAGS(ctx context.Context, bid int64, FLAGS uint64) ([]AR, error) {
 
 	var (
 		err error

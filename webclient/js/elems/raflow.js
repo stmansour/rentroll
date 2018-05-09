@@ -2443,7 +2443,20 @@ window.loadRARentablesGrid = function () {
                 onClick: function (event) {
                     switch(event.target) {
                         case "add":
-                            showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+                            // get auto populated to new RA account rules
+                            var data = {
+                              "type":"FLAGS",
+                              "FLAGS": app.arFLAGS.PopulateOnRA
+                            };
+                            var BID = getCurrentBID();
+                            $.ajax({
+                                url: "/v1/arslist/" + BID.toString() + "/",
+                                method: "POST",
+                                contentType: "application/json",
+                                data: JSON.stringify(data),
+                            }).done(function(data) {
+                                showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+                            });
                             break;
                     }
                 }
