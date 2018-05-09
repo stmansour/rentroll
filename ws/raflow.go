@@ -114,21 +114,25 @@ type RABackgroundInfoFlowData struct {
 	Employer     string  `json:"Employer"`
 	Phone        string  `json:"Phone"`
 	Address      string  `json:"Address"`
+	Address2     string  `json:"Address2"`
+	City         string  `json:"City"`
+	State        string  `json:"State"`
+	PostalCode   string  `json:"PostalCode"`
 	Position     string  `json:"Position"`
 	GrossWages   float64 `json:"GrossWages"`
 
 	// Current Address information
 	CurrentAddress           string `json:"CurrentAddress"`
-	CurrentLandLordName     string `json:"CurrentLandLordName"`
+	CurrentLandLordName      string `json:"CurrentLandLordName"`
 	CurrentLengthOfResidency int    `json:"CurrentLengthOfResidency"`
-	CurrentLandLordPhoneNo  string `json:"CurrentLandLordPhoneNo"`
+	CurrentLandLordPhoneNo   string `json:"CurrentLandLordPhoneNo"`
 	CurrentReasonForMoving   string `json:"CurrentReasonForMoving"` // Reason for moving
 
 	// Prior Address information
 	PriorAddress           string `json:"PriorAddress"`
-	PriorLandLordName     string `json:"PriorLandLordName"`
+	PriorLandLordName      string `json:"PriorLandLordName"`
 	PriorLengthOfResidency int    `json:"PriorLengthOfResidency"`
-	PriorLandLordPhoneNo  string `json:"PriorLandLordPhoneNo"`
+	PriorLandLordPhoneNo   string `json:"PriorLandLordPhoneNo"`
 	PriorReasonForMoving   string `json:"PriorReasonForMoving"` // Reason for moving
 
 	// Have you ever been
