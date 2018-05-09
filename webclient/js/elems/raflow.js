@@ -2173,8 +2173,15 @@ window.loadRABGInfoForm = function () {
 
                     var record = $.extend(true, {}, form.record);
 
+                    // State filed
+                    // TODO(Akshay): Think another way to modify State field if it is possible.
+                    record.State = record.State.text;
+
                     // Convert integer to bool checkboxes fields
                     updateRABGInfoFormCheckboxes(record);
+
+                    console.log("Update RAFlow");
+                    console.log(record);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
