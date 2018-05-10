@@ -318,10 +318,14 @@ MYSQLDUMP="mysqldump --no-defaults"
 # ALTER TABLE TaskList ADD DurWait BIGINT NOT NULL DEFAULT 0 AFTER DtLastNotify;
 # ALTER TABLE TaskListDefinition ADD EmailList VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
 
+# May 9, 2018
+# ALTER TABLE TaskList CHANGE DurWait DurWait BIGINT NOT NULL DEFAULT 86400000000000;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
+ALTER TABLE TaskListDefinition ADD DurWait BIGINT NOT NULL DEFAULT 86400000000000 AFTER EmailList;
 EOF
 
 #=====================================================

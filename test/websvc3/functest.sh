@@ -43,12 +43,13 @@ startRentRollServer
 #   a4 - Delete it - which means set the FLAGS to make it inactive
 #   a5 - Read back TLDID 2, ensure that Name and FLAGS were updated
 #   a6 - This search should only return 1 match because TLDID 2 was made inactive
+#   a7 - Read back the predefined TaskListDefinition
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%223%2F1%2F2018%22%2C%22searchDtStop%22%3A%223%2F31%2F2018%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/tlds/1" "request" "a0"  "WebService--Search_TaskListDefinitions"
-echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22Cycle%22%3A6%2C%22Epoch%22%3A%221%2F1%2F2018%22%2C%22EpochDue%22%3A%221%2F31%2F2018%22%2C%22EpochPreDue%22%3A%221%2F20%2F2018%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Tucasa%20Period%20Close%22%2C%22TLDID%22%3A0%7D%7D" > request
+echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22Cycle%22%3A6%2C%22Epoch%22%3A%221%2F1%2F2018%22%2C%22EpochDue%22%3A%221%2F31%2F2018%22%2C%22EpochPreDue%22%3A%221%2F20%2F2018%22%2C%22DurWait%22%3A86400000000000%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Tucasa%20Period%20Close%22%2C%22TLDID%22%3A0%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/tld/1/0" "request" "a1"  "WebService--Insert_TaskListDefinitions"
-echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22TLDID%22%3A2%2C%22BID%22%3A1%2C%22Cycle%22%3A6%2C%22Epoch%22%3A%221%2F1%2F2018%22%2C%22EpochDue%22%3A%221%2F31%2F2018%22%2C%22EpochPreDue%22%3A%221%2F20%2F2018%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Tucasa%20Apts%20Period%20Close%22%7D%7D" > request
+echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22TLDID%22%3A2%2C%22BID%22%3A1%2C%22Cycle%22%3A6%2C%22Epoch%22%3A%221%2F1%2F2018%22%2C%22EpochDue%22%3A%221%2F31%2F2018%22%2C%22EpochPreDue%22%3A%221%2F20%2F2018%22%2C%22DurWait%22%3A86400000000000%2C%22EmailList%22%3A%22bounce%40simulator.amazonses.com%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Tucasa%20Apts%20Period%20Close%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/tld/1/2" "request" "a2"  "WebService--Update_TaskListDefinitions"
 echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%223%2F1%2F2018%22%2C%22searchDtStop%22%3A%223%2F31%2F2018%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/tlds/1" "request" "a3"  "WebService--Search_TaskListDefinitions"
@@ -58,6 +59,8 @@ echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%
 dojsonPOST "http://localhost:8270/v1/tld/1/2" "request" "a5"  "WebService--Read_TaskListDefinitions"
 echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%223%2F1%2F2018%22%2C%22searchDtStop%22%3A%223%2F31%2F2018%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/tlds/1" "request" "a6"  "WebService--Search_TaskListDefinitions"
+echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%223%2F1%2F2018%22%2C%22searchDtStop%22%3A%223%2F31%2F2018%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/tld/1/1" "request" "a7"  "WebService--Get_TaskListDefinition_1"
 
 #------------------------------------------------------------------------------
 #  TEST b
@@ -127,7 +130,7 @@ echo "%7B%22recid%22%3A0%2C%22cmd%22%3A%22save%22%2C%22record%22%3A%7B%22BID%22%
 dojsonPOST "http://localhost:8270/v1/tl/1/0" "request" "d1"  "WebService--Insert_TaskList"
 echo "%7B%22recid%22%3A1%2C%22cmd%22%3A%22get%22%2C%22record%22%3A%7B%22BID%22%3A1%2C%22recid%22%3A3%2C%22Cycle%22%3A6%2C%22DtDue%22%3A%221%2F31%2F2018%22%2C%22DtPreDue%22%3A%221%2F20%2F2018%22%2C%22Pivot%22%3A%223%2F3%2F2018%22%2C%22FLAGS%22%3A0%2C%22Name%22%3A%22Tucasa%20Period%20Close%22%2C%22TLID%22%3A1%2C%22TLDID%22%3A1%2C%22DoneUID%22%3A0%2C%22PreDoneUID%22%3A0%2C%22Comment%22%3A%22An%20instance%20of%20TLDID%201%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/tl/1/1" "request" "d2"  "WebService--Read_TaskList"
-echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%222%2F28%2F2018%22%7D" > request
+echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22searchDtStart%22%3A%222%2F1%2F2018%22%2C%22searchDtStop%22%3A%223%2F1%2F2018%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/tls/1/0" "request" "d3"  "WebService--Search_TaskList"
 echo "%7B%22cmd%22%3A%22delete%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/tl/1/2" "request" "d4"  "WebService--Delete_TaskList"

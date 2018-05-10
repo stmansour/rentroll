@@ -447,7 +447,7 @@ window.buildTaskListElements = function () {
     });
 
     //------------------------------------------------------------------------
-    //  newTaskForm
+    //  newTaskListForm
     //------------------------------------------------------------------------
     $().w2form({
         name: 'newTaskListForm',

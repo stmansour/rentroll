@@ -260,16 +260,17 @@ type TaskListDefinition struct {
 	BID         int64
 	Name        string
 	Cycle       int64
-	Epoch       time.Time // when task list starts
-	EpochDue    time.Time // when task list is due
-	EpochPreDue time.Time // when task list pre-work is due
-	FLAGS       int64     // 1<<0 0 means it is still active, 1 means it is no longer active
-	EmailList   string    // email to this list when due date arrives
-	Comment     string    //
-	CreateTS    time.Time // when was this record created
-	CreateBy    int64     // employee UID (from phonebook) that created it
-	LastModTime time.Time // when was this record last written
-	LastModBy   int64     // employee UID (from phonebook) that modified it
+	Epoch       time.Time     // when task list starts
+	EpochDue    time.Time     // when task list is due
+	EpochPreDue time.Time     // when task list pre-work is due
+	FLAGS       int64         // 1<<0 0 means it is still active, 1 means it is no longer active
+	EmailList   string        // email to this list when due date arrives
+	DurWait     time.Duration // amount of time to wait before next check after late notification
+	Comment     string        //
+	CreateTS    time.Time     // when was this record created
+	CreateBy    int64         // employee UID (from phonebook) that created it
+	LastModTime time.Time     // when was this record last written
+	LastModBy   int64         // employee UID (from phonebook) that modified it
 }
 
 // AIRAuthenticateResponse is the reply structure from Accord Directory

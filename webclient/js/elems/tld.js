@@ -1,11 +1,11 @@
 "use strict";
 /*global
     w2ui, $, app, console,setToTLDForm, w2alert,
-    form_dirty_alert, addDateNavToToolbar, w2utils, w2popup,
+    form_dirty_alert, addDateNavToToolbar, w2utils, 
     openTaskDescForm, ensureSession, dtFormatISOToW2ui,
     dtFormatISOToW2ui, localtimeToUTC, setDefaultFormFieldAsPreviousRecord,
     getTLDInitRecord, getCurrentBID, getTDInitRecord, saveTaskListDefinition,
-    closeTaskDescForm,setTaskDescButtonsState,
+    closeTaskDescForm, setTaskDescButtonsState,
 */
 
 // Temporary storage for when a date is toggled off
@@ -13,6 +13,7 @@ var TaskDescData = {
     sEpochDue: '',
     sEpochPreDue: '',
 };
+
 var TLData = {
     sEpoch: '',
     sEpochDue: '',
@@ -50,6 +51,7 @@ window.getTLDInitRecord = function (BID, previousFormRecord){
         Epoch: dtFormatISOToW2ui(y1.toString()),
         EpochDue: dtFormatISOToW2ui(epochDue.toString()),
         EpochPreDue: dtFormatISOToW2ui(epochPreDue.toString()),
+        DurWait: 86400000000000,
         FLAGS: 0,
         Comment: '',
         CreateTS: y.toString(),
@@ -229,7 +231,9 @@ window.buildTaskListDefElements = function () {
             { field: 'EpochDue',       type: 'datetime', required: false },
             { field: 'EpochPreDue',    type: 'datetime', required: false },
             { field: 'FLAGS',          type: 'int',      required: false },
+            { field: 'EmailList',      type: 'text',     required: false },
             { field: 'Comment',        type: 'text',     required: false },
+            { field: 'DurWait',        type: 'int',      required: false },
             { field: 'CreateTS',       type: 'date',     required: false },
             { field: 'CreateBy',       type: 'int',      required: false },
             { field: 'LastModTime',    type: 'date',     required: false },

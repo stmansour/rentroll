@@ -34,6 +34,11 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	tl.Cycle = tld.Cycle
 	tl.FLAGS = tld.FLAGS
 	tl.DtDue, err = NextInstanceDate(&tld.EpochDue, pivot, tld.Cycle)
+	tl.EmailList = tld.EmailList
+	tl.DurWait = tld.DurWait
+	if time.Duration(0) == tl.DurWait {
+		tl.DurWait = 24 * time.Hour
+	}
 	if err != nil {
 		return tlid, err
 	}

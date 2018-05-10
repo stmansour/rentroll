@@ -106,5 +106,5 @@ func main() {
 func doWork() {
 	ctx := context.Background()
 	worker.TLReporterCore(ctx)
-	rlib.Console("Duration of 1 day = %v\n", 24*60*60*time.Second)
+	rlib.Console("Duration of 1 day = %d\n", 24*60*60*time.Second)
 }

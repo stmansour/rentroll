@@ -12,28 +12,42 @@
     <div class="w2ui-field"><input type="hidden" name="CreateTS" /></div>
     <div class="w2ui-field"><input type="hidden" name="CreateBy" /></div>
 
+<!--
+    <div class="w2ui-field">
+        <label>DurWait:</label>
+        <div class="w2ui-field"><input type="int" name="DurWait" /></div>
+    </div>
+-->
+    <div class="w2ui-field"><input type="hidden" name="DurWait" /></div>
+    
     <div class="w2ui-field">
         <label>Name:</label>
-        <div><input name="Name" type="text" style="width:100%"></input></div>
+        <div><input name="Name" type="text" style="width:100%" tabindex="0"></input></div>
     </div>
     <div class="w2ui-field">
         <label>Cycle:</label>
-        <div><input name="Cycle" type="list" style="width:100%"></input></div>
+        <div><input name="Cycle" type="list" style="width:100%" tabindex="1"></input></div>
     </div>
     <div class="w2ui-field">
         <label>Epoch:</label>
-        <div><input type="us-datetime" name="Epoch"></div>
+        <div><input type="us-datetime" name="Epoch" tabindex="2"></div>
     </div>
     <div class="w2ui-field">
         <label>Pre Due:</label>
-        <div><input name="ChkEpochPreDue" type="checkbox"></input>&nbsp;<input type="us-datetime" name="EpochPreDue"></div>
+        <div><input name="ChkEpochPreDue" type="checkbox" tabindex="3"></input>&nbsp;
+            <input type="us-datetime" name="EpochPreDue" tabindex="4"></div>
     </div>
      <div class="w2ui-field">
         <label>Due:</label>
-        <div><input name="ChkEpochDue" type="checkbox"></input>&nbsp;<input type="us-datetime" name="EpochDue"></div>
+        <div><input name="ChkEpochDue" type="checkbox" tabindex="5"></input>&nbsp;
+            <input type="us-datetime" name="EpochDue" tabindex="6"></div>
+    </div>
+    <div class="w2ui-field">
+        <label>Email List:</label>
+        <div><input name="EmailList" type="text" style="width: 100%" tabindex="7" /></div>
     </div>
     <div class="w2ui-field">
         <label>Comment:</label>
-        <div><input name="Comment" type="text" style="width: 100%" tabindex="3" /></div>
+        <div><input name="Comment" type="text" style="width: 100%" tabindex="8" /></div>
     </div>
 </div>

@@ -1,8 +1,11 @@
 package worker
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"fmt"
+	"html/template"
 	"rentroll/rlib"
 	"strings"
 	"time"
@@ -67,11 +70,24 @@ func TLReporterCore(ctx context.Context) error {
 		sa := strings.Split(s, ",")
 		for i := 0; i < len(sa); i++ {
 			to := strings.TrimSpace(sa[i])
-			TLReporterSendEmail(to,a.TLID)
+			TLReporterSendEmail(ctx, to, &a)
 		}
 	}
 
 	return rows.Err()
+}
+
+// TLReportEmail encapsulates the data needed to fill out the
+// report email template.
+type TLReportEmail struct {
+	TLName       string
+	TLID         int64
+	DtDue        string
+	DtPreDue     string
+	DtDone       string
+	DtPreDone    string
+	DtNextNotify string
+	BotName      string
 }
 
 // TLReporterSendEmail sends an email message to recipient e with
@@ -85,7 +101,58 @@ func TLReporterCore(ctx context.Context) error {
 // RETURNS:
 //  any errors encountered
 //-----------------------------------------------------------------------------
-func TLReporterSendEmail(e string, tlid int64) error {
-	rlib.Console("send email to: %s\n",e)
-	return nil
+func TLReporterSendEmail(ctx context.Context, e string, a *rlib.TaskList) error {
+	rlib.Console("send email to: %s\n", e)
+	m := time.Now()
+
+	rlib.Console("m = %d\n", m.UnixNano())
+	rlib.Console("a.DurWait = %d\n", a.DurWait)
+	n := m.Add(a.DurWait)
+	rlib.Console("n = %d\n", n.UnixNano())
+
+	//----------------------------------
+	// Create message...
+	//----------------------------------
+	data := TLReportEmail{
+		TLName:       a.Name,
+		TLID:         a.TLID,
+		DtDue:        a.DtDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
+		DtPreDue:     a.DtPreDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
+		DtDone:       a.DtDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
+		DtPreDone:    a.DtPreDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
+		DtNextNotify: n.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
+		BotName:      "TLReporter",
+	}
+
+	// subj:  TaskList {{.TLName}} is not complete
+	//
+	// body:  TalkList {{.Name}} was due on {{.DtDue}} and is not yet completed.
+	//        See the attached report for further details.
+	//
+	//        {{.BotName}}
+
+	btmpl := `TaskList {{.TLName}} was due on {{.DtDue}} and is not yet completed.
+See the attached report for further details.
+
+Next check: {{.DtNextNotify}}
+
+-{{.BotName}}`
+
+	b := &bytes.Buffer{}
+	template.Must(template.New("").Parse(btmpl)).Execute(b, data)
+	subj := fmt.Sprintf("Status:  %s tasks are not complete", a.Name)
+	rlib.Console("Subject: %s\n", subj)
+	rlib.Console("Message Body: %s\n", b.String())
+
+	//----------------------------------
+	// Send message...
+	//----------------------------------
+
+	//----------------------------------
+	// Update TaskList ...
+	//----------------------------------
+	a.DtLastNotify = time.Now()
+	a.FLAGS |= 1 << 5
+
+	return rlib.UpdateTaskList(ctx, a)
 }

@@ -8,11 +8,11 @@
         "DurWait": 86400000000000,
         "EmailList": "bounce@simulator.amazonses.com",
         "Epoch": "2018-01-01T00:00:00Z",
-        "EpochDue": "2018-01-31T00:00:00Z",
-        "EpochPreDue": "2018-01-20T00:00:00Z",
-        "FLAGS": 7,
-        "Name": "Tucasa Apts Period Close",
-        "TLDID": 2,
+        "EpochDue": "2018-01-31T17:00:00Z",
+        "EpochPreDue": "2018-01-20T17:00:00Z",
+        "FLAGS": 6,
+        "Name": "Monthly Close",
+        "TLDID": 1,
         "recid": 0
     },
     "status": "success"

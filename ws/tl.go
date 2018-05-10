@@ -28,6 +28,8 @@ type SvcTaskList struct {
 	DtDue        rlib.JSONDateTime
 	DtPreDue     rlib.JSONDateTime
 	DtPreDone    rlib.JSONDateTime
+	DtLastNotify rlib.JSONDateTime
+	DurWait      int64
 	ChkDtDone    bool
 	ChkDtDue     bool
 	ChkDtPreDue  bool
@@ -67,6 +69,8 @@ type SaveTaskList struct {
 	DtDue        rlib.JSONDateTime
 	DtPreDue     rlib.JSONDateTime
 	DtPreDone    rlib.JSONDateTime
+	DtLastNotify rlib.JSONDateTime
+	DurWait      int64
 	Pivot        rlib.JSONDateTime // Required for creating a new TaskList instance
 	ChkDtDone    bool
 	ChkDtDue     bool
@@ -169,8 +173,8 @@ func SvcSearchHandlerTaskList(w http.ResponseWriter, r *http.Request, d *Service
 	var err error
 	rlib.Console("Entered %s\n", funcname)
 
-	whr := `TaskList.BID = %d AND TaskList.FLAGS & 1 = 0` // only get the Active TaskLists
-	whr = fmt.Sprintf(whr, d.BID)
+	whr := `TaskList.BID = %d AND TaskList.FLAGS & 1 = 0 AND %q <= DtDue AND DtDue < %q` // only get the Active TaskLists
+	whr = fmt.Sprintf(whr, d.BID, d.wsSearchReq.SearchDtStart, d.wsSearchReq.SearchDtStop)
 	order := `TaskList.Name ASC` // default ORDER
 
 	// get where clause and order clause for sql query

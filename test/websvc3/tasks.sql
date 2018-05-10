@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.16
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2219,7 +2219,7 @@ CREATE TABLE `TaskList` (
   `PreDoneUID` bigint(20) NOT NULL DEFAULT '0',
   `EmailList` varchar(2048) NOT NULL DEFAULT '',
   `DtLastNotify` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
-  `DurWait` bigint(20) NOT NULL DEFAULT '0',
+  `DurWait` bigint(20) NOT NULL DEFAULT '86400000000000',
   `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2255,6 +2255,7 @@ CREATE TABLE `TaskListDefinition` (
   `EpochPreDue` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `EmailList` varchar(2048) NOT NULL DEFAULT '',
+  `DurWait` bigint(20) NOT NULL DEFAULT '86400000000000',
   `Comment` varchar(2048) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2270,7 +2271,7 @@ CREATE TABLE `TaskListDefinition` (
 
 LOCK TABLES `TaskListDefinition` WRITE;
 /*!40000 ALTER TABLE `TaskListDefinition` DISABLE KEYS */;
-INSERT INTO `TaskListDefinition` VALUES (1,1,'Monthly Close',6,'2018-01-01 00:00:00','2018-01-31 17:00:00','2018-01-20 17:00:00',6,'','','2018-05-08 17:43:11',0,'2018-03-14 19:50:32',0);
+INSERT INTO `TaskListDefinition` VALUES (1,1,'Monthly Close',6,'2018-01-01 00:00:00','2018-01-31 17:00:00','2018-01-20 17:00:00',6,'bounce@simulator.amazonses.com',86400000000000,'','2018-05-10 04:52:41',0,'2018-03-14 19:50:32',0);
 /*!40000 ALTER TABLE `TaskListDefinition` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2469,4 +2470,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-08 20:35:06
+-- Dump completed on 2018-05-09 21:52:52
