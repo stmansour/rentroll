@@ -1033,9 +1033,10 @@ CREATE TABLE AR (
     DtStart DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',-- epoch date for recurring assessments; the date/time of the assessment for instances
     DtStop DATETIME NOT NULL DEFAULT '9999-12-31 00:00:00', -- stop date for recurrent assessments; the date/time of the assessment for instances
     FLAGS BIGINT NOT NULL DEFAULT 0,                        -- 1<<0 = apply funds to Receive accts,  (that is allocate it immediately)
-                                                            -- 1<<1 - populate on Rental Agreement,
+                                                            -- 1<<1 - Auto Populate on New Rental Agreement,
                                                             -- 1<<2 = RAID required,
                                                             -- 1<<3 = subARIDs apply (i.e., there are other ar rules that apply to this AR Rule)
+                                                            -- 1<<4 = Rent
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it

@@ -234,7 +234,7 @@ window.buildNewRAElements = function() {
         ],
         onResize: function(event) {
             event.onComplete = function() {
-                $("#raflow-container #slider").width($(this.box).width());
+                $("#raflow-container .slider").width($(this.box).width());
             };
         }
     });
