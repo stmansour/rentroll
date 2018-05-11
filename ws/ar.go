@@ -510,17 +510,16 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.PriorToRAStart = raReqMappedVal[0]
 		gg.PriorToRAStop = raReqMappedVal[1]
 
-		switch {
-		case gg.FLAGS&0x1 != 0:
+		if gg.FLAGS&0x1 != 0 {
 			gg.ApplyRcvAccts = true
-			fallthrough
-		case gg.FLAGS&0x2 != 0:
+		}
+		if gg.FLAGS&0x2 != 0 {
 			gg.AutoPopulateToNewRA = true
-			fallthrough
-		case gg.FLAGS&0x4 != 0:
+		}
+		if gg.FLAGS&0x4 != 0 {
 			gg.RAIDrqd = true
-			fallthrough
-		case gg.FLAGS&0x10 != 0:
+		}
+		if gg.FLAGS&0x10 != 0 {
 			gg.IsRentAR = true
 		}
 
