@@ -387,8 +387,8 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if foo.Record.RAIDrqd && a.ARType == rlib.ARRECEIPT {
 		a.FLAGS |= 0x4
 	}
-	if foo.Record.IsRentAR {
-		a.FLAGS |= 0x8
+	if foo.Record.IsRentAR { // IsRentAR - 1<<4
+		a.FLAGS |= 0x10
 	}
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
@@ -510,19 +510,17 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		gg.PriorToRAStart = raReqMappedVal[0]
 		gg.PriorToRAStop = raReqMappedVal[1]
 
-		switch {
-		case gg.FLAGS&0x1 != 0:
+		if gg.FLAGS&0x1 != 0 {
 			gg.ApplyRcvAccts = true
-			break
-		case gg.FLAGS&0x2 != 0:
+		}
+		if gg.FLAGS&0x2 != 0 {
 			gg.AutoPopulateToNewRA = true
-			break
-		case gg.FLAGS&0x4 != 0:
+		}
+		if gg.FLAGS&0x4 != 0 {
 			gg.RAIDrqd = true
-			break
-		case gg.FLAGS&0x8 != 0:
+		}
+		if gg.FLAGS&0x10 != 0 {
 			gg.IsRentAR = true
-			break
 		}
 
 		g.Record = gg
@@ -589,7 +587,7 @@ type ARsListResponse struct {
 
 // ARsListRequestByFLAGS is the request struct for listing down account rules by FLAGS
 type ARsListRequestByFLAGS struct {
-	FLAGS int `json:"FLAGS"`
+	FLAGS uint64 `json:"FLAGS"`
 }
 
 // ARsListRequestType represents for which type of request to list down ARs
@@ -639,18 +637,17 @@ func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		// get numeric value from bit presentation
-		FlagVal := uint64(1 << uint64(bar.FLAGS))
-
-		// check whether requested FLAG (bit representation) is valid or not
-		if !bizlogic.IsValidARFlag(FlagVal) {
+		// we should get ar by flag value directly instead of parsing flag value from
+		// requested a bit only, in case client wants to fetch ars based on multiple flags bit
+		// client should request with final flag value only
+		if !bizlogic.IsValidARFlag(bar.FLAGS) {
 			err := fmt.Errorf("FLAGS value is invalid: %d", bar.FLAGS)
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
 		// get account rules by FLAGS integer representation from binary value
-		m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, FlagVal)
+		m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, bar.FLAGS)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return

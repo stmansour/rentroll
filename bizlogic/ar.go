@@ -53,7 +53,14 @@ func (ar ARType) String() string {
 
 // IsValidARFlag checks whether FLAGS value is valid or not
 func IsValidARFlag(FLAGS uint64) bool {
-	if FLAGS < 1<<uint64(ARFLAGS["ApplyFundsToReceiveAccts"]) || FLAGS > 1<<uint64(ARFLAGS["IsRentAR"]) {
+
+	maxFLAGVal := 0
+	for _, v := range ARFLAGS {
+		maxFLAGVal += 1 << uint(v)
+	}
+
+	// NOTE: if no flag is set then 0 can be the case here
+	if FLAGS < 0 || FLAGS > uint64(maxFLAGVal) {
 		return false
 	}
 	return true
@@ -80,7 +87,7 @@ func ValidateAcctRule(ctx context.Context, a *rlib.AR) []BizError {
 	}
 
 	if !IsValidARFlag(a.FLAGS) {
-		rlib.Console("*** ERROR *** invalid FLAGS: %d for a.ARID = %d\n", a.ARID)
+		rlib.Console("*** ERROR *** invalid FLAGS: %d for a.ARID = %d\n", a.FLAGS, a.ARID)
 		s := fmt.Sprintf(BizErrors[InvalidARFlag].Message, a.FLAGS, a.ARID)
 		b := BizError{Errno: InvalidARFlag, Message: s}
 		e = append(e, b)

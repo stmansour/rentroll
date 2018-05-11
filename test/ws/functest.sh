@@ -210,8 +210,8 @@ echo "%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22arsForm%22%7D
 dojsonPOST "http://localhost:8270/v1/ar/1/13" "request" "ws48" "WebService--GetAR"
 
 # get account rules by flags
-# echo "%7B%22type%22%3A%22FLAGS%22%2C%22FLAGS%22%3A0%7D" > request
-# dojsonPOST "http://localhost:8270/v1/arslist/1/" "request" "ws49" "WebService--GetARsByFLAGS"
+echo "%7B%22type%22%3A%22FLAGS%22%2C%22FLAGS%22%3A0%7D" > request
+dojsonPOST "http://localhost:8270/v1/arslist/1/" "request" "ws49" "WebService--GetARsByFLAGS"
 
 stopRentRollServer
 echo "RENTROLL SERVER STOPPED"

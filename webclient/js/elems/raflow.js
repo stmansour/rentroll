@@ -980,25 +980,6 @@ window.loadRAPeopleForm = function () {
                             w2ui.RAPeopleForm.record.MiddleName = item.MiddleName;
                             w2ui.RAPeopleForm.record.CompanyName = item.CompanyName;
                             w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
-
-                            /*// if this transactant is available in local data then try to render the bools
-                            var tcidIndex = findTransactantIndexByTCIDInPeopleData(item.TCID);
-                            var transactantRec;
-                            if (tcidIndex >= 0) {
-                                var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-                                if (peoplePartIndex < 0){
-                                    return;
-                                }
-
-                                // taka the reference
-                                transactantRec = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex];
-
-                                w2ui.RAPeopleForm.record.IsRenter = transactantRec.IsRenter;
-                                w2ui.RAPeopleForm.record.IsOccupant = transactantRec.IsOccupant;
-                                w2ui.RAPeopleForm.record.IsGuarantor = transactantRec.IsGuarantor;
-                                // w2ui.RAPeopleForm.refresh();
-                            }*/
-
                             return s;
                         },
                         renderDrop: function (item) {
@@ -1010,6 +991,25 @@ window.loadRAPeopleForm = function () {
                             var srch = search.toLowerCase();
                             var match = (s.indexOf(srch) >= 0);
                             return match;
+                        },
+                        onAdd: function (event) {
+                            console.log(event);
+                            // if this transactant is available in local data then try to render the bools
+                            var tcidIndex = findTransactantIndexByTCIDInPeopleData(event.item.TCID);
+                            var transactantRec;
+                            if (tcidIndex >= 0) {
+                                var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+                                if (peoplePartIndex < 0){
+                                    return;
+                                }
+
+                                // taka the reference
+                                transactantRec = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex];
+                                w2ui.RAPeopleForm.record.IsRenter = transactantRec.IsRenter;
+                                w2ui.RAPeopleForm.record.IsOccupant = transactantRec.IsOccupant;
+                                w2ui.RAPeopleForm.record.IsGuarantor = transactantRec.IsGuarantor;
+                                w2ui.RAPeopleForm.refresh();
+                            }
                         },
                         onNew: function (event) {
                             //console.log('++ New Item: Do not forget to submit it to the server too', event);
@@ -2464,7 +2464,7 @@ window.loadRARentablesGrid = function () {
                             // get auto populated to new RA account rules
                             var data = {
                               "type":"FLAGS",
-                              "FLAGS": app.arFLAGS.PopulateOnRA
+                              "FLAGS": 1<<app.arFLAGS.PopulateOnRA
                             };
                             var BID = getCurrentBID();
                             $.ajax({
