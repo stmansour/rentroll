@@ -1,10 +1,11 @@
 Monthly Close
 Due Feb 28, 2018 9:00am PST
 OVERDUE, Not Yet Completed
-Status     Task             PreDueDate            PreDoneDate           PreApprovedBy         DueDate               DoneDate              ApprovedBy          
----------  ---------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------
-LATE       Delinquency      02/20/2018 20:00:00                                               02/28/2018 20:00:00                                             
-           Report                                                                                                                                             
-LATE       Walk the Units   02/20/2018 20:00:00                                               02/28/2018 20:00:00                                             
-LATE       Generate         02/20/2018 20:00:00                                               02/28/2018 20:00:00                                             
-           Offsets                                                                                                                                            
+Status     Task                                      PreDueDate            PreDoneDate           PreApprovedBy         DueDate               DoneDate              ApprovedBy                         
+---------  ----------------------------------------  --------------------  --------------------  --------------------  --------------------  --------------------  -----------------------------------
+LATE       Delinquency Report                        Feb 20, 2018 12:00pm                                              Feb 28, 2018 12:00pm                                                           
+                                                     PST                                                               PST                                                                            
+LATE       Walk the Units                            Feb 20, 2018 12:00pm                                              Feb 28, 2018 12:00pm                                                           
+                                                     PST                                                               PST                                                                            
+LATE       Generate Offsets                          Feb 20, 2018 12:00pm                                              Feb 28, 2018 12:00pm                                                           
+                                                     PST                                                               PST                                                                            
