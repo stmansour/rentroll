@@ -302,15 +302,19 @@ i.remove-item {
     color: red;
 }
 
-.ra-form-component#bginfo .w2ui-field > label {
-    width: auto !important;
+section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > label {
+    width: 160px;
+}
+
+section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
+    margin-left: 168px;
 }
 
 #bginfo {
     text-align: left;
 }
 
-.ra-form-component#bginfo .w2ui-field.w2ui-span4 > div {
+.ra-form-component#bginfo .w2ui-field > div {
     margin-left: 128px;
 }
 
