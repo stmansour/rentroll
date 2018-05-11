@@ -1204,8 +1204,8 @@ func buildPreparedStatements() {
 		)
 		AND 
 		(
-			-- PreDone check needed    No Due Date         Need due date       No DtDone date set    due date passed    PreDone not set  and PreDue date has passed
-			((FLAGS & 2) > 0  AND    ((FLAGS & 4) = 0 OR ((FLAGS & 4) > 0 AND (FLAGS & 16 = 0)    AND ? > DtDue))  AND  ((FLAGS & 8 = 0) AND ? > DtPreDue))
+			-- PreDone check needed  No Due Date         due rqd                Done not set    DueDate passed   DueDate not passed   PreDone not set    PreDueDate has passed
+			((FLAGS & 2) > 0  AND  ((FLAGS & 4) = 0 OR ((FLAGS & 4) > 0 AND ( ((FLAGS & 16 = 0) AND ? > DtDue) OR ? < DtDue) ) ) AND ((FLAGS & 8 = 0) AND ? > DtPreDue))
 			OR
 			--  Done check needed  Done is not set AND Due date has passed
 			((FLAGS & 4) > 0  AND  (FLAGS & 16 = 0) AND ? > DtDue)

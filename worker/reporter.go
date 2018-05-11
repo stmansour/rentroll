@@ -81,7 +81,7 @@ func TLCheckerCore(ctx context.Context) error {
 		defer stmt.Close()
 		rows, err = stmt.Query(now, now)
 	} else {
-		rows, err = rlib.RRdb.Prepstmt.GetDueTaskLists.Query(now, now, now, now)
+		rows, err = rlib.RRdb.Prepstmt.GetDueTaskLists.Query(now, now, now, now, now)
 	}
 
 	if err != nil {
@@ -176,6 +176,9 @@ func TLReporterSendEmail(ctx context.Context, e string, a *rlib.TaskList, d *gom
 		BotName:      TLReportBotDes,
 	}
 
+	//-------------------------------------------------
+	// Template to use if Due date/time has arrived
+	//-------------------------------------------------
 	btmpl := `<html><body><p>TaskList {{.TLName}} was due on {{.DtDue}} and has not yet been 
 marked as completed. See the attached report for further details.
 </p><p>
@@ -183,9 +186,31 @@ Next check for this task list: {{.DtNextNotify}}
 </p><p>
 -{{.BotName}}</p></body></html>`
 
-	b := &bytes.Buffer{}
-	template.Must(template.New("").Parse(btmpl)).Execute(b, data)
+	//-------------------------------------------------
+	// Template to use if PreDue date/time has passed
+	// but due date has not arrived (or there is no
+	// due date).
+	//-------------------------------------------------
+	ctmpl := `<html><body>
+<p>
+TaskList {{.TLName}} has a pre-due target of {{.DtPreDue}}, which has not been marked as completed.
+See the attached report for further details.
+</p><p>
+Next check for this task list: {{.DtNextNotify}}
+</p><p>
+-{{.BotName}}
+</body></html>
+`
+
+	ptmpl := &btmpl
 	subj := fmt.Sprintf("Status:  %s tasks are not complete", a.Name)
+	if now.Before(a.DtDue) {
+		ptmpl = &ctmpl
+		subj = fmt.Sprintf("Status:  %s pre-due tasks are not complete", a.Name)
+	}
+
+	b := &bytes.Buffer{}
+	template.Must(template.New("").Parse(*ptmpl)).Execute(b, data)
 	// rlib.Console("Subject: %s\n", subj)
 	// rlib.Console("Message Body: %s\n", b.String())
 
