@@ -11,7 +11,7 @@ import (
 // space is reserved for automated processes.
 const (
 	WorkerAsmt           = -1
-	WorkerAsmtDes        = "CreateAssessmentInstances"
+	WorkerAsmtDes        = "AssessmentBot"
 	TaskManual           = -2
 	WorkerTskMan         = "ManualTaskBot"
 	RARBcacheBot         = -3
@@ -22,6 +22,8 @@ const (
 	AcctSliceCacheBotDes = "AcctSliceCacheBot"
 	ARSliceCacheBot      = -6
 	ARSliceCacheBotDes   = "ARSliceCacheBot"
+	TLReportBot          = -7
+	TLReportBotDes       = "TLReportBot"
 )
 
 // Worker describes a tws-based worker function
@@ -41,6 +43,7 @@ var WorkerRegistry = map[string]Worker{
 	SecDepCacheBotDes:    {SecDepCacheBotDes, "Clean SecDepBalance Cache", SecDepCacheBot, uint64(0), CleanSecDepBalanceCache},
 	AcctSliceCacheBotDes: {AcctSliceCacheBotDes, "Clean AcctSlice Cache", AcctSliceCacheBot, uint64(0), CleanAcctSliceCache},
 	ARSliceCacheBotDes:   {ARSliceCacheBotDes, "Clean ARSlice Cache", ARSliceCacheBot, uint64(0), CleanARSliceCache},
+	TLReportBotDes:       {TLReportBotDes, "Task List Checker", TLReportBot, uint64(0), TLChecker},
 }
 
 // Init registers the TWS functions needed by RentRoll
