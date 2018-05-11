@@ -2464,7 +2464,7 @@ window.loadRARentablesGrid = function () {
                             // get auto populated to new RA account rules
                             var data = {
                               "type":"FLAGS",
-                              "FLAGS": app.arFLAGS.PopulateOnRA
+                              "FLAGS": 1<<app.arFLAGS.PopulateOnRA
                             };
                             var BID = getCurrentBID();
                             $.ajax({

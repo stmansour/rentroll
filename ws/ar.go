@@ -589,7 +589,7 @@ type ARsListResponse struct {
 
 // ARsListRequestByFLAGS is the request struct for listing down account rules by FLAGS
 type ARsListRequestByFLAGS struct {
-	FLAGS int `json:"FLAGS"`
+	FLAGS uint64 `json:"FLAGS"`
 }
 
 // ARsListRequestType represents for which type of request to list down ARs
@@ -639,18 +639,17 @@ func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		// get numeric value from bit presentation
-		FlagVal := uint64(1 << uint64(bar.FLAGS))
-
-		// check whether requested FLAG (bit representation) is valid or not
-		if !bizlogic.IsValidARFlag(FlagVal) {
+		// we should get ar by flag value directly instead of parsing flag value from
+		// requested a bit only, in case client wants to fetch ars based on multiple flags bit
+		// client should request with final flag value only
+		if !bizlogic.IsValidARFlag(bar.FLAGS) {
 			err := fmt.Errorf("FLAGS value is invalid: %d", bar.FLAGS)
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
 
 		// get account rules by FLAGS integer representation from binary value
-		m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, FlagVal)
+		m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, bar.FLAGS)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return

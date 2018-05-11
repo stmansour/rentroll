@@ -53,7 +53,10 @@ func (ar ARType) String() string {
 
 // IsValidARFlag checks whether FLAGS value is valid or not
 func IsValidARFlag(FLAGS uint64) bool {
-	if FLAGS < 1<<uint64(ARFLAGS["ApplyFundsToReceiveAccts"]) || FLAGS > 1<<uint64(ARFLAGS["IsRentAR"]) {
+	// if FLAGS < 1<<uint64(ARFLAGS["ApplyFundsToReceiveAccts"]) || FLAGS > 1<<uint64(ARFLAGS["IsRentAR"]) {
+
+	// NOTE: if no flag is set then 0 can be the case here
+	if FLAGS < 0 || FLAGS > 1<<uint64(ARFLAGS["IsRentAR"]) {
 		return false
 	}
 	return true
