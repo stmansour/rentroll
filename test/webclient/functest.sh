@@ -21,6 +21,7 @@ source ../share/base.sh
 
 # specific file that needs to be tested
 CYPRESS_SPEC="./cypress/integration/*.js"
+# CYPRESS_SPEC="./cypress/integration/receipt_1_login_spec.js"
 
 #--------------------------------------------------------------------
 #  Generate bundle.js without instrumented code.
