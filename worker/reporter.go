@@ -69,7 +69,7 @@ func TLReporterCore(ctx context.Context) error {
 		defer stmt.Close()
 		rows, err = stmt.Query(now, now)
 	} else {
-		rows, err = rlib.RRdb.Prepstmt.GetDueTaskLists.Query(now, now)
+		rows, err = rlib.RRdb.Prepstmt.GetDueTaskLists.Query(now, now, now)
 	}
 
 	if err != nil {
