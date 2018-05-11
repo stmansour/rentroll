@@ -19,6 +19,6 @@ export let conf = {
     notVisibleButtonNamesInForm: ["close"],
     buttonNamesInDetailForm: ["save", "saveadd", "delete"],
     skipColumns: [],
-    skipFields: ["ApplyRcvAccts", "RAIDrqd", "PriorToRAStart", "PriorToRAStop", "AutoPopulateToNewRA"], //TODO(Akshay): Write UI test for checkboxes
+    skipFields: ["ApplyRcvAccts", "RAIDrqd", "PriorToRAStart", "PriorToRAStop", "AutoPopulateToNewRA", "IsRentAR"], //TODO(Akshay): Write UI test for checkboxes
     primaryId: "ARID"
 };

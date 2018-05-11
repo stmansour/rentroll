@@ -302,30 +302,32 @@ i.remove-item {
     color: red;
 }
 
-.ra-form-component#bginfo .w2ui-field > label {
-    width: auto !important;
+section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > label {
+    width: 160px;
+}
+
+section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
+    margin-left: 168px;
 }
 
 #bginfo {
     text-align: left;
 }
 
-.ra-form-component#bginfo .w2ui-field.w2ui-span4 > div {
+.ra-form-component#bginfo .w2ui-field > div {
     margin-left: 128px;
 }
-
-/*.ra-form-component#bginfo input[type="checkbox"] {
-    vertical-align: middle;
-    width: 15px;
-    height: 16px;
-    margin-right: 3px;
-}*/
 
 #bginfoCheckboxes input[type="checkbox"] {
     vertical-align: middle;
     width: 16px;
     height: 16px;
     margin-right: 5px;
+}
+
+#bginfoCheckboxes {
+    margin-left: 172px;
+    padding-top: 10px;
 }
 
 .cb-section {
