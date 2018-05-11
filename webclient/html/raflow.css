@@ -318,18 +318,15 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
     margin-left: 128px;
 }
 
-/*.ra-form-component#bginfo input[type="checkbox"] {
-    vertical-align: middle;
-    width: 15px;
-    height: 16px;
-    margin-right: 3px;
-}*/
-
 #bginfoCheckboxes input[type="checkbox"] {
     vertical-align: middle;
     width: 16px;
     height: 16px;
     margin-right: 5px;
+}
+
+#bginfoCheckboxes {
+    margin-left: 172px;
 }
 
 .cb-section {
