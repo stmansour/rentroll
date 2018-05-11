@@ -388,7 +388,7 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		a.FLAGS |= 0x4
 	}
 	if foo.Record.IsRentAR { // IsRentAR - 1<<4
-		a.FLAGS |= 0x16
+		a.FLAGS |= 0xF
 	}
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
