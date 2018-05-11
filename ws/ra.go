@@ -377,7 +377,7 @@ func SvcSearchHandlerRentalAgr(w http.ResponseWriter, r *http.Request, d *Servic
 		var q RentalAgr
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		// get records info in struct q
 		q, err = rentalAgrRowScan(rows, q)
@@ -577,7 +577,7 @@ func getRentalAgreement(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 	if a.RAID > 0 {
 		var gg RentalAgr
 		rlib.MigrateStructVals(&a, &gg)
-		gg.BUD = getBUDFromBIDList(gg.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(gg.BID)
 		g.Record = gg
 	}
 	g.Status = "success"

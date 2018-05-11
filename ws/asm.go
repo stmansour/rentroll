@@ -449,7 +449,7 @@ func getAssessment(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg AssessmentSendForm
 		gg.ASMID = d.ASMID
 		gg.BID = d.BID
-		gg.BUD = getBUDFromBIDList(gg.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(gg.BID)
 
 		err = rows.Scan(&gg.PASMID, &gg.RID, &gg.Rentable, &gg.RAID, &gg.Amount, &gg.Start, &gg.Stop, &gg.RentCycle, &gg.ProrationCycle, &gg.InvoiceNo, &gg.ARID, &gg.Comment, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy, &gg.FLAGS)
 		if err != nil {

@@ -29,7 +29,7 @@ import (
 func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "ReportServiceHandler"
 	var (
-		ui         ReportContext
+		ui         rrpt.ReportContext
 		xbiz       rlib.XBusiness
 		reportname string
 		err        error
@@ -174,7 +174,7 @@ func ReportServiceHandler(w http.ResponseWriter, r *http.Request, d *ServiceData
 // SendWebSvcPage creates an HTML page where the content is simply
 // the contents of ui.ReportContent formatted to be shown as-is in
 // a mono-spaced font.
-func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *ReportContext) {
+func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *rrpt.ReportContext) {
 	funcname := "SendWebSvcPage"
 	tmpl := "v1rpt.html"
 	t, err := template.New(tmpl).Funcs(RRfuncMap).ParseFiles("./webclient/html/" + tmpl)
@@ -191,7 +191,7 @@ func SendWebSvcPage(w http.ResponseWriter, r *http.Request, ui *ReportContext) {
 	}
 }
 
-func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusiness, ui *ReportContext, w http.ResponseWriter, qp *url.Values) {
+func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusiness, ui *rrpt.ReportContext, w http.ResponseWriter, qp *url.Values) {
 	const funcname = "v1ReportHandler"
 	rlib.Console("%s: reportname=%s, BID=%d,  d1 = %s, d2 = %s\n", funcname, reportname, xbiz.P.BID, ui.D1.Format(rlib.RRDATEFMT4), ui.D2.Format(rlib.RRDATEFMT4))
 
@@ -318,7 +318,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			// custom template if available
 			tfname := tsh.HTMLTemplate
 			if len(tfname) > 0 {
-				bud := getBUDFromBIDList(ri.Bid)
+				bud := rlib.GetBUDFromBIDList(ri.Bid)
 				tfname = "webclient/html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
 				err := tbl.SetHTMLTemplate(tfname)
 				if err != nil {
@@ -347,7 +347,7 @@ func v1ReportHandler(ctx context.Context, reportname string, xbiz *rlib.XBusines
 			// rlib.Console("report.go:  tfname = %s\n", tfname)
 			if len(tfname) > 0 {
 				var err error
-				bud := getBUDFromBIDList(ri.Bid)
+				bud := rlib.GetBUDFromBIDList(ri.Bid)
 				tfname = "webclient/html/rpt-templates/" + strings.ToUpper(string(bud)) + "/" + tfname
 
 				// cwd, err := os.Getwd()

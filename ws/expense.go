@@ -276,7 +276,7 @@ func SvcSearchHandlerExpenses(w http.ResponseWriter, r *http.Request, d *Service
 			return
 		}
 		q.Recid = i
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -454,7 +454,7 @@ func getExpense(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	if a.EXPID > 0 {
 		rlib.MigrateStructVals(&a, &gg)
-		gg.BUD = getBUDFromBIDList(gg.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(gg.BID)
 		gg.CreateByUser = rlib.GetNameForUID(r.Context(), a.CreateBy)
 		gg.LastModByUser = rlib.GetNameForUID(r.Context(), a.LastModBy)
 		g.Record = gg

@@ -774,7 +774,7 @@ func getGLAccount(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var gg AcctDetailsForm
 		gg.BID = d.BID
-		gg.BUD = getBUDFromBIDList(d.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(d.BID)
 
 		err = rows.Scan(&gg.LID, &gg.PLID, &gg.RAID, &gg.TCID, &gg.GLNumber, &gg.Status, &gg.Name, &gg.AcctType, &gg.AllowPost, &gg.Description, &gg.FLAGS, &gg.LastModTime, &gg.LastModBy, &gg.CreateTS, &gg.CreateBy)
 		if err != nil {
@@ -903,7 +903,7 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 		"Balance", "Account Status", "Date", "Description"})
 
 	for _, a := range accts {
-		bud := getBUDFromBIDList(a.BID)
+		bud := rlib.GetBUDFromBIDList(a.BID)
 		rec := []string{string(bud), a.Name, a.GLNumber}
 
 		// get parent account GLNumber
@@ -941,7 +941,7 @@ func SvcExportGLAccounts(w http.ResponseWriter, r *http.Request, d *ServiceData)
 	}
 	wr.Flush()
 
-	expFileName := fmt.Sprintf("%s_%s.csv", getBUDFromBIDList(d.BID), "GLAccounts")
+	expFileName := fmt.Sprintf("%s_%s.csv", rlib.GetBUDFromBIDList(d.BID), "GLAccounts")
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s", expFileName))
 	w.Write(buf.Bytes())

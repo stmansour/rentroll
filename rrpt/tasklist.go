@@ -57,13 +57,13 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 	tbl := getRRTable()
 
 	tbl.AddColumn("Status", 9, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("Task", 15, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("PreDueDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("PreDoneDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("Task", 40, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("PreDueDate", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("PreDoneDate", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 	tbl.AddColumn("PreApprovedBy", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("DueDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("DoneDate", 20, gotable.CELLDATETIME, gotable.COLJUSTIFYLEFT)
-	tbl.AddColumn("ApprovedBy", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("DueDate", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("DoneDate", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
+	tbl.AddColumn("ApprovedBy", 35, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)
 
 	tl, err := rlib.GetTaskList(ctx, ri.ID)
 	if err != nil {
@@ -120,18 +120,18 @@ func TaskListReportTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, Status, st)
 		tbl.Puts(-1, eTask, m[i].Name)
 
-		tbl.Putdt(-1, PreDueDate, m[i].DtPreDue)
-		tbl.Putdt(-1, DueDate, m[i].DtDue)
+		tbl.Puts(-1, PreDueDate, m[i].DtPreDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
+		tbl.Puts(-1, DueDate, m[i].DtDue.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
 
 		if m[i].DtPreDone.Year() > 1970 {
-			tbl.Putdt(-1, PreDoneDate, m[i].DtPreDone)
+			tbl.Puts(-1, PreDoneDate, m[i].DtPreDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
 		}
 		if m[i].PreDoneUID > 0 {
 			tbl.Puts(-1, PreApprovedBy, rlib.GetNameForUID(ctx, m[i].PreDoneUID))
 		}
 
 		if m[i].DtDone.Year() > 1970 {
-			tbl.Putdt(-1, DoneDate, m[i].DtDone)
+			tbl.Puts(-1, DoneDate, m[i].DtDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT))
 		}
 		if m[i].DoneUID > 0 {
 			tbl.Puts(-1, ApprovedBy, rlib.GetNameForUID(ctx, m[i].DoneUID))

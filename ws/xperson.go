@@ -627,7 +627,7 @@ func getXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.MigrateStructVals(&xp.Trn, &g.Record)
 	}
 	g.Record.BID = d.BID
-	g.Record.BUD = getBUDFromBIDList(d.BID)
+	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

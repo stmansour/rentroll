@@ -344,7 +344,7 @@ func SvcDepositReceiptsAndUndeposited(w http.ResponseWriter, r *http.Request, d 
 		rlib.MigrateStructVals(&q, &dlg)
 		dlg.Recid = i
 		dlg.BID = d.BID
-		dlg.BUD = getBUDFromBIDList(q.BID)
+		dlg.BUD = rlib.GetBUDFromBIDList(q.BID)
 		dlg.Check = q.DID == d.ID
 		g.Records = append(g.Records, dlg)
 		count++ // update the count only after adding the record

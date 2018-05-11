@@ -245,7 +245,7 @@ func SvcSearchHandlerDeposits(w http.ResponseWriter, r *http.Request, d *Service
 		var q DepositGrid
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		err = depositGridRowScan(rows, &q)
 		if err != nil {
@@ -447,7 +447,7 @@ func getDeposit(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var q DepositGrid
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		err = depositGridRowScan(rows, &q)
 		if err != nil {

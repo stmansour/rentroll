@@ -286,7 +286,7 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 		var q RentableTypeGridRecord
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		q, err = rentableTypeGridRowScan(rows, q)
 		if err != nil {
@@ -357,7 +357,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var q RentableTypeGridRecord
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		q, err = rentableTypeGridRowScan(rows, q)
 		if err != nil {
@@ -660,7 +660,7 @@ func svcSearchHandlerRentableMarketRates(w http.ResponseWriter, r *http.Request,
 		var q RentableMarketRateGridRec
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		q, err = rmrGridRowScan(rows, q)
 		if err != nil {

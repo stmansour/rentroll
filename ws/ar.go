@@ -258,7 +258,7 @@ func getARGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var q PrARGrid
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(d.BID)
+		q.BUD = rlib.GetBUDFromBIDList(d.BID)
 
 		q, err = arGridRowScan(rows, q)
 		if err != nil {
@@ -493,7 +493,7 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg ARSendForm
 
 		gg.BID = d.BID
-		gg.BUD = getBUDFromBIDList(d.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(d.BID)
 
 		rlib.Console("gg.BUD = %s\n", gg.BUD)
 

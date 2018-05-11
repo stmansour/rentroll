@@ -209,7 +209,7 @@ func SvcSearchHandlerDepositMethods(w http.ResponseWriter, r *http.Request, d *S
 			return
 		}
 		q.Recid = i
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
@@ -368,7 +368,7 @@ func getDepositMethod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg DepositMethodGrid
 		rlib.MigrateStructVals(&a, &gg)
 		gg.Name = a.Method
-		gg.BUD = getBUDFromBIDList(gg.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(gg.BID)
 		g.Record = gg
 	}
 	g.Status = "success"

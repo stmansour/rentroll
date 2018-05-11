@@ -438,7 +438,7 @@ func getReceipt(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.RCPTID > 0 {
 		var gg ReceiptSendForm
 		gg.BID = d.BID
-		gg.BUD = getBUDFromBIDList(d.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(d.BID)
 
 		// migrate receipt values in resp struct
 		rlib.MigrateStructVals(&a, &gg)

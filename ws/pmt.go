@@ -213,7 +213,7 @@ func SvcSearchHandlerPaymentTypes(w http.ResponseWriter, r *http.Request, d *Ser
 		var q PaymentTypeGrid
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		q, err = pmtRowScan(rows, q)
 		if err != nil {
@@ -369,7 +369,7 @@ func getPaymentType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var gg PaymentTypeGrid
 		rlib.MigrateStructVals(&a, &gg)
 
-		gg.BUD = getBUDFromBIDList(gg.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(gg.BID)
 
 		g.Record = gg
 	}

@@ -21,3 +21,16 @@ func BUDExists(BUD string) bool {
 	}
 	return false
 }
+
+// GetBUDFromBIDList return the BUD for BID from pre-populated
+// list of BUD:BID map, i.e, RRdb.BUDlist
+func GetBUDFromBIDList(BID int64) XJSONBud {
+	var BUD string
+	for bud, bid := range RRdb.BUDlist {
+		if bid == BID {
+			BUD = bud
+			break
+		}
+	}
+	return XJSONBud(BUD)
+}

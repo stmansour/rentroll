@@ -149,7 +149,7 @@ func SvcStatement(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		var q StmtGrid
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		// get records info in struct q
 		q, err = stmtRowScan(rows, q)

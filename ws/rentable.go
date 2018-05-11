@@ -752,7 +752,7 @@ func getRentable(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	var gg RentableDetails
 	rlib.MigrateStructVals(&rentable, &gg) // the variables that don't need special handling
-	gg.BUD = getBUDFromBIDList(gg.BID)
+	gg.BUD = rlib.GetBUDFromBIDList(gg.BID)
 	g.Record = gg
 
 	// write response
@@ -934,7 +934,7 @@ func svcSearchHandlerRentableStatus(w http.ResponseWriter, r *http.Request, d *S
 		var q RentableStatusGridRec
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = string(getBUDFromBIDList(q.BID))
+		q.BUD = string(rlib.GetBUDFromBIDList(q.BID))
 
 		q, err = rsGridRowScan(rows, q)
 		if err != nil {
@@ -1244,7 +1244,7 @@ func svcSearchHandlerRentableTypeRef(w http.ResponseWriter, r *http.Request, d *
 		var q RentableTypeRefGridRec
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = string(getBUDFromBIDList(q.BID))
+		q.BUD = string(rlib.GetBUDFromBIDList(q.BID))
 
 		q, err = rtrGridRowScan(rows, q)
 		if err != nil {

@@ -187,7 +187,7 @@ func getAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			Recid:  int64(i),
 			BID:    d.BID,
 			FlowID: rec,
-			BUD:    string(getBUDFromBIDList(d.BID)),
+			BUD:    string(rlib.GetBUDFromBIDList(d.BID)),
 		}
 		g.Records = append(g.Records, t)
 	}

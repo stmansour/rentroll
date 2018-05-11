@@ -493,7 +493,7 @@ func getTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if a.TLID > 0 {
 		var gg SvcTaskList
 		rlib.MigrateStructVals(&a, &gg)
-		gg.BUD = getBUDFromBIDList(gg.BID)
+		gg.BUD = rlib.GetBUDFromBIDList(gg.BID)
 		if a.DtDone.Year() > 1999 {
 			gg.ChkDtDone = true
 		}

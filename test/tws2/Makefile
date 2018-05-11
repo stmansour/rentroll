@@ -25,6 +25,7 @@ test: tws2
 	@rm -f fail
 	
 package:
+	cp tws2 ${BINDIR}/
 	@echo "*** PACKAGE completed in ${THISDIR} ***"
 
 secure:

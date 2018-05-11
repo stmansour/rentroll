@@ -15,7 +15,6 @@ import (
 	"rentroll/rlib"
 	"rentroll/worker"
 	"rentroll/ws"
-	"time"
 	"tws"
 )
 
@@ -52,6 +51,7 @@ func readCommandLineArgs() {
 func main() {
 	var err error
 	readCommandLineArgs()
+	App.NoAuth = true // for now, let's just always do noauth
 	rlib.RRReadConfig()
 
 	//----------------------------
@@ -100,11 +100,11 @@ func main() {
 	// worker.Init()              // don't init these, it introduces randomness
 	rlib.SessionInit(15) //
 	rlib.Console("calling doWork()\n")
+
 	doWork()
 }
 
 func doWork() {
 	ctx := context.Background()
 	worker.TLReporterCore(ctx)
-	rlib.Console("Duration of 1 day = %d\n", 24*60*60*time.Second)
 }

@@ -227,7 +227,7 @@ func SvcSearchHandlerDepositories(w http.ResponseWriter, r *http.Request, d *Ser
 		var q DepositoryGrid
 		q.Recid = i
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		q, err = depGridRowScan(rows, q)
 		if err != nil {
@@ -409,7 +409,7 @@ func getDepository(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	for rows.Next() {
 		var q DepositoryGrid
 		q.BID = d.BID
-		q.BUD = getBUDFromBIDList(q.BID)
+		q.BUD = rlib.GetBUDFromBIDList(q.BID)
 
 		q, err = depGridRowScan(rows, q)
 		if err != nil {

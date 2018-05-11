@@ -371,7 +371,7 @@ func getLedgerGrid(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // 	for rows.Next() {
 // 		var gg ARSendForm
 
-// 		gg.BID = getBUDFromBIDList(d.BID)
+// 		gg.BID = rlib.GetBUDFromBIDList(d.BID)
 
 // 		err = rows.Scan(&gg.ARID, &gg.Name, &gg.ARType, &gg.DebitLID, &gg.DebitLedgerName, &gg.CreditLID, &gg.CreditLedgerName, &gg.Description, &gg.DtStart, &gg.DtStop, &gg.raRequired)
 // 		if err != nil {
