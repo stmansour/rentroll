@@ -1186,12 +1186,30 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	where := `WHERE
+    -- the TaskList is enabled
     (FLAGS & 1 = 0)
-        --    must check PreDone       PreDone is set but it's late                  PreDone not set and it's late
-        AND ( (FLAGS & 2) > 0  AND  (((FLAGS & 8 > 0) AND DtPreDone > DtPreDue) OR ((FLAGS & 8 = 0) AND ? > DtPreDue)))
-			OR
-		--    must check Done          Done is set but it's late                Done is not set AND it's late
-			( (FLAGS & 4) > 0  AND  (((FLAGS & 16 > 0) AND DtDone > DtDue) OR ((FLAGS & 16 = 0) AND ? > DtDue)));`
+    AND 
+	(
+		(
+			-- no notifications have been made
+			(FLAGS & 32 = 0) AND 
+			(
+				-- PreDone check needed   PreDone is set but it's late                  PreDone not set and it's late
+				((FLAGS & 2) > 0  AND  (((FLAGS & 8 > 0) AND DtPreDone > DtPreDue) OR ((FLAGS & 8 = 0) AND ? > DtPreDue)))
+				OR
+				--    must check Done          Done is set but it's late                Done is not set AND it's late
+				((FLAGS & 4) > 0  AND  (((FLAGS & 16 > 0) AND DtDone > DtDue) OR ((FLAGS & 16 = 0) AND ? > DtDue)))
+			)
+		)
+		OR
+		(
+			-- notification has been made
+			(FLAGS & 32 > 0) 
+			AND
+			-- wait period after last notify has passed
+			DATE_ADD(DtLastNotify, interval DurWait/1000 microsecond) < ?  
+		)
+	);`
 	RRdb.Prepstmt.GetDueTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList " + where)
 	Errcheck(err)
 	RRdb.Prepstmt.InsertTaskList, err = RRdb.Dbrr.Prepare("INSERT INTO TaskList (" + s1 + ") VALUES(" + s2 + ")")
