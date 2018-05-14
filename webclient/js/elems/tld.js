@@ -251,7 +251,7 @@ window.buildTaskListDefElements = function () {
                 r.Epoch       = dtFormatISOToW2ui(r.Epoch);
                 $(f.box).find("input[name=EpochDue]").prop( "disabled", !r.ChkEpochDue );
                 $(f.box).find("input[name=EpochPreDue]").prop( "disabled", !r.ChkEpochPreDue );
-                $(f.box).find("input[name=Epoch]").prop( "disabled", r.Cycle < 5);
+                $(f.box).find("input[name=Epoch]").prop( "disabled", r.Cycle < 4);  // enable if recur is Daily, Weekly, Monthlhy, quarterly or yearly
             };
         },
         onChange: function(event) {
@@ -285,12 +285,12 @@ window.buildTaskListDefElements = function () {
                     f.refresh();
                     break;
                 case "Cycle":
-                    b = r.Cycle.id < 5; // 5 is weekly
+                    b = r.Cycle.id < 4; // 4 is daily
                     $(f.box).find("input[name=Epoch]").prop( "disabled", b);
-                    if (b && event.value_previous.id >= 5) {  // change from need date to don't need date
+                    if (b && event.value_previous.id >= 4) {  // change from need date to don't need date
                         TLData.sEpoch = r.Epoch;
                         r.Epoch = '';
-                    } else if (!b && event.value_previous.id < 5 ) { // change from don't need date to need date
+                    } else if (!b && event.value_previous.id < 4 ) { // change from don't need date to need date
                         if (r.Epoch === "" && TLData.sEpoch.length > 1) {
                             r.Epoch = TLData.sEpoch;
                         }

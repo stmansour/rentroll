@@ -30,6 +30,8 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	//------------------------------------------------------
 	var tl TaskList
 	tl.BID = tld.BID
+	tl.PTLID = 0 // explicitly set this to be the parent
+	tl.TLDID = tld.TLDID
 	tl.Name = tld.Name
 	tl.Cycle = tld.Cycle
 	tl.FLAGS = tld.FLAGS
