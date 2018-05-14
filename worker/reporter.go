@@ -17,33 +17,45 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-// CreateTLReporterInstances is a worker that is called by TWS periodically to
+// TLChecker is a worker that is called by TWS periodically to
 // check for recurring assessments that have instances needing to be created.
 // When their instance date arrives, this routine will generate the new instance.
 // After generating all instances whose time has arrived it will reschedule itself
 // to be called again the next day.
 //-----------------------------------------------------------------------------
-func CreateTLReporterInstances(item *tws.Item) {
+func TLChecker(item *tws.Item) {
+	rlib.Ulog("TLChecker\n") // log the fact that we're running
+
+	checkInterval := 2 * time.Minute // this may come from a config file in the future
 	tws.ItemWorking(item)
 	now := time.Now()
+	expire := now.Add(checkInterval)
+	s := rlib.SessionNew("BotToken-"+TLReportBotDes, TLReportBotDes, TLReportBotDes, TLReportBot, "", -1, &expire)
 	ctx := context.Background()
-	TLReporterCore(ctx)
+	ctx = rlib.SetSessionContextKey(ctx, s)
+	TLCheckerCore(ctx)
 
-	// reschedule for midnight tomorrow...
-	resched := now.Add(1 * time.Minute)
+	//---------------------------------------------
+	// schedule this check again in a few mins...
+	//---------------------------------------------
+	resched := now.Add(checkInterval)
 	tws.RescheduleItem(item, resched)
 }
 
-// TLReporterCore provides a more testable calling routine for processing
+// TLCheckerCore provides a more testable calling routine for processing
 // Task Lists.  This routine checks all active task lists and emails a
 // TaskList report to the defined email addresses if any of the following
 // conditions exist:
 //
 // 1. The TaskList has a PreDue date and that date has past
 // 2. The TaskList has a Due date and that date has past
+// 3. A message has previously been sent and the recheck time has come (or
+//    passed) and the task is still not done.
 //
+// INPUTS:
+//    ctx  - context which may include a database transaction in progress
 //-----------------------------------------------------------------------------
-func TLReporterCore(ctx context.Context) error {
+func TLCheckerCore(ctx context.Context) error {
 	var err error
 	var rows *sql.Rows
 	now := time.Now()
@@ -69,10 +81,12 @@ func TLReporterCore(ctx context.Context) error {
 		defer stmt.Close()
 		rows, err = stmt.Query(now, now)
 	} else {
-		rows, err = rlib.RRdb.Prepstmt.GetDueTaskLists.Query(now, now, now)
+		rows, err = rlib.RRdb.Prepstmt.GetDueTaskLists.Query(now, now, now, now, now)
 	}
 
 	if err != nil {
+		// rlib.Console("Error with GetDueTaskLists: %v\n", err)
+		rlib.Ulog("Error setting query GetDuTaskLists: %v\n", err)
 		return err
 	}
 	defer rows.Close()
@@ -83,10 +97,10 @@ func TLReporterCore(ctx context.Context) error {
 			return err
 		}
 
-		rlib.Console("Found: %s,  TLID = %d\n", a.Name, a.TLID)
+		// rlib.Console("Found: %s,  TLID = %d\n", a.Name, a.TLID)
 		s := strings.TrimSpace(a.EmailList)
 		if len(s) == 0 {
-			rlib.Console("EmailList is blank. Skipping.\n")
+			// rlib.Console("EmailList is blank. Skipping.\n")
 			continue
 		}
 
@@ -97,7 +111,7 @@ func TLReporterCore(ctx context.Context) error {
 		//----------------------------------------------------
 		ri.Bid = a.BID
 		ri.ID = a.TLID
-		rlib.Console("ri.BID = %d, ri.ID = %d\n", ri.Bid, ri.ID)
+		// rlib.Console("ri.BID = %d, ri.ID = %d\n", ri.Bid, ri.ID)
 		var xbiz rlib.XBusiness
 		if err = rlib.GetXBiz(ri.Bid, &xbiz); err != nil {
 			return err
@@ -144,7 +158,7 @@ type TLReportEmail struct {
 //  any errors encountered
 //-----------------------------------------------------------------------------
 func TLReporterSendEmail(ctx context.Context, e string, a *rlib.TaskList, d *gomail.Dialer, ri *rrpt.ReporterInfo) error {
-	rlib.Console("send email to: %s\n", e)
+	// rlib.Console("send email to: %s\n", e)
 	now := time.Now()
 	n := now.Add(a.DurWait)
 
@@ -159,9 +173,12 @@ func TLReporterSendEmail(ctx context.Context, e string, a *rlib.TaskList, d *gom
 		DtDone:       a.DtDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
 		DtPreDone:    a.DtPreDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
 		DtNextNotify: n.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
-		BotName:      "ReportBot",
+		BotName:      TLReportBotDes,
 	}
 
+	//-------------------------------------------------
+	// Template to use if Due date/time has arrived
+	//-------------------------------------------------
 	btmpl := `<html><body><p>TaskList {{.TLName}} was due on {{.DtDue}} and has not yet been 
 marked as completed. See the attached report for further details.
 </p><p>
@@ -169,11 +186,33 @@ Next check for this task list: {{.DtNextNotify}}
 </p><p>
 -{{.BotName}}</p></body></html>`
 
-	b := &bytes.Buffer{}
-	template.Must(template.New("").Parse(btmpl)).Execute(b, data)
+	//-------------------------------------------------
+	// Template to use if PreDue date/time has passed
+	// but due date has not arrived (or there is no
+	// due date).
+	//-------------------------------------------------
+	ctmpl := `<html><body>
+<p>
+TaskList {{.TLName}} has a pre-due target of {{.DtPreDue}}, which has not been marked as completed.
+See the attached report for further details.
+</p><p>
+Next check for this task list: {{.DtNextNotify}}
+</p><p>
+-{{.BotName}}
+</body></html>
+`
+
+	ptmpl := &btmpl
 	subj := fmt.Sprintf("Status:  %s tasks are not complete", a.Name)
-	rlib.Console("Subject: %s\n", subj)
-	rlib.Console("Message Body: %s\n", b.String())
+	if now.Before(a.DtDue) {
+		ptmpl = &ctmpl
+		subj = fmt.Sprintf("Status:  %s pre-due tasks are not complete", a.Name)
+	}
+
+	b := &bytes.Buffer{}
+	template.Must(template.New("").Parse(*ptmpl)).Execute(b, data)
+	// rlib.Console("Subject: %s\n", subj)
+	// rlib.Console("Message Body: %s\n", b.String())
 
 	//----------------------------------
 	// Generate report for attachment

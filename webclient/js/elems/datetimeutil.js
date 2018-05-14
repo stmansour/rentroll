@@ -47,6 +47,8 @@ window.dtFormatISOToW2ui = function (ds) {
     var am = true;
     if (hr > 12) {
         hr -= 12;
+    }
+    if (hr >= 12) {
         am = false;
     }
     var s = 1+dt.getMonth() + '/' + zeroPad(dt.getDate(),2) + '/' +
