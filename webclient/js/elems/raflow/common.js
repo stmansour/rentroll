@@ -444,8 +444,8 @@ window.loadTargetSection = function (target, activeCompID) {
 
     // load the content in the component using loader function
     var targetLoader = RACompConfig[target].loader;
-    if (typeof targetLoader === "function") {
-        targetLoader();
+    if (targetLoader.length > 0) {
+        window[targetLoader]();
         /*setTimeout(function() {
             var validateForm = compIDw2uiForms[activeCompID];
             if (typeof w2ui[validateForm] !== "undefined") {

@@ -6,42 +6,42 @@ var sliderContentDivLength = 400;
 // RACompConfig for each section
 var RACompConfig = {
     "dates": {
-        loader: loadRADatesForm,
+        loader: "loadRADatesForm",
         w2uiComp: "RADatesForm",
         sliderWidth: 0,
     },
     "people": {
-        loader: loadRAPeopleForm,
+        loader: "loadRAPeopleForm",
         w2uiComp: "RAPeopleForm",
         sliderWidth: 400,
     },
     "pets": {
-        loader: loadRAPetsGrid,
+        loader: "loadRAPetsGrid",
         w2uiComp: "RAPetsGrid",
         sliderWidth: 400,
     },
     "vehicles": {
-        loader: loadRAVehiclesGrid,
+        loader: "loadRAVehiclesGrid",
         w2uiComp: "RAVehiclesGrid",
         sliderWidth: 400,
     },
     "bginfo": {
-        loader: loadRABGInfoForm,
+        loader: "loadRABGInfoForm",
         w2uiComp: "RABGInfoForm",
         sliderWidth: 700,
     },
     "rentables": {
-        loader: loadRARentablesGrid,
+        loader: "loadRARentablesGrid",
         w2uiComp: "RARentablesGrid",
         sliderWidth: 800,
     },
     "feesterms": {
-        loader: loadRAFeesTermsGrid,
+        loader: "loadRAFeesTermsGrid",
         w2uiComp: "RAFeesTermsGrid",
         sliderWidth: 400,
     },
     "final": {
-        loader: null,
+        loader: "",
         w2uiComp: "",
         sliderWidth: 0,
     }
