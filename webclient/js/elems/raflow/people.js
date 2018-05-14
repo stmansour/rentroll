@@ -588,21 +588,30 @@ window.loadRAPeopleForm = function () {
                 },
                 {
                     field: 'IsRenter',
-                    caption: 'IsRenter',
+                    caption: 'Renter',
                     size: '100px',
-                    hidden: true
+                    hidden: false,
+                    render: function (record) {
+
+                    }
                 },
                 {
                     field: 'IsOccupant',
-                    caption: 'IsOccupant',
+                    caption: 'Occupant',
                     size: '100px',
-                    hidden: true
+                    hidden: false,
+                    render: function (record) {
+
+                    }
                 },
                 {
                     field: 'IsGuarantor',
-                    caption: 'IsGuarantor',
+                    caption: 'Guarantor',
                     size: '100px',
-                    hidden: true
+                    hidden: false,
+                    render: function (record) {
+
+                    }
                 }
             ],
             onClick : function(event) {
@@ -707,10 +716,11 @@ window.loadRAPeopleForm = function () {
     }
 
     // load form in div
-    $('#ra-form #people .form-container').w2render(w2ui.RABGInfoGrid);
+    $('#ra-form #people .grid-container').w2render(w2ui.RABGInfoGrid);
+    $('#ra-form #people .form-container').w2render(w2ui.RAPeopleForm);
 
     // Do not remove code below code for now
-    /* setTimeout(function () {
+     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             // w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
@@ -718,7 +728,7 @@ window.loadRAPeopleForm = function () {
         } else {
             w2ui.RAPeopleForm.actions.reset();
         }
-    }, 500);*/
+    }, 500);
 
     // load the existing data in people component
     setTimeout(function () {

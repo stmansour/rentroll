@@ -247,11 +247,15 @@ button.save-ra {
 }
 
 .ra-form-component#people .form-container {
-    height: 190px;
+    height: 90px;
 }
 
 .ra-form-component#people .form-container #transactant-field button {
     float: right;
+}
+
+.ra-form-component#people .grid-container {
+    height: calc(100% - 90px);
 }
 
 #people-type-containers {
