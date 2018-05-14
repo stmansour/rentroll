@@ -35,7 +35,9 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	tl.Name = tld.Name
 	tl.Cycle = tld.Cycle
 	tl.FLAGS = tld.FLAGS
-	tl.DtDue, err = NextInstanceDate(&tld.EpochDue, pivot, tld.Cycle)
+	if err = NextTLInstanceDates(pivot, &tld, &tl); err != nil {
+		return tlid, err
+	}
 	tl.EmailList = tld.EmailList
 	tl.DurWait = tld.DurWait
 	if time.Duration(0) == tl.DurWait {
@@ -43,13 +45,6 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	}
 	if err != nil {
 		return tlid, err
-	}
-	tl.DtPreDue, err = NextInstanceDate(&tld.EpochPreDue, pivot, tld.Cycle)
-	if err != nil {
-		return tlid, err
-	}
-	if tl.DtPreDue.After(tl.DtDue) {
-		tl.DtPreDue = time.Date(tl.DtDue.Year(), tl.DtDue.Month(), tl.DtPreDue.Day(), tl.DtPreDue.Hour(), tl.DtPreDue.Minute(), 0, 0, time.UTC)
 	}
 
 	//----------------------------------------------------
@@ -72,18 +67,9 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	Console("Found tld.TLDID = %d, TaskCount = %d, name = %s\n", tld.TLDID, len(tds), tld.Name)
 	for i := 0; i < len(tds); i++ {
 		var t Task
-		t.DtDue, err = NextInstanceDate(&tds[i].EpochDue, pivot, tld.Cycle)
-		if err != nil {
+		if err = NextTaskInstanceDates(pivot, &tld, &t); err != nil {
 			return tlid, err
 		}
-		t.DtPreDue, err = NextInstanceDate(&tds[i].EpochPreDue, pivot, tld.Cycle)
-		if err != nil {
-			return tlid, err
-		}
-		if t.DtPreDue.After(t.DtDue) {
-			t.DtPreDue = time.Date(t.DtDue.Year(), t.DtDue.Month(), t.DtPreDue.Day(), t.DtPreDue.Hour(), t.DtPreDue.Minute(), 0, 0, time.UTC)
-		}
-		// Console("%2d. %s, DtDue: %s, DtPreDue: %s\n", i, tds[i].Name, t.DtDue.Format(RRDATEREPORTFMT), t.DtPreDue.Format(RRDATEREPORTFMT))
 		t.Name = tds[i].Name
 		t.Worker = tds[i].Worker
 		t.FLAGS = tds[i].FLAGS
@@ -98,7 +84,7 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	return tlid, nil
 }
 
-// NextInstanceDate computes the next instance date after the pivot
+// NextTLInstanceDates computes the next instance dates after the pivot
 // based on the supplied frequency
 //
 // INPUTS
@@ -110,39 +96,105 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 //  error  - any error encountered
 //
 //-----------------------------------------------------------------------------
-func NextInstanceDate(epoch, pivot *time.Time, freq int64) (time.Time, error) {
-	switch freq {
+func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList) error {
+	switch tld.Cycle {
 	case CYCLENORECUR:
-		return *epoch, nil
 	case CYCLESECONDLY:
 	case CYCLEMINUTELY:
 	case CYCLEHOURLY:
 	case CYCLEDAILY:
 	case CYCLEWEEKLY:
+		dtEpoch := time.Date(tld.Epoch.Year(), tld.Epoch.Month(), tld.Epoch.Day(), 0, 0, 0, 0, time.UTC)
+		dtPivot := time.Date(pivot.Year(), pivot.Month(), pivot.Day(), 0, 0, 0, 0, time.UTC)
+		offset := int(dtPivot.Sub(dtEpoch).Hours() / (7 * 24)) // number of weeks difference
+		edow := int(tld.Epoch.Weekday())                       // on which day does the definition start
+		edowDue := int(tld.EpochDue.Weekday())                 // what day is due
+		edowPreDue := int(tld.EpochPreDue.Weekday())           // what day is pre-due
+		newepoch := tld.Epoch.AddDate(0, 0, 7*offset)          // snap to nearest week to pivot
+		dt := newepoch.AddDate(0, 0, edowDue-edow)
+		tl.DtDue = time.Date(dt.Year(), dt.Month(), dt.Day(), tld.EpochDue.Hour(), tld.EpochDue.Minute(), 0, 0, time.UTC)
+		dt = newepoch.AddDate(0, 0, edowPreDue-edow)
+		tl.DtPreDue = time.Date(dt.Year(), dt.Month(), dt.Day(), tld.EpochPreDue.Hour(), tld.EpochPreDue.Minute(), 0, 0, time.UTC)
+
+		// Console("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
+		// Console("Epoch = %s, nepoch = %s\n", tld.Epoch.Format(RRJSUTCDATETIME), newepoch.Format(RRJSUTCDATETIME))
+		// Console("edow = %d, edowDue = %d, edowPreDue = %d\n", edow, edowDue, edowPreDue)
+		// Console("tl.DtDue = %s + %d days = %s\n", newepoch.Format(RRJSUTCDATETIME), edowDue-edow, tl.DtDue.Format(RRJSUTCDATETIME))
+		// Console("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n")
+
 	case CYCLEMONTHLY:
-		month := pivot.Month()
-		year := pivot.Year()
-		epochday := epoch.Day()
-		if pivot.Day() > epochday {
-			if month == time.December {
-				month = time.January
-				year++
-			} else {
-				month++
-			}
+		tl.DtPreDue = computeMonthlyDate(pivot, &tld.EpochPreDue)
+		tl.DtDue = computeMonthlyDate(pivot, &tld.EpochDue)
+		if tl.DtPreDue.After(tl.DtDue) {
+			// t.DtPreDue = time.Date(t.DtDue.Year(), t.DtDue.Month(), t.DtPreDue.Day(), t.DtPreDue.Hour(), t.DtPreDue.Minute(), 0, 0, time.UTC)
+			// Days Between Dates (DaysBetweenDates) https://play.golang.org/p/nkBPjPumg6-
+			offset := int(tl.DtDue.Sub(tld.EpochDue).Hours() / 24)
+			Console("offset = %d days\n", offset)
+			tl.DtPreDue = tld.EpochPreDue.AddDate(0, 0, offset)
 		}
-		day := epochday
-		if day >= 28 {
-			day = LastDOM(month, year)
-		}
-		dt := time.Date(year, month, day, epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), time.UTC)
-		return dt, nil
 	case CYCLEQUARTERLY:
 	case CYCLEYEARLY:
 	default:
-		return *epoch, fmt.Errorf("Unrecognized recur cycle: %d", freq)
+		return fmt.Errorf("Unrecognized recur cycle: %d", tld.Cycle)
 	}
-	return *epoch, nil
+	return nil
+}
+
+// NextTaskInstanceDates computes the next instance dates after the pivot
+// based on the supplied frequency
+//
+// INPUTS
+//  ctx    - context for database transactions
+//  TLDID  - Task List Definition ID
+//  pivot  - date on or after which the instance will be created
+//
+// RETURNS
+//  error  - any error encountered
+//
+//-----------------------------------------------------------------------------
+func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, t *Task) error {
+	switch tld.Cycle {
+	case CYCLENORECUR:
+	case CYCLESECONDLY:
+	case CYCLEMINUTELY:
+	case CYCLEHOURLY:
+	case CYCLEDAILY:
+	case CYCLEWEEKLY:
+		edow := int(tld.Epoch.Weekday()) // on which day does the definition start
+		pdow := int(pivot.Weekday())     // what's our pivot day
+		if pdow != edow {
+			t.DtPreDue = t.DtPreDue.AddDate(0, 0, edow-pdow)
+			t.DtDue = t.DtDue.AddDate(0, 0, edow-pdow)
+		}
+	case CYCLEMONTHLY:
+		t.DtPreDue = computeMonthlyDate(pivot, &t.DtPreDue)
+		t.DtDue = computeMonthlyDate(pivot, &t.DtDue)
+	case CYCLEQUARTERLY:
+	case CYCLEYEARLY:
+	default:
+		return fmt.Errorf("Unrecognized recur cycle: %d", tld.Cycle)
+	}
+	return nil
+}
+
+func computeMonthlyDate(pivot, epoch *time.Time) time.Time {
+	month := pivot.Month()
+	year := pivot.Year()
+	epochday := epoch.Day()
+	if pivot.Day() > epochday {
+		if month == time.December {
+			month = time.January
+			year++
+		} else {
+			month++
+		}
+	}
+	day := epochday
+	if day >= 28 {
+		day = LastDOM(month, year)
+	}
+	return time.Date(year, month, day, epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), time.UTC)
+
 }
 
 // LastDOM computes and returns the last day of the supplied month & year

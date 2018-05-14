@@ -355,15 +355,12 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//---------------------------------------------------------------------
 	// Create a TaskList struct based on the supplied info...
 	//---------------------------------------------------------------------
-	rlib.Console("A\n")
 	data := []byte(d.data)
 	if err := json.Unmarshal(data, &foo); err != nil {
-		rlib.Console("B\n")
 		e := fmt.Errorf("%s: Error with json.Unmarshal:  %s", funcname, err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	rlib.Console("C\n")
 	var a rlib.TaskList
 	rlib.MigrateStructVals(&foo.Record, &a) // the variables that don't need special handling
 	a.Name = foo.Record.Name
@@ -374,13 +371,11 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// 1. Ensure that there is a name.
 	//----------------------------------------------------------------
 	if len(a.Name) == 0 {
-		rlib.Console("D\n")
 		e := fmt.Errorf("%s: Required field, Name, is blank", funcname)
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
-	rlib.Console("E\n")
 	//-------------------------------------------------------
 	// Chk values dictate the dates.
 	//-------------------------------------------------------
@@ -400,77 +395,34 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		a.DoneUID = 0
 	}
 
-	rlib.Console("F\n")
 	//-------------------------------------------------------
 	// Bizlogic checks done. Insert or update as needed...
 	//-------------------------------------------------------
 	if a.TLID == 0 && d.ID == 0 {
-		rlib.Console("G\n")
 		if foo.Record.TLDID == 0 {
-			rlib.Console("H\n")
 			e := fmt.Errorf("%s: Could not create TaskList because definition id (TLDID = %d) does not exist", funcname, foo.Record.TLDID)
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
-		// rlib.Console("I\n")
-		// tld, err := rlib.GetTaskListDefinition(r.Context(), foo.Record.TLDID)
-		// if err != nil {
-		// 	rlib.Console("J\n")
-		// 	SvcErrorReturn(w, err, funcname)
-		// 	return
-		// }
-		// rlib.Console("K\n")
-
-		//---------------------------------------------------------------------------
-		// If the definition is repeating -- check for the existence of an instance
-		// already in the database...
-		//---------------------------------------------------------------------------
-		// found := false
-		// if tld.Cycle > 0 {
-		// 	rlib.Console("L\n")
-		// 	if found, err = rlib.CheckForTLDInstances(r.Context(), tld.TLDID); err != nil {
-		// 		rlib.Console("M\n")
-		// 		SvcErrorReturn(w, err, funcname)
-		// 		return
-		// 	}
-		// 	rlib.Console("N\n")
-		// 	if found {
-		// 		rlib.Console("O\n")
-		// 		err = fmt.Errorf("A repeating instance of task list %s (%d) already exists", tld.Name, tld.TLDID)
-		// 		SvcErrorReturn(w, err, funcname)
-		// 		return
-		// 	}
-		// 	rlib.Console("P\n")
-		// }
-
-		rlib.Console("Q\n")
 		pivot := time.Time(foo.Record.Pivot)
 		tlid, err := rlib.CreateTaskListInstance(r.Context(), foo.Record.TLDID, &pivot)
 		if err != nil {
-			rlib.Console("R\n")
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		rlib.Console("S\n")
-		rlib.Console("Created tlid = %d\n", tlid)
 		tl, err := rlib.GetTaskList(r.Context(), tlid)
 		if err != nil {
-			rlib.Console("T\n")
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		rlib.Console("U\n")
 		tl.Comment = foo.Record.Comment
 		err = rlib.UpdateTaskList(r.Context(), &tl)
 		if err != nil {
-			rlib.Console("V\n")
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		rlib.Console("W\n")
 		a.TLID = tlid // ensure that the return value is correct
 	} else {
-		rlib.Console("X\n")
 		if foo.Record.ChkDtPreDone {
 			a.DtPreDone = now
 			a.PreDoneUID = d.sess.UID
@@ -493,9 +445,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		err = rlib.UpdateTaskList(r.Context(), &a)
 	}
 
-	rlib.Console("Y\n")
 	if err != nil {
-		rlib.Console("Z\n")
 		e := fmt.Errorf("%s: Error saving TaskList : %s (%d)", funcname, a.Name, a.TLID)
 		SvcErrorReturn(w, e, funcname)
 		return
