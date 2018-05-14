@@ -1192,22 +1192,23 @@ func buildPreparedStatements() {
 	(
 		(
 			-- no notifications have been made
-			(FLAGS & 32 = 0) AND 
+			(FLAGS & 32 = 0)
+			OR
 			(
-				-- PreDone check needed   PreDone is set but it's late                  PreDone not set and it's late
-				((FLAGS & 2) > 0  AND  (((FLAGS & 8 > 0) AND DtPreDone > DtPreDue) OR ((FLAGS & 8 = 0) AND ? > DtPreDue)))
-				OR
-				--    must check Done          Done is set but it's late                Done is not set AND it's late
-				((FLAGS & 4) > 0  AND  (((FLAGS & 16 > 0) AND DtDone > DtDue) OR ((FLAGS & 16 = 0) AND ? > DtDue)))
+				-- notification has been made
+				(FLAGS & 32 > 0) 
+				AND
+				-- wait period after last notify has passed
+				(DATE_ADD(DtLastNotify, interval DurWait/1000 microsecond) < ?)
 			)
 		)
-		OR
+		AND 
 		(
-			-- notification has been made
-			(FLAGS & 32 > 0) 
-			AND
-			-- wait period after last notify has passed
-			DATE_ADD(DtLastNotify, interval DurWait/1000 microsecond) < ?  
+			-- PreDone check needed  No Due Date         due rqd                Done not set    DueDate passed   DueDate not passed   PreDone not set    PreDueDate has passed
+			((FLAGS & 2) > 0  AND  ((FLAGS & 4) = 0 OR ((FLAGS & 4) > 0 AND ( ((FLAGS & 16 = 0) AND ? > DtDue) OR ? < DtDue) ) ) AND ((FLAGS & 8 = 0) AND ? > DtPreDue))
+			OR
+			--  Done check needed  Done is not set AND Due date has passed
+			((FLAGS & 4) > 0  AND  (FLAGS & 16 = 0) AND ? > DtDue)
 		)
 	);`
 	RRdb.Prepstmt.GetDueTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList " + where)

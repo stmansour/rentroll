@@ -15,6 +15,7 @@ import (
 	"rentroll/rlib"
 	"rentroll/worker"
 	"rentroll/ws"
+	"time"
 	"tws"
 )
 
@@ -51,7 +52,7 @@ func readCommandLineArgs() {
 func main() {
 	var err error
 	readCommandLineArgs()
-	App.NoAuth = true // for now, let's just always do noauth
+	// App.NoAuth = true // for now, let's just always do noauth
 	rlib.RRReadConfig()
 
 	//----------------------------
@@ -105,6 +106,10 @@ func main() {
 }
 
 func doWork() {
+	now := time.Now()
+	expire := now.Add(1 * time.Minute)
+	s := rlib.SessionNew("BotToken-"+worker.TLReportBotDes, worker.TLReportBotDes, worker.TLReportBotDes, worker.TLReportBot, "", -1, &expire)
 	ctx := context.Background()
-	worker.TLReporterCore(ctx)
+	ctx = rlib.SetSessionContextKey(ctx, s)
+	worker.TLCheckerCore(ctx)
 }

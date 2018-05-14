@@ -219,9 +219,9 @@ type TaskList struct {
 
 	// 1<<0 : 0 = active, 1 = inactive
 	// 1<<1 : 0 = task list definition does not have a PreDueDate, 1 = has a PreDueDate
-	// 1<<1 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
-	// 1<<3 : 0 = DtPreDue has not been set, 1 = DtPreDue has been set
-	// 1<<4 : 0 = DtDue has not been set, 1 = DtDue has been set
+	// 1<<2 : 0 = task list definition does not have a DueDate, 1 = has a DueDate
+	// 1<<3 : 0 = DtPreDone has not been set, 1 = DtPreDone has been set
+	// 1<<4 : 0 = DtDone has not been set, 1 = DtDone has been set
 	// 1<<5 : 0 = DtLastNotify has not been set, 1 = it has been set
 	FLAGS        int64
 	DoneUID      int64         // user who marked task as done
