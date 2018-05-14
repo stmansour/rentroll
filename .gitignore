@@ -1,0 +1,37 @@
+*.xlsx
+*.xls
+bizerr.csv
+mdb
+
+# front end stuff
+webclient/node_modules
+webclient/html/help
+webclient/html/test
+webclient/js/jquery*
+webclient/js/w2ui*
+webclient/js/bundle*
+test/webclient/node_modules
+test/webclient/coverage
+test/webclient/.nyc_output
+
+# other stuff
+ws/buildno
+tmp
+bkup
+doc
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+localhost.*
+test/testreport.txt
+test/testdb/rex.sql
+test/401/
+test/conv/conv
+test/importers/roomkey/roomkey_exported/
+test/importers/roomkey/roomkey_sample/
+test/irex/rex*
+test/irex/m
+test/irex/statements.txt
+test/irex/tables/
+admin/rrloadcsv/buildno
+test/dropdb

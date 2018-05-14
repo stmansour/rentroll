@@ -8,7 +8,7 @@ module.exports = function gruntInit(grunt) {
     // ========== GRUNT INIT CONFIG ==========
     grunt.initConfig({
         distHTMLs: './html/*.html', // all html files
-        distInput: './js/elems/*.js',   // input source files
+        distInput: './js/elems/**/*.js',   // input source files, globbing on all js files
         distConcatOutput: './js/bundle.js', // output bundle
         distMinifiedOutput: './js/bundle.min.js',   // output bundle in minified version
         banner: "/*! '<%= grunt.template.today(\"yyyy-mm-dd\") %> */",  // banner for output file

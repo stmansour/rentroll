@@ -113,6 +113,26 @@
         "EDIEnabledForBUD": true,
         "prepareW2UIStuff": true,
         "stmtRenderHandler": true,
-        "getTransactantInitRecord": false
+        "getTransactantInitRecord": false,
+        "reassignGridRecids": true,
+        "hideSliderContent": true,
+        "appendNewSlider": true,
+        "showSliderContentW2UIComp": true,
+        "loadTargetSection": true,
+        "requiredFieldsFulFilled": true,
+        "getRAFlowPartTypeIndex": true,
+        "initRAFlowAJAX": true,
+        "getRAFlowAllParts": true,
+        "saveActiveCompData": true,
+        "toggleHaveCheckBoxDisablity": true,
+        "getRAFlowPartData": true,
+        "lockOnGrid": true,
+        "loadRADatesForm": true,
+        "loadRAPeopleForm": true,
+        "loadRAPetsGrid": true,
+        "loadRAVehiclesGrid": true,
+        "loadRABGInfoForm": true,
+        "loadRARentablesGrid": true,
+        "loadRAFeesTermsGrid": true
     }
 }
