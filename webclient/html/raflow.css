@@ -334,6 +334,18 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
     padding-top: 10px;
 }
 
+#transactantRoleCheckboxes input[type="checkbox"]{
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+#transactantRoleCheckboxes{
+    margin-left: 172px;
+    padding-top: 10px;
+}
+
 .cb-section {
     padding: 10px;
     text-align: left;
