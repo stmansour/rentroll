@@ -607,6 +607,8 @@ window.loadRAPeopleForm = function () {
                 {name: 'FirstName', type: 'text', required: true},
                 {name: 'MiddleName', type: 'text', required: true},
                 {name: 'LastName', type: 'text', required: true},
+                {name: 'IsCompany', type: 'checkbox', required: false},
+                {name: 'CompanyName', type: 'text', required: false},
                 {name: 'BirthDate', type: 'date', required: true}, // Date of births of applicants
                 {name: 'SSN', type: 'text', required: true}, // Social security number of applicants
                 {name: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants

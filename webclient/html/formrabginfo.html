@@ -5,7 +5,7 @@
     <div style="padding: 3px; font-weight: bold; color: #777;">
         Select transanctant role:
     </div>
-    <div id="transactantRoleCheckboxes">
+    <div id="transactantRoleCheckboxes" class="bgInfoCheckboxes">
         <div class="w2ui-field">
             <input name="IsRenter" class="w2ui-input" type="checkbox" tabindex="19"/>Renter - will be responsible for paying rent<br>
         </div>
@@ -38,6 +38,15 @@
         <label>Last Name:</label>
         <div>
             <input name="LastName" type="text" maxlength="50" style="width: 100%" tabindex="3">
+        </div>
+    </div>
+    <div class="w2ui-field bgInfoCheckboxes">
+        <input name="IsCompany" class="w2ui-input" type="checkbox" tabindex="21"/>Is Company
+    </div>
+    <div class="w2ui-field">
+        <label>Company Name:</label>
+        <div>
+            <input name="CompanyName" type="text" maxlength="50" style="width: 100%" tabindex="3">
         </div>
     </div>
     <div class="w2ui-field">
@@ -143,7 +152,7 @@
     <!-- End Previous addresses section -->
 
     <!-- have you ever been section -->
-    <div id="bginfoCheckboxes">
+    <div id="bginfoCheckboxes" class="bgInfoCheckboxes">
         <label style="font-weight: bold; color: #777;">Have you ever:</label><br>
         <div class="w2ui-field">
             <input name="Evicted" class="w2ui-input" type="checkbox" tabindex="19"/>been evicted<br>
@@ -214,7 +223,7 @@
     <!-- Extra comment section -->
     <div>
             <span style="padding: 3px; font-weight: bold; color: #777;">
-                    In an effort to accommodate you, please advise us of any special needs:
+                    In an effort to accommodate you, please advise us of any special needs:<br>
             </span>
         <div class="w2ui-field">
                 <textarea name="Comment" cols="1" rows="3"
