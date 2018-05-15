@@ -246,9 +246,13 @@ window.buildTaskListDefElements = function () {
                 if (typeof r.EpochPreDue === "undefined") {
                     return;
                 }
+                
+                // translate dates into a format that w2ui understands
                 r.EpochPreDue = dtFormatISOToW2ui(r.EpochPreDue);
                 r.EpochDue    = dtFormatISOToW2ui(r.EpochDue);
                 r.Epoch       = dtFormatISOToW2ui(r.Epoch);
+
+                // now enable/disable as needed
                 $(f.box).find("input[name=EpochDue]").prop( "disabled", !r.ChkEpochDue );
                 $(f.box).find("input[name=EpochPreDue]").prop( "disabled", !r.ChkEpochPreDue );
                 $(f.box).find("input[name=Epoch]").prop( "disabled", r.Cycle < 4);  // enable if recur is Daily, Weekly, Monthlhy, quarterly or yearly
