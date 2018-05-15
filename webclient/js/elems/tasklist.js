@@ -7,7 +7,7 @@
     openTaskForm,setInnerHTML,w2popup,ensureSession,dtFormatISOToW2ui,
     createNewTaskList, getBUDfromBID, exportItemReportPDF, exportItemReportCSV,
     popupNewTaskListForm, getTLDs, getCurrentBID, getNewTaskListRecord,
-    closeTaskForm, setTaskButtonsState, renderTaskGridDate,
+    closeTaskForm, setTaskButtonsState, renderTaskGridDate, localtimeToUTC, TLD,
 */
 
 var TL = {
@@ -186,8 +186,10 @@ window.buildTaskListElements = function () {
                 var r = f.record;
 
                 // translate dates into a format that w2ui understands
-                r.DtPreDue = dtFormatISOToW2ui(r.DtPreDue);
-                r.DtDue    = dtFormatISOToW2ui(r.DtDue);
+                r.DtPreDue  = dtFormatISOToW2ui(r.DtPreDue);
+                r.DtDue     = dtFormatISOToW2ui(r.DtDue);
+                r.DtPreDone = dtFormatISOToW2ui(r.DtPreDone);
+                r.DtPreDue  = dtFormatISOToW2ui(r.DtPreDue);
 
                 // now enable/disable as needed
                 $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
@@ -399,9 +401,20 @@ window.buildTaskListElements = function () {
         actions: {
             save: function(target, data){
                 // getFormSubmitData(data.postData.record);
+                var r = w2ui.tlsInfoForm.record;
+
+                //------------------------------------------------
+                // due and done times do not matter, server looks
+                // at the check values and sets time based on its
+                // own local clock. We do not accept these times
+                // from a client.
+                //------------------------------------------------
+                r.DtDone = TLD.TIME0;
+                r.DtPreDone = TLD.TIME0;
+
                 var tl = {
                     cmd: "save",
-                    record: w2ui.tlsInfoForm.record
+                    record: r,
                 };
                 var dat=JSON.stringify(tl);
                 var url='/v1/tl/' + w2ui.tlsInfoForm.record.BID + '/' + w2ui.tlsInfoForm.record.TLID;
