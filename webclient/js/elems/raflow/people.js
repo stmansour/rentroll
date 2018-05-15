@@ -9,7 +9,8 @@
     acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
     setRABGInfoFormHeader, setRABGInfoFormFields, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRABGInfoGridRecord,
-    updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRABGInfoGrid
+    updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRABGInfoGrid,
+    manageBGInfoFormFields
 */
 
 "use strict";
@@ -198,6 +199,36 @@ window.acceptTransactant = function () {
 
     // disable check boxes
     $(w2ui.RAPeopleForm.box).find("input[type=checkbox]").prop("disabled", true);
+};
+
+// manageBGInfoFormFields
+window.manageBGInfoFormFields = function (record) {
+    // Hide these all fields when transanctant is only user.
+    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLordName",
+        "CurrentLandLordPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
+        "PriorAddress", "PriorLandLordName", "PriorLandLordPhoneNo",
+        "PriorLengthOfResidency", "PriorReasonForMoving"];
+
+    // These all fields are not required when transanctant is only user
+    var listOfNotRequiredFields = ["SSN", "TelephoneNo",
+        "Phone", "EmailAddress", "Position",
+        "GrossWages", "CurrentAddress", "CurrentLandLordName",
+        "CurrentLandLordPhoneNo", "CurrentReasonForMoving"];
+
+    // Display/Required field based on transanctant type
+    if(record.IsOccupant && !record.IsRenter && !record.IsGuarantor){
+        // hide fields
+        showHideRABGInfoFormFields(listOfHiddenFields, true);
+
+        // not require fields
+        setNotRequiredFields(listOfNotRequiredFields, false);
+    }else{
+        // show fields
+        showHideRABGInfoFormFields(listOfHiddenFields, false);
+
+        // require fields
+        setNotRequiredFields(listOfNotRequiredFields, true);
+    }
 };
 
 //-----------------------------------------------------------------------------
@@ -440,9 +471,6 @@ window.loadRAPeopleForm = function () {
                 {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
                 {name: 'CompanyName', type: 'text', required: true, html: {caption: "CompanyName"}},
                 {name: 'IsCompany', type: 'int', required: true, html: {caption: "IsCompany"}},
-                {name: 'IsRenter', type: 'checkbox', hidden: true, required: false, html: {caption: "Renter"}},
-                {name: 'IsOccupant', type: 'checkbox', hidden: true, required: false, html: {caption: "Occupant"}},
-                {name: 'IsGuarantor', type: 'checkbox', hidden: true, required: false, html: {caption: "Guarantor"}}
             ],
             actions: {
                 reset: function () {
@@ -697,6 +725,27 @@ window.loadRAPeopleForm = function () {
                             console.log("failure " + data);
                         });
                 }
+            },
+            onChange: function (event) {
+                event.onComplete = function() {
+                    if (this.record.IsCompany) {
+                        this.get("FirstName").required = false;
+                        this.get("MiddleName").required = false;
+                        this.get("LastName").required = false;
+                        this.get("CompanyName").required = true;
+                        this.get("IsCompany").required = true;
+                    } else {
+                        this.get("FirstName").required = true;
+                        this.get("MiddleName").required = true;
+                        this.get("LastName").required = true;
+                        this.get("CompanyName").required = false;
+                        this.get("IsCompany").required = false;
+                    }
+
+                    manageBGInfoFormFields(this.record);
+
+                    this.refresh();
+                };
             }
         });
 
@@ -807,17 +856,6 @@ window.loadRAPeopleForm = function () {
                             // get transanctant information from the server
                             getRATransanctantDetail(raBGInfoGridRecord.TCID)
                                 .done(function (data){
-                                    // Hide these all fields when transanctant is only user.
-                                    var listOfHiddenFields = ["CurrentAddress", "CurrentLandLordName",
-                                        "CurrentLandLordPhoneNo", "CurrentLengthOfResidency", "CurrentReasonForMoving",
-                                        "PriorAddress", "PriorLandLordName", "PriorLandLordPhoneNo",
-                                        "PriorLengthOfResidency", "PriorReasonForMoving"];
-
-                                    // These all fields are not required when transanctant is only user
-                                    var listOfNotRequiredFields = ["SSN", "TelephoneNo",
-                                        "Phone", "EmailAddress", "Position",
-                                        "GrossWages", "CurrentAddress", "CurrentLandLordName",
-                                        "CurrentLandLordPhoneNo", "CurrentReasonForMoving"];
 
                                     if(data.status === 'success'){
                                         var record = data.record; // record from the server response
@@ -827,21 +865,7 @@ window.loadRAPeopleForm = function () {
                                         // Set the form tile
                                         setRABGInfoFormHeader(record);
 
-                                        // Display/Required field based on transanctant type
-                                        if(raBGInfoGridRecord.IsOccupant && !raBGInfoGridRecord.IsRenter && !raBGInfoGridRecord.IsGuarantor){
-                                            // hide fields
-                                            showHideRABGInfoFormFields(listOfHiddenFields, true);
-
-                                            // not require fields
-                                            setNotRequiredFields(listOfNotRequiredFields, false);
-                                        }else{
-                                            // show fields
-                                            showHideRABGInfoFormFields(listOfHiddenFields, false);
-
-                                            // require fields
-                                            setNotRequiredFields(listOfNotRequiredFields, true);
-
-                                        }
+                                        manageBGInfoFormFields(raBGInfoGridRecord);
 
                                         // If TCID found than set form fields value else initialize it.
                                         var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
@@ -881,7 +905,7 @@ window.loadRAPeopleForm = function () {
             },
             onAdd   : function () {
                 openNewTransactantForm();
-            },
+            }
         });
     }
 
@@ -890,7 +914,7 @@ window.loadRAPeopleForm = function () {
     $('#ra-form #people .form-container').w2render(w2ui.RAPeopleForm);
 
     // Do not remove code below code for now
-     setTimeout(function () {
+    setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             // w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
@@ -1024,9 +1048,14 @@ window.getRABGInfoFormInitRecord = function(BID, TCID){
         recid: 0,
         TCID: TCID,
         BID: BID,
+        IsRenter: false,
+        IsOccupant: true,
+        IsGuarantor: false,
         FirstName: "",
         MiddleName: "",
         LastName: "",
+        IsCompany: false,
+        CompanyName: "",
         BirthDate: "",
         SSN: "",
         DriverLicNo: "",
