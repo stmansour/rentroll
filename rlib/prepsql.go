@@ -101,7 +101,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetARsByType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=? AND ARType=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetARsByFLAGS, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=? AND FLAGS=?")
+	RRdb.Prepstmt.GetARsByFLAGS, err = RRdb.Dbrr.Prepare("SELECT DISTINCT " + flds + " FROM AR WHERE BID=? AND (CASE WHEN ? > 0 THEN FLAGS&? ELSE FLAGS=0 END)")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllARs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=?")
 	Errcheck(err)
@@ -1188,7 +1188,7 @@ func buildPreparedStatements() {
 	where := `WHERE
     -- the TaskList is enabled
     (FLAGS & 1 = 0)
-    AND 
+    AND
 	(
 		(
 			-- no notifications have been made
@@ -1196,13 +1196,13 @@ func buildPreparedStatements() {
 			OR
 			(
 				-- notification has been made
-				(FLAGS & 32 > 0) 
+				(FLAGS & 32 > 0)
 				AND
 				-- wait period after last notify has passed
 				(DATE_ADD(DtLastNotify, interval DurWait/1000 microsecond) < ?)
 			)
 		)
-		AND 
+		AND
 		(
 			-- PreDone check needed  No Due Date         due rqd                Done not set    DueDate passed   DueDate not passed   PreDone not set    PreDueDate has passed
 			((FLAGS & 2) > 0  AND  ((FLAGS & 4) = 0 OR ((FLAGS & 4) > 0 AND ( ((FLAGS & 16 = 0) AND ? > DtDue) OR ? < DtDue) ) ) AND ((FLAGS & 8 = 0) AND ? > DtPreDue))

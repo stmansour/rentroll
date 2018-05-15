@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"rentroll/bizlogic"
 	"rentroll/rlib"
 	"sort"
 	"time"
@@ -161,6 +163,27 @@ type RARentablesFlowData struct {
 	TaxableAmt   float64 `json:"TaxableAmt"`
 	SalesTax     float64 `json:"SalesTax"`
 	TransOCC     float64 `json:"TransOCC"`
+}
+
+// RARentableFeesData struct
+type RARentableFeesData struct {
+	RID             int64
+	ARID            int64
+	BID             int64
+	ARName          string
+	Amount          float64
+	RentCycle       int64
+	Epoch           int64
+	RentPeriodStart rlib.JSONDate
+	RentPeriodStop  rlib.JSONDate
+	UsePeriodStart  rlib.JSONDate
+	UsePeriodStop   rlib.JSONDate
+	ContractRent    float64
+	ProrateAmt      float64
+	SalesTaxAmt     float64
+	SalesTax        float64
+	TransOccAmt     float64
+	TransOcc        float64
 }
 
 // RAFeesTermsFlowData contains data in the fees-terms part of RA flow
@@ -367,6 +390,65 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	}
 
 	return flowID, err
+}
+
+// RARentableFeesDataListResponse for listing down all RARentableFeesData
+// in the grid
+type RARentableFeesDataListResponse struct {
+	Status  string               `json:"status"`
+	Total   int64                `json:"total"`
+	Records []RARentableFeesData `json:"records"`
+}
+
+// SvcGetRentableFeesData generates a list of rentable fees with auto populate AR fees
+// wsdoc {
+//  @Title Get list of Rentable fees with auto populate AR fees
+//  @URL /v1/raflow-rentable-fees/:BUI/
+//  @Method  GET
+//  @Synopsis Get Rentable Fees list
+//  @Description Get all rentable fees with auto populate AR fees
+//  @Input WebGridSearchRequest
+//  @Response RARentableFeesDataListResponse
+// wsdoc }
+func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcGetRentableFeesData"
+	var (
+		g RARentableFeesDataListResponse
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	if r.Method != "POST" {
+		err := fmt.Errorf("Only POST method is allowed")
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get account rules by IsRentASM FLAGS integer representation
+	arFLAGVal := 1<<uint64(bizlogic.ARFLAGS["IsRentASM"]) + 1<<uint64(bizlogic.ARFLAGS["IsSecDepASM"])
+
+	m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, uint64(arFLAGVal))
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// append records in ascending order
+	var records []RARentableFeesData
+	for _, ar := range m {
+		records = append(records, RARentableFeesData{
+			BID:    ar.BID,
+			ARID:   ar.ARID,
+			ARName: ar.Name,
+		})
+	}
+
+	// sort based on name, needs version 1.8 later of golang
+	sort.Slice(records, func(i, j int) bool { return records[i].ARName < records[j].ARName })
+
+	g.Records = records
+	g.Total = int64(len(g.Records))
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // saveRentalAgreementFlow saves data for the given flowID to real multi variant database instances

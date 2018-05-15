@@ -12,7 +12,8 @@ var ARFLAGS = rlib.Str2Int64Map{
 	"PopulateOnRA":             1,
 	"RAIDRequired":             2,
 	"SubARIDsOnly":             3,
-	"IsRentAR":                 4,
+	"IsRentASM":                4,
+	"IsSecDepASM":              5,
 }
 
 // ARType user defined type of account rule
