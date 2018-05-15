@@ -1179,7 +1179,7 @@ func buildPreparedStatements() {
 	// TASKLIST
 	//==========================================
 	//      1    2   3    4     5     6        7      8          9    10      11         12        13           14             15       16       17,         18
-	flds = "TLID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,DoneUID,PreDoneUID,EmailList,DtLastNotify,DurWait,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TLID,BID,PTLID,TLDID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,DoneUID,PreDoneUID,EmailList,DtLastNotify,DurWait,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["TaskList"] = flds
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.GetTaskList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE TLID=?")
@@ -1212,6 +1212,9 @@ func buildPreparedStatements() {
 		)
 	);`
 	RRdb.Prepstmt.GetDueTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList " + where)
+	Errcheck(err)
+
+	RRdb.Prepstmt.CheckForTLDInstances, err = RRdb.Dbrr.Prepare("SELECT COUNT(*) FROM TaskList WHERE TLDID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertTaskList, err = RRdb.Dbrr.Prepare("INSERT INTO TaskList (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)

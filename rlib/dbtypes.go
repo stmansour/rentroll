@@ -210,6 +210,8 @@ type Task struct {
 type TaskList struct {
 	TLID      int64
 	BID       int64
+	PTLID     int64 // parent TLDID or 0 if this is the parent of a list
+	TLDID     int64 // what type of task list... the definition
 	Name      string
 	Cycle     int64
 	DtDue     time.Time
@@ -1797,6 +1799,7 @@ type RRprepSQL struct {
 	DeleteTaskListTasks                     *sql.Stmt
 	GetTaskListDefinitionByName             *sql.Stmt
 	GetDueTaskLists                         *sql.Stmt
+	CheckForTLDInstances                    *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

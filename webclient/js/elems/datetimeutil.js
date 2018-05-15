@@ -45,11 +45,11 @@ window.dtFormatISOToW2ui = function (ds) {
     if (dt.getFullYear() < 2000) {return '';}
     var hr = dt.getHours();
     var am = true;
-    if (hr > 12) {
-        hr -= 12;
-    }
     if (hr >= 12) {
         am = false;
+    }
+    if (hr > 12) {
+        hr -= 12;
     }
     var s = 1+dt.getMonth() + '/' + zeroPad(dt.getDate(),2) + '/' +
             dt.getFullYear() + ' ' + hr + ':' + zeroPad(dt.getMinutes(),2) +

@@ -66,7 +66,7 @@ func (t *JSONDateTime) MarshalJSON() ([]byte, error) {
 	if ts.Before(earliestDate) {
 		ts = earliestDate
 	}
-	val := fmt.Sprintf("\"%s\"", ts.Format(RRDATETIMEFMT))
+	val := fmt.Sprintf("\"%s\"", ts.Format(RRDATETIMEINPFMT))
 	return []byte(val), nil
 }
 

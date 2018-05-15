@@ -473,6 +473,8 @@ CREATE TABLE Task (
 CREATE TABLE TaskList (
     TLID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,
+    PTLID BIGINT NOT NULL DEFAULT 0,                            -- Parent TLID or 0 if this is the parent (first) of a repeating set
+    TLDID BIGINT NOT NULL DEFAULT 0,                            -- the TaskListDefinition that describes this tasklist
     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (not editable)
     DtDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',      -- All tasks in task list are due on this date

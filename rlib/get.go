@@ -6833,6 +6833,39 @@ func GetTaskListDefinitionByName(ctx context.Context, bid int64, name string) (T
 	return a, ReadTaskListDefinition(row, &a)
 }
 
+// CheckForTLDInstances returns true if there are any instances of the
+// supplied TLDID or false if there are none.
+//
+// INPUTS:
+//    id = the TLDID to search for
+//
+// RETURNS
+//    count: false if no instances found, true otherwise
+//    error: any error encountered.
+//-----------------------------------------------------------------------------
+func CheckForTLDInstances(ctx context.Context, id int64) (bool, error) {
+	var count int
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return false, ErrSessionRequired
+		}
+	}
+
+	var row *sql.Row
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.CheckForTLDInstances)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.CheckForTLDInstances.QueryRow(fields...)
+	}
+	return (count > 0), row.Scan(&count)
+}
+
 //=======================================================
 //  TRANSACTANT
 //  Transactant, Prospect, User, Payor, XPerson
