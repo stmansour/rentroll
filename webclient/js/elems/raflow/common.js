@@ -395,10 +395,6 @@ window.loadTargetSection = function (target, activeCompID) {
         case "vehicles":
             data = w2ui.RAVehiclesGrid.records;
             break;
-        case "bginfo":
-            partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            break;
         case "rentables":
             data = w2ui.RARentablesGrid.records;
             break;
