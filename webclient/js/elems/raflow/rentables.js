@@ -98,11 +98,14 @@ window.loadRARentablesGrid = function () {
                             };
                             var BID = getCurrentBID();
                             $.ajax({
-                                url: "/v1/arslist/" + BID.toString() + "/",
+                                url: "/v1/raflow-rentable-fees/" + BID.toString() + "/",
                                 method: "POST",
                                 contentType: "application/json",
                                 data: JSON.stringify(data),
                             }).done(function(data) {
+                                // assign records in the grid and then render it
+                                w2ui.RARentableFeesGrid.records = data.records;
+                                reassignGridRecids(w2ui.RARentableFeesGrid.name);
                                 showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                             });
                             break;
@@ -298,6 +301,38 @@ window.loadRARentablesGrid = function () {
             onChange: function (event) {
                 event.onComplete = function () {
                     this.save();
+                };
+            },
+            onClick: function(event) {
+                event.onComplete = function() {
+                    var yes_args = [this, event.recid],
+                        no_args = [this],
+                        no_callBack = function(grid) {
+                            grid.select(app.last.grid_sel_recid);
+                            return false;
+                        },
+                        yes_callBack = function(grid, recid) {
+                            var sliderID = 2;
+                            appendNewSlider(sliderID);
+                            $("#raflow-container")
+                                .find(".slider[data-slider-id="+sliderID+"]")
+                                .find(".slider-content")
+                                .width(400)
+                                .w2render(w2ui.RARentableFeesForm);
+
+                            app.last.grid_sel_recid = parseInt(recid);
+
+                            // keep highlighting current row in any case
+                            grid.select(app.last.grid_sel_recid);
+                            w2ui.RARentableFeesForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+
+                            // showSliderContentW2UIComp(w2ui.RARentableFeesForm, RACompConfig.rentables.sliderWidth);
+                            showSliderContentW2UIComp(w2ui.RARentableFeesForm, sliderContentDivLength, sliderID);
+                            w2ui.RARentableFeesForm.refresh(); // need to refresh for header changes
+                        };
+
+                    // warn user if form content has been changed
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
                 };
             }
         });
