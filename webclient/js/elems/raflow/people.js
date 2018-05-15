@@ -4,7 +4,6 @@
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
-    lockOnGrid,
     loadTransactantListingItem, openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
     setRABGInfoFormHeader, setRABGInfoFormFields, showHideRABGInfoFormFields,
@@ -446,13 +445,8 @@ window.loadRAPeopleForm = function () {
     }, 500);
 };
 
-
-// -------------------------------------------------------------------------------
-// Rental Agreement - Background info part
-// -------------------------------------------------------------------------------
-
 // setRABGInfoFormHeader
-// TODO(Akshay): Ask steve about form fields when transanctant is company.
+// It set RABGInfoForm header title
 window.setRABGInfoFormHeader = function(record) {
     if(record.IsCompany){
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
@@ -461,7 +455,9 @@ window.setRABGInfoFormHeader = function(record) {
     }
 };
 
-// setRABGInfoFormFields It set default fields value from the transanctants to form.
+// setRABGInfoFormFields
+// It have transanctant record from the server.
+// From this record RABGInfoForm fields value will be populate.
 window.setRABGInfoFormFields = function(record) {
     var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
 
@@ -479,7 +475,8 @@ window.setRABGInfoFormFields = function(record) {
     formRecord.State = record.State;
 };
 
-// showHideRABGInfoFormFields hide fields if transanctant is only user
+// showHideRABGInfoFormFields
+// hide fields if transanctant is only user
 window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
     if(hidden){
         $("#cureentInfolabel").hide();
@@ -493,14 +490,16 @@ window.showHideRABGInfoFormFields = function(listOfHiddenFields, hidden){
     }
 };
 
-// setNotRequiredFields define fields are not required if transanctant is only user
+// setNotRequiredFields
+// define fields are not required if transanctant is only user
 window.setNotRequiredFields = function(listOfNotRequiredFields, required){
     for(var fieldIndex=0; fieldIndex < listOfNotRequiredFields.length; fieldIndex++){
         w2ui.RABGInfoForm.get(listOfNotRequiredFields[fieldIndex]).required = required;
     }
 };
 
-// get RATransactant detail from the server
+// getRATransanctantDetail
+// get Transanctant detail from the server
 window.getRATransanctantDetail = function(TCID){
     var bid = getCurrentBID();
 
@@ -532,10 +531,11 @@ window.getRATransanctantDetail = function(TCID){
 };
 
 // getRABGInfoGridRecord
+// get record from the list which match with TCID
 window.getRABGInfoGridRecord = function(records, TCID){
     var raBGInfoGridrecord;
     for(var recordIndex=0; recordIndex < records.length; recordIndex++) {
-        if(records[recordIndex].TCID == TCID){
+        if(records[recordIndex].TCID === TCID){
             raBGInfoGridrecord = records[recordIndex];
             break;
         }
@@ -544,6 +544,7 @@ window.getRABGInfoGridRecord = function(records, TCID){
 };
 
 // updateRABGInfoFormCheckboxes
+// Convert checkboxes w2ui int(1/0) value to bool(true/false)
 window.updateRABGInfoFormCheckboxes = function(record){
     record.IsRenter = int_to_bool(record.IsRenter);
     record.IsOccupant = int_to_bool(record.IsOccupant);
@@ -556,6 +557,7 @@ window.updateRABGInfoFormCheckboxes = function(record){
     record.Convicted = int_to_bool(record.Convicted);
 };
 
+//
 window.getRABGInfoFormInitRecord = function(BID, TCID){
 
     return {
@@ -711,15 +713,6 @@ window.openNewTransactantForm = function() {
 // @return - the name to render
 //-----------------------------------------------------------------------------
 window.acceptTransactant = function () {
-    var IsRenter = w2ui.RAPeopleForm.record.IsRenter;
-    var IsOccupant = w2ui.RAPeopleForm.record.IsOccupant;
-    var IsGuarantor = w2ui.RAPeopleForm.record.IsGuarantor;
-
-    // if not set anything then alert the user to select any one of them
-    /*    if (!(IsRenter || IsOccupant || IsGuarantor)) {
-            alert("Please, select the role");
-            return false;
-        }*/
 
     // get part type index
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
@@ -734,6 +727,11 @@ window.acceptTransactant = function () {
 
     // if not found then push it in the data
     if (tcidIndex < 0) {
+
+        // If first record in the grid than transanctant will be renter by default
+        if(app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.length === 0){
+            transactantRec.IsRenter = true;
+        }
 
         // Each transactant must be occupant by default. It can be change via BGInfo detail form
         transactantRec.IsOccupant = true;

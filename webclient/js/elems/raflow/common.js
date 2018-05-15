@@ -158,7 +158,7 @@ window.saveActiveCompData = function (record, partType) {
         "FlowID": app.raflow.activeFlowID,
         "BID": bid,
         "PartType": partType,
-        "Data": record,
+        "Data": record
     };
 
     return $.ajax({
@@ -176,7 +176,7 @@ window.saveActiveCompData = function (record, partType) {
         },
         error: function (data) {
             console.log(data);
-        },
+        }
     });
 };
 
@@ -219,7 +219,7 @@ window.getRAFlowAllParts = function (FlowID) {
         },
         error: function (data) {
             console.log(data);
-        },
+        }
     });
 };
 
@@ -239,7 +239,7 @@ window.initRAFlowAJAX = function () {
         },
         error: function (data) {
             console.log(data);
-        },
+        }
     });
 };
 
@@ -325,6 +325,7 @@ window.requiredFieldsFulFilled = function (compID) {
             }
             break;
         case "bginfo":
+            // TODO(Akshay): Remove this bginfo section
             // TODO(Akshay): Add for integer fields e.g., phone, gross wage.
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             // list of fields which must have value and it's type string
