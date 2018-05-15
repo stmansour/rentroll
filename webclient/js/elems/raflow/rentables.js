@@ -4,6 +4,7 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     lockOnGrid,
+    getRentableFeeFormInitalRecord,
 */
 
 "use strict";
@@ -19,18 +20,33 @@ window.getAutoPopulateARs = function() {
 };
 
 
-window.getRentableFeeFormInitalRecord = function (BID, gridLen) {
+window.getRentableFeeFormInitalRecord = function () {
+    var BID = getCurrentBID(),
+        BUD = getBUDfromBID(BID);
+
+    var t = new Date(),
+        nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+
     return {
-        recid: gridLen,
+        recid: 0,
         RID: 0,
+        ARID: 0,
         BID: BID,
-        RTID: 0,
-        RentableName: "",
+        BUD: BUD,
+        ARName: "",
+        Amount: 0.0,
+        RentCycle: "Daily",
+        Epoch: 0,
+        RentPeriodStart: w2uiDateControlString(t),
+        RentPeriodStop: w2uiDateControlString(nyd),
+        UsePeriodStart: w2uiDateControlString(t),
+        UsePeriodStop: w2uiDateControlString(nyd),
         ContractRent: 0.0,
         ProrateAmt: 0.0,
-        TaxableAmt: 0.0,
+        SalesTaxAmt: 0.0,
         SalesTax: 0.0,
-        TransOCC: 0.0,
+        TransOccAmt: 0.0,
+        TransOcc: 0.0,
     };
 };
 
@@ -185,6 +201,10 @@ window.loadRARentablesGrid = function () {
                                 .find(".slider-content")
                                 .width(400)
                                 .w2render(w2ui.RARentableFeesForm);
+
+                            w2ui.RARentableFeesForm.record = getRentableFeeFormInitalRecord();
+                            w2ui.RARentableFeesForm.record.recid = w2ui.RARentableFeesGrid.records.length;
+                            w2ui.RARentableFeesForm.refresh();
                             break;
                         case "btnClose":
                             hideSliderContent();
@@ -202,11 +222,15 @@ window.loadRARentablesGrid = function () {
                     hidden: true
                 },
                 {
+                    field: 'RID',
+                    hidden: true
+                },
+                {
                     field: 'BID',
                     hidden: true
                 },
                 {
-                    field: 'Name',
+                    field: 'ARName',
                     caption: 'Fee',
                     size: '250px',
                 },
@@ -289,8 +313,9 @@ window.loadRARentablesGrid = function () {
                 {name: 'recid',             type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'BUD',               type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.businesses}},
+                {name: 'RID',               type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'ARID',              type: 'int',    required: true, html: {page: 0, column: 0}},
-                {name: 'Name',              type: 'text',   required: true, html: {page: 0, column: 0}},
+                {name: 'ARName',            type: 'text',   required: true, html: {page: 0, column: 0}},
                 {name: 'Amount',            type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'RentCycle',         type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
                 {name: 'Epoch',             type: 'int',    required: true, html: {page: 0, column: 0}},
@@ -301,11 +326,13 @@ window.loadRARentablesGrid = function () {
                 {name: 'ContractRent',      type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'ProrateAmt',        type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'SalesTaxAmt',       type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'SalesTax',          type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'TransOccAmt',       type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'TransOcc',          type: 'money',  required: true, html: {page: 0, column: 0}},
             ],
             toolbar : {
                 items: [
+                    { id: 'btnNotes', type: 'button', icon: 'far fa-sticky-note' },
                     { id: 'bt3', type: 'spacer' },
                     { id: 'btnClose', type: 'button', icon: 'fas fa-times'}
                 ],

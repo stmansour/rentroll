@@ -217,6 +217,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "version", Handler: SvcHandlerVersion, NeedBiz: false, NeedSession: false},
 	{Cmd: "flow", Handler: SvcHandlerFlow, NeedBiz: true, NeedSession: true},
 	{Cmd: "flowpart", Handler: SvcHandlerFlowPart, NeedBiz: true, NeedSession: true},
+	{Cmd: "raflow-rentable-fees", Handler: SvcGetRentableFeesData, NeedBiz: true, NeedSession: true},
 }
 
 // SvcCtx contains information global to the Svc handlers
