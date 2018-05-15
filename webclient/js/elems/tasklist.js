@@ -180,6 +180,20 @@ window.buildTaskListElements = function () {
                 r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.PreDoneName, 'sDtPreDone','tlPreDoneName', 'tlPreOverdue');
             };
         },
+        onLoad: function(event) {
+            event.onComplete = function(event) {
+                var f = w2ui.tlsInfoForm;
+                var r = f.record;
+
+                // translate dates into a format that w2ui understands
+                r.DtPreDue = dtFormatISOToW2ui(r.DtPreDue);
+                r.DtDue    = dtFormatISOToW2ui(r.DtDue);
+
+                // now enable/disable as needed
+                $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
+                $(f.box).find("input[name=DtPreDue]").prop( "disabled", !r.ChkDtPreDue );
+            };
+        },
         onChange: function(event) {
             event.onComplete = function() {
                 var s = '';
