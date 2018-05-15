@@ -101,7 +101,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetARsByType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=? AND ARType=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetARsByFLAGS, err = RRdb.Dbrr.Prepare("SELECT DISTINCT " + flds + " FROM AR WHERE BID=? AND (FLAGS&?) > 0")
+	RRdb.Prepstmt.GetARsByFLAGS, err = RRdb.Dbrr.Prepare("SELECT DISTINCT " + flds + " FROM AR WHERE BID=? AND (CASE WHEN ? > 0 THEN FLAGS&? ELSE FLAGS=0 END)")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllARs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=?")
 	Errcheck(err)

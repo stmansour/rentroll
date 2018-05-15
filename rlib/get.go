@@ -279,7 +279,7 @@ func GetARsByFLAGS(ctx context.Context, bid int64, FLAGS uint64) ([]AR, error) {
 	}
 
 	var rows *sql.Rows
-	fields := []interface{}{bid, FLAGS}
+	fields := []interface{}{bid, FLAGS, FLAGS}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.GetARsByFLAGS)
 		defer stmt.Close()
