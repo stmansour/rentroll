@@ -35,7 +35,8 @@ type ARSendForm struct {
 	PriorToRAStop       bool    // is it ok to charge after RA stop
 	ApplyRcvAccts       bool    // if true, mark the receipt as fully paid based on RcvAccts
 	RAIDrqd             bool    // if true, it will require receipts to supply a RAID
-	IsRentAR            bool    // if true, then it represents Rent AR
+	IsRentASM           bool    // if true, then it represents Rent Assessment
+	IsSecDepASM         bool    // if true, then it represents Security Deposit Assessment
 	DefaultAmount       float64 // default amount for this account rule
 	LastModTime         rlib.JSONDateTime
 	LastModBy           int64
@@ -68,7 +69,8 @@ type ARSaveForm struct {
 	RAIDrqd             bool
 	DefaultAmount       float64
 	AutoPopulateToNewRA bool
-	IsRentAR            bool
+	IsRentASM           bool
+	IsSecDepASM         bool
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -387,8 +389,11 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if foo.Record.RAIDrqd && a.ARType == rlib.ARRECEIPT {
 		a.FLAGS |= 0x4
 	}
-	if foo.Record.IsRentAR { // IsRentAR - 1<<4
+	if foo.Record.IsRentASM { // IsRentASM - 1<<4
 		a.FLAGS |= 0x10
+	}
+	if foo.Record.IsSecDepASM { // IsSecDepASM - 1<<5
+		a.FLAGS |= 0x20
 	}
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
@@ -520,7 +525,10 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			gg.RAIDrqd = true
 		}
 		if gg.FLAGS&0x10 != 0 {
-			gg.IsRentAR = true
+			gg.IsRentASM = true
+		}
+		if gg.FLAGS&0x20 != 0 {
+			gg.IsSecDepASM = true
 		}
 
 		g.Record = gg

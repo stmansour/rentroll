@@ -423,9 +423,10 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		return
 	}
 
-	// get account rules by IsRentAR FLAGS integer representation
-	arFLAGVal := uint64(1 << uint64(bizlogic.ARFLAGS["IsRentAR"]))
-	m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, arFLAGVal)
+	// get account rules by IsRentASM FLAGS integer representation
+	arFLAGVal := 1<<uint64(bizlogic.ARFLAGS["IsRentASM"]) + 1<<uint64(bizlogic.ARFLAGS["IsSecDepASM"])
+
+	m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, uint64(arFLAGVal))
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
