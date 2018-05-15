@@ -176,8 +176,8 @@ window.buildTaskListElements = function () {
                 }
                 r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'sDtPreDue','no pre-due date');
                 r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'sDtDue',   'no due date');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.DoneName,    'sDtDone',   'tlDoneName',    'tlOverdue');
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.PreDoneName, 'sDtPreDone','tlPreDoneName', 'tlPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.ChkDtDone,    r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.DoneName,    'sDtDone',   'tlDoneName',    'tlOverdue');
+                r.ChkDtPreDone = taskFormDoneDate(r.ChkDtPreDone, r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.PreDoneName, 'sDtPreDone','tlPreDoneName', 'tlPreOverdue');
             };
         },
         onLoad: function(event) {
@@ -189,7 +189,14 @@ window.buildTaskListElements = function () {
                 r.DtPreDue  = dtFormatISOToW2ui(r.DtPreDue);
                 r.DtDue     = dtFormatISOToW2ui(r.DtDue);
                 r.DtPreDone = dtFormatISOToW2ui(r.DtPreDone);
-                r.DtPreDue  = dtFormatISOToW2ui(r.DtPreDue);
+                r.DtDone    = dtFormatISOToW2ui(r.DtDone);
+
+                if (r.DtDone === "") {
+                    r.DtDone = new Date();
+                }
+                if (r.DtPreDone === "") {
+                    r.DtPreDone = new Date();
+                }
 
                 // now enable/disable as needed
                 $(f.box).find("input[name=DtDue]").prop( "disabled", !r.ChkDtDue );
@@ -198,11 +205,15 @@ window.buildTaskListElements = function () {
         },
         onChange: function(event) {
             event.onComplete = function() {
+                var f = w2ui.tlsInfoForm;
+                var r = f.record;
                 var s = '';
                 if (event.target === "ChkDtPreDone") {
                     taskCompletionChange(event.value_new,"sDtPreDone");
+                    r.DtPreDone = new Date();
                 } else if (event.target === "ChkDtDone") {
                     taskCompletionChange(event.value_new,"sDtDone");
+                    r.DtDone = new Date();
                 }
             };
         },
@@ -366,10 +377,10 @@ window.buildTaskListElements = function () {
                 if (typeof r.DtPreDue === "undefined") {
                     return;
                 }
-                r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,  r.ChkDtPreDue,'tskDtPreDue',  'no pre-due date'               );
-                r.ChkDtDue     = taskFormDueDate(r.DtDue,     r.ChkDtDue,   'tskDtDue',     'no due date'                   );
-                r.ChkDtPreDone = taskFormDoneDate(r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.TaskPreDoneName, 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
-                r.ChkDtDone    = taskFormDoneDate(r.DtDone,   r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.TaskDoneName,    'tskDtDone',    'tskDoneName',    'tskOverdue'   );
+                r.ChkDtPreDue  = taskFormDueDate(r.DtPreDue,      r.ChkDtPreDue,'tskDtPreDue',  'no pre-due date'               );
+                r.ChkDtDue     = taskFormDueDate(r.DtDue,         r.ChkDtDue,   'tskDtDue',     'no due date'                   );
+                r.ChkDtPreDone = taskFormDoneDate(r.ChkDtPreDone, r.DtPreDone,  r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.TaskPreDoneName, 'tskDtPreDone', 'tskPreDoneName', 'tskPreOverdue');
+                r.ChkDtDone    = taskFormDoneDate(r.ChkDtDone,    r.DtDone,     r.DtDue,      r.ChkDtDone,    r.DoneUID,    r.TaskDoneName,    'tskDtDone',    'tskDoneName',    'tskOverdue'   );
             };
         },
         onChange: function(event) {
@@ -680,7 +691,13 @@ window.taskDateRender = function (x) {
     if (x === null) {
         return '';
     }
-    var y = dateFromString(x);
+    var y;
+    if (typeof x == "string"){
+        y = dateFromString(x);
+    }
+    if (typeof x == "object") {
+        y = x;
+    }
     var yr = y.getFullYear();
     if ( yr <= 1970) {
         return '';
@@ -789,17 +806,26 @@ window.taskFormDueDate = function (dt,b,id,txt) {
 //      updated value for ChkDt...  true if year >= 2000
 //  
 //-----------------------------------------------------------------------------
-window.taskFormDoneDate = function (dt,dtd,b,uid,name,id,id2,id3) {
+window.taskFormDoneDate = function (chk,dt,dtd,b,uid,name,id,id2,id3) {
     var now = new Date();
-    if (dt !== null && dt.length > 0) {
+    var dts = "";
+    if (typeof dt  == "string") {
+        dts = dt;
+    } 
+    if (typeof dt == "object") {
+        dts = dt.toISOString();
+    }
+    if (dts !== null && dts.length > 0) {
         //--------------------------
         // id: date
         //--------------------------
-        var y = dateFromString(dt);
         var s = '';
-        b = y.getFullYear() >= 2000;
-        if (b) {
-            s = taskDateRender(dt); 
+        if (chk) {
+            var y = new Date(dts);
+            b = y.getFullYear() >= 2000;
+            if (b) {
+                s = taskDateRender(dt); 
+            }
         }
         setInnerHTML(id,s);
         

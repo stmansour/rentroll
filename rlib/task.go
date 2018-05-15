@@ -103,6 +103,9 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 	case CYCLEMINUTELY:
 	case CYCLEHOURLY:
 	case CYCLEDAILY:
+		tl.DtDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), tld.EpochDue.Hour(), tld.EpochDue.Minute(), 0, 0, time.UTC)
+		tl.DtPreDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), tld.EpochPreDue.Hour(), tld.EpochPreDue.Minute(), 0, 0, time.UTC)
+
 	case CYCLEWEEKLY:
 		dtEpoch := time.Date(tld.Epoch.Year(), tld.Epoch.Month(), tld.Epoch.Day(), 0, 0, 0, 0, time.UTC)
 		dtPivot := time.Date(pivot.Year(), pivot.Month(), pivot.Day(), 0, 0, 0, 0, time.UTC)
