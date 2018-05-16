@@ -27,7 +27,6 @@ window.loadRAPeopleForm = function () {
     }
 
     // Fetch data from the server if there is any record available.
-    // TODO(Akshay): Modify getRAFlowPartData function
     getRAFlowPartData(partType)
         .done(function (data) {
             if (data.status === 'success') {
@@ -183,7 +182,6 @@ window.loadRAPeopleForm = function () {
                     var record = $.extend(true, {}, form.record);
 
                     // State filed
-                    // TODO(Akshay): Think another way to modify State field if it is possible.
                     record.State = record.State.text;
 
                     // Convert integer to bool checkboxes fields

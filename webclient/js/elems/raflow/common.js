@@ -324,28 +324,6 @@ window.requiredFieldsFulFilled = function (compID) {
                 }
             }
             break;
-        case "bginfo":
-            // TODO(Akshay): Remove this bginfo section
-            // TODO(Akshay): Add for integer fields e.g., phone, gross wage.
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            // list of fields which must have value and it's type string
-            var listOfRequiredField = ["ApplicationDate", "MoveInDate",
-                "ApartmentNo", "LeaseTerm", "FirstName", "MiddleName",
-                "LastName", "BirthDate", "SSN",
-                "DriverLicNo", "TelephoneNo", "EmailAddress",
-                "NoPeople", "CurrentAddress", "CurrentLandLordName", "CurrentLandLordPhoneNo",
-                "CurrentReasonForMoving", "Employer", "Phone", "Address",
-                "Position", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
-
-            listOfRequiredField.forEach(function(field) {
-                if (!data[field]) {
-                    validData = false;
-                    return false;
-                }
-            });
-
-            done = validData;
-            break;
         case "rentables":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             if (data.length > 0) {
