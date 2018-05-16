@@ -350,6 +350,14 @@ window.buildTaskListElements = function () {
                 var f = w2ui.taskForm;
                 var r = f.record;
                 var d = {cmd: "save", record: r};
+                r.DtDone = localtimeToUTC(r.DtDone);
+                r.DtPreDone = localtimeToUTC(r.DtPreDone);
+                if (r.DtDone.length === 0) {
+                    r.DtDone = TLD.TIME0;
+                }
+                if (r.DtPreDone.length === 0) {
+                    r.DtPreDone = TLD.TIME0;
+                }
                 var dat=JSON.stringify(d);
                 f.url = '/v1/task/' + r.BID + '/' + r.TID;
                 $.post(f.url,dat)
@@ -396,6 +404,25 @@ window.buildTaskListElements = function () {
         onRender: function(event) {
             event.onComplete = function(event) {
                 setTaskButtonsState();
+            };
+        },
+        onLoad: function(event) {
+            event.onComplete = function(event) {
+                var f = w2ui.taskForm;
+                var r = f.record;
+
+                // translate dates into a format that w2ui understands
+                r.DtPreDue  = dtFormatISOToW2ui(r.DtPreDue);
+                r.DtDue     = dtFormatISOToW2ui(r.DtDue);
+                r.DtPreDone = dtFormatISOToW2ui(r.DtPreDone);
+                r.DtDone    = dtFormatISOToW2ui(r.DtDone);
+
+                if (r.DtDone === "") {
+                    r.DtDone = new Date();
+                }
+                if (r.DtPreDone === "") {
+                    r.DtPreDone = new Date();
+                }
             };
         },
     });

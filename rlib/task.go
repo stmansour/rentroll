@@ -67,7 +67,7 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	Console("Found tld.TLDID = %d, TaskCount = %d, name = %s\n", tld.TLDID, len(tds), tld.Name)
 	for i := 0; i < len(tds); i++ {
 		var t Task
-		if err = NextTaskInstanceDates(pivot, &tld, &t); err != nil {
+		if err = NextTaskInstanceDates(pivot, &tld, &tds[i], &t); err != nil {
 			return tlid, err
 		}
 		t.Name = tds[i].Name
@@ -118,6 +118,10 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 		tl.DtDue = time.Date(dt.Year(), dt.Month(), dt.Day(), tld.EpochDue.Hour(), tld.EpochDue.Minute(), 0, 0, time.UTC)
 		dt = newepoch.AddDate(0, 0, edowPreDue-edow)
 		tl.DtPreDue = time.Date(dt.Year(), dt.Month(), dt.Day(), tld.EpochPreDue.Hour(), tld.EpochPreDue.Minute(), 0, 0, time.UTC)
+		if tl.DtDue.Before(dtPivot) {
+			tl.DtDue = tl.DtDue.AddDate(0, 0, 7)
+			tl.DtPreDue = tl.DtPreDue.AddDate(0, 0, 7)
+		}
 
 		// Console("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
 		// Console("Epoch = %s, nepoch = %s\n", tld.Epoch.Format(RRJSUTCDATETIME), newepoch.Format(RRJSUTCDATETIME))
@@ -155,23 +159,43 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 //  error  - any error encountered
 //
 //-----------------------------------------------------------------------------
-func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, t *Task) error {
+func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, td *TaskDescriptor, t *Task) error {
 	switch tld.Cycle {
 	case CYCLENORECUR:
 	case CYCLESECONDLY:
 	case CYCLEMINUTELY:
 	case CYCLEHOURLY:
 	case CYCLEDAILY:
+		t.DtDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), td.EpochDue.Hour(), td.EpochDue.Minute(), 0, 0, time.UTC)
+		t.DtPreDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), td.EpochPreDue.Hour(), td.EpochPreDue.Minute(), 0, 0, time.UTC)
+
 	case CYCLEWEEKLY:
-		edow := int(tld.Epoch.Weekday()) // on which day does the definition start
-		pdow := int(pivot.Weekday())     // what's our pivot day
-		if pdow != edow {
-			t.DtPreDue = t.DtPreDue.AddDate(0, 0, edow-pdow)
-			t.DtDue = t.DtDue.AddDate(0, 0, edow-pdow)
+		dtEpoch := time.Date(tld.Epoch.Year(), tld.Epoch.Month(), tld.Epoch.Day(), 0, 0, 0, 0, time.UTC)
+		dtPivot := time.Date(pivot.Year(), pivot.Month(), pivot.Day(), 0, 0, 0, 0, time.UTC)
+		offset := int(dtPivot.Sub(dtEpoch).Hours() / (7 * 24)) // number of weeks difference
+		edow := int(tld.Epoch.Weekday())                       // on which day does the definition start
+		edowDue := int(td.EpochDue.Weekday())                  // what day is due
+		edowPreDue := int(td.EpochPreDue.Weekday())            // what day is pre-due
+		newepoch := tld.Epoch.AddDate(0, 0, 7*offset)          // snap to nearest week to pivot
+		dt := newepoch.AddDate(0, 0, edowDue-edow)
+		t.DtDue = time.Date(dt.Year(), dt.Month(), dt.Day(), td.EpochDue.Hour(), td.EpochDue.Minute(), 0, 0, time.UTC)
+		dt = newepoch.AddDate(0, 0, edowPreDue-edow)
+		t.DtPreDue = time.Date(dt.Year(), dt.Month(), dt.Day(), td.EpochPreDue.Hour(), td.EpochPreDue.Minute(), 0, 0, time.UTC)
+		if t.DtDue.Before(dtPivot) {
+			t.DtDue = t.DtDue.AddDate(0, 0, 7)
+			t.DtPreDue = t.DtPreDue.AddDate(0, 0, 7)
 		}
+
 	case CYCLEMONTHLY:
-		t.DtPreDue = computeMonthlyDate(pivot, &t.DtPreDue)
-		t.DtDue = computeMonthlyDate(pivot, &t.DtDue)
+		t.DtPreDue = computeMonthlyDate(pivot, &td.EpochPreDue)
+		t.DtDue = computeMonthlyDate(pivot, &td.EpochDue)
+		if t.DtPreDue.After(t.DtDue) {
+			// t.DtPreDue = time.Date(t.DtDue.Year(), t.DtDue.Month(), t.DtPreDue.Day(), t.DtPreDue.Hour(), t.DtPreDue.Minute(), 0, 0, time.UTC)
+			// Days Between Dates (DaysBetweenDates) https://play.golang.org/p/nkBPjPumg6-
+			offset := int(t.DtDue.Sub(td.EpochDue).Hours() / 24)
+			Console("offset = %d days\n", offset)
+			t.DtPreDue = tld.EpochPreDue.AddDate(0, 0, offset)
+		}
 	case CYCLEQUARTERLY:
 	case CYCLEYEARLY:
 	default:
