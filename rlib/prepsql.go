@@ -101,7 +101,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetARsByType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=? AND ARType=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetARsByFLAGS, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=? AND FLAGS=?")
+	RRdb.Prepstmt.GetARsByFLAGS, err = RRdb.Dbrr.Prepare("SELECT DISTINCT " + flds + " FROM AR WHERE BID=? AND (CASE WHEN ? > 0 THEN FLAGS&? ELSE FLAGS=0 END)")
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllARs, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM AR WHERE BID=?")
 	Errcheck(err)
@@ -1179,7 +1179,7 @@ func buildPreparedStatements() {
 	// TASKLIST
 	//==========================================
 	//      1    2   3    4     5     6        7      8          9    10      11         12        13           14             15       16       17,         18
-	flds = "TLID,BID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,DoneUID,PreDoneUID,EmailList,DtLastNotify,DurWait,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "TLID,BID,PTLID,TLDID,Name,Cycle,DtDue,DtPreDue,DtDone,DtPreDone,FLAGS,DoneUID,PreDoneUID,EmailList,DtLastNotify,DurWait,Comment,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["TaskList"] = flds
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.GetTaskList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE TLID=?")
@@ -1188,7 +1188,7 @@ func buildPreparedStatements() {
 	where := `WHERE
     -- the TaskList is enabled
     (FLAGS & 1 = 0)
-    AND 
+    AND
 	(
 		(
 			-- no notifications have been made
@@ -1196,13 +1196,13 @@ func buildPreparedStatements() {
 			OR
 			(
 				-- notification has been made
-				(FLAGS & 32 > 0) 
+				(FLAGS & 32 > 0)
 				AND
 				-- wait period after last notify has passed
 				(DATE_ADD(DtLastNotify, interval DurWait/1000 microsecond) < ?)
 			)
 		)
-		AND 
+		AND
 		(
 			-- PreDone check needed  No Due Date         due rqd                Done not set    DueDate passed   DueDate not passed   PreDone not set    PreDueDate has passed
 			((FLAGS & 2) > 0  AND  ((FLAGS & 4) = 0 OR ((FLAGS & 4) > 0 AND ( ((FLAGS & 16 = 0) AND ? > DtDue) OR ? < DtDue) ) ) AND ((FLAGS & 8 = 0) AND ? > DtPreDue))
@@ -1212,6 +1212,9 @@ func buildPreparedStatements() {
 		)
 	);`
 	RRdb.Prepstmt.GetDueTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList " + where)
+	Errcheck(err)
+
+	RRdb.Prepstmt.CheckForTLDInstances, err = RRdb.Dbrr.Prepare("SELECT COUNT(*) FROM TaskList WHERE TLDID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.InsertTaskList, err = RRdb.Dbrr.Prepare("INSERT INTO TaskList (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)

@@ -404,23 +404,12 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
-		tld, err := rlib.GetTaskListDefinition(r.Context(), foo.Record.TLDID)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		if tld.TLDID == 0 {
-			e := fmt.Errorf("%s: Could not create TaskList because definition id (%d) does not exist", funcname, foo.Record.TLDID)
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
 		pivot := time.Time(foo.Record.Pivot)
 		tlid, err := rlib.CreateTaskListInstance(r.Context(), foo.Record.TLDID, &pivot)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		rlib.Console("Created tlid = %d\n", tlid)
 		tl, err := rlib.GetTaskList(r.Context(), tlid)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)

@@ -473,6 +473,8 @@ CREATE TABLE Task (
 CREATE TABLE TaskList (
     TLID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,
+    PTLID BIGINT NOT NULL DEFAULT 0,                            -- Parent TLID or 0 if this is the parent (first) of a repeating set
+    TLDID BIGINT NOT NULL DEFAULT 0,                            -- the TaskListDefinition that describes this tasklist
     Name VARCHAR(256) NOT NULL DEFAULT '',                      -- TaskList name
     Cycle BIGINT NOT NULL DEFAULT 0,                            -- recurrence frequency (not editable)
     DtDue DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',      -- All tasks in task list are due on this date
@@ -1036,7 +1038,8 @@ CREATE TABLE AR (
                                                             -- 1<<1 - Auto Populate on New Rental Agreement,
                                                             -- 1<<2 = RAID required,
                                                             -- 1<<3 = subARIDs apply (i.e., there are other ar rules that apply to this AR Rule)
-                                                            -- 1<<4 = Rent
+                                                            -- 1<<4 = Is Rent Assessment
+                                                            -- 1<<5 = Is Security Deposit Assessment
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it

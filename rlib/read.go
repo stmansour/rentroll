@@ -646,16 +646,16 @@ func ReadTasks(rows *sql.Rows, a *Task) error {
 }
 
 // ReadTaskList reads a full TaskList structure from the database based on the supplied row object
-//            flds = "TLID,     BID,    Name,    Cycle,    DtDue,    DtPreDue,    DtDone,    DtPreDone,    FLAGS,    DoneUID,    PreDoneUID,    Comment,    CreateTS,    CreateBy,    LastModTime,    LastModBy"
+//            flds = "TLID,     BID, TLDID,    Name,    Cycle,    DtDue,    DtPreDue,    DtDone,    DtPreDone,    FLAGS,    DoneUID,    PreDoneUID,    Comment,    CreateTS,    CreateBy,    LastModTime,    LastModBy"
 func ReadTaskList(row *sql.Row, a *TaskList) error {
-	err := row.Scan(&a.TLID, &a.BID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.DoneUID, &a.PreDoneUID, &a.EmailList, &a.DtLastNotify, &a.DurWait, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.TLID, &a.BID, &a.PTLID, &a.TLDID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.DoneUID, &a.PreDoneUID, &a.EmailList, &a.DtLastNotify, &a.DurWait, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadTaskLists reads a full TaskList structure from the database based on the supplied rows
 func ReadTaskLists(rows *sql.Rows, a *TaskList) error {
-	return rows.Scan(&a.TLID, &a.BID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.DoneUID, &a.PreDoneUID, &a.EmailList, &a.DtLastNotify, &a.DurWait, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.TLID, &a.BID, &a.PTLID, &a.TLDID, &a.Name, &a.Cycle, &a.DtDue, &a.DtPreDue, &a.DtDone, &a.DtPreDone, &a.FLAGS, &a.DoneUID, &a.PreDoneUID, &a.EmailList, &a.DtLastNotify, &a.DurWait, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadTaskDescriptor reads a full TaskDescriptor structure from the database based on the supplied row object
