@@ -550,6 +550,7 @@ CREATE TABLE RentableTypes (
     GSRPC BIGINT NOT NULL DEFAULT 0,                            -- Increments in which GSR is calculated to account for rate changes
     ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 0=active, 1=inactive
+    ARID BIGINT NOT NULL DEFAULT 0,                             -- ARID reference, for default rent amount for this rentable types
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
