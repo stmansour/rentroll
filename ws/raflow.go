@@ -435,11 +435,29 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// append records in ascending order
 	var records []RARentableFeesData
 	for _, ar := range m {
-		records = append(records, RARentableFeesData{
+		rec := RARentableFeesData{
 			BID:    ar.BID,
 			ARID:   ar.ARID,
 			ARName: ar.Name,
-		})
+		}
+
+		// if it's Rent ASM account rule then fetch the default amount and set it in fee data
+		if ar.FLAGS&0x10 != 0 { // it is Rent ASM
+			rec.Amount = ar.DefaultAmount
+			rec.ContractRent = ar.DefaultAmount
+
+			today := time.Now()
+			rec.RentPeriodStart = rlib.JSONDate(today)
+			rec.RentPeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
+			rec.UsePeriodStart = rlib.JSONDate(today)
+			rec.UsePeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
+		}
+		/*if ar.FLAGS&0x20 != 0 { // same will be applied to Security Deposit ASM
+			rec.Amount = ar.DefaultAmount
+		}*/
+
+		// now append rec in records
+		records = append(records, rec)
 	}
 
 	// sort based on name, needs version 1.8 later of golang

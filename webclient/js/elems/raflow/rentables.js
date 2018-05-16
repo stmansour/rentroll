@@ -132,50 +132,39 @@ window.loadRARentablesGrid = function () {
                 {
                     field: 'RentableName',
                     caption: 'Rentable',
-                    size: '350px',
-                    editable: {type: 'text'}
+                    size: '200px',
                 },
                 {
                     field: 'ContractRent',
                     caption: 'At Signing',
                     size: '100px',
                     render: 'money',
-                    editable: {type: 'money'}
                 },
                 {
                     field: 'ProrateAmt',
                     caption: 'Prorate',
                     size: '100px',
                     render: 'money',
-                    editable: {type: 'money'}
                 },
                 {
                     field: 'TaxableAmt',
                     caption: 'Taxable Amt',
                     size: '100px',
                     render: 'money',
-                    editable: {type: 'money'}
                 },
                 {
                     field: 'SalesTax',
                     caption: 'Sales Tax',
                     size: '100px',
                     render: 'money',
-                    editable: {type: 'money'}
                 },
                 {
                     field: 'TransOCC',
                     caption: 'Trans OCC',
                     size: '100px',
                     render: 'money',
-                    editable: {type: 'money'}
                 }
             ],
-            onChange: function (event) {
-                event.onComplete = function () {
-                    this.save();
-                };
-            }
         });
 
         // rentables grid
@@ -186,10 +175,31 @@ window.loadRARentablesGrid = function () {
                 toolbar: true,
                 footer: true,
                 header: true,
+                searchAll: false,
+                toolbarSearch   : false,
+                toolbarInput    : false,
             },
             style: 'border: 2px solid white; display: block;',
             toolbar: {
                 items: [
+                    {id: 'rentablestd', type: 'menu-radio',
+                        text: function(item) {
+                            var el   = this.get('rentablestd:' + item.selected);
+                            if (el) {
+                                return "<span>Rentable: " + el.text + "</span>";
+                            }
+                            return "<span>Rentable: ----</span>";
+                        },
+                        items: [
+                            {id: 1, text: "Rentable001"},
+                            {id: 2, text: "Rentable002"},
+                            {id: 3, text: "Rentable003"},
+                        ],
+                        onRefresh: function(event) {
+                            console.log(event);
+                        }
+                    },
+                    { type: 'break' },
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
                     {id: 'bt3', type: 'spacer'},
                     {id: 'btnClose', type: 'button', icon: 'fas fa-times'},
@@ -235,7 +245,7 @@ window.loadRARentablesGrid = function () {
                 {
                     field: 'ARName',
                     caption: 'Fee',
-                    size: '250px',
+                    size: '150px',
                 },
                 {
                     field: 'Amount',
@@ -247,6 +257,18 @@ window.loadRARentablesGrid = function () {
                     field: 'RentCycle',
                     caption: 'Cycle',
                     size: '100px',
+                    render: function (record/*, index, col_index*/) {
+                    var text = '';
+                        if (record) {
+                            app.cycleFreq.forEach(function(itemText, itemIndex) {
+                                if (record.RentCycle == itemIndex) {
+                                    text = itemText;
+                                    return false;
+                                }
+                            });
+                        }
+                        return text;
+                    },
                 },
                 {
                     field: 'Epoch',
@@ -257,11 +279,45 @@ window.loadRARentablesGrid = function () {
                     field: 'RentPeriod',
                     caption: 'Rent Period',
                     size: '100px',
+                    render: function(record) {
+                        var html = "";
+                        if (record) {
+                            if (record.RentPeriodStart && record.RentPeriodStop) {
+                                html = record.RentPeriodStart + " - <br>" + record.RentPeriodStop;
+                            }
+                        }
+                        return html;
+                    }
+                },
+                {
+                    field: 'RentPeriodStart',
+                    hidden: true,
+                },
+                {
+                    field: 'RentPeriodStop',
+                    hidden: true,
                 },
                 {
                     field: 'UsePeriod',
                     caption: 'Use Period',
                     size: '100px',
+                    render: function(record) {
+                        var html = "";
+                        if (record) {
+                            if (record.UsePeriodStart && record.UsePeriodStop) {
+                                html = record.UsePeriodStart + " - <br>" + record.UsePeriodStop;
+                            }
+                        }
+                        return html;
+                    }
+                },
+                {
+                    field: 'UsePeriodStart',
+                    hidden: true,
+                },
+                {
+                    field: 'UsePeriodStop',
+                    hidden: true,
                 },
                 {
                     field: 'ContractRent',
@@ -285,6 +341,7 @@ window.loadRARentablesGrid = function () {
                     field: 'SalesTax',
                     caption: 'Sales Tax',
                     size: '100px',
+                    render: 'money',
                 },
                 {
                     field: 'TransOccAmt',
@@ -296,6 +353,7 @@ window.loadRARentablesGrid = function () {
                     field: 'TransOcc',
                     caption: 'Trans Occ',
                     size: '100px',
+                    render: 'money',
                 }
             ],
             onChange: function (event) {
@@ -388,6 +446,10 @@ window.loadRARentablesGrid = function () {
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
+                    // sync this info in local data
+                    w2ui.RARentableFeesGrid.set(f.record.recid, f.record);
+                    w2ui.RARentableFeesGrid.refresh();
+
                     f.save({}, function(data) {
                         if (data.status === 'error') {
                             f.message(data.message);
@@ -416,7 +478,21 @@ window.loadRARentablesGrid = function () {
                 },
             },
             onChange: function(event) {
+                var f = this;
                 event.onComplete = function() {
+                    switch(event.target) {
+                        case "RentCycle":
+                            if (event.value_new) {
+                                app.cycleFreq.forEach(function(itemText, itemIndex) {
+                                    if (event.value_new.text == itemText) {
+                                        f.record.RentCycle = itemIndex;
+                                        return false;
+                                    }
+                                });
+                            }
+                            break;
+                    }
+
                        // formRecDiffer: 1=current record, 2=original record, 3=diff object
                     var diff = formRecDiffer(this.record, app.active_form_original, {});
                     // if diff == {} then make dirty flag as false, else true
