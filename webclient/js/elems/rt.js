@@ -272,7 +272,7 @@ window.buildRentableTypeElements = function () {
         ],
         onValidate: function(event) {
             event.onComplete = function() {
-                console.log(event);
+                // console.log(event);
                 if (this.record.ManageToBudget) {
                     console.log("manageToBudget is true");
                     var grid = w2ui.rmrGrid;
@@ -406,13 +406,13 @@ window.buildRentableTypeElements = function () {
             var f = this;
             event.onComplete = function() {
                 switch (event.target) {
-                case "ManageToBudget":
-                    if (event.value_new) {
-                        w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
-                    } else {
-                        w2ui.rtDetailLayout.get("main").tabs.disable("rmrGrid");
-                    }
-                    break;
+                    case "ManageToBudget":
+                        if (event.value_new) {
+                            w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
+                        } else {
+                            w2ui.rtDetailLayout.get("main").tabs.disable("rmrGrid");
+                        }
+                        break;
                 }
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
