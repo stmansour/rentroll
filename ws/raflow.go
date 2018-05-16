@@ -95,9 +95,9 @@ type RAVehiclesFlowData struct {
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
-	// Recid       int64 `json:"recid"`
-	BID  int64 `json:"BID"`
-	TCID int64 `json:"TCID"`
+	Recid int64 `json:"recid"`
+	BID   int64 `json:"BID"`
+	TCID  int64 `json:"TCID"`
 
 	// Role
 	IsRenter    bool `json:"IsRenter"`
@@ -236,7 +236,8 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		}
 		return json.Marshal(&a)
 	case rlib.PeopleRAFlowPart:
-		a := []RAPeopleFlowData{}
+		// a := []RAPeopleFlowData{}
+		a := []RABackgroundInfoFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {

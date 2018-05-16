@@ -4,7 +4,7 @@
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
-    loadTransactantListingItem, openNewTransactantForm, getRAAddTransactantFormInitRec,
+    openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
     setRABGInfoFormHeader, setRABGInfoFormFields, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
@@ -18,6 +18,7 @@
 // Rental Agreement - People form
 // -------------------------------------------------------------------------------
 window.loadRAPeopleForm = function () {
+
     var partType = app.raFlowPartTypes.people;
     var partTypeIndex = getRAFlowPartTypeIndex(partType);
     if (partTypeIndex < 0){
@@ -27,21 +28,21 @@ window.loadRAPeopleForm = function () {
 
     // Fetch data from the server if there is any record available.
     // TODO(Akshay): Modify getRAFlowPartData function
-    /*getRAFlowPartData(partType)
-        .done(function(data){
-            if(data.status === 'success'){
+    getRAFlowPartData(partType)
+        .done(function (data) {
+            if (data.status === 'success') {
+                var grid = w2ui.RAPeopleGrid;
+
                 app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data || [];
-                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.forEach(function (item) {
-                    console.log(item);
-                    loadTransactantListingItem(item);
-                });
-            }else {
+                grid.records = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+                reassignGridRecids(grid.name);
+            } else {
                 console.log(data.message);
             }
         })
-        .fail(function(data){
+        .fail(function (data) {
             console.log("failure" + data);
-        });*/
+        });
 
     // if form is loaded then return
     if (!("RAPeopleForm" in w2ui)) {
@@ -423,26 +424,23 @@ window.loadRAPeopleForm = function () {
     $('#ra-form #people .grid-container').w2render(w2ui.RAPeopleGrid);
     $('#ra-form #people .form-container').w2render(w2ui.RAPeopleForm);
 
-    // Do not remove code below code for now
-    setTimeout(function () {
-        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-        if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            // w2ui.RAPeopleForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
-            w2ui.RAPeopleForm.refresh();
-        } else {
-            w2ui.RAPeopleForm.actions.reset();
-        }
-    }, 500);
-
-    // load the existing data in people component
+    // load existing info in PeopleForm and PeopleGrid
     setTimeout(function () {
         var grid = w2ui.RAPeopleGrid;
-        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
+        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            grid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
-            reassignGridRecids(grid.name);
 
+            // Operation on RAPeopleForm
+            w2ui.RAPeopleForm.refresh();
+
+            // Operation on RAPeopleGrid
+            loadTransactantInRAPeopleGrid();
         } else {
+
+            // Operation on RAPeopleForm
+            w2ui.RAPeopleForm.actions.reset();
+
+            // Operation on RAPeopleGrid
             grid.clear();
         }
     }, 500);
@@ -605,68 +603,10 @@ window.getRABGInfoFormInitRecord = function(BID, TCID){
     };
 };
 
-//-----------------------------------------------------------------------------
-// loadTransactantListingItem - adds transactant into categories list
-// @params
-//   transactantRec = an object assumed to have a FirstName, MiddleName, LastName,
-//                    IsCompany, CompanyName, IsGuarantor, IsOccupant, IsRenter
-// @return - nothing
-//-----------------------------------------------------------------------------
-// TODO(Akshay): Remove this method after merging slide number 2 and 5
-window.loadTransactantListingItem = function (transactantRec) {
-
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    if (peoplePartIndex < 0) {
-        alert("flow data could not be found for people");
-        return false;
-    }
-
-    // listing item to be appended in ul
-    var s = (transactantRec.IsCompany > 0) ? transactantRec.CompanyName : getFullName(transactantRec);
-    if (transactantRec.TCID > 0) {
-        s += ' (TCID: ' + String(transactantRec.TCID) + ')';
-    }
-
-    var peopleListingItem = '<li data-tcid="' + transactantRec.TCID + '">';
-    peopleListingItem += '<span>' + s + '</span>';
-    peopleListingItem += '<i class="remove-item fas fa-times-circle fa-xs"></i>';
-    peopleListingItem += '</li>';
-
-    // add into renter list
-    if (transactantRec.IsRenter) {
-        // if with this tcid element exists in DOM then not append
-        if ($('#renter-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
-            $('#renter-list .people-listing').append(peopleListingItem);
-        }
-    } else {
-        $('#renter-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
-    }
-
-    // add into occupant list
-    if (transactantRec.IsOccupant) {
-        // if with this tcid element exists in DOM then not append
-        if ($('#occupant-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
-            $('#occupant-list .people-listing').append(peopleListingItem);
-        }
-    } else {
-        $('#occupant-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
-    }
-
-    // add into guarantor list
-    if (transactantRec.IsGuarantor) {
-        // if with this tcid element exists in DOM then not append
-        if ($('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').length <= 0) {
-            $('#guarantor-list .people-listing').append(peopleListingItem);
-        }
-    } else {
-        $('#guarantor-list .people-listing li[data-tcid="' + transactantRec.TCID + '"]').remove();
-    }
-};
-
 //--------------------------------------------------------------------
 // loadTransactantInRAPeopleGrid
 //--------------------------------------------------------------------
-window.loadTransactantInRAPeopleGrid = function (transactantRec) {
+window.loadTransactantInRAPeopleGrid = function () {
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
     if (peoplePartIndex < 0) {
         alert("flow data could not be found for people");
@@ -675,24 +615,9 @@ window.loadTransactantInRAPeopleGrid = function (transactantRec) {
 
     var grid = w2ui.RAPeopleGrid;
     var records = grid.records;
-    /*var isExists = false;*/
 
     grid.records = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data;
     reassignGridRecids(grid.name);
-
-    /*for (var recordIndex = 0; recordIndex < records.length; recordIndex++){
-        if(records[recordIndex].TCID === transactantRec.TCID){
-            isExists = true;
-            break;
-        }
-    }
-
-    if(!isExists){
-        grid.records.push(transactantRec);
-        reassignGridRecids(grid.name);
-    }else {
-        grid.select(recordIndex + 1);
-    }*/
 };
 
 //-----------------------------------------------------------------------------
@@ -731,6 +656,9 @@ window.acceptTransactant = function () {
     delete transactantRec.Transactant;
     var tcidIndex = findTransactantIndexByTCIDInPeopleData(transactantRec.TCID);
 
+    // Convert IsCompany flag to boolean
+    transactantRec.IsCompany = int_to_bool(transactantRec.IsCompany);
+
     // if not found then push it in the data
     if (tcidIndex < 0) {
 
@@ -748,7 +676,7 @@ window.acceptTransactant = function () {
     }
 
     // load item in the RAPeopleGrid grid
-    loadTransactantInRAPeopleGrid(transactantRec);
+    loadTransactantInRAPeopleGrid();
 
     // clear the form
     w2ui.RAPeopleForm.actions.reset();
