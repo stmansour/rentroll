@@ -520,10 +520,11 @@ window.buildTaskListElements = function () {
         formURL: '/webclient/html/formnewtl.html',
         url: '/v1/tl',
         fields: [
-            { field: 'BID',   type: 'int',  required: false },
-            { field: 'TLDID',  type: 'int',  required: false },
-            { field: 'Name',  type: 'list', required: true, options:  {items: [], selected: {}},  },
-            { field: 'Pivot', type: 'date', required: true },
+            { field: 'BID',      type: 'int',  required: false },
+            { field: 'TLDID',    type: 'int',  required: false },
+            { field: 'Name',     type: 'list', required: true, options:  {items: [], selected: {}},  },
+            { field: 'Pivot',    type: 'date', required: true },
+            { field: 'TZOffset', type: 'int',  required: false },
         ],
         actions: {
             save: function(target, data){
@@ -533,7 +534,10 @@ window.buildTaskListElements = function () {
                 var s = r.Name.text;
                 r.TLDID = r.Name.id;
                 r.Name = s;
+                r.Pivot = localtimeToUTC(r.Pivot);
+                r.Timezone = app.timezone;
                 var params = {cmd: 'save', formname: f.name, record: r };
+
                 var dat = JSON.stringify(params);
                 var BID = r.BID;
 

@@ -13,6 +13,9 @@ import (
 //  ctx    - context for database transactions
 //  TLDID  - Task List Definition ID
 //  pivot  - date on or after which the instance will be created
+//  tzoff  - user's client timezone offset in minutes.  For web browsers
+//           this is determined by:
+//               offset = new Date().getTimezoneOffset();
 //
 // RETURNS
 //  error  - any error encountered
@@ -84,13 +87,28 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	return tlid, nil
 }
 
+// // adjustForTZ adjusts the users hour and minute of a task due or predue
+// // date so that after the date is adjusted, the times will be at the
+// // expected hour and minute.
+// //
+// // returns adjusted hours and minutes
+// //-----------------------------------------------------------------------------
+// func adjustForTZ(utc *time.Time, tzoff int) (int, int) {
+// 	mp0 := utc.Hour()*60 + utc.Minute()
+// 	offset := (((24 * 60) - tzoff) + mp0) % (24 * 60) // remember that tzoff can be negative
+// 	return offset / 60, offset % 60
+// }
+
 // NextTLInstanceDates computes the next instance dates after the pivot
 // based on the supplied frequency
 //
 // INPUTS
-//  ctx    - context for database transactions
-//  TLDID  - Task List Definition ID
 //  pivot  - date on or after which the instance will be created
+//  tzoff  - user's client timezone offset in minutes.  For web browsers
+//           this is determined by:
+//               offset = new Date().getTimezoneOffset();
+//  tld    - pointer to Task List Definition struct
+//  tl     - ptr to Task List
 //
 // RETURNS
 //  error  - any error encountered
@@ -103,8 +121,22 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 	case CYCLEMINUTELY:
 	case CYCLEHOURLY:
 	case CYCLEDAILY:
+		//-----------------------------------------------------------------------
+		// pivot time was set in the user's localtime. We must adjust the time
+		// by the offset from UTC 00:00 of the pivot date to ensure we stay on
+		// the same date when then time is xlated back to localtime.
+		// https://play.golang.org/p/Ym6xFBi8UfU
+		//-----------------------------------------------------------------------
+		// hr,mn := adjustForTZ(&tld.EpochDue, tzoff)
+
 		tl.DtDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), tld.EpochDue.Hour(), tld.EpochDue.Minute(), 0, 0, time.UTC)
 		tl.DtPreDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), tld.EpochPreDue.Hour(), tld.EpochPreDue.Minute(), 0, 0, time.UTC)
+
+		// Console("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
+		// Console("PIVOT = %s\n", pivot.Format(RRJSUTCDATETIME))
+		// Console("DtDue = %s\n", tl.DtDue.Format(RRJSUTCDATETIME))
+		// Console("after adjustment -   DtDue = %s\n", tl.DtDue.Format(RRJSUTCDATETIME))
+		// Console("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n")
 
 	case CYCLEWEEKLY:
 		dtEpoch := time.Date(tld.Epoch.Year(), tld.Epoch.Month(), tld.Epoch.Day(), 0, 0, 0, 0, time.UTC)
@@ -151,9 +183,13 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 // based on the supplied frequency
 //
 // INPUTS
-//  ctx    - context for database transactions
-//  TLDID  - Task List Definition ID
 //  pivot  - date on or after which the instance will be created
+//  tzoff  - user's client timezone offset in minutes.  For web browsers
+//           this is determined by:
+//               offset = new Date().getTimezoneOffset();
+//  tld    - pointer to Task List Definition struct
+//  td     - ptr to Task definition
+//  t      - the task
 //
 // RETURNS
 //  error  - any error encountered

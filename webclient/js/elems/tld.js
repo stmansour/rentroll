@@ -5,7 +5,8 @@
     openTaskDescForm, ensureSession, dtFormatISOToW2ui,
     dtFormatISOToW2ui, localtimeToUTC, setDefaultFormFieldAsPreviousRecord,
     getTLDInitRecord, getCurrentBID, getTDInitRecord, saveTaskListDefinition,
-    closeTaskDescForm, setTaskDescButtonsState,
+    closeTaskDescForm, setTaskDescButtonsState, newDateKeepOldTime,
+    w2uiDateTimeControlString,
 */
 
 // Temporary storage for when a date is toggled off
@@ -300,6 +301,27 @@ window.buildTaskListDefElements = function () {
                         }
                     }
                     f.refresh();
+                    break;
+                case "Epoch":
+                case "EpochDue":
+                case "EpochPreDue":
+                    // all dates must be in sync if cycle > 0 and < 4
+                    if (0 < r.Cycle.id && r.Cycle.id <= 4) {
+                        if (event.value_new === "") {
+                            r[event.target] = event.value_previous;
+                            event.isCancelled = true;
+                            f.refresh();
+                            return;
+                        }
+                        var dt = new Date(r[event.target]);
+                        var da = dt.getDate();
+                        var mn = dt.getMonth();
+                        var yr = dt.getFullYear();
+                        r.Epoch       = w2uiDateTimeControlString(newDateKeepOldTime(r.Epoch,yr,mn,da));
+                        r.EpochDue    = w2uiDateTimeControlString(newDateKeepOldTime(r.EpochDue,yr,mn,da));
+                        r.EpochPreDue = w2uiDateTimeControlString(newDateKeepOldTime(r.EpochPreDue,yr,mn,da));
+                        f.refresh();
+                    }
                     break;
                 }
             };
