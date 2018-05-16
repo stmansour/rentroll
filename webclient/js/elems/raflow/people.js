@@ -7,8 +7,8 @@
     loadTransactantListingItem, openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
     setRABGInfoFormHeader, setRABGInfoFormFields, showHideRABGInfoFormFields,
-    setNotRequiredFields, getRATransanctantDetail, getRABGInfoGridRecord,
-    updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRABGInfoGrid,
+    setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
+    updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRAPeopleGrid,
     manageBGInfoFormFields
 */
 
@@ -93,6 +93,9 @@ window.loadRAPeopleForm = function () {
                 reset: function () {
                     w2ui.RAPeopleForm.clear();
                 }
+            },
+            onChange: function(event) {
+              // TODO(Akshay): Enable accept button only if there is transactant in RAPeopleForm
             },
             onRefresh: function(event) {
                 var f = this;
@@ -256,9 +259,9 @@ window.loadRAPeopleForm = function () {
             }
         });
 
-        // transanctants info grid
+        // transanctants/people list in grid
         $().w2grid({
-            name    : 'RABGInfoGrid',
+            name    : 'RAPeopleGrid',
             header  : 'Background information',
             show    : {
                 toolbar: true,
@@ -341,7 +344,7 @@ window.loadRAPeopleForm = function () {
                 event.onComplete = function() {
 
                     console.log(event.recid);
-                    var raBGInfoGridRecord = w2ui.RABGInfoGrid.get(event.recid); // record from the w2ui grid
+                    var raBGInfoGridRecord = w2ui.RAPeopleGrid.get(event.recid); // record from the w2ui grid
                     console.log(raBGInfoGridRecord);
 
                     var yes_args = [this, event.recid],
@@ -417,7 +420,7 @@ window.loadRAPeopleForm = function () {
     }
 
     // load form in div
-    $('#ra-form #people .grid-container').w2render(w2ui.RABGInfoGrid);
+    $('#ra-form #people .grid-container').w2render(w2ui.RAPeopleGrid);
     $('#ra-form #people .form-container').w2render(w2ui.RAPeopleForm);
 
     // Do not remove code below code for now
@@ -433,7 +436,7 @@ window.loadRAPeopleForm = function () {
 
     // load the existing data in people component
     setTimeout(function () {
-        var grid = w2ui.RABGInfoGrid;
+        var grid = w2ui.RAPeopleGrid;
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             grid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
@@ -530,9 +533,9 @@ window.getRATransanctantDetail = function(TCID){
     });
 };
 
-// getRABGInfoGridRecord
+// getRAPeopleGridRecord
 // get record from the list which match with TCID
-window.getRABGInfoGridRecord = function(records, TCID){
+window.getRAPeopleGridRecord = function(records, TCID){
     var raBGInfoGridrecord;
     for(var recordIndex=0; recordIndex < records.length; recordIndex++) {
         if(records[recordIndex].TCID === TCID){
@@ -661,20 +664,23 @@ window.loadTransactantListingItem = function (transactantRec) {
 };
 
 //--------------------------------------------------------------------
-// loadTransactantInRABGInfoGrid
+// loadTransactantInRAPeopleGrid
 //--------------------------------------------------------------------
-window.loadTransactantInRABGInfoGrid = function (transactantRec) {
+window.loadTransactantInRAPeopleGrid = function (transactantRec) {
     var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
     if (peoplePartIndex < 0) {
         alert("flow data could not be found for people");
         return false;
     }
 
-    var grid = w2ui.RABGInfoGrid;
+    var grid = w2ui.RAPeopleGrid;
     var records = grid.records;
-    var isExists = false;
+    /*var isExists = false;*/
 
-    for (var recordIndex = 0; recordIndex < records.length; recordIndex++){
+    grid.records = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data;
+    reassignGridRecids(grid.name);
+
+    /*for (var recordIndex = 0; recordIndex < records.length; recordIndex++){
         if(records[recordIndex].TCID === transactantRec.TCID){
             isExists = true;
             break;
@@ -686,7 +692,7 @@ window.loadTransactantInRABGInfoGrid = function (transactantRec) {
         reassignGridRecids(grid.name);
     }else {
         grid.select(recordIndex + 1);
-    }
+    }*/
 };
 
 //-----------------------------------------------------------------------------
@@ -741,8 +747,8 @@ window.acceptTransactant = function () {
         app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex] = transactantRec;
     }
 
-    // load item in the RABGInfoGrid grid
-    loadTransactantInRABGInfoGrid(transactantRec);
+    // load item in the RAPeopleGrid grid
+    loadTransactantInRAPeopleGrid(transactantRec);
 
     // clear the form
     w2ui.RAPeopleForm.actions.reset();
