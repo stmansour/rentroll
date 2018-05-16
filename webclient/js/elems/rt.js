@@ -344,7 +344,7 @@ window.buildRentableTypeElements = function () {
                 // dropdown list items and selected variables
                 var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
                     manageToBudgetSel = {}, FLAGSel = {},
-                    cycleFreqItems = [];
+                    cycleFreqItems = [], ARIDSel = {};
 
                 // select value for rentcycle, proration, gsrpc
                 app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -374,6 +374,13 @@ window.buildRentableTypeElements = function () {
                     }
                 });
 
+                // select value for rentable type FLAGS
+                f.get("ARID").options.items.forEach(function(item) {
+                    if (item.id == r.ARID) {
+                        ARIDSel = {id: item.id, text: item.text};
+                    }
+                });
+
                 // fill the field with values
                 f.get("RentCycle").options.items = cycleFreqItems;
                 f.get("RentCycle").options.selected = rentCycleSel;
@@ -383,7 +390,7 @@ window.buildRentableTypeElements = function () {
                 f.get("GSRPC").options.selected = gsrpcSel;
                 // f.get("ManageToBudget").options.selected = manageToBudgetSel;
                 f.get("FLAGS").options.selected = FLAGSel;
-                f.get("ARID").options.selected = r.ARID;
+                f.get("ARID").options.selected = ARIDSel;
 
                 // if manageToBudget set then enable market rate grid
                 if (f.record.ManageToBudget) {
