@@ -60,6 +60,10 @@ window.loadRAPeopleForm = function () {
                         url: '/v1/transactantstd/' + app.raflow.BID,
                         max: 1,
                         renderItem: function (item) {
+
+                            // Enable Accept button
+                            $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", false);
+
                             var s = getTCIDName(item);
                             w2ui.RAPeopleForm.record.TCID = item.TCID;
                             w2ui.RAPeopleForm.record.FirstName = item.FirstName;
@@ -93,9 +97,6 @@ window.loadRAPeopleForm = function () {
                 reset: function () {
                     w2ui.RAPeopleForm.clear();
                 }
-            },
-            onChange: function (event) {
-                // TODO(Akshay): Enable accept button only if there is transactant in RAPeopleForm
             },
             onRefresh: function (event) {
                 var f = this;
@@ -690,6 +691,9 @@ window.acceptTransactant = function () {
                     // clear the form
                     w2ui.RAPeopleForm.actions.reset();
 
+                    // Disable Accept button
+                    $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", true);
+
                 } else {
                     console.log(data.message);
                 }
@@ -705,7 +709,11 @@ window.acceptTransactant = function () {
 
         // clear the form
         w2ui.RAPeopleForm.actions.reset();
+
+        // Disable Accept button
+        $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", true);
     }
+
 };
 
 // manageBGInfoFormFields
