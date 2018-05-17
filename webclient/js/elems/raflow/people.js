@@ -241,7 +241,7 @@ window.loadRAPeopleForm = function () {
                 };
             },
             onAdd: function () {
-                // TODO(Akshay): Open RABGInfoForm
+                openNewTransactantForm();
             }
         });
 
@@ -631,10 +631,14 @@ window.openNewTransactantForm = function () {
         BUD = getBUDfromBID(BID);
 
     // this is new form so TCID is set to zero
-    w2ui.RAAddTransactantForm.url = "/v1/person/" + BID.toString() + "/0";
-    w2ui.RAAddTransactantForm.record = getRAAddTransactantFormInitRec(BID, BUD, null);
-    showSliderContentW2UIComp(w2ui.RAAddTransactantForm, RACompConfig.people.sliderWidth);
-    w2ui.RAAddTransactantForm.refresh(); // need to refresh for header changes
+    // w2ui.RAAddTransactantForm.url = "/v1/person/" + BID.toString() + "/0";
+    w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, 0, 0);
+    showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.people.sliderWidth);
+
+    // TODO(Akshay): Hide delete button in the form
+
+
+    w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
 };
 
 //-----------------------------------------------------------------------------
@@ -775,6 +779,10 @@ window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
     return index;
 };
 
+//---------------------------------------------------------------------
+// setTrasanctantFields
+// Set Background information form fields value form the server record.
+//----------------------------------------------------------------------
 window.setTrasanctantFields = function (transactantRec, record) {
     transactantRec.TCID = record.TCID;
     transactantRec.FirstName = record.FirstName;
