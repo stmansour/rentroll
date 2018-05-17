@@ -644,7 +644,10 @@ window.openNewTransactantForm = function () {
     // For new form TCID is 0
     var TCID = 0;
     var recid = w2ui.RAPeopleGrid.records.length + 1;
+
+    w2ui.RABGInfoForm.header = 'Background Information';
     w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, TCID, recid);
+
     showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.people.sliderWidth);
 
     // TODO(Akshay): Hide delete button in the form
