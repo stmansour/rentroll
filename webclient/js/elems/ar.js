@@ -391,11 +391,6 @@ $().w2grid({
                 formRefreshCallBack(f, "ARID", header);
                 var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
                 $(f.box).find("input[name=RAIDrqd]").prop( "disabled", !b);
-                if (f.record.IsRentASM || f.record.IsSecDepASM) {
-                    $(f.box).find("input[name=AutoPopulateToNewRA]").prop("disabled", true);
-                } else {
-                    $(f.box).find("input[name=AutoPopulateToNewRA]").prop("disabled", false);
-                }
             };
         },
         onChange: function(event) {
@@ -403,14 +398,16 @@ $().w2grid({
                 var f = this;
                 switch (event.target) {
                     case "IsRentASM":
+                        if (event.value_new) {
+                            f.record.IsSecDepASM = false;
+                            f.refresh();
+                        }
+                        break;
                     case "IsSecDepASM":
                         if (event.value_new) {
-                            f.record.AutoPopulateToNewRA = true;
-                            $(f.box).find("input[name=AutoPopulateToNewRA]").prop("disabled", true);
-                        } else {
-                            $(f.box).find("input[name=AutoPopulateToNewRA]").prop("disabled", false);
+                            f.record.IsRentASM = false;
+                            f.refresh();
                         }
-                        f.refresh();
                         break;
                 }
 
