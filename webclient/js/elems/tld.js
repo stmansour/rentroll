@@ -237,6 +237,7 @@ window.buildTaskListDefElements = function () {
             { field: 'DurWait',        type: 'int',      required: false },
             { field: 'CreateTS',       type: 'date',     required: false },
             { field: 'CreateBy',       type: 'int',      required: false },
+            { field: 'TZOffset',       type: 'int',      required: false },
             { field: 'LastModTime',    type: 'date',     required: false },
             { field: 'LastModBy',      type: 'int',      required: false },
         ],
@@ -320,8 +321,12 @@ window.buildTaskListDefElements = function () {
                         r.Epoch       = w2uiDateTimeControlString(newDateKeepOldTime(r.Epoch,yr,mn,da));
                         r.EpochDue    = w2uiDateTimeControlString(newDateKeepOldTime(r.EpochDue,yr,mn,da));
                         r.EpochPreDue = w2uiDateTimeControlString(newDateKeepOldTime(r.EpochPreDue,yr,mn,da));
-                        f.refresh();
                     }
+                    // we must always keep epoch at localtime 00:00
+                    var ddt = new Date(r.Epoch);
+                    var dd1 = new Date(ddt.getFullYear(), ddt.getMonth(), ddt.getDate(), 0, 0 );
+                    r.Epoch = w2uiDateTimeControlString(dd1);
+                    f.refresh();
                     break;
                 }
             };
@@ -444,9 +449,10 @@ window.buildTaskListDefElements = function () {
             { field: 'PreDoneUID',     type: 'int',         required: false },
             { field: 'TDComment',      type: 'text',        required: false },
             { field: 'LastModTime',    type: 'date',        required: false },
-            { field: 'LastModBy',      type: 'date',        required: false },
+            { field: 'LastModBy',      type: 'int',         required: false },
             { field: 'CreateTS',       type: 'date',        required: false },
-            { field: 'CreateBy',       type: 'date',        required: false },
+            { field: 'CreateBy',       type: 'int',         required: false },
+            { field: 'TZOffset',       type: 'int',         required: false },
         ],
         actions: {
             save: function(target, data){
@@ -480,6 +486,7 @@ window.buildTaskListDefElements = function () {
                 if (r.EpochPreDue.length === 0) {
                     r.EpochPreDue = TLD.TIME0;
                 }
+                r.TZOffset = app.TZOffset;
 
                 var d = {cmd: "save", record: r};
                 var dat=JSON.stringify(d);

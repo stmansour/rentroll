@@ -112,7 +112,6 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 //
 // RETURNS
 //  error  - any error encountered
-//
 //-----------------------------------------------------------------------------
 func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList) error {
 	switch tld.Cycle {
@@ -121,16 +120,17 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 	case CYCLEMINUTELY:
 	case CYCLEHOURLY:
 	case CYCLEDAILY:
-		//-----------------------------------------------------------------------
-		// pivot time was set in the user's localtime. We must adjust the time
-		// by the offset from UTC 00:00 of the pivot date to ensure we stay on
-		// the same date when then time is xlated back to localtime.
-		// https://play.golang.org/p/Ym6xFBi8UfU
-		//-----------------------------------------------------------------------
-		// hr,mn := adjustForTZ(&tld.EpochDue, tzoff)
+		deltap := time.Duration(0)
+		if tld.EpochPreDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
+			deltap = tld.EpochPreDue.Sub(tld.Epoch)
+		}
+		tl.DtPreDue = pivot.Add(deltap)
 
-		tl.DtDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), tld.EpochDue.Hour(), tld.EpochDue.Minute(), 0, 0, time.UTC)
-		tl.DtPreDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), tld.EpochPreDue.Hour(), tld.EpochPreDue.Minute(), 0, 0, time.UTC)
+		deltad := time.Duration(0)
+		if tld.EpochDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
+			deltad = tld.EpochDue.Sub(tld.Epoch)
+		}
+		tl.DtDue = pivot.Add(deltad)
 
 		// Console("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
 		// Console("PIVOT = %s\n", pivot.Format(RRJSUTCDATETIME))
@@ -173,6 +173,27 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 		}
 	case CYCLEQUARTERLY:
 	case CYCLEYEARLY:
+		Console("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
+		Console("Yearly Task\n")
+		Console("PIVOT = %s\n", pivot.Format(RRJSUTCDATETIME))
+		Console("EpochDtDue = %s\n", tld.EpochDue.Format(RRJSUTCDATETIME))
+
+		tlepoch := time.Date(pivot.Year(), tld.Epoch.Month(), tld.Epoch.Day(), tld.Epoch.Hour(), tld.Epoch.Minute(), 0, 0, time.UTC)
+		deltap := time.Duration(0)
+		if tld.EpochPreDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
+			deltap = tld.EpochPreDue.Sub(tld.Epoch)
+		}
+		tl.DtPreDue = tlepoch.Add(deltap)
+
+		deltad := time.Duration(0)
+		if tld.EpochDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
+			deltad = tld.EpochDue.Sub(tld.Epoch)
+		}
+		tl.DtDue = tlepoch.Add(deltad)
+
+		Console("after adjustment -   DtDue = %s\n", tl.DtDue.Format(RRJSUTCDATETIME))
+		Console("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n")
+
 	default:
 		return fmt.Errorf("Unrecognized recur cycle: %d", tld.Cycle)
 	}
@@ -234,6 +255,12 @@ func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, td *TaskDe
 		}
 	case CYCLEQUARTERLY:
 	case CYCLEYEARLY:
+		if td.EpochPreDue.Year() > 1999 {
+			t.DtPreDue = time.Date(pivot.Year(), td.EpochPreDue.Month(), td.EpochPreDue.Day(), 0, 0, 0, 0, time.UTC)
+		}
+		if td.EpochDue.Year() > 1999 {
+			t.DtDue = time.Date(pivot.Year(), td.EpochDue.Month(), td.EpochDue.Day(), 0, 0, 0, 0, time.UTC)
+		}
 	default:
 		return fmt.Errorf("Unrecognized recur cycle: %d", tld.Cycle)
 	}

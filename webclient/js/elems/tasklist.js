@@ -163,10 +163,12 @@ window.buildTaskListElements = function () {
             { field: 'CreateBy',     type: 'int',       required: false },
             { field: 'LastModTime',  type: 'date',      required: false },
             { field: 'LastModBy',    type: 'int',       required: false },
+            { field: 'TZOffset',     type: 'int',       required: false },
             { field: 'ChkDtDue',     type: 'checkbox',  required: false },
             { field: 'ChkDtDone',    type: 'checkbox',  required: false },
             { field: 'ChkDtPreDue',  type: 'checkbox',  required: false },
             { field: 'ChkDtPreDone', type: 'checkbox',  required: false },
+            { field: 'TZOffset',     type: 'int',       required: false },
         ],
         onRefresh: function(event) {
             event.onComplete = function(event) {
@@ -328,6 +330,7 @@ window.buildTaskListElements = function () {
             { field: 'LastModBy',    type: 'int',      required: false },
             { field: 'CreateTS',     type: 'date',     required: false },
             { field: 'CreateBy',     type: 'int',      required: false },
+            { field: 'TZOffset',     type: 'int',      required: false },
             { field: 'ChkDtDue',     type: 'checkbox', required: false },
             { field: 'ChkDtDone',    type: 'checkbox', required: false },
             { field: 'ChkDtPreDue',  type: 'checkbox', required: false },
@@ -358,6 +361,7 @@ window.buildTaskListElements = function () {
                 if (r.DtPreDone.length === 0) {
                     r.DtPreDone = TLD.TIME0;
                 }
+                r.TZOffset = app.TZOffset;
                 var dat=JSON.stringify(d);
                 f.url = '/v1/task/' + r.BID + '/' + r.TID;
                 $.post(f.url,dat)
@@ -449,6 +453,9 @@ window.buildTaskListElements = function () {
                 //------------------------------------------------
                 r.DtDone = TLD.TIME0;
                 r.DtPreDone = TLD.TIME0;
+                r.TZOffset = app.TZOffset;
+                r.DtDue = localtimeToUTC(r.DtDue);
+                r.DtPreDue = localtimeToUTC(r.DtPreDue);
 
                 var tl = {
                     cmd: "save",
@@ -524,7 +531,6 @@ window.buildTaskListElements = function () {
             { field: 'TLDID',    type: 'int',  required: false },
             { field: 'Name',     type: 'list', required: true, options:  {items: [], selected: {}},  },
             { field: 'Pivot',    type: 'date', required: true },
-            { field: 'TZOffset', type: 'int',  required: false },
         ],
         actions: {
             save: function(target, data){
