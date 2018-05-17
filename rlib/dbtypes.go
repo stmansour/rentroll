@@ -760,6 +760,7 @@ type TransactantTypeDown struct {
 // RentableTypeDown is the struct needed to match names in typedown controls
 type RentableTypeDown struct {
 	Recid        int64 `json:"recid"` // this will hold the RID
+	RID          int64
 	RentableName string
 }
 

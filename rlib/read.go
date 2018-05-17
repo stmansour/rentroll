@@ -445,7 +445,7 @@ func ReadReceiptAllocations(rows *sql.Rows, a *ReceiptAllocation) error {
 
 // ReadRentableTypeDown reads a full RentableTypeDown structure of data from the database based on the supplied Row pointer.
 func ReadRentableTypeDown(rows *sql.Rows, a *RentableTypeDown) error {
-	return rows.Scan(&a.Recid, &a.RentableName)
+	return rows.Scan(&a.RID, &a.RentableName)
 }
 
 // ReadRentable reads a full Rentable structure of data from the database based on the supplied Row pointer.

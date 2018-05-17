@@ -64,6 +64,12 @@ func IsValidARFlag(FLAGS uint64) bool {
 	if FLAGS < 0 || FLAGS > uint64(maxFLAGVal) {
 		return false
 	}
+
+	// if IsRentASM and IsSecDepASM both are set
+	// both should be mutually exclusive
+	if FLAGS&0x20 != 0 && FLAGS&0x10 != 0 {
+		return false
+	}
 	return true
 }
 

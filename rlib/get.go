@@ -4787,6 +4787,7 @@ func GetRentableTypeDown(ctx context.Context, bid int64, s string, limit int) ([
 	for rows.Next() {
 		var t RentableTypeDown
 		err = ReadRentableTypeDown(rows, &t)
+		t.Recid = t.RID
 		if err != nil {
 			return m, err
 		}

@@ -82,6 +82,11 @@ window.loadRAPeopleForm = function () {
                             var srch = search.toLowerCase();
                             var match = (s.indexOf(srch) >= 0);
                             return match;
+                        },
+                        onRemove: function(event) {
+                            event.onComplete = function() {
+                                w2ui.RAPeopleForm.actions.reset();
+                            };
                         }
                     }
                 },
@@ -96,6 +101,7 @@ window.loadRAPeopleForm = function () {
             actions: {
                 reset: function () {
                     w2ui.RAPeopleForm.clear();
+                    $(w2ui.RARentableForm.box).find("button[name=accept]").prop("disabled", true);
                 }
             },
             onRefresh: function (event) {
@@ -716,9 +722,6 @@ window.acceptTransactant = function () {
                     // clear the form
                     w2ui.RAPeopleForm.actions.reset();
 
-                    // Disable Accept button
-                    $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", true);
-
                 } else {
                     console.log(data.message);
                 }
@@ -734,9 +737,6 @@ window.acceptTransactant = function () {
 
         // clear the form
         w2ui.RAPeopleForm.actions.reset();
-
-        // Disable Accept button
-        $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", true);
     }
 
 };
