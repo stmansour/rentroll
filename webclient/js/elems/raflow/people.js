@@ -429,6 +429,16 @@ window.loadRAPeopleForm = function () {
                         app.form_is_dirty = true;
                     }
                 };
+            },
+            onRefresh: function (event) {
+                var form = w2ui.RABGInfoForm;
+                // hide delete button if it is NewRecord
+                var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
+                if (isNewRecord) {
+                    $(form.box).find("button[name=delete]").addClass("hidden");
+                } else {
+                    $(form.box).find("button[name=delete]").removeClass("hidden");
+                }
             }
         });
     }
@@ -636,7 +646,6 @@ window.loadTransactantInRAPeopleGrid = function () {
 //-----------------------------------------------------------------------------
 // openNewTransactantForm - popup new transactant form
 //-----------------------------------------------------------------------------
-// TODO(Akshay): Remove this method after merging slide number 2 and 5
 window.openNewTransactantForm = function () {
     var BID = getCurrentBID(),
         BUD = getBUDfromBID(BID);
@@ -650,7 +659,6 @@ window.openNewTransactantForm = function () {
 
     showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.people.sliderWidth);
 
-    // TODO(Akshay): Hide delete button in the form
     w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
 };
 
