@@ -83,9 +83,9 @@ type RAVehiclesFlowData struct {
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
-	Recid int64 `json:"recid"`
-	BID   int64 `json:"BID"`
-	TCID  int64 `json:"TCID"`
+	// Recid int64 `json:"recid"` // this is for the grid widget
+	BID  int64 `json:"BID"`
+	TCID int64 `json:"TCID"`
 
 	// Role
 	IsRenter    bool `json:"IsRenter"`
