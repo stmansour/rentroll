@@ -143,8 +143,6 @@ window.loadRAPeopleForm = function () {
                     size: '150px',
                     render: function (record) {
                         if (!record.IsCompany) {
-                            console.log("From PeopleGrid");
-                            console.log(record);
                             return getFullName(record);
                         } else {
                             return record.CompanyName;
@@ -222,7 +220,7 @@ window.loadRAPeopleForm = function () {
 
                             // Operation related RABGInfoForm
                             for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
-                                if(bgInfoRecords[recordIndex].TCID === raBGInfoGridRecord.TCID){
+                                if(bgInfoRecords[recordIndex].TCID === raBGInfoGridRecord.TCID && bgInfoRecords[recordIndex].recid === raBGInfoGridRecord.recid){
                                     // Set form record from the client side
                                     form.record = bgInfoRecords[recordIndex];
 
@@ -318,6 +316,12 @@ window.loadRAPeopleForm = function () {
 
                     var record = $.extend(true, {}, form.record);
 
+                    // If transanctant role isn't selected than display error.
+                    if(!(record.IsRenter || record.IsOccupant || record.IsGuarantor)){
+                        form.message("Please select transanctant role.");
+                        return;
+                    }
+
                     // State filed
                     record.State = record.State.text;
 
@@ -331,11 +335,18 @@ window.loadRAPeopleForm = function () {
                     var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
 
                     // update record if it is already exists
+                    var isExists = false;
                     for (var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++) {
-                        if (bgInfoRecords[recordIndex].TCID === record.TCID) {
+                        if (bgInfoRecords[recordIndex].TCID === record.TCID && bgInfoRecords[recordIndex].recid === record.recid) {
                             bgInfoRecords[recordIndex] = record;
+                            isExists = true;
                             break;
                         }
+                    }
+
+                    // Push new record
+                    if(!isExists){
+                        bgInfoRecords.push(record);
                     }
 
                     var recordsData = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
@@ -630,14 +641,13 @@ window.openNewTransactantForm = function () {
     var BID = getCurrentBID(),
         BUD = getBUDfromBID(BID);
 
-    // this is new form so TCID is set to zero
-    // w2ui.RAAddTransactantForm.url = "/v1/person/" + BID.toString() + "/0";
-    w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, 0, 0);
+    // For new form TCID is 0
+    var TCID = 0;
+    var recid = w2ui.RAPeopleGrid.records.length + 1;
+    w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, TCID, recid);
     showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.people.sliderWidth);
 
     // TODO(Akshay): Hide delete button in the form
-
-
     w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
 };
 
@@ -747,6 +757,24 @@ window.manageBGInfoFormFields = function (record) {
 
         // require fields
         setNotRequiredFields(listOfNotRequiredFields, true);
+    }
+
+    var listOfCompanyFields = ["CompanyName"];
+
+    var listOfPersonFields = ["FirstName", "MiddleName", "LastName"];
+
+    if(record.IsCompany){
+        // Require fields
+        setNotRequiredFields(listOfCompanyFields, true);
+
+        // Not required fields
+        setNotRequiredFields(listOfPersonFields, false);
+    }else{
+        // Not Require fields
+        setNotRequiredFields(listOfCompanyFields, false);
+
+        // Required fields
+        setNotRequiredFields(listOfPersonFields, true);
     }
 };
 
