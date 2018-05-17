@@ -15,9 +15,16 @@
 // getAutoPopulateARs - pull down all account rules which are set to auto populate
 //                      to new rental agreement
 // -------------------------------------------------------------------------------
-window.getAutoPopulateARs = function() {
+window.getAutoPopulateARs = function(BID, RID) {
+    var flags = (1 << app.arFlAGS.AutoPopulateToNewRA);
+    var data = {"type": "FLAGS", "FLAGS": flags, "RID": RID};
+
     return $.ajax({
-        url: ''
+        url: '/v1/arslist/' + BID.toString() + "/",
+        method: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: "json"
     });
 };
 
@@ -256,6 +263,9 @@ window.loadRARentablesGrid = function () {
                                     localRData.Fees = w2ui.RARentableFeesGrid.records;
                                     setRentableLocalData(rec.RID, localRData);
                                 });
+                            } else {
+                                w2ui.RARentableFeesGrid.records = localRData.Fees;
+                                reassignGridRecids(w2ui.RARentableFeesGrid.name);
                             }
                             showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                         };
@@ -662,16 +672,15 @@ window.getRentableLocalData = function(RID) {
 //-----------------------------------------------------------------------------
 window.setRentableLocalData = function(RID, rentableData) {
     var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
-    var data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
     var dataIndex = -1;
-    data.forEach(function(item, index) {
+    app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.forEach(function(item, index) {
         if (item.RID == RID) {
             dataIndex = index;
             return false;
         }
     });
     if (dataIndex > -1) {
-        data[dataIndex] = rentableData;
+        app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data[dataIndex] = rentableData;
         return true;
     }
     return false;

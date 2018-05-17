@@ -581,9 +581,11 @@ func deleteARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // ListedAR is struct to list down individual account rule record
 type ListedAR struct {
-	BID  int64  `json:"BID"`
-	ARID int64  `json:"ARID"` // Account Rule ID
-	Name string `json:"Name"` // Account rule name
+	BID           int64
+	ARID          int64  // Account Rule ID
+	Name          string // Account rule name
+	DefaultAmount float64
+	FLAGS         int64
 }
 
 // ARsListResponse is the response to list down all account rules
@@ -595,7 +597,8 @@ type ARsListResponse struct {
 
 // ARsListRequestByFLAGS is the request struct for listing down account rules by FLAGS
 type ARsListRequestByFLAGS struct {
-	FLAGS uint64 `json:"FLAGS"`
+	FLAGS uint64
+	RID   int64
 }
 
 // ARsListRequestType represents for which type of request to list down ARs
@@ -664,7 +667,13 @@ func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		// append records in ascending order
 		var arList []ListedAR
 		for _, ar := range m {
-			arList = append(arList, ListedAR{BID: ar.BID, ARID: ar.ARID, Name: ar.Name})
+			arList = append(arList, ListedAR{
+				BID:           ar.BID,
+				ARID:          ar.ARID,
+				Name:          ar.Name,
+				FLAGS:         ar.FLAGS,
+				DefaultAmount: ar.DefaultAmount,
+			})
 		}
 
 		// sort based on name, needs version 1.8 later of golang
