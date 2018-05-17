@@ -101,7 +101,7 @@ window.loadRAPeopleForm = function () {
             actions: {
                 reset: function () {
                     w2ui.RAPeopleForm.clear();
-                    $(w2ui.RARentableForm.box).find("button[name=accept]").prop("disabled", true);
+                    $(w2ui.RAPeopleForm.box).find("button[name=accept]").prop("disabled", true);
                 }
             },
             onRefresh: function (event) {
