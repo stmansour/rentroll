@@ -202,8 +202,8 @@ window.loadRAPeopleForm = function () {
                     var raBGInfoGridRecord = w2ui.RAPeopleGrid.get(event.recid); // record from the w2ui grid
                     var form = w2ui.RABGInfoForm;
 
-                    console.log(event.recid);
-                    console.log(raBGInfoGridRecord);
+                    // console.log(event.recid);
+                    // console.log(raBGInfoGridRecord);
 
                     var yes_args = [this, event.recid],
                         no_args = [this],
@@ -328,7 +328,7 @@ window.loadRAPeopleForm = function () {
                         return;
                     }
 
-                    // State filed
+                    // State field
                     record.State = record.State.text;
 
                     // Convert integer to bool checkboxes fields
