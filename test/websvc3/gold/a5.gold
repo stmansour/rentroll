@@ -13,6 +13,7 @@
         "FLAGS": 7,
         "Name": "Tucasa Apts Period Close",
         "TLDID": 2,
+        "TZOffset": 0,
         "recid": 0
     },
     "status": "success"
