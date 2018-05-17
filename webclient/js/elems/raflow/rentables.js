@@ -244,7 +244,7 @@ window.loadRARentablesGrid = function () {
                 },
                 {
                     field: 'ARName',
-                    caption: 'Fee',
+                    caption: 'Account Rule',
                     size: '150px',
                 },
                 {
