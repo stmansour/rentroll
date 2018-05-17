@@ -19,7 +19,6 @@ var raFlowPartTypes = rlib.Str2Int64Map{
 	"people":    int64(rlib.PeopleRAFlowPart),
 	"pets":      int64(rlib.PetsRAFlowPart),
 	"vehicles":  int64(rlib.VehiclesRAFlowPart),
-	"bginfo":    int64(rlib.BackGroundInfoRAFlowPart),
 	"rentables": int64(rlib.RentablesRAFlowPart),
 	"feesterms": int64(rlib.FeesTermsRAFlowPart),
 }
@@ -30,7 +29,6 @@ type RAFlowJSONData struct {
 	RAPeopleFlowData         `json:"people"`
 	RAPetsFlowData           `json:"pets"`
 	RAVehiclesFlowData       `json:"vehicles"`
-	RABackgroundInfoFlowData `json:"bginfo"`
 	RARentablesFlowData      `json:"rentables"`
 	RAFeesTermsFlowData      `json:"feesterms"`
 }*/
@@ -56,9 +54,6 @@ type RAPeopleFlowData struct {
 	CompanyName string
 	IsCompany   int64
 	Recid       int64 `json:"recid"`
-	IsRenter    bool
-	IsOccupant  bool
-	IsGuarantor bool
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
@@ -100,15 +95,22 @@ type RAVehiclesFlowData struct {
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
-	// Transanctant id
-	BID  int64 `json:"BID"`
-	TCID int64 `json:"TCID"`
+	Recid int64 `json:"recid"`
+	BID   int64 `json:"BID"`
+	TCID  int64 `json:"TCID"`
+
+	// Role
+	IsRenter    bool `json:"IsRenter"`
+	IsOccupant  bool `json:"IsOccupant"`
+	IsGuarantor bool `json:"IsGuarantor"`
 
 	// Applicant information
 	FirstName    string  `json:"FirstName"`
 	MiddleName   string  `json:"MiddleName"`
 	LastName     string  `json:"LastName"`
 	BirthDate    string  `json:"BirthDate"`
+	IsCompany    bool    `json:"IsCompany"`
+	CompanyName  string  `json:"CompanyName"`
 	SSN          string  `json:"SSN"`
 	DriverLicNo  string  `json:"DriverLicNo"`
 	TelephoneNo  string  `json:"TelephoneNo"`
@@ -234,7 +236,8 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		}
 		return json.Marshal(&a)
 	case rlib.PeopleRAFlowPart:
-		a := []RAPeopleFlowData{}
+		// a := []RAPeopleFlowData{}
+		a := []RABackgroundInfoFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
@@ -253,16 +256,6 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		return json.Marshal(&a)
 	case rlib.VehiclesRAFlowPart:
 		a := []RAVehiclesFlowData{}
-		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
-			err := json.Unmarshal(data, &a)
-			if err != nil {
-				return []byte(nil), err
-			}
-		}
-		return json.Marshal(&a)
-	case rlib.BackGroundInfoRAFlowPart:
-		//var a RABackgroundInfoFlowData
-		a := []RABackgroundInfoFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
@@ -339,13 +332,12 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	// Rental agreement flow parts map init
 	// maybe we can just override the above pre-defined initFlowPart struct
 	initRAFlowMap := map[rlib.RAFlowPartType]rlib.FlowPart{
-		rlib.DatesRAFlowPart:          rlib.FlowPart{},
-		rlib.PeopleRAFlowPart:         rlib.FlowPart{},
-		rlib.PetsRAFlowPart:           rlib.FlowPart{},
-		rlib.VehiclesRAFlowPart:       rlib.FlowPart{},
-		rlib.BackGroundInfoRAFlowPart: rlib.FlowPart{},
-		rlib.RentablesRAFlowPart:      rlib.FlowPart{},
-		rlib.FeesTermsRAFlowPart:      rlib.FlowPart{},
+		rlib.DatesRAFlowPart:     rlib.FlowPart{},
+		rlib.PeopleRAFlowPart:    rlib.FlowPart{},
+		rlib.PetsRAFlowPart:      rlib.FlowPart{},
+		rlib.VehiclesRAFlowPart:  rlib.FlowPart{},
+		rlib.RentablesRAFlowPart: rlib.FlowPart{},
+		rlib.FeesTermsRAFlowPart: rlib.FlowPart{},
 	}
 
 	// insert in order to ease
