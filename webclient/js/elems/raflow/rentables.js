@@ -4,7 +4,8 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     lockOnGrid,
-    getRentableFeeFormInitalRecord,
+    getRentableFeeFormInitalRecord, getRentablesGridInitalRecord,
+    ridRentablePickerRender, ridRentableDropRender, ridRentableCompare
 */
 
 "use strict";
@@ -17,6 +18,29 @@ window.getAutoPopulateARs = function() {
     return $.ajax({
         url: ''
     });
+};
+
+// getRentablesGridInitalRecord returns grid initial record
+// for the grid
+window.getRentablesGridInitalRecord = function () {
+    var BID = getCurrentBID(),
+        BUD = getBUDfromBID(BID);
+
+    var t = new Date(),
+        nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+
+    return {
+        recid: 0,
+        RID: 0,
+        BID: BID,
+        BUD: BUD,
+        RentableName: "",
+        ContractRent: 0.0,
+        ProrateAmt: 0.0,
+        SalesTax: 0.0,
+        TaxableAmt: 0.0,
+        TransOcc: 0.0,
+    };
 };
 
 
@@ -74,6 +98,62 @@ window.loadRARentablesGrid = function () {
 
     // if form is loaded then return
     if (!("RARentablesGrid" in w2ui)) {
+
+        // people form
+        $().w2form({
+            name: 'RARentableForm',
+            header: 'Rentable',
+            style: 'display: block; border: none;',
+            formURL: '/webclient/html/formrar.html',
+            focus: -1,
+            fields: [
+                { field: 'Rentable', required: true,
+                    type: 'enum',
+                    options: {
+                        url:           '/v1/rentablestd/' + app.raflow.BID,
+                        max:           1,
+                        cacheMax:      50,
+                        maxDropHeight: 350,
+                        renderItem:    function(item) {
+                            // Enable Accept button
+                            $(w2ui.RARentableForm.box).find("button[name=accept]").prop("disabled", false);
+                            w2ui.RARentableForm.record.RID = item.RID;
+                            w2ui.RARentableForm.record.RentableName = item.RentableName;
+                            return item.RentableName + '  (RID: ' + item.RID + ')';
+                        },
+                        renderDrop:    ridRentableDropRender,
+                        compare:       ridRentableCompare,
+                        onNew:         function (event) {
+                            //console.log('++ New Item: Do not forget to submit it to the server too', event);
+                            $.extend(event.item, { RentableName : event.item.text });
+                        },
+                        onRemove: function(event) {
+                            event.onComplete = function() {
+                                w2ui.RARentableForm.actions.reset();
+                            };
+                        }
+                    },
+                },
+                {name: 'BID',           type: 'int', required: true, html: {caption: "BID"}},
+                {name: 'RID',           type: 'int', required: true, html: {caption: "RID"}},
+                {name: 'RentableName',  type: 'int', required: true, html: {caption: "RentableName"}},
+            ],
+            actions: {
+                reset: function () {
+                    w2ui.RARentableForm.clear();
+                    $(w2ui.RARentableForm.box).find("button[name=accept]").prop("disabled", true);
+                }
+            },
+            onRefresh: function (event) {
+                var f = this;
+                event.onComplete = function () {
+                    var BID = getCurrentBID(),
+                        BUD = getBUDfromBID(BID);
+
+                    f.record.BID = BID;
+                };
+            }
+        });
 
         // rentables grid
         $().w2grid({
@@ -383,7 +463,7 @@ window.loadRARentablesGrid = function () {
             }
         });
 
-        // new transactant form especially for this RA flow
+        // new Rentable form especially for this RA flow
         $().w2form({
             name: 'RARentableFeesForm',
             header: 'Add New Rentable Fee',
@@ -460,7 +540,7 @@ window.loadRARentablesGrid = function () {
                             return;
                         }
 
-                        // f.record = getRAAddTransactantFormInitRec(BID, BUD, f.record);
+                        // f.record = getRAAddRentableFormInitRec(BID, BUD, f.record);
                         f.refresh();
                     });
                 },
@@ -509,7 +589,8 @@ window.loadRARentablesGrid = function () {
     }
 
     // now load grid in division
-    $('#ra-form #rentables').w2render(w2ui.RARentablesGrid);
+    $('#ra-form #rentables .grid-container').w2render(w2ui.RARentablesGrid);
+    $('#ra-form #rentables .form-container').w2render(w2ui.RARentableForm);
 
     // load the existing data in rentables component
     setTimeout(function () {
@@ -517,8 +598,26 @@ window.loadRARentablesGrid = function () {
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RARentablesGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
             w2ui.RARentablesGrid.refresh();
+
+            // Operation on RARentableForm
+            w2ui.RARentableForm.refresh();
         } else {
             w2ui.RARentablesGrid.clear();
+
+            // Operation on RARentableForm
+            w2ui.RARentableForm.actions.reset();
         }
     }, 500);
+};
+
+//-----------------------------------------------------------------------------
+// acceptRentable - add Rentable to the list rentables grid records
+//-----------------------------------------------------------------------------
+window.acceptRentable = function () {
+    var rec = getRentablesGridInitalRecord();
+    rec.RID = w2ui.RARentableForm.record.RID;
+    rec.RentableName = w2ui.RARentableForm.record.RentableName;
+    rec.recid = w2ui.RARentablesGrid.records.length;
+    w2ui.RARentablesGrid.add(rec);
+    w2ui.RARentableForm.actions.reset(); // clear the form
 };
