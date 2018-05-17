@@ -14,7 +14,6 @@ const (
 	PeopleRAFlowPart
 	PetsRAFlowPart
 	VehiclesRAFlowPart
-	BackGroundInfoRAFlowPart
 	RentablesRAFlowPart
 	FeesTermsRAFlowPart
 )

@@ -158,7 +158,7 @@ window.saveActiveCompData = function (record, partType) {
         "FlowID": app.raflow.activeFlowID,
         "BID": bid,
         "PartType": partType,
-        "Data": record,
+        "Data": record
     };
 
     return $.ajax({
@@ -176,7 +176,7 @@ window.saveActiveCompData = function (record, partType) {
         },
         error: function (data) {
             console.log(data);
-        },
+        }
     });
 };
 
@@ -219,7 +219,7 @@ window.getRAFlowAllParts = function (FlowID) {
         },
         error: function (data) {
             console.log(data);
-        },
+        }
     });
 };
 
@@ -239,7 +239,7 @@ window.initRAFlowAJAX = function () {
         },
         error: function (data) {
             console.log(data);
-        },
+        }
     });
 };
 
@@ -324,27 +324,6 @@ window.requiredFieldsFulFilled = function (compID) {
                 }
             }
             break;
-        case "bginfo":
-            // TODO(Akshay): Add for integer fields e.g., phone, gross wage.
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            // list of fields which must have value and it's type string
-            var listOfRequiredField = ["ApplicationDate", "MoveInDate",
-                "ApartmentNo", "LeaseTerm", "FirstName", "MiddleName",
-                "LastName", "BirthDate", "SSN",
-                "DriverLicNo", "TelephoneNo", "EmailAddress",
-                "NoPeople", "CurrentAddress", "CurrentLandLordName", "CurrentLandLordPhoneNo",
-                "CurrentReasonForMoving", "Employer", "Phone", "Address",
-                "Position", "EmergencyContactName", "EmergencyContactPhone", "EmergencyContactAddress"];
-
-            listOfRequiredField.forEach(function(field) {
-                if (!data[field]) {
-                    validData = false;
-                    return false;
-                }
-            });
-
-            done = validData;
-            break;
         case "rentables":
             data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             if (data.length > 0) {
@@ -394,10 +373,6 @@ window.loadTargetSection = function (target, activeCompID) {
             break;
         case "vehicles":
             data = w2ui.RAVehiclesGrid.records;
-            break;
-        case "bginfo":
-            partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.bginfo);
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             break;
         case "rentables":
             data = w2ui.RARentablesGrid.records;
