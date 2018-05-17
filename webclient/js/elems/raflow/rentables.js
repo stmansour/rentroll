@@ -4,7 +4,8 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     lockOnGrid,
-    getRentableFeeFormInitalRecord, getRentablesGridInitalRecord,
+    getRentableFeeFormInitalRecord, getRentablesGridInitalRecord, getInitialRentableFeesData,
+    getRentableLocalData, setRentableLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare
 */
 
@@ -20,14 +21,26 @@ window.getAutoPopulateARs = function() {
     });
 };
 
+
+// -------------------------------------------------------------------------------
+// getInitialRentableFeesData - pull down all fees records for the requested RID
+// @params - RID
+// -------------------------------------------------------------------------------
+window.getInitialRentableFeesData = function(BID, RID) {
+    var data = {"RID": RID};
+    return $.ajax({
+        url: "/v1/raflow-rentable-fees/" + BID.toString() + "/",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+    });
+};
+
 // getRentablesGridInitalRecord returns grid initial record
 // for the grid
 window.getRentablesGridInitalRecord = function () {
     var BID = getCurrentBID(),
         BUD = getBUDfromBID(BID);
-
-    var t = new Date(),
-        nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     return {
         recid: 0,
@@ -164,7 +177,7 @@ window.loadRARentablesGrid = function () {
                 footer: true,
             },
             multiSelect: false,
-            style: 'border: 1px solid black; display: block;',
+            style: 'display: block;',
             columns: [
                 {
                     field: 'recid',
@@ -208,7 +221,7 @@ window.loadRARentablesGrid = function () {
                     render: 'money',
                 },
                 {
-                    field: 'TransOCC',
+                    field: 'TransOcc',
                     caption: 'Trans OCC',
                     size: '100px',
                     render: 'money',
@@ -228,23 +241,23 @@ window.loadRARentablesGrid = function () {
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
 
-                            var rec = grid.get(recid);
-
                             // get auto populated to new RA account rules
-                            var data = {"RID": rec.RID};
-                            var BID = getCurrentBID();
-                            $.ajax({
-                                url: "/v1/raflow-rentable-fees/" + BID.toString() + "/",
-                                method: "POST",
-                                contentType: "application/json",
-                                data: JSON.stringify(data),
-                            }).done(function(data) {
-                                // assign records in the grid and then render it
-                                w2ui.RARentableFeesGrid.records = data.records;
-                                reassignGridRecids(w2ui.RARentableFeesGrid.name);
-                                showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
-                            });
+                            var rec = grid.get(recid);
+                            var localRData = getRentableLocalData(rec.RID);
+                            if (localRData.Fees.length == 0) {
+                                var BID = getCurrentBID();
+                                getInitialRentableFeesData(BID, rec.RID)
+                                .done(function(data) {
+                                    // assign records in the grid and then render it
+                                    w2ui.RARentableFeesGrid.records = data.records || [];
+                                    reassignGridRecids(w2ui.RARentableFeesGrid.name);
 
+                                    // save fees record
+                                    localRData.Fees = w2ui.RARentableFeesGrid.records;
+                                    setRentableLocalData(rec.RID, localRData);
+                                });
+                            }
+                            showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
                         };
 
                     // warn user if content has been changed
@@ -620,4 +633,47 @@ window.acceptRentable = function () {
     rec.recid = w2ui.RARentablesGrid.records.length;
     w2ui.RARentablesGrid.add(rec);
     w2ui.RARentableForm.actions.reset(); // clear the form
+
+    // also manage local data
+    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+    var rentableData = $.extend(true, {"Fees": []}, rec);
+    app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.push(rentableData);
 };
+
+//-----------------------------------------------------------------------------
+// getRentableLocalData - returns the clone of rentable data for requested
+//                        RID
+//-----------------------------------------------------------------------------
+window.getRentableLocalData = function(RID) {
+    var cloneData = {};
+    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+    var data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+    data.forEach(function(item) {
+        if (item.RID == RID) {
+            cloneData = $.extend(true, {}, item);
+            return false;
+        }
+    });
+    return cloneData;
+};
+
+//-----------------------------------------------------------------------------
+// setRentableLocalData - save the data for requested RID in local data
+//-----------------------------------------------------------------------------
+window.setRentableLocalData = function(RID, rentableData) {
+    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+    var data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+    var dataIndex = -1;
+    data.forEach(function(item, index) {
+        if (item.RID == RID) {
+            dataIndex = index;
+            return false;
+        }
+    });
+    if (dataIndex > -1) {
+        data[dataIndex] = rentableData;
+        return true;
+    }
+    return false;
+};
+
