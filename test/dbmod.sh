@@ -327,6 +327,9 @@ MYSQLDUMP="mysqldump --no-defaults"
 # May 14, 2018
 # ALTER TABLE TaskList ADD PTLID BIGINT NOT NULL DEFAULT 0 AFTER BID;
 
+# May 16, 2018
+# ALTER TABLE RentableTypes ADD ARID BIGINT NOT NULL DEFAULT 0 AFTER FLAGS;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
