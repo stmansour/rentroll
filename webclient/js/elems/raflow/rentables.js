@@ -80,38 +80,11 @@ window.loadRARentablesGrid = function () {
             name: 'RARentablesGrid',
             header: 'Rentables',
             show: {
-                toolbar: true,
+                toolbar: false,
                 footer: true,
             },
+            multiSelect: false,
             style: 'border: 1px solid black; display: block;',
-            toolbar: {
-                items: [
-                    {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
-                ],
-                onClick: function (event) {
-                    switch(event.target) {
-                        case "add":
-                            // get auto populated to new RA account rules
-                            var data = {
-                              "type":"FLAGS",
-                              "FLAGS": 1<<app.arFLAGS.PopulateOnRA
-                            };
-                            var BID = getCurrentBID();
-                            $.ajax({
-                                url: "/v1/raflow-rentable-fees/" + BID.toString() + "/",
-                                method: "POST",
-                                contentType: "application/json",
-                                data: JSON.stringify(data),
-                            }).done(function(data) {
-                                // assign records in the grid and then render it
-                                w2ui.RARentableFeesGrid.records = data.records;
-                                reassignGridRecids(w2ui.RARentableFeesGrid.name);
-                                showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
-                            });
-                            break;
-                    }
-                }
-            },
             columns: [
                 {
                     field: 'recid',
@@ -123,10 +96,6 @@ window.loadRARentablesGrid = function () {
                 },
                 {
                     field: 'BID',
-                    hidden: true
-                },
-                {
-                    field: 'RTID',
                     hidden: true
                 },
                 {
@@ -165,6 +134,43 @@ window.loadRARentablesGrid = function () {
                     render: 'money',
                 }
             ],
+            onClick: function (event) {
+                event.onComplete = function () {
+                    var yes_args = [this, event.recid],
+                        no_args = [this],
+                        no_callBack = function(grid) {
+                            grid.select(app.last.grid_sel_recid);
+                            return false;
+                        },
+                        yes_callBack = function(grid, recid) {
+                            app.last.grid_sel_recid = parseInt(recid);
+
+                            // keep highlighting current row in any case
+                            grid.select(app.last.grid_sel_recid);
+
+                            var rec = grid.get(recid);
+
+                            // get auto populated to new RA account rules
+                            var data = {"RID": rec.RID};
+                            var BID = getCurrentBID();
+                            $.ajax({
+                                url: "/v1/raflow-rentable-fees/" + BID.toString() + "/",
+                                method: "POST",
+                                contentType: "application/json",
+                                data: JSON.stringify(data),
+                            }).done(function(data) {
+                                // assign records in the grid and then render it
+                                w2ui.RARentableFeesGrid.records = data.records;
+                                reassignGridRecids(w2ui.RARentableFeesGrid.name);
+                                showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+                            });
+
+                        };
+
+                    // warn user if content has been changed
+                    form_dirty_alert(yes_callBack, no_callBack, yes_args, no_args);
+                };
+            }
         });
 
         // rentables grid
@@ -182,24 +188,6 @@ window.loadRARentablesGrid = function () {
             style: 'border: 2px solid white; display: block;',
             toolbar: {
                 items: [
-                    {id: 'rentablestd', type: 'menu-radio',
-                        text: function(item) {
-                            var el   = this.get('rentablestd:' + item.selected);
-                            if (el) {
-                                return "<span>Rentable: " + el.text + "</span>";
-                            }
-                            return "<span>Rentable: ----</span>";
-                        },
-                        items: [
-                            {id: 1, text: "Rentable001"},
-                            {id: 2, text: "Rentable002"},
-                            {id: 3, text: "Rentable003"},
-                        ],
-                        onRefresh: function(event) {
-                            console.log(event);
-                        }
-                    },
-                    { type: 'break' },
                     {id: 'add', type: 'button', caption: 'Add Record', icon: 'w2ui-icon-plus'},
                     {id: 'bt3', type: 'spacer'},
                     {id: 'btnClose', type: 'button', icon: 'fas fa-times'},

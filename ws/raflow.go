@@ -392,6 +392,11 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	return flowID, err
 }
 
+// RARentableFeesDataRequest is struct for request for rentable fees
+type RARentableFeesDataRequest struct {
+	RID int64
+}
+
 // RARentableFeesDataListResponse for listing down all RARentableFeesData
 // in the grid
 type RARentableFeesDataListResponse struct {
@@ -407,13 +412,16 @@ type RARentableFeesDataListResponse struct {
 //  @Method  GET
 //  @Synopsis Get Rentable Fees list
 //  @Description Get all rentable fees with auto populate AR fees
-//  @Input WebGridSearchRequest
+//  @Input RARentableFeesDataRequest
 //  @Response RARentableFeesDataListResponse
 // wsdoc }
 func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRentableFeesData"
 	var (
-		g RARentableFeesDataListResponse
+		g       RARentableFeesDataListResponse
+		foo     RARentableFeesDataRequest
+		records []RARentableFeesData
+		today   = time.Now()
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -423,9 +431,46 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		return
 	}
 
-	// get account rules by IsRentASM FLAGS integer representation
-	arFLAGVal := 1<<uint64(bizlogic.ARFLAGS["IsRentASM"]) + 1<<uint64(bizlogic.ARFLAGS["IsSecDepASM"])
+	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
+	// get rentableType
+	rtid, err := rlib.GetRTIDForDate(r.Context(), foo.RID, &today)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	var rt rlib.RentableType
+	err = rlib.GetRentableType(r.Context(), rtid, &rt)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// now get account rule based on this rentabletype
+	ar, err := rlib.GetAR(r.Context(), rt.ARID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	// make sure the IsRentASM is marked true as well as autopopulatetoNewRA
+	if ar.FLAGS&0x10 != 0 && ar.FLAGS&0x2 != 0 {
+		rec := RARentableFeesData{
+			BID:    ar.BID,
+			ARID:   ar.ARID,
+			ARName: ar.Name,
+		}
+		rec.Amount = ar.DefaultAmount
+		rec.RentPeriodStart = rlib.JSONDate(today)
+		rec.RentPeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
+		rec.UsePeriodStart = rlib.JSONDate(today)
+		rec.UsePeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
+	}
+
+	// get all auto populated to new RA marked account rules by integer representation
+	arFLAGVal := 1 << uint64(bizlogic.ARFLAGS["AutoPopulateToNewRA"])
 	m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, uint64(arFLAGVal))
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -433,7 +478,6 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	// append records in ascending order
-	var records []RARentableFeesData
 	for _, ar := range m {
 		rec := RARentableFeesData{
 			BID:    ar.BID,
@@ -441,12 +485,9 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 			ARName: ar.Name,
 		}
 
-		// if it's Rent ASM account rule then fetch the default amount and set it in fee data
-		if ar.FLAGS&0x10 != 0 { // it is Rent ASM
+		// if it's NOT Rent ASM account rule then
+		if ar.FLAGS&0x10 == 0 { // it is NOT Rent ASM then
 			rec.Amount = ar.DefaultAmount
-			rec.ContractRent = ar.DefaultAmount
-
-			today := time.Now()
 			rec.RentPeriodStart = rlib.JSONDate(today)
 			rec.RentPeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
 			rec.UsePeriodStart = rlib.JSONDate(today)
