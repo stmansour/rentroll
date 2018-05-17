@@ -173,11 +173,6 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 		}
 	case CYCLEQUARTERLY:
 	case CYCLEYEARLY:
-		Console("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
-		Console("Yearly Task\n")
-		Console("PIVOT = %s\n", pivot.Format(RRJSUTCDATETIME))
-		Console("EpochDtDue = %s\n", tld.EpochDue.Format(RRJSUTCDATETIME))
-
 		tlepoch := time.Date(pivot.Year(), tld.Epoch.Month(), tld.Epoch.Day(), tld.Epoch.Hour(), tld.Epoch.Minute(), 0, 0, time.UTC)
 		deltap := time.Duration(0)
 		if tld.EpochPreDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
@@ -190,9 +185,6 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 			deltad = tld.EpochDue.Sub(tld.Epoch)
 		}
 		tl.DtDue = tlepoch.Add(deltad)
-
-		Console("after adjustment -   DtDue = %s\n", tl.DtDue.Format(RRJSUTCDATETIME))
-		Console("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n")
 
 	default:
 		return fmt.Errorf("Unrecognized recur cycle: %d", tld.Cycle)
@@ -255,12 +247,18 @@ func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, td *TaskDe
 		}
 	case CYCLEQUARTERLY:
 	case CYCLEYEARLY:
-		if td.EpochPreDue.Year() > 1999 {
-			t.DtPreDue = time.Date(pivot.Year(), td.EpochPreDue.Month(), td.EpochPreDue.Day(), 0, 0, 0, 0, time.UTC)
+		tlepoch := time.Date(pivot.Year(), tld.Epoch.Month(), tld.Epoch.Day(), tld.Epoch.Hour(), tld.Epoch.Minute(), 0, 0, time.UTC)
+		deltap := time.Duration(0)
+		if td.EpochPreDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
+			deltap = td.EpochPreDue.Sub(tld.Epoch)
 		}
-		if td.EpochDue.Year() > 1999 {
-			t.DtDue = time.Date(pivot.Year(), td.EpochDue.Month(), td.EpochDue.Day(), 0, 0, 0, 0, time.UTC)
+		t.DtPreDue = tlepoch.Add(deltap)
+
+		deltad := time.Duration(0)
+		if td.EpochDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
+			deltad = td.EpochDue.Sub(tld.Epoch)
 		}
+		t.DtDue = tlepoch.Add(deltad)
 	default:
 		return fmt.Errorf("Unrecognized recur cycle: %d", tld.Cycle)
 	}
