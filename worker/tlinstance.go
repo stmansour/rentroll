@@ -49,14 +49,24 @@ func TLInstanceBot(item *tws.Item) {
 func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 	var err error
 	var rows *sql.Rows
+	tomorrow := now.Add(24 * time.Hour)
 
-	rows, err = RRdb.Prepstmt.GetAllParentTaskLists.Query()
+	rows, err = rlib.RRdb.Prepstmt.GetAllParentTaskLists.Query()
 
 	for i := 0; rows.Next(); i++ {
 		var a rlib.TaskList
 		if err = rlib.ReadTaskLists(rows, &a); err != nil {
 			return err
 		}
+		if a.DtPreDue.Year() < 1999 || a.DtDue.Year() < 1999 {
+			continue
+		}
+
+		d1 := a.DtPreDue
+		d2 := d1.AddDate(0, 0, 1)
+
+		// Look for any instances that occur this day
+		rlib.GetRecurrences(now, &tomorrow, &d1, &d2, a.Cycle)
 
 	}
 
