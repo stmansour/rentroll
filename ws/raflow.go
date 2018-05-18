@@ -437,6 +437,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 			rec := RARentableFeesData{
 				BID:             ar.BID,
 				ARID:            ar.ARID,
+				RID:             foo.RID,
 				ARName:          ar.Name,
 				Amount:          ar.DefaultAmount,
 				ContractRent:    ar.DefaultAmount,
@@ -466,6 +467,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		rec := RARentableFeesData{
 			BID:             ar.BID,
 			ARID:            ar.ARID,
+			RID:             foo.RID,
 			ARName:          ar.Name,
 			Amount:          ar.DefaultAmount,
 			RentPeriodStart: rlib.JSONDate(today),
@@ -505,8 +507,6 @@ func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("list of flowIds", ids)
-	fmt.Println(flowID)
 
 	for _, id := range ids {
 		if id == flowID {
