@@ -649,13 +649,12 @@ window.loadRARentablesGrid = function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
             w2ui.RARentablesGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
-            w2ui.RARentablesGrid.refresh();
+            reassignGridRecids(w2ui.RARentablesGrid.name);
 
             // Operation on RARentableForm
             w2ui.RARentableForm.refresh();
         } else {
             w2ui.RARentablesGrid.clear();
-
             // Operation on RARentableForm
             w2ui.RARentableForm.actions.reset();
         }
