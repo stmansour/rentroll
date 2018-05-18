@@ -26,9 +26,9 @@ sidebarL1     - w2ui sidebar
 
 <script>
 /*global
-    createPayorStmtForm, $, console, w2ui, defineDateFmts, createRentalAgreementForm, createStmtForm,
-    dateControlString, dateMonthFwd, dateControlString, createDepositForm, buildPageElementsWrapper,
-    openInNewTab, logoff, userProfileToUI, launchSession,
+    $, console, w2ui, defineDateFmts,
+    dateControlString, dateMonthFwd, dateControlString, buildPageElementsWrapper,
+    openInNewTab, logoff, userProfileToUI, launchSession, 
 */
 
 
@@ -49,22 +49,23 @@ var _unAllocRcpts = {
 
 // The rentroll app object, used to manage app-level data.
 var app = {
-    client: "receipts", // this is the receipts-only client
+    client: "receipts",  // this is the receipts-only client
     D1: "2016-02-01",
     D2: "2016-03-01",
+    TZOffset: 0,         // will be set during initialization
     AssessmentRules: {},
     ReceiptRules: {},
     DepMethods: {},
-    Depositories: {}, // gets loaded as needed
+    Depositories: {},    // gets loaded as needed
     ExpenseRules: {},
-    uid: 0,       // this is username's UID (user id)
-    username: "", // this is the logged in user's username
-    name: "",     // first (or preferred) name of logged in user
-    imageurl: "", // pointer to image of logged in user
+    uid: 0,              // this is username's UID (user id)
+    username: "",        // this is the logged in user's username
+    name: "",            // first (or preferred) name of logged in user
+    imageurl: "",        // pointer to image of logged in user
     PayorStmtExt: false, // false = internal, true = external
     WidestFormWidth: 900,
     sidebarWidth: 230,
-    TmpTCID: 0,  // holds TCID of Payor from Apply Payments grid - Save function on unpaid assessments grid uses it
+    TmpTCID: 0,          // holds TCID of Payor from Apply Payments grid - Save function on unpaid assessments grid uses it
     TcidRAPayorPicker: {BID: 0},
     TcidRUserPicker: {BID: 0, Title: '', RAID: 0, RARentablesNames: [], RAR: []},
     RentalAgrPicker: {BID: 0, RAID: 0, TCID: 0, FirstName: '', LastName: '', CompanyName: '', IsCompany: false, RAR: [], RARentablesNames: []},
@@ -289,6 +290,7 @@ function finishInitialization() {
     // set the default one at the moment, if date mode is enabled then
     // "BusinessSelect" render event handler will take care in top toolbar
     app.D2 = dateControlString(d2);
+    app.TZOffset = new Date().getTimezoneOffset();
 }
 
 $(function () {

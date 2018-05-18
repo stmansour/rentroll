@@ -8,7 +8,6 @@ import (
 	"rentroll/rlib"
 	"strconv"
 	"strings"
-	"time"
 )
 
 //-------------------------------------------------------------------
@@ -98,6 +97,7 @@ type SaveTaskListDef struct {
 	EmailList      string
 	FLAGS          int64
 	Comment        string
+	TZOffset       int // client offset in minutes
 }
 
 // SaveTaskListDefinitionInput is the input data format for a Save command
@@ -434,10 +434,5 @@ func getTaskListDefinition(w http.ResponseWriter, r *http.Request, d *ServiceDat
 		g.Record = gg
 	}
 	g.Status = "success"
-	rlib.Console("\n\n#################################\n")
-	pd := time.Time(g.Record.EpochPreDue)
-	dd := time.Time(g.Record.EpochDue)
-	rlib.Console("\n#################################\n\n")
-	rlib.Console("g.Record.EpochPreDue = %s, g.Record.EpochDue = %s\n", pd.Format(rlib.RRDATETIMERPTFMT), dd.Format(rlib.RRDATETIMERPTFMT))
 	SvcWriteResponse(d.BID, &g, w)
 }

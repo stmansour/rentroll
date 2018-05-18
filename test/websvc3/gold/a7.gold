@@ -13,6 +13,7 @@
         "FLAGS": 6,
         "Name": "Monthly Close",
         "TLDID": 1,
+        "TZOffset": 0,
         "recid": 0
     },
     "status": "success"

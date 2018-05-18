@@ -1184,6 +1184,8 @@ func buildPreparedStatements() {
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.GetTaskList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE TLID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetAllParentTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE PTLID=0")
+	Errcheck(err)
 
 	where := `WHERE
     -- the TaskList is enabled
@@ -1212,6 +1214,9 @@ func buildPreparedStatements() {
 		)
 	);`
 	RRdb.Prepstmt.GetDueTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList " + where)
+	Errcheck(err)
+
+	RRdb.Prepstmt.CheckForTLDInstances, err = RRdb.Dbrr.Prepare("SELECT COUNT(*) FROM TaskList WHERE TLDID=?")
 	Errcheck(err)
 
 	RRdb.Prepstmt.CheckForTLDInstances, err = RRdb.Dbrr.Prepare("SELECT COUNT(*) FROM TaskList WHERE TLDID=?")
