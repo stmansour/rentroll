@@ -9,7 +9,8 @@
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRAPeopleGrid,
-    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTCIDRecidInPeopleData
+    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTCIDRecidInPeopleData,
+    addDummyBackgroundInfo
 */
 
 "use strict";
@@ -230,14 +231,14 @@ window.loadRAPeopleForm = function () {
                                     // Set form record from the client side
                                     form.record = bgInfoRecords[recordIndex];
 
-                                    // Set the form tile
+                                    // Set the form title
                                     setRABGInfoFormHeader(form.record);
 
                                     break;
                                 }
                             }
 
-                            w2ui.RABGInfoForm.refresh(); // need to refresh for form changes
+                            form.refresh(); // need to refresh for form changes
                         };
 
                     // warn user if form content has been changed
@@ -258,12 +259,16 @@ window.loadRAPeopleForm = function () {
             toolbar: {
                 items: [
                     {id: 'bt3', type: 'spacer'},
+                    {id: 'addInfo', type: 'button', icon: 'fas fa-plus-circle'}, // TODO: Remove this in production. This button is for development purpose
                     {id: 'btnClose', type: 'button', icon: 'fas fa-times'}
                 ],
                 onClick: function (event) {
                     switch (event.target) {
                         case 'btnClose':
                             hideSliderContent();
+                            break;
+                        case 'addInfo':
+                            addDummyBackgroundInfo();
                             break;
                     }
                 }
@@ -407,6 +412,9 @@ window.loadRAPeopleForm = function () {
                         .fail(function (data) {
                             console.log("failure " + data);
                         });
+                },
+                reset: function () {
+                    w2ui.RABGInfoForm.clear();
                 }
             },
             onChange: function (event) {
@@ -440,7 +448,8 @@ window.loadRAPeopleForm = function () {
                 };
             },
             onRefresh: function (event) {
-                var form = w2ui.RABGInfoForm;
+                var form = this;
+
                 // hide delete button if it is NewRecord
                 var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
                 if (isNewRecord) {
@@ -857,4 +866,37 @@ window.setTransactDefaultRole = function (transactantRec) {
 
     // Each transactant must be occupant by default. It can be change via BGInfo detail form
     transactantRec.IsOccupant = true;
+};
+
+window.addDummyBackgroundInfo = function () {
+    var form = w2ui.RABGInfoForm;
+    var record = form.record;
+    record.FirstName = Math.random().toString(32).slice(2);
+    record.MiddleName = Math.random().toString(32).slice(2);
+    record.LastName = Math.random().toString(32).slice(2);
+    record.CompanyName = Math.random().toString(32).slice(2);
+    record.BirthDate = "8/30/1990";
+    record.SSN = Math.random().toString(32).slice(4);
+    record.DriverLicNo = Math.random().toString(32).slice(2);
+    record.TelephoneNo = Math.random().toString(32).slice(2);
+    record.EmailAddress = Math.random().toString(32).slice(2) + "@yopmail.com";
+    record.CurrentAddress = Math.random().toString(32).slice(2);
+    record.CurrentLandLordName = Math.random().toString(32).slice(2);
+    record.CurrentLandLordPhoneNo = Math.random().toString(32).slice(2);
+    record.CurrentLengthOfResidency = 56;
+    record.CurrentReasonForMoving = Math.random().toString(32).slice(2);
+    record.PriorAddress = Math.random().toString(32).slice(2);
+    record.PriorLandLordName = Math.random().toString(32).slice(2);
+    record.PriorLandLordPhoneNo = Math.random().toString(32).slice(2);
+    record.PriorLengthOfResidency = 36;
+    record.PriorReasonForMoving = Math.random().toString(32).slice(2);
+    record.Employer = Math.random().toString(32).slice(2);
+    record.Phone = Math.random().toString(32).slice(2);
+    record.Address = Math.random().toString(32).slice(2);
+    record.Position = Math.random().toString(32).slice(2);
+    record.GrossWages = Math.random() * 100;
+    record.EmergencyContactName = Math.random().toString(32).slice(2);
+    record.EmergencyContactPhone = Math.random().toString(32).slice(2);
+    record.EmergencyContactAddress = Math.random().toString(32).slice(2);
+    form.refresh();
 };
