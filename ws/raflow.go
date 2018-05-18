@@ -36,41 +36,29 @@ type RAFlowJSONData struct {
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
 	BID             int64
-	AgreementStart  rlib.JSONDate `json:"AgreementStart"` // TermStart
-	AgreementStop   rlib.JSONDate `json:"AgreementStop"`  // TermStop
-	RentStart       rlib.JSONDate `json:"RentStart"`
-	RentStop        rlib.JSONDate `json:"RentStop"`
-	PossessionStart rlib.JSONDate `json:"PossessionStart"`
-	PossessionStop  rlib.JSONDate `json:"PossessionStop"`
-}
-
-// RAPeopleFlowData contains data in the people part of RA flow
-type RAPeopleFlowData struct {
-	BID         int64
-	TCID        int64
-	FirstName   string
-	MiddleName  string
-	LastName    string
-	CompanyName string
-	IsCompany   int64
-	Recid       int64 `json:"recid"`
+	AgreementStart  rlib.JSONDate // TermStart
+	AgreementStop   rlib.JSONDate // TermStop
+	RentStart       rlib.JSONDate
+	RentStop        rlib.JSONDate
+	PossessionStart rlib.JSONDate
+	PossessionStop  rlib.JSONDate
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
 	// Recid                int           `json:"recid"` // this is for the grid widget
-	PETID                int64         `json:"PETID"`
-	BID                  int64         `json:"BID"`
-	Name                 string        `json:"Name"`
-	Type                 string        `json:"Type"`
-	Breed                string        `json:"Breed"`
-	Color                string        `json:"Color"`
-	Weight               int           `json:"Weight"`
-	DtStart              rlib.JSONDate `json:"DtStart"`
-	DtStop               rlib.JSONDate `json:"DtStop"`
-	NonRefundablePetFee  float64       `json:"NonRefundablePetFee"`
-	RefundablePetDeposit float64       `json:"RefundablePetDeposit"`
-	RecurringPetFee      float64       `json:"RecurringPetFee"`
+	PETID                int64
+	BID                  int64
+	Name                 string
+	Type                 string
+	Breed                string
+	Color                string
+	Weight               int
+	DtStart              rlib.JSONDate
+	DtStop               rlib.JSONDate
+	NonRefundablePetFee  float64
+	RefundablePetDeposit float64
+	RecurringPetFee      float64
 }
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
@@ -156,15 +144,16 @@ type RABackgroundInfoFlowData struct {
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
 	// Recid        int     `json:"recid"` // this is for the grid widget
-	RID          int64   `json:"RID"`
-	BID          int64   `json:"BID"`
-	RTID         int64   `json:"RTID"`
-	RentableName string  `json:"RentableName"`
-	ContractRent float64 `json:"ContractRent"`
-	ProrateAmt   float64 `json:"ProrateAmt"`
-	TaxableAmt   float64 `json:"TaxableAmt"`
-	SalesTax     float64 `json:"SalesTax"`
-	TransOCC     float64 `json:"TransOCC"`
+	RID          int64
+	BID          int64
+	RTID         int64
+	RentableName string
+	ContractRent float64
+	ProrateAmt   float64
+	TaxableAmt   float64
+	SalesTax     float64
+	TransOcc     float64
+	Fees         []RARentableFeesData
 }
 
 // RARentableFeesData struct
@@ -191,18 +180,18 @@ type RARentableFeesData struct {
 // RAFeesTermsFlowData contains data in the fees-terms part of RA flow
 type RAFeesTermsFlowData struct {
 	// Recid        int     `json:"recid"` // this is for the grid widget
-	RID          int64   `json:"RID"`
-	BID          int64   `json:"BID"`
-	RTID         int64   `json:"RTID"`
-	RentableName string  `json:"RentableName"`
-	FeeName      string  `json:"FeeName"`
-	Amount       float64 `json:"Amount"`
-	Cycle        float64 `json:"Cycle"`
-	SigningAmt   float64 `json:"SigningAmt"`
-	ProrateAmt   float64 `json:"ProrateAmt"`
-	TaxableAmt   float64 `json:"TaxableAmt"`
-	SalesTax     float64 `json:"SalesTax"`
-	TransOCC     float64 `json:"TransOCC"`
+	RID          int64
+	BID          int64
+	RTID         int64
+	RentableName string
+	FeeName      string
+	Amount       float64
+	Cycle        float64
+	SigningAmt   float64
+	ProrateAmt   float64
+	TaxableAmt   float64
+	SalesTax     float64
+	TransOcc     float64
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -236,7 +225,6 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		}
 		return json.Marshal(&a)
 	case rlib.PeopleRAFlowPart:
-		// a := []RAPeopleFlowData{}
 		a := []RABackgroundInfoFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
@@ -442,23 +430,23 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	// now get account rule based on this rentabletype
-	ar, err := rlib.GetAR(r.Context(), rt.ARID)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	// make sure the IsRentASM is marked true as well as autopopulatetoNewRA
-	if ar.FLAGS&0x10 != 0 && ar.FLAGS&0x2 != 0 {
-		rec := RARentableFeesData{
-			BID:    ar.BID,
-			ARID:   ar.ARID,
-			ARName: ar.Name,
+	ar, _ := rlib.GetAR(r.Context(), rt.ARID)
+	if ar.ARID > 0 {
+		// make sure the IsRentASM is marked true as well as autopopulatetoNewRA
+		if ar.FLAGS&0x10 != 0 && ar.FLAGS&0x2 != 0 {
+			rec := RARentableFeesData{
+				BID:             ar.BID,
+				ARID:            ar.ARID,
+				ARName:          ar.Name,
+				Amount:          ar.DefaultAmount,
+				ContractRent:    ar.DefaultAmount,
+				RentPeriodStart: rlib.JSONDate(today),
+				RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
+				UsePeriodStart:  rlib.JSONDate(today),
+				UsePeriodStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
+			}
+			records = append(records, rec)
 		}
-		rec.Amount = ar.DefaultAmount
-		rec.RentPeriodStart = rlib.JSONDate(today)
-		rec.RentPeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
-		rec.UsePeriodStart = rlib.JSONDate(today)
-		rec.UsePeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
 	}
 
 	// get all auto populated to new RA marked account rules by integer representation
@@ -471,20 +459,21 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 	// append records in ascending order
 	for _, ar := range m {
-		rec := RARentableFeesData{
-			BID:    ar.BID,
-			ARID:   ar.ARID,
-			ARName: ar.Name,
+		if ar.FLAGS&0x10 != 0 { // if it's rent asm then continue
+			continue
 		}
 
-		// if it's NOT Rent ASM account rule then
-		if ar.FLAGS&0x10 == 0 { // it is NOT Rent ASM then
-			rec.Amount = ar.DefaultAmount
-			rec.RentPeriodStart = rlib.JSONDate(today)
-			rec.RentPeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
-			rec.UsePeriodStart = rlib.JSONDate(today)
-			rec.UsePeriodStop = rlib.JSONDate(today.AddDate(1, 0, 0))
+		rec := RARentableFeesData{
+			BID:             ar.BID,
+			ARID:            ar.ARID,
+			ARName:          ar.Name,
+			Amount:          ar.DefaultAmount,
+			RentPeriodStart: rlib.JSONDate(today),
+			RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
+			UsePeriodStart:  rlib.JSONDate(today),
+			UsePeriodStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
 		}
+
 		/*if ar.FLAGS&0x20 != 0 { // same will be applied to Security Deposit ASM
 			rec.Amount = ar.DefaultAmount
 		}*/

@@ -9,7 +9,7 @@ import (
 // ARFLAGS account rules FLAGS
 var ARFLAGS = rlib.Str2Int64Map{
 	"ApplyFundsToReceiveAccts": 0,
-	"PopulateOnRA":             1,
+	"AutoPopulateToNewRA":      1,
 	"RAIDRequired":             2,
 	"SubARIDsOnly":             3,
 	"IsRentASM":                4,
