@@ -58,7 +58,7 @@
 #progressbar #steps-list li {
     display: block;
     float: left;
-    width: 12.5%;
+    width: 14.2857%;
     text-align: center;
     height: 100%;
 }
@@ -247,11 +247,15 @@ button.save-ra {
 }
 
 .ra-form-component#people .form-container {
-    height: 190px;
+    height: 90px;
 }
 
 .ra-form-component#people .form-container #transactant-field button {
     float: right;
+}
+
+.ra-form-component#people .grid-container {
+    height: calc(100% - 90px);
 }
 
 #people-type-containers {
@@ -318,16 +322,15 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
     margin-left: 128px;
 }
 
-#bginfoCheckboxes input[type="checkbox"] {
+.bgInfoCheckboxes input[type="checkbox"] {
     vertical-align: middle;
     width: 16px;
     height: 16px;
     margin-right: 5px;
 }
 
-#bginfoCheckboxes {
+.bgInfoCheckboxes {
     margin-left: 172px;
-    padding-top: 10px;
 }
 
 .cb-section {
@@ -338,4 +341,49 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
 
 .cb-section label {
     cursor: pointer;
+}
+
+.ra-form-component#rentables .form-container {
+    height: 100%;
+}
+
+.ra-form-component#rentables .form-container label {
+    margin-right: 20px;
+}
+
+.ra-form-component#rentables .form-container input[type="checkbox"] {
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+}
+
+.ra-form-component#rentables .form-container #rentable-field #user-inputs {
+    display: flex;
+    display: -webkit-flex;
+    display: -moz-flex;
+    text-align: center;
+}
+
+.ra-form-component#rentables .form-container #rentable-field #user-inputs input[name="Rentable"] {
+    -webkit-flex: 5;
+    flex: 5;
+    -moz-flex: 5;
+}
+
+.ra-form-component#rentables .form-container #rentable-field #user-inputs button {
+    -webkit-flex: 1;
+    flex: 1;
+    -moz-flex: 1;
+}
+
+.ra-form-component#rentables .form-container {
+    height: 90px;
+}
+
+.ra-form-component#rentables .form-container #rentable-field button {
+    float: right;
+}
+
+.ra-form-component#rentables .grid-container {
+    height: calc(100% - 90px);
 }

@@ -1,7 +1,7 @@
 /*global
     w2ui, app, $, console, setToForm, form_dirty_alert, formRefreshCallBack, formRecDiffer,
     getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness,
-    addDateNavToToolbar, setRTLayout, getRTInitRecord
+    addDateNavToToolbar, setRTLayout, getRTInitRecord, getRentASMARList
 */
 "use strict";
 window.getRTInitRecord = function (BID, BUD){
@@ -21,7 +21,24 @@ window.getRTInitRecord = function (BID, BUD){
         LastModTime: y.toISOString(),
         LastModBy: 0,
         FLAGS: 0,
+        ARID: 0,
     };
+};
+
+window.getRentASMARList = function() {
+    var BID = getCurrentBID();
+    var data = {
+        type: "FLAGS",
+        FLAGS: 1 << app.arFLAGS.IsRentASM,
+    };
+
+    return $.ajax({
+        url: "/v1/arslist/" + BID.toString() + "/",
+        method: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: "json"
+    });
 };
 
 window.buildRentableTypeElements = function () {
@@ -157,7 +174,26 @@ window.buildRentableTypeElements = function () {
                         var rec = grid.get(recid);
                         console.log('rentableType form url: ' + '/v1/rt/' + rec.BID + '/' + rec.RTID);
                         setRTLayout(rec.BID, rec.RTID);
-                        // setToForm('rtForm', '/v1/rt/' + rec.BID + '/' + rec.RTID, 400, true);
+
+                        getRentASMARList().
+                        done(function(data) {
+                            if(data.status != "success") {
+                                w2ui.rtForm.error(data.message);
+                            } else {
+                                var list = data.records || [];
+                                var w2ui_items = [{id: 0, text: " -- No ARID -- "}];
+                                list.forEach(function(item) {
+                                    w2ui_items.push({id: item.ARID, text: item.Name});
+                                });
+
+                                w2ui.rtForm.get("ARID").options.items = w2ui_items;
+                                w2ui.rtForm.refresh();
+                            }
+                        })
+                        .fail(function() {
+                            w2ui.rtForm.error("Error while getting latest RentASM account rules");
+                        });
+
                     };
 
                 // warn user if content has been changed
@@ -172,15 +208,32 @@ window.buildRentableTypeElements = function () {
                     app.last.grid_sel_recid = -1;
                     grid.selectNone();
 
-                    var x = getCurrentBusiness(),
-                        BID=parseInt(x.value),
+                    var BID = getCurrentBID(),
                         BUD = getBUDfromBID(BID);
 
-                    var record = getRTInitRecord(BID, BUD);
-                    w2ui.rtForm.record = record;
-                    w2ui.rtForm.refresh();
+                    // set the layout first, so it can render the form in DOM
                     setRTLayout(BID, 0);
-                    // setToForm('rtForm', '/v1/rt/' + BID + '/0', 400);
+
+                    getRentASMARList().
+                    done(function(data) {
+                        if(data.status != "success") {
+                            w2ui.rtForm.error(data.message);
+                        } else {
+                            var list = data.records || [];
+                            var w2ui_items = [{id: 0, text: " -- No ARID -- "}];
+                            list.forEach(function(item) {
+                                w2ui_items.push({id: item.ARID, text: item.Name});
+                            });
+
+                            w2ui.rtForm.get("ARID").options.items = w2ui_items;
+                            var record = getRTInitRecord(BID, BUD);
+                            w2ui.rtForm.record = record;
+                            w2ui.rtForm.refresh();
+                        }
+                    })
+                    .fail(function() {
+                        w2ui.rtForm.error("Error while getting latest RentASM account rules");
+                    });
                 };
 
             // warn user if content has been changed of form
@@ -200,25 +253,26 @@ window.buildRentableTypeElements = function () {
         url: '/v1/rentabletypes',
         formURL: '/webclient/html/formrt.html',
         fields: [
-            { field: 'recid', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'RTID', type: 'int', required: true, html: { page: 0, column: 0 } },
-            { field: 'BID', type: 'int', required: true, html: { page: 0, column: 0 } },
-            { field: 'BUD', type: 'list', options: {items: app.businesses}, required: true, html: { page: 0, column: 0 } },
-            { field: 'Style', type: 'text', required: true, html: { page: 0, column: 0 } },
-            { field: 'Name', type: 'text', required: true, html: { page: 0, column: 0 } },
-            { field: 'RentCycle', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
-            { field: 'Proration', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
-            { field: 'GSRPC', type: 'list', options: {items: app.cycleFreq, selected: {}}, required: true, html: { page: 0, column: 0 } },
-            { field: 'ManageToBudget', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
-            { field: 'FLAGS', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
-            { field: 'LastModTime', type: 'time', required: false, html: { page: 0, column: 0 } },
-            { field: 'LastModBy', type: 'int', required: false, html: { page: 0, column: 0 } },
-            { field: 'CreateTS', type: 'time', required: false, html: { page: 0, column: 0 } },
-            { field: 'CreateBy', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'recid',           type: 'int',        required: false,    html: { page: 0, column: 0 } },
+            { field: 'RTID',            type: 'int',        required: true,     html: { page: 0, column: 0 } },
+            { field: 'BID',             type: 'int',        required: true,     html: { page: 0, column: 0 } },
+            { field: 'BUD',             type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.businesses} },
+            { field: 'Style',           type: 'text',       required: true,     html: { page: 0, column: 0 } },
+            { field: 'Name',            type: 'text',       required: true,     html: { page: 0, column: 0 } },
+            { field: 'RentCycle',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
+            { field: 'Proration',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
+            { field: 'GSRPC',           type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
+            { field: 'ManageToBudget',  type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
+            { field: 'FLAGS',           type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
+            { field: 'ARID',            type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: [], selected: {}} },
+            { field: 'LastModTime',     type: 'time',       required: false,    html: { page: 0, column: 0 } },
+            { field: 'LastModBy',       type: 'int',        required: false,    html: { page: 0, column: 0 } },
+            { field: 'CreateTS',        type: 'time',       required: false,    html: { page: 0, column: 0 } },
+            { field: 'CreateBy',        type: 'int',        required: false,    html: { page: 0, column: 0 } },
         ],
         onValidate: function(event) {
             event.onComplete = function() {
-                console.log(event);
+                // console.log(event);
                 if (this.record.ManageToBudget) {
                     console.log("manageToBudget is true");
                     var grid = w2ui.rmrGrid;
@@ -290,7 +344,7 @@ window.buildRentableTypeElements = function () {
                 // dropdown list items and selected variables
                 var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
                     manageToBudgetSel = {}, FLAGSel = {},
-                    cycleFreqItems = [];
+                    cycleFreqItems = [], ARIDSel = {};
 
                 // select value for rentcycle, proration, gsrpc
                 app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -320,6 +374,13 @@ window.buildRentableTypeElements = function () {
                     }
                 });
 
+                // select value for rentable type FLAGS
+                f.get("ARID").options.items.forEach(function(item) {
+                    if (item.id == r.ARID) {
+                        ARIDSel = {id: item.id, text: item.text};
+                    }
+                });
+
                 // fill the field with values
                 f.get("RentCycle").options.items = cycleFreqItems;
                 f.get("RentCycle").options.selected = rentCycleSel;
@@ -329,6 +390,7 @@ window.buildRentableTypeElements = function () {
                 f.get("GSRPC").options.selected = gsrpcSel;
                 // f.get("ManageToBudget").options.selected = manageToBudgetSel;
                 f.get("FLAGS").options.selected = FLAGSel;
+                f.get("ARID").options.selected = ARIDSel;
 
                 // if manageToBudget set then enable market rate grid
                 if (f.record.ManageToBudget) {
@@ -351,13 +413,13 @@ window.buildRentableTypeElements = function () {
             var f = this;
             event.onComplete = function() {
                 switch (event.target) {
-                case "ManageToBudget":
-                    if (event.value_new) {
-                        w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
-                    } else {
-                        w2ui.rtDetailLayout.get("main").tabs.disable("rmrGrid");
-                    }
-                    break;
+                    case "ManageToBudget":
+                        if (event.value_new) {
+                            w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
+                        } else {
+                            w2ui.rtDetailLayout.get("main").tabs.disable("rmrGrid");
+                        }
+                        break;
                 }
 
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object

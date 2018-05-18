@@ -9,7 +9,7 @@ import (
 // ARFLAGS account rules FLAGS
 var ARFLAGS = rlib.Str2Int64Map{
 	"ApplyFundsToReceiveAccts": 0,
-	"PopulateOnRA":             1,
+	"AutoPopulateToNewRA":      1,
 	"RAIDRequired":             2,
 	"SubARIDsOnly":             3,
 	"IsRentASM":                4,
@@ -62,6 +62,12 @@ func IsValidARFlag(FLAGS uint64) bool {
 
 	// NOTE: if no flag is set then 0 can be the case here
 	if FLAGS < 0 || FLAGS > uint64(maxFLAGVal) {
+		return false
+	}
+
+	// if IsRentASM and IsSecDepASM both are set
+	// both should be mutually exclusive
+	if FLAGS&0x20 != 0 && FLAGS&0x10 != 0 {
 		return false
 	}
 	return true

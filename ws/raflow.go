@@ -19,7 +19,6 @@ var raFlowPartTypes = rlib.Str2Int64Map{
 	"people":    int64(rlib.PeopleRAFlowPart),
 	"pets":      int64(rlib.PetsRAFlowPart),
 	"vehicles":  int64(rlib.VehiclesRAFlowPart),
-	"bginfo":    int64(rlib.BackGroundInfoRAFlowPart),
 	"rentables": int64(rlib.RentablesRAFlowPart),
 	"feesterms": int64(rlib.FeesTermsRAFlowPart),
 }
@@ -30,7 +29,6 @@ type RAFlowJSONData struct {
 	RAPeopleFlowData         `json:"people"`
 	RAPetsFlowData           `json:"pets"`
 	RAVehiclesFlowData       `json:"vehicles"`
-	RABackgroundInfoFlowData `json:"bginfo"`
 	RARentablesFlowData      `json:"rentables"`
 	RAFeesTermsFlowData      `json:"feesterms"`
 }*/
@@ -38,44 +36,29 @@ type RAFlowJSONData struct {
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
 	BID             int64
-	AgreementStart  rlib.JSONDate `json:"AgreementStart"` // TermStart
-	AgreementStop   rlib.JSONDate `json:"AgreementStop"`  // TermStop
-	RentStart       rlib.JSONDate `json:"RentStart"`
-	RentStop        rlib.JSONDate `json:"RentStop"`
-	PossessionStart rlib.JSONDate `json:"PossessionStart"`
-	PossessionStop  rlib.JSONDate `json:"PossessionStop"`
-}
-
-// RAPeopleFlowData contains data in the people part of RA flow
-type RAPeopleFlowData struct {
-	BID         int64
-	TCID        int64
-	FirstName   string
-	MiddleName  string
-	LastName    string
-	CompanyName string
-	IsCompany   int64
-	Recid       int64 `json:"recid"`
-	IsRenter    bool
-	IsOccupant  bool
-	IsGuarantor bool
+	AgreementStart  rlib.JSONDate // TermStart
+	AgreementStop   rlib.JSONDate // TermStop
+	RentStart       rlib.JSONDate
+	RentStop        rlib.JSONDate
+	PossessionStart rlib.JSONDate
+	PossessionStop  rlib.JSONDate
 }
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
 	// Recid                int           `json:"recid"` // this is for the grid widget
-	PETID                int64         `json:"PETID"`
-	BID                  int64         `json:"BID"`
-	Name                 string        `json:"Name"`
-	Type                 string        `json:"Type"`
-	Breed                string        `json:"Breed"`
-	Color                string        `json:"Color"`
-	Weight               int           `json:"Weight"`
-	DtStart              rlib.JSONDate `json:"DtStart"`
-	DtStop               rlib.JSONDate `json:"DtStop"`
-	NonRefundablePetFee  float64       `json:"NonRefundablePetFee"`
-	RefundablePetDeposit float64       `json:"RefundablePetDeposit"`
-	RecurringPetFee      float64       `json:"RecurringPetFee"`
+	PETID                int64
+	BID                  int64
+	Name                 string
+	Type                 string
+	Breed                string
+	Color                string
+	Weight               int
+	DtStart              rlib.JSONDate
+	DtStop               rlib.JSONDate
+	NonRefundablePetFee  float64
+	RefundablePetDeposit float64
+	RecurringPetFee      float64
 }
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
@@ -100,15 +83,22 @@ type RAVehiclesFlowData struct {
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
-	// Transanctant id
+	// Recid int64 `json:"recid"` // this is for the grid widget
 	BID  int64 `json:"BID"`
 	TCID int64 `json:"TCID"`
+
+	// Role
+	IsRenter    bool `json:"IsRenter"`
+	IsOccupant  bool `json:"IsOccupant"`
+	IsGuarantor bool `json:"IsGuarantor"`
 
 	// Applicant information
 	FirstName    string  `json:"FirstName"`
 	MiddleName   string  `json:"MiddleName"`
 	LastName     string  `json:"LastName"`
 	BirthDate    string  `json:"BirthDate"`
+	IsCompany    bool    `json:"IsCompany"`
+	CompanyName  string  `json:"CompanyName"`
 	SSN          string  `json:"SSN"`
 	DriverLicNo  string  `json:"DriverLicNo"`
 	TelephoneNo  string  `json:"TelephoneNo"`
@@ -154,15 +144,16 @@ type RABackgroundInfoFlowData struct {
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
 	// Recid        int     `json:"recid"` // this is for the grid widget
-	RID          int64   `json:"RID"`
-	BID          int64   `json:"BID"`
-	RTID         int64   `json:"RTID"`
-	RentableName string  `json:"RentableName"`
-	ContractRent float64 `json:"ContractRent"`
-	ProrateAmt   float64 `json:"ProrateAmt"`
-	TaxableAmt   float64 `json:"TaxableAmt"`
-	SalesTax     float64 `json:"SalesTax"`
-	TransOCC     float64 `json:"TransOCC"`
+	RID          int64
+	BID          int64
+	RTID         int64
+	RentableName string
+	ContractRent float64
+	ProrateAmt   float64
+	TaxableAmt   float64
+	SalesTax     float64
+	TransOcc     float64
+	Fees         []RARentableFeesData
 }
 
 // RARentableFeesData struct
@@ -189,18 +180,18 @@ type RARentableFeesData struct {
 // RAFeesTermsFlowData contains data in the fees-terms part of RA flow
 type RAFeesTermsFlowData struct {
 	// Recid        int     `json:"recid"` // this is for the grid widget
-	RID          int64   `json:"RID"`
-	BID          int64   `json:"BID"`
-	RTID         int64   `json:"RTID"`
-	RentableName string  `json:"RentableName"`
-	FeeName      string  `json:"FeeName"`
-	Amount       float64 `json:"Amount"`
-	Cycle        float64 `json:"Cycle"`
-	SigningAmt   float64 `json:"SigningAmt"`
-	ProrateAmt   float64 `json:"ProrateAmt"`
-	TaxableAmt   float64 `json:"TaxableAmt"`
-	SalesTax     float64 `json:"SalesTax"`
-	TransOCC     float64 `json:"TransOCC"`
+	RID          int64
+	BID          int64
+	RTID         int64
+	RentableName string
+	FeeName      string
+	Amount       float64
+	Cycle        float64
+	SigningAmt   float64
+	ProrateAmt   float64
+	TaxableAmt   float64
+	SalesTax     float64
+	TransOcc     float64
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -234,7 +225,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		}
 		return json.Marshal(&a)
 	case rlib.PeopleRAFlowPart:
-		a := []RAPeopleFlowData{}
+		a := []RABackgroundInfoFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
@@ -253,16 +244,6 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		return json.Marshal(&a)
 	case rlib.VehiclesRAFlowPart:
 		a := []RAVehiclesFlowData{}
-		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
-			err := json.Unmarshal(data, &a)
-			if err != nil {
-				return []byte(nil), err
-			}
-		}
-		return json.Marshal(&a)
-	case rlib.BackGroundInfoRAFlowPart:
-		//var a RABackgroundInfoFlowData
-		a := []RABackgroundInfoFlowData{}
 		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
@@ -339,13 +320,12 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	// Rental agreement flow parts map init
 	// maybe we can just override the above pre-defined initFlowPart struct
 	initRAFlowMap := map[rlib.RAFlowPartType]rlib.FlowPart{
-		rlib.DatesRAFlowPart:          rlib.FlowPart{},
-		rlib.PeopleRAFlowPart:         rlib.FlowPart{},
-		rlib.PetsRAFlowPart:           rlib.FlowPart{},
-		rlib.VehiclesRAFlowPart:       rlib.FlowPart{},
-		rlib.BackGroundInfoRAFlowPart: rlib.FlowPart{},
-		rlib.RentablesRAFlowPart:      rlib.FlowPart{},
-		rlib.FeesTermsRAFlowPart:      rlib.FlowPart{},
+		rlib.DatesRAFlowPart:     rlib.FlowPart{},
+		rlib.PeopleRAFlowPart:    rlib.FlowPart{},
+		rlib.PetsRAFlowPart:      rlib.FlowPart{},
+		rlib.VehiclesRAFlowPart:  rlib.FlowPart{},
+		rlib.RentablesRAFlowPart: rlib.FlowPart{},
+		rlib.FeesTermsRAFlowPart: rlib.FlowPart{},
 	}
 
 	// insert in order to ease
@@ -392,6 +372,11 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	return flowID, err
 }
 
+// RARentableFeesDataRequest is struct for request for rentable fees
+type RARentableFeesDataRequest struct {
+	RID int64
+}
+
 // RARentableFeesDataListResponse for listing down all RARentableFeesData
 // in the grid
 type RARentableFeesDataListResponse struct {
@@ -407,13 +392,16 @@ type RARentableFeesDataListResponse struct {
 //  @Method  GET
 //  @Synopsis Get Rentable Fees list
 //  @Description Get all rentable fees with auto populate AR fees
-//  @Input WebGridSearchRequest
+//  @Input RARentableFeesDataRequest
 //  @Response RARentableFeesDataListResponse
 // wsdoc }
 func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRentableFeesData"
 	var (
-		g RARentableFeesDataListResponse
+		g       RARentableFeesDataListResponse
+		foo     RARentableFeesDataRequest
+		records []RARentableFeesData
+		today   = time.Now()
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -423,9 +411,47 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		return
 	}
 
-	// get account rules by IsRentASM FLAGS integer representation
-	arFLAGVal := 1<<uint64(bizlogic.ARFLAGS["IsRentASM"]) + 1<<uint64(bizlogic.ARFLAGS["IsSecDepASM"])
+	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
+	// get rentableType
+	rtid, err := rlib.GetRTIDForDate(r.Context(), foo.RID, &today)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	var rt rlib.RentableType
+	err = rlib.GetRentableType(r.Context(), rtid, &rt)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// now get account rule based on this rentabletype
+	ar, _ := rlib.GetAR(r.Context(), rt.ARID)
+	if ar.ARID > 0 {
+		// make sure the IsRentASM is marked true
+		if ar.FLAGS&0x10 != 0 {
+			rec := RARentableFeesData{
+				BID:             ar.BID,
+				ARID:            ar.ARID,
+				RID:             foo.RID,
+				ARName:          ar.Name,
+				Amount:          ar.DefaultAmount,
+				ContractRent:    ar.DefaultAmount,
+				RentPeriodStart: rlib.JSONDate(today),
+				RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
+				UsePeriodStart:  rlib.JSONDate(today),
+				UsePeriodStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
+			}
+			records = append(records, rec)
+		}
+	}
+
+	// get all auto populated to new RA marked account rules by integer representation
+	arFLAGVal := 1 << uint64(bizlogic.ARFLAGS["AutoPopulateToNewRA"])
 	m, err := rlib.GetARsByFLAGS(r.Context(), d.BID, uint64(arFLAGVal))
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -433,13 +459,29 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	// append records in ascending order
-	var records []RARentableFeesData
 	for _, ar := range m {
-		records = append(records, RARentableFeesData{
-			BID:    ar.BID,
-			ARID:   ar.ARID,
-			ARName: ar.Name,
-		})
+		if ar.FLAGS&0x10 != 0 { // if it's rent asm then continue
+			continue
+		}
+
+		rec := RARentableFeesData{
+			BID:             ar.BID,
+			ARID:            ar.ARID,
+			RID:             foo.RID,
+			ARName:          ar.Name,
+			Amount:          ar.DefaultAmount,
+			RentPeriodStart: rlib.JSONDate(today),
+			RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
+			UsePeriodStart:  rlib.JSONDate(today),
+			UsePeriodStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
+		}
+
+		/*if ar.FLAGS&0x20 != 0 { // same will be applied to Security Deposit ASM
+			rec.Amount = ar.DefaultAmount
+		}*/
+
+		// now append rec in records
+		records = append(records, rec)
 	}
 
 	// sort based on name, needs version 1.8 later of golang
@@ -465,8 +507,6 @@ func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("list of flowIds", ids)
-	fmt.Println(flowID)
 
 	for _, id := range ids {
 		if id == flowID {

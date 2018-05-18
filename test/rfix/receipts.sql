@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22
+-- Server version	5.7.22-0ubuntu0.16.04.1-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1754,6 +1754,7 @@ CREATE TABLE `RentableTypes` (
   `GSRPC` bigint(20) NOT NULL DEFAULT '0',
   `ManageToBudget` smallint(6) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `ARID` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1768,7 +1769,7 @@ CREATE TABLE `RentableTypes` (
 
 LOCK TABLES `RentableTypes` WRITE;
 /*!40000 ALTER TABLE `RentableTypes` DISABLE KEYS */;
-INSERT INTO `RentableTypes` VALUES (1,1,'Rex1','309 Rexford',6,4,4,1,0,'2017-11-28 03:44:18',0,'2017-11-28 03:44:18',0),(2,1,'Rex2','309 1/2 Rexford',6,4,4,1,0,'2018-01-18 09:09:22',267,'2017-11-28 03:44:18',0),(3,1,'Rex3','311 Rexford',6,4,4,1,0,'2017-11-28 03:44:18',0,'2017-11-28 03:44:18',0),(4,1,'Rex4','311 1/2 Rexford',6,4,4,1,0,'2017-11-28 03:44:18',0,'2017-11-28 03:44:18',0),(5,2,'Office Building','Nickelodeon Office',6,4,6,0,0,'2018-01-24 20:49:23',200,'2018-01-17 22:37:07',200),(6,2,'Garage','Nickelodeon Garage',6,4,6,0,0,'2018-01-24 20:49:44',200,'2018-01-17 22:39:39',200),(7,4,'Office Building','Animation Office',6,4,6,0,0,'2018-01-24 21:33:56',200,'2018-01-24 21:33:56',200),(8,4,'Garage','Animation Garage',6,4,6,0,0,'2018-01-24 21:34:20',200,'2018-01-24 21:34:20',200),(9,6,'Commercial Rehabilitation Facility','Rehabilitation Facility',6,4,6,0,0,'2018-01-25 20:58:33',200,'2018-01-25 20:58:33',200),(10,3,'Condominium Warehouse Unit','Condominium Warehouse Unit',6,4,6,0,0,'2018-01-25 21:15:36',200,'2018-01-25 21:15:36',200),(11,3,'Tenants in Common','Tenants in Common',6,4,6,0,0,'2018-01-25 21:43:29',200,'2018-01-25 21:20:50',200),(12,5,'Condominium Warehouse','Condominium Warehouse',6,4,6,0,0,'2018-01-25 22:16:33',200,'2018-01-25 22:16:33',200);
+INSERT INTO `RentableTypes` VALUES (1,1,'Rex1','309 Rexford',6,4,4,1,0,0,'2017-11-28 03:44:18',0,'2017-11-28 03:44:18',0),(2,1,'Rex2','309 1/2 Rexford',6,4,4,1,0,0,'2018-01-18 09:09:22',267,'2017-11-28 03:44:18',0),(3,1,'Rex3','311 Rexford',6,4,4,1,0,0,'2017-11-28 03:44:18',0,'2017-11-28 03:44:18',0),(4,1,'Rex4','311 1/2 Rexford',6,4,4,1,0,0,'2017-11-28 03:44:18',0,'2017-11-28 03:44:18',0),(5,2,'Office Building','Nickelodeon Office',6,4,6,0,0,0,'2018-01-24 20:49:23',200,'2018-01-17 22:37:07',200),(6,2,'Garage','Nickelodeon Garage',6,4,6,0,0,0,'2018-01-24 20:49:44',200,'2018-01-17 22:39:39',200),(7,4,'Office Building','Animation Office',6,4,6,0,0,0,'2018-01-24 21:33:56',200,'2018-01-24 21:33:56',200),(8,4,'Garage','Animation Garage',6,4,6,0,0,0,'2018-01-24 21:34:20',200,'2018-01-24 21:34:20',200),(9,6,'Commercial Rehabilitation Facility','Rehabilitation Facility',6,4,6,0,0,0,'2018-01-25 20:58:33',200,'2018-01-25 20:58:33',200),(10,3,'Condominium Warehouse Unit','Condominium Warehouse Unit',6,4,6,0,0,0,'2018-01-25 21:15:36',200,'2018-01-25 21:15:36',200),(11,3,'Tenants in Common','Tenants in Common',6,4,6,0,0,0,'2018-01-25 21:43:29',200,'2018-01-25 21:20:50',200),(12,5,'Condominium Warehouse','Condominium Warehouse',6,4,6,0,0,0,'2018-01-25 22:16:33',200,'2018-01-25 22:16:33',200);
 /*!40000 ALTER TABLE `RentableTypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2488,4 +2489,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-14 12:34:22
+-- Dump completed on 2018-05-16 14:44:14

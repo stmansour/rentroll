@@ -38,6 +38,7 @@ type RentableTypeGridRecord struct {
 	GSRPC          int64
 	ManageToBudget int64
 	FLAGS          int64
+	ARID           int64
 	LastModTime    rlib.JSONDateTime
 	LastModBy      int64
 	CreateTS       rlib.JSONDateTime
@@ -163,7 +164,7 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 // rtGridRowScan scans a result from sql row and dump it in a struct for rentableGrid
 func rentableTypeGridRowScan(rows *sql.Rows, q RentableTypeGridRecord) (RentableTypeGridRecord, error) {
 	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.ManageToBudget, &q.FLAGS,
-		&q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
+		&q.ARID, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
 	return q, err
 }
 
@@ -176,6 +177,7 @@ var rtSearchFieldMap = rlib.SelectQueryFieldMap{
 	"GSRPC":          {"RentableTypes.GSRPC"},
 	"ManageToBudget": {"RentableTypes.ManageToBudget"},
 	"FLAGS":          {"RentableTypes.FLAGS"},
+	"ARID":           {"RentableTypes.ARID"},
 	"LastModTime":    {"RentableTypes.LastModTime"},
 	"LastModBy":      {"RentableTypes.LastModBy"},
 	"CreateTS":       {"RentableTypes.CreateTS"},
@@ -192,6 +194,7 @@ var rtSearchSelectQueryFields = rlib.SelectQueryFields{
 	"RentableTypes.GSRPC",
 	"RentableTypes.ManageToBudget",
 	"RentableTypes.FLAGS",
+	"RentableTypes.ARID",
 	"RentableTypes.LastModTime",
 	"RentableTypes.LastModBy",
 	"RentableTypes.CreateTS",

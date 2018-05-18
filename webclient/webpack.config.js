@@ -7,7 +7,7 @@ const glob = require('glob');
 const outPath = path.join(__dirname, './js');
 
 const config = {
-    entry: glob.sync('./js/elems/*.js'),
+    entry: glob.sync('./js/elems/**/*.js'),
     output: {
         path: outPath,
         publicPath: '/',

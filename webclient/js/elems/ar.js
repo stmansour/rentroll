@@ -395,6 +395,22 @@ $().w2grid({
         },
         onChange: function(event) {
             event.onComplete = function() {
+                var f = this;
+                switch (event.target) {
+                    case "IsRentASM":
+                        if (event.value_new) {
+                            f.record.IsSecDepASM = false;
+                            f.refresh();
+                        }
+                        break;
+                    case "IsSecDepASM":
+                        if (event.value_new) {
+                            f.record.IsRentASM = false;
+                            f.refresh();
+                        }
+                        break;
+                }
+
                 // formRecDiffer: 1=current record, 2=original record, 3=diff object
                 var diff = formRecDiffer(this.record, app.active_form_original, {});
                 // if diff == {} then make dirty flag as false, else true
@@ -403,7 +419,7 @@ $().w2grid({
                 } else {
                     app.form_is_dirty = true;
                 }
-                var f = this;
+
                 var b = ("Receipt" === f.record.ARType.text && f.record.ApplyRcvAccts);
                 $(f.box).find("input[name=RAIDrqd]").prop( "disabled", !b);
             };

@@ -760,6 +760,7 @@ type TransactantTypeDown struct {
 // RentableTypeDown is the struct needed to match names in typedown controls
 type RentableTypeDown struct {
 	Recid        int64 `json:"recid"` // this will hold the RID
+	RID          int64
 	RentableName string
 }
 
@@ -1139,6 +1140,7 @@ type RentableType struct {
 	GSRPC          int64                      // Time increments in which GSR is calculated to account for rate changes
 	ManageToBudget int64                      // 0=no, 1 = yes
 	FLAGS          uint64                     // 0=active, 1=inactive
+	ARID           int64                      // ARID reference, for default rent amount for this types
 	MR             []RentableMarketRate       // array of time sensitive market rates
 	CA             map[string]CustomAttribute // index by Name of attribute, associated custom attributes
 	MRCurrent      float64                    // the current market rate (historical values are in MR)

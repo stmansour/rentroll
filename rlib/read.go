@@ -445,7 +445,7 @@ func ReadReceiptAllocations(rows *sql.Rows, a *ReceiptAllocation) error {
 
 // ReadRentableTypeDown reads a full RentableTypeDown structure of data from the database based on the supplied Row pointer.
 func ReadRentableTypeDown(rows *sql.Rows, a *RentableTypeDown) error {
-	return rows.Scan(&a.Recid, &a.RentableName)
+	return rows.Scan(&a.RID, &a.RentableName)
 }
 
 // ReadRentable reads a full Rentable structure of data from the database based on the supplied Row pointer.
@@ -462,14 +462,14 @@ func ReadRentables(rows *sql.Rows, a *Rentable) error {
 
 // ReadRentableType reads a full RentableType structure of data from the database based on the supplied Row pointer.
 func ReadRentableType(row *sql.Row, a *RentableType) error {
-	err := row.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC, &a.ManageToBudget, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC, &a.ManageToBudget, &a.ARID, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadRentableTypes reads a full RentableType structure of data from the database based on the supplied Rows pointer.
 func ReadRentableTypes(rows *sql.Rows, a *RentableType) error {
-	return rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC, &a.ManageToBudget, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.RTID, &a.BID, &a.Style, &a.Name, &a.RentCycle, &a.Proration, &a.GSRPC, &a.ManageToBudget, &a.ARID, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadRentableTypeRef reads a full RentableTypeRef structure of data from the database based on the supplied Row pointer.
