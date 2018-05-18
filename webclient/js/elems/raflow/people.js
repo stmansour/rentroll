@@ -198,6 +198,8 @@ window.loadRAPeopleForm = function () {
                 }
             ],
             onClick: function (event) {
+                console.log("At start of grid..........");
+                console.log(app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data);
                 event.onComplete = function () {
 
                     var raBGInfoGridRecord = w2ui.RAPeopleGrid.get(event.recid); // record from the w2ui grid
@@ -224,6 +226,9 @@ window.loadRAPeopleForm = function () {
 
                             var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
                             var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+
+                            console.log("In Grid.........");
+                            console.log(bgInfoRecords);
 
                             // Operation related RABGInfoForm
                             for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
@@ -325,7 +330,9 @@ window.loadRAPeopleForm = function () {
                     console.log(errors);
                     if (errors.length > 0) return;
 
-                    var record = $.extend(true, {}, form.record);
+                    // var record = $.extend(true, {}, form.record);
+
+                    var record = getFormSubmitData(form.record);
 
                     // If transanctant role isn't selected than display error.
                     if(!(record.IsRenter || record.IsOccupant || record.IsGuarantor)){
@@ -334,7 +341,7 @@ window.loadRAPeopleForm = function () {
                     }
 
                     // State field
-                    record.State = record.State.text;
+                    // record.State = record.State.text;
 
                     // Convert integer to bool checkboxes fields
                     updateRABGInfoFormCheckboxes(record);
