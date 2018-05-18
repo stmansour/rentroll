@@ -585,7 +585,7 @@ type ListedAR struct {
 	ARID          int64  // Account Rule ID
 	Name          string // Account rule name
 	DefaultAmount float64
-	FLAGS         int64
+	FLAGS         uint64
 }
 
 // ARsListResponse is the response to list down all account rules
