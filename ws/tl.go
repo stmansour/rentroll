@@ -81,6 +81,7 @@ type SaveTaskList struct {
 	PreDoneUID   int64
 	EmailList    string
 	Comment      string
+	TZOffset     int // client offset in minutes
 }
 
 // SaveTaskListInput is the input data format for a Save command

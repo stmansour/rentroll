@@ -163,10 +163,12 @@ window.buildTaskListElements = function () {
             { field: 'CreateBy',     type: 'int',       required: false },
             { field: 'LastModTime',  type: 'date',      required: false },
             { field: 'LastModBy',    type: 'int',       required: false },
+            { field: 'TZOffset',     type: 'int',       required: false },
             { field: 'ChkDtDue',     type: 'checkbox',  required: false },
             { field: 'ChkDtDone',    type: 'checkbox',  required: false },
             { field: 'ChkDtPreDue',  type: 'checkbox',  required: false },
             { field: 'ChkDtPreDone', type: 'checkbox',  required: false },
+            { field: 'TZOffset',     type: 'int',       required: false },
         ],
         onRefresh: function(event) {
             event.onComplete = function(event) {
@@ -328,6 +330,7 @@ window.buildTaskListElements = function () {
             { field: 'LastModBy',    type: 'int',      required: false },
             { field: 'CreateTS',     type: 'date',     required: false },
             { field: 'CreateBy',     type: 'int',      required: false },
+            { field: 'TZOffset',     type: 'int',      required: false },
             { field: 'ChkDtDue',     type: 'checkbox', required: false },
             { field: 'ChkDtDone',    type: 'checkbox', required: false },
             { field: 'ChkDtPreDue',  type: 'checkbox', required: false },
@@ -350,6 +353,15 @@ window.buildTaskListElements = function () {
                 var f = w2ui.taskForm;
                 var r = f.record;
                 var d = {cmd: "save", record: r};
+                r.DtDone = localtimeToUTC(r.DtDone);
+                r.DtPreDone = localtimeToUTC(r.DtPreDone);
+                if (r.DtDone.length === 0) {
+                    r.DtDone = TLD.TIME0;
+                }
+                if (r.DtPreDone.length === 0) {
+                    r.DtPreDone = TLD.TIME0;
+                }
+                r.TZOffset = app.TZOffset;
                 var dat=JSON.stringify(d);
                 f.url = '/v1/task/' + r.BID + '/' + r.TID;
                 $.post(f.url,dat)
@@ -398,6 +410,25 @@ window.buildTaskListElements = function () {
                 setTaskButtonsState();
             };
         },
+        onLoad: function(event) {
+            event.onComplete = function(event) {
+                var f = w2ui.taskForm;
+                var r = f.record;
+
+                // translate dates into a format that w2ui understands
+                r.DtPreDue  = dtFormatISOToW2ui(r.DtPreDue);
+                r.DtDue     = dtFormatISOToW2ui(r.DtDue);
+                r.DtPreDone = dtFormatISOToW2ui(r.DtPreDone);
+                r.DtDone    = dtFormatISOToW2ui(r.DtDone);
+
+                if (r.DtDone === "") {
+                    r.DtDone = new Date();
+                }
+                if (r.DtPreDone === "") {
+                    r.DtPreDone = new Date();
+                }
+            };
+        },
     });
 
     //------------------------------------------------------------------------
@@ -422,6 +453,9 @@ window.buildTaskListElements = function () {
                 //------------------------------------------------
                 r.DtDone = TLD.TIME0;
                 r.DtPreDone = TLD.TIME0;
+                r.TZOffset = app.TZOffset;
+                r.DtDue = localtimeToUTC(r.DtDue);
+                r.DtPreDue = localtimeToUTC(r.DtPreDue);
 
                 var tl = {
                     cmd: "save",
@@ -493,10 +527,10 @@ window.buildTaskListElements = function () {
         formURL: '/webclient/html/formnewtl.html',
         url: '/v1/tl',
         fields: [
-            { field: 'BID',   type: 'int',  required: false },
-            { field: 'TLDID',  type: 'int',  required: false },
-            { field: 'Name',  type: 'list', required: true, options:  {items: [], selected: {}},  },
-            { field: 'Pivot', type: 'date', required: true },
+            { field: 'BID',      type: 'int',  required: false },
+            { field: 'TLDID',    type: 'int',  required: false },
+            { field: 'Name',     type: 'list', required: true, options:  {items: [], selected: {}},  },
+            { field: 'Pivot',    type: 'date', required: true },
         ],
         actions: {
             save: function(target, data){
@@ -506,7 +540,10 @@ window.buildTaskListElements = function () {
                 var s = r.Name.text;
                 r.TLDID = r.Name.id;
                 r.Name = s;
+                r.Pivot = localtimeToUTC(r.Pivot);
+                r.Timezone = app.timezone;
                 var params = {cmd: 'save', formname: f.name, record: r };
+
                 var dat = JSON.stringify(params);
                 var BID = r.BID;
 

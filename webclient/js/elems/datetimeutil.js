@@ -4,6 +4,23 @@
   dateFmtStr, zeroPad, 
 */
 
+//-----------------------------------------------------------------------------
+// newDateKeepOldTime - create a new date keeping the hour and minute equal
+//           to the supplied "orig" values, and using the supplied year, month,
+//           and day.
+// @params
+//   orig = date string - probably from a date control
+//   y    = year
+//   m    = month
+//   d    = day
+//
+// @return date object
+//-----------------------------------------------------------------------------
+window.newDateKeepOldTime = function(orig,y,m,d) {
+    var dt = new Date(orig);
+    var ddt = new Date(y,m,d,dt.getHours(),dt.getMinutes());
+    return ddt;
+};
 
 //-----------------------------------------------------------------------------
 // zeroPad - if the string value of the number is < size, 
@@ -288,14 +305,14 @@ window.w2uiDateTimeControlString = function (dt) {
     var d = dt.getDate();
     var H = dt.getHours();
     var M = dt.getMinutes();
-    var bPM = true;
-    if (H > 12) { H = H-12; }
-    var s = m + '/' + d + '/' + dt.getFullYear() + ' ' + H;
+    var s = m + '/' + d + '/' + dt.getFullYear() + ' ';
+    var bPM = H >= 12;
+    if (H > 12) { H = H-12;}
+    s += H + ':';
     if (M < 10) {
         s += '0';
-        bPM = false;
     }
-    s += M + (bPM) ? 'p':'a' + 'm';
+    s += M + ' ' + ((bPM) ? 'p':'a') + 'm';
     return s;
 };
 
