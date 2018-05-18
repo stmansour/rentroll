@@ -6,6 +6,7 @@
     lockOnGrid,
     getRentableFeeFormInitalRecord, getRentablesGridInitalRecord, getInitialRentableFeesData,
     getRentableLocalData, setRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
+    saveRentableCompData, setRentableFeeLocalData, getRentableFeeLocalData
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare
 */
 
@@ -261,8 +262,7 @@ window.loadRARentablesGrid = function () {
                         app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.splice(index, 1);
 
                         // save data on server
-                        saveActiveCompData(app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data,
-                            app.raFlowPartTypes.rentables);
+                        saveRentableCompData();
 
                         // remove from grid
                         this.remove(event.recid);
@@ -300,9 +300,9 @@ window.loadRARentablesGrid = function () {
                                         localRData.Fees = data.records || [];
                                         // also manage local data
                                         setRentableLocalData(rec.RID, localRData);
-                                        var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
-                                        saveActiveCompData(app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data,
-                                            app.raFlowPartTypes.rentables);
+
+                                        // save data on the server
+                                        saveRentableCompData();
 
                                         // show slider content
                                         w2ui.RARentableFeesGrid.records = localRData.Fees;
@@ -595,7 +595,7 @@ window.loadRARentablesGrid = function () {
             },
             actions: {
                 reset: function () {
-                    this.clear();
+                    w2ui.RARentableFeesForm.clear();
                 },
                 save: function() {
                     var f = this;
@@ -603,15 +603,26 @@ window.loadRARentablesGrid = function () {
                     app.form_is_dirty = false;
 
                     // sync this info in local data
-                    w2ui.RARentableFeesGrid.set(f.record.recid, f.record);
+                    var rentableFeeData = getFormSubmitData(f.record);
+                    w2ui.RARentableFeesGrid.set(f.record.recid, rentableFeeData);
                     w2ui.RARentableFeesGrid.refresh();
 
-                    f.save({}, function(data) {
-                        if (data.status === 'error') {
+                    // set data locally
+                    setRentableFeeLocalData(f.record.RID, f.record.ARID, rentableFeeData);
+
+                    saveRentableCompData()
+                    .done(function (data) {
+                        if (data.status === 'success') {
+                            f.actions.reset();
+
+                            // close the form
+                            hideSliderContent(2);
+                        } else {
                             f.message(data.message);
-                            return;
                         }
-                        hideSliderContent(2);
+                    })
+                    .fail(function (data) {
+                        console.log("failure " + data);
                     });
                 },
                 saveadd: function() {
@@ -767,6 +778,15 @@ window.acceptRentable = function () {
 };
 
 //------------------------------------------------------------------------------
+// saveRentableCompData - saves the data on
+//------------------------------------------------------------------------------
+window.saveRentableCompData = function() {
+    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+    return saveActiveCompData(app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data,
+        app.raFlowPartTypes.rentables);
+};
+
+//------------------------------------------------------------------------------
 // GetRentableIndexInGridRecords - returns record index in grid records list
 //------------------------------------------------------------------------------
 window.GetRentableIndexInGridRecords = function(RID) {
@@ -813,6 +833,61 @@ window.setRentableLocalData = function(RID, rentableData) {
         app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data[dataIndex] = rentableData;
     } else {
         app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.push(rentableData);
+    }
+};
+
+//-----------------------------------------------------------------------------
+// getRentableFeeLocalData - returns the clone of rentable fee data for requested
+//                        RID, ARID from "Fees" list of a rentable
+//-----------------------------------------------------------------------------
+window.getRentableFeeLocalData = function(RID, ARID) {
+    var cloneData = {};
+    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+    var data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+    data.forEach(function(item) {
+        if (item.RID == RID) {
+            var feesData = item.Fees || [];
+            feesData.forEach(function(feeItem) {
+                if (feeItem.ARID == ARID) {
+                    cloneData = $.extend(true, {}, feeItem);
+                }
+                return false;
+            });
+            return false;
+        }
+    });
+    return cloneData;
+};
+
+//-----------------------------------------------------------------------------
+// setRentableFeeLocalData - save the data for Fee requested RID in local data
+//-----------------------------------------------------------------------------
+window.setRentableFeeLocalData = function(RID, ARID, rentableFeeData) {
+    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+    var rIndex = -1,
+        fIndex = -1;
+
+    app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.forEach(function(item, itemIndex) {
+        if (item.RID == RID) {
+            var feesData = item.Fees || [];
+            feesData.forEach(function(feeItem, feeItemIndex) {
+                if (feeItem.ARID == ARID) {
+                    fIndex = feeItemIndex;
+                }
+                return false;
+            });
+            rIndex = itemIndex;
+            return false;
+        }
+    });
+
+    // only if rentable found then
+    if (rIndex > -1) {
+        if (fIndex > -1) {
+            app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data[rIndex].Fees[fIndex] = rentableFeeData;
+        } else {
+            app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data[rIndex].Fees.push(rentableFeeData);
+        }
     }
 };
 
