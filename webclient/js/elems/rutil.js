@@ -747,15 +747,17 @@ window.getFormSubmitData = function (record) {
         return;
     }
 
+    var cloneData = {};
+
     // iterate over each record
     for(var key in record) {
-        var item = record[key];
-        if (typeof item === "object" && item !== null && "id" in item) {
-            record[key] = item.id;
+        cloneData[key] = record[key];
+        if (typeof record[key] === "object" && record[key] !== null && "id" in record[key]) {
+            cloneData[key] = record[key].id;
         }
     }
 
-    return record;
+    return cloneData;
 };
 
 //-----------------------------------------------------------------------------
