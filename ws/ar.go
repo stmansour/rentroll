@@ -640,6 +640,33 @@ func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	switch foo.Type {
+	case "ALL":
+		m, err := rlib.GetAllARs(r.Context(), d.BID)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// append records in ascending order
+		var arList []ListedAR
+		for _, ar := range m {
+			arList = append(arList, ListedAR{
+				BID:           ar.BID,
+				ARID:          ar.ARID,
+				Name:          ar.Name,
+				FLAGS:         ar.FLAGS,
+				DefaultAmount: ar.DefaultAmount,
+			})
+		}
+
+		// sort based on name, needs version 1.8 later of golang
+		sort.Slice(arList, func(i, j int) bool { return arList[i].Name < arList[j].Name })
+
+		g.Records = arList
+		g.Total = int64(len(g.Records))
+		g.Status = "success"
+		SvcWriteResponse(d.BID, &g, w)
+		return
 	case "FLAGS":
 		bar := ARsListRequestByFLAGS{}
 		err = json.Unmarshal(data, &bar)
@@ -683,6 +710,7 @@ func SvcARsList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		g.Total = int64(len(g.Records))
 		g.Status = "success"
 		SvcWriteResponse(d.BID, &g, w)
+		return
 	default:
 		err := fmt.Errorf("%s: Unhandled %s command", funcname, foo.Type)
 		if err != nil {
