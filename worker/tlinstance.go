@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"database/sql"
 	"rentroll/rlib"
 	"time"
 	"tws"
@@ -46,8 +47,18 @@ func TLInstanceBot(item *tws.Item) {
 //
 //-----------------------------------------------------------------------------
 func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
-	// var err error
-	// var rows *sql.Rows
+	var err error
+	var rows *sql.Rows
 
-	return nil
+	rows, err = RRdb.Prepstmt.GetAllParentTaskLists.Query()
+
+	for i := 0; rows.Next(); i++ {
+		var a rlib.TaskList
+		if err = rlib.ReadTaskLists(rows, &a); err != nil {
+			return err
+		}
+
+	}
+
+	return rows.Err()
 }

@@ -212,9 +212,12 @@ func IncMonths(m time.Month, n int64) (time.Month, int64) {
 // GetMonthPeriodForDate is used to get the containing month start and end dates for the
 // supplied date.  That is, if a = Jul 13, 2017, the return values will be 2017-JUL-01 and
 // 2017-AUG-01.
+//
 // INPUTS  -  a = any datetime
+//
 // RETURNS    d1 = first day 00:00:00 of the month of a
 //            d2 = first day 00:00:00 of the month after a
+//----------------------------------------------------------------------------------
 func GetMonthPeriodForDate(a *time.Time) (time.Time, time.Time) {
 	d1 := time.Date(a.Year(), a.Month(), 1, 0, 0, 0, 0, RRdb.Zone)
 	mon, inc := IncMonths(a.Month(), int64(1))

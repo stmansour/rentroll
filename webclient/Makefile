@@ -1,7 +1,7 @@
 TOP=./..
 BINDIR=${TOP}/tmp/rentroll
 
-webclient:
+webclient: node_modules
 	@touch fail
 	if [ ! -d node_modules ]; then \
 		echo "node_modules does not exits.  Will attempt to create..."; \
@@ -19,7 +19,7 @@ webclient:
 clean:
 	@touch fail
 	grunt clean
-	rm -f *log *.sql
+	rm -f *log *.sql node_modules
 	@rm -f fail
 	@echo "*** Clean client ***"
 
@@ -33,6 +33,9 @@ package:
 	cp ./js/*.css ${BINDIR}/webclient/js/
 	@rm -f fail
 	@echo "*** PACKAGE completed in clean ***"
+
+node_modules:
+	ln -s `npm root -g`
 
 jshint:
 	@touch fail
