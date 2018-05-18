@@ -193,7 +193,9 @@ func genYearlyRecurSeq(d, start, stop *time.Time, n int64) []time.Time {
 // recurrence frequency maps to those that can happen for an assessment.
 //
 // INPUTS
-//     start, stop = time range for the recurrences to be generated
+//     start, stop = time range for the recurrences to be generated. For
+//                   example, the start / end time of a period to be
+//                   considered.
 //   aStart, aStop = imposed bounds, for example the start/stop time of
 //                   an Assessment
 //       cycleFreq = recurrence frequency
@@ -210,15 +212,15 @@ func GetRecurrences(start, stop, aStart, aStop *time.Time, cycleFreq int64) []ti
 		return m
 	}
 
-	//-------------------------------------------
+	//----------------------------------------------------------------
 	// next, ensure that the assessment falls in the time range...
-	//-------------------------------------------
+	//----------------------------------------------------------------
 	if cycleFreq > RECURNONE && (aStop.Equal(*start) || aStop.Before(*start) || aStart.After(*stop) || aStart.Equal(*stop)) {
 		return m
 	}
 
 	//-------------------------------------------
-	// first insure that the data is not bad...
+	// now calculate all the recurrences
 	//-------------------------------------------
 	switch cycleFreq {
 	case RECURNONE: // no recurrence
