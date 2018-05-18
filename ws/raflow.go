@@ -432,8 +432,8 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// now get account rule based on this rentabletype
 	ar, _ := rlib.GetAR(r.Context(), rt.ARID)
 	if ar.ARID > 0 {
-		// make sure the IsRentASM is marked true as well as autopopulatetoNewRA
-		if ar.FLAGS&0x10 != 0 && ar.FLAGS&0x2 != 0 {
+		// make sure the IsRentASM is marked true
+		if ar.FLAGS&0x10 != 0 {
 			rec := RARentableFeesData{
 				BID:             ar.BID,
 				ARID:            ar.ARID,
