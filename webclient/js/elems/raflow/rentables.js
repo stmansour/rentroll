@@ -284,9 +284,37 @@ window.loadRARentablesGrid = function () {
                             // get auto populated to new RA account rules
                             var rec = grid.get(recid);
                             var localRData = getRentableLocalData(rec.RID);
-                            w2ui.RARentableFeesGrid.records = localRData.Fees;
-                            reassignGridRecids(w2ui.RARentableFeesGrid.name);
-                            showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+
+                            // pull fees in case it's empty
+                            if(localRData.Fees.length > 0) {
+                                // show slider content
+                                w2ui.RARentableFeesGrid.records = localRData.Fees;
+                                reassignGridRecids(w2ui.RARentableFeesGrid.name);
+                                showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+                            } else {
+                                var BID = getCurrentBID();
+                                getInitialRentableFeesData(BID, rec.RID)
+                                .done(function(data) {
+                                    if (data.status === "success") {
+                                        // save fees record
+                                        localRData.Fees = data.records || [];
+                                        // also manage local data
+                                        setRentableLocalData(rec.RID, localRData);
+                                        var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+                                        saveActiveCompData(app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data,
+                                            app.raFlowPartTypes.rentables);
+
+                                        // show slider content
+                                        w2ui.RARentableFeesGrid.records = localRData.Fees;
+                                        reassignGridRecids(w2ui.RARentableFeesGrid.name);
+                                        showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
+
+                                    }
+                                })
+                                .fail(function(data) {
+                                    console.log("ERROR from fees data: " + data);
+                                });
+                            }
                         };
 
                     // warn user if content has been changed
@@ -614,6 +642,18 @@ window.loadRARentablesGrid = function () {
                                 app.cycleFreq.forEach(function(itemText, itemIndex) {
                                     if (event.value_new.text == itemText) {
                                         f.record.RentCycle = itemIndex;
+                                        return false;
+                                    }
+                                });
+                            }
+                            break;
+                        case "ARID":
+                            if (event.value_new) {
+                                var BID = getCurrentBID();
+                                app.raflow.arList[BID].forEach(function(item) {
+                                    if (event.value_new.id == item.ARID) {
+                                        f.record.Amount = item.DefaultAmount;
+                                        f.refresh();
                                         return false;
                                     }
                                 });
