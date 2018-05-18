@@ -4,7 +4,7 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     lockOnGrid,
-    getRentableFeeFormInitalRecord, getRentablesGridInitalRecord, getInitialRentableFeesData,
+    getRentableFeeFormInitialRecord, getRentablesGridInitalRecord, getInitialRentableFeesData,
     getRentableLocalData, setRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
     saveRentableCompData, setRentableFeeLocalData, getRentableFeeLocalData
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare
@@ -67,7 +67,7 @@ window.getRentablesGridInitalRecord = function () {
 };
 
 
-window.getRentableFeeFormInitalRecord = function () {
+window.getRentableFeeFormInitialRecord = function () {
     var BID = getCurrentBID(),
         BUD = getBUDfromBID(BID);
 
@@ -361,7 +361,7 @@ window.loadRARentablesGrid = function () {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
                                 w2ui.RARentableFeesForm.get("ARID").options.items = arid_items;
-                                w2ui.RARentableFeesForm.record = getRentableFeeFormInitalRecord();
+                                w2ui.RARentableFeesForm.record = getRentableFeeFormInitialRecord();
                                 w2ui.RARentableFeesForm.record.recid = w2ui.RARentableFeesGrid.records.length;
                                 w2ui.RARentableFeesForm.refresh();
                             })
@@ -633,16 +633,33 @@ window.loadRARentablesGrid = function () {
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
-                    f.save({}, function(data) {
-                        if (data.status === 'error') {
-                            f.message(data.message);
-                            return;
-                        }
+                    // sync this info in local data
+                    var rentableFeeData = getFormSubmitData(f.record);
+                    w2ui.RARentableFeesGrid.set(f.record.recid, rentableFeeData);
+                    w2ui.RARentableFeesGrid.refresh();
 
-                        // f.record = getRAAddRentableFormInitRec(BID, BUD, f.record);
-                        f.refresh();
+                    // set data locally
+                    setRentableFeeLocalData(f.record.RID, f.record.ARID, rentableFeeData);
+
+                    saveRentableCompData()
+                    .done(function (data) {
+                        if (data.status === 'success') {
+                            f.actions.reset();
+                            f.record = getRentableFeeFormInitialRecord();
+                            f.record.recid = w2ui.RARentableFeesGrid.records.length;
+                            f.refresh();
+
+                        } else {
+                            f.message(data.message);
+                        }
+                    })
+                    .fail(function (data) {
+                        console.log("failure " + data);
                     });
                 },
+                delete: function() {
+
+                }
             },
             onChange: function(event) {
                 var f = this;
