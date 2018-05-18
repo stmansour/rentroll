@@ -5,7 +5,7 @@
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     lockOnGrid,
     getRentableFeeFormInitalRecord, getRentablesGridInitalRecord, getInitialRentableFeesData,
-    getRentableLocalData, setRentableLocalData, getAllARsWithAmount,
+    getRentableLocalData, setRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare
 */
 
@@ -181,8 +181,8 @@ window.loadRARentablesGrid = function () {
             name: 'RARentablesGrid',
             header: 'Rentables',
             show: {
-                toolbar: false,
-                footer: true,
+                toolbar:    false,
+                footer:     true,
             },
             multiSelect: false,
             style: 'display: block;',
@@ -233,10 +233,38 @@ window.loadRARentablesGrid = function () {
                     caption: 'Trans OCC',
                     size: '100px',
                     render: 'money',
+                },
+                {
+                    field: 'RemoveRec',
+                    caption: "Remove Rentable",
+                    size: '100%',
+                    render: function (record/*, index, col_index*/) {
+                        var html = "";
+                        if (record) {
+                            html = '<i class="fas fa-minus-circle" style="color: #DC3545; cursor: pointer;" title="remove rentable"></i>';
+                        }
+                        return html;
+                    },
                 }
             ],
             onClick: function (event) {
                 event.onComplete = function () {
+                    // if it's remove column then remove the record
+                    // maybe confirm dialog will be added
+                    if(this.getColumn("RemoveRec", true) == event.column) {
+                        // remove entry from local data
+                        var rec = this.get(event.recid);
+                        var index = GetRentableIndexInGridRecords(rec.RID);
+
+                        // also manage local data
+                        var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+                        app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.splice(index, 1);
+
+                        // remove from grid
+                        this.remove(event.recid);
+                        return;
+                    }
+
                     var yes_args = [this, event.recid],
                         no_args = [this],
                         no_callBack = function(grid) {
@@ -358,7 +386,7 @@ window.loadRARentablesGrid = function () {
                     caption: 'Cycle',
                     size: '100px',
                     render: function (record/*, index, col_index*/) {
-                    var text = '';
+                        var text = '';
                         if (record) {
                             app.cycleFreq.forEach(function(itemText, itemIndex) {
                                 if (record.RentCycle == itemIndex) {
@@ -648,7 +676,7 @@ window.loadRARentablesGrid = function () {
     setTimeout(function () {
         var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
         if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            w2ui.RARentablesGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
+            w2ui.RARentablesGrid.records = app.raflow.data[app.raflow.activeFlowID][i].Data || [];
             reassignGridRecids(w2ui.RARentablesGrid.name);
 
             // Operation on RARentableForm
@@ -665,17 +693,43 @@ window.loadRARentablesGrid = function () {
 // acceptRentable - add Rentable to the list rentables grid records
 //-----------------------------------------------------------------------------
 window.acceptRentable = function () {
-    var rec = getRentablesGridInitalRecord();
-    rec.RID = w2ui.RARentableForm.record.RID;
-    rec.RentableName = w2ui.RARentableForm.record.RentableName;
-    rec.recid = w2ui.RARentablesGrid.records.length;
-    w2ui.RARentablesGrid.add(rec);
-    w2ui.RARentableForm.actions.reset(); // clear the form
+    var recIndex = GetRentableIndexInGridRecords(w2ui.RARentableForm.record.RID);
+    var rec;
+    if(recIndex > -1 ) {
+        w2ui.RARentablesGrid.select(recIndex); // highlight the existing record
+    } else {
+        rec = getRentablesGridInitalRecord();
+        rec.RID = w2ui.RARentableForm.record.RID;
+        rec.RentableName = w2ui.RARentableForm.record.RentableName;
+        rec.recid = w2ui.RARentablesGrid.records.length;
+        w2ui.RARentablesGrid.add(rec);
+        // select none
+        setTimeout(function() {
+            w2ui.RARentablesGrid.selectNone();
+        }, 0);
 
-    // also manage local data
-    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
-    var rentableData = $.extend(true, {"Fees": []}, rec);
-    app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.push(rentableData);
+        // also manage local data
+        var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.rentables);
+        var rentableData = $.extend(true, {"Fees": []}, rec);
+        app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.push(rentableData);
+    }
+
+     // clear the form
+    w2ui.RARentableForm.actions.reset();
+};
+
+//------------------------------------------------------------------------------
+// GetRentableIndexInGridRecords - returns record index in grid records list
+//------------------------------------------------------------------------------
+window.GetRentableIndexInGridRecords = function(RID) {
+    var found = -1;
+    w2ui.RARentablesGrid.records.forEach(function(rec, index) {
+        if (RID == rec.RID) {
+            found = index;
+            return false;
+        }
+    });
+    return found;
 };
 
 //-----------------------------------------------------------------------------
