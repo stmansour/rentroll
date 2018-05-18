@@ -6,10 +6,10 @@
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
-    setRABGInfoFormHeader, setRABGInfoFormFields, showHideRABGInfoFormFields,
+    setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRAPeopleGrid,
-    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole
+    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTCIDRecidInPeopleData
 */
 
 "use strict";
@@ -355,9 +355,12 @@ window.loadRAPeopleForm = function () {
                         bgInfoRecords.push(record);
                     }
 
-                    var recordsData = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+                    // var recordsData = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+                    console.log("While saving recordData....");
+                    console.log(bgInfoRecords);
+
                     // save this records in json Data
-                    saveActiveCompData(recordsData, app.raFlowPartTypes.people)
+                    saveActiveCompData(bgInfoRecords, app.raFlowPartTypes.people)
                         .done(function (data) {
                             if (data.status === 'success') {
 
@@ -378,10 +381,10 @@ window.loadRAPeopleForm = function () {
                 },
                 delete: function () {
                     var form = this;
-                    var tcidIndex = findTransactantIndexByTCIDInPeopleData(form.record.TCID);
+                    var tcidIndex = findTransactantIndexByTCIDRecidInPeopleData(form.record.TCID, form.record.recid);
 
                     var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-                    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+                    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
 
                     // delete record with index `tcidIndex`
                     bgInfoRecords.splice(tcidIndex, 1);
@@ -483,26 +486,6 @@ window.setRABGInfoFormHeader = function (record) {
     } else {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
     }
-};
-
-// setRABGInfoFormFields
-// It have transanctant record from the server.
-// From this record RABGInfoForm fields value will be populate.
-window.setRABGInfoFormFields = function (record) {
-    var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
-
-    formRecord.FirstName = record.FirstName;
-    formRecord.MiddleName = record.MiddleName;
-    formRecord.LastName = record.LastName;
-    formRecord.TelephoneNo = record.CellPhone;
-    formRecord.EmailAddress = record.PrimaryEmail;
-    formRecord.Phone = record.WorkPhone;
-    formRecord.Address = record.Address;
-    formRecord.Address2 = record.Address2;
-    formRecord.City = record.City;
-    formRecord.Country = record.Country;
-    formRecord.PostalCode = record.PostalCode;
-    formRecord.State = record.State;
 };
 
 // showHideRABGInfoFormFields
@@ -809,6 +792,28 @@ window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
     if (typeof app.raflow.data[app.raflow.activeFlowID] !== "undefined") {
         app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.forEach(function (transactantRec, i) {
             if (transactantRec.TCID === TCID) {
+                index = i;
+                return false;
+            }
+        });
+    }
+
+    return index;
+};
+
+window.findTransactantIndexByTCIDRecidInPeopleData = function (TCID, recid) {
+    var index = -1;
+
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    // remove entry from data
+    if (peoplePartIndex < 0) {
+        return;
+    }
+
+    if (typeof app.raflow.data[app.raflow.activeFlowID] !== "undefined") {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.forEach(function (transactantRec, i) {
+            if (transactantRec.TCID === TCID && transactantRec.recid === recid) {
                 index = i;
                 return false;
             }
