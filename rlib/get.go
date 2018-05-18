@@ -199,7 +199,7 @@ func GetARMap(ctx context.Context, bid int64) (map[int64]AR, error) {
 }
 
 // GetAllARs reads all AccountRules for the supplied BID
-func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
+func GetAllARs(ctx context.Context, BID int64) ([]AR, error) {
 
 	var (
 		err error
@@ -215,7 +215,7 @@ func GetAllARs(ctx context.Context, id int64) ([]AR, error) {
 	}
 
 	var rows *sql.Rows
-	fields := []interface{}{id}
+	fields := []interface{}{BID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.GetAllARs)
 		defer stmt.Close()
