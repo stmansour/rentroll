@@ -737,24 +737,31 @@ window.int_to_bool = function (i){
 //-----------------------------------------------------------------------------
 // getFormSubmitData - get form submit data
 // @params, w2ui form record object
+//          returnClone = true/false
 // @return
 // @description Helps to build form submit data, it modify record object so that each
 // item in record has just a value instead of another object
 //-----------------------------------------------------------------------------
-window.getFormSubmitData = function (record) {
+window.getFormSubmitData = function (record, returnClone) {
     // check that it is typeof object or not
     if (typeof record !== "object") {
         return;
     }
 
-    var cloneData = {};
+    var cloneData = $.extend(true, {}, record);
 
     // iterate over each record
-    for(var key in record) {
-        cloneData[key] = record[key];
-        if (typeof record[key] === "object" && record[key] !== null && "id" in record[key]) {
-            cloneData[key] = record[key].id;
+    for(var key in cloneData) {
+        if (typeof cloneData[key] === "object" && cloneData[key] !== null && "id" in cloneData[key]) {
+            cloneData[key] = cloneData[key].id;
         }
+    }
+
+    // if returnClone is not passed or false then
+    // override cloned data into record
+    if (!returnClone) {
+        $.extend(record, cloneData);
+        return record;
     }
 
     return cloneData;
