@@ -71,6 +71,7 @@ type ARSaveForm struct {
 	AutoPopulateToNewRA bool
 	IsRentASM           bool
 	IsSecDepASM         bool
+	IsNonRecurCharge    bool
 }
 
 // PrARGrid is a structure specifically for the UI Grid.
@@ -395,6 +396,9 @@ func saveARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if foo.Record.IsSecDepASM { // IsSecDepASM - 1<<5
 		a.FLAGS |= 0x20
 	}
+	if foo.Record.IsNonRecurCharge { // IsNonRecurCharge - 1<<6
+		a.FLAGS |= 0x40
+	}
 	rlib.Console("=============>>>>>>>>>> a.FLAGS = %x\n", a.FLAGS)
 
 	// Ensure that the supplied data is valid
@@ -530,6 +534,9 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if gg.FLAGS&0x20 != 0 {
 			gg.IsSecDepASM = true
 		}
+		/*if gg.FLAGS&0x40 != 0 {
+			gg.IsNonRecurCharge = true
+		}*/
 
 		g.Record = gg
 		rlib.Console("g.Record.BUD = %s\n", g.Record.BUD)
