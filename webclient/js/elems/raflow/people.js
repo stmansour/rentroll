@@ -136,13 +136,13 @@ window.loadRAPeopleForm = function () {
                     field: 'recid',
                     caption: 'recid',
                     size: '50px',
-                    hidden: false
+                    hidden: true
                 },
                 {
                     field: 'TCID',
                     caption: 'TCID',
                     size: '50px',
-                    hidden: false
+                    hidden: true
                 },
                 {
                     field: 'FullName',
@@ -161,7 +161,7 @@ window.loadRAPeopleForm = function () {
                     field: 'IsRenter',
                     caption: 'Renter',
                     size: '100px',
-                    hidden: false,
+                    hidden: true,
                     render: function (record) {
                         if (record.IsRenter) {
                             return '<i class="fas fa-check" title="renter"></i>';
@@ -174,7 +174,7 @@ window.loadRAPeopleForm = function () {
                     field: 'IsOccupant',
                     caption: 'Occupant',
                     size: '100px',
-                    hidden: false,
+                    hidden: true,
                     render: function (record) {
                         if (record.IsOccupant) {
                             return '<i class="fas fa-check" title="occupant"></i>';
@@ -187,7 +187,7 @@ window.loadRAPeopleForm = function () {
                     field: 'IsGuarantor',
                     caption: 'Guarantor',
                     size: '100px',
-                    hidden: false,
+                    hidden: true,
                     render: function (record) {
                         if (record.IsGuarantor) {
                             return '<i class="fas fa-check" title="guarantor"></i>';
@@ -256,7 +256,7 @@ window.loadRAPeopleForm = function () {
             toolbar: {
                 items: [
                     {id: 'bt3', type: 'spacer'},
-                    {id: 'addInfo', type: 'button', icon: 'fas fa-plus-circle'}, // TODO: Remove this in production. This button is for development purpose
+                    // {id: 'addInfo', type: 'button', icon: 'fas fa-plus-circle'}, // TODO: Remove this in production. This button is for development purpose
                     {id: 'btnClose', type: 'button', icon: 'fas fa-times'}
                 ],
                 onClick: function (event) {
