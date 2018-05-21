@@ -23,15 +23,15 @@ var raFlowPartTypes = rlib.Str2Int64Map{
 	"feesterms": int64(rlib.FeesTermsRAFlowPart),
 }
 
-/*// RAFlowJSONData holds the struct for all the parts being involed in rental agreement flow
+// RAFlowJSONData holds the struct for all the parts being involed in rental agreement flow
 type RAFlowJSONData struct {
-	RADatesFlowData          `json:"dates"`
-	RAPeopleFlowData         `json:"people"`
-	RAPetsFlowData           `json:"pets"`
-	RAVehiclesFlowData       `json:"vehicles"`
-	RARentablesFlowData      `json:"rentables"`
-	RAFeesTermsFlowData      `json:"feesterms"`
-}*/
+	RADatesFlowData     `json:"dates"`
+	RAPeopleFlowData    `json:"people"`
+	RAPetsFlowData      `json:"pets"`
+	RAVehiclesFlowData  `json:"vehicles"`
+	RARentablesFlowData `json:"rentables"`
+	RAFeesTermsFlowData `json:"feesterms"`
+}
 
 // RADatesFlowData contains data in the dates part of RA flow
 type RADatesFlowData struct {
@@ -47,8 +47,8 @@ type RADatesFlowData struct {
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
 	// Recid                int           `json:"recid"` // this is for the grid widget
-	PETID                int64
 	BID                  int64
+	PETID                int64
 	Name                 string
 	Type                 string
 	Breed                string
@@ -64,88 +64,88 @@ type RAPetsFlowData struct {
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
 	// Recid               int           `json:"recid"` // this is for the grid widget
-	VID                 int64         `json:"VID"`
-	BID                 int64         `json:"BID"`
-	TCID                int64         `json:"TCID"`
-	VIN                 string        `json:"VIN"`
-	Type                string        `json:"Type"`
-	Make                string        `json:"Make"`
-	Model               string        `json:"Model"`
-	Color               string        `json:"Color"`
-	Year                string        `json:"Year"`
-	LicensePlateState   string        `json:"LicensePlateState"`
-	LicensePlateNumber  string        `json:"LicensePlateNumber"`
-	ParkingPermitNumber string        `json:"ParkingPermitNumber"`
-	ParkingPermitFee    float64       `json:"ParkingPermitFee"`
-	DtStart             rlib.JSONDate `json:"DtStart"`
-	DtStop              rlib.JSONDate `json:"DtStop"`
+	BID                 int64
+	VID                 int64
+	TCID                int64
+	VIN                 string
+	Type                string
+	Make                string
+	Model               string
+	Color               string
+	Year                string
+	LicensePlateState   string
+	LicensePlateNumber  string
+	ParkingPermitNumber string
+	ParkingPermitFee    float64
+	DtStart             rlib.JSONDate
+	DtStop              rlib.JSONDate
 }
 
 // RABackgroundInfoFlowData contains data in the background-info part of RA flow
 type RABackgroundInfoFlowData struct {
 	// Recid int64 `json:"recid"` // this is for the grid widget
-	BID  int64 `json:"BID"`
-	TCID int64 `json:"TCID"`
+	BID  int64
+	TCID int64
 
 	// Role
-	IsRenter    bool `json:"IsRenter"`
-	IsOccupant  bool `json:"IsOccupant"`
-	IsGuarantor bool `json:"IsGuarantor"`
+	IsRenter    bool
+	IsOccupant  bool
+	IsGuarantor bool
 
 	// Applicant information
-	FirstName    string  `json:"FirstName"`
-	MiddleName   string  `json:"MiddleName"`
-	LastName     string  `json:"LastName"`
-	BirthDate    string  `json:"BirthDate"`
-	IsCompany    bool    `json:"IsCompany"`
-	CompanyName  string  `json:"CompanyName"`
-	SSN          string  `json:"SSN"`
-	DriverLicNo  string  `json:"DriverLicNo"`
-	TelephoneNo  string  `json:"TelephoneNo"`
-	EmailAddress string  `json:"EmailAddress"`
-	Employer     string  `json:"Employer"`
-	Phone        string  `json:"Phone"`
-	Address      string  `json:"Address"`
-	Address2     string  `json:"Address2"`
-	City         string  `json:"City"`
-	State        string  `json:"State"`
-	PostalCode   string  `json:"PostalCode"`
-	Position     string  `json:"Position"`
-	GrossWages   float64 `json:"GrossWages"`
+	FirstName    string
+	MiddleName   string
+	LastName     string
+	BirthDate    string
+	IsCompany    bool
+	CompanyName  string
+	SSN          string
+	DriverLicNo  string
+	TelephoneNo  string
+	EmailAddress string
+	Employer     string
+	Phone        string
+	Address      string
+	Address2     string
+	City         string
+	State        string
+	PostalCode   string
+	Position     string
+	GrossWages   float64
 
 	// Current Address information
-	CurrentAddress           string `json:"CurrentAddress"`
-	CurrentLandLordName      string `json:"CurrentLandLordName"`
-	CurrentLengthOfResidency int    `json:"CurrentLengthOfResidency"`
-	CurrentLandLordPhoneNo   string `json:"CurrentLandLordPhoneNo"`
-	CurrentReasonForMoving   string `json:"CurrentReasonForMoving"` // Reason for moving
+	CurrentAddress           string
+	CurrentLandLordName      string
+	CurrentLengthOfResidency int
+	CurrentLandLordPhoneNo   string
+	CurrentReasonForMoving   string // Reason for moving
 
 	// Prior Address information
-	PriorAddress           string `json:"PriorAddress"`
-	PriorLandLordName      string `json:"PriorLandLordName"`
-	PriorLengthOfResidency int    `json:"PriorLengthOfResidency"`
-	PriorLandLordPhoneNo   string `json:"PriorLandLordPhoneNo"`
-	PriorReasonForMoving   string `json:"PriorReasonForMoving"` // Reason for moving
+	PriorAddress           string
+	PriorLandLordName      string
+	PriorLengthOfResidency int
+	PriorLandLordPhoneNo   string
+	PriorReasonForMoving   string // Reason for moving
 
 	// Have you ever been
-	Evicted    bool `json:"Evicted"`    // Evicted
-	Convicted  bool `json:"Convicted"`  // Arrested or convicted of a Convicted
-	Bankruptcy bool `json:"Bankruptcy"` // Declared Bankruptcy
+	Evicted    bool // Evicted
+	Convicted  bool // Arrested or convicted of a Convicted
+	Bankruptcy bool // Declared Bankruptcy
 
 	// Emergency contact information
-	EmergencyContactName    string `json:"EmergencyContactName"`
-	EmergencyContactPhone   string `json:"EmergencyContactPhone"`
-	EmergencyContactAddress string `json:"EmergencyContactAddress"`
+	EmergencyContactName    string
+	EmergencyContactPhone   string
+	EmergencyContactAddress string
 
 	// RA Application information
-	Comment string `json:"Comment"` // In an effort to accommodate you, please advise us of any special needs
+	Comment string // In an effort to accommodate you, please advise us of any special needs
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
 	// Recid        int     `json:"recid"` // this is for the grid widget
-	RID          int64
 	BID          int64
+	RID          int64
 	RTID         int64
 	RentableName string
 	ContractRent float64
@@ -158,9 +158,9 @@ type RARentablesFlowData struct {
 
 // RARentableFeesData struct
 type RARentableFeesData struct {
+	BID             int64
 	RID             int64
 	ARID            int64
-	BID             int64
 	ARName          string
 	Amount          float64
 	RentCycle       int64
@@ -180,8 +180,8 @@ type RARentableFeesData struct {
 // RAFeesTermsFlowData contains data in the fees-terms part of RA flow
 type RAFeesTermsFlowData struct {
 	// Recid        int     `json:"recid"` // this is for the grid widget
-	RID          int64
 	BID          int64
+	RID          int64
 	RTID         int64
 	RentableName string
 	FeeName      string
@@ -203,73 +203,114 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	// JSON Marshal with address
 	// REF: https://stackoverflow.com/questions/21390979/custom-marshaljson-never-gets-called-in-go
 
-	currentDateTime := time.Now()
-	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
+	// is it blank string or null json data
+	isBlankJSONData := bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))
 
 	switch rlib.RAFlowPartType(partType) {
 	case rlib.DatesRAFlowPart:
-		a := RADatesFlowData{
-			BID:             BID,
-			RentStart:       rlib.JSONDate(currentDateTime),
-			RentStop:        rlib.JSONDate(nextYearDateTime),
-			AgreementStart:  rlib.JSONDate(currentDateTime),
-			AgreementStop:   rlib.JSONDate(nextYearDateTime),
-			PossessionStart: rlib.JSONDate(currentDateTime),
-			PossessionStop:  rlib.JSONDate(nextYearDateTime),
-		}
-		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+		a := RADatesFlowData{}
+
+		// if the struct provided with some data then checks for it
+		// json validation
+		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
+				// if it's an error then return with nil data
 				return []byte(nil), err
 			}
+		} else {
+			// it's null/blank data then initialize with default data
+			currentDateTime := time.Now()
+			nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
+
+			a.BID = BID
+			a.RentStart = rlib.JSONDate(currentDateTime)
+			a.RentStop = rlib.JSONDate(nextYearDateTime)
+			a.AgreementStart = rlib.JSONDate(currentDateTime)
+			a.AgreementStop = rlib.JSONDate(nextYearDateTime)
+			a.PossessionStart = rlib.JSONDate(currentDateTime)
+			a.PossessionStop = rlib.JSONDate(nextYearDateTime)
 		}
+		// return json marshalled for struct
 		return json.Marshal(&a)
+
 	case rlib.PeopleRAFlowPart:
 		a := []RABackgroundInfoFlowData{}
-		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+
+		// if the struct provided with some data then checks for it
+		// json validation
+		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
+				// if it's an error then return with nil data
 				return []byte(nil), err
 			}
 		}
+		// return json marshalled for struct
 		return json.Marshal(&a)
+
 	case rlib.PetsRAFlowPart:
 		a := []RAPetsFlowData{}
-		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+
+		// if the struct provided with some data then checks for it
+		// json validation
+		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
+				// if it's an error then return with nil data
 				return []byte(nil), err
 			}
 		}
+		// return json marshalled for struct
 		return json.Marshal(&a)
+
 	case rlib.VehiclesRAFlowPart:
 		a := []RAVehiclesFlowData{}
-		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+
+		// if the struct provided with some data then checks for it
+		// json validation
+		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
+				// if it's an error then return with nil data
 				return []byte(nil), err
 			}
 		}
+		// return json marshalled for struct
 		return json.Marshal(&a)
+
 	case rlib.RentablesRAFlowPart:
 		a := []RARentablesFlowData{}
-		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+
+		// if the struct provided with some data then checks for it
+		// json validation
+		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
+				// if it's an error then return with nil data
 				return []byte(nil), err
 			}
 		}
+		// return json marshalled for struct
 		return json.Marshal(&a)
+
 	case rlib.FeesTermsRAFlowPart:
 		a := []RAFeesTermsFlowData{}
-		if !(bytes.Equal([]byte(data), []byte(``)) || bytes.Equal([]byte(data), []byte(`null`))) {
+
+		// if the struct provided with some data then checks for it
+		// json validation
+		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 			if err != nil {
+				// if it's an error then return with nil data
 				return []byte(nil), err
 			}
 		}
+		// return json marshalled for struct
 		return json.Marshal(&a)
+
 	default:
+		// not valid option then return with nil data
 		return []byte(nil), fmt.Errorf("unrecognized part type in RA flow: %d", partType)
 	}
 }
