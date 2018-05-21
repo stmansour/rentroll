@@ -10,7 +10,7 @@
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRAPeopleGrid,
     manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTCIDRecidInPeopleData,
-    addDummyBackgroundInfo
+    addDummyBackgroundInfo, updatePeopleData
 */
 
 "use strict";
@@ -198,15 +198,10 @@ window.loadRAPeopleForm = function () {
                 }
             ],
             onClick: function (event) {
-                console.log("At start of grid..........");
-                console.log(app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data);
                 event.onComplete = function () {
 
                     var raBGInfoGridRecord = w2ui.RAPeopleGrid.get(event.recid); // record from the w2ui grid
                     var form = w2ui.RABGInfoForm;
-
-                    // console.log(event.recid);
-                    // console.log(raBGInfoGridRecord);
 
                     var yes_args = [this, event.recid],
                         no_args = [this],
@@ -226,9 +221,6 @@ window.loadRAPeopleForm = function () {
 
                             var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
                             var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
-
-                            console.log("In Grid.........");
-                            console.log(bgInfoRecords);
 
                             // Operation related RABGInfoForm
                             for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
@@ -270,7 +262,13 @@ window.loadRAPeopleForm = function () {
                 onClick: function (event) {
                     switch (event.target) {
                         case 'btnClose':
+                            var form = w2ui.RABGInfoForm;
+                            var record = getFormSubmitData(form.record);
+
+                            updatePeopleData(record);
+
                             hideSliderContent();
+
                             break;
                         case 'addInfo':
                             addDummyBackgroundInfo();
@@ -327,10 +325,7 @@ window.loadRAPeopleForm = function () {
                     var form = this;
 
                     var errors = form.validate();
-                    console.log(errors);
                     if (errors.length > 0) return;
-
-                    // var record = $.extend(true, {}, form.record);
 
                     var record = getFormSubmitData(form.record);
 
@@ -340,36 +335,10 @@ window.loadRAPeopleForm = function () {
                         return;
                     }
 
-                    // State field
-                    // record.State = record.State.text;
-
-                    // Convert integer to bool checkboxes fields
-                    updateRABGInfoFormCheckboxes(record);
+                    var bgInfoRecords = updatePeopleData(record);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
-
-                    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-                    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
-
-                    // update record if it is already exists
-                    var isExists = false;
-                    for (var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++) {
-                        if (bgInfoRecords[recordIndex].TCID === record.TCID && bgInfoRecords[recordIndex].recid === record.recid) {
-                            bgInfoRecords[recordIndex] = record;
-                            isExists = true;
-                            break;
-                        }
-                    }
-
-                    // Push new record
-                    if(!isExists){
-                        bgInfoRecords.push(record);
-                    }
-
-                    // var recordsData = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-                    console.log("While saving recordData....");
-                    console.log(bgInfoRecords);
 
                     // save this records in json Data
                     saveActiveCompData(bgInfoRecords, app.raFlowPartTypes.people)
@@ -395,8 +364,8 @@ window.loadRAPeopleForm = function () {
                     var form = this;
                     var tcidIndex = findTransactantIndexByTCIDRecidInPeopleData(form.record.TCID, form.record.recid);
 
-                    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-                    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+                    var record = getFormSubmitData(form.record);
+                    var bgInfoRecords = updatePeopleData(record);
 
                     // delete record with index `tcidIndex`
                     bgInfoRecords.splice(tcidIndex, 1);
@@ -713,7 +682,7 @@ window.acceptTransactant = function () {
                     setTransactDefaultRole(transactantRec);
 
                     // push the new transanctant to client side
-                    app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.push(transactantRec);
+                    app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.push($.extend(true, {}, transactantRec));
 
                     // load item in the RAPeopleGrid grid
                     loadTransactantInRAPeopleGrid();
@@ -906,4 +875,31 @@ window.addDummyBackgroundInfo = function () {
     record.EmergencyContactPhone = Math.random().toString(32).slice(2);
     record.EmergencyContactAddress = Math.random().toString(32).slice(2);
     form.refresh();
+};
+
+window.updatePeopleData = function (record) {
+
+    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+
+    // Convert integer to bool checkboxes fields
+    updateRABGInfoFormCheckboxes(record);
+
+    // update record if it is already exists
+    var isExists = false;
+    for (var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++) {
+        if (bgInfoRecords[recordIndex].TCID === record.TCID && bgInfoRecords[recordIndex].recid === record.recid) {
+            bgInfoRecords[recordIndex] = record;
+            isExists = true;
+            break;
+        }
+    }
+
+    // Push new record
+    if(!isExists){
+        bgInfoRecords.push(record);
+    }
+
+    return bgInfoRecords;
+
 };
