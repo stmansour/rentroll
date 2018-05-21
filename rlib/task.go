@@ -12,6 +12,7 @@ import (
 // INPUTS
 //  ctx    - context for database transactions
 //  TLDID  - Task List Definition ID
+//  PTLID  - Parent (first in chain) for this recurring series.
 //  pivot  - date on or after which the instance will be created
 //  tzoff  - user's client timezone offset in minutes.  For web browsers
 //           this is determined by:
@@ -21,7 +22,7 @@ import (
 //  error  - any error encountered
 //
 //-----------------------------------------------------------------------------
-func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) (int64, error) {
+func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time.Time) (int64, error) {
 	var tlid = int64(0)
 	tld, err := GetTaskListDefinition(ctx, TLDID)
 	if err != nil {

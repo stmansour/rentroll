@@ -18,7 +18,7 @@ config.json:
 bizerr.csv:
 	@ln -s ${TOP}/bizlogic/bizerr.csv
 
-test: tws2
+test: tws2 config.json
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in ${THISDIR} ***"
