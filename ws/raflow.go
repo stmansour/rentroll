@@ -81,8 +81,8 @@ type RAVehiclesFlowData struct {
 	DtStop              rlib.JSONDate
 }
 
-// RABackgroundInfoFlowData contains data in the background-info part of RA flow
-type RABackgroundInfoFlowData struct {
+// RAPeopleFlowData contains data in the background-info part of RA flow
+type RAPeopleFlowData struct {
 	// Recid int64 `json:"recid"` // this is for the grid widget
 	BID  int64
 	TCID int64
@@ -235,7 +235,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		return json.Marshal(&a)
 
 	case rlib.PeopleRAFlowPart:
-		a := []RABackgroundInfoFlowData{}
+		a := []RAPeopleFlowData{}
 
 		// if the struct provided with some data then checks for it
 		// json validation
@@ -361,12 +361,12 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	// Rental agreement flow parts map init
 	// maybe we can just override the above pre-defined initFlowPart struct
 	initRAFlowMap := map[rlib.RAFlowPartType]rlib.FlowPart{
-		rlib.DatesRAFlowPart:     rlib.FlowPart{},
-		rlib.PeopleRAFlowPart:    rlib.FlowPart{},
-		rlib.PetsRAFlowPart:      rlib.FlowPart{},
-		rlib.VehiclesRAFlowPart:  rlib.FlowPart{},
-		rlib.RentablesRAFlowPart: rlib.FlowPart{},
-		rlib.FeesTermsRAFlowPart: rlib.FlowPart{},
+		rlib.DatesRAFlowPart:     initRAFlowPart,
+		rlib.PeopleRAFlowPart:    initRAFlowPart,
+		rlib.PetsRAFlowPart:      initRAFlowPart,
+		rlib.VehiclesRAFlowPart:  initRAFlowPart,
+		rlib.RentablesRAFlowPart: initRAFlowPart,
+		rlib.FeesTermsRAFlowPart: initRAFlowPart,
 	}
 
 	// insert in order to ease
@@ -377,20 +377,15 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 	sort.Sort(keys)
 
 	// assign part type
-	for _, v := range keys {
-		partTypeID := rlib.RAFlowPartType(v)
-		// fmt.Printf("partTypeID: %s: %d\n", partTypeID, partTypeID)
+	for _, partTypeIDi64 := range keys {
 
 		// get blank flow part
-		a := initRAFlowMap[rlib.RAFlowPartType(partTypeID)]
-
-		// assign pre-defined init flow data
-		a = initRAFlowPart
+		a := initRAFlowMap[rlib.RAFlowPartType(partTypeIDi64)]
 
 		// modify part type
-		a.PartType = int(partTypeID)
+		a.PartType = int(partTypeIDi64)
 
-		// get json strctured data from go struct
+		// get json strctured data from go struct and feed it back into a Data field
 		a.Data, _ = getUpdateRAFlowPartJSONData(BID, a.Data, a.PartType)
 
 		// insert each flowpart of RA flow
