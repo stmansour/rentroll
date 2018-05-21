@@ -37,6 +37,7 @@ type ARSendForm struct {
 	RAIDrqd             bool    // if true, it will require receipts to supply a RAID
 	IsRentASM           bool    // if true, then it represents Rent Assessment
 	IsSecDepASM         bool    // if true, then it represents Security Deposit Assessment
+	IsNonRecurCharge    bool    // if true, then it represents Non recur charge
 	DefaultAmount       float64 // default amount for this account rule
 	LastModTime         rlib.JSONDateTime
 	LastModBy           int64
@@ -534,9 +535,9 @@ func getARForm(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if gg.FLAGS&0x20 != 0 {
 			gg.IsSecDepASM = true
 		}
-		/*if gg.FLAGS&0x40 != 0 {
+		if gg.FLAGS&0x40 != 0 {
 			gg.IsNonRecurCharge = true
-		}*/
+		}
 
 		g.Record = gg
 		rlib.Console("g.Record.BUD = %s\n", g.Record.BUD)
