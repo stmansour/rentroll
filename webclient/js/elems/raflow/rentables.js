@@ -742,7 +742,15 @@ window.loadRARentablesGrid = function () {
                                 var BID = getCurrentBID();
                                 app.raflow.arList[BID].forEach(function(item) {
                                     if (event.value_new.id == item.ARID) {
+                                        console.log(item);
                                         f.record.Amount = item.DefaultAmount;
+
+                                        if(item.FLAGS === 66){
+                                            f.record.RentCycle = app.cycleFreq[0];
+                                        }
+
+                                        console.log(item.FLAGS);
+                                        // f.record.RentCycle = item.RentCycle;
                                         f.refresh();
                                         return false;
                                     }
