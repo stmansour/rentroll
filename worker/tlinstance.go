@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
 	"rentroll/rlib"
 	"time"
 	"tws"
@@ -52,18 +51,27 @@ func TLInstanceBot(item *tws.Item) {
 func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 	var err error
 	var rows *sql.Rows
+	rlib.Console("Entered TLInstanceBotCore\n")
 	eot, err := rlib.StringToDate("3000-01-01 00:00:00 UTC")
 	if err != nil {
-		fmt.Printf("error converting date to date: %s\n", err.Error())
-		os.Exit(1)
+		rlib.Ulog("error converting date to date: %s\n", err.Error())
+		return err
 	}
+	rlib.Console("eot = %s\n", eot.Format(rlib.RRDATETIMERPTFMT))
 	rows, err = rlib.RRdb.Prepstmt.GetAllParentTaskLists.Query()
+	if err != nil {
+		rlib.Ulog("error getting rows cursor: %s\n", err.Error())
+		return err
+	}
+	rlib.Console("...got rows cursor\n")
 
 	for i := 0; rows.Next(); i++ {
 		var tl rlib.TaskList
 		if err = rlib.ReadTaskLists(rows, &tl); err != nil {
 			return err
 		}
+		rlib.Console("...i = %d, TLID = %d\n", i, tl.TLID)
+
 		//--------------------------------
 		// skip if no due dates...
 		//--------------------------------
@@ -79,30 +87,37 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		if tld.Epoch.Year() < 1999 {
 			return fmt.Errorf("no epoch for TLDID = %d", tl.TLDID)
 		}
-		dtNext := tld.Epoch.AddDate(0, 0, 1) // just make it the next day in this case
+		dtNext := now.AddDate(0, 0, 1)
 		switch tl.Cycle {
 		case rlib.RECURDAILY: // daily
-			dtNext = tld.Epoch.AddDate(0, 0, 1)
+			dtNext = now.AddDate(0, 0, 1)
 		case rlib.RECURWEEKLY: // weekly
-			dtNext = tld.Epoch.AddDate(0, 0, 7)
+			dtNext = now.AddDate(0, 0, 7)
 		case rlib.RECURMONTHLY: // monthly
-			dtNext = tld.Epoch.AddDate(0, 1, 0)
+			dtNext = now.AddDate(0, 1, 0)
 		case rlib.RECURQUARTERLY: // quarterly
-			dtNext = tld.Epoch.AddDate(0, 3, 0)
+			dtNext = now.AddDate(0, 3, 0)
 		case rlib.RECURYEARLY: // yearly
-			dtNext = tld.Epoch.AddDate(1, 0, 0)
+			dtNext = now.AddDate(1, 0, 0)
 		}
 
 		//----------------------------------------------
 		// Look for any instances that occur this day
 		//----------------------------------------------
+		rlib.Console("getRecurrences( %q , %q , %q, %q )\n",
+			now.Format(rlib.RRDATETIMESQL), dtNext.Format(rlib.RRDATETIMESQL),
+			tld.Epoch.Format(rlib.RRDATETIMESQL), eot.Format(rlib.RRDATETIMESQL))
 		newepoch := getRecurrences(now, &dtNext, &tld.Epoch, &eot, tl.Cycle)
+		rlib.Console("newepoch = %q\n", newepoch.Format(rlib.RRDATETIMESQL))
 
 		//----------------------------------------------
 		// TBD - check for an existing instance on this date/time.
 		// We need to make this function idempotent.
 		//----------------------------------------------
 
+		//----------------------------------------------
+		// now create the new instance...
+		//----------------------------------------------
 		_, err = rlib.CreateTaskListInstance(ctx, tl.TLDID, tl.TLID, &newepoch)
 		if err != nil {
 			return err
