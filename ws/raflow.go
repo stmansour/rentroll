@@ -482,6 +482,14 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 				UsePeriodStart:  rlib.JSONDate(today),
 				UsePeriodStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
 			}
+
+			// If it have is non recur charge true
+			if ar.FLAGS&0x40 != 0 {
+				rec.RentCycle = 0 // norecur: index 0 in app.cycleFreq
+			} else {
+				rec.RentCycle = rt.RentCycle
+			}
+
 			records = append(records, rec)
 		}
 	}
@@ -510,6 +518,13 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 			RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
 			UsePeriodStart:  rlib.JSONDate(today),
 			UsePeriodStop:   rlib.JSONDate(today.AddDate(1, 0, 0)),
+		}
+
+		// If it have is non recur charge  flag true
+		if ar.FLAGS&0x40 != 0 {
+			rec.RentCycle = 0 // norecur: index 0 in app.cycleFreq
+		} else {
+			rec.RentCycle = rt.RentCycle
 		}
 
 		/*if ar.FLAGS&0x20 != 0 { // same will be applied to Security Deposit ASM
