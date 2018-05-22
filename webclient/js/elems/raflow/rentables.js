@@ -400,8 +400,14 @@ window.loadRARentablesGrid = function () {
                 },
                 {
                     field: 'ARID',
+                    caption: 'Account Rule ID',
+                    size: '100px',
+                    hidden: false
+                },
+                {
+                    field: 'ARName',
                     caption: 'Account Rule',
-                    size: '150px',
+                    size: '150px'
                 },
                 {
                     field: 'Amount',
@@ -428,9 +434,9 @@ window.loadRARentablesGrid = function () {
                 },
                 {
                     field: 'RentCycle',
-                    caption: 'RentCycle',
+                    caption: 'RentCycle Index',
                     size: '100px',
-                    hidden: false,
+                    hidden: true,
                     render: function (record) {
                         return record.RentCycle;
                     }
@@ -761,8 +767,6 @@ window.loadRARentablesGrid = function () {
                                             f.record.RentCycle = app.cycleFreq[0];
                                         }
 
-                                        console.log(item.FLAGS);
-                                        // f.record.RentCycle = item.RentCycle;
                                         f.refresh();
                                         return false;
                                     }
