@@ -76,6 +76,8 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		return err
 	}
 
+	rlib.Console("len(m) = %d\n", len(m))
+
 	for i := 0; i < len(m); i++ {
 		rlib.Console("...i = %d, TLID = %d\n", i, m[i].TLID)
 
@@ -83,18 +85,21 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		// skip if no due dates...
 		//--------------------------------
 		if m[i].Cycle == rlib.RECURNONE || m[i].DtPreDue.Year() < 1999 || m[i].DtDue.Year() < 1999 {
+			rlib.Console("A\n")
 			continue
 		}
-		//
+		rlib.Console("B\n")
 		tld, err := rlib.GetTaskListDefinition(ctx, m[i].TLDID)
 		if err != nil {
 			return err
 		}
+		rlib.Console("C\n")
 
 		if tld.Epoch.Year() < 1999 {
 			return fmt.Errorf("no epoch for TLDID = %d", m[i].TLDID)
 		}
-		dtNext := now.AddDate(0, 0, 1)
+		dtNext := now.AddDate(0, 0, 1) // initialize something for dtNext
+		rlib.Console("D\n")
 		switch m[i].Cycle {
 		case rlib.RECURDAILY: // daily
 			dtNext = now.AddDate(0, 0, 1)
@@ -107,6 +112,7 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		case rlib.RECURYEARLY: // yearly
 			dtNext = now.AddDate(1, 0, 0)
 		}
+		rlib.Console("E\n")
 
 		//----------------------------------------------
 		// Look for any instances that occur this day
