@@ -64,31 +64,38 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		return err
 	}
 	rlib.Console("...got rows cursor\n")
-
+	var m []rlib.TaskList
 	for i := 0; rows.Next(); i++ {
 		var tl rlib.TaskList
 		if err = rlib.ReadTaskLists(rows, &tl); err != nil {
 			return err
 		}
-		rlib.Console("...i = %d, TLID = %d\n", i, tl.TLID)
+		m = append(m, tl)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	for i := 0; i < len(m); i++ {
+		rlib.Console("...i = %d, TLID = %d\n", i, m[i].TLID)
 
 		//--------------------------------
 		// skip if no due dates...
 		//--------------------------------
-		if tl.Cycle == rlib.RECURNONE || tl.DtPreDue.Year() < 1999 || tl.DtDue.Year() < 1999 {
+		if m[i].Cycle == rlib.RECURNONE || m[i].DtPreDue.Year() < 1999 || m[i].DtDue.Year() < 1999 {
 			continue
 		}
 		//
-		tld, err := rlib.GetTaskListDefinition(ctx, tl.TLDID)
+		tld, err := rlib.GetTaskListDefinition(ctx, m[i].TLDID)
 		if err != nil {
 			return err
 		}
 
 		if tld.Epoch.Year() < 1999 {
-			return fmt.Errorf("no epoch for TLDID = %d", tl.TLDID)
+			return fmt.Errorf("no epoch for TLDID = %d", m[i].TLDID)
 		}
 		dtNext := now.AddDate(0, 0, 1)
-		switch tl.Cycle {
+		switch m[i].Cycle {
 		case rlib.RECURDAILY: // daily
 			dtNext = now.AddDate(0, 0, 1)
 		case rlib.RECURWEEKLY: // weekly
@@ -107,7 +114,7 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		rlib.Console("getRecurrences( %q , %q , %q, %q )\n",
 			now.Format(rlib.RRDATETIMESQL), dtNext.Format(rlib.RRDATETIMESQL),
 			tld.Epoch.Format(rlib.RRDATETIMESQL), eot.Format(rlib.RRDATETIMESQL))
-		newepoch := getRecurrences(now, &dtNext, &tld.Epoch, &eot, tl.Cycle)
+		newepoch := getRecurrences(now, &dtNext, &tld.Epoch, &eot, m[i].Cycle)
 		rlib.Console("newepoch = %q\n", newepoch.Format(rlib.RRDATETIMESQL))
 
 		//----------------------------------------------
@@ -118,15 +125,13 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		//----------------------------------------------
 		// now create the new instance...
 		//----------------------------------------------
-		_, err = rlib.CreateTaskListInstance(ctx, tl.TLDID, tl.TLID, &newepoch)
+		_, err = rlib.CreateTaskListInstance(ctx, m[i].TLDID, m[i].TLID, &newepoch)
 		if err != nil {
 			return err
 		}
-
 	}
 
-	err = rows.Err()
-	return err
+	return nil
 }
 
 // getRecurrences returns a list of instance dates where an event time
