@@ -58,7 +58,7 @@ $(document).on('click', '#ra-form #progressbar #steps-list a', function () {
 });
 
 // lockOnGrid
-// Lock grid if chebox is unchecked(false). Unlock grid if checkbox is checked(true).
+// Lock grid if checkbox is unchecked(false). Unlock grid if checkbox is checked(true).
 // Lock grid when there is no record in the grid.
 window.lockOnGrid = function (gridName) {
     var isChecked = $("#" + gridName + "_checkbox")[0].checked;

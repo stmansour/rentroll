@@ -31,17 +31,16 @@ func (raftp RAFlowPartType) IsValid() bool {
 func (raftp RAFlowPartType) String() string {
 	names := [...]string{
 		"Agreement Dates",
-		"Payors-Users-Guarantors",
+		"People with background info",
 		"Pets",
 		"Vehicles",
-		"Background-Info",
-		"Rentables",
-		"Fess-Terms",
+		"Rentables with fees",
+		"Fess & Terms",
 	}
 
 	// if not valid then return unknown
 	if !(raftp.IsValid()) {
-		return "Unknown-RAFlowPart"
+		return "Unknown RA FlowPart"
 	}
 
 	return names[raftp-1]
