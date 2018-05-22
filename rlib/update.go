@@ -1189,8 +1189,8 @@ func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 	return updateError(err, "Vehicle", *a)
 }
 
-// UpdateFlowPart updates the flow part by data provided in flowpart
-func UpdateFlowPart(ctx context.Context, a *FlowPart) error {
+// UpdateFlowData updates the flow Data json column
+func UpdateFlowData(ctx context.Context, a *Flow, jsonDataKey string) error {
 	var err error
 
 	// session... context
@@ -1210,13 +1210,13 @@ func UpdateFlowPart(ctx context.Context, a *FlowPart) error {
 
 	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
 	// in mysql `json` type column
-	fields := []interface{}{a.BID, a.Flow, a.FlowID, a.PartType, []byte(a.Data), a.LastModBy, a.FlowPartID}
+	fields := []interface{}{jsonDataKey, a.Data, a.FlowID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowPart)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowData)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.UpdateFlowPart.Exec(fields...)
+		_, err = RRdb.Prepstmt.UpdateFlowData.Exec(fields...)
 	}
-	return updateError(err, "FlowPart", *a)
+	return updateError(err, "Flow", *a)
 }
