@@ -402,7 +402,7 @@ window.loadRARentablesGrid = function () {
                     field: 'ARID',
                     caption: 'Account Rule ID',
                     size: '100px',
-                    hidden: false
+                    hidden: true
                 },
                 {
                     field: 'ARName',
@@ -416,8 +416,8 @@ window.loadRARentablesGrid = function () {
                     render: 'money',
                 },
                 {
-                    field: 'RentCycle',
-                    caption: 'Cycle',
+                    field: 'RentCycleText',
+                    caption: 'Rent Cycle',
                     size: '100px',
                     render: function (record/*, index, col_index*/) {
                         var text = '';
@@ -434,12 +434,8 @@ window.loadRARentablesGrid = function () {
                 },
                 {
                     field: 'RentCycle',
-                    caption: 'RentCycle Index',
-                    size: '100px',
-                    hidden: true,
-                    render: function (record) {
-                        return record.RentCycle;
-                    }
+                    caption: 'Rent Cycle Index',
+                    hidden: true
                 },
                 {
                     field: 'Epoch',
@@ -562,10 +558,10 @@ window.loadRARentablesGrid = function () {
                                 app.raflow.arList[BID].forEach(function(item) {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
-                                form.get("ARID").options.items = arid_items;
+                                form.get("ARName").options.items = arid_items;
                                 form.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                                form.record.RentCycle = app.cycleFreq[form.record.RentCycle];
+                                form.record.RentCycleList = app.cycleFreq[form.record.RentCycle];
 
                                 // mark current ARID in app last rentableFeeARID
                                 app.raflow.last.rentableFeeARID = form.record.ARID;
@@ -596,9 +592,11 @@ window.loadRARentablesGrid = function () {
                 {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'BUD',               type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.businesses}},
                 {name: 'RID',               type: 'int',    required: true, html: {page: 0, column: 0}},
-                {name: 'ARID',              type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
+                {name: 'ARID',              type: 'int',   required: true, html: {page: 0, column: 0}},
+                {name: 'ARName',            type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
                 {name: 'Amount',            type: 'money',  required: true, html: {page: 0, column: 0}},
-                {name: 'RentCycle',         type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
+                {name: 'RentCycle',         type: 'int',   required: true, html: {page: 0, column: 0}},
+                {name: 'RentCycleList',     type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
                 {name: 'Epoch',             type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'RentPeriodStart',   type: 'date',   required: true, html: {page: 0, column: 0}},
                 {name: 'RentPeriodStop',    type: 'date',   required: true, html: {page: 0, column: 0}},
@@ -742,7 +740,7 @@ window.loadRARentablesGrid = function () {
                 var f = this;
                 event.onComplete = function() {
                     switch(event.target) {
-                        case "RentCycle":
+                        case "RentCycleList":
                             if (event.value_new) {
                                 app.cycleFreq.forEach(function(itemText, itemIndex) {
                                     if (event.value_new.text == itemText) {
@@ -750,9 +748,10 @@ window.loadRARentablesGrid = function () {
                                         return false;
                                     }
                                 });
+                                f.refresh();
                             }
                             break;
-                        case "ARID":
+                        case "ARName":
                             if (event.value_new) {
                                 // mark previous ARID in app last rentableFeeARID
                                 app.raflow.last.rentableFeeARID = event.value_previous.id;
@@ -762,6 +761,7 @@ window.loadRARentablesGrid = function () {
                                     if (event.value_new.id == item.ARID) {
                                         console.log(item);
                                         f.record.Amount = item.DefaultAmount;
+                                        f.record.ARID = item.ARID;
 
                                         if(item.FLAGS === 66){
                                             f.record.RentCycle = app.cycleFreq[0];
@@ -794,7 +794,7 @@ window.loadRARentablesGrid = function () {
 
                     var ARIDSel = {};
                     // select value for rentable type FLAGS
-                    f.get("ARID").options.items.forEach(function(item) {
+                    f.get("ARName").options.items.forEach(function(item) {
                         if (item.id == f.record.ARID) {
                             ARIDSel = {id: item.id, text: item.text};
                         }
@@ -802,7 +802,7 @@ window.loadRARentablesGrid = function () {
 
                     f.record.BID = BID;
                     f.record.BUD = BUD;
-                    f.get("ARID").options.selected = ARIDSel;
+                    f.get("ARName").options.selected = ARIDSel;
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid");
