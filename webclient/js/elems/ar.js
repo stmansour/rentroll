@@ -29,6 +29,7 @@ window.getARRulesInitRecord = function (BID, BUD, post_accounts_pre_selected, pr
         AutoPopulateToNewRA: false,
         IsRentASM: false,
         IsSecDepASM: false,
+        IsNonRecurCharge: false,
         DefaultAmount: 0.0,
     };
 
@@ -239,10 +240,11 @@ $().w2grid({
             { field: 'AutoPopulateToNewRA',  type: 'checkbox', required: false, html: { page: 0, column: 0 } },
             { field: 'IsRentASM',            type: 'checkbox', required: false, html: { page: 0, column: 0 } },
             { field: 'IsSecDepASM',          type: 'checkbox', required: false, html: { page: 0, column: 0 } },
+            { field: 'IsNonRecurCharge',     type: 'checkbox', required: false, html: { page: 0, column: 0 } },
             { field: "LastModTime",          type: 'time',     required: false, html: { caption: "LastModTime", page: 0, column: 0 } },
             { field: "LastModBy",            type: 'int',      required: false, html: { caption: "LastModBy", page: 0, column: 0 } },
             { field: "CreateTS",             type: 'time',     required: false, html: { caption: "CreateTS", page: 0, column: 0 } },
-            { field: "CreateBy",             type: 'int',      required: false, html: { caption: "CreateBy", page: 0, column: 0 } },
+            { field: "CreateBy",             type: 'int',      required: false, html: { caption: "CreateBy", page: 0, column: 0 } }
         ],
         toolbar: {
             items: [
@@ -383,6 +385,7 @@ $().w2grid({
             data.postData.record.AutoPopulateToNewRA = int_to_bool(data.postData.record.AutoPopulateToNewRA);
             data.postData.record.IsRentASM = int_to_bool(data.postData.record.IsRentASM);
             data.postData.record.IsSecDepASM = int_to_bool(data.postData.record.IsSecDepASM);
+            data.postData.record.IsNonRecurCharge = int_to_bool(data.postData.record.IsNonRecurCharge);
         },
         onRefresh: function(event) {
             event.onComplete = function() {

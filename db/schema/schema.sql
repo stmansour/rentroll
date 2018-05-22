@@ -1041,6 +1041,7 @@ CREATE TABLE AR (
                                                             -- 1<<3 = subARIDs apply (i.e., there are other ar rules that apply to this AR Rule)
                                                             -- 1<<4 = Is Rent Assessment
                                                             -- 1<<5 = Is Security Deposit Assessment
+                                                            -- 1<<6 = Is NonRecur charge
     DefaultAmount DECIMAL(19,4) NOT NULL DEFAULT 0.0,       -- amount to initialize interface with
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it

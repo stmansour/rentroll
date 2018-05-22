@@ -6,10 +6,11 @@
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
-    setRABGInfoFormHeader, setRABGInfoFormFields, showHideRABGInfoFormFields,
+    setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRAPeopleGrid,
-    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole
+    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTCIDRecidInPeopleData,
+    addDummyBackgroundInfo, updatePeopleData
 */
 
 "use strict";
@@ -135,13 +136,13 @@ window.loadRAPeopleForm = function () {
                     field: 'recid',
                     caption: 'recid',
                     size: '50px',
-                    hidden: false
+                    hidden: true
                 },
                 {
                     field: 'TCID',
                     caption: 'TCID',
                     size: '50px',
-                    hidden: false
+                    hidden: true
                 },
                 {
                     field: 'FullName',
@@ -160,7 +161,7 @@ window.loadRAPeopleForm = function () {
                     field: 'IsRenter',
                     caption: 'Renter',
                     size: '100px',
-                    hidden: false,
+                    hidden: true,
                     render: function (record) {
                         if (record.IsRenter) {
                             return '<i class="fas fa-check" title="renter"></i>';
@@ -173,7 +174,7 @@ window.loadRAPeopleForm = function () {
                     field: 'IsOccupant',
                     caption: 'Occupant',
                     size: '100px',
-                    hidden: false,
+                    hidden: true,
                     render: function (record) {
                         if (record.IsOccupant) {
                             return '<i class="fas fa-check" title="occupant"></i>';
@@ -186,7 +187,7 @@ window.loadRAPeopleForm = function () {
                     field: 'IsGuarantor',
                     caption: 'Guarantor',
                     size: '100px',
-                    hidden: false,
+                    hidden: true,
                     render: function (record) {
                         if (record.IsGuarantor) {
                             return '<i class="fas fa-check" title="guarantor"></i>';
@@ -201,9 +202,6 @@ window.loadRAPeopleForm = function () {
 
                     var raBGInfoGridRecord = w2ui.RAPeopleGrid.get(event.recid); // record from the w2ui grid
                     var form = w2ui.RABGInfoForm;
-
-                    // console.log(event.recid);
-                    // console.log(raBGInfoGridRecord);
 
                     var yes_args = [this, event.recid],
                         no_args = [this],
@@ -230,14 +228,14 @@ window.loadRAPeopleForm = function () {
                                     // Set form record from the client side
                                     form.record = bgInfoRecords[recordIndex];
 
-                                    // Set the form tile
+                                    // Set the form title
                                     setRABGInfoFormHeader(form.record);
 
                                     break;
                                 }
                             }
 
-                            w2ui.RABGInfoForm.refresh(); // need to refresh for form changes
+                            form.refresh(); // need to refresh for form changes
                         };
 
                     // warn user if form content has been changed
@@ -258,12 +256,22 @@ window.loadRAPeopleForm = function () {
             toolbar: {
                 items: [
                     {id: 'bt3', type: 'spacer'},
+                    // {id: 'addInfo', type: 'button', icon: 'fas fa-plus-circle'}, // TODO: Remove this in production. This button is for development purpose
                     {id: 'btnClose', type: 'button', icon: 'fas fa-times'}
                 ],
                 onClick: function (event) {
                     switch (event.target) {
                         case 'btnClose':
+                            var form = w2ui.RABGInfoForm;
+                            var record = getFormSubmitData(form.record);
+
+                            updatePeopleData(record);
+
                             hideSliderContent();
+
+                            break;
+                        case 'addInfo':
+                            addDummyBackgroundInfo();
                             break;
                     }
                 }
@@ -317,10 +325,9 @@ window.loadRAPeopleForm = function () {
                     var form = this;
 
                     var errors = form.validate();
-                    console.log(errors);
                     if (errors.length > 0) return;
 
-                    var record = $.extend(true, {}, form.record);
+                    var record = getFormSubmitData(form.record);
 
                     // If transanctant role isn't selected than display error.
                     if(!(record.IsRenter || record.IsOccupant || record.IsGuarantor)){
@@ -328,36 +335,13 @@ window.loadRAPeopleForm = function () {
                         return;
                     }
 
-                    // State field
-                    record.State = record.State.text;
-
-                    // Convert integer to bool checkboxes fields
-                    updateRABGInfoFormCheckboxes(record);
+                    var bgInfoRecords = updatePeopleData(record);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
-                    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-                    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
-
-                    // update record if it is already exists
-                    var isExists = false;
-                    for (var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++) {
-                        if (bgInfoRecords[recordIndex].TCID === record.TCID && bgInfoRecords[recordIndex].recid === record.recid) {
-                            bgInfoRecords[recordIndex] = record;
-                            isExists = true;
-                            break;
-                        }
-                    }
-
-                    // Push new record
-                    if(!isExists){
-                        bgInfoRecords.push(record);
-                    }
-
-                    var recordsData = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
                     // save this records in json Data
-                    saveActiveCompData(recordsData, app.raFlowPartTypes.people)
+                    saveActiveCompData(bgInfoRecords, app.raFlowPartTypes.people)
                         .done(function (data) {
                             if (data.status === 'success') {
 
@@ -378,10 +362,10 @@ window.loadRAPeopleForm = function () {
                 },
                 delete: function () {
                     var form = this;
-                    var tcidIndex = findTransactantIndexByTCIDInPeopleData(form.record.TCID);
+                    var tcidIndex = findTransactantIndexByTCIDRecidInPeopleData(form.record.TCID, form.record.recid);
 
-                    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-                    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+                    var record = getFormSubmitData(form.record);
+                    var bgInfoRecords = updatePeopleData(record);
 
                     // delete record with index `tcidIndex`
                     bgInfoRecords.splice(tcidIndex, 1);
@@ -404,6 +388,9 @@ window.loadRAPeopleForm = function () {
                         .fail(function (data) {
                             console.log("failure " + data);
                         });
+                },
+                reset: function () {
+                    w2ui.RABGInfoForm.clear();
                 }
             },
             onChange: function (event) {
@@ -437,7 +424,8 @@ window.loadRAPeopleForm = function () {
                 };
             },
             onRefresh: function (event) {
-                var form = w2ui.RABGInfoForm;
+                var form = this;
+
                 // hide delete button if it is NewRecord
                 var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
                 if (isNewRecord) {
@@ -483,26 +471,6 @@ window.setRABGInfoFormHeader = function (record) {
     } else {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
     }
-};
-
-// setRABGInfoFormFields
-// It have transanctant record from the server.
-// From this record RABGInfoForm fields value will be populate.
-window.setRABGInfoFormFields = function (record) {
-    var formRecord = w2ui.RABGInfoForm.record; // record from the w2ui form
-
-    formRecord.FirstName = record.FirstName;
-    formRecord.MiddleName = record.MiddleName;
-    formRecord.LastName = record.LastName;
-    formRecord.TelephoneNo = record.CellPhone;
-    formRecord.EmailAddress = record.PrimaryEmail;
-    formRecord.Phone = record.WorkPhone;
-    formRecord.Address = record.Address;
-    formRecord.Address2 = record.Address2;
-    formRecord.City = record.City;
-    formRecord.Country = record.Country;
-    formRecord.PostalCode = record.PostalCode;
-    formRecord.State = record.State;
 };
 
 // showHideRABGInfoFormFields
@@ -714,7 +682,7 @@ window.acceptTransactant = function () {
                     setTransactDefaultRole(transactantRec);
 
                     // push the new transanctant to client side
-                    app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.push(transactantRec);
+                    app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.push($.extend(true, {}, transactantRec));
 
                     // load item in the RAPeopleGrid grid
                     loadTransactantInRAPeopleGrid();
@@ -818,6 +786,28 @@ window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
     return index;
 };
 
+window.findTransactantIndexByTCIDRecidInPeopleData = function (TCID, recid) {
+    var index = -1;
+
+    // get part type index
+    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    // remove entry from data
+    if (peoplePartIndex < 0) {
+        return;
+    }
+
+    if (typeof app.raflow.data[app.raflow.activeFlowID] !== "undefined") {
+        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.forEach(function (transactantRec, i) {
+            if (transactantRec.TCID === TCID && transactantRec.recid === recid) {
+                index = i;
+                return false;
+            }
+        });
+    }
+
+    return index;
+};
+
 //---------------------------------------------------------------------
 // setTrasanctantFields
 // Set Background information form fields value form the server record.
@@ -852,4 +842,64 @@ window.setTransactDefaultRole = function (transactantRec) {
 
     // Each transactant must be occupant by default. It can be change via BGInfo detail form
     transactantRec.IsOccupant = true;
+};
+
+window.addDummyBackgroundInfo = function () {
+    var form = w2ui.RABGInfoForm;
+    var record = form.record;
+    record.FirstName = Math.random().toString(32).slice(2);
+    record.MiddleName = Math.random().toString(32).slice(2);
+    record.LastName = Math.random().toString(32).slice(2);
+    record.CompanyName = Math.random().toString(32).slice(2);
+    record.BirthDate = "8/30/1990";
+    record.SSN = Math.random().toString(32).slice(4);
+    record.DriverLicNo = Math.random().toString(32).slice(2);
+    record.TelephoneNo = Math.random().toString(32).slice(2);
+    record.EmailAddress = Math.random().toString(32).slice(2) + "@yopmail.com";
+    record.CurrentAddress = Math.random().toString(32).slice(2);
+    record.CurrentLandLordName = Math.random().toString(32).slice(2);
+    record.CurrentLandLordPhoneNo = Math.random().toString(32).slice(2);
+    record.CurrentLengthOfResidency = 56;
+    record.CurrentReasonForMoving = Math.random().toString(32).slice(2);
+    record.PriorAddress = Math.random().toString(32).slice(2);
+    record.PriorLandLordName = Math.random().toString(32).slice(2);
+    record.PriorLandLordPhoneNo = Math.random().toString(32).slice(2);
+    record.PriorLengthOfResidency = 36;
+    record.PriorReasonForMoving = Math.random().toString(32).slice(2);
+    record.Employer = Math.random().toString(32).slice(2);
+    record.Phone = Math.random().toString(32).slice(2);
+    record.Address = Math.random().toString(32).slice(2);
+    record.Position = Math.random().toString(32).slice(2);
+    record.GrossWages = Math.random() * 100;
+    record.EmergencyContactName = Math.random().toString(32).slice(2);
+    record.EmergencyContactPhone = Math.random().toString(32).slice(2);
+    record.EmergencyContactAddress = Math.random().toString(32).slice(2);
+    form.refresh();
+};
+
+window.updatePeopleData = function (record) {
+
+    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+
+    // Convert integer to bool checkboxes fields
+    updateRABGInfoFormCheckboxes(record);
+
+    // update record if it is already exists
+    var isExists = false;
+    for (var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++) {
+        if (bgInfoRecords[recordIndex].TCID === record.TCID && bgInfoRecords[recordIndex].recid === record.recid) {
+            bgInfoRecords[recordIndex] = record;
+            isExists = true;
+            break;
+        }
+    }
+
+    // Push new record
+    if(!isExists){
+        bgInfoRecords.push(record);
+    }
+
+    return bgInfoRecords;
+
 };
