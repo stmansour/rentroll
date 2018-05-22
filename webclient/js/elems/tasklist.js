@@ -456,6 +456,8 @@ window.buildTaskListElements = function () {
                 r.TZOffset = app.TZOffset;
                 r.DtDue = localtimeToUTC(r.DtDue);
                 r.DtPreDue = localtimeToUTC(r.DtPreDue);
+                var cycle = r.Cycle.id;
+                r.Cycle = cycle;
 
                 var tl = {
                     cmd: "save",

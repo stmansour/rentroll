@@ -76,6 +76,7 @@ type SaveTaskList struct {
 	ChkDtDue     bool
 	ChkDtPreDue  bool
 	ChkDtPreDone bool
+	Cycle        int64
 	FLAGS        int64
 	DoneUID      int64
 	PreDoneUID   int64
