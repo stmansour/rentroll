@@ -7576,3 +7576,89 @@ func GetFlow(ctx context.Context, flowID int64) (Flow, error) {
 	}
 	return a, ReadFlow(row, &a)
 }
+
+// GetFlowsByFlowType reads all flowID for the current user
+func GetFlowsByFlowType(ctx context.Context, flowType string) ([]Flow, error) {
+
+	var (
+		err error
+		t   []Flow
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{flowType}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowsByFlowType)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetFlowsByFlowType.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for i := 0; rows.Next(); i++ {
+		var f Flow
+		err = ReadFlows(rows, &f)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, f)
+	}
+	return t, rows.Err()
+}
+
+// GetFlowIDsByUser reads all flowID for the current user
+func GetFlowIDsByUser(ctx context.Context) ([]int64, error) {
+
+	var (
+		err error
+		t   []int64
+		UID = int64(0)
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+		UID = sess.UID
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{UID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowIDsByUser)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetFlowIDsByUser.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for i := 0; rows.Next(); i++ {
+		var id int64
+		err = rows.Scan(&id)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, id)
+	}
+	return t, rows.Err()
+}

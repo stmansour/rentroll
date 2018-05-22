@@ -2,6 +2,7 @@ package rlib
 
 import (
 	"context"
+	"encoding/json"
 	"extres"
 )
 
@@ -1190,7 +1191,7 @@ func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 }
 
 // UpdateFlowData updates the flow Data json column
-func UpdateFlowData(ctx context.Context, a *Flow, jsonDataKey string) error {
+func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData json.RawMessage, a *Flow) error {
 	var err error
 
 	// session... context
@@ -1210,7 +1211,7 @@ func UpdateFlowData(ctx context.Context, a *Flow, jsonDataKey string) error {
 
 	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
 	// in mysql `json` type column
-	fields := []interface{}{jsonDataKey, a.Data, a.FlowID}
+	fields := []interface{}{jsonDataKey, jsonData, a.FlowID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowData)
 		defer stmt.Close()

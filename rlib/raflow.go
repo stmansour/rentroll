@@ -45,3 +45,13 @@ func (raftp RAFlowPartType) String() string {
 
 	return names[raftp-1]
 }
+
+// RAFlowPartsMap parts of a rental agreement flow
+var RAFlowPartsMap = Str2Int64Map{
+	"dates":     int64(DatesRAFlowPart),
+	"people":    int64(PeopleRAFlowPart),
+	"pets":      int64(PetsRAFlowPart),
+	"vehicles":  int64(VehiclesRAFlowPart),
+	"rentables": int64(RentablesRAFlowPart),
+	"feesterms": int64(FeesTermsRAFlowPart),
+}
