@@ -427,6 +427,15 @@ window.loadRARentablesGrid = function () {
                     },
                 },
                 {
+                    field: 'RentCycle',
+                    caption: 'RentCycle',
+                    size: '100px',
+                    hidden: false,
+                    render: function (record) {
+                        return record.RentCycle;
+                    }
+                },
+                {
                     field: 'Epoch',
                     caption: 'Epoch',
                     size: '100px',
@@ -519,6 +528,7 @@ window.loadRARentablesGrid = function () {
             },
             onClick: function(event) {
                 event.onComplete = function() {
+                    var form = w2ui.RARentableFeesForm;
                     var yes_args = [this, event.recid],
                         no_args = [this],
                         no_callBack = function(grid) {
@@ -532,7 +542,7 @@ window.loadRARentablesGrid = function () {
                                 .find(".slider[data-slider-id="+sliderID+"]")
                                 .find(".slider-content")
                                 .width(400)
-                                .w2render(w2ui.RARentableFeesForm);
+                                .w2render(form);
 
                             app.last.grid_sel_recid = parseInt(recid);
 
@@ -546,14 +556,16 @@ window.loadRARentablesGrid = function () {
                                 app.raflow.arList[BID].forEach(function(item) {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
-                                w2ui.RARentableFeesForm.get("ARID").options.items = arid_items;
-                                w2ui.RARentableFeesForm.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+                                form.get("ARID").options.items = arid_items;
+                                form.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
+
+                                form.record.RentCycle = app.cycleFreq[form.record.RentCycle];
 
                                 // mark current ARID in app last rentableFeeARID
-                                app.raflow.last.rentableFeeARID = w2ui.RARentableFeesForm.record.ARID;
+                                app.raflow.last.rentableFeeARID = form.record.ARID;
 
-                                showSliderContentW2UIComp(w2ui.RARentableFeesForm, sliderContentDivLength, sliderID);
-                                w2ui.RARentableFeesForm.refresh(); // need to refresh for header changes
+                                showSliderContentW2UIComp(form, sliderContentDivLength, sliderID);
+                                form.refresh(); // need to refresh for header changes
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
