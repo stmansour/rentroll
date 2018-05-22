@@ -25,10 +25,10 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rlib.Console("Entered %s\n", funcname)
 
-	// if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
-	// 	SvcErrorReturn(w, err, funcname)
-	// 	return
-	// }
+	if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
 	rlib.Console("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
@@ -269,17 +269,21 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	// now feed custom jsBtData to flow part json Data field
-	FlowPartData := json.RawMessage(jsBtData)
-
 	// update data with given json data key
-	err = rlib.UpdateFlowData(r.Context(), flowReq.FlowPartKey, FlowPartData, &existFlow)
+	err = rlib.UpdateFlowData(r.Context(), flowReq.FlowPartKey, jsBtData, &existFlow)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	SvcWriteSuccessResponse(d.BID, w)
+	// get flow data in return it back
+	flow, err := rlib.GetFlow(r.Context(), existFlow.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteResponse(d.BID, &flow, w)
 }
 
 // migrateFlowDataToDB saves the data from temp data stored in flowPart with flowID into actual

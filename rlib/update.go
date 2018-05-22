@@ -2,7 +2,6 @@ package rlib
 
 import (
 	"context"
-	"encoding/json"
 	"extres"
 )
 
@@ -1191,7 +1190,7 @@ func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 }
 
 // UpdateFlowData updates the flow Data json column
-func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData json.RawMessage, a *Flow) error {
+func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
 	var err error
 
 	// session... context
@@ -1205,7 +1204,7 @@ func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData json.RawMe
 	}
 
 	// make sure that json is valid before inserting it in database
-	if !(IsFlowDataValidJSON(a.Data)) {
+	if !(IsByteDataValidJSON(jsonData)) {
 		return ErrFlowInvalidJSONData
 	}
 
