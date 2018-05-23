@@ -15,12 +15,11 @@ const (
 	PetsRAFlowPart
 	VehiclesRAFlowPart
 	RentablesRAFlowPart
-	FeesTermsRAFlowPart
 )
 
 // IsValid checks the validity of RAFlowPartType raftp
 func (raftp RAFlowPartType) IsValid() bool {
-	if raftp < DatesRAFlowPart || raftp > FeesTermsRAFlowPart {
+	if raftp < DatesRAFlowPart || raftp > RentablesRAFlowPart {
 		return false
 	}
 
@@ -35,7 +34,6 @@ func (raftp RAFlowPartType) String() string {
 		"Pets",
 		"Vehicles",
 		"Rentables with fees",
-		"Fess & Terms",
 	}
 
 	// if not valid then return unknown
@@ -53,5 +51,4 @@ var RAFlowPartsMap = Str2Int64Map{
 	"pets":      int64(PetsRAFlowPart),
 	"vehicles":  int64(VehiclesRAFlowPart),
 	"rentables": int64(RentablesRAFlowPart),
-	"feesterms": int64(FeesTermsRAFlowPart),
 }

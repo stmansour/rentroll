@@ -19,7 +19,6 @@ type RAFlowJSONData struct {
 	Pets      []RAPetsFlowData      `json:"pets"`
 	Vehicles  []RAVehiclesFlowData  `json:"vehicles"`
 	Rentables []RARentablesFlowData `json:"rentables"`
-	FeesTerms []RAFeesTermsFlowData `json:"feesterms"`
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -166,23 +165,6 @@ type RARentableFeesData struct {
 	TransOcc        float64
 }
 
-// RAFeesTermsFlowData contains data in the fees-terms part of RA flow
-type RAFeesTermsFlowData struct {
-	// Recid        int     `json:"recid"` // this is for the grid widget
-	BID          int64
-	RID          int64
-	RTID         int64
-	RentableName string
-	FeeName      string
-	Amount       float64
-	Cycle        float64
-	SigningAmt   float64
-	ProrateAmt   float64
-	TaxableAmt   float64
-	SalesTax     float64
-	TransOcc     float64
-}
-
 // getUpdateRAFlowPartJSONData returns json data in bytes
 // coming from client with checking of flow and part type to update
 func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) ([]byte, error) {
@@ -199,7 +181,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.DatesRAFlowPart:
 		a := RADatesFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -226,7 +208,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.PeopleRAFlowPart:
 		a := []RAPeopleFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -241,7 +223,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.PetsRAFlowPart:
 		a := []RAPetsFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -256,7 +238,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.VehiclesRAFlowPart:
 		a := []RAVehiclesFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -271,22 +253,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.RentablesRAFlowPart:
 		a := []RARentablesFlowData{}
 
-		// if the struct provided with some data then checks for it
-		// json validation
-		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
-			if err != nil {
-				// if it's an error then return with nil data
-				return []byte(nil), err
-			}
-		}
-		// return json marshalled for struct
-		return json.Marshal(&a)
-
-	case rlib.FeesTermsRAFlowPart:
-		a := []RAFeesTermsFlowData{}
-
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -331,7 +298,6 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Pets:      []RAPetsFlowData{},
 		Vehicles:  []RAVehiclesFlowData{},
 		Rentables: []RARentablesFlowData{},
-		FeesTerms: []RAFeesTermsFlowData{},
 	}
 
 	// get json marshelled byte data for above struct
