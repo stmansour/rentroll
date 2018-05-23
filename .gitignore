@@ -38,3 +38,5 @@ test/dropdb
 
 # ignore conf file
 **conf*.json
+
+**.idea/
