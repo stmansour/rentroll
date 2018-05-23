@@ -8,8 +8,8 @@ clean:
 	@echo "*** CLEAN completed in test/importers/roomkey_exported_guest ***"
 
 test:
-	if [ ! -f coa.csv ]; then cp ../../../jm1/coa.csv .;cat coa.csv|sed 's/^REX/RKY/' > x; mv x coa.csv; fi
-	if [ ! -f ar.csv ]; then cp ../../../jm1/ar.csv .;cat ar.csv|sed 's/^REX/RKY/' > x; mv x ar.csv; fi
+	if [ ! -f coa.csv ]; then cp ../../../jm1/coa.csv .;cat coa.csv|sed 's/^REX/OKC/' > x; mv x coa.csv; fi
+	if [ ! -f ar.csv ]; then cp ../../../jm1/ar.csv .;cat ar.csv|sed 's/^REX/OKC/' > x; mv x ar.csv; fi
 	touch fail
 	./functest.sh
 	@echo "*** TEST completed in test/importers/roomkey_exported_guest ***"

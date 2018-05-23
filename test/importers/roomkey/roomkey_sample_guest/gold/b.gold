@@ -1,6 +1,6 @@
 Accord RentRoll RoomKey Importer
-Date: 2/28/2018
-Time: 8:24PM IST
+Date: 5/23/2018
+Time: 2:36PM PDT
 Import File: ./roomkey.csv
 Guest Export File: ./guestdataexport.csv
 
@@ -13,11 +13,11 @@ Transactants                    23          23          0
 Rentables                       23          21          0         
 Rental Agreements               23          21          0         
 
-==================================================
-RECORDS FOR BUSINESS UNIT DESIGNATION: Isola Bella
-==================================================
+==============================================================
+RECORDS FOR BUSINESS UNIT DESIGNATION: Accord/OKC Members, LLC
+==============================================================
 
-ISO Rentable Types
+OKC Rentable Types
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
@@ -45,8 +45,8 @@ RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes
             NS/POC-                                                                                         
 RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes                            
             Flat-QQQQ                                                                                       
-==================================================
-ISO Rentables
+==============================================================
+OKC Rentables
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
@@ -74,8 +74,8 @@ R00000018  6359238  pre-assign
 R00000019  6389345  pre-assign     
 R00000020  6331122  pre-assign     
 R00000021  6343172  pre-assign     
-==================================================
-ISO People
+==============================================================
+OKC People
 Accord/OKC Members, LLC
 6303 NW 63rd Street
 Oklahoma City, OK 73132 USA
@@ -110,8 +110,8 @@ TC00000020  Barta                Josiah                       No
 TC00000021  Baussan              Bernadette                   No                                             
 TC00000022  Baussan              Daniel                       No       407-489-2379  daniel.baussan@faa.gov  
 TC00000023  Baxter               Addison                      No       6015067741    addison.baxter@faa.gov  
-==================================================
-ISO Rental Agreement
+==============================================================
+OKC Rental Agreement
 Jan 1, 0001 - Jan 1, 0001
 Accord/OKC Members, LLC
 6303 NW 63rd Street
@@ -141,5 +141,5 @@ RA00000018  Barletta Giovanni     Barletta Giovanni     12/26/2016  04/01/2017  
 RA00000019  Barta Josiah          Barta Josiah          10/04/2016  04/07/2017  10/04/2016  04/07/2017  10/04/2016  04/07/2017  10/04/2016  2                  2            0                           
 RA00000020  Baussan Bernadette    Baussan Bernadette    12/05/2016  02/10/2017  12/05/2016  02/10/2017  12/05/2016  02/10/2017  12/05/2016  2                  1            0                           
 RA00000021  Baxter Addison        Baxter Addison        11/22/2016  02/14/2017  11/22/2016  02/14/2017  11/22/2016  02/14/2017  11/22/2016  2                  1            0                           
-==================================================
+==============================================================
 
