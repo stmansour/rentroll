@@ -13,20 +13,6 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// RECURNONE - RECURLAST are the allowed recurrence types
-const (
-	RECURNONE      = 0
-	RECURSECONDLY  = 1
-	RECURMINUTELY  = 2
-	RECURHOURLY    = 3
-	RECURDAILY     = 4
-	RECURWEEKLY    = 5
-	RECURMONTHLY   = 6
-	RECURQUARTERLY = 7
-	RECURYEARLY    = 8
-	RECURLAST      = RECURYEARLY
-)
-
 // RRCommaf returns a floating point number formated with commas for every 3 orders of magnitude
 // and 2 points after the decimal
 func RRCommaf(x float64) string {

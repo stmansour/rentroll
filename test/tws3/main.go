@@ -170,7 +170,7 @@ func TaskEmail(bid int64, ea string) {
 
 	var tldef rlib.TaskListDefinition
 	tldef.BID = bid
-	tldef.Cycle = rlib.CYCLENORECUR
+	tldef.Cycle = rlib.RECURNONE
 	tldef.Name = "Test TaskList"
 	tldef.EpochDue = now.Add(-1 * time.Minute)
 	tldef.EpochPreDue = now.Add(-1 * time.Hour)

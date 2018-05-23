@@ -13,7 +13,7 @@ func Tasks(ctx context.Context, biz *rlib.Business) {
 	// First... define a task list that has a "pre-due-date" on the 20th
 	// and a due date at 5pm on the last day of the month.
 	tldef.BID = biz.BID
-	tldef.Cycle = rlib.CYCLEMONTHLY
+	tldef.Cycle = rlib.RECURMONTHLY
 	tldef.Name = "Monthly Close"
 	tldef.Epoch = time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC)
 	tldef.EpochDue = time.Date(2018, time.January, 31, 17, 0, 0, 0, time.UTC)

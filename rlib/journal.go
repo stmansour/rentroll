@@ -140,13 +140,13 @@ func ProrateAssessment(ctx context.Context, xbiz *XBusiness, a *Assessment, d, d
 			Ulog("ProrateAssessment: error getting rental agreement RAID=%d, err = %s\n", a.RAID, err.Error())
 		} else {
 			switch a.RentCycle {
-			case CYCLEDAILY:
-				// Console("%s: CYCLEDAILY: ra.RAID = %d, ra.RentStart = %s, ra.RentStop = %s\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT4), ra.RentStop.Format(RRDATEFMT4))
+			case RECURDAILY:
+				// Console("%s: RECURDAILY: ra.RAID = %d, ra.RentStart = %s, ra.RentStop = %s\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT4), ra.RentStop.Format(RRDATEFMT4))
 				pf, num, den, start, stop = CalcProrationInfo(&ra.RentStart, &ra.RentStop, d, d, a.RentCycle, a.ProrationCycle)
-			case CYCLENORECUR:
+			case RECURNONE:
 				fallthrough
-			case CYCLEMONTHLY:
-				// Console("%s: CYCLEMONTHLY: ra.RAID = %d, ra.RentStart = %s, ra.RentStop = %s\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT4), ra.RentStop.Format(RRDATEFMT4))
+			case RECURMONTHLY:
+				// Console("%s: RECURMONTHLY: ra.RAID = %d, ra.RentStart = %s, ra.RentStop = %s\n", funcname, ra.RAID, ra.RentStart.Format(RRDATEFMT4), ra.RentStop.Format(RRDATEFMT4))
 				pf, num, den, start, stop = CalcProrationInfo(&ra.RentStart, &ra.RentStop, d1, d2, a.RentCycle, a.ProrationCycle)
 			default:
 				LogAndPrint("Accrual rate %d not implemented\n", a.RentCycle)

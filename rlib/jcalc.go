@@ -146,10 +146,10 @@ func GetProrationCycle(ctx context.Context, dt *time.Time, rid int64, rta *[]Ren
 	// Console("GetProrationCycle: rt = (%s - %s) rentcycle=%d, prorate=%d, rtid=%d\n",
 	// 	rt.DtStart.Format("1/2/06"), rt.DtStop.Format("1/2/06"), rt.RentCycle, rt.ProrationCycle, rt.RTID)
 
-	if rt.OverrideProrationCycle > CYCLENORECUR { // if there's an override
+	if rt.OverrideProrationCycle > RECURNONE { // if there's an override
 		prorationCycle = rt.OverrideProrationCycle //use the override
 	}
-	if rt.OverrideRentCycle > CYCLENORECUR { // if there's an override...
+	if rt.OverrideRentCycle > RECURNONE { // if there's an override...
 		rentCycle = rt.OverrideRentCycle // ...use it
 	}
 
