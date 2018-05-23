@@ -34,7 +34,7 @@ func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time
 	//------------------------------------------------------
 	var tl TaskList
 	tl.BID = tld.BID
-	tl.PTLID = 0 // explicitly set this to be the parent
+	tl.PTLID = PTLID
 	tl.TLDID = tld.TLDID
 	tl.Name = tld.Name
 	tl.Cycle = tld.Cycle
@@ -68,7 +68,6 @@ func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time
 		return tlid, err
 	}
 
-	Console("Found tld.TLDID = %d, TaskCount = %d, name = %s\n", tld.TLDID, len(tds), tld.Name)
 	for i := 0; i < len(tds); i++ {
 		var t Task
 		if err = NextTaskInstanceDates(pivot, &tld, &tds[i], &t); err != nil {

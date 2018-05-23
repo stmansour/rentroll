@@ -1804,6 +1804,7 @@ type RRprepSQL struct {
 	GetDueTaskLists                         *sql.Stmt
 	CheckForTLDInstances                    *sql.Stmt
 	GetAllParentTaskLists                   *sql.Stmt
+	GetTaskListInstanceInRange              *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

@@ -51,19 +51,20 @@ func TLInstanceBot(item *tws.Item) {
 func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 	var err error
 	var rows *sql.Rows
-	rlib.Console("Entered TLInstanceBotCore\n")
 	eot, err := rlib.StringToDate("3000-01-01 00:00:00 UTC")
 	if err != nil {
 		rlib.Ulog("error converting date to date: %s\n", err.Error())
 		return err
 	}
-	rlib.Console("eot = %s\n", eot.Format(rlib.RRDATETIMERPTFMT))
 	rows, err = rlib.RRdb.Prepstmt.GetAllParentTaskLists.Query()
 	if err != nil {
 		rlib.Ulog("error getting rows cursor: %s\n", err.Error())
 		return err
 	}
-	rlib.Console("...got rows cursor\n")
+
+	//-----------------------------------------
+	// Collect the rows of interest...
+	//-----------------------------------------
 	var m []rlib.TaskList
 	for i := 0; rows.Next(); i++ {
 		var tl rlib.TaskList
@@ -76,30 +77,27 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		return err
 	}
 
-	rlib.Console("len(m) = %d\n", len(m))
-
+	//------------------------------------------------------
+	// Process active parents to see if any new instances
+	// need to be created now...
+	//------------------------------------------------------
 	for i := 0; i < len(m); i++ {
-		rlib.Console("...i = %d, TLID = %d\n", i, m[i].TLID)
 
 		//--------------------------------
 		// skip if no due dates...
 		//--------------------------------
 		if m[i].Cycle == rlib.RECURNONE || m[i].DtPreDue.Year() < 1999 || m[i].DtDue.Year() < 1999 {
-			rlib.Console("A\n")
 			continue
 		}
-		rlib.Console("B\n")
 		tld, err := rlib.GetTaskListDefinition(ctx, m[i].TLDID)
 		if err != nil {
 			return err
 		}
-		rlib.Console("C\n")
 
 		if tld.Epoch.Year() < 1999 {
 			return fmt.Errorf("no epoch for TLDID = %d", m[i].TLDID)
 		}
 		dtNext := now.AddDate(0, 0, 1) // initialize something for dtNext
-		rlib.Console("D\n")
 		switch m[i].Cycle {
 		case rlib.RECURDAILY: // daily
 			dtNext = now.AddDate(0, 0, 1)
@@ -112,21 +110,26 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		case rlib.RECURYEARLY: // yearly
 			dtNext = now.AddDate(1, 0, 0)
 		}
-		rlib.Console("E\n")
 
 		//----------------------------------------------
 		// Look for any instances that occur this day
 		//----------------------------------------------
-		rlib.Console("getRecurrences( %q , %q , %q, %q )\n",
-			now.Format(rlib.RRDATETIMESQL), dtNext.Format(rlib.RRDATETIMESQL),
-			tld.Epoch.Format(rlib.RRDATETIMESQL), eot.Format(rlib.RRDATETIMESQL))
 		newepoch := getRecurrences(now, &dtNext, &tld.Epoch, &eot, m[i].Cycle)
-		rlib.Console("newepoch = %q\n", newepoch.Format(rlib.RRDATETIMESQL))
 
-		//----------------------------------------------
-		// TBD - check for an existing instance on this date/time.
-		// We need to make this function idempotent.
-		//----------------------------------------------
+		//----------------------------------------------------
+		// Check for an existing instance on this date/time.
+		// We need to make this function idempotent. That is,
+		// look for an instance at newepoch where PTLID == m[i].TLID,
+		// and if we find one, don't create another.
+		//----------------------------------------------------
+		dup, err := rlib.GetTaskListInstanceInRange(ctx, m[i].TLID, now, &dtNext)
+		if err != nil {
+			return err
+		}
+		if dup.TLID != 0 {
+			rlib.LogAndPrint("*** FOUND EXISTING TaskList INSTANCE. TLID = %d, will not create duplicate\n", dup.TLID)
+			continue
+		}
 
 		//----------------------------------------------
 		// now create the new instance...

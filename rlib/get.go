@@ -6699,6 +6699,29 @@ func GetTaskList(ctx context.Context, id int64) (TaskList, error) {
 	return a, ReadTaskList(row, &a)
 }
 
+// GetTaskListInstanceInRange returns a tasklist instance where
+// the PTLID matches the supplied ptlid and the due date falls in the
+// supplied date range.
+//
+// returns the tasklist if found, or an empty task list if not found
+//-----------------------------------------------------------------------------
+func GetTaskListInstanceInRange(ctx context.Context, id int64, dt1, dt2 *time.Time) (TaskList, error) {
+	var a TaskList
+	if authCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{id, dt1, dt2}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskListInstanceInRange)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetTaskListInstanceInRange.QueryRow(fields...)
+	}
+	return a, ReadTaskList(row, &a)
+}
+
 // GetTaskDescriptor returns the tasklist with the supplied id
 func GetTaskDescriptor(ctx context.Context, id int64) (TaskDescriptor, error) {
 	var a TaskDescriptor
