@@ -116,6 +116,8 @@ func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time
 func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList) error {
 	switch tld.Cycle {
 	case CYCLENORECUR:
+		tl.DtDue = tld.EpochDue
+		tl.DtPreDue = tld.EpochPreDue
 	case CYCLESECONDLY:
 	case CYCLEMINUTELY:
 	case CYCLEHOURLY:
@@ -211,6 +213,8 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, td *TaskDescriptor, t *Task) error {
 	switch tld.Cycle {
 	case CYCLENORECUR:
+		t.DtDue = td.EpochDue
+		t.DtPreDue = tld.EpochPreDue
 	case CYCLESECONDLY:
 	case CYCLEMINUTELY:
 	case CYCLEHOURLY:

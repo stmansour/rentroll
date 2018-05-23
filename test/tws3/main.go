@@ -29,6 +29,7 @@ var App struct {
 	NoAuth bool     // if true then skip authentication
 	Idx    int      // which test index
 	Comm   chan int //
+	Email  string   // comma separated list of email addresses
 }
 
 var testOwner = string("TWS Basic Tester1")
@@ -37,6 +38,7 @@ func readCommandLineArgs() {
 	dbuPtr := flag.String("B", "ec2-user", "database user name")
 	dbnmPtr := flag.String("N", "accord", "directory database (accord)")
 	dbrrPtr := flag.String("M", "tws", "database name (tws)")
+	email := flag.String("email", "", "comma separated list of email addresses")
 	aptr := flag.String("a", "add", "add, wait, reschedule, or complete a work item")
 	noauth := flag.Bool("noauth", false, "run server in no-auth mode")
 	flag.Parse()
@@ -46,6 +48,7 @@ func readCommandLineArgs() {
 	App.DBtws = *dbrrPtr
 	App.DBUser = *dbuPtr
 	App.Action = *aptr
+	App.Email = *email
 }
 
 func main() {
@@ -99,8 +102,22 @@ func main() {
 	// tws.Init(App.dbrr, App.dbdir) //
 	// worker.Init()              // don't init these, it introduces randomness
 	rlib.SessionInit(15) //
-	rlib.Console("calling doWork()\n")
 
+	if len(App.Email) > 0 {
+		bl, err := rlib.GetAllBiz()
+		if err != nil {
+			fmt.Printf("Error getting businesses: %s\n", err.Error())
+			os.Exit(1)
+		}
+		if len(bl) == 0 {
+			fmt.Printf("No businesses in the database!\n")
+			os.Exit(1)
+		}
+		TaskEmail(bl[0].BID, App.Email)
+		return // this main function is now complete
+	}
+
+	rlib.Console("calling doWork()\n")
 	doWork()
 }
 
@@ -134,41 +151,50 @@ func doWork() {
 	rlib.Console("Finished!\n")
 }
 
-/*
 // TaskEmail is used to test the email capability of a late task.  This
 // routine will create a non-recurring tasklist that is due in 2 mins.
 // when its time arrives it will generate the mail and send it to the
-// supplied email address string
-func TaskEmail(ctx context.Context, biz *rlib.Business) {
+// supplied email address string.
+//
+// INPUTS:
+//     bid - which business
+//      ea - comma separated list of email addresses
+//-----------------------------------------------------------------------------
+func TaskEmail(bid int64, ea string) {
+	funcname := "TaskEmail"
+	now := time.Now()
+	expire := now.Add(1 * time.Minute)
+	s := rlib.SessionNew("BotToken-"+worker.TLReportBotDes, worker.TLReportBotDes, worker.TLReportBotDes, worker.TLReportBot, "", -1, &expire)
+	ctx := context.Background()
+	ctx = rlib.SetSessionContextKey(ctx, s)
+
 	var tldef rlib.TaskListDefinition
-	// First... define a task list that has a "pre-due-date" on the 20th
-	// and a due date at 5pm on the last day of the month.
-	tldef.BID = biz.BID
-	tldef.Cycle = rlib.CYCLEMONTHLY
-	tldef.Name = "Monthly Close"
-	tldef.Epoch = time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC)
-	tldef.EpochDue = time.Date(2018, time.January, 31, 17, 0, 0, 0, time.UTC)
-	tldef.EpochPreDue = time.Date(2018, time.January, 20, 17, 0, 0, 0, time.UTC)
+	tldef.BID = bid
+	tldef.Cycle = rlib.CYCLENORECUR
+	tldef.Name = "Test TaskList"
+	tldef.EpochDue = now.Add(-1 * time.Minute)
+	tldef.EpochPreDue = now.Add(-1 * time.Hour)
+	tldef.EmailList = ea
+	tldef.FLAGS = 0x2 | 0x4 // this tasklist has both a due date and a pre-due date
 
 	err := rlib.InsertTaskListDefinition(ctx, &tldef)
 	if err != nil {
-		fmt.Printf("rlib.InsertTaskListDefinition: error = %s\n", err.Error())
+		rlib.LogAndPrint("rlib.InsertTaskListDefinition: error = %s\n", err.Error())
 		return
 	}
 
-	var due = time.Date(2018, time.January, 31, 20, 0, 0, 0, time.UTC) //
-	var predue = time.Date(2018, time.January, 20, 20, 0, 0, 0, time.UTC)
 	var t = []rlib.TaskDescriptor{
-		{Name: "Delinquency Report", Worker: "Manual", EpochDue: due, EpochPreDue: predue},
-		{Name: "Walk the Units", Worker: "Manual", EpochDue: due, EpochPreDue: predue},
-		{Name: "Generate Offsets", Worker: "OffsetBot", EpochDue: due, EpochPreDue: predue},
+		{Name: "Make A TaskList", Worker: "Manual", EpochDue: tldef.EpochDue, EpochPreDue: tldef.EpochPreDue},
+		{Name: "Mark 'Make A Tasklist' compete", Worker: "Manual", EpochDue: tldef.EpochDue, EpochPreDue: tldef.EpochPreDue},
+		{Name: "Mark the second task completed", Worker: "Manual", EpochDue: tldef.EpochDue, EpochPreDue: tldef.EpochPreDue},
+		{Name: "Mark entire TaskList complete", Worker: "Manual", EpochDue: tldef.EpochDue, EpochPreDue: tldef.EpochPreDue},
 	}
 
 	for i := 0; i < len(t); i++ {
 		t[i].TLDID = tldef.TLDID
 		err := rlib.InsertTaskDescriptor(ctx, &t[i])
 		if err != nil {
-			fmt.Printf("rlib.InsertTaskDescriptor: error = %s\n", err.Error())
+			rlib.LogAndPrint("rlib.InsertTaskDescriptor: error = %s\n", err.Error())
 			return
 		}
 	}
@@ -176,11 +202,40 @@ func TaskEmail(ctx context.Context, biz *rlib.Business) {
 	//----------------------------------------------
 	// Now, create an instance of this task list.
 	//----------------------------------------------
-	pivot := time.Date(2018, time.February, 3, 12, 32, 13, 0, time.UTC)
-	_, err = rlib.CreateTaskListInstance(ctx, tldef.TLDID, 0, &pivot)
+	tlid, err := rlib.CreateTaskListInstance(ctx, tldef.TLDID, 0, &now)
 	if err != nil {
-		fmt.Printf("CreateTaskListInstance:  error = %s\n", err.Error())
+		rlib.LogAndPrint("CreateTaskListInstance:  error = %s\n", err.Error())
+		return
 	}
-}
 
-*/
+	//----------------------------------------------
+	// Now, create an instance of this task list.
+	//----------------------------------------------
+	tl, err := rlib.GetTaskList(ctx, tlid)
+	if err != nil {
+		rlib.LogAndPrint("rlib.InsertTaskDescriptor: error = %s\n", err.Error())
+		return
+	}
+	rlib.Console("Created tasklist %d\n", tl.TLID)
+	m, err := rlib.GetTasks(ctx, tl.TLID)
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return
+	}
+	m[0].DtPreDone = now.Add(-30 * time.Minute)
+	m[0].DtDone = now.Add(1 * time.Minute)
+	err = rlib.UpdateTask(ctx, &m[0])
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return
+	}
+
+	m[1].DtPreDone = now.Add(-15 * time.Minute)
+	m[1].DtDone = now.Add(-1 * time.Minute)
+	err = rlib.UpdateTask(ctx, &m[1])
+	if err != nil {
+		rlib.LogAndPrintError(funcname, err)
+		return
+	}
+
+}

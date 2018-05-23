@@ -15,6 +15,16 @@ const (
 	NO  = int64(0) // std negative value
 	YES = int64(1)
 
+	CYCLENORECUR   = 0
+	CYCLESECONDLY  = 1
+	CYCLEMINUTELY  = 2
+	CYCLEHOURLY    = 3
+	CYCLEDAILY     = 4
+	CYCLEWEEKLY    = 5
+	CYCLEMONTHLY   = 6
+	CYCLEQUARTERLY = 7
+	CYCLEYEARLY    = 8
+
 	ELEMPERSON          = 1 // people
 	ELEMCOMPANY         = 2 // companies
 	ELEMCLASS           = 3 // classes
@@ -70,16 +80,6 @@ const (
 	ACCTSTATUSACTIVE   = 2
 	RAASSOCIATED       = 1
 	RAUNASSOCIATED     = 2
-
-	CYCLENORECUR   = 0
-	CYCLESECONDLY  = 1
-	CYCLEMINUTELY  = 2
-	CYCLEHOURLY    = 3
-	CYCLEDAILY     = 4
-	CYCLEWEEKLY    = 5
-	CYCLEMONTHLY   = 6
-	CYCLEQUARTERLY = 7
-	CYCLEYEARLY    = 8
 
 	YEARFOREVER = 9000 // an arbitrary year, anything >= to this year is taken to mean "unbounded", or no end date.
 
