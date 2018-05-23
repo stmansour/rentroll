@@ -257,6 +257,15 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
+
+			// check for each rentable data's Fees field
+			// if it's blank then initialize it
+			for i := range a {
+				if len(a[i].Fees) == 0 {
+					a[i].Fees = []RARentableFeesData{}
+				}
+			}
+
 			if err != nil {
 				// if it's an error then return with nil data
 				return []byte(nil), err
