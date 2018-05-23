@@ -85,15 +85,15 @@ type XJSONCycleFreq string
 
 // CycleFreqMap is the mapping
 var CycleFreqMap = Str2Int64Map{
-	"Norecur":   int64(CYCLENORECUR),
-	"Secondly":  int64(CYCLESECONDLY),
-	"Minutely":  int64(CYCLEMINUTELY),
-	"Hourly":    int64(CYCLEHOURLY),
-	"Daily":     int64(CYCLEDAILY),
-	"Weekly":    int64(CYCLEWEEKLY),
-	"Monthly":   int64(CYCLEMONTHLY),
-	"Quarterly": int64(CYCLEQUARTERLY),
-	"Yearly":    int64(CYCLEYEARLY),
+	"Norecur":   int64(RECURNONE),
+	"Secondly":  int64(RECURSECONDLY),
+	"Minutely":  int64(RECURMINUTELY),
+	"Hourly":    int64(RECURHOURLY),
+	"Daily":     int64(RECURDAILY),
+	"Weekly":    int64(RECURWEEKLY),
+	"Monthly":   int64(RECURMONTHLY),
+	"Quarterly": int64(RECURQUARTERLY),
+	"Yearly":    int64(RECURYEARLY),
 }
 
 // XJSONAssignmentTime is a UI converter: backend int64, Front End string

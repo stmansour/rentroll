@@ -188,7 +188,7 @@ func CreateAssessmentsFromCSV(ctx context.Context, sa []string, lineno int) (int
 	//-------------------------------------------------------------------
 	a.RentCycle, _ = rlib.IntFromString(sa[RentCycle], "Accrual value is invalid")
 	if !rlib.IsValidAccrual(a.RentCycle) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Accrual must be between %d and %d.  Found %d", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, a.RentCycle)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Accrual must be between %d and %d.  Found %d", funcname, lineno, rlib.RECURSECONDLY, rlib.RECURYEARLY, a.RentCycle)
 	}
 
 	//-------------------------------------------------------------------
@@ -196,7 +196,7 @@ func CreateAssessmentsFromCSV(ctx context.Context, sa []string, lineno int) (int
 	//-------------------------------------------------------------------
 	a.ProrationCycle, _ = rlib.IntFromString(sa[ProrationCycle], "Proration value is invalid")
 	if !rlib.IsValidAccrual(a.ProrationCycle) {
-		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration must be between %d and %d.  Found %d", funcname, lineno, rlib.CYCLESECONDLY, rlib.CYCLEYEARLY, a.ProrationCycle)
+		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration must be between %d and %d.  Found %d", funcname, lineno, rlib.RECURSECONDLY, rlib.RECURYEARLY, a.ProrationCycle)
 	}
 	if a.ProrationCycle > a.RentCycle {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Proration granularity (%d) must be more frequent than the Accrual (%d)", funcname, lineno, a.ProrationCycle, a.RentCycle)

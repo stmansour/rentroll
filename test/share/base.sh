@@ -3,11 +3,9 @@
 #
 # Include this script in your test script to get the base testing capabilities.
 #
-# Your script can override the following values:
+# Remember to give this script about 10 to 15 mins before validating what's
+# on the machine. It needs to pull down a lot of code and build things.
 #
-# 	BUD="REX"    - name of the business to use for your tests
-# 	RRDATERANGE  - default RentRoll date range. You can override this
-#                  value with a different range.
 #############################################################################
 
 TOOLSDIR=${TOP}/tools
@@ -163,108 +161,6 @@ app() {
 	${RENTROLL} ${RRDATERANGE} -b ${BUD} ${1}
 }
 
-# #############################################################################
-# # doReport()
-# #   Description:
-# #		Run database reports based on user selection
-# #############################################################################
-# doReport () {
-# while :
-# do
-# 	clear
-# 	cat <<EOF
-# -----------------------------------------
-#    R E N T R O L L  --  R E P O R T S
-# -----------------------------------------
-# A)   Assessments
-# B)   Business
-# C)   Chart of Accounts
-# CA)  Custom Attributes
-# D)   Delinquency
-# DE)  Deposits
-# DM)  Deposit Methods
-# DY)  Depositories
-# G)   GSR
-# I)   Invoice
-# IR)  Invoice Report
-# J)   Journal
-# L)   Ledger
-# LA)  Ledger Activity
-# LB)  Ledger Balance
-# MR)  Market Rate for Rentable
-# NT)  Note Types
-# P)   People
-# PE)  Pets
-# PT)  Payment Types
-# R)   Receipts
-# RA)  Rental Agreements
-# RAB) Rental Agreement Account Balance
-# RC)  Rentable Count by Rentable Type
-# RE)  Rentables
-# RP)  RatePlans
-# RR)  RentRoll
-# RPR) RatePlanRef
-# RS)  Rentable Specialty Assignments
-# RT)  Rentable Types
-# S)   Rentable Specialties
-# SA)  Specialty Assignments
-# SO)  Sources
-# ST)  Statements
-# T)   Rental Agreement Templates
-# U)   Custom Attribute Assignments
-
-
-# X) Exit
-
-# input is case insensitive
-# EOF
-
-# 	read -p "Enter choice: " choice
-# 	choice=$(echo "${choice}" | tr "[:upper:]" "[:lower:]")
-# 	case ${choice} in
-# 		  d) app "-b ${BUD} -r 14,2015-05-25" ;;
-# 		 ir) app "-b ${BUD} -r 9,IN00001" ;;
-# 		  j) app "-b ${BUD} -r 1" ;;
-# 		  l) app "-b ${BUD} -r 2" ;;
-# 		 la) app "-b ${BUD} -r 10" ;;
-# 		 lb) app "-b ${BUD} -r 17" ;;
-# 		 mr) app "-b ${BUD} -r 20,R001" ;;
-# 		  a) csvload "-L 11,${BUD}" ;;
-# 		  b) csvload "-L 3" ;;
-# 		  c) csvload "-L 10,${BUD}" ;;
-# 		 ca) csvload "-L 14" ;;
-# 		 de) csvload "${CSVDATERANGE} -L 19,${BUD}" ;;
-# 		 dm) csvload "-L 23,${BUD}" ;;
-# 		 dy) csvload "-L 18,${BUD}" ;;
-# 		  g) app "-b ${BUD} -r 11" ;;
-# 		  i) csvload "-L 20,${BUD}" ;;
-# 		 nt) csvload "-L 17,${BUD}" ;;
-# 		  p) csvload "-L 7,${BUD}" ;;
-# 		 pe) csvload "-L 16,RA0002" ;;
-# 		 pt) csvload "-L 12,${BUD}" ;;
-# 		  q) exit 0 ;;
-# 		  r) csvload "-L 13,${BUD}" ;;
-# 		 ra) csvload "-L 9,${BUD}" ;;
-# 		rab) app "-b ${BUD} -r 12,11,RA001,2016-07-04"; app "-b ${BUD} -r 12,9,RA001,2016-07-04" ;;
-# 		 rc) app "-b ${BUD} -r 7" ;;
-# 		 re) csvload "-L 6,${BUD}" ;;
-# 		 rp) csvload "-L 26,${BUD}" ;;
-# 		rpr) csvload "-L 27,${BUD}" ;;
-# 		 rr) app "-b ${BUD} -r 4" ;;
-# 		 rs) csvload "-L 22,${BUD}" ;;
-# 		 rt) csvload "-L 5,${BUD}" ;;
-# 		  s) csvload "-L 21,${BUD}" ;;
-# 		 sa) csvload "-L 22,${BUD}" ;;
-# 		 so) csvload "-L 24,${BUD}" ;;
-# 		 st) app "-b ${BUD} -r 8" ;;
-# 		  t) csvload "-L 8,${BUD}" ;;
-# 		  u) csvload "-L 15" ;;
-# 		  x)	exit 0 ;;
-# 		  *)	echo "Unknown report: ${choice}"
-# 	esac
-# 	pause
-# done
-# }
 
 usage() {
 	cat <<EOF

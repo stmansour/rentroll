@@ -351,6 +351,7 @@ declare -a dbs=(
 	tws/tws.sql
 	tws2/rrtl.sql
 	tws2/moonshine.sql
+	tws3/rr.sql
 	webclient/accord.sql
 	webclient/webclientTest.sql
 	websvc1/asmtest.sql

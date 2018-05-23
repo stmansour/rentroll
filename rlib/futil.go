@@ -114,29 +114,29 @@ func ProcessSumFloats(a []SumFloat) {
 
 // IsValidAccrual returns true if a is a valid accrual value, false otherwise
 func IsValidAccrual(a int64) bool {
-	return !(a < CYCLENORECUR || a > CYCLEYEARLY)
+	return !(a < RECURNONE || a > RECURYEARLY)
 }
 
 // AccrualDuration converts an accrual frequency into the time duration it represents
 func AccrualDuration(a int64) time.Duration {
 	var d = time.Duration(0)
 	switch a {
-	case CYCLENORECUR:
-	case CYCLESECONDLY:
+	case RECURNONE:
+	case RECURSECONDLY:
 		d = time.Second
-	case CYCLEMINUTELY:
+	case RECURMINUTELY:
 		d = time.Minute
-	case CYCLEHOURLY:
+	case RECURHOURLY:
 		d = time.Hour
-	case CYCLEDAILY:
+	case RECURDAILY:
 		d = time.Hour * 24
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		d = time.Hour * 24 * 7
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		d = time.Hour * 24 * 30 // yea, I know this isn't exactly right
-	case CYCLEQUARTERLY:
+	case RECURQUARTERLY:
 		d = time.Hour * 24 * 90 // yea, I know this isn't exactly right
-	case CYCLEYEARLY:
+	case RECURYEARLY:
 		d = time.Hour * 24 * 365 // yea, I know this isn't exactly right
 	default:
 		Ulog("AccrualDuration: invalid accrual value: %d\n", a)

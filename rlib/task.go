@@ -12,6 +12,7 @@ import (
 // INPUTS
 //  ctx    - context for database transactions
 //  TLDID  - Task List Definition ID
+//  PTLID  - Parent (first in chain) for this recurring series.
 //  pivot  - date on or after which the instance will be created
 //  tzoff  - user's client timezone offset in minutes.  For web browsers
 //           this is determined by:
@@ -21,7 +22,7 @@ import (
 //  error  - any error encountered
 //
 //-----------------------------------------------------------------------------
-func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) (int64, error) {
+func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time.Time) (int64, error) {
 	var tlid = int64(0)
 	tld, err := GetTaskListDefinition(ctx, TLDID)
 	if err != nil {
@@ -33,7 +34,7 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 	//------------------------------------------------------
 	var tl TaskList
 	tl.BID = tld.BID
-	tl.PTLID = 0 // explicitly set this to be the parent
+	tl.PTLID = PTLID
 	tl.TLDID = tld.TLDID
 	tl.Name = tld.Name
 	tl.Cycle = tld.Cycle
@@ -67,7 +68,6 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 		return tlid, err
 	}
 
-	Console("Found tld.TLDID = %d, TaskCount = %d, name = %s\n", tld.TLDID, len(tds), tld.Name)
 	for i := 0; i < len(tds); i++ {
 		var t Task
 		if err = NextTaskInstanceDates(pivot, &tld, &tds[i], &t); err != nil {
@@ -115,11 +115,13 @@ func CreateTaskListInstance(ctx context.Context, TLDID int64, pivot *time.Time) 
 //-----------------------------------------------------------------------------
 func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList) error {
 	switch tld.Cycle {
-	case CYCLENORECUR:
-	case CYCLESECONDLY:
-	case CYCLEMINUTELY:
-	case CYCLEHOURLY:
-	case CYCLEDAILY:
+	case RECURNONE:
+		tl.DtDue = tld.EpochDue
+		tl.DtPreDue = tld.EpochPreDue
+	case RECURSECONDLY:
+	case RECURMINUTELY:
+	case RECURHOURLY:
+	case RECURDAILY:
 		deltap := time.Duration(0)
 		if tld.EpochPreDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
 			deltap = tld.EpochPreDue.Sub(tld.Epoch)
@@ -138,7 +140,7 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 		// Console("after adjustment -   DtDue = %s\n", tl.DtDue.Format(RRJSUTCDATETIME))
 		// Console("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n")
 
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		dtEpoch := time.Date(tld.Epoch.Year(), tld.Epoch.Month(), tld.Epoch.Day(), 0, 0, 0, 0, time.UTC)
 		dtPivot := time.Date(pivot.Year(), pivot.Month(), pivot.Day(), 0, 0, 0, 0, time.UTC)
 		offset := int(dtPivot.Sub(dtEpoch).Hours() / (7 * 24)) // number of weeks difference
@@ -161,7 +163,7 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 		// Console("tl.DtDue = %s + %d days = %s\n", newepoch.Format(RRJSUTCDATETIME), edowDue-edow, tl.DtDue.Format(RRJSUTCDATETIME))
 		// Console("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n")
 
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		tl.DtPreDue = computeMonthlyDate(pivot, &tld.EpochPreDue)
 		tl.DtDue = computeMonthlyDate(pivot, &tld.EpochDue)
 		if tl.DtPreDue.After(tl.DtDue) {
@@ -171,8 +173,8 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 			Console("offset = %d days\n", offset)
 			tl.DtPreDue = tld.EpochPreDue.AddDate(0, 0, offset)
 		}
-	case CYCLEQUARTERLY:
-	case CYCLEYEARLY:
+	case RECURQUARTERLY:
+	case RECURYEARLY:
 		tlepoch := time.Date(pivot.Year(), tld.Epoch.Month(), tld.Epoch.Day(), tld.Epoch.Hour(), tld.Epoch.Minute(), 0, 0, time.UTC)
 		deltap := time.Duration(0)
 		if tld.EpochPreDue.Year() > 1999 && tld.Epoch.Year() > 1999 {
@@ -210,15 +212,17 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 //-----------------------------------------------------------------------------
 func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, td *TaskDescriptor, t *Task) error {
 	switch tld.Cycle {
-	case CYCLENORECUR:
-	case CYCLESECONDLY:
-	case CYCLEMINUTELY:
-	case CYCLEHOURLY:
-	case CYCLEDAILY:
+	case RECURNONE:
+		t.DtDue = td.EpochDue
+		t.DtPreDue = tld.EpochPreDue
+	case RECURSECONDLY:
+	case RECURMINUTELY:
+	case RECURHOURLY:
+	case RECURDAILY:
 		t.DtDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), td.EpochDue.Hour(), td.EpochDue.Minute(), 0, 0, time.UTC)
 		t.DtPreDue = time.Date(pivot.Year(), pivot.Month(), pivot.Day(), td.EpochPreDue.Hour(), td.EpochPreDue.Minute(), 0, 0, time.UTC)
 
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		dtEpoch := time.Date(tld.Epoch.Year(), tld.Epoch.Month(), tld.Epoch.Day(), 0, 0, 0, 0, time.UTC)
 		dtPivot := time.Date(pivot.Year(), pivot.Month(), pivot.Day(), 0, 0, 0, 0, time.UTC)
 		offset := int(dtPivot.Sub(dtEpoch).Hours() / (7 * 24)) // number of weeks difference
@@ -235,7 +239,7 @@ func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, td *TaskDe
 			t.DtPreDue = t.DtPreDue.AddDate(0, 0, 7)
 		}
 
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		t.DtPreDue = computeMonthlyDate(pivot, &td.EpochPreDue)
 		t.DtDue = computeMonthlyDate(pivot, &td.EpochDue)
 		if t.DtPreDue.After(t.DtDue) {
@@ -245,8 +249,8 @@ func NextTaskInstanceDates(pivot *time.Time, tld *TaskListDefinition, td *TaskDe
 			Console("offset = %d days\n", offset)
 			t.DtPreDue = tld.EpochPreDue.AddDate(0, 0, offset)
 		}
-	case CYCLEQUARTERLY:
-	case CYCLEYEARLY:
+	case RECURQUARTERLY:
+	case RECURYEARLY:
 		tlepoch := time.Date(pivot.Year(), tld.Epoch.Month(), tld.Epoch.Day(), tld.Epoch.Hour(), tld.Epoch.Minute(), 0, 0, time.UTC)
 		deltap := time.Duration(0)
 		if td.EpochPreDue.Year() > 1999 && tld.Epoch.Year() > 1999 {

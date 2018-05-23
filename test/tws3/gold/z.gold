@@ -1,0 +1,9 @@
+calling doWork()
+Calling TLInstanceBotCore with date = Jun 1, 2018 7:00am UTC
+                               date = Jun 1, 2018 12:00am PDT
+Calling TLInstanceBotCore a second time with the same info to check idempotence
+*** FOUND EXISTING TaskList INSTANCE. TLID = 12, will not create duplicate
+*** FOUND EXISTING TaskList INSTANCE. TLID = 13, will not create duplicate
+*** FOUND EXISTING TaskList INSTANCE. TLID = 14, will not create duplicate
+*** FOUND EXISTING TaskList INSTANCE. TLID = 15, will not create duplicate
+Finished!

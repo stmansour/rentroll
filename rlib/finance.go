@@ -66,23 +66,23 @@ func AccountTypeNegateFlag(s string) bool {
 func RentalPeriodToString(a int64) string {
 	s := ""
 	switch a {
-	case CYCLENORECUR:
+	case RECURNONE:
 		s = "non-recurring"
-	case CYCLESECONDLY:
+	case RECURSECONDLY:
 		s = "secondly"
-	case CYCLEMINUTELY:
+	case RECURMINUTELY:
 		s = "minutely"
-	case CYCLEHOURLY:
+	case RECURHOURLY:
 		s = "hourly"
-	case CYCLEDAILY:
+	case RECURDAILY:
 		s = "daily"
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		s = "weekly"
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		s = "monthly"
-	case CYCLEQUARTERLY:
+	case RECURQUARTERLY:
 		s = "quarterly"
-	case CYCLEYEARLY:
+	case RECURYEARLY:
 		s = "yearly"
 	}
 	return s
@@ -94,23 +94,23 @@ func RentalPeriodToString(a int64) string {
 func ProrationUnits(a int64) string {
 	s := ""
 	switch a {
-	case CYCLENORECUR:
+	case RECURNONE:
 		s = "!!nonrecur!!"
-	case CYCLESECONDLY:
+	case RECURSECONDLY:
 		s = "seconds"
-	case CYCLEMINUTELY:
+	case RECURMINUTELY:
 		s = "minutes"
-	case CYCLEHOURLY:
+	case RECURHOURLY:
 		s = "hours"
-	case CYCLEDAILY:
+	case RECURDAILY:
 		s = "days"
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		s = "weeks"
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		s = "months"
-	case CYCLEQUARTERLY:
+	case RECURQUARTERLY:
 		s = "quarters"
-	case CYCLEYEARLY:
+	case RECURYEARLY:
 		s = "years"
 	}
 	return s
@@ -126,23 +126,23 @@ func CycleDuration(cycle int64, epoch time.Time) time.Duration {
 	day := epoch.Day()
 	base := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	switch cycle { // if the prorate method is less than a day, select a different duration
-	case CYCLESECONDLY:
+	case RECURSECONDLY:
 		cycleDur = time.Second // use seconds
-	case CYCLEMINUTELY:
+	case RECURMINUTELY:
 		cycleDur = time.Minute //use minutes
-	case CYCLEHOURLY:
+	case RECURHOURLY:
 		cycleDur = time.Hour //use hours
-	case CYCLEDAILY:
+	case RECURDAILY:
 		cycleDur = time.Hour * 24 // assume that proration will be by day -- even if the accrual is by weeks, months, quarters, or years
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		cycleDur = time.Hour * 24 * 7 // weeks
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		target := base.AddDate(0, 1, 0)
 		cycleDur = target.Sub(base) // months
-	case CYCLEQUARTERLY:
+	case RECURQUARTERLY:
 		target := base.AddDate(0, 3, 0)
 		cycleDur = target.Sub(base) // months
-	case CYCLEYEARLY:
+	case RECURYEARLY:
 		target := base.AddDate(1, 0, 0)
 		cycleDur = target.Sub(base) // months
 	}
@@ -158,21 +158,21 @@ func GetProrationRange(d1, d2 time.Time, RentCycle, Prorate int64) time.Duration
 
 	// we use d1 as the anchor point
 	switch RentCycle {
-	case CYCLESECONDLY:
+	case RECURSECONDLY:
 		fallthrough
-	case CYCLEMINUTELY:
+	case RECURMINUTELY:
 		fallthrough
-	case CYCLEHOURLY:
+	case RECURHOURLY:
 		fallthrough
-	case CYCLEDAILY:
+	case RECURDAILY:
 		fallthrough
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		timerange = accrueDur
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		timerange = d1.AddDate(0, 1, 0).Sub(d1)
-	case CYCLEQUARTERLY:
+	case RECURQUARTERLY:
 		timerange = d1.AddDate(0, 3, 0).Sub(d1)
-	case CYCLEYEARLY:
+	case RECURYEARLY:
 		timerange = d1.AddDate(1, 0, 0).Sub(d1)
 	}
 
@@ -229,21 +229,21 @@ func SimpleProrateAmount(amt float64, RentCycle, Prorate int64, d1, d2, epoch *t
 		return amt, int64(1), int64(1)
 	}
 	switch RentCycle {
-	case CYCLESECONDLY:
+	case RECURSECONDLY:
 		fallthrough
-	case CYCLEMINUTELY:
+	case RECURMINUTELY:
 		fallthrough
-	case CYCLEHOURLY:
+	case RECURHOURLY:
 		fallthrough
-	case CYCLEDAILY:
+	case RECURDAILY:
 		thisepoch = *epoch
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		thisepoch = *epoch
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		thisepoch = time.Date(d1.Year(), d1.Month(), epoch.Day(), epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
-	case CYCLEQUARTERLY:
+	case RECURQUARTERLY:
 		thisepoch = time.Date(d1.Year(), d1.Month(), epoch.Day(), epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
-	case CYCLEYEARLY:
+	case RECURYEARLY:
 		thisepoch = time.Date(d1.Year(), d1.Month(), epoch.Day(), epoch.Hour(), epoch.Minute(), epoch.Second(), epoch.Nanosecond(), epoch.Location())
 	}
 
@@ -273,21 +273,21 @@ func NextPeriod(t *time.Time, cycle int64) time.Time {
 	switch cycle { // if the prorate method is less than a day, select a different duration
 	case RECURNONE:
 		ret = *t
-	case CYCLESECONDLY:
+	case RECURSECONDLY:
 		ret = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second()+1, t.Nanosecond(), t.Location())
-	case CYCLEMINUTELY:
+	case RECURMINUTELY:
 		ret = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute()+1, t.Second(), t.Nanosecond(), t.Location())
-	case CYCLEHOURLY:
+	case RECURHOURLY:
 		ret = time.Date(t.Year(), t.Month(), t.Day(), t.Hour()+1, t.Minute(), t.Second(), t.Nanosecond(), t.Location())
-	case CYCLEDAILY:
+	case RECURDAILY:
 		ret = t.AddDate(0, 0, 1)
-	case CYCLEWEEKLY:
+	case RECURWEEKLY:
 		ret = t.AddDate(0, 0, 7)
-	case CYCLEMONTHLY:
+	case RECURMONTHLY:
 		ret = t.AddDate(0, 1, 0)
-	case CYCLEQUARTERLY:
+	case RECURQUARTERLY:
 		ret = t.AddDate(0, 3, 0)
-	case CYCLEYEARLY:
+	case RECURYEARLY:
 		ret = t.AddDate(1, 0, 0)
 	}
 	return ret
@@ -588,12 +588,12 @@ func GetRentCycleAndProration(ctx context.Context, r *Rentable, dt *time.Time, x
 	if err != nil {
 		return rc, pro, rtid, err
 	}
-	if rrt.OverrideRentCycle > CYCLENORECUR { // if there's an override for RentCycle...
+	if rrt.OverrideRentCycle > RECURNONE { // if there's an override for RentCycle...
 		rc = rrt.OverrideRentCycle // ...set it
 	} else {
 		rc = xbiz.RT[rtid].RentCycle
 	}
-	if rrt.OverrideProrationCycle > CYCLENORECUR { // if there's an override for Propration...
+	if rrt.OverrideProrationCycle > RECURNONE { // if there's an override for Propration...
 		pro = rrt.OverrideProrationCycle // ...set it
 	} else {
 		pro = xbiz.RT[rtid].Proration
@@ -648,7 +648,7 @@ func GetRentCycleAndProration(ctx context.Context, r *Rentable, dt *time.Time, x
 // 	// fmt.Printf("rentDur = %d %s\n", rentDur, units)
 // 	// fmt.Printf("asmtDur = %d %s\n", asmtDur, units)
 
-// 	if CYCLENORECUR == prorateMethod {
+// 	if RECURNONE == prorateMethod {
 // 		pf = 1.0
 // 	} else {
 // 		pf = float64(rentDur) / float64(asmtDur)

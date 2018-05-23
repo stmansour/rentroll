@@ -15,6 +15,17 @@ const (
 	NO  = int64(0) // std negative value
 	YES = int64(1)
 
+	RECURNONE      = 0
+	RECURSECONDLY  = 1
+	RECURMINUTELY  = 2
+	RECURHOURLY    = 3
+	RECURDAILY     = 4
+	RECURWEEKLY    = 5
+	RECURMONTHLY   = 6
+	RECURQUARTERLY = 7
+	RECURYEARLY    = 8
+	RECURLAST      = RECURYEARLY
+
 	ELEMPERSON          = 1 // people
 	ELEMCOMPANY         = 2 // companies
 	ELEMCLASS           = 3 // classes
@@ -70,16 +81,6 @@ const (
 	ACCTSTATUSACTIVE   = 2
 	RAASSOCIATED       = 1
 	RAUNASSOCIATED     = 2
-
-	CYCLENORECUR   = 0
-	CYCLESECONDLY  = 1
-	CYCLEMINUTELY  = 2
-	CYCLEHOURLY    = 3
-	CYCLEDAILY     = 4
-	CYCLEWEEKLY    = 5
-	CYCLEMONTHLY   = 6
-	CYCLEQUARTERLY = 7
-	CYCLEYEARLY    = 8
 
 	YEARFOREVER = 9000 // an arbitrary year, anything >= to this year is taken to mean "unbounded", or no end date.
 
@@ -151,6 +152,7 @@ const (
 	RRDATEFMT4        = "01/02/2006"
 	RRDATEINPFMT      = "2006-01-02"
 	RRDATEFMTSQL      = RRDATEINPFMT
+	RRDATETIMESQL     = "2006-01-02 15:04:05"
 	RRJSUTCDATETIME   = "Mon, 02 Jan 2006 15:04:05 MST"
 	RRDATETIMEINPFMT  = "2006-01-02 15:04:00 MST"
 	RRDATETIMEFMT     = "2006-01-02T15:04:00Z"
@@ -1798,6 +1800,7 @@ type RRprepSQL struct {
 	GetDueTaskLists                         *sql.Stmt
 	CheckForTLDInstances                    *sql.Stmt
 	GetAllParentTaskLists                   *sql.Stmt
+	GetTaskListInstanceInRange              *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

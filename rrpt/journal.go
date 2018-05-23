@@ -152,7 +152,7 @@ func textPrintJournalAssessment(ctx context.Context, tbl *gotable.Table, jctx *j
 
 	if rtid > 0 {
 		s += fmt.Sprintf("  %s", r.RentableName) + " [" + xbiz.RT[rtid].Style
-		if a.RentCycle > rlib.CYCLENORECUR {
+		if a.RentCycle > rlib.RECURNONE {
 			s += ", " + rlib.RentalPeriodToString(a.RentCycle)
 		}
 		s += "] " + j.Comment

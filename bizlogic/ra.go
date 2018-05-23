@@ -81,7 +81,7 @@ func adjustAssessments(ctx context.Context, ra *rlib.RentalAgreement) []BizError
 		// If non recurring then reverse if it is past new RentStop
 		// If recurring then snap stop dates past new RentStop to RentStop
 		//-----------------------------------------------------------------------
-		if m[i].RentCycle == rlib.CYCLENORECUR {
+		if m[i].RentCycle == rlib.RECURNONE {
 			if m[i].Start.After(ra.RentStop) {
 				// rlib.Console("Reversing ASMID = %d\n", m[i].ASMID)
 				if be := ReverseAssessment(ctx, &m[i], 0, &now); be != nil {

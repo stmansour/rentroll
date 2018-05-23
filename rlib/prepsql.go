@@ -1186,6 +1186,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllParentTaskLists, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE PTLID=0")
 	Errcheck(err)
+	RRdb.Prepstmt.GetTaskListInstanceInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE PTLID=? AND DtDue >= ? AND DtDue < ?")
+	Errcheck(err)
 
 	where := `WHERE
     -- the TaskList is enabled
