@@ -37,4 +37,4 @@ admin/rrloadcsv/buildno
 test/dropdb
 
 # ignore conf file
-**conf*
+**conf*.json
