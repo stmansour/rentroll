@@ -25,9 +25,12 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rlib.Console("Entered %s\n", funcname)
 
-	if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+	// if the command is not from listed below then do check for flowID
+	if !(d.wsSearchReq.Cmd == "getAllFlows" || d.wsSearchReq.Cmd == "init") {
+		if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	}
 
 	rlib.Console("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
@@ -58,6 +61,12 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 }
 
+// FlowResponse is the response of returning updated flow with status
+type FlowResponse struct {
+	Record rlib.Flow `json:"record"`
+	Status string    `json:"status"`
+}
+
 // initiateFlow inserts a new flow with default data and returns it
 func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "initiateFlow"
@@ -67,6 +76,7 @@ func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		f   struct {
 			FlowType string
 		}
+		g FlowResponse
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -100,7 +110,9 @@ func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteResponse(d.BID, &flow, w)
+	g.Record = flow
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // getFlow returns flow associated with given flowID
@@ -111,6 +123,7 @@ func getFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		f   struct {
 			FlowID int64
 		}
+		g FlowResponse
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -127,7 +140,9 @@ func getFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteResponse(d.BID, &flow, w)
+	g.Record = flow
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // getAllFlowsByUser returns all flows for the current user and given flow
@@ -165,6 +180,9 @@ func getAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			Status  string               `json:"status"`
 			Records []GridRAFlowResponse `json:"records"`
 		}
+
+		// initialize the list
+		g.Records = []GridRAFlowResponse{}
 
 		// loop over recs and prepare response
 		for i, rec := range recs {
@@ -228,6 +246,7 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			Data        json.RawMessage
 			FlowPartKey string
 		}
+		g FlowResponse
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -283,7 +302,9 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	SvcWriteResponse(d.BID, &flow, w)
+	g.Record = flow
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // migrateFlowDataToDB saves the data from temp data stored in flowPart with flowID into actual

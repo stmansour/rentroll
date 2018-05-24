@@ -180,49 +180,6 @@ window.saveActiveCompData = function (record, partType) {
     });
 };
 
-window.getRAFlowAllParts = function (FlowID) {
-    var bid = getCurrentBID();
-
-    $.ajax({
-        url: "/v1/flow/" + bid.toString() + "/0",
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify({"cmd": "getFlowParts", "FlowID": FlowID}),
-        success: function (data) {
-            if (data.status != "error") {
-                app.raflow.data[FlowID] = data.records;
-
-                // show "done" mark on each li of navigation bar
-                for (var comp in app.raFlowPartTypes) {
-                    // if required fields are fulfilled then mark this slide as done
-                    if (requiredFieldsFulFilled(comp)) {
-                        // hide active component
-                        $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
-                    }
-
-                    // reset w2ui component as well
-                    if(RACompConfig[comp].w2uiComp in w2ui) {
-                        // clear inputs
-                        w2ui[RACompConfig[comp].w2uiComp].clear();
-                    }
-                }
-
-                // mark first slide as active
-                $(".ra-form-component#dates").show();
-                $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
-                loadRADatesForm();
-
-            } else {
-                console.error(data.message);
-            }
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
-};
-
 window.initRAFlowAJAX = function () {
     var bid = getCurrentBID();
 
@@ -231,10 +188,10 @@ window.initRAFlowAJAX = function () {
         method: "POST",
         contentType: "application/json",
         dataType: "json",
-        data: JSON.stringify({"cmd": "init", "flow": app.raflow.name}),
+        data: JSON.stringify({"cmd": "init", "FlowType": app.raflow.name}),
         success: function (data) {
             if (data.status != "error") {
-                app.raflow.data[data.FlowID] = {};
+                app.raflow.data[data.record.FlowID] = data.record;
             }
         },
         error: function (data) {
@@ -376,9 +333,6 @@ window.loadTargetSection = function (target, activeCompID) {
             break;
         case "rentables":
             data = w2ui.RARentablesGrid.records;
-            break;
-        case "feesterms":
-            data = w2ui.RAFeesTermsGrid.records;
             break;
         case "final":
             data = null;
