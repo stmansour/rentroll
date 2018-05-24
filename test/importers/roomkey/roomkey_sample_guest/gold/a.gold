@@ -4,5 +4,6 @@ Business Units
                                             Default     Proration   GSRPC     
 BID        BUD        Name                  Rent Cycle  Cycle       Cycle     
 ---------  ---------  --------------------  ----------  ----------  ----------
-B00000001  ISO        Isola Bella           monthly     daily       daily     
+B00000001  OKC        Accord/OKC Members,   monthly     daily       daily     
+                      LLC                                                     
 

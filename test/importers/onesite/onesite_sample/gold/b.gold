@@ -1,6 +1,6 @@
 Accord RentRoll Onesite Importer
-Date: 2/28/2018
-Time: 10:36PM IST
+Date: 5/23/2018
+Time: 1:33PM PDT
 Import File: ./onesite.csv
 
 Summary
@@ -14,12 +14,12 @@ Transactants                    5           5           0
 Rentables                       6           6           0         
 Rental Agreements               5           5           0         
 
-=====================================================
-RECORDS FOR BUSINESS UNIT DESIGNATION: JGM First, LLC
-=====================================================
+==============================================================
+RECORDS FOR BUSINESS UNIT DESIGNATION: 309 South Rexford Drive
+==============================================================
 
 REX Rentable Types
-BH Rexford Group, Inc.
+JGM First, LLC
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
@@ -28,13 +28,13 @@ Austin, TX 78738 USA
                               Rent     Proration         To                                        
 RTID        Style    Name     Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate           
 ----------  -------  -------  -------  ---------  -----  ------  ----------------------------------
-RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     02/28/2018 - 12/31/9999: $  700.00
-RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     02/28/2018 - 12/31/9999: $  940.00
-RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     02/28/2018 - 12/31/9999: $  700.00
-RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     02/28/2018 - 12/31/9999: $  800.00
-=====================================================
+RT00000001  A1-HOSP  A1-HOSP  monthly  daily      daily  Yes     05/23/2018 - 12/31/9999: $  700.00
+RT00000002  HRP2     HRP2     monthly  daily      daily  Yes     05/23/2018 - 12/31/9999: $  940.00
+RT00000003  A2-Corp  A2-Corp  monthly  daily      daily  Yes     05/23/2018 - 12/31/9999: $  700.00
+RT00000004  A6-HOSP  A6-HOSP  monthly  daily      daily  Yes     05/23/2018 - 12/31/9999: $  800.00
+==============================================================
 REX Rentables
-BH Rexford Group, Inc.
+JGM First, LLC
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
@@ -47,9 +47,9 @@ R00000003  6313-052  pre-assign
 R00000004  6339-156  pre-assign     
 R00000005  6343-165  pre-assign     
 R00000006  6343-166  pre-assign     
-=====================================================
+==============================================================
 REX People
-BH Rexford Group, Inc.
+JGM First, LLC
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
@@ -62,10 +62,10 @@ TC00000002  Diane               Hire                No                   diane_h
 TC00000003  Mercedes            White               No                   mercedeswhite843@gmail.com
 TC00000004  Fawad               Kahn                No                   fawadkhan405@gmail.com    
 TC00000005  Crescent            Clark               No                                             
-=====================================================
+==============================================================
 REX Rental Agreement
 Jan 1, 0001 - Jan 1, 0001
-BH Rexford Group, Inc.
+JGM First, LLC
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
@@ -78,9 +78,9 @@ RA00000002  Diane Hire      Diane Hire      02/17/2016  02/28/2017  02/17/2016  
 RA00000003  Mercedes White  Mercedes White  02/02/2016  01/31/2017  02/02/2016  01/31/2017  02/02/2016  01/31/2017  02/02/2016  2                  0            0                           
 RA00000004  Fawad Kahn      Fawad Kahn      02/01/2016  01/31/2017  12/05/2010  01/31/2017  02/01/2016  01/31/2017  02/01/2016  2                  0            0                           
 RA00000005  Crescent Clark  Crescent Clark  02/01/2016  07/31/2016  07/11/2014  07/31/2016  02/01/2016  07/31/2016  02/01/2016  2                  0            0                           
-=====================================================
+==============================================================
 REX Custom Attributes
-BH Rexford Group, Inc.
+JGM First, LLC
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
@@ -92,9 +92,9 @@ C00000001  B00000002  int    Square Feet    656  sqft
 C00000002  B00000002  int    Square Feet    840  sqft 
 C00000003  B00000002  int    Square Feet    852  sqft 
 C00000004  B00000002  int    Square Feet    657  sqft 
-=====================================================
+==============================================================
 REX Custom Attributes References
-BH Rexford Group, Inc.
+JGM First, LLC
 11719 Bee Cave Road
 Suite 301
 Austin, TX 78738 USA
@@ -106,5 +106,5 @@ Element
       5  B00000002     3     1
       5  B00000002     4     3
       5  B00000002     2     2
-=====================================================
+==============================================================
 
