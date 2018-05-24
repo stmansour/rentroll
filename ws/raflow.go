@@ -148,6 +148,7 @@ type RARentablesFlowData struct {
 	RID          int64
 	RTID         int64
 	RentableName string
+	RentCycle    int64
 	ContractRent float64
 	ProrateAmt   float64
 	TaxableAmt   float64
@@ -416,9 +417,18 @@ type RARentableFeesDataRequest struct {
 // RARentableFeesDataListResponse for listing down all RARentableFeesData
 // in the grid
 type RARentableFeesDataListResponse struct {
-	Status  string               `json:"status"`
-	Total   int64                `json:"total"`
-	Records []RARentableFeesData `json:"records"`
+	RID          int64                `json:"RID"`
+	RTID         int64                `json:"RTID"`
+	RentCycle    int64                `json:"RentCycle"`
+	RentableName string               `json:"RentableName"`
+	Status       string               `json:"status"`
+	Total        int64                `json:"total"`
+	Records      []RARentableFeesData `json:"records"`
+}
+
+type RARentableResponse struct {
+	Status string              `json:"status"`
+	Record RARentablesFlowData `json:"record"`
 }
 
 // SvcGetRentableFeesData generates a list of rentable fees with auto populate AR fees
@@ -434,7 +444,8 @@ type RARentableFeesDataListResponse struct {
 func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRentableFeesData"
 	var (
-		g       RARentableFeesDataListResponse
+		g       RARentableResponse
+		rfd     RARentablesFlowData
 		foo     RARentableFeesDataRequest
 		records []RARentableFeesData
 		today   = time.Now()
@@ -448,6 +459,13 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get rentable
+	rentable, err := rlib.GetRentable(r.Context(), foo.RID)
+	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -538,9 +556,16 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// sort based on name, needs version 1.8 later of golang
 	sort.Slice(records, func(i, j int) bool { return records[i].ARName < records[j].ARName })
 
-	g.Records = records
-	g.Total = int64(len(g.Records))
+	rfd.BID = d.BID
+	rfd.RID = rentable.RID
+	rfd.RentableName = rentable.RentableName
+	rfd.RTID = rt.RTID
+	rfd.RentCycle = rt.RentCycle
+	rfd.Fees = records
+
+	g.Record = rfd
 	g.Status = "success"
+
 	SvcWriteResponse(d.BID, &g, w)
 }
 
