@@ -568,6 +568,10 @@ window.loadRARentablesGrid = function () {
 
                                 showSliderContentW2UIComp(form, sliderContentDivLength, sliderID);
                                 form.refresh(); // need to refresh for header changes
+
+                                // When RentCycle is Norecur then disable the RentCycle list field.
+                                var isDisabled = form.record.RentCycleList.text === app.cycleFreq[0];
+                                $("#RentCycleList").prop("disabled", isDisabled);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -766,11 +770,15 @@ window.loadRARentablesGrid = function () {
                                         if(item.FLAGS === 66){
                                             f.record.RentCycle = app.cycleFreq[0];
                                         }
-
-                                        f.refresh();
                                         return false;
                                     }
                                 });
+
+                                // When RentCycle is Norecur then disable the RentCycle list field.
+                                var isDisabled = f.record.RentCycleList.text === app.cycleFreq[0];
+                                $("#RentCycleList").prop("disabled", isDisabled);
+
+                                f.refresh();
                             }
                             break;
                     }
