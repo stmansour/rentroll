@@ -3,7 +3,7 @@
         {
             "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "1900-01-01T00:00:00Z",
+            "LastModTime": "1900-01-01 00:00:00 UTC",
             "LeaseStatus": 0,
             "RAID": 1,
             "RARID": 6,
@@ -21,7 +21,7 @@
         {
             "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "1900-01-01T00:00:00Z",
+            "LastModTime": "1900-01-01 00:00:00 UTC",
             "LeaseStatus": 0,
             "RAID": 2,
             "RARID": 7,
@@ -39,7 +39,7 @@
         {
             "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "1900-01-01T00:00:00Z",
+            "LastModTime": "1900-01-01 00:00:00 UTC",
             "LeaseStatus": 0,
             "RAID": 4,
             "RARID": 4,
@@ -57,7 +57,7 @@
         {
             "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "1900-01-01T00:00:00Z",
+            "LastModTime": "1900-01-01 00:00:00 UTC",
             "LeaseStatus": 0,
             "RAID": null,
             "RARID": null,
@@ -75,7 +75,7 @@
         {
             "BID": "1",
             "LastModBy": 0,
-            "LastModTime": "1900-01-01T00:00:00Z",
+            "LastModTime": "1900-01-01 00:00:00 UTC",
             "LeaseStatus": 5,
             "RAID": null,
             "RARID": null,

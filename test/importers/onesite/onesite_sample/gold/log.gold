@@ -1,6 +1,6 @@
 Test Name:    Onesite Import (Sample CSV)
 Test Purpose: Tests initizing RentRoll DB from importing OneSite rentroll report.
-Date/Time:    Wed Feb 28 22:36:32 IST 2018
+Date/Time:    Wed May 23 13:33:20 PDT 2018
 
 Create new database...  successful
-Test completed: Wed Feb 28 22:36:39 IST 2018
+Test completed: Wed May 23 13:33:22 PDT 2018

@@ -1,7 +1,7 @@
 Test Name:    GSR - Test Account Rules
 Test Purpose: Test AR by processing assessments and a recipt
-Date/Time:    Thu Mar  1 14:24:45 IST 2018
+Date/Time:    Wed May 23 13:19:43 PDT 2018
 
 Create new database...  successful
 BEGIN GSR FUNCTIONAL TEST
-Test completed: Thu Mar  1 14:24:59 IST 2018
+Test completed: Wed May 23 13:19:46 PDT 2018
