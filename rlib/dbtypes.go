@@ -904,6 +904,7 @@ type Business struct {
 	DefaultRentCycle      int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	DefaultProrationCycle int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	DefaultGSRPC          int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	ClosePeriodTLID       int64     // TaskList used for closing a period
 	FLAGS                 int64     // FLAGS -- 1<<0 = 0 - EDI disabled, 1=EDI enabled
 	LastModTime           time.Time // when was this record last written
 	LastModBy             int64     // employee UID (from phonebook) that modified it

@@ -76,6 +76,7 @@ getSchema "${DEF1}" "${REFDB}"
 #  STEP 2  -- compare each table def and report diffs
 #--------------------------------------------------
 declare -a dblist=(
+	'../tools/dbgen/empty.sql'
     'acctbal/baltest.sql'
     'payorstmt/pstmt.sql'
     'rfix/rcptfixed.sql'

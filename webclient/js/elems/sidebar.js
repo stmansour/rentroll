@@ -1,5 +1,6 @@
 /*global
-    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions, getAboutInfo
+    w2ui, app, console, $, plural, switchToGrid, showReport, form_dirty_alert, loginPopupOptions, getAboutInfo,
+    switchToClosePeriod
 */
 "use strict";
 
@@ -48,7 +49,7 @@ window.buildSidebar = function(flag) {
                 },
                 { id: 'acct', text: 'Accounting', img: 'icon-folder', expanded: false, group: true,
                     nodes: [
-                            { id: 'close',       text: 'Close Period',                   icon: 'far fa-caret-square-down', hint: 'Close Period' },
+                            { id: 'closePeriod', text: 'Close Period',                   icon: 'far fa-caret-square-down', hint: 'Close Period' },
                             { id: 'adjust',      text: 'Adjust Closed Period',           icon: 'fas fa-reply',       hint: 'Adjust Closed Period' },
                     ]
                 },
@@ -176,110 +177,84 @@ window.buildSidebar = function(flag) {
                         case 'tls':
                         case 'tlds':
                         case 'rr':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             switchToGrid(target);
                             break;
                         case 'newrentalagrs':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             switchToGrid(target, "flow");
                             break;
+                        case 'closePeriod':
+                            switchToClosePeriod();
+                            break;
+
                         case 'goRatePlan':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Rate Plan...  Not Available</h2><h3>But coming soon!</h3>');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'goServiceMenu':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.content('main', '<h1>Sorry :-(</h1><h2>Service Menu...  Not Available</h2><h3>But coming soon!</h3>');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'mkdep':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formmkdep.html');
                             w2ui.toplayout.hide('right',true);
                             break;
-                         // case 'reversepmt':
-                         //     w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                         //     w2ui.toplayout.load('main', '/webclient/html/formrevrcpt.html');
-                         //     w2ui.toplayout.hide('right',true);
-                         //     break;
                         case 'gdssvcs':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formgas.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'assignrnt':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formaar.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'movein':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formmvin.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'moveout':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formmvout.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'updatera':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formraextend.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'dlnq':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formdlnq.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'prepnotice':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formprepnotice.html');
                             w2ui.toplayout.hide('right',true);
                             break;
-                        case 'close':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
-                            w2ui.toplayout.load('main', '/webclient/html/formclose.html');
-                            w2ui.toplayout.hide('right',true);
-                            break;
                         case 'adjust':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formadjust.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'svcreq':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formcsr.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'svcreqcmp':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formcmplsr.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'housekpg':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formhskp.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'prvmaint':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formprvm.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'invntory':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/forminv.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'changeRT':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formchgrt.html');
                             w2ui.toplayout.hide('right',true);
                             break;
                         case 'permissions':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/formperm.html');
                             w2ui.toplayout.hide('right',true);
                             break;
@@ -311,7 +286,6 @@ window.buildSidebar = function(flag) {
                             app.last.report = target;
                             break;
                         case 'about':
-                            // w2ui.sidebarL1.collapse('reports'); // close reports when jumping to a main view
                             w2ui.toplayout.load('main', '/webclient/html/about.html');
                             w2ui.toplayout.hide('right',true);
                             getAboutInfo();

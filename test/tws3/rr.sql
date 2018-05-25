@@ -201,6 +201,7 @@ CREATE TABLE `Business` (
   `DefaultRentCycle` smallint(6) NOT NULL DEFAULT '0',
   `DefaultProrationCycle` smallint(6) NOT NULL DEFAULT '0',
   `DefaultGSRPC` smallint(6) NOT NULL DEFAULT '0',
+  `ClosePeriodTLID` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -216,7 +217,7 @@ CREATE TABLE `Business` (
 
 LOCK TABLES `Business` WRITE;
 /*!40000 ALTER TABLE `Business` DISABLE KEYS */;
-INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
+INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,0,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
 /*!40000 ALTER TABLE `Business` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2476,4 +2477,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-22 11:56:02
+-- Dump completed on 2018-05-25  0:32:10
