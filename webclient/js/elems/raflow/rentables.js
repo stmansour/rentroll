@@ -382,7 +382,7 @@ window.loadRARentablesGrid = function () {
                                 app.raflow.arList[BID].forEach(function(item) {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
-                                w2ui.RARentableFeesForm.get("ARID").options.items = arid_items;
+                                w2ui.RARentableFeesForm.get("ARName").options.items = arid_items;
                                 w2ui.RARentableFeesForm.record = getRentableFeeFormInitialRecord(RID);
                                 w2ui.RARentableFeesForm.record.recid = w2ui.RARentableFeesGrid.records.length + 1;
 
