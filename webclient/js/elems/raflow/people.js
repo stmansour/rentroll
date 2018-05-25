@@ -2,7 +2,7 @@
     RACompConfig, sliderContentDivLength, reassignGridRecids,
     getFullName, getTCIDName,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
+    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,

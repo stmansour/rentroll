@@ -1,6 +1,7 @@
 /*global
-    getRAFlowAllParts, initRAFlowAJAX, requiredFieldsFulFilled,
-    RACompConfig, w2ui
+    getRAFlowAllParts, initRAFlowAjax, requiredFieldsFulFilled,
+    RACompConfig, w2ui,
+    getFlowDataAjax
 */
 
 "use strict";
@@ -152,9 +153,20 @@ window.buildNewRAElements = function() {
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
 
+                        // get grid record
                         var rec = grid.get(recid);
-                        var d = new Date();  // we'll use today for time-sensitive data
-                        setToNewRAForm(rec.BID, rec.FlowID);
+
+                        getFlowDataAjax(rec.FlowID)
+                        .done(function(data) {
+                            if (data.status != "success") {
+                                grid.message(data.message);
+                            } else {
+                                setToNewRAForm(rec.BID, rec.FlowID);
+                            }
+                        })
+                        .fail(function() {
+                            grid.message("Error while fetching data for selected record");
+                        });
                     };
 
                 // warn user if form content has been changed
@@ -169,7 +181,7 @@ window.buildNewRAElements = function() {
                     return false;
                 },
                 yes_callBack = function(grid, recid) {
-                    initRAFlowAJAX()
+                    initRAFlowAjax()
                     .done(function(data, textStatus, jqXHR) {
                         if (data.status === "success") {
                             var bid = getCurrentBID(),
@@ -193,7 +205,6 @@ window.buildNewRAElements = function() {
                             grid.select(app.last.grid_sel_recid);
 
                             var rec = grid.get(newRecid);
-                            var d = new Date();  // we'll use today for time-sensitive data
                             setToNewRAForm(rec.BID, rec.FlowID);
                         } else {
                             grid.message(data.message);

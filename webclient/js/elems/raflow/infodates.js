@@ -1,8 +1,8 @@
 /* global
     RACompConfig, sliderContentDivLength, reassignGridRecids,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
+    loadTargetSection, requiredFieldsFulFilled, initRAFlowAjax,
+    saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
 */
 
@@ -14,27 +14,6 @@
 // Rental Agreement - Info Dates form
 // -------------------------------------------------------------------------------
 window.loadRADatesForm = function () {
-
-    var partType = app.raFlowPartTypes.dates;
-
-    var partTypeIndex = getRAFlowPartTypeIndex(partType);
-
-    if (partTypeIndex < 0){
-        return;
-    }
-
-    // Fetch data from the server if there is any record available.
-    getRAFlowPartData(partType)
-        .done(function(data){
-            if(data.status === 'success'){
-                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
-            }else {
-                console.log(data.message);
-            }
-        })
-        .fail(function(data){
-            console.log("failure" + data);
-        });
 
     // if form is loaded then return
     if (!("RADatesForm" in w2ui)) {
@@ -78,9 +57,11 @@ window.loadRADatesForm = function () {
 
     // load the existing data in dates component
     setTimeout(function () {
-        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.dates);
-        if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            w2ui.RADatesForm.record = app.raflow.data[app.raflow.activeFlowID][i].Data;
+        var partKey = "dates";
+        var compData = getRAFlowCompData(partKey, app.raflow.activeFlowID);
+
+        if (compData) {
+            w2ui.RADatesForm.record = compData;
             w2ui.RADatesForm.refresh();
         } else {
             w2ui.RADatesForm.clear();

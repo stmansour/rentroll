@@ -1,15 +1,17 @@
 /* global
     RACompConfig, sliderContentDivLength, reassignGridRecids,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
+    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
+    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
     loadRADatesForm
 */
 
 "use strict";
 
-// Next button handling
+//-----------------------------------------------------------------------------
+// NEXT BUTTON CLICK EVENT HANDLER
+//-----------------------------------------------------------------------------
 $(document).on('click', '#ra-form #next', function () {
     // get the current component (to be previous one)
     var active_comp = $(".ra-form-component:visible");
@@ -26,7 +28,9 @@ $(document).on('click', '#ra-form #next', function () {
     loadTargetSection(target_comp.attr("id"), active_comp.attr("id"));
 });
 
-// Previous button handling
+//-----------------------------------------------------------------------------
+// PREVIOUS BUTTON CLICK EVENT HANDLER
+//-----------------------------------------------------------------------------
 $(document).on('click', '#ra-form #previous', function () {
     // get the current component (to be previous one)
     var active_comp = $(".ra-form-component:visible");
@@ -43,7 +47,9 @@ $(document).on('click', '#ra-form #previous', function () {
     loadTargetSection(target_comp.attr("id"), active_comp.attr("id"));
 });
 
-// link click handling
+//-----------------------------------------------------------------------------
+// FORM WIZARD STEP LINK CLICK EVENT HANDLER
+//-----------------------------------------------------------------------------
 $(document).on('click', '#ra-form #progressbar #steps-list a', function () {
     var active_comp = $(".ra-form-component:visible");
 
@@ -57,9 +63,14 @@ $(document).on('click', '#ra-form #progressbar #steps-list a', function () {
     return false;
 });
 
-// lockOnGrid
-// Lock grid if checkbox is unchecked(false). Unlock grid if checkbox is checked(true).
-// Lock grid when there is no record in the grid.
+//-----------------------------------------------------------------------------
+// lockOnGrid - Lock grid if checkbox is unchecked(false).
+//              Unlock grid if checkbox is checked(true).
+//              Lock grid when there is no record in the grid.
+//
+// @params
+//   gridName   = name of the grid
+//-----------------------------------------------------------------------------
 window.lockOnGrid = function (gridName) {
     var isChecked = $("#" + gridName + "_checkbox")[0].checked;
     var recordsLength = w2ui[gridName].records.length;
@@ -76,55 +87,32 @@ window.lockOnGrid = function (gridName) {
     }
 };
 
-// getRAFlowPartData
-window.getRAFlowPartData = function (partType) {
+//-----------------------------------------------------------------------------
+// getRAFlowCompData - get the flow component data stored locally in app.raflow
+//
+// @params
+//   key    = flow component key
+//   FlowID = for which FlowID's component
+//-----------------------------------------------------------------------------
+window.getRAFlowCompData = function (compKey, FlowID) {
 
     var bid = getCurrentBID();
 
-    var flowPartID;
-    var flowParts = app.raflow.data[app.raflow.activeFlowID] || [];
-
-    for (var i = 0; i < flowParts.length; i++) {
-        if (partType == flowParts[i].PartType) {
-            flowPartID = flowParts[i].FlowPartID;
-            break;
-        }
+    var flowJSON = app.raflow.data[FlowID];
+    if (flowJSON.Data) {
+        return flowJSON.Data[compKey];
     }
 
-    // temporary data
-    var data = {
-        "cmd": "get",
-        "FlowPartID": flowPartID,
-        "Flow": app.raflow.name,
-        "FlowID": app.raflow.activeFlowID,
-        "BID": bid,
-        "PartType": partType
-    };
-
-
-    return $.ajax({
-        url: "/v1/flowpart/" + bid.toString() + "/" + flowPartID,
-        method: "POST",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        success: function (data) {
-            if (data.status != "error"){
-                // app.raflow[app.raflow.activeFlowID]
-                console.log("Received data for activeFlowID:", app.raflow.activeFlowID, ", partType:", partType);
-            }else {
-                console.error(data.message);
-            }
-        },
-        error: function () {
-            console.log("Error:" + JSON.stringify(data));
-        }
-    });
+    return null;
 };
 
-// toggleHaveCheckBoxDisablity
-// Enable checkbox if there is no record
-// lock/unlock grid based on checkbox value
+//-----------------------------------------------------------------------------
+// toggleHaveCheckBoxDisablity - Enable checkbox if there is no record
+//                               lock/unlock grid based on checkbox value
+//
+// @params
+//   gridName   = name of the grid
+//-----------------------------------------------------------------------------
 window.toggleHaveCheckBoxDisablity = function (gridName) {
     var recordsLength = w2ui[gridName].records.length;
     if (recordsLength > 0){
@@ -135,41 +123,39 @@ window.toggleHaveCheckBoxDisablity = function (gridName) {
     }
 };
 
-// TODO: we should pass FlowID, flowPartID here in arguments
-window.saveActiveCompData = function (record, partType) {
+//-----------------------------------------------------------------------------
+// saveActiveCompData - save component modified data on the server
+//
+// @params
+//   compData   = modified latest component data
+//   compID     = component key id
+//-----------------------------------------------------------------------------
+window.saveActiveCompData = function (compData, compID) {
 
     var bid = getCurrentBID();
-
-    var flowPartID;
-    var flowParts = app.raflow.data[app.raflow.activeFlowID] || [];
-
-    for (var i = 0; i < flowParts.length; i++) {
-        if (partType == flowParts[i].PartType) {
-            flowPartID = flowParts[i].FlowPartID;
-            break;
-        }
-    }
+    var FlowID = app.raflow.activeFlowID;
 
     // temporary data
     var data = {
         "cmd": "save",
-        "FlowPartID": flowPartID,
-        "Flow": app.raflow.name,
-        "FlowID": app.raflow.activeFlowID,
+        "FlowType": app.raflow.name,
+        "FlowID": FlowID,
+        "FlowPartKey": compID,
         "BID": bid,
-        "PartType": partType,
-        "Data": record
+        "Data": compData
     };
 
     return $.ajax({
-        url: "/v1/flowpart/" + bid.toString() + "/0",
+        url: "/v1/flow/" + bid.toString() + "/" + FlowID.toString(),
         method: "POST",
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify(data),
         success: function (data) {
             if (data.status != "error") {
-                console.log("data has been saved for: ", app.raflow.activeFlowID, ", partType: ", partType);
+                console.log("data has been saved for: ", app.raflow.activeFlowID, ", compID: ", compID);
+                // update local data with server's response data
+                app.raflow.data[app.raflow.activeFlowID] = data.record;
             } else {
                 console.error(data.message);
             }
@@ -180,7 +166,11 @@ window.saveActiveCompData = function (record, partType) {
     });
 };
 
-window.initRAFlowAJAX = function () {
+//-----------------------------------------------------------------------------
+// initRAFlowAjax - will initiate new rental agreement flow and returns ajax
+//                  promise
+//-----------------------------------------------------------------------------
+window.initRAFlowAjax = function () {
     var bid = getCurrentBID();
 
     return $.ajax({
@@ -200,19 +190,39 @@ window.initRAFlowAJAX = function () {
     });
 };
 
-window.getRAFlowPartTypeIndex = function (partType) {
-    var partTypeIndex = -1;
-    if (app.raflow.activeFlowID && app.raflow.data[app.raflow.activeFlowID]) {
-        for (var i = 0; i < app.raflow.data[app.raflow.activeFlowID].length; i++) {
-            if (partType == app.raflow.data[app.raflow.activeFlowID][i].PartType) {
-                partTypeIndex = i;
-                break;
+//-----------------------------------------------------------------------------
+// getFlowDataAjax - get the ajax data from the server and returns ajax promise
+//
+// @params
+//   FlowID = ID of the flow
+//-----------------------------------------------------------------------------
+window.getFlowDataAjax = function(FlowID) {
+    var bid = getCurrentBID();
+
+    return $.ajax({
+        url: "/v1/flow/" + bid.toString() + "/" + FlowID.toString(),
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify({"cmd": "get", "FlowID": FlowID}),
+        success: function (data) {
+            if (data.status != "error") {
+                app.raflow.data[data.record.FlowID] = data.record;
             }
+        },
+        error: function (data) {
+            console.log(data);
         }
-    }
-    return partTypeIndex;
+    });
 };
 
+//-----------------------------------------------------------------------------
+// requiredFieldsFulFilled - checks whether all required fields for a component
+//                           requested with compID is fulfilled or not
+//
+// @params
+//   compID = ID of the component in the raflow
+//-----------------------------------------------------------------------------
 window.requiredFieldsFulFilled = function (compID) {
     var done = false;
 
@@ -222,24 +232,20 @@ window.requiredFieldsFulFilled = function (compID) {
         return done;
     }
 
-    // get part type index for the component
-    var partType = app.raFlowPartTypes[compID];
-    var partTypeIndex = getRAFlowPartTypeIndex(partType);
-    if (partTypeIndex === -1) {
-        console.log("no index found this part type");
+    // get component data based on ID
+    var compData = getRAFlowCompData(compID, app.raflow.activeFlowID);
+    if(!compData) {
         return done;
     }
 
-    var data;
     var validData = true;
     var isChecked;
 
     switch (compID) {
         case "dates":
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            for (var dateKey in data) {
+            for (var dateKey in compData) {
                 // if anything else then break and mark as invalid
-                if (!(typeof data[dateKey] === "string" && data[dateKey] !== "")) {
+                if (!(typeof compData[dateKey] === "string" && compData[dateKey] !== "")) {
                     validData = false;
                     break;
                 }
@@ -248,7 +254,7 @@ window.requiredFieldsFulFilled = function (compID) {
             done = validData;
             break;
         case "people":
-            app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data.forEach(function(item) {
+            compData.forEach(function(item) {
                 if (item.IsRenter) {
                     done = true;
                     return false;
@@ -256,12 +262,11 @@ window.requiredFieldsFulFilled = function (compID) {
             });
             break;
         case "pets":
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             isChecked = $('#RAPetsGrid_checkbox')[0].checked;
             if(!isChecked){
                 done = true;
             } else {
-                if (data.length > 0) {
+                if (compData.length > 0) {
                     done = true;
                 }else{
                     done = false;
@@ -269,12 +274,11 @@ window.requiredFieldsFulFilled = function (compID) {
             }
             break;
         case "vehicles":
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
             isChecked = $('#RAVehiclesGrid_checkbox')[0].checked;
             if(!isChecked){
                 done = true;
             }else{
-                if (data.length > 0) {
+                if (compData.length > 0) {
                     done = true;
                 }else{
                     done = false;
@@ -282,14 +286,7 @@ window.requiredFieldsFulFilled = function (compID) {
             }
             break;
         case "rentables":
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.length > 0) {
-                done = true;
-            }
-            break;
-        case "feesterms":
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-            if (data.length > 0) {
+            if (compData.length > 0) {
                 done = true;
             }
             break;
@@ -313,29 +310,31 @@ window.loadTargetSection = function (target, activeCompID) {
         $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").addClass("done");
     }
 
+    // get component data based on ID from locally
+    var compData = getRAFlowCompData(activeCompID, app.raflow.activeFlowID);
+
     // decide data based on type
-    var data = null;
-    var partTypeIndex;
+    var modCompData = null;
+
     switch (activeCompID) {
         case "dates":
-            data = w2ui.RADatesForm.record;
+            modCompData = w2ui.RADatesForm.record;
             break;
         case "people":
-            partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-            data = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
+            modCompData = compData;
             w2ui.RAPeopleForm.actions.reset();
             break;
         case "pets":
-            data = w2ui.RAPetsGrid.records;
+            modCompData = w2ui.RAPetsGrid.records;
             break;
         case "vehicles":
-            data = w2ui.RAVehiclesGrid.records;
+            modCompData = w2ui.RAVehiclesGrid.records;
             break;
         case "rentables":
-            data = w2ui.RARentablesGrid.records;
+            modCompData = w2ui.RARentablesGrid.records;
             break;
         case "final":
-            data = null;
+            modCompData = null;
             break;
         default:
             alert("invalid active comp: ", activeCompID);
@@ -344,9 +343,9 @@ window.loadTargetSection = function (target, activeCompID) {
 
     // get part type from the class index
     var partType = $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").index() + 1;
-    if (data) {
+    if (modCompData) {
         // save the content on server for active component
-        saveActiveCompData(data, partType);
+        saveActiveCompData(modCompData, partType);
     }
 
     // hide active component
