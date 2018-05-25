@@ -243,13 +243,17 @@ window.requiredFieldsFulFilled = function (compID) {
 
     switch (compID) {
         case "dates":
-            for (var dateKey in compData) {
-                // if anything else then break and mark as invalid
-                if (!(typeof compData[dateKey] === "string" && compData[dateKey] !== "")) {
+            var fields = ["AgreementStart", "AgreementStop", "RentStart",
+                "RentStop", "PossessionStart", "PossessionStop"];
+
+            // each field should not be black for green mark
+            fields.forEach(function(field) {
+                if (compData[field] === "") {
                     validData = false;
-                    break;
+                    return false;
                 }
-            }
+            });
+
             // if loop passed successfully then mark it as successfully
             done = validData;
             break;

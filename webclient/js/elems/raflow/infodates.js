@@ -25,12 +25,14 @@ window.loadRADatesForm = function () {
             focus: -1,
             formURL: '/webclient/html/formradates.html',
             fields: [
-                {name: 'AgreementStart', type: 'date', required: true, html: {caption: "Term Start"}},
-                {name: 'AgreementStop', type: 'date', required: true, html: {caption: "Term Stop"}},
-                {name: 'RentStart', type: 'date', required: true, html: {caption: "Rent Start"}},
-                {name: 'RentStop', type: 'date', required: true, html: {caption: "Rent Stop"}},
-                {name: 'PossessionStart', type: 'date', required: true, html: {caption: "Possession Start"}},
-                {name: 'PossessionStop', type: 'date', required: true, html: {caption: "Possession Stop"}}
+                {name: 'recid',             type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'AgreementStart',    type: 'date',   required: true, html: {caption: "Term Start"}},
+                {name: 'AgreementStop',     type: 'date',   required: true, html: {caption: "Term Stop"}},
+                {name: 'RentStart',         type: 'date',   required: true, html: {caption: "Rent Start"}},
+                {name: 'RentStop',          type: 'date',   required: true, html: {caption: "Rent Stop"}},
+                {name: 'PossessionStart',   type: 'date',   required: true, html: {caption: "Possession Start"}},
+                {name: 'PossessionStop',    type: 'date',   required: true, html: {caption: "Possession Stop"}}
             ],
             actions: {
                 reset: function () {

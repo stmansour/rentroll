@@ -3,12 +3,12 @@
     getFullName, getTCIDName,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
+    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
-    updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, loadTransactantInRAPeopleGrid,
+    updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTCIDRecidInPeopleData,
     addDummyBackgroundInfo, updatePeopleData
 */
@@ -19,30 +19,6 @@
 // Rental Agreement - People form, People Grid, Background information form
 // -------------------------------------------------------------------------------
 window.loadRAPeopleForm = function () {
-
-    var partType = app.raFlowPartTypes.people;
-    var partTypeIndex = getRAFlowPartTypeIndex(partType);
-    if (partTypeIndex < 0) {
-        console.log("Flow part type people doesn't found");
-        return;
-    }
-
-    // Fetch data from the server if there is any record available.
-    getRAFlowPartData(partType)
-        .done(function (data) {
-            if (data.status === 'success') {
-                var grid = w2ui.RAPeopleGrid;
-
-                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data || [];
-                grid.records = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data;
-                reassignGridRecids(grid.name);
-            } else {
-                console.log(data.message);
-            }
-        })
-        .fail(function (data) {
-            console.log("failure" + data);
-        });
 
     // if form is loaded then return
     if (!("RAPeopleForm" in w2ui)) {
@@ -219,8 +195,7 @@ window.loadRAPeopleForm = function () {
 
                             manageBGInfoFormFields(raBGInfoGridRecord);
 
-                            var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-                            var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+                            var bgInfoRecords = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
 
                             // Operation related RABGInfoForm
                             for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
@@ -341,24 +316,24 @@ window.loadRAPeopleForm = function () {
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(bgInfoRecords, app.raFlowPartTypes.people)
-                        .done(function (data) {
-                            if (data.status === 'success') {
+                    saveActiveCompData(bgInfoRecords, "people")
+                    .done(function (data) {
+                        if (data.status === 'success') {
 
-                                form.clear();
+                            form.clear();
 
-                                // update RAPeopleGrid
-                                loadTransactantInRAPeopleGrid();
+                            // update RAPeopleGrid
+                            ReassignPeopleGridRecords();
 
-                                // close the form
-                                hideSliderContent();
-                            } else {
-                                form.message(data.message);
-                            }
-                        })
-                        .fail(function (data) {
-                            console.log("failure " + data);
-                        });
+                            // close the form
+                            hideSliderContent();
+                        } else {
+                            form.message(data.message);
+                        }
+                    })
+                    .fail(function (data) {
+                        console.log("failure " + data);
+                    });
                 },
                 delete: function () {
                     var form = this;
@@ -370,24 +345,24 @@ window.loadRAPeopleForm = function () {
                     // delete record with index `tcidIndex`
                     bgInfoRecords.splice(tcidIndex, 1);
 
-                    saveActiveCompData(bgInfoRecords, app.raFlowPartTypes.people)
-                        .done(function (data) {
-                            if (data.status === 'success') {
+                    saveActiveCompData(bgInfoRecords, "people")
+                    .done(function (data) {
+                        if (data.status === 'success') {
 
-                                form.clear();
+                            form.clear();
 
-                                // update RAPeopleGrid
-                                loadTransactantInRAPeopleGrid();
+                            // update RAPeopleGrid
+                            ReassignPeopleGridRecords();
 
-                                // close the form
-                                hideSliderContent();
-                            } else {
-                                form.message(data.message);
-                            }
-                        })
-                        .fail(function (data) {
-                            console.log("failure " + data);
-                        });
+                            // close the form
+                            hideSliderContent();
+                        } else {
+                            form.message(data.message);
+                        }
+                    })
+                    .fail(function (data) {
+                        console.log("failure " + data);
+                    });
                 },
                 reset: function () {
                     w2ui.RABGInfoForm.clear();
@@ -443,23 +418,8 @@ window.loadRAPeopleForm = function () {
 
     // load existing info in PeopleForm and PeopleGrid
     setTimeout(function () {
-        var grid = w2ui.RAPeopleGrid;
-        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-        if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-
-            // Operation on RAPeopleForm
-            w2ui.RAPeopleForm.refresh();
-
-            // Operation on RAPeopleGrid
-            loadTransactantInRAPeopleGrid();
-        } else {
-
-            // Operation on RAPeopleForm
-            w2ui.RAPeopleForm.actions.reset();
-
-            // Operation on RAPeopleGrid
-            grid.clear();
-        }
+        // Operation on RAPeopleGrid
+        ReassignPeopleGridRecords();
     }, 500);
 };
 
@@ -601,20 +561,25 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
 };
 
 //--------------------------------------------------------------------
-// loadTransactantInRAPeopleGrid
+// ReassignPeopleGridRecords
 //--------------------------------------------------------------------
-window.loadTransactantInRAPeopleGrid = function () {
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    if (peoplePartIndex < 0) {
-        alert("flow data could not be found for people");
-        return false;
-    }
-
+window.ReassignPeopleGridRecords = function () {
+    var compData = getRAFlowCompData("people", app.raflow.activeFlowID);
     var grid = w2ui.RAPeopleGrid;
-    var records = grid.records;
 
-    grid.records = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data;
-    reassignGridRecids(grid.name);
+    if (compData) {
+        grid.records = compData;
+        reassignGridRecids(grid.name);
+
+        // Operation on RAPeopleForm
+        w2ui.RAPeopleForm.refresh();
+    } else {
+        // Operation on RAPeopleForm
+        w2ui.RAPeopleForm.actions.reset();
+
+        // Operation on RAPeopleGrid
+        grid.clear();
+    }
 };
 
 //-----------------------------------------------------------------------------
@@ -646,12 +611,7 @@ window.openNewTransactantForm = function () {
 //-----------------------------------------------------------------------------
 window.acceptTransactant = function () {
 
-    // get part type index
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    // remove entry from data
-    if (peoplePartIndex < 0) {
-        return false;
-    }
+    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
 
     var peopleForm = w2ui.RAPeopleForm;
     var BID = getCurrentBID();
@@ -670,35 +630,35 @@ window.acceptTransactant = function () {
 
         // get transanctant information from the server
         getRATransanctantDetail(TCID)
-            .done(function (data) {
+        .done(function (data) {
 
-                if (data.status === 'success') {
-                    var record = data.record; // record from the server response
+            if (data.status === 'success') {
+                var record = data.record; // record from the server response
 
-                    // set transanctant fields from the server record
-                    setTrasanctantFields(transactantRec, record);
+                // set transanctant fields from the server record
+                setTrasanctantFields(transactantRec, record);
 
-                    // Set transanctant default role
-                    setTransactDefaultRole(transactantRec);
+                // Set transanctant default role
+                setTransactDefaultRole(transactantRec);
 
-                    // push the new transanctant to client side
-                    app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.push($.extend(true, {}, transactantRec));
+                // push the new transanctant to client side
+                compData.push($.extend(true, {}, transactantRec));
 
-                    // load item in the RAPeopleGrid grid
-                    loadTransactantInRAPeopleGrid();
+                // load item in the RAPeopleGrid grid
+                ReassignPeopleGridRecords();
 
-                    // clear the form
-                    w2ui.RAPeopleForm.actions.reset();
+                // clear the form
+                w2ui.RAPeopleForm.actions.reset();
 
-                } else {
-                    console.log(data.message);
-                }
-            })
-            .fail(function (data) {
-                console.log("failure" + data);
-            });
-    }else{
-        var recid = app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data[tcidIndex].recid;
+            } else {
+                console.log(data.message);
+            }
+        })
+        .fail(function (data) {
+            console.log("failure" + data);
+        });
+    } else {
+        var recid = compData[tcidIndex].recid;
 
         // Show selected row for existing transanctant record
         w2ui.RAPeopleGrid.select(recid);
@@ -767,37 +727,24 @@ window.manageBGInfoFormFields = function (record) {
 window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
     var index = -1;
 
-    // get part type index
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    // remove entry from data
-    if (peoplePartIndex < 0) {
-        return;
-    }
-
-    if (typeof app.raflow.data[app.raflow.activeFlowID] !== "undefined") {
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.forEach(function (transactantRec, i) {
+    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    if (compData) {
+        compData.forEach(function (transactantRec, i) {
             if (transactantRec.TCID === TCID) {
                 index = i;
                 return false;
             }
         });
     }
-
     return index;
 };
 
 window.findTransactantIndexByTCIDRecidInPeopleData = function (TCID, recid) {
     var index = -1;
 
-    // get part type index
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    // remove entry from data
-    if (peoplePartIndex < 0) {
-        return;
-    }
-
-    if (typeof app.raflow.data[app.raflow.activeFlowID] !== "undefined") {
-        app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.forEach(function (transactantRec, i) {
+    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    if (compData) {
+        compData.forEach(function (transactantRec, i) {
             if (transactantRec.TCID === TCID && transactantRec.recid === recid) {
                 index = i;
                 return false;
@@ -832,11 +779,10 @@ window.setTrasanctantFields = function (transactantRec, record) {
 };
 
 window.setTransactDefaultRole = function (transactantRec) {
-    // get part type index
-    var peoplePartIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
+    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
 
     // If first record in the grid than transanctant will be renter by default
-    if (app.raflow.data[app.raflow.activeFlowID][peoplePartIndex].Data.length === 0) {
+    if (compData.length === 0) {
         transactantRec.IsRenter = true;
     }
 
@@ -879,8 +825,7 @@ window.addDummyBackgroundInfo = function () {
 
 window.updatePeopleData = function (record) {
 
-    var partTypeIndex = getRAFlowPartTypeIndex(app.raFlowPartTypes.people);
-    var bgInfoRecords = app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data || [];
+    var bgInfoRecords = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
 
     // Convert integer to bool checkboxes fields
     updateRABGInfoFormCheckboxes(record);

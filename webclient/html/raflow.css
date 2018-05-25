@@ -90,10 +90,10 @@
 #progressbar #steps-list li a span.step {
     width: 34px;
     height: 34px;
-    padding-top: 9px;
+    padding-top: 7px;
     margin: 0 auto 10px auto;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 18px;
     border-radius: 50%;
     background-color: #9D9D9D;
     color: white;
