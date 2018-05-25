@@ -1,14 +1,14 @@
 NoteList: 1  created by uid 128
-N001  NL001  PN000  U0211  2016-09-02 13:56:00 UTC
+N001  NL001  PN000  U0211  2018-05-23 13:19:00 UTC
 I am the parent note. I have much to say. Bla bla
 
-    N002  NL001  PN001  U0198  2016-09-02 13:56:00 UTC
+    N002  NL001  PN001  U0198  2018-05-23 13:19:00 UTC
     I am a note that was added to the parent note
 
-    N003  NL001  PN001  U0207  2016-09-02 13:56:00 UTC
+    N003  NL001  PN001  U0207  2018-05-23 13:19:00 UTC
     I am also a note that was added to the parent note. I'm the last note
 
-N004  NL001  PN000  U0211  2016-09-02 13:56:00 UTC
+N004  NL001  PN000  U0211  2018-05-23 13:19:00 UTC
 I should be the second note in the NoteList
 
-Test completed: Fri Sep  2 13:56:19 PDT 2016
+Test completed: Wed May 23 13:19:48 PDT 2018

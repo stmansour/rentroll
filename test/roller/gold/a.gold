@@ -4,6 +4,8 @@ Business Units
                                             Default     Proration   GSRPC     
 BID        BUD        Name                  Rent Cycle  Cycle       Cycle     
 ---------  ---------  --------------------  ----------  ----------  ----------
+B00000006  SUM        1775 Summitridge      monthly     daily       daily     
+                      Drive                                                   
 B00000002  BRO        Accord/BRO Members,   monthly     daily       daily     
                       LLC                                                     
 B00000004  OL2        Accord/OKC Members    monthly     daily       daily     
@@ -13,5 +15,4 @@ B00000005  PAC        Accord/PAC Members    monthly     daily       daily
 B00000003  CCC        California Commerce   monthly     daily       daily     
                       Centr                                                   
 B00000001  REX        JGM First, LLC        monthly     daily       daily     
-B00000006  SUM        JGM First, LLC        monthly     daily       daily     
 
