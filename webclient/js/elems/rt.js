@@ -1,5 +1,5 @@
 /*global
-    w2ui, app, $, console, setToForm, form_dirty_alert, formRefreshCallBack, formRecDiffer,
+    w2ui, app, $, console, form_dirty_alert, formRefreshCallBack, formRecDiffer,
     getFormSubmitData, w2confirm, delete_confirm_options, getBUDfromBID, getCurrentBusiness,
     addDateNavToToolbar, setRTLayout, getRTInitRecord, getRentASMARList
 */

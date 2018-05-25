@@ -11,6 +11,7 @@
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
     createStmtForm, createRentalAgreementForm, finishForms, finishTLDForm,
+    buildClosePeriodElements,
 */
 
 "use strict";
@@ -58,6 +59,7 @@ window.buildPageElementsWrapper = function (uitype) {
     buildLoginForm();
     buildTaskListElements();
     buildTaskListDefElements();
+    buildClosePeriodElements();
     finishForms();
 };
 
