@@ -1326,27 +1326,21 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
-	// Flow Part
+	// Flow
 	//==========================================
-	flds = "FlowPartID,BID,Flow,FlowID,PartType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
-	RRdb.DBFields["FlowPart"] = flds
-	RRdb.Prepstmt.GetFlowPart, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where FlowPartID=?")
+	flds = "FlowID,BID,FlowType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["Flow"] = flds
+	RRdb.Prepstmt.GetFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetFlowPartByPartType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where FlowID=? AND PartType=?")
+	RRdb.Prepstmt.GetFlowsByFlowType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowType=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetFlowIDsByUser, err = RRdb.Dbrr.Prepare("SELECT DISTINCT FlowID FROM FlowPart where Flow=? AND CreateBy=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetFlowPartsByFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where Flow=? AND BID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetFlowPartsByFlowID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM FlowPart where FlowID=?")
+	RRdb.Prepstmt.GetFlowIDsByUser, err = RRdb.Dbrr.Prepare("SELECT DISTINCT FlowID FROM Flow where CreateBy=?")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertFlowPart, err = RRdb.Dbrr.Prepare("INSERT INTO FlowPart (" + s1 + ") VALUES(" + s2 + ")")
+	RRdb.Prepstmt.InsertFlow, err = RRdb.Dbrr.Prepare("INSERT INTO Flow (" + s1 + ") VALUES(" + s2 + ")")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateFlowPart, err = RRdb.Dbrr.Prepare("UPDATE FlowPart SET " + s3 + " WHERE FlowPartID=?")
+	RRdb.Prepstmt.UpdateFlowData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteFlowPart, err = RRdb.Dbrr.Prepare("DELETE from FlowPart WHERE FlowPartID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteFlowPartsByFlowID, err = RRdb.Dbrr.Prepare("DELETE from FlowPart WHERE FlowID=?")
+	RRdb.Prepstmt.DeleteFlow, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE FlowID=?")
 	Errcheck(err)
 }

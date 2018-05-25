@@ -30,11 +30,6 @@ var RACompConfig = {
         w2uiComp: "RARentablesGrid",
         sliderWidth: 800
     },
-    "feesterms": {
-        loader: "loadRAFeesTermsGrid",
-        w2uiComp: "RAFeesTermsGrid",
-        sliderWidth: 400
-    },
     "final": {
         loader: "",
         w2uiComp: "",
