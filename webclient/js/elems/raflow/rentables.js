@@ -755,33 +755,41 @@ window.loadRARentablesGrid = function () {
                                 app.raflow.last.rentableFeeARID = event.value_previous.id;
 
                                 var BID = getCurrentBID();
+
+                                // find account rules
+                                var arItem = {};
                                 app.raflow.arList[BID].forEach(function(item) {
                                     if (event.value_new.id == item.ARID) {
-                                        f.record.Amount = item.DefaultAmount;
-                                        f.record.ARID = item.ARID;
-
-                                        // check for non-recurring cycle flag
-                                        if(item.FLAGS&0x40 === 0){
-                                            // It indicates that rule follow non recur charge
-                                            // f.record.RentCycleList = app.cycleFreq[0];
-                                            f.record.RentCycle = 0;
-                                        }else{
-                                            var gridRec = w2ui.RARentablesGrid.get(f.record.recid);
-                                            // f.record.RentCycleList = app.cycleFreq[record.RentCycle];
-                                            f.record.RentCycle = gridRec.RentCycle;
-                                        }
-                                        var selectedRentCycle = app.cycleFreq[f.record.RentCycle];
-                                        var rentCycleW2UISel = { id: selectedRentCycle, text: selectedRentCycle };
-                                        f.get("RentCycleList").options.selected = rentCycleW2UISel;
+                                        arItem = item;
                                         return false;
                                     }
                                 });
 
+                                // update form record based on selected account rules item
+                                f.record.ContractAmount = arItem.DefaultAmount;
+                                f.record.ARID = arItem.ARID;
+
+                                // check for non-recurring cycle flag
+                                if (arItem.FLAGS&0x40 != 0) { // then it is set to non-recur flag
+                                    // It indicates that rule follow non recur charge
+                                    // f.record.RentCycleList = app.cycleFreq[0];
+                                    f.record.RentCycle = 0;
+                                } else {
+                                    var gridRec = w2ui.RARentablesGrid.get(f.record.recid);
+                                    // f.record.RentCycleList = app.cycleFreq[record.RentCycle];
+                                    f.record.RentCycle = gridRec.RentCycle;
+                                }
+
+                                // select rentcycle as well
+                                var selectedRentCycle = app.cycleFreq[f.record.RentCycle];
+                                var rentCycleW2UISel = { id: selectedRentCycle, text: selectedRentCycle };
+                                f.get("RentCycleList").options.selected = rentCycleW2UISel;
+                                f.record.RentCycleList = rentCycleW2UISel;
                                 f.refresh();
 
                                 // When RentCycle is Norecur then disable the RentCycle list field.
                                 var isDisabled = f.record.RentCycleList.text === app.cycleFreq[0];
-                                $("#RentCycleList").prop("disabled", isDisabled);
+                                $(f.box).find("#RentCycleList").prop("disabled", isDisabled);
                             }
                             break;
                     }
