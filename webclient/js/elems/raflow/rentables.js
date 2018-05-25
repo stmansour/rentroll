@@ -784,7 +784,7 @@ window.loadRARentablesGrid = function () {
                                         f.record.Amount = item.DefaultAmount;
                                         f.record.ARID = item.ARID;
 
-                                        if(item.FLAGS === 66){
+                                        if(item.FLAGS&0x40 === 0){
                                         	// It indicates that rule follow non recur charge
 											// f.record.RentCycleList = app.cycleFreq[0];
 											f.record.RentCycle = 0;
