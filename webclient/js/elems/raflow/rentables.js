@@ -202,7 +202,7 @@ window.loadRARentablesGrid = function () {
                     }
                 },
                 {
-                    field: 'ContractRent',
+                    field: 'AtSigningAmt',
                     caption: 'At Signing',
                     size: '90px',
                     render: 'money',
@@ -404,8 +404,8 @@ window.loadRARentablesGrid = function () {
                     size: '150px'
                 },
                 {
-                    field: 'Amount',
-                    caption: 'Amount',
+                    field: 'ContractAmount',
+                    caption: 'Contract<br>Amount',
                     size: '100px',
                     render: 'money',
                 },
@@ -481,7 +481,7 @@ window.loadRARentablesGrid = function () {
                     hidden: true,
                 },
                 {
-                    field: 'ContractRent',
+                    field: 'AtSigningAmt',
                     caption: 'At Signing',
                     size: '100px',
                     render: 'money',
@@ -592,7 +592,7 @@ window.loadRARentablesGrid = function () {
                 {name: 'RID',               type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'ARID',              type: 'int',   required: true, html: {page: 0, column: 0}},
                 {name: 'ARName',            type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
-                {name: 'Amount',            type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'ContractAmount',    type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'RentCycle',         type: 'int',   required: true, html: {page: 0, column: 0}},
                 {name: 'RentCycleList',     type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
                 {name: 'Epoch',             type: 'int',    required: true, html: {page: 0, column: 0}},
@@ -600,7 +600,7 @@ window.loadRARentablesGrid = function () {
                 {name: 'RentPeriodStop',    type: 'date',   required: true, html: {page: 0, column: 0}},
                 {name: 'UsePeriodStart',    type: 'date',   required: true, html: {page: 0, column: 0}},
                 {name: 'UsePeriodStop',     type: 'date',   required: true, html: {page: 0, column: 0}},
-                {name: 'ContractRent',      type: 'money',  required: true, html: {page: 0, column: 0}},
+                {name: 'AtSigningAmt',      type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'ProrateAmt',        type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'SalesTaxAmt',       type: 'money',  required: true, html: {page: 0, column: 0}},
                 {name: 'SalesTax',          type: 'money',  required: true, html: {page: 0, column: 0}},

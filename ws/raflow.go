@@ -137,7 +137,7 @@ type RARentablesFlowData struct {
 	RTID         int64
 	RentableName string
 	RentCycle    int64
-	ContractRent float64
+	AtSigningAmt float64
 	ProrateAmt   float64
 	TaxableAmt   float64
 	SalesTax     float64
@@ -151,14 +151,14 @@ type RARentableFeesData struct {
 	RID             int64
 	ARID            int64
 	ARName          string
-	Amount          float64
+	ContractAmount  float64
 	RentCycle       int64
 	Epoch           int64
 	RentPeriodStart rlib.JSONDate
 	RentPeriodStop  rlib.JSONDate
 	UsePeriodStart  rlib.JSONDate
 	UsePeriodStop   rlib.JSONDate
-	ContractRent    float64
+	AtSigningAmt    float64
 	ProrateAmt      float64
 	SalesTaxAmt     float64
 	SalesTax        float64
@@ -413,8 +413,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 				ARID:            ar.ARID,
 				RID:             foo.RID,
 				ARName:          ar.Name,
-				Amount:          ar.DefaultAmount,
-				ContractRent:    ar.DefaultAmount,
+				ContractAmount:  ar.DefaultAmount,
 				RentPeriodStart: rlib.JSONDate(today),
 				RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
 				UsePeriodStart:  rlib.JSONDate(today),
@@ -451,7 +450,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 			ARID:            ar.ARID,
 			RID:             foo.RID,
 			ARName:          ar.Name,
-			Amount:          ar.DefaultAmount,
+			ContractAmount:  ar.DefaultAmount,
 			RentPeriodStart: rlib.JSONDate(today),
 			RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
 			UsePeriodStart:  rlib.JSONDate(today),
