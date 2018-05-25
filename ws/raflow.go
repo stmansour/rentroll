@@ -148,6 +148,7 @@ type RARentablesFlowData struct {
 	RID          int64
 	RTID         int64
 	RentableName string
+	RentCycle    int64
 	ContractRent float64
 	ProrateAmt   float64
 	TaxableAmt   float64
@@ -413,12 +414,10 @@ type RARentableFeesDataRequest struct {
 	RID int64
 }
 
-// RARentableFeesDataListResponse for listing down all RARentableFeesData
-// in the grid
-type RARentableFeesDataListResponse struct {
-	Status  string               `json:"status"`
-	Total   int64                `json:"total"`
-	Records []RARentableFeesData `json:"records"`
+// RARentableResponse for list down rentable with list of associate rules
+type RARentableResponse struct {
+	Status string              `json:"status"`
+	Record RARentablesFlowData `json:"record"`
 }
 
 // SvcGetRentableFeesData generates a list of rentable fees with auto populate AR fees
@@ -434,9 +433,10 @@ type RARentableFeesDataListResponse struct {
 func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRentableFeesData"
 	var (
-		g       RARentableFeesDataListResponse
+		g       RARentableResponse
+		rfd     RARentablesFlowData
 		foo     RARentableFeesDataRequest
-		records []RARentableFeesData
+		feesRecords []RARentableFeesData
 		today   = time.Now()
 	)
 	fmt.Printf("Entered %s\n", funcname)
@@ -448,6 +448,13 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get rentable
+	rentable, err := rlib.GetRentable(r.Context(), foo.RID)
+	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -490,7 +497,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 				rec.RentCycle = rt.RentCycle
 			}
 
-			records = append(records, rec)
+			feesRecords = append(feesRecords, rec)
 		}
 	}
 
@@ -502,7 +509,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		return
 	}
 
-	// append records in ascending order
+	// append feesRecords in ascending order
 	for _, ar := range m {
 		if ar.FLAGS&0x10 != 0 { // if it's rent asm then continue
 			continue
@@ -531,16 +538,23 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 			rec.Amount = ar.DefaultAmount
 		}*/
 
-		// now append rec in records
-		records = append(records, rec)
+		// now append rec in feesRecords
+		feesRecords = append(feesRecords, rec)
 	}
 
 	// sort based on name, needs version 1.8 later of golang
-	sort.Slice(records, func(i, j int) bool { return records[i].ARName < records[j].ARName })
+	sort.Slice(feesRecords, func(i, j int) bool { return feesRecords[i].ARName < feesRecords[j].ARName })
 
-	g.Records = records
-	g.Total = int64(len(g.Records))
+	rfd.BID = d.BID
+	rfd.RID = rentable.RID
+	rfd.RentableName = rentable.RentableName
+	rfd.RTID = rt.RTID
+	rfd.RentCycle = rt.RentCycle
+	rfd.Fees = feesRecords
+
+	g.Record = rfd
 	g.Status = "success"
+
 	SvcWriteResponse(d.BID, &g, w)
 }
 

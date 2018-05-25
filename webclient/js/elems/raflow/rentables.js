@@ -57,12 +57,15 @@ window.getRentablesGridInitalRecord = function () {
         RID: 0,
         BID: BID,
         BUD: BUD,
+        RTID: 0,
         RentableName: "",
+        RentCycle: 0,
         ContractRent: 0.0,
         ProrateAmt: 0.0,
         SalesTax: 0.0,
         TaxableAmt: 0.0,
         TransOcc: 0.0,
+        Fees: []
     };
 };
 
@@ -205,6 +208,20 @@ window.loadRARentablesGrid = function () {
                     caption: 'Rentable',
                     size: '200px',
                 },
+				{
+					field: 'RentCycle',
+					caption: 'RentCycle Index',
+					size: '100px',
+					hidden: true
+				},
+				{
+					field: 'RentCycleText',
+					caption: 'RentCycle',
+					size: '50px',
+					render: function (record) {
+						return app.cycleFreq[record.RentCycle];
+					}
+				},
                 {
                     field: 'ContractRent',
                     caption: 'At Signing',
@@ -365,7 +382,7 @@ window.loadRARentablesGrid = function () {
                                 app.raflow.arList[BID].forEach(function(item) {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
-                                w2ui.RARentableFeesForm.get("ARID").options.items = arid_items;
+                                w2ui.RARentableFeesForm.get("ARName").options.items = arid_items;
                                 w2ui.RARentableFeesForm.record = getRentableFeeFormInitialRecord(RID);
                                 w2ui.RARentableFeesForm.record.recid = w2ui.RARentableFeesGrid.records.length + 1;
 
@@ -568,6 +585,10 @@ window.loadRARentablesGrid = function () {
 
                                 showSliderContentW2UIComp(form, sliderContentDivLength, sliderID);
                                 form.refresh(); // need to refresh for header changes
+
+                                // When RentCycle is Norecur then disable the RentCycle list field.
+                                var isDisabled = form.record.RentCycleList.text === app.cycleFreq[0];
+                                $("#RentCycleList").prop("disabled", isDisabled);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -763,14 +784,27 @@ window.loadRARentablesGrid = function () {
                                         f.record.Amount = item.DefaultAmount;
                                         f.record.ARID = item.ARID;
 
-                                        if(item.FLAGS === 66){
-                                            f.record.RentCycle = app.cycleFreq[0];
-                                        }
-
-                                        f.refresh();
+                                        if(item.FLAGS&0x40 === 0){
+                                        	// It indicates that rule follow non recur charge
+											// f.record.RentCycleList = app.cycleFreq[0];
+											f.record.RentCycle = 0;
+                                        }else{
+                                        	var rentableGrid = w2ui.RARentablesGrid;
+											var selectedRecid = rentableGrid.getSelection()[0];
+											var record = rentableGrid.get(selectedRecid);
+											// f.record.RentCycleList = app.cycleFreq[record.RentCycle];
+											f.record.RentCycle = record.RentCycle;
+										}
+										f.get("RentCycleList").options.selected = {id: app.cycleFreq[f.record.RentCycle], text: app.cycleFreq[f.record.RentCycle]};
                                         return false;
                                     }
                                 });
+
+                                f.refresh();
+
+								// When RentCycle is Norecur then disable the RentCycle list field.
+								var isDisabled = f.record.RentCycleList.text === app.cycleFreq[0];
+								$("#RentCycleList").prop("disabled", isDisabled);
                             }
                             break;
                     }
@@ -793,6 +827,7 @@ window.loadRARentablesGrid = function () {
 
 
                     var ARIDSel = {};
+                    var RentCycleSel = {};
                     // select value for rentable type FLAGS
                     f.get("ARName").options.items.forEach(function(item) {
                         if (item.id == f.record.ARID) {
@@ -800,9 +835,18 @@ window.loadRARentablesGrid = function () {
                         }
                     });
 
+                    // select value for rentable rentcycle
+					// var rentCycleText = app.cycleFreq[f.record.RentCycle];
+					// f.get("RentCycleList").options.items.forEach(function (item) {
+						// if(item.text === rentCycleText){
+						// 	RentCycleSel = {id: item.id, text: item.text};
+						// }
+					// });
+
                     f.record.BID = BID;
                     f.record.BUD = BUD;
                     f.get("ARName").options.selected = ARIDSel;
+					// f.get("RentCycleList").options.selected = RentCycleSel;
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid");
@@ -851,13 +895,16 @@ window.acceptRentable = function () {
         w2ui.RARentablesGrid.add(rec);
 
         // get latest fees record
-        var rentableData = $.extend(true, {"Fees": []}, rec);
+        var rentableData = $.extend(true, {}, rec);
         getInitialRentableFeesData(BID, rec.RID)
         .done(function(data) {
 
             if (data.status === "success") {
                 // save fees record
-                rentableData.Fees = data.records || [];
+                rentableData.BID = BID;
+                rentableData.RTID = data.record.RTID;
+                rentableData.RentCycle = data.record.RentCycle;
+                rentableData.Fees = data.record.Fees || [];
 
                 // also manage local data
                 setRentableLocalData(rec.RID, rentableData);

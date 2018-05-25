@@ -330,6 +330,9 @@ MYSQLDUMP="mysqldump --no-defaults"
 # May 16, 2018
 # ALTER TABLE RentableTypes ADD ARID BIGINT NOT NULL DEFAULT 0 AFTER FLAGS;
 
+# May 25, 2018
+# ALTER TABLE Business ADD ClosePeriodTLID BIGINT NOT NULL DEFAULT 0 AFTER DefaultGSRPC;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
@@ -340,13 +343,13 @@ EOF
 #  Put dir/sqlfilename in the list below
 #=====================================================
 declare -a dbs=(
+	../tools/dbgen/empty.sql
 	acctbal/baltest.sql
 	payorstmt/pstmt.sql
 	rfix/rcptfixed.sql
 	rfix/receipts.sql
 	roller/prodrr.sql
 	rr/rr.sql
-	setup/accord.sql
 	tws/rr.sql
 	tws/tws.sql
 	tws2/rrtl.sql
