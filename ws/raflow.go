@@ -3,7 +3,6 @@ package ws
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,24 +12,13 @@ import (
 	"time"
 )
 
-// rental agreement flow part types
-var raFlowPartTypes = rlib.Str2Int64Map{
-	"dates":     int64(rlib.DatesRAFlowPart),
-	"people":    int64(rlib.PeopleRAFlowPart),
-	"pets":      int64(rlib.PetsRAFlowPart),
-	"vehicles":  int64(rlib.VehiclesRAFlowPart),
-	"rentables": int64(rlib.RentablesRAFlowPart),
-	"feesterms": int64(rlib.FeesTermsRAFlowPart),
-}
-
 // RAFlowJSONData holds the struct for all the parts being involed in rental agreement flow
 type RAFlowJSONData struct {
-	RADatesFlowData     `json:"dates"`
-	RAPeopleFlowData    `json:"people"`
-	RAPetsFlowData      `json:"pets"`
-	RAVehiclesFlowData  `json:"vehicles"`
-	RARentablesFlowData `json:"rentables"`
-	RAFeesTermsFlowData `json:"feesterms"`
+	Dates     RADatesFlowData       `json:"dates"`
+	People    []RAPeopleFlowData    `json:"people"`
+	Pets      []RAPetsFlowData      `json:"pets"`
+	Vehicles  []RAVehiclesFlowData  `json:"vehicles"`
+	Rentables []RARentablesFlowData `json:"rentables"`
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -148,7 +136,8 @@ type RARentablesFlowData struct {
 	RID          int64
 	RTID         int64
 	RentableName string
-	ContractRent float64
+	RentCycle    int64
+	AtSigningAmt float64
 	ProrateAmt   float64
 	TaxableAmt   float64
 	SalesTax     float64
@@ -162,36 +151,19 @@ type RARentableFeesData struct {
 	RID             int64
 	ARID            int64
 	ARName          string
-	Amount          float64
+	ContractAmount  float64
 	RentCycle       int64
 	Epoch           int64
 	RentPeriodStart rlib.JSONDate
 	RentPeriodStop  rlib.JSONDate
 	UsePeriodStart  rlib.JSONDate
 	UsePeriodStop   rlib.JSONDate
-	ContractRent    float64
+	AtSigningAmt    float64
 	ProrateAmt      float64
 	SalesTaxAmt     float64
 	SalesTax        float64
 	TransOccAmt     float64
 	TransOcc        float64
-}
-
-// RAFeesTermsFlowData contains data in the fees-terms part of RA flow
-type RAFeesTermsFlowData struct {
-	// Recid        int     `json:"recid"` // this is for the grid widget
-	BID          int64
-	RID          int64
-	RTID         int64
-	RentableName string
-	FeeName      string
-	Amount       float64
-	Cycle        float64
-	SigningAmt   float64
-	ProrateAmt   float64
-	TaxableAmt   float64
-	SalesTax     float64
-	TransOcc     float64
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -210,7 +182,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.DatesRAFlowPart:
 		a := RADatesFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -237,7 +209,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.PeopleRAFlowPart:
 		a := []RAPeopleFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -252,7 +224,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.PetsRAFlowPart:
 		a := []RAPetsFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -267,7 +239,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.VehiclesRAFlowPart:
 		a := []RAVehiclesFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
@@ -282,25 +254,19 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 	case rlib.RentablesRAFlowPart:
 		a := []RARentablesFlowData{}
 
-		// if the struct provided with some data then checks for it
+		// if the struct provided with some data then check it for
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
-			if err != nil {
-				// if it's an error then return with nil data
-				return []byte(nil), err
+
+			// check for each rentable data's Fees field
+			// if it's blank then initialize it
+			for i := range a {
+				if len(a[i].Fees) == 0 {
+					a[i].Fees = []RARentableFeesData{}
+				}
 			}
-		}
-		// return json marshalled for struct
-		return json.Marshal(&a)
 
-	case rlib.FeesTermsRAFlowPart:
-		a := []RAFeesTermsFlowData{}
-
-		// if the struct provided with some data then checks for it
-		// json validation
-		if !(isBlankJSONData) {
-			err := json.Unmarshal(data, &a)
 			if err != nil {
 				// if it's an error then return with nil data
 				return []byte(nil), err
@@ -316,93 +282,56 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 }
 
 // insertInitialRAFlow writes a bunch of flow's sections record for a particular RA
-// This should be run under atomic transaction mode as per DB design of flow
-// This is very special case that we're not returning primary key generated from database
-// instead we're generating in form of string which we return if tx will be succeed.
-func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
+func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 
 	var (
-		flowID string
+		flowID int64
 		err    error
-		ok     bool
 	)
 
-	// ------------
-	// SPECIAL CASE
-	// ------------
-	var (
-		newTx bool
-		tx    *sql.Tx
-	)
+	// current date and next year date
+	currentDateTime := time.Now()
+	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
 
-	if tx, ok = rlib.DBTxFromContext(ctx); !ok { // if transaction is NOT supplied
-		newTx = true
-		tx, err = rlib.RRdb.Dbrr.Begin()
-		if err != nil {
-			return flowID, err
-		}
-		ctx = rlib.SetDBTxContextKey(ctx, tx)
+	// rental agreement flow data
+	initialRAFlow := RAFlowJSONData{
+		Dates: RADatesFlowData{
+			BID:             BID,
+			RentStart:       rlib.JSONDate(currentDateTime),
+			RentStop:        rlib.JSONDate(nextYearDateTime),
+			AgreementStart:  rlib.JSONDate(currentDateTime),
+			AgreementStop:   rlib.JSONDate(nextYearDateTime),
+			PossessionStart: rlib.JSONDate(currentDateTime),
+			PossessionStop:  rlib.JSONDate(nextYearDateTime),
+		},
+		People:    []RAPeopleFlowData{},
+		Pets:      []RAPetsFlowData{},
+		Vehicles:  []RAVehiclesFlowData{},
+		Rentables: []RARentablesFlowData{},
 	}
 
-	// getFlowID first
-	flowID = rlib.GetFlowID()
+	// get json marshelled byte data for above struct
+	raflowJSONData, err := json.Marshal(&initialRAFlow)
+	if err != nil {
+		rlib.Ulog("Error while marshalling json data of initialRAFlow: %s\n", err.Error())
+		return flowID, err
+	}
 
-	// initRAFlowPart
-	initRAFlowPart := rlib.FlowPart{
+	// initial Flow struct
+	a := rlib.Flow{
 		BID:       BID,
-		Flow:      rlib.RAFlow,
-		FlowID:    flowID,
-		PartType:  0,
-		Data:      json.RawMessage([]byte("null")), // JSON "null" primitive type
+		FlowID:    0, // it's new flowID,
+		FlowType:  rlib.RAFlow,
+		Data:      raflowJSONData,
 		CreateBy:  UID,
 		LastModBy: UID,
 	}
 
-	// Rental agreement flow parts map init
-	// maybe we can just override the above pre-defined initFlowPart struct
-	initRAFlowMap := map[rlib.RAFlowPartType]rlib.FlowPart{
-		rlib.DatesRAFlowPart:     initRAFlowPart,
-		rlib.PeopleRAFlowPart:    initRAFlowPart,
-		rlib.PetsRAFlowPart:      initRAFlowPart,
-		rlib.VehiclesRAFlowPart:  initRAFlowPart,
-		rlib.RentablesRAFlowPart: initRAFlowPart,
-		rlib.FeesTermsRAFlowPart: initRAFlowPart,
-	}
-
-	// insert in order to ease
-	var keys rlib.Int64Range
-	for k := range initRAFlowMap {
-		keys = append(keys, int64(k))
-	}
-	sort.Sort(keys)
-
-	// assign part type
-	for _, partTypeIDi64 := range keys {
-
-		// get blank flow part
-		a := initRAFlowMap[rlib.RAFlowPartType(partTypeIDi64)]
-
-		// modify part type
-		a.PartType = int(partTypeIDi64)
-
-		// get json strctured data from go struct and feed it back into a Data field
-		a.Data, _ = getUpdateRAFlowPartJSONData(BID, a.Data, a.PartType)
-
-		// insert each flowpart of RA flow
-		_, err = rlib.InsertFlowPart(ctx, &a)
-		if err != nil {
-			rlib.Ulog("Error while inserting FlowPart BULK-WRITE: %s\n", err.Error())
-		}
-	}
-
-	if newTx { // if new transaction then commit it
-		// if error then rollback
-		if err = tx.Commit(); err != nil {
-			tx.Rollback()
-			rlib.Ulog("Error while Committing transaction | inserting FlowPart BULK-WRITE: %s\n", err.Error())
-			// err = insertError(err, "InitialRAFlow", nil)
-			return flowID, err
-		}
+	// insert new flow
+	flowID, err = rlib.InsertFlow(ctx, &a)
+	if err != nil {
+		rlib.Ulog("Error while inserting Flow: %s\n", err.Error())
+		return flowID, err
 	}
 
 	return flowID, err
@@ -410,15 +339,8 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (string, error) {
 
 // RARentableFeesDataRequest is struct for request for rentable fees
 type RARentableFeesDataRequest struct {
-	RID int64
-}
-
-// RARentableFeesDataListResponse for listing down all RARentableFeesData
-// in the grid
-type RARentableFeesDataListResponse struct {
-	Status  string               `json:"status"`
-	Total   int64                `json:"total"`
-	Records []RARentableFeesData `json:"records"`
+	RID    int64
+	FlowID int64
 }
 
 // SvcGetRentableFeesData generates a list of rentable fees with auto populate AR fees
@@ -434,10 +356,12 @@ type RARentableFeesDataListResponse struct {
 func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRentableFeesData"
 	var (
-		g       RARentableFeesDataListResponse
-		foo     RARentableFeesDataRequest
-		records []RARentableFeesData
-		today   = time.Now()
+		g           FlowResponse
+		rfd         RARentablesFlowData
+		raflowData  RAFlowJSONData
+		foo         RARentableFeesDataRequest
+		feesRecords = []RARentableFeesData{}
+		today       = time.Now()
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -448,6 +372,20 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get flow and it must exist
+	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get rentable
+	rentable, err := rlib.GetRentable(r.Context(), foo.RID)
+	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -475,8 +413,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 				ARID:            ar.ARID,
 				RID:             foo.RID,
 				ARName:          ar.Name,
-				Amount:          ar.DefaultAmount,
-				ContractRent:    ar.DefaultAmount,
+				ContractAmount:  ar.DefaultAmount,
 				RentPeriodStart: rlib.JSONDate(today),
 				RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
 				UsePeriodStart:  rlib.JSONDate(today),
@@ -490,7 +427,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 				rec.RentCycle = rt.RentCycle
 			}
 
-			records = append(records, rec)
+			feesRecords = append(feesRecords, rec)
 		}
 	}
 
@@ -502,7 +439,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 		return
 	}
 
-	// append records in ascending order
+	// append feesRecords in ascending order
 	for _, ar := range m {
 		if ar.FLAGS&0x10 != 0 { // if it's rent asm then continue
 			continue
@@ -513,7 +450,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 			ARID:            ar.ARID,
 			RID:             foo.RID,
 			ARName:          ar.Name,
-			Amount:          ar.DefaultAmount,
+			ContractAmount:  ar.DefaultAmount,
 			RentPeriodStart: rlib.JSONDate(today),
 			RentPeriodStop:  rlib.JSONDate(today.AddDate(1, 0, 0)),
 			UsePeriodStart:  rlib.JSONDate(today),
@@ -531,22 +468,72 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 			rec.Amount = ar.DefaultAmount
 		}*/
 
-		// now append rec in records
-		records = append(records, rec)
+		// now append rec in feesRecords
+		feesRecords = append(feesRecords, rec)
 	}
 
 	// sort based on name, needs version 1.8 later of golang
-	sort.Slice(records, func(i, j int) bool { return records[i].ARName < records[j].ARName })
+	sort.Slice(feesRecords, func(i, j int) bool { return feesRecords[i].ARName < feesRecords[j].ARName })
 
-	g.Records = records
-	g.Total = int64(len(g.Records))
+	// assign calculated data in rentable data
+	rfd.BID = d.BID
+	rfd.RID = rentable.RID
+	rfd.RentableName = rentable.RentableName
+	rfd.RTID = rt.RTID
+	rfd.RentCycle = rt.RentCycle
+	rfd.Fees = feesRecords
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raflowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// find this RID in flow data rentable list
+	var rIndex = -1
+	for i := range raflowData.Rentables {
+		if raflowData.Rentables[i].RID == rfd.RID {
+			rIndex = i
+		}
+	}
+
+	// if record not found then push it in the list
+	if rIndex < 0 {
+		raflowData.Rentables = append(raflowData.Rentables, rfd)
+	} else {
+		raflowData.Rentables[rIndex] = rfd
+	}
+
+	modRData, err := json.Marshal(&raflowData.Rentables)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// update flow with this modified rentable part
+	err = rlib.UpdateFlowData(r.Context(), "rentables", modRData, &flow)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get the modified flow
+	flow, err = rlib.GetFlow(r.Context(), flow.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// set the response
+	g.Record = flow
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
 
 // saveRentalAgreementFlow saves data for the given flowID to real multi variant database instances
 // from the temporary data stored in FlowPart table
-func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
+func saveRentalAgreementFlow(ctx context.Context, flowID int64) (int64, error) {
 	var (
 		RAID int64
 		err  error
@@ -554,9 +541,9 @@ func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
 
 	// first check that such a given flowID does exist or not
 	var found bool
-	ids, err := rlib.GetFlowIDsByUser(ctx, rlib.RAFlow)
+	ids, err := rlib.GetFlowIDsByUser(ctx)
 	if err != nil {
-		return err
+		return RAID, err
 	}
 
 	for _, id := range ids {
@@ -567,12 +554,12 @@ func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
 	}
 
 	if !found {
-		return fmt.Errorf("Such flowID: %s does not exist", flowID)
+		return RAID, fmt.Errorf("Such flowID: %d does not exist", flowID)
 	}
 
 	// -------------- SAVING PARTS --------------------
 
-	// ==================
+	/*// ==================
 	// 1. Agreement Dates
 	// ==================
 	datesFlowPart, err := rlib.GetFlowPartByPartType(ctx, flowID, int(rlib.DatesRAFlowPart))
@@ -599,9 +586,9 @@ func saveRentalAgreementFlow(ctx context.Context, flowID string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Newly created rental agreement with RAID: %d\n", RAID)
+	fmt.Printf("Newly created rental agreement with RAID: %d\n", RAID)*/
 
-	return nil
+	return RAID, nil
 }
 
 // GridRAFlowResponse is a struct to hold info for rental agreement for the grid response
@@ -609,5 +596,5 @@ type GridRAFlowResponse struct {
 	Recid  int64 `json:"recid"`
 	BID    int64
 	BUD    string
-	FlowID string
+	FlowID int64
 }

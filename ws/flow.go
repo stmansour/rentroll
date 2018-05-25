@@ -7,45 +7,6 @@ import (
 	"rentroll/rlib"
 )
 
-// FlowPartJSONData is a struct in which request data will be get
-type FlowPartJSONData struct {
-	FlowPartID     int64           `json:"FlowPartID"`
-	BID            int64           `json:"BID"`
-	Flow           string          `json:"Flow"`
-	FlowID         string          `json:"FlowID"`
-	PartType       int             `json:"PartType"`
-	Data           json.RawMessage `json:"Data"`
-	flowPartStruct interface{}
-}
-
-// GetAllFlowsResponse response struct to get a whole flow with its all part
-type GetAllFlowsResponse struct {
-	Status  string               `json:"status"`
-	Records []GridRAFlowResponse `json:"records"`
-}
-
-// GetFlowResponse response struct to get a whole flow with its all part
-type GetFlowResponse struct {
-	Status  string          `json:"status"`
-	Records []rlib.FlowPart `json:"records"`
-}
-
-// FlowRequest holds flowtype string to get flow
-type FlowRequest struct {
-	Flow string `json:"Flow"`
-}
-
-// FlowIDRequest holds the flowID to get/insert/delete flow
-type FlowIDRequest struct {
-	FlowID string `json:"FlowID"`
-}
-
-// SaveFlowRequest holds the struct for save flow request
-type SaveFlowRequest struct {
-	Flow   string `json:"Flow"`
-	FlowID string `json:"FlowID"`
-}
-
 // SvcHandlerFlow handles operations on a whole flow which affects on its
 // all flow parts associated with given flowID
 // For this call, we expect the URI to contain the BID and the FlowID as follows:
@@ -64,10 +25,13 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rlib.Console("Entered %s\n", funcname)
 
-	// if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
-	// 	SvcErrorReturn(w, err, funcname)
-	// 	return
-	// }
+	// if the command is not from listed below then do check for flowID
+	if !(d.wsSearchReq.Cmd == "getAllFlows" || d.wsSearchReq.Cmd == "init") {
+		if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowID", 3, w); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
 
 	rlib.Console("Request: %s:  BID = %d,  FlowID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
@@ -75,8 +39,8 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "getAllFlows":
 		getAllFlowsByUser(w, r, d)
 		break
-	case "getFlowParts":
-		getFlowParts(w, r, d)
+	case "get":
+		getFlow(w, r, d)
 		break
 	case "init":
 		initiateFlow(w, r, d)
@@ -87,6 +51,9 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "save":
 		saveFlow(w, r, d)
 		break
+	case "migrate":
+		migrateFlowDataToDB(w, r, d)
+		break
 	default:
 		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
 		SvcErrorReturn(w, err, funcname)
@@ -94,13 +61,22 @@ func SvcHandlerFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 }
 
-// initiateFlow returns all flowparts associated with given flowID
+// FlowResponse is the response of returning updated flow with status
+type FlowResponse struct {
+	Record rlib.Flow `json:"record"`
+	Status string    `json:"status"`
+}
+
+// initiateFlow inserts a new flow with default data and returns it
 func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "initiateFlow"
+
 	var (
 		err error
-		g   FlowIDRequest // it's not request, but yeah this should feed up the response
-		f   FlowRequest
+		f   struct {
+			FlowType string
+		}
+		g FlowResponse
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -112,13 +88,13 @@ func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// initiate flow for given string
-	var flowID string
-	switch f.Flow {
+	var flowID int64
+	switch f.FlowType {
 	case rlib.RAFlow:
 		flowID, err = insertInitialRAFlow(r.Context(), d.BID, d.sess.UID)
 		break
 	default:
-		err = fmt.Errorf("unrecognized flow: %s", f.Flow)
+		err = fmt.Errorf("unrecognized flowType: %s", f.FlowType)
 	}
 
 	// if error then return from here
@@ -127,17 +103,27 @@ func initiateFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	g.FlowID = flowID
+	// get flow data in return it back
+	flow, err := rlib.GetFlow(r.Context(), flowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	g.Record = flow
+	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
 
-// getFlowParts returns all flowparts associated with given flowID
-func getFlowParts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "getFlowParts"
+// getFlow returns flow associated with given flowID
+func getFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "getFlow"
 	var (
 		err error
-		g   GetFlowResponse
-		f   FlowIDRequest
+		f   struct {
+			FlowID int64
+		}
+		g FlowResponse
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -148,12 +134,13 @@ func getFlowParts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	g.Records, err = rlib.GetFlowPartsByFlowID(r.Context(), f.FlowID)
+	flow, err := rlib.GetFlow(r.Context(), f.FlowID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
+	g.Record = flow
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
@@ -161,10 +148,12 @@ func getFlowParts(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // getAllFlowsByUser returns all flows for the current user and given flow
 func getAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getAllFlowsByUser"
+
 	var (
 		err error
-		g   GetAllFlowsResponse
-		f   FlowRequest
+		f   struct {
+			FlowType string
+		}
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -175,25 +164,45 @@ func getAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	var recs []string
-	recs, err = rlib.GetFlowIDsByUser(r.Context(), f.Flow)
+	// get all flowIDs
+	recs, err := rlib.GetFlowIDsByUser(r.Context())
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
-	for i, rec := range recs {
-		var t = GridRAFlowResponse{
-			Recid:  int64(i),
-			BID:    d.BID,
-			FlowID: rec,
-			BUD:    string(rlib.GetBUDFromBIDList(d.BID)),
-		}
-		g.Records = append(g.Records, t)
-	}
+	// initiate flow for given string
+	switch f.FlowType {
+	case rlib.RAFlow:
 
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
+		// ResponseData response data for ra flow
+		var g struct {
+			Status  string               `json:"status"`
+			Records []GridRAFlowResponse `json:"records"`
+		}
+
+		// initialize the list
+		g.Records = []GridRAFlowResponse{}
+
+		// loop over recs and prepare response
+		for i, rec := range recs {
+			var t = GridRAFlowResponse{
+				Recid:  int64(i),
+				BID:    d.BID,
+				FlowID: rec,
+				BUD:    string(rlib.GetBUDFromBIDList(d.BID)),
+			}
+			g.Records = append(g.Records, t)
+		}
+
+		g.Status = "success"
+		SvcWriteResponse(d.BID, &g, w)
+		return
+	default:
+		err = fmt.Errorf("unrecognized flow type: %s", f.FlowType)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 }
 
 // deleteFlow delete the flow from database with associated all flow parts
@@ -202,7 +211,9 @@ func deleteFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "deleteFlow"
 	var (
 		err error
-		del FlowIDRequest
+		del struct {
+			FlowID int64
+		}
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -214,22 +225,98 @@ func deleteFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// delete flow parts by flowID
-	err = rlib.DeleteFlowPartsByFlowID(r.Context(), del.FlowID)
+	err = rlib.DeleteFlow(r.Context(), del.FlowID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
 
 	SvcWriteSuccessResponse(d.BID, w)
+	return
 }
 
-// saveFlow saves the data from temp data stored in flowPart with flowID into actual
-// database instance for the given flow type
+// saveFlow will save (update) a flowpart instance for a given flowpartID (d.ID)
 func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "saveFlow"
 	var (
+		err     error
+		flowReq struct {
+			FlowType    string
+			FlowID      int64
+			Data        json.RawMessage
+			FlowPartKey string
+		}
+		g FlowResponse
+	)
+
+	rlib.Console("Entered %s\n", funcname)
+	rlib.Console("record data = %s\n", d.data)
+
+	if err := json.Unmarshal([]byte(d.data), &flowReq); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// check that such flow instance does exist or not
+	existFlow, _ := rlib.GetFlow(r.Context(), flowReq.FlowID)
+	if existFlow.FlowID == 0 {
+		err = fmt.Errorf("given flow with ID (%d) doesn't exist", flowReq.FlowID)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// handle data for update based on flow and part type
+	var jsBtData []byte
+	switch flowReq.FlowType {
+	case rlib.RAFlow:
+		partType, ok := rlib.RAFlowPartsMap[flowReq.FlowPartKey]
+		if !ok {
+			err = fmt.Errorf("Unable to find part with key: %s for flowID: %d, flowType: %s, Error: %s", flowReq.FlowPartKey, flowReq.FlowID, flowReq.FlowType, err.Error())
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		jsBtData, err = getUpdateRAFlowPartJSONData(d.BID, flowReq.Data, int(partType))
+		if err != nil {
+			err1 := fmt.Errorf("Data is not in valid format for flowID: %d, flowType: %s, Error: %s", flowReq.FlowID, flowReq.FlowType, err.Error())
+			SvcErrorReturn(w, err1, funcname)
+			return
+		}
+	default:
+		err = fmt.Errorf("unrecognized flow type: %s", flowReq.FlowType)
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// update data with given json data key
+	err = rlib.UpdateFlowData(r.Context(), flowReq.FlowPartKey, jsBtData, &existFlow)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get flow data in return it back
+	flow, err := rlib.GetFlow(r.Context(), existFlow.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	g.Record = flow
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+
+// migrateFlowDataToDB saves the data from temp data stored in flowPart with flowID into actual
+// database instance for the given flow type
+func migrateFlowDataToDB(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "saveFlow"
+	var (
 		err error
-		f   SaveFlowRequest
+		f   struct {
+			FlowType string
+			FlowID   int64
+		}
 	)
 
 	rlib.Console("Entered %s\n", funcname)
@@ -240,145 +327,18 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	switch f.Flow {
+	switch f.FlowType {
 	case rlib.RAFlow:
-		err = saveRentalAgreementFlow(r.Context(), f.FlowID)
+		_, err = saveRentalAgreementFlow(r.Context(), f.FlowID)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
 		break
 	default:
-		err = fmt.Errorf("unrecognized flow type: %s", f.Flow)
+		err = fmt.Errorf("unrecognized flow type: %s", f.FlowType)
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-
-	SvcWriteSuccessResponse(d.BID, w)
-}
-
-// GetFlowPartResponse response struct to get flow part
-type GetFlowPartResponse struct {
-	Status string        `json:"status"`
-	Record rlib.FlowPart `json:"record"`
-}
-
-// SvcHandlerFlowPart handles operations on a single flow part by given flowID
-// For this call, we expect the URI to contain the BID and the FlowPartID as follows:
-//           0  1    2   3
-// uri      /v1/asm/:BID/FlowPartID
-// The server command can be:
-//      get
-//      save
-//      delete
-//-----------------------------------------------------------------------------------
-func SvcHandlerFlowPart(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcHandlerFlowPart"
-	var (
-		err error
-	)
-
-	rlib.Console("Entered %s\n", funcname)
-
-	if d.ID, err = SvcExtractIDFromURI(r.RequestURI, "FlowPartID", 3, w); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	rlib.Console("Request: %s:  BID = %d,  FlowPartID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
-
-	switch d.wsSearchReq.Cmd {
-	case "get":
-		getFlowPart(w, r, d)
-		break
-	case "save":
-		saveFlowPart(w, r, d)
-		break
-	// case "delete":
-	//  deleteFlowPart(w, r, d)
-	//  break
-	default:
-		err = fmt.Errorf("Unhandled command: %s", d.wsSearchReq.Cmd)
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-}
-
-// getFlowPart will return a flowpart instance for a given flowpartID (d.ID)
-func getFlowPart(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "getFlowPart"
-	var (
-		err error
-		g   GetFlowPartResponse
-	)
-
-	rlib.Console("Entered %s\n", funcname)
-	// rlib.Console("record data = %s\n", d.data)
-
-	// get flow part by its ID
-	g.Record, err = rlib.GetFlowPart(r.Context(), d.ID)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	g.Status = "success"
-	SvcWriteResponse(d.BID, &g, w)
-}
-
-// saveFlowPart will save (update) a flowpart instance for a given flowpartID (d.ID)
-func saveFlowPart(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "saveFlowPart"
-	var (
-		err        error
-		fpJSONData FlowPartJSONData
-	)
-
-	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("record data = %s\n", d.data)
-
-	if err := json.Unmarshal([]byte(d.data), &fpJSONData); err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// check that such flowPartID instance does exist or not
-	existFP, _ := rlib.GetFlowPart(r.Context(), fpJSONData.FlowPartID)
-	if existFP.FlowPartID == 0 { // returned flow part is zero then raise an error
-		err = fmt.Errorf("given flowpart with ID (%d) doesn't exist", fpJSONData.FlowPartID)
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// migrate request json data to flow part struct
-	var fp rlib.FlowPart
-	rlib.MigrateStructVals(&fpJSONData, &fp) // the variables that don't need special handling
-
-	// handle data for update based on flow and part type
-	var jsBtData []byte
-	switch fpJSONData.Flow {
-	case rlib.RAFlow:
-		jsBtData, err = getUpdateRAFlowPartJSONData(d.BID, fpJSONData.Data, fpJSONData.PartType)
-		if err != nil {
-			err1 := fmt.Errorf("Data is not in valid format for flow: %s, partType: %d, Error: %s", fpJSONData.Flow, fpJSONData.PartType, err.Error())
-			SvcErrorReturn(w, err1, funcname)
-			return
-		}
-	default:
-		err = fmt.Errorf("unrecognized flow: %s", fpJSONData.Flow)
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
-	// now feed custom jsBtData to flow part json Data field
-	fp.Data = json.RawMessage(jsBtData)
-
-	// get flow part by its ID
-	err = rlib.UpdateFlowPart(r.Context(), &fp)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-
 	SvcWriteSuccessResponse(d.BID, w)
 }
