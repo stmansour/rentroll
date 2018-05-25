@@ -343,13 +343,13 @@ EOF
 #  Put dir/sqlfilename in the list below
 #=====================================================
 declare -a dbs=(
+	../tools/dbgen/empty.sql
 	acctbal/baltest.sql
 	payorstmt/pstmt.sql
 	rfix/rcptfixed.sql
 	rfix/receipts.sql
 	roller/prodrr.sql
 	rr/rr.sql
-	setup/accord.sql
 	tws/rr.sql
 	tws/tws.sql
 	tws2/rrtl.sql
