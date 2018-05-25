@@ -359,7 +359,7 @@ window.loadRARentablesGrid = function () {
                                 app.raflow.arList[BID].forEach(function(item) {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
-                                w2ui.RARentableFeesForm.get("ARName").options.items = arid_items;
+                                w2ui.RARentableFeesForm.get("ARID").options.items = arid_items;
                                 w2ui.RARentableFeesForm.record = getRentableFeeFormInitialRecord(RID);
                                 w2ui.RARentableFeesForm.record.recid = w2ui.RARentableFeesGrid.records.length + 1;
 
@@ -394,8 +394,6 @@ window.loadRARentablesGrid = function () {
                 },
                 {
                     field: 'ARID',
-                    caption: 'Account Rule ID',
-                    size: '100px',
                     hidden: true
                 },
                 {
@@ -552,10 +550,10 @@ window.loadRARentablesGrid = function () {
                                 app.raflow.arList[BID].forEach(function(item) {
                                     arid_items.push({id: item.ARID, text: item.Name});
                                 });
-                                form.get("ARName").options.items = arid_items;
+                                form.get("ARID").options.items = arid_items;
                                 form.record = $.extend(true, {}, grid.get(app.last.grid_sel_recid));
 
-                                form.record.RentCycleList = app.cycleFreq[form.record.RentCycle];
+                                form.record.RentCycleText = app.cycleFreq[form.record.RentCycle];
 
                                 // mark current ARID in app last rentableFeeARID
                                 app.raflow.last.rentableFeeARID = form.record.ARID;
@@ -564,8 +562,8 @@ window.loadRARentablesGrid = function () {
                                 form.refresh(); // need to refresh for header changes
 
                                 // When RentCycle is Norecur then disable the RentCycle list field.
-                                var isDisabled = form.record.RentCycleList.text === app.cycleFreq[0];
-                                $("#RentCycleList").prop("disabled", isDisabled);
+                                var isDisabled = form.record.RentCycleText.text === app.cycleFreq[0];
+                                $("#RentCycleText").prop("disabled", isDisabled);
                             })
                             .fail(function(data) {
                                 console.log("failure" + data);
@@ -590,11 +588,11 @@ window.loadRARentablesGrid = function () {
                 {name: 'BID',               type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'BUD',               type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.businesses}},
                 {name: 'RID',               type: 'int',    required: true, html: {page: 0, column: 0}},
-                {name: 'ARID',              type: 'int',   required: true, html: {page: 0, column: 0}},
-                {name: 'ARName',            type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
+                {name: 'ARName',            type: 'text',   required: true, html: {page: 0, column: 0}},
+                {name: 'ARID',              type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: [], selected: {}}},
                 {name: 'ContractAmount',    type: 'money',  required: true, html: {page: 0, column: 0}},
-                {name: 'RentCycle',         type: 'int',   required: true, html: {page: 0, column: 0}},
-                {name: 'RentCycleList',     type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
+                {name: 'RentCycle',         type: 'int',    required: true, html: {page: 0, column: 0}},
+                {name: 'RentCycleText',     type: 'list',   required: true, html: {page: 0, column: 0}, options: {items: app.cycleFreq}},
                 {name: 'Epoch',             type: 'int',    required: true, html: {page: 0, column: 0}},
                 {name: 'RentPeriodStart',   type: 'date',   required: true, html: {page: 0, column: 0}},
                 {name: 'RentPeriodStop',    type: 'date',   required: true, html: {page: 0, column: 0}},
@@ -707,6 +705,7 @@ window.loadRARentablesGrid = function () {
                     var localRData = getRentableLocalData(f.record.RID);
                     if (localRData.Fees.length > 0) {
                         var itemIndex = getRentableFeeLocalData(f.record.RID, app.raflow.last.rentableFeeARID, true);
+
                         // remove fee item
                         localRData.Fees.splice(itemIndex, 1);
 
@@ -738,7 +737,7 @@ window.loadRARentablesGrid = function () {
                 var f = this;
                 event.onComplete = function() {
                     switch(event.target) {
-                        case "RentCycleList":
+                        case "RentCycleText":
                             if (event.value_new) {
                                 app.cycleFreq.forEach(function(itemText, itemIndex) {
                                     if (event.value_new.text == itemText) {
@@ -749,7 +748,7 @@ window.loadRARentablesGrid = function () {
                                 f.refresh();
                             }
                             break;
-                        case "ARName":
+                        case "ARID":
                             if (event.value_new) {
                                 // mark previous ARID in app last rentableFeeARID
                                 app.raflow.last.rentableFeeARID = event.value_previous.id;
@@ -767,29 +766,29 @@ window.loadRARentablesGrid = function () {
 
                                 // update form record based on selected account rules item
                                 f.record.ContractAmount = arItem.DefaultAmount;
-                                f.record.ARID = arItem.ARID;
+                                f.record.ARName = event.value_new.text;
 
                                 // check for non-recurring cycle flag
                                 if (arItem.FLAGS&0x40 != 0) { // then it is set to non-recur flag
                                     // It indicates that rule follow non recur charge
-                                    // f.record.RentCycleList = app.cycleFreq[0];
+                                    // f.record.RentCycleText = app.cycleFreq[0];
                                     f.record.RentCycle = 0;
                                 } else {
                                     var gridRec = w2ui.RARentablesGrid.get(f.record.recid);
-                                    // f.record.RentCycleList = app.cycleFreq[record.RentCycle];
+                                    // f.record.RentCycleText = app.cycleFreq[record.RentCycle];
                                     f.record.RentCycle = gridRec.RentCycle;
                                 }
 
                                 // select rentcycle as well
                                 var selectedRentCycle = app.cycleFreq[f.record.RentCycle];
                                 var rentCycleW2UISel = { id: selectedRentCycle, text: selectedRentCycle };
-                                f.get("RentCycleList").options.selected = rentCycleW2UISel;
-                                f.record.RentCycleList = rentCycleW2UISel;
+                                f.get("RentCycleText").options.selected = rentCycleW2UISel;
+                                f.record.RentCycleText = rentCycleW2UISel;
                                 f.refresh();
 
                                 // When RentCycle is Norecur then disable the RentCycle list field.
-                                var isDisabled = f.record.RentCycleList.text === app.cycleFreq[0];
-                                $(f.box).find("#RentCycleList").prop("disabled", isDisabled);
+                                var isDisabled = f.record.RentCycleText.text === app.cycleFreq[0];
+                                $(f.box).find("#RentCycleText").prop("disabled", isDisabled);
                             }
                             break;
                     }
@@ -813,7 +812,7 @@ window.loadRARentablesGrid = function () {
 
                     var ARIDSel = {};
                     // select value for rentable type FLAGS
-                    f.get("ARName").options.items.forEach(function(item) {
+                    f.get("ARID").options.items.forEach(function(item) {
                         if (item.id == f.record.ARID) {
                             ARIDSel = {id: item.id, text: item.text};
                         }
@@ -821,7 +820,7 @@ window.loadRARentablesGrid = function () {
 
                     f.record.BID = BID;
                     f.record.BUD = BUD;
-                    f.get("ARName").options.selected = ARIDSel;
+                    f.get("ARID").options.selected = ARIDSel;
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid");
