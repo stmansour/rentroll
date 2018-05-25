@@ -339,13 +339,8 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 
 // RARentableFeesDataRequest is struct for request for rentable fees
 type RARentableFeesDataRequest struct {
-	RID int64
-}
-
-// RARentableResponse for list down rentable with list of associate rules
-type RARentableResponse struct {
-	Status string              `json:"status"`
-	Record RARentablesFlowData `json:"record"`
+	RID    int64
+	FlowID int64
 }
 
 // SvcGetRentableFeesData generates a list of rentable fees with auto populate AR fees
@@ -361,11 +356,12 @@ type RARentableResponse struct {
 func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRentableFeesData"
 	var (
-		g       RARentableResponse
-		rfd     RARentablesFlowData
-		foo     RARentableFeesDataRequest
-		feesRecords []RARentableFeesData
-		today   = time.Now()
+		g           FlowResponse
+		rfd         RARentablesFlowData
+		raflowData  RAFlowJSONData
+		foo         RARentableFeesDataRequest
+		feesRecords = []RARentableFeesData{}
+		today       = time.Now()
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -376,6 +372,13 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	}
 
 	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get flow and it must exist
+	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
+	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -473,6 +476,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	// sort based on name, needs version 1.8 later of golang
 	sort.Slice(feesRecords, func(i, j int) bool { return feesRecords[i].ARName < feesRecords[j].ARName })
 
+	// assign calculated data in rentable data
 	rfd.BID = d.BID
 	rfd.RID = rentable.RID
 	rfd.RentableName = rentable.RentableName
@@ -480,9 +484,51 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	rfd.RentCycle = rt.RentCycle
 	rfd.Fees = feesRecords
 
-	g.Record = rfd
-	g.Status = "success"
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raflowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
 
+	// find this RID in flow data rentable list
+	var rIndex = -1
+	for i := range raflowData.Rentables {
+		if raflowData.Rentables[i].RID == rfd.RID {
+			rIndex = i
+		}
+	}
+
+	// if record not found then push it in the list
+	if rIndex < 0 {
+		raflowData.Rentables = append(raflowData.Rentables, rfd)
+	} else {
+		raflowData.Rentables[rIndex] = rfd
+	}
+
+	modRData, err := json.Marshal(&raflowData.Rentables)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// update flow with this modified rentable part
+	err = rlib.UpdateFlowData(r.Context(), "rentables", modRData, &flow)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get the modified flow
+	flow, err = rlib.GetFlow(r.Context(), flow.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// set the response
+	g.Record = flow
+	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
 
