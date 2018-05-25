@@ -330,6 +330,9 @@ MYSQLDUMP="mysqldump --no-defaults"
 # May 16, 2018
 # ALTER TABLE RentableTypes ADD ARID BIGINT NOT NULL DEFAULT 0 AFTER FLAGS;
 
+# May 25, 2018
+# ALTER TABLE Business ADD ClosePeriodTLID BIGINT NOT NULL DEFAULT 0 AFTER DefaultGSRPC;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
