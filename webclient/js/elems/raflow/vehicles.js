@@ -2,7 +2,7 @@
     RACompConfig, sliderContentDivLength, reassignGridRecids,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
+    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
     getVehicleFormInitalRecord
 */
@@ -49,26 +49,6 @@ window.getVehicleFormInitalRecord = function (BID, BUD, previousFormRecord) {
 };
 
 window.loadRAVehiclesGrid = function () {
-
-    var partType = app.raFlowPartTypes.vehicles;
-    var partTypeIndex = getRAFlowPartTypeIndex(partType);
-
-    if (partTypeIndex < 0){
-        return;
-    }
-
-    // Fetch data from the server if there is any record available.
-    getRAFlowPartData(partType)
-        .done(function(data){
-            if(data.status === 'success'){
-                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
-            }else {
-                console.log(data.message);
-            }
-        })
-        .fail(function(data){
-            console.log("failure" + data);
-        });
 
     // if form is loaded then return
     if (!("RAVehiclesGrid" in w2ui)) {
@@ -144,7 +124,7 @@ window.loadRAVehiclesGrid = function () {
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, app.raFlowPartTypes.vehicles)
+                    saveActiveCompData(recordsData, "vehicles")
                         .done(function(data) {
                             if (data.status === 'success') {
                                 // if null
@@ -188,7 +168,7 @@ window.loadRAVehiclesGrid = function () {
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, app.raFlowPartTypes.vehicles)
+                    saveActiveCompData(recordsData, "vehicles")
                         .done(function(data) {
                             if (data.status === 'success') {
                                 // clear the grid select recid
@@ -226,7 +206,7 @@ window.loadRAVehiclesGrid = function () {
                     }
 
                     // save this records in json Data
-                    saveActiveCompData(records, app.raFlowPartTypes.vehicles)
+                    saveActiveCompData(records, "vehicles")
                         .done(function(data) {
                             if (data.status === 'success') {
                                 // clear the grid select recid
@@ -413,15 +393,15 @@ window.loadRAVehiclesGrid = function () {
 
     // load the existing data in vehicles component
     setTimeout(function () {
+        var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
         var grid = w2ui.RAVehiclesGrid;
-        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.vehicles);
-        if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            grid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
+
+        if (compData) {
+            grid.records = compData;
             reassignGridRecids(grid.name);
 
             // lock the grid until "Have vehicles?" checkbox checked.
             lockOnGrid(grid.name);
-
         } else {
             grid.clear();
         }

@@ -155,7 +155,7 @@ window.saveActiveCompData = function (compData, compID) {
             if (data.status != "error") {
                 console.log("data has been saved for: ", app.raflow.activeFlowID, ", compID: ", compID);
                 // update local data with server's response data
-                app.raflow.data[app.raflow.activeFlowID] = data.record;
+                app.raflow.data[data.record.FlowID] = data.record;
             } else {
                 console.error(data.message);
             }
@@ -342,10 +342,9 @@ window.loadTargetSection = function (target, activeCompID) {
     }
 
     // get part type from the class index
-    var partType = $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").index() + 1;
     if (modCompData) {
         // save the content on server for active component
-        saveActiveCompData(modCompData, partType);
+        saveActiveCompData(modCompData, activeCompID);
     }
 
     // hide active component

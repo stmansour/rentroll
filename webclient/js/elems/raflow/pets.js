@@ -2,7 +2,7 @@
     RACompConfig, sliderContentDivLength, reassignGridRecids,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
-    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
+    getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
     getPetFormInitRecord
 */
@@ -47,26 +47,6 @@ window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
 };
 
 window.loadRAPetsGrid = function () {
-
-    var partType = app.raFlowPartTypes.pets;
-    var partTypeIndex = getRAFlowPartTypeIndex(partType);
-
-    if (partTypeIndex < 0){
-        return;
-    }
-
-    // Fetch data from the server if there is any record available.
-    getRAFlowPartData(partType)
-        .done(function(data){
-            if(data.status === 'success'){
-                app.raflow.data[app.raflow.activeFlowID][partTypeIndex].Data = data.record.Data;
-            }else {
-                console.log(data.message);
-            }
-        })
-        .fail(function(data){
-            console.log("failure" + data);
-        });
 
     // if form is loaded then return
     if (!("RAPetsGrid" in w2ui)) {
@@ -156,7 +136,7 @@ window.loadRAPetsGrid = function () {
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
+                    saveActiveCompData(recordsData, "pets")
                     .done(function(data) {
                         if (data.status === 'success') {
                             // if null
@@ -201,7 +181,7 @@ window.loadRAPetsGrid = function () {
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, app.raFlowPartTypes.pets)
+                    saveActiveCompData(recordsData, "pets")
                     .done(function(data) {
                         if (data.status === 'success') {
                             // clear the grid select recid
@@ -243,7 +223,7 @@ window.loadRAPetsGrid = function () {
                     }
 
                     // save this records in json Data
-                    saveActiveCompData(records, app.raFlowPartTypes.pets)
+                    saveActiveCompData(records, "pets")
                     .done(function(data) {
                         if (data.status === 'success') {
                             // clear the grid select recid
@@ -417,15 +397,15 @@ window.loadRAPetsGrid = function () {
 
     // load the existing data in pets component
     setTimeout(function () {
+        var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
         var grid = w2ui.RAPetsGrid;
-        var i = getRAFlowPartTypeIndex(app.raFlowPartTypes.pets);
-        if (i >= 0 && app.raflow.data[app.raflow.activeFlowID][i].Data) {
-            grid.records = app.raflow.data[app.raflow.activeFlowID][i].Data;
+
+        if (compData) {
+            grid.records = compData;
             reassignGridRecids(grid.name);
 
             // lock the grid until "Have pets?" checkbox checked.
             lockOnGrid(grid.name);
-
         } else {
             grid.clear();
         }

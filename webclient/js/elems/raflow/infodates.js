@@ -57,8 +57,7 @@ window.loadRADatesForm = function () {
 
     // load the existing data in dates component
     setTimeout(function () {
-        var partKey = "dates";
-        var compData = getRAFlowCompData(partKey, app.raflow.activeFlowID);
+        var compData = getRAFlowCompData("dates", app.raflow.activeFlowID);
 
         if (compData) {
             w2ui.RADatesForm.record = compData;
