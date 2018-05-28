@@ -116,9 +116,12 @@ type RAPeopleFlowData struct {
 	PriorReasonForMoving   string // Reason for moving
 
 	// Have you ever been
-	Evicted    bool // Evicted
-	Convicted  bool // Arrested or convicted of a Convicted
-	Bankruptcy bool // Declared Bankruptcy
+	Evicted       bool // Evicted
+	EvictedDes    string
+	Convicted     bool // Arrested or convicted of a Convicted
+	ConvictedDes  string
+	Bankruptcy    bool // Declared Bankruptcy
+	BankruptcyDes string
 
 	// Emergency contact information
 	EmergencyContactName    string
