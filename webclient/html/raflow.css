@@ -58,7 +58,7 @@
 #progressbar #steps-list li {
     display: block;
     float: left;
-    width: 16.66667%;
+    width: calc(100% / 8);
     text-align: center;
     height: 100%;
 }
@@ -386,4 +386,10 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
 
 .ra-form-component#rentables .grid-container {
     height: calc(100% - 90px);
+}
+
+.ra-people-section-title {
+    padding: 20px 3px 3px 3px;
+    font-weight: bold;
+    color: #777;
 }
