@@ -28,7 +28,7 @@ jshint:
 	@${COUNTOL} "jshint --extract=always ./webclient/html/*.html ./webclient/html/test/*.html ./webclient/js/elems/*.js"
 	@rm -rf fail
 
-try: build db4
+try: build db4 githook
 
 db4:
 	cd tools/dbgen;./dbgen -f db4.json
@@ -124,5 +124,8 @@ secure:
 	@rm -f config.json confdev.json confprod.json
 	@if [ -d ${DIST} ]; then find ${DIST}/ -name config.json -exec rm {} \;; fi
 
-githook:
+githook: addgspattern
 	./linkgithook.sh
+
+addgspattern
+	./addgspattern.sh
