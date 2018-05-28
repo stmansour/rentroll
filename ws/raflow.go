@@ -326,8 +326,8 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Pets:        []RAPetsFlowData{},
 		Vehicles:    []RAVehiclesFlowData{},
 		Rentables:   []RARentablesFlowData{},
-		ParentChild: []RAParentChildFlowData{},
-		Tie:         []RATieFlowData{},
+		ParentChild: RAParentChildFlowData{},
+		Tie:         RATieFlowData{},
 	}
 
 	// get json marshelled byte data for above struct
