@@ -277,8 +277,11 @@ window.loadRAPeopleForm = function () {
                 {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
                 {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
                 {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
+				{name: 'EvictedDes', type: 'text', required: false},
                 {name: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
+				{name: 'ConvictedDes', type: 'text', required: false},
                 {name: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
+				{name: 'BankruptcyDes', type: 'text', required: false},
                 {name: 'Employer', type: 'text', required: true},
                 {name: 'Phone', type: 'text', required: true},
                 {name: 'Address', type: 'text', required: true},
@@ -383,6 +386,12 @@ window.loadRAPeopleForm = function () {
                         this.get("IsCompany").required = false;
                     }
 
+					$("#EvictedDes").prop("disabled", !this.record.Evicted);
+
+					$("#ConvictedDes").prop("disabled", !this.record.Convicted);
+
+					$("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+
                     manageBGInfoFormFields(this.record);
 
                     this.refresh();
@@ -407,6 +416,12 @@ window.loadRAPeopleForm = function () {
                 } else {
                     $(form.box).find("button[name=delete]").removeClass("hidden");
                 }
+
+				$("#EvictedDes").prop("disabled", !this.record.Evicted);
+
+				$("#ConvictedDes").prop("disabled", !this.record.Convicted);
+
+				$("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
             }
         });
     }
@@ -544,8 +559,11 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         PriorLengthOfResidency: 0,
         PriorReasonForMoving: "",
         Evicted: false,
+		EvictedDes: "",
         Convicted: false,
+		ConvictedDes: "",
         Bankruptcy: false,
+		BankruptcyDes: "",
         Employer: "",
         Phone: "",
         Address: "",
