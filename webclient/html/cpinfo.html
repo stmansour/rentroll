@@ -1,9 +1,25 @@
-<h1>Close Period</h1>
 <p></p>
 <table>
-	<tr><td width="20"></td><td>Close Task List</td><td>name (tlid)</td></tr>
-	<tr><td width="20"></td><td>Last closed period</td><td> d1 - d2 </td></tr>
-	<tr><td width="20"></td><td>Next close period</td><td> you must define a tasklist for the business</td></tr>
+	<tr><td width="20"></td><td><h1>Close Period</h1></td><td></td></tr>
+	<tr><td colspan="3" height="8"></td></tr>
+	<tr><td width="20"></td><td>Close Task List</td>
+		<td><span id="closePeriodTL">loading...</span></td>
+	</tr>
+	<tr><td width="20"></td><td>Last closed period</td>
+		<td><span id="closePeriodLCP">loading...</span></td>
+	</tr>
+	<tr><td width="20"></td><td>Close period</td>
+		<td><span id="closePeriodNCP">loading...</span></td>
+	</tr>
 	<tr><td colspan="3" height="20"></td></tr>
-	<tr><td></td><td colspan="2"><button class="w2ui-btn" onclick='closePeriodClose();'>Close Period d1 - d2</button>
+	<tr><td></td><td colspan="2">
+		<button class="w2ui-btn"
+				id="closePeriodSubmit" 
+				name="closePeriodSubmit" 
+				onclick='closePeriodClose();'
+				disabled="">
+			Close Period
+			</button>
+		</td>
+	</tr>
 </table>

@@ -29,7 +29,10 @@ func CreateAssessmentInstances(item *tws.Item) {
 //-----------------------------------------------------------------------------
 func CreateAsmInstCore(ctx context.Context, now *time.Time) {
 	expire := now.Add(10 * time.Minute)
-	s := rlib.SessionNew("BotToken-"+WorkerAsmtDes, WorkerAsmtDes, WorkerAsmtDes, WorkerAsmt, "", -1, &expire)
+	s := rlib.SessionNew("BotToken-"+rlib.BotReg[rlib.WorkerAsmt].Designator,
+		rlib.BotReg[rlib.WorkerAsmt].Designator,
+		rlib.BotReg[rlib.WorkerAsmt].Designator,
+		rlib.WorkerAsmt, "", -1, &expire)
 	ctx = rlib.SetSessionContextKey(ctx, s)
 
 	// add any new recurring instances for this day...

@@ -262,16 +262,16 @@ window.loadRAPeopleForm = function () {
                 {name: 'LastName', type: 'text', required: true},
                 {name: 'IsCompany', type: 'checkbox', required: false},
                 {name: 'CompanyName', type: 'text', required: false},
-                {name: 'BirthDate', type: 'date', required: true}, // Date of births of applicants
-                {name: 'SSN', type: 'text', required: true}, // Social security number of applicants
+                {name: 'BirthDate', type: 'date', required: false}, // Date of births of applicants
+                {name: 'SSN', type: 'text', required: false}, // Social security number of applicants
                 {name: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants
-                {name: 'TelephoneNo', type: 'text', required: true}, // Telephone no of applicants
-                {name: 'EmailAddress', type: 'email', required: true}, // Email Address of applicants
-                {name: 'CurrentAddress', type: 'text', required: true}, // Current Address
-                {name: 'CurrentLandLordName', type: 'text', required: true}, // Current landlord's name
-                {name: 'CurrentLandLordPhoneNo', type: 'text', required: true}, // Current landlord's phone number
-                {name: 'CurrentLengthOfResidency', type: 'int', required: true}, // Length of residency at current address
-                {name: 'CurrentReasonForMoving', type: 'text', required: true}, // Reason of moving from current address
+                {name: 'TelephoneNo', type: 'text', required: false}, // Telephone no of applicants
+                {name: 'EmailAddress', type: 'email', required: false}, // Email Address of applicants
+                {name: 'CurrentAddress', type: 'text', required: false}, // Current Address
+                {name: 'CurrentLandLordName', type: 'text', required: false}, // Current landlord's name
+                {name: 'CurrentLandLordPhoneNo', type: 'text', required: false}, // Current landlord's phone number
+                {name: 'CurrentLengthOfResidency', type: 'int', required: false}, // Length of residency at current address
+                {name: 'CurrentReasonForMoving', type: 'text', required: false}, // Reason of moving from current address
                 {name: 'PriorAddress', type: 'text'}, // Prior Address
                 {name: 'PriorLandLordName', type: 'text'}, // Prior landlord's name
                 {name: 'PriorLandLordPhoneNo', type: 'text'}, // Prior landlord's phone number
@@ -280,20 +280,20 @@ window.loadRAPeopleForm = function () {
                 {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
                 {name: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
                 {name: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
-                {name: 'Employer', type: 'text', required: true},
-                {name: 'Phone', type: 'text', required: true},
-                {name: 'Address', type: 'text', required: true},
+                {name: 'Employer', type: 'text', required: false},
+                {name: 'Phone', type: 'text', required: false},
+                {name: 'Address', type: 'text', required: false},
                 {name: 'Address2', type: 'text', required: false},
                 {name: 'City', type: 'text', required: false},
                 {name: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false},
                 {name: 'PostalCode', type: 'text', required: false},
                 {name: 'Country', type: 'text', required: false},
-                {name: 'Position', type: 'text', required: true},
-                {name: 'GrossWages', type: 'money', required: true},
+                {name: 'Position', type: 'text', required: false},
+                {name: 'GrossWages', type: 'money', required: false},
                 {name: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
-                {name: 'EmergencyContactName', type: 'text', required: true}, // Name of emergency contact
-                {name: 'EmergencyContactPhone', type: 'text', required: true}, // Phone number of emergency contact
-                {name: 'EmergencyContactAddress', type: 'text', required: true} // Address of emergency contact
+                {name: 'EmergencyContactName', type: 'text', required: false}, // Name of emergency contact
+                {name: 'EmergencyContactPhone', type: 'text', required: false}, // Phone number of emergency contact
+                {name: 'EmergencyContactAddress', type: 'text', required: false} // Address of emergency contact
             ],
             actions: {
                 save: function () {

@@ -59,7 +59,6 @@ window.buildPageElementsWrapper = function (uitype) {
     buildLoginForm();
     buildTaskListElements();
     buildTaskListDefElements();
-    buildClosePeriodElements();
     finishForms();
 };
 

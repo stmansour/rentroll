@@ -24,13 +24,16 @@ import (
 // to be called again the next day.
 //-----------------------------------------------------------------------------
 func TLChecker(item *tws.Item) {
-	rlib.Ulog("TLChecker\n") // log the fact that we're running
+	// rlib.Ulog("TLChecker\n") // log the fact that we're running
 
 	checkInterval := 2 * time.Minute // this may come from a config file in the future
 	tws.ItemWorking(item)
 	now := time.Now()
 	expire := now.Add(checkInterval)
-	s := rlib.SessionNew("BotToken-"+TLReportBotDes, TLReportBotDes, TLReportBotDes, TLReportBot, "", -1, &expire)
+	s := rlib.SessionNew("BotToken-"+rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.TLReportBot, "", -1, &expire)
 	ctx := context.Background()
 	ctx = rlib.SetSessionContextKey(ctx, s)
 	TLCheckerCore(ctx)
@@ -56,6 +59,7 @@ func TLChecker(item *tws.Item) {
 //    ctx  - context which may include a database transaction in progress
 //-----------------------------------------------------------------------------
 func TLCheckerCore(ctx context.Context) error {
+	funcname := "TLCheckerCore"
 	var err error
 	var rows *sql.Rows
 	now := time.Now()
@@ -94,6 +98,7 @@ func TLCheckerCore(ctx context.Context) error {
 	for rows.Next() {
 		var a rlib.TaskList
 		if err = rlib.ReadTaskLists(rows, &a); err != nil {
+			rlib.LogAndPrintError(funcname, err)
 			return err
 		}
 
@@ -114,6 +119,7 @@ func TLCheckerCore(ctx context.Context) error {
 		// rlib.Console("ri.BID = %d, ri.ID = %d\n", ri.Bid, ri.ID)
 		var xbiz rlib.XBusiness
 		if err = rlib.GetXBiz(ri.Bid, &xbiz); err != nil {
+			rlib.LogAndPrintError(funcname, err)
 			return err
 		}
 		ri.Xbiz = &xbiz
@@ -122,7 +128,10 @@ func TLCheckerCore(ctx context.Context) error {
 		for i := 0; i < len(sa); i++ {
 			to := strings.TrimSpace(sa[i])
 			if rlib.ValidEmailAddress(to) {
-				TLReporterSendEmail(ctx, to, &a, d, &ri)
+				err = TLReporterSendEmail(ctx, to, &a, d, &ri)
+				if err != nil {
+					rlib.LogAndPrintError(funcname, err)
+				}
 			}
 		}
 	}
@@ -173,7 +182,7 @@ func TLReporterSendEmail(ctx context.Context, e string, a *rlib.TaskList, d *gom
 		DtDone:       a.DtDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
 		DtPreDone:    a.DtPreDone.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
 		DtNextNotify: n.In(rlib.RRdb.Zone).Format(rlib.RRDATETIMERPTFMT),
-		BotName:      TLReportBotDes,
+		BotName:      rlib.BotReg[rlib.TLReportBot].Designator,
 	}
 
 	//-------------------------------------------------

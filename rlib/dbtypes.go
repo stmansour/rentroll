@@ -180,6 +180,18 @@ type Period struct {
 	Checked bool // used by Period overlap check functions
 }
 
+// ClosePeriod defines a date and tasklist associated with a period close
+type ClosePeriod struct {
+	CPID        int64
+	BID         int64
+	TLID        int64
+	Dt          time.Time
+	LastModTime time.Time
+	LastModBy   int64
+	CreateTS    time.Time
+	CreateBy    int64
+}
+
 // Task is an indivually tracked work item.
 // FLAGS are defined as follows:
 //    1<<0 pre-completion required (if 0 then there is no pre-completion required)
@@ -1802,6 +1814,11 @@ type RRprepSQL struct {
 	CheckForTLDInstances                    *sql.Stmt
 	GetAllParentTaskLists                   *sql.Stmt
 	GetTaskListInstanceInRange              *sql.Stmt
+	GetClosePeriod                          *sql.Stmt
+	GetLastClosePeriod                      *sql.Stmt
+	InsertClosePeriod                       *sql.Stmt
+	UpdateClosePeriod                       *sql.Stmt
+	DeleteClosePeriod                       *sql.Stmt
 }
 
 // AllTables is an array of strings containing the names of every table in the RentRoll database

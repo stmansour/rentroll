@@ -159,6 +159,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "asm", Handler: SvcFormHandlerAssessment, NeedBiz: true, NeedSession: true},
 	{Cmd: "asms", Handler: SvcSearchHandlerAssessments, NeedBiz: true, NeedSession: true},
 	{Cmd: "authn", Handler: SvcAuthenticate, NeedBiz: false, NeedSession: false},
+	{Cmd: "closeperiod", Handler: SvcHandlerClosePeriod, NeedBiz: true, NeedSession: true},
 	{Cmd: "dep", Handler: SvcHandlerDepository, NeedBiz: true, NeedSession: true},
 	{Cmd: "depmeth", Handler: SvcHandlerDepositMethod, NeedBiz: true, NeedSession: true},
 	{Cmd: "deposit", Handler: SvcHandlerDeposit, NeedBiz: true, NeedSession: true},

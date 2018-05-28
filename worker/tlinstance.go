@@ -23,7 +23,11 @@ func TLInstanceBot(item *tws.Item) {
 	tws.ItemWorking(item)
 	now := time.Now()
 	expire := now.Add(checkInterval)
-	s := rlib.SessionNew("BotToken-"+TLReportBotDes, TLReportBotDes, TLReportBotDes, TLReportBot, "", -1, &expire)
+	s := rlib.SessionNew("BotToken-"+
+		rlib.BotReg[rlib.TLInstanceBot].Designator,
+		rlib.BotReg[rlib.TLInstanceBot].Designator,
+		rlib.BotReg[rlib.TLInstanceBot].Designator,
+		rlib.TLInstanceBot, "", -1, &expire)
 	ctx := context.Background()
 	ctx = rlib.SetSessionContextKey(ctx, s)
 	TLInstanceBotCore(ctx, &now)

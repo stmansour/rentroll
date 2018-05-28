@@ -166,15 +166,22 @@ dojsonPOST "http://localhost:8270/v1/task/1/4" "request" "e3"  "WebService--Dele
 #
 #  Expected Results:
 #	f0 - Get the task list for TaskList 2
-#   f1 - 
-#   f2 - 
-#   f3 - 
-#   f4 - 
-#   f5 - 
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%7D" > request
 dorrtest "f0" "-b ${BUD} -r 25,1" "Tasklist"
 
+#------------------------------------------------------------------------------
+#  TEST g
+#  TaskList close period
+#
+#  Scenario:
+#		Call close period based on task list 1
+#
+#  Expected Results:
+#	f0 - Get the task list for TaskList 2
+#------------------------------------------------------------------------------
+echo "%7B%22cmd%22%3A%22get%22%7D" > request
+dojsonPOST "http://localhost:8270/v1/closeperiod/1" "request" "g0"  "WebService--Get_Tasks"
 
 #------------------------------------------------------------------------------
 #  FINISH

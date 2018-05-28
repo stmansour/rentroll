@@ -7,43 +7,30 @@ import (
 	"tws"
 )
 
-// WorkerAsmt et al., are UIDs and Designators for automated processes. The negative number
-// space is reserved for automated processes.
-const (
-	WorkerAsmt           = -1
-	WorkerAsmtDes        = "AssessmentBot"
-	TaskManual           = -2
-	WorkerTskMan         = "ManualTaskBot"
-	RARBcacheBot         = -3
-	RARBcacheBotDes      = "RARBcacheBot"
-	SecDepCacheBot       = -4
-	SecDepCacheBotDes    = "SecDepCacheBot"
-	AcctSliceCacheBot    = -5
-	AcctSliceCacheBotDes = "AcctSliceCacheBot"
-	ARSliceCacheBot      = -6
-	ARSliceCacheBotDes   = "ARSliceCacheBot"
-	TLReportBot          = -7
-	TLReportBotDes       = "TLReportBot"
-)
-
 // Worker describes a tws-based worker function
 type Worker struct {
-	Designator string          // short name
-	Name       string          // name of this worker
-	UID        int64           // uid should be a negative number, unique among all workers
-	FLAGS      uint64          // 1<<0 = task availability: 0 means it cannot be used as a task, 1 means it can
-	Handler    func(*tws.Item) // function that does the work
+	Bot     rlib.BotRegistryEntry // has uid,
+	FLAGS   uint64                // 1<<0 = task availability: 0 means it cannot be used as a task, 1 means it can
+	Handler func(*tws.Item)       // function that does the work
 }
 
 // WorkerRegistry is where workers register themselves to the infrastructure
 var WorkerRegistry = map[string]Worker{
-	WorkerAsmtDes:        {WorkerAsmtDes, "Assessment Instance Bot", WorkerAsmt, uint64(0), CreateAssessmentInstances},
-	WorkerTskMan:         {WorkerTskMan, "Manual Task Bot", TaskManual, uint64(1), ProcessManualTask},
-	RARBcacheBotDes:      {RARBcacheBotDes, "Clean RARBalance Cache", RARBcacheBot, uint64(0), CleanRARBalanceCache},
-	SecDepCacheBotDes:    {SecDepCacheBotDes, "Clean SecDepBalance Cache", SecDepCacheBot, uint64(0), CleanSecDepBalanceCache},
-	AcctSliceCacheBotDes: {AcctSliceCacheBotDes, "Clean AcctSlice Cache", AcctSliceCacheBot, uint64(0), CleanAcctSliceCache},
-	ARSliceCacheBotDes:   {ARSliceCacheBotDes, "Clean ARSlice Cache", ARSliceCacheBot, uint64(0), CleanARSliceCache},
-	TLReportBotDes:       {TLReportBotDes, "Task List Checker", TLReportBot, uint64(0), TLChecker},
+	//------------------------------------------------------------------
+	// The following workers ARE NOT available to users for tasklists
+	//------------------------------------------------------------------
+	rlib.BotReg[rlib.WorkerAsmt].Designator:        {rlib.BotReg[rlib.WorkerAsmt], uint64(0), CreateAssessmentInstances},
+	rlib.BotReg[rlib.RARBcacheBot].Designator:      {rlib.BotReg[rlib.RARBcacheBot], uint64(0), CleanRARBalanceCache},
+	rlib.BotReg[rlib.SecDepCacheBot].Designator:    {rlib.BotReg[rlib.SecDepCacheBot], uint64(0), CleanSecDepBalanceCache},
+	rlib.BotReg[rlib.AcctSliceCacheBot].Designator: {rlib.BotReg[rlib.AcctSliceCacheBot], uint64(0), CleanAcctSliceCache},
+	rlib.BotReg[rlib.ARSliceCacheBot].Designator:   {rlib.BotReg[rlib.ARSliceCacheBot], uint64(0), CleanARSliceCache},
+	rlib.BotReg[rlib.TLReportBot].Designator:       {rlib.BotReg[rlib.TLReportBot], uint64(0), TLChecker},
+	rlib.BotReg[rlib.TLInstanceBot].Designator:     {rlib.BotReg[rlib.TLInstanceBot], uint64(0), TLInstanceBot},
+
+	//------------------------------------------------------------------
+	// The following workers ARE available to users for tasklists
+	//------------------------------------------------------------------
+	rlib.BotReg[rlib.TaskManual].Designator: {rlib.BotReg[rlib.TaskManual], uint64(1), ProcessManualTask},
 }
 
 // Init registers the TWS functions needed by RentRoll
@@ -78,7 +65,7 @@ func InitCore(w map[string]Worker) {
 				ActivateTime: time.Now(),
 			}
 			tws.InsertItem(&item)
-			rlib.Ulog("Registered Worker: %s\n", v.Name)
+			rlib.Ulog("Registered Worker: %s\n", v.Bot.Name)
 		}
 	}
 }

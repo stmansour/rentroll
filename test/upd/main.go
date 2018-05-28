@@ -109,6 +109,7 @@ func main() {
 	updateRUser(ctx, &biz)
 	updateRAR(ctx, &biz)
 	Tasks(ctx, &biz)
+	CheckBotNames()
 }
 
 func updateRAR(ctx context.Context, biz *rlib.Business) {

@@ -47,7 +47,7 @@ window.buildSidebar = function(flag) {
                             // { id: 'prepnotice',   text: 'Prepare Notices',               icon: 'far fa-file-alt', hint: 'Prepare Notices' },
                     ]
                 },
-                { id: 'acct', text: 'Accounting', img: 'icon-folder', expanded: false, group: true,
+                { id: 'acct', text: 'Accounting', img: 'icon-folder', expanded: true, group: true,
                     nodes: [
                             { id: 'closePeriod', text: 'Close Period',                   icon: 'far fa-caret-square-down', hint: 'Close Period' },
                             { id: 'adjust',      text: 'Adjust Closed Period',           icon: 'fas fa-reply',       hint: 'Adjust Closed Period' },

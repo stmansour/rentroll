@@ -191,6 +191,24 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// Close Period
+	//==========================================
+	flds = "CPID,BID,TLID,Dt,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["ClosePeriod"] = flds
+	RRdb.Prepstmt.GetClosePeriod, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ClosePeriod WHERE CPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetLastClosePeriod, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ClosePeriod WHERE BID=? ORDER BY Start DESC LIMIT 1")
+	Errcheck(err)
+
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertClosePeriod, err = RRdb.Dbrr.Prepare("INSERT INTO ClosePeriod (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateClosePeriod, err = RRdb.Dbrr.Prepare("UPDATE ClosePeriod SET " + s3 + " WHERE CPID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteClosePeriod, err = RRdb.Dbrr.Prepare("DELETE FROM ClosePeriod WHERE CPID=?")
+	Errcheck(err)
+
+	//==========================================
 	// Custom Attribute
 	//==========================================
 	flds = "CID,BID,Type,Name,Value,Units,CreateTS,CreateBy,LastModTime,LastModBy"
