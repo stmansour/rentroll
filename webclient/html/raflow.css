@@ -58,7 +58,7 @@
 #progressbar #steps-list li {
     display: block;
     float: left;
-    width: 11.667%;
+    width: calc(100% / 8);
     text-align: center;
     height: 100%;
 }
