@@ -387,3 +387,10 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
 .ra-form-component#rentables .grid-container {
     height: calc(100% - 90px);
 }
+
+.ra-people-section-title {
+    padding: 3px;
+    font-weight: bold;
+    color: #777;
+    padding-top: 20px;
+}
