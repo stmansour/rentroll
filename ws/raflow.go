@@ -14,11 +14,13 @@ import (
 
 // RAFlowJSONData holds the struct for all the parts being involed in rental agreement flow
 type RAFlowJSONData struct {
-	Dates     RADatesFlowData       `json:"dates"`
-	People    []RAPeopleFlowData    `json:"people"`
-	Pets      []RAPetsFlowData      `json:"pets"`
-	Vehicles  []RAVehiclesFlowData  `json:"vehicles"`
-	Rentables []RARentablesFlowData `json:"rentables"`
+	Dates       RADatesFlowData         `json:"dates"`
+	People      []RAPeopleFlowData      `json:"people"`
+	Pets        []RAPetsFlowData        `json:"pets"`
+	Vehicles    []RAVehiclesFlowData    `json:"vehicles"`
+	Rentables   []RARentablesFlowData   `json:"rentables"`
+	ParentChild []RAParentChildFlowData `json:"parentchild"`
+	Tie         []RATieFlowData         `json:"tie"`
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -130,6 +132,16 @@ type RAPeopleFlowData struct {
 
 	// RA Application information
 	Comment string // In an effort to accommodate you, please advise us of any special needs
+}
+
+// RAParentChildFlowData contains data in the Parent/Child part of RA flow
+type RAParentChildFlowData struct {
+	BID int64
+}
+
+// RATieFlowData contains data in the tie part of RA flow
+type RATieFlowData struct {
+	BID int64
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
@@ -278,6 +290,9 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		// return json marshalled for struct
 		return json.Marshal(&a)
 
+	// case rlib.ParentChildRAFlowPart:
+	// case rlib.TieRAFlowPart:
+
 	default:
 		// not valid option then return with nil data
 		return []byte(nil), fmt.Errorf("unrecognized part type in RA flow: %d", partType)
@@ -307,10 +322,12 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 			PossessionStart: rlib.JSONDate(currentDateTime),
 			PossessionStop:  rlib.JSONDate(nextYearDateTime),
 		},
-		People:    []RAPeopleFlowData{},
-		Pets:      []RAPetsFlowData{},
-		Vehicles:  []RAVehiclesFlowData{},
-		Rentables: []RARentablesFlowData{},
+		People:      []RAPeopleFlowData{},
+		Pets:        []RAPetsFlowData{},
+		Vehicles:    []RAVehiclesFlowData{},
+		Rentables:   []RARentablesFlowData{},
+		ParentChild: []RAParentChildFlowData{},
+		Tie:         []RATieFlowData{},
 	}
 
 	// get json marshelled byte data for above struct

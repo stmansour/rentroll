@@ -337,6 +337,10 @@ window.loadTargetSection = function (target, activeCompID) {
         case "rentables":
             modCompData = w2ui.RARentablesGrid.records;
             break;
+        case "parentchild":
+            break;
+        case "tie":
+            break;
         case "final":
             modCompData = null;
             break;

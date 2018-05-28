@@ -30,6 +30,16 @@ var RACompConfig = {
         w2uiComp: "RARentablesGrid",
         sliderWidth: 800
     },
+	"parentchild": {
+		loader: "loadRAParentChildSection",
+		w2uiComp: "RAParentChildGrid",
+		sliderWidth: 0
+	},
+	"tie": {
+		loader: "loadRATieSection",
+		w2uiComp: "RATieGrid",
+		sliderWidth: 0
+	},
     "final": {
         loader: "",
         w2uiComp: "",
