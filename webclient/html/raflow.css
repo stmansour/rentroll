@@ -389,8 +389,7 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
 }
 
 .ra-people-section-title {
-    padding: 3px;
+    padding: 20px 3px 3px 3px;
     font-weight: bold;
     color: #777;
-    padding-top: 20px;
 }
