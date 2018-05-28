@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Abort commit if mentioned pattern is staged.
+git secrets --pre_commit_hook -- "$@"
+
 # Regular expression for list of files which should not be commit in git
 FILES="**conf.*.json"
 

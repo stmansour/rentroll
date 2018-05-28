@@ -12,6 +12,7 @@
 MODFILE="dbqqqmods.sql"
 MYSQL="mysql --no-defaults"
 MYSQLDUMP="mysqldump --no-defaults"
+DBNAME="rentroll"
 
 #=====================================================
 #  History of db mods
@@ -381,12 +382,13 @@ declare -a dbs=(
 for f in "${dbs[@]}"
 do
     if [ -f ${f} ]; then
+    	echo "DROP DATABASE IF EXIST ${DBNAME}"
 		echo -n "${f}: loading... "
-		${MYSQL} rentroll < ${f}
+		${MYSQL} ${DBNAME} < ${f}
 		echo -n "updating... "
-		${MYSQL} rentroll < ${MODFILE}
+		${MYSQL} ${DBNAME} < ${MODFILE}
 		echo -n "saving... "
-		${MYSQLDUMP} rentroll > ${f}
+		${MYSQLDUMP} ${DBNAME} > ${f}
 		echo "done"
     else
 		echo "file not found: ${f}"

@@ -46,7 +46,7 @@ window.loadRAPeopleForm = function () {
                             w2ui.RAPeopleForm.record.FirstName = item.FirstName;
                             w2ui.RAPeopleForm.record.LastName = item.LastName;
                             w2ui.RAPeopleForm.record.MiddleName = item.MiddleName;
-                            w2ui.RAPeopleForm.record.CompanyName = item.CompanyName;
+                            w2ui.RAPeopleForm.record.Employer = item.Employer;
                             w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
                             return s;
                         },
@@ -72,7 +72,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'FirstName', type: 'text', required: true, html: {caption: "FirstName"}},
                 {name: 'LastName', type: 'text', required: true, html: {caption: "LastName"}},
                 {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
-                {name: 'CompanyName', type: 'text', required: true, html: {caption: "CompanyName"}},
+                {name: 'Employer', type: 'text', required: true, html: {caption: "Employer"}},
                 {name: 'IsCompany', type: 'int', required: true, html: {caption: "IsCompany"}}
             ],
             actions: {
@@ -128,7 +128,7 @@ window.loadRAPeopleForm = function () {
                         if (!record.IsCompany) {
                             return getFullName(record);
                         } else {
-                            return record.CompanyName;
+                            return record.Employer;
                         }
 
                     }
@@ -261,9 +261,8 @@ window.loadRAPeopleForm = function () {
                 {name: 'MiddleName', type: 'text', required: true},
                 {name: 'LastName', type: 'text', required: true},
                 {name: 'IsCompany', type: 'checkbox', required: false},
-                {name: 'CompanyName', type: 'text', required: false},
                 {name: 'BirthDate', type: 'date', required: false}, // Date of births of applicants
-                {name: 'SSN', type: 'text', required: false}, // Social security number of applicants
+                {name: 'SSN', type: 'text', required: true}, // Social security number of applicants
                 {name: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants
                 {name: 'TelephoneNo', type: 'text', required: false}, // Telephone no of applicants
                 {name: 'EmailAddress', type: 'email', required: false}, // Email Address of applicants
@@ -278,11 +277,14 @@ window.loadRAPeopleForm = function () {
                 {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
                 {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
                 {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
+		{name: 'EvictedDes', type: 'text', required: false},
                 {name: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
+		{name: 'ConvictedDes', type: 'text', required: false},
                 {name: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
-                {name: 'Employer', type: 'text', required: false},
-                {name: 'Phone', type: 'text', required: false},
-                {name: 'Address', type: 'text', required: false},
+		{name: 'BankruptcyDes', type: 'text', required: false},
+                {name: 'Employer', type: 'text', required: true},
+                {name: 'Phone', type: 'text', required: true},
+                {name: 'Address', type: 'text', required: true},
                 {name: 'Address2', type: 'text', required: false},
                 {name: 'City', type: 'text', required: false},
                 {name: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false},
@@ -374,15 +376,21 @@ window.loadRAPeopleForm = function () {
                         this.get("FirstName").required = false;
                         this.get("MiddleName").required = false;
                         this.get("LastName").required = false;
-                        this.get("CompanyName").required = true;
+                        this.get("Employer").required = true;
                         this.get("IsCompany").required = true;
                     } else {
                         this.get("FirstName").required = true;
                         this.get("MiddleName").required = true;
                         this.get("LastName").required = true;
-                        this.get("CompanyName").required = false;
+                        this.get("Employer").required = false;
                         this.get("IsCompany").required = false;
                     }
+
+					$("#EvictedDes").prop("disabled", !this.record.Evicted);
+
+					$("#ConvictedDes").prop("disabled", !this.record.Convicted);
+
+					$("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
 
                     manageBGInfoFormFields(this.record);
 
@@ -408,6 +416,12 @@ window.loadRAPeopleForm = function () {
                 } else {
                     $(form.box).find("button[name=delete]").removeClass("hidden");
                 }
+
+				$("#EvictedDes").prop("disabled", !this.record.Evicted);
+
+				$("#ConvictedDes").prop("disabled", !this.record.Convicted);
+
+				$("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
             }
         });
     }
@@ -427,7 +441,7 @@ window.loadRAPeopleForm = function () {
 // It set RABGInfoForm header title
 window.setRABGInfoFormHeader = function (record) {
     if (record.IsCompany) {
-        w2ui.RABGInfoForm.header = 'Background Information - ' + record.CompanyName;
+        w2ui.RABGInfoForm.header = 'Background Information - ' + record.Employer;
     } else {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
     }
@@ -529,7 +543,6 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         MiddleName: "",
         LastName: "",
         IsCompany: false,
-        CompanyName: "",
         BirthDate: "",
         SSN: "",
         DriverLicNo: "",
@@ -546,11 +559,19 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         PriorLengthOfResidency: 0,
         PriorReasonForMoving: "",
         Evicted: false,
+		EvictedDes: "",
         Convicted: false,
+		ConvictedDes: "",
         Bankruptcy: false,
+		BankruptcyDes: "",
         Employer: "",
         Phone: "",
         Address: "",
+        Address2: "",
+        City: "",
+        State: "",
+        PostalCode: "",
+        Country: "",
         Position: "",
         GrossWages: 0,
         Comment: "",
@@ -606,7 +627,7 @@ window.openNewTransactantForm = function () {
 //
 // @params
 //   item = an object assumed to have a FirstName, MiddleName, LastName,
-//          IsCompany, and CompanyName.
+//          IsCompany, and Employer.
 // @return - the name to render
 //-----------------------------------------------------------------------------
 window.acceptTransactant = function () {
@@ -698,7 +719,7 @@ window.manageBGInfoFormFields = function (record) {
         setNotRequiredFields(listOfNotRequiredFields, true);
     }
 
-    var listOfCompanyFields = ["CompanyName"];
+    var listOfCompanyFields = ["Employer"];
 
     var listOfPersonFields = ["FirstName", "MiddleName", "LastName"];
 
@@ -765,7 +786,7 @@ window.setTrasanctantFields = function (transactantRec, record) {
     transactantRec.MiddleName = record.MiddleName;
     transactantRec.LastName = record.LastName;
     transactantRec.IsCompany = int_to_bool(record.IsCompany);
-    transactantRec.CompanyName = record.CompanyName;
+    transactantRec.Employer = record.CompanyName;
     transactantRec.BirthDate = record.DateofBirth;
     transactantRec.TelephoneNo = record.CellPhone;
     transactantRec.EmailAddress = record.PrimaryEmail;
@@ -796,7 +817,6 @@ window.addDummyBackgroundInfo = function () {
     record.FirstName = Math.random().toString(32).slice(2);
     record.MiddleName = Math.random().toString(32).slice(2);
     record.LastName = Math.random().toString(32).slice(2);
-    record.CompanyName = Math.random().toString(32).slice(2);
     record.BirthDate = "8/30/1990";
     record.SSN = Math.random().toString(32).slice(4);
     record.DriverLicNo = Math.random().toString(32).slice(2);

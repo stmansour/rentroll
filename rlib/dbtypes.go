@@ -1821,87 +1821,14 @@ type RRprepSQL struct {
 	DeleteClosePeriod                       *sql.Stmt
 }
 
-// AllTables is an array of strings containing the names of every table in the RentRoll database
-var AllTables = []string{
-	"AR",
-	"AssessmentTax",
-	"Assessments",
-	"AvailabilityTypes",
-	"Building",
-	"Business",
-	"BusinessAssessments",
-	"BusinessPaymentTypes",
-	"CommissionLedger",
-	"CustomAttr",
-	"CustomAttrRef",
-	"DemandSource",
-	"Deposit",
-	"DepositMethod",
-	"DepositPart",
-	"Depository",
-	"Expense",
-	"GLAccount",
-	"Invoice",
-	"InvoiceAssessment",
-	"InvoicePayor",
-	"Journal",
-	"JournalAllocation",
-	"JournalAudit",
-	"JournalMarker",
-	"JournalMarkerAudit",
-	"LeadSource",
-	"LedgerAudit",
-	"LedgerEntry",
-	"LedgerMarker",
-	"LedgerMarkerAudit",
-	"MRHistory",
-	"NoteList",
-	"NoteType",
-	"Notes",
-	"OtherDeliverables",
-	"PaymentType",
-	"Payor",
-	"Prospect",
-	"RatePlan",
-	"RatePlanOD",
-	"RatePlanRef",
-	"RatePlanRefRTRate",
-	"RatePlanRefSPRate",
-	"Receipt",
-	"ReceiptAllocation",
-	"Rentable",
-	"RentableMarketRate",
-	"RentableSpecialty",
-	"RentableSpecialtyRef",
-	"RentableStatus",
-	"RentableTypeRef",
-	"RentableTypeTax",
-	"RentableTypes",
-	"RentableUsers",
-	"RentalAgreement",
-	"RentalAgreementPayors",
-	"RentalAgreementPets",
-	"RentalAgreementRentables",
-	"RentalAgreementTax",
-	"RentalAgreementTemplate",
-	"SLString",
-	"StringList",
-	"SubAR",
-	"Tax",
-	"TaxRate",
-	"Transactant",
-	"User",
-	"Vehicle",
-}
-
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.
 // Use this call with extreme caution. There's no recovery.
 func DeleteBusinessFromDB(ctx context.Context, BID int64) (int64, error) {
 	// Might want to check context values here? like session, transaction?
 
 	noRecs := int64(0)
-	for i := 0; i < len(AllTables); i++ {
-		s := fmt.Sprintf("DELETE FROM %s WHERE BID=%d", AllTables[i], BID)
+	for k := range RRdb.DBFields {
+		s := fmt.Sprintf("DELETE FROM %s WHERE BID=%d", k, BID)
 		result, err := RRdb.Dbrr.Exec(s)
 		if err != nil {
 			Ulog("DeleteBusinessFromDB: error executing %q   -- err = %s\n", s, err.Error())

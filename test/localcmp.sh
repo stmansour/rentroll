@@ -1,7 +1,7 @@
 #!/bin/bash
 TOP=..
 BINDIR="${TOP}/tmp/rentroll"
-MYSQL="mysql"
+MYSQL="mysql --no-defaults"
 DBNAME="rentroll"
 DEF1="def1.sh"
 DEF2="def2.sh"
@@ -33,7 +33,7 @@ getSchema() {
 	rm -rf ${2}
 	mkdir -p "${2}"
 
-	mysql --no-defaults ${DBNAME} < cmds >t
+	${MYSQL} ${DBNAME} < cmds >t
 	# echo "DONE"
 
 cat > ${1} <<FEOF
@@ -50,7 +50,7 @@ for f in "\${tables[@]}"
 do
 	echo "\${f}" >> ${2}/TABLES
 	echo "DESCRIBE \${f};" > t
-	${MYSQL} --no-defaults ${DBNAME} < t > ${2}/\${f}
+	${MYSQL} ${DBNAME} < t > ${2}/\${f}
 done
 FEOF
 	#------------------------------------------------
@@ -64,7 +64,7 @@ FEOF
 #  INITIALIZE...
 #-----------------------------------------
 start=$(date)
-echo "DROP DATABSE rentroll" >dropdb
+echo "DROP DATABASE IF EXISTS rentroll; CREATE DATABASE rentroll;" | ${MYSQL}
 echo "show tables;" > cmds
 
 #--------------------------------------------------
@@ -77,17 +77,17 @@ getSchema "${DEF1}" "${REFDB}"
 #--------------------------------------------------
 declare -a dblist=(
 	'../tools/dbgen/empty.sql'
-    'acctbal/baltest.sql'
-    'payorstmt/pstmt.sql'
-    'rfix/rcptfixed.sql'
-    'rfix/receipts.sql'
-    'roller/prodrr.sql'
-    'rr/rr.sql'
-    'tws/rr.sql'
-    'webclient/webclientTest.sql'
-    'websvc1/asmtest.sql'
-    'websvc3/tasks.sql'
-    'workerasm/rr.sql'
+    # 'acctbal/baltest.sql'
+    # 'payorstmt/pstmt.sql'
+    # 'rfix/rcptfixed.sql'
+    # 'rfix/receipts.sql'
+    # 'roller/prodrr.sql'
+    # 'rr/rr.sql'
+    # 'tws/rr.sql'
+    # 'webclient/webclientTest.sql'
+    # 'websvc1/asmtest.sql'
+    # 'websvc3/tasks.sql'
+    # 'workerasm/rr.sql'
 )
 
 echo "SCHEMA DIFFS" > ${DBREPORT}
@@ -95,8 +95,8 @@ for db in ${dblist[@]}
 do
 	echo "------------------------------------------------------------------------" | tee -a ${DBREPORT}
 	echo "CHECKING SCHEMA: ${db}" | tee -a ${DBREPORT}
-	${BINDIR}/rrnewdb > /dev/null
-	mysql --no-defaults rentroll < ${db}
+	echo "DROP DATABASE IF EXISTS rentroll; CREATE DATABASE rentroll;" | ${MYSQL}
+	${MYSQL} rentroll < ${db}
 	getSchema "${DEF2}" "${CHECKDB}"
 	BADSCHCOUNT=0
 	ls -l ${REFDB} | awk '{print $9}' | while read f; do
@@ -121,7 +121,7 @@ do
 	if [ ${missing} -gt 0 ]; then
 		echo "Miscompare MISSING TABLES" | tee -a ${DBREPORT}
 		echo "The following tables are defined in the schema but are missing in ${db}:" | tee -a ${DBREPORT}
-		comm -23 ${CHECKDB}/TABLES ${REFDB}/TABLES | tee -a ${DBREPORT}
+		comm -13 ${CHECKDB}/TABLES ${REFDB}/TABLES | tee -a ${DBREPORT}
 		echo | tee -a ${DBREPORT}
 	fi
 
