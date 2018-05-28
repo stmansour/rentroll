@@ -14,13 +14,13 @@ import (
 
 // RAFlowJSONData holds the struct for all the parts being involed in rental agreement flow
 type RAFlowJSONData struct {
-	Dates       RADatesFlowData         `json:"dates"`
-	People      []RAPeopleFlowData      `json:"people"`
-	Pets        []RAPetsFlowData        `json:"pets"`
-	Vehicles    []RAVehiclesFlowData    `json:"vehicles"`
-	Rentables   []RARentablesFlowData   `json:"rentables"`
-	ParentChild []RAParentChildFlowData `json:"parentchild"`
-	Tie         []RATieFlowData         `json:"tie"`
+	Dates       RADatesFlowData       `json:"dates"`
+	People      []RAPeopleFlowData    `json:"people"`
+	Pets        []RAPetsFlowData      `json:"pets"`
+	Vehicles    []RAVehiclesFlowData  `json:"vehicles"`
+	Rentables   []RARentablesFlowData `json:"rentables"`
+	ParentChild RAParentChildFlowData `json:"parentchild"`
+	Tie         RATieFlowData         `json:"tie"`
 }
 
 // RADatesFlowData contains data in the dates part of RA flow

@@ -32,12 +32,12 @@ var RACompConfig = {
     },
 	"parentchild": {
 		loader: "loadRAParentChildSection",
-		w2uiComp: "RAParentChildGrid",
+		w2uiComp: "",
 		sliderWidth: 0
 	},
 	"tie": {
 		loader: "loadRATieSection",
-		w2uiComp: "RATieGrid",
+		w2uiComp: "",
 		sliderWidth: 0
 	},
     "final": {
