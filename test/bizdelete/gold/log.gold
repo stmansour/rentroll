@@ -1,6 +1,6 @@
 Test Name:    Business Delete Test
 Test Purpose: Creates many records for a business, then tests DeleteBusinessFromDB to remove them
-Date/Time:    Fri Jan  5 12:11:46 IST 2018
+Date/Time:    Wed May 23 13:19:59 PDT 2018
 
 Create new database...  successful
 CreatePhonebookLinkedBusiness: line 4 - Invalid Rent Cycle: a
@@ -51,4 +51,4 @@ CreateReceiptsFromCSV: line 6 -  Payment type is invalid: 999
 CreateReceiptsFromCSV: line 7 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 1999 does not exist
 CreateReceiptsFromCSV: line 8 -  error processing receipt: GenerateReceiptAllocations: Referenced assessment ID 999 does not exist
 ElementType value must be a number from 5 to 13
-Test completed: Fri Jan  5 12:11:59 IST 2018
+Test completed: Wed May 23 13:20:04 PDT 2018

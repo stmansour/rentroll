@@ -1,6 +1,6 @@
 Test Name:    Test03 - Multiple Rental Agreements for same user with vacancy
 Test Purpose: Generates separate databases for multiple rental agreements for same user
-Date/Time:    Thu Mar  1 14:31:57 IST 2018
+Date/Time:    Wed May 23 13:30:33 PDT 2018
 
 Create new database...  successful
-Test completed: Thu Mar  1 14:32:10 IST 2018
+Test completed: Wed May 23 13:30:39 PDT 2018

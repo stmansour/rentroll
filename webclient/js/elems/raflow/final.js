@@ -1,7 +1,7 @@
 /* global
     RACompConfig, sliderContentDivLength, reassignGridRecids,
     hideSliderContent, appendNewSlider, showSliderContentW2UIComp,
-    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAJAX,
+    loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowPartData,
     lockOnGrid,
 */

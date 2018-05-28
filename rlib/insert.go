@@ -238,7 +238,7 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 	// transaction... context
 
 	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
-	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.FLAGS, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.ClosePeriodTLID, a.FLAGS, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertBusiness)
 		defer stmt.Close()
@@ -2600,8 +2600,8 @@ func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
 	return rid, err
 }
 
-// InsertFlowPart inserts the flow part with data provided in "a".
-func InsertFlowPart(ctx context.Context, a *FlowPart) (int64, error) {
+// InsertFlow inserts the flow with data provided in "a".
+func InsertFlow(ctx context.Context, a *Flow) (int64, error) {
 	var (
 		rid = int64(0)
 		err error
@@ -2629,13 +2629,13 @@ func InsertFlowPart(ctx context.Context, a *FlowPart) (int64, error) {
 
 	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
 	// in mysql `json` type column
-	fields := []interface{}{a.BID, a.Flow, a.FlowID, a.PartType, []byte(a.Data), a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.FlowType, []byte(a.Data), a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertFlowPart)
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertFlow)
 		defer stmt.Close()
 		res, err = stmt.Exec(fields...)
 	} else {
-		res, err = RRdb.Prepstmt.InsertFlowPart.Exec(fields...)
+		res, err = RRdb.Prepstmt.InsertFlow.Exec(fields...)
 	}
 
 	// After getting result...
@@ -2643,10 +2643,10 @@ func InsertFlowPart(ctx context.Context, a *FlowPart) (int64, error) {
 		x, err := res.LastInsertId()
 		if err == nil {
 			rid = int64(x)
-			a.FlowPartID = rid
+			a.FlowID = rid
 		}
 	} else {
-		err = insertError(err, "FlowPart", *a)
+		err = insertError(err, "Flow", *a)
 	}
 	return rid, err
 }

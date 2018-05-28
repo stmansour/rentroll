@@ -904,6 +904,7 @@ type Business struct {
 	DefaultRentCycle      int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	DefaultProrationCycle int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
 	DefaultGSRPC          int64     // Default for every Rentable Type, useful in initializing the UI for new RentableTypes
+	ClosePeriodTLID       int64     // TaskList used for closing a period
 	FLAGS                 int64     // FLAGS -- 1<<0 = 0 - EDI disabled, 1=EDI enabled
 	LastModTime           time.Time // when was this record last written
 	LastModBy             int64     // employee UID (from phonebook) that modified it
@@ -1392,13 +1393,11 @@ type GLAccount struct {
 	// RARequired  int64     // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 }
 
-// FlowPart is a structure for to store temporarity flow data latest one
-type FlowPart struct {
-	FlowPartID  int64           // primary auto increment key
+// Flow is a structure for to store temporarity flow data latest one
+type Flow struct {
 	BID         int64           // Business unit associated with this FlowPart
-	Flow        string          // RA="Rental Agreement Flow" etc...
-	FlowID      string          // Unique ID across all relavant data for this flow -- UnixNano(32 bits) + User ID
-	PartType    int             // flow part type ("ASM","PET","VEHICLE")
+	FlowID      int64           // primary auto increment key
+	FlowType    string          // RA="Rental Agreement Flow" etc...
 	Data        json.RawMessage // json data in mysql
 	LastModTime time.Time       // last modified time
 	LastModBy   int64           // last modified by whom
@@ -1469,8 +1468,7 @@ type RRprepSQL struct {
 	DeleteTransactant                       *sql.Stmt
 	DeleteUser                              *sql.Stmt
 	DeleteVehicle                           *sql.Stmt
-	DeleteFlowPart                          *sql.Stmt
-	DeleteFlowPartsByFlowID                 *sql.Stmt
+	DeleteFlow                              *sql.Stmt
 	FindAgreementByRentable                 *sql.Stmt
 	FindTCIDByNote                          *sql.Stmt
 	FindTransactantByPhoneOrEmail           *sql.Stmt
@@ -1639,11 +1637,9 @@ type RRprepSQL struct {
 	GetVehiclesByBID                        *sql.Stmt
 	GetVehiclesByLicensePlate               *sql.Stmt
 	GetVehiclesByTransactant                *sql.Stmt
-	GetFlowIDsByUser                        *sql.Stmt
-	GetFlowPart                             *sql.Stmt
-	GetFlowPartByPartType                   *sql.Stmt
-	GetFlowPartsByFlowID                    *sql.Stmt
-	GetFlowPartsByFlow                      *sql.Stmt
+	GetFlow                                 *sql.Stmt // flow table
+	GetFlowsByFlowType                      *sql.Stmt // flow table
+	GetFlowIDsByUser                        *sql.Stmt // flow table
 	InsertAR                                *sql.Stmt
 	InsertAssessment                        *sql.Stmt
 	InsertAssessmentType                    *sql.Stmt
@@ -1698,7 +1694,7 @@ type RRprepSQL struct {
 	InsertTransactant                       *sql.Stmt
 	InsertUser                              *sql.Stmt
 	InsertVehicle                           *sql.Stmt
-	InsertFlowPart                          *sql.Stmt
+	InsertFlow                              *sql.Stmt // flow table
 	ReadRatePlan                            *sql.Stmt
 	ReadRatePlanRef                         *sql.Stmt
 	UIRAGrid                                *sql.Stmt
@@ -1745,7 +1741,7 @@ type RRprepSQL struct {
 	UpdateTransactant                       *sql.Stmt
 	UpdateUser                              *sql.Stmt
 	UpdateVehicle                           *sql.Stmt
-	UpdateFlowPart                          *sql.Stmt
+	UpdateFlowData                          *sql.Stmt // flow table
 	GetAssessmentInstancesByParent          *sql.Stmt
 	GetJournalAllocationsByASMID            *sql.Stmt
 	GetRentableTypeRefs                     *sql.Stmt

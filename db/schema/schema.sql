@@ -430,16 +430,17 @@ CREATE TABLE OtherDeliverables (
 
 CREATE TABLE Business (
     BID BIGINT NOT NULL AUTO_INCREMENT,
-    BUD VARCHAR(100) NOT NULL DEFAULT '',                                         -- Business Unit Designation
-    Name VARCHAR(100) NOT NULL DEFAULT '',                                        -- Business Full Name
-    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,                                 -- default for every rentable type - useful to initialize UI
-    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,                            -- default for every rentable type - useful to initialize UI
-    DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                                     -- default for every rentable type - useful to initialize UI
-    FLAGS BIGINT NOT NULL DEFAULT 0,                                              -- last bit =0(EDI disabled), =1(EDI enabled)
+    BUD VARCHAR(100) NOT NULL DEFAULT '',                       -- Business Unit Designation
+    Name VARCHAR(100) NOT NULL DEFAULT '',                      -- Business Full Name
+    DefaultRentCycle SMALLINT NOT NULL DEFAULT 0,               -- default for every rentable type - useful to initialize UI
+    DefaultProrationCycle SMALLINT NOT NULL DEFAULT 0,          -- default for every rentable type - useful to initialize UI
+    DefaultGSRPC SMALLINT NOT NULL DEFAULT 0,                   -- default for every rentable type - useful to initialize UI
+    ClosePeriodTLID BIGINT NOT NULL DEFAULT 0,                  -- The tasklist needed for closing a period
+    FLAGS BIGINT NOT NULL DEFAULT 0,                            -- last bit =0(EDI disabled), =1(EDI enabled)
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
-    LastModBy BIGINT NOT NULL DEFAULT 0,                                          -- employee UID (from phonebook) that modified it
-    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                        -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0,                                           -- employee UID (from phonebook) that created this record
+    LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+    CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
     PRIMARY KEY (BID)
 );
 --    ParkingPermitInUse SMALLINT NOT NULL DEFAULT 0,           -- yes/no  0 = no, 1 = yes
@@ -1383,20 +1384,17 @@ CREATE TABLE LedgerMarkerAudit (
 
 -- **************************************
 -- ****                              ****
--- ****       TEMP FLOW PART         ****
+-- ****            FLOW              ****
 -- ****                              ****
 -- **************************************
-CREATE TABLE FlowPart (
-    FlowPartID BIGINT NOT NULL AUTO_INCREMENT,
+CREATE TABLE Flow (
+    FlowID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                                                         -- Business id
-    Flow VARCHAR(50) NOT NULL DEFAULT '',                                                  -- for which flow we're storing data ("RA=Rental Agreement Flow")
-    FlowID VARCHAR(50) NOT NULL DEFAULT '',                                                -- unique random flow ID for which we will store relavant json data
-    PartType SMALLINT NOT NULL DEFAULT 0,                                                  -- for which part type ("ASM", "PET", "VEHICLE")
+    FlowType VARCHAR(50) NOT NULL DEFAULT '',                                              -- for which flow we're storing data ("RA=Rental Agreement Flow")
     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated
     LastModBy BIGINT NOT NULL DEFAULT 0,                                                   -- who modified it last
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                                 -- when was it created
     CreateBy BIGINT NOT NULL DEFAULT 0,                                                    -- who created it
-    PRIMARY KEY(FlowPartID),
-    UNIQUE KEY FlowPartUnique (FlowPartID, BID, FlowID)
+    PRIMARY KEY(FlowID)
 );

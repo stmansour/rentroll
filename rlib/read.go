@@ -47,14 +47,14 @@ func ReadBuildingData(row *sql.Row, a *Building) error {
 
 // ReadBusiness reads a full Business structure from the database based on the supplied row object
 func ReadBusiness(row *sql.Row, a *Business) error {
-	err := row.Scan(&a.BID, &a.Designation, &a.Name, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.DefaultGSRPC, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.BID, &a.Designation, &a.Name, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.DefaultGSRPC, &a.ClosePeriodTLID, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadBusinesses reads a full Business structure from the database based on the supplied rows object
 func ReadBusinesses(rows *sql.Rows, a *Business) error {
-	return rows.Scan(&a.BID, &a.Designation, &a.Name, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.DefaultGSRPC, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.BID, &a.Designation, &a.Name, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.DefaultGSRPC, &a.ClosePeriodTLID, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 // ReadCustomAttribute reads a full CustomAttribute structure from the database based on the supplied row object
@@ -741,16 +741,14 @@ func ReadVehicles(rows *sql.Rows, a *Vehicle) error {
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
-// ReadFlowPart reads a full FlowPart structure from the database based on the supplied row object
-func ReadFlowPart(row *sql.Row, a *FlowPart) error {
-	err := row.Scan(&a.FlowPartID, &a.BID, &a.Flow, &a.FlowID, &a.PartType,
-		&a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+// ReadFlow reads a full Flow structure from the database based on the supplied row object
+func ReadFlow(row *sql.Row, a *Flow) error {
+	err := row.Scan(&a.FlowID, &a.BID, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
-// ReadFlowParts reads a full FlowPart structure from the database based on the supplied rows object
-func ReadFlowParts(rows *sql.Rows, a *FlowPart) error {
-	return rows.Scan(&a.FlowPartID, &a.BID, &a.Flow, &a.FlowID, &a.PartType,
-		&a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+// ReadFlows reads a full Flow structure from the database based on the supplied rows object
+func ReadFlows(rows *sql.Rows, a *Flow) error {
+	return rows.Scan(&a.FlowID, &a.BID, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }

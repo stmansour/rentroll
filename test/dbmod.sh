@@ -330,6 +330,24 @@ MYSQLDUMP="mysqldump --no-defaults"
 # May 16, 2018
 # ALTER TABLE RentableTypes ADD ARID BIGINT NOT NULL DEFAULT 0 AFTER FLAGS;
 
+# May 25, 2018
+# ALTER TABLE Business ADD ClosePeriodTLID BIGINT NOT NULL DEFAULT 0 AFTER DefaultGSRPC;
+
+# May 25, 2018
+# DROP TABLE IF EXISTS FlowPart;
+# DROP TABLE IF EXISTS Flow;
+# CREATE TABLE Flow (
+#     FlowID BIGINT NOT NULL AUTO_INCREMENT,
+#     BID BIGINT NOT NULL DEFAULT 0,                                                         -- Business id
+#     FlowType VARCHAR(50) NOT NULL DEFAULT '',                                              -- for which flow we're storing data ("RA=Rental Agreement Flow")
+#     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                                                   -- who modified it last
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                                 -- when was it created
+#     CreateBy BIGINT NOT NULL DEFAULT 0,                                                    -- who created it
+#     PRIMARY KEY(FlowID)
+# );
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
@@ -340,13 +358,13 @@ EOF
 #  Put dir/sqlfilename in the list below
 #=====================================================
 declare -a dbs=(
+	../tools/dbgen/empty.sql
 	acctbal/baltest.sql
 	payorstmt/pstmt.sql
 	rfix/rcptfixed.sql
 	rfix/receipts.sql
 	roller/prodrr.sql
 	rr/rr.sql
-	setup/accord.sql
 	tws/rr.sql
 	tws/tws.sql
 	tws2/rrtl.sql

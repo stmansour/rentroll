@@ -1,6 +1,7 @@
 /*global
-    getRAFlowAllParts, initRAFlowAJAX, requiredFieldsFulFilled,
-    RACompConfig, w2ui
+    getRAFlowAllParts, initRAFlowAjax, requiredFieldsFulFilled,
+    RACompConfig, w2ui,
+    getFlowDataAjax
 */
 
 "use strict";
@@ -12,10 +13,8 @@
 //   bid = business id (or the BUD)
 //-----------------------------------------------------------------------------
 window.setToNewRAForm = function (bid, FlowID) {
-    // if (typeof FlowID === "undefined") {
-    //     return false;
-    // }
-    if (FlowID.length < 1) {
+
+    if (FlowID < 1) {
         return false;
     }
 
@@ -46,9 +45,25 @@ window.setToNewRAForm = function (bid, FlowID) {
             // set BID in raflow settings
             app.raflow.BID = bid;
 
-            // get all flow part related to this flow ID
-            getRAFlowAllParts(app.raflow.activeFlowID);
+            // show "done" mark on each li of navigation bar
+            for (var comp in app.raFlowPartTypes) {
+                // if required fields are fulfilled then mark this slide as done
+                if (requiredFieldsFulFilled(comp)) {
+                    // hide active component
+                    $("#progressbar #steps-list li[data-target='#" + comp + "']").addClass("done");
+                }
 
+                // reset w2ui component as well
+                if(RACompConfig[comp].w2uiComp in w2ui) {
+                    // clear inputs
+                    w2ui[RACompConfig[comp].w2uiComp].clear();
+                }
+            }
+
+            // mark first slide as active
+            $(".ra-form-component#dates").show();
+            $("#progressbar #steps-list li[data-target='#dates']").removeClass("done").addClass("active");
+            loadRADatesForm();
         }, 0);
     });
 };
@@ -103,8 +118,8 @@ window.buildNewRAElements = function() {
         ],
         onRequest: function(event) {
             event.postData.cmd = "getAllFlows";
-            event.postData.flow = "RA";
-            console.log(event.postData);
+            event.postData.FlowType = "RA";
+            // console.log(event.postData);
         },
         onRefresh: function(event) {
             event.onComplete = function() {
@@ -138,9 +153,20 @@ window.buildNewRAElements = function() {
                         // keep highlighting current row in any case
                         grid.select(app.last.grid_sel_recid);
 
+                        // get grid record
                         var rec = grid.get(recid);
-                        var d = new Date();  // we'll use today for time-sensitive data
-                        setToNewRAForm(rec.BID, rec.FlowID);
+
+                        getFlowDataAjax(rec.FlowID)
+                        .done(function(data) {
+                            if (data.status != "success") {
+                                grid.message(data.message);
+                            } else {
+                                setToNewRAForm(rec.BID, rec.FlowID);
+                            }
+                        })
+                        .fail(function() {
+                            grid.message("Error while fetching data for selected record");
+                        });
                     };
 
                 // warn user if form content has been changed
@@ -155,35 +181,37 @@ window.buildNewRAElements = function() {
                     return false;
                 },
                 yes_callBack = function(grid, recid) {
-                    initRAFlowAJAX()
+                    initRAFlowAjax()
                     .done(function(data, textStatus, jqXHR) {
-                        var bid = getCurrentBID(),
-                            bud = getBUDfromBID(bid);
+                        if (data.status === "success") {
+                            var bid = getCurrentBID(),
+                                bud = getBUDfromBID(bid);
 
-                        var newRecid = grid.records.length;
+                            var newRecid = grid.records.length;
 
-                        // add new record
-                        grid.add({
-                            recid:  newRecid,
-                            BID:    bid,
-                            BUD:    bud,
-                            FlowID: data.FlowID,
-                        });
+                            // add new record
+                            grid.add({
+                                recid:  newRecid,
+                                BID:    bid,
+                                BUD:    bud,
+                                FlowID: data.record.FlowID,
+                            });
 
-                        grid.refresh();
+                            grid.refresh();
 
-                        app.last.grid_sel_recid = parseInt(newRecid);
+                            app.last.grid_sel_recid = parseInt(newRecid);
 
-                        // keep highlighting current row in any case
-                        grid.select(app.last.grid_sel_recid);
+                            // keep highlighting current row in any case
+                            grid.select(app.last.grid_sel_recid);
 
-                        var rec = grid.get(newRecid);
-                        var d = new Date();  // we'll use today for time-sensitive data
-                        setToNewRAForm(rec.BID, rec.FlowID);
-
+                            var rec = grid.get(newRecid);
+                            setToNewRAForm(rec.BID, rec.FlowID);
+                        } else {
+                            grid.message(data.message);
+                        }
                     })
                     .fail(function() {
-                        console.log("error while creating new flow ID");
+                        grid.message("error while creating new flow ID");
                     });
 
                 };

@@ -79,7 +79,7 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 	}
 
 	// TODO(Sudip): keep mind this FLAGS insertion in fields, this might be removed in the future
-	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.FLAGS, a.LastModBy, a.BID}
+	fields := []interface{}{a.Designation, a.Name, a.DefaultRentCycle, a.DefaultProrationCycle, a.DefaultGSRPC, a.ClosePeriodTLID, a.FLAGS, a.LastModBy, a.BID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateBusiness)
 		defer stmt.Close()
@@ -1189,8 +1189,8 @@ func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 	return updateError(err, "Vehicle", *a)
 }
 
-// UpdateFlowPart updates the flow part by data provided in flowpart
-func UpdateFlowPart(ctx context.Context, a *FlowPart) error {
+// UpdateFlowData updates the flow Data json column
+func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
 	var err error
 
 	// session... context
@@ -1204,19 +1204,19 @@ func UpdateFlowPart(ctx context.Context, a *FlowPart) error {
 	}
 
 	// make sure that json is valid before inserting it in database
-	if !(IsFlowDataValidJSON(a.Data)) {
+	if !(IsByteDataValidJSON(jsonData)) {
 		return ErrFlowInvalidJSONData
 	}
 
 	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
 	// in mysql `json` type column
-	fields := []interface{}{a.BID, a.Flow, a.FlowID, a.PartType, []byte(a.Data), a.LastModBy, a.FlowPartID}
+	fields := []interface{}{jsonDataKey, jsonData, a.FlowID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowPart)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowData)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
-		_, err = RRdb.Prepstmt.UpdateFlowPart.Exec(fields...)
+		_, err = RRdb.Prepstmt.UpdateFlowData.Exec(fields...)
 	}
-	return updateError(err, "FlowPart", *a)
+	return updateError(err, "Flow", *a)
 }

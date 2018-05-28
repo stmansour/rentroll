@@ -1,6 +1,6 @@
 Test Name:    RoomKey Import with Guest Data Export
 Test Purpose: Tests initizing RentRoll DB from importing RoomKey rentroll report.
-Date/Time:    Wed Feb 28 20:24:39 IST 2018
+Date/Time:    Wed May 23 14:32:50 PDT 2018
 
 Create new database...  successful
-Test completed: Wed Feb 28 20:24:49 IST 2018
+Test completed: Wed May 23 14:32:52 PDT 2018

@@ -203,6 +203,7 @@ CREATE TABLE `Business` (
   `DefaultRentCycle` smallint(6) NOT NULL DEFAULT '0',
   `DefaultProrationCycle` smallint(6) NOT NULL DEFAULT '0',
   `DefaultGSRPC` smallint(6) NOT NULL DEFAULT '0',
+  `ClosePeriodTLID` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -218,7 +219,7 @@ CREATE TABLE `Business` (
 
 LOCK TABLES `Business` WRITE;
 /*!40000 ALTER TABLE `Business` DISABLE KEYS */;
-INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,1,'2018-02-28 08:57:03',0,'2017-11-10 23:24:22',0);
+INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,0,1,'2018-02-28 08:57:03',0,'2017-11-10 23:24:22',0);
 /*!40000 ALTER TABLE `Business` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -559,36 +560,32 @@ INSERT INTO `Expense` VALUES (1,0,1,2,3,15.0000,'2016-10-01 00:00:00','',6,0,'',
 UNLOCK TABLES;
 
 --
--- Table structure for table `FlowPart`
+-- Table structure for table `Flow`
 --
 
-DROP TABLE IF EXISTS `FlowPart`;
+DROP TABLE IF EXISTS `Flow`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `FlowPart` (
-  `FlowPartID` bigint(20) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `Flow` (
+  `FlowID` bigint(20) NOT NULL AUTO_INCREMENT,
   `BID` bigint(20) NOT NULL DEFAULT '0',
-  `Flow` varchar(50) NOT NULL DEFAULT '',
-  `FlowID` varchar(50) NOT NULL DEFAULT '',
-  `PartType` smallint(6) NOT NULL DEFAULT '0',
+  `FlowType` varchar(50) NOT NULL DEFAULT '',
   `Data` json DEFAULT NULL,
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`FlowPartID`),
-  UNIQUE KEY `FlowPartUnique` (`FlowPartID`,`BID`,`FlowID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`FlowID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `FlowPart`
+-- Dumping data for table `Flow`
 --
 
-LOCK TABLES `FlowPart` WRITE;
-/*!40000 ALTER TABLE `FlowPart` DISABLE KEYS */;
-INSERT INTO `FlowPart` VALUES (1,1,'RA','72745f9d-d3',1,'{}','2018-04-03 17:51:10',211,'2018-04-03 17:51:04',211),(2,1,'RA','72745f9d-d3',2,'{}','2018-04-03 17:51:12',211,'2018-04-03 17:51:04',211),(3,1,'RA','72745f9d-d3',3,'[]','2018-04-03 17:51:14',211,'2018-04-03 17:51:04',211),(4,1,'RA','72745f9d-d3',4,'[]','2018-04-03 17:51:15',211,'2018-04-03 17:51:04',211),(5,1,'RA','72745f9d-d3',5,'{}','2018-04-03 17:52:19',211,'2018-04-03 17:51:04',211),(6,1,'RA','72745f9d-d3',6,'[]','2018-04-03 17:52:29',211,'2018-04-03 17:51:04',211),(7,1,'RA','72745f9d-d3',7,'[]','2018-04-03 17:52:40',211,'2018-04-03 17:51:04',211);
-/*!40000 ALTER TABLE `FlowPart` ENABLE KEYS */;
+LOCK TABLES `Flow` WRITE;
+/*!40000 ALTER TABLE `Flow` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Flow` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2491,4 +2488,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-16 14:44:47
+-- Dump completed on 2018-05-25 22:27:27
