@@ -15,6 +15,8 @@ const (
 	PetsRAFlowPart
 	VehiclesRAFlowPart
 	RentablesRAFlowPart
+	ParentChildRAFlowPart
+	TieRAFlowPart
 )
 
 // IsValid checks the validity of RAFlowPartType raftp
@@ -34,6 +36,8 @@ func (raftp RAFlowPartType) String() string {
 		"Pets",
 		"Vehicles",
 		"Rentables with fees",
+		"Parent/Child",
+		"Tie",
 	}
 
 	// if not valid then return unknown
@@ -46,9 +50,11 @@ func (raftp RAFlowPartType) String() string {
 
 // RAFlowPartsMap parts of a rental agreement flow
 var RAFlowPartsMap = Str2Int64Map{
-	"dates":     int64(DatesRAFlowPart),
-	"people":    int64(PeopleRAFlowPart),
-	"pets":      int64(PetsRAFlowPart),
-	"vehicles":  int64(VehiclesRAFlowPart),
-	"rentables": int64(RentablesRAFlowPart),
+	"dates":       int64(DatesRAFlowPart),
+	"people":      int64(PeopleRAFlowPart),
+	"pets":        int64(PetsRAFlowPart),
+	"vehicles":    int64(VehiclesRAFlowPart),
+	"rentables":   int64(RentablesRAFlowPart),
+	"parentchild": int64(ParentChildRAFlowPart),
+	"tie":         int64(TieRAFlowPart),
 }
