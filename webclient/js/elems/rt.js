@@ -327,12 +327,6 @@ window.buildRentableTypeElements = function () {
                 data.postData.record.ManageToBudget = 0; // true=1(yes) || false=0(no)
             }
 
-            if (data.postData.record.Active) {
-                data.postData.record.Active = true; // true=0(no), false=1(yes)
-            } else {
-                data.postData.record.Active = false; // true=0(no), false=1(yes)
-            }
-
 			data.postData.record.IsChildRentable = int_to_bool(data.postData.record.IsChildRentable);
 
             // server request form data

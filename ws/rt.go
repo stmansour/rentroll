@@ -39,7 +39,6 @@ type RentableTypeGridRecord struct {
 	ManageToBudget  int64
 	FLAGS           int64
 	IsChildRentable bool
-	Active          bool
 	ARID            int64
 	LastModTime     rlib.JSONDateTime
 	LastModBy       int64
@@ -370,12 +369,6 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		if q.FLAGS&0x1 == 0 {
-			q.Active = true
-		}else{
-			q.Active = false
-		}
-
 		if q.FLAGS&0x2 == 0 {
 			q.IsChildRentable = true
 		}else{
@@ -498,10 +491,6 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// Set FLAGS value based on Active/IsChildRentable flag
-	if foo.Record.Active {
-		a.FLAGS |= 0x1
-	}
-
 	if foo.Record.IsChildRentable {
 		a.FLAGS |= 0x2
 	}
