@@ -6,6 +6,7 @@ TESTSUMMARY="Load all csv files through loader and validate the database after l
 source ../share/base.sh
 RRCTX="-G ${BUD} -g 12/1/15,1/1/16"
 
+echo "CSVLOAD = ${CSVLOAD}"
 
 # Create a bunch of content
 ${CSVLOAD} -b nb.csv >>${LOGFILE} 2>&1

@@ -349,6 +349,21 @@ DBNAME="rentroll"
 #     PRIMARY KEY(FlowID)
 # );
 
+# May 28, 2018
+# CREATE TABLE ClosePeriod (
+#     CPID BIGINT NOT NULL DEFAULT 0,                             -- Close Period ID
+#     BID BIGINT NOT NULL DEFAULT 0,                              -- Business id
+#     TLID BIGINT NOT NULL DEFAULT 0,                             -- Task List that was used for close
+#     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- Date/Time of close
+#     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
+#     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
+#     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
+#     CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
+# );
+
+# May 28, 2018
+# DROP TABLE IF EXISTS FlowPart;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
@@ -367,7 +382,6 @@ declare -a dbs=(
 	roller/prodrr.sql
 	rr/rr.sql
 	tws/rr.sql
-	tws/tws.sql
 	tws2/rrtl.sql
 	tws2/moonshine.sql
 	tws3/rr.sql
@@ -382,7 +396,7 @@ declare -a dbs=(
 for f in "${dbs[@]}"
 do
     if [ -f ${f} ]; then
-    	echo "DROP DATABASE IF EXIST ${DBNAME}"
+    	echo "DROP DATABASE IF EXIST ${DBNAME}; create database rentroll"
 		echo -n "${f}: loading... "
 		${MYSQL} ${DBNAME} < ${f}
 		echo -n "updating... "

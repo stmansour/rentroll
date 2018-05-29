@@ -197,7 +197,7 @@ func buildPreparedStatements() {
 	RRdb.DBFields["ClosePeriod"] = flds
 	RRdb.Prepstmt.GetClosePeriod, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ClosePeriod WHERE CPID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.GetLastClosePeriod, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ClosePeriod WHERE BID=? ORDER BY Start DESC LIMIT 1")
+	RRdb.Prepstmt.GetLastClosePeriod, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM ClosePeriod WHERE BID=? ORDER BY Dt DESC LIMIT 1")
 	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
