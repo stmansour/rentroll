@@ -369,7 +369,7 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		if q.FLAGS&0x2 == 0 {
+		if q.FLAGS&0x2 != 0 {
 			q.IsChildRentable = true
 		}else{
 			q.IsChildRentable = false
