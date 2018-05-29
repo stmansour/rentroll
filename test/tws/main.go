@@ -103,8 +103,14 @@ func main() {
 	doWork()
 }
 
+var regEntry = rlib.BotRegistryEntry{
+	BotID:      -9999,
+	Designator: "TWSAsmtBotChecker",
+	Name:       "TWS Test Worker",
+}
+
 var wrk = map[string]worker.Worker{
-	"TWSAsmtBotChecker": {"TWSAsmtBotChecker", "TWS Test Worker", -9999, uint64(0), TWSAsmtBotChecker},
+	"TWSAsmtBotChecker": {regEntry, uint64(0), TWSAsmtBotChecker},
 }
 
 var checkTimes = []time.Time{
