@@ -27,22 +27,24 @@ type RentableTypesTDResponse struct {
 
 // RentableTypeGridRecord struct to show record in rentabletype grid
 type RentableTypeGridRecord struct {
-	Recid          int64 `json:"recid"`
-	RTID           int64
-	BID            int64
-	BUD            rlib.XJSONBud
-	Style          string
-	Name           string
-	RentCycle      int64
-	Proration      int64
-	GSRPC          int64
-	ManageToBudget int64
-	FLAGS          int64
-	ARID           int64
-	LastModTime    rlib.JSONDateTime
-	LastModBy      int64
-	CreateTS       rlib.JSONDateTime
-	CreateBy       int64
+	Recid           int64 `json:"recid"`
+	RTID            int64
+	BID             int64
+	BUD             rlib.XJSONBud
+	Style           string
+	Name            string
+	RentCycle       int64
+	Proration       int64
+	GSRPC           int64
+	ManageToBudget  int64
+	FLAGS           int64
+	IsChildRentable bool
+	Active          bool
+	ARID            int64
+	LastModTime     rlib.JSONDateTime
+	LastModBy       int64
+	CreateTS        rlib.JSONDateTime
+	CreateBy        int64
 }
 
 // RentableTypeSearchResponse is a response string to the search request for rentable types records
@@ -481,6 +483,15 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.Ulog("%s", e.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
+	}
+
+	// Set FLAGS value based on Active/IsChildRentable flag
+	if foo.Record.Active {
+		a.FLAGS |= 0x1
+	}
+
+	if foo.Record.IsChildRentable {
+		a.FLAGS |= 0x2
 	}
 
 	errlist := bizlogic.ValidateRentableType(r.Context(), &a)

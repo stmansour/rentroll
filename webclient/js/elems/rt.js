@@ -17,11 +17,11 @@ window.getRTInitRecord = function (BID, BUD){
         Proration: 0,
         GSRPC: 0,
         ManageToBudget: false,
+		IsChildRentable: false,
         RMRID: 0,
         LastModTime: y.toISOString(),
         LastModBy: 0,
-        FLAGS: 0,
-        ARID: 0,
+        ARID: 0
     };
 };
 
@@ -263,7 +263,7 @@ window.buildRentableTypeElements = function () {
             { field: 'Proration',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
             { field: 'GSRPC',           type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
             { field: 'ManageToBudget',  type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
-            { field: 'FLAGS',           type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
+			{ field: 'IsChildRentable',   type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'ARID',            type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: [], selected: {}} },
             { field: 'LastModTime',     type: 'time',       required: false,    html: { page: 0, column: 0 } },
             { field: 'LastModBy',       type: 'int',        required: false,    html: { page: 0, column: 0 } },
@@ -328,10 +328,13 @@ window.buildRentableTypeElements = function () {
             }
 
             if (data.postData.record.Active) {
-                data.postData.record.Active = 0; // true=0(no), false=1(yes)
+                data.postData.record.Active = true; // true=0(no), false=1(yes)
             } else {
-                data.postData.record.Active = 1; // true=0(no), false=1(yes)
+                data.postData.record.Active = false; // true=0(no), false=1(yes)
             }
+
+			data.postData.record.IsChildRentable = int_to_bool(data.postData.record.IsChildRentable);
+
             // server request form data
             getFormSubmitData(data.postData.record);
         },
