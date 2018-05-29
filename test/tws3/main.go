@@ -124,7 +124,11 @@ func main() {
 func doWork() {
 	now := time.Now()
 	expire := now.Add(1 * time.Minute)
-	s := rlib.SessionNew("BotToken-"+worker.TLReportBotDes, worker.TLReportBotDes, worker.TLReportBotDes, worker.TLReportBot, "", -1, &expire)
+	s := rlib.SessionNew("BotToken-"+rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.BotReg[rlib.TLReportBot].BotID,
+		"", -1, &expire)
 	ctx := context.Background()
 	ctx = rlib.SetSessionContextKey(ctx, s)
 
@@ -164,7 +168,11 @@ func TaskEmail(bid int64, ea string) {
 	funcname := "TaskEmail"
 	now := time.Now()
 	expire := now.Add(1 * time.Minute)
-	s := rlib.SessionNew("BotToken-"+worker.TLReportBotDes, worker.TLReportBotDes, worker.TLReportBotDes, worker.TLReportBot, "", -1, &expire)
+	s := rlib.SessionNew("BotToken-"+rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.BotReg[rlib.TLReportBot].Designator,
+		rlib.BotReg[rlib.TLReportBot].BotID,
+		"", -1, &expire)
 	ctx := context.Background()
 	ctx = rlib.SetSessionContextKey(ctx, s)
 
