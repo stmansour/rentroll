@@ -33,7 +33,9 @@ window.loadClosePeriodInfo = function () {
     // delete Depository request
     $.post('/v1/closeperiod/'+BID, dat, null, "json")
     .done(function(data) {
-        var s = "";
+        var ctl = "";
+        var lcp = "";
+        var cp = "";
         if (data.status === "error") {
             console.log('error = ' + data.message);
             return;
@@ -49,17 +51,28 @@ window.loadClosePeriodInfo = function () {
         //  TASK LIST 
         //--------------------------------
         if (data.record.TLID === 0) {
-            s = 'No TaskList defined. You must set a TaskList for ' + BUD + ' to enable Close Period.';
+            ctl = 'No TaskList defined. You must set a TaskList for ' + BUD + ' to enable Close Period.';
+            lcp = '-';
+            cp = '-';
         } else {
-            s = data.record.TLName + ' ';
+            ctl = data.record.TLName + ' ';
+
+            //--------------------------------
+            //  Last closed period 
+            //--------------------------------
+            lcp = 'some date';
+
+            //--------------------------------
+            //  Close period 
+            //--------------------------------
+            cp = 'some other date';
         }
-        document.getElementById("closePeriodTL").innerHTML = s;
+        document.getElementById("closePeriodTL").innerHTML = ctl;
+        document.getElementById("closePeriodLCP").innerHTML = lcp;
+        document.getElementById("closePeriodNCP").innerHTML = cp;
 
         //--------------------------------
-        //  Last closed period 
-        //--------------------------------
-        //--------------------------------
-        //  Closed period 
+        //  Submit button
         //--------------------------------
         var disable = !(closePeriodData.DtDone !== null && closePeriodData.DtDone.getFullYear() > 1999);
         document.getElementById("closePeriodSubmit").disabled = disable;
@@ -68,6 +81,4 @@ window.loadClosePeriodInfo = function () {
         console.log("Get close period info failed.");
         return;
     });
-
-
 };

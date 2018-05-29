@@ -363,8 +363,8 @@ window.buildTaskListDefElements = function () {
             { field: 'TDID',        caption: 'TDID',        size: '35px',  sotrable: true, hidden: true},
             { field: 'BID',         caption: 'BID',         size: '35px',  sotrable: true, hidden: true},
             { field: 'TLDID',       caption: 'TLDID',       size: '35px',  sotrable: true, hidden: true},
-            { field: 'TDName',        caption: 'Name',        size: '120px', sotrable: true, hidden: false},
-            { field: 'Worker',      caption: 'Worker',      size: '75px',  sotrable: true, hidden: false},
+            { field: 'TDName',      caption: 'Name',        size: '360px', sotrable: true, hidden: false},
+            { field: 'Worker',      caption: 'Worker',      size: '95px',  sotrable: true, hidden: false},
             { field: 'EpochPreDue', caption: 'Pre Due',     size: '130px', sotrable: true, hidden: false,
                 render: function (rec, idx, col) {if (typeof rec === "undefined") {return ''; } return dtFormatISOToW2ui(rec.EpochPreDue); }
             },

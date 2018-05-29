@@ -922,6 +922,27 @@ func GetXBusiness(ctx context.Context, bid int64, xbiz *XBusiness) error {
 }
 
 //=======================================================
+//  CLOSE PERIOD
+//=======================================================
+
+// GetClosePeriod reads specific ClosePeriod record
+//-----------------------------------------------------------------------------
+func GetClosePeriod(ctx context.Context, id int64) (ClosePeriod, error) {
+	var a ClosePeriod
+	var row *sql.Row
+
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetClosePeriod)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetClosePeriod.QueryRow(fields...)
+	}
+	return a, ReadClosePeriod(row, &a)
+}
+
+//=======================================================
 //  C U S T O M   A T T R I B U T E
 //  CustomAttribute, CustomAttributeRef
 //=======================================================

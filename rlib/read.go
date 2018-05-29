@@ -57,6 +57,18 @@ func ReadBusinesses(rows *sql.Rows, a *Business) error {
 	return rows.Scan(&a.BID, &a.Designation, &a.Name, &a.DefaultRentCycle, &a.DefaultProrationCycle, &a.DefaultGSRPC, &a.ClosePeriodTLID, &a.FLAGS, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
+// ReadClosePeriod reads a full ClosePeriod structure from the database based on the supplied row object
+func ReadClosePeriod(row *sql.Row, a *ClosePeriod) error {
+	err := row.Scan(&a.CPID, &a.BID, &a.TLID, &a.Dt, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadClosePeriods reads a full ClosePeriod structure from the database based on the supplied rows object
+func ReadClosePeriods(rows *sql.Rows, a *ClosePeriod) error {
+	return rows.Scan(&a.CPID, &a.BID, &a.TLID, &a.Dt, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
 // ReadCustomAttribute reads a full CustomAttribute structure from the database based on the supplied row object
 func ReadCustomAttribute(row *sql.Row, a *CustomAttribute) error {
 	err := row.Scan(&a.CID, &a.BID, &a.Type, &a.Name, &a.Value, &a.Units, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)

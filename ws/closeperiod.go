@@ -113,6 +113,10 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	rlib.Console("entered %s, getting BID = %d\n", funcname, d.BID)
 	rlib.Console("A\n")
+
+	//------------------------------------
+	//  Get business info...
+	//------------------------------------
 	if err = rlib.GetXBusiness(r.Context(), d.BID, &xbiz); err != nil {
 		rlib.Console("B\n")
 		e := fmt.Errorf("%s: Error getting business %d: %s", funcname, d.BID, err.Error())
@@ -122,6 +126,10 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	rlib.Console("C\n")
 	g.Record.BID = d.BID
 	g.Record.TLID = xbiz.P.ClosePeriodTLID
+
+	//------------------------------------
+	//  Get the close period TaskList...
+	//------------------------------------
 	if xbiz.P.ClosePeriodTLID > 0 {
 		tl, err = rlib.GetTaskList(r.Context(), xbiz.P.ClosePeriodTLID)
 		if err != nil {

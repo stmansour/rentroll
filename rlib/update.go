@@ -94,6 +94,32 @@ func UpdateBusiness(ctx context.Context, a *Business) error {
 	return updateError(err, "Business", *a)
 }
 
+// UpdateClosePeriod updates an ClosePeriod record
+func UpdateClosePeriod(ctx context.Context, a *ClosePeriod) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		// user from session, CreateBy, LastModBy
+		a.LastModBy = sess.UID
+	}
+
+	fields := []interface{}{a.BID, a.TLID, a.Dt, a.CreateBy, a.LastModBy, a.CPID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateClosePeriod)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateClosePeriod.Exec(fields...)
+	}
+
+	return updateError(err, "ClosePeriod", *a)
+}
+
 // UpdateCustomAttribute updates an CustomAttribute record
 func UpdateCustomAttribute(ctx context.Context, a *CustomAttribute) error {
 	var err error
