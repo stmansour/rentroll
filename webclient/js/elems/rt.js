@@ -555,14 +555,14 @@ window.buildRentableTypeElements = function () {
             deactivate: function() {
                 var rtF = w2ui.rtForm;
 
-                // confirm before delete
+                // confirm before deactivate
                 w2confirm(delete_confirm_options)
                 .yes(function() {
                     var rtG = w2ui.rtGrid;
-                    var params = {cmd: 'delete', formname: rtF.name, ID: rtF.record.RTID };
+                    var params = {cmd: 'deactivate', formname: rtF.name, ID: rtF.record.RTID };
                     var dat = JSON.stringify(params);
 
-                    // delete Depository request
+                    // deactivate rentable type request
                     $.post(rtF.url, dat, null, "json")
                     .done(function(data) {
                         if (data.status === "error") {
@@ -573,7 +573,7 @@ window.buildRentableTypeElements = function () {
                         rtG.render();
                     })
                     .fail(function(/*data*/){
-                        rtF.error("Delete Payment failed.");
+                        rtF.error("deactivate rentabletype failed.");
                         return;
                     });
                 })
@@ -587,7 +587,7 @@ window.buildRentableTypeElements = function () {
                 var params = {cmd: 'reactivate', formname: rtF.name, ID: rtF.record.RTID };
                 var dat = JSON.stringify(params);
 
-                // delete Depository request
+                // reactive rentabletype request
                 $.post(rtF.url, dat, null, "json")
                 .done(function(data) {
                     if (data.status === "error") {
@@ -598,7 +598,7 @@ window.buildRentableTypeElements = function () {
                     rtG.render();
                 })
                 .fail(function(/*data*/){
-                    rtF.error("Deactivate Rentable Type failed.");
+                    rtF.error("Reactivate Rentable Type failed.");
                     return;
                 });
             },
