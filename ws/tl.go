@@ -19,6 +19,7 @@ import (
 type SvcTaskList struct {
 	Recid        int64 `json:"recid"`
 	TLID         int64
+	PTLID        int64
 	TLDID        int64
 	BID          int64
 	BUD          rlib.XJSONBud
@@ -62,6 +63,7 @@ type SearchTLResponse struct {
 type SaveTaskList struct {
 	Recid        int64 `json:"recid"`
 	TLID         int64
+	PTLID        int64
 	TLDID        int64
 	BID          int64
 	Name         string

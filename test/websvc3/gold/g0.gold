@@ -3,11 +3,15 @@
         "BID": 1,
         "CloseTarget": "1900-01-01 00:00:00 UTC",
         "DtDone": "1900-01-01 00:00:00 UTC",
+        "DtDoneTarget": "1900-01-01 00:00:00 UTC",
+        "DtDueTarget": "1900-01-01 00:00:00 UTC",
         "LastDtClose": "1900-01-01 00:00:00 UTC",
         "LastDtDone": "1900-01-01 00:00:00 UTC",
         "LastLedgerMarker": "1900-01-01 00:00:00 UTC",
         "TLID": 0,
-        "TLName": ""
+        "TLIDTarget": 0,
+        "TLName": "",
+        "TLNameTarget": ""
     },
     "status": ""
 }

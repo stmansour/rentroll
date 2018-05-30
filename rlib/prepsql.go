@@ -1206,7 +1206,7 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetLatestCompletedTaskList, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE (FLAGS & 16 > 0) AND ((PTLID = 0 AND TLID = ?) OR PTLID=?) ORDER BY DtDone DESC LIMIT 1")
 	Errcheck(err)
-	RRdb.Prepstmt.GetTaskListInstanceInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE PTLID=? AND DtDue >= ? AND DtDue < ?")
+	RRdb.Prepstmt.GetTaskListInstanceInRange, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM TaskList WHERE (PTLID=? OR (PTLID=0 AND TLID=?)) AND DtDue >= ? AND DtDue < ?")
 	Errcheck(err)
 
 	where := `WHERE
