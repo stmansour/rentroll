@@ -165,56 +165,17 @@
     display: none;
 }
 
-.ra-form-component .form-container {
+.ra-form-component .form-container, .ra-form-component .grid-container {
     display: block;
     width: 100%;
     height: 100%;
 }
 
-/* SPECIAL CASE FOR PETS, VEHICLES */
-.ra-form-component#pets .form-container, .ra-form-component#vehicles .form-container {
-    height: calc(100% - 40px);
-}
-
-div#save-ra-btn-container {
-    position: absolute;
-    width: 100%;
-    bottom: 0px;
-}
-
-button.save-ra {
-    padding: 12px;
-    margin: 10px auto;
-    min-width: 80px;
-    text-align: center;
-    display: block;
-    font-size: 14px;
-    text-decoration: none;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-image: linear-gradient(to right, #6FD305 0%, #6DA0E5 100%);
-}
-
-#ra-form footer {
-    width: 100%;
-    margin: 0px auto;
-    position: relative;
-    padding: 20px 10px 10px;
-    height: 70px;
-}
-
-#ra-form footer button#previous {
-    float: left;
-}
-
-#ra-form footer button#next {
-    float: right;
-}
-
+/* ------------ */
+/* PEOPLE SLIDE */
+/* ------------ */
 .ra-form-component#people .form-container {
-    height: 100%;
+    height: 90px;
 }
 
 .ra-form-component#people .form-container label {
@@ -244,10 +205,6 @@ button.save-ra {
     -webkit-flex: 1;
     flex: 1;
     -moz-flex: 1;
-}
-
-.ra-form-component#people .form-container {
-    height: 90px;
 }
 
 .ra-form-component#people .form-container #transactant-field button {
@@ -333,6 +290,15 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
     margin-left: 172px;
 }
 
+.ra-people-section-title {
+    padding: 20px 3px 3px 3px;
+    font-weight: bold;
+    color: #777;
+}
+
+/* -------------------- */
+/* PETS, VEHICLES SLIDE */
+/* -------------------- */
 .cb-section {
     padding: 10px;
     text-align: left;
@@ -343,6 +309,13 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
     cursor: pointer;
 }
 
+.ra-form-component#pets .grid-container, .ra-form-component#vehicles .grid-container {
+    height: calc(100% - 40px);
+}
+
+/* --------------- */
+/* RENTABLES SLIDE */
+/* --------------- */
 .ra-form-component#rentables .form-container {
     height: 100%;
 }
@@ -388,8 +361,45 @@ section[name="RABGInfoForm"] .w2ui-form-box .w2ui-field > div {
     height: calc(100% - 90px);
 }
 
-.ra-people-section-title {
-    padding: 20px 3px 3px 3px;
-    font-weight: bold;
-    color: #777;
+/* ----------- */
+/* FINAL SLIDE */
+/* ----------- */
+div#save-ra-btn-container {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+}
+
+button.save-ra {
+    padding: 12px;
+    margin: 10px auto;
+    min-width: 80px;
+    text-align: center;
+    display: block;
+    font-size: 14px;
+    text-decoration: none;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-image: linear-gradient(to right, #6FD305 0%, #6DA0E5 100%);
+}
+
+/* ----------- */
+/* FOOTER PART */
+/* ----------- */
+#ra-form footer {
+    width: 100%;
+    margin: 0px auto;
+    position: relative;
+    padding: 20px 10px 10px;
+    height: 70px;
+}
+
+#ra-form footer button#previous {
+    float: left;
+}
+
+#ra-form footer button#next {
+    float: right;
 }
