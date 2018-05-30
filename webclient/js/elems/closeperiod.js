@@ -1,11 +1,12 @@
 /*global
-    w2ui,getCurrentBID,loadClosePeriodInfo,loadClosePeriodInfo,
+    w2ui,getCurrentBID,loadClosePeriodInfo,loadClosePeriodInfo,dtFormatISOToW2ui,
 */
 "use strict";
 
 var closePeriodData = {
     record: null,
     dtDone: null,
+    dtLastClose: null,
 
 };
 
@@ -35,6 +36,7 @@ window.loadClosePeriodInfo = function () {
     .done(function(data) {
         var ctl = "";
         var lcp = "";
+        var ltl = "";
         var cp = "";
         if (data.status === "error") {
             console.log('error = ' + data.message);
@@ -46,6 +48,7 @@ window.loadClosePeriodInfo = function () {
         //--------------------------------------
         closePeriodData.record = data.record;
         closePeriodData.DtDone = new Date(data.record.DtDone);
+        closePeriodData.DtLastClose = new Date(data.record.LastDtClose);
 
         //--------------------------------
         //  TASK LIST 
@@ -55,18 +58,24 @@ window.loadClosePeriodInfo = function () {
             lcp = '-';
             cp = '-';
         } else {
-            ctl = data.record.TLName + ' ';
+            ctl = data.record.TLName + ' &nbsp;&nbsp;';
+            ltl = dtFormatISOToW2ui(data.record.LastDtDone);
+            if (ltl.length === 0) {
+                ctl += "(no completed instances yet)";
+            } else {
+                ctl += "(last completion: " + ltl + ")";
+            }
+        }
 
             //--------------------------------
             //  Last closed period 
             //--------------------------------
-            lcp = 'some date';
+            lcp = dtFormatISOToW2ui(data.record.LastDtClose);
 
             //--------------------------------
             //  Close period 
             //--------------------------------
             cp = 'some other date';
-        }
         document.getElementById("closePeriodTL").innerHTML = ctl;
         document.getElementById("closePeriodLCP").innerHTML = lcp;
         document.getElementById("closePeriodNCP").innerHTML = cp;

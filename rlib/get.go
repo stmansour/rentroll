@@ -6641,14 +6641,6 @@ func GetSubARs(ctx context.Context, id int64) ([]SubAR, error) {
 	return m, rows.Err()
 }
 
-func authCheck(ctx context.Context) bool {
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		return !ok
-	}
-	return false
-}
-
 //============================================================
 //  TASKS
 //  TaskListDefintion, TaskListDescriptor, TaskList, Task
@@ -6657,7 +6649,7 @@ func authCheck(ctx context.Context) bool {
 // GetTask returns the task with the supplied id
 func GetTask(ctx context.Context, id int64) (Task, error) {
 	var a Task
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6672,11 +6664,30 @@ func GetTask(ctx context.Context, id int64) (Task, error) {
 	return a, ReadTask(row, &a)
 }
 
+// GetLatestCompletedTaskList returns the latest completed task list
+// with the parent or epoch equal to id
+func GetLatestCompletedTaskList(ctx context.Context, id int64) (TaskList, error) {
+	var a TaskList
+	if sessionCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+	var row *sql.Row
+	fields := []interface{}{id, id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLatestCompletedTaskList)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLatestCompletedTaskList.QueryRow(fields...)
+	}
+	return a, ReadTaskList(row, &a)
+}
+
 // GetTasks returns a slice of tasks with the supplied id
 func GetTasks(ctx context.Context, id int64) ([]Task, error) {
 	var m []Task
 	var err error
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return m, ErrSessionRequired
 	}
 	var rows *sql.Rows
@@ -6705,7 +6716,7 @@ func GetTasks(ctx context.Context, id int64) ([]Task, error) {
 // GetTaskList returns the tasklist with the supplied id
 func GetTaskList(ctx context.Context, id int64) (TaskList, error) {
 	var a TaskList
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6728,7 +6739,7 @@ func GetTaskList(ctx context.Context, id int64) (TaskList, error) {
 //-----------------------------------------------------------------------------
 func GetTaskListInstanceInRange(ctx context.Context, id int64, dt1, dt2 *time.Time) (TaskList, error) {
 	var a TaskList
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6746,7 +6757,7 @@ func GetTaskListInstanceInRange(ctx context.Context, id int64, dt1, dt2 *time.Ti
 // GetTaskDescriptor returns the tasklist with the supplied id
 func GetTaskDescriptor(ctx context.Context, id int64) (TaskDescriptor, error) {
 	var a TaskDescriptor
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6767,7 +6778,7 @@ func GetTaskDescriptor(ctx context.Context, id int64) (TaskDescriptor, error) {
 func GetTaskListDescriptors(ctx context.Context, id int64) ([]TaskDescriptor, error) {
 	var err error
 	var m []TaskDescriptor
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return m, ErrSessionRequired
 	}
 
@@ -6811,7 +6822,7 @@ func GetAllTaskListDefinitions(ctx context.Context, id int64) ([]TaskListDefinit
 	var m []TaskListDefinition
 	var err error
 
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return m, ErrSessionRequired
 	}
 
@@ -6845,7 +6856,7 @@ func GetAllTaskListDefinitions(ctx context.Context, id int64) ([]TaskListDefinit
 // GetTaskListDefinition returns the tasklist with the supplied id
 func GetTaskListDefinition(ctx context.Context, id int64) (TaskListDefinition, error) {
 	var a TaskListDefinition
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
@@ -6863,7 +6874,7 @@ func GetTaskListDefinition(ctx context.Context, id int64) (TaskListDefinition, e
 // GetTaskListDefinitionByName returns the tasklist with the supplied namd in the BID
 func GetTaskListDefinitionByName(ctx context.Context, bid int64, name string) (TaskListDefinition, error) {
 	var a TaskListDefinition
-	if authCheck(ctx) {
+	if sessionCheck(ctx) {
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row

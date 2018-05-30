@@ -34,10 +34,11 @@ type FormClosePeriod struct {
 	BID              int64
 	TLID             int64             // the TaskList to which this task belongs
 	TLName           string            // Name of the tasklist
-	LastDtDone       rlib.JSONDateTime // Date of last completed instance
+	LastDtDone       rlib.JSONDateTime // Date of last completed TaskList instance
+	LastDtClose      rlib.JSONDateTime // Datetime of last close
 	LastLedgerMarker rlib.JSONDateTime // date/time of last LedgerMarker
 	CurrentCloseDue  rlib.JSONDateTime // due date of first period that has not been closed
-	DtDone           rlib.JSONDateTime // due date of first period that has not been closed
+	DtDone           rlib.JSONDateTime // done date of first period that has not been closed
 }
 
 // GetClosePeriodResponse is the response to a GetClosePeriod request
@@ -131,24 +132,18 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//  Get the close period TaskList...
 	//------------------------------------
 	if xbiz.P.ClosePeriodTLID > 0 {
-		tl, err = rlib.GetTaskList(r.Context(), xbiz.P.ClosePeriodTLID)
+		tl, err = rlib.GetLatestCompletedTaskList(r.Context(), xbiz.P.ClosePeriodTLID)
 		if err != nil {
 			rlib.Console("D\n")
 			e := fmt.Errorf("%s: Error getting close period tasklist %d: %s", funcname, xbiz.P.ClosePeriodTLID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
+		rlib.Console("E - last completed tasklist: TLID = %d\n", tl.TLID)
+		g.Record.TLName = tl.Name
+		g.Record.LastDtDone = rlib.JSONDateTime(tl.DtDone)
 	}
-	rlib.Console("E\n")
-	g.Record.TLName = tl.Name
-	g.Record.DtDone = rlib.JSONDateTime(tl.DtDone)
-	// verify that this tasklist is the epoch, PTLID should be 0
-	if tl.PTLID != 0 {
-		rlib.Console("F\n")
-		e := fmt.Errorf("%s: Close Period tasklist %d is not the epoch", funcname, xbiz.P.ClosePeriodTLID)
-		SvcErrorReturn(w, e, funcname)
-		return
-	}
+
 	rlib.Console("G\n")
 	SvcWriteResponse(d.BID, &g, w)
 }
