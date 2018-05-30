@@ -290,7 +290,7 @@ CREATE TABLE `ClosePeriod` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`CPID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -299,6 +299,7 @@ CREATE TABLE `ClosePeriod` (
 
 LOCK TABLES `ClosePeriod` WRITE;
 /*!40000 ALTER TABLE `ClosePeriod` DISABLE KEYS */;
+INSERT INTO `ClosePeriod` VALUES (1,1,4,'2018-04-30 14:22:00','2018-05-30 06:10:50',211,'2018-05-30 06:08:49',211);
 /*!40000 ALTER TABLE `ClosePeriod` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2150,7 +2151,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
-INSERT INTO `TWS` VALUES (1,'AssessmentBot','','AssessmentBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48'),(2,'RARBcacheBot','','RARBcacheBot','2018-05-30 02:58:13','Steves-MacBook-Pro-2.local',4,'2018-05-30 02:53:13','2018-05-30 02:53:13','2018-05-29 11:15:31','2018-05-29 19:53:13'),(3,'SecDepCacheBot','','SecDepCacheBot','2018-05-30 02:58:13','Steves-MacBook-Pro-2.local',4,'2018-05-30 02:53:13','2018-05-30 02:53:13','2018-05-29 11:15:31','2018-05-29 19:53:13'),(4,'TLReportBot','','TLReportBot','2018-05-30 02:57:23','Steves-MacBook-Pro-2.local',4,'2018-05-30 02:55:23','2018-05-30 02:55:23','2018-05-29 11:15:31','2018-05-29 19:55:23'),(5,'TLInstanceBot','','TLInstanceBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48'),(6,'AcctSliceCacheBot','','AcctSliceCacheBot','2018-05-30 02:58:13','Steves-MacBook-Pro-2.local',4,'2018-05-30 02:53:13','2018-05-30 02:53:13','2018-05-29 11:15:31','2018-05-29 19:53:13'),(7,'ARSliceCacheBot','','ARSliceCacheBot','2018-05-30 02:58:13','Steves-MacBook-Pro-2.local',4,'2018-05-30 02:53:13','2018-05-30 02:53:13','2018-05-29 11:15:31','2018-05-29 19:53:13'),(8,'ManualTaskBot','','ManualTaskBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48');
+INSERT INTO `TWS` VALUES (1,'AssessmentBot','','AssessmentBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48'),(2,'RARBcacheBot','','RARBcacheBot','2018-05-30 06:37:13','Steves-MacBook-Pro-2.local',4,'2018-05-30 06:32:13','2018-05-30 06:32:13','2018-05-29 11:15:31','2018-05-29 23:32:13'),(3,'SecDepCacheBot','','SecDepCacheBot','2018-05-30 06:37:13','Steves-MacBook-Pro-2.local',4,'2018-05-30 06:32:13','2018-05-30 06:32:13','2018-05-29 11:15:31','2018-05-29 23:32:13'),(4,'TLReportBot','','TLReportBot','2018-05-30 06:35:03','Steves-MacBook-Pro-2.local',4,'2018-05-30 06:33:03','2018-05-30 06:33:03','2018-05-29 11:15:31','2018-05-29 23:33:03'),(5,'TLInstanceBot','','TLInstanceBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48'),(6,'AcctSliceCacheBot','','AcctSliceCacheBot','2018-05-30 06:37:13','Steves-MacBook-Pro-2.local',4,'2018-05-30 06:32:13','2018-05-30 06:32:13','2018-05-29 11:15:31','2018-05-29 23:32:13'),(7,'ARSliceCacheBot','','ARSliceCacheBot','2018-05-30 06:37:13','Steves-MacBook-Pro-2.local',4,'2018-05-30 06:32:13','2018-05-30 06:32:13','2018-05-29 11:15:31','2018-05-29 23:32:13'),(8,'ManualTaskBot','','ManualTaskBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2503,4 +2504,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-29 20:06:57
+-- Dump completed on 2018-05-29 23:34:51

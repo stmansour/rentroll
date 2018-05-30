@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
+	"time"
 )
 
 //-------------------------------------------------------------------
@@ -37,7 +38,7 @@ type FormClosePeriod struct {
 	LastDtDone       rlib.JSONDateTime // Date of last completed TaskList instance
 	LastDtClose      rlib.JSONDateTime // Datetime of last close
 	LastLedgerMarker rlib.JSONDateTime // date/time of last LedgerMarker
-	CurrentCloseDue  rlib.JSONDateTime // due date of first period that has not been closed
+	CloseTarget      rlib.JSONDateTime // due date of first period that has not been closed
 	DtDone           rlib.JSONDateTime // done date of first period that has not been closed
 }
 
@@ -142,10 +143,70 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.Console("E - last completed tasklist: TLID = %d\n", tl.TLID)
 		g.Record.TLName = tl.Name
 		g.Record.LastDtDone = rlib.JSONDateTime(tl.DtDone)
+
 	}
 
-	rlib.Console("G\n")
+	//-----------------------------------
+	// Get the last period closed...
+	//-----------------------------------
+	lcp, err := rlib.GetLastClosePeriod(r.Context(), d.BID)
+	if err != nil {
+		e := fmt.Errorf("%s: Error getting LastClosePeriod: %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	if lcp.CPID > 0 {
+		g.Record.LastDtClose = rlib.JSONDateTime(lcp.Dt)
+		rlib.Console("F - got LastClosePeriod:  CPID = %d\n", lcp.CPID)
+	}
+
+	//-----------------------------------
+	// Calculate next close target...
+	//-----------------------------------
+	target := NextInstance(&tl.DtDue, tl.Cycle)
+	g.Record.CloseTarget = rlib.JSONDateTime(target)
+
 	SvcWriteResponse(d.BID, &g, w)
+}
+
+// NextInstance returns date time value provided with the
+// day moved to the last day of the month if the supplied date is
+// 28 or greater.
+func NextInstance(d *time.Time, cycle int64) time.Time {
+	x := *d
+	dom := d.Day()
+	bMonthly := cycle >= rlib.RECURMONTHLY
+	if bMonthly {
+		if dom >= 28 {
+			x = time.Date(d.Year(), d.Month(), 28, d.Hour(), d.Minute(), d.Second(), 0, time.UTC)
+		}
+	}
+	// rlib.Console("1.  bMonthly = %t,  x before switch = %s\n", bMonthly, x.Format(rlib.RRDATETIMERPTFMT))
+	switch cycle {
+	case rlib.RECURDAILY: // daily
+		x = x.AddDate(0, 0, 1)
+	case rlib.RECURWEEKLY: // weekly
+		x = x.AddDate(0, 0, 7)
+	case rlib.RECURMONTHLY: // monthly
+		x = x.AddDate(0, 1, 0)
+	case rlib.RECURQUARTERLY: // quarterly
+		x = x.AddDate(0, 3, 0)
+	case rlib.RECURYEARLY: // yearly
+		x = x.AddDate(1, 0, 0)
+	}
+	// rlib.Console("2.  after switch = %s\n", x.Format(rlib.RRDATETIMERPTFMT))
+	if bMonthly {
+		last := time.Date(x.Year(), x.Month(), 1, x.Hour(), x.Minute(), x.Second(), 0, time.UTC)               // first day of desired month
+		last = last.AddDate(0, 1, 0)                                                                           // first day of the next month
+		last = time.Date(last.Year(), last.Month(), 0, last.Hour(), last.Minute(), last.Second(), 0, time.UTC) // last day of desired month
+		lastDOM := last.Day()                                                                                  // last day of the month
+		if dom >= 28 {                                                                                         // if the dom is 28 or greater...
+			dom = lastDOM // snap the result to the last day of the month
+		}
+		x = time.Date(x.Year(), x.Month(), dom, x.Hour(), x.Minute(), x.Second(), 0, time.UTC)
+	}
+	return x
 }
 
 // deleteClosePeriod reopens the ClosePeriod specified

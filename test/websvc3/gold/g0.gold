@@ -1,7 +1,7 @@
 {
     "record": {
         "BID": 1,
-        "CurrentCloseDue": "1900-01-01 00:00:00 UTC",
+        "CloseTarget": "1900-01-01 00:00:00 UTC",
         "DtDone": "1900-01-01 00:00:00 UTC",
         "LastDtClose": "1900-01-01 00:00:00 UTC",
         "LastDtDone": "1900-01-01 00:00:00 UTC",
