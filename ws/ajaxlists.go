@@ -15,12 +15,6 @@ import (
 	"github.com/kardianos/osext"
 )
 
-// manage to budget
-var manageToBudget = rlib.Str2Int64Map{
-	"No": 0,
-	"Yes (Market Rate required)": 1,
-}
-
 // rentroll report row flags
 var rrFLAGS = rlib.Str2Int64Map{
 	"RentRollMainRow":       rlib.RentRollMainRow,
@@ -54,8 +48,6 @@ var idTextMapList = []struct {
 }{
 	{"renewalMap", &rlib.RenewalMap},
 	{"companyOrPerson", &rlib.CompanyOrPersonMap},
-	{"manageToBudgetList", &manageToBudget},
-	{"rtActiveFLAGS", &rlib.RtActiveFLAGS},
 }
 
 var ssliceToJS = []struct {

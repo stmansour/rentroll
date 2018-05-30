@@ -36,8 +36,9 @@ type RentableTypeGridRecord struct {
 	RentCycle       int64
 	Proration       int64
 	GSRPC           int64
-	ManageToBudget  int64
-	FLAGS           int64
+	Manage2Budget   bool
+	flags           int64 // keep it in lowercase, don't send to client side
+	IsActive        bool
 	IsChildRentable bool
 	ARID            int64
 	LastModTime     rlib.JSONDateTime
@@ -164,8 +165,15 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 // rtGridRowScan scans a result from sql row and dump it in a struct for rentableGrid
 func rentableTypeGridRowScan(rows *sql.Rows, q RentableTypeGridRecord) (RentableTypeGridRecord, error) {
-	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.ManageToBudget, &q.FLAGS,
+	var mngToBudget int64
+	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &mngToBudget, &q.flags,
 		&q.ARID, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
+
+	// if not zero then mark flag as in true
+	if mngToBudget > 0 {
+		q.Manage2Budget = true
+	}
+
 	return q, err
 }
 
@@ -298,6 +306,19 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 			return
 		}
 
+		// active or inactive for the grid summary
+		if q.flags&0x1 != 0 { // 1<<0
+			q.IsActive = false // 1 = inactive
+		} else {
+			q.IsActive = true // 0 = active
+		}
+
+		if q.flags&0x2 != 0 { // 1<<1
+			q.IsChildRentable = true // 2 = can be child
+		} else {
+			q.IsChildRentable = false // 0 = can't be child
+		}
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -369,10 +390,17 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		if q.FLAGS&0x2 != 0 {
-			q.IsChildRentable = true
-		}else{
-			q.IsChildRentable = false
+		// active or inactive for the grid summary
+		if q.flags&0x1 != 0 { // 1<<0
+			q.IsActive = false // 1 = inactive
+		} else {
+			q.IsActive = true // 0 = active
+		}
+
+		if q.flags&0x2 != 0 { // 1<<1
+			q.IsChildRentable = true // 2 = can be child
+		} else {
+			q.IsChildRentable = false // 0 = can't be child
 		}
 
 		q.Recid = q.RTID
@@ -490,9 +518,19 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
+	// NOTE: here this service doesn't have to take care IsActive flag
+	// while saving information in database because
+	// there is a separate API to deactive/reactive rentabletypes
+
 	// Set FLAGS value based on Active/IsChildRentable flag
 	if foo.Record.IsChildRentable {
 		a.FLAGS |= 0x2
+	}
+
+	if foo.Record.Manage2Budget { // 1<<0
+		a.ManageToBudget |= 0x1 // set it to 1
+	} else {
+		a.ManageToBudget &= 0x0 // set it to 0
 	}
 
 	errlist := bizlogic.ValidateRentableType(r.Context(), &a)
