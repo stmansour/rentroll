@@ -517,8 +517,8 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// NOTE: There is a separate API to deactive/reactive rentabletypes
 
 	// this check is needed because to maintain FLAGS value for a rentabletype
-	if foo.Record.IsActive { // this would be hidden field on client side
-		a.FLAGS |= (1 << 0)
+	if !foo.Record.IsActive { // this would be hidden field on client side
+		a.FLAGS |= (1 << 0) // 1 means inactive, if not set then only feed "1"
 	}
 	if foo.Record.IsChildRentable { // 1 << 1 -- first bit
 		a.FLAGS |= (1 << 1)

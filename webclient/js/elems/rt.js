@@ -555,8 +555,12 @@ window.buildRentableTypeElements = function () {
             deactivate: function() {
                 var rtF = w2ui.rtForm;
 
+                // extend rest of the options
+                var confirm_dialog_options = $.extend(true, {}, delete_confirm_options);
+                confirm_dialog_options.msg = "<p>Are you sure you want to deactivate this record?</p>";
+
                 // confirm before deactivate
-                w2confirm(delete_confirm_options)
+                w2confirm(confirm_dialog_options)
                 .yes(function() {
                     var rtG = w2ui.rtGrid;
                     var params = {cmd: 'deactivate', formname: rtF.name, ID: rtF.record.RTID };

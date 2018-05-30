@@ -182,7 +182,10 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// --------------- LIST DOWN rentroll report FLAGS --------------
 	appData["rrFLAGS"] = rrFLAGS
 
-	// --------------- LIST DOWN rentroll report FLAGS --------------
+	// --------------- LIST DOWN account rules FLAGS --------------
+	appData["arFLAGS"] = bizlogic.ARFLAGS
+
+	// --------------- LIST DOWN rentable type FLAGS --------------
 	appData["arFLAGS"] = bizlogic.ARFLAGS
 
 	// --------------- LIST DOWN ra flow part types --------------
