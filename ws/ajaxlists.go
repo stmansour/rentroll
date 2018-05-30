@@ -186,7 +186,7 @@ func SvcUILists(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	appData["arFLAGS"] = bizlogic.ARFLAGS
 
 	// --------------- LIST DOWN rentable type FLAGS --------------
-	appData["arFLAGS"] = bizlogic.ARFLAGS
+	appData["rtFLAGS"] = bizlogic.RTFLAGS
 
 	// --------------- LIST DOWN ra flow part types --------------
 	appData["raFlowPartTypes"] = rlib.RAFlowPartsMap
