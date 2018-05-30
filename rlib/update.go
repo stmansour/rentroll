@@ -863,7 +863,7 @@ func UpdateRentableType(ctx context.Context, a *RentableType) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.ARID, a.LastModBy, a.RTID}
+	fields := []interface{}{a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.ARID, a.FLAGS, a.LastModBy, a.RTID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableType)
 		defer stmt.Close()
