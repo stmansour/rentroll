@@ -14,9 +14,6 @@ import (
 //  TLDID  - Task List Definition ID
 //  PTLID  - Parent (first in chain) for this recurring series.
 //  pivot  - date on or after which the instance will be created
-//  tzoff  - user's client timezone offset in minutes.  For web browsers
-//           this is determined by:
-//               offset = new Date().getTimezoneOffset();
 //
 // RETURNS
 //  error  - any error encountered

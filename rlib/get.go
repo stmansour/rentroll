@@ -942,6 +942,26 @@ func GetClosePeriod(ctx context.Context, id int64) (ClosePeriod, error) {
 	return a, ReadClosePeriod(row, &a)
 }
 
+// GetLastClosePeriod reads the last period closed
+//
+// INPUTS
+//  id  = BID
+//-----------------------------------------------------------------------------
+func GetLastClosePeriod(ctx context.Context, id int64) (ClosePeriod, error) {
+	var a ClosePeriod
+	var row *sql.Row
+
+	fields := []interface{}{id}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetLastClosePeriod)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetLastClosePeriod.QueryRow(fields...)
+	}
+	return a, ReadClosePeriod(row, &a)
+}
+
 //=======================================================
 //  C U S T O M   A T T R I B U T E
 //  CustomAttribute, CustomAttributeRef

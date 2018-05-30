@@ -67,15 +67,16 @@ window.loadClosePeriodInfo = function () {
             }
         }
 
-            //--------------------------------
-            //  Last closed period 
-            //--------------------------------
-            lcp = dtFormatISOToW2ui(data.record.LastDtClose);
+        //--------------------------------
+        //  Last closed period 
+        //--------------------------------
+        lcp = dtFormatISOToW2ui(data.record.LastDtClose);
 
-            //--------------------------------
-            //  Close period 
-            //--------------------------------
-            cp = 'some other date';
+        //--------------------------------
+        //  Target close period
+        //--------------------------------
+        cp = dtFormatISOToW2ui(data.record.CloseTarget);
+
         document.getElementById("closePeriodTL").innerHTML = ctl;
         document.getElementById("closePeriodLCP").innerHTML = lcp;
         document.getElementById("closePeriodNCP").innerHTML = cp;
