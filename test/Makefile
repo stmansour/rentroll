@@ -11,6 +11,8 @@ clean:
 	for dir in $(DIRS); do make -C $$dir clean;done
 	cd ./testdb;make clean
 	cd ./importers/onesite/okc;make clean
+	cd ./tws2;make clean
+	cd ./webclient;make clean
 	@echo "*** CLEAN completed in test ***"
 
 test: validate functest
