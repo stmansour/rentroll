@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
-	"time"
 )
 
 //-------------------------------------------------------------------
@@ -97,11 +96,12 @@ func saveClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 // GetClosePeriod returns the requested ClosePeriod
 // wsdoc {
-//  @Title  Get ClosePeriod
+//  @Title  GetClosePeriod
 //	@URL /v1/closeperiod/:BUI/TID
 //  @Method  GET
 //	@Synopsis Get information on a ClosePeriod
-//  @Description  Return all fields for assessment :TID
+//  @Description  Returns information about the business CloseTaskList, the
+//  @Description  last closed period, the current close period
 //	@Input WebGridSearchRequest
 //  @Response GetClosePeriodResponse
 // wsdoc }
@@ -164,49 +164,14 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	//-----------------------------------
 	// Calculate next close target...
 	//-----------------------------------
-	target := NextInstance(&tl.DtDue, tl.Cycle)
+	target := rlib.NextInstance(&tl.DtDue, tl.Cycle)
 	g.Record.CloseTarget = rlib.JSONDateTime(target)
 
-	SvcWriteResponse(d.BID, &g, w)
-}
+	//-------------------------------------------
+	// Find the TaskList for this target...
+	//-------------------------------------------
 
-// NextInstance returns date time value provided with the
-// day moved to the last day of the month if the supplied date is
-// 28 or greater.
-func NextInstance(d *time.Time, cycle int64) time.Time {
-	x := *d
-	dom := d.Day()
-	bMonthly := cycle >= rlib.RECURMONTHLY
-	if bMonthly {
-		if dom >= 28 {
-			x = time.Date(d.Year(), d.Month(), 28, d.Hour(), d.Minute(), d.Second(), 0, time.UTC)
-		}
-	}
-	// rlib.Console("1.  bMonthly = %t,  x before switch = %s\n", bMonthly, x.Format(rlib.RRDATETIMERPTFMT))
-	switch cycle {
-	case rlib.RECURDAILY: // daily
-		x = x.AddDate(0, 0, 1)
-	case rlib.RECURWEEKLY: // weekly
-		x = x.AddDate(0, 0, 7)
-	case rlib.RECURMONTHLY: // monthly
-		x = x.AddDate(0, 1, 0)
-	case rlib.RECURQUARTERLY: // quarterly
-		x = x.AddDate(0, 3, 0)
-	case rlib.RECURYEARLY: // yearly
-		x = x.AddDate(1, 0, 0)
-	}
-	// rlib.Console("2.  after switch = %s\n", x.Format(rlib.RRDATETIMERPTFMT))
-	if bMonthly {
-		last := time.Date(x.Year(), x.Month(), 1, x.Hour(), x.Minute(), x.Second(), 0, time.UTC)               // first day of desired month
-		last = last.AddDate(0, 1, 0)                                                                           // first day of the next month
-		last = time.Date(last.Year(), last.Month(), 0, last.Hour(), last.Minute(), last.Second(), 0, time.UTC) // last day of desired month
-		lastDOM := last.Day()                                                                                  // last day of the month
-		if dom >= 28 {                                                                                         // if the dom is 28 or greater...
-			dom = lastDOM // snap the result to the last day of the month
-		}
-		x = time.Date(x.Year(), x.Month(), dom, x.Hour(), x.Minute(), x.Second(), 0, time.UTC)
-	}
-	return x
+	SvcWriteResponse(d.BID, &g, w)
 }
 
 // deleteClosePeriod reopens the ClosePeriod specified

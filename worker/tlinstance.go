@@ -86,7 +86,6 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 	// need to be created now...
 	//------------------------------------------------------
 	for i := 0; i < len(m); i++ {
-
 		//--------------------------------
 		// skip if no due dates...
 		//--------------------------------
@@ -101,19 +100,12 @@ func TLInstanceBotCore(ctx context.Context, now *time.Time) error {
 		if tld.Epoch.Year() < 1999 {
 			return fmt.Errorf("no epoch for TLDID = %d", m[i].TLDID)
 		}
-		dtNext := now.AddDate(0, 0, 1) // initialize something for dtNext
-		switch m[i].Cycle {
-		case rlib.RECURDAILY: // daily
-			dtNext = now.AddDate(0, 0, 1)
-		case rlib.RECURWEEKLY: // weekly
-			dtNext = now.AddDate(0, 0, 7)
-		case rlib.RECURMONTHLY: // monthly
-			dtNext = now.AddDate(0, 1, 0)
-		case rlib.RECURQUARTERLY: // quarterly
-			dtNext = now.AddDate(0, 3, 0)
-		case rlib.RECURYEARLY: // yearly
-			dtNext = now.AddDate(1, 0, 0)
-		}
+
+		//---------------------------------------------------------------------
+		// use supplied "now" date, but make sure we set the time to reflect
+		// the time of day in the task definition of the epoch...
+		//---------------------------------------------------------------------
+		dtNext := rlib.NextInstance(now, m[i].Cycle) // next instance should fall here
 
 		//----------------------------------------------
 		// Look for any instances that occur this day

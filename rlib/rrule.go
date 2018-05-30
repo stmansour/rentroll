@@ -5,6 +5,58 @@ import (
 	"time"
 )
 
+// NextInstance returns date time value provided with the
+// day moved to the last day of the month if the supplied date is
+// 28 or greater.
+//
+// For monthly values we always set the date to nothing past 28.
+// That way, incrementing by a month will always produce a result int
+// the correct month. In go, adding 1 month to Jan 31 will probably
+// not produce the expected result.  See https://play.golang.org/p/ta3nddLJOhq
+//
+// INPUTS:
+//     d     - last instance date
+//     cycle - recur cycle
+//
+// RETURNS:
+//     next instance as a time.Time
+//-----------------------------------------------------------------------------
+func NextInstance(d *time.Time, cycle int64) time.Time {
+	x := *d
+	dom := d.Day()
+	bMonthly := cycle >= RECURMONTHLY
+	if bMonthly {
+		if dom >= 28 {
+			x = time.Date(d.Year(), d.Month(), 28, d.Hour(), d.Minute(), d.Second(), 0, time.UTC)
+		}
+	}
+	// Console("1.  bMonthly = %t,  x before switch = %s\n", bMonthly, x.Format(RRDATETIMERPTFMT))
+	switch cycle {
+	case RECURDAILY: // daily
+		x = x.AddDate(0, 0, 1)
+	case RECURWEEKLY: // weekly
+		x = x.AddDate(0, 0, 7)
+	case RECURMONTHLY: // monthly
+		x = x.AddDate(0, 1, 0)
+	case RECURQUARTERLY: // quarterly
+		x = x.AddDate(0, 3, 0)
+	case RECURYEARLY: // yearly
+		x = x.AddDate(1, 0, 0)
+	}
+	// Console("2.  after switch = %s\n", x.Format(RRDATETIMERPTFMT))
+	if bMonthly {
+		last := time.Date(x.Year(), x.Month(), 1, x.Hour(), x.Minute(), x.Second(), 0, time.UTC)               // first day of desired month
+		last = last.AddDate(0, 1, 0)                                                                           // first day of the next month
+		last = time.Date(last.Year(), last.Month(), 0, last.Hour(), last.Minute(), last.Second(), 0, time.UTC) // last day of desired month
+		lastDOM := last.Day()                                                                                  // last day of the month
+		if dom >= 28 {                                                                                         // if the dom is 28 or greater...
+			dom = lastDOM // snap the result to the last day of the month
+		}
+		x = time.Date(x.Year(), x.Month(), dom, x.Hour(), x.Minute(), x.Second(), 0, time.UTC)
+	}
+	return x
+}
+
 // GetRecurrences is a shorthand for assessment variables to get a list
 // of dates on which charges must be assessed for a particular interval of time (d1 - d2)
 func (a *Assessment) GetRecurrences(d1, d2 *time.Time) []time.Time {
