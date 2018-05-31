@@ -1078,9 +1078,9 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.UpdateRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET " + s3 + " WHERE RTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.DeleteRentableType, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=1 WHERE RTID=?")
+	RRdb.Prepstmt.UpdateRentableTypeToActive, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=FLAGS&(~(1<<0)),LastModBy=? WHERE RTID=?")
 	Errcheck(err)
-	RRdb.Prepstmt.UpdateRentableTypeToActive, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=0,LastModBy=? WHERE RTID=?")
+	RRdb.Prepstmt.UpdateRentableTypeToInactive, err = RRdb.Dbrr.Prepare("UPDATE RentableTypes SET FLAGS=FLAGS|(1<<0),LastModBy=? WHERE RTID=?")
 	Errcheck(err)
 
 	//===============================

@@ -192,6 +192,10 @@ window.loadRARentablesGrid = function () {
                     hidden: true
                 },
                 {
+                    field: 'RTFLAGS',
+                    hidden: true
+                },
+                {
                     field: 'RentableName',
                     caption: 'Rentable',
                     size: '160px',

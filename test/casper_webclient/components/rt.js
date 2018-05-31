@@ -21,11 +21,11 @@ exports.gridConf = {
         "searchDtStop": "12/31/2017"
     }),
     excludeGridColumns: {
-        Active: "rtActiveFLAGS",
+        Active: "rtActiveFLAGS", // TODO(Sudip): "rtActiveFLAGS" has been removed
         RentCycle: "cycleFreq",
         Proration: "cycleFreq",
         GSRPC: "cycleFreq",
-        ManageToBudget: "manageToBBudgetList"
+        ManageToBudget: "manageToBudgetList" // TODO(Sudip): "manageToBBudgetList" has been removed
     },
     testCount: 91
 };

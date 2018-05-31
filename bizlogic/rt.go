@@ -6,6 +6,28 @@ import (
 	"rentroll/rlib"
 )
 
+// RTFLAGS rentable type FLAGS
+var RTFLAGS = rlib.Str2Int64Map{
+	"IsActive":        0, // 0 = active, 1 = inactive
+	"IsChildRentable": 1, // 0 = NO > can't be child, 1 = Yes > can be child
+}
+
+// IsValidRTFlag checks whether FLAGS value is valid or not
+func IsValidRTFlag(FLAGS uint64) bool {
+
+	maxFLAGVal := 0
+	for _, v := range RTFLAGS {
+		maxFLAGVal += 1 << uint(v)
+	}
+
+	// NOTE: if no flag is set then 0 can be the case here
+	if FLAGS < 0 || FLAGS > uint64(maxFLAGVal) {
+		return false
+	}
+
+	return true
+}
+
 // ValidateRentableType does the business logic checks for inserting
 // and updating a Rentable Type
 func ValidateRentableType(ctx context.Context, rt *rlib.RentableType) []BizError {
@@ -20,6 +42,13 @@ func ValidateRentableType(ctx context.Context, rt *rlib.RentableType) []BizError
 	if len(rt.Style) == 0 {
 		errlist = AddBizErrToList(errlist, MissingStyleName)
 	}
+	if !IsValidRTFlag(rt.FLAGS) {
+		rlib.Console("*** ERROR *** invalid FLAGS: %d for rt.RTID = %d\n", rt.FLAGS, rt.RTID)
+		s := fmt.Sprintf(BizErrors[InvalidRTFlag].Message, rt.FLAGS, rt.RTID)
+		b := BizError{Errno: InvalidRTFlag, Message: s}
+		errlist = append(errlist, b)
+	}
+
 	dup, err := rlib.GetRentableTypeByName(ctx, rt.Name, rt.BID)
 	if err == nil && dup.RTID != rt.RTID && dup.RTID > 0 {
 		errlist = AddBizErrToList(errlist, DuplicateName)

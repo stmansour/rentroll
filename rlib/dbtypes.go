@@ -1463,7 +1463,6 @@ type RRprepSQL struct {
 	DeleteRentableMarketRateInstance        *sql.Stmt
 	DeleteRentableSpecialtyRef              *sql.Stmt
 	DeleteRentableStatus                    *sql.Stmt
-	DeleteRentableType                      *sql.Stmt
 	DeleteRentableTypeRef                   *sql.Stmt
 	DeleteRentableTypeRefWithRTID           *sql.Stmt
 	DeleteRentableUser                      *sql.Stmt
@@ -1741,6 +1740,7 @@ type RRprepSQL struct {
 	UpdateRentableStatus                    *sql.Stmt
 	UpdateRentableType                      *sql.Stmt
 	UpdateRentableTypeToActive              *sql.Stmt
+	UpdateRentableTypeToInactive            *sql.Stmt
 	UpdateRentableTypeRef                   *sql.Stmt
 	UpdateRentableUser                      *sql.Stmt
 	UpdateRentableUserByRBT                 *sql.Stmt

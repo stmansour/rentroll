@@ -724,6 +724,8 @@ window.getParentAccounts = function (BID, delLID) {
 // @return
 //   boolean:  returns false if i == 0
 //             otherwise it returns true
+// This method needed to convert 1/0 value back to bool
+// source: https://github.com/vitmalina/w2ui/blob/master/src/w2form.js#L368
 //-----------------------------------------------------------------------------
 window.int_to_bool = function (i){
     if (i>0) {
