@@ -59,8 +59,6 @@ var assignmap = []struct {
 	{a: "int", b: "XJSONAsmFLAGS", mapper: MigrateInt64ToString, valmap: &AsmFLAGS},
 	{a: "XJSONRcptFLAGS", b: "int", mapper: MigrateStrToInt64, valmap: &RcptFLAGS},
 	{a: "int", b: "XJSONRcptFLAGS", mapper: MigrateInt64ToString, valmap: &RcptFLAGS},
-	{a: "XJSONRtActiveFLAGS", b: "int", mapper: MigrateStrToInt64, valmap: &RtActiveFLAGS},
-	{a: "int", b: "XJSONRtActiveFLAGS", mapper: MigrateInt64ToString, valmap: &RtActiveFLAGS},
 }
 
 var xjson = string("XJSON")
@@ -241,13 +239,4 @@ var RcptFLAGS = Str2Int64Map{
 	"PARTIALALLOCATED": int64(RCPTPARTIALALLOCATED),
 	"FULLYALLOCATED":   int64(RCPTFULLYALLOCATED),
 	"REVERSED":         int64(RCPTREVERSED),
-}
-
-// XJSONRtActiveFLAGS is a UI converter: back-end int, UI: string
-type XJSONRtActiveFLAGS string
-
-// RtActiveFLAGS is the mapping of FLAGS for active/inactive indication
-var RtActiveFLAGS = Str2Int64Map{
-	"Yes": int64(RTACTIVE),
-	"No":  int64(RTINACTIVE),
 }

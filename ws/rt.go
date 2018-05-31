@@ -27,22 +27,24 @@ type RentableTypesTDResponse struct {
 
 // RentableTypeGridRecord struct to show record in rentabletype grid
 type RentableTypeGridRecord struct {
-	Recid          int64 `json:"recid"`
-	RTID           int64
-	BID            int64
-	BUD            rlib.XJSONBud
-	Style          string
-	Name           string
-	RentCycle      int64
-	Proration      int64
-	GSRPC          int64
-	ManageToBudget int64
-	FLAGS          int64
-	ARID           int64
-	LastModTime    rlib.JSONDateTime
-	LastModBy      int64
-	CreateTS       rlib.JSONDateTime
-	CreateBy       int64
+	Recid           int64 `json:"recid"`
+	RTID            int64
+	BID             int64
+	BUD             rlib.XJSONBud
+	Style           string
+	Name            string
+	RentCycle       int64
+	Proration       int64
+	GSRPC           int64
+	Manage2Budget   bool
+	flags           int64 // keep it in lowercase, don't send to client side
+	IsActive        bool
+	IsChildRentable bool
+	ARID            int64
+	LastModTime     rlib.JSONDateTime
+	LastModBy       int64
+	CreateTS        rlib.JSONDateTime
+	CreateBy        int64
 }
 
 // RentableTypeSearchResponse is a response string to the search request for rentable types records
@@ -58,13 +60,8 @@ type RentableTypeGetResponse struct {
 	Record RentableTypeGridRecord `json:"record"`
 }
 
-// DeleteRentableTypeForm used to inactive Rentable Type
-type DeleteRentableTypeForm struct {
-	ID int64
-}
-
-// ReactivateRentableTypeForm used to reactivate Rentable Type
-type ReactivateRentableTypeForm struct {
+// RIDRequest has requested RID field
+type RIDRequest struct {
 	ID int64
 }
 
@@ -148,8 +145,8 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	case "save":
 		saveRentableType(w, r, d)
 		break
-	case "delete":
-		deleteRentableType(w, r, d)
+	case "deactivate":
+		deactivateRentableType(w, r, d)
 		break
 	case "reactivate":
 		reactivateRentableType(w, r, d)
@@ -163,8 +160,15 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 // rtGridRowScan scans a result from sql row and dump it in a struct for rentableGrid
 func rentableTypeGridRowScan(rows *sql.Rows, q RentableTypeGridRecord) (RentableTypeGridRecord, error) {
-	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.ManageToBudget, &q.FLAGS,
+	var mngToBudget int64
+	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &mngToBudget, &q.flags,
 		&q.ARID, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
+
+	// if not zero then mark flag as in true
+	if mngToBudget > 0 {
+		q.Manage2Budget = true
+	}
+
 	return q, err
 }
 
@@ -297,6 +301,19 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 			return
 		}
 
+		// active or inactive for the grid summary
+		if q.flags&0x1 != 0 { // 1<<0
+			q.IsActive = false // 1 = inactive
+		} else {
+			q.IsActive = true // 0 = active
+		}
+
+		if q.flags&0x2 != 0 { // 1<<1
+			q.IsChildRentable = true // 2 = can be child
+		} else {
+			q.IsChildRentable = false // 0 = can't be child
+		}
+
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -368,6 +385,19 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
+		// active or inactive for the grid summary
+		if q.flags&0x1 != 0 { // 1<<0
+			q.IsActive = false // 1 = inactive
+		} else {
+			q.IsActive = true // 0 = active
+		}
+
+		if q.flags&0x2 != 0 { // 1<<1
+			q.IsChildRentable = true // 2 = can be child
+		} else {
+			q.IsChildRentable = false // 0 = can't be child
+		}
+
 		q.Recid = q.RTID
 		g.Record = q
 	}
@@ -382,29 +412,30 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	SvcWriteResponse(d.BID, &g, w)
 }
 
-// deleteRentableType deletes a RentableType from the database
+// deactivateRentableType updates requested RentableType to inactive state
 // wsdoc {
 //  @Title  Delete RentableType
 //	@URL /v1/rt/:BUI/:RTID
 //  @Method  POST
 //	@Synopsis Delete a RentableType
-//  @Desc  This service deletes a RentableType.
-//	@Input WebGridDelete
+//  @Desc  This service inactivates a RentableType.
+//	@Input RIDRequest
 //  @Response SvcStatusResponse
 // wsdoc }
-func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "deleteRentableType"
+func deactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "deactivateRentableType"
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
-	var del DeleteRentableTypeForm
-	if err := json.Unmarshal([]byte(d.data), &del); err != nil {
+	var foo RIDRequest
+	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
-	if err := rlib.DeleteRentableType(r.Context(), del.ID); err != nil {
+	rt := rlib.RentableType{RTID: foo.ID}
+	if err := rlib.UpdateRentableTypeToInactive(r.Context(), &rt); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
@@ -418,7 +449,7 @@ func deleteRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 //  @Method  POST
 //	@Synopsis Reactivate a RentableType (deleted previously)
 //  @Desc  This service reactivates a RentableType.
-//	@Input ReactivateRentableTypeForm
+//	@Input RIDRequest
 //  @Response SvcStatusResponse
 // wsdoc }
 func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
@@ -426,14 +457,14 @@ func reactivateRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	fmt.Printf("Entered %s\n", funcname)
 	fmt.Printf("record data = %s\n", d.data)
 
-	var reActF ReactivateRentableTypeForm
-	if err := json.Unmarshal([]byte(d.data), &reActF); err != nil {
+	var foo RIDRequest
+	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
 		e := fmt.Errorf("Error with json.Unmarshal:  %s", err.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
 
-	rt := rlib.RentableType{RTID: reActF.ID}
+	rt := rlib.RentableType{RTID: foo.ID}
 	if err := rlib.UpdateRentableTypeToActive(r.Context(), &rt); err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -481,6 +512,26 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		rlib.Ulog("%s", e.Error())
 		SvcErrorReturn(w, e, funcname)
 		return
+	}
+
+	// NOTE: There is a separate API to deactive/reactive rentabletypes
+
+	// this check is needed because to maintain FLAGS value for a rentabletype
+	if !foo.Record.IsActive { // this would be hidden field on client side
+		a.FLAGS |= (1 << 0) // 1 means inactive, if not set then only feed "1"
+	}
+	if foo.Record.IsChildRentable { // 1 << 1 -- first bit
+		a.FLAGS |= (1 << 1)
+	}
+
+	if foo.Record.Manage2Budget { // 1<<0
+		a.ManageToBudget |= (1 << 0) // set it to 1
+	} else {
+		// helplinks: 1. https://codeforwin.org/2016/01/c-program-to-clear-nth-bit-of-number.html
+		//            2. https://medium.com/learning-the-go-programming-language/bit-hacking-with-go-e0acee258827
+
+		// i &^= (1 << 0) <==> i = i & ^(1 << 0), which clears the 0th bit
+		a.ManageToBudget &^= (1 << 0) // set it to 0, clear the 0th bit
 	}
 
 	errlist := bizlogic.ValidateRentableType(r.Context(), &a)

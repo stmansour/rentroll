@@ -16,12 +16,13 @@ window.getRTInitRecord = function (BID, BUD){
         RentCycle: 0,
         Proration: 0,
         GSRPC: 0,
-        ManageToBudget: false,
+        Manage2Budget: false,
+        IsActive: true,
+        IsChildRentable: false,
         RMRID: 0,
         LastModTime: y.toISOString(),
         LastModBy: 0,
-        FLAGS: 0,
-        ARID: 0,
+        ARID: 0
     };
 };
 
@@ -72,11 +73,10 @@ window.buildRentableTypeElements = function () {
             {field: 'Active', caption: 'Active', size: '50px', sortable: true,
                 render: function(record) {
                     if (record) {
-                        if ((record.FLAGS & 1) == 1) {
-                            return "NO";
-                        }
-                        if ((record.FLAGS & 0) == 0) {
+                        if (record.IsActive) {
                             return "YES";
+                        } else {
+                            return "NO";
                         }
                     }
                 }
@@ -127,16 +127,15 @@ window.buildRentableTypeElements = function () {
                     return text;
                 },
             },
-            {field: 'ManageToBudget', caption: 'ManageToBudget', size: '200px', sortable: true,
+            {field: 'Manage2Budget', caption: 'Manage To Budget', size: '200px', sortable: true,
                 render: function (record/*, index, col_index*/) {
                     var text = '';
                     if (record) {
-                        app.manageToBudgetList.forEach(function(item) {
-                            if (record.ManageToBudget == item.id) {
-                                text = item.text;
-                                return false;
-                            }
-                        });
+                        if (record.Manage2Budget) {
+                            return "YES (Market Rate required)";
+                        } else {
+                            return "NO";
+                        }
                     }
                     return text;
                 },
@@ -262,8 +261,9 @@ window.buildRentableTypeElements = function () {
             { field: 'RentCycle',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
             { field: 'Proration',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
             { field: 'GSRPC',           type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
-            { field: 'ManageToBudget',  type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
-            { field: 'FLAGS',           type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
+            { field: 'Manage2Budget',   type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
+            { field: 'IsActive',        type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
+            { field: 'IsChildRentable', type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'ARID',            type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: [], selected: {}} },
             { field: 'LastModTime',     type: 'time',       required: false,    html: { page: 0, column: 0 } },
             { field: 'LastModBy',       type: 'int',        required: false,    html: { page: 0, column: 0 } },
@@ -273,8 +273,7 @@ window.buildRentableTypeElements = function () {
         onValidate: function(event) {
             event.onComplete = function() {
                 // console.log(event);
-                if (this.record.ManageToBudget) {
-                    console.log("manageToBudget is true");
+                if (this.record.Manage2Budget) {
                     var grid = w2ui.rmrGrid;
                     var f = this;
                     var mainPanel = w2ui.rtDetailLayout.get("main");
@@ -285,13 +284,13 @@ window.buildRentableTypeElements = function () {
                             errMsg = "At least one MarketRate should be exist when Mange To Budget is Yes.\n Please checkout MarketRates tab!";
                             f.message(errMsg);
                             /*event.errors.push({
-                                field: f.get('ManageToBudget'),
+                                field: f.get('Manage2Budget'),
                                 error: errMsg
                             });*/
                             /*// show red-bordered error message and popup dialog too!
                             setTimeout(function() {
-                                $($(f.get("ManageToBudget").el).parents("div")[0]).w2tag(errMsg);
-                                $(f.get("ManageToBudget").el).addClass("w2ui-error");
+                                $($(f.get("Manage2Budget").el).parents("div")[0]).w2tag(errMsg);
+                                $(f.get("Manage2Budget").el).addClass("w2ui-error");
 
                             }, 0);*/
                         } else {
@@ -321,17 +320,10 @@ window.buildRentableTypeElements = function () {
             delete data.postData.record.CreateTS;
             delete data.postData.record.CreateBy;
 
-            if (data.postData.record.ManageToBudget) {
-                data.postData.record.ManageToBudget = 1; // true=1(yes) || false=0(no)
-            } else {
-                data.postData.record.ManageToBudget = 0; // true=1(yes) || false=0(no)
-            }
+            data.postData.record.Manage2Budget = int_to_bool(data.postData.record.Manage2Budget);
+            data.postData.record.IsActive = int_to_bool(data.postData.record.IsActive);
+            data.postData.record.IsChildRentable = int_to_bool(data.postData.record.IsChildRentable);
 
-            if (data.postData.record.Active) {
-                data.postData.record.Active = 0; // true=0(no), false=1(yes)
-            } else {
-                data.postData.record.Active = 1; // true=0(no), false=1(yes)
-            }
             // server request form data
             getFormSubmitData(data.postData.record);
         },
@@ -342,9 +334,9 @@ window.buildRentableTypeElements = function () {
                     header = "Edit Rentable Type ({0})";
 
                 // dropdown list items and selected variables
-                var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
-                    manageToBudgetSel = {}, FLAGSel = {},
-                    cycleFreqItems = [], ARIDSel = {};
+                var rentCycleSel = {}, prorationSel = {},
+                    gsrpcSel = {},  ARIDSel = {},
+                    cycleFreqItems = [];
 
                 // select value for rentcycle, proration, gsrpc
                 app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -360,21 +352,7 @@ window.buildRentableTypeElements = function () {
                     cycleFreqItems.push({ id: itemIndex, text: itemText });
                 });
 
-                /*// select value for manage to budget
-                app.manageToBudgetList.forEach(function(item) {
-                    if (item.id == r.ManageToBudget) {
-                        manageToBudgetSel = {id: item.id, text: item.text};
-                    }
-                });*/
-
-                // select value for rentable type FLAGS
-                app.rtActiveFLAGS.forEach(function(item) {
-                    if (item.id == r.FLAGS) {
-                        FLAGSel = {id: item.id, text: item.text};
-                    }
-                });
-
-                // select value for rentable type FLAGS
+                // select value for rentable type account rule
                 f.get("ARID").options.items.forEach(function(item) {
                     if (item.id == r.ARID) {
                         ARIDSel = {id: item.id, text: item.text};
@@ -388,22 +366,13 @@ window.buildRentableTypeElements = function () {
                 f.get("Proration").options.selected = prorationSel;
                 f.get("GSRPC").options.items = cycleFreqItems;
                 f.get("GSRPC").options.selected = gsrpcSel;
-                // f.get("ManageToBudget").options.selected = manageToBudgetSel;
-                f.get("FLAGS").options.selected = FLAGSel;
                 f.get("ARID").options.selected = ARIDSel;
 
                 // if manageToBudget set then enable market rate grid
-                if (f.record.ManageToBudget) {
+                if (f.record.Manage2Budget) {
                     w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
                 } else {
                     w2ui.rtDetailLayout.get("main").tabs.disable("rmrGrid");
-                }
-
-                // if active set(=0) then mark the active flag, this is beyond weird
-                if (f.record.FLAGS) {
-                    $(f.box).find("input[name=FLAGS]").prop("checked", false);
-                } else {
-                    $(f.box).find("input[name=FLAGS]").prop("checked", true);
                 }
 
                 formRefreshCallBack(f, "RTID", header);
@@ -413,7 +382,7 @@ window.buildRentableTypeElements = function () {
             var f = this;
             event.onComplete = function() {
                 switch (event.target) {
-                    case "ManageToBudget":
+                    case "Manage2Budget":
                         if (event.value_new) {
                             w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
                         } else {
@@ -480,7 +449,7 @@ window.buildRentableTypeElements = function () {
                     };
 
                     // only if manage to budget is set then call
-                    if (rtF.record.ManageToBudget) {
+                    if (rtF.record.Manage2Budget) {
                         // update RTID in grid records
                         for (var i = 0; i < rmrG.records.length; i++) {
                             rmrG.records[i].RTID = rtF.record.RTID;
@@ -547,15 +516,6 @@ window.buildRentableTypeElements = function () {
                             cycleFreqItems.push({ id: itemIndex, text: itemText });
                         });
 
-                        /*// select value for manage to budget
-                        app.manageToBudgetList.forEach(function(item) {
-                            if (item.id == rtF.record.ManageToBudget) {
-                                manageToBudgetSel = {id: item.id, text: item.text};
-                            }
-                        });*/
-
-                        /*rtF.get("ManageToBudget").options.items = app.manageToBudgetList;
-                        rtF.get("ManageToBudget").options.selected = manageToBudgetSel[0];*/
                         rtF.get("RentCycle").options.items = cycleFreqItems;
                         rtF.get("RentCycle").options.selected = rentCycleSel[0];
                         rtF.get("Proration").options.items = cycleFreqItems;
@@ -573,7 +533,7 @@ window.buildRentableTypeElements = function () {
                         rtF.refresh();
                     };
 
-                    if (rtF.record.ManageToBudget) {
+                    if (rtF.record.Manage2Budget) {
                         // now set the url of market Rate grid so that it can save the record on server side
                         rmrG.url = '/v1/rmr/' + BID + '/' + rtF.record.RTID;
                         rmrG.save(function(data) {
@@ -595,14 +555,18 @@ window.buildRentableTypeElements = function () {
             deactivate: function() {
                 var rtF = w2ui.rtForm;
 
-                // confirm before delete
-                w2confirm(delete_confirm_options)
+                // extend rest of the options
+                var confirm_dialog_options = $.extend(true, {}, delete_confirm_options);
+                confirm_dialog_options.msg = "<p>Are you sure you want to deactivate this record?</p>";
+
+                // confirm before deactivate
+                w2confirm(confirm_dialog_options)
                 .yes(function() {
                     var rtG = w2ui.rtGrid;
-                    var params = {cmd: 'delete', formname: rtF.name, ID: rtF.record.RTID };
+                    var params = {cmd: 'deactivate', formname: rtF.name, ID: rtF.record.RTID };
                     var dat = JSON.stringify(params);
 
-                    // delete Depository request
+                    // deactivate rentable type request
                     $.post(rtF.url, dat, null, "json")
                     .done(function(data) {
                         if (data.status === "error") {
@@ -613,7 +577,7 @@ window.buildRentableTypeElements = function () {
                         rtG.render();
                     })
                     .fail(function(/*data*/){
-                        rtF.error("Delete Payment failed.");
+                        rtF.error("deactivate rentabletype failed.");
                         return;
                     });
                 })
@@ -627,7 +591,7 @@ window.buildRentableTypeElements = function () {
                 var params = {cmd: 'reactivate', formname: rtF.name, ID: rtF.record.RTID };
                 var dat = JSON.stringify(params);
 
-                // delete Depository request
+                // reactive rentabletype request
                 $.post(rtF.url, dat, null, "json")
                 .done(function(data) {
                     if (data.status === "error") {
@@ -638,16 +602,15 @@ window.buildRentableTypeElements = function () {
                     rtG.render();
                 })
                 .fail(function(/*data*/){
-                    rtF.error("Deactivate Rentable Type failed.");
+                    rtF.error("Reactivate Rentable Type failed.");
                     return;
                 });
             },
          },
          onRefresh: function(event) {
             event.onComplete = function() {
-                var FLAG = w2ui.rtForm.record.FLAGS;
-                var rtActive = typeof FLAG == "object" ? FLAG.id : FLAG;
-                if (rtActive == 1) { // 1 means inactive
+                var rtActive = w2ui.rtForm.record.IsActive;
+                if (!rtActive) {
                     $("#rtFormBtns").find("button[name=save]").addClass("hidden");
                     $("#rtFormBtns").find("button[name=saveadd]").addClass("hidden");
                     $("#rtFormBtns").find("button[name=deactivate]").addClass("hidden");
@@ -715,9 +678,8 @@ window.buildRentableTypeElements = function () {
 
                         // if RentableType is not active then lock the content loaded in main panel
                         setTimeout(function() {
-                            var FLAG = w2ui.rtForm.record.FLAGS;
-                            var rtActive = typeof FLAG == "object" ? FLAG.id : FLAG;
-                            if (rtActive == 1) { // 1 means inactive
+                            var rtActive = w2ui.rtForm.record.IsActive;
+                            if (!rtActive) {
                                 w2ui.rtDetailLayout.get("main").content.lock();
                             } else {
                                 w2ui.rtDetailLayout.get("main").content.unlock();

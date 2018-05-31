@@ -847,32 +847,6 @@ func DeleteReceiptAllocations(ctx context.Context, rcptid int64) error {
 	return err
 }
 
-// DeleteRentableType deletes RentableType records with the supplied rtid
-func DeleteRentableType(ctx context.Context, rtid int64) error {
-	var err error
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-	}
-
-	fields := []interface{}{rtid}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.DeleteRentableType)
-		defer stmt.Close()
-		_, err = stmt.Exec(fields...)
-	} else {
-		_, err = RRdb.Prepstmt.DeleteRentableType.Exec(fields...)
-	}
-	if err != nil {
-		Ulog("Error deleting RentableType with rtid=%d\n", rtid, err)
-	}
-	return err
-}
-
 // DeleteRentableTypeRefWithRTID deletes RentableTypeRef records with the supplied RTID
 func DeleteRentableTypeRefWithRTID(ctx context.Context, rtid int64) error {
 	var err error

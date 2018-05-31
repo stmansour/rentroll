@@ -14,13 +14,13 @@ import (
 
 // RAFlowJSONData holds the struct for all the parts being involed in rental agreement flow
 type RAFlowJSONData struct {
-	Dates       RADatesFlowData       `json:"dates"`
-	People      []RAPeopleFlowData    `json:"people"`
-	Pets        []RAPetsFlowData      `json:"pets"`
-	Vehicles    []RAVehiclesFlowData  `json:"vehicles"`
-	Rentables   []RARentablesFlowData `json:"rentables"`
-	ParentChild RAParentChildFlowData `json:"parentchild"`
-	Tie         RATieFlowData         `json:"tie"`
+	Dates       RADatesFlowData         `json:"dates"`
+	People      []RAPeopleFlowData      `json:"people"`
+	Pets        []RAPetsFlowData        `json:"pets"`
+	Vehicles    []RAVehiclesFlowData    `json:"vehicles"`
+	Rentables   []RARentablesFlowData   `json:"rentables"`
+	ParentChild []RAParentChildFlowData `json:"parentchild"`
+	Tie         RATieFlowData           `json:"tie"`
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -136,7 +136,9 @@ type RAPeopleFlowData struct {
 
 // RAParentChildFlowData contains data in the Parent/Child part of RA flow
 type RAParentChildFlowData struct {
-	BID int64
+	BID  int64
+	PRID int64 // parent rentable ID
+	CRID int64 // child rentable ID
 }
 
 // RATieFlowData contains data in the tie part of RA flow
@@ -150,6 +152,7 @@ type RARentablesFlowData struct {
 	BID          int64
 	RID          int64
 	RTID         int64
+	RTFLAGS      uint64
 	RentableName string
 	RentCycle    int64
 	AtSigningAmt float64
@@ -290,7 +293,21 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		// return json marshalled for struct
 		return json.Marshal(&a)
 
-	// case rlib.ParentChildRAFlowPart:
+	case rlib.ParentChildRAFlowPart:
+		a := []RAParentChildFlowData{}
+
+		// if the struct provided with some data then check it for
+		// json validation
+		if !(isBlankJSONData) {
+			err := json.Unmarshal(data, &a)
+			if err != nil {
+				// if it's an error then return with nil data
+				return []byte(nil), err
+			}
+		}
+		// return json marshalled for struct
+		return json.Marshal(&a)
+
 	// case rlib.TieRAFlowPart:
 
 	default:
@@ -326,7 +343,7 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Pets:        []RAPetsFlowData{},
 		Vehicles:    []RAVehiclesFlowData{},
 		Rentables:   []RARentablesFlowData{},
-		ParentChild: RAParentChildFlowData{},
+		ParentChild: []RAParentChildFlowData{},
 		Tie:         RATieFlowData{},
 	}
 
@@ -500,6 +517,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	rfd.RID = rentable.RID
 	rfd.RentableName = rentable.RentableName
 	rfd.RTID = rt.RTID
+	rfd.RTFLAGS = rt.FLAGS
 	rfd.RentCycle = rt.RentCycle
 	rfd.Fees = feesRecords
 

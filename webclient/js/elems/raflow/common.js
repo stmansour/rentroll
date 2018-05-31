@@ -294,6 +294,17 @@ window.requiredFieldsFulFilled = function (compID) {
                 done = true;
             }
             break;
+        case "parentchild":
+            compData.forEach(function(item) {
+                if (item.PRID === 0 || item.CRID === 0) {
+                    validData = false;
+                    return false;
+                }
+            });
+
+            // if loop passed successfully then mark it as successfully
+            done = validData;
+            break;
         case "final":
             break;
     }
@@ -338,10 +349,11 @@ window.loadTargetSection = function (target, activeCompID) {
             modCompData = w2ui.RARentablesGrid.records;
             break;
         case "parentchild":
-			modCompData = {};
+            modCompData = compData;
+            w2ui.RAParentChildGrid.clear();
             break;
         case "tie":
-			modCompData = {};
+            modCompData = {};
             break;
         case "final":
             modCompData = null;

@@ -863,7 +863,7 @@ func UpdateRentableType(ctx context.Context, a *RentableType) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.ARID, a.LastModBy, a.RTID}
+	fields := []interface{}{a.BID, a.Style, a.Name, a.RentCycle, a.Proration, a.GSRPC, a.ManageToBudget, a.ARID, a.FLAGS, a.LastModBy, a.RTID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableType)
 		defer stmt.Close()
@@ -874,7 +874,7 @@ func UpdateRentableType(ctx context.Context, a *RentableType) error {
 	return updateError(err, "RentableType", *a)
 }
 
-// UpdateRentableTypeToActive reactivates a RentableType record in the database
+// UpdateRentableTypeToActive makes a rentabletype as active
 func UpdateRentableTypeToActive(ctx context.Context, a *RentableType) error {
 	var err error
 
@@ -894,6 +894,30 @@ func UpdateRentableTypeToActive(ctx context.Context, a *RentableType) error {
 		_, err = stmt.Exec(fields...)
 	} else {
 		_, err = RRdb.Prepstmt.UpdateRentableTypeToActive.Exec(fields...)
+	}
+	return updateError(err, "RentableType", *a)
+}
+
+// UpdateRentableTypeToInactive makes a rentabletype inactive
+func UpdateRentableTypeToInactive(ctx context.Context, a *RentableType) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		// user from session, CreateBy, LastModBy
+		a.LastModBy = sess.UID
+	}
+	fields := []interface{}{a.LastModBy, a.RTID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentableTypeToInactive)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateRentableTypeToInactive.Exec(fields...)
 	}
 	return updateError(err, "RentableType", *a)
 }

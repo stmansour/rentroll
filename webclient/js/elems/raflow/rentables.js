@@ -44,7 +44,15 @@ window.getInitialRentableFeesData = function(BID, RID, FlowID) {
         url: "/v1/raflow-rentable-fees/" + BID.toString() + "/" + FlowID.toString(),
         method: "POST",
         contentType: "application/json",
-        data: JSON.stringify(data),
+        data: JSON.stringify(data)
+    }).done(function(data) {
+        if (data.status === "success") {
+            // update the local copy of flow for the active one
+            app.raflow.data[data.record.FlowID] = data.record;
+
+            // set the rentable grid records again
+            ReassignRentableGridRecords();
+        }
     });
 };
 
@@ -192,6 +200,10 @@ window.loadRARentablesGrid = function () {
                     hidden: true
                 },
                 {
+                    field: 'RTFLAGS',
+                    hidden: true
+                },
+                {
                     field: 'RentableName',
                     caption: 'Rentable',
                     size: '160px',
@@ -301,12 +313,6 @@ window.loadRARentablesGrid = function () {
                                 getInitialRentableFeesData(BID, rec.RID, app.raflow.activeFlowID)
                                 .done(function(data) {
                                     if (data.status === "success") {
-                                        // update the local copy of flow for the active one
-                                        app.raflow.data[data.record.FlowID] = data.record;
-
-                                        // set the rentable grid records again
-                                        ReassignRentableGridRecords();
-
                                         // re-render fees grid records
                                         ReassignRentableFeesGridRecords(rec.RID);
 
@@ -999,10 +1005,6 @@ window.acceptRentable = function () {
         .done(function(data) {
 
             if (data.status === "success") {
-                // update the local copy of flow for the active one
-                app.raflow.data[data.record.FlowID] = data.record;
-                ReassignRentableGridRecords();
-
                 // reset the form
                 w2ui.RARentableForm.actions.reset();
             }
