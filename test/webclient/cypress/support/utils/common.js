@@ -353,6 +353,9 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                             ruleName = "ReceiptRules";
                         } else if (formName === "expenseForm") {
                             ruleName = "ExpenseRules";
+                        } else if (formName === "rtForm") {
+                            fieldValue = " -- No ARID -- ";
+                            break;
                         }
                         types = appSettings[ruleName][constants.testBiz];
                         type = types.find(types => types.id === fieldValue);
