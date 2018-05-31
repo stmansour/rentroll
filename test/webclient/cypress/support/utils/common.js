@@ -203,7 +203,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "OverrideRentCycle":
                         valueForCell = appSettings.cycleFreq[valueForCell];
                         break;
-                    case "ManageToBudget":
+                    case "Manage2Budget":
                         cy.log(valueForCell);
                         // refer /webclient/js/rt.js : rtGrid
                         if(valueForCell){

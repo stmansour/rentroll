@@ -19,7 +19,7 @@ export let conf = {
     notVisibleButtonNamesInForm: ["reactivate"],
     buttonNamesInDetailForm: ["save", "saveadd", "deactivate"],
     skipColumns: ["Active"],
-    skipFields: ["ManageToBudget", "IsChildRentable"], // TODO(Akshay): UI tests for checkboxes
+    skipFields: ["Manage2Budget", "IsChildRentable"], // TODO(Akshay): UI tests for checkboxes
     primaryId: "RTID",
     haveDateValue: true,
     fromDate: new Date(2018, 2, 1), // year, month-1, day : 1st March 2018
