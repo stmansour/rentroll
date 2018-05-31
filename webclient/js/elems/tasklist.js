@@ -144,6 +144,7 @@ window.buildTaskListElements = function () {
         fields: [
             { field: 'recid',        type: 'int',       required: false },
             { field: 'TLID',         type: 'int',       required: false },
+            { field: 'PTLID',        type: 'int',       required: false },
             { field: 'BID',          type: 'int',       required: false },
             { field: 'BUD',          type: 'list',      required: true, options: {items: app.businesses} },
             { field: 'Name',         type: 'text',      required: true },

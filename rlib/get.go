@@ -6755,7 +6755,13 @@ func GetTaskList(ctx context.Context, id int64) (TaskList, error) {
 // the PTLID matches the supplied ptlid and the due date falls in the
 // supplied date range.
 //
-// returns the tasklist if found, or an empty task list if not found
+// INPUTS
+//     ctx       - for transactions
+//     id        = Parent TLID - the head of the task list instances
+//     dt1 - dt2 = time period of instance for the due date
+//
+// RETURNS
+//     the tasklist if found, or an empty task list if not found
 //-----------------------------------------------------------------------------
 func GetTaskListInstanceInRange(ctx context.Context, id int64, dt1, dt2 *time.Time) (TaskList, error) {
 	var a TaskList
@@ -6763,7 +6769,7 @@ func GetTaskListInstanceInRange(ctx context.Context, id int64, dt1, dt2 *time.Ti
 		return a, ErrSessionRequired
 	}
 	var row *sql.Row
-	fields := []interface{}{id, dt1, dt2}
+	fields := []interface{}{id, id, dt1, dt2}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.GetTaskListInstanceInRange)
 		defer stmt.Close()

@@ -36,7 +36,7 @@ startRentRollServer
 #		Try all the readers, inserters, updaters and deleters.
 #
 #  Expected Results:
-#	a0 - The db we read has 1 pre-defined TaskListDefinition
+#   a0 - The db we read has 1 pre-defined TaskListDefinition
 #   a1 - Write a new TaskListDefinition
 #   a2 - Update a TaskListDefinition
 #   a3 - This search should return 2 matches
@@ -70,7 +70,7 @@ dojsonPOST "http://localhost:8270/v1/tld/1/1" "request" "a7"  "WebService--Get_T
 #		Try all the readers, inserters, updaters and deleters.
 #
 #  Expected Results:
-#	b0 - The db we read has 3 pre-defined TaskListDefinition
+#   b0 - The db we read has 3 pre-defined TaskListDefinition
 #   b1 - Insert a new TaskDescriptor (4)
 #   b2 - Read back the newly inserted task descriptor (4)
 #   b3 - Modify Task Descriptor 4
@@ -95,10 +95,10 @@ dojsonPOST "http://localhost:8270/v1/td/1/4" "request" "b5"  "WebService--Delete
 #  TaskDescriptor Business Logic Test Suite
 #
 #  Scenario:
-#		Break all the bizlogic rules and make sure it gets caught.
+#	Break all the bizlogic rules and make sure it gets caught.
 #
 #  Expected Results:
-#	c0 - Attempt to assign a Descriptor to a non-existent TaskListDefinition
+#   c0 - Attempt to assign a Descriptor to a non-existent TaskListDefinition
 #   c1 - Attempt to assign a Descriptor to an invalid business
 #   c2 - Attempt to save a Descriptor with no name
 #------------------------------------------------------------------------------
@@ -114,10 +114,10 @@ dojsonPOST "http://localhost:8270/v1/td/1/0" "request" "c2"  "WebService--Insert
 #  TaskList Test Suite
 #
 #  Scenario:
-#		Break all the bizlogic rules and make sure it gets caught.
+#	Break all the bizlogic rules and make sure it gets caught.
 #
 #  Expected Results:
-#	d0 - Insert a new instance of TLD 1
+#   d0 - Insert a new instance of TLD 1
 #   d1 - Insert another instance of TLD 2
 #   d2 - Read instance 1 (TLID = 1)
 #   d3 - update instnce 2
@@ -140,10 +140,10 @@ dojsonPOST "http://localhost:8270/v1/tl/1/2" "request" "d4"  "WebService--Delete
 #  TaskList Test Suite
 #
 #  Scenario:
-#		Break all the bizlogic rules and make sure it gets caught.
+#	Break all the bizlogic rules and make sure it gets caught.
 #
 #  Expected Results:
-#	e0 - Get the task list for TaskList 2
+#   e0 - Get the task list for TaskList 2
 #   e1 - Get a specific task
 #   e2 - Update a task
 #   e3 - delete a task
@@ -162,10 +162,10 @@ dojsonPOST "http://localhost:8270/v1/task/1/4" "request" "e3"  "WebService--Dele
 #  TaskList report
 #
 #  Scenario:
-#		Print a tasklist report
+#      Print a tasklist report
 #
 #  Expected Results:
-#	f0 - Get the task list for TaskList 2
+#      f0 - Get the task list for TaskList 2
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%7D" > request
 dorrtest "f0" "-b ${BUD} -r 25,1" "Tasklist"
