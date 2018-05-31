@@ -39,6 +39,10 @@ window.loadClosePeriodInfo = function () {
         var ltl = "";
         var cp = "";
         var s = "";
+        var bHaveCPTLID = false;         // does the business have a ClosePeriod TaskList
+        var bHaveTargetTLID = false;     // is there an instance for this close period
+        var bTargetTLCompleted = false;  // is the instance marked as completed
+
         if (data.status === "error") {
             console.log('error = ' + data.message);
             return;
@@ -57,9 +61,8 @@ window.loadClosePeriodInfo = function () {
         //--------------------------------
         if (r.TLID === 0) {
             ctl = 'No TaskList defined. You must set a TaskList for ' + BUD + ' to enable Close Period.';
-            lcp = '-';
-            cp = '-';
         } else {
+            bHaveCPTLID = true;
             ctl = r.TLName + ' &nbsp;&nbsp;';
             ltl = dtFormatISOToW2ui(r.LastDtDone);
             if (ltl.length === 0) {
@@ -86,10 +89,12 @@ window.loadClosePeriodInfo = function () {
         //  Target close task list
         //--------------------------------
         if (r.TLIDTarget > 0) {
+            bHaveTargetTLID = true;
             s = r.TLNameTarget + ' (' + r.TLIDTarget + ')';
             //var dtDue = new Date(r.DtDueTarget);
             var dtDone = new Date(r.DtDoneTarget);
             if (dtDone.getFullYear() > 1999) {
+                bTargetTLCompleted = true;
                 s += '  completed ' + dtFormatISOToW2ui(r.DtDoneTarget) + ' &nbsp;&nbsp;&#9989;';
             } else {
                 s += '  not completed. &nbsp;Due on ' + dtFormatISOToW2ui(r.DtDueTarget) + ' &nbsp;&nbsp;&#10060;';
@@ -97,16 +102,28 @@ window.loadClosePeriodInfo = function () {
         } else {
             s = "No task list instance for due date " + dtFormatISOToW2ui(r.DtDueTarget) + ' &nbsp;&nbsp;&#10060;';
         }
-            document.getElementById("closeTargetTL").innerHTML = s;
+        document.getElementById("closeTargetTL").innerHTML = s;
 
         //--------------------------------
         //  Submit button
         //--------------------------------
-        var disable = !(closePeriodData.DtDone !== null && closePeriodData.DtDone.getFullYear() > 1999);
+        var disable = !(bHaveCPTLID && bHaveTargetTLID && bTargetTLCompleted);
         document.getElementById("closePeriodSubmit").disabled = disable;
     })
     .fail(function(/*data*/){
         console.log("Get close period info failed.");
         return;
     });
+};
+
+//-----------------------------------------------------------------------------
+// submitClosePeriod is called when all the conditions of a close period are
+// met and the user clicks the buttong to close the period.
+//
+// @params
+//
+// @returns
+//-----------------------------------------------------------------------------
+window.submitClosePeriod = function() {
+    console.log('close the period');
 };

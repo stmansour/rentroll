@@ -150,24 +150,35 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if lcp.CPID > 0 {
+		//----------------------------------------------
+		//  Get the TaskList for the last closed period
+		//----------------------------------------------
 		g.Record.LastDtClose = rlib.JSONDateTime(lcp.Dt)
-		rlib.Console("F - got LastClosePeriod:  CPID = %d\n", lcp.CPID)
-	}
-
-	//----------------------------------------------
-	//  Get the TaskList for the last closed period
-	//----------------------------------------------
-	if lcp.CPID > 0 {
+		rlib.Console("C1 - got LastClosePeriod:  CPID = %d\n", lcp.CPID)
 		tl, err = rlib.GetTaskList(r.Context(), lcp.TLID)
 		if err != nil {
 			rlib.Console("D\n")
-			e := fmt.Errorf("%s: Error getting close period tasklist %d: %s", funcname, xbiz.P.ClosePeriodTLID, err.Error())
+			e := fmt.Errorf("%s: Error getting close period tasklist %d: %s", funcname, lcp.TLID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		rlib.Console("E - last completed tasklist: TLID = %d\n", tl.TLID)
 		g.Record.TLName = tl.Name
 		g.Record.LastDtDone = rlib.JSONDateTime(tl.DtDone)
+	} else {
+		//----------------------------------------------------------------
+		// no entries yet.  So our target date needs to be the due date
+		// of the task list associated with the business.
+		//----------------------------------------------------------------
+		tlNext, err = rlib.GetTaskList(r.Context(), g.Record.TLID)
+		if err != nil {
+			rlib.Console("F\n")
+			e := fmt.Errorf("%s: Error getting close period tasklist %d: %s", funcname, g.Record.TLID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
+		g.Record.TLName = tlNext.Name
+		g.Record.CloseTarget = rlib.JSONDateTime(tlNext.DtDue)
 	}
 
 	//-------------------------------------------------------------------------
@@ -175,7 +186,7 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// that we have closed at least one period. If not, it means no periods
 	// have ever been closed.
 	//-------------------------------------------------------------------------
-	if tl.TLID > 0 {
+	if tl.TLID > 0 && lcp.CPID > 0 && xbiz.P.ClosePeriodTLID > 0 {
 		//---------------------------------------------------------------------
 		// We have already closed a period.  Just figure out the next instance.
 		//---------------------------------------------------------------------
@@ -191,17 +202,6 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		tlNext, err = rlib.GetTaskListInstanceInRange(r.Context(), id, &dt1, &dt2)
 		if err != nil {
 			e := fmt.Errorf("%s: Error getting next TaskList instance: %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
-	} else {
-		//---------------------------------------------------------------------
-		// We have never closed a period.  So, the TLID stored as the TaskList
-		// for the business is the instance we're looking for.
-		//---------------------------------------------------------------------
-		tlNext, err = rlib.GetTaskList(r.Context(), xbiz.P.ClosePeriodTLID)
-		if err != nil {
-			e := fmt.Errorf("%s: Error getting target TaskList instance: %s", funcname, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
