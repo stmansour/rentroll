@@ -389,7 +389,7 @@ window.loadRAVehiclesGrid = function () {
     }
 
     // now load grid in target division
-    $('#ra-form #vehicles .form-container').w2render(w2ui.RAVehiclesGrid);
+    $('#ra-form #vehicles .grid-container').w2render(w2ui.RAVehiclesGrid);
 
     // load the existing data in vehicles component
     setTimeout(function () {
