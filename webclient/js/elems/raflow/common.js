@@ -294,6 +294,17 @@ window.requiredFieldsFulFilled = function (compID) {
                 done = true;
             }
             break;
+        case "parentchild":
+            compData.forEach(function(item) {
+                if (item.PRID === 0 || item.CRID === 0) {
+                    validData = false;
+                    return false;
+                }
+            });
+
+            // if loop passed successfully then mark it as successfully
+            done = validData;
+            break;
         case "final":
             break;
     }
