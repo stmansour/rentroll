@@ -205,7 +205,12 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         break;
                     case "ManageToBudget":
                         cy.log(valueForCell);
-                        valueForCell = appSettings.manageToBudgetList[valueForCell].text;
+                        // refer /webclient/js/rt.js : rtGrid
+                        if(valueForCell){
+                          valueForCell = "YES (Market Rate required)";
+                        }else{
+                          valueForCell = "NO";
+                        }
                         break;
                     case "UseStatus":
                         valueForCell = appSettings.RSUseStatus[valueForCell];
