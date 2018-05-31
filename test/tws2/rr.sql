@@ -201,7 +201,6 @@ CREATE TABLE `Business` (
   `DefaultRentCycle` smallint(6) NOT NULL DEFAULT '0',
   `DefaultProrationCycle` smallint(6) NOT NULL DEFAULT '0',
   `DefaultGSRPC` smallint(6) NOT NULL DEFAULT '0',
-  `ClosePeriodTLID` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -217,7 +216,7 @@ CREATE TABLE `Business` (
 
 LOCK TABLES `Business` WRITE;
 /*!40000 ALTER TABLE `Business` DISABLE KEYS */;
-INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,0,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
+INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
 /*!40000 ALTER TABLE `Business` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -271,35 +270,6 @@ CREATE TABLE `BusinessPaymentTypes` (
 LOCK TABLES `BusinessPaymentTypes` WRITE;
 /*!40000 ALTER TABLE `BusinessPaymentTypes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `BusinessPaymentTypes` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `ClosePeriod`
---
-
-DROP TABLE IF EXISTS `ClosePeriod`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ClosePeriod` (
-  `CPID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `BID` bigint(20) NOT NULL DEFAULT '0',
-  `TLID` bigint(20) NOT NULL DEFAULT '0',
-  `Dt` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
-  `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `LastModBy` bigint(20) NOT NULL DEFAULT '0',
-  `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`CPID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ClosePeriod`
---
-
-LOCK TABLES `ClosePeriod` WRITE;
-/*!40000 ALTER TABLE `ClosePeriod` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ClosePeriod` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -583,32 +553,35 @@ LOCK TABLES `Expense` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `Flow`
+-- Table structure for table `FlowPart`
 --
 
-DROP TABLE IF EXISTS `Flow`;
+DROP TABLE IF EXISTS `FlowPart`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Flow` (
-  `FlowID` bigint(20) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `FlowPart` (
+  `FlowPartID` bigint(20) NOT NULL AUTO_INCREMENT,
   `BID` bigint(20) NOT NULL DEFAULT '0',
-  `FlowType` varchar(50) NOT NULL DEFAULT '',
+  `Flow` varchar(50) NOT NULL DEFAULT '',
+  `FlowID` varchar(50) NOT NULL DEFAULT '',
+  `PartType` smallint(6) NOT NULL DEFAULT '0',
   `Data` json DEFAULT NULL,
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`FlowID`)
+  PRIMARY KEY (`FlowPartID`),
+  UNIQUE KEY `FlowPartUnique` (`FlowPartID`,`BID`,`FlowID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Flow`
+-- Dumping data for table `FlowPart`
 --
 
-LOCK TABLES `Flow` WRITE;
-/*!40000 ALTER TABLE `Flow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Flow` ENABLE KEYS */;
+LOCK TABLES `FlowPart` WRITE;
+/*!40000 ALTER TABLE `FlowPart` DISABLE KEYS */;
+/*!40000 ALTER TABLE `FlowPart` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2141,7 +2114,7 @@ CREATE TABLE `TWS` (
   `DtCreate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `DtLastUpdate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`TWSID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2150,6 +2123,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
+INSERT INTO `TWS` VALUES (1,'SecDepCacheBot','','SecDepCacheBot','2018-05-19 07:36:23','Steves-MacBook-Pro-2.local',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2018-05-19 00:36:23','2018-05-19 00:36:23'),(2,'AcctSliceCacheBot','','AcctSliceCacheBot','2018-05-19 07:36:23','Steves-MacBook-Pro-2.local',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2018-05-19 00:36:23','2018-05-19 00:36:23'),(3,'ARSliceCacheBot','','ARSliceCacheBot','2018-05-19 07:36:23','Steves-MacBook-Pro-2.local',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2018-05-19 00:36:23','2018-05-19 00:36:23'),(4,'TLReportBot','','TLReportBot','2018-05-19 07:36:23','Steves-MacBook-Pro-2.local',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2018-05-19 00:36:23','2018-05-19 00:36:23'),(5,'AssessmentBot','','AssessmentBot','2018-05-19 07:36:23','Steves-MacBook-Pro-2.local',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2018-05-19 00:36:23','2018-05-19 00:36:23'),(6,'ManualTaskBot','','ManualTaskBot','2018-05-19 07:36:23','Steves-MacBook-Pro-2.local',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2018-05-19 00:36:23','2018-05-19 00:36:23'),(7,'RARBcacheBot','','RARBcacheBot','2018-05-19 07:36:23','Steves-MacBook-Pro-2.local',0,'0000-00-00 00:00:00','0000-00-00 00:00:00','2018-05-19 00:36:23','2018-05-19 00:36:23');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2179,7 +2153,7 @@ CREATE TABLE `Task` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2188,6 +2162,7 @@ CREATE TABLE `Task` (
 
 LOCK TABLES `Task` WRITE;
 /*!40000 ALTER TABLE `Task` DISABLE KEYS */;
+INSERT INTO `Task` VALUES (1,1,1,'Delinquency Report','Manual','2018-02-28 20:00:00','2018-02-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-19 07:36:25',0,'2018-05-19 07:36:25',0),(2,1,1,'Walk the Units','Manual','2018-02-28 20:00:00','2018-02-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-19 07:36:25',0,'2018-05-19 07:36:25',0),(3,1,1,'Generate Offsets','OffsetBot','2018-02-28 20:00:00','2018-02-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-19 07:36:25',0,'2018-05-19 07:36:25',0);
 /*!40000 ALTER TABLE `Task` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2213,7 +2188,7 @@ CREATE TABLE `TaskDescriptor` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TDID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2256,7 +2231,7 @@ CREATE TABLE `TaskList` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TLID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2265,6 +2240,7 @@ CREATE TABLE `TaskList` (
 
 LOCK TABLES `TaskList` WRITE;
 /*!40000 ALTER TABLE `TaskList` DISABLE KEYS */;
+INSERT INTO `TaskList` VALUES (1,1,0,1,'Monthly Close',6,'2018-02-28 17:00:00','2018-02-20 17:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',6,0,0,'bounce@simulator.amazonses.com','0000-00-00 00:00:00',86400000000000,'An instance of TLDID 1','2018-05-19 07:36:25',0,'2018-05-19 07:36:25',0);
 /*!40000 ALTER TABLE `TaskList` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2292,7 +2268,7 @@ CREATE TABLE `TaskListDefinition` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TLDID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2301,7 +2277,7 @@ CREATE TABLE `TaskListDefinition` (
 
 LOCK TABLES `TaskListDefinition` WRITE;
 /*!40000 ALTER TABLE `TaskListDefinition` DISABLE KEYS */;
-INSERT INTO `TaskListDefinition` VALUES (1,1,'Monthly Close',6,'2018-01-01 00:00:00','2018-01-31 17:00:00','2018-01-20 17:00:00',6,'bounce@simulator.amazonses.com',86400000000000,'','2018-05-10 04:52:41',0,'2018-03-14 19:50:32',0);
+INSERT INTO `TaskListDefinition` VALUES (1,1,'Monthly Close',6,'2018-01-01 00:00:00','2018-01-31 17:00:00','2018-01-20 17:00:00',6,'bounce@simulator.amazonses.com',86400000000000,'','2018-05-10 04:52:41',0,'2018-03-14 19:50:32',0),(2,1,'Tucasa Apts Period Close',6,'2018-01-01 00:00:00','2018-01-31 00:00:00','2018-01-20 00:00:00',7,'bounce@simulator.amazonses.com',86400000000000,'','2018-05-19 07:36:24',0,'2018-05-19 07:36:24',0);
 /*!40000 ALTER TABLE `TaskListDefinition` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2500,4 +2476,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-29 20:07:19
+-- Dump completed on 2018-05-19  0:36:44

@@ -217,7 +217,7 @@ CREATE TABLE `Business` (
 
 LOCK TABLES `Business` WRITE;
 /*!40000 ALTER TABLE `Business` DISABLE KEYS */;
-INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,0,0,'2018-03-14 19:50:32',0,'2018-03-14 19:50:32',0);
+INSERT INTO `Business` VALUES (1,'REX','JGM First, LLC',6,4,4,4,0,'2018-05-29 20:09:19',0,'2018-03-14 19:50:32',0);
 /*!40000 ALTER TABLE `Business` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -290,7 +290,7 @@ CREATE TABLE `ClosePeriod` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`CPID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -299,6 +299,7 @@ CREATE TABLE `ClosePeriod` (
 
 LOCK TABLES `ClosePeriod` WRITE;
 /*!40000 ALTER TABLE `ClosePeriod` DISABLE KEYS */;
+INSERT INTO `ClosePeriod` VALUES (1,1,4,'2018-04-30 23:22:00','2018-05-30 17:08:09',211,'2018-05-30 06:08:49',211);
 /*!40000 ALTER TABLE `ClosePeriod` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2141,7 +2142,7 @@ CREATE TABLE `TWS` (
   `DtCreate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `DtLastUpdate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`TWSID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2150,6 +2151,7 @@ CREATE TABLE `TWS` (
 
 LOCK TABLES `TWS` WRITE;
 /*!40000 ALTER TABLE `TWS` DISABLE KEYS */;
+INSERT INTO `TWS` VALUES (1,'AssessmentBot','','AssessmentBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48'),(2,'RARBcacheBot','','RARBcacheBot','2018-05-30 18:06:32','Steves-MacBook-Pro-2.local',4,'2018-05-30 18:01:32','2018-05-30 18:01:32','2018-05-29 11:15:31','2018-05-30 11:01:31'),(3,'SecDepCacheBot','','SecDepCacheBot','2018-05-30 18:06:32','Steves-MacBook-Pro-2.local',4,'2018-05-30 18:01:32','2018-05-30 18:01:32','2018-05-29 11:15:31','2018-05-30 11:01:31'),(4,'TLReportBot','','TLReportBot','2018-05-30 18:03:32','Steves-MacBook-Pro-2.local',4,'2018-05-30 18:01:32','2018-05-30 18:01:32','2018-05-29 11:15:31','2018-05-30 11:01:31'),(5,'TLInstanceBot','','TLInstanceBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48'),(6,'AcctSliceCacheBot','','AcctSliceCacheBot','2018-05-30 18:06:32','Steves-MacBook-Pro-2.local',4,'2018-05-30 18:01:32','2018-05-30 18:01:32','2018-05-29 11:15:31','2018-05-30 11:01:31'),(7,'ARSliceCacheBot','','ARSliceCacheBot','2018-05-30 18:06:32','Steves-MacBook-Pro-2.local',4,'2018-05-30 18:01:32','2018-05-30 18:01:32','2018-05-29 11:15:31','2018-05-30 11:01:31'),(8,'ManualTaskBot','','ManualTaskBot','2018-05-30 18:15:49','Steves-MacBook-Pro-2.local',4,'2018-05-29 18:15:49','2018-05-29 18:15:49','2018-05-29 11:15:31','2018-05-29 11:15:48');
 /*!40000 ALTER TABLE `TWS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2179,7 +2181,7 @@ CREATE TABLE `Task` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2188,6 +2190,7 @@ CREATE TABLE `Task` (
 
 LOCK TABLES `Task` WRITE;
 /*!40000 ALTER TABLE `Task` DISABLE KEYS */;
+INSERT INTO `Task` VALUES (1,1,1,'Delinquency Report','Manual','2018-02-28 20:00:00','2018-02-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:15:33',0,'2018-05-29 18:15:33',0),(2,1,1,'Walk the Units','Manual','2018-02-28 20:00:00','2018-02-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:15:34',0,'2018-05-29 18:15:34',0),(3,1,1,'Generate Offsets','OffsetBot','2018-02-28 20:00:00','2018-02-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:15:34',0,'2018-05-29 18:15:34',0),(7,1,3,'Delinquency Report','Manual','0001-01-31 20:00:00','0001-01-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:15:48',-8,'2018-05-29 18:15:48',-8),(8,1,3,'Walk the Units','Manual','0001-01-31 20:00:00','0001-01-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:15:48',-8,'2018-05-29 18:15:48',-8),(9,1,3,'Generate Offsets','OffsetBot','0001-01-31 20:00:00','0001-01-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:15:48',-8,'2018-05-29 18:15:48',-8),(10,1,4,'Tie closing SECDEP balance to bank SECDEP balanc','ManualTaskBot','2018-04-30 20:00:00','2018-04-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(11,1,4,'Review all receivables for accuracy','ManualTaskBot','2018-04-30 20:00:00','2018-04-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(12,1,4,'Compare total cash deposits to bank statement','ManualTaskBot','2018-04-30 20:00:00','2018-04-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(13,1,4,'Confirm all Lease Concessions are document in resident\'s lease','ManualTaskBot','2018-04-30 07:00:00','2018-04-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(14,1,4,'Tie all Bar/Spa/F&B deposits in POS Lavu to Rent Roll Deposits','ManualTaskBot','2018-04-30 00:00:00','2018-04-20 00:00:00','2018-05-29 20:02:59','1970-01-01 00:00:00',0,211,0,'','2018-05-29 20:02:59',211,'2018-05-29 18:33:22',211),(15,1,4,'Make certain that all suspense accounts have been closed out','ManualTaskBot','2018-04-30 07:00:00','2018-04-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(16,1,4,'Compile all workpapers for the foregoing confirmations, and file as YYYY-MM-DD [3-letter property] Rent Roll Work Papers','ManualTaskBot','2018-04-30 07:00:00','2018-04-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(17,1,4,'Print Rent Roll Activity Report','ManualTaskBot','2018-04-30 07:00:00','2018-04-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(18,1,4,'Print Rent Roll Report','ManualTaskBot','2018-04-30 07:00:00','2018-04-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(19,1,4,'File PDFs for the reports as YYY-MM-DD [3-letter-property] Rent Roll','ManualTaskBot','2018-04-30 07:00:00','2018-04-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-29 18:33:22',211,'2018-05-29 18:33:22',211),(20,1,6,'Tie closing SECDEP balance to bank SECDEP balanc','ManualTaskBot','2018-06-30 20:00:00','2018-06-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(21,1,6,'Review all receivables for accuracy','ManualTaskBot','2018-06-30 20:00:00','2018-06-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(22,1,6,'Compare total cash deposits to bank statement','ManualTaskBot','2018-06-30 20:00:00','2018-06-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(23,1,6,'Confirm all Lease Concessions are document in resident\'s lease','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(24,1,6,'Tie all Bar/Spa/F&B deposits in POS Lavu to Rent Roll Deposits','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(25,1,6,'Make certain that all suspense accounts have been closed out','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(26,1,6,'Compile all workpapers for the foregoing confirmations, and file as YYYY-MM-DD [3-letter property] Rent Roll Work Papers','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(27,1,6,'Print Rent Roll Activity Report','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(28,1,6,'Print Rent Roll Report','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(29,1,6,'File PDFs for the reports as YYY-MM-DD [3-letter-property] Rent Roll','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:02:44',-7,'2018-05-30 20:02:44',-7),(30,1,7,'Tie closing SECDEP balance to bank SECDEP balanc','ManualTaskBot','2018-06-30 20:00:00','2018-06-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(31,1,7,'Review all receivables for accuracy','ManualTaskBot','2018-06-30 20:00:00','2018-06-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(32,1,7,'Compare total cash deposits to bank statement','ManualTaskBot','2018-06-30 20:00:00','2018-06-20 20:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(33,1,7,'Confirm all Lease Concessions are document in resident\'s lease','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(34,1,7,'Tie all Bar/Spa/F&B deposits in POS Lavu to Rent Roll Deposits','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(35,1,7,'Make certain that all suspense accounts have been closed out','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(36,1,7,'Compile all workpapers for the foregoing confirmations, and file as YYYY-MM-DD [3-letter property] Rent Roll Work Papers','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(37,1,7,'Print Rent Roll Activity Report','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(38,1,7,'Print Rent Roll Report','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7),(39,1,7,'File PDFs for the reports as YYY-MM-DD [3-letter-property] Rent Roll','ManualTaskBot','2018-06-30 07:00:00','2018-06-20 07:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7);
 /*!40000 ALTER TABLE `Task` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2213,7 +2216,7 @@ CREATE TABLE `TaskDescriptor` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TDID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2222,7 +2225,7 @@ CREATE TABLE `TaskDescriptor` (
 
 LOCK TABLES `TaskDescriptor` WRITE;
 /*!40000 ALTER TABLE `TaskDescriptor` DISABLE KEYS */;
-INSERT INTO `TaskDescriptor` VALUES (1,1,1,'Delinquency Report','Manual','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'','2018-04-04 03:59:44',0,'2018-03-14 19:50:32',0),(2,1,1,'Walk the Units','Manual','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'','2018-04-04 03:59:44',0,'2018-03-14 19:50:32',0),(3,1,1,'Generate Offsets','OffsetBot','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'','2018-04-04 03:59:44',0,'2018-03-14 19:50:32',0);
+INSERT INTO `TaskDescriptor` VALUES (1,1,1,'Tie closing SECDEP balance to bank SECDEP balanc','ManualTaskBot','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'','2018-05-29 18:19:54',211,'2018-03-14 19:50:32',0),(2,1,1,'Review all receivables for accuracy','ManualTaskBot','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'(provide comment for any receivables more than 30 days old','2018-05-29 18:22:57',211,'2018-03-14 19:50:32',0),(3,1,1,'Compare total cash deposits to bank statement','ManualTaskBot','2018-01-31 20:00:00','2018-01-20 20:00:00',0,'','2018-05-29 18:23:38',211,'2018-03-14 19:50:32',0),(5,1,1,'Confirm all Lease Concessions are document in resident\'s lease','ManualTaskBot','2018-05-31 07:00:00','2018-05-20 07:00:00',0,' or make certain that you have a Report for any After-Lease Concessions occurring during the month','2018-05-29 18:24:26',0,'2018-05-29 18:24:26',211),(6,1,1,'Tie all Bar/Spa/F&B deposits in POS Lavu to Rent Roll Deposits','ManualTaskBot','2018-05-31 07:00:00','2018-05-20 07:00:00',0,'','2018-05-29 18:25:05',0,'2018-05-29 18:25:05',211),(7,1,1,'Make certain that all suspense accounts have been closed out','ManualTaskBot','2018-05-31 07:00:00','2018-05-20 07:00:00',0,'','2018-05-29 18:25:30',0,'2018-05-29 18:25:30',211),(8,1,1,'Compile all workpapers for the foregoing confirmations, and file as YYYY-MM-DD [3-letter property] Rent Roll Work Papers','ManualTaskBot','2018-05-31 07:00:00','2018-05-20 07:00:00',0,'','2018-05-29 18:25:57',0,'2018-05-29 18:25:57',211),(9,1,1,'Print Rent Roll Activity Report','ManualTaskBot','2018-05-31 07:00:00','2018-05-20 07:00:00',0,'','2018-05-29 18:30:54',0,'2018-05-29 18:30:54',211),(10,1,1,'Print Rent Roll Report','ManualTaskBot','2018-05-31 07:00:00','2018-05-20 07:00:00',0,'','2018-05-29 18:31:18',0,'2018-05-29 18:31:18',211),(11,1,1,'File PDFs for the reports as YYY-MM-DD [3-letter-property] Rent Roll','ManualTaskBot','2018-05-31 07:00:00','2018-05-20 07:00:00',0,'','2018-05-29 18:32:06',0,'2018-05-29 18:32:06',211);
 /*!40000 ALTER TABLE `TaskDescriptor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2256,7 +2259,7 @@ CREATE TABLE `TaskList` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TLID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2265,6 +2268,7 @@ CREATE TABLE `TaskList` (
 
 LOCK TABLES `TaskList` WRITE;
 /*!40000 ALTER TABLE `TaskList` DISABLE KEYS */;
+INSERT INTO `TaskList` VALUES (4,1,0,1,'Monthly Close',6,'2018-04-30 17:00:00','2018-04-20 17:00:00','2018-04-29 16:43:42','2018-04-20 20:43:42',30,211,211,'','2018-05-29 18:34:00',86400000000000,'','2018-05-30 20:06:31',211,'2018-05-29 18:33:22',211),(5,1,4,1,'Monthly Close',6,'2018-05-31 17:00:00','2018-05-20 17:00:00','1970-01-01 00:00:00','2018-05-29 20:07:39',14,0,211,'','2018-05-29 18:34:00',86400000000000,'','2018-05-30 20:06:31',211,'2018-05-29 18:33:22',-7),(7,1,4,1,'Monthly Close',6,'2018-06-30 17:00:00','2018-06-20 17:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00',6,0,0,'','0000-00-00 00:00:00',86400000000000,'','2018-05-30 20:11:03',-7,'2018-05-30 20:11:03',-7);
 /*!40000 ALTER TABLE `TaskList` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2292,7 +2296,7 @@ CREATE TABLE `TaskListDefinition` (
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TLDID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2301,7 +2305,7 @@ CREATE TABLE `TaskListDefinition` (
 
 LOCK TABLES `TaskListDefinition` WRITE;
 /*!40000 ALTER TABLE `TaskListDefinition` DISABLE KEYS */;
-INSERT INTO `TaskListDefinition` VALUES (1,1,'Monthly Close',6,'2018-01-01 00:00:00','2018-01-31 17:00:00','2018-01-20 17:00:00',6,'bounce@simulator.amazonses.com',86400000000000,'','2018-05-10 04:52:41',0,'2018-03-14 19:50:32',0);
+INSERT INTO `TaskListDefinition` VALUES (1,1,'Monthly Close',6,'2018-01-01 00:00:00','2018-01-31 17:00:00','2018-01-20 17:00:00',6,'',86400000000000,'','2018-05-29 18:39:32',211,'2018-03-14 19:50:32',0),(2,1,'Tucasa Apts Period Close',6,'2018-01-01 00:00:00','2018-01-31 00:00:00','2018-01-20 00:00:00',7,'bounce@simulator.amazonses.com',86400000000000,'','2018-05-29 18:15:32',0,'2018-05-29 18:15:32',0);
 /*!40000 ALTER TABLE `TaskListDefinition` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2500,4 +2504,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-29 20:07:19
+-- Dump completed on 2018-05-30 13:38:17

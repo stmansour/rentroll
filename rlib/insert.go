@@ -264,6 +264,45 @@ func InsertBusiness(ctx context.Context, a *Business) (int64, error) {
 	return rid, err
 }
 
+// InsertClosePeriod writes a new User record to the database
+func InsertClosePeriod(ctx context.Context, a *ClosePeriod) (int64, error) {
+	var rid = int64(0)
+	var err error
+	var res sql.Result
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	fields := []interface{}{a.BID, a.TLID, a.Dt, a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertClosePeriod)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertClosePeriod.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			a.CPID = int64(x)
+		}
+	} else {
+		err = insertError(err, "ClosePeriod", *a)
+	}
+	return rid, err
+}
+
 // InsertCustomAttribute writes a new User record to the database
 func InsertCustomAttribute(ctx context.Context, a *CustomAttribute) (int64, error) {
 

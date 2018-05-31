@@ -14,9 +14,6 @@ import (
 //  TLDID  - Task List Definition ID
 //  PTLID  - Parent (first in chain) for this recurring series.
 //  pivot  - date on or after which the instance will be created
-//  tzoff  - user's client timezone offset in minutes.  For web browsers
-//           this is determined by:
-//               offset = new Date().getTimezoneOffset();
 //
 // RETURNS
 //  error  - any error encountered
@@ -87,26 +84,11 @@ func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time
 	return tlid, nil
 }
 
-// // adjustForTZ adjusts the users hour and minute of a task due or predue
-// // date so that after the date is adjusted, the times will be at the
-// // expected hour and minute.
-// //
-// // returns adjusted hours and minutes
-// //-----------------------------------------------------------------------------
-// func adjustForTZ(utc *time.Time, tzoff int) (int, int) {
-// 	mp0 := utc.Hour()*60 + utc.Minute()
-// 	offset := (((24 * 60) - tzoff) + mp0) % (24 * 60) // remember that tzoff can be negative
-// 	return offset / 60, offset % 60
-// }
-
 // NextTLInstanceDates computes the next instance dates after the pivot
 // based on the supplied frequency
 //
 // INPUTS
 //  pivot  - date on or after which the instance will be created
-//  tzoff  - user's client timezone offset in minutes.  For web browsers
-//           this is determined by:
-//               offset = new Date().getTimezoneOffset();
 //  tld    - pointer to Task List Definition struct
 //  tl     - ptr to Task List
 //
@@ -167,10 +149,7 @@ func NextTLInstanceDates(pivot *time.Time, tld *TaskListDefinition, tl *TaskList
 		tl.DtPreDue = computeMonthlyDate(pivot, &tld.EpochPreDue)
 		tl.DtDue = computeMonthlyDate(pivot, &tld.EpochDue)
 		if tl.DtPreDue.After(tl.DtDue) {
-			// t.DtPreDue = time.Date(t.DtDue.Year(), t.DtDue.Month(), t.DtPreDue.Day(), t.DtPreDue.Hour(), t.DtPreDue.Minute(), 0, 0, time.UTC)
-			// Days Between Dates (DaysBetweenDates) https://play.golang.org/p/nkBPjPumg6-
 			offset := int(tl.DtDue.Sub(tld.EpochDue).Hours() / 24)
-			Console("offset = %d days\n", offset)
 			tl.DtPreDue = tld.EpochPreDue.AddDate(0, 0, offset)
 		}
 	case RECURQUARTERLY:

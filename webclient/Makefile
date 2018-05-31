@@ -19,7 +19,7 @@ webclient: node_modules
 clean:
 	@touch fail
 	grunt clean
-	rm -f *log *.sql node_modules
+	rm -f *log *.sql
 	@rm -f fail
 	@echo "*** Clean client ***"
 

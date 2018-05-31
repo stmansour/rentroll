@@ -1816,6 +1816,7 @@ type RRprepSQL struct {
 	CheckForTLDInstances                    *sql.Stmt
 	GetAllParentTaskLists                   *sql.Stmt
 	GetTaskListInstanceInRange              *sql.Stmt
+	GetLatestCompletedTaskList              *sql.Stmt
 	GetClosePeriod                          *sql.Stmt
 	GetLastClosePeriod                      *sql.Stmt
 	InsertClosePeriod                       *sql.Stmt

@@ -1384,14 +1384,15 @@ CREATE TABLE LedgerMarkerAudit (
 );
 
 CREATE TABLE ClosePeriod (
-    CPID BIGINT NOT NULL DEFAULT 0,                             -- Close Period ID
+    CPID BIGINT NOT NULL AUTO_INCREMENT,                        -- Close Period ID
     BID BIGINT NOT NULL DEFAULT 0,                              -- Business id
     TLID BIGINT NOT NULL DEFAULT 0,                             -- Task List that was used for close
     Dt DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',         -- Date/Time of close
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,      -- when was this record created
-    CreateBy BIGINT NOT NULL DEFAULT 0                          -- employee UID (from phonebook) that created this record
+    CreateBy BIGINT NOT NULL DEFAULT 0,                         -- employee UID (from phonebook) that created this record
+    PRIMARY KEY (CPID)
 );
 
 

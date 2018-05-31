@@ -144,6 +144,7 @@ window.buildTaskListElements = function () {
         fields: [
             { field: 'recid',        type: 'int',       required: false },
             { field: 'TLID',         type: 'int',       required: false },
+            { field: 'PTLID',        type: 'int',       required: false },
             { field: 'BID',          type: 'int',       required: false },
             { field: 'BUD',          type: 'list',      required: true, options: {items: app.businesses} },
             { field: 'Name',         type: 'text',      required: true },
@@ -831,10 +832,16 @@ window.taskFormDueDate = function (dt,b,id,txt) {
 
 //-----------------------------------------------------------------------------
 // taskFormDoneDate - form formatting
-// 
+//       r.ChkDtPreDone = taskFormDoneDate(r.ChkDtPreDone, r.DtPreDone,r.DtPreDue,   r.ChkDtPreDone, r.PreDoneUID, r.PreDoneName, 'sDtPreDone','tlPreDoneName', 'tlPreOverdue');
 // @params
-//       dt  = datetime string
-//       b   = boolean check box value (false = unchecked)
+//      bDone = boolean indicates whether or not a done date has been supplied.
+//              This value may change during editing. When the user checks
+//              the box, the server will supply the done date.  If the box is
+//              unchecked, the server will mark that no done date has been
+//              supplied (thus the task is not completed)
+//      sDtDone  = datetime string when the task was completed
+//      sDtDue  = due datetime string - indicates when the task was due
+//      
 //      uid  = uid of user who marked this as done
 //      name = name associated with uid
 //      id   = html element id for string update
@@ -845,25 +852,25 @@ window.taskFormDueDate = function (dt,b,id,txt) {
 //      updated value for ChkDt...  true if year >= 2000
 //  
 //-----------------------------------------------------------------------------
-window.taskFormDoneDate = function (chk,dt,dtd,b,uid,name,id,id2,id3) {
-    var now = new Date();
-    var dts = "";
-    if (typeof dt  == "string") {
-        dts = dt;
-    } 
-    if (typeof dt == "object") {
-        dts = dt.toISOString();
+window.taskFormDoneDate = function (bDone,sDtDone,sDtDue,b,uid,name,id,id2,id3) {
+    var strDoneDate = ""; // string for sDtDone
+
+    if (typeof sDtDone== "string") {
+        strDoneDate = sDtDone;
+    } else if (typeof sDtDone == "object") {
+        strDoneDate = sDtDone.toISOString();
     }
-    if (dts !== null && dts.length > 0) {
+
+    if (strDoneDate !== null && strDoneDate.length > 0) {
         //--------------------------
         // id: date
         //--------------------------
+        var y = new Date(strDoneDate);
         var s = '';
-        if (chk) {
-            var y = new Date(dts);
-            b = y.getFullYear() >= 2000;
-            if (b) {
-                s = taskDateRender(dt); 
+        if (bDone) {
+            bDone = y.getFullYear() >= 2000;
+            if (bDone) {
+                s = taskDateRender(sDtDone);
             }
         }
         setInnerHTML(id,s);
@@ -874,18 +881,25 @@ window.taskFormDoneDate = function (chk,dt,dtd,b,uid,name,id,id2,id3) {
         setInnerHTML(id2, (uid > 0) ? '('+name+')' : '');
 
         //--------------------------
-        // id3: late indicator
+        // id3: late indicator:
+        //      if a Done date has been supplied, see if it's past the due date
+        //      if no Done date has been supplied, see if the current time is past the due date
         //--------------------------
-        dt = dateFromString(dtd);
+        var dtDue = dateFromString(sDtDue);
+        var now = new Date();
+        var dtDone = dateFromString(strDoneDate);
         s = '';
-        if (now > dt) {
-            if (dt.getFullYear() > 1970) {
+        if ( (bDone && dtDone > dtDue) || (!bDone && now > dtDue)) {
+            if (dtDue.getFullYear() > 1970) {
                 s = '<span style="color:#FC0D1B;">&nbsp;LATE</span>';
             }
         }
+        if ( bDone && dtDone <= dtDue ) {
+            s = '&#9989;';
+        }
         setInnerHTML(id3,s);
     }
-    return b;
+    return bDone;
 };
 
 //-----------------------------------------------------------------------------
