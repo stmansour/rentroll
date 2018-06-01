@@ -366,6 +366,9 @@ DBNAME="rentroll"
 #     PRIMARY KEY (CPID)
 # );
 
+# Jun 1, 2018
+# ALTER TABLE RentalAgreementRentables ADD PRID BIGINT NOT NULL DEFAULT 0 AFTER RID;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

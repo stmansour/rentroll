@@ -232,7 +232,8 @@ CREATE TABLE RentalAgreementRentables (
     RARID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
-    RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable id
+    RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable ID
+    PRID BIGINT NOT NULL DEFAULT 0,                           -- Parent Rentable ID
     CLID BIGINT NOT NULL DEFAULT 0,                           -- Commission Ledger (for outside salespeople to get a commission)
     ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
     RARDtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when this Rentable was added to the agreement
