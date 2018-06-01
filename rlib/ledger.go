@@ -5,6 +5,21 @@ import (
 	"time"
 )
 
+// LedgerMarkers are records that contain the balance for the associated
+// account at a particulart date/time. These speed up the calculation of
+// an account balance at a particular date/time.
+//
+// LedgerMarkers can be written to the database at any point in time, but
+// by convention, we write them when a financial period is closed.
+//
+// Types of LedgerMarkers:
+//   * Account Balance - there will be a ledger for every account in
+//     the chart of accounts
+//   * Rental Agreement Balance - the balance associated with a rental
+//     agreement for the specific account
+//   * Rentable Balance - the balance associated with a particular
+//     rentable
+
 // RemoveLedgerEntries clears out the records in the supplied range provided the range is not closed by a LedgerMarker
 func RemoveLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) error {
 	// Remove the LedgerEntries and the ledgerallocation entries
