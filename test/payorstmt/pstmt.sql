@@ -1777,7 +1777,6 @@ CREATE TABLE `RentableTypes` (
   `RentCycle` bigint(20) NOT NULL DEFAULT '0',
   `Proration` bigint(20) NOT NULL DEFAULT '0',
   `GSRPC` bigint(20) NOT NULL DEFAULT '0',
-  `ManageToBudget` smallint(6) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `ARID` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1794,7 +1793,7 @@ CREATE TABLE `RentableTypes` (
 
 LOCK TABLES `RentableTypes` WRITE;
 /*!40000 ALTER TABLE `RentableTypes` DISABLE KEYS */;
-INSERT INTO `RentableTypes` VALUES (1,1,'U1','Unit Type 1',6,4,4,1,0,0,'2017-08-31 17:51:54',0,'2017-08-31 17:51:54',0),(2,1,'U2','Unit Type 2',6,4,4,1,0,0,'2017-08-31 17:52:21',0,'2017-08-31 17:52:21',0);
+INSERT INTO `RentableTypes` VALUES (1,1,'U1','Unit Type 1',6,4,4,0,0,'2017-08-31 17:51:54',0,'2017-08-31 17:51:54',0),(2,1,'U2','Unit Type 2',6,4,4,0,0,'2017-08-31 17:52:21',0,'2017-08-31 17:52:21',0);
 /*!40000 ALTER TABLE `RentableTypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2512,4 +2511,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-01 17:12:13
+-- Dump completed on 2018-06-01 21:12:48

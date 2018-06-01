@@ -1,6 +1,6 @@
 Test Name:    RR View Use Case Databases
 Test Purpose: Generates separate databases for multiple use cases
-Date/Time:    Wed May 23 13:18:56 PDT 2018
+Date/Time:    Fri Jun  1 22:18:25 IST 2018
 
 Create new database...  successful
 Create new database...  successful
@@ -8,4 +8,4 @@ Create new database...  successful
 Create new database...  successful
 Create new database...  successful
 Create new database...  successful
-Test completed: Wed May 23 13:19:18 PDT 2018
+Test completed: Fri Jun  1 22:19:54 IST 2018

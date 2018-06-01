@@ -368,6 +368,7 @@ DBNAME="rentroll"
 
 # Jun 1, 2018
 # ALTER TABLE RentalAgreementRentables ADD PRID BIGINT NOT NULL DEFAULT 0 AFTER RID;
+# ALTER TABLE RentableTypes DROP COLUMN ManageToBudget;
 
 #=====================================================
 #  Put modifications to schema in the lines below

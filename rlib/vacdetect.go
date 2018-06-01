@@ -66,7 +66,7 @@ func VacancyDetect(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time, rid 
 	// rentable type is here. If there's an issue, just move the code to grab
 	// the RTIDs to the caller and pass the array into this func.
 	//=========================================================================
-	if xbiz.RT[rtid].ManageToBudget == 0 { // if this rentable is not managing to budget...
+	if xbiz.RT[rtid].FLAGS&0x4 == 0 { // if this rentable is not managing to budget...
 		return m, err // return an empty list now and it will essentially be ignored.
 	}
 
