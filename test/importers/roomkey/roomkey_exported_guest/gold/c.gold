@@ -7,53 +7,53 @@ Oklahoma City, OK 73132 USA
                                                   Rent     Proration                     To      Child                         
 RTID        Style         Name                    Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate
 ----------  ------------  ----------------------  -------  ---------  -----  ----------  ------  -----  -----------------------
-RT00000047  3 BDR 2.5     3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes         Yes     No                            
+RT00000001  3 BDR 2.5     3 BDR 2.5 Bath TWNHM-   monthly  daily      daily  Yes         Yes     No                            
             Bath TWNHM-                                                                                                        
-RT00000048  LS Deluxe     LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes         Yes     No                            
+RT00000002  LS Deluxe     LS Deluxe 2bd 2bath-    monthly  daily      daily  Yes         Yes     No                            
             2bd 2bath-                                                                                                         
-RT00000049  2 BDR 1 Bath  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes         Yes     No                            
+RT00000003  2 BDR 1 Bath  2 BDR 1 Bath Deluxe-    monthly  daily      daily  Yes         Yes     No                            
             Deluxe-                                                                                                            
-RT00000050  1 BDR         1 BDR NSNP/POC-         monthly  daily      daily  Yes         Yes     No                            
+RT00000004  1 BDR         1 BDR NSNP/POC-         monthly  daily      daily  Yes         Yes     No                            
             NSNP/POC-                                                                                                          
-RT00000051  1 BDR         1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes         Yes     No                            
+RT00000005  1 BDR         1 BDR NS/POC-Q/POC      monthly  daily      daily  Yes         Yes     No                            
             NS/POC-Q/POC                                                                                                       
-RT00000052  1 BDR NSNP-Q  1 BDR NSNP-Q            monthly  daily      daily  Yes         Yes     No                            
-RT00000053  1 BDR         1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes         Yes     No                            
+RT00000006  1 BDR NSNP-Q  1 BDR NSNP-Q            monthly  daily      daily  Yes         Yes     No                            
+RT00000007  1 BDR         1 BDR Deluxe-Q/POC      monthly  daily      daily  Yes         Yes     No                            
             Deluxe-Q/POC                                                                                                       
-RT00000054  2 BDR 1 Bath  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes         Yes     No                            
+RT00000008  2 BDR 1 Bath  2 BDR 1 Bath NS-QQ      monthly  daily      daily  Yes         Yes     No                            
             NS-QQ                                                                                                              
-RT00000055  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes         Yes     No                            
+RT00000009  2 BDR 1 Bath  2 BDR 1 Bath NS/POC-    monthly  daily      daily  Yes         Yes     No                            
             NS/POC-                                                                                                            
-RT00000056  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes         Yes     No                            
+RT00000010  4 BDR 2 Bath  4 BDR 2 Bath Flat-QQQQ  monthly  daily      daily  Yes         Yes     No                            
             Flat-QQQQ                                                                                                          
-RT00000057  1 BDR NS-Q    1 BDR NS-Q              monthly  daily      daily  Yes         Yes     No                            
-RT00000058  2 Bed 2 Bath  2 Bed 2 Bath Twins-SS   monthly  daily      daily  Yes         Yes     No                            
+RT00000011  1 BDR NS-Q    1 BDR NS-Q              monthly  daily      daily  Yes         Yes     No                            
+RT00000012  2 Bed 2 Bath  2 Bed 2 Bath Twins-SS   monthly  daily      daily  Yes         Yes     No                            
             Twins-SS                                                                                                           
-RT00000059  2 BDR 1 Bath  2 BDR 1 Bath NSNP-      monthly  daily      daily  Yes         Yes     No                            
+RT00000013  2 BDR 1 Bath  2 BDR 1 Bath NSNP-      monthly  daily      daily  Yes         Yes     No                            
             NSNP-                                                                                                              
-RT00000060  2 BDR ADA     2 BDR ADA Deluxe-       monthly  daily      daily  Yes         Yes     No                            
+RT00000014  2 BDR ADA     2 BDR ADA Deluxe-       monthly  daily      daily  Yes         Yes     No                            
             Deluxe-                                                                                                            
-RT00000061  VA Room       VA Room Twins-SS        monthly  daily      daily  Yes         Yes     No                            
+RT00000015  VA Room       VA Room Twins-SS        monthly  daily      daily  Yes         Yes     No                            
             Twins-SS                                                                                                           
-RT00000062  CARS & HOUSE  CARS & HOUSE            monthly  daily      daily  Yes         Yes     No                            
-RT00000063  1 BDR ADA     1 BDR ADA Deluxe-       monthly  daily      daily  Yes         Yes     No                            
+RT00000016  CARS & HOUSE  CARS & HOUSE            monthly  daily      daily  Yes         Yes     No                            
+RT00000017  1 BDR ADA     1 BDR ADA Deluxe-       monthly  daily      daily  Yes         Yes     No                            
             Deluxe-                                                                                                            
-RT00000064  1 BDR SMK-Q   1 BDR SMK-Q             monthly  daily      daily  Yes         Yes     No                            
-RT00000065  LS Deluxe     LS Deluxe 2bd 1bath-    monthly  daily      daily  Yes         Yes     No                            
+RT00000018  1 BDR SMK-Q   1 BDR SMK-Q             monthly  daily      daily  Yes         Yes     No                            
+RT00000019  LS Deluxe     LS Deluxe 2bd 1bath-    monthly  daily      daily  Yes         Yes     No                            
             2bd 1bath-                                                                                                         
-RT00000066  3 Bed 2.5     3 Bed 2.5 Bath 2 Car-   monthly  daily      daily  Yes         Yes     No                            
+RT00000020  3 Bed 2.5     3 Bed 2.5 Bath 2 Car-   monthly  daily      daily  Yes         Yes     No                            
             Bath 2 Car-                                                                                                        
-RT00000067  Duplex        Duplex                  monthly  daily      daily  Yes         Yes     No                            
-RT00000068  2 BDR 1 Bath  2 BDR 1 Bath SMK-QQ     monthly  daily      daily  Yes         Yes     No                            
+RT00000021  Duplex        Duplex                  monthly  daily      daily  Yes         Yes     No                            
+RT00000022  2 BDR 1 Bath  2 BDR 1 Bath SMK-QQ     monthly  daily      daily  Yes         Yes     No                            
             SMK-QQ                                                                                                             
-RT00000069  1 BDR         1 BDR Standard-Q        monthly  daily      daily  Yes         Yes     No                            
+RT00000023  1 BDR         1 BDR Standard-Q        monthly  daily      daily  Yes         Yes     No                            
             Standard-Q                                                                                                         
-RT00000070  NSNP Classic  NSNP Classic 1 Bed-Q    monthly  daily      daily  Yes         Yes     No                            
+RT00000024  NSNP Classic  NSNP Classic 1 Bed-Q    monthly  daily      daily  Yes         Yes     No                            
             1 Bed-Q                                                                                                            
-RT00000071  1 BDR         1 BDR DELUXE-Q          monthly  daily      daily  Yes         Yes     No                            
+RT00000025  1 BDR         1 BDR DELUXE-Q          monthly  daily      daily  Yes         Yes     No                            
             DELUXE-Q                                                                                                           
-RT00000072  VA Room       VA Room Queen-Q         monthly  daily      daily  Yes         Yes     No                            
+RT00000026  VA Room       VA Room Queen-Q         monthly  daily      daily  Yes         Yes     No                            
             Queen-Q                                                                                                            
-RT00000073  2 BDR 2 Bath  2 BDR 2 Bath NSNP-      monthly  daily      daily  Yes         Yes     No                            
+RT00000027  2 BDR 2 Bath  2 BDR 2 Bath NSNP-      monthly  daily      daily  Yes         Yes     No                            
             NSNP-                                                                                                              
 
