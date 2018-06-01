@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
@@ -12,23 +13,6 @@ import (
 //-------------------------------------------------------------------
 
 // no search area here because there is no main grid
-
-//-------------------------------------------------------------------
-//                         **** SAVE ****
-//-------------------------------------------------------------------
-
-// The "button" in the UI in this case is
-// pressed to close a period
-
-// SaveClosePeriod is the response to a GetTask request
-type SaveClosePeriod struct {
-	Cmd    string   `json:"status"`
-	Record FormTask `json:"record"`
-}
-
-//-------------------------------------------------------------------
-//                         **** GET ****
-//-------------------------------------------------------------------
 
 // FormClosePeriod holds the data needed for the Close Period screen
 type FormClosePeriod struct {
@@ -45,6 +29,23 @@ type FormClosePeriod struct {
 	DtDoneTarget     rlib.JSONDateTime // done date of TLIDTarget
 	DtDone           rlib.JSONDateTime // done date of first period that has not been closed
 }
+
+//-------------------------------------------------------------------
+//                         **** SAVE ****
+//-------------------------------------------------------------------
+
+// The "button" in the UI in this case is
+// pressed to close a period
+
+// SaveClosePeriod is the response to a GetTask request
+type SaveClosePeriod struct {
+	Cmd    string          `json:"cmd"`
+	Record FormClosePeriod `json:"record"`
+}
+
+//-------------------------------------------------------------------
+//                         **** GET ****
+//-------------------------------------------------------------------
 
 // GetClosePeriodResponse is the response to a GetClosePeriod request
 type GetClosePeriodResponse struct {
@@ -91,12 +92,45 @@ func SvcHandlerClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //	@Synopsis Update ClosePeriod information
 //  @Description This service attempts to close the oldest unclosed period
 //  @Description after performing a myriad of tests
-//	@Input ClosePeriod
+//	@Input FormClosePeriod
 //  @Response SvcStatusResponse
 // wsdoc }
 //-----------------------------------------------------------------------------
 func saveClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	// funcname := "saveClosePeriod"
+	funcname := "saveClosePeriod"
+
+	var foo SaveClosePeriod
+	data := []byte(d.data)
+
+	err := json.Unmarshal(data, &foo)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//-------------------------------------------------
+	// Save this close period. Get the date from the
+	// tasklist associated with this close...
+	//-------------------------------------------------
+	tl, err := rlib.GetTaskList(r.Context(), foo.Record.TLIDTarget)
+	if err != nil {
+		e := fmt.Errorf("%s: Error getting TaskList %d: %s", funcname, foo.Record.TLIDTarget, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	var cp rlib.ClosePeriod
+	cp.TLID = foo.Record.TLIDTarget
+	cp.BID = d.BID
+	cp.Dt = tl.DtDue
+	_, err = rlib.InsertClosePeriod(r.Context(), &cp)
+	if err != nil {
+		e := fmt.Errorf("%s: Error writing ClosePeriod: %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetClosePeriod returns the requested ClosePeriod

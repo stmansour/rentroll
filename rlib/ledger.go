@@ -18,7 +18,8 @@ import (
 //   * Rental Agreement Balance - the balance associated with a rental
 //     agreement for the specific account
 //   * Rentable Balance - the balance associated with a particular
-//     rentable
+//     rentable for the specific account
+//
 
 // RemoveLedgerEntries clears out the records in the supplied range provided the range is not closed by a LedgerMarker
 func RemoveLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) error {
@@ -447,15 +448,16 @@ func GenerateLedgerMarkers(ctx context.Context, xbiz *XBusiness, d2 *time.Time) 
 
 // GenerateLedgerEntries creates ledgers records based on the Journal records over the supplied time range.
 func GenerateLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) (int, error) {
-	nr := 0
 	// Console("Generate Ledger Records: BID=%d, d1 = %s, d2 = %s\n", xbiz.P.BID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// funcname := "GenerateLedgerEntries"
-	err := RemoveLedgerEntries(ctx, xbiz, d1, d2)
-	if err != nil {
+
+	nr := 0
+	if err := RemoveLedgerEntries(ctx, xbiz, d1, d2); err != nil {
 		Ulog("Could not remove existing LedgerEntries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
 		return nr, err
 	}
 	InitLedgerCache()
+
 	//----------------------------------------------------------------------------------
 	// Loop through the Journal records for this time period, update all ledgers...
 	//----------------------------------------------------------------------------------
@@ -467,33 +469,24 @@ func GenerateLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Ti
 
 	for rows.Next() {
 		var j Journal
-		err = ReadJournals(rows, &j)
-		if err != nil {
+		if err = ReadJournals(rows, &j); err != nil {
 			return nr, err
 		}
-
-		err = GetJournalAllocations(ctx, &j)
-		if err != nil {
+		if err = GetJournalAllocations(ctx, &j); err != nil {
 			return nr, err
 		}
-
 		n, err := GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
 		if err != nil {
 			return nr, err
 		}
-
 		nr += n
 	}
 
-	err = rows.Err()
-	if err != nil {
+	if err = rows.Err(); err != nil {
 		return nr, err
 	}
-
-	err = GenerateLedgerMarkers(ctx, xbiz, d2)
-	if err != nil {
+	if err = GenerateLedgerMarkers(ctx, xbiz, d2); err != nil {
 		return nr, err
 	}
-
 	return nr, err
 }
