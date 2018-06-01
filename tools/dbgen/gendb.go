@@ -176,7 +176,7 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 		rt.RentCycle = dbConf.RT[i].RentCycle
 		rt.Proration = dbConf.RT[i].ProrateCycle
 		rt.GSRPC = dbConf.RT[i].ProrateCycle
-		rt.ManageToBudget = 1
+		rt.FLAGS |= 0x4
 		_, err = rlib.InsertRentableType(ctx, &rt)
 		if err != nil {
 			return err

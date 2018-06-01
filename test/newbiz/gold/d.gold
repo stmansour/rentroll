@@ -1,8 +1,8 @@
-RTID	BID	Style	Name	RentCycle	Proration	GSRPC	ManageToBudget	LastModBy
-1	1	GM	Geezer Miser	6	4	4	1	0
-2	1	FS	Flat Studio	6	4	4	1	0
-3	1	SBL	Scratchy Bart Loft	6	4	4	1	0
-4	1	KDS	Krusty Deluxe Suite	6	4	4	1	0
-5	1	VEH	Vehicle	3	0	4	1	0
+RTID	BID	Style	Name	RentCycle	Proration	GSRPC	FLAGS	LastModBy
+1	1	GM	Geezer Miser	6	4	4	4	0
+2	1	FS	Flat Studio	6	4	4	4	0
+3	1	SBL	Scratchy Bart Loft	6	4	4	4	0
+4	1	KDS	Krusty Deluxe Suite	6	4	4	4	0
+5	1	VEH	Vehicle	3	0	4	4	0
 6	1	CPT	Carport	6	4	4	0	0
 7	1	CAR	Car	6	4	4	0	0
