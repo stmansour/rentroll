@@ -61,7 +61,7 @@ type GenDBRead struct {
 	SecDepDepositoryName string  `json:"SecDepDepositoryName"` // the security deposit depository
 	RSeed                int64   `json:"RSeed"`                // if specified it will seed the random number generator
 	Randomize            int     `json:"Randomize"`            // if non-zero then skip payments and allocation by percentages below
-	RandNames            int     `json:"RandNames"`            // if non-zero then create real names rather than numeric predictable names
+	RandNames            bool    `json:"RandNames"`            // if true then create real names rather than numeric predictable names
 	RandMissPayment      int     `json:"RandMissPayment"`      // if Randomize is true, skip payments on this percent (0-99)
 	RandMissApply        int     `json:"RandMissApply"`        // if Randomize is true, skip payment application on this percent (0-99)
 	PTypeCheckName       string  // name of pmtid for checks
@@ -107,7 +107,7 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	b.SecDepDepositoryName = a.SecDepDepositoryName
 	b.PTypeCheckName = a.PTypeCheckName
 	b.Randomize = a.Randomize != 0
-	b.RandNames = a.RandNames != 0
+	b.RandNames = a.RandNames
 	if b.Randomize {
 		b.RSeed = a.RSeed
 		b.RandMissApply = a.RandMissApply

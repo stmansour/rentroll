@@ -1,0 +1,36 @@
+{
+    "DtStart": "2/13/2018",
+    "DtStop": "3/1/2020",
+    "RT": [
+        {
+            "Count": 5,
+            "MarketRate": 1000,
+            "RentCycle": 6,
+            "ProrateCycle": 4
+        },
+        {
+            "Count": 5,
+            "MarketRate": 1500,
+            "RentCycle": 6,
+            "ProrateCycle": 4
+        },
+        {
+            "Count": 8,
+            "MarketRate": 1750,
+            "RentCycle": 6,
+            "ProrateCycle": 4
+        },
+        {
+            "Count": 7,
+            "MarketRate": 2500,
+            "RentCycle": 6,
+            "ProrateCycle": 4
+        }
+    ],
+    "OpDepositoryName": "Wells Fargo",
+    "SecDepDepositoryName": "Bank Of America",
+    "PTypeCheckName": "Check",
+    "PeopleCount": 30,
+    "RACount": 23,
+    "RandNames" : true
+}
