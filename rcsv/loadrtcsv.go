@@ -121,7 +121,9 @@ func CreateRentableType(ctx context.Context, sa []string, lineno int) (int, erro
 	if err != nil {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Invalid manage to budget flag: %s", funcname, lineno, sa[6])
 	}
-	a.ManageToBudget = int64(n64)
+	if n64 > 0 {
+		a.FLAGS |= 0x4
+	}
 
 	rtid, err := rlib.InsertRentableType(ctx, &a)
 	if err != nil {

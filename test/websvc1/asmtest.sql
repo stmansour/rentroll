@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22
+-- Server version	5.7.22-0ubuntu0.16.04.1-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1771,7 +1771,6 @@ CREATE TABLE `RentableTypes` (
   `RentCycle` bigint(20) NOT NULL DEFAULT '0',
   `Proration` bigint(20) NOT NULL DEFAULT '0',
   `GSRPC` bigint(20) NOT NULL DEFAULT '0',
-  `ManageToBudget` smallint(6) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `ARID` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1788,7 +1787,7 @@ CREATE TABLE `RentableTypes` (
 
 LOCK TABLES `RentableTypes` WRITE;
 /*!40000 ALTER TABLE `RentableTypes` DISABLE KEYS */;
-INSERT INTO `RentableTypes` VALUES (1,1,'Rex1','309 Rexford',6,4,4,1,0,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(2,1,'Rex2','309 1/2 Rexford',6,4,4,1,0,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(3,1,'Rex3','311 Rexford',6,4,4,1,0,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(4,1,'Rex4','311 1/2 Rexford',6,4,4,1,0,0,'2017-06-15 05:43:52',0,'2017-06-14 18:26:53',0);
+INSERT INTO `RentableTypes` VALUES (1,1,'Rex1','309 Rexford',6,4,4,0,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(2,1,'Rex2','309 1/2 Rexford',6,4,4,0,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(3,1,'Rex3','311 Rexford',6,4,4,0,0,'2017-06-13 05:39:46',0,'2017-06-14 18:26:53',0),(4,1,'Rex4','311 1/2 Rexford',6,4,4,0,0,'2017-06-15 05:43:52',0,'2017-06-14 18:26:53',0);
 /*!40000 ALTER TABLE `RentableTypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1963,6 +1962,7 @@ CREATE TABLE `RentalAgreementRentables` (
   `RAID` bigint(20) NOT NULL DEFAULT '0',
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `RID` bigint(20) NOT NULL DEFAULT '0',
+  `PRID` bigint(20) NOT NULL DEFAULT '0',
   `CLID` bigint(20) NOT NULL DEFAULT '0',
   `ContractRent` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `RARDtStart` date NOT NULL DEFAULT '1970-01-01',
@@ -1981,7 +1981,7 @@ CREATE TABLE `RentalAgreementRentables` (
 
 LOCK TABLES `RentalAgreementRentables` WRITE;
 /*!40000 ALTER TABLE `RentalAgreementRentables` DISABLE KEYS */;
-INSERT INTO `RentalAgreementRentables` VALUES (1,1,1,1,0,3500.0000,'2014-03-01','2018-03-01','2017-07-07 22:34:43',0,'2018-01-01 10:07:08',0);
+INSERT INTO `RentalAgreementRentables` VALUES (1,1,1,1,0,0,3500.0000,'2014-03-01','2018-03-01','2017-07-07 22:34:43',0,'2018-01-01 10:07:08',0);
 /*!40000 ALTER TABLE `RentalAgreementRentables` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2506,4 +2506,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-29 20:07:18
+-- Dump completed on 2018-06-01 21:13:53

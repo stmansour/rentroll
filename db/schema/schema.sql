@@ -232,7 +232,8 @@ CREATE TABLE RentalAgreementRentables (
     RARID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal unique id
     RAID BIGINT NOT NULL DEFAULT 0,                           -- Rental Agreement id
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
-    RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable id
+    RID BIGINT NOT NULL DEFAULT 0,                            -- Rentable ID
+    PRID BIGINT NOT NULL DEFAULT 0,                           -- Parent Rentable ID
     CLID BIGINT NOT NULL DEFAULT 0,                           -- Commission Ledger (for outside salespeople to get a commission)
     ContractRent DECIMAL(19,4) NOT NULL DEFAULT 0.0,          -- The contract rent for this rentable
     RARDtStart DATE NOT NULL DEFAULT '1970-01-01 00:00:00',   -- date when this Rentable was added to the agreement
@@ -549,9 +550,10 @@ CREATE TABLE RentableTypes (
     RentCycle BIGINT NOT NULL DEFAULT 0,                        -- rent accrual frequency
     Proration BIGINT NOT NULL DEFAULT 0,                        -- prorate frequency
     GSRPC BIGINT NOT NULL DEFAULT 0,                            -- Increments in which GSR is calculated to account for rate changes
-    ManageToBudget SMALLINT NOT NULL DEFAULT 0,                 -- 0 do not manage this category of Rentable to budget, 1 = manage to budget defined by MarketRate
     FLAGS BIGINT NOT NULL DEFAULT 0,                            -- 1<<0:  0=active, 1=inactive
                                                                 -- 1<<1:  0=cannot be a child rentable, 1 = can be a child
+                                                                -- 1<<2:  0=No(do not manage this category of Rentable to budget)
+                                                                --        1=Yes(manage to budget defined by MarketRate & MRs are required)
     ARID BIGINT NOT NULL DEFAULT 0,                             -- ARID reference, for default rent amount for this rentable types
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                        -- employee UID (from phonebook) that modified it

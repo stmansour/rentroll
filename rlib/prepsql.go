@@ -1060,7 +1060,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rentable Type
 	//===============================
-	flds = "RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ManageToBudget,ARID,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "RTID,BID,Style,Name,RentCycle,Proration,GSRPC,ARID,FLAGS,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentableTypes"] = flds
 	RRdb.Prepstmt.CountBusinessRentableTypes, err = RRdb.Dbrr.Prepare("SELECT COUNT(RTID) FROM RentableTypes WHERE BID=?")
 	Errcheck(err)

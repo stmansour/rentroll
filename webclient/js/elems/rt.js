@@ -16,7 +16,7 @@ window.getRTInitRecord = function (BID, BUD){
         RentCycle: 0,
         Proration: 0,
         GSRPC: 0,
-        Manage2Budget: false,
+        ManageToBudget: false,
         IsActive: true,
         IsChildRentable: false,
         RMRID: 0,
@@ -70,13 +70,13 @@ window.buildRentableTypeElements = function () {
         columns: [
             {field: 'recid', caption: 'recid', hidden: true},
             {field: 'RTID', caption: 'RTID', size: '50px', sortable: true},
-            {field: 'Active', caption: 'Active', size: '50px', sortable: true,
+            {field: 'Active', caption: 'Available', size: '120px', sortable: true,
                 render: function(record) {
                     if (record) {
                         if (record.IsActive) {
                             return "YES";
                         } else {
-                            return "NO";
+                            return "NO (Out of service)";
                         }
                     }
                 }
@@ -127,11 +127,11 @@ window.buildRentableTypeElements = function () {
                     return text;
                 },
             },
-            {field: 'Manage2Budget', caption: 'Manage To Budget', size: '200px', sortable: true,
+            {field: 'ManageToBudget', caption: 'Manage To Budget', size: '200px', sortable: true,
                 render: function (record/*, index, col_index*/) {
                     var text = '';
                     if (record) {
-                        if (record.Manage2Budget) {
+                        if (record.ManageToBudget) {
                             return "YES (Market Rate required)";
                         } else {
                             return "NO";
@@ -261,7 +261,7 @@ window.buildRentableTypeElements = function () {
             { field: 'RentCycle',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
             { field: 'Proration',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
             { field: 'GSRPC',           type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
-            { field: 'Manage2Budget',   type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
+            { field: 'ManageToBudget',  type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'IsActive',        type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'IsChildRentable', type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'ARID',            type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: [], selected: {}} },
@@ -273,7 +273,7 @@ window.buildRentableTypeElements = function () {
         onValidate: function(event) {
             event.onComplete = function() {
                 // console.log(event);
-                if (this.record.Manage2Budget) {
+                if (this.record.ManageToBudget) {
                     var grid = w2ui.rmrGrid;
                     var f = this;
                     var mainPanel = w2ui.rtDetailLayout.get("main");
@@ -284,13 +284,13 @@ window.buildRentableTypeElements = function () {
                             errMsg = "At least one MarketRate should be exist when Mange To Budget is Yes.\n Please checkout MarketRates tab!";
                             f.message(errMsg);
                             /*event.errors.push({
-                                field: f.get('Manage2Budget'),
+                                field: f.get('ManageToBudget'),
                                 error: errMsg
                             });*/
                             /*// show red-bordered error message and popup dialog too!
                             setTimeout(function() {
-                                $($(f.get("Manage2Budget").el).parents("div")[0]).w2tag(errMsg);
-                                $(f.get("Manage2Budget").el).addClass("w2ui-error");
+                                $($(f.get("ManageToBudget").el).parents("div")[0]).w2tag(errMsg);
+                                $(f.get("ManageToBudget").el).addClass("w2ui-error");
 
                             }, 0);*/
                         } else {
@@ -320,7 +320,7 @@ window.buildRentableTypeElements = function () {
             delete data.postData.record.CreateTS;
             delete data.postData.record.CreateBy;
 
-            data.postData.record.Manage2Budget = int_to_bool(data.postData.record.Manage2Budget);
+            data.postData.record.ManageToBudget = int_to_bool(data.postData.record.ManageToBudget);
             data.postData.record.IsActive = int_to_bool(data.postData.record.IsActive);
             data.postData.record.IsChildRentable = int_to_bool(data.postData.record.IsChildRentable);
 
@@ -369,7 +369,7 @@ window.buildRentableTypeElements = function () {
                 f.get("ARID").options.selected = ARIDSel;
 
                 // if manageToBudget set then enable market rate grid
-                if (f.record.Manage2Budget) {
+                if (f.record.ManageToBudget) {
                     w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
                 } else {
                     w2ui.rtDetailLayout.get("main").tabs.disable("rmrGrid");
@@ -382,7 +382,7 @@ window.buildRentableTypeElements = function () {
             var f = this;
             event.onComplete = function() {
                 switch (event.target) {
-                    case "Manage2Budget":
+                    case "ManageToBudget":
                         if (event.value_new) {
                             w2ui.rtDetailLayout.get("main").tabs.enable("rmrGrid");
                         } else {
@@ -449,7 +449,7 @@ window.buildRentableTypeElements = function () {
                     };
 
                     // only if manage to budget is set then call
-                    if (rtF.record.Manage2Budget) {
+                    if (rtF.record.ManageToBudget) {
                         // update RTID in grid records
                         for (var i = 0; i < rmrG.records.length; i++) {
                             rmrG.records[i].RTID = rtF.record.RTID;
@@ -500,7 +500,7 @@ window.buildRentableTypeElements = function () {
 
                         // dropdown list items and selected variables
                         var rentCycleSel = {}, prorationSel = {}, gsrpcSel = {},
-                            manageToBudgetSel = {}, cycleFreqItems = [];
+                            cycleFreqItems = [];
 
                         // select value for rentcycle, proration, gsrpc
                         app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -533,7 +533,7 @@ window.buildRentableTypeElements = function () {
                         rtF.refresh();
                     };
 
-                    if (rtF.record.Manage2Budget) {
+                    if (rtF.record.ManageToBudget) {
                         // now set the url of market Rate grid so that it can save the record on server side
                         rmrG.url = '/v1/rmr/' + BID + '/' + rtF.record.RTID;
                         rmrG.save(function(data) {

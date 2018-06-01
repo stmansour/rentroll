@@ -36,7 +36,7 @@ type RentableTypeGridRecord struct {
 	RentCycle       int64
 	Proration       int64
 	GSRPC           int64
-	Manage2Budget   bool
+	ManageToBudget  bool
 	flags           int64 // keep it in lowercase, don't send to client side
 	IsActive        bool
 	IsChildRentable bool
@@ -160,32 +160,25 @@ func SvcHandlerRentableType(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 // rtGridRowScan scans a result from sql row and dump it in a struct for rentableGrid
 func rentableTypeGridRowScan(rows *sql.Rows, q RentableTypeGridRecord) (RentableTypeGridRecord, error) {
-	var mngToBudget int64
-	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &mngToBudget, &q.flags,
+	err := rows.Scan(&q.RTID, &q.Style, &q.Name, &q.RentCycle, &q.Proration, &q.GSRPC, &q.flags,
 		&q.ARID, &q.LastModTime, &q.LastModBy, &q.CreateTS, &q.CreateBy)
-
-	// if not zero then mark flag as in true
-	if mngToBudget > 0 {
-		q.Manage2Budget = true
-	}
 
 	return q, err
 }
 
 var rtSearchFieldMap = rlib.SelectQueryFieldMap{
-	"RTID":           {"RentableTypes.RTID"},
-	"Style":          {"RentableTypes.Style"},
-	"Name":           {"RentableTypes.Name"},
-	"RentCycle":      {"RentableTypes.RentCycle"},
-	"Proration":      {"RentableTypes.Proration"},
-	"GSRPC":          {"RentableTypes.GSRPC"},
-	"ManageToBudget": {"RentableTypes.ManageToBudget"},
-	"FLAGS":          {"RentableTypes.FLAGS"},
-	"ARID":           {"RentableTypes.ARID"},
-	"LastModTime":    {"RentableTypes.LastModTime"},
-	"LastModBy":      {"RentableTypes.LastModBy"},
-	"CreateTS":       {"RentableTypes.CreateTS"},
-	"CreateBy":       {"RentableTypes.CreateBy"},
+	"RTID":        {"RentableTypes.RTID"},
+	"Style":       {"RentableTypes.Style"},
+	"Name":        {"RentableTypes.Name"},
+	"RentCycle":   {"RentableTypes.RentCycle"},
+	"Proration":   {"RentableTypes.Proration"},
+	"GSRPC":       {"RentableTypes.GSRPC"},
+	"FLAGS":       {"RentableTypes.FLAGS"},
+	"ARID":        {"RentableTypes.ARID"},
+	"LastModTime": {"RentableTypes.LastModTime"},
+	"LastModBy":   {"RentableTypes.LastModBy"},
+	"CreateTS":    {"RentableTypes.CreateTS"},
+	"CreateBy":    {"RentableTypes.CreateBy"},
 }
 
 // which fields needs to be fetch to satisfy the struct
@@ -196,7 +189,6 @@ var rtSearchSelectQueryFields = rlib.SelectQueryFields{
 	"RentableTypes.RentCycle",
 	"RentableTypes.Proration",
 	"RentableTypes.GSRPC",
-	"RentableTypes.ManageToBudget",
 	"RentableTypes.FLAGS",
 	"RentableTypes.ARID",
 	"RentableTypes.LastModTime",
@@ -302,16 +294,24 @@ func SvcSearchHandlerRentableTypes(w http.ResponseWriter, r *http.Request, d *Se
 		}
 
 		// active or inactive for the grid summary
-		if q.flags&0x1 != 0 { // 1<<0
-			q.IsActive = false // 1 = inactive
+		if q.flags&0x1 == 0 { // 1<<0
+			q.IsActive = true // 0 = is available
 		} else {
-			q.IsActive = true // 0 = active
+			q.IsActive = false // 1 = out of service
 		}
 
+		// child rentable?
 		if q.flags&0x2 != 0 { // 1<<1
-			q.IsChildRentable = true // 2 = can be child
+			q.IsChildRentable = true // 1 = can be child
 		} else {
 			q.IsChildRentable = false // 0 = can't be child
+		}
+
+		// manage to budget
+		if q.flags&0x4 != 0 { // 1<<2
+			q.ManageToBudget = true // 1 = can be child
+		} else {
+			q.ManageToBudget = false // 0 = can't be child
 		}
 
 		g.Records = append(g.Records, q)
@@ -386,16 +386,24 @@ func getRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		}
 
 		// active or inactive for the grid summary
-		if q.flags&0x1 != 0 { // 1<<0
-			q.IsActive = false // 1 = inactive
+		if q.flags&0x1 == 0 { // 1<<0
+			q.IsActive = true // 0 = is available
 		} else {
-			q.IsActive = true // 0 = active
+			q.IsActive = false // 1 = out of service
 		}
 
+		// is child type
 		if q.flags&0x2 != 0 { // 1<<1
-			q.IsChildRentable = true // 2 = can be child
+			q.IsChildRentable = true // 1 = can be child
 		} else {
 			q.IsChildRentable = false // 0 = can't be child
+		}
+
+		// managetobudget
+		if q.flags&0x4 != 0 { // 1<<2
+			q.ManageToBudget = true // 1 = yes
+		} else {
+			q.ManageToBudget = false // 0 = no
 		}
 
 		q.Recid = q.RTID
@@ -523,15 +531,8 @@ func saveRentableType(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	if foo.Record.IsChildRentable { // 1 << 1 -- first bit
 		a.FLAGS |= (1 << 1)
 	}
-
-	if foo.Record.Manage2Budget { // 1<<0
-		a.ManageToBudget |= (1 << 0) // set it to 1
-	} else {
-		// helplinks: 1. https://codeforwin.org/2016/01/c-program-to-clear-nth-bit-of-number.html
-		//            2. https://medium.com/learning-the-go-programming-language/bit-hacking-with-go-e0acee258827
-
-		// i &^= (1 << 0) <==> i = i & ^(1 << 0), which clears the 0th bit
-		a.ManageToBudget &^= (1 << 0) // set it to 0, clear the 0th bit
+	if foo.Record.ManageToBudget { // 1<<
+		a.FLAGS |= (1 << 2) // set it to 1
 	}
 
 	errlist := bizlogic.ValidateRentableType(r.Context(), &a)
@@ -785,7 +786,7 @@ func saveRentableTypeMarketRates(w http.ResponseWriter, r *http.Request, d *Serv
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	if rt.ManageToBudget == 0 {
+	if rt.FLAGS&0x4 == 0 {
 		e := fmt.Errorf("ManageToBudget is not enabled at this moment")
 		SvcErrorReturn(w, e, funcname)
 		return
