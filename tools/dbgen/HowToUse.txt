@@ -8,7 +8,8 @@ payment information as well with some controls to randomize payments.
 
 dbgen is driven by a configuration file. Several examples are provided with
 the source code. The file db25.json has an example of using every flag. Below
-is the contents of db25.json along with an explanation of each field.  Some fields are required and some are optional.
+is the contents of db25.json along with an explanation of each field.  Some 
+fields are required and some are optional.
 
 dbgen always dumps DtStart/DtStop and the RSeed value to stdout each time it is
 run. The date values are there to remind you of the time period to look for the
@@ -109,7 +110,8 @@ RandMissPayment  (optional)
     default value is 0.
 
 RandMissApply  (optional)
-    Specifies the percent (0-99) of payments that will not be applied. The default value is 0.
+    Specifies the percent (0-99) of payments that will not be applied. The 
+    default value is 0.
 
 
 Example Configuration File
