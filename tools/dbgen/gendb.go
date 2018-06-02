@@ -316,7 +316,7 @@ func createReceipts(ctx context.Context, dbConf *GenDBConf) error {
 	}
 	defer rows.Close()
 	for i := 0; rows.Next(); i++ {
-		if dbConf.Randomize && dbConf.RRand.Intn(100) < dbConf.RandMissPayment {
+		if dbConf.RandomizePayments && dbConf.RRand.Intn(100) < dbConf.RandMissPayment {
 			continue // some randomness - a missed payment
 		}
 		var a rlib.Assessment
@@ -392,7 +392,7 @@ func applyReceipts(ctx context.Context, dbConf *GenDBConf) error {
 
 	// rlib.Console("Payors with unallocated receipts:\n")
 	for k := range u {
-		if dbConf.Randomize && dbConf.RRand.Intn(100) < dbConf.RandMissApply {
+		if dbConf.RandomizePayments && dbConf.RRand.Intn(100) < dbConf.RandMissApply {
 			continue // some randomness - don't apply this payment
 		}
 		// rlib.Console("Payor with TCID=%d has %d unallocated receipts\n", k, v)

@@ -40,7 +40,6 @@
     "PTypeCheckName": "Check",
     "PeopleCount": 30,
     "RACount": 23,
-    "RSeed": 12345,
     "RandNames" : true
 
 }
