@@ -115,7 +115,9 @@ RandMissApply  (optional)
 Example Configuration File
 --------------------------
 
-This is the contents of db25.json.  It does not 
+This is the contents of db25.json.  It does not make use of every attribute,
+but it is a representative example of how to generate a useful database
+containing 25 Rentables, 30 Transactants, and 23 Rental Agreements.
 
 {
     "DtStart": "2/13/2018",
