@@ -17,6 +17,8 @@ type RType struct {
 	RentCycle    int64   // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
 	ProrateCycle int64   // just like RentCycle
 	SQFT         int64   // square feed for this rentable
+	Name         string  //
+	Style        string  // very short but functionally descriptive name
 }
 
 // GenDBConf provides attribute information for what is created in the database

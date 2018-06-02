@@ -872,22 +872,23 @@ type Expense struct {
 }
 
 // AR is the table that defines the AcctRules for Assessments, Expenses and Receipts
+// FLAGS
+//  1<<0 = apply funds to Receive accts,
+//  1<<1 - populate on Rental Agreement,
+//  1<<2 = RAID required,
+//  1<<3 = subARIDs apply
 type AR struct {
-	ARID        int64
-	BID         int64
-	Name        string
-	ARType      int64 // 0 = Assessment, 1 = Receipt, 2 = Expense
-	DebitLID    int64
-	CreditLID   int64
-	Description string
-	RARequired  int64
-	DtStart     time.Time
-	DtStop      time.Time
-	FLAGS       uint64 /* 1<<0 = apply funds to Receive accts,
-	 * 1<<1 - populate on Rental Agreement,
-	 * 1<<2 = RAID required,
-	 * 1<<3 = subARIDs apply
-	 */
+	ARID          int64
+	BID           int64
+	Name          string
+	ARType        int64 // 0 = Assessment, 1 = Receipt, 2 = Expense
+	DebitLID      int64
+	CreditLID     int64
+	Description   string
+	RARequired    int64
+	DtStart       time.Time
+	DtStop        time.Time
+	FLAGS         uint64
 	DefaultAmount float64 // use this as the default amount in ui for newly created Assessments
 	LastModTime   time.Time
 	LastModBy     int64
