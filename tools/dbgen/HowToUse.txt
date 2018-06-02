@@ -4,12 +4,11 @@ How To Use DBGEN
 dbgen is a program used to create a rentroll database with predictable or
 random information.  It can be used to generate a database with any number
 of rentables, rentable types, rental agreements, and transactants. It adds
-payment information as well with some controls to randomize payments.
+payment information as well with some controls to randomize payments.  Some 
+fields are required and some are optional.
 
 dbgen is driven by a configuration file. Several examples are provided with
-the source code. The file db25.json has an example of using every flag. Below
-is the contents of db25.json along with an explanation of each field.  Some 
-fields are required and some are optional.
+the source code.
 
 dbgen always dumps DtStart/DtStop and the RSeed value to stdout each time it is
 run. The date values are there to remind you of the time period to look for the
