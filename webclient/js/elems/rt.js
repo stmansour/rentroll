@@ -187,6 +187,7 @@ window.buildRentableTypeElements = function () {
 
                                 w2ui.rtForm.get("ARID").options.items = w2ui_items;
                                 w2ui.rtForm.refresh();
+                                w2ui.rtForm.refresh();
                             }
                         })
                         .fail(function() {
@@ -228,6 +229,7 @@ window.buildRentableTypeElements = function () {
                             var record = getRTInitRecord(BID, BUD);
                             w2ui.rtForm.record = record;
                             w2ui.rtForm.refresh();
+                            w2ui.rtForm.refresh();
                         }
                     })
                     .fail(function() {
@@ -258,9 +260,9 @@ window.buildRentableTypeElements = function () {
             { field: 'BUD',             type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.businesses} },
             { field: 'Style',           type: 'text',       required: true,     html: { page: 0, column: 0 } },
             { field: 'Name',            type: 'text',       required: true,     html: { page: 0, column: 0 } },
-            { field: 'RentCycle',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
-            { field: 'Proration',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
-            { field: 'GSRPC',           type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.cycleFreq, selected: {}} },
+            { field: 'RentCycle',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.w2ui.listItems.cycleFreq, selected: {}} },
+            { field: 'Proration',       type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.w2ui.listItems.cycleFreq, selected: {}} },
+            { field: 'GSRPC',           type: 'list',       required: true,     html: { page: 0, column: 0 },   options: {items: app.w2ui.listItems.cycleFreq, selected: {}} },
             { field: 'ManageToBudget',  type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'IsActive',        type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
             { field: 'IsChildRentable', type: 'checkbox',   required: true,     html: { page: 0, column: 0 } },
@@ -335,8 +337,7 @@ window.buildRentableTypeElements = function () {
 
                 // dropdown list items and selected variables
                 var rentCycleSel = {}, prorationSel = {},
-                    gsrpcSel = {},  ARIDSel = {},
-                    cycleFreqItems = [];
+                    gsrpcSel = {},  ARIDSel = {};
 
                 // select value for rentcycle, proration, gsrpc
                 app.cycleFreq.forEach(function(itemText, itemIndex) {
@@ -349,7 +350,6 @@ window.buildRentableTypeElements = function () {
                     if (itemIndex == r.GSRPC) {
                         gsrpcSel = { id: itemIndex, text: itemText };
                     }
-                    cycleFreqItems.push({ id: itemIndex, text: itemText });
                 });
 
                 // select value for rentable type account rule
@@ -360,11 +360,8 @@ window.buildRentableTypeElements = function () {
                 });
 
                 // fill the field with values
-                f.get("RentCycle").options.items = cycleFreqItems;
                 f.get("RentCycle").options.selected = rentCycleSel;
-                f.get("Proration").options.items = cycleFreqItems;
                 f.get("Proration").options.selected = prorationSel;
-                f.get("GSRPC").options.items = cycleFreqItems;
                 f.get("GSRPC").options.selected = gsrpcSel;
                 f.get("ARID").options.selected = ARIDSel;
 
@@ -684,7 +681,7 @@ window.buildRentableTypeElements = function () {
                             } else {
                                 w2ui.rtDetailLayout.get("main").content.unlock();
                             }
-                        }, 0);
+                        }, 1000);
                     }
                 }
             },
