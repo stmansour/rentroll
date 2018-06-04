@@ -165,7 +165,9 @@
     display: none;
 }
 
-.ra-form-component .form-container, .ra-form-component .grid-container {
+.ra-form-component .form-container,
+.ra-form-component .grid-container,
+.ra-form-component .layout-container {
     display: block;
     width: 100%;
     height: 100%;

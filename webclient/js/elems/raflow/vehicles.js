@@ -296,6 +296,11 @@ window.loadRAVehiclesGrid = function () {
                     size: '80px'
                 },
                 {
+                    field: 'Year',
+                    caption: 'Year',
+                    size: '80px'
+                },
+                {
                     field: 'LicensePlateState',
                     caption: 'License Plate<br>State',
                     size: '100px'
