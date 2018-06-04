@@ -201,9 +201,10 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "GSRPC":
                     case "OverrideProrationCycle":
                     case "OverrideRentCycle":
+                        cy.log(valueForCell);
                         valueForCell = appSettings.cycleFreq[valueForCell];
                         break;
-                    case "Manage2Budget":
+                    case "ManageToBudget":
                         cy.log(valueForCell);
                         // refer /webclient/js/rt.js : rtGrid
                         if(valueForCell){
@@ -294,18 +295,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                     fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
                 }
 
-                // Modify fieldValue if field is checkbox
-                if($el.context.type === "checkbox"){
-                    switch(fieldValue){
-                        case 0:
-                            fieldValue = 'off';
-                            break;
-                        case 1:
-                            fieldValue = 'on';
-                            break;
-                    }
-                }
-
                 let types;
                 let type;
 
@@ -391,9 +380,35 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                 // check fields visibility and respective value
                 if (!isInArray(fieldID, testConfig.skipFields)) {
                     // Check visibility and match the default value of the fields.
-                    cy.get(selectors.getFieldSelector(fieldID))
-                        .should('be.visible')
-                        .should('have.value', fieldValue);
+                    switch (fieldID){
+                        // Rentable Types form checkbox
+                        case "ManageToBudget":
+                        case "IsChildRentable":
+                        // Account Rules form checkbox
+                        case "ApplyRcvAccts":
+                        case "RAIDrqd":
+                        case "AutoPopulateToNewRA":
+                        case "IsRentASM":
+                        case "IsSecDepASM":
+                        case "IsNonRecurCharge":
+                        case "PriorToRAStop":
+                        case "PriorToRAStart":
+                            if(fieldValue){
+                                cy.get(selectors.getFieldSelector(fieldID))
+                                    .should('be.visible')
+                                    .should('be.checked');
+                            }else{
+                                cy.get(selectors.getFieldSelector(fieldID))
+                                    .should('be.visible')
+                                    .should('be.not.checked');
+                            }
+                            break;
+                        default:
+                            cy.get(selectors.getFieldSelector(fieldID))
+                                .should('be.visible')
+                                .should('have.value', fieldValue);
+                            break;
+                    }
                 }
             });
     });
