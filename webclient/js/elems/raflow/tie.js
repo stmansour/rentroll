@@ -29,15 +29,22 @@ window.loadRATieSection = function () {
                         tabs: [
                             { id: 'pets-tie', caption: 'Pets' },
                             { id: 'vehicles-tie', caption: 'Vehicles' },
+                            { id: 'payors-tie', caption: 'Payors' },
                         ],
                         onClick: function (event) {
-                            if (event.target === "pets-tie") {
+                            switch(event.target) {
+                            case "pets-tie":
                                 w2ui.RATieLayout.html('main', w2ui.RAPetsTieGrid);
                                 setPetsTieGridRecords();
-                            }
-                            if (event.target === "vehicles-tie") {
+                                break;
+                            case "vehicles-tie":
                                 w2ui.RATieLayout.html('main', w2ui.RAVehiclesTieGrid);
                                 setVehiclesTieGridRecords();
+                                break;
+                            case "payors-tie":
+                                // w2ui.RATieLayout.html('main', w2ui.RAVehiclesTieGrid);
+                                // setVehiclesTieGridRecords();
+                                // break;
                             }
                         }
                     }
