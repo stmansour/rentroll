@@ -1,3 +1,6 @@
+/*
+    window
+*/
 "use strict";
 
 // ***********************************************************
@@ -44,4 +47,17 @@ after(() => {
         cy.writeFile('.nyc_output/out.json', JSON.stringify(map));
         cy.exec('nyc report --reporter=cobertura');
     });
+
+    // cy.window().then(win => {
+    //     const coverage = win.__coverage__;
+    //     const spec = win.location.hash;
+    //
+    //     cy.writeFile("cypress/coverage/" + spec + "-coverage.json", coverage);
+    // });
+
+
+    // cy.window().its('__coverage__').then(cov => {
+    //     const spec = window.location.hash;
+    //     cy.writeFile("cypress/coverage/" + spec + "-coverage.json", cov);
+    // });
 });

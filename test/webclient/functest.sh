@@ -20,9 +20,8 @@ CONFIGPATH="$(pwd)"
 source ../share/base.sh
 
 # specific file that needs to be tested
-CYPRESS_SPEC="./cypress/integration/*"
-#CYPRESS_SPEC="./cypress/integration/roller_12_rentabletypes_spec.js"
-# ./cypress/integration/roller_2_asms_spec.js
+#CYPRESS_SPEC="./cypress/integration/*"
+CYPRESS_SPEC="./cypress/integration/receipt_1_login_spec.js,./cypress/integration/roller_2_asms_spec.js,./cypress/integration/roller_5_pmt_spec.js"
 
 #--------------------------------------------------------------------
 #  Generate bundle.js without instrumented code.
