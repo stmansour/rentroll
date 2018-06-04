@@ -1,5 +1,7 @@
 /* global
-    loadRATieSection
+    loadRATieSection,
+    getRAFlowCompData, reassignGridRecids,
+    setVehiclesTieGridRecords, setPetsTieGridRecords
 */
 
 "use strict";
@@ -31,9 +33,11 @@ window.loadRATieSection = function () {
                         onClick: function (event) {
                             if (event.target === "pets-tie") {
                                 w2ui.RATieLayout.html('main', w2ui.RAPetsTieGrid);
+                                setPetsTieGridRecords();
                             }
                             if (event.target === "vehicles-tie") {
                                 w2ui.RATieLayout.html('main', w2ui.RAVehiclesTieGrid);
+                                setVehiclesTieGridRecords();
                             }
                         }
                     }
@@ -58,10 +62,6 @@ window.loadRATieSection = function () {
                 },
                 {
                     field: 'BID',
-                    hidden: true
-                },
-                {
-                    field: 'CRID',
                     hidden: true
                 },
                 {
@@ -112,6 +112,7 @@ window.loadRATieSection = function () {
                     if (PRNCI === event.column) {
                         var record = grid.get(event.recid);
                         record.PRID = parseInt(event.value_new);
+                        record.ParentRentableName = parseInt(event.value_new);
                         grid.set(event.recid, record);
                     }
 
@@ -141,42 +142,38 @@ window.loadRATieSection = function () {
                     hidden: true
                 },
                 {
-                    field: 'CRID',
-                    hidden: true
-                },
-                {
                     field: 'PRID',
                     hidden: true
                 },
                 {
                     field: 'Type',
                     caption: 'Type',
-                    size: '120px',
+                    size: '90px',
                 },
                 {
                     field: 'VIN',
                     caption: 'VIN',
-                    size: '120px',
+                    size: '90px',
                 },
                 {
                     field: 'Make',
                     caption: 'Make',
-                    size: '120px',
+                    size: '90px',
                 },
                 {
                     field: 'Model',
                     caption: 'Model',
-                    size: '120px',
+                    size: '90px',
                 },
                 {
                     field: 'Color',
                     caption: 'Color',
-                    size: '120px',
+                    size: '90px',
                 },
                 {
                     field: 'Year',
                     caption: 'Year',
-                    size: '120px',
+                    size: '90px',
                 },
                 {
                     field: 'ParentRentableName',
@@ -207,6 +204,7 @@ window.loadRATieSection = function () {
                     if (PRNCI === event.column) {
                         var record = grid.get(event.recid);
                         record.PRID = parseInt(event.value_new);
+                        record.ParentRentableName = parseInt(event.value_new);
                         grid.set(event.recid, record);
                     }
 
@@ -224,3 +222,76 @@ window.loadRATieSection = function () {
         w2ui.RATieLayout.get("main").tabs.click("pets-tie");
     }, 0);
 };
+
+// -------------------------------------------------------------------------------
+// setPetsTieGridRecords - set records in pets tie grid from "pets" comp data
+// -------------------------------------------------------------------------------
+window.setPetsTieGridRecords = function() {
+    var BID = getCurrentBID();
+    var petsCompData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+    var grid = w2ui.RAPetsTieGrid,
+        tieGridRecords = [];
+
+    petsCompData.forEach(function(petData) {
+        var record = {
+            recid:              0,
+            BID:                BID,
+            PRID:               0,
+            Name:               petData.Name,
+            Breed:              petData.Breed,
+            Type:               petData.Type,
+            ParentRentableName: 0,
+        };
+        tieGridRecords.push(record);
+    });
+
+    if (tieGridRecords.length > 0) {
+        grid.records = tieGridRecords;
+        reassignGridRecids(grid.name);
+
+        // assign item prepared earlier for parent rentable list
+        grid.getColumn("ParentRentableName").editable.items = app.raflow.parentRentableW2UIItems;
+        grid.getColumn("ParentRentableName").render();
+    } else {
+        grid.clear();
+    }
+};
+
+// -------------------------------------------------------------------------------
+// setVehiclesTieGridRecords - set records in vehicles tie grid from "vehicles" comp data
+// -------------------------------------------------------------------------------
+window.setVehiclesTieGridRecords = function() {
+    var BID = getCurrentBID();
+    var vehiclesCompData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+    var grid = w2ui.RAVehiclesTieGrid,
+        tieGridRecords = [];
+
+    vehiclesCompData.forEach(function(vehicleData) {
+        var record = {
+            recid:              0,
+            BID:                BID,
+            PRID:               0,
+            Type:               vehicleData.Type,
+            VIN:                vehicleData.VIN,
+            Make:               vehicleData.Make,
+            Model:              vehicleData.Model,
+            Color:              vehicleData.Color,
+            Year:               vehicleData.Year,
+            ParentRentableName: 0,
+        };
+        tieGridRecords.push(record);
+    });
+
+    if (tieGridRecords.length > 0) {
+        grid.records = tieGridRecords;
+        reassignGridRecids(grid.name);
+
+        // assign item prepared earlier for parent rentable list
+        grid.getColumn("ParentRentableName").editable.items = app.raflow.parentRentableW2UIItems;
+        grid.getColumn("ParentRentableName").render();
+    } else {
+        grid.clear();
+    }
+};
+
+
