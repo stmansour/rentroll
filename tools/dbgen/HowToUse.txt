@@ -1,0 +1,166 @@
+How To Use DBGEN
+----------------
+
+dbgen is a program used to create a rentroll database with predictable or
+random information.  It can be used to generate a database with any number
+of rentables, rentable types, rental agreements, and transactants. It adds
+payment information as well with some controls to randomize payments.  Some 
+fields are required and some are optional.
+
+dbgen is driven by a configuration file. Several examples are provided with
+the source code.
+
+dbgen always dumps DtStart/DtStop and the RSeed value to stdout each time it is
+run. The date values are there to remind you of the time period to look for the
+data.  The RSeed value is there in case you want to reproduce exactly the same
+database.
+
+
+Attribute Definitions
+---------------------
+
+DtStart  (required)
+    This is a date value used for the starting date of just about every
+    time period.  This includes Rental Agreements and Assessments.
+
+DtStop  (required)
+    This is a date value used as the stopping date for periods. It is the
+    counterpart of DtStart.
+
+RT  (required)
+    This is an array of RentableType structures.
+
+RT.Count  (required)
+    The number of Rentables of this type to create
+
+RT.MarketRate  (required)
+    The market rate rent amount for rentables of this RentableType. This
+    value is used for the rent assessments.
+
+RT.RentCycle  (required)
+    The frequency at which payment is due for rentables of this type. Recur
+    frequency values are the same for all recurring values. The specific
+    values are:
+
+        SECONDLY  = 1
+        MINUTELY  = 2
+        HOURLY    = 3
+        DAILY     = 4
+        WEEKLY    = 5
+        MONTHLY   = 6
+        QUARTERLY = 7
+        YEARLY    = 8
+
+RT.ProrateCycle  (required)
+    The frequency at which proration is calculated if a rentable is only
+    rented for a portion of the RT.RentCycle.
+
+RT.Style  (optional)
+    The short name designation to associate with the RentableType. If it is
+    not specified, it will have a default value of "ST000" where 000 is a 
+    monotonically increasing number for each RentableType.
+
+RT.Name  (optional)
+    The name of this RentableType. If not specified, the default value is of
+    the form "RType000" where 000 is a monotonically increasing number for
+    each RentableType.
+
+OpDepositoryName  (required)
+    Name of the bank (depository) used for operational finances.
+
+SecDepDepositoryName  (required)
+    Name of the bank (depository) used for operational finances.
+
+PTypeCheckName  (required)
+    Name of PaymentType used for checks.  Typically, "check".
+
+PeopleCount  (required)
+	Number of Transactants created. If this value is less than the number of
+	RentalAgreements requested (RACount) then some transactants will be the 
+	payor on more than one RentalAgreement.
+
+RACount  (required)
+    Number of rental agreements to create. If this count is greater than the
+    number of all the rentables created then the program will stop creating
+    rental agreements once it has used all the rentables.
+
+RSeed  (optional)
+    Number used to seed the random number generator. If not specified, the 
+    seed will be a highly random number based on the current system time. If 
+    it is specified then the databases it creates will be predictable. 
+    Otherwise, they will be highly random.
+
+RandName  (optional)
+    Set to false if not present. If set to true, the transactant names will be 
+    randomly chosen from a large list of first and last names.  Note, phone 
+    numbers, email addresses, and land addresses are always totally random.
+
+RandomizePayments  (optional)
+    Set to false if not present. If set to true, the code will inhibit the
+    creation of a percentage of payments from payors. The percentage is 
+    controlled by RandMissPayment, see below.  Also, the code will not apply 
+    some percentage of payments made. The percentage is controlled by 
+    RandMissApply, see below.  This can be helpful to check the functioning of
+    the Rentroll view, the RentRoll report, payor statements, and rental 
+    agreement statements.
+
+RandMissPayment  (optional)
+    Specifies the percent (0-99) of payments that will be randomly skipped. The
+    default value is 0.
+
+RandMissApply  (optional)
+    Specifies the percent (0-99) of payments that will not be applied. The 
+    default value is 0.
+
+
+Example Configuration File
+--------------------------
+
+This is the contents of db25.json.  It does not make use of every attribute,
+but it is a representative example of how to generate a useful database
+containing 25 Rentables, 30 Transactants, and 23 Rental Agreements.
+
+{
+    "DtStart": "2/13/2018",
+    "DtStop": "3/1/2020",
+    "RT": [
+        {
+            "Count": 5,
+            "MarketRate": 1000,
+            "RentCycle": 6,
+            "ProrateCycle": 4,
+            "Style": "1BR",
+            "Name": "Standard 1BR 1BA"
+        },
+        {
+            "Count": 5,
+            "MarketRate": 1500,
+            "RentCycle": 6,
+            "ProrateCycle": 4,
+            "Style": "2BR",
+            "Name": "Double 2BR 2BA"
+        },
+        {
+            "Count": 8,
+            "MarketRate": 1750,
+            "RentCycle": 6,
+            "ProrateCycle": 4,
+            "Style": "3BR",
+            "Name": "Deluxe 3BR 2.5BA"
+        },
+        {
+            "Count": 7,
+            "MarketRate": 2500,
+            "RentCycle": 6,
+            "ProrateCycle": 4,
+            "Style": "4BR",
+            "Name": "Presidential 4BR 3BA"
+        }
+    ],
+    "OpDepositoryName": "Wells Fargo",
+    "SecDepDepositoryName": "Bank Of America",
+    "PTypeCheckName": "Check",
+    "PeopleCount": 30,
+    "RACount": 23,
+    "RandNames" : true
+}

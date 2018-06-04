@@ -17,6 +17,8 @@ type RType struct {
 	RentCycle    int64   // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
 	ProrateCycle int64   // just like RentCycle
 	SQFT         int64   // square feed for this rentable
+	Name         string  //
+	Style        string  // very short but functionally descriptive name
 }
 
 // GenDBConf provides attribute information for what is created in the database
@@ -41,9 +43,9 @@ type GenDBConf struct {
 	OpDepositoryName     string          // the operational bank depository
 	SecDepDepositoryName string          // the security deposit depository
 	xbiz                 rlib.XBusiness  // business we're working on
-	Randomize            bool            // if true skip payments and allocation by percentages below
-	RandMissPayment      int             // if Randomize is true, skip payments on this percent (0-99)
-	RandMissApply        int             // if Randomize is true, skip payment application on this percent (0-99)
+	RandomizePayments    bool            // if true skip payments and allocation by percentages below
+	RandMissPayment      int             // if RandomizePayments is true, skip payments on this percent (0-99)
+	RandMissApply        int             // if RandomizePayments is true, skip payment application on this percent (0-99)
 	RSeed                int64           // to reproduce the same database
 	RSource              rand.Source     // for creating random numbers
 	RRand                *rand.Rand      // our base for generating random numbers
@@ -60,10 +62,10 @@ type GenDBRead struct {
 	OpDepositoryName     string  `json:"OpDepositoryName"`     // the operational bank depository
 	SecDepDepositoryName string  `json:"SecDepDepositoryName"` // the security deposit depository
 	RSeed                int64   `json:"RSeed"`                // if specified it will seed the random number generator
-	Randomize            int     `json:"Randomize"`            // if non-zero then skip payments and allocation by percentages below
-	RandNames            int     `json:"RandNames"`            // if non-zero then create real names rather than numeric predictable names
-	RandMissPayment      int     `json:"RandMissPayment"`      // if Randomize is true, skip payments on this percent (0-99)
-	RandMissApply        int     `json:"RandMissApply"`        // if Randomize is true, skip payment application on this percent (0-99)
+	RandomizePayments    int     `json:"RandomizePayments"`    // if non-zero then skip payments and allocation by percentages below
+	RandNames            bool    `json:"RandNames"`            // if true then create real names rather than numeric predictable names
+	RandMissPayment      int     `json:"RandMissPayment"`      // if RandomizePayments is true, skip payments on this percent (0-99)
+	RandMissApply        int     `json:"RandMissApply"`        // if RandomizePayments is true, skip payment application on this percent (0-99)
 	PTypeCheckName       string  // name of pmtid for checks
 	RT                   []RType `json:"RT"` // defines the rentable types and the count of Rentables
 }
@@ -106,13 +108,13 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	b.OpDepositoryName = a.OpDepositoryName
 	b.SecDepDepositoryName = a.SecDepDepositoryName
 	b.PTypeCheckName = a.PTypeCheckName
-	b.Randomize = a.Randomize != 0
-	b.RandNames = a.RandNames != 0
-	if b.Randomize {
+	b.RandomizePayments = a.RandomizePayments != 0
+	b.RandNames = a.RandNames
+	if b.RandomizePayments {
 		b.RSeed = a.RSeed
 		b.RandMissApply = a.RandMissApply
 		b.RandMissPayment = a.RandMissPayment
-		rlib.Console("*** Randomize is in effect ***\n")
+		rlib.Console("*** RandomizePayments is in effect ***\n")
 		rlib.Console("Seed = %d, MissPayments = %d%%, MissApply = %d%%\n", b.RSeed, b.RandMissPayment, b.RandMissApply)
 	}
 
@@ -121,6 +123,7 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	if a.RSeed == int64(0) {
 		a.RSeed = time.Now().UnixNano()
 	}
+	rlib.Console("RSeed = %d\n", a.RSeed)
 	b.RSource = rand.NewSource(a.RSeed)
 	b.RSeed = a.RSeed
 	b.RRand = rand.New(b.RSource)

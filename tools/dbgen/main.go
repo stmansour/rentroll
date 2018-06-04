@@ -104,7 +104,6 @@ func main() {
 	rlib.RpnInit()
 	rlib.InitDBHelpers(App.dbrr, App.dbdir)
 	rlib.SetAuthFlag(App.NoAuth)
-	IGInit()
 
 	// create background context
 	ctx := context.Background()
@@ -142,6 +141,7 @@ func main() {
 		fmt.Printf("Error: database contains no businesses\n")
 		os.Exit(1)
 	}
+	IGInit(dbConf.RRand)
 
 	//----------------------------
 	// Build the database

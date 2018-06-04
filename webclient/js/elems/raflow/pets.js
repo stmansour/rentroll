@@ -393,7 +393,7 @@ window.loadRAPetsGrid = function () {
     }
 
     // now load grid in division
-    $('#ra-form #pets .form-container').w2render(w2ui.RAPetsGrid);
+    $('#ra-form #pets .grid-container').w2render(w2ui.RAPetsGrid);
 
     // load the existing data in pets component
     setTimeout(function () {

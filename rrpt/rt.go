@@ -21,8 +21,10 @@ func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.T
 	tbl.AddColumn("Rent Cycle", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)               // 3
 	tbl.AddColumn("Proration Cycle", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)          // 4
 	tbl.AddColumn("GSRPC", 8, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)                    // 5
-	tbl.AddColumn("Manage To Budget", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)         // 6
-	tbl.AddColumn("Dt1 - Dt2 : Market Rate", 96, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 7
+	tbl.AddColumn("Available?", 20, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)              // 6
+	tbl.AddColumn("Manage To Budget", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)         // 7
+	tbl.AddColumn("Is Child Type?", 3, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT)           // 8
+	tbl.AddColumn("Dt1 - Dt2 : Market Rate", 96, gotable.CELLSTRING, gotable.COLJUSTIFYLEFT) // 9
 
 	// set table title, sections
 	err := TableReportHeaderBlock(ctx, &tbl, "Rentable Types", funcname, ri)
@@ -60,7 +62,29 @@ func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.T
 		tbl.Puts(-1, 3, rlib.RentalPeriodToString(p.RentCycle))
 		tbl.Puts(-1, 4, rlib.RentalPeriodToString(p.Proration))
 		tbl.Puts(-1, 5, rlib.RentalPeriodToString(p.GSRPC))
-		tbl.Puts(-1, 6, rlib.YesNoToString(p.ManageToBudget))
+
+		// available or not
+		availabilityStr := "Yes"
+		if p.FLAGS&0x1 != 0 {
+			availabilityStr = "No (Out of Service)"
+		}
+		tbl.Puts(-1, 6, availabilityStr) // availability
+
+		// manage to budget
+		manageToBudgetStr := "No"
+		if p.FLAGS&0x4 != 0 {
+			manageToBudgetStr = "Yes"
+		}
+		tbl.Puts(-1, 7, manageToBudgetStr)
+
+		// child type?
+		isChildTypeStr := "No"
+		if p.FLAGS&0x2 != 0 {
+			isChildTypeStr = "Yes"
+		}
+		tbl.Puts(-1, 8, isChildTypeStr) // is it child type
+
+		// date ranges
 		s := ""
 		for i := 0; i < len(p.MR); i++ {
 			s += fmt.Sprintf("%8s - %8s: $%8.2f", p.MR[i].DtStart.Format(rlib.RRDATEFMT4),
@@ -69,7 +93,7 @@ func RRreportRentableTypesTable(ctx context.Context, ri *ReporterInfo) gotable.T
 				s += ",  "
 			}
 		}
-		tbl.Puts(-1, 7, s)
+		tbl.Puts(-1, 9, s)
 	}
 	tbl.TightenColumns()
 	return tbl

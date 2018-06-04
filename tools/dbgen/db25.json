@@ -1,0 +1,45 @@
+{
+    "DtStart": "2/13/2018",
+    "DtStop": "3/1/2020",
+    "RT": [
+        {
+            "Count": 5,
+            "MarketRate": 1000,
+            "RentCycle": 6,
+            "ProrateCycle": 4,
+            "Style": "1BR",
+            "Name": "Standard 1BR 1BA"
+        },
+        {
+            "Count": 5,
+            "MarketRate": 1500,
+            "RentCycle": 6,
+            "ProrateCycle": 4,
+            "Style": "2BR",
+            "Name": "Double 2BR 2BA"
+        },
+        {
+            "Count": 8,
+            "MarketRate": 1750,
+            "RentCycle": 6,
+            "ProrateCycle": 4,
+            "Style": "3BR",
+            "Name": "Deluxe 3BR 2.5BA"
+        },
+        {
+            "Count": 7,
+            "MarketRate": 2500,
+            "RentCycle": 6,
+            "ProrateCycle": 4,
+            "Style": "4BR",
+            "Name": "Presidential 4BR 3BA"
+        }
+    ],
+    "OpDepositoryName": "Wells Fargo",
+    "SecDepDepositoryName": "Bank Of America",
+    "PTypeCheckName": "Check",
+    "PeopleCount": 30,
+    "RACount": 23,
+    "RandNames" : true
+
+}

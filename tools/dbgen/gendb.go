@@ -169,19 +169,56 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) error {
 	var err error
 	for i := 0; i < len(dbConf.RT); i++ {
+
+		var name = dbConf.RT[i].Name
+		if len(name) == 0 {
+			name = fmt.Sprintf("RType%03d", i)
+		}
+		var style = dbConf.RT[i].Style
+		if len(style) == 0 {
+			style = fmt.Sprintf("ST%03d", i)
+		}
+
+		//-------------------------------
+		// Default rent AccountRule for
+		// this RentableType
+		//-------------------------------
+		var ar rlib.AR
+		ar.BID = dbConf.BIZ[0].BID
+		ar.Name = fmt.Sprintf("Rent %s", style)
+		ar.Description = fmt.Sprintf("Default rent assessment for rentable type %s", name)
+		ar.ARType = 0                              // Assessment
+		ar.DebitLID = 9                            // Acct# 12001 - RentRoll Receivables
+		ar.CreditLID = 18                          // Acct# 41001 - Gross Scheduled Rent non-taxable
+		ar.DefaultAmount = dbConf.RT[i].MarketRate // default rent amount
+		ar.FLAGS = (1 << 2) | (1 << 4)             // RAID rqd, is Rent
+		ar.DtStart = rlib.TIME0                    // make this rule "forever"
+		ar.DtStop = rlib.ENDOFTIME                 // make this rule "forever"
+		_, err = rlib.InsertAR(ctx, &ar)
+		if err != nil {
+			return err
+		}
+
+		//-------------------------------
+		// RentableType...
+		//-------------------------------
 		var rt rlib.RentableType
 		rt.BID = dbConf.BIZ[0].BID
-		rt.Style = fmt.Sprintf("ST%03d", i)
-		rt.Name = fmt.Sprintf("RType%03d", i)
+		rt.Style = style
+		rt.Name = name
 		rt.RentCycle = dbConf.RT[i].RentCycle
 		rt.Proration = dbConf.RT[i].ProrateCycle
 		rt.GSRPC = dbConf.RT[i].ProrateCycle
-		rt.ManageToBudget = 1
+		rt.FLAGS |= 0x4
+		rt.ARID = ar.ARID
 		_, err = rlib.InsertRentableType(ctx, &rt)
 		if err != nil {
 			return err
 		}
 
+		//-------------------------------
+		// RentableMarketRate...
+		//-------------------------------
 		var mr rlib.RentableMarketRate
 		mr.DtStart = dbConf.DtBOT
 		mr.DtStop = dbConf.DtEOT
@@ -196,6 +233,9 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 			return err
 		}
 
+		//-------------------------------
+		// Custom Attributes...
+		//-------------------------------
 		if dbConf.RT[i].SQFT > 0 {
 			// rlib.Console("Found custom attribute SQFT = %d\n", dbConf.RT[i].SQFT)
 			var c rlib.CustomAttribute
@@ -276,7 +316,7 @@ func createReceipts(ctx context.Context, dbConf *GenDBConf) error {
 	}
 	defer rows.Close()
 	for i := 0; rows.Next(); i++ {
-		if dbConf.Randomize && dbConf.RRand.Intn(100) < dbConf.RandMissPayment {
+		if dbConf.RandomizePayments && dbConf.RRand.Intn(100) < dbConf.RandMissPayment {
 			continue // some randomness - a missed payment
 		}
 		var a rlib.Assessment
@@ -352,7 +392,7 @@ func applyReceipts(ctx context.Context, dbConf *GenDBConf) error {
 
 	// rlib.Console("Payors with unallocated receipts:\n")
 	for k := range u {
-		if dbConf.Randomize && dbConf.RRand.Intn(100) < dbConf.RandMissApply {
+		if dbConf.RandomizePayments && dbConf.RRand.Intn(100) < dbConf.RandMissApply {
 			continue // some randomness - don't apply this payment
 		}
 		// rlib.Console("Payor with TCID=%d has %d unallocated receipts\n", k, v)

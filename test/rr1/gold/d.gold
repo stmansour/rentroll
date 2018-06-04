@@ -4,14 +4,14 @@ JGM First, LLC
 Suite 301
 Austin, TX 78738 USA
 
-                                                      Manage                                                                                                  
-                           Rent     Proration         To                                                                                                      
-RTID        Style  Name    Cycle    Cycle      GSRPC  Budget  Dt1 - Dt2 : Market Rate                                                                         
-----------  -----  ------  -------  ---------  -----  ------  ------------------------------------------------------------------------------------------------
-RT00000001  A1     1BR1BA  monthly  daily      daily  Yes     01/01/2014 - 07/04/9999: $  755.00                                                              
-RT00000002  A2     2BR2BA  daily    daily      daily  Yes     01/01/2014 - 07/05/2016: $   76.00,  07/05/2016 - 07/10/2016: $   92.00,  07/10/2016 -          
-                                                              01/01/9999: $   56.87                                                                           
-RT00000003  B5     3BR3BA  daily    daily      daily  Yes     11/01/2013 - 01/01/9999: $  125.00                                                              
-RT00000004  A3     4BR3BA  monthly  daily      daily  Yes     11/01/2013 - 07/05/2016: $ 3100.00,  07/05/2016 - 07/10/2016: $ 4000.00,  07/10/2016 -          
-                                                              01/01/9999: $ 3200.00                                                                           
+                                                                  Manage  Is                                                                                                     
+                           Rent     Proration                     To      Child                                                                                                  
+RTID        Style  Name    Cycle    Cycle      GSRPC  Available?  Budget  Type?  Dt1 - Dt2 : Market Rate                                                                         
+----------  -----  ------  -------  ---------  -----  ----------  ------  -----  ------------------------------------------------------------------------------------------------
+RT00000001  A1     1BR1BA  monthly  daily      daily  Yes         Yes     No     01/01/2014 - 07/04/9999: $  755.00                                                              
+RT00000002  A2     2BR2BA  daily    daily      daily  Yes         Yes     No     01/01/2014 - 07/05/2016: $   76.00,  07/05/2016 - 07/10/2016: $   92.00,  07/10/2016 -          
+                                                                                 01/01/9999: $   56.87                                                                           
+RT00000003  B5     3BR3BA  daily    daily      daily  Yes         Yes     No     11/01/2013 - 01/01/9999: $  125.00                                                              
+RT00000004  A3     4BR3BA  monthly  daily      daily  Yes         Yes     No     11/01/2013 - 07/05/2016: $ 3100.00,  07/05/2016 - 07/10/2016: $ 4000.00,  07/10/2016 -          
+                                                                                 01/01/9999: $ 3200.00                                                                           
 

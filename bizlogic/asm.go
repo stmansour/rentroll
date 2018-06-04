@@ -168,7 +168,10 @@ func ReverseAssessment(ctx context.Context, aold *rlib.Assessment, mode int, dt 
 // ReverseAssessmentsGoingForward reverses an existing assessment
 //
 // INPUTS
-//    aold = the first in a series of assessments to reverse
+//    ctx     = context needed for db transactions
+//    aold    = the first in a series of assessments to reverse
+//    dtStart = reverse instances from this point in time forward
+//    dt      = time to mark when the reversal was made
 //
 // RETURNS
 //    a slice of BizErrors
@@ -192,6 +195,19 @@ func ReverseAssessmentsGoingForward(ctx context.Context, aold *rlib.Assessment, 
 		if len(errlist) > 0 {
 			return errlist
 		}
+	}
+
+	//---------------------------------------------------------------------------
+	// Since all future instances are being reversed, we need to stop generating
+	// new instances.  So, we need to set the Parent stop date to dtStart.
+	//---------------------------------------------------------------------------
+	asm, err := rlib.GetAssessment(ctx, aold.PASMID)
+	if err != nil {
+		return bizErrSys(&err)
+	}
+	asm.Stop = *dtStart
+	if err = rlib.UpdateAssessment(ctx, &asm); err != nil {
+		return bizErrSys(&err)
 	}
 
 	return errlist
