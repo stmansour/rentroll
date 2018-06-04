@@ -393,6 +393,8 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         case "IsNonRecurCharge":
                         case "PriorToRAStop":
                         case "PriorToRAStart":
+                        // Assessment Charges form checkbox
+                        case "ExpandPastInst":
                             if(fieldValue){
                                 cy.get(selectors.getFieldSelector(fieldID))
                                     .should('be.visible')
@@ -507,9 +509,38 @@ export function addNewFormTest(testConfig) {
             if (!isInArray(fieldID, testConfig.skipFields)) {
 
                 // Check visibility and match the default value of the fields.
-                cy.get(selectors.getFieldSelector(fieldID))
-                    .should('be.visible')
-                    .should('have.value', defaultValue);
+                switch (fieldID){
+                    // Rentable Types form checkbox
+                    case "ManageToBudget":
+                    case "IsChildRentable":
+                    // Account Rules form checkbox
+                    case "ApplyRcvAccts":
+                    case "RAIDrqd":
+                    case "AutoPopulateToNewRA":
+                    case "IsRentASM":
+                    case "IsSecDepASM":
+                    case "IsNonRecurCharge":
+                    case "PriorToRAStop":
+                    case "PriorToRAStart":
+                    // Assessment Charges form checkbox
+                    case "ExpandPastInst":
+                        if(defaultValue){
+                            cy.get(selectors.getFieldSelector(fieldID))
+                                .should('be.visible')
+                                .should('be.checked');
+                        }else{
+                            cy.get(selectors.getFieldSelector(fieldID))
+                                .should('be.visible')
+                                .should('be.not.checked');
+                        }
+                        break;
+                    default:
+                        cy.get(selectors.getFieldSelector(fieldID))
+                            .should('be.visible')
+                            .should('have.value', defaultValue);
+                        break;
+                }
+
             }
 
         });
