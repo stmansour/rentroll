@@ -1,7 +1,7 @@
 /*global
     getRAFlowAllParts, initRAFlowAjax, requiredFieldsFulFilled,
     RACompConfig, w2ui,
-    getFlowDataAjax
+    getFlowDataAjax, manageParentRentableW2UIItems
 */
 
 "use strict";
@@ -59,6 +59,9 @@ window.setToNewRAForm = function (bid, FlowID) {
                     w2ui[RACompConfig[comp].w2uiComp].clear();
                 }
             }
+
+            // calculate parent rentable items
+            manageParentRentableW2UIItems();
 
             // mark first slide as active
             $(".ra-form-component#dates").show();

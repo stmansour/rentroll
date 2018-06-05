@@ -134,18 +134,6 @@ type RAPeopleFlowData struct {
 	Comment string // In an effort to accommodate you, please advise us of any special needs
 }
 
-// RAParentChildFlowData contains data in the Parent/Child part of RA flow
-type RAParentChildFlowData struct {
-	BID  int64
-	PRID int64 // parent rentable ID
-	CRID int64 // child rentable ID
-}
-
-// RATieFlowData contains data in the tie part of RA flow
-type RATieFlowData struct {
-	BID int64
-}
-
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
 	// Recid        int     `json:"recid"` // this is for the grid widget
@@ -182,6 +170,48 @@ type RARentableFeesData struct {
 	SalesTax        float64
 	TransOccAmt     float64
 	TransOcc        float64
+}
+
+// RAParentChildFlowData contains data in the Parent/Child part of RA flow
+type RAParentChildFlowData struct {
+	BID  int64
+	PRID int64 // parent rentable ID
+	CRID int64 // child rentable ID
+}
+
+// RATieFlowData contains data in the tie part of RA flow
+type RATieFlowData struct {
+	Pets     []RAPetsTieData     `json:"pets"`
+	Vehicles []RAVehiclesTieData `json:"vehicles"`
+	Payors   []RAPayorsTieData   `json:"payors"`
+}
+
+// RAPetsTieData holds data from tie section for a pet to a rentable
+type RAPetsTieData struct {
+	BID   int64
+	PRID  int64
+	Name  string
+	Breed string
+	Type  string
+}
+
+// RAVehiclesTieData holds data from tie section for a vehicle to a rentable
+type RAVehiclesTieData struct {
+	BID   int64
+	PRID  int64
+	VIN   string
+	Type  string
+	Make  string
+	Model string
+	Color string
+	Year  string
+}
+
+// RAPayorsTieData holds data from tie section for a payor to a rentable
+type RAPayorsTieData struct {
+	BID  int64
+	PRID int64
+	TCID int64
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -308,7 +338,33 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		// return json marshalled for struct
 		return json.Marshal(&a)
 
-	// case rlib.TieRAFlowPart:
+	case rlib.TieRAFlowPart:
+		a := RATieFlowData{}
+
+		// if the struct provided with some data then check it for
+		// json validation
+		if !(isBlankJSONData) {
+			err := json.Unmarshal(data, &a)
+
+			// check for each sliced data field
+			// if it's blank then initialize it
+			if len(a.Pets) == 0 {
+				a.Pets = []RAPetsTieData{}
+			}
+			if len(a.Vehicles) == 0 {
+				a.Vehicles = []RAVehiclesTieData{}
+			}
+			if len(a.Payors) == 0 {
+				a.Payors = []RAPayorsTieData{}
+			}
+
+			if err != nil {
+				// if it's an error then return with nil data
+				return []byte(nil), err
+			}
+		}
+		// return json marshalled for struct
+		return json.Marshal(&a)
 
 	default:
 		// not valid option then return with nil data
@@ -344,7 +400,11 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Vehicles:    []RAVehiclesFlowData{},
 		Rentables:   []RARentablesFlowData{},
 		ParentChild: []RAParentChildFlowData{},
-		Tie:         RATieFlowData{},
+		Tie: RATieFlowData{
+			Pets:     []RAPetsTieData{},
+			Vehicles: []RAVehiclesTieData{},
+			Payors:   []RAPayorsTieData{},
+		},
 	}
 
 	// get json marshelled byte data for above struct
