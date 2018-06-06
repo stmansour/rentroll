@@ -36,21 +36,24 @@ window.errMsgHTML = function(errmsg) {
 // //------------------------------------------------------------
 // window.successMsgHTML = function(msg) {
 //     var s;
-//     if (errmsg.length > 0 ) {
-//         s = '<p style="background-color: #ffe0e0;color: #ff2222;"><br>&nbsp;&nbsp;' +
-//             '<i class="fas fa-exclamation-circle fa-2x"></i> &nbsp;&nbsp;' +
-//              errmsg + "<br>&nbsp;</p>";
+//     if (msg.length > 0 ) {
+//         s = '<p style="background-color: #ffe0e0;color: #22ff22;"><br>&nbsp;&nbsp;' +
+//             '<i class="fas fa-check-circle fa-2x"></i> &nbsp;&nbsp;' +
+//              msg + "<br>&nbsp;</p>";
 //     } else {
 //         s = "";
 //     }
 //     return s;
 // };
 
+
+
 //-----------------------------------------------------------------------------
 // loadClosePeriodInfo - a layout in which we place an html page
 // and a form.
 //
-// @params    errmsg - (optional) a string with an initial error message
+// @params    msg - (optional) a string with an initial error message
+//           mode - 0 = informational message, 1 = error message
 //
 // @returns
 //-----------------------------------------------------------------------------
