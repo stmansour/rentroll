@@ -192,28 +192,28 @@ type RAParentChildFlowData struct {
 type RATieFlowData struct {
 	Pets     []RAPetsTieData     `json:"pets"`
 	Vehicles []RAVehiclesTieData `json:"vehicles"`
-	Payors   []RAPayorsTieData   `json:"payors"`
+	People   []RAPeopleTieData   `json:"people"`
 }
 
 // RAPetsTieData holds data from tie section for a pet to a rentable
 type RAPetsTieData struct {
-	BID   int64
-	PRID  int64
-	REFID int64 // reference to pet record ID stored temporarily
+	BID      int64
+	PRID     int64
+	TMPREFID int64 // reference to pet record ID stored temporarily
 }
 
 // RAVehiclesTieData holds data from tie section for a vehicle to a rentable
 type RAVehiclesTieData struct {
-	BID   int64
-	PRID  int64
-	REFID int64 // reference to vehicle record ID in json
+	BID      int64
+	PRID     int64
+	TMPREFID int64 // reference to vehicle record ID in json
 }
 
-// RAPayorsTieData holds data from tie section for a payor to a rentable
-type RAPayorsTieData struct {
-	BID   int64
-	PRID  int64
-	REFID int64 // user's temp json record reference id
+// RAPeopleTieData holds data from tie section for a payor to a rentable
+type RAPeopleTieData struct {
+	BID      int64
+	PRID     int64
+	TMPREFID int64 // user's temp json record reference id
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -394,8 +394,8 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 			if len(a.Vehicles) == 0 {
 				a.Vehicles = []RAVehiclesTieData{}
 			}
-			if len(a.Payors) == 0 {
-				a.Payors = []RAPayorsTieData{}
+			if len(a.People) == 0 {
+				a.People = []RAPeopleTieData{}
 			}
 
 			if err != nil {
@@ -459,7 +459,7 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Tie: RATieFlowData{
 			Pets:     []RAPetsTieData{},
 			Vehicles: []RAVehiclesTieData{},
-			Payors:   []RAPayorsTieData{},
+			People:   []RAPeopleTieData{},
 		},
 	}
 

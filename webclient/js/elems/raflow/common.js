@@ -305,6 +305,32 @@ window.requiredFieldsFulFilled = function (compID) {
             // if loop passed successfully then mark it as successfully
             done = validData;
             break;
+        case "tie":
+            // pets validation
+            compData.pets.forEach(function(item) {
+                if (item.PRID === 0 || item.TMPREFID === 0) {
+                    validData = false;
+                    return false;
+                }
+            });
+            // vehicles validation
+            compData.vehicles.forEach(function(item) {
+                if (item.PRID === 0 || item.TMPREFID === 0) {
+                    validData = false;
+                    return false;
+                }
+            });
+            // people validation
+            compData.people.forEach(function(item) {
+                if (item.PRID === 0 || item.TMPREFID === 0) {
+                    validData = false;
+                    return false;
+                }
+            });
+
+            // if loop passed successfully then mark it as successfully
+            done = validData;
+            break;
         case "final":
             break;
     }
@@ -328,32 +354,44 @@ window.loadTargetSection = function (target, activeCompID) {
     // get component data based on ID from locally
     var compData = getRAFlowCompData(activeCompID, app.raflow.activeFlowID);
 
-    // decide data based on type
-    var modCompData = null;
+    // default would be compData
+    var modCompData = compData;
 
     switch (activeCompID) {
         case "dates":
             modCompData = w2ui.RADatesForm.record;
+            w2ui.RADatesForm.actions.reset();
             break;
         case "people":
-            modCompData = compData;
+            // modCompData = compData;
+            w2ui.RAPeopleGrid.clear();
             w2ui.RAPeopleForm.actions.reset();
             break;
         case "pets":
-            modCompData = w2ui.RAPetsGrid.records;
+            // modCompData = compData;
+            w2ui.RAPetsGrid.clear();
+            w2ui.RAPetForm.actions.reset();
             break;
         case "vehicles":
-            modCompData = w2ui.RAVehiclesGrid.records;
+            // modCompData = compData;
+            w2ui.RAVehiclesGrid.clear();
+            w2ui.RAVehicleForm.actions.reset();
             break;
         case "rentables":
-            modCompData = w2ui.RARentablesGrid.records;
+            // modCompData = compData;
+            w2ui.RARentablesGrid.clear();
+            w2ui.RARentableFeesGrid.clear();
+            w2ui.RARentableFeesForm.actions.reset();
             break;
         case "parentchild":
-            modCompData = compData;
+            // modCompData = compData;
             w2ui.RAParentChildGrid.clear();
             break;
         case "tie":
-            modCompData = {};
+            // modCompData = compData;
+            w2ui.RATiePetsGrid.clear();
+            w2ui.RATieVehiclesGrid.clear();
+            // w2ui.RATiePeopleGrid.clear();
             break;
         case "final":
             modCompData = null;

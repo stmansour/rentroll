@@ -5,7 +5,7 @@
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
     getPetFormInitRecord, getPetLocalData, setPetLocalData,
-    ReassignPetsGridRecords, savePetsCompData
+    AssignPetsGridRecords, savePetsCompData
 */
 
 "use strict";
@@ -146,7 +146,7 @@ window.loadRAPetsGrid = function () {
                     .done(function(data) {
                         if (data.status === 'success') {
                             // re-assign records in grid
-                            ReassignPetsGridRecords();
+                            AssignPetsGridRecords();
 
                             // Disable "have pets?" checkbox if there is any record.
                             toggleHaveCheckBoxDisablity('RAPetsGrid');
@@ -191,7 +191,7 @@ window.loadRAPetsGrid = function () {
                             f.refresh();
 
                             // re-assign records in grid
-                            ReassignPetsGridRecords();
+                            AssignPetsGridRecords();
                         } else {
                             f.message(data.message);
                         }
@@ -219,7 +219,7 @@ window.loadRAPetsGrid = function () {
                             toggleHaveCheckBoxDisablity('RAPetsGrid');
 
                             // reassign grid records
-                            ReassignPetsGridRecords();
+                            AssignPetsGridRecords();
 
                             // close the form
                             hideSliderContent();
@@ -379,7 +379,7 @@ window.loadRAPetsGrid = function () {
     // load the existing data in pets component
     setTimeout(function () {
         // assign grid records
-        ReassignPetsGridRecords();
+        AssignPetsGridRecords();
     }, 500);
 };
 
@@ -427,10 +427,10 @@ window.setPetLocalData = function(TMPID, petData) {
 };
 
 //-----------------------------------------------------------------------------
-// ReassignPetsGridRecords - will set the pets grid records from local
+// AssignPetsGridRecords - will set the pets grid records from local
 //                               copy of flow data again
 //-----------------------------------------------------------------------------
-window.ReassignPetsGridRecords = function() {
+window.AssignPetsGridRecords = function() {
     var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
     var grid = w2ui.RAPetsGrid;
 
