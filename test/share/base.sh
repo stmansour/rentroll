@@ -1124,7 +1124,7 @@ doCypressUITest () {
 	#  Read the number of tests from the output file
 	#-----------------------------------------------------
 	TOTALTESTCOUNT=0
-	EACHTESTCOUNT=$(grep "Tests:" trygold | awk '{print $3}')
+	EACHTESTCOUNT=$(grep "Tests:" ${1} | awk '{print $3}')
 	for line in $EACHTESTCOUNT; do
 		if [ "$line" -gt "0" ]; then
 			TOTALTESTCOUNT=$(( TOTALTESTCOUNT + $line ))
@@ -1184,7 +1184,7 @@ doCypressUITest () {
 		# 	fi
 		# fi
 		TOTALFAILCOUNT=0
-		EACHFAILURECOUNT=$(grep "Failing:" trygold | awk '{print $3}')
+		EACHFAILURECOUNT=$(grep "Failing:" ${1} | awk '{print $3}')
 		for line in $EACHFAILURECOUNT; do
 			if [ "$line" -gt "0" ]; then
 				TOTALFAILCOUNT=$(( TOTALFAILCOUNT + $line ))
