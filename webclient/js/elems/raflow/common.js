@@ -391,7 +391,7 @@ window.loadTargetSection = function (target, activeCompID) {
             // modCompData = compData;
             w2ui.RATiePetsGrid.clear();
             w2ui.RATieVehiclesGrid.clear();
-            // w2ui.RATiePeopleGrid.clear();
+            w2ui.RATiePeopleGrid.clear();
             break;
         case "final":
             modCompData = null;

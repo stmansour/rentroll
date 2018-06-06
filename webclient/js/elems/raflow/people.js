@@ -110,67 +110,66 @@ window.loadRAPeopleForm = function () {
             columns: [
                 {
                     field: 'recid',
-                    caption: 'recid',
-                    size: '50px',
+                    hidden: true
+                },
+                {
+                    field: 'TMPID',
                     hidden: true
                 },
                 {
                     field: 'TCID',
-                    caption: 'TCID',
-                    size: '50px',
                     hidden: true
                 },
                 {
                     field: 'FullName',
                     caption: 'Name',
-                    size: '150px',
+                    size: '100%',
                     render: function (record) {
                         if (!record.IsCompany) {
                             return getFullName(record);
                         } else {
                             return record.Employer;
                         }
-
                     }
                 },
                 {
                     field: 'IsRenter',
-                    caption: 'Renter',
-                    size: '100px',
+                    // caption: 'Renter',
+                    // size: '100px',
                     hidden: true,
-                    render: function (record) {
-                        if (record.IsRenter) {
-                            return '<i class="fas fa-check" title="renter"></i>';
-                        } else {
-                            return '<i class="fas fa-times" title="renter"></i>';
-                        }
-                    }
+                    // render: function (record) {
+                    //     if (record.IsRenter) {
+                    //         return '<i class="fas fa-check" title="renter"></i>';
+                    //     } else {
+                    //         return '<i class="fas fa-times" title="renter"></i>';
+                    //     }
+                    // }
                 },
                 {
                     field: 'IsOccupant',
-                    caption: 'Occupant',
-                    size: '100px',
+                    // caption: 'Occupant',
+                    // size: '100px',
                     hidden: true,
-                    render: function (record) {
-                        if (record.IsOccupant) {
-                            return '<i class="fas fa-check" title="occupant"></i>';
-                        } else {
-                            return '<i class="fas fa-times" title="occupant"></i>';
-                        }
-                    }
+                    // render: function (record) {
+                    //     if (record.IsOccupant) {
+                    //         return '<i class="fas fa-check" title="occupant"></i>';
+                    //     } else {
+                    //         return '<i class="fas fa-times" title="occupant"></i>';
+                    //     }
+                    // }
                 },
                 {
                     field: 'IsGuarantor',
-                    caption: 'Guarantor',
-                    size: '100px',
+                    // caption: 'Guarantor',
+                    // size: '100px',
                     hidden: true,
-                    render: function (record) {
-                        if (record.IsGuarantor) {
-                            return '<i class="fas fa-check" title="guarantor"></i>';
-                        } else {
-                            return '<i class="fas fa-times" title="guarantor"></i>';
-                        }
-                    }
+                    // render: function (record) {
+                    //     if (record.IsGuarantor) {
+                    //         return '<i class="fas fa-check" title="guarantor"></i>';
+                    //     } else {
+                    //         return '<i class="fas fa-times" title="guarantor"></i>';
+                    //     }
+                    // }
                 }
             ],
             onClick: function (event) {
@@ -253,6 +252,7 @@ window.loadRAPeopleForm = function () {
             },
             fields: [
                 {name: 'BID', type: 'int', required: true, html: {caption: 'BID', page: 0, column: 0}},
+                {name: 'TMPID', type: 'int', required: true},
                 {name: 'TCID', type: 'int', required: true, html: {caption: 'TCID', page: 0, column: 0}},
                 {name: 'IsRenter', type: 'checkbox', required: false}, // will be responsible for paying rent
                 {name: 'IsOccupant', type: 'checkbox', required: false}, // will reside in and/or use the items rented
@@ -521,6 +521,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
 
     return {
         recid: RECID,
+        TMPID: 0,
         TCID: TCID,
         BID: BID,
         IsRenter: false,
