@@ -1,3 +1,6 @@
+/*
+    window
+*/
 "use strict";
 
 // ***********************************************************
@@ -34,14 +37,20 @@ Cypress.on('window:before:unload', e => {
 });
 
 after(() => {
-    cy.window().then(win => {
-        const coverage = win.__coverage__;
 
-        if (coverage) {
-            map.merge(coverage);
-        }
+    cy.window().its('__coverage__').then(cov => {
 
-        cy.writeFile('.nyc_output/out.json', JSON.stringify(map));
-        cy.exec('nyc report --reporter=cobertura');
+        cy.readFile(".nyc_output/out.json").then(out => {
+            if(!out){
+                cy.writeFile('.nyc_output/out.json', JSON.stringify(cov));
+            }
+
+            const map = istanbul.createCoverageMap(out);
+            map.merge(cov);
+
+            cy.writeFile('.nyc_output/out.json', JSON.stringify(map));
+            cy.exec('nyc report --reporter=cobertura');
+        });
     });
+
 });
