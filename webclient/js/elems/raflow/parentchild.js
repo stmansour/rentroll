@@ -110,24 +110,16 @@ window.loadRAPeopleChildSection = function () {
             var PRID = 0;
             var cRentable = getChildRentableLocalData(RID);
 
-            // parent Rentable ID found then
+            // parent Rentable ID found then for initial load in grid
             if (cRentable.PRID) {
                 // if it's found in parent rentable list then keep as it is
                 // else assign 0 if not found
-                var PRIDFound = false;
                 app.raflow.parentRentableW2UIItems.forEach(function(parentRItem) {
                     if (parentRItem.id == cRentable.PRID) {
-                        PRIDFound = true;
+                        PRID = cRentable.PRID;
                         return false;
                     }
                 });
-
-                // if parent RID found
-                if (PRIDFound) {
-                    PRID = cRentable.PRID;
-                } else {
-                    PRID = 0;
-                }
             }
 
             // prepare record struct for grid records list

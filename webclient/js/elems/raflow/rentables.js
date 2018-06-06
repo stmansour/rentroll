@@ -8,8 +8,8 @@
     getRentableLocalData, setRentableLocalData, getAllARsWithAmount, GetRentableIndexInGridRecords,
     saveRentableCompData, setRentableFeeLocalData, getRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
-    ReassignRentableGridRecords, ReassignRentableFeesGridRecords,
-    setRentableAmountsFromFees, manageParentRentableW2UIItems
+    AssignRentableGridRecords, AssignRentableFeesGridRecords,
+    SetRentableAmountsFromFees, manageParentRentableW2UIItems
 */
 
 "use strict";
@@ -51,7 +51,7 @@ window.getInitialRentableFeesData = function(BID, RID, FlowID) {
             app.raflow.data[data.record.FlowID] = data.record;
 
             // set the rentable grid records again
-            ReassignRentableGridRecords();
+            AssignRentableGridRecords();
         }
     });
 };
@@ -310,7 +310,7 @@ window.loadRARentablesGrid = function () {
                             // just render the record from local data if fees are available
                             if(localRData.Fees.length > 0) {
                                 // set fees grid records
-                                ReassignRentableFeesGridRecords(rec.RID);
+                                AssignRentableFeesGridRecords(rec.RID);
 
                                 // show slider content
                                 showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
@@ -321,7 +321,7 @@ window.loadRARentablesGrid = function () {
                                 .done(function(data) {
                                     if (data.status === "success") {
                                         // re-render fees grid records
-                                        ReassignRentableFeesGridRecords(rec.RID);
+                                        AssignRentableFeesGridRecords(rec.RID);
 
                                         // show the slider content
                                         showSliderContentW2UIComp(w2ui.RARentableFeesGrid, RACompConfig.rentables.sliderWidth);
@@ -660,13 +660,13 @@ window.loadRARentablesGrid = function () {
                     setRentableFeeLocalData(RID, app.raflow.last.rentableFeeARID, rentableFeeData);
 
                     // re-calculate amounts for rentable
-                    setRentableAmountsFromFees(RID);
+                    SetRentableAmountsFromFees(RID);
 
                     saveRentableCompData()
                     .done(function (data) {
                         if (data.status === 'success') {
                             // Re render the fees grid records
-                            ReassignRentableFeesGridRecords(RID);
+                            AssignRentableFeesGridRecords(RID);
 
                             // reset the form
                             f.actions.reset();
@@ -698,7 +698,7 @@ window.loadRARentablesGrid = function () {
                     setRentableFeeLocalData(RID, app.raflow.last.rentableFeeARID, rentableFeeData);
 
                     // re-calculate amounts for rentable
-                    setRentableAmountsFromFees(RID);
+                    SetRentableAmountsFromFees(RID);
 
                     saveRentableCompData()
                     .done(function (data) {
@@ -712,7 +712,7 @@ window.loadRARentablesGrid = function () {
                             $(f.box).find("#RentCycleText").prop("disabled", false);
 
                             // Re render the fees grid records
-                            ReassignRentableFeesGridRecords(RID);
+                            AssignRentableFeesGridRecords(RID);
                         } else {
                             f.message(data.message);
                         }
@@ -736,7 +736,7 @@ window.loadRARentablesGrid = function () {
                         setRentableLocalData(RID, localRData);
 
                         // re-calculate amounts for rentable
-                        setRentableAmountsFromFees(RID);
+                        SetRentableAmountsFromFees(RID);
 
                         // sync data on backend side
                         saveRentableCompData()
@@ -748,7 +748,7 @@ window.loadRARentablesGrid = function () {
                                 f.actions.reset();
 
                                 // // Re render the fees grid records
-                                ReassignRentableFeesGridRecords(RID);
+                                AssignRentableFeesGridRecords(RID);
 
                                 // close the form
                                 hideSliderContent(2);
@@ -867,15 +867,15 @@ window.loadRARentablesGrid = function () {
 
     // load the existing data in rentables component
     setTimeout(function () {
-        ReassignRentableGridRecords();
+        AssignRentableGridRecords();
     }, 500);
 };
 
 //-----------------------------------------------------------------------------
-// ReassignRentableGridRecords - will set the rentable grid records from local
-//                               copy of flow data again
+// AssignRentableGridRecords - will set the rentable grid records from local
+//                               copy of flow data
 //-----------------------------------------------------------------------------
-window.ReassignRentableGridRecords = function() {
+window.AssignRentableGridRecords = function() {
     var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
     if (compData) {
         w2ui.RARentablesGrid.records = compData;
@@ -895,14 +895,14 @@ window.ReassignRentableGridRecords = function() {
 };
 
 //-----------------------------------------------------------------------------
-// setRentableAmountsFromFees - set the all amounts to rentable locally
+// SetRentableAmountsFromFees - set the all amounts to rentable locally
 //                              calculated from fees list associated with
 //                              requested RID
 //
 // @params
 //    RID = RentableID
 //-----------------------------------------------------------------------------
-window.setRentableAmountsFromFees = function(RID) {
+window.SetRentableAmountsFromFees = function(RID) {
     // get the local data again after new data has been set
     var localRData = getRentableLocalData(RID);
 
@@ -939,14 +939,14 @@ window.setRentableAmountsFromFees = function(RID) {
 };
 
 //-----------------------------------------------------------------------------
-// ReassignRentableFeesGridRecords - will set the rentable Fees grid records
+// AssignRentableFeesGridRecords - will set the rentable Fees grid records
 //                                   from local copy of flow data again and
 //                                   set the summary row record in the grid
 //
 // @params
 //    RID = RentableID
 //-----------------------------------------------------------------------------
-window.ReassignRentableFeesGridRecords = function(RID) {
+window.AssignRentableFeesGridRecords = function(RID) {
     var grid = w2ui.RARentableFeesGrid;
 
     // get the local data again after new data has been set
