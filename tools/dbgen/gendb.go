@@ -132,10 +132,32 @@ func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
 	return nil
 }
 
+// createRandomCar returns a Vehicle struct filled out with some random
+// car information
+//-----------------------------------------------------------------------------
+func createRandomCar(t *rlib.Transactant, dbConf *GenDBConf) rlib.Vehicle {
+	var v rlib.Vehicle
+	v.TCID = t.TCID
+	v.BID = t.BID
+	v.VehicleType = "car"
+	j := IG.Rand.Intn(len(IG.Cars))
+	v.VehicleMake = IG.Cars[j].Make
+	v.VehicleModel = IG.Cars[j].Model
+	v.VehicleYear = int64(IG.Cars[j].Year)
+	v.LicensePlateState = GenerateRandomState()
+	v.LicensePlateNumber = GenerateRandomLicensePlate()
+	v.ParkingPermitNumber = fmt.Sprintf("%07d", IG.Rand.Intn(10000000))
+	v.DtStart = dbConf.DtStart
+	v.DtStop = dbConf.DtStop
+	return v
+}
+
 // createTransactants
 //-----------------------------------------------------------------------------
 func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
+	funcname := "createTransactants"
 	for i := 0; i < dbConf.PeopleCount; i++ {
+
 		var t rlib.Transactant
 		t.BID = dbConf.BIZ[0].BID
 		if dbConf.RandNames {
@@ -165,6 +187,26 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 		_, err := rlib.InsertTransactant(ctx, &t)
 		if err != nil {
 			return err
+		}
+
+		//-----------------------------------------
+		// create vehicles.
+		// X% chance that there will be a vehicle
+		// Y% chance that will be 2 vehicles
+		//-----------------------------------------
+		if IG.Rand.Intn(100) < 95 { // x%
+			vcount := 1
+			if IG.Rand.Intn(100) < 5 { // y%
+				vcount++
+			}
+			for j := 0; j < vcount; j++ {
+				v := createRandomCar(&t, dbConf)
+				_, err = rlib.InsertVehicle(ctx, &v)
+				if err != nil {
+					rlib.LogAndPrintError(funcname, err)
+					return err
+				}
+			}
 		}
 	}
 	return nil

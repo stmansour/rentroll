@@ -12,6 +12,12 @@ import (
 	"strconv"
 )
 
+// Alphabet contains caps of the alphabet
+var Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+// Digits contains characters for 0 - 9
+var Digits = "0123456789"
+
 // CarInfo contains year, make, and model
 type CarInfo struct {
 	Year  int
@@ -27,6 +33,7 @@ var IG struct {
 	Cities     []string   // array of cities
 	States     []string   // array of states
 	Companies  []string   // array of random company names
+	CarColors  []string   // array of car colors
 	Cars       []CarInfo  // array of info about cars
 	Rand       *rand.Rand // random number generator to use
 }
@@ -57,7 +64,7 @@ func loadCars(fname string, c *[]CarInfo) {
 		} else if err != nil {
 			rlib.LogAndPrintError(funcname, err)
 		}
-		rlib.Console("line: [0] = %s, [1] = %s, [2] = %s\n", line[0], line[1], line[2])
+		// rlib.Console("line: [0] = %s, [1] = %s, [2] = %s\n", line[0], line[1], line[2])
 		var car CarInfo
 		car.Year, err = strconv.Atoi(line[0])
 		if err != nil {
@@ -83,6 +90,7 @@ func IGInit(r *rand.Rand) {
 		{"./idgen/cities.txt", &IG.Cities},
 		{"./idgen/streets.txt", &IG.Streets},
 		{"./idgen/companies.txt", &IG.Companies},
+		{"./idgen/carcolors.txt", &IG.CarColors},
 	}
 
 	loadCars("./idgen/cars.csv", &IG.Cars)
@@ -98,6 +106,27 @@ func IGInit(r *rand.Rand) {
 	rlib.Console("Streets: %d\n", len(IG.Streets))
 	rlib.Console("Companies: %d\n", len(IG.Companies))
 	rlib.Console("CarInfo: %d\n", len(IG.Cars))
+	rlib.Console("CarColors: %d\n", len(IG.CarColors))
+}
+
+// GenerateRandomLicensePlate returns a string with a random license plate
+// number according to california rules -- 7-digit plates, 3 letters,
+// 4 numbers
+//-----------------------------------------------------------------------------
+func GenerateRandomLicensePlate() string {
+	var l []byte
+	for i := 0; i < 3; i++ {
+		l = append(l, Alphabet[IG.Rand.Intn(26)])
+	}
+	for i := 3; i < 7; i++ {
+		l = append(l, Digits[IG.Rand.Intn(10)])
+	}
+	for i := 0; i < 5; i++ {
+		j := IG.Rand.Intn(7)
+		k := IG.Rand.Intn(7)
+		l[k], l[j] = l[j], l[k]
+	}
+	return string(l)
 }
 
 // GenerateRandomPhoneNumber returns a string with a random phone number
