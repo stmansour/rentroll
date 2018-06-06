@@ -69,10 +69,10 @@ window.loadRAPeopleForm = function () {
                 },
                 {name: 'BID', type: 'int', required: true, html: {caption: "BID"}},
                 {name: 'TCID', type: 'int', required: true, html: {caption: "TCID"}},
-                {name: 'FirstName', type: 'text', required: true, html: {caption: "FirstName"}},
-                {name: 'LastName', type: 'text', required: true, html: {caption: "LastName"}},
-                {name: 'MiddleName', type: 'text', required: true, html: {caption: "MiddleName"}},
-                {name: 'Employer', type: 'text', required: true, html: {caption: "Employer"}},
+                {name: 'FirstName', type: 'text', required: false, html: {caption: "FirstName"}},
+                {name: 'LastName', type: 'text', required: false, html: {caption: "LastName"}},
+                {name: 'MiddleName', type: 'text', required: false, html: {caption: "MiddleName"}},
+                {name: 'Employer', type: 'text', required: false, html: {caption: "Employer"}},
                 {name: 'IsCompany', type: 'int', required: true, html: {caption: "IsCompany"}}
             ],
             actions: {
@@ -257,12 +257,12 @@ window.loadRAPeopleForm = function () {
                 {name: 'IsRenter', type: 'checkbox', required: false}, // will be responsible for paying rent
                 {name: 'IsOccupant', type: 'checkbox', required: false}, // will reside in and/or use the items rented
                 {name: 'IsGuarantor', type: 'checkbox', required: false}, // responsible for making sure all rent is paid
-                {name: 'FirstName', type: 'text', required: true},
-                {name: 'MiddleName', type: 'text', required: true},
-                {name: 'LastName', type: 'text', required: true},
-                {name: 'IsCompany', type: 'checkbox', required: false},
+                {name: 'FirstName', type: 'text', required: false},
+                {name: 'MiddleName', type: 'text', required: false},
+                {name: 'LastName', type: 'text', required: false},
+                {name: 'IsCompany', type: 'checkbox', required: true},
                 {name: 'BirthDate', type: 'date', required: false}, // Date of births of applicants
-                {name: 'SSN', type: 'text', required: true}, // Social security number of applicants
+                {name: 'SSN', type: 'text', required: false}, // Social security number of applicants
                 {name: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants
                 {name: 'TelephoneNo', type: 'text', required: false}, // Telephone no of applicants
                 {name: 'EmailAddress', type: 'email', required: false}, // Email Address of applicants
@@ -277,14 +277,14 @@ window.loadRAPeopleForm = function () {
                 {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
                 {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
                 {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
-		{name: 'EvictedDes', type: 'text', required: false},
+		        {name: 'EvictedDes', type: 'text', required: false},
                 {name: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
-		{name: 'ConvictedDes', type: 'text', required: false},
+		        {name: 'ConvictedDes', type: 'text', required: false},
                 {name: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
-		{name: 'BankruptcyDes', type: 'text', required: false},
-                {name: 'Employer', type: 'text', required: true},
-                {name: 'Phone', type: 'text', required: true},
-                {name: 'Address', type: 'text', required: true},
+		        {name: 'BankruptcyDes', type: 'text', required: false},
+                {name: 'Employer', type: 'text', required: false},
+                {name: 'Phone', type: 'text', required: false},
+                {name: 'Address', type: 'text', required: false},
                 {name: 'Address2', type: 'text', required: false},
                 {name: 'City', type: 'text', required: false},
                 {name: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false},
@@ -372,19 +372,6 @@ window.loadRAPeopleForm = function () {
             },
             onChange: function (event) {
                 event.onComplete = function () {
-                    if (this.record.IsCompany) {
-                        this.get("FirstName").required = false;
-                        this.get("MiddleName").required = false;
-                        this.get("LastName").required = false;
-                        this.get("Employer").required = true;
-                        this.get("IsCompany").required = true;
-                    } else {
-                        this.get("FirstName").required = true;
-                        this.get("MiddleName").required = true;
-                        this.get("LastName").required = true;
-                        this.get("Employer").required = false;
-                        this.get("IsCompany").required = false;
-                    }
 
 					$("#EvictedDes").prop("disabled", !this.record.Evicted);
 
@@ -698,44 +685,10 @@ window.manageBGInfoFormFields = function (record) {
         "PriorAddress", "PriorLandLordName", "PriorLandLordPhoneNo",
         "PriorLengthOfResidency", "PriorReasonForMoving"];
 
-    // These all fields are not required when transanctant is only user
-    var listOfNotRequiredFields = ["SSN", "TelephoneNo",
-        "Phone", "EmailAddress", "Position",
-        "GrossWages", "CurrentAddress", "CurrentLandLordName",
-        "CurrentLandLordPhoneNo", "CurrentReasonForMoving"];
-
     // Display/Required field based on transanctant type
-    if (record.IsOccupant && !record.IsRenter && !record.IsGuarantor) {
-        // hide fields
-        showHideRABGInfoFormFields(listOfHiddenFields, true);
-
-        // not require fields
-        setNotRequiredFields(listOfNotRequiredFields, false);
-    } else {
-        // show fields
-        showHideRABGInfoFormFields(listOfHiddenFields, false);
-
-        // require fields
-        setNotRequiredFields(listOfNotRequiredFields, true);
-    }
-
-    var listOfCompanyFields = ["Employer"];
-
-    var listOfPersonFields = ["FirstName", "MiddleName", "LastName"];
-
-    if(record.IsCompany){
-        // Require fields
-        setNotRequiredFields(listOfCompanyFields, true);
-
-        // Not required fields
-        setNotRequiredFields(listOfPersonFields, false);
-    }else{
-        // Not Require fields
-        setNotRequiredFields(listOfCompanyFields, false);
-
-        // Required fields
-        setNotRequiredFields(listOfPersonFields, true);
-    }
+    var haveToHide = record.IsOccupant && !record.IsRenter && !record.IsGuarantor; // true: hide fields, false: show fields
+	// hide/show fields
+    showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
 };
 
 //-----------------------------------------------------------------------------

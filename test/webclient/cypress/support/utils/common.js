@@ -201,11 +201,17 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                     case "GSRPC":
                     case "OverrideProrationCycle":
                     case "OverrideRentCycle":
+                        cy.log(valueForCell);
                         valueForCell = appSettings.cycleFreq[valueForCell];
                         break;
                     case "ManageToBudget":
                         cy.log(valueForCell);
-                        valueForCell = appSettings.manageToBudgetList[valueForCell].text;
+                        // refer /webclient/js/rt.js : rtGrid
+                        if(valueForCell){
+                          valueForCell = "YES (Market Rate required)";
+                        }else{
+                          valueForCell = "NO";
+                        }
                         break;
                     case "UseStatus":
                         valueForCell = appSettings.RSUseStatus[valueForCell];
@@ -289,18 +295,6 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                     fieldValue = win.w2utils.formatters.money(recordDetailFromAPIResponse[fieldID]);
                 }
 
-                // Modify fieldValue if field is checkbox
-                if($el.context.type === "checkbox"){
-                    switch(fieldValue){
-                        case 0:
-                            fieldValue = 'off';
-                            break;
-                        case 1:
-                            fieldValue = 'on';
-                            break;
-                    }
-                }
-
                 let types;
                 let type;
 
@@ -348,6 +342,9 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                             ruleName = "ReceiptRules";
                         } else if (formName === "expenseForm") {
                             ruleName = "ExpenseRules";
+                        } else if (formName === "rtForm") {
+                            fieldValue = " -- No ARID -- ";
+                            break;
                         }
                         types = appSettings[ruleName][constants.testBiz];
                         type = types.find(types => types.id === fieldValue);
@@ -383,9 +380,37 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                 // check fields visibility and respective value
                 if (!isInArray(fieldID, testConfig.skipFields)) {
                     // Check visibility and match the default value of the fields.
-                    cy.get(selectors.getFieldSelector(fieldID))
-                        .should('be.visible')
-                        .should('have.value', fieldValue);
+                    switch (fieldID){
+                        // Rentable Types form checkbox
+                        case "ManageToBudget":
+                        case "IsChildRentable":
+                        // Account Rules form checkbox
+                        case "ApplyRcvAccts":
+                        case "RAIDrqd":
+                        case "AutoPopulateToNewRA":
+                        case "IsRentASM":
+                        case "IsSecDepASM":
+                        case "IsNonRecurCharge":
+                        case "PriorToRAStop":
+                        case "PriorToRAStart":
+                        // Assessment Charges form checkbox
+                        case "ExpandPastInst":
+                            if(fieldValue){
+                                cy.get(selectors.getFieldSelector(fieldID))
+                                    .should('be.visible')
+                                    .should('be.checked');
+                            }else{
+                                cy.get(selectors.getFieldSelector(fieldID))
+                                    .should('be.visible')
+                                    .should('be.not.checked');
+                            }
+                            break;
+                        default:
+                            cy.get(selectors.getFieldSelector(fieldID))
+                                .should('be.visible')
+                                .should('have.value', fieldValue);
+                            break;
+                    }
                 }
             });
     });
@@ -484,9 +509,38 @@ export function addNewFormTest(testConfig) {
             if (!isInArray(fieldID, testConfig.skipFields)) {
 
                 // Check visibility and match the default value of the fields.
-                cy.get(selectors.getFieldSelector(fieldID))
-                    .should('be.visible')
-                    .should('have.value', defaultValue);
+                switch (fieldID){
+                    // Rentable Types form checkbox
+                    case "ManageToBudget":
+                    case "IsChildRentable":
+                    // Account Rules form checkbox
+                    case "ApplyRcvAccts":
+                    case "RAIDrqd":
+                    case "AutoPopulateToNewRA":
+                    case "IsRentASM":
+                    case "IsSecDepASM":
+                    case "IsNonRecurCharge":
+                    case "PriorToRAStop":
+                    case "PriorToRAStart":
+                    // Assessment Charges form checkbox
+                    case "ExpandPastInst":
+                        if(defaultValue){
+                            cy.get(selectors.getFieldSelector(fieldID))
+                                .should('be.visible')
+                                .should('be.checked');
+                        }else{
+                            cy.get(selectors.getFieldSelector(fieldID))
+                                .should('be.visible')
+                                .should('be.not.checked');
+                        }
+                        break;
+                    default:
+                        cy.get(selectors.getFieldSelector(fieldID))
+                            .should('be.visible')
+                            .should('have.value', defaultValue);
+                        break;
+                }
+
             }
 
         });
