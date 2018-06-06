@@ -31,20 +31,20 @@ window.errMsgHTML = function(errmsg) {
     return s;
 };
 
-// errMsgHTML - format error message in closePeriodMsgArea
-//              This is message type 1
-//------------------------------------------------------------
-window.successMsgHTML = function(msg) {
-    var s;
-    if (errmsg.length > 0 ) {
-        s = '<p style="background-color: #ffe0e0;color: #ff2222;"><br>&nbsp;&nbsp;' +
-            '<i class="fas fa-exclamation-circle fa-2x"></i> &nbsp;&nbsp;' +
-             errmsg + "<br>&nbsp;</p>";
-    } else {
-        s = "";
-    }
-    return s;
-};
+// // errMsgHTML - format error message in closePeriodMsgArea
+// //              This is message type 1
+// //------------------------------------------------------------
+// window.successMsgHTML = function(msg) {
+//     var s;
+//     if (errmsg.length > 0 ) {
+//         s = '<p style="background-color: #ffe0e0;color: #ff2222;"><br>&nbsp;&nbsp;' +
+//             '<i class="fas fa-exclamation-circle fa-2x"></i> &nbsp;&nbsp;' +
+//              errmsg + "<br>&nbsp;</p>";
+//     } else {
+//         s = "";
+//     }
+//     return s;
+// };
 
 //-----------------------------------------------------------------------------
 // loadClosePeriodInfo - a layout in which we place an html page
