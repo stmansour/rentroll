@@ -1,6 +1,6 @@
 /*global
     w2ui,getCurrentBID,loadClosePeriodInfo,loadClosePeriodInfo,dtFormatISOToW2ui,errMsgHTML,
-    successMsgHTML,
+    successMsgHTML,cpMsg,
 */
 "use strict";
 
@@ -22,7 +22,7 @@ window.switchToClosePeriod = function() {
 window.errMsgHTML = function(errmsg) {
     var s;
     if (errmsg.length > 0 ) {
-        s = '<p style="background-color: #ffe0e0;color: #ff2222;"><br>&nbsp;&nbsp;' +
+        s = '<p style="background-color: #ffe0e0;color: #aa2222;border-color:#aa2222;border-style:solid;border-width: 1px 1px 1px 6px;"><br>&nbsp;&nbsp;' +
             '<i class="fas fa-exclamation-circle fa-2x"></i> &nbsp;&nbsp;' +
              errmsg + "<br>&nbsp;</p>";
     } else {
@@ -31,21 +31,31 @@ window.errMsgHTML = function(errmsg) {
     return s;
 };
 
-// // errMsgHTML - format error message in closePeriodMsgArea
-// //              This is message type 1
-// //------------------------------------------------------------
-// window.successMsgHTML = function(msg) {
-//     var s;
-//     if (msg.length > 0 ) {
-//         s = '<p style="background-color: #ffe0e0;color: #22ff22;"><br>&nbsp;&nbsp;' +
-//             '<i class="fas fa-check-circle fa-2x"></i> &nbsp;&nbsp;' +
-//              msg + "<br>&nbsp;</p>";
-//     } else {
-//         s = "";
-//     }
-//     return s;
-// };
+// errMsgHTML - format error message in closePeriodMsgArea
+//              This is message type 0
+//------------------------------------------------------------
+window.successMsgHTML = function(msg) {
+    var s;
+    if (msg.length > 0 ) {
+        s = '<p style="background-color: #e0ffe0;color: #22aa22;border-color:#22aa22;border-style:solid;border-width: 1px 1px 1px 6px;"><br>&nbsp;&nbsp;' +
+            '<i class="fas fa-check-circle fa-2x"></i> &nbsp;&nbsp;' +
+             msg + "<br>&nbsp;</p>";
+    } else {
+        s = "";
+    }
+    return s;
+};
 
+// cpMsg - write and format a message to the close period window.
+//------------------------------------------------------------
+window.cpMsg = function(s,mode) {
+    var msg = "";
+    switch (mode) {
+        case 0: msg = successMsgHTML(s); break;
+        case 1: msg = errMsgHTML(s); break;
+    }
+    document.getElementById("closePeriodMsgArea").innerHTML = msg;
+};
 
 
 //-----------------------------------------------------------------------------
@@ -57,20 +67,21 @@ window.errMsgHTML = function(errmsg) {
 //
 // @returns
 //-----------------------------------------------------------------------------
-window.loadClosePeriodInfo = function (errmsg) {
+window.loadClosePeriodInfo = function (msg,mode) {
     var BID = getCurrentBID();
     var BUD = getBUDfromBID(BID);
     var params = {cmd: 'get' };
     var dat = JSON.stringify(params);
 
-    if (typeof errmsg == "undefined") {
-        errmsg = "";
+    if (typeof msg == "undefined") {
+        msg = "";
+        mode = 0;
     }
     //------------------------------------------------------------------------
     // If we were called with an error message, let's get it up there now....
     //------------------------------------------------------------------------
-    if (errmsg.length > 0 ) {
-        document.getElementById("closePeriodMsgArea").innerHTML = errMsgHTML(errmsg);
+    if (msg.length > 0 ) {
+        cpMsg(msg,mode);
     }
 
     // delete Depository request
@@ -83,7 +94,7 @@ window.loadClosePeriodInfo = function (errmsg) {
         var bTargetTLCompleted = false;  // is the instance marked as completed
 
         if (data.status === "error") {
-            document.getElementById("closePeriodMsgArea").innerHTML = errMsgHTML(data.message);
+            cpMsg(data.message,1);
             return;
         }
 
@@ -159,7 +170,7 @@ window.loadClosePeriodInfo = function (errmsg) {
     .fail(function(/*data*/){
         var x = document.getElementById("closePeriodMsgArea");
         if (x !== null) {
-            x.innerHTML = errMsgHTML("Get close period info failed.");
+            cpMsg("Get close period info failed.",1);
         }
     });
 };
@@ -183,13 +194,15 @@ window.submitClosePeriod = function() {
     $.post(url, dat, null, "json")
     .done( function(data) {
         if (data.status !== 'success') {
-            loadClosePeriodInfo(data.message);
+            loadClosePeriodInfo(data.message,1);
             return;
         }
-        loadClosePeriodInfo();
+
+        loadClosePeriodInfo('Successfully closed period ending ' + 
+            dtFormatISOToW2ui(closePeriodData.record.CloseTarget),0);
     })
     .fail( function() {
-        loadClosePeriodInfo('error with post to: ' + url);
+        loadClosePeriodInfo('error with post to: ' + url,1);
     });
 };
 

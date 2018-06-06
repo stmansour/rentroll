@@ -2,11 +2,22 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"os"
+	"rentroll/rlib"
+	"strconv"
 )
+
+// CarInfo contains year, make, and model
+type CarInfo struct {
+	Year  int
+	Make  string
+	Model string
+}
 
 // IG is the struct containing info for doing Identity Generation
 var IG struct {
@@ -16,6 +27,7 @@ var IG struct {
 	Cities     []string   // array of cities
 	States     []string   // array of states
 	Companies  []string   // array of random company names
+	Cars       []CarInfo  // array of info about cars
 	Rand       *rand.Rand // random number generator to use
 }
 
@@ -34,6 +46,30 @@ func initOpen(fname string, pm *[]string) {
 	}
 }
 
+func loadCars(fname string, c *[]CarInfo) {
+	funcname := "loadCars"
+	csvFile, _ := os.Open(fname)
+	reader := csv.NewReader(bufio.NewReader(csvFile))
+	for {
+		line, err := reader.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			rlib.LogAndPrintError(funcname, err)
+		}
+		rlib.Console("line: [0] = %s, [1] = %s, [2] = %s\n", line[0], line[1], line[2])
+		var car CarInfo
+		car.Year, err = strconv.Atoi(line[0])
+		if err != nil {
+			rlib.Console("line[0] = %q\n", line[0])
+			rlib.LogAndPrintError(funcname, err)
+		}
+		car.Make = line[1]
+		car.Model = line[2]
+		*c = append(*c, car)
+	}
+}
+
 // IGInit initializes the Identity Generation code
 //-----------------------------------------------------------------------------
 func IGInit(r *rand.Rand) {
@@ -49,16 +85,19 @@ func IGInit(r *rand.Rand) {
 		{"./idgen/companies.txt", &IG.Companies},
 	}
 
+	loadCars("./idgen/cars.csv", &IG.Cars)
 	for i := 0; i < len(n); i++ {
 		initOpen(n[i].FName, n[i].PM)
 	}
+
 	IG.Rand = r
-	// rlib.Console("FirstNames: %d\n", len(IG.FirstNames))
-	// rlib.Console("LastNames: %d\n", len(IG.LastNames))
-	// rlib.Console("Cities: %d\n", len(IG.Cities))
-	// rlib.Console("States: %d\n", len(IG.States))
-	// rlib.Console("Streets: %d\n", len(IG.Streets))
-	// rlib.Console("Companies: %d\n", len(IG.Companies))
+	rlib.Console("FirstNames: %d\n", len(IG.FirstNames))
+	rlib.Console("LastNames: %d\n", len(IG.LastNames))
+	rlib.Console("Cities: %d\n", len(IG.Cities))
+	rlib.Console("States: %d\n", len(IG.States))
+	rlib.Console("Streets: %d\n", len(IG.Streets))
+	rlib.Console("Companies: %d\n", len(IG.Companies))
+	rlib.Console("CarInfo: %d\n", len(IG.Cars))
 }
 
 // GenerateRandomPhoneNumber returns a string with a random phone number

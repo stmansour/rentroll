@@ -688,7 +688,7 @@ func CreateDeposits(ctx context.Context, dbConf *GenDBConf) error {
 // as the ClosePeriod TaskList, and creates all past instances
 //-----------------------------------------------------------------------------
 func CreateTaskLists(ctx context.Context, dbConf *GenDBConf) error {
-	rlib.Console("Entered: CreateTaskLists\n")
+	// rlib.Console("Entered: CreateTaskLists\n")
 	TLDID := int64(1)
 	BID := TLDID
 
