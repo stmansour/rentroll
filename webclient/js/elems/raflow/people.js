@@ -685,44 +685,10 @@ window.manageBGInfoFormFields = function (record) {
         "PriorAddress", "PriorLandLordName", "PriorLandLordPhoneNo",
         "PriorLengthOfResidency", "PriorReasonForMoving"];
 
-    // These all fields are not required when transanctant is only user
-    // var listOfNotRequiredFields = ["SSN", "TelephoneNo",
-    //     "Phone", "EmailAddress", "Position",
-    //     "GrossWages", "CurrentAddress", "CurrentLandLordName",
-    //     "CurrentLandLordPhoneNo", "CurrentReasonForMoving"];
-
     // Display/Required field based on transanctant type
-    if (record.IsOccupant && !record.IsRenter && !record.IsGuarantor) {
-        // hide fields
-        showHideRABGInfoFormFields(listOfHiddenFields, true);
-
-        // not require fields
-        // setNotRequiredFields(listOfNotRequiredFields, false);
-    } else {
-        // show fields
-        showHideRABGInfoFormFields(listOfHiddenFields, false);
-
-        // require fields
-        // setNotRequiredFields(listOfNotRequiredFields, true);
-    }
-
-    var listOfCompanyFields = ["Employer"];
-
-    var listOfPersonFields = ["FirstName", "MiddleName", "LastName"];
-
-    if(record.IsCompany){
-        // Require fields
-        setNotRequiredFields(listOfCompanyFields, true);
-
-        // Not required fields
-        setNotRequiredFields(listOfPersonFields, false);
-    }else{
-        // Not Require fields
-        setNotRequiredFields(listOfCompanyFields, false);
-
-        // Required fields
-        setNotRequiredFields(listOfPersonFields, true);
-    }
+    var haveToHide = record.IsOccupant && !record.IsRenter && !record.IsGuarantor; // true: hide fields, false: show fields
+    // hide/show fields
+    showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
 };
 
 //-----------------------------------------------------------------------------

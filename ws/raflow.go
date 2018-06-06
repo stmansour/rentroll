@@ -71,6 +71,7 @@ type RAPeopleFlowData struct {
 	Address2     string
 	City         string
 	State        string
+	Country      string
 	PostalCode   string
 	Position     string
 	GrossWages   float64
