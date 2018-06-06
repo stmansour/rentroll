@@ -135,7 +135,7 @@ describe('AIR Roller UI Tests - Rentable Types', function () {
         // testConfig: configuration for running tests
         common.testRecordDetailForm(recordsAPIResponse, testConfig);
 
-        common.testMarketRulesDetailForm(testConfig);
+        // common.testMarketRulesDetailForm(testConfig);
 
         // -- Close the form. And assert that form isn't visible. --
         common.closeFormTests(selectors.getFormSelector(testConfig.form));
