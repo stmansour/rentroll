@@ -71,6 +71,7 @@ type RAPeopleFlowData struct {
 	Address2     string
 	City         string
 	State        string
+	Country      string
 	PostalCode   string
 	Position     string
 	GrossWages   float64
@@ -189,30 +190,30 @@ type RAParentChildFlowData struct {
 
 // RATieFlowData contains data in the tie part of RA flow
 type RATieFlowData struct {
-	Pets     []RAPetsTieData     `json:"pets"`
-	Vehicles []RAVehiclesTieData `json:"vehicles"`
-	Payors   []RAPayorsTieData   `json:"payors"`
+	Pets     []RATiePetsData     `json:"pets"`
+	Vehicles []RATieVehiclesData `json:"vehicles"`
+	People   []RATiePeopleData   `json:"people"`
 }
 
-// RAPetsTieData holds data from tie section for a pet to a rentable
-type RAPetsTieData struct {
-	BID   int64
-	PRID  int64
-	REFID int64 // reference to pet record ID stored temporarily
+// RATiePetsData holds data from tie section for a pet to a rentable
+type RATiePetsData struct {
+	BID      int64
+	PRID     int64
+	TMPREFID int64 // reference to pet record ID stored temporarily
 }
 
-// RAVehiclesTieData holds data from tie section for a vehicle to a rentable
-type RAVehiclesTieData struct {
-	BID   int64
-	PRID  int64
-	REFID int64 // reference to vehicle record ID in json
+// RATieVehiclesData holds data from tie section for a vehicle to a rentable
+type RATieVehiclesData struct {
+	BID      int64
+	PRID     int64
+	TMPREFID int64 // reference to vehicle record ID in json
 }
 
-// RAPayorsTieData holds data from tie section for a payor to a rentable
-type RAPayorsTieData struct {
-	BID   int64
-	PRID  int64
-	REFID int64 // user's temp json record reference id
+// RATiePeopleData holds data from tie section for a payor to a rentable
+type RATiePeopleData struct {
+	BID      int64
+	PRID     int64
+	TMPREFID int64 // user's temp json record reference id
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -277,6 +278,15 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
+
+			// auto assign TMPID
+			for i := range a {
+				if a[i].TMPID == 0 { // if zero then assign new from last saved ID
+					raFlowData.Meta.PeopleLastTMPID++
+					a[i].TMPID = raFlowData.Meta.PeopleLastTMPID
+				}
+			}
+
 			if err != nil {
 				// if it's an error then return with nil data
 				return modMetaData, modFlowPartData, err
@@ -388,13 +398,13 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 			// check for each sliced data field
 			// if it's blank then initialize it
 			if len(a.Pets) == 0 {
-				a.Pets = []RAPetsTieData{}
+				a.Pets = []RATiePetsData{}
 			}
 			if len(a.Vehicles) == 0 {
-				a.Vehicles = []RAVehiclesTieData{}
+				a.Vehicles = []RATieVehiclesData{}
 			}
-			if len(a.Payors) == 0 {
-				a.Payors = []RAPayorsTieData{}
+			if len(a.People) == 0 {
+				a.People = []RATiePeopleData{}
 			}
 
 			if err != nil {
@@ -456,9 +466,9 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Rentables:   []RARentablesFlowData{},
 		ParentChild: []RAParentChildFlowData{},
 		Tie: RATieFlowData{
-			Pets:     []RAPetsTieData{},
-			Vehicles: []RAVehiclesTieData{},
-			Payors:   []RAPayorsTieData{},
+			Pets:     []RATiePetsData{},
+			Vehicles: []RATieVehiclesData{},
+			People:   []RATiePeopleData{},
 		},
 	}
 

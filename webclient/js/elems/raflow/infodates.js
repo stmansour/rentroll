@@ -36,7 +36,7 @@ window.loadRADatesForm = function () {
             ],
             actions: {
                 reset: function () {
-                    this.clear();
+                    w2ui.RADatesForm.clear();
                 },
             },
             onRefresh: function (event) {
