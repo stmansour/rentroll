@@ -1,12 +1,11 @@
 /*global
-    w2ui,getCurrentBID,loadClosePeriodInfo,loadClosePeriodInfo,dtFormatISOToW2ui,
+    w2ui,getCurrentBID,loadClosePeriodInfo,loadClosePeriodInfo,dtFormatISOToW2ui,errMsgHTML,
+    successMsgHTML,
 */
 "use strict";
 
 var closePeriodData = {
     record: null,
-    dtDone: null,
-    dtLastClose: null,
 
 };
 
@@ -17,30 +16,74 @@ window.switchToClosePeriod = function() {
     loadClosePeriodInfo();
 };
 
+// errMsgHTML - format error message in closePeriodMsgArea
+//              This is message type 1
+//------------------------------------------------------------
+window.errMsgHTML = function(errmsg) {
+    var s;
+    if (errmsg.length > 0 ) {
+        s = '<p style="background-color: #ffe0e0;color: #ff2222;"><br>&nbsp;&nbsp;' +
+            '<i class="fas fa-exclamation-circle fa-2x"></i> &nbsp;&nbsp;' +
+             errmsg + "<br>&nbsp;</p>";
+    } else {
+        s = "";
+    }
+    return s;
+};
+
+// // errMsgHTML - format error message in closePeriodMsgArea
+// //              This is message type 1
+// //------------------------------------------------------------
+// window.successMsgHTML = function(msg) {
+//     var s;
+//     if (msg.length > 0 ) {
+//         s = '<p style="background-color: #ffe0e0;color: #22ff22;"><br>&nbsp;&nbsp;' +
+//             '<i class="fas fa-check-circle fa-2x"></i> &nbsp;&nbsp;' +
+//              msg + "<br>&nbsp;</p>";
+//     } else {
+//         s = "";
+//     }
+//     return s;
+// };
+
+
+
 //-----------------------------------------------------------------------------
 // loadClosePeriodInfo - a layout in which we place an html page
 // and a form.
 //
-// @params
+// @params    msg - (optional) a string with an initial error message
+//           mode - 0 = informational message, 1 = error message
 //
 // @returns
 //-----------------------------------------------------------------------------
-window.loadClosePeriodInfo = function () {
+window.loadClosePeriodInfo = function (errmsg) {
     var BID = getCurrentBID();
     var BUD = getBUDfromBID(BID);
     var params = {cmd: 'get' };
     var dat = JSON.stringify(params);
 
+    if (typeof errmsg == "undefined") {
+        errmsg = "";
+    }
+    //------------------------------------------------------------------------
+    // If we were called with an error message, let's get it up there now....
+    //------------------------------------------------------------------------
+    if (errmsg.length > 0 ) {
+        document.getElementById("closePeriodMsgArea").innerHTML = errMsgHTML(errmsg);
+    }
+
     // delete Depository request
     $.post('/v1/closeperiod/'+BID, dat, null, "json")
     .done(function(data) {
-        var ctl = "";
-        var lcp = "";
-        var ltl = "";
-        var cp = "";
+
         var s = "";
+        var bHaveCPTLID = false;         // does the business have a ClosePeriod TaskList
+        var bHaveTargetTLID = false;     // is there an instance for this close period
+        var bTargetTLCompleted = false;  // is the instance marked as completed
+
         if (data.status === "error") {
-            console.log('error = ' + data.message);
+            document.getElementById("closePeriodMsgArea").innerHTML = errMsgHTML(data.message);
             return;
         }
 
@@ -56,40 +99,47 @@ window.loadClosePeriodInfo = function () {
         //  TASK LIST 
         //--------------------------------
         if (r.TLID === 0) {
-            ctl = 'No TaskList defined. You must set a TaskList for ' + BUD + ' to enable Close Period.';
-            lcp = '-';
-            cp = '-';
+            s = 'No TaskList defined. You must set a TaskList for ' + BUD + ' to enable Close Period.';
         } else {
-            ctl = r.TLName + ' &nbsp;&nbsp;';
-            ltl = dtFormatISOToW2ui(r.LastDtDone);
+            bHaveCPTLID = true;
+            s = r.TLName + ' &nbsp;&nbsp;';
+            var ltl = dtFormatISOToW2ui(r.LastDtDone);
             if (ltl.length === 0) {
-                ctl += "(no completed instances yet)";
+                s += "(no completed instances yet)";
             } else {
-                ctl += "(last completion: " + ltl + ")";
+                s += "(last completion: " + ltl + ")";
             }
         }
-        document.getElementById("closePeriodTL").innerHTML = ctl;
+        document.getElementById("closePeriodTL").innerHTML = s;
 
         //--------------------------------
         //  Last closed period 
         //--------------------------------
-        lcp = dtFormatISOToW2ui(r.LastDtClose);
-        document.getElementById("closePeriodLCP").innerHTML = lcp;
+        s = dtFormatISOToW2ui(r.LastDtClose);
+        if (s.length > 0 ) {
+             s += ' &nbsp;&nbsp;<i class="fas fa-lock"></i>';
+        }
+        document.getElementById("closePeriodLCP").innerHTML = s;
 
         //--------------------------------
         //  Target close period
         //--------------------------------
-        cp = dtFormatISOToW2ui(r.CloseTarget);
-        document.getElementById("closePeriodNCP").innerHTML = cp;
+        s = dtFormatISOToW2ui(r.CloseTarget);
+        if (s.length > 0 ) {
+             s += ' &nbsp;&nbsp;<i class="fas fa-lock-open"></i>';
+        }
+        document.getElementById("closePeriodNCP").innerHTML = s;
 
         //--------------------------------
         //  Target close task list
         //--------------------------------
         if (r.TLIDTarget > 0) {
+            bHaveTargetTLID = true;
             s = r.TLNameTarget + ' (' + r.TLIDTarget + ')';
             //var dtDue = new Date(r.DtDueTarget);
             var dtDone = new Date(r.DtDoneTarget);
             if (dtDone.getFullYear() > 1999) {
+                bTargetTLCompleted = true;
                 s += '  completed ' + dtFormatISOToW2ui(r.DtDoneTarget) + ' &nbsp;&nbsp;&#9989;';
             } else {
                 s += '  not completed. &nbsp;Due on ' + dtFormatISOToW2ui(r.DtDueTarget) + ' &nbsp;&nbsp;&#10060;';
@@ -97,16 +147,51 @@ window.loadClosePeriodInfo = function () {
         } else {
             s = "No task list instance for due date " + dtFormatISOToW2ui(r.DtDueTarget) + ' &nbsp;&nbsp;&#10060;';
         }
-            document.getElementById("closeTargetTL").innerHTML = s;
+        document.getElementById("closeTargetTL").innerHTML = s;
 
         //--------------------------------
         //  Submit button
         //--------------------------------
-        var disable = !(closePeriodData.DtDone !== null && closePeriodData.DtDone.getFullYear() > 1999);
+        var disable = !(bHaveCPTLID && bHaveTargetTLID && bTargetTLCompleted);
         document.getElementById("closePeriodSubmit").disabled = disable;
+
     })
     .fail(function(/*data*/){
-        console.log("Get close period info failed.");
-        return;
+        var x = document.getElementById("closePeriodMsgArea");
+        if (x !== null) {
+            x.innerHTML = errMsgHTML("Get close period info failed.");
+        }
     });
 };
+
+//-----------------------------------------------------------------------------
+// submitClosePeriod is called when all the conditions of a close period are
+// met and the user clicks the buttong to close the period.
+//
+// @params
+//
+// @returns
+//-----------------------------------------------------------------------------
+window.submitClosePeriod = function() {
+    console.log('close the period');
+    var BID = getCurrentBID();
+    var params = {cmd: 'save', record: closePeriodData.record };
+    var dat = JSON.stringify(params);
+
+    // delete Depository request
+    var url = '/v1/closeperiod/'+BID;
+    $.post(url, dat, null, "json")
+    .done( function(data) {
+        if (data.status !== 'success') {
+            loadClosePeriodInfo(data.message);
+            return;
+        }
+        loadClosePeriodInfo();
+    })
+    .fail( function() {
+        loadClosePeriodInfo('error with post to: ' + url);
+    });
+};
+
+
+

@@ -872,22 +872,23 @@ type Expense struct {
 }
 
 // AR is the table that defines the AcctRules for Assessments, Expenses and Receipts
+// FLAGS
+//  1<<0 = apply funds to Receive accts,
+//  1<<1 - populate on Rental Agreement,
+//  1<<2 = RAID required,
+//  1<<3 = subARIDs apply
 type AR struct {
-	ARID        int64
-	BID         int64
-	Name        string
-	ARType      int64 // 0 = Assessment, 1 = Receipt, 2 = Expense
-	DebitLID    int64
-	CreditLID   int64
-	Description string
-	RARequired  int64
-	DtStart     time.Time
-	DtStop      time.Time
-	FLAGS       uint64 /* 1<<0 = apply funds to Receive accts,
-	 * 1<<1 - populate on Rental Agreement,
-	 * 1<<2 = RAID required,
-	 * 1<<3 = subARIDs apply
-	 */
+	ARID          int64
+	BID           int64
+	Name          string
+	ARType        int64 // 0 = Assessment, 1 = Receipt, 2 = Expense
+	DebitLID      int64
+	CreditLID     int64
+	Description   string
+	RARequired    int64
+	DtStart       time.Time
+	DtStop        time.Time
+	FLAGS         uint64
 	DefaultAmount float64 // use this as the default amount in ui for newly created Assessments
 	LastModTime   time.Time
 	LastModBy     int64
@@ -1146,25 +1147,22 @@ type RentableSpecialty struct {
 
 // RentableType is the set of attributes describing the different types of Rentable items
 type RentableType struct {
-	RTID      int64  // unique identifier for this RentableType
-	BID       int64  // the business unit to which this RentableType belongs
-	Style     string // a short name
-	Name      string // longer name
-	RentCycle int64  // frequency at which rent accrues, 0 = not set or n/a, 1 = secondly, 2=minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly...
-	Proration int64  // frequency for prorating rent if the full rentcycle is not used
-	GSRPC     int64  // Time increments in which GSR is calculated to account for rate changes
-	// 1<<0:  0=active, 1=inactive
-	// 1<<1:  0=cannot be a child rentable, 1 = can be a child
-	ManageToBudget int64
-	FLAGS          uint64                     // 0=active, 1=inactive
-	ARID           int64                      // ARID reference, for default rent amount for this types
-	MR             []RentableMarketRate       // array of time sensitive market rates
-	CA             map[string]CustomAttribute // index by Name of attribute, associated custom attributes
-	MRCurrent      float64                    // the current market rate (historical values are in MR)
-	LastModTime    time.Time
-	LastModBy      int64
-	CreateTS       time.Time // when was this record created
-	CreateBy       int64     // employee UID (from phonebook) that created it
+	RTID        int64                      // unique identifier for this RentableType
+	BID         int64                      // the business unit to which this RentableType belongs
+	Style       string                     // a short name
+	Name        string                     // longer name
+	RentCycle   int64                      // frequency at which rent accrues, 0 = not set or n/a, 1 = secondly, 2=minutely, 3=hourly, 4=daily, 5=weekly, 6=monthly...
+	Proration   int64                      // frequency for prorating rent if the full rentcycle is not used
+	GSRPC       int64                      // Time increments in which GSR is calculated to account for rate changes
+	FLAGS       uint64                     // 0=active, 1=inactive
+	ARID        int64                      // ARID reference, for default rent amount for this types
+	MR          []RentableMarketRate       // array of time sensitive market rates
+	CA          map[string]CustomAttribute // index by Name of attribute, associated custom attributes
+	MRCurrent   float64                    // the current market rate (historical values are in MR)
+	LastModTime time.Time
+	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // RentableMarketRate describes the market rate rent for a Rentable type over a time period
@@ -1375,7 +1373,7 @@ type LedgerMarker struct {
 	BID         int64     // only valid if Type == 1
 	RAID        int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the rental agreement RAID
 	RID         int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the Rentable RID
-	TCID        int64     // if 0 then LM for whole acct, if > 0 then it's the amount for this payor; TCID
+	TCID        int64     // (I think this is deprecated)  if 0 then LM for whole acct, if > 0 then it's the amount for this payor; TCID
 	Dt          time.Time // Balance is valid as of this time
 	Balance     float64   // GLAccount balance at the end of the period
 	State       int64     // 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)

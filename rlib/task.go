@@ -19,17 +19,16 @@ import (
 //  error  - any error encountered
 //
 //-----------------------------------------------------------------------------
-func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time.Time) (int64, error) {
-	var tlid = int64(0)
+func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time.Time) (TaskList, error) {
+	var tl TaskList
 	tld, err := GetTaskListDefinition(ctx, TLDID)
 	if err != nil {
-		return tlid, err
+		return tl, err
 	}
 
 	//------------------------------------------------------
 	//  First, compute the dates needed for the TaskList
 	//------------------------------------------------------
-	var tl TaskList
 	tl.BID = tld.BID
 	tl.PTLID = PTLID
 	tl.TLDID = tld.TLDID
@@ -37,7 +36,7 @@ func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time
 	tl.Cycle = tld.Cycle
 	tl.FLAGS = tld.FLAGS
 	if err = NextTLInstanceDates(pivot, &tld, &tl); err != nil {
-		return tlid, err
+		return tl, err
 	}
 	tl.EmailList = tld.EmailList
 	tl.DurWait = tld.DurWait
@@ -45,7 +44,7 @@ func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time
 		tl.DurWait = 24 * time.Hour
 	}
 	if err != nil {
-		return tlid, err
+		return tl, err
 	}
 
 	//----------------------------------------------------
@@ -53,22 +52,21 @@ func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time
 	//----------------------------------------------------
 	err = InsertTaskList(ctx, &tl)
 	if err != nil {
-		return tlid, err
+		return tl, err
 	}
-	tlid = tl.TLID
 
 	//----------------------------------------------------
 	// Get the associated tasks...
 	//----------------------------------------------------
 	tds, err := GetTaskListDescriptors(ctx, tld.TLDID)
 	if err != nil {
-		return tlid, err
+		return tl, err
 	}
 
 	for i := 0; i < len(tds); i++ {
 		var t Task
 		if err = NextTaskInstanceDates(pivot, &tld, &tds[i], &t); err != nil {
-			return tlid, err
+			return tl, err
 		}
 		t.Name = tds[i].Name
 		t.Worker = tds[i].Worker
@@ -77,11 +75,11 @@ func CreateTaskListInstance(ctx context.Context, TLDID, PTLID int64, pivot *time
 		t.BID = tld.BID
 
 		if err = InsertTask(ctx, &t); err != nil {
-			return tlid, err
+			return tl, err
 		}
 	}
 
-	return tlid, nil
+	return tl, nil
 }
 
 // NextTLInstanceDates computes the next instance dates after the pivot

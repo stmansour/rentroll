@@ -5,6 +5,22 @@ import (
 	"time"
 )
 
+// LedgerMarkers are records that contain the balance for the associated
+// account at a particulart date/time. These speed up the calculation of
+// an account balance at a particular date/time.
+//
+// LedgerMarkers can be written to the database at any point in time, but
+// by convention, we write them when a financial period is closed.
+//
+// Types of LedgerMarkers:
+//   * Account Balance - there will be a ledger for every account in
+//     the chart of accounts
+//   * Rental Agreement Balance - the balance associated with a rental
+//     agreement for the specific account
+//   * Rentable Balance - the balance associated with a particular
+//     rentable for the specific account
+//
+
 // RemoveLedgerEntries clears out the records in the supplied range provided the range is not closed by a LedgerMarker
 func RemoveLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) error {
 	// Remove the LedgerEntries and the ledgerallocation entries
@@ -315,67 +331,8 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) error
 	return rows.Err()
 }
 
-// // UpdatePayorSubLedgers updates the sub-ledgers by
-// func UpdatePayorSubLedgers(bid int64, d0, d2 *time.Time) {
-// 	funcname := "UpdatePayorSubLedgers"
-// 	var uafPayors = map[int64]int{}
-// 	d := GetDateOfLedgerMarkerOnOrBefore(bid, d0)
-// 	d1 := &d
-// 	Console("%s: d1 = %s\n", funcname, d1.Format(RRDATEFMT4))
-
-// 	// For each Rental Agreement
-// 	rows, err := RRdb.Prepstmt.GetRentalAgreementByBusiness.Query(bid)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var ra RentalAgreement
-// 		err = ReadRentalAgreements(rows, &ra)
-// 		if err != nil {
-// 			Ulog("%s: error reading RentalAgreement: %s\n", funcname, err.Error())
-// 			return
-// 		}
-// 		Console("Rental Agreement: %d\n", ra.RAID)
-
-// 		//----------------------------------------------------------------------
-// 		// Build a list of payors that have unallocated receipts
-// 		//----------------------------------------------------------------------
-// 		m := GetRentalAgreementPayorsInRange(ra.RAID, d1, d2)
-// 		for i := 0; i < len(m); i++ {
-// 			tcid := m[i].TCID
-// 			Console("Payor %d. TCID=%d\n", i, tcid)
-// 			//------------------------------------------------------------------
-// 			// Are there any unallocated funds from this payor?  If so, add the
-// 			// payor to the map
-// 			//------------------------------------------------------------------
-// 			if GetPayorUnallocatedReceiptsCount(ra.BID, tcid) > 0 {
-// 				_, ok := uafPayors[tcid]
-// 				if ok {
-// 					continue
-// 				}
-// 				uafPayors[tcid] = 1
-// 				//-------------------------------------------------------------
-// 				// Compute the amount for the date of this ledger marker.
-// 				// We're not keeping ledger markers for this because all receipts
-// 				// should be consumed over time whenever it comes time to
-// 				// allocate payment. So, simply collect all the receipts that
-// 				// have not been fully allocated
-// 				//-------------------------------------------------------------
-// 			}
-// 		}
-// 	}
-// 	Errcheck(rows.Err())
-// 	// //----------------------------------------------------------------------
-// 	// // uafPayors contains the list of all payors with unallocated receipts
-// 	// //----------------------------------------------------------------------
-// 	// Console("Payors with unallocated funds:  %d\n", len(uafPayors))
-// 	// for k := range uafPayors {
-// 	// 	Console("TCID = %d\n", k)
-// 	// }
-// }
-
 func closeLedgerPeriod(ctx context.Context, xbiz *XBusiness, li *GLAccount, lm *LedgerMarker, dt *time.Time, state int64) error {
 	const funcname = "closeLedgerPeriod"
-
 	bal, err := GetRAAccountBalance(ctx, li.BID, li.LID, 0, dt)
 	if err != nil {
 		return err
@@ -432,15 +389,16 @@ func GenerateLedgerMarkers(ctx context.Context, xbiz *XBusiness, d2 *time.Time) 
 
 // GenerateLedgerEntries creates ledgers records based on the Journal records over the supplied time range.
 func GenerateLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Time) (int, error) {
-	nr := 0
 	// Console("Generate Ledger Records: BID=%d, d1 = %s, d2 = %s\n", xbiz.P.BID, d1.Format(RRDATEFMT4), d2.Format(RRDATEFMT4))
 	// funcname := "GenerateLedgerEntries"
-	err := RemoveLedgerEntries(ctx, xbiz, d1, d2)
-	if err != nil {
+
+	nr := 0
+	if err := RemoveLedgerEntries(ctx, xbiz, d1, d2); err != nil {
 		Ulog("Could not remove existing LedgerEntries from %s to %s. err = %v\n", d1.Format(RRDATEFMT), d2.Format(RRDATEFMT), err)
 		return nr, err
 	}
 	InitLedgerCache()
+
 	//----------------------------------------------------------------------------------
 	// Loop through the Journal records for this time period, update all ledgers...
 	//----------------------------------------------------------------------------------
@@ -452,33 +410,24 @@ func GenerateLedgerEntries(ctx context.Context, xbiz *XBusiness, d1, d2 *time.Ti
 
 	for rows.Next() {
 		var j Journal
-		err = ReadJournals(rows, &j)
-		if err != nil {
+		if err = ReadJournals(rows, &j); err != nil {
 			return nr, err
 		}
-
-		err = GetJournalAllocations(ctx, &j)
-		if err != nil {
+		if err = GetJournalAllocations(ctx, &j); err != nil {
 			return nr, err
 		}
-
 		n, err := GenerateLedgerEntriesFromJournal(ctx, xbiz, &j, d1, d2)
 		if err != nil {
 			return nr, err
 		}
-
 		nr += n
 	}
 
-	err = rows.Err()
-	if err != nil {
+	if err = rows.Err(); err != nil {
 		return nr, err
 	}
-
-	err = GenerateLedgerMarkers(ctx, xbiz, d2)
-	if err != nil {
+	if err = GenerateLedgerMarkers(ctx, xbiz, d2); err != nil {
 		return nr, err
 	}
-
 	return nr, err
 }

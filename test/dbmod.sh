@@ -366,6 +366,10 @@ DBNAME="rentroll"
 #     PRIMARY KEY (CPID)
 # );
 
+# Jun 1, 2018
+# ALTER TABLE RentalAgreementRentables ADD PRID BIGINT NOT NULL DEFAULT 0 AFTER RID;
+# ALTER TABLE RentableTypes DROP COLUMN ManageToBudget;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
@@ -399,7 +403,7 @@ declare -a dbs=(
 for f in "${dbs[@]}"
 do
     if [ -f ${f} ]; then
-    	echo "DROP DATABASE IF EXIST ${DBNAME}; create database rentroll"
+    	echo "DROP DATABASE IF EXISTS ${DBNAME}; create database rentroll"
 		echo -n "${f}: loading... "
 		${MYSQL} ${DBNAME} < ${f}
 		echo -n "updating... "

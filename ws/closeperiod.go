@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
@@ -12,23 +13,6 @@ import (
 //-------------------------------------------------------------------
 
 // no search area here because there is no main grid
-
-//-------------------------------------------------------------------
-//                         **** SAVE ****
-//-------------------------------------------------------------------
-
-// The "button" in the UI in this case is
-// pressed to close a period
-
-// SaveClosePeriod is the response to a GetTask request
-type SaveClosePeriod struct {
-	Cmd    string   `json:"status"`
-	Record FormTask `json:"record"`
-}
-
-//-------------------------------------------------------------------
-//                         **** GET ****
-//-------------------------------------------------------------------
 
 // FormClosePeriod holds the data needed for the Close Period screen
 type FormClosePeriod struct {
@@ -45,6 +29,23 @@ type FormClosePeriod struct {
 	DtDoneTarget     rlib.JSONDateTime // done date of TLIDTarget
 	DtDone           rlib.JSONDateTime // done date of first period that has not been closed
 }
+
+//-------------------------------------------------------------------
+//                         **** SAVE ****
+//-------------------------------------------------------------------
+
+// The "button" in the UI in this case is
+// pressed to close a period
+
+// SaveClosePeriod is the response to a GetTask request
+type SaveClosePeriod struct {
+	Cmd    string          `json:"cmd"`
+	Record FormClosePeriod `json:"record"`
+}
+
+//-------------------------------------------------------------------
+//                         **** GET ****
+//-------------------------------------------------------------------
 
 // GetClosePeriodResponse is the response to a GetClosePeriod request
 type GetClosePeriodResponse struct {
@@ -67,7 +68,7 @@ func SvcHandlerClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceDat
 	const funcname = "SvcHandlerClosePeriod"
 
 	rlib.Console("Entered %s\n", funcname)
-	rlib.Console("Request: %s:  BID = %d,  TDID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
+	rlib.Console("Request: %s:  BID = %d,  d.ID = %d\n", d.wsSearchReq.Cmd, d.BID, d.ID)
 
 	switch d.wsSearchReq.Cmd {
 	case "get":
@@ -91,12 +92,93 @@ func SvcHandlerClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceDat
 //	@Synopsis Update ClosePeriod information
 //  @Description This service attempts to close the oldest unclosed period
 //  @Description after performing a myriad of tests
-//	@Input ClosePeriod
+//	@Input FormClosePeriod
 //  @Response SvcStatusResponse
 // wsdoc }
 //-----------------------------------------------------------------------------
 func saveClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	// funcname := "saveClosePeriod"
+	funcname := "saveClosePeriod"
+	var xbiz rlib.XBusiness
+	var foo SaveClosePeriod
+	data := []byte(d.data)
+
+	err := json.Unmarshal(data, &foo)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//------------------------------------
+	//  Get business info...
+	//------------------------------------
+	if err = rlib.GetXBusiness(r.Context(), d.BID, &xbiz); err != nil {
+		rlib.Console("B\n")
+		e := fmt.Errorf("%s: Error getting business %d: %s", funcname, d.BID, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+	//-------------------------------------------------
+	// Get the close date from the
+	// tasklist associated with this close...
+	//-------------------------------------------------
+	rlib.Console("TaskList: TLID = %d\n", foo.Record.TLIDTarget)
+	tl, err := rlib.GetTaskList(r.Context(), foo.Record.TLIDTarget)
+	if err != nil {
+		e := fmt.Errorf("%s: Error getting TaskList %d: %s", funcname, foo.Record.TLIDTarget, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	if err = rlib.InitBizInternals(d.BID, &xbiz); err != nil {
+		e := fmt.Errorf("%s: Error InitBizInternals BID = %d: %s", funcname, d.BID, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+	//-------------------------------------------------------------
+	// TRANSACTION:
+	//    1 - write the ClosePeriod entry
+	//    2 - Write the LedgerMarkers on the tasklist due date...
+	//-------------------------------------------------------------
+	tx, ctx, err := rlib.NewTransactionWithContext(r.Context())
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//-------------------------------------------------------------
+	//  Close Period...
+	//-------------------------------------------------------------
+	var cp rlib.ClosePeriod
+	cp.TLID = foo.Record.TLIDTarget
+	cp.BID = d.BID
+	cp.Dt = tl.DtDue
+	_, err = rlib.InsertClosePeriod(ctx, &cp)
+	if err != nil {
+		tx.Rollback()
+		e := fmt.Errorf("%s: Error writing ClosePeriod: %s", funcname, err.Error())
+		SvcErrorReturn(w, e, funcname)
+		return
+	}
+
+	//-------------------------------------------------------------
+	//  Generate Ledger Markers...
+	//-------------------------------------------------------------
+	if err = rlib.GenerateLedgerMarkers(ctx, &xbiz, &tl.DtDue); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	//-------------------------------------------------------------
+	// COMMIT TRANSACTION
+	//-------------------------------------------------------------
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	SvcWriteSuccessResponse(d.BID, w)
 }
 
 // GetClosePeriod returns the requested ClosePeriod
@@ -150,24 +232,35 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	if lcp.CPID > 0 {
+		//----------------------------------------------
+		//  Get the TaskList for the last closed period
+		//----------------------------------------------
 		g.Record.LastDtClose = rlib.JSONDateTime(lcp.Dt)
-		rlib.Console("F - got LastClosePeriod:  CPID = %d\n", lcp.CPID)
-	}
-
-	//----------------------------------------------
-	//  Get the TaskList for the last closed period
-	//----------------------------------------------
-	if lcp.CPID > 0 {
+		rlib.Console("C1 - got LastClosePeriod:  CPID = %d\n", lcp.CPID)
 		tl, err = rlib.GetTaskList(r.Context(), lcp.TLID)
 		if err != nil {
 			rlib.Console("D\n")
-			e := fmt.Errorf("%s: Error getting close period tasklist %d: %s", funcname, xbiz.P.ClosePeriodTLID, err.Error())
+			e := fmt.Errorf("%s: Error getting close period tasklist %d: %s", funcname, lcp.TLID, err.Error())
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
 		rlib.Console("E - last completed tasklist: TLID = %d\n", tl.TLID)
 		g.Record.TLName = tl.Name
 		g.Record.LastDtDone = rlib.JSONDateTime(tl.DtDone)
+	} else {
+		//----------------------------------------------------------------
+		// no entries yet.  So our target date needs to be the due date
+		// of the task list associated with the business.
+		//----------------------------------------------------------------
+		tlNext, err = rlib.GetTaskList(r.Context(), g.Record.TLID)
+		if err != nil {
+			rlib.Console("F\n")
+			e := fmt.Errorf("%s: Error getting close period tasklist %d: %s", funcname, g.Record.TLID, err.Error())
+			SvcErrorReturn(w, e, funcname)
+			return
+		}
+		g.Record.TLName = tlNext.Name
+		g.Record.CloseTarget = rlib.JSONDateTime(tlNext.DtDue)
 	}
 
 	//-------------------------------------------------------------------------
@@ -175,7 +268,7 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// that we have closed at least one period. If not, it means no periods
 	// have ever been closed.
 	//-------------------------------------------------------------------------
-	if tl.TLID > 0 {
+	if tl.TLID > 0 && lcp.CPID > 0 && xbiz.P.ClosePeriodTLID > 0 {
 		//---------------------------------------------------------------------
 		// We have already closed a period.  Just figure out the next instance.
 		//---------------------------------------------------------------------
@@ -194,20 +287,11 @@ func getClosePeriod(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, e, funcname)
 			return
 		}
-	} else {
-		//---------------------------------------------------------------------
-		// We have never closed a period.  So, the TLID stored as the TaskList
-		// for the business is the instance we're looking for.
-		//---------------------------------------------------------------------
-		tlNext, err = rlib.GetTaskList(r.Context(), xbiz.P.ClosePeriodTLID)
-		if err != nil {
-			e := fmt.Errorf("%s: Error getting target TaskList instance: %s", funcname, err.Error())
-			SvcErrorReturn(w, e, funcname)
-			return
-		}
 	}
 
-	// rlib.Console("tlNext.TLID = %d\n", tlNext.TLID)
+	//--------------------------------------------------------
+	// Return basic info on next instance if we have it...
+	//--------------------------------------------------------
 	if tlNext.TLID > 0 { // did we find the next instance?
 		g.Record.TLIDTarget = tlNext.TLID
 		g.Record.TLNameTarget = tlNext.Name

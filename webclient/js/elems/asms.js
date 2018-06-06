@@ -708,7 +708,7 @@ window.buildAssessmentElements = function () {
                 var r = f.record;
 
                 // if PASMID is 0 then return
-                if (r.PASMID == 0) {
+                if (r.PASMID === 0) {
                     return;
                 }
 

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dustin/go-humanize"
+	humanize "github.com/dustin/go-humanize"
 )
 
 // RRCommaf returns a floating point number formated with commas for every 3 orders of magnitude
