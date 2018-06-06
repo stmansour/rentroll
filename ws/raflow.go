@@ -190,27 +190,27 @@ type RAParentChildFlowData struct {
 
 // RATieFlowData contains data in the tie part of RA flow
 type RATieFlowData struct {
-	Pets     []RAPetsTieData     `json:"pets"`
-	Vehicles []RAVehiclesTieData `json:"vehicles"`
-	People   []RAPeopleTieData   `json:"people"`
+	Pets     []RATiePetsData     `json:"pets"`
+	Vehicles []RATieVehiclesData `json:"vehicles"`
+	People   []RATiePeopleData   `json:"people"`
 }
 
-// RAPetsTieData holds data from tie section for a pet to a rentable
-type RAPetsTieData struct {
+// RATiePetsData holds data from tie section for a pet to a rentable
+type RATiePetsData struct {
 	BID      int64
 	PRID     int64
 	TMPREFID int64 // reference to pet record ID stored temporarily
 }
 
-// RAVehiclesTieData holds data from tie section for a vehicle to a rentable
-type RAVehiclesTieData struct {
+// RATieVehiclesData holds data from tie section for a vehicle to a rentable
+type RATieVehiclesData struct {
 	BID      int64
 	PRID     int64
 	TMPREFID int64 // reference to vehicle record ID in json
 }
 
-// RAPeopleTieData holds data from tie section for a payor to a rentable
-type RAPeopleTieData struct {
+// RATiePeopleData holds data from tie section for a payor to a rentable
+type RATiePeopleData struct {
 	BID      int64
 	PRID     int64
 	TMPREFID int64 // user's temp json record reference id
@@ -278,6 +278,15 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
+
+			// auto assign TMPID
+			for i := range a {
+				if a[i].TMPID == 0 { // if zero then assign new from last saved ID
+					raFlowData.Meta.PeopleLastTMPID++
+					a[i].TMPID = raFlowData.Meta.PeopleLastTMPID
+				}
+			}
+
 			if err != nil {
 				// if it's an error then return with nil data
 				return modMetaData, modFlowPartData, err
@@ -389,13 +398,13 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 			// check for each sliced data field
 			// if it's blank then initialize it
 			if len(a.Pets) == 0 {
-				a.Pets = []RAPetsTieData{}
+				a.Pets = []RATiePetsData{}
 			}
 			if len(a.Vehicles) == 0 {
-				a.Vehicles = []RAVehiclesTieData{}
+				a.Vehicles = []RATieVehiclesData{}
 			}
 			if len(a.People) == 0 {
-				a.People = []RAPeopleTieData{}
+				a.People = []RATiePeopleData{}
 			}
 
 			if err != nil {
@@ -457,9 +466,9 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Rentables:   []RARentablesFlowData{},
 		ParentChild: []RAParentChildFlowData{},
 		Tie: RATieFlowData{
-			Pets:     []RAPetsTieData{},
-			Vehicles: []RAVehiclesTieData{},
-			People:   []RAPeopleTieData{},
+			Pets:     []RATiePetsData{},
+			Vehicles: []RATieVehiclesData{},
+			People:   []RATiePeopleData{},
 		},
 	}
 
