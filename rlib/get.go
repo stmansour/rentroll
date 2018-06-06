@@ -2282,7 +2282,7 @@ func getJournalAllocationRows(ctx context.Context, rows *sql.Rows) ([]JournalAll
 //  L E D G E R   M A R K E R
 //=======================================================
 
-// GetLatestLedgerMarkerByLID returns the LedgerMarker struct for the GLAccount with the supplied LID
+// GetLatestLedgerMarkerByLID returns the latest LedgerMarker struct for the GLAccount with the supplied LID
 func GetLatestLedgerMarkerByLID(ctx context.Context, bid, lid int64) (LedgerMarker, error) {
 
 	var (
@@ -2814,6 +2814,8 @@ func GetAllLedgerMarkersOnOrBefore(ctx context.Context, bid int64, dt *time.Time
 
 	return t, rows.Err()
 }*/
+
+
 
 //=======================================================
 //  L E D G E R

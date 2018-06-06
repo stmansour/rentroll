@@ -409,12 +409,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 		pivot := time.Time(foo.Record.Pivot)
-		tlid, err := rlib.CreateTaskListInstance(r.Context(), foo.Record.TLDID, 0 /*PTLID must be 0 here*/, &pivot)
-		if err != nil {
-			SvcErrorReturn(w, err, funcname)
-			return
-		}
-		tl, err := rlib.GetTaskList(r.Context(), tlid)
+		tl, err := rlib.CreateTaskListInstance(r.Context(), foo.Record.TLDID, 0 /*PTLID must be 0 here*/, &pivot)
 		if err != nil {
 			SvcErrorReturn(w, err, funcname)
 			return
@@ -425,7 +420,7 @@ func saveTaskList(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-		a.TLID = tlid // ensure that the return value is correct
+		a.TLID = tl.TLID // ensure that the return value is correct
 	} else {
 		if foo.Record.ChkDtPreDone {
 			a.DtPreDone = now

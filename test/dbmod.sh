@@ -403,7 +403,7 @@ declare -a dbs=(
 for f in "${dbs[@]}"
 do
     if [ -f ${f} ]; then
-    	echo "DROP DATABASE IF EXIST ${DBNAME}; create database rentroll"
+    	echo "DROP DATABASE IF EXISTS ${DBNAME}; create database rentroll"
 		echo -n "${f}: loading... "
 		${MYSQL} ${DBNAME} < ${f}
 		echo -n "updating... "

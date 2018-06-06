@@ -210,20 +210,12 @@ func TaskEmail(bid int64, ea string) {
 	//----------------------------------------------
 	// Now, create an instance of this task list.
 	//----------------------------------------------
-	tlid, err := rlib.CreateTaskListInstance(ctx, tldef.TLDID, 0, &now)
+	tl, err := rlib.CreateTaskListInstance(ctx, tldef.TLDID, 0, &now)
 	if err != nil {
 		rlib.LogAndPrint("CreateTaskListInstance:  error = %s\n", err.Error())
 		return
 	}
 
-	//----------------------------------------------
-	// Now, create an instance of this task list.
-	//----------------------------------------------
-	tl, err := rlib.GetTaskList(ctx, tlid)
-	if err != nil {
-		rlib.LogAndPrint("rlib.InsertTaskDescriptor: error = %s\n", err.Error())
-		return
-	}
 	rlib.Console("Created tasklist %d\n", tl.TLID)
 	m, err := rlib.GetTasks(ctx, tl.TLID)
 	if err != nil {
