@@ -4,7 +4,8 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
-    getVehicleFormInitalRecord
+    getVehicleFormInitalRecord, setVehicleLocalData, getVehicleLocalData,
+    ReassignVehiclesGridRecords, saveVehiclesCompData
 */
 
 "use strict";
@@ -12,34 +13,36 @@
 // -------------------------------------------------------------------------------
 // Rental Agreement - Vehicles Grid
 // -------------------------------------------------------------------------------
-window.getVehicleFormInitalRecord = function (BID, BUD, previousFormRecord) {
+window.getVehicleFormInitalRecord = function (previousFormRecord) {
+    var BID = getCurrentBID();
+
     var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     var defaultFormData = {
-        recid: 0,
-        VID: 0,
-        BID: BID,
-        TCID: 0,
-        VIN: "",
-        Type: "",
-        Make: "",
-        Model: "",
-        Color: "",
-        LicensePlateState: "",
-        LicensePlateNumber: "",
-        ParkingPermitNumber: "",
-        ParkingPermitFee: 0,
-        DtStart: w2uiDateControlString(t),
-        DtStop: w2uiDateControlString(nyd)
+        recid:                  0,
+        TMPID:                  0,
+        VID:                    0,
+        BID:                    BID,
+        TCID:                   0,
+        VIN:                    "",
+        Type:                   "",
+        Make:                   "",
+        Model:                  "",
+        Color:                  "",
+        LicensePlateState:      "",
+        LicensePlateNumber:     "",
+        ParkingPermitNumber:    "",
+        ParkingPermitFee:       0,
+        DtStart:                w2uiDateControlString(t),
+        DtStop:                 w2uiDateControlString(nyd)
     };
 
     // if it called after 'save and add another' action there previous form record is passed as Object
     // else it is null
     if ( previousFormRecord ) {
         defaultFormData = setDefaultFormFieldAsPreviousRecord(
-            [ 'Type', 'Make', 'Model', 'Color', 'Year', 'LicensePlateState', 'LicensePlateNumber', 'VIN',
-                'ParkingPermitNumber', 'ParkingPermitFee'], // Fields to Reset
+            ['*'], // Fields to Reset
             defaultFormData,
             previousFormRecord
         );
@@ -72,28 +75,29 @@ window.loadRAVehiclesGrid = function () {
                 }
             },
             fields  : [
-                { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'Type', type: 'text', required: true},
-                { field: 'Make', type: 'text', required: true},
-                { field: 'Model', type: 'text', required: true},
-                { field: 'Color', type: 'text', required: true},
-                { field: 'Year', type: 'text', required: true},
-                { field: 'LicensePlateState', type: 'text', required: true},
-                { field: 'LicensePlateNumber', type: 'text', required: true},
-                { field: 'VIN', type: 'text', required: true},
-                { field: 'ParkingPermitNumber', type: 'text', required: true},
-                { field: 'ParkingPermitFee', type: 'money', required: true},
-                { field: 'DtStart', type: 'date', required: false, html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop', type: 'date', required: false, html: { caption: 'DtStop', page: 0, column: 0 } },
-                { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-                { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+                { field: 'recid',               type: 'int',    required: false, html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'TMPID',               type: 'int',    required: true  },
+                { field: 'Type',                type: 'text',   required: true  },
+                { field: 'Make',                type: 'text',   required: true  },
+                { field: 'Model',               type: 'text',   required: true  },
+                { field: 'Color',               type: 'text',   required: true  },
+                { field: 'Year',                type: 'text',   required: true  },
+                { field: 'LicensePlateState',   type: 'text',   required: true  },
+                { field: 'LicensePlateNumber',  type: 'text',   required: true  },
+                { field: 'VIN',                 type: 'text',   required: true  },
+                { field: 'ParkingPermitNumber', type: 'text',   required: true  },
+                { field: 'ParkingPermitFee',    type: 'money',  required: true  },
+                { field: 'DtStart',             type: 'date',   required: false, html: { caption: 'DtStart', page: 0, column: 0 } },
+                { field: 'DtStop',              type: 'date',   required: false, html: { caption: 'DtStop', page: 0, column: 0 } },
+                { field: 'LastModTime',         type: 'time',   required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
+                { field: 'LastModBy',           type: 'int',    required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
             onRefresh: function(event) {
                 event.onComplete = function() {
                     var f = w2ui.RAVehicleForm,
                         header = "Edit Rental Agreement Vehicles ({0})";
 
-                    // there is NO PETID actually, so have to work around with recid key
+                    // there is NO VID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid", header);
 
                     // hide delete button if it is NewRecord
@@ -105,134 +109,121 @@ window.loadRAVehiclesGrid = function () {
                     }
                 };
             },
-            actions : {
+            actions: {
+                reset: function () {
+                    w2ui.RAVehicleForm.clear();
+                },
                 save: function () {
-                    var form = this;
-                    var grid = w2ui.RAVehiclesGrid;
-                    var errors = form.validate();
-                    if (errors.length > 0) return;
-                    var record = $.extend(true, { recid: grid.records.length + 1 }, form.record);
-                    var recordsData = $.extend(true, [], grid.records);
-                    var isNewRecord = (grid.get(record.recid, true) === null);
+                    var f =     w2ui.RAVehicleForm,
+                        grid =  w2ui.RAVehiclesGrid,
+                        TMPID = f.record.TMPID;
 
-                    // if it doesn't exist then only push
-                    if (isNewRecord) {
-                        recordsData.push(record);
-                    }
+                    // validate form record
+                    var errors = f.validate();
+                    if (errors.length > 0) return;
+
+                    // sync this info in local data
+                    var vehicleData = getFormSubmitData(f.record, true);
+
+                    // set data locally
+                    setVehicleLocalData(TMPID, vehicleData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, "vehicles")
-                        .done(function(data) {
-                            if (data.status === 'success') {
-                                // if null
-                                if(isNewRecord) {
-                                    grid.add(record);
-                                }else {
-                                    grid.set(record.recid, record);
-                                }
-                                form.clear();
+                    saveVehiclesCompData()
+                    .done(function(data) {
+                        if (data.status === 'success') {
+                            // re-assign records in grid
+                            ReassignVehiclesGridRecords();
 
-                                // Disable "have vehicles?" checkbox if there is any record.
-                                toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+                            // reset the form
+                            f.actions.reset();
 
-                                // close the form
-                                hideSliderContent();
-                            } else {
-                                form.message(data.message);
-                            }
-                        })
-                        .fail(function(data) {
-                            console.log("failure " + data);
-                        });
+                            // Disable "have vehicles?" checkbox if there is any record.
+                            toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+
+                            // close the form
+                            hideSliderContent();
+                        } else {
+                            f.message(data.message);
+                        }
+                    })
+                    .fail(function(data) {
+                        console.log("failure " + data);
+                    });
                 },
                 saveadd: function () {
-                    var BID = getCurrentBID(),
-                        BUD = getBUDfromBID(BID);
+                    var f =     w2ui.RAVehicleForm,
+                        grid =  w2ui.RAVehiclesGrid,
+                        TMPID = f.record.TMPID;
 
-                    var form = this;
-                    var grid = w2ui.RAVehiclesGrid;
-                    var errors = form.validate();
+                    // validate the form first
+                    var errors = f.validate();
                     if (errors.length > 0) return;
-                    var record = $.extend(true, { recid: grid.records.length + 1 }, form.record);
-                    var recordsData = $.extend(true, [], grid.records);
-                    var isNewRecord = (grid.get(record.recid, true) === null);
 
-                    if (isNewRecord) {
-                        recordsData.push(record);
-                    }
+
+                    // sync this info in local data
+                    var vehicleData = getFormSubmitData(f.record, true);
+
+                    // set data locally
+                    setVehicleLocalData(TMPID, vehicleData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, "vehicles")
-                        .done(function(data) {
-                            if (data.status === 'success') {
-                                // clear the grid select recid
-                                app.last.grid_sel_recid  = -1;
-                                // selectNone
-                                grid.selectNone();
+                    saveVehiclesCompData()
+                    .done(function(data) {
+                        if (data.status === 'success') {
+                            // reset form
+                            f.actions.reset();
+                            f.record = getVehicleFormInitalRecord(f.record);
+                            f.record.recid =grid.records.length + 1;
+                            f.refresh();
+                            f.refresh();
 
-                                if (isNewRecord) {
-                                    grid.add(record);
-                                } else {
-                                    grid.set(record.recid, record);
-                                }
-                                form.record = getVehicleFormInitalRecord(BID, BUD, form.record);
-                                form.record.recid =grid.records.length + 1;
-                                form.refresh();
-                                form.refresh();
-                            } else {
-                                form.message(data.message);
-                            }
-                        })
-                        .fail(function(data) {
-                            console.log("failure " + data);
-                        });
+                            // re-assign records in grid
+                            ReassignVehiclesGridRecords();
+                        } else {
+                            f.message(data.message);
+                        }
+                    })
+                    .fail(function(data) {
+                        console.log("failure " + data);
+                    });
                 },
                 delete: function () {
-                    var form = this;
-                    var grid = w2ui.RAVehiclesGrid;
+                    var f = w2ui.RAVehicleForm;
 
-                    // backup the records
-                    var records = $.extend(true, [], grid.records);
-                    for (var i = 0; i < records.length; i++) {
-                        if(records[i].recid == form.record.recid) {
-                            records.splice(i, 1);
-                        }
-                    }
+                    // get local data from TMPID
+                    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+                    var itemIndex = getVehicleLocalData(f.record.TMPID, true);
+                    compData.splice(itemIndex, 1);
 
                     // save this records in json Data
-                    saveActiveCompData(records, "vehicles")
-                        .done(function(data) {
-                            if (data.status === 'success') {
-                                // clear the grid select recid
-                                app.last.grid_sel_recid  =-1;
-                                // selectNone
-                                grid.selectNone();
+                    saveVehiclesCompData()
+                    .done(function(data) {
+                        if (data.status === 'success') {
+                            // reset form
+                            f.actions.reset();
 
-                                grid.remove(form.record.recid);
-                                form.clear();
+                            // Disable "have vehicles?" checkbox if there is any record.
+                            toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
-                                // Disable "have vehicles?" checkbox if there is any record.
-                                toggleHaveCheckBoxDisablity('RAVehiclesGrid');
+                            // re-assign records in grid
+                            ReassignVehiclesGridRecords();
 
-                                // need to refresh the grid as it will re-assign new recid
-                                reassignGridRecids(grid.name);
-
-                                // close the form
-                                hideSliderContent();
-                            } else {
-                                form.message(data.message);
-                            }
-                        })
-                        .fail(function(data) {
-                            console.log("failure " + data);
-                        });
-
+                            // close the form
+                            hideSliderContent();
+                        } else {
+                            f.message(data.message);
+                        }
+                    })
+                    .fail(function(data) {
+                        console.log("failure " + data);
+                    });
                 }
             }
         });
@@ -255,6 +246,10 @@ window.loadRAVehiclesGrid = function () {
             columns : [
                 {
                     field: 'recid',
+                    hidden: true
+                },
+                {
+                    field: 'TMPID',
                     hidden: true
                 },
                 {
@@ -293,6 +288,11 @@ window.loadRAVehiclesGrid = function () {
                 {
                     field: 'Color',
                     caption: 'Color',
+                    size: '80px'
+                },
+                {
+                    field: 'Year',
+                    caption: 'Year',
                     size: '80px'
                 },
                 {
@@ -373,10 +373,7 @@ window.loadRAVehiclesGrid = function () {
                         app.last.grid_sel_recid = -1;
                         grid.selectNone();
 
-                        var BID = getCurrentBID(),
-                            BUD = getBUDfromBID(BID);
-
-                        w2ui.RAVehicleForm.record = getVehicleFormInitalRecord(BID, BUD, null);
+                        w2ui.RAVehicleForm.record = getVehicleFormInitalRecord(null);
                         w2ui.RAVehicleForm.record.recid = w2ui.RAVehiclesGrid.records.length + 1;
                         showSliderContentW2UIComp(w2ui.RAVehicleForm, RACompConfig.vehicles.sliderWidth);
                         w2ui.RAVehicleForm.refresh();
@@ -393,17 +390,89 @@ window.loadRAVehiclesGrid = function () {
 
     // load the existing data in vehicles component
     setTimeout(function () {
-        var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
-        var grid = w2ui.RAVehiclesGrid;
-
-        if (compData) {
-            grid.records = compData;
-            reassignGridRecids(grid.name);
-
-            // lock the grid until "Have vehicles?" checkbox checked.
-            lockOnGrid(grid.name);
-        } else {
-            grid.clear();
-        }
+        // assign grid records
+        ReassignVehiclesGridRecords();
     }, 500);
 };
+
+//-----------------------------------------------------------------------------
+// getVehicleLocalData - returns the clone of vehicle data for requested TMPID
+//-----------------------------------------------------------------------------
+window.getVehicleLocalData = function(TMPID, returnIndex) {
+    var cloneData = {};
+    var foundIndex = -1;
+    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+    compData.forEach(function(item, index) {
+        if (item.TMPID == TMPID) {
+            if (returnIndex) {
+                foundIndex = index;
+            } else {
+                cloneData = $.extend(true, {}, item);
+            }
+            return false;
+        }
+    });
+    if (returnIndex) {
+        return foundIndex;
+    }
+    return cloneData;
+};
+
+
+//-----------------------------------------------------------------------------
+// setVehicleLocalData - save the data for requested a TMPID in local data
+//-----------------------------------------------------------------------------
+window.setVehicleLocalData = function(TMPID, vehicleData) {
+    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+    var dataIndex = -1;
+    compData.forEach(function(item, index) {
+        if (item.TMPID == TMPID) {
+            dataIndex = index;
+            return false;
+        }
+    });
+    if (dataIndex > -1) {
+        compData[dataIndex] = vehicleData;
+    } else {
+        compData.push(vehicleData);
+    }
+};
+
+//-----------------------------------------------------------------------------
+// ReassignVehiclesGridRecords - will set the vehicles grid records from local
+//                               copy of flow data again
+//-----------------------------------------------------------------------------
+window.ReassignVehiclesGridRecords = function() {
+    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
+    var grid = w2ui.RAVehiclesGrid;
+
+    // reset last sel recid
+    app.last.grid_sel_recid  =-1;
+    // select none
+    grid.selectNone();
+
+    if (compData) {
+        grid.records = compData;
+        reassignGridRecids(grid.name);
+
+        // lock the grid until "Have vehicles?" checkbox checked.
+        lockOnGrid(grid.name);
+
+        // Operation on RAVehicleForm
+        w2ui.RAVehicleForm.refresh();
+    } else {
+        // clear the grid
+        grid.clear();
+        // Operation on RAVehicleForm
+        w2ui.RAVehicleForm.actions.reset();
+    }
+};
+
+//------------------------------------------------------------------------------
+// saveVehiclesCompData - saves the data on server side
+//------------------------------------------------------------------------------
+window.saveVehiclesCompData = function() {
+    var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
+    return saveActiveCompData(compData, "vehicles");
+};
+

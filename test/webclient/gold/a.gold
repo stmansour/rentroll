@@ -1,124 +1,610 @@
-  (Tests Starting)
-(node:15337) Warning: Possible EventEmitter memory leak detected. 11 close listeners added. Use emitter.setMaxListeners() to increase limit
+
+This project has been configured to record runs on our Dashboard.
+
+It currently has the projectId: supa6j
+
+You also provided your Record Key, but you did not pass the --record flag.
+
+This run will not be recorded.
+
+If you meant to have this run recorded please additionally pass this flag.
+
+  cypress run --record
+
+If you don't want to record these runs, you can silence this warning:
+
+  cypress run --record false
+
+https://on.cypress.io/recording-project-runs
+
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:    3.0.1                                                                              │
+  │ Browser:    Electron 59 (headless)                                                             │
+  │ Specs:      18 found (receipt_1_login_spec.js, receipt_2_spec.js, roller_1_login_spec.js, rol… │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: receipt_1_login_spec.js...                                                     (1 of 18) 
 
 
   AIR Receipt UI Tests - Login
-    ✓ Assert the title of Roller application (6322ms)
+    ✓ Assert the title of Roller application (5895ms)
     ✓ Login into AIR Receipt Application (3374ms)
-    ✓ Check Basic Layout
+    ✓ Check Basic Layout (155ms)
+
+
+  3 passing (13s)
+
+
+  (Results)
+
+  ┌───────────────────────────────────────┐
+  │ Tests:        3                       │
+  │ Passing:      3                       │
+  │ Failing:      0                       │
+  │ Pending:      0                       │
+  │ Skipped:      0                       │
+  │ Screenshots:  0                       │
+  │ Video:        false                   │
+  │ Duration:     13 seconds              │
+  │ Spec Ran:     receipt_1_login_spec.js │
+  └───────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: receipt_2_spec.js...                                                           (2 of 18) 
+
 
   AIR Receipt UI Tests - Tendered Receipt Payment
-    ✓ Change business to REX (304ms)
-    ✓ CSV and Print button in toolbar (43ms)
-    ✓ Grid Records (9801ms)
+    ✓ Change business to REX (21858ms)
+    ✓ CSV and Print button in toolbar (159ms)
+    ✓ Grid Records (9254ms)
     ✓ Record Detail Form
-    ✓ Check default value of fields for new record form
+    ✓ Check default value of fields for new record form (77ms)
+
+
+  5 passing (34s)
+
+
+  (Results)
+
+  ┌─────────────────────────────────┐
+  │ Tests:        5                 │
+  │ Passing:      5                 │
+  │ Failing:      0                 │
+  │ Pending:      0                 │
+  │ Skipped:      0                 │
+  │ Screenshots:  0                 │
+  │ Video:        false             │
+  │ Duration:     34 seconds        │
+  │ Spec Ran:     receipt_2_spec.js │
+  └─────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_1_login_spec.js...                                                      (3 of 18) 
+
 
   AIR Roller UI Tests - Login
-    ✓ Assert the title of Roller application (4498ms)
-    ✓ Login into AIR Roller Application (3085ms)
-    ✓ Check Basic Layout
+    ✓ Assert the title of Roller application (5351ms)
+    ✓ Login into AIR Roller Application (3190ms)
+    ✓ Check Basic Layout (131ms)
+
+
+  3 passing (11s)
+
+
+  (Results)
+
+  ┌──────────────────────────────────────┐
+  │ Tests:        3                      │
+  │ Passing:      3                      │
+  │ Failing:      0                      │
+  │ Pending:      0                      │
+  │ Skipped:      0                      │
+  │ Screenshots:  0                      │
+  │ Video:        false                  │
+  │ Duration:     10 seconds             │
+  │ Spec Ran:     roller_1_login_spec.js │
+  └──────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_10_deposits_spec.js...                                                  (4 of 18) 
+
 
   AIR Roller UI Tests - Expenses
-    ✓ Change business to REX (307ms)
-    ✓ Grid Records (2795ms)
-    ✓ Record Detail Form (10677ms)
-    ✓ Check default value of fields for new record form (5627ms)
+    ✓ Change business to REX (19267ms)
+    ✓ Grid Records (2812ms)
+    ✓ Record Detail Form (10700ms)
+    ✓ Check default value of fields for new record form (5788ms)
+
+
+  4 passing (42s)
+
+
+  (Results)
+
+  ┌──────────────────────────────────────────┐
+  │ Tests:        4                          │
+  │ Passing:      4                          │
+  │ Failing:      0                          │
+  │ Pending:      0                          │
+  │ Skipped:      0                          │
+  │ Screenshots:  0                          │
+  │ Video:        false                      │
+  │ Duration:     42 seconds                 │
+  │ Spec Ran:     roller_10_deposits_spec.js │
+  └──────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_11_applyreceipt_spec.js...                                              (5 of 18) 
+
 
   AIR Roller UI Tests - Apply Receipt
-    ✓ Change business to REX (332ms)
-    ✓ Grid Records (2430ms)
-    ✓ Record Detail Form (13407ms)
+    ✓ Change business to REX (6480ms)
+    ✓ Grid Records (2638ms)
+    ✓ Record Detail Form (15179ms)
+
+
+  3 passing (27s)
+
+
+  (Results)
+
+  ┌──────────────────────────────────────────────┐
+  │ Tests:        3                              │
+  │ Passing:      3                              │
+  │ Failing:      0                              │
+  │ Pending:      0                              │
+  │ Skipped:      0                              │
+  │ Screenshots:  0                              │
+  │ Video:        false                          │
+  │ Duration:     26 seconds                     │
+  │ Spec Ran:     roller_11_applyreceipt_spec.js │
+  └──────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_12_rentabletypes_spec.js...                                             (6 of 18) 
+
 
   AIR Roller UI Tests - Rentable Types
-    ✓ Change business to REX (297ms)
-    ✓ Grid Records (5835ms)
-    ✓ Record Detail Form (11518ms)
-    ✓ Check default value of fields for new record form (5564ms)
+    ✓ Change business to REX (18370ms)
+    ✓ Grid Records (6124ms)
+    ✓ Record Detail Form (6110ms)
+    ✓ Check default value of fields for new record form (5722ms)
+
+
+  4 passing (39s)
+
+
+  (Results)
+
+  ┌───────────────────────────────────────────────┐
+  │ Tests:        4                               │
+  │ Passing:      4                               │
+  │ Failing:      0                               │
+  │ Pending:      0                               │
+  │ Skipped:      0                               │
+  │ Screenshots:  0                               │
+  │ Video:        false                           │
+  │ Duration:     39 seconds                      │
+  │ Spec Ran:     roller_12_rentabletypes_spec.js │
+  └───────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_13_rentable_spec.js...                                                  (7 of 18) 
+
 
   AIR Roller UI Tests - Rentables
-    ✓ Change business to REX (397ms)
-    ✓ Grid Records (6352ms)
-    ✓ Record Detail Form (16591ms)
-    ✓ Check default value of fields for new record form (5112ms)
+    ✓ Change business to REX (18309ms)
+    ✓ Grid Records (8149ms)
+    ✓ Record Detail Form (16898ms)
+    ✓ Check default value of fields for new record form (5186ms)
+
+
+  4 passing (51s)
+
+
+  (Results)
+
+  ┌──────────────────────────────────────────┐
+  │ Tests:        4                          │
+  │ Passing:      4                          │
+  │ Failing:      0                          │
+  │ Pending:      0                          │
+  │ Skipped:      0                          │
+  │ Screenshots:  0                          │
+  │ Video:        false                      │
+  │ Duration:     51 seconds                 │
+  │ Spec Ran:     roller_13_rentable_spec.js │
+  └──────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_14_rentroll_spec.js...                                                  (8 of 18) 
+
 
   AIR Roller UI Tests - Rent Roll
-    ✓ Change business to REX (286ms)
-    ✓ Grid Records (61552ms)
-    ✓ CSV and Print button in toolbar (50ms)
+    ✓ Change business to REX (20411ms)
+    ✓ Grid Records (47930ms)
+    ✓ CSV and Print button in toolbar (111ms)
+
+
+  3 passing (1m)
+
+
+  (Results)
+
+  ┌──────────────────────────────────────────┐
+  │ Tests:        3                          │
+  │ Passing:      3                          │
+  │ Failing:      0                          │
+  │ Pending:      0                          │
+  │ Skipped:      0                          │
+  │ Screenshots:  0                          │
+  │ Video:        false                      │
+  │ Duration:     1 minute, 11 seconds       │
+  │ Spec Ran:     roller_14_rentroll_spec.js │
+  └──────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_15_raStatements_spec.js...                                              (9 of 18) 
+
 
   AIR Roller UI Tests - RA Statements
-    ✓ Change business to REX (310ms)
-    ✓ Grid Records (2813ms)
-    ✓ Record Detail Form (11980ms)
+    ✓ Change business to REX (20264ms)
+    ✓ Grid Records (2928ms)
+    ✓ Record Detail Form (12132ms)
+
+
+  3 passing (37s)
+
+
+  (Results)
+
+  ┌──────────────────────────────────────────────┐
+  │ Tests:        3                              │
+  │ Passing:      3                              │
+  │ Failing:      0                              │
+  │ Pending:      0                              │
+  │ Skipped:      0                              │
+  │ Screenshots:  0                              │
+  │ Video:        false                          │
+  │ Duration:     37 seconds                     │
+  │ Spec Ran:     roller_15_raStatements_spec.js │
+  └──────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_16_payorStatements_spec.js...                                          (10 of 18) 
+
 
   AIR Roller UI Tests - Payor Statements
-    ✓ Change business to REX (353ms)
-    ✓ Grid Records (3833ms)
-    ✓ Record Detail Form (23493ms)
+    ✓ Change business to REX (18352ms)
+    ✓ Grid Records (3695ms)
+    ✓ Record Detail Form (20139ms)
+
+
+  3 passing (45s)
+
+
+  (Results)
+
+  ┌─────────────────────────────────────────────────┐
+  │ Tests:        3                                 │
+  │ Passing:      3                                 │
+  │ Failing:      0                                 │
+  │ Pending:      0                                 │
+  │ Skipped:      0                                 │
+  │ Screenshots:  0                                 │
+  │ Video:        false                             │
+  │ Duration:     44 seconds                        │
+  │ Spec Ran:     roller_16_payorStatements_spec.js │
+  └─────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_2_asms_spec.js...                                                      (11 of 18) 
+(node:2327) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 exitEarlyWithErr listeners added. Use emitter.setMaxListeners() to increase limit
+
 
   AIR Roller UI Tests - Assessment Charges
-    ✓ Change business to REX (282ms)
-    ✓ Grid Records (11994ms)
-    ✓ Record Detail Form (6877ms)
-    ✓ Check default value of fields for new record form (5606ms)
+    ✓ Change business to REX (20214ms)
+    ✓ Grid Records (10615ms)
+    ✓ Record Detail Form (6427ms)
+    ✓ Check default value of fields for new record form (5627ms)
+
+
+  4 passing (47s)
+
+
+  (Results)
+
+  ┌─────────────────────────────────────┐
+  │ Tests:        4                     │
+  │ Passing:      4                     │
+  │ Failing:      0                     │
+  │ Pending:      0                     │
+  │ Skipped:      0                     │
+  │ Screenshots:  0                     │
+  │ Video:        false                 │
+  │ Duration:     47 seconds            │
+  │ Spec Ran:     roller_2_asms_spec.js │
+  └─────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_3_trp_spec.js...                                                       (12 of 18) 
+
 
   AIR Roller UI Tests - Tendered payment Receipt
-    ✓ Change business to REX (302ms)
-    ✓ Grid Records (10405ms)
-    ✓ Record Detail Form (6405ms)
-    ✓ Check default value of fields for new record form (5735ms)
+    ✓ Change business to REX (22835ms)
+    ✓ Grid Records (8908ms)
+    ✓ Record Detail Form (6782ms)
+    ✓ Check default value of fields for new record form (5747ms)
+
+
+  4 passing (47s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────┐
+  │ Tests:        4                    │
+  │ Passing:      4                    │
+  │ Failing:      0                    │
+  │ Pending:      0                    │
+  │ Skipped:      0                    │
+  │ Screenshots:  0                    │
+  │ Video:        false                │
+  │ Duration:     47 seconds           │
+  │ Spec Ran:     roller_3_trp_spec.js │
+  └────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_4_accounts_spec.js...                                                  (13 of 18) 
+
 
   AIR Roller UI Tests - Chart of accounts
-    ✓ Change business to REX (358ms)
-    ✓ Record Detail Form (5900ms)
-    ✓ Check default value of fields for new record form (5407ms)
+    ✓ Change business to REX (6374ms)
+    ✓ Record Detail Form (5706ms)
+    ✓ Check default value of fields for new record form (5491ms)
+
+
+  3 passing (3m)
+
+
+  (Results)
+
+  ┌─────────────────────────────────────────┐
+  │ Tests:        4                         │
+  │ Passing:      4                         │
+  │ Failing:      0                         │
+  │ Pending:      0                         │
+  │ Skipped:      0                         │
+  │ Screenshots:  0                         │
+  │ Video:        false                     │
+  │ Duration:     2 minutes, 43 seconds     │
+  │ Spec Ran:     roller_4_accounts_spec.js │
+  └─────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_5_pmt_spec.js...                                                       (14 of 18) 
+
 
   AIR Roller UI Tests - Payment types
-    ✓ Change business to REX (373ms)
-    ✓ Grid Records (3117ms)
-    ✓ Record Detail Form (5319ms)
-    ✓ Check default value of fields for new record form (5090ms)
-    ✓ Save new record (4924ms)
+    ✓ Change business to REX (6607ms)
+    ✓ Grid Records (3189ms)
+    ✓ Record Detail Form (5133ms)
+    ✓ Check default value of fields for new record form (5148ms)
+    ✓ Save new record (4592ms)
+
+
+  5 passing (27s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────┐
+  │ Tests:        5                    │
+  │ Passing:      5                    │
+  │ Failing:      0                    │
+  │ Pending:      0                    │
+  │ Skipped:      0                    │
+  │ Screenshots:  0                    │
+  │ Video:        false                │
+  │ Duration:     27 seconds           │
+  │ Spec Ran:     roller_5_pmt_spec.js │
+  └────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_6_depacct_spec.js...                                                   (15 of 18) 
+
 
   AIR Roller UI Tests - Deposit Accounts
-    ✓ Change business to REX (358ms)
-    ✓ Grid Records (2796ms)
-    ✓ Record Detail Form (5235ms)
-    ✓ Check default value of fields for new record form (5204ms)
+    ✓ Change business to REX (6487ms)
+    ✓ Grid Records (2927ms)
+    ✓ Record Detail Form (5499ms)
+    ✓ Check default value of fields for new record form (5140ms)
+
+
+  4 passing (22s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────┐
+  │ Tests:        4                        │
+  │ Passing:      4                        │
+  │ Failing:      0                        │
+  │ Pending:      0                        │
+  │ Skipped:      0                        │
+  │ Screenshots:  0                        │
+  │ Video:        false                    │
+  │ Duration:     22 seconds               │
+  │ Spec Ran:     roller_6_depacct_spec.js │
+  └────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_7_depmeth_spec.js...                                                   (16 of 18) 
+
 
   AIR Roller UI Tests - Deposit Methods
-    ✓ Change business to REX (331ms)
-    ✓ Grid Records (2554ms)
-    ✓ Record Detail Form (5120ms)
-    ✓ Check default value of fields for new record form (5030ms)
+    ✓ Change business to REX (6165ms)
+    ✓ Grid Records (2543ms)
+    ✓ Record Detail Form (5137ms)
+    ✓ Check default value of fields for new record form (4887ms)
+
+
+  4 passing (20s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────┐
+  │ Tests:        4                        │
+  │ Passing:      4                        │
+  │ Failing:      0                        │
+  │ Pending:      0                        │
+  │ Skipped:      0                        │
+  │ Screenshots:  0                        │
+  │ Video:        false                    │
+  │ Duration:     20 seconds               │
+  │ Spec Ran:     roller_7_depmeth_spec.js │
+  └────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_8_ars_spec.js...                                                       (17 of 18) 
+
 
   AIR Roller UI Tests - Account Rules
-    ✓ Change business to REX (326ms)
-    ✓ Record Detail Form (6284ms)
-    ✓ Check default value of fields for new record form (6513ms)
+    ✓ Change business to REX (6254ms)
+    ✓ Record Detail Form (6888ms)
+    ✓ Check default value of fields for new record form (5894ms)
+
+
+  3 passing (2m)
+
+
+  (Results)
+
+  ┌─────────────────────────────────────┐
+  │ Tests:        4                     │
+  │ Passing:      4                     │
+  │ Failing:      0                     │
+  │ Pending:      0                     │
+  │ Skipped:      0                     │
+  │ Screenshots:  0                     │
+  │ Video:        false                 │
+  │ Duration:     2 minutes, 19 seconds │
+  │ Spec Ran:     roller_8_ars_spec.js  │
+  └─────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running: roller_9_expense_spec.js...                                                   (18 of 18) 
+
 
   AIR Roller UI Tests - Expenses
-    ✓ Change business to REX (413ms)
-    ✓ Grid Records (3625ms)
-    ✓ Record Detail Form (5913ms)
-    ✓ Check default value of fields for new record form (5957ms)
+    ✓ Change business to REX (17627ms)
+    ✓ Grid Records (3305ms)
+    ✓ Record Detail Form (5805ms)
+    ✓ Check default value of fields for new record form (5223ms)
 
 
-  66 passing (16m)
+  4 passing (34s)
 
 
-  (Tests Finished)
+  (Results)
 
-  - Tests:           66
-  - Passes:          66
-  - Failures:        0
-  - Pending:         0
-  - Duration:        15 minutes, 30 seconds
-  - Screenshots:     0
-  - Video Recorded:  false
-  - Cypress Version: 1.4.2
+  ┌────────────────────────────────────────┐
+  │ Tests:        4                        │
+  │ Passing:      4                        │
+  │ Failing:      0                        │
+  │ Pending:      0                        │
+  │ Skipped:      0                        │
+  │ Screenshots:  0                        │
+  │ Video:        false                    │
+  │ Duration:     33 seconds               │
+  │ Spec Ran:     roller_9_expense_spec.js │
+  └────────────────────────────────────────┘
 
 
-  (All Done)
+====================================================================================================
+
+  (Run Finished)
+
+
+      Spec                                                Tests  Passing  Failing  Pending  Skipped 
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✔ receipt_1_login_spec.js                   00:13        3        3        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ receipt_2_spec.js                         00:34        5        5        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_1_login_spec.js                    00:10        3        3        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_10_deposits_spec.js                00:42        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_11_applyreceipt_spec.js            00:26        3        3        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_12_rentabletypes_spec.js           00:39        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_13_rentable_spec.js                00:51        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_14_rentroll_spec.js                01:11        3        3        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_15_raStatements_spec.js            00:37        3        3        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_16_payorStatements_spec.js         00:44        3        3        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_2_asms_spec.js                     00:47        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_3_trp_spec.js                      00:47        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_4_accounts_spec.js                 02:43        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_5_pmt_spec.js                      00:27        5        5        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_6_depacct_spec.js                  00:22        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_7_depmeth_spec.js                  00:20        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_8_ars_spec.js                      02:19        4        4        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔ roller_9_expense_spec.js                  00:33        4        4        -        -        - │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    All specs passed!                           14:31       68       68        -        -        -  
 

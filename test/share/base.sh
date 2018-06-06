@@ -1123,8 +1123,14 @@ doCypressUITest () {
 	#-----------------------------------------------------
 	#  Read the number of tests from the output file
 	#-----------------------------------------------------
-	n=$(egrep 'Passes:' ${1} | sed 's/^  *- Passes:  [^ \t]*//')
-	TESTCOUNT=$(( TESTCOUNT + ${n} ))
+	TOTALTESTCOUNT=0
+	EACHTESTCOUNT=$(grep "Tests:" ${1} | awk '{print $3}')
+	for line in $EACHTESTCOUNT; do
+		if [ "$line" -gt "0" ]; then
+			TOTALTESTCOUNT=$(( TOTALTESTCOUNT + $line ))
+		fi
+	done
+	TESTCOUNT=$(( TESTCOUNT + ${TOTALTESTCOUNT} ))
 
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
@@ -1177,10 +1183,16 @@ doCypressUITest () {
 		# 		exit 1
 		# 	fi
 		# fi
-		FAILURES=$(grep "Failures:" ${1} | awk '{print $3}')
-		if (( ${FAILURES} > 0 )); then
+		TOTALFAILCOUNT=0
+		EACHFAILURECOUNT=$(grep "Failing:" ${1} | awk '{print $3}')
+		for line in $EACHFAILURECOUNT; do
+			if [ "$line" -gt "0" ]; then
+				TOTALFAILCOUNT=$(( TOTALFAILCOUNT + $line ))
+			fi
+		done
+		if (( ${TOTALFAILCOUNT} > 0 )); then
 			echo "FAILED"
-			echo "FAILURE COUNT = ${FAILURES}"
+			echo "FAILURE COUNT = ${TOTALFAILCOUNT}"
 			failmsg
 			# stop rentroll server in case of failure
 			echo "Stopping the RENTROLL server as error occurred in cypress UI automated testing!"

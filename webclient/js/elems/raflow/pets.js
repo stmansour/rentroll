@@ -4,40 +4,42 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
-    getPetFormInitRecord
+    getPetFormInitRecord, getPetLocalData, setPetLocalData,
+    ReassignPetsGridRecords, savePetsCompData
 */
 
 "use strict";
 
-window.getPetFormInitRecord = function (BID, BUD, previousFormRecord){
+window.getPetFormInitRecord = function (previousFormRecord){
+    var BID = getCurrentBID();
+
     var t = new Date(),
         nyd = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
     var defaultFormData = {
-        recid: 0,
-        PETID: 0,
-        BID: BID,
-        // BUD: BUD,
-        Name: "",
-        Breed: "",
-        Type: "",
-        Color: "",
-        Weight: 0,
-        DtStart: w2uiDateControlString(t),
-        DtStop: w2uiDateControlString(nyd),
-        NonRefundablePetFee: 0,
-        RefundablePetDeposit: 0,
-        RecurringPetFee: 0,
-        LastModTime: t.toISOString(),
-        LastModBy: 0,
+        recid:                  0,
+        TMPID:                  0,
+        PETID:                  0,
+        BID:                    BID,
+        Name:                   "",
+        Breed:                  "",
+        Type:                   "",
+        Color:                  "",
+        Weight:                 0,
+        DtStart:                w2uiDateControlString(t),
+        DtStop:                 w2uiDateControlString(nyd),
+        NonRefundablePetFee:    0,
+        RefundablePetDeposit:   0,
+        RecurringPetFee:        0,
+        LastModTime:            t.toISOString(),
+        LastModBy:              0,
     };
 
     // if it called after 'save and add another' action there previous form record is passed as Object
     // else it is null
     if ( previousFormRecord ) {
         defaultFormData = setDefaultFormFieldAsPreviousRecord(
-            [ 'Name', 'Breed', 'Type', 'Color', 'Weight',
-              'NonRefundablePetFee', 'RefundablePetDeposit', 'ReccurringPetFee' ], // Fields to Reset
+            ['*'], // Fields to Reset
             defaultFormData,
             previousFormRecord
         );
@@ -71,22 +73,22 @@ window.loadRAPetsGrid = function () {
                 }
             },
             fields  : [
-                { field: 'recid', type: 'int', required: false, html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'BID', type: 'int', hidden: true, html: { caption: 'BID', page: 0, column: 0 } },
-                // { field: 'BUD', type: 'text', hidden: false, html: { caption: 'BUD', page: 0, column: 0 } },
-                { field: 'PETID', type: 'int', hidden: false, html: { caption: 'PETID', page: 0, column: 0 } },
-                { field: 'Name', type: 'text', required: true},
-                { field: 'Breed', type: 'text', required: true},
-                { field: 'Type', type: 'text', required: true},
-                { field: 'Color', type: 'text', required: true},
-                { field: 'Weight', type: 'int', required: true},
-                { field: 'NonRefundablePetFee', type: 'money', required: false},
-                { field: 'RefundablePetDeposit', type: 'money', required: false},
-                { field: 'RecurringPetFee', type: 'money', required: false},
-                { field: 'DtStart', type: 'date', required: false, html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop', type: 'date', required: false, html: { caption: 'DtStop', page: 0, column: 0 } },
-                { field: 'LastModTime', type: 'time', required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-                { field: 'LastModBy', type: 'int', required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+                { field: 'recid',                   type: 'int',    required: false,    html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'TMPID',                   type: 'int',    required: true  },
+                { field: 'BID',                     type: 'int',    required: true,     html: { caption: 'BID', page: 0, column: 0 } },
+                { field: 'PETID',                   type: 'int',    required: true,     html: { caption: 'PETID', page: 0, column: 0 } },
+                { field: 'Name',                    type: 'text',   required: true  },
+                { field: 'Breed',                   type: 'text',   required: true  },
+                { field: 'Type',                    type: 'text',   required: true  },
+                { field: 'Color',                   type: 'text',   required: true  },
+                { field: 'Weight',                  type: 'int',    required: true  },
+                { field: 'NonRefundablePetFee',     type: 'money',  required: true  },
+                { field: 'RefundablePetDeposit',    type: 'money',  required: true  },
+                { field: 'RecurringPetFee',         type: 'money',  required: true  },
+                { field: 'DtStart',                 type: 'date',   required: true,     html: { caption: 'DtStart', page: 0, column: 0 } },
+                { field: 'DtStop',                  type: 'date',   required: true,     html: { caption: 'DtStop', page: 0, column: 0 } },
+                { field: 'LastModTime',             type: 'time',   required: false,    html: { caption: 'LastModTime', page: 0, column: 0 } },
+                { field: 'LastModBy',               type: 'int',    required: false,    html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
             onRefresh: function(event) {
                 event.onComplete = function() {
@@ -118,34 +120,33 @@ window.loadRAPetsGrid = function () {
                 };
             },
             actions: {
+                reset: function() {
+                    w2ui.RAPetForm.clear();
+                },
                 save: function() {
-                    var form = this;
-                    var grid = w2ui.RAPetsGrid;
-                    var errors = form.validate();
-                    if (errors.length > 0) return;
-                    var record = $.extend(true, { recid: grid.records.length + 1 }, form.record);
-                    var recordsData = $.extend(true, [], grid.records);
-                    var isNewRecord = (grid.get(record.recid, true) === null);
+                    var f = w2ui.RAPetForm,
+                        grid = w2ui.RAPetsGrid,
+                        TMPID = f.record.TMPID;
 
-                    // if it doesn't exist then only push
-                    if (isNewRecord) {
-                        recordsData.push(record);
-                    }
+                    // validate form
+                    var errors = f.validate();
+                    if (errors.length > 0) return;
+
+                    // sync this info in local data
+                    var petData = getFormSubmitData(f.record, true);
+
+                    // set data locally
+                    setPetLocalData(TMPID, petData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, "pets")
+                    savePetsCompData()
                     .done(function(data) {
                         if (data.status === 'success') {
-                            // if null
-                            if (isNewRecord) {
-                                grid.add(record);
-                            } else {
-                                grid.set(record.recid, record);
-                            }
-                            form.clear();
+                            // re-assign records in grid
+                            ReassignPetsGridRecords();
 
                             // Disable "have pets?" checkbox if there is any record.
                             toggleHaveCheckBoxDisablity('RAPetsGrid');
@@ -153,7 +154,7 @@ window.loadRAPetsGrid = function () {
                             // close the form
                             hideSliderContent();
                         } else {
-                            form.message(data.message);
+                            f.message(data.message);
                         }
                     })
                     .fail(function(data) {
@@ -161,49 +162,38 @@ window.loadRAPetsGrid = function () {
                     });
                 },
                 saveadd: function() {
-                    var BID = getCurrentBID(),
-                        BUD = getBUDfromBID(BID);
+                    var f = w2ui.RAPetForm,
+                        grid = w2ui.RAPetsGrid,
+                        TMPID = f.record.TMPID;
 
-                    var form = this;
-                    var grid = w2ui.RAPetsGrid;
-                    var errors = form.validate();
+                    // validate form
+                    var errors = f.validate();
                     if (errors.length > 0) return;
-                    var record = $.extend(true, {}, form.record);
-                    var recordsData = $.extend(true, [], grid.records);
-                    var isNewRecord = (grid.get(record.recid, true) === null);
 
-                    // if it doesn't exist then only push
-                    if (isNewRecord) {
-                        recordsData.push(record);
-                    }
+                    // sync this info in local data
+                    var petData = getFormSubmitData(f.record, true);
+
+                    // set data locally
+                    setPetLocalData(TMPID, petData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(recordsData, "pets")
+                    savePetsCompData()
                     .done(function(data) {
                         if (data.status === 'success') {
-                            // clear the grid select recid
-                            app.last.grid_sel_recid  =-1;
-                            // selectNone
-                            grid.selectNone();
-
-                            // if null
-                            if (isNewRecord) {
-                                // add this record to grid
-                                grid.add(record);
-                            } else {
-                                grid.set(record.recid, record);
-                            }
                             // add new formatted record to current form
-                            form.record = getPetFormInitRecord(BID, BUD, form.record);
+                            f.record = getPetFormInitRecord(f.record);
                             // set record id
-                            form.record.recid = grid.records.length + 1;
-                            form.refresh();
-                            form.refresh();
+                            f.record.recid = grid.records.length + 1;
+                            f.refresh();
+                            f.refresh();
+
+                            // re-assign records in grid
+                            ReassignPetsGridRecords();
                         } else {
-                            form.message(data.message);
+                            f.message(data.message);
                         }
                     })
                     .fail(function(data) {
@@ -211,39 +201,30 @@ window.loadRAPetsGrid = function () {
                     });
                 },
                 delete: function() {
-                    var form = this;
-                    var grid = w2ui.RAPetsGrid;
+                    var f = w2ui.RAPetForm;
 
-                    // backup the records
-                    var records = $.extend(true, [], grid.records);
-                    for (var i = 0; i < records.length; i++) {
-                        if(records[i].recid == form.record.recid) {
-                            records.splice(i, 1);
-                        }
-                    }
+                    // get local data from TMPID
+                    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+                    var itemIndex = getPetLocalData(f.record.TMPID, true);
+                    compData.splice(itemIndex, 1);
 
                     // save this records in json Data
-                    saveActiveCompData(records, "pets")
+                    savePetsCompData()
                     .done(function(data) {
                         if (data.status === 'success') {
-                            // clear the grid select recid
-                            app.last.grid_sel_recid  =-1;
-                            // selectNone
-                            grid.selectNone();
-
-                            grid.remove(form.record.recid);
-                            form.clear();
+                            // reset form
+                            f.actions.reset();
 
                             // Disable "have pets?" checkbox if there is any record.
                             toggleHaveCheckBoxDisablity('RAPetsGrid');
 
-                            // need to refresh the grid as it will re-assign new recid
-                            reassignGridRecids(grid.name);
+                            // reassign grid records
+                            ReassignPetsGridRecords();
 
                             // close the form
                             hideSliderContent();
                         } else {
-                            form.message(data.message);
+                            f.message(data.message);
                         }
                     })
                     .fail(function(data) {
@@ -274,6 +255,10 @@ window.loadRAPetsGrid = function () {
                     hidden: true
                 },
                 {
+                    field: 'TMPID',
+                    hidden: true
+                },
+                {
                     field: 'PETID',
                     hidden: true
                 },
@@ -281,10 +266,6 @@ window.loadRAPetsGrid = function () {
                     field: 'BID',
                     hidden: true
                 },
-                /*{
-                    field: 'BUD',
-                    hidden: true
-                },*/
                 {
                     field: 'Name',
                     caption: 'Name',
@@ -379,7 +360,7 @@ window.loadRAPetsGrid = function () {
                         var BID = getCurrentBID(),
                             BUD = getBUDfromBID(BID);
 
-                        w2ui.RAPetForm.record = getPetFormInitRecord(BID, BUD, null);
+                        w2ui.RAPetForm.record = getPetFormInitRecord(null);
                         // set record id
                         w2ui.RAPetForm.record.recid = w2ui.RAPetsGrid.records.length + 1;
                         showSliderContentW2UIComp(w2ui.RAPetForm, RACompConfig.pets.sliderWidth);
@@ -397,17 +378,89 @@ window.loadRAPetsGrid = function () {
 
     // load the existing data in pets component
     setTimeout(function () {
-        var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
-        var grid = w2ui.RAPetsGrid;
-
-        if (compData) {
-            grid.records = compData;
-            reassignGridRecids(grid.name);
-
-            // lock the grid until "Have pets?" checkbox checked.
-            lockOnGrid(grid.name);
-        } else {
-            grid.clear();
-        }
+        // assign grid records
+        ReassignPetsGridRecords();
     }, 500);
 };
+
+//-----------------------------------------------------------------------------
+// getPetLocalData - returns the clone of pet data for requested TMPID
+//-----------------------------------------------------------------------------
+window.getPetLocalData = function(TMPID, returnIndex) {
+    var cloneData = {};
+    var foundIndex = -1;
+    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+    compData.forEach(function(item, index) {
+        if (item.TMPID == TMPID) {
+            if (returnIndex) {
+                foundIndex = index;
+            } else {
+                cloneData = $.extend(true, {}, item);
+            }
+            return false;
+        }
+    });
+    if (returnIndex) {
+        return foundIndex;
+    }
+    return cloneData;
+};
+
+
+//-----------------------------------------------------------------------------
+// setPetLocalData - save the data for requested a TMPID in local data
+//-----------------------------------------------------------------------------
+window.setPetLocalData = function(TMPID, petData) {
+    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+    var dataIndex = -1;
+    compData.forEach(function(item, index) {
+        if (item.TMPID == TMPID) {
+            dataIndex = index;
+            return false;
+        }
+    });
+    if (dataIndex > -1) {
+        compData[dataIndex] = petData;
+    } else {
+        compData.push(petData);
+    }
+};
+
+//-----------------------------------------------------------------------------
+// ReassignPetsGridRecords - will set the pets grid records from local
+//                               copy of flow data again
+//-----------------------------------------------------------------------------
+window.ReassignPetsGridRecords = function() {
+    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
+    var grid = w2ui.RAPetsGrid;
+
+    // reset last sel recid
+    app.last.grid_sel_recid  =-1;
+    // select none
+    grid.selectNone();
+
+    if (compData) {
+        grid.records = compData;
+        reassignGridRecids(grid.name);
+
+        // lock the grid until "Have pets?" checkbox checked.
+        lockOnGrid(grid.name);
+
+        // Operation on RAPetForm
+        w2ui.RAPetForm.refresh();
+    } else {
+        // clear the grid
+        grid.clear();
+        // Operation on RAPetForm
+        w2ui.RAPetForm.actions.reset();
+    }
+};
+
+//------------------------------------------------------------------------------
+// savePetsCompData - saves the data on server side
+//------------------------------------------------------------------------------
+window.savePetsCompData = function() {
+    var compData = getRAFlowCompData("pets", app.raflow.activeFlowID);
+    return saveActiveCompData(compData, "pets");
+};
+
