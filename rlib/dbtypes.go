@@ -1373,7 +1373,7 @@ type LedgerMarker struct {
 	BID         int64     // only valid if Type == 1
 	RAID        int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the rental agreement RAID
 	RID         int64     // if 0 then it's the LM for the whole account, if > 0 it's the amount for the Rentable RID
-	TCID        int64     // if 0 then LM for whole acct, if > 0 then it's the amount for this payor; TCID
+	TCID        int64     // (I think this is deprecated)  if 0 then LM for whole acct, if > 0 then it's the amount for this payor; TCID
 	Dt          time.Time // Balance is valid as of this time
 	Balance     float64   // GLAccount balance at the end of the period
 	State       int64     // 0 = Open, 1 = Closed, 2 = Locked, 3 = InitialMarker (no records prior)

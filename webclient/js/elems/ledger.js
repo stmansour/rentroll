@@ -1,52 +1,85 @@
 "use strict";
+var adminLedger = {
+    mode: 0,
+};
 window.buildLedgerElements = function (){
-//------------------------------------------------------------------------
-//          ledger grid
-//------------------------------------------------------------------------
-$().w2grid({
-    name: 'ledgersGrid',
-    url: '/v1/ledgers',
-    multiSelect: false,
-    show: {
-        header: false,
-        toolbar: true,
-        footer: true,
-        toolbarReload   : true,
-        toolbarColumns  : false,
-        toolbarSearch   : false,
-        toolbarAdd      : false,
-        toolbarDelete   : false,
-        toolbarInput    : false,
-        searchAll       : false,
-        toolbarSave     : false,
-        toolbarEdit     : false,
-        searches        : false,
-        lineNumbers     : false,
-        selectColumn    : false,
-        expandColumn    : false,
-    },
-    columns: [
-        {field: 'recid',     caption: "recid",         size: '35px',  sortable: true, hidden: true},
-        {field: 'LID',       caption: "LID",           size: '55px',  sortable: true, hidden: false},
-        {field: 'GLNumber',  caption: "GLNumber",      size: '85px',  sortable: true, hidden: false},
-        {field: 'Name',      caption: "Name",          size: '225px', sortable: true, hidden: false},
-        {field: 'Active',    caption: "Active",        size: '50px',  sortable: true, hidden: false},
-        // {field: 'AllowPost', caption: "Allow<br>Post", size: '50px',  sortable: true, hidden: false},
-        {field: 'Balance',   caption: "Balance",       size: '100px', sortable: true, hidden: false, render: 'money'},
-        {field: 'LMDate',    caption: "LM Date",       size: '170px', sortable: true, hidden: false},
-        {field: 'LMState',   caption: "LM<br>State",   size: '50px',  sortable: true, hidden: false},
-        {field: 'LMAmount',  caption: "LM Amount",     size: '100px', sortable: true, hidden: false, render: 'money'},
-    ],
-    onRequest: function(/*event*/) {
-        w2ui.ledgersGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
-    },
-    // onClick: function(event) {
-    //     event.onComplete = function () {
-    //         app.new_form_rec = false;
-    //         var rec = this.get(event.recid);
-    //         setToForm('transactantForm', '/v1/person/' + rec.BID + '/' + rec.TCID, 700, true);
-    //      };
-    // },
-});
-addDateNavToToolbar('ledgers');
+    //------------------------------------------------------------------------
+    //          ledger grid
+    //------------------------------------------------------------------------
+    $().w2grid({
+        name: 'ledgersGrid',
+        url: '/v1/ledgers',
+        multiSelect: false,
+        show: {
+            header: false,
+            toolbar: true,
+            footer: true,
+            toolbarReload   : true,
+            toolbarColumns  : false,
+            toolbarSearch   : false,
+            toolbarAdd      : false,
+            toolbarDelete   : false,
+            toolbarInput    : false,
+            searchAll       : false,
+            toolbarSave     : false,
+            toolbarEdit     : false,
+            searches        : false,
+            lineNumbers     : false,
+            selectColumn    : false,
+            expandColumn    : false,
+        },
+        columns: [
+            {field: 'recid',     caption: "recid",         size: '35px',  sortable: true, hidden: true},
+            {field: 'LID',       caption: "LID",           size: '55px',  sortable: true, hidden: false},
+            {field: 'RAID',      caption: "RAID",          size: '55px',  sortable: true, hidden: false},
+            {field: 'RID',       caption: "RID",           size: '55px',  sortable: true, hidden: false},
+            {field: 'GLNumber',  caption: "GLNumber",      size: '85px',  sortable: true, hidden: false},
+            {field: 'Name',      caption: "Name",          size: '225px', sortable: true, hidden: false},
+            {field: 'Active',    caption: "Active",        size: '50px',  sortable: true, hidden: false},
+            // {field: 'AllowPost', caption: "Allow<br>Post", size: '50px',  sortable: true, hidden: false},
+            {field: 'Balance',   caption: "Balance",       size: '100px', sortable: true, hidden: false, render: 'money'},
+            {field: 'LMDate',    caption: "LM Date",       size: '170px', sortable: true, hidden: false},
+            {field: 'LMState',   caption: "LM<br>State",   size: '50px',  sortable: true, hidden: false},
+            {field: 'LMAmount',  caption: "LM Amount",     size: '100px', sortable: true, hidden: false, render: 'money'},
+        ],
+        onRequest: function(/*event*/) {
+            w2ui.ledgersGrid.postData = {searchDtStart: app.D1, searchDtStop: app.D2};
+        },
+        onLoad: function(event) {
+            event.onComplete = function() {
+                console.log('onLoad: ' + event);
+                document.getElementById('adminLedgerMode').value = adminLedger.mode;
+                document.getElementById("adminLedgerMode").options.selectedIndex = adminLedger.mode;
+            };
+        },
+    });
+    addDateNavToToolbar('ledgers');
+    var items = [
+            { type: 'html',  id: 'mode',
+                html: function (/*item*/) {
+                    var html =
+                        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="far fa-building"></i> &nbsp;Mode:' +
+                        '<select id="adminLedgerMode" onchange="changeLedgerMode();">'+
+                        '<option value="0">Balance</option>'+
+                        '<option value="1">Ledger Markers in Date Range</option>'+
+                        '<option value="2">Marker on/before DtStart</option>'+
+                        '<option value="3">Marker by RAID</option>'+
+                        '</select>&nbsp;&nbsp;&nbsp;';
+                    return html;
+                }
+            },
+    ];
+    w2ui.ledgersGrid.toolbar.add( items );
+};
+
+window.changeLedgerMode = function(){
+    // console.log('hello: ' + event);
+    adminLedger.mode = document.getElementById('adminLedgerMode').options.selectedIndex;
+    w2ui.ledgersGrid.postData = {
+        mode : adminLedger.mode,
+        searchDtStart: app.D1,
+        searchDtStop: app.D2,
+        client: app.client
+    };
+    w2ui.ledgersGrid.reload();
 };

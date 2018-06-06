@@ -26,6 +26,7 @@ var handlers = []tableMaker{
 	{"Receipts", createReceipts},
 	{"ApplyReceipts", applyReceipts},
 	{"Deposits", CreateDeposits},
+	{"TaskLists", CreateTaskLists},
 }
 
 // GenerateDB is the RentRoll Database generator. It creates a
@@ -118,11 +119,16 @@ func GenerateDB(ctx context.Context, dbConf *GenDBConf) error {
 		}
 		dbConf.PTypeCheck = pt.PMTID
 	}
+
+	//---------------------------------------
+	// Now spin through all the handlers...
+	//---------------------------------------
 	for i := 0; i < len(handlers); i++ {
 		if err := handlers[i].Handler(ctx, dbConf); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -672,6 +678,73 @@ func CreateDeposits(ctx context.Context, dbConf *GenDBConf) error {
 		if e := bizlogic.SaveDeposit(ctx, &c, OpDeps); len(e) > 0 {
 			bizlogic.PrintBizErrorList(e)
 			return bizlogic.BizErrorListToError(e)
+		}
+	}
+
+	return nil
+}
+
+// CreateTaskLists creates the initial task list, associates it with the business
+// as the ClosePeriod TaskList, and creates all past instances
+//-----------------------------------------------------------------------------
+func CreateTaskLists(ctx context.Context, dbConf *GenDBConf) error {
+	rlib.Console("Entered: CreateTaskLists\n")
+	TLDID := int64(1)
+	BID := TLDID
+
+	//----------------------------------------------------------
+	// We will need the descriptor to determine the epoch...
+	//----------------------------------------------------------
+	tld, err := rlib.GetTaskListDefinition(ctx, TLDID)
+	if err != nil {
+		return err
+	}
+
+	//----------------------------------------------------------
+	// Pivot day is the config file's start date...
+	//----------------------------------------------------------
+	pivot := time.Date(dbConf.DtStart.Year(), dbConf.DtStart.Month(), dbConf.DtStart.Day(),
+		tld.Epoch.Hour(), tld.Epoch.Minute(), 0, 0, time.UTC)
+
+	//----------------------------------------------------------
+	// Create the first instance.
+	//----------------------------------------------------------
+	tl, err := rlib.CreateTaskListInstance(ctx, TLDID, 0, &pivot)
+	if err != nil {
+		return err
+	}
+
+	//----------------------------------------------------------
+	// Update the business to use this tasklist as the company
+	// ClosePeriod TaskList
+	//----------------------------------------------------------
+	var biz rlib.Business
+	if err = rlib.GetBusiness(ctx, BID, &biz); err != nil {
+		return err
+	}
+	biz.ClosePeriodTLID = tl.TLID
+	if err = rlib.UpdateBusiness(ctx, &biz); err != nil {
+		return err
+	}
+
+	//----------------------------------------------------------
+	// Create any past instances
+	//----------------------------------------------------------
+	dtNext := rlib.NextInstance(&pivot, tl.Cycle)
+	now := time.Now()
+	ptlid := tl.TLID
+	for {
+		pivot = dtNext
+		rlib.Console("loop:  pivot = %s\n", pivot.Format(rlib.RRDATETIMERPTFMT))
+		tl, err := rlib.CreateTaskListInstance(ctx, TLDID, ptlid, &pivot)
+		if err != nil {
+			return err
+		}
+		dtNext := rlib.NextInstance(&pivot, tl.Cycle)
+		rlib.Console("loop: rlib.NextInstance(&pivot, tl.Cycle) --> dtNext = %s\n", dtNext.Format(rlib.RRDATETIMERPTFMT))
+		rlib.Console("loop: dtNext = %s\n", dtNext.Format(rlib.RRDATETIMERPTFMT))
+		if dtNext.After(now) {
+			break
 		}
 	}
 
