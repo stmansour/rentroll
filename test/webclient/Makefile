@@ -7,7 +7,7 @@ THISDIR="webclient"
 webclient: config.json accord.sql linkNodeModule
 	@echo "*** Completed in ${THISDIR} ***"
 
-test: webclient
+test: webclient nyc_output
 	@touch fail
 	./functest.sh
 	@rm -f fail
@@ -48,3 +48,15 @@ package:
 
 secure:
 	@rm -f config.json confdev.json confprod.json
+
+nyc_output:
+	if [ ! -e .nyc_output/out.json ]; then \
+		echo "out.json does not exits.  Will attempt to create..."; \
+		mkdir .nyc_output;\
+		touch .nyc_output/out.json;\
+		echo "{}" > .nyc_output/out.json;\
+	fi ;\
+	if [ ! -e .nyc_output/out.json ]; then \
+		echo "Could not make node_modules directory" ;\
+		exit 1 ;\
+	fi
