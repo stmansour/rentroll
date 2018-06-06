@@ -59,7 +59,7 @@ window.loadRAPeopleChildSection = function () {
                         var html = '';
 
                         if (record) {
-                            var items = parentRentableW2UIItems;
+                            var items = app.raflow.parentRentableW2UIItems;
                             for (var s in items) {
                                 if (items[s].id == record.ParentRentableName) html = items[s].text;
                             }
@@ -98,25 +98,7 @@ window.loadRAPeopleChildSection = function () {
         compData = getRAFlowCompData("parentchild", app.raflow.activeFlowID) || [],
         recidCounter = 1, // always starts with 1
         BID = getCurrentBID(),
-        gridRecords = [],
-        parentRentableW2UIItems = [];
-
-    // first build the list of parent rentables and sort it out in asc order of RID
-    rentableCompData.forEach(function(rentableItem) {
-        var RID = rentableItem.RID,
-            RentableName = rentableItem.RentableName;
-
-        var childRentableFLAG = (rentableItem.RTFLAGS & (1 << app.rtFLAGS.IsChildRentable));
-
-        if ( childRentableFLAG === 0) { // 0 means it is not child, it is parent
-            parentRentableW2UIItems.push({id: RID, text: RentableName});
-        }
-    });
-
-    // sort it out in asc order of RID value
-    parentRentableW2UIItems.sort(function(a, b) {
-        return a.id - b.id;
-    });
+        gridRecords = [];
 
     // always render data from latest modified rentable comp data
     rentableCompData.forEach(function(rentableItem) {
@@ -133,7 +115,7 @@ window.loadRAPeopleChildSection = function () {
                 // if it's found in parent rentable list then keep as it is
                 // else assign 0 if not found
                 var PRIDFound = false;
-                parentRentableW2UIItems.forEach(function(parentRItem) {
+                app.raflow.parentRentableW2UIItems.forEach(function(parentRItem) {
                     if (parentRItem.id == cRentable.PRID) {
                         PRIDFound = true;
                         return false;
@@ -164,20 +146,17 @@ window.loadRAPeopleChildSection = function () {
 
     // if there is only one parent rentable then pre-select it for all child rentable
     // otherwise built drop down menu
-    if (parentRentableW2UIItems.length == 0) {
+    if (app.raflow.parentRentableW2UIItems.length == 0) {
         gridRecords.forEach(function(rec) {
             rec.PRID = 0;
             rec.ParentRentableName = 0;
         });
-        parentRentableW2UIItems.unshift({id: 0, text: " -- select parent rentables -- "});
-    } else if (parentRentableW2UIItems.length == 1) {
+    } else if (app.raflow.parentRentableW2UIItems.length == 1) {
         // re-assign PRID
         gridRecords.forEach(function(rec) {
-            rec.PRID = parentRentableW2UIItems[0].id;
-            rec.ParentRentableName = parentRentableW2UIItems[0].id;
+            rec.PRID = app.raflow.parentRentableW2UIItems[0].id;
+            rec.ParentRentableName = app.raflow.parentRentableW2UIItems[0].id;
         });
-    } else {
-        parentRentableW2UIItems.unshift({id: 0, text: " -- select parent rentables -- "});
     }
 
     // now load grid in division
@@ -195,7 +174,7 @@ window.loadRAPeopleChildSection = function () {
         grid.refresh();
 
         // assign item prepared earlier for parent rentable list
-        grid.getColumn("ParentRentableName").editable.items = parentRentableW2UIItems;
+        grid.getColumn("ParentRentableName").editable.items = app.raflow.parentRentableW2UIItems;
         grid.getColumn("ParentRentableName").render();
 
         // save the data if it's been modified

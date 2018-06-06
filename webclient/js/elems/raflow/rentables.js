@@ -9,7 +9,7 @@
     saveRentableCompData, setRentableFeeLocalData, getRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     ReassignRentableGridRecords, ReassignRentableFeesGridRecords,
-    setRentableAmountsFromFees
+    setRentableAmountsFromFees, manageParentRentableW2UIItems
 */
 
 "use strict";
@@ -277,7 +277,14 @@ window.loadRARentablesGrid = function () {
                         compData.splice(index, 1);
 
                         // save data on server
-                        saveRentableCompData();
+                        saveRentableCompData()
+                        .done(function(data) {
+                            if (data.status === "success") {
+                                // after saving rentable comp data re-calculate parent rentable
+                                // w2ui items list
+                                manageParentRentableW2UIItems();
+                            }
+                        });
 
                         // remove from grid
                         this.remove(event.recid);
@@ -865,7 +872,7 @@ window.loadRARentablesGrid = function () {
 };
 
 //-----------------------------------------------------------------------------
-// ReAssignRentableGridRecords - will set the rentable grid records from local
+// ReassignRentableGridRecords - will set the rentable grid records from local
 //                               copy of flow data again
 //-----------------------------------------------------------------------------
 window.ReassignRentableGridRecords = function() {
@@ -876,6 +883,10 @@ window.ReassignRentableGridRecords = function() {
 
         // Operation on RARentableForm
         w2ui.RARentableForm.refresh();
+
+        // manage parent rentables list
+        manageParentRentableW2UIItems();
+
     } else {
         w2ui.RARentablesGrid.clear();
         // Operation on RARentableForm
@@ -1011,6 +1022,65 @@ window.acceptRentable = function () {
         })
         .fail(function(data) {
             console.log("ERROR from fees data: " + data);
+        });
+    }
+};
+
+//------------------------------------------------------------------------------
+// manageParentRentableW2UIItems - maintain parent rentable w2ui items list
+//------------------------------------------------------------------------------
+window.manageParentRentableW2UIItems = function() {
+
+    // reset it first
+    app.raflow.parentRentableW2UIItems = [];
+
+    // inner function to push item in "app.raflow.parentRentableW2UIItems"
+    var pushItem = function(rentableItem, atIndex) {
+        var found = false;
+        app.raflow.parentRentableW2UIItems.forEach(function(item) {
+            if (item.id === rentableItem.id) {
+                found = true;
+                return false;
+            }
+        });
+
+        // if not found the push item in app.raflow.parentRentableW2UIItems
+        if (!found) {
+            app.raflow.parentRentableW2UIItems.splice(atIndex, 0, rentableItem);
+        }
+    };
+
+    // get comp data
+    var rentableCompData = getRAFlowCompData("rentables", app.raflow.activeFlowID) || [];
+
+    // first build the list of parent rentables and sort it out in asc order of RID
+    rentableCompData.forEach(function(rentableItem) {
+        var RID = rentableItem.RID,
+            RentableName = rentableItem.RentableName;
+
+        var childRentableFLAG = (rentableItem.RTFLAGS & (1 << app.rtFLAGS.IsChildRentable));
+
+        if ( childRentableFLAG === 0) { // 0 means it is not child, it is parent
+            var item = {id: RID, text: RentableName};
+            pushItem(item, app.raflow.parentRentableW2UIItems.length);
+        }
+    });
+
+    // sort it out in asc order of RID value
+    app.raflow.parentRentableW2UIItems.sort(function(a, b) {
+        return a.id - b.id;
+    });
+
+    // if there is only one parent rentable then pre-select it for all child rentable
+    // otherwise built drop down menu
+    if (app.raflow.parentRentableW2UIItems.length != 1) {
+        var item = {id: 0, text: " -- select parent rentables -- "};
+        pushItem(item, 0);
+    } else {
+        app.raflow.parentRentableW2UIItems.forEach(function(item, index) {
+            if (item.id === 0) {
+                app.raflow.parentRentableW2UIItems.splice(index, 1);
+            }
         });
     }
 };

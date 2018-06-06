@@ -21,6 +21,15 @@ type RAFlowJSONData struct {
 	Rentables   []RARentablesFlowData   `json:"rentables"`
 	ParentChild []RAParentChildFlowData `json:"parentchild"`
 	Tie         RATieFlowData           `json:"tie"`
+	Meta        RAFlowMetaInfo          `json:"meta"`
+}
+
+// RAFlowMetaInfo holds meta info about a rental agreement flow data
+type RAFlowMetaInfo struct {
+	RAID             int64 // 0 = it's new, >0 = existing one
+	PetLastTMPID     int64
+	VehicleLastTMPID int64
+	PeopleLastTMPID  int64
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -34,48 +43,11 @@ type RADatesFlowData struct {
 	PossessionStop  rlib.JSONDate
 }
 
-// RAPetsFlowData contains data in the pets part of RA flow
-type RAPetsFlowData struct {
-	// Recid                int           `json:"recid"` // this is for the grid widget
-	BID                  int64
-	PETID                int64
-	Name                 string
-	Type                 string
-	Breed                string
-	Color                string
-	Weight               int
-	DtStart              rlib.JSONDate
-	DtStop               rlib.JSONDate
-	NonRefundablePetFee  float64
-	RefundablePetDeposit float64
-	RecurringPetFee      float64
-}
-
-// RAVehiclesFlowData contains data in the vehicles part of RA flow
-type RAVehiclesFlowData struct {
-	// Recid               int           `json:"recid"` // this is for the grid widget
-	BID                 int64
-	VID                 int64
-	TCID                int64
-	VIN                 string
-	Type                string
-	Make                string
-	Model               string
-	Color               string
-	Year                string
-	LicensePlateState   string
-	LicensePlateNumber  string
-	ParkingPermitNumber string
-	ParkingPermitFee    float64
-	DtStart             rlib.JSONDate
-	DtStop              rlib.JSONDate
-}
-
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
-	// Recid int64 `json:"recid"` // this is for the grid widget
-	BID  int64
-	TCID int64
+	TMPID int64
+	BID   int64
+	TCID  int64
 
 	// Role
 	IsRenter    bool
@@ -134,21 +106,45 @@ type RAPeopleFlowData struct {
 	Comment string // In an effort to accommodate you, please advise us of any special needs
 }
 
-// RAParentChildFlowData contains data in the Parent/Child part of RA flow
-type RAParentChildFlowData struct {
-	BID  int64
-	PRID int64 // parent rentable ID
-	CRID int64 // child rentable ID
+// RAPetsFlowData contains data in the pets part of RA flow
+type RAPetsFlowData struct {
+	TMPID                int64
+	BID                  int64
+	PETID                int64
+	Name                 string
+	Type                 string
+	Breed                string
+	Color                string
+	Weight               int
+	DtStart              rlib.JSONDate
+	DtStop               rlib.JSONDate
+	NonRefundablePetFee  float64
+	RefundablePetDeposit float64
+	RecurringPetFee      float64
 }
 
-// RATieFlowData contains data in the tie part of RA flow
-type RATieFlowData struct {
-	BID int64
+// RAVehiclesFlowData contains data in the vehicles part of RA flow
+type RAVehiclesFlowData struct {
+	TMPID               int64
+	BID                 int64
+	VID                 int64
+	TCID                int64
+	VIN                 string
+	Type                string
+	Make                string
+	Model               string
+	Color               string
+	Year                string
+	LicensePlateState   string
+	LicensePlateNumber  string
+	ParkingPermitNumber string
+	ParkingPermitFee    float64
+	DtStart             rlib.JSONDate
+	DtStop              rlib.JSONDate
 }
 
 // RARentablesFlowData contains data in the rentables part of RA flow
 type RARentablesFlowData struct {
-	// Recid        int     `json:"recid"` // this is for the grid widget
 	BID          int64
 	RID          int64
 	RTID         int64
@@ -184,11 +180,60 @@ type RARentableFeesData struct {
 	TransOcc        float64
 }
 
+// RAParentChildFlowData contains data in the Parent/Child part of RA flow
+type RAParentChildFlowData struct {
+	BID  int64
+	PRID int64 // parent rentable ID
+	CRID int64 // child rentable ID
+}
+
+// RATieFlowData contains data in the tie part of RA flow
+type RATieFlowData struct {
+	Pets     []RAPetsTieData     `json:"pets"`
+	Vehicles []RAVehiclesTieData `json:"vehicles"`
+	Payors   []RAPayorsTieData   `json:"payors"`
+}
+
+// RAPetsTieData holds data from tie section for a pet to a rentable
+type RAPetsTieData struct {
+	BID   int64
+	PRID  int64
+	REFID int64 // reference to pet record ID stored temporarily
+}
+
+// RAVehiclesTieData holds data from tie section for a vehicle to a rentable
+type RAVehiclesTieData struct {
+	BID   int64
+	PRID  int64
+	REFID int64 // reference to vehicle record ID in json
+}
+
+// RAPayorsTieData holds data from tie section for a payor to a rentable
+type RAPayorsTieData struct {
+	BID   int64
+	PRID  int64
+	REFID int64 // user's temp json record reference id
+}
+
 // getUpdateRAFlowPartJSONData returns json data in bytes
 // coming from client with checking of flow and part type to update
-func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) ([]byte, error) {
+func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, flow *rlib.Flow) ([]byte, []byte, error) {
+
+	var (
+		modFlowPartData = []byte(nil)
+		modMetaData     = []byte(nil)
+		err             error
+		raFlowData      RAFlowJSONData
+	)
 
 	// TODO: Add validation on field level, it must be done.
+
+	// get the whole raflow data from Flow type data
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		// if it's an error then return with nil data
+		return modMetaData, modFlowPartData, err
+	}
 
 	// JSON Marshal with address
 	// REF: https://stackoverflow.com/questions/21390979/custom-marshaljson-never-gets-called-in-go
@@ -206,7 +251,7 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 			err := json.Unmarshal(data, &a)
 			if err != nil {
 				// if it's an error then return with nil data
-				return []byte(nil), err
+				return modMetaData, modFlowPartData, err
 			}
 		} else {
 			// it's null/blank data then initialize with default data
@@ -221,8 +266,9 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 			a.PossessionStart = rlib.JSONDate(currentDateTime)
 			a.PossessionStop = rlib.JSONDate(nextYearDateTime)
 		}
-		// return json marshalled for struct
-		return json.Marshal(&a)
+
+		// json marshalled for struct
+		modFlowPartData, err = json.Marshal(&a)
 
 	case rlib.PeopleRAFlowPart:
 		a := []RAPeopleFlowData{}
@@ -233,11 +279,12 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 			err := json.Unmarshal(data, &a)
 			if err != nil {
 				// if it's an error then return with nil data
-				return []byte(nil), err
+				return modMetaData, modFlowPartData, err
 			}
 		}
-		// return json marshalled for struct
-		return json.Marshal(&a)
+
+		// json marshalled for struct
+		modFlowPartData, err = json.Marshal(&a)
 
 	case rlib.PetsRAFlowPart:
 		a := []RAPetsFlowData{}
@@ -246,13 +293,23 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
+
+			// auto assign TMPID
+			for i := range a {
+				if a[i].TMPID == 0 { // if zero then assign new from last saved ID
+					raFlowData.Meta.PetLastTMPID++
+					a[i].TMPID = raFlowData.Meta.PetLastTMPID
+				}
+			}
+
 			if err != nil {
 				// if it's an error then return with nil data
-				return []byte(nil), err
+				return modMetaData, modFlowPartData, err
 			}
 		}
-		// return json marshalled for struct
-		return json.Marshal(&a)
+
+		// json marshalled for struct
+		modFlowPartData, err = json.Marshal(&a)
 
 	case rlib.VehiclesRAFlowPart:
 		a := []RAVehiclesFlowData{}
@@ -261,13 +318,23 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 		// json validation
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
+
+			// auto assign TMPID
+			for i := range a {
+				if a[i].TMPID == 0 { // if zero then assign new from last saved ID
+					raFlowData.Meta.VehicleLastTMPID++
+					a[i].TMPID = raFlowData.Meta.VehicleLastTMPID
+				}
+			}
+
 			if err != nil {
 				// if it's an error then return with nil data
-				return []byte(nil), err
+				return modMetaData, modFlowPartData, err
 			}
 		}
-		// return json marshalled for struct
-		return json.Marshal(&a)
+
+		// json marshalled for struct
+		modFlowPartData, err = json.Marshal(&a)
 
 	case rlib.RentablesRAFlowPart:
 		a := []RARentablesFlowData{}
@@ -287,11 +354,12 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 
 			if err != nil {
 				// if it's an error then return with nil data
-				return []byte(nil), err
+				return modMetaData, modFlowPartData, err
 			}
 		}
-		// return json marshalled for struct
-		return json.Marshal(&a)
+
+		// json marshalled for struct
+		modFlowPartData, err = json.Marshal(&a)
 
 	case rlib.ParentChildRAFlowPart:
 		a := []RAParentChildFlowData{}
@@ -302,18 +370,61 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int) 
 			err := json.Unmarshal(data, &a)
 			if err != nil {
 				// if it's an error then return with nil data
-				return []byte(nil), err
+				return modMetaData, modFlowPartData, err
 			}
 		}
-		// return json marshalled for struct
-		return json.Marshal(&a)
 
-	// case rlib.TieRAFlowPart:
+		// json marshalled for struct
+		modFlowPartData, err = json.Marshal(&a)
+
+	case rlib.TieRAFlowPart:
+		a := RATieFlowData{}
+
+		// if the struct provided with some data then check it for
+		// json validation
+		if !(isBlankJSONData) {
+			err := json.Unmarshal(data, &a)
+
+			// check for each sliced data field
+			// if it's blank then initialize it
+			if len(a.Pets) == 0 {
+				a.Pets = []RAPetsTieData{}
+			}
+			if len(a.Vehicles) == 0 {
+				a.Vehicles = []RAVehiclesTieData{}
+			}
+			if len(a.Payors) == 0 {
+				a.Payors = []RAPayorsTieData{}
+			}
+
+			if err != nil {
+				// if it's an error then return with nil data
+				return modMetaData, modFlowPartData, err
+			}
+		}
+
+		// json marshalled for struct
+		modFlowPartData, err = json.Marshal(&a)
 
 	default:
-		// not valid option then return with nil data
-		return []byte(nil), fmt.Errorf("unrecognized part type in RA flow: %d", partType)
+		err = fmt.Errorf("unrecognized part type in RA flow: %d", partType)
 	}
+
+	// if error occured in above switch cases execution
+	// while marshaling content in json then only
+	if err != nil {
+		return modMetaData, modFlowPartData, err
+	}
+
+	// now marshal json data back to raflow
+	modMetaData, err = json.Marshal(&raFlowData.Meta)
+	if err != nil {
+		// if it's an error then return with nil data
+		return modMetaData, modFlowPartData, err
+	}
+
+	// finally return with modified data
+	return modMetaData, modFlowPartData, err
 }
 
 // insertInitialRAFlow writes a bunch of flow's sections record for a particular RA
@@ -344,7 +455,11 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 		Vehicles:    []RAVehiclesFlowData{},
 		Rentables:   []RARentablesFlowData{},
 		ParentChild: []RAParentChildFlowData{},
-		Tie:         RATieFlowData{},
+		Tie: RATieFlowData{
+			Pets:     []RAPetsTieData{},
+			Vehicles: []RAVehiclesTieData{},
+			Payors:   []RAPayorsTieData{},
+		},
 	}
 
 	// get json marshelled byte data for above struct

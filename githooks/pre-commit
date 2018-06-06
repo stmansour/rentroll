@@ -12,7 +12,7 @@ NOFILE=`git diff --cached --name-status | awk '$1 != "D" { print $2 }' | grep "$
 if [ ${NOFILE} -gt 0 ]
 then
     echo "pre-commit: Please un-stage keys files."
-    LISTOFFILES=`git diff --cached --name-status | grep "${FILES}"`
+    LISTOFFILES=`git diff --cached --name-status | grep "${NOFILES}"`
     echo "${LISTOFFILES}"
     exit 1
 fi
