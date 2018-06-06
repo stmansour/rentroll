@@ -37,7 +37,7 @@
     "PeopleCount": 100,
     "RACount": 100,
     "Randomize": 1,
-    "RandNames": 1,
+    "RandNames": true,
     "RSeed": 0,
     "RandMissPayment": 20,
     "RandMissApply": 20
