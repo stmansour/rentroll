@@ -872,7 +872,7 @@ window.loadRARentablesGrid = function () {
 };
 
 //-----------------------------------------------------------------------------
-// ReAssignRentableGridRecords - will set the rentable grid records from local
+// ReassignRentableGridRecords - will set the rentable grid records from local
 //                               copy of flow data again
 //-----------------------------------------------------------------------------
 window.ReassignRentableGridRecords = function() {

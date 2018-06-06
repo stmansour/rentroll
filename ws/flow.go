@@ -266,7 +266,7 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// handle data for update based on flow and part type
-	var jsBtData []byte
+	var jsBtData, modMetaInfo []byte
 	switch flowReq.FlowType {
 	case rlib.RAFlow:
 		partType, ok := rlib.RAFlowPartsMap[flowReq.FlowPartKey]
@@ -276,7 +276,7 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			return
 		}
 
-		jsBtData, err = getUpdateRAFlowPartJSONData(d.BID, flowReq.Data, int(partType))
+		modMetaInfo, jsBtData, err = getUpdateRAFlowPartJSONData(d.BID, flowReq.Data, int(partType), &existFlow)
 		if err != nil {
 			err1 := fmt.Errorf("Data is not in valid format for flowID: %d, flowType: %s, Error: %s", flowReq.FlowID, flowReq.FlowType, err.Error())
 			SvcErrorReturn(w, err1, funcname)
@@ -290,6 +290,13 @@ func saveFlow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 
 	// update data with given json data key
 	err = rlib.UpdateFlowData(r.Context(), flowReq.FlowPartKey, jsBtData, &existFlow)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// update data for modified meta data
+	err = rlib.UpdateFlowData(r.Context(), "meta", modMetaInfo, &existFlow)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
