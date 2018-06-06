@@ -687,7 +687,8 @@ window.manageBGInfoFormFields = function (record) {
 
     // Display/Required field based on transanctant type
     var haveToHide = record.IsOccupant && !record.IsRenter && !record.IsGuarantor; // true: hide fields, false: show fields
-    // hide/show fields
+
+	// hide/show fields
     showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
 };
 
