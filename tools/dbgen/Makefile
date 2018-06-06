@@ -13,7 +13,7 @@ dbgen: *.go config.json
 	@echo "*** Completed in ${THIS} ***"
 
 clean:
-	rm -f rentroll.log log llog ${THIS} fail c*.json
+	rm -f rentroll.log log llog ${THIS} fail c*.json dbgen
 	@echo "*** CLEAN completed in ${THIS} ***"
 
 config.json:

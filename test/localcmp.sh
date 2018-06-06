@@ -78,6 +78,7 @@ getSchema "${DEF1}" "${REFDB}"
 declare -a dblist=(
     '../tools/dbgen/empty.sql'
     'acctbal/baltest.sql'
+    'closeperiod/rr.sql'
     'payorstmt/pstmt.sql'
     'rfix/rcptfixed.sql'
     'rfix/receipts.sql'

@@ -1,5 +1,6 @@
 /*global
     w2ui,getCurrentBID,loadClosePeriodInfo,loadClosePeriodInfo,dtFormatISOToW2ui,errMsgHTML,
+    successMsgHTML,
 */
 "use strict";
 
@@ -15,6 +16,9 @@ window.switchToClosePeriod = function() {
     loadClosePeriodInfo();
 };
 
+// errMsgHTML - format error message in closePeriodMsgArea
+//              This is message type 1
+//------------------------------------------------------------
 window.errMsgHTML = function(errmsg) {
     var s;
     if (errmsg.length > 0 ) {
@@ -26,6 +30,21 @@ window.errMsgHTML = function(errmsg) {
     }
     return s;
 };
+
+// // errMsgHTML - format error message in closePeriodMsgArea
+// //              This is message type 1
+// //------------------------------------------------------------
+// window.successMsgHTML = function(msg) {
+//     var s;
+//     if (errmsg.length > 0 ) {
+//         s = '<p style="background-color: #ffe0e0;color: #ff2222;"><br>&nbsp;&nbsp;' +
+//             '<i class="fas fa-exclamation-circle fa-2x"></i> &nbsp;&nbsp;' +
+//              errmsg + "<br>&nbsp;</p>";
+//     } else {
+//         s = "";
+//     }
+//     return s;
+// };
 
 //-----------------------------------------------------------------------------
 // loadClosePeriodInfo - a layout in which we place an html page
@@ -48,7 +67,7 @@ window.loadClosePeriodInfo = function (errmsg) {
     // If we were called with an error message, let's get it up there now....
     //------------------------------------------------------------------------
     if (errmsg.length > 0 ) {
-        document.getElementById("closePeriodError").innerHTML = errMsgHTML(errmsg);
+        document.getElementById("closePeriodMsgArea").innerHTML = errMsgHTML(errmsg);
     }
 
     // delete Depository request
@@ -61,7 +80,7 @@ window.loadClosePeriodInfo = function (errmsg) {
         var bTargetTLCompleted = false;  // is the instance marked as completed
 
         if (data.status === "error") {
-            document.getElementById("closePeriodError").innerHTML = errMsgHTML(data.message);
+            document.getElementById("closePeriodMsgArea").innerHTML = errMsgHTML(data.message);
             return;
         }
 
@@ -135,7 +154,7 @@ window.loadClosePeriodInfo = function (errmsg) {
 
     })
     .fail(function(/*data*/){
-        var x = document.getElementById("closePeriodError");
+        var x = document.getElementById("closePeriodMsgArea");
         if (x !== null) {
             x.innerHTML = errMsgHTML("Get close period info failed.");
         }

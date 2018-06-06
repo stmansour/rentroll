@@ -331,67 +331,8 @@ func UpdateSubLedgerMarkers(ctx context.Context, bid int64, d2 *time.Time) error
 	return rows.Err()
 }
 
-// // UpdatePayorSubLedgers updates the sub-ledgers by
-// func UpdatePayorSubLedgers(bid int64, d0, d2 *time.Time) {
-// 	funcname := "UpdatePayorSubLedgers"
-// 	var uafPayors = map[int64]int{}
-// 	d := GetDateOfLedgerMarkerOnOrBefore(bid, d0)
-// 	d1 := &d
-// 	Console("%s: d1 = %s\n", funcname, d1.Format(RRDATEFMT4))
-
-// 	// For each Rental Agreement
-// 	rows, err := RRdb.Prepstmt.GetRentalAgreementByBusiness.Query(bid)
-// 	Errcheck(err)
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		var ra RentalAgreement
-// 		err = ReadRentalAgreements(rows, &ra)
-// 		if err != nil {
-// 			Ulog("%s: error reading RentalAgreement: %s\n", funcname, err.Error())
-// 			return
-// 		}
-// 		Console("Rental Agreement: %d\n", ra.RAID)
-
-// 		//----------------------------------------------------------------------
-// 		// Build a list of payors that have unallocated receipts
-// 		//----------------------------------------------------------------------
-// 		m := GetRentalAgreementPayorsInRange(ra.RAID, d1, d2)
-// 		for i := 0; i < len(m); i++ {
-// 			tcid := m[i].TCID
-// 			Console("Payor %d. TCID=%d\n", i, tcid)
-// 			//------------------------------------------------------------------
-// 			// Are there any unallocated funds from this payor?  If so, add the
-// 			// payor to the map
-// 			//------------------------------------------------------------------
-// 			if GetPayorUnallocatedReceiptsCount(ra.BID, tcid) > 0 {
-// 				_, ok := uafPayors[tcid]
-// 				if ok {
-// 					continue
-// 				}
-// 				uafPayors[tcid] = 1
-// 				//-------------------------------------------------------------
-// 				// Compute the amount for the date of this ledger marker.
-// 				// We're not keeping ledger markers for this because all receipts
-// 				// should be consumed over time whenever it comes time to
-// 				// allocate payment. So, simply collect all the receipts that
-// 				// have not been fully allocated
-// 				//-------------------------------------------------------------
-// 			}
-// 		}
-// 	}
-// 	Errcheck(rows.Err())
-// 	// //----------------------------------------------------------------------
-// 	// // uafPayors contains the list of all payors with unallocated receipts
-// 	// //----------------------------------------------------------------------
-// 	// Console("Payors with unallocated funds:  %d\n", len(uafPayors))
-// 	// for k := range uafPayors {
-// 	// 	Console("TCID = %d\n", k)
-// 	// }
-// }
-
 func closeLedgerPeriod(ctx context.Context, xbiz *XBusiness, li *GLAccount, lm *LedgerMarker, dt *time.Time, state int64) error {
 	const funcname = "closeLedgerPeriod"
-
 	bal, err := GetRAAccountBalance(ctx, li.BID, li.LID, 0, dt)
 	if err != nil {
 		return err
