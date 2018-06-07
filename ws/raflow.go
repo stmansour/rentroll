@@ -26,10 +26,10 @@ type RAFlowJSONData struct {
 
 // RAFlowMetaInfo holds meta info about a rental agreement flow data
 type RAFlowMetaInfo struct {
-	RAID             int64 // 0 = it's new, >0 = existing one
-	PetLastTMPID     int64
-	VehicleLastTMPID int64
-	PeopleLastTMPID  int64
+	RAID         int64 // 0 = it's new, >0 = existing one
+	LastTMPPETID int64
+	LastTMPVID   int64
+	LastTMPTCID  int64
 }
 
 // RADatesFlowData contains data in the dates part of RA flow
@@ -45,9 +45,9 @@ type RADatesFlowData struct {
 
 // RAPeopleFlowData contains data in the background-info part of RA flow
 type RAPeopleFlowData struct {
-	TMPID int64
-	BID   int64
-	TCID  int64
+	TMPTCID int64
+	BID     int64
+	TCID    int64
 
 	// Role
 	IsRenter    bool
@@ -109,9 +109,10 @@ type RAPeopleFlowData struct {
 
 // RAPetsFlowData contains data in the pets part of RA flow
 type RAPetsFlowData struct {
-	TMPID                int64
+	TMPPETID             int64
 	BID                  int64
 	PETID                int64
+	TCID                 int64
 	Name                 string
 	Type                 string
 	Breed                string
@@ -126,7 +127,7 @@ type RAPetsFlowData struct {
 
 // RAVehiclesFlowData contains data in the vehicles part of RA flow
 type RAVehiclesFlowData struct {
-	TMPID               int64
+	TMPVID              int64
 	BID                 int64
 	VID                 int64
 	TCID                int64
@@ -199,21 +200,21 @@ type RATieFlowData struct {
 type RATiePetsData struct {
 	BID      int64
 	PRID     int64
-	TMPREFID int64 // reference to pet record ID stored temporarily
+	TMPPETID int64 // reference to pet record ID stored temporarily
 }
 
 // RATieVehiclesData holds data from tie section for a vehicle to a rentable
 type RATieVehiclesData struct {
-	BID      int64
-	PRID     int64
-	TMPREFID int64 // reference to vehicle record ID in json
+	BID    int64
+	PRID   int64
+	TMPVID int64 // reference to vehicle record ID in json
 }
 
 // RATiePeopleData holds data from tie section for a payor to a rentable
 type RATiePeopleData struct {
-	BID      int64
-	PRID     int64
-	TMPREFID int64 // user's temp json record reference id
+	BID     int64
+	PRID    int64
+	TMPTCID int64 // user's temp json record reference id
 }
 
 // getUpdateRAFlowPartJSONData returns json data in bytes
@@ -279,11 +280,11 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 
-			// auto assign TMPID
+			// auto assign TMPTCID
 			for i := range a {
-				if a[i].TMPID == 0 { // if zero then assign new from last saved ID
-					raFlowData.Meta.PeopleLastTMPID++
-					a[i].TMPID = raFlowData.Meta.PeopleLastTMPID
+				if a[i].TMPTCID == 0 { // if zero then assign new from last saved ID
+					raFlowData.Meta.LastTMPTCID++
+					a[i].TMPTCID = raFlowData.Meta.LastTMPTCID
 				}
 			}
 
@@ -304,11 +305,11 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 
-			// auto assign TMPID
+			// auto assign TMPPETID
 			for i := range a {
-				if a[i].TMPID == 0 { // if zero then assign new from last saved ID
-					raFlowData.Meta.PetLastTMPID++
-					a[i].TMPID = raFlowData.Meta.PetLastTMPID
+				if a[i].TMPPETID == 0 { // if zero then assign new from last saved ID
+					raFlowData.Meta.LastTMPPETID++
+					a[i].TMPPETID = raFlowData.Meta.LastTMPPETID
 				}
 			}
 
@@ -329,11 +330,11 @@ func getUpdateRAFlowPartJSONData(BID int64, data json.RawMessage, partType int, 
 		if !(isBlankJSONData) {
 			err := json.Unmarshal(data, &a)
 
-			// auto assign TMPID
+			// auto assign TMPVID
 			for i := range a {
-				if a[i].TMPID == 0 { // if zero then assign new from last saved ID
-					raFlowData.Meta.VehicleLastTMPID++
-					a[i].TMPID = raFlowData.Meta.VehicleLastTMPID
+				if a[i].TMPVID == 0 { // if zero then assign new from last saved ID
+					raFlowData.Meta.LastTMPVID++
+					a[i].TMPVID = raFlowData.Meta.LastTMPVID
 				}
 			}
 

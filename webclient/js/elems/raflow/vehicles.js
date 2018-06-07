@@ -21,7 +21,7 @@ window.getVehicleFormInitalRecord = function (previousFormRecord) {
 
     var defaultFormData = {
         recid:                  0,
-        TMPID:                  0,
+        TMPVID:                  0,
         VID:                    0,
         BID:                    BID,
         TCID:                   0,
@@ -76,7 +76,7 @@ window.loadRAVehiclesGrid = function () {
             },
             fields  : [
                 { field: 'recid',               type: 'int',    required: false, html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'TMPID',               type: 'int',    required: true  },
+                { field: 'TMPVID',              type: 'int',    required: true  },
                 { field: 'Type',                type: 'text',   required: true  },
                 { field: 'Make',                type: 'text',   required: true  },
                 { field: 'Model',               type: 'text',   required: true  },
@@ -116,7 +116,7 @@ window.loadRAVehiclesGrid = function () {
                 save: function () {
                     var f =     w2ui.RAVehicleForm,
                         grid =  w2ui.RAVehiclesGrid,
-                        TMPID = f.record.TMPID;
+                        TMPVID = f.record.TMPVID;
 
                     // validate form record
                     var errors = f.validate();
@@ -126,7 +126,7 @@ window.loadRAVehiclesGrid = function () {
                     var vehicleData = getFormSubmitData(f.record, true);
 
                     // set data locally
-                    setVehicleLocalData(TMPID, vehicleData);
+                    setVehicleLocalData(TMPVID, vehicleData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -157,7 +157,7 @@ window.loadRAVehiclesGrid = function () {
                 saveadd: function () {
                     var f =     w2ui.RAVehicleForm,
                         grid =  w2ui.RAVehiclesGrid,
-                        TMPID = f.record.TMPID;
+                        TMPVID = f.record.TMPVID;
 
                     // validate the form first
                     var errors = f.validate();
@@ -168,7 +168,7 @@ window.loadRAVehiclesGrid = function () {
                     var vehicleData = getFormSubmitData(f.record, true);
 
                     // set data locally
-                    setVehicleLocalData(TMPID, vehicleData);
+                    setVehicleLocalData(TMPVID, vehicleData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -197,9 +197,9 @@ window.loadRAVehiclesGrid = function () {
                 delete: function () {
                     var f = w2ui.RAVehicleForm;
 
-                    // get local data from TMPID
+                    // get local data from TMPVID
                     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
-                    var itemIndex = getVehicleLocalData(f.record.TMPID, true);
+                    var itemIndex = getVehicleLocalData(f.record.TMPVID, true);
                     compData.splice(itemIndex, 1);
 
                     // save this records in json Data
@@ -249,7 +249,7 @@ window.loadRAVehiclesGrid = function () {
                     hidden: true
                 },
                 {
-                    field: 'TMPID',
+                    field: 'TMPVID',
                     hidden: true
                 },
                 {
@@ -396,14 +396,14 @@ window.loadRAVehiclesGrid = function () {
 };
 
 //-----------------------------------------------------------------------------
-// getVehicleLocalData - returns the clone of vehicle data for requested TMPID
+// getVehicleLocalData - returns the clone of vehicle data for requested TMPVID
 //-----------------------------------------------------------------------------
-window.getVehicleLocalData = function(TMPID, returnIndex) {
+window.getVehicleLocalData = function(TMPVID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
     compData.forEach(function(item, index) {
-        if (item.TMPID == TMPID) {
+        if (item.TMPVID == TMPVID) {
             if (returnIndex) {
                 foundIndex = index;
             } else {
@@ -420,13 +420,13 @@ window.getVehicleLocalData = function(TMPID, returnIndex) {
 
 
 //-----------------------------------------------------------------------------
-// setVehicleLocalData - save the data for requested a TMPID in local data
+// setVehicleLocalData - save the data for requested a TMPVID in local data
 //-----------------------------------------------------------------------------
-window.setVehicleLocalData = function(TMPID, vehicleData) {
+window.setVehicleLocalData = function(TMPVID, vehicleData) {
     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
     var dataIndex = -1;
     compData.forEach(function(item, index) {
-        if (item.TMPID == TMPID) {
+        if (item.TMPVID == TMPVID) {
             dataIndex = index;
             return false;
         }

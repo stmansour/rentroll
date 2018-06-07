@@ -18,8 +18,9 @@ window.getPetFormInitRecord = function (previousFormRecord){
 
     var defaultFormData = {
         recid:                  0,
-        TMPID:                  0,
+        TMPPETID:               0,
         PETID:                  0,
+        TCID:                   0,
         BID:                    BID,
         Name:                   "",
         Breed:                  "",
@@ -74,9 +75,10 @@ window.loadRAPetsGrid = function () {
             },
             fields  : [
                 { field: 'recid',                   type: 'int',    required: false,    html: { caption: 'recid', page: 0, column: 0 } },
-                { field: 'TMPID',                   type: 'int',    required: true  },
+                { field: 'TMPPETID',                type: 'int',    required: true  },
                 { field: 'BID',                     type: 'int',    required: true,     html: { caption: 'BID', page: 0, column: 0 } },
                 { field: 'PETID',                   type: 'int',    required: true,     html: { caption: 'PETID', page: 0, column: 0 } },
+                { field: 'TCID',                    type: 'int',    required: true  },
                 { field: 'Name',                    type: 'text',   required: true  },
                 { field: 'Breed',                   type: 'text',   required: true  },
                 { field: 'Type',                    type: 'text',   required: true  },
@@ -126,7 +128,7 @@ window.loadRAPetsGrid = function () {
                 save: function() {
                     var f = w2ui.RAPetForm,
                         grid = w2ui.RAPetsGrid,
-                        TMPID = f.record.TMPID;
+                        TMPPETID = f.record.TMPPETID;
 
                     // validate form
                     var errors = f.validate();
@@ -136,7 +138,7 @@ window.loadRAPetsGrid = function () {
                     var petData = getFormSubmitData(f.record, true);
 
                     // set data locally
-                    setPetLocalData(TMPID, petData);
+                    setPetLocalData(TMPPETID, petData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -164,7 +166,7 @@ window.loadRAPetsGrid = function () {
                 saveadd: function() {
                     var f = w2ui.RAPetForm,
                         grid = w2ui.RAPetsGrid,
-                        TMPID = f.record.TMPID;
+                        TMPPETID = f.record.TMPPETID;
 
                     // validate form
                     var errors = f.validate();
@@ -174,7 +176,7 @@ window.loadRAPetsGrid = function () {
                     var petData = getFormSubmitData(f.record, true);
 
                     // set data locally
-                    setPetLocalData(TMPID, petData);
+                    setPetLocalData(TMPPETID, petData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -203,9 +205,9 @@ window.loadRAPetsGrid = function () {
                 delete: function() {
                     var f = w2ui.RAPetForm;
 
-                    // get local data from TMPID
+                    // get local data from TMPPETID
                     var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
-                    var itemIndex = getPetLocalData(f.record.TMPID, true);
+                    var itemIndex = getPetLocalData(f.record.TMPPETID, true);
                     compData.splice(itemIndex, 1);
 
                     // save this records in json Data
@@ -255,11 +257,15 @@ window.loadRAPetsGrid = function () {
                     hidden: true
                 },
                 {
-                    field: 'TMPID',
+                    field: 'TMPPETID',
                     hidden: true
                 },
                 {
                     field: 'PETID',
+                    hidden: true
+                },
+                {
+                    field: 'TCID',
                     hidden: true
                 },
                 {
@@ -384,14 +390,14 @@ window.loadRAPetsGrid = function () {
 };
 
 //-----------------------------------------------------------------------------
-// getPetLocalData - returns the clone of pet data for requested TMPID
+// getPetLocalData - returns the clone of pet data for requested TMPPETID
 //-----------------------------------------------------------------------------
-window.getPetLocalData = function(TMPID, returnIndex) {
+window.getPetLocalData = function(TMPPETID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
     var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
     compData.forEach(function(item, index) {
-        if (item.TMPID == TMPID) {
+        if (item.TMPPETID == TMPPETID) {
             if (returnIndex) {
                 foundIndex = index;
             } else {
@@ -408,13 +414,13 @@ window.getPetLocalData = function(TMPID, returnIndex) {
 
 
 //-----------------------------------------------------------------------------
-// setPetLocalData - save the data for requested a TMPID in local data
+// setPetLocalData - save the data for requested a TMPPETID in local data
 //-----------------------------------------------------------------------------
-window.setPetLocalData = function(TMPID, petData) {
+window.setPetLocalData = function(TMPPETID, petData) {
     var compData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
     var dataIndex = -1;
     compData.forEach(function(item, index) {
-        if (item.TMPID == TMPID) {
+        if (item.TMPPETID == TMPPETID) {
             dataIndex = index;
             return false;
         }

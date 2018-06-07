@@ -113,7 +113,7 @@ window.loadRAPeopleForm = function () {
                     hidden: true
                 },
                 {
-                    field: 'TMPID',
+                    field: 'TMPTCID',
                     hidden: true
                 },
                 {
@@ -251,51 +251,51 @@ window.loadRAPeopleForm = function () {
                 }
             },
             fields: [
-                {name: 'BID', type: 'int', required: true, html: {caption: 'BID', page: 0, column: 0}},
-                {name: 'TMPID', type: 'int', required: true},
-                {name: 'TCID', type: 'int', required: true, html: {caption: 'TCID', page: 0, column: 0}},
-                {name: 'IsRenter', type: 'checkbox', required: false}, // will be responsible for paying rent
-                {name: 'IsOccupant', type: 'checkbox', required: false}, // will reside in and/or use the items rented
-                {name: 'IsGuarantor', type: 'checkbox', required: false}, // responsible for making sure all rent is paid
-                {name: 'FirstName', type: 'text', required: false},
-                {name: 'MiddleName', type: 'text', required: false},
-                {name: 'LastName', type: 'text', required: false},
-                {name: 'IsCompany', type: 'checkbox', required: true},
-                {name: 'BirthDate', type: 'date', required: false}, // Date of births of applicants
-                {name: 'SSN', type: 'text', required: false}, // Social security number of applicants
-                {name: 'DriverLicNo', type: 'text'}, // Driving licence number of applicants
-                {name: 'TelephoneNo', type: 'text', required: false}, // Telephone no of applicants
-                {name: 'EmailAddress', type: 'email', required: false}, // Email Address of applicants
-                {name: 'CurrentAddress', type: 'text', required: false}, // Current Address
-                {name: 'CurrentLandLordName', type: 'text', required: false}, // Current landlord's name
-                {name: 'CurrentLandLordPhoneNo', type: 'text', required: false}, // Current landlord's phone number
-                {name: 'CurrentLengthOfResidency', type: 'int', required: false}, // Length of residency at current address
-                {name: 'CurrentReasonForMoving', type: 'text', required: false}, // Reason of moving from current address
-                {name: 'PriorAddress', type: 'text'}, // Prior Address
-                {name: 'PriorLandLordName', type: 'text'}, // Prior landlord's name
-                {name: 'PriorLandLordPhoneNo', type: 'text'}, // Prior landlord's phone number
-                {name: 'PriorLengthOfResidency', type: 'int'}, // Length of residency at Prior address
-                {name: 'PriorReasonForMoving', type: 'text'}, // Reason of moving from Prior address
-                {name: 'Evicted', type: 'checkbox', required: false}, // have you ever been Evicted
-		        {name: 'EvictedDes', type: 'text', required: false},
-                {name: 'Convicted', type: 'checkbox', required: false}, // have you ever been Arrested or convicted of a crime
-		        {name: 'ConvictedDes', type: 'text', required: false},
-                {name: 'Bankruptcy', type: 'checkbox', required: false}, // have you ever been Declared Bankruptcy
-		        {name: 'BankruptcyDes', type: 'text', required: false},
-                {name: 'Employer', type: 'text', required: false},
-                {name: 'Phone', type: 'text', required: false},
-                {name: 'Address', type: 'text', required: false},
-                {name: 'Address2', type: 'text', required: false},
-                {name: 'City', type: 'text', required: false},
-                {name: 'State', type: 'list', options: {items: app.usStateAbbr}, required: false},
-                {name: 'PostalCode', type: 'text', required: false},
-                {name: 'Country', type: 'text', required: false},
-                {name: 'Position', type: 'text', required: false},
-                {name: 'GrossWages', type: 'money', required: false},
-                {name: 'Comment', type: 'text'}, // In an effort to accommodate you, please advise us of any special needs
-                {name: 'EmergencyContactName', type: 'text', required: false}, // Name of emergency contact
-                {name: 'EmergencyContactPhone', type: 'text', required: false}, // Phone number of emergency contact
-                {name: 'EmergencyContactAddress', type: 'text', required: false} // Address of emergency contact
+                {name: 'BID',                       type: 'int',        required: true,     html: {caption: 'BID', page: 0, column: 0}},
+                {name: 'TMPTCID',                   type: 'int',        required: true },
+                {name: 'TCID',                      type: 'int',        required: true,     html: {caption: 'TCID', page: 0, column: 0}},
+                {name: 'IsRenter',                  type: 'checkbox',   required: false },  // will be responsible for paying rent
+                {name: 'IsOccupant',                type: 'checkbox',   required: false },  // will reside in and/or use the items rented
+                {name: 'IsGuarantor',               type: 'checkbox',   required: false },  // responsible for making sure all rent is paid
+                {name: 'FirstName',                 type: 'text',       required: false },
+                {name: 'MiddleName',                type: 'text',       required: false },
+                {name: 'LastName',                  type: 'text',       required: false },
+                {name: 'IsCompany',                 type: 'checkbox',   required: true },
+                {name: 'BirthDate',                 type: 'date',       required: false },  // Date of births of applicants
+                {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
+                {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
+                {name: 'TelephoneNo',               type: 'text',       required: false },  // Telephone no of applicants
+                {name: 'EmailAddress',              type: 'email',      required: false },  // Email Address of applicants
+                {name: 'CurrentAddress',            type: 'text',       required: false },  // Current Address
+                {name: 'CurrentLandLordName',       type: 'text',       required: false },  // Current landlord's name
+                {name: 'CurrentLandLordPhoneNo',    type: 'text',       required: false },  // Current landlord's phone number
+                {name: 'CurrentLengthOfResidency',  type: 'int',        required: false },  // Length of residency at current address
+                {name: 'CurrentReasonForMoving',    type: 'text',       required: false },  // Reason of moving from current address
+                {name: 'PriorAddress',              type: 'text'},                          // Prior Address
+                {name: 'PriorLandLordName',         type: 'text'},                          // Prior landlord's name
+                {name: 'PriorLandLordPhoneNo',      type: 'text'},                          // Prior landlord's phone number
+                {name: 'PriorLengthOfResidency',    type: 'int'},                           // Length of residency at Prior address
+                {name: 'PriorReasonForMoving',      type: 'text'},                          // Reason of moving from Prior address
+                {name: 'Evicted',                   type: 'checkbox',   required: false },  // have you ever been Evicted
+                {name: 'EvictedDes',                type: 'text',       required: false },
+                {name: 'Convicted',                 type: 'checkbox',   required: false },  // have you ever been Arrested or convicted of a crime
+                {name: 'ConvictedDes',              type: 'text',       required: false },
+                {name: 'Bankruptcy',                type: 'checkbox',   required: false },  // have you ever been Declared Bankruptcy
+                {name: 'BankruptcyDes',             type: 'text',       required: false },
+                {name: 'Employer',                  type: 'text',       required: false },
+                {name: 'Phone',                     type: 'text',       required: false },
+                {name: 'Address',                   type: 'text',       required: false },
+                {name: 'Address2',                  type: 'text',       required: false },
+                {name: 'City',                      type: 'text',       required: false },
+                {name: 'State',                     type: 'list',       required: false,    options: {items: app.usStateAbbr}, },
+                {name: 'PostalCode',                type: 'text',       required: false },
+                {name: 'Country',                   type: 'text',       required: false },
+                {name: 'Position',                  type: 'text',       required: false },
+                {name: 'GrossWages',                type: 'money',      required: false },
+                {name: 'Comment',                   type: 'text'},                          // In an effort to accommodate you, please advise us of any special needs
+                {name: 'EmergencyContactName',      type: 'text',       required: false },  // Name of emergency contact
+                {name: 'EmergencyContactPhone',     type: 'text',       required: false },  // Phone number of emergency contact
+                {name: 'EmergencyContactAddress',   type: 'text',       required: false }   // Address of emergency contact
             ],
             actions: {
                 save: function () {
@@ -373,11 +373,11 @@ window.loadRAPeopleForm = function () {
             onChange: function (event) {
                 event.onComplete = function () {
 
-					$("#EvictedDes").prop("disabled", !this.record.Evicted);
+                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
 
-					$("#ConvictedDes").prop("disabled", !this.record.Convicted);
+                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
 
-					$("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
 
                     manageBGInfoFormFields(this.record);
 
@@ -404,11 +404,11 @@ window.loadRAPeopleForm = function () {
                     $(form.box).find("button[name=delete]").removeClass("hidden");
                 }
 
-				$("#EvictedDes").prop("disabled", !this.record.Evicted);
+                $("#EvictedDes").prop("disabled", !this.record.Evicted);
 
-				$("#ConvictedDes").prop("disabled", !this.record.Convicted);
+                $("#ConvictedDes").prop("disabled", !this.record.Convicted);
 
-				$("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+                $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
             }
         });
     }
@@ -521,7 +521,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
 
     return {
         recid: RECID,
-        TMPID: 0,
+        TMPTCID: 0,
         TCID: TCID,
         BID: BID,
         IsRenter: false,
@@ -547,11 +547,11 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         PriorLengthOfResidency: 0,
         PriorReasonForMoving: "",
         Evicted: false,
-		EvictedDes: "",
+        EvictedDes: "",
         Convicted: false,
-		ConvictedDes: "",
+        ConvictedDes: "",
         Bankruptcy: false,
-		BankruptcyDes: "",
+        BankruptcyDes: "",
         Employer: "",
         Phone: "",
         Address: "",
@@ -688,7 +688,7 @@ window.manageBGInfoFormFields = function (record) {
 
     // Display/Required field based on transanctant type
     var haveToHide = record.IsOccupant && !record.IsRenter && !record.IsGuarantor; // true: hide fields, false: show fields
-	// hide/show fields
+    // hide/show fields
     showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
 };
 

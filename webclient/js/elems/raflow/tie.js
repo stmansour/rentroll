@@ -91,7 +91,7 @@ window.loadRATieSection = function () {
                     hidden: true
                 },
                 {
-                    field: 'TMPREFID',
+                    field: 'TMPPETID',
                     hidden: true
                 },
                 {
@@ -141,14 +141,14 @@ window.loadRATieSection = function () {
                     var PRNCI = grid.getColumn("ParentRentableName", true);
                     if (PRNCI === event.column) {
                         var record = grid.get(event.recid);
-                        var localTiePetData = getTiePetLocalData(record.TMPREFID);
+                        var localTiePetData = getTiePetLocalData(record.TMPPETID);
 
                         localTiePetData.PRID = record.PRID = parseInt(event.value_new);
                         record.ParentRentableName = parseInt(event.value_new);
 
                         // set data
                         grid.set(event.recid, record);
-                        setTiePetLocalData(record.TMPREFID, localTiePetData);
+                        setTiePetLocalData(record.TMPPETID, localTiePetData);
                     }
 
                     // save grid changes
@@ -177,7 +177,7 @@ window.loadRATieSection = function () {
                     hidden: true
                 },
                 {
-                    field: 'TMPREFID',
+                    field: 'TMPVID',
                     hidden: true
                 },
                 {
@@ -242,14 +242,14 @@ window.loadRATieSection = function () {
                     var PRNCI = grid.getColumn("ParentRentableName", true);
                     if (PRNCI === event.column) {
                         var record = grid.get(event.recid);
-                        var localTieVehicleData = getTieVehicleLocalData(record.TMPREFID);
+                        var localTieVehicleData = getTieVehicleLocalData(record.TMPVID);
 
                         localTieVehicleData.PRID = record.PRID = parseInt(event.value_new);
                         record.ParentRentableName = parseInt(event.value_new);
 
                         // set data
                         grid.set(event.recid, record);
-                        setTieVehicleLocalData(record.TMPREFID, localTieVehicleData);
+                        setTieVehicleLocalData(record.TMPVID, localTieVehicleData);
                     }
 
                     // save grid changes
@@ -278,7 +278,7 @@ window.loadRATieSection = function () {
                     hidden: true
                 },
                 {
-                    field: 'TMPREFID',
+                    field: 'TMPTCID',
                     hidden: true
                 },
                 {
@@ -318,14 +318,14 @@ window.loadRATieSection = function () {
                     var PRNCI = grid.getColumn("ParentRentableName", true);
                     if (PRNCI === event.column) {
                         var record = grid.get(event.recid);
-                        var localTiePeopleData = getTiePeopleLocalData(record.TMPREFID);
+                        var localTiePeopleData = getTiePeopleLocalData(record.TMPTCID);
 
                         localTiePeopleData.PRID = record.PRID = parseInt(event.value_new);
                         record.ParentRentableName = parseInt(event.value_new);
 
                         // set data
                         grid.set(event.recid, record);
-                        setTiePeopleLocalData(record.TMPREFID, localTiePeopleData);
+                        setTiePeopleLocalData(record.TMPTCID, localTiePeopleData);
                         console.debug(getRAFlowCompData("tie", app.raflow.activeFlowID));
                     }
 
@@ -345,10 +345,10 @@ window.loadRATieSection = function () {
 };
 
 //-----------------------------------------------------------------------------
-// getTiePetLocalData - returns the clone of pet data for requested TMPID
+// getTiePetLocalData - returns the clone of pet data for requested TMPPETID
 //                      from tie comp data
 //-----------------------------------------------------------------------------
-window.getTiePetLocalData = function(TMPID, returnIndex) {
+window.getTiePetLocalData = function(TMPPETID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
 
@@ -356,7 +356,7 @@ window.getTiePetLocalData = function(TMPID, returnIndex) {
     var tiePetsData = compData.pets || [];
 
     tiePetsData.forEach(function(item, index) {
-        if (item.TMPREFID == TMPID) {
+        if (item.TMPPETID == TMPPETID) {
             if (returnIndex) {
                 foundIndex = index;
             } else {
@@ -373,15 +373,15 @@ window.getTiePetLocalData = function(TMPID, returnIndex) {
 
 //-----------------------------------------------------------------------------
 // setTiePetLocalData - set the modified tie pet data locally
-//                      for requested TMPREFID by matching TMPREFID
+//                      for requested TMPPETID by matching TMPPETID
 //-----------------------------------------------------------------------------
-window.setTiePetLocalData = function(TMPREFID, data) {
+window.setTiePetLocalData = function(TMPPETID, data) {
     var compData = getRAFlowCompData("tie", app.raflow.activeFlowID);
     var tiePetsData = compData.pets || [];
 
     var dataIndex = -1;
     tiePetsData.forEach(function(item, index) {
-        if (item.TMPREFID == TMPREFID) {
+        if (item.TMPPETID == TMPPETID) {
             dataIndex = index;
             return false;
         }
@@ -408,7 +408,7 @@ window.AssignTiePetsGridRecords = function() {
 
     petsCompData.forEach(function(petData) {
         var PRID = 0;
-        var tiePet = getTiePetLocalData(petData.TMPID);
+        var tiePet = getTiePetLocalData(petData.TMPPETID);
 
         // parent Rentable ID found then for initial load in grid
         if (tiePet.PRID) {
@@ -425,7 +425,7 @@ window.AssignTiePetsGridRecords = function() {
         var record = {
             recid:              0,
             BID:                BID,
-            TMPREFID:           petData.TMPID,
+            TMPPETID:           petData.TMPPETID,
             PRID:               PRID,
             ParentRentableName: PRID,
             Name:               petData.Name,
@@ -487,7 +487,7 @@ window.saveTiePetsData = function() {
         // scan for each record from grid with compData, if RID not found then hit the API to save data
         gridRecords.forEach(function(gridRec) {
             tiePetsData.forEach(function(petItem) {
-                if (gridRec.TMPREFID === petItem.TMPREFID && gridRec.PRID === petItem.PRID) {
+                if (gridRec.TMPPETID === petItem.TMPPETID && gridRec.PRID === petItem.PRID) {
                     tmpIDExists = true;
                     return false;
                 }
@@ -505,7 +505,7 @@ window.saveTiePetsData = function() {
             modTiePetsData = [];
 
         gridRecords.forEach(function(rec) {
-            modTiePetsData.push({BID: BID, TMPREFID: rec.TMPREFID, PRID: rec.PRID});
+            modTiePetsData.push({BID: BID, TMPPETID: rec.TMPPETID, PRID: rec.PRID});
         });
 
         // set this to it's position
@@ -517,10 +517,10 @@ window.saveTiePetsData = function() {
 };
 
 //-----------------------------------------------------------------------------
-// getTieVehicleLocalData - returns the clone of vehicle data for requested TMPID
+// getTieVehicleLocalData - returns the clone of vehicle data for requested TMPVID
 //                          from tie comp data
 //-----------------------------------------------------------------------------
-window.getTieVehicleLocalData = function(TMPID, returnIndex) {
+window.getTieVehicleLocalData = function(TMPVID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
 
@@ -528,7 +528,7 @@ window.getTieVehicleLocalData = function(TMPID, returnIndex) {
     var tieVehiclesData = compData.vehicles || [];
 
     tieVehiclesData.forEach(function(item, index) {
-        if (item.TMPREFID == TMPID) {
+        if (item.TMPVID == TMPVID) {
             if (returnIndex) {
                 foundIndex = index;
             } else {
@@ -545,15 +545,15 @@ window.getTieVehicleLocalData = function(TMPID, returnIndex) {
 
 //-----------------------------------------------------------------------------
 // setTieVehicleLocalData - set the modified tie vehicle data locally
-//                          for requested TMPREFID by matching TMPREFID
+//                          for requested TMPVID by matching TMPVID
 //-----------------------------------------------------------------------------
-window.setTieVehicleLocalData = function(TMPREFID, data) {
+window.setTieVehicleLocalData = function(TMPVID, data) {
     var compData = getRAFlowCompData("tie", app.raflow.activeFlowID);
     var tieVehiclesData = compData.vehicles || [];
 
     var dataIndex = -1;
     tieVehiclesData.forEach(function(item, index) {
-        if (item.TMPREFID == TMPREFID) {
+        if (item.TMPVID == TMPVID) {
             dataIndex = index;
             return false;
         }
@@ -580,7 +580,7 @@ window.AssignTieVehiclesGridRecords = function() {
 
     vehiclesCompData.forEach(function(vehicleData) {
         var PRID = 0;
-        var tieVehicle = getTieVehicleLocalData(vehicleData.TMPID);
+        var tieVehicle = getTieVehicleLocalData(vehicleData.TMPVID);
 
         // parent Rentable ID found then for initial load in grid
         if (tieVehicle.PRID) {
@@ -597,7 +597,7 @@ window.AssignTieVehiclesGridRecords = function() {
         var record = {
             recid:              0,
             BID:                BID,
-            TMPREFID:           vehicleData.TMPID,
+            TMPVID:           vehicleData.TMPVID,
             PRID:               PRID,
             ParentRentableName: PRID,
             Type:               vehicleData.Type,
@@ -662,7 +662,7 @@ window.saveTieVehiclesData = function() {
         // scan for each record from grid with compData, if RID not found then hit the API to save data
         gridRecords.forEach(function(gridRec) {
             tieVehiclesData.forEach(function(vehicleItem) {
-                if (gridRec.TMPREFID === vehicleItem.TMPREFID && gridRec.PRID === vehicleItem.PRID) {
+                if (gridRec.TMPVID === vehicleItem.TMPVID && gridRec.PRID === vehicleItem.PRID) {
                     tmpIDExists = true;
                     return false;
                 }
@@ -680,7 +680,7 @@ window.saveTieVehiclesData = function() {
             modTieVehiclesData = [];
 
         gridRecords.forEach(function(rec) {
-            modTieVehiclesData.push({BID: BID, TMPREFID: rec.TMPREFID, PRID: rec.PRID});
+            modTieVehiclesData.push({BID: BID, TMPVID: rec.TMPVID, PRID: rec.PRID});
         });
 
         // set this to it's position
@@ -693,10 +693,10 @@ window.saveTieVehiclesData = function() {
 
 
 //-----------------------------------------------------------------------------
-// getTiePeopleLocalData - returns the clone of people data for requested TMPID
+// getTiePeopleLocalData - returns the clone of people data for requested TMPTCID
 //                      from tie comp data
 //-----------------------------------------------------------------------------
-window.getTiePeopleLocalData = function(TMPID, returnIndex) {
+window.getTiePeopleLocalData = function(TMPTCID, returnIndex) {
     var cloneData = {};
     var foundIndex = -1;
 
@@ -704,7 +704,7 @@ window.getTiePeopleLocalData = function(TMPID, returnIndex) {
     var tiePeopleData = compData.people || [];
 
     tiePeopleData.forEach(function(item, index) {
-        if (item.TMPREFID == TMPID) {
+        if (item.TMPTCID == TMPTCID) {
             if (returnIndex) {
                 foundIndex = index;
             } else {
@@ -721,15 +721,15 @@ window.getTiePeopleLocalData = function(TMPID, returnIndex) {
 
 //-----------------------------------------------------------------------------
 // setTiePeopleLocalData - set the modified tie people data locally
-//                      for requested TMPREFID by matching TMPREFID
+//                      for requested TMPTCID by matching TMPTCID
 //-----------------------------------------------------------------------------
-window.setTiePeopleLocalData = function(TMPREFID, data) {
+window.setTiePeopleLocalData = function(TMPTCID, data) {
     var compData = getRAFlowCompData("tie", app.raflow.activeFlowID);
     var tiePeopleData = compData.people || [];
 
     var dataIndex = -1;
     tiePeopleData.forEach(function(item, index) {
-        if (item.TMPREFID == TMPREFID) {
+        if (item.TMPTCID == TMPTCID) {
             dataIndex = index;
             return false;
         }
@@ -756,7 +756,7 @@ window.AssignTiePeopleGridRecords = function() {
 
     peopleCompData.forEach(function(peopleData) {
         var PRID = 0;
-        var tiePeople = getTiePeopleLocalData(peopleData.TMPID);
+        var tiePeople = getTiePeopleLocalData(peopleData.TMPTCID);
 
         // if it's a payor then ignore to set in grid
         if (peopleData.IsRenter) {
@@ -786,7 +786,7 @@ window.AssignTiePeopleGridRecords = function() {
         var record = {
             recid:              0,
             BID:                BID,
-            TMPREFID:           peopleData.TMPID,
+            TMPTCID:           peopleData.TMPTCID,
             PRID:               PRID,
             ParentRentableName: PRID,
             FullName:           FullName,
@@ -846,7 +846,7 @@ window.saveTiePeopleData = function() {
         // scan for each record from grid with compData, if RID not found then hit the API to save data
         gridRecords.forEach(function(gridRec) {
             tiePeopleData.forEach(function(peopleItem) {
-                if (gridRec.TMPREFID === peopleItem.TMPREFID && gridRec.PRID === peopleItem.PRID) {
+                if (gridRec.TMPTCID === peopleItem.TMPTCID && gridRec.PRID === peopleItem.PRID) {
                     tmpIDExists = true;
                     return false;
                 }
@@ -864,7 +864,7 @@ window.saveTiePeopleData = function() {
             modTiePeopleData = [];
 
         gridRecords.forEach(function(rec) {
-            modTiePeopleData.push({BID: BID, TMPREFID: rec.TMPREFID, PRID: rec.PRID});
+            modTiePeopleData.push({BID: BID, TMPTCID: rec.TMPTCID, PRID: rec.PRID});
         });
 
         // set this to it's position
