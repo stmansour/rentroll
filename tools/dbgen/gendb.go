@@ -307,7 +307,7 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 		rt.RentCycle = dbConf.RT[i].RentCycle
 		rt.Proration = dbConf.RT[i].ProrateCycle
 		rt.GSRPC = dbConf.RT[i].ProrateCycle
-		rt.FLAGS |= 0x4
+		rt.FLAGS |= 0x4 /*manage to budget*/
 		rt.ARID = ar.ARID
 		_, err = rlib.InsertRentableType(ctx, &rt)
 		if err != nil {
@@ -357,6 +357,110 @@ func createRentableTypesAndRentables(ctx context.Context, dbConf *GenDBConf) err
 				return err
 			}
 		}
+	}
+	err = createChildRentableTypes(ctx, dbConf)
+	return err
+}
+
+func createChildRentableTypes(ctx context.Context, dbConf *GenDBConf) error {
+
+	var err error
+	var rt rlib.RentableType
+
+	style := "CP000"
+	name := "Car Port 000"
+
+	//-------------------------------
+	// Default rent AccountRule for
+	// this RentableType
+	//-------------------------------
+	var ar rlib.AR
+	ar.BID = dbConf.BIZ[0].BID
+	ar.Name = fmt.Sprintf("Rent %s", style)
+	ar.Description = fmt.Sprintf("Default rent assessment for rentable type %s", name)
+	ar.ARType = 0                          // Assessment
+	ar.DebitLID = 9                        // Acct# 12001 - RentRoll Receivables
+	ar.CreditLID = 18                      // Acct# 41001 - Gross Scheduled Rent non-taxable
+	ar.DefaultAmount = dbConf.CPMarketRate // default rent amount
+	ar.FLAGS = (1 << 2) | (1 << 4)         // RAID rqd, is Rent
+	ar.DtStart = rlib.TIME0                // make this rule "forever"
+	ar.DtStop = rlib.ENDOFTIME             // make this rule "forever"
+	_, err = rlib.InsertAR(ctx, &ar)
+	if err != nil {
+		return err
+	}
+
+	//-----------------------------
+	// RENTABLE TYPE
+	//-----------------------------
+	rt.BID = dbConf.BIZ[0].BID
+	rt.Style = style
+	rt.Name = name
+	rt.RentCycle = dbConf.CPRentCycle
+	rt.Proration = dbConf.CPProrateCycle
+	rt.GSRPC = dbConf.CPProrateCycle
+	rt.FLAGS |= 0x2 /*child*/ | 0x4 /*manage to budget*/
+	rt.ARID = ar.ARID
+	_, err = rlib.InsertRentableType(ctx, &rt)
+	if err != nil {
+		return err
+	}
+
+	//-----------------------------
+	// RENTABLE MARKET RATE
+	//-----------------------------
+	var mr rlib.RentableMarketRate
+	mr.DtStart = dbConf.DtBOT
+	mr.DtStop = dbConf.DtEOT
+	mr.MarketRate = dbConf.CPMarketRate
+	mr.RTID = rt.RTID
+	_, err = rlib.InsertRentableMarketRates(ctx, &mr)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < dbConf.Carports; i++ {
+		var r rlib.Rentable
+
+		//-----------------------------
+		// RENTABLE
+		//-----------------------------
+		r.BID = rt.BID
+		r.RentableName = fmt.Sprintf("CP%03d", i)
+		errlist := bizlogic.InsertRentable(ctx, &r)
+		if errlist != nil {
+			return bizlogic.BizErrorListToError(errlist)
+		}
+
+		//-----------------------------
+		// RENTABLE TYPE REF
+		//-----------------------------
+		var rtr rlib.RentableTypeRef
+		rtr.DtStart = dbConf.DtBOT
+		rtr.DtStop = dbConf.DtEOT
+		rtr.BID = rt.BID
+		rtr.RTID = rt.RTID
+		rtr.RID = r.RID
+		_, err = rlib.InsertRentableTypeRef(ctx, &rtr)
+		if err != nil {
+			return err
+		}
+
+		//-----------------------------
+		// RENTABLE STATUS
+		//-----------------------------
+		var rs rlib.RentableStatus
+		rs.DtStart = dbConf.DtBOT
+		rs.DtStop = dbConf.DtEOT
+		rs.BID = dbConf.BIZ[0].BID
+		rs.RID = r.RID
+		rs.LeaseStatus = rlib.LEASESTATUSvacantNotRented
+		rs.UseStatus = rlib.USESTATUSinService
+		_, err = rlib.InsertRentableStatus(ctx, &rs)
+		if err != nil {
+			return err
+		}
+
 	}
 	return nil
 }

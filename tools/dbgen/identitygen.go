@@ -111,20 +111,20 @@ func IGInit(r *rand.Rand) {
 	}
 
 	IG.Rand = r
-	rlib.Console("FirstNames: %d\n", len(IG.FirstNames))
-	rlib.Console("LastNames: %d\n", len(IG.LastNames))
-	rlib.Console("Cities: %d\n", len(IG.Cities))
-	rlib.Console("States: %d\n", len(IG.States))
-	rlib.Console("Streets: %d\n", len(IG.Streets))
-	rlib.Console("Companies: %d\n", len(IG.Companies))
-	rlib.Console("CarInfo: %d\n", len(IG.Cars))
-	rlib.Console("CarColors: %d\n", len(IG.CarColors))
-	rlib.Console("Cats: %d\n", len(IG.Cats))
-	rlib.Console("Dogs: %d\n", len(IG.Dogs))
-	rlib.Console("DogNames: %d\n", len(IG.DogNames))
-	rlib.Console("CatNames: %d\n", len(IG.CatNames))
-	rlib.Console("DogColors: %d\n", len(IG.DogColors))
-	rlib.Console("CatColors: %d\n", len(IG.CatColors))
+	// rlib.Console("FirstNames: %d\n", len(IG.FirstNames))
+	// rlib.Console("LastNames: %d\n", len(IG.LastNames))
+	// rlib.Console("Cities: %d\n", len(IG.Cities))
+	// rlib.Console("States: %d\n", len(IG.States))
+	// rlib.Console("Streets: %d\n", len(IG.Streets))
+	// rlib.Console("Companies: %d\n", len(IG.Companies))
+	// rlib.Console("CarInfo: %d\n", len(IG.Cars))
+	// rlib.Console("CarColors: %d\n", len(IG.CarColors))
+	// rlib.Console("Cats: %d\n", len(IG.Cats))
+	// rlib.Console("Dogs: %d\n", len(IG.Dogs))
+	// rlib.Console("DogNames: %d\n", len(IG.DogNames))
+	// rlib.Console("CatNames: %d\n", len(IG.CatNames))
+	// rlib.Console("DogColors: %d\n", len(IG.DogColors))
+	// rlib.Console("CatColors: %d\n", len(IG.CatColors))
 }
 
 // GenerateRandomLicensePlate returns a string with a random license plate

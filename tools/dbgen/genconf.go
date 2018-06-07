@@ -30,6 +30,10 @@ type GenDBConf struct {
 	PeopleCount          int             // defines the number of Transactants
 	RACount              int             // defines the number of Rental Agreements to create
 	RT                   []RType         // defines the rentable types and the count of Rentables
+	Carports             int             // count of carports, style CPnnn, name "Car Port nnn"
+	CPMarketRate         float64         // market rate for Carports
+	CPRentCycle          int64           // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
+	CPProrateCycle       int64           // just like RentCycle
 	DtBOT                time.Time       // Beginning of Time
 	DtEOT                time.Time       // End of Time
 	BIZ                  []rlib.Business // all businesses in db
@@ -66,7 +70,11 @@ type GenDBRead struct {
 	RandNames            bool    `json:"RandNames"`            // if true then create real names rather than numeric predictable names
 	RandMissPayment      int     `json:"RandMissPayment"`      // if RandomizePayments is true, skip payments on this percent (0-99)
 	RandMissApply        int     `json:"RandMissApply"`        // if RandomizePayments is true, skip payment application on this percent (0-99)
-	PTypeCheckName       string  // name of pmtid for checks
+	Carports             int     `json:"Carports"`             // number of carports -- they can be child rentables
+	CPMarketRate         float64 `json:"CPMarketRate"`         // market rate for Carports
+	CPRentCycle          int64   // 0 = nonrecur, 1 = secondly, 2 ... as defined in ./rlib/dbtypes
+	CPProrateCycle       int64   // just like RentCycle
+	PTypeCheckName       string  // name of ptid for checks
 	RT                   []RType `json:"RT"` // defines the rentable types and the count of Rentables
 }
 
@@ -92,9 +100,20 @@ func ReadConfig(fname string) (GenDBConf, error) {
 		os.Exit(1)
 	}
 	// rlib.Console("after unmarshal, a = %#v\n", a)
-	b.RT = a.RT
+
 	b.PeopleCount = a.PeopleCount
 	b.RACount = a.RACount
+	b.OpDepositoryName = a.OpDepositoryName
+	b.SecDepDepositoryName = a.SecDepDepositoryName
+	b.Carports = a.Carports
+	b.CPMarketRate = a.CPMarketRate
+	b.RandNames = a.RandNames
+	b.PTypeCheckName = a.PTypeCheckName
+	b.CPRentCycle = a.CPRentCycle
+	b.CPProrateCycle = a.CPProrateCycle
+
+	b.RandomizePayments = a.RandomizePayments != 0
+	b.RT = a.RT
 	b.DtStart, err = rlib.StringToDate(a.DtStart)
 	if err != nil {
 		return b, fmt.Errorf("Error converting date string %s: %s", a.DtStart, err.Error())
@@ -105,11 +124,6 @@ func ReadConfig(fname string) (GenDBConf, error) {
 	}
 	b.DtBOT = time.Date(b.DtStart.Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
 	b.DtEOT = time.Date(3001, time.January, 1, 0, 0, 0, 0, time.UTC)
-	b.OpDepositoryName = a.OpDepositoryName
-	b.SecDepDepositoryName = a.SecDepDepositoryName
-	b.PTypeCheckName = a.PTypeCheckName
-	b.RandomizePayments = a.RandomizePayments != 0
-	b.RandNames = a.RandNames
 	if b.RandomizePayments {
 		b.RSeed = a.RSeed
 		b.RandMissApply = a.RandMissApply

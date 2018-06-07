@@ -35,11 +35,14 @@
             "Name": "Presidential 4BR 3BA"
         }
     ],
+    "Carports": 20,
+    "CPMarketRate": 35,
+    "CPRentCycle": 6,
+    "CPProrateCycle": 4,
     "OpDepositoryName": "Wells Fargo",
     "SecDepDepositoryName": "Bank Of America",
     "PTypeCheckName": "Check",
     "PeopleCount": 30,
     "RACount": 23,
     "RandNames" : true
-
 }
