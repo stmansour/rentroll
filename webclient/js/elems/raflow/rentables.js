@@ -9,7 +9,8 @@
     saveRentableCompData, setRentableFeeLocalData, getRentableFeeLocalData,
     ridRentablePickerRender, ridRentableDropRender, ridRentableCompare,
     AssignRentableGridRecords, AssignRentableFeesGridRecords,
-    SetRentableAmountsFromFees, manageParentRentableW2UIItems
+    SetRentableAmountsFromFees, manageParentRentableW2UIItems,
+    RenderRentablesGridSummary
 */
 
 "use strict";
@@ -256,7 +257,7 @@ window.loadRARentablesGrid = function () {
                     size: '100%',
                     render: function (record/*, index, col_index*/) {
                         var html = "";
-                        if (record) {
+                        if (record.RID && record.RID > 0) {
                             html = '<i class="fas fa-minus-circle" style="color: #DC3545; cursor: pointer;" title="remove rentable"></i>';
                         }
                         return html;
@@ -887,6 +888,9 @@ window.AssignRentableGridRecords = function() {
         // manage parent rentables list
         manageParentRentableW2UIItems();
 
+        // Render RentableGrid Summary
+        RenderRentablesGridSummary();
+
     } else {
         w2ui.RARentablesGrid.clear();
         // Operation on RARentableForm
@@ -921,7 +925,7 @@ window.SetRentableAmountsFromFees = function(RID) {
         amountsSum.AtSigningAmt += feeData.AtSigningAmt;
         amountsSum.ProrateAmt += feeData.ProrateAmt;
         // amountsSum.SalesTaxAmt += feeData.SalesTaxAmt;
-        // amountsSum.SalesTax += feeData.SalesTax;
+        amountsSum.SalesTax += feeData.SalesTax;
         // amountsSum.TransOccAmt += feeData.TransOccAmt;
         amountsSum.TransOcc += feeData.TransOcc;
     });
@@ -930,12 +934,49 @@ window.SetRentableAmountsFromFees = function(RID) {
     localRData.AtSigningAmt = amountsSum.AtSigningAmt;
     localRData.ProrateAmt = amountsSum.ProrateAmt;
     // localRData.SalesTaxAmt = amountsSum.SalesTaxAmt;
-    // localRData.SalesTax = amountsSum.SalesTax;
+    localRData.SalesTax = amountsSum.SalesTax;
     // localRData.TransOccAmt = amountsSum.TransOccAmt;
     localRData.TransOcc = amountsSum.TransOcc;
 
     // save this modified rentable data
     setRentableLocalData(RID, localRData);
+};
+
+//-----------------------------------------------------------------------------
+// RenderRentablesGridSummary - will render grid summary row from rentable
+//                             comp data
+//-----------------------------------------------------------------------------
+window.RenderRentablesGridSummary = function() {
+    var compData = getRAFlowCompData("rentables", app.raflow.activeFlowID) || [];
+    var grid = w2ui.RARentablesGrid;
+
+    // summary record in fees grid
+    var summaryRec = {
+        recid:          0,
+        RentableName:   "Grand Total",
+        AtSigningAmt:   0.0,
+        ProrateAmt:     0.0,
+        // SalesTaxAmt:    0.0,
+        SalesTax:       0.0,
+        // TransOccAmt:    0.0,
+        TransOcc:       0.0,
+        RemoveRec:      null,
+    };
+
+    compData.forEach(function(rentableItem) {
+        summaryRec.AtSigningAmt += rentableItem.AtSigningAmt;
+        summaryRec.ProrateAmt += rentableItem.ProrateAmt;
+        // summaryRec.SalesTaxAmt += rentableItem.SalesTaxAmt;
+        summaryRec.SalesTax += rentableItem.SalesTax;
+        // summaryRec.TransOccAmt += rentableItem.TransOccAmt;
+        summaryRec.TransOcc += rentableItem.TransOcc;
+    });
+
+    // set the summary rec in summary array of grid
+    grid.summary = [summaryRec];
+
+    // refresh the grid
+    grid.refresh();
 };
 
 //-----------------------------------------------------------------------------
@@ -1000,7 +1041,7 @@ window.AssignRentableFeesGridRecords = function(RID) {
         rentableGridRec.AtSigningAmt = summaryRec.AtSigningAmt;
         rentableGridRec.ProrateAmt = summaryRec.ProrateAmt;
         // rentableGridRec.SalesTaxAmt = summaryRec.SalesTaxAmt;
-        // rentableGridRec.SalesTax = summaryRec.SalesTax;
+        rentableGridRec.SalesTax = summaryRec.SalesTax;
         // rentableGridRec.TransOccAmt = summaryRec.TransOccAmt;
         rentableGridRec.TransOcc = summaryRec.TransOcc;
 
@@ -1008,6 +1049,9 @@ window.AssignRentableFeesGridRecords = function(RID) {
         w2ui.RARentablesGrid.set(foundRIDIndex, rentableGridRec);
         w2ui.RARentablesGrid.refresh();
     }
+
+    // render rentable grid summary record
+    RenderRentablesGridSummary();
 };
 
 //-----------------------------------------------------------------------------
