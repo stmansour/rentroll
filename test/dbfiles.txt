@@ -8,7 +8,6 @@ roller/prodrr.sql
 rr/rr.sql
 tws/rr.sql
 tws3/rr.sql
-webclient/accord.sql
 webclient/webclientTest.sql
 websvc1/asmtest.sql
 websvc3/tasks.sql
