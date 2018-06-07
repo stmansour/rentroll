@@ -1,0 +1,43 @@
+How To Use This Directory
+
+Developers: Please add notes here to anything that is missing.
+
+1. Add a directory for each area of focus on your functional
+   tests.
+
+2. Using the functions in ./share/base.sh will save you a lot
+   of time and effort. Try to use them as much as possible. If
+   there is some functionality you need that does not exist in
+   base.sh, add it to base.sh rather than doing one-off work in
+   your directory.
+
+3. Makefiles MUST support the targets 'clean', 'package', and
+   'test'.
+
+4. Each test directory needs to be self-contained - it must not
+   depend on the output of other tests.  If you have an exception
+   to this, please contact sman@accordinterests.com and let's
+   discuss.
+
+5. Update dbfiles.txt if your test uses a .sql file that you save
+   in your test directory.
+
+6. If you make a change the the rentroll schema, please update dbmod.sh
+   with the ALTER statements (or whatever) needed to bring existing
+   databases in sync with the updated schema. Then run dbmod.sh to
+   bring all the test databases up to date. Once you have run dbmode.sh
+   move your changes into the comments above along with the date that
+   you applied them.  This will serve as notes for updating the 
+   production schemas.
+
+7. If you create a .sql file to use as the database for your functional
+   test, you need to add the filename to dbfiles.txt.
+   This will ensure that the schema is correct before any of the
+   functional tests are run during 'make test'. 
+
+8. If you want to check the schemas to see that they are in sync
+   you can run localcmp.sh .  This script compares the schema of all
+   the database file names in the script's array. It generates
+   dbreport.txt .
+
+9. Do not push files to the repo if localcmp.sh fails, fix them.

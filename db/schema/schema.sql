@@ -290,6 +290,7 @@ CREATE TABLE RentalAgreementPets (
     PETID BIGINT NOT NULL AUTO_INCREMENT,                     -- internal id for this pet
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business (so that we can process by Business)
     RAID BIGINT NOT NULL DEFAULT 0,                           -- the unit's occupancy agreement
+    TCID BIGINT NOT NULL DEFAULT 0,                           -- Contact person for this pet
     Type VARCHAR(100) NOT NULL DEFAULT '',                    -- type of animal, ex: dog, cat, ...
     Breed VARCHAR(100) NOT NULL DEFAULT '',                   -- breed.  example Beagle, German Shephard, Siamese, etc.
     Color VARCHAR(100) NOT NULL DEFAULT '',                   -- fur or other color

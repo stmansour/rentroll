@@ -75,25 +75,23 @@ getSchema "${DEF1}" "${REFDB}"
 #--------------------------------------------------
 #  STEP 2  -- compare each table def and report diffs
 #--------------------------------------------------
-declare -a dblist=(
-    '../tools/dbgen/empty.sql'
-    'acctbal/baltest.sql'
-    'closeperiod/rr.sql'
-    'payorstmt/pstmt.sql'
-    'rfix/rcptfixed.sql'
-    'rfix/receipts.sql'
-    'roller/prodrr.sql'
-    'rr/rr.sql'
-    'tws/rr.sql'
-    'webclient/webclientTest.sql'
-    'websvc1/asmtest.sql'
-    'websvc3/tasks.sql'
-    'workerasm/rr.sql'
-)
 
 echo "SCHEMA DIFFS" > ${DBREPORT}
-for db in ${dblist[@]}
-do
+
+#==============================================================================
+# Explanation of the loop
+#     IFS=''
+#         (or IFS=) prevents leading/trailing whitespace from being trimmed.
+#     -r
+#         prevents backslash escapes from being interpreted.
+#     || [[ -n ${db} ]]
+#         prevents the last line from being ignored if it doesn't end with
+#         a \n (since  read returns a non-zero exit code when it encounters
+#         EOF).
+#
+# for db in ${dblist[@]}
+#==============================================================================
+while IFS='' read -r db || [[ -n "${db}" ]]; do
 	echo "------------------------------------------------------------------------" | tee -a ${DBREPORT}
 	echo "CHECKING SCHEMA: ${db}" | tee -a ${DBREPORT}
 	echo "DROP DATABASE IF EXISTS rentroll; CREATE DATABASE rentroll;" | ${MYSQL}
@@ -137,7 +135,8 @@ do
 	if [ ${BADSCHCOUNT} -eq 0 -a ${missing} -eq 0 -a ${extra} -eq 0 ]; then
 		echo "no issues found" | tee -a ${DBREPORT}
 	fi
-done
+done < dbfiles.txt
+
 echo "------------------------------------------------------------------------" | tee -a ${DBREPORT}
 stop=$(date)
 echo "Start time:  ${start}" | tee -a ${DBREPORT}

@@ -379,32 +379,18 @@ DBNAME="rentroll"
 cat >${MODFILE} <<EOF
 EOF
 
-#=====================================================
-#  Put dir/sqlfilename in the list below
-#=====================================================
-declare -a dbs=(
-	../tools/dbgen/empty.sql
-	acctbal/baltest.sql
-	closeperiod/rr.sql
-	payorstmt/pstmt.sql
-	rfix/rcptfixed.sql
-	rfix/receipts.sql
-	roller/prodrr.sql
-	rr/rr.sql
-	tws/rr.sql
-	tws2/rrtl.sql
-	tws2/moonshine.sql
-	tws3/rr.sql
-	webclient/accord.sql
-	webclient/webclientTest.sql
-	websvc1/asmtest.sql
-	websvc3/tasks.sql
-	workerasm/rex.sql
-	workerasm/rr.sql
-)
-
-for f in "${dbs[@]}"
-do
+#==============================================================================
+# Explanation of the loop
+#     IFS=''
+#         (or IFS=) prevents leading/trailing whitespace from being trimmed.
+#     -r
+#         prevents backslash escapes from being interpreted.
+#     || [[ -n ${f} ]]
+#         prevents the last line from being ignored if it doesn't end with
+#         a \n (since  read returns a non-zero exit code when it encounters
+#         EOF).
+#==============================================================================
+while IFS='' read -r f || [[ -n "${f}" ]]; do
     if [ -f ${f} ]; then
     	echo "DROP DATABASE IF EXISTS ${DBNAME}; create database rentroll"
 		echo -n "${f}: loading... "
@@ -417,4 +403,4 @@ do
     else
 		echo "file not found: ${f}"
     fi
-done
+done < dbfiles.txt
