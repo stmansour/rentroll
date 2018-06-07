@@ -956,12 +956,21 @@ window.AssignRentableFeesGridRecords = function(RID) {
     grid.records = localRData.Fees || [];
 
     // summary record in fees grid
-    var summaryRec = {recid: 0, ARName: "Grand Total",
-        AtSigningAmt: 0.0, ProrateAmt: 0.0, SalesTaxAmt: 0.0, SalesTax: 0.0,
-        TransOccAmt: 0.0, TransOcc: 0.0};
+    var summaryRec = {
+        recid:          0,
+        ARName:         "Grand Total",
+        ContractAmount: 0.0,
+        AtSigningAmt:   0.0,
+        ProrateAmt:     0.0,
+        SalesTaxAmt:    0.0,
+        SalesTax:       0.0,
+        TransOccAmt:    0.0,
+        TransOcc:       0.0
+    };
 
     // calculate amount for summary row
     grid.records.forEach(function(item) {
+        summaryRec.ContractAmount += item.ContractAmount;
         summaryRec.AtSigningAmt += item.AtSigningAmt;
         summaryRec.ProrateAmt += item.ProrateAmt;
         summaryRec.SalesTaxAmt += item.SalesTaxAmt;
