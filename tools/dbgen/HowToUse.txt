@@ -18,6 +18,17 @@ database.
 
 Attribute Definitions
 ---------------------
+Carports  (optional)
+    The count of the number of Carports to create as rentables. Default is 0.
+
+CPMarketRate  (optional)
+    The market rate rent amount for carports.
+
+CPRentCycle  (optional)
+    The frequency at which rent is assessed for rentables of this type.
+
+CPProrateCycle  (optional)
+    The proration cycle for rent on rentables of this type.
 
 DtStart  (required)
     This is a date value used for the starting date of just about every
@@ -38,7 +49,7 @@ RT.MarketRate  (required)
     value is used for the rent assessments.
 
 RT.RentCycle  (required)
-    The frequency at which payment is due for rentables of this type. Recur
+    The frequency at which rent is assessed for rentables of this type. Recur
     frequency values are the same for all recurring values. The specific
     values are:
 
@@ -157,6 +168,10 @@ containing 25 Rentables, 30 Transactants, and 23 Rental Agreements.
             "Name": "Presidential 4BR 3BA"
         }
     ],
+    "Carports": 20,
+    "CPMarketRate": 35,
+    "CPRentCycle": 6,
+    "CPProrateCycle": 4,
     "OpDepositoryName": "Wells Fargo",
     "SecDepDepositoryName": "Bank Of America",
     "PTypeCheckName": "Check",
