@@ -1,4 +1,7 @@
 "use strict";
+/*global
+    renderLedgerStateIcon,
+*/
 var adminLedger = {
     mode: 0,
 };
@@ -39,7 +42,7 @@ window.buildLedgerElements = function (){
             // {field: 'AllowPost', caption: "Allow<br>Post", size: '50px',  sortable: true, hidden: false},
             {field: 'Balance',   caption: "Balance",       size: '100px', sortable: true, hidden: false, render: 'money'},
             {field: 'LMDate',    caption: "LM Date",       size: '170px', sortable: true, hidden: false},
-            {field: 'LMState',   caption: "LM<br>State",   size: '50px',  sortable: true, hidden: false},
+            {field: 'LMState',   caption: "LM<br>State",   size: '75px',  sortable: true, hidden: false, render: renderLedgerStateIcon},
             {field: 'LMAmount',  caption: "LM Amount",     size: '100px', sortable: true, hidden: false, render: 'money'},
         ],
         onRequest: function(/*event*/) {
@@ -71,6 +74,26 @@ window.buildLedgerElements = function (){
     ];
     w2ui.ledgersGrid.toolbar.add( items );
 };
+
+window.renderLedgerStateIcon = function (record /*, index, col_index*/) {
+    if (typeof record === "undefined") {
+        return;
+    }
+    var s = '';
+    switch (record.LMState) {
+    	case "initial":
+        s = '<i class="fas fa-home" style="color: #0088DD;"></i> &nbsp;';
+    	break;
+    	case "closed":
+    	s = '<i class="fas fa-adjust" style="color: #0088DD;"></i> &nbsp;';
+    	break;
+    	case "locked":
+    	s = '<i class="fas fa-adjust" style="color: #0088DD;"></i> &nbsp;';
+    	break;
+    }
+    return s + record.LMState;
+};
+
 
 window.changeLedgerMode = function(){
     // console.log('hello: ' + event);

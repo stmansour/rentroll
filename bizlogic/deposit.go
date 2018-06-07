@@ -141,10 +141,10 @@ func SaveDeposit(ctx context.Context, a *rlib.Deposit, newRcpts []int64) []BizEr
 	var e []BizError
 	var rlist []rlib.Receipt
 	tot := float64(0)
-	//------------------------------------------------------------
+	//----------------------------------------------------------------
 	// First, validate that all newRcpts are eligible for inclusion
 	// in this receipt
-	//------------------------------------------------------------
+	//----------------------------------------------------------------
 	for i := 0; i < len(newRcpts); i++ {
 		r, err := rlib.GetReceipt(ctx, newRcpts[i])
 		if err != nil {

@@ -511,30 +511,45 @@ func createRentables(ctx context.Context, dbConf *GenDBConf, rt *RType, mr *rlib
 // each one.
 //-----------------------------------------------------------------------------
 func createReceipts(ctx context.Context, dbConf *GenDBConf) error {
-	qry := fmt.Sprintf("SELECT %s FROM Assessments WHERE BID=%d AND (PASMID=0 OR RentCycle=0)", rlib.RRdb.DBFields["Assessments"], dbConf.BIZ[0].BID)
+	//                                                                it's an epoch but nonrecur     it's an instance
+	qry := fmt.Sprintf("SELECT %s FROM Assessments WHERE BID=%d AND ((PASMID=0 AND RentCycle=0) OR PASMID != 0)",
+		rlib.RRdb.DBFields["Assessments"], dbConf.BIZ[0].BID)
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
+
+	//--------------------------------------
+	// Spin through all the assessments
+	//--------------------------------------
 	for i := 0; rows.Next(); i++ {
-		if dbConf.RandomizePayments && dbConf.RRand.Intn(100) < dbConf.RandMissPayment {
-			continue // some randomness - a missed payment
-		}
 		var a rlib.Assessment
 		err = rlib.ReadAssessments(rows, &a)
 		if err != nil {
 			return err
 		}
 
-		if !((a.RentCycle > rlib.RECURNONE && a.PASMID > 0) || a.RentCycle == rlib.RECURNONE) {
-			continue
+		//---------------------------------------------------------------------
+		// If we have been asked to miss some percentage of payments, roll
+		// the weighted dice and see if we pay or not...
+		//---------------------------------------------------------------------
+		if dbConf.RandomizePayments && dbConf.RRand.Intn(100) < dbConf.RandMissPayment {
+			continue // some randomness - a missed payment
 		}
+		// so if we get to this point, we pay
+
+		//---------------------------------------------------------------------
+		// Identify the depository where this check will be deposited...
+		//---------------------------------------------------------------------
 		depid := dbConf.OpDepository
 		if a.ARID == dbConf.ARIDsecdep {
 			depid = dbConf.SecDepDepository
 		}
 
+		//---------------------------------------------------------------------
+		// Create the payment...
+		//---------------------------------------------------------------------
 		var rcpt rlib.Receipt
 		rcpt.ARID = dbConf.ARIDCheckPayment
 		rcpt.BID = dbConf.BIZ[0].BID
@@ -545,6 +560,7 @@ func createReceipts(ctx context.Context, dbConf *GenDBConf) error {
 		rcpt.DocNo = fmt.Sprintf("%d", rand.Int63n(int64(1000000)))
 		rcpt.Amount = a.Amount
 		rcpt.ARID = dbConf.ARIDCheckPayment
+		rcpt.Comment = fmt.Sprintf("payment for %s", a.IDtoShortString())
 		pa, _ := rlib.GetRentalAgreementPayorsInRange(ctx, a.RAID, &rlib.TIME0, &rlib.ENDOFTIME)
 		if len(pa) > 0 {
 			rcpt.TCID = pa[0].TCID
@@ -806,6 +822,50 @@ func createRentalAgreements(ctx context.Context, dbConf *GenDBConf) error {
 	return nil
 }
 
+// makeDeposits is an intermediary function that makes daily deposits for receipts.
+//
+// INPUTS
+//     ctx       - context for db transactions
+//     dbConf    - module configuration
+//     SecDepAmt - amount being deposited to the security deposit account
+//                 depository
+//     OpDepAmt  - amount being deposited to the operational account
+//                 depository
+//     SecDeps   - pointer to a slice of RCPTIDs that are being deposited in
+//                 the in the security deposit account
+//     OpDeps   - pointer to a slice of RCPTIDs that are being deposited in
+//                 the operational account
+//-----------------------------------------------------------------------------
+func makeDeposits(ctx context.Context, dbConf *GenDBConf, SecDepAmt, OpDepAmt float64, dt *time.Time, SecDeps, OpDeps *[]int64) error {
+	if SecDepAmt > float64(0) {
+		var b = rlib.Deposit{
+			BID:    dbConf.BIZ[0].BID,
+			DEPID:  dbConf.SecDepDepository,
+			DPMID:  int64(1),
+			Dt:     *dt,
+			Amount: SecDepAmt,
+		}
+		if e := bizlogic.SaveDeposit(ctx, &b, *SecDeps); len(e) > 0 {
+			bizlogic.PrintBizErrorList(e)
+			return bizlogic.BizErrorListToError(e)
+		}
+	}
+	if OpDepAmt > float64(0) {
+		var c = rlib.Deposit{
+			BID:    dbConf.BIZ[0].BID,
+			DEPID:  dbConf.OpDepository,
+			DPMID:  int64(1),
+			Dt:     *dt,
+			Amount: OpDepAmt,
+		}
+		if e := bizlogic.SaveDeposit(ctx, &c, *OpDeps); len(e) > 0 {
+			bizlogic.PrintBizErrorList(e)
+			return bizlogic.BizErrorListToError(e)
+		}
+	}
+	return nil
+}
+
 // CreateDeposits generates a deposits for the receipts
 //-----------------------------------------------------------------------------
 func CreateDeposits(ctx context.Context, dbConf *GenDBConf) error {
@@ -813,7 +873,7 @@ func CreateDeposits(ctx context.Context, dbConf *GenDBConf) error {
 	var SecDeps = []int64{}
 	var OpDeps = []int64{}
 	bid := dbConf.BIZ[0].BID
-	qry := fmt.Sprintf("SELECT %s FROM Receipt WHERE BID=%d AND DID=0", rlib.RRdb.DBFields["Receipt"], bid)
+	qry := fmt.Sprintf("SELECT %s FROM Receipt WHERE BID=%d AND DID=0 ORDER BY Dt ASC", rlib.RRdb.DBFields["Receipt"], bid)
 	// rlib.Console("query = %q\n", qry)
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
@@ -825,12 +885,40 @@ func CreateDeposits(ctx context.Context, dbConf *GenDBConf) error {
 	//------------------------------------------------------------------------
 	SecDepAmt := float64(0)
 	OpDepAmt := float64(0)
+	lastdep := rlib.TIME0
+	lastrcpt := rlib.TIME0
+	lastdepNotInitialized := true
 	for i := 0; rows.Next(); i++ {
 		var a rlib.Receipt
 		if err = rlib.ReadReceipts(rows, &a); err != nil {
 			return err
 		}
-		// rlib.Console("Receipt: %d  DEPID = %d\n", a.RCPTID, a.DEPID)
+
+		//------------------------------------------
+		// initialize to date of first receipt
+		//------------------------------------------
+		if lastdepNotInitialized {
+			lastdep = time.Date(a.Dt.Year(), a.Dt.Month(), a.Dt.Day(), 0, 0, 0, 0, time.UTC)
+			lastdepNotInitialized = false // it is now initialized
+		}
+
+		//---------------------------------------------------------------
+		// Deposits are made daily.  If the day has changed then make a
+		// deposit for what we have collected already before processing
+		// the new receipt...
+		//---------------------------------------------------------------
+		dt := time.Date(a.Dt.Year(), a.Dt.Month(), a.Dt.Day(), 0, 0, 0, 0, time.UTC) // snap dt of deposit
+		if dt.After(lastdep) {                                                       // is receipt  date AFTER the last receipt receipt we processed
+			err = makeDeposits(ctx, dbConf, SecDepAmt, OpDepAmt, &lastrcpt, &SecDeps, &OpDeps) // if so then deposit what we have
+			if err != nil {
+				return err
+			}
+			SecDepAmt = float64(0)
+			OpDepAmt = float64(0)
+			SecDeps = []int64{}
+			OpDeps = []int64{}
+			lastdep = dt
+		}
 		if a.DEPID == dbConf.OpDepository {
 			SecDeps = append(SecDeps, a.RCPTID)
 			SecDepAmt += a.Amount
@@ -838,45 +926,19 @@ func CreateDeposits(ctx context.Context, dbConf *GenDBConf) error {
 			OpDeps = append(OpDeps, a.RCPTID)
 			OpDepAmt += a.Amount
 		}
+		lastrcpt = a.Dt // date of the last receipt we processed
 	}
 	if rows.Err() != nil {
 		return rows.Err()
 	}
 
-	//----------------------
-	// make the deposits
-	//----------------------
-	if SecDepAmt > float64(0) {
-		var b = rlib.Deposit{
-			BID:    bid,
-			DEPID:  dbConf.SecDepDepository,
-			DPMID:  int64(1),
-			Dt:     dbConf.DtStart,
-			Amount: SecDepAmt,
-		}
-		// rlib.Console("Security Deposit amount = %8.2f\n", SecDepAmt)
-
-		if e := bizlogic.SaveDeposit(ctx, &b, SecDeps); len(e) > 0 {
-			bizlogic.PrintBizErrorList(e)
-			return bizlogic.BizErrorListToError(e)
-		}
+	//-------------------------------------------------------
+	// Deposit anything that has not yet been deposited...
+	//-------------------------------------------------------
+	makeDeposits(ctx, dbConf, SecDepAmt, OpDepAmt, &lastrcpt, &SecDeps, &OpDeps) // if so then deposit what we have
+	if err != nil {
+		return err
 	}
-
-	if OpDepAmt > float64(0) {
-		var c = rlib.Deposit{
-			BID:    bid,
-			DEPID:  dbConf.OpDepository,
-			DPMID:  int64(1),
-			Dt:     dbConf.DtStart,
-			Amount: OpDepAmt,
-		}
-		// rlib.Console("Op amount = %8.2f\n", OpDepAmt)
-		if e := bizlogic.SaveDeposit(ctx, &c, OpDeps); len(e) > 0 {
-			bizlogic.PrintBizErrorList(e)
-			return bizlogic.BizErrorListToError(e)
-		}
-	}
-
 	return nil
 }
 
