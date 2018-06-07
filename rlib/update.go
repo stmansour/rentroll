@@ -763,7 +763,7 @@ func UpdateRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) error 
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID}
+	fields := []interface{}{a.BID, a.RAID, a.TCID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.LastModBy, a.PETID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateRentalAgreementPet)
 		defer stmt.Close()

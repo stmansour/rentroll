@@ -651,7 +651,8 @@ type RentalAgreementPet struct {
 	Recid       int64 `json:"recid"` // support w2ui grid
 	PETID       int64
 	BID         int64 // associated business
-	RAID        int64
+	RAID        int64 // deprecated
+	TCID        int64 // contact person
 	Type        string
 	Breed       string
 	Color       string

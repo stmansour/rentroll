@@ -555,7 +555,7 @@ func ReadRentalAgreementPayors(rows *sql.Rows, a *RentalAgreementPayor) error {
 
 // ReadRentalAgreementPet reads a full RentalAgreementPet structure of data from the database based on the supplied Row pointer.
 func ReadRentalAgreementPet(row *sql.Row, a *RentalAgreementPet) error {
-	err := row.Scan(&a.PETID, &a.BID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop,
+	err := row.Scan(&a.PETID, &a.BID, &a.RAID, &a.TCID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -563,7 +563,7 @@ func ReadRentalAgreementPet(row *sql.Row, a *RentalAgreementPet) error {
 
 // ReadRentalAgreementPets reads a full RentalAgreementPet structure of data from the database based on the supplied Rows pointer.
 func ReadRentalAgreementPets(rows *sql.Rows, a *RentalAgreementPet) error {
-	return rows.Scan(&a.PETID, &a.BID, &a.RAID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop,
+	return rows.Scan(&a.PETID, &a.BID, &a.RAID, &a.TCID, &a.Type, &a.Breed, &a.Color, &a.Weight, &a.Name, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

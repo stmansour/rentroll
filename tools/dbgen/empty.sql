@@ -1948,6 +1948,7 @@ CREATE TABLE `RentalAgreementPets` (
   `PETID` bigint(20) NOT NULL AUTO_INCREMENT,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `RAID` bigint(20) NOT NULL DEFAULT '0',
+  `TCID` bigint(20) NOT NULL DEFAULT '0',
   `Type` varchar(100) NOT NULL DEFAULT '',
   `Breed` varchar(100) NOT NULL DEFAULT '',
   `Color` varchar(100) NOT NULL DEFAULT '',
@@ -2529,4 +2530,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-05 16:07:23
+-- Dump completed on 2018-06-06 16:53:29

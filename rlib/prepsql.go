@@ -948,7 +948,7 @@ func buildPreparedStatements() {
 	//===============================
 	//  Rental Agreement Pets
 	//===============================
-	flds = "PETID,BID,RAID,Type,Breed,Color,Weight,Name,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "PETID,BID,RAID,TCID,Type,Breed,Color,Weight,Name,DtStart,DtStop,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["RentalAgreementPets"] = flds
 	RRdb.Prepstmt.GetRentalAgreementPet, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE PETID=?")
 	Errcheck(err)

@@ -370,6 +370,9 @@ DBNAME="rentroll"
 # ALTER TABLE RentalAgreementRentables ADD PRID BIGINT NOT NULL DEFAULT 0 AFTER RID;
 # ALTER TABLE RentableTypes DROP COLUMN ManageToBudget;
 
+# June 6, 2018
+# ALTER TABLE RentalAgreementPets ADD TCID BIGINT NOT NULL DEFAULT 0 AFTER RAID;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

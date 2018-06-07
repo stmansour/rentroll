@@ -33,7 +33,13 @@ var IG struct {
 	Cities     []string   // array of cities
 	States     []string   // array of states
 	Companies  []string   // array of random company names
-	CarColors  []string   // array of car colors
+	CarColors  []string   // array of colors
+	Dogs       []string   // array of dog breeds
+	Cats       []string   // array of cat breeds
+	DogNames   []string   // array of dog names
+	DogColors  []string   // array of dog colors
+	CatNames   []string   // array of cat names
+	CatColors  []string   // array of cat colors
 	Cars       []CarInfo  // array of info about cars
 	Rand       *rand.Rand // random number generator to use
 }
@@ -91,6 +97,12 @@ func IGInit(r *rand.Rand) {
 		{"./idgen/streets.txt", &IG.Streets},
 		{"./idgen/companies.txt", &IG.Companies},
 		{"./idgen/carcolors.txt", &IG.CarColors},
+		{"./idgen/cats.txt", &IG.Cats},
+		{"./idgen/catnames.txt", &IG.CatNames},
+		{"./idgen/dogs.txt", &IG.Dogs},
+		{"./idgen/dognames.txt", &IG.DogNames},
+		{"./idgen/dogcolors.txt", &IG.DogColors},
+		{"./idgen/catcolors.txt", &IG.CatColors},
 	}
 
 	loadCars("./idgen/cars.csv", &IG.Cars)
@@ -107,6 +119,12 @@ func IGInit(r *rand.Rand) {
 	rlib.Console("Companies: %d\n", len(IG.Companies))
 	rlib.Console("CarInfo: %d\n", len(IG.Cars))
 	rlib.Console("CarColors: %d\n", len(IG.CarColors))
+	rlib.Console("Cats: %d\n", len(IG.Cats))
+	rlib.Console("Dogs: %d\n", len(IG.Dogs))
+	rlib.Console("DogNames: %d\n", len(IG.DogNames))
+	rlib.Console("CatNames: %d\n", len(IG.CatNames))
+	rlib.Console("DogColors: %d\n", len(IG.DogColors))
+	rlib.Console("CatColors: %d\n", len(IG.CatColors))
 }
 
 // GenerateRandomLicensePlate returns a string with a random license plate
@@ -133,6 +151,42 @@ func GenerateRandomLicensePlate() string {
 //-----------------------------------------------------------------------------
 func GenerateRandomPhoneNumber() string {
 	return fmt.Sprintf("(%d) %3d-%04d", 100+IG.Rand.Intn(899), 100+IG.Rand.Intn(899), IG.Rand.Intn(9999))
+}
+
+// GenerateRandomDog returns a string with a random dog breed
+//-----------------------------------------------------------------------------
+func GenerateRandomDog() string {
+	return IG.Dogs[IG.Rand.Intn(len(IG.Dogs))]
+}
+
+// GenerateRandomCat returns a string with a random dog breed
+//-----------------------------------------------------------------------------
+func GenerateRandomCat() string {
+	return IG.Cats[IG.Rand.Intn(len(IG.Cats))]
+}
+
+// GenerateRandomDogName returns a string with a random dog breed
+//-----------------------------------------------------------------------------
+func GenerateRandomDogName() string {
+	return IG.DogNames[IG.Rand.Intn(len(IG.DogNames))]
+}
+
+// GenerateRandomCatName returns a string with a random dog breed
+//-----------------------------------------------------------------------------
+func GenerateRandomCatName() string {
+	return IG.CatNames[IG.Rand.Intn(len(IG.CatNames))]
+}
+
+// GenerateRandomDogColor returns a string with a random dog breed
+//-----------------------------------------------------------------------------
+func GenerateRandomDogColor() string {
+	return IG.DogColors[IG.Rand.Intn(len(IG.DogColors))]
+}
+
+// GenerateRandomCatColor returns a string with a random dog breed
+//-----------------------------------------------------------------------------
+func GenerateRandomCatColor() string {
+	return IG.CatColors[IG.Rand.Intn(len(IG.CatColors))]
 }
 
 // GenerateRandomFirstName returns a string with a random first name

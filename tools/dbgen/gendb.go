@@ -151,6 +151,36 @@ func createRandomCar(t *rlib.Transactant, dbConf *GenDBConf) rlib.Vehicle {
 	v.DtStop = dbConf.DtStop
 	return v
 }
+func createRandomDog(t *rlib.Transactant, dbConf *GenDBConf) rlib.RentalAgreementPet {
+	var p rlib.RentalAgreementPet
+	p.TCID = t.TCID
+	p.BID = t.BID
+	p.Type = "dog"
+	p.Breed = GenerateRandomDog()
+	p.Color = GenerateRandomDogColor()
+	p.Weight = float64(10 + IG.Rand.Intn(50))
+	p.Name = GenerateRandomDogName()
+	p.DtStart = dbConf.DtStart
+	p.DtStop = dbConf.DtStop
+	return p
+}
+
+func createRandomCat(t *rlib.Transactant, dbConf *GenDBConf) rlib.RentalAgreementPet {
+	var p rlib.RentalAgreementPet
+	p.TCID = t.TCID
+	p.BID = t.BID
+	p.Type = "cat"
+	p.Breed = GenerateRandomCat()
+	p.Color = GenerateRandomCatColor()
+	p.Weight = float64(5 + IG.Rand.Intn(20))
+	p.Name = GenerateRandomCatName()
+	p.DtStart = dbConf.DtStart
+	p.DtStop = dbConf.DtStop
+	return p
+}
+
+func createRandomPet(t *rlib.Transactant, dbConf *GenDBConf) {
+}
 
 // createTransactants
 //-----------------------------------------------------------------------------
@@ -202,6 +232,26 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			for j := 0; j < vcount; j++ {
 				v := createRandomCar(&t, dbConf)
 				_, err = rlib.InsertVehicle(ctx, &v)
+				if err != nil {
+					rlib.LogAndPrintError(funcname, err)
+					return err
+				}
+			}
+		}
+
+		if IG.Rand.Intn(100) < 68 { // x%
+			vcount := 1
+			if IG.Rand.Intn(100) < 5 { // y%
+				vcount++
+			}
+			for j := 0; j < vcount; j++ {
+				var p rlib.RentalAgreementPet
+				if IG.Rand.Intn(70) < 40 {
+					p = createRandomDog(&t, dbConf)
+				} else {
+					p = createRandomCat(&t, dbConf)
+				}
+				_, err = rlib.InsertRentalAgreementPet(ctx, &p)
 				if err != nil {
 					rlib.LogAndPrintError(funcname, err)
 					return err

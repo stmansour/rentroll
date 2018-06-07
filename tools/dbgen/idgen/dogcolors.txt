@@ -1,0 +1,16 @@
+Brown
+Chocolate
+Liver
+Red
+Gold
+Yellow
+Cream
+Fawn
+Black
+Blue
+Grey
+White
+Tricolor
+Tuxedo
+Harlequin
+Spotted

@@ -1689,7 +1689,7 @@ func InsertRentalAgreementPet(ctx context.Context, a *RentalAgreementPet) (int64
 	}
 
 	// transaction... context
-	fields := []interface{}{a.BID, a.RAID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.RAID, a.TCID, a.Type, a.Breed, a.Color, a.Weight, a.Name, a.DtStart, a.DtStop, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertRentalAgreementPet)
 		defer stmt.Close()
