@@ -5,7 +5,7 @@
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     lockOnGrid,
     getVehicleFormInitalRecord, setVehicleLocalData, getVehicleLocalData,
-    AssignRentableFeesGridRecords, saveVehiclesCompData
+    AssignVehiclesGridRecords, saveVehiclesCompData
 */
 
 "use strict";
@@ -136,7 +136,7 @@ window.loadRAVehiclesGrid = function () {
                     .done(function(data) {
                         if (data.status === 'success') {
                             // re-assign records in grid
-                            AssignRentableFeesGridRecords();
+                            AssignVehiclesGridRecords();
 
                             // reset the form
                             f.actions.reset();
@@ -185,7 +185,7 @@ window.loadRAVehiclesGrid = function () {
                             f.refresh();
 
                             // re-assign records in grid
-                            AssignRentableFeesGridRecords();
+                            AssignVehiclesGridRecords();
                         } else {
                             f.message(data.message);
                         }
@@ -213,7 +213,7 @@ window.loadRAVehiclesGrid = function () {
                             toggleHaveCheckBoxDisablity('RAVehiclesGrid');
 
                             // re-assign records in grid
-                            AssignRentableFeesGridRecords();
+                            AssignVehiclesGridRecords();
 
                             // close the form
                             hideSliderContent();
@@ -391,7 +391,7 @@ window.loadRAVehiclesGrid = function () {
     // load the existing data in vehicles component
     setTimeout(function () {
         // assign grid records
-        AssignRentableFeesGridRecords();
+        AssignVehiclesGridRecords();
     }, 500);
 };
 
@@ -439,10 +439,10 @@ window.setVehicleLocalData = function(TMPID, vehicleData) {
 };
 
 //-----------------------------------------------------------------------------
-// AssignRentableFeesGridRecords - will set the vehicles grid records from local
+// AssignVehiclesGridRecords - will set the vehicles grid records from local
 //                               copy of flow data again
 //-----------------------------------------------------------------------------
-window.AssignRentableFeesGridRecords = function() {
+window.AssignVehiclesGridRecords = function() {
     var compData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
     var grid = w2ui.RAVehiclesGrid;
 
