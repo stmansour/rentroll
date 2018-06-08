@@ -345,6 +345,25 @@ func buildPreparedStatements() {
 	Errcheck(err)
 
 	//==========================================
+	// Flow
+	//==========================================
+	flds = "FlowID,BID,UserRefNo,FlowType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
+	RRdb.DBFields["Flow"] = flds
+	RRdb.Prepstmt.GetFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetFlowsByFlowType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowType=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetFlowIDsByUser, err = RRdb.Dbrr.Prepare("SELECT DISTINCT FlowID FROM Flow where CreateBy=?")
+	Errcheck(err)
+	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
+	RRdb.Prepstmt.InsertFlow, err = RRdb.Dbrr.Prepare("INSERT INTO Flow (" + s1 + ") VALUES(" + s2 + ")")
+	Errcheck(err)
+	RRdb.Prepstmt.UpdateFlowData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
+	Errcheck(err)
+	RRdb.Prepstmt.DeleteFlow, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE FlowID=?")
+	Errcheck(err)
+
+	//==========================================
 	// INVOICE
 	//==========================================
 	flds = "InvoiceNo,BID,Dt,DtDue,Amount,DeliveredBy,CreateTS,CreateBy,LastModTime,LastModBy"
@@ -1345,22 +1364,4 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.DeleteVehicle, err = RRdb.Dbrr.Prepare("DELETE from Vehicle WHERE VID=?")
 	Errcheck(err)
 
-	//==========================================
-	// Flow
-	//==========================================
-	flds = "FlowID,BID,FlowType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
-	RRdb.DBFields["Flow"] = flds
-	RRdb.Prepstmt.GetFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetFlowsByFlowType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowType=?")
-	Errcheck(err)
-	RRdb.Prepstmt.GetFlowIDsByUser, err = RRdb.Dbrr.Prepare("SELECT DISTINCT FlowID FROM Flow where CreateBy=?")
-	Errcheck(err)
-	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
-	RRdb.Prepstmt.InsertFlow, err = RRdb.Dbrr.Prepare("INSERT INTO Flow (" + s1 + ") VALUES(" + s2 + ")")
-	Errcheck(err)
-	RRdb.Prepstmt.UpdateFlowData, err = RRdb.Dbrr.Prepare("UPDATE Flow SET Data = JSON_REPLACE(Data, CONCAT('$.', ?), CAST(? AS JSON)) where FlowID=?")
-	Errcheck(err)
-	RRdb.Prepstmt.DeleteFlow, err = RRdb.Dbrr.Prepare("DELETE from Flow WHERE FlowID=?")
-	Errcheck(err)
 }

@@ -481,14 +481,18 @@ func insertInitialRAFlow(ctx context.Context, BID, UID int64) (int64, error) {
 	}
 
 	// initial Flow struct
+	rlib.Console("New Flow\n")
 	a := rlib.Flow{
 		BID:       BID,
 		FlowID:    0, // it's new flowID,
+		UserRefNo: rlib.GenerateUserRefNo(),
 		FlowType:  rlib.RAFlow,
 		Data:      raflowJSONData,
 		CreateBy:  UID,
 		LastModBy: UID,
 	}
+
+	rlib.Console("New flow UserRefNo = %s\n", a.UserRefNo)
 
 	// insert new flow
 	flowID, err = rlib.InsertFlow(ctx, &a)
@@ -757,8 +761,9 @@ func saveRentalAgreementFlow(ctx context.Context, flowID int64) (int64, error) {
 
 // GridRAFlowResponse is a struct to hold info for rental agreement for the grid response
 type GridRAFlowResponse struct {
-	Recid  int64 `json:"recid"`
-	BID    int64
-	BUD    string
-	FlowID int64
+	Recid     int64 `json:"recid"`
+	BID       int64
+	BUD       string
+	FlowID    int64
+	UserRefNo string
 }

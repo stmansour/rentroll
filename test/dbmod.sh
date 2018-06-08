@@ -373,6 +373,9 @@ DBNAME="rentroll"
 # June 6, 2018
 # ALTER TABLE RentalAgreementPets ADD TCID BIGINT NOT NULL DEFAULT 0 AFTER RAID;
 
+# June 7, 2018
+# ALTER TABLE Flow ADD UserRefNo VARCHAR(50) NOT NULL DEFAULT '' AFTER BID;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

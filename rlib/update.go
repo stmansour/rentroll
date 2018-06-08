@@ -296,6 +296,38 @@ func UpdateExpense(ctx context.Context, a *Expense) error {
 	return updateError(err, "Expense", *a)
 }
 
+// UpdateFlowData updates the flow Data json column
+func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
+	var err error
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return ErrSessionRequired
+		}
+		// user from session, CreateBy, LastModBy
+		a.LastModBy = sess.UID
+	}
+
+	// make sure that json is valid before inserting it in database
+	if !(IsByteDataValidJSON(jsonData)) {
+		return ErrFlowInvalidJSONData
+	}
+
+	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
+	// in mysql `json` type column
+	fields := []interface{}{jsonDataKey, jsonData, a.FlowID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowData)
+		defer stmt.Close()
+		_, err = stmt.Exec(fields...)
+	} else {
+		_, err = RRdb.Prepstmt.UpdateFlowData.Exec(fields...)
+	}
+	return updateError(err, "Flow", *a)
+}
+
 // UpdateInvoice updates a Invoice record
 func UpdateInvoice(ctx context.Context, a *Invoice) error {
 	var err error
@@ -1237,36 +1269,4 @@ func UpdateVehicle(ctx context.Context, a *Vehicle) error {
 		_, err = RRdb.Prepstmt.UpdateVehicle.Exec(fields...)
 	}
 	return updateError(err, "Vehicle", *a)
-}
-
-// UpdateFlowData updates the flow Data json column
-func UpdateFlowData(ctx context.Context, jsonDataKey string, jsonData []byte, a *Flow) error {
-	var err error
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return ErrSessionRequired
-		}
-		// user from session, CreateBy, LastModBy
-		a.LastModBy = sess.UID
-	}
-
-	// make sure that json is valid before inserting it in database
-	if !(IsByteDataValidJSON(jsonData)) {
-		return ErrFlowInvalidJSONData
-	}
-
-	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
-	// in mysql `json` type column
-	fields := []interface{}{jsonDataKey, jsonData, a.FlowID}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateFlowData)
-		defer stmt.Close()
-		_, err = stmt.Exec(fields...)
-	} else {
-		_, err = RRdb.Prepstmt.UpdateFlowData.Exec(fields...)
-	}
-	return updateError(err, "Flow", *a)
 }

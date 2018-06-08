@@ -1399,7 +1399,6 @@ CREATE TABLE ClosePeriod (
 );
 
 
-
 -- **************************************
 -- ****                              ****
 -- ****            FLOW              ****
@@ -1408,6 +1407,7 @@ CREATE TABLE ClosePeriod (
 CREATE TABLE Flow (
     FlowID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                                                         -- Business id
+    UserRefNo VARCHAR(50) NOT NULL DEFAULT '',                                             -- reference id to share with the user(s)    
     FlowType VARCHAR(50) NOT NULL DEFAULT '',                                              -- for which flow we're storing data ("RA=Rental Agreement Flow")
     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated

@@ -661,6 +661,61 @@ func InsertExpense(ctx context.Context, a *Expense) (int64, error) {
 }
 
 //======================================
+//  FLOW
+//======================================
+
+// InsertFlow inserts the flow with data provided in "a".
+func InsertFlow(ctx context.Context, a *Flow) (int64, error) {
+	var (
+		rid = int64(0)
+		err error
+		res sql.Result
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		sess, ok := SessionFromContext(ctx)
+		if !ok {
+			return rid, ErrSessionRequired
+		}
+
+		// user from session, CreateBy, LastModBy
+		a.CreateBy = sess.UID
+		a.LastModBy = a.CreateBy
+	}
+
+	// make sure that json is valid before inserting it in database
+	if !(IsFlowDataValidJSON(a.Data)) {
+		return rid, ErrFlowInvalidJSONData
+	}
+
+	// transaction... context
+
+	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
+	// in mysql `json` type column
+	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, []byte(a.Data), a.CreateBy, a.LastModBy}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.InsertFlow)
+		defer stmt.Close()
+		res, err = stmt.Exec(fields...)
+	} else {
+		res, err = RRdb.Prepstmt.InsertFlow.Exec(fields...)
+	}
+
+	// After getting result...
+	if nil == err {
+		x, err := res.LastInsertId()
+		if err == nil {
+			rid = int64(x)
+			a.FlowID = rid
+		}
+	} else {
+		err = insertError(err, "Flow", *a)
+	}
+	return rid, err
+}
+
+//======================================
 //  INVOICE
 //======================================
 
@@ -2635,57 +2690,6 @@ func InsertVehicle(ctx context.Context, a *Vehicle) (int64, error) {
 		}
 	} else {
 		err = insertError(err, "Vehicle", *a)
-	}
-	return rid, err
-}
-
-// InsertFlow inserts the flow with data provided in "a".
-func InsertFlow(ctx context.Context, a *Flow) (int64, error) {
-	var (
-		rid = int64(0)
-		err error
-		res sql.Result
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		sess, ok := SessionFromContext(ctx)
-		if !ok {
-			return rid, ErrSessionRequired
-		}
-
-		// user from session, CreateBy, LastModBy
-		a.CreateBy = sess.UID
-		a.LastModBy = a.CreateBy
-	}
-
-	// make sure that json is valid before inserting it in database
-	if !(IsFlowDataValidJSON(a.Data)) {
-		return rid, ErrFlowInvalidJSONData
-	}
-
-	// transaction... context
-
-	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
-	// in mysql `json` type column
-	fields := []interface{}{a.BID, a.FlowType, []byte(a.Data), a.CreateBy, a.LastModBy}
-	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.InsertFlow)
-		defer stmt.Close()
-		res, err = stmt.Exec(fields...)
-	} else {
-		res, err = RRdb.Prepstmt.InsertFlow.Exec(fields...)
-	}
-
-	// After getting result...
-	if nil == err {
-		x, err := res.LastInsertId()
-		if err == nil {
-			rid = int64(x)
-			a.FlowID = rid
-		}
-	} else {
-		err = insertError(err, "Flow", *a)
 	}
 	return rid, err
 }

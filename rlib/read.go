@@ -165,6 +165,26 @@ func ReadExpenses(rows *sql.Rows, a *Expense) error {
 	return rows.Scan(&a.EXPID, &a.RPEXPID, &a.BID, &a.RID, &a.RAID, &a.Amount, &a.Dt, &a.AcctRule, &a.ARID, &a.FLAGS, &a.Comment, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
+//------------------
+// FLOW
+//------------------
+
+// ReadFlow reads a full Flow structure from the database based on the supplied row object
+func ReadFlow(row *sql.Row, a *Flow) error {
+	err := row.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadFlows reads a full Flow structure from the database based on the supplied rows object
+func ReadFlows(rows *sql.Rows, a *Flow) error {
+	return rows.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
+//------------------
+// GLAccount
+//------------------
+
 // ReadGLAccount reads a full Ledger structure of data from the database based on the supplied Rows pointer.
 func ReadGLAccount(row *sql.Row, a *GLAccount) error {
 	err := row.Scan(&a.LID, &a.PLID, &a.BID, &a.RAID, &a.TCID, &a.GLNumber,
@@ -751,16 +771,4 @@ func ReadVehicles(rows *sql.Rows, a *Vehicle) error {
 	return rows.Scan(&a.VID, &a.TCID, &a.BID, &a.VehicleType, &a.VehicleMake, &a.VehicleModel, &a.VehicleColor, &a.VehicleYear,
 		&a.LicensePlateState, &a.LicensePlateNumber, &a.ParkingPermitNumber, &a.DtStart, &a.DtStop,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
-}
-
-// ReadFlow reads a full Flow structure from the database based on the supplied row object
-func ReadFlow(row *sql.Row, a *Flow) error {
-	err := row.Scan(&a.FlowID, &a.BID, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
-	SkipSQLNoRowsError(&err)
-	return err
-}
-
-// ReadFlows reads a full Flow structure from the database based on the supplied rows object
-func ReadFlows(rows *sql.Rows, a *Flow) error {
-	return rows.Scan(&a.FlowID, &a.BID, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }

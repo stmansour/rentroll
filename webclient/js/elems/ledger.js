@@ -85,10 +85,10 @@ window.renderLedgerStateIcon = function (record /*, index, col_index*/) {
         s = '<i class="fas fa-home" style="color: #0088DD;"></i> &nbsp;';
     	break;
     	case "closed":
-    	s = '<i class="fas fa-adjust" style="color: #0088DD;"></i> &nbsp;';
+    	s = '<i class="fas fa-lock" style="color: #0088DD;"></i> &nbsp;';
     	break;
     	case "locked":
-    	s = '<i class="fas fa-adjust" style="color: #0088DD;"></i> &nbsp;';
+    	s = '<i class="fas fa-ban" style="color: #0088DD;"></i> &nbsp;';
     	break;
     }
     return s + record.LMState;

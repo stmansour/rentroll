@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"extres"
 	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -1410,6 +1411,7 @@ type GLAccount struct {
 type Flow struct {
 	BID         int64           // Business unit associated with this FlowPart
 	FlowID      int64           // primary auto increment key
+	UserRefNo   string          // user reference string
 	FlowType    string          // RA="Rental Agreement Flow" etc...
 	Data        json.RawMessage // json data in mysql
 	LastModTime time.Time       // last modified time
@@ -1874,6 +1876,7 @@ var RRdb struct {
 	DBFields map[string]string            // map of db table fields DBFields[tablename] = field list
 	Zone     *time.Location               // what timezone should the server use?
 	noAuth   bool                         // if enable that means auth is not required, (should be moved in some common app struct!)
+	Rand     *rand.Rand                   // for generating Reference Numbers or other UniqueIDs
 	// TODO(sudip): NoAuth will be moved to something internal pkg app struct
 }
 
@@ -1917,10 +1920,9 @@ func InitDBHelpers(dbrr, dbdir *sql.DB) {
 	for i := 0; i < len(QBAcctInfo); i++ {
 		QBAcctType = append(QBAcctType, QBAcctInfo[i].Name)
 	}
-	// fmt.Printf("Initial:  RRdb.BUDlist\n")
-	// for k, v := range RRdb.BUDlist {
-	// 	fmt.Printf("key = %s,  val = %d\n", k, v)
-	// }
+
+	now := time.Now()
+	RRdb.Rand = rand.New(rand.NewSource(now.UnixNano()))
 }
 
 // InitBusinessFields initialize the lists in rlib's internal data structures

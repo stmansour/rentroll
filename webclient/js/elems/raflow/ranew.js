@@ -115,7 +115,13 @@ window.buildNewRAElements = function() {
             {
                 field:      'FlowID',
                 caption:    'Flow ID',
-                size:       '100%',
+                size:       '50px',
+                sortable:   true
+            },
+            {
+                field:      'UserRefNo',
+                caption:    'Ref No',
+                size:       '100 px',
                 sortable:   true
             },
         ],
