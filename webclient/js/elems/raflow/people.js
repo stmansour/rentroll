@@ -199,8 +199,8 @@ window.loadRAPeopleForm = function () {
                             // Operation related RABGInfoForm
                             for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
                                 if(bgInfoRecords[recordIndex].TCID === raBGInfoGridRecord.TCID && bgInfoRecords[recordIndex].recid === raBGInfoGridRecord.recid){
-                                    // Set form record from the client side
-                                    form.record = bgInfoRecords[recordIndex];
+                                    // Set form record from the local data
+                                    form.record = $.extend(true, {}, bgInfoRecords[recordIndex]);
 
                                     // Set the form title
                                     setRABGInfoFormHeader(form.record);
@@ -236,11 +236,6 @@ window.loadRAPeopleForm = function () {
                 onClick: function (event) {
                     switch (event.target) {
                         case 'btnClose':
-                            var form = w2ui.RABGInfoForm;
-                            var record = getFormSubmitData(form.record);
-
-                            updatePeopleData(record);
-
                             hideSliderContent();
 
                             break;
@@ -304,7 +299,7 @@ window.loadRAPeopleForm = function () {
                     var errors = form.validate();
                     if (errors.length > 0) return;
 
-                    var record = getFormSubmitData(form.record);
+                    var record = getFormSubmitData(form.record, true);
 
                     // If transanctant role isn't selected than display error.
                     if(!(record.IsRenter || record.IsOccupant || record.IsGuarantor)){
@@ -341,7 +336,7 @@ window.loadRAPeopleForm = function () {
                     var form = this;
                     var tcidIndex = findTransactantIndexByTCIDRecidInPeopleData(form.record.TCID, form.record.recid);
 
-                    var record = getFormSubmitData(form.record);
+                    var record = getFormSubmitData(form.record, true);
                     var bgInfoRecords = updatePeopleData(record);
 
                     // delete record with index `tcidIndex`
