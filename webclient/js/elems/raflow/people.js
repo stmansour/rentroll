@@ -236,13 +236,7 @@ window.loadRAPeopleForm = function () {
                 onClick: function (event) {
                     switch (event.target) {
                         case 'btnClose':
-                            var form = w2ui.RABGInfoForm;
-                            var record = getFormSubmitData(form.record);
-
-                            updatePeopleData(record);
-
                             hideSliderContent();
-
                             break;
                         case 'addInfo':
                             addDummyBackgroundInfo();
