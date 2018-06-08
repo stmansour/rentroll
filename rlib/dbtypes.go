@@ -1512,6 +1512,7 @@ type RRprepSQL struct {
 	GetAllRentablesByBusiness               *sql.Stmt
 	GetAllRentableSpecialtyRefs             *sql.Stmt
 	GetAllRentalAgreementPets               *sql.Stmt
+	GetPetsByTransactant                    *sql.Stmt
 	GetAllRentalAgreements                  *sql.Stmt
 	GetAllRentalAgreementsByRange           *sql.Stmt
 	GetAllRentalAgreementTemplates          *sql.Stmt
