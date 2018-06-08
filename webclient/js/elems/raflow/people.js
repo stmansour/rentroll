@@ -9,7 +9,7 @@
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
-    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTCIDRecidInPeopleData,
+    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTMPTCIDInPeopleData,
     addDummyBackgroundInfo, updatePeopleData
 */
 
@@ -333,7 +333,7 @@ window.loadRAPeopleForm = function () {
                 },
                 delete: function () {
                     var form = this;
-                    var tcidIndex = findTransactantIndexByTCIDRecidInPeopleData(form.record.TCID, form.record.recid);
+                    var tcidIndex = findTransactantIndexByTMPTCIDInPeopleData(form.record.TMPTCID);
 
                     var record = getFormSubmitData(form.record, true);
                     var bgInfoRecords = updatePeopleData(record);
@@ -708,13 +708,13 @@ window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
     return index;
 };
 
-window.findTransactantIndexByTCIDRecidInPeopleData = function (TCID, recid) {
+window.findTransactantIndexByTMPTCIDInPeopleData = function (TMPTCID) {
     var index = -1;
 
     var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
     if (compData) {
         compData.forEach(function (transactantRec, i) {
-            if (transactantRec.TCID === TCID && transactantRec.recid === recid) {
+            if (transactantRec.TMPTCID === TMPTCID) {
                 index = i;
                 return false;
             }
