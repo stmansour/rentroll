@@ -123,7 +123,7 @@ window.loadRAPeopleForm = function () {
                 {
                     field: 'FullName',
                     caption: 'Name',
-                    size: '100%',
+                    size: '200px',
                     render: function (record) {
                         if (!record.IsCompany) {
                             return getFullName(record);
