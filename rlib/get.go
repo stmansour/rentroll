@@ -298,6 +298,49 @@ func GetARsByFLAGS(ctx context.Context, bid int64, FLAGS uint64) ([]AR, error) {
 //  A G R E E M E N T   P E T S
 //=======================================================
 
+// GetPetsByTransactant reads all Pet records for the supplied TCID
+func GetPetsByTransactant(ctx context.Context, TCID int64) ([]RentalAgreementPet, error) {
+
+	var (
+		err error
+		t   []RentalAgreementPet
+	)
+
+	// session... context
+	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
+		_, ok := SessionFromContext(ctx)
+		if !ok {
+			return t, ErrSessionRequired
+		}
+	}
+
+	var rows *sql.Rows
+	fields := []interface{}{TCID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetPetsByTransactant)
+		defer stmt.Close()
+		rows, err = stmt.Query(fields...)
+	} else {
+		rows, err = RRdb.Prepstmt.GetPetsByTransactant.Query(fields...)
+	}
+
+	if err != nil {
+		return t, err
+	}
+	defer rows.Close()
+
+	for i := 0; rows.Next(); i++ {
+		var a RentalAgreementPet
+		err = ReadRentalAgreementPets(rows, &a)
+		if err != nil {
+			return t, err
+		}
+		t = append(t, a)
+	}
+
+	return t, rows.Err()
+}
+
 // GetRentalAgreementPet reads a Pet the structure for the supplied PETID
 func GetRentalAgreementPet(ctx context.Context, petid int64) (RentalAgreementPet, error) {
 
@@ -2814,8 +2857,6 @@ func GetAllLedgerMarkersOnOrBefore(ctx context.Context, bid int64, dt *time.Time
 
 	return t, rows.Err()
 }*/
-
-
 
 //=======================================================
 //  L E D G E R

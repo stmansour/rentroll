@@ -973,6 +973,8 @@ func buildPreparedStatements() {
 	Errcheck(err)
 	RRdb.Prepstmt.GetAllRentalAgreementPets, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE RAID=?")
 	Errcheck(err)
+	RRdb.Prepstmt.GetPetsByTransactant, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM RentalAgreementPets WHERE TCID=?")
+	Errcheck(err)
 
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertRentalAgreementPet, err = RRdb.Dbrr.Prepare("INSERT INTO RentalAgreementPets (" + s1 + ") VALUES(" + s2 + ")")
