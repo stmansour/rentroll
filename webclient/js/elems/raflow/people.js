@@ -9,7 +9,7 @@
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
-    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTMPTCIDInPeopleData,
+    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole,
     addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData
 */
 
@@ -697,22 +697,6 @@ window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
             }
         });
     }
-    return index;
-};
-
-window.findTransactantIndexByTMPTCIDInPeopleData = function (TMPTCID) {
-    var index = -1;
-
-    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-    if (compData) {
-        compData.forEach(function (transactantRec, i) {
-            if (transactantRec.TMPTCID === TMPTCID) {
-                index = i;
-                return false;
-            }
-        });
-    }
-
     return index;
 };
 
