@@ -9,8 +9,8 @@
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
-    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTCIDRecidInPeopleData,
-    addDummyBackgroundInfo, updatePeopleData
+    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole, findTransactantIndexByTMPTCIDInPeopleData,
+    addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData
 */
 
 "use strict";
@@ -123,7 +123,7 @@ window.loadRAPeopleForm = function () {
                 {
                     field: 'FullName',
                     caption: 'Name',
-                    size: '100%',
+                    size: '200px',
                     render: function (record) {
                         if (!record.IsCompany) {
                             return getFullName(record);
@@ -237,7 +237,6 @@ window.loadRAPeopleForm = function () {
                     switch (event.target) {
                         case 'btnClose':
                             hideSliderContent();
-
                             break;
                         case 'addInfo':
                             addDummyBackgroundInfo();
@@ -294,26 +293,30 @@ window.loadRAPeopleForm = function () {
             ],
             actions: {
                 save: function () {
-                    var form = this;
+                    var form = this,
+                        TMPTCID = form.record.TMPTCID;
 
                     var errors = form.validate();
                     if (errors.length > 0) return;
 
-                    var record = getFormSubmitData(form.record, true);
+                    var peopleData = getFormSubmitData(form.record, true);
 
                     // If transanctant role isn't selected than display error.
-                    if(!(record.IsRenter || record.IsOccupant || record.IsGuarantor)){
+                    if(!(peopleData.IsRenter || peopleData.IsOccupant || peopleData.IsGuarantor)){
                         form.message("Please select transanctant role.");
                         return;
                     }
 
-                    var bgInfoRecords = updatePeopleData(record);
+                    // Convert integer to bool checkboxes fields
+                    updateRABGInfoFormCheckboxes(peopleData);
+
+                    setPeopleLocalData(TMPTCID, peopleData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
 
                     // save this records in json Data
-                    saveActiveCompData(bgInfoRecords, "people")
+                    savePeopleCompData()
                     .done(function (data) {
                         if (data.status === 'success') {
 
@@ -334,15 +337,12 @@ window.loadRAPeopleForm = function () {
                 },
                 delete: function () {
                     var form = this;
-                    var tcidIndex = findTransactantIndexByTCIDRecidInPeopleData(form.record.TCID, form.record.recid);
+					// get local data from TMPPETID
+					var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+					var itemIndex = getPeopleLocalData(form.record.TMPTCID, true);
+					compData.splice(itemIndex, 1);
 
-                    var record = getFormSubmitData(form.record, true);
-                    var bgInfoRecords = updatePeopleData(record);
-
-                    // delete record with index `tcidIndex`
-                    bgInfoRecords.splice(tcidIndex, 1);
-
-                    saveActiveCompData(bgInfoRecords, "people")
+                    savePeopleCompData()
                     .done(function (data) {
                         if (data.status === 'success') {
 
@@ -709,13 +709,13 @@ window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
     return index;
 };
 
-window.findTransactantIndexByTCIDRecidInPeopleData = function (TCID, recid) {
+window.findTransactantIndexByTMPTCIDInPeopleData = function (TMPTCID) {
     var index = -1;
 
     var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
     if (compData) {
         compData.forEach(function (transactantRec, i) {
-            if (transactantRec.TCID === TCID && transactantRec.recid === recid) {
+            if (transactantRec.TMPTCID === TMPTCID) {
                 index = i;
                 return false;
             }
@@ -792,28 +792,53 @@ window.addDummyBackgroundInfo = function () {
     form.refresh();
 };
 
-window.updatePeopleData = function (record) {
+//------------------------------------------------------------------------------
+// savePetsCompData - saves the data on server side
+//------------------------------------------------------------------------------
+window.savePeopleCompData = function() {
+	var compData = getRAFlowCompData("people", app.raflow.activeFlowID);
+	return saveActiveCompData(compData, "people");
+};
 
-    var bgInfoRecords = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+//-----------------------------------------------------------------------------
+// getPeopleLocalData - returns the clone of people data for requested TMPTCID
+//-----------------------------------------------------------------------------
+window.getPeopleLocalData = function(TMPTCID, returnIndex) {
+	var cloneData = {};
+	var foundIndex = -1;
+	var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+	compData.forEach(function(item, index) {
+		if (item.TMPTCID === TMPTCID) {
+			if (returnIndex) {
+				foundIndex = index;
+			} else {
+				cloneData = $.extend(true, {}, item);
+			}
+			return false;
+		}
+	});
+	if (returnIndex) {
+		return foundIndex;
+	}
+	return cloneData;
+};
 
-    // Convert integer to bool checkboxes fields
-    updateRABGInfoFormCheckboxes(record);
 
-    // update record if it is already exists
-    var isExists = false;
-    for (var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++) {
-        if (bgInfoRecords[recordIndex].TCID === record.TCID && bgInfoRecords[recordIndex].recid === record.recid) {
-            bgInfoRecords[recordIndex] = record;
-            isExists = true;
-            break;
-        }
-    }
-
-    // Push new record
-    if(!isExists){
-        bgInfoRecords.push(record);
-    }
-
-    return bgInfoRecords;
-
+//-----------------------------------------------------------------------------
+// setPeopleLocalData - save the data for requested a TMPTCID in local data
+//-----------------------------------------------------------------------------
+window.setPeopleLocalData = function(TMPTCID, peopleData) {
+	var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+	var dataIndex = -1;
+	compData.forEach(function(item, index) {
+		if (item.TMPTCID === TMPTCID) {
+			dataIndex = index;
+			return false;
+		}
+	});
+	if (dataIndex > -1) {
+		compData[dataIndex] = peopleData;
+	} else {
+		compData.push(peopleData);
+	}
 };
