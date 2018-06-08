@@ -123,7 +123,8 @@ window.loadRAPeopleForm = function () {
                 {
                     field: 'FullName',
                     caption: 'Name',
-                    size: '200px',
+                    size: '100%',
+                    style: 'text-align: left;',
                     render: function (record) {
                         if (!record.IsCompany) {
                             return getFullName(record);
@@ -174,10 +175,6 @@ window.loadRAPeopleForm = function () {
             ],
             onClick: function (event) {
                 event.onComplete = function () {
-
-                    var raBGInfoGridRecord = w2ui.RAPeopleGrid.get(event.recid); // record from the w2ui grid
-                    var form = w2ui.RABGInfoForm;
-
                     var yes_args = [this, event.recid],
                         no_args = [this],
                         no_callBack = function (grid) {
@@ -185,29 +182,26 @@ window.loadRAPeopleForm = function () {
                             return false;
                         },
                         yes_callBack = function (grid, recid) {
+                            var form = w2ui.RABGInfoForm;
+
                             app.last.grid_sel_recid = parseInt(recid);
 
                             // keep highlighting current row in any case
                             grid.select(app.last.grid_sel_recid);
 
+                            var raBGInfoGridRecord = grid.get(event.recid); // record from the w2ui grid
+
+                            // show slider content in w2ui comp
                             showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
+                            // show/hide list of fields based on role
                             manageBGInfoFormFields(raBGInfoGridRecord);
 
-                            var bgInfoRecords = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+                            form.record = getPeopleLocalData(raBGInfoGridRecord.TMPTCID);
+                            form.record.recid = raBGInfoGridRecord.recid;
 
-                            // Operation related RABGInfoForm
-                            for(var recordIndex = 0; recordIndex < bgInfoRecords.length; recordIndex++){
-                                if(bgInfoRecords[recordIndex].TCID === raBGInfoGridRecord.TCID && bgInfoRecords[recordIndex].recid === raBGInfoGridRecord.recid){
-                                    // Set form record from the local data
-                                    form.record = $.extend(true, {}, bgInfoRecords[recordIndex]);
-
-                                    // Set the form title
-                                    setRABGInfoFormHeader(form.record);
-
-                                    break;
-                                }
-                            }
+                            // Set the form title
+                            setRABGInfoFormHeader(form.record);
 
                             form.refresh(); // need to refresh for form changes
                         };
@@ -245,6 +239,7 @@ window.loadRAPeopleForm = function () {
                 }
             },
             fields: [
+                {name: 'recid',                     type: 'int',        required: true },
                 {name: 'BID',                       type: 'int',        required: true,     html: {caption: 'BID', page: 0, column: 0}},
                 {name: 'TMPTCID',                   type: 'int',        required: true },
                 {name: 'TCID',                      type: 'int',        required: true,     html: {caption: 'TCID', page: 0, column: 0}},
@@ -367,11 +362,8 @@ window.loadRAPeopleForm = function () {
             },
             onChange: function (event) {
                 event.onComplete = function () {
-
                     $("#EvictedDes").prop("disabled", !this.record.Evicted);
-
                     $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-
                     $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
 
                     manageBGInfoFormFields(this.record);
@@ -390,20 +382,19 @@ window.loadRAPeopleForm = function () {
             },
             onRefresh: function (event) {
                 var form = this;
+                event.onComplete = function() {
+                    // hide delete button if it is NewRecord
+                    var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
+                    if (isNewRecord) {
+                        $(form.box).find("button[name=delete]").addClass("hidden");
+                    } else {
+                        $(form.box).find("button[name=delete]").removeClass("hidden");
+                    }
 
-                // hide delete button if it is NewRecord
-                var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
-                if (isNewRecord) {
-                    $(form.box).find("button[name=delete]").addClass("hidden");
-                } else {
-                    $(form.box).find("button[name=delete]").removeClass("hidden");
-                }
-
-                $("#EvictedDes").prop("disabled", !this.record.Evicted);
-
-                $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-
-                $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
+                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+                };
             }
         });
     }
