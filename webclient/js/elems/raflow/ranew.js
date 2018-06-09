@@ -99,7 +99,7 @@ window.buildNewRAElements = function() {
             {field: 'BID',       caption: 'BID',                     hidden: true,                  },
             {field: 'BUD',       caption: 'BUD',                     hidden: true,                  },
             {field: 'FlowID',    caption: 'Flow ID', size: '50px',                 sortable:   true },
-            {field: 'UserRefNo', caption: 'Ref No',  size: '100px',                sortable:   true },
+            {field: 'UserRefNo', caption: 'Ref No',  size: '200px',                sortable:   true },
         ],
         onRequest: function(event) {
             event.postData.cmd = "getAllFlows";
