@@ -1824,6 +1824,7 @@ type RRprepSQL struct {
 	InsertClosePeriod                       *sql.Stmt
 	UpdateClosePeriod                       *sql.Stmt
 	DeleteClosePeriod                       *sql.Stmt
+	GetFlowMetaDataInRange                  *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

@@ -165,7 +165,8 @@ func getAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// get all flowIDs
-	recs, err := rlib.GetFlowIDsByUser(r.Context())
+	// recs, err := rlib.GetFlowIDsByUser(r.Context())
+	m, err := rlib.GetFlowMetaDataInRange(r.Context(), &d.wsSearchReq.SearchDtStart, &d.wsSearchReq.SearchDtStop)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -174,27 +175,22 @@ func getAllFlowsByUser(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	// initiate flow for given string
 	switch f.FlowType {
 	case rlib.RAFlow:
-
 		// ResponseData response data for ra flow
 		var g struct {
 			Status  string               `json:"status"`
 			Records []GridRAFlowResponse `json:"records"`
 		}
-
-		// initialize the list
 		g.Records = []GridRAFlowResponse{}
-
-		// loop over recs and prepare response
-		for i, rec := range recs {
+		for i := 0; i < len(m); i++ {
 			var t = GridRAFlowResponse{
-				Recid:  int64(i),
-				BID:    d.BID,
-				FlowID: rec,
-				BUD:    string(rlib.GetBUDFromBIDList(d.BID)),
+				Recid:     int64(i),
+				BID:       d.BID,
+				FlowID:    m[i].FlowID,
+				UserRefNo: m[i].UserRefNo,
+				BUD:       string(rlib.GetBUDFromBIDList(d.BID)),
 			}
 			g.Records = append(g.Records, t)
 		}
-
 		g.Status = "success"
 		SvcWriteResponse(d.BID, &g, w)
 		return

@@ -48,17 +48,17 @@ var Digits = "0123456789"
 func GenerateUserRefNo() string {
 	var l []byte
 
-	// Generate 5 random digits and 5 random letters
-	for i := 0; i < 5; i++ {
+	// Generate 10 random digits and 5 random letters
+	for i := 0; i < 10; i++ {
 		l = append(l, Alphabet[RRdb.Rand.Intn(26)])
 	}
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 10; i++ {
 		l = append(l, Digits[RRdb.Rand.Intn(10)])
 	}
 	// move them around some random number of times
-	for i := 0; i < 4+RRdb.Rand.Intn(4); i++ {
-		j := RRdb.Rand.Intn(7)
-		k := RRdb.Rand.Intn(7)
+	for i := 0; i < RRdb.Rand.Intn(5); i++ {
+		j := RRdb.Rand.Intn(20)
+		k := RRdb.Rand.Intn(20)
 		l[k], l[j] = l[j], l[k]
 	}
 	return string(l)

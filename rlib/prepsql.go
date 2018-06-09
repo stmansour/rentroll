@@ -349,6 +349,8 @@ func buildPreparedStatements() {
 	//==========================================
 	flds = "FlowID,BID,UserRefNo,FlowType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Flow"] = flds
+	RRdb.Prepstmt.GetFlowMetaDataInRange, err = RRdb.Dbrr.Prepare("SELECT FlowID,BID,UserRefNo,FlowType,CreateTS,CreateBy,LastModTime,LastModBy FROM Flow WHERE ? <= CreateTS AND CreateTS < ?")
+	Errcheck(err)
 	RRdb.Prepstmt.GetFlow, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowID=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetFlowsByFlowType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowType=?")

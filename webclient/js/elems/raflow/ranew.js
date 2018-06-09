@@ -95,40 +95,15 @@ window.buildNewRAElements = function() {
             toolbarColumns: false,
         },
         columns: [
-            {
-                field:      'recid',
-                hidden:     true,
-                caption:    'recid',
-                size:       '40px',
-                sortable:   true
-            },
-            {
-                field:      'BID',
-                caption:    'BID',
-                hidden:     true,
-            },
-            {
-                field:      'BUD',
-                caption:    'BUD',
-                hidden:     true,
-            },
-            {
-                field:      'FlowID',
-                caption:    'Flow ID',
-                size:       '50px',
-                sortable:   true
-            },
-            {
-                field:      'UserRefNo',
-                caption:    'Ref No',
-                size:       '100 px',
-                sortable:   true
-            },
+            {field: 'recid',     caption: 'recid',   size: '40px',   hidden: true, sortable:   true },
+            {field: 'BID',       caption: 'BID',                     hidden: true,                  },
+            {field: 'BUD',       caption: 'BUD',                     hidden: true,                  },
+            {field: 'FlowID',    caption: 'Flow ID', size: '50px',                 sortable:   true },
+            {field: 'UserRefNo', caption: 'Ref No',  size: '100px',                sortable:   true },
         ],
         onRequest: function(event) {
             event.postData.cmd = "getAllFlows";
             event.postData.FlowType = "RA";
-            // console.log(event.postData);
         },
         onRefresh: function(event) {
             event.onComplete = function() {
