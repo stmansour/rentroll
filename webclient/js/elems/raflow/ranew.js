@@ -73,10 +73,10 @@ window.setToNewRAForm = function (bid, FlowID) {
 
 window.buildNewRAElements = function() {
     // ------------------------------------------------------
-    // rental agreement grid
+    // applicants grid
     // ------------------------------------------------------
     $().w2grid({
-        name:               'newrentalagrsGrid',
+        name:               'applicantsGrid',
         multiSelect:        false,
         show: {
             toolbar: true,
@@ -206,7 +206,7 @@ window.buildNewRAElements = function() {
     });
 
     // add date navigation toolbar for new rental agreement form
-    addDateNavToToolbar('newrentalagrs');
+    addDateNavToToolbar('applicants');
 
     //------------------------------------------------------------------------
     //          Rental Agreement Details
@@ -231,7 +231,7 @@ window.buildNewRAElements = function() {
                             var no_callBack = function() { return false; },
                                 yes_callBack = function() {
                                     w2ui.toplayout.hide('right',true);
-                                    w2ui.newrentalagrsGrid.render();
+                                    w2ui.applicantsGrid.render();
                                     app.raflow.activeFlowID = "";
                                 };
                             form_dirty_alert(yes_callBack, no_callBack);
