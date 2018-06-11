@@ -127,10 +127,10 @@ window.loadRAPeopleForm = function () {
                     size: '100%',
                     style: 'text-align: left;',
                     render: function (record) {
-                        if (!record.IsCompany) {
-                            return getFullName(record);
-                        } else {
+                        if (record.IsCompany > 0) {
                             return record.Employer;
+                        } else {
+                            return getFullName(record);
                         }
                     }
                 },
@@ -250,7 +250,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'FirstName',                 type: 'text',       required: false },
                 {name: 'MiddleName',                type: 'text',       required: false },
                 {name: 'LastName',                  type: 'text',       required: false },
-                {name: 'IsCompany',                 type: 'checkbox',   required: true },
+                {name: 'IsCompany',                 type: 'int',        required: true },
                 {name: 'BirthDate',                 type: 'date',       required: false },  // Date of births of applicants
                 {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
                 {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
@@ -414,7 +414,7 @@ window.loadRAPeopleForm = function () {
 // setRABGInfoFormHeader
 // It set RABGInfoForm header title
 window.setRABGInfoFormHeader = function (record) {
-    if (record.IsCompany) {
+    if (record.IsCompany > 0) {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.Employer;
     } else {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
@@ -465,7 +465,7 @@ window.getRATransanctantDetail = function (TCID) {
         success: function (data) {
             if (data.status != "error") {
                 // update the local copy of flow for the active one
-                app.raflow.data[data.record.FlowID] = data.flow;
+                app.raflow.data[data.record.FlowID] = data.record;
             } else {
                 console.error(data.message);
             }
@@ -496,7 +496,7 @@ window.updateRABGInfoFormCheckboxes = function (record) {
     record.IsOccupant = int_to_bool(record.IsOccupant);
     record.IsGuarantor = int_to_bool(record.IsGuarantor);
 
-    record.IsCompany = int_to_bool(record.IsCompany);
+    // record.IsCompany = int_to_bool(record.IsCompany);
 
     record.Evicted = int_to_bool(record.Evicted);
     record.Bankruptcy = int_to_bool(record.Bankruptcy);
@@ -517,7 +517,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         FirstName: "",
         MiddleName: "",
         LastName: "",
-        IsCompany: false,
+        IsCompany: 0,
         BirthDate: "",
         SSN: "",
         DriverLicNo: "",
@@ -688,12 +688,13 @@ window.setTrasanctantFields = function (transactantRec, record) {
     transactantRec.FirstName = record.FirstName;
     transactantRec.MiddleName = record.MiddleName;
     transactantRec.LastName = record.LastName;
-    transactantRec.IsCompany = int_to_bool(record.IsCompany);
+    // transactantRec.IsCompany = int_to_bool(record.IsCompany);
+    transactantRec.IsCompany = record.IsCompany;
     transactantRec.Employer = record.CompanyName;
-    transactantRec.BirthDate = record.DateofBirth;
-    transactantRec.TelephoneNo = record.CellPhone;
-    transactantRec.EmailAddress = record.PrimaryEmail;
-    transactantRec.Phone = record.WorkPhone;
+    transactantRec.DateofBirth = record.DateofBirth;
+    transactantRec.CellPhone = record.CellPhone;
+    transactantRec.PrimaryEmail = record.PrimaryEmail;
+    transactantRec.WorkPhone = record.WorkPhone;
     transactantRec.Address = record.Address;
     transactantRec.Address2 = record.Address2;
     transactantRec.City = record.City;

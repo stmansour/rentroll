@@ -58,14 +58,14 @@ type RAPeopleFlowData struct {
 	FirstName    string
 	MiddleName   string
 	LastName     string
-	BirthDate    string
-	IsCompany    bool
+	DateofBirth  string
+	IsCompany    int64
 	SSN          string
 	DriverLicNo  string
-	TelephoneNo  string
-	EmailAddress string
+	CellPhone    string
+	PrimaryEmail string
 	Employer     string
-	Phone        string
+	WorkPhone    string
 	Address      string
 	Address2     string
 	City         string
@@ -721,14 +721,14 @@ type RAPersonDetailsResponse struct {
 //  @Synopsis Get Person Details for RAFlow
 //  @Description Get details about person with pets and vehicles
 //  @Input RAPersonDetailsRequest
-//  @Response RAPersonDetailsResponse
+//  @Response FlowResponse
 // wsdoc }
 func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcGetRAFlowPersonDetails"
 	var (
 		raFlowData RAFlowJSONData
 		foo        RAPersonDetailsRequest
-		g          RAPersonDetailsResponse
+		g          FlowResponse
 	)
 	fmt.Printf("Entered %s\n", funcname)
 
@@ -761,28 +761,65 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	// ----------------------------------------------
 	// get person details with given TCID
 	// ----------------------------------------------
-	var xp rlib.XPerson
-	err = rlib.GetXPerson(r.Context(), foo.TCID, &xp)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+
+	// this is for accept Transactant, so find it by TCID
+	tcidExistInJSONData := false
+	for i := range raFlowData.People {
+		if raFlowData.People[i].TCID == foo.TCID {
+			tcidExistInJSONData = true
+			continue
+		}
 	}
 
-	// migrate field values to Person details
-	if xp.Pay.TCID > 0 {
-		rlib.MigrateStructVals(&xp.Pay, &g.Record)
+	if !tcidExistInJSONData {
+		newRAFlowPerson := RAPeopleFlowData{}
+		var xp rlib.XPerson
+		err = rlib.GetXPerson(r.Context(), foo.TCID, &xp)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// migrate field values to Person details
+		if xp.Pay.TCID > 0 {
+			rlib.MigrateStructVals(&xp.Pay, &newRAFlowPerson)
+		}
+		if xp.Psp.TCID > 0 {
+			rlib.MigrateStructVals(&xp.Psp, &newRAFlowPerson)
+		}
+		if xp.Usr.TCID > 0 {
+			rlib.MigrateStructVals(&xp.Usr, &newRAFlowPerson)
+		}
+		if xp.Trn.TCID > 0 {
+			rlib.MigrateStructVals(&xp.Trn, &newRAFlowPerson)
+		}
+		newRAFlowPerson.BID = d.BID
+
+		// check for additional flags IsRenter, IsOccupant
+		newRAFlowPerson.IsOccupant = true
+		if len(raFlowData.People) == 0 { // this is first transactant
+			newRAFlowPerson.IsRenter = true
+		}
+
+		// custom tmp tcid
+		raFlowData.Meta.LastTMPTCID++
+		newRAFlowPerson.TMPTCID = raFlowData.Meta.LastTMPTCID
+		raFlowData.People = append(raFlowData.People, newRAFlowPerson)
+
+		var modPeopleData []byte
+		modPeopleData, err = json.Marshal(&raFlowData.People)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+
+		// update flow with this modified people part
+		err = rlib.UpdateFlowData(r.Context(), "people", modPeopleData, &flow)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	}
-	if xp.Psp.TCID > 0 {
-		rlib.MigrateStructVals(&xp.Psp, &g.Record)
-	}
-	if xp.Usr.TCID > 0 {
-		rlib.MigrateStructVals(&xp.Usr, &g.Record)
-	}
-	if xp.Trn.TCID > 0 {
-		rlib.MigrateStructVals(&xp.Trn, &g.Record)
-	}
-	g.Record.BID = d.BID
-	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
 
 	// -------------------------------------------
 	// find pets list associated with current TCID
@@ -797,6 +834,7 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	}
 
 	// find this RID in flow data rentable list
+	shouldModifyPetsData := false
 	for i := range petList {
 		exist := false
 		for k := range raFlowData.Pets {
@@ -814,21 +852,24 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 			raFlowData.Meta.LastTMPPETID++
 			newRAFlowPet.TMPPETID = raFlowData.Meta.LastTMPPETID
 			raFlowData.Pets = append(raFlowData.Pets, newRAFlowPet)
+			shouldModifyPetsData = true
 		}
 	}
 
-	var modPetsData []byte
-	modPetsData, err = json.Marshal(&raFlowData.Pets)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
+	if shouldModifyPetsData {
+		var modPetsData []byte
+		modPetsData, err = json.Marshal(&raFlowData.Pets)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 
-	// update flow with this modified pets part
-	err = rlib.UpdateFlowData(r.Context(), "pets", modPetsData, &flow)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+		// update flow with this modified pets part
+		err = rlib.UpdateFlowData(r.Context(), "pets", modPetsData, &flow)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	}
 
 	// -----------------------------------------------
@@ -844,6 +885,7 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	}
 
 	// loop over list and append it in raflow data
+	shouldModifyVehiclesData := false
 	for i := range vehicleList {
 		exist := false
 		for k := range raFlowData.Vehicles {
@@ -861,22 +903,25 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 			raFlowData.Meta.LastTMPVID++
 			newRAFlowVehicle.TMPVID = raFlowData.Meta.LastTMPVID
 			raFlowData.Vehicles = append(raFlowData.Vehicles, newRAFlowVehicle)
+			shouldModifyVehiclesData = true
 		}
 	}
 
-	// get marshalled data
-	var modVData []byte
-	modVData, err = json.Marshal(&raFlowData.Vehicles)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
+	if shouldModifyVehiclesData {
+		// get marshalled data
+		var modVData []byte
+		modVData, err = json.Marshal(&raFlowData.Vehicles)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 
-	// update flow with this modified vehicles part
-	err = rlib.UpdateFlowData(r.Context(), "vehicles", modVData, &flow)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
+		// update flow with this modified vehicles part
+		err = rlib.UpdateFlowData(r.Context(), "vehicles", modVData, &flow)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
 	}
 
 	// ----------------------------------------------
@@ -891,7 +936,7 @@ func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *Servic
 	}
 
 	// set the response
-	g.Flow = flow
+	g.Record = flow
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }
