@@ -23,7 +23,7 @@ type VehiclesResp struct {
 //
 // wsdoc {
 //  @Title  People Vehicles
-//  @URL /v1/peoplevehicles/:BUI/:TCID
+//  @URL /v1/uservehicles/:BUI/:TCID
 //  @Method  GET
 //  @Synopsis Get the vehicles associated with a TCID (people)
 //  @Description  Returns all the vehicles for the supplied TCID
@@ -31,8 +31,8 @@ type VehiclesResp struct {
 //  @Response VehiclesResp
 // wsdoc }
 // URL:
-//       0    1             2   3
-//      /v1/peoplevehicles/BID/TCID
+//       0    1           2   3
+//      /v1/uservehicles/BID/TCID
 //-----------------------------------------------------------------------------
 func SvcUserVehicles(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcUserVehicles"
@@ -41,9 +41,9 @@ func SvcUserVehicles(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	)
 
 	fmt.Printf("entered %s\n", funcname)
-	s := r.URL.String()                 // ex: /v1/peoplevehicles/CCC/10
-	s1 := strings.Split(s, "?")         // ex: /v1/peoplevehicles/CCC/10
-	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "peoplevehicles", "CCC", "10"}
+	s := r.URL.String()                 // ex: /v1/uservehicles/CCC/10
+	s1 := strings.Split(s, "?")         // ex: /v1/uservehicles/CCC/10
+	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "uservehicles", "CCC", "10"}
 	fmt.Printf("ss = %#v\n", ss)
 
 	//------------------------------------------------------

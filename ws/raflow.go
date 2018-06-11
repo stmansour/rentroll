@@ -60,7 +60,6 @@ type RAPeopleFlowData struct {
 	LastName     string
 	BirthDate    string
 	IsCompany    bool
-	CompanyName  string
 	SSN          string
 	DriverLicNo  string
 	TelephoneNo  string
@@ -510,7 +509,8 @@ type RARentableFeesDataRequest struct {
 	FlowID int64
 }
 
-// SvcGetRentableFeesData generates a list of rentable fees with auto populate AR fees
+// SvcGetRAFlowRentableFeesData generates a list of rentable fees with auto populate AR fees
+// It modifies raflow json doc by writing Fees data to raflow "rentables" component data
 // wsdoc {
 //  @Title Get list of Rentable fees with auto populate AR fees
 //  @URL /v1/raflow-rentable-fees/:BUI/
@@ -518,14 +518,14 @@ type RARentableFeesDataRequest struct {
 //  @Synopsis Get Rentable Fees list
 //  @Description Get all rentable fees with auto populate AR fees
 //  @Input RARentableFeesDataRequest
-//  @Response RARentableFeesDataListResponse
+//  @Response FlowResponse
 // wsdoc }
-func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
-	const funcname = "SvcGetRentableFeesData"
+func SvcGetRAFlowRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcGetRAFlowRentableFeesData"
 	var (
 		g           FlowResponse
 		rfd         RARentablesFlowData
-		raflowData  RAFlowJSONData
+		raFlowData  RAFlowJSONData
 		foo         RARentableFeesDataRequest
 		feesRecords = []RARentableFeesData{}
 		today       = time.Now()
@@ -652,7 +652,7 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 	rfd.Fees = feesRecords
 
 	// get unmarshalled raflow data into struct
-	err = json.Unmarshal(flow.Data, &raflowData)
+	err = json.Unmarshal(flow.Data, &raFlowData)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -660,20 +660,20 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 	// find this RID in flow data rentable list
 	var rIndex = -1
-	for i := range raflowData.Rentables {
-		if raflowData.Rentables[i].RID == rfd.RID {
+	for i := range raFlowData.Rentables {
+		if raFlowData.Rentables[i].RID == rfd.RID {
 			rIndex = i
 		}
 	}
 
 	// if record not found then push it in the list
 	if rIndex < 0 {
-		raflowData.Rentables = append(raflowData.Rentables, rfd)
+		raFlowData.Rentables = append(raFlowData.Rentables, rfd)
 	} else {
-		raflowData.Rentables[rIndex] = rfd
+		raFlowData.Rentables[rIndex] = rfd
 	}
 
-	modRData, err := json.Marshal(&raflowData.Rentables)
+	modRData, err := json.Marshal(&raFlowData.Rentables)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
@@ -695,6 +695,203 @@ func SvcGetRentableFeesData(w http.ResponseWriter, r *http.Request, d *ServiceDa
 
 	// set the response
 	g.Record = flow
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+}
+
+// RAPersonDetailsRequest is struct for request for person details
+type RAPersonDetailsRequest struct {
+	TCID   int64
+	FlowID int64
+}
+
+// RAPersonDetailsResponse is struct for response for person details
+type RAPersonDetailsResponse struct {
+	Flow   rlib.Flow `json:"flow"`
+	Record RPerson   `json:"record"`
+	Status string    `json:"status"`
+}
+
+// SvcGetRAFlowPersonDetails returns person details with list of pets and vehicles
+// It modifies raflow json doc by writing fetched pets and vehicles data
+// wsdoc {
+//  @Title Get Person details with list of Pets & Vehicles
+//  @URL /v1/raflow-persondetails/:BUI/
+//  @Method  GET
+//  @Synopsis Get Person Details for RAFlow
+//  @Description Get details about person with pets and vehicles
+//  @Input RAPersonDetailsRequest
+//  @Response RAPersonDetailsResponse
+// wsdoc }
+func SvcGetRAFlowPersonDetails(w http.ResponseWriter, r *http.Request, d *ServiceData) {
+	const funcname = "SvcGetRAFlowPersonDetails"
+	var (
+		raFlowData RAFlowJSONData
+		foo        RAPersonDetailsRequest
+		g          RAPersonDetailsResponse
+	)
+	fmt.Printf("Entered %s\n", funcname)
+
+	if r.Method != "POST" {
+		err := fmt.Errorf("Only POST method is allowed")
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// unmarshal data into request data struct
+	if err := json.Unmarshal([]byte(d.data), &foo); err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get flow and it must exist
+	flow, err := rlib.GetFlow(r.Context(), foo.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// get unmarshalled raflow data into struct
+	err = json.Unmarshal(flow.Data, &raFlowData)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// ----------------------------------------------
+	// get person details with given TCID
+	// ----------------------------------------------
+	var xp rlib.XPerson
+	err = rlib.GetXPerson(r.Context(), foo.TCID, &xp)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// migrate field values to Person details
+	if xp.Pay.TCID > 0 {
+		rlib.MigrateStructVals(&xp.Pay, &g.Record)
+	}
+	if xp.Psp.TCID > 0 {
+		rlib.MigrateStructVals(&xp.Psp, &g.Record)
+	}
+	if xp.Usr.TCID > 0 {
+		rlib.MigrateStructVals(&xp.Usr, &g.Record)
+	}
+	if xp.Trn.TCID > 0 {
+		rlib.MigrateStructVals(&xp.Trn, &g.Record)
+	}
+	g.Record.BID = d.BID
+	g.Record.BUD = rlib.GetBUDFromBIDList(d.BID)
+
+	// -------------------------------------------
+	// find pets list associated with current TCID
+	// -------------------------------------------
+
+	// get the list of pets
+	var petList []rlib.RentalAgreementPet
+	petList, err = rlib.GetPetsByTransactant(r.Context(), foo.TCID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// find this RID in flow data rentable list
+	for i := range petList {
+		exist := false
+		for k := range raFlowData.Pets {
+			if petList[i].PETID == raFlowData.Pets[k].PETID {
+				exist = true
+				break
+			}
+		}
+
+		// if does not exist then append in the raflow data
+		if !exist {
+			var newRAFlowPet RAPetsFlowData
+			rlib.MigrateStructVals(&petList[i], &newRAFlowPet)
+
+			raFlowData.Meta.LastTMPPETID++
+			newRAFlowPet.TMPPETID = raFlowData.Meta.LastTMPPETID
+			raFlowData.Pets = append(raFlowData.Pets, newRAFlowPet)
+		}
+	}
+
+	var modPetsData []byte
+	modPetsData, err = json.Marshal(&raFlowData.Pets)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// update flow with this modified pets part
+	err = rlib.UpdateFlowData(r.Context(), "pets", modPetsData, &flow)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// -----------------------------------------------
+	// find vehicles list associated with current TCID
+	// -----------------------------------------------
+
+	// get the list of pets
+	var vehicleList []rlib.Vehicle
+	vehicleList, err = rlib.GetVehiclesByTransactant(r.Context(), foo.TCID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// loop over list and append it in raflow data
+	for i := range vehicleList {
+		exist := false
+		for k := range raFlowData.Vehicles {
+			if vehicleList[i].VID == raFlowData.Vehicles[k].VID {
+				exist = true
+				break
+			}
+		}
+
+		// if does not exist then append in the raflow data
+		if !exist {
+			var newRAFlowVehicle RAVehiclesFlowData
+			rlib.MigrateStructVals(&vehicleList[i], &newRAFlowVehicle)
+
+			raFlowData.Meta.LastTMPVID++
+			newRAFlowVehicle.TMPVID = raFlowData.Meta.LastTMPVID
+			raFlowData.Vehicles = append(raFlowData.Vehicles, newRAFlowVehicle)
+		}
+	}
+
+	// get marshalled data
+	var modVData []byte
+	modVData, err = json.Marshal(&raFlowData.Vehicles)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// update flow with this modified vehicles part
+	err = rlib.UpdateFlowData(r.Context(), "vehicles", modVData, &flow)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// ----------------------------------------------
+	// return response
+	// ----------------------------------------------
+
+	// get the modified flow
+	flow, err = rlib.GetFlow(r.Context(), flow.FlowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// set the response
+	g.Flow = flow
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
 }

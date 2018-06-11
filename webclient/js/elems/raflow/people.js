@@ -5,12 +5,13 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     openNewTransactantForm, getRAAddTransactantFormInitRec,
-    acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
+    acceptTransactant, loadRAPeopleForm,
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole,
-    addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData
+    addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
+    getPeopleLocalDataByTCID
 */
 
 "use strict";
@@ -450,21 +451,21 @@ window.getRATransanctantDetail = function (TCID) {
 
     // temporary data
     var data = {
-        "cmd": "get",
-        "recid": 0,
-        "name": "transactantForm"
+        "TCID": TCID,
+        "FlowID": app.raflow.activeFlowID
     };
 
 
     return $.ajax({
-        url: "/v1/person/" + bid.toString() + "/" + TCID,
+        url: "/v1/raflow-persondetails/" + bid.toString() + "/" + app.raflow.activeFlowID.toString(),
         method: "POST",
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify(data),
         success: function (data) {
             if (data.status != "error") {
-                // console.log("Received data for transanctant:", JSON.stringify(data));
+                // update the local copy of flow for the active one
+                app.raflow.data[data.record.FlowID] = data.flow;
             } else {
                 console.error(data.message);
             }
@@ -615,7 +616,7 @@ window.acceptTransactant = function () {
     delete transactantRec.Transactant;
     var TCID = transactantRec.TCID;
 
-    var tcidIndex = findTransactantIndexByTCIDInPeopleData(TCID);
+    var tcidIndex = getPeopleLocalDataByTCID(TCID, true);
 
     // if not found then push it in the data
     if (tcidIndex < 0) {
@@ -676,28 +677,6 @@ window.manageBGInfoFormFields = function (record) {
     var haveToHide = record.IsOccupant && !record.IsRenter && !record.IsGuarantor; // true: hide fields, false: show fields
     // hide/show fields
     showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
-};
-
-//-----------------------------------------------------------------------------
-// findTransactantIndexByTCIDInPeopleData - finds the index of transactant data
-//                in local people data of raflow by TCID
-//
-// @params
-//   TCID = tcid
-//-----------------------------------------------------------------------------
-window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
-    var index = -1;
-
-    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-    if (compData) {
-        compData.forEach(function (transactantRec, i) {
-            if (transactantRec.TCID === TCID) {
-                index = i;
-                return false;
-            }
-        });
-    }
-    return index;
 };
 
 //---------------------------------------------------------------------
@@ -773,6 +752,30 @@ window.addDummyBackgroundInfo = function () {
 window.savePeopleCompData = function() {
 	var compData = getRAFlowCompData("people", app.raflow.activeFlowID);
 	return saveActiveCompData(compData, "people");
+};
+
+//-----------------------------------------------------------------------------
+// getPeopleLocalDataByTCID - returns the clone of people data
+//                            for requested TCID
+//-----------------------------------------------------------------------------
+window.getPeopleLocalDataByTCID = function(TCID, returnIndex) {
+    var cloneData = {};
+    var foundIndex = -1;
+    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    compData.forEach(function(item, index) {
+        if (item.TCID === TCID) {
+            if (returnIndex) {
+                foundIndex = index;
+            } else {
+                cloneData = $.extend(true, {}, item);
+            }
+            return false;
+        }
+    });
+    if (returnIndex) {
+        return foundIndex;
+    }
+    return cloneData;
 };
 
 //-----------------------------------------------------------------------------
