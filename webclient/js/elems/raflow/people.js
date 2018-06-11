@@ -5,12 +5,13 @@
     loadTargetSection, requiredFieldsFulFilled, getRAFlowPartTypeIndex, initRAFlowAjax,
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     openNewTransactantForm, getRAAddTransactantFormInitRec,
-    acceptTransactant, findTransactantIndexByTCIDInPeopleData, loadRAPeopleForm,
+    acceptTransactant, loadRAPeopleForm,
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole,
-    addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData
+    addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
+    getPeopleLocalDataByTCID
 */
 
 "use strict";
@@ -126,10 +127,10 @@ window.loadRAPeopleForm = function () {
                     size: '100%',
                     style: 'text-align: left;',
                     render: function (record) {
-                        if (!record.IsCompany) {
-                            return getFullName(record);
-                        } else {
+                        if (record.IsCompany > 0) {
                             return record.Employer;
+                        } else {
+                            return getFullName(record);
                         }
                     }
                 },
@@ -249,7 +250,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'FirstName',                 type: 'text',       required: false },
                 {name: 'MiddleName',                type: 'text',       required: false },
                 {name: 'LastName',                  type: 'text',       required: false },
-                {name: 'IsCompany',                 type: 'checkbox',   required: true },
+                {name: 'IsCompany',                 type: 'int',        required: true },
                 {name: 'BirthDate',                 type: 'date',       required: false },  // Date of births of applicants
                 {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
                 {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
@@ -413,7 +414,7 @@ window.loadRAPeopleForm = function () {
 // setRABGInfoFormHeader
 // It set RABGInfoForm header title
 window.setRABGInfoFormHeader = function (record) {
-    if (record.IsCompany) {
+    if (record.IsCompany > 0) {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.Employer;
     } else {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
@@ -450,21 +451,21 @@ window.getRATransanctantDetail = function (TCID) {
 
     // temporary data
     var data = {
-        "cmd": "get",
-        "recid": 0,
-        "name": "transactantForm"
+        "TCID": TCID,
+        "FlowID": app.raflow.activeFlowID
     };
 
 
     return $.ajax({
-        url: "/v1/person/" + bid.toString() + "/" + TCID,
+        url: "/v1/raflow-persondetails/" + bid.toString() + "/" + app.raflow.activeFlowID.toString(),
         method: "POST",
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify(data),
         success: function (data) {
             if (data.status != "error") {
-                // console.log("Received data for transanctant:", JSON.stringify(data));
+                // update the local copy of flow for the active one
+                app.raflow.data[data.record.FlowID] = data.record;
             } else {
                 console.error(data.message);
             }
@@ -495,7 +496,7 @@ window.updateRABGInfoFormCheckboxes = function (record) {
     record.IsOccupant = int_to_bool(record.IsOccupant);
     record.IsGuarantor = int_to_bool(record.IsGuarantor);
 
-    record.IsCompany = int_to_bool(record.IsCompany);
+    // record.IsCompany = int_to_bool(record.IsCompany);
 
     record.Evicted = int_to_bool(record.Evicted);
     record.Bankruptcy = int_to_bool(record.Bankruptcy);
@@ -516,7 +517,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         FirstName: "",
         MiddleName: "",
         LastName: "",
-        IsCompany: false,
+        IsCompany: 0,
         BirthDate: "",
         SSN: "",
         DriverLicNo: "",
@@ -615,7 +616,7 @@ window.acceptTransactant = function () {
     delete transactantRec.Transactant;
     var TCID = transactantRec.TCID;
 
-    var tcidIndex = findTransactantIndexByTCIDInPeopleData(TCID);
+    var tcidIndex = getPeopleLocalDataByTCID(TCID, true);
 
     // if not found then push it in the data
     if (tcidIndex < 0) {
@@ -678,28 +679,6 @@ window.manageBGInfoFormFields = function (record) {
     showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
 };
 
-//-----------------------------------------------------------------------------
-// findTransactantIndexByTCIDInPeopleData - finds the index of transactant data
-//                in local people data of raflow by TCID
-//
-// @params
-//   TCID = tcid
-//-----------------------------------------------------------------------------
-window.findTransactantIndexByTCIDInPeopleData = function (TCID) {
-    var index = -1;
-
-    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-    if (compData) {
-        compData.forEach(function (transactantRec, i) {
-            if (transactantRec.TCID === TCID) {
-                index = i;
-                return false;
-            }
-        });
-    }
-    return index;
-};
-
 //---------------------------------------------------------------------
 // setTrasanctantFields
 // Set Background information form fields value form the server record.
@@ -709,12 +688,13 @@ window.setTrasanctantFields = function (transactantRec, record) {
     transactantRec.FirstName = record.FirstName;
     transactantRec.MiddleName = record.MiddleName;
     transactantRec.LastName = record.LastName;
-    transactantRec.IsCompany = int_to_bool(record.IsCompany);
+    // transactantRec.IsCompany = int_to_bool(record.IsCompany);
+    transactantRec.IsCompany = record.IsCompany;
     transactantRec.Employer = record.CompanyName;
-    transactantRec.BirthDate = record.DateofBirth;
-    transactantRec.TelephoneNo = record.CellPhone;
-    transactantRec.EmailAddress = record.PrimaryEmail;
-    transactantRec.Phone = record.WorkPhone;
+    transactantRec.DateofBirth = record.DateofBirth;
+    transactantRec.CellPhone = record.CellPhone;
+    transactantRec.PrimaryEmail = record.PrimaryEmail;
+    transactantRec.WorkPhone = record.WorkPhone;
     transactantRec.Address = record.Address;
     transactantRec.Address2 = record.Address2;
     transactantRec.City = record.City;
@@ -773,6 +753,30 @@ window.addDummyBackgroundInfo = function () {
 window.savePeopleCompData = function() {
 	var compData = getRAFlowCompData("people", app.raflow.activeFlowID);
 	return saveActiveCompData(compData, "people");
+};
+
+//-----------------------------------------------------------------------------
+// getPeopleLocalDataByTCID - returns the clone of people data
+//                            for requested TCID
+//-----------------------------------------------------------------------------
+window.getPeopleLocalDataByTCID = function(TCID, returnIndex) {
+    var cloneData = {};
+    var foundIndex = -1;
+    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+    compData.forEach(function(item, index) {
+        if (item.TCID === TCID) {
+            if (returnIndex) {
+                foundIndex = index;
+            } else {
+                cloneData = $.extend(true, {}, item);
+            }
+            return false;
+        }
+    });
+    if (returnIndex) {
+        return foundIndex;
+    }
+    return cloneData;
 };
 
 //-----------------------------------------------------------------------------

@@ -96,7 +96,7 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //
 // wsdoc {
 //  @Title  People Pets
-//  @URL /v1/peoplepets/:BUI/:TCID
+//  @URL /v1/userpets/:BUI/:TCID
 //  @Method  GET
 //  @Synopsis Get the pets associated with a TCID (people)
 //  @Description  Returns all the pets for the supplied TCID
@@ -104,8 +104,8 @@ func SvcRAPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 //  @Response RAPets
 // wsdoc }
 // URL:
-//       0    1         2   3
-//      /v1/peoplepets/BID/TCID
+//       0    1       2   3
+//      /v1/userpets/BID/TCID
 //-----------------------------------------------------------------------------
 func SvcUserPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcUserPets"
@@ -114,9 +114,9 @@ func SvcUserPets(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	)
 
 	fmt.Printf("entered %s\n", funcname)
-	s := r.URL.String()                 // ex: /v1/peoplepets/CCC/10
-	s1 := strings.Split(s, "?")         // ex: /v1/peoplepets/CCC/10
-	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "peoplepets", "CCC", "10"}
+	s := r.URL.String()                 // ex: /v1/userpets/CCC/10
+	s1 := strings.Split(s, "?")         // ex: /v1/userpets/CCC/10
+	ss := strings.Split(s1[0][1:], "/") // ex: []string{"v1", "userpets", "CCC", "10"}
 	fmt.Printf("ss = %#v\n", ss)
 
 	//------------------------------------------------------
