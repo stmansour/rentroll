@@ -71,13 +71,13 @@ window.setToNewRAForm = function (bid, FlowID) {
     });
 };
 
-window.buildNewRAElements = function() {
+window.buildRAApplicantElements = function() {
     // ------------------------------------------------------
     // applicants grid
     // ------------------------------------------------------
     $().w2grid({
-        name:               'applicantsGrid',
-        multiSelect:        false,
+        name: 'applicantsGrid',
+        multiSelect: false,
         show: {
             toolbar: true,
             footer: true,

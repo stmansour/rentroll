@@ -167,6 +167,8 @@ var Svcs = []ServiceHandler{
 	{Cmd: "discon", Handler: SvcDisableConsole, NeedBiz: false, NeedSession: true},
 	{Cmd: "encon", Handler: SvcEnableConsole, NeedBiz: false, NeedSession: true},
 	{Cmd: "expense", Handler: SvcHandlerExpense, NeedBiz: false, NeedSession: true},
+	{Cmd: "flow", Handler: SvcHandlerFlow, NeedBiz: true, NeedSession: true},
+	{Cmd: "raflow-rentable-fees", Handler: SvcGetRentableFeesData, NeedBiz: true, NeedSession: true},
 	{Cmd: "ledger", Handler: SvcLedgerHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "ledgers", Handler: SvcLedgerHandler, NeedBiz: true, NeedSession: true},
 	{Cmd: "logoff", Handler: SvcLogoff, NeedBiz: false, NeedSession: true},
@@ -180,6 +182,7 @@ var Svcs = []ServiceHandler{
 	{Cmd: "ping", Handler: SvcHandlerPing, NeedBiz: false, NeedSession: false},
 	{Cmd: "pmts", Handler: SvcHandlerPaymentType, NeedBiz: true, NeedSession: true},
 	{Cmd: "postaccounts", Handler: SvcPostAccountsList, NeedBiz: true, NeedSession: true},
+	{Cmd: "ra2flow", Handler: SvcHandlerRA2Flow, NeedBiz: true, NeedSession: true},
 	{Cmd: "rapayor", Handler: SvcRAPayor, NeedBiz: true, NeedSession: true},
 	{Cmd: "rapets", Handler: SvcRAPets, NeedBiz: true, NeedSession: true},
 	{Cmd: "rar", Handler: SvcRARentables, NeedBiz: true, NeedSession: true},
@@ -219,8 +222,6 @@ var Svcs = []ServiceHandler{
 	{Cmd: "unpaidasms", Handler: SvcHandlerGetUnpaidAsms, NeedBiz: true, NeedSession: true},
 	{Cmd: "userprofile", Handler: SvcUserProfile, NeedBiz: false, NeedSession: true},
 	{Cmd: "version", Handler: SvcHandlerVersion, NeedBiz: false, NeedSession: false},
-	{Cmd: "flow", Handler: SvcHandlerFlow, NeedBiz: true, NeedSession: true},
-	{Cmd: "raflow-rentable-fees", Handler: SvcGetRentableFeesData, NeedBiz: true, NeedSession: true},
 }
 
 // SvcCtx contains information global to the Svc handlers

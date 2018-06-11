@@ -11,7 +11,7 @@
     buildROVReceiptElements,buildTaskListElements,buildTaskListDefElements,
     finishTaskListForm, createDepositForm, createPayorStmtForm,
     createStmtForm, createRentalAgreementForm, finishForms, finishTLDForm,
-    buildClosePeriodElements,
+    buildClosePeriodElements,buildRAApplicantElements,buildRA2FlowElements,
 */
 
 "use strict";
@@ -34,7 +34,7 @@ window.buildPageElementsWrapper = function (uitype) {
     buildRentableTypeElements();
     buildRentableElements();
     buildRAElements();
-    buildNewRAElements();
+    buildRAApplicantElements();
     buildRAPayorPicker();
     buildRUserPicker();
     buildRentablePicker();
@@ -46,6 +46,8 @@ window.buildPageElementsWrapper = function (uitype) {
     buildAssessmentElements();
     buildExpenseElements();
     buildARElements();
+    buildRAElements();
+    buildRA2FlowElements();
     buildPaymentTypeElements();
     buildDepositoryElements();
     buildDepositElements();
