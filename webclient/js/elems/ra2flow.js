@@ -1,5 +1,6 @@
 /*global
-   $,addDateNavToToolbar
+   $,addDateNavToToolbar,getCurrentBusiness,w2ui,form_dirty_alert,w2utils,
+   console,
 */
 
 "use strict";
@@ -39,23 +40,32 @@ window.buildRA2FlowElements = function() {
             {field: 'recid', hidden: true, caption: 'recid',  size: '40px', sortable: true},
             {field: 'BID', hidden: true, caption: 'BID',  size: '40px', sortable: false},
             {field: 'RAID', caption: 'RAID',  size: '50px', sortable: true},
-            {field: 'Payors', caption: 'Payor(s)', size: '250px', sortable: true,
-                // render: function (record, index, col_index) {
-                //     if (record) {
-                //         var icon;
-                //         if (record.PayorIsCompany) {
-                //             icon = 'fa-handshake-o'
-                //         } else {
-                //             icon = 'fa-user-o'
-                //         }
-                //         return '<i class="fa '+icon+'"></i>&nbsp;<span>'+record.Payors+'</span>';
-                //     }
-                // },
-            },
+            {field: 'Payors', caption: 'Payor(s)', size: '250px', sortable: true},
             {field: 'AgreementStart', caption: 'Agreement<br>Start', render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'AgreementStop', caption: 'Agreement<br>Stop',  render: 'date', size: '80px', sortable: true, style: 'text-align: right'},
             {field: 'PayorIsCompany', hidden: true, caption: 'IsCompany',  size: '40px', sortable: false},
         ],
+        onClick: function(event) {
+            event.onComplete = function() {
+                var bid = getCurrentBID();
+                var r = w2ui.ra2flowGrid.records[event.recid];
+                var url = "/v1/ra2flow/" + bid + '/' + r.RAID;
+                var rec = { cmd: "get"};
+                var dat=JSON.stringify(rec);
+                $.post(url,dat)
+                    .done(function(data) {
+                        if (data.status === "error") {
+                            w2ui.ra2flowGrid.error(w2utils.lang(data.message));
+                            return;
+                        }
+                        console.log('data = ' + data);
+                    })
+                    .fail(function(/*data*/){
+                        w2ui.ra2flowGrid.error("Save Tasklist failed.");
+                        return;
+                    });
+            };
+        },
     });
     addDateNavToToolbar('ra2flow');
 };

@@ -150,17 +150,11 @@ func SvcHandlerRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func SvcSearchHandlerRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "SvcSearchHandlerRA2Flow"
-	var (
-		err error
-		g   RA2FlowSearchResponse
-	)
+	const limitClause int = 100
+	var err error
+	var g RA2FlowSearchResponse
 
 	rlib.Console("Entered %s\n", funcname)
-
-	const (
-		limitClause int = 100
-	)
-
 	srch := fmt.Sprintf("RentalAgreement.BID=%d AND RentalAgreement.AgreementStop>%q AND RentalAgreement.AgreementStart<%q",
 		d.BID, d.wsSearchReq.SearchDtStart.Format(rlib.RRDATEFMTSQL), d.wsSearchReq.SearchDtStop.Format(rlib.RRDATEFMTSQL)) // default WHERE clause
 	order := "RentalAgreement.RAID ASC" // default ORDER
