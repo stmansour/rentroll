@@ -10,7 +10,10 @@
 #   3. Update the TARGETDB with the mysqldump xxx.sql file you want to
 #      to copy the tables TO
 #   4. Run the script
-
+#
+# The script will first copy the desired tables into a temporary
+# directory. Then it will load ${TARGETDB}. Then it will load the
+# tables in the temporary directory into ${TARGETDB}.
 
 DATABASE="rentroll"
 TARGETDB="empty.sql"
@@ -22,8 +25,8 @@ TMPDIR="xxqqdd"
 #  Put dir/sqlfilename in the list below
 #=====================================================
 declare -a tables=(
-	TaskDescriptor
-	TaskListDefinition
+	StringList
+	SLString
 )
 
 
