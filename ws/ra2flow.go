@@ -178,7 +178,9 @@ func SvcSearchHandlerRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceD
 	GROUP BY RentalAgreement.RAID
 	ORDER BY {{.OrderClause}}` // don't add ';', later some parts will be added in query
 
-	// will be substituted as query clauses
+	//----------------------------------------------------------------------
+	// Substitute query clauses
+	//----------------------------------------------------------------------
 	qc := rlib.QueryClause{
 		"SelectClause": strings.Join(RA2FlowQuerySelectFields, ","),
 		"WhereClause":  srch,
@@ -195,23 +197,32 @@ func SvcSearchHandlerRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceD
 	}
 	rlib.Console("g.Total = %d\n", g.Total)
 
+	//----------------------------------------------------------------------
 	// FETCH the records WITH LIMIT AND OFFSET
 	// limit the records to fetch from server, page by page
+	//----------------------------------------------------------------------
 	limitAndOffsetClause := ` LIMIT {{.LimitClause}} OFFSET {{.OffsetClause}};`
 
+	//----------------------------------------------------------------------
 	// build query with limit and offset clause
-	// if query ends with ';' then remove it
+	//----------------------------------------------------------------------
 	RA2FlowQueryWithLimit := RA2FlowQuery + limitAndOffsetClause
 
+	//----------------------------------------------------------------------
 	// Add limit and offset value
+	//----------------------------------------------------------------------
 	qc["LimitClause"] = strconv.Itoa(limitClause)
 	qc["OffsetClause"] = strconv.Itoa(d.wsSearchReq.Offset)
 
+	//----------------------------------------------------------------------
 	// get formatted query with substitution of select, where, order clause
+	//----------------------------------------------------------------------
 	qry := rlib.RenderSQLQuery(RA2FlowQueryWithLimit, qc)
 	rlib.Console("db query = %s\n", qry)
 
+	//----------------------------------------------------------------------
 	// execute the query
+	//----------------------------------------------------------------------
 	rows, err := rlib.RRdb.Dbrr.Query(qry)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -229,7 +240,6 @@ func SvcSearchHandlerRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceD
 			SvcErrorReturn(w, err, funcname)
 			return
 		}
-
 		g.Records = append(g.Records, q)
 		count++ // update the count only after adding the record
 		if count >= d.wsSearchReq.Limit {
@@ -272,7 +282,17 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
-	err := fmt.Errorf("unimplemented")
+	// var raFlowData RAFlowJSONData
+	if d.ID < 1 {
+		SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
+		return
+	}
+	ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
+
+	err = fmt.Errorf("Work in progress:  RAID = %d", ra.RAID)
 	SvcErrorReturn(w, err, funcname)
 }
 

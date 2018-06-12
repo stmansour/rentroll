@@ -1,5 +1,5 @@
 /*global
-   $,addDateNavToToolbar,getCurrentBusiness,w2ui,form_dirty_alert,w2utils,
+   $,addDateNavToToolbar,getCurrentBID,w2ui,w2utils,
    console,
 */
 
@@ -55,7 +55,7 @@ window.buildRA2FlowElements = function() {
                 $.post(url,dat)
                     .done(function(data) {
                         if (data.status === "error") {
-                            w2ui.ra2flowGrid.error(w2utils.lang(data.message));
+                            w2ui.ra2flowGrid.error(w2utils.lang(url + ' failed:  ' + data.message));
                             return;
                         }
                         console.log('data = ' + data);
