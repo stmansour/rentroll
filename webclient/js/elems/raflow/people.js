@@ -591,7 +591,7 @@ window.openNewTransactantForm = function () {
     w2ui.RABGInfoForm.header = 'Background Information';
     w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, TCID, recid);
 
-	setTransactDefaultRole(w2ui.RABGInfoForm.record);
+	setTransactantDefaultRole(w2ui.RABGInfoForm.record);
 
     showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.people.sliderWidth);
 
@@ -773,9 +773,9 @@ window.setPeopleLocalData = function(TMPTCID, peopleData) {
 };
 
 //-----------------------------------------------------------------------------
-// setTransactDefaultRole - Assign default role for new transanctant.
+// setTransactantDefaultRole - Assign default role for new transanctant.
 //-----------------------------------------------------------------------------
-window.setTransactDefaultRole = function (transactantRec) {
+window.setTransactantDefaultRole = function (transactantRec) {
 	var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
 	// If first record in the grid than transanctant will be renter by default
 	if (compData.length === 0) {
