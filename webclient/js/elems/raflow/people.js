@@ -250,11 +250,11 @@ window.loadRAPeopleForm = function () {
                 {name: 'MiddleName',                type: 'text',       required: false },
                 {name: 'LastName',                  type: 'text',       required: false },
                 {name: 'IsCompany',                 type: 'int',        required: true },
-                {name: 'BirthDate',                 type: 'date',       required: false },  // Date of births of applicants
+                {name: 'DateofBirth',               type: 'date',       required: false },  // Date of births of applicants
                 {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
                 {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
-                {name: 'TelephoneNo',               type: 'text',       required: false },  // Telephone no of applicants
-                {name: 'EmailAddress',              type: 'email',      required: false },  // Email Address of applicants
+                {name: 'CellPhone',                 type: 'text',       required: false },  // Telephone no of applicants
+                {name: 'PrimaryEmail',              type: 'email',      required: false },  // Email Address of applicants
                 {name: 'CurrentAddress',            type: 'text',       required: false },  // Current Address
                 {name: 'CurrentLandLordName',       type: 'text',       required: false },  // Current landlord's name
                 {name: 'CurrentLandLordPhoneNo',    type: 'text',       required: false },  // Current landlord's phone number
@@ -272,7 +272,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'Bankruptcy',                type: 'checkbox',   required: false },  // have you ever been Declared Bankruptcy
                 {name: 'BankruptcyDes',             type: 'text',       required: false },
                 {name: 'Employer',                  type: 'text',       required: false },
-                {name: 'Phone',                     type: 'text',       required: false },
+                {name: 'WorkPhone',                 type: 'text',       required: false },
                 {name: 'Address',                   type: 'text',       required: false },
                 {name: 'Address2',                  type: 'text',       required: false },
                 {name: 'City',                      type: 'text',       required: false },
@@ -280,7 +280,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'PostalCode',                type: 'text',       required: false },
                 {name: 'Country',                   type: 'text',       required: false },
                 {name: 'Position',                  type: 'text',       required: false },
-                {name: 'GrossIncome',                type: 'money',      required: false },
+                {name: 'GrossIncome',               type: 'money',      required: false },
                 {name: 'Comment',                   type: 'text'},                          // In an effort to accommodate you, please advise us of any special needs
                 {name: 'EmergencyContactName',      type: 'text',       required: false },  // Name of emergency contact
                 {name: 'EmergencyContactPhone',     type: 'text',       required: false },  // Phone number of emergency contact
@@ -517,11 +517,11 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         MiddleName: "",
         LastName: "",
         IsCompany: 0,
-        BirthDate: "",
+        DateofBirth: "",
         SSN: "",
         DriverLicNo: "",
-        TelephoneNo: "",
-        EmailAddress: "",
+        CellPhone: "",
+        PrimaryEmail: "",
         CurrentAddress: "",
         CurrentLandLordName: "",
         CurrentLandLordPhoneNo: "",
@@ -539,7 +539,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         Bankruptcy: false,
         BankruptcyDes: "",
         Employer: "",
-        Phone: "",
+        WorkPhone: "",
         Address: "",
         Address2: "",
         City: "",
@@ -670,11 +670,11 @@ window.addDummyBackgroundInfo = function () {
     record.FirstName = Math.random().toString(32).slice(2);
     record.MiddleName = Math.random().toString(32).slice(2);
     record.LastName = Math.random().toString(32).slice(2);
-    record.BirthDate = "8/30/1990";
+    record.DateofBirth = "8/30/1990";
     record.SSN = Math.random().toString(32).slice(4);
     record.DriverLicNo = Math.random().toString(32).slice(2);
-    record.TelephoneNo = Math.random().toString(32).slice(2);
-    record.EmailAddress = Math.random().toString(32).slice(2) + "@yopmail.com";
+    record.CellPhone = Math.random().toString(32).slice(2);
+    record.PrimaryEmail = Math.random().toString(32).slice(2) + "@yopmail.com";
     record.CurrentAddress = Math.random().toString(32).slice(2);
     record.CurrentLandLordName = Math.random().toString(32).slice(2);
     record.CurrentLandLordPhoneNo = Math.random().toString(32).slice(2);
@@ -686,7 +686,7 @@ window.addDummyBackgroundInfo = function () {
     record.PriorLengthOfResidency = 36;
     record.PriorReasonForMoving = Math.random().toString(32).slice(2);
     record.Employer = Math.random().toString(32).slice(2);
-    record.Phone = Math.random().toString(32).slice(2);
+    record.WorkPhone = Math.random().toString(32).slice(2);
     record.Address = Math.random().toString(32).slice(2);
     record.Position = Math.random().toString(32).slice(2);
     record.GrossIncome = Math.random() * 100;
