@@ -73,7 +73,7 @@ type RAPeopleFlowData struct {
 	Country      string
 	PostalCode   string
 	Position     string
-	GrossWages   float64
+	GrossIncome   float64
 
 	// Current Address information
 	CurrentAddress           string

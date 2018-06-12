@@ -280,7 +280,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'PostalCode',                type: 'text',       required: false },
                 {name: 'Country',                   type: 'text',       required: false },
                 {name: 'Position',                  type: 'text',       required: false },
-                {name: 'GrossWages',                type: 'money',      required: false },
+                {name: 'GrossIncome',                type: 'money',      required: false },
                 {name: 'Comment',                   type: 'text'},                          // In an effort to accommodate you, please advise us of any special needs
                 {name: 'EmergencyContactName',      type: 'text',       required: false },  // Name of emergency contact
                 {name: 'EmergencyContactPhone',     type: 'text',       required: false },  // Phone number of emergency contact
@@ -547,7 +547,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         PostalCode: "",
         Country: "",
         Position: "",
-        GrossWages: 0,
+        GrossIncome: 0,
         Comment: "",
         EmergencyContactName: "",
         EmergencyContactPhone: "",
@@ -689,7 +689,7 @@ window.addDummyBackgroundInfo = function () {
     record.Phone = Math.random().toString(32).slice(2);
     record.Address = Math.random().toString(32).slice(2);
     record.Position = Math.random().toString(32).slice(2);
-    record.GrossWages = Math.random() * 100;
+    record.GrossIncome = Math.random() * 100;
     record.EmergencyContactName = Math.random().toString(32).slice(2);
     record.EmergencyContactPhone = Math.random().toString(32).slice(2);
     record.EmergencyContactAddress = Math.random().toString(32).slice(2);
