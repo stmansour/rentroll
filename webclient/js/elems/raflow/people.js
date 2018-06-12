@@ -291,112 +291,112 @@ window.loadRAPeopleForm = function () {
                     var form = this,
                         TMPTCID = form.record.TMPTCID;
 
-                    var errors = form.validate();
-                    if (errors.length > 0) return;
+					var errors = form.validate();
+					if (errors.length > 0) return;
 
-                    var peopleData = getFormSubmitData(form.record, true);
+					var peopleData = getFormSubmitData(form.record, true);
 
-                    // If transanctant role isn't selected than display error.
-                    if(!(peopleData.IsRenter || peopleData.IsOccupant || peopleData.IsGuarantor)){
-                        form.message("Please select transanctant role.");
-                        return;
-                    }
+					// If transanctant role isn't selected than display error.
+					if(!(peopleData.IsRenter || peopleData.IsOccupant || peopleData.IsGuarantor)){
+						form.message("Please select transanctant role.");
+						return;
+					}
 
-                    // Convert integer to bool checkboxes fields
-                    updateRABGInfoFormCheckboxes(peopleData);
+					// Convert integer to bool checkboxes fields
+					updateRABGInfoFormCheckboxes(peopleData);
 
-                    setPeopleLocalData(TMPTCID, peopleData);
+					setPeopleLocalData(TMPTCID, peopleData);
 
-                    // clean dirty flag of form
-                    app.form_is_dirty = false;
+					// clean dirty flag of form
+					app.form_is_dirty = false;
 
-                    // save this records in json Data
-                    savePeopleCompData()
-                    .done(function (data) {
-                        if (data.status === 'success') {
+					// save this records in json Data
+					savePeopleCompData()
+						.done(function (data) {
+							if (data.status === 'success') {
 
-                            form.clear();
+								form.clear();
 
-                            // update RAPeopleGrid
-                            ReassignPeopleGridRecords();
+								// update RAPeopleGrid
+								ReassignPeopleGridRecords();
 
-                            // close the form
-                            hideSliderContent();
-                        } else {
-                            form.message(data.message);
-                        }
-                    })
-                    .fail(function (data) {
-                        console.log("failure " + data);
-                    });
-                },
-                delete: function () {
-                    var form = this;
+								// close the form
+								hideSliderContent();
+							} else {
+								form.message(data.message);
+							}
+						})
+						.fail(function (data) {
+							console.log("failure " + data);
+						});
+				},
+				delete: function () {
+					var form = this;
 					// get local data from TMPPETID
 					var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
 					var itemIndex = getPeopleLocalData(form.record.TMPTCID, true);
 					compData.splice(itemIndex, 1);
 
-                    savePeopleCompData()
-                    .done(function (data) {
-                        if (data.status === 'success') {
+					savePeopleCompData()
+						.done(function (data) {
+							if (data.status === 'success') {
 
-                            form.clear();
+								form.clear();
 
-                            // update RAPeopleGrid
-                            ReassignPeopleGridRecords();
+								// update RAPeopleGrid
+								ReassignPeopleGridRecords();
 
-                            // close the form
-                            hideSliderContent();
-                        } else {
-                            form.message(data.message);
-                        }
-                    })
-                    .fail(function (data) {
-                        console.log("failure " + data);
-                    });
-                },
-                reset: function () {
-                    w2ui.RABGInfoForm.clear();
-                }
-            },
-            onChange: function (event) {
-                event.onComplete = function () {
-                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+								// close the form
+								hideSliderContent();
+							} else {
+								form.message(data.message);
+							}
+						})
+						.fail(function (data) {
+							console.log("failure " + data);
+						});
+				},
+				reset: function () {
+					w2ui.RABGInfoForm.clear();
+				}
+			},
+			onChange: function (event) {
+				event.onComplete = function () {
+					$("#EvictedDes").prop("disabled", !this.record.Evicted);
+					$("#ConvictedDes").prop("disabled", !this.record.Convicted);
+					$("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
 
-                    manageBGInfoFormFields(this.record);
+					manageBGInfoFormFields(this.record);
 
-                    this.refresh();
+					this.refresh();
 
-                    // formRecDiffer: 1=current record, 2=original record, 3=diff object
-                    var diff = formRecDiffer(this.record, app.active_form_original, {});
-                    // if diff == {} then make dirty flag as false, else true
-                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
-                        app.form_is_dirty = false;
-                    } else {
-                        app.form_is_dirty = true;
-                    }
-                };
-            },
-            onRefresh: function (event) {
-                var form = this;
-                event.onComplete = function() {
-                    // hide delete button if it is NewRecord
-                    var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
-                    if (isNewRecord) {
-                        $(form.box).find("button[name=delete]").addClass("hidden");
-                    } else {
-                        $(form.box).find("button[name=delete]").removeClass("hidden");
-                    }
+					// formRecDiffer: 1=current record, 2=original record, 3=diff object
+					var diff = formRecDiffer(this.record, app.active_form_original, {});
+					// if diff == {} then make dirty flag as false, else true
+					if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+						app.form_is_dirty = false;
+					} else {
+						app.form_is_dirty = true;
+					}
+				};
+			},
+			onRefresh: function (event) {
+				var form = this;
+				event.onComplete = function() {
+					// hide delete button if it is NewRecord
+					var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
+					if (isNewRecord) {
+						$(form.box).find("button[name=delete]").addClass("hidden");
+					} else {
+						$(form.box).find("button[name=delete]").removeClass("hidden");
+					}
 
-                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
-                };
-            }
-        });
+					$("#EvictedDes").prop("disabled", !this.record.Evicted);
+					$("#ConvictedDes").prop("disabled", !this.record.Convicted);
+					$("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+				};
+			}
+		});
     }
 
     // load form in div
@@ -591,6 +591,8 @@ window.openNewTransactantForm = function () {
     w2ui.RABGInfoForm.header = 'Background Information';
     w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, TCID, recid);
 
+	setTransactDefaultRole(w2ui.RABGInfoForm.record);
+
     showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.people.sliderWidth);
 
     w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
@@ -768,4 +770,18 @@ window.setPeopleLocalData = function(TMPTCID, peopleData) {
 	} else {
 		compData.push(peopleData);
 	}
+};
+
+//-----------------------------------------------------------------------------
+// setTransactDefaultRole - Assign default role for new transanctant.
+//-----------------------------------------------------------------------------
+window.setTransactDefaultRole = function (transactantRec) {
+	var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+	// If first record in the grid than transanctant will be renter by default
+	if (compData.length === 0) {
+		transactantRec.IsRenter = true;
+	}
+
+	// Each transactant must be occupant by default. It can be change via BGInfo detail form
+	transactantRec.IsOccupant = true;
 };
