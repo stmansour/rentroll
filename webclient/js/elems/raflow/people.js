@@ -10,7 +10,8 @@
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
-    getPeopleLocalDataByTCID, setTransactantDefaultRole
+    getPeopleLocalDataByTCID, setTransactantDefaultRole,
+    savePetsCompData, saveVehiclesCompData, setRAFlowCompData
 */
 
 "use strict";
@@ -312,49 +313,79 @@ window.loadRAPeopleForm = function () {
 
                     // save this records in json Data
                     savePeopleCompData()
-                        .done(function (data) {
-                            if (data.status === 'success') {
+                    .done(function (data) {
+                        if (data.status === 'success') {
 
-                                form.clear();
+                            form.clear();
 
-                                // update RAPeopleGrid
-                                ReassignPeopleGridRecords();
+                            // update RAPeopleGrid
+                            ReassignPeopleGridRecords();
 
-                                // close the form
-                                hideSliderContent();
-                            } else {
-                                form.message(data.message);
-                            }
-                        })
-                        .fail(function (data) {
-                            console.log("failure " + data);
-                        });
+                            // close the form
+                            hideSliderContent();
+                        } else {
+                            form.message(data.message);
+                        }
+                    })
+                    .fail(function (data) {
+                        console.log("failure " + data);
+                    });
                 },
                 delete: function () {
                     var form = this;
+                    var TCID = form.record.TCID;
+
                     // get local data from TMPPETID
                     var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
                     var itemIndex = getPeopleLocalData(form.record.TMPTCID, true);
                     compData.splice(itemIndex, 1);
 
                     savePeopleCompData()
-                        .done(function (data) {
-                            if (data.status === 'success') {
+                    .done(function (data) {
+                        if (data.status === 'success') {
 
-                                form.clear();
+                            form.clear();
 
-                                // update RAPeopleGrid
-                                ReassignPeopleGridRecords();
+                            // now if this is existed transactanct then remove
+                            // pets, vehicles too associated with it.
+                            if (TCID > 0) {
+                                // 1. pets
+                                var petsCompData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+                                petsCompData = petsCompData.filter(function(petItem) {
+                                    return petItem.TCID != TCID;
+                                });
 
-                                // close the form
-                                hideSliderContent();
-                            } else {
-                                form.message(data.message);
+                                // set data locally
+                                setRAFlowCompData("pets", app.raflow.activeFlowID, petsCompData);
+
+                                // save data on server
+                                savePetsCompData();
+
+                                // 2. vehicles
+                                var vehiclesCompData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+                                vehiclesCompData = vehiclesCompData.filter(function(vehicleItem) {
+                                    return vehicleItem.TCID != TCID;
+                                });
+
+                                // set data locally
+                                setRAFlowCompData("vehicles", app.raflow.activeFlowID, vehiclesCompData);
+
+                                // save data on server
+                                saveVehiclesCompData();
                             }
-                        })
-                        .fail(function (data) {
-                            console.log("failure " + data);
-                        });
+
+                            // update RAPeopleGrid
+                            ReassignPeopleGridRecords();
+
+                            // close the form
+                            hideSliderContent();
+                        } else {
+                            form.message(data.message);
+                        }
+                    })
+                    .fail(function (data) {
+                        console.log("failure " + data);
+                    });
                 },
                 reset: function () {
                     w2ui.RABGInfoForm.clear();

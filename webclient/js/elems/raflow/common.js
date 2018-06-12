@@ -107,6 +107,24 @@ window.getRAFlowCompData = function (compKey, FlowID) {
 };
 
 //-----------------------------------------------------------------------------
+// setRAFlowCompData - set the flow component data locally in app.raflow
+//
+// @params
+//   key    = flow component key
+//   FlowID = for which FlowID's component
+//   data   = data to set in the component
+//-----------------------------------------------------------------------------
+window.setRAFlowCompData = function (compKey, FlowID, data) {
+
+    var bid = getCurrentBID();
+
+    var flowJSON = app.raflow.data[FlowID];
+    if (flowJSON.Data) {
+        flowJSON.Data[compKey] = data;
+    }
+};
+
+//-----------------------------------------------------------------------------
 // toggleHaveCheckBoxDisablity - Enable checkbox if there is no record
 //                               lock/unlock grid based on checkbox value
 //
