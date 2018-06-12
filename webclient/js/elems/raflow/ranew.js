@@ -45,6 +45,9 @@ window.setToNewRAForm = function (bid, FlowID) {
             // set BID in raflow settings
             app.raflow.BID = bid;
 
+            // calculate parent rentable items
+            manageParentRentableW2UIItems();
+
             // show "done" mark on each li of navigation bar
             for (var comp in app.raFlowPartTypes) {
                 // if required fields are fulfilled then mark this slide as done
@@ -59,9 +62,6 @@ window.setToNewRAForm = function (bid, FlowID) {
                     w2ui[RACompConfig[comp].w2uiComp].clear();
                 }
             }
-
-            // calculate parent rentable items
-            manageParentRentableW2UIItems();
 
             // mark first slide as active
             $(".ra-form-component#dates").show();

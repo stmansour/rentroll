@@ -258,6 +258,7 @@ window.requiredFieldsFulFilled = function (compID) {
 
     var validData = true;
     var isChecked;
+    var pRExist = false;
 
     switch (compID) {
         case "dates":
@@ -313,41 +314,105 @@ window.requiredFieldsFulFilled = function (compID) {
             }
             break;
         case "parentchild":
-            compData.forEach(function(item) {
-                if (item.PRID === 0 || item.CRID === 0) {
-                    validData = false;
+            var parentChildValid = false;
+
+            var cRExist = false; // any child rentable exist
+            var rentablesCompData = getRAFlowCompData("rentables", app.raflow.activeFlowID);
+            rentablesCompData.forEach(function(rentableItem) {
+                // check for child rentables
+                if ( (rentableItem.RTFLAGS & (1 << app.rtFLAGS.IsChildRentable) ) != 0) {
+                    cRExist = true;
                     return false;
                 }
             });
 
+            // any parent rentable exist
+            if(app.raflow.parentRentableW2UIItems.length > 0) {
+                pRExist = true;
+            }
+
+            // if at least one child and parent rentable exists then only
+            if (pRExist && cRExist) {
+                validData = true;
+                compData.forEach(function(item) {
+                    if (item.PRID === 0 || item.CRID === 0) {
+                        validData = false;
+                        return false;
+                    }
+                });
+                parentChildValid = validData;
+            }
+
             // if loop passed successfully then mark it as successfully
-            done = validData;
+            done = parentChildValid;
             break;
         case "tie":
-            // pets validation
-            compData.pets.forEach(function(item) {
-                if (item.PRID === 0 || item.TMPREFID === 0) {
-                    validData = false;
-                    return false;
+            var tiePetsValid = false,
+                tieVehiclesValid = false,
+                tiePeopleValid = false;
+
+            // any parent rentable exist
+            if(app.raflow.parentRentableW2UIItems.length > 0) {
+
+                // ------ pets validation ------
+                var petsCompData = getRAFlowCompData("pets", app.raflow.activeFlowID);
+                if (petsCompData.length > 0) {
+                    if (compData.pets.length > 0) {
+                        validData = true;
+                        compData.pets.forEach(function(item) {
+                            if (item.PRID === 0 || item.TMPPETID === 0) {
+                                validData = false;
+                                return false;
+                            }
+                        });
+                        tiePetsValid = validData;
+                    }
+                } else {
+                    // TODO(Akshay & Sudip): we should store this setting in compData somewhere
+                    // check for whether "have pets" checkbox setting is checked
                 }
-            });
-            // vehicles validation
-            compData.vehicles.forEach(function(item) {
-                if (item.PRID === 0 || item.TMPREFID === 0) {
-                    validData = false;
-                    return false;
+
+                // ------ vehicles validation ------
+                var vehiclesCompData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
+                if (vehiclesCompData.length > 0) {
+                    if (compData.vehicles.length > 0) {
+                        validData = true;
+                        compData.vehicles.forEach(function(item) {
+                            if (item.PRID === 0 || item.TMPVID === 0) {
+                                validData = false;
+                                return false;
+                            }
+                        });
+                        tieVehiclesValid = validData;
+                    }
+                } else {
+                    // TODO(Akshay & Sudip): we should store this setting in compData somewhere
+                    // check for whether "have vehicles" checkbox setting is checked
                 }
-            });
-            // people validation
-            compData.people.forEach(function(item) {
-                if (item.PRID === 0 || item.TMPREFID === 0) {
-                    validData = false;
-                    return false;
+
+                // ------ people validation ------
+                var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+                var occupantExist = false; // any only renter user exists
+                peopleCompData.forEach(function(peopleItem) {
+                    if (!peopleItem.IsRenter && peopleItem.IsOccupant && !peopleItem.IsGuarantor) {
+                        occupantExist = true;
+                        return false;
+                    }
+                });
+                if (occupantExist) {
+                    validData = true;
+                    compData.people.forEach(function(item) {
+                        if (item.PRID === 0 || item.TMPTCID === 0) {
+                            validData = false;
+                            return false;
+                        }
+                    });
+                    tiePeopleValid = validData;
                 }
-            });
+            }
 
             // if loop passed successfully then mark it as successfully
-            done = validData;
+            done = tiePetsValid && tieVehiclesValid && tiePeopleValid;
             break;
         case "final":
             break;
@@ -357,25 +422,25 @@ window.requiredFieldsFulFilled = function (compID) {
 };
 
 // load form according to target
-window.loadTargetSection = function (target, activeCompID) {
+window.loadTargetSection = function (target, previousActiveCompID) {
 
     /*if ($("#progressbar #steps-list li[data-target='#" + target + "']").hasClass("done")) {
         console.log("target has been saved", target);
     } else {}*/
 
     // if required fields are fulfilled then mark this slide as done
-    if (requiredFieldsFulFilled(activeCompID)) {
+    if (requiredFieldsFulFilled(previousActiveCompID)) {
         // hide active component
-        $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").addClass("done");
+        $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").addClass("done");
     }
 
     // get component data based on ID from locally
-    var compData = getRAFlowCompData(activeCompID, app.raflow.activeFlowID);
+    var compData = getRAFlowCompData(previousActiveCompID, app.raflow.activeFlowID);
 
     // default would be compData
     var modCompData = compData;
 
-    switch (activeCompID) {
+    switch (previousActiveCompID) {
         case "dates":
             modCompData = w2ui.RADatesForm.record;
             w2ui.RADatesForm.actions.reset();
@@ -415,19 +480,19 @@ window.loadTargetSection = function (target, activeCompID) {
             modCompData = null;
             break;
         default:
-            alert("invalid active comp: ", activeCompID);
+            alert("invalid active comp: ", previousActiveCompID);
             return;
     }
 
     // get part type from the class index
     if (modCompData) {
         // save the content on server for active component
-        saveActiveCompData(modCompData, activeCompID);
+        saveActiveCompData(modCompData, previousActiveCompID);
     }
 
     // hide active component
-    $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").removeClass("active");
-    $(".ra-form-component#" + activeCompID).hide();
+    $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").removeClass("active");
+    $(".ra-form-component#" + previousActiveCompID).hide();
 
     // show target component
     $("#progressbar #steps-list li[data-target='#" + target + "']").removeClass("done").addClass("active");
@@ -452,11 +517,11 @@ window.loadTargetSection = function (target, activeCompID) {
     if (targetLoader.length > 0) {
         window[targetLoader]();
         /*setTimeout(function() {
-            var validateForm = compIDw2uiForms[activeCompID];
+            var validateForm = compIDw2uiForms[previousActiveCompID];
             if (typeof w2ui[validateForm] !== "undefined") {
                 var issues = w2ui[validateForm].validate();
                 if (!(Array.isArray(issues) && issues.length > 0)) {
-                    // $("#progressbar #steps-list li[data-target='#" + activeCompID + "']").addClass("done");
+                    // $("#progressbar #steps-list li[data-target='#" + previousActiveCompID + "']").addClass("done");
                 }
             }
         }, 500);*/
