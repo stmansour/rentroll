@@ -9,8 +9,7 @@
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
-    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole,
-    addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
+    manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID
 */
 
@@ -610,7 +609,6 @@ window.acceptTransactant = function () {
     var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
 
     var peopleForm = w2ui.RAPeopleForm;
-    var BID = getCurrentBID();
 
     var transactantRec = $.extend(true, {}, peopleForm.record);
     delete transactantRec.Transactant;
@@ -621,24 +619,11 @@ window.acceptTransactant = function () {
     // if not found then push it in the data
     if (tcidIndex < 0) {
 
-        // Assign default values to form fields
-        transactantRec = getRABGInfoFormInitRecord(BID, TCID, 0);
-
         // get transanctant information from the server
         getRATransanctantDetail(TCID)
         .done(function (data) {
 
             if (data.status === 'success') {
-                var record = data.record; // record from the server response
-
-                // set transanctant fields from the server record
-                setTrasanctantFields(transactantRec, record);
-
-                // Set transanctant default role
-                setTransactDefaultRole(transactantRec);
-
-                // push the new transanctant to client side
-                compData.push($.extend(true, {}, transactantRec));
 
                 // load item in the RAPeopleGrid grid
                 ReassignPeopleGridRecords();
@@ -677,42 +662,6 @@ window.manageBGInfoFormFields = function (record) {
     var haveToHide = record.IsOccupant && !record.IsRenter && !record.IsGuarantor; // true: hide fields, false: show fields
     // hide/show fields
     showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
-};
-
-//---------------------------------------------------------------------
-// setTrasanctantFields
-// Set Background information form fields value form the server record.
-//----------------------------------------------------------------------
-window.setTrasanctantFields = function (transactantRec, record) {
-    transactantRec.TCID = record.TCID;
-    transactantRec.FirstName = record.FirstName;
-    transactantRec.MiddleName = record.MiddleName;
-    transactantRec.LastName = record.LastName;
-    // transactantRec.IsCompany = int_to_bool(record.IsCompany);
-    transactantRec.IsCompany = record.IsCompany;
-    transactantRec.Employer = record.CompanyName;
-    transactantRec.DateofBirth = record.DateofBirth;
-    transactantRec.CellPhone = record.CellPhone;
-    transactantRec.PrimaryEmail = record.PrimaryEmail;
-    transactantRec.WorkPhone = record.WorkPhone;
-    transactantRec.Address = record.Address;
-    transactantRec.Address2 = record.Address2;
-    transactantRec.City = record.City;
-    transactantRec.Country = record.Country;
-    transactantRec.PostalCode = record.PostalCode;
-    transactantRec.State = record.State;
-};
-
-window.setTransactDefaultRole = function (transactantRec) {
-    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-
-    // If first record in the grid than transanctant will be renter by default
-    if (compData.length === 0) {
-        transactantRec.IsRenter = true;
-    }
-
-    // Each transactant must be occupant by default. It can be change via BGInfo detail form
-    transactantRec.IsOccupant = true;
 };
 
 window.addDummyBackgroundInfo = function () {
@@ -801,7 +750,6 @@ window.getPeopleLocalData = function(TMPTCID, returnIndex) {
 	}
 	return cloneData;
 };
-
 
 //-----------------------------------------------------------------------------
 // setPeopleLocalData - save the data for requested a TMPTCID in local data
