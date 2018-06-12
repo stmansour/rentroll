@@ -10,7 +10,7 @@
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
-    getPeopleLocalDataByTCID, setTransactantDefaultRole
+    getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields
 */
 
 "use strict";
@@ -195,7 +195,7 @@ window.loadRAPeopleForm = function () {
                             showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
                             // show/hide list of fields based on role
-                            manageBGInfoFormFields(raBGInfoGridRecord);
+                            // manageBGInfoFormFields(raBGInfoGridRecord);
 
                             form.record = getPeopleLocalData(raBGInfoGridRecord.TMPTCID);
                             form.record.recid = raBGInfoGridRecord.recid;
@@ -211,16 +211,199 @@ window.loadRAPeopleForm = function () {
                 };
             },
             onAdd: function () {
+                alert("Addding new tr........");
                 openNewTransactantForm();
             }
         });
 
         // background info form
+        // $().w2form({
+        //     name: 'RABGInfoForm',
+        //     header: 'Background Information',
+        //     style: 'border: 0px; background-color: transparent; display: block;',
+        //     formURL: '/webclient/html/formrabginfo.html',
+        //     toolbar: {
+        //         items: [
+        //             {id: 'bt3', type: 'spacer'},
+        //             // {id: 'addInfo', type: 'button', icon: 'fas fa-plus-circle'}, // TODO: Remove this in production. This button is for development purpose
+        //             {id: 'btnClose', type: 'button', icon: 'fas fa-times'}
+        //         ],
+        //         onClick: function (event) {
+        //             switch (event.target) {
+        //                 case 'btnClose':
+        //                     hideSliderContent();
+        //                     break;
+        //                 case 'addInfo':
+        //                     addDummyBackgroundInfo();
+        //                     break;
+        //             }
+        //         }
+        //     },
+        //     fields: [
+        //         {name: 'recid',                     type: 'int',        required: true },
+        //         {name: 'BID',                       type: 'int',        required: true,     html: {caption: 'BID', page: 0, column: 0}},
+        //         {name: 'TMPTCID',                   type: 'int',        required: true },
+        //         {name: 'TCID',                      type: 'int',        required: true,     html: {caption: 'TCID', page: 0, column: 0}},
+        //         {name: 'IsRenter',                  type: 'checkbox',   required: false },  // will be responsible for paying rent
+        //         {name: 'IsOccupant',                type: 'checkbox',   required: false },  // will reside in and/or use the items rented
+        //         {name: 'IsGuarantor',               type: 'checkbox',   required: false },  // responsible for making sure all rent is paid
+        //         {name: 'FirstName',                 type: 'text',       required: false },
+        //         {name: 'MiddleName',                type: 'text',       required: false },
+        //         {name: 'LastName',                  type: 'text',       required: false },
+        //         {name: 'IsCompany',                 type: 'int',        required: true },
+        //         {name: 'DateofBirth',               type: 'date',       required: false },  // Date of births of applicants
+        //         {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
+        //         {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
+        //         {name: 'CellPhone',                 type: 'text',       required: false },  // Telephone no of applicants
+        //         {name: 'PrimaryEmail',              type: 'email',      required: false },  // Email Address of applicants
+        //         {name: 'CurrentAddress',            type: 'text',       required: false },  // Current Address
+        //         {name: 'CurrentLandLordName',       type: 'text',       required: false },  // Current landlord's name
+        //         {name: 'CurrentLandLordPhoneNo',    type: 'text',       required: false },  // Current landlord's phone number
+        //         {name: 'CurrentLengthOfResidency',  type: 'int',        required: false },  // Length of residency at current address
+        //         {name: 'CurrentReasonForMoving',    type: 'text',       required: false },  // Reason of moving from current address
+        //         {name: 'PriorAddress',              type: 'text'},                          // Prior Address
+        //         {name: 'PriorLandLordName',         type: 'text'},                          // Prior landlord's name
+        //         {name: 'PriorLandLordPhoneNo',      type: 'text'},                          // Prior landlord's phone number
+        //         {name: 'PriorLengthOfResidency',    type: 'int'},                           // Length of residency at Prior address
+        //         {name: 'PriorReasonForMoving',      type: 'text'},                          // Reason of moving from Prior address
+        //         {name: 'Evicted',                   type: 'checkbox',   required: false },  // have you ever been Evicted
+        //         {name: 'EvictedDes',                type: 'text',       required: false },
+        //         {name: 'Convicted',                 type: 'checkbox',   required: false },  // have you ever been Arrested or convicted of a crime
+        //         {name: 'ConvictedDes',              type: 'text',       required: false },
+        //         {name: 'Bankruptcy',                type: 'checkbox',   required: false },  // have you ever been Declared Bankruptcy
+        //         {name: 'BankruptcyDes',             type: 'text',       required: false },
+        //         {name: 'Employer',                  type: 'text',       required: false },
+        //         {name: 'WorkPhone',                 type: 'text',       required: false },
+        //         {name: 'Address',                   type: 'text',       required: false },
+        //         {name: 'Address2',                  type: 'text',       required: false },
+        //         {name: 'City',                      type: 'text',       required: false },
+        //         {name: 'State',                     type: 'list',       required: false,    options: {items: app.usStateAbbr}, },
+        //         {name: 'PostalCode',                type: 'text',       required: false },
+        //         {name: 'Country',                   type: 'text',       required: false },
+        //         {name: 'Position',                  type: 'text',       required: false },
+        //         {name: 'GrossIncome',               type: 'money',      required: false },
+        //         {name: 'Comment',                   type: 'text'},                          // In an effort to accommodate you, please advise us of any special needs
+        //         {name: 'EmergencyContactName',      type: 'text',       required: false },  // Name of emergency contact
+        //         {name: 'EmergencyContactPhone',     type: 'text',       required: false },  // Phone number of emergency contact
+        //         {name: 'EmergencyContactAddress',   type: 'text',       required: false }   // Address of emergency contact
+        //     ],
+        //     actions: {
+        //         save: function () {
+        //             var form = this,
+        //                 TMPTCID = form.record.TMPTCID;
+        //
+        //             var errors = form.validate();
+        //             if (errors.length > 0) return;
+        //
+        //             var peopleData = getFormSubmitData(form.record, true);
+        //
+        //             // If transanctant role isn't selected than display error.
+        //             if (!(peopleData.IsRenter || peopleData.IsOccupant || peopleData.IsGuarantor)) {
+        //                 form.message("Please select transanctant role.");
+        //                 return;
+        //             }
+        //
+        //             // Convert integer to bool checkboxes fields
+        //             updateRABGInfoFormCheckboxes(peopleData);
+        //
+        //             setPeopleLocalData(TMPTCID, peopleData);
+        //
+        //             // clean dirty flag of form
+        //             app.form_is_dirty = false;
+        //
+        //             // save this records in json Data
+        //             savePeopleCompData()
+        //                 .done(function (data) {
+        //                     if (data.status === 'success') {
+        //
+        //                         form.clear();
+        //
+        //                         // update RAPeopleGrid
+        //                         ReassignPeopleGridRecords();
+        //
+        //                         // close the form
+        //                         hideSliderContent();
+        //                     } else {
+        //                         form.message(data.message);
+        //                     }
+        //                 })
+        //                 .fail(function (data) {
+        //                     console.log("failure " + data);
+        //                 });
+        //         },
+        //         delete: function () {
+        //             var form = this;
+        //             // get local data from TMPPETID
+        //             var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+        //             var itemIndex = getPeopleLocalData(form.record.TMPTCID, true);
+        //             compData.splice(itemIndex, 1);
+        //
+        //             savePeopleCompData()
+        //                 .done(function (data) {
+        //                     if (data.status === 'success') {
+        //
+        //                         form.clear();
+        //
+        //                         // update RAPeopleGrid
+        //                         ReassignPeopleGridRecords();
+        //
+        //                         // close the form
+        //                         hideSliderContent();
+        //                     } else {
+        //                         form.message(data.message);
+        //                     }
+        //                 })
+        //                 .fail(function (data) {
+        //                     console.log("failure " + data);
+        //                 });
+        //         },
+        //         reset: function () {
+        //             w2ui.RABGInfoForm.clear();
+        //         }
+        //     },
+        //     onChange: function (event) {
+        //         event.onComplete = function () {
+        //             $("#EvictedDes").prop("disabled", !this.record.Evicted);
+        //             $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+        //             $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+        //
+        //             manageBGInfoFormFields(this.record);
+        //
+        //             this.refresh();
+        //
+        //             // formRecDiffer: 1=current record, 2=original record, 3=diff object
+        //             var diff = formRecDiffer(this.record, app.active_form_original, {});
+        //             // if diff == {} then make dirty flag as false, else true
+        //             if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+        //                 app.form_is_dirty = false;
+        //             } else {
+        //                 app.form_is_dirty = true;
+        //             }
+        //         };
+        //     },
+        //     onRefresh: function (event) {
+        //         var form = this;
+        //         event.onComplete = function () {
+        //             // hide delete button if it is NewRecord
+        //             var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
+        //             if (isNewRecord) {
+        //                 $(form.box).find("button[name=delete]").addClass("hidden");
+        //             } else {
+        //                 $(form.box).find("button[name=delete]").removeClass("hidden");
+        //             }
+        //
+        //             $("#EvictedDes").prop("disabled", !this.record.Evicted);
+        //             $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+        //             $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+        //         };
+        //     }
+        // });
+
         $().w2form({
-            name: 'RABGInfoForm',
+            name: 'RATransactantForm',
             header: 'Background Information',
             style: 'border: 0px; background-color: transparent; display: block;',
-            formURL: '/webclient/html/formrabginfo.html',
+            formURL: '/webclient/html/formtc.html',
             toolbar: {
                 items: [
                     {id: 'bt3', type: 'spacer'},
@@ -238,54 +421,8 @@ window.loadRAPeopleForm = function () {
                     }
                 }
             },
-            fields: [
-                {name: 'recid',                     type: 'int',        required: true },
-                {name: 'BID',                       type: 'int',        required: true,     html: {caption: 'BID', page: 0, column: 0}},
-                {name: 'TMPTCID',                   type: 'int',        required: true },
-                {name: 'TCID',                      type: 'int',        required: true,     html: {caption: 'TCID', page: 0, column: 0}},
-                {name: 'IsRenter',                  type: 'checkbox',   required: false },  // will be responsible for paying rent
-                {name: 'IsOccupant',                type: 'checkbox',   required: false },  // will reside in and/or use the items rented
-                {name: 'IsGuarantor',               type: 'checkbox',   required: false },  // responsible for making sure all rent is paid
-                {name: 'FirstName',                 type: 'text',       required: false },
-                {name: 'MiddleName',                type: 'text',       required: false },
-                {name: 'LastName',                  type: 'text',       required: false },
-                {name: 'IsCompany',                 type: 'int',        required: true },
-                {name: 'DateofBirth',               type: 'date',       required: false },  // Date of births of applicants
-                {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
-                {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
-                {name: 'CellPhone',                 type: 'text',       required: false },  // Telephone no of applicants
-                {name: 'PrimaryEmail',              type: 'email',      required: false },  // Email Address of applicants
-                {name: 'CurrentAddress',            type: 'text',       required: false },  // Current Address
-                {name: 'CurrentLandLordName',       type: 'text',       required: false },  // Current landlord's name
-                {name: 'CurrentLandLordPhoneNo',    type: 'text',       required: false },  // Current landlord's phone number
-                {name: 'CurrentLengthOfResidency',  type: 'int',        required: false },  // Length of residency at current address
-                {name: 'CurrentReasonForMoving',    type: 'text',       required: false },  // Reason of moving from current address
-                {name: 'PriorAddress',              type: 'text'},                          // Prior Address
-                {name: 'PriorLandLordName',         type: 'text'},                          // Prior landlord's name
-                {name: 'PriorLandLordPhoneNo',      type: 'text'},                          // Prior landlord's phone number
-                {name: 'PriorLengthOfResidency',    type: 'int'},                           // Length of residency at Prior address
-                {name: 'PriorReasonForMoving',      type: 'text'},                          // Reason of moving from Prior address
-                {name: 'Evicted',                   type: 'checkbox',   required: false },  // have you ever been Evicted
-                {name: 'EvictedDes',                type: 'text',       required: false },
-                {name: 'Convicted',                 type: 'checkbox',   required: false },  // have you ever been Arrested or convicted of a crime
-                {name: 'ConvictedDes',              type: 'text',       required: false },
-                {name: 'Bankruptcy',                type: 'checkbox',   required: false },  // have you ever been Declared Bankruptcy
-                {name: 'BankruptcyDes',             type: 'text',       required: false },
-                {name: 'Employer',                  type: 'text',       required: false },
-                {name: 'WorkPhone',                 type: 'text',       required: false },
-                {name: 'Address',                   type: 'text',       required: false },
-                {name: 'Address2',                  type: 'text',       required: false },
-                {name: 'City',                      type: 'text',       required: false },
-                {name: 'State',                     type: 'list',       required: false,    options: {items: app.usStateAbbr}, },
-                {name: 'PostalCode',                type: 'text',       required: false },
-                {name: 'Country',                   type: 'text',       required: false },
-                {name: 'Position',                  type: 'text',       required: false },
-                {name: 'GrossIncome',               type: 'money',      required: false },
-                {name: 'Comment',                   type: 'text'},                          // In an effort to accommodate you, please advise us of any special needs
-                {name: 'EmergencyContactName',      type: 'text',       required: false },  // Name of emergency contact
-                {name: 'EmergencyContactPhone',     type: 'text',       required: false },  // Phone number of emergency contact
-                {name: 'EmergencyContactAddress',   type: 'text',       required: false }   // Address of emergency contact
-            ],
+            fields: transactantFields,
+            tabs: transactantTabs,
             actions: {
                 save: function () {
                     var form = this,
@@ -360,42 +497,42 @@ window.loadRAPeopleForm = function () {
                     w2ui.RABGInfoForm.clear();
                 }
             },
-            onChange: function (event) {
-                event.onComplete = function () {
-                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
-
-                    manageBGInfoFormFields(this.record);
-
-                    this.refresh();
-
-                    // formRecDiffer: 1=current record, 2=original record, 3=diff object
-                    var diff = formRecDiffer(this.record, app.active_form_original, {});
-                    // if diff == {} then make dirty flag as false, else true
-                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
-                        app.form_is_dirty = false;
-                    } else {
-                        app.form_is_dirty = true;
-                    }
-                };
-            },
-            onRefresh: function (event) {
-                var form = this;
-                event.onComplete = function () {
-                    // hide delete button if it is NewRecord
-                    var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
-                    if (isNewRecord) {
-                        $(form.box).find("button[name=delete]").addClass("hidden");
-                    } else {
-                        $(form.box).find("button[name=delete]").removeClass("hidden");
-                    }
-
-                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
-                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
-                };
-            }
+            // onChange: function (event) {
+            //     event.onComplete = function () {
+            //         $("#EvictedDes").prop("disabled", !this.record.Evicted);
+            //         $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+            //         $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+            //
+            //         manageBGInfoFormFields(this.record);
+            //
+            //         this.refresh();
+            //
+            //         // formRecDiffer: 1=current record, 2=original record, 3=diff object
+            //         var diff = formRecDiffer(this.record, app.active_form_original, {});
+            //         // if diff == {} then make dirty flag as false, else true
+            //         if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+            //             app.form_is_dirty = false;
+            //         } else {
+            //             app.form_is_dirty = true;
+            //         }
+            //     };
+            // },
+            // onRefresh: function (event) {
+            //     var form = this;
+            //     event.onComplete = function () {
+            //         // hide delete button if it is NewRecord
+            //         var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
+            //         if (isNewRecord) {
+            //             $(form.box).find("button[name=delete]").addClass("hidden");
+            //         } else {
+            //             $(form.box).find("button[name=delete]").removeClass("hidden");
+            //         }
+            //
+            //         $("#EvictedDes").prop("disabled", !this.record.Evicted);
+            //         $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+            //         $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+            //     };
+            // }
         });
     }
 
@@ -588,14 +725,15 @@ window.openNewTransactantForm = function () {
     var TCID = 0;
     var recid = w2ui.RAPeopleGrid.records.length + 1;
 
-    w2ui.RABGInfoForm.header = 'Background Information';
-    w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, TCID, recid);
+    w2ui.RATransactantForm.header = 'Background Information';
+    // w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, TCID, recid);
+    w2ui.RATransactantForm.record = getTransactantInitRecord(BID, BUD);
 
-	setTransactantDefaultRole(w2ui.RABGInfoForm.record);
+	// setTransactantDefaultRole(w2ui.RABGInfoForm.record);
 
     showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.people.sliderWidth);
 
-    w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
+    w2ui.RATransactantForm.refresh(); // need to refresh for header changes
 };
 
 //-----------------------------------------------------------------------------
