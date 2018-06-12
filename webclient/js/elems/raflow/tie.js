@@ -758,8 +758,8 @@ window.AssignTiePeopleGridRecords = function() {
         var PRID = 0;
         var tiePeople = getTiePeopleLocalData(peopleData.TMPTCID);
 
-        // if it's a payor then ignore to set in grid
-        if (peopleData.IsRenter) {
+        // if it's a payor/guarantor then ignore to set in grid
+        if (peopleData.IsRenter || peopleData.IsGuarantor) {
             return; // return from forEach method
         }
 

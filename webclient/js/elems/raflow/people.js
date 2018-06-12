@@ -9,9 +9,9 @@
     setRABGInfoFormHeader, showHideRABGInfoFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
-    manageBGInfoFormFields, setTrasanctantFields, setTransactDefaultRole,
-    addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
-    getPeopleLocalDataByTCID
+    manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
+    getPeopleLocalDataByTCID, setTransactantDefaultRole,
+    savePetsCompData, saveVehiclesCompData, setRAFlowCompData
 */
 
 "use strict";
@@ -251,11 +251,11 @@ window.loadRAPeopleForm = function () {
                 {name: 'MiddleName',                type: 'text',       required: false },
                 {name: 'LastName',                  type: 'text',       required: false },
                 {name: 'IsCompany',                 type: 'int',        required: true },
-                {name: 'BirthDate',                 type: 'date',       required: false },  // Date of births of applicants
+                {name: 'DateofBirth',               type: 'date',       required: false },  // Date of births of applicants
                 {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
                 {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
-                {name: 'TelephoneNo',               type: 'text',       required: false },  // Telephone no of applicants
-                {name: 'EmailAddress',              type: 'email',      required: false },  // Email Address of applicants
+                {name: 'CellPhone',                 type: 'text',       required: false },  // Telephone no of applicants
+                {name: 'PrimaryEmail',              type: 'email',      required: false },  // Email Address of applicants
                 {name: 'CurrentAddress',            type: 'text',       required: false },  // Current Address
                 {name: 'CurrentLandLordName',       type: 'text',       required: false },  // Current landlord's name
                 {name: 'CurrentLandLordPhoneNo',    type: 'text',       required: false },  // Current landlord's phone number
@@ -273,7 +273,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'Bankruptcy',                type: 'checkbox',   required: false },  // have you ever been Declared Bankruptcy
                 {name: 'BankruptcyDes',             type: 'text',       required: false },
                 {name: 'Employer',                  type: 'text',       required: false },
-                {name: 'Phone',                     type: 'text',       required: false },
+                {name: 'WorkPhone',                 type: 'text',       required: false },
                 {name: 'Address',                   type: 'text',       required: false },
                 {name: 'Address2',                  type: 'text',       required: false },
                 {name: 'City',                      type: 'text',       required: false },
@@ -281,7 +281,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'PostalCode',                type: 'text',       required: false },
                 {name: 'Country',                   type: 'text',       required: false },
                 {name: 'Position',                  type: 'text',       required: false },
-                {name: 'GrossWages',                type: 'money',      required: false },
+                {name: 'GrossIncome',               type: 'money',      required: false },
                 {name: 'Comment',                   type: 'text'},                          // In an effort to accommodate you, please advise us of any special needs
                 {name: 'EmergencyContactName',      type: 'text',       required: false },  // Name of emergency contact
                 {name: 'EmergencyContactPhone',     type: 'text',       required: false },  // Phone number of emergency contact
@@ -298,7 +298,7 @@ window.loadRAPeopleForm = function () {
                     var peopleData = getFormSubmitData(form.record, true);
 
                     // If transanctant role isn't selected than display error.
-                    if(!(peopleData.IsRenter || peopleData.IsOccupant || peopleData.IsGuarantor)){
+                    if (!(peopleData.IsRenter || peopleData.IsOccupant || peopleData.IsGuarantor)) {
                         form.message("Please select transanctant role.");
                         return;
                     }
@@ -333,16 +333,46 @@ window.loadRAPeopleForm = function () {
                 },
                 delete: function () {
                     var form = this;
-					// get local data from TMPPETID
-					var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-					var itemIndex = getPeopleLocalData(form.record.TMPTCID, true);
-					compData.splice(itemIndex, 1);
+                    var TCID = form.record.TCID;
+
+                    // get local data from TMPPETID
+                    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+                    var itemIndex = getPeopleLocalData(form.record.TMPTCID, true);
+                    compData.splice(itemIndex, 1);
 
                     savePeopleCompData()
                     .done(function (data) {
                         if (data.status === 'success') {
 
                             form.clear();
+
+                            // now if this is existed transactanct then remove
+                            // pets, vehicles too associated with it.
+                            if (TCID > 0) {
+                                // 1. pets
+                                var petsCompData = getRAFlowCompData("pets", app.raflow.activeFlowID) || [];
+                                petsCompData = petsCompData.filter(function(petItem) {
+                                    return petItem.TCID != TCID;
+                                });
+
+                                // set data locally
+                                setRAFlowCompData("pets", app.raflow.activeFlowID, petsCompData);
+
+                                // save data on server
+                                savePetsCompData();
+
+                                // 2. vehicles
+                                var vehiclesCompData = getRAFlowCompData("vehicles", app.raflow.activeFlowID) || [];
+                                vehiclesCompData = vehiclesCompData.filter(function(vehicleItem) {
+                                    return vehicleItem.TCID != TCID;
+                                });
+
+                                // set data locally
+                                setRAFlowCompData("vehicles", app.raflow.activeFlowID, vehiclesCompData);
+
+                                // save data on server
+                                saveVehiclesCompData();
+                            }
 
                             // update RAPeopleGrid
                             ReassignPeopleGridRecords();
@@ -383,7 +413,7 @@ window.loadRAPeopleForm = function () {
             },
             onRefresh: function (event) {
                 var form = this;
-                event.onComplete = function() {
+                event.onComplete = function () {
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
                     if (isNewRecord) {
@@ -518,11 +548,11 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         MiddleName: "",
         LastName: "",
         IsCompany: 0,
-        BirthDate: "",
+        DateofBirth: "",
         SSN: "",
         DriverLicNo: "",
-        TelephoneNo: "",
-        EmailAddress: "",
+        CellPhone: "",
+        PrimaryEmail: "",
         CurrentAddress: "",
         CurrentLandLordName: "",
         CurrentLandLordPhoneNo: "",
@@ -540,7 +570,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         Bankruptcy: false,
         BankruptcyDes: "",
         Employer: "",
-        Phone: "",
+        WorkPhone: "",
         Address: "",
         Address2: "",
         City: "",
@@ -548,7 +578,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         PostalCode: "",
         Country: "",
         Position: "",
-        GrossWages: 0,
+        GrossIncome: 0,
         Comment: "",
         EmergencyContactName: "",
         EmergencyContactPhone: "",
@@ -592,6 +622,8 @@ window.openNewTransactantForm = function () {
     w2ui.RABGInfoForm.header = 'Background Information';
     w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, TCID, recid);
 
+	setTransactantDefaultRole(w2ui.RABGInfoForm.record);
+
     showSliderContentW2UIComp(w2ui.RABGInfoForm, RACompConfig.people.sliderWidth);
 
     w2ui.RABGInfoForm.refresh(); // need to refresh for header changes
@@ -610,7 +642,6 @@ window.acceptTransactant = function () {
     var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
 
     var peopleForm = w2ui.RAPeopleForm;
-    var BID = getCurrentBID();
 
     var transactantRec = $.extend(true, {}, peopleForm.record);
     delete transactantRec.Transactant;
@@ -621,24 +652,11 @@ window.acceptTransactant = function () {
     // if not found then push it in the data
     if (tcidIndex < 0) {
 
-        // Assign default values to form fields
-        transactantRec = getRABGInfoFormInitRecord(BID, TCID, 0);
-
         // get transanctant information from the server
         getRATransanctantDetail(TCID)
         .done(function (data) {
 
             if (data.status === 'success') {
-                var record = data.record; // record from the server response
-
-                // set transanctant fields from the server record
-                setTrasanctantFields(transactantRec, record);
-
-                // Set transanctant default role
-                setTransactDefaultRole(transactantRec);
-
-                // push the new transanctant to client side
-                compData.push($.extend(true, {}, transactantRec));
 
                 // load item in the RAPeopleGrid grid
                 ReassignPeopleGridRecords();
@@ -679,53 +697,17 @@ window.manageBGInfoFormFields = function (record) {
     showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
 };
 
-//---------------------------------------------------------------------
-// setTrasanctantFields
-// Set Background information form fields value form the server record.
-//----------------------------------------------------------------------
-window.setTrasanctantFields = function (transactantRec, record) {
-    transactantRec.TCID = record.TCID;
-    transactantRec.FirstName = record.FirstName;
-    transactantRec.MiddleName = record.MiddleName;
-    transactantRec.LastName = record.LastName;
-    // transactantRec.IsCompany = int_to_bool(record.IsCompany);
-    transactantRec.IsCompany = record.IsCompany;
-    transactantRec.Employer = record.CompanyName;
-    transactantRec.DateofBirth = record.DateofBirth;
-    transactantRec.CellPhone = record.CellPhone;
-    transactantRec.PrimaryEmail = record.PrimaryEmail;
-    transactantRec.WorkPhone = record.WorkPhone;
-    transactantRec.Address = record.Address;
-    transactantRec.Address2 = record.Address2;
-    transactantRec.City = record.City;
-    transactantRec.Country = record.Country;
-    transactantRec.PostalCode = record.PostalCode;
-    transactantRec.State = record.State;
-};
-
-window.setTransactDefaultRole = function (transactantRec) {
-    var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-
-    // If first record in the grid than transanctant will be renter by default
-    if (compData.length === 0) {
-        transactantRec.IsRenter = true;
-    }
-
-    // Each transactant must be occupant by default. It can be change via BGInfo detail form
-    transactantRec.IsOccupant = true;
-};
-
 window.addDummyBackgroundInfo = function () {
     var form = w2ui.RABGInfoForm;
     var record = form.record;
     record.FirstName = Math.random().toString(32).slice(2);
     record.MiddleName = Math.random().toString(32).slice(2);
     record.LastName = Math.random().toString(32).slice(2);
-    record.BirthDate = "8/30/1990";
+    record.DateofBirth = "8/30/1990";
     record.SSN = Math.random().toString(32).slice(4);
     record.DriverLicNo = Math.random().toString(32).slice(2);
-    record.TelephoneNo = Math.random().toString(32).slice(2);
-    record.EmailAddress = Math.random().toString(32).slice(2) + "@yopmail.com";
+    record.CellPhone = Math.random().toString(32).slice(2);
+    record.PrimaryEmail = Math.random().toString(32).slice(2) + "@yopmail.com";
     record.CurrentAddress = Math.random().toString(32).slice(2);
     record.CurrentLandLordName = Math.random().toString(32).slice(2);
     record.CurrentLandLordPhoneNo = Math.random().toString(32).slice(2);
@@ -737,10 +719,10 @@ window.addDummyBackgroundInfo = function () {
     record.PriorLengthOfResidency = 36;
     record.PriorReasonForMoving = Math.random().toString(32).slice(2);
     record.Employer = Math.random().toString(32).slice(2);
-    record.Phone = Math.random().toString(32).slice(2);
+    record.WorkPhone = Math.random().toString(32).slice(2);
     record.Address = Math.random().toString(32).slice(2);
     record.Position = Math.random().toString(32).slice(2);
-    record.GrossWages = Math.random() * 100;
+    record.GrossIncome = Math.random() * 100;
     record.EmergencyContactName = Math.random().toString(32).slice(2);
     record.EmergencyContactPhone = Math.random().toString(32).slice(2);
     record.EmergencyContactAddress = Math.random().toString(32).slice(2);
@@ -802,7 +784,6 @@ window.getPeopleLocalData = function(TMPTCID, returnIndex) {
 	return cloneData;
 };
 
-
 //-----------------------------------------------------------------------------
 // setPeopleLocalData - save the data for requested a TMPTCID in local data
 //-----------------------------------------------------------------------------
@@ -820,4 +801,18 @@ window.setPeopleLocalData = function(TMPTCID, peopleData) {
 	} else {
 		compData.push(peopleData);
 	}
+};
+
+//-----------------------------------------------------------------------------
+// setTransactantDefaultRole - Assign default role for new transanctant.
+//-----------------------------------------------------------------------------
+window.setTransactantDefaultRole = function (transactantRec) {
+	var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+	// If first record in the grid than transanctant will be renter by default
+	if (compData.length === 0) {
+		transactantRec.IsRenter = true;
+	}
+
+	// Each transactant must be occupant by default. It can be change via BGInfo detail form
+	transactantRec.IsOccupant = true;
 };
