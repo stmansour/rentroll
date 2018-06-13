@@ -284,21 +284,12 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
-
-	//---------------------------------------
-	// sample code to get this working...
-	//---------------------------------------
-	var p rlib.Transactant
-	err := rlib.GetTransactant(r.Context(), 1, &p)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	var rap RAPeopleFlowData
-	rlib.MigrateStructVals(&p, &rap)
 	currentDateTime := time.Now()
 	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
 
+	//-------------------------------------------------------------
+	// This is the datastructure we need to fill out and save...
+	//-------------------------------------------------------------
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
 			BID:             d.BID,
@@ -309,7 +300,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			PossessionStart: rlib.JSONDate(currentDateTime),
 			PossessionStop:  rlib.JSONDate(nextYearDateTime),
 		},
-		People:      []RAPeopleFlowData{rap},
+		People:      []RAPeopleFlowData{},
 		Pets:        []RAPetsFlowData{},
 		Vehicles:    []RAVehiclesFlowData{},
 		Rentables:   []RARentablesFlowData{},
@@ -320,6 +311,62 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			People:   []RATiePeopleData{},
 		},
 		Meta: RAFlowMetaInfo{RAID: d.ID},
+	}
+
+	if d.ID < 1 {
+		SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
+		return
+	}
+	ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
+
+	//-------------------------------------------------------------------------
+	//  TBD: check to see if a flow already exists for this RAID. If so, just
+	//  use it.
+	//-------------------------------------------------------------------------
+
+	//-------------------------------------------------------------------------
+	// Fill out the datastructure and save it to the db as a flow...
+	//-------------------------------------------------------------------------
+	m, err := rlib.GetRentalAgreementPayorsInRange(r.Context(), ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
+	for i := 0; i < len(m); i++ {
+		var p rlib.Transactant
+		var pu rlib.User
+		var pp rlib.Payor
+		var pr rlib.Prospect
+		var rap RAPeopleFlowData
+
+		err = rlib.GetTransactant(r.Context(), m[i].TCID, &p)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		err = rlib.GetUser(r.Context(), m[i].TCID, &pu)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		err = rlib.GetPayor(r.Context(), m[i].TCID, &pp)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		err = rlib.GetProspect(r.Context(), m[i].TCID, &pr)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+		rlib.MigrateStructVals(&p, &rap)
+		rlib.MigrateStructVals(&pp, &rap)
+		rlib.MigrateStructVals(&pu, &rap)
+		rlib.MigrateStructVals(&pr, &rap)
+		rap.IsRenter = true
+		raf.People = append(raf.People, rap)
 	}
 
 	raflowJSONData, err := json.Marshal(&raf)
@@ -360,35 +407,6 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record = flow
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
-
-	// // var raFlowData RAFlowJSONData
-	// if d.ID < 1 {
-	// 	SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
-	// 	return
-	// }
-	// ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
-	// if err != nil {
-	// 	SvcErrorReturn(w, err, funcname)
-	// }
-
-	// m,err := rlib.GetRentalAgreementPayorsInRange(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
-	// 	for i := 0; i < len(m); i++ {
-	// 		var p RAPeopleFlowData
-	// 		err = rlib.GetTransactant(r.Context(), m[i].TCID, &p.rec)
-	// 		if err != nil {
-	// 			SvcErrorReturn(w, err, funcname)
-	// 			return
-	// 		}
-	// 		var xr RAPeople
-	// 		fmt.Printf("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
-	// 		rlib.MigrateStructVals(&p, &xr)
-	// 		rlib.MigrateStructVals(&m[i], &xr)
-	// 		xr1 := time.Time(xr.DtStart)
-	// 		xr2 := time.Time(xr.DtStop)
-	// 		fmt.Printf("after migrate: xr.DtStart = %s, xr.DtStop = %s\n", xr1.Format(rlib.RRDATEFMT3), xr2.Format(rlib.RRDATEFMT3))
-	// 		xr.Recid = int64(i + 1) // must set AFTER MigrateStructVals in case src contains recid
-	// 		gxp.Records = append(gxp.Records, xr)
-	// 	}
 
 	// err = fmt.Errorf("Work in progress:  RAID = %d", ra.RAID)
 	// SvcErrorReturn(w, err, funcname)
