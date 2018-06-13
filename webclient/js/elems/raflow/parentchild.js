@@ -106,7 +106,7 @@ window.loadRAPeopleChildSection = function () {
             RentableName = rentableItem.RentableName;
 
         // 1 means this is child rentable
-        if ( (rentableItem.RTFLAGS & (1 << app.rtFLAGS.IsChildRentable)) != 0) {
+        if ( (rentableItem.RTFLAGS & (1 << app.rtFLAGS.IsChildRentable) ) != 0) {
             var PRID = 0;
             var cRentable = getChildRentableLocalData(RID);
 
