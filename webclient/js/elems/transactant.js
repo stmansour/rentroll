@@ -14,7 +14,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         BUD: BUD,
         NLID: 0,
         CompanyName: "",
-        IsCompany: 0,
+        IsCompany: false,
         SecondaryEmail: "",
         WorkPhone: "",
         CellPhone: "",
@@ -93,7 +93,7 @@ $().w2grid({
                 if (typeof record === "undefined") {
                     return;
                 }
-                if (record.IsCompany === 0) {
+                if (!record.IsCompany) {
                     s += '<span style="color:#999;font-size:16px"><i class="far fa-handshake" aria-hidden="true"></i></span>';
                 }
                 return s + ' ' + record.LastName;
@@ -105,7 +105,7 @@ $().w2grid({
                 if (typeof record === "undefined") {
                     return;
                 }
-                if (record.IsCompany > 0) {
+                if (record.IsCompany) {
                     s += '<span style="color:#999;font-size:16px"><i class="far fa-handshake" aria-hidden="true"></i></span>';
                 }
                 return s + ' ' + record.CompanyName;
@@ -193,7 +193,7 @@ $().w2grid({
             { field: 'BUD', type: 'list', options: {items: app.businesses}, required: false, html: { page: 0, column: 0 } },
             { field: 'NLID', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'CompanyName', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'IsCompany', type: 'list', options: {items: app.companyOrPerson}, required: true, html: { page: 0, column: 0 } },
+            { field: 'IsCompany', type: 'checkbox', options: { required: true, html: { page: 0, column: 0 } } },
             { field: 'SecondaryEmail', type: 'email', required: false, html: { page: 0, column: 0 } },
             { field: 'WorkPhone', type: 'phone', required: false, html: { page: 0, column: 0 } },
             { field: 'CellPhone', type: 'phone', required: false, html: { page: 0, column: 0 } },
@@ -270,19 +270,19 @@ $().w2grid({
             },
         },
         onValidate: function (event) {
-            if (this.record.IsCompany.text == 'Person' && this.record.FirstName === '') {
+            if (!this.record.IsCompany && this.record.FirstName === '') {
                 event.errors.push({
                     field: this.get('FirstName'),
                     error: 'FirstName required when "Person or Company" field is set to Person'
                 });
             }
-            if (this.record.IsCompany.text == 'Person' && this.record.LastName === '') {
+            if (!this.record.IsCompany && this.record.LastName === '') {
                 event.errors.push({
                     field: this.get('LastName'),
                     error: 'LastName required when "Person or Company" field is set to Person'
                 });
             }
-            if (this.record.IsCompany.text == 'Company' && this.record.CompanyName === '') {
+            if (this.record.IsCompany && this.record.CompanyName === '') {
                 event.errors.push({
                     field: this.get('CompanyName'),
                     error: 'Company Name required when "Person or Company" field is set to Company'
@@ -374,7 +374,7 @@ $().w2grid({
 
                 // custom header
                 if (r.TCID) {
-                    if (f.original.IsCompany > 0) {
+                    if (f.original.IsCompany) {
                         header = "Edit Transactant - {0} ({1})".format(r.CompanyName, r.TCID);
                     } else {
                         header = "Edit Transactant - {0} {1} ({2})".format(r.FirstName, r.LastName, r.TCID);
@@ -405,6 +405,7 @@ $().w2grid({
             delete data.postData.record.CreateBy;
             // server request form data
             getFormSubmitData(data.postData.record);
+            data.postData.record.IsCompany = int_to_bool(data.postData.record.IsCompany);
         },
     });
 

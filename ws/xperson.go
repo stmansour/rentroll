@@ -24,7 +24,7 @@ type RPerson struct {
 	PreferredName string
 	CompanyName   string // sometimes the entity will be a company
 	// IsCompany                 rlib.XJSONCompanyOrPerson // 1 => the entity is a company, 0 = not a company
-	IsCompany                 int64 // 1 => the entity is a company, 0 = not a company
+	IsCompany                 bool // 1 => the entity is a company, 0 = not a company
 	PrimaryEmail              string
 	SecondaryEmail            string
 	WorkPhone                 string
@@ -131,7 +131,7 @@ type RPersonForm struct {
 	AccountRep                int64
 	BID                       int64
 	BUD                       rlib.XJSONBud
-	IsCompany                 int64 // 1 => the entity is a company, 0 = not a company
+	IsCompany                 bool // 1 => the entity is a company, 0 = not a company
 }
 
 // RPersonOther contains the data from selections boxes in the UI. These come back

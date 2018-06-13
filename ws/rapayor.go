@@ -21,7 +21,7 @@ type RAPayor struct {
 	RentableName string        // rentable name
 	DtStart      rlib.JSONDate // start date/time for this Rentable
 	DtStop       rlib.JSONDate // stop date/time
-	IsCompany    int
+	IsCompany    bool
 	CompanyName  string
 }
 

@@ -59,7 +59,7 @@ type RAPeopleFlowData struct {
 	MiddleName   string
 	LastName     string
 	DateofBirth  string
-	IsCompany    int64
+	IsCompany    bool
 	SSN          string
 	DriverLicNo  string
 	CellPhone    string
@@ -73,7 +73,7 @@ type RAPeopleFlowData struct {
 	Country      string
 	PostalCode   string
 	Position     string
-	GrossIncome   float64
+	GrossIncome  float64
 
 	// Current Address information
 	CurrentAddress           string

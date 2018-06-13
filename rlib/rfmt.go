@@ -137,6 +137,28 @@ func YesNoToString(i int64) string {
 	}
 }
 
+// YesNoToBool takes multiple forms of "Yes" and converts to bool "true", multiple forms of "No" to bool "false"
+func YesNoToBool(si string) (bool, error) {
+	s := strings.ToUpper(strings.TrimSpace(si))
+	switch {
+	case s == "Y" || s == "YES" || s == "1" || s == "T" || s == "TRUE":
+		return true, nil
+	case s == "N" || s == "NO" || s == "0" || s == "F" || s == "FALSE":
+		return false, nil
+	default:
+		err := fmt.Errorf("Unrecognized yes/no string: %s", si)
+		return false, err
+	}
+}
+
+// BoolToYesNoString returns an appropriate string representation of the value i bool
+func BoolToYesNoString(i bool) string {
+	if i {
+		return "Yes"
+	}
+	return "No"
+}
+
 // DateToString rounds the supplied amount to the nearest cent.
 func DateToString(t time.Time) string {
 	return t.Format("01/02/2006")

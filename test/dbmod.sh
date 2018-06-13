@@ -376,6 +376,9 @@ DBNAME="rentroll"
 # June 7, 2018
 # ALTER TABLE Flow ADD UserRefNo VARCHAR(50) NOT NULL DEFAULT '' AFTER BID;
 
+# Jun 13, 2018
+# ALTER TABLE Transactant MODIFY IsCompany TINYINT(1) NOT NULL DEFAULT 0;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
