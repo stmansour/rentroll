@@ -1,11 +1,13 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"rentroll/rlib"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //-------------------------------------------------------------------
@@ -282,18 +284,114 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
-	// var raFlowData RAFlowJSONData
-	if d.ID < 1 {
-		SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
-		return
-	}
-	ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
+
+	//---------------------------------------
+	// sample code to get this working...
+	//---------------------------------------
+	var p rlib.Transactant
+	err := rlib.GetTransactant(r.Context(), 1, &p)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	var rap RAPeopleFlowData
+	rlib.MigrateStructVals(&p, &rap)
+	currentDateTime := time.Now()
+	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
+
+	var raf = RAFlowJSONData{
+		Dates: RADatesFlowData{
+			BID:             d.BID,
+			RentStart:       rlib.JSONDate(currentDateTime),
+			RentStop:        rlib.JSONDate(nextYearDateTime),
+			AgreementStart:  rlib.JSONDate(currentDateTime),
+			AgreementStop:   rlib.JSONDate(nextYearDateTime),
+			PossessionStart: rlib.JSONDate(currentDateTime),
+			PossessionStop:  rlib.JSONDate(nextYearDateTime),
+		},
+		People:      []RAPeopleFlowData{rap},
+		Pets:        []RAPetsFlowData{},
+		Vehicles:    []RAVehiclesFlowData{},
+		Rentables:   []RARentablesFlowData{},
+		ParentChild: []RAParentChildFlowData{},
+		Tie: RATieFlowData{
+			Pets:     []RATiePetsData{},
+			Vehicles: []RATieVehiclesData{},
+			People:   []RATiePeopleData{},
+		},
+		Meta: RAFlowMetaInfo{RAID: d.ID},
 	}
 
-	err = fmt.Errorf("Work in progress:  RAID = %d", ra.RAID)
-	SvcErrorReturn(w, err, funcname)
+	raflowJSONData, err := json.Marshal(&raf)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	// initial Flow struct
+	rlib.Console("New Flow\n")
+	a := rlib.Flow{
+		BID:       d.BID,
+		FlowID:    0, // it's new flowID,
+		UserRefNo: rlib.GenerateUserRefNo(),
+		FlowType:  rlib.RAFlow,
+		Data:      raflowJSONData,
+		CreateBy:  d.sess.UID,
+		LastModBy: d.sess.UID,
+	}
+
+	rlib.Console("New flow UserRefNo = %s\n", a.UserRefNo)
+
+	// insert new flow
+	flowID, err := rlib.InsertFlow(r.Context(), &a)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+
+	flow, err := rlib.GetFlow(r.Context(), flowID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	var g FlowResponse
+
+	// set the response
+	g.Record = flow
+	g.Status = "success"
+	SvcWriteResponse(d.BID, &g, w)
+
+	// // var raFlowData RAFlowJSONData
+	// if d.ID < 1 {
+	// 	SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
+	// 	return
+	// }
+	// ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
+	// if err != nil {
+	// 	SvcErrorReturn(w, err, funcname)
+	// }
+
+	// m,err := rlib.GetRentalAgreementPayorsInRange(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
+	// 	for i := 0; i < len(m); i++ {
+	// 		var p RAPeopleFlowData
+	// 		err = rlib.GetTransactant(r.Context(), m[i].TCID, &p.rec)
+	// 		if err != nil {
+	// 			SvcErrorReturn(w, err, funcname)
+	// 			return
+	// 		}
+	// 		var xr RAPeople
+	// 		fmt.Printf("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
+	// 		rlib.MigrateStructVals(&p, &xr)
+	// 		rlib.MigrateStructVals(&m[i], &xr)
+	// 		xr1 := time.Time(xr.DtStart)
+	// 		xr2 := time.Time(xr.DtStop)
+	// 		fmt.Printf("after migrate: xr.DtStart = %s, xr.DtStop = %s\n", xr1.Format(rlib.RRDATEFMT3), xr2.Format(rlib.RRDATEFMT3))
+	// 		xr.Recid = int64(i + 1) // must set AFTER MigrateStructVals in case src contains recid
+	// 		gxp.Records = append(gxp.Records, xr)
+	// 	}
+
+	// err = fmt.Errorf("Work in progress:  RAID = %d", ra.RAID)
+	// SvcErrorReturn(w, err, funcname)
 }
 
 // wsdoc {
