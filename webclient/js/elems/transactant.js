@@ -7,6 +7,9 @@ window.getTransactantInitRecord = function (BID, BUD) {
 
     return {
         recid: 0,
+        IsRenter: false,
+        IsOccupant: true,
+        IsGuarantor: false,
         FirstName: "",
         LastName: "",
         MiddleName: "",
@@ -18,6 +21,8 @@ window.getTransactantInitRecord = function (BID, BUD) {
         NLID: 0,
         CompanyName: "",
         IsCompany: 0,
+        SSN: "",
+        DriverLicNo: "",
         SecondaryEmail: "",
         WorkPhone: "",
         CellPhone: "",
@@ -43,6 +48,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         CreditLimit: 0.00,
         TaxpayorID: "",
         AccountRep: 0,
+        GrossIncome: 0,
         EligibleFuturePayor: "yes",
         EmployerName: "",
         EmployerStreetAddress: "",
@@ -51,6 +57,22 @@ window.getTransactantInitRecord = function (BID, BUD) {
         EmployerPostalCode: "",
         EmployerEmail: "",
         EmployerPhone: "",
+        CurrentAddress: "",
+        CurrentLandLordName: "",
+        CurrentLandLordPhoneNo: "",
+        CurrentLengthOfResidency: 0,
+        CurrentReasonForMoving: "",
+        PriorAddress: "",
+        PriorLandLordName: "",
+        PriorLandLordPhoneNo: "",
+        PriorLengthOfResidency: 0,
+        PriorReasonForMoving: "",
+        Evicted: false,
+        EvictedDes: "",
+        Convicted: false,
+        ConvictedDes: "",
+        Bankruptcy: false,
+        BankruptcyDes: "",
         Occupation: "",
         ApplicationFee: 0.00,
         DesiredUsageStartDate: "1/1/1900",
@@ -64,6 +86,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         OutcomeSLSID: 0,
         FloatingDeposit: 0.00,
         RAID: 0,
+        Comment: ""
     };
 };
 
