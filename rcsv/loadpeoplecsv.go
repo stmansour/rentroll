@@ -247,11 +247,11 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 			}
 		case IsCompany:
 			if len(s) > 0 {
-				ic, err := rlib.YesNoToInt(s)
+				ic, err := rlib.YesNoToBool(s)
 				if err != nil {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - IsCompany value is invalid: %s", funcname, lineno, s)
 				}
-				tr.IsCompany = int64(ic)
+				tr.IsCompany = ic
 			}
 		case CellPhone:
 			if len(s) > 0 && s[0] == '*' {
@@ -285,7 +285,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		case EligibleFutureUser:
 			if len(s) > 0 {
 				var err error
-				t.EligibleFutureUser, err = rlib.YesNoToInt(s)
+				t.EligibleFutureUser, err = rlib.YesNoToBool(s)
 				if err != nil {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s", funcname, lineno, err.Error())
 				}
@@ -426,10 +426,10 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 	// a first & last name.  If it is a company, then it needs a Company
 	// name.
 	//-------------------------------------------------------------------
-	if tr.IsCompany == 0 && len(tr.FirstName) == 0 && len(tr.LastName) == 0 {
+	if (!tr.IsCompany) && len(tr.FirstName) == 0 && len(tr.LastName) == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - FirstName and LastName are required for a person", funcname, lineno)
 	}
-	if tr.IsCompany == 1 && len(tr.CompanyName) == 0 {
+	if (tr.IsCompany) && len(tr.CompanyName) == 0 {
 		return CsvErrorSensitivity, fmt.Errorf("%s: line %d - CompanyName is required for a company", funcname, lineno)
 	}
 

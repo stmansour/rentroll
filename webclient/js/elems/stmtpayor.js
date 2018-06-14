@@ -141,7 +141,7 @@ window.buildPayorStatementElements = function () {
             { field: 'FirstName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'MiddleName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'LastName', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'PayorIsCompany', type: 'int', required: false, html: { page: 0, column: 0 } },
+            { field: 'PayorIsCompany', type: 'checkbox', required: false, html: { page: 0, column: 0 } },
             { field: 'CompanyName', type: 'text', required: false, html: { page: 0, column: 0 } },
             { field: 'Address', type: 'text', required: false, html: { page: 0, column: 0 } },
         ],

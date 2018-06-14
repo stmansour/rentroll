@@ -59,7 +59,7 @@ type RAPeopleFlowData struct {
 	MiddleName   string
 	LastName     string
 	DateofBirth  rlib.JSONDate
-	IsCompany    int64
+	IsCompany    bool
 	SSN          string
 	DriverLicNo  string
 	CellPhone    string

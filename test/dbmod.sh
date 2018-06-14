@@ -376,6 +376,18 @@ DBNAME="rentroll"
 # June 7, 2018
 # ALTER TABLE Flow ADD UserRefNo VARCHAR(50) NOT NULL DEFAULT '' AFTER BID;
 
+# Jun 13, 2018
+# ALTER TABLE Transactant MODIFY IsCompany TINYINT(1) NOT NULL DEFAULT 0;
+
+# Jun 14, 2018
+# ALTER TABLE User MODIFY EligibleFutureUser TINYINT(1) NOT NULL DEFAULT 1;
+
+# Jun 14, 2018
+# ALTER TABLE Payor MODIFY EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1;
+
+# Jun 14, 2018
+# ALTER TABLE GLAccount MODIFY AllowPost TINYINT(1) NOT NULL DEFAULT 0;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

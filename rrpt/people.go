@@ -64,7 +64,7 @@ func RRreportPeopleTable(ctx context.Context, ri *ReporterInfo) gotable.Table {
 		tbl.Puts(-1, 2, p.Trn.MiddleName)
 		tbl.Puts(-1, 3, p.Trn.LastName)
 		tbl.Puts(-1, 4, p.Trn.CompanyName)
-		tbl.Puts(-1, 5, rlib.YesNoToString(int64(p.Trn.IsCompany)))
+		tbl.Puts(-1, 5, rlib.BoolToYesNoString(p.Trn.IsCompany))
 		tbl.Puts(-1, 6, p.Trn.CellPhone)
 		tbl.Puts(-1, 7, p.Trn.PrimaryEmail)
 	}

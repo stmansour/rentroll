@@ -46,7 +46,7 @@ type GLAccount struct {
 	Status      int64             // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Name        string            // descriptive name for the GLAccount
 	AcctType    string            // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
-	AllowPost   int64             // 0 = no posting, 1 = posting is allowed
+	AllowPost   bool              // 0 = no posting, 1 = posting is allowed
 	RARequired  int64             // 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
 	Description string            // description for this account
 	FLAGS       uint64            //
@@ -74,7 +74,7 @@ type AcctDetailsForm struct {
 	Status        int64
 	Name          string
 	AcctType      string
-	AllowPost     int64
+	AllowPost     bool
 	Description   string
 	FLAGS         uint64
 	OffsetAccount int // 0 = not offset-account, 1 = offset account
@@ -97,7 +97,7 @@ type AcctSaveForm struct {
 	BUD           rlib.XJSONBud
 	PLID          int64
 	Status        int64
-	AllowPost     int64
+	AllowPost     bool
 	FLAGS         uint64 //
 	OffsetAccount int    // the UI value for bit 0 of FLAGS
 }
@@ -150,20 +150,17 @@ var acctType = map[int64]string{
 	17: "Default Owner Equity",
 }
 
-// account allow posts
-var acctAllowPosts = map[int64]string{
-	0: "Summary Account only, do not allow posts to this ledger",
-	1: "Allow posts",
-}
+// // account allow posts
+// var acctAllowPosts = map[int64]string{
+// 	0: "Summary Account only, do not allow posts to this ledger",
+// 	1: "Allow posts",
+// }
 
 // getAccountThingJSList sending down list related with accounts info
 func getAccountThingJSList() map[string]map[int64]string {
 	accountStuff := make(map[string]map[int64]string)
-
-	accountStuff["allowPostList"] = acctAllowPosts
 	accountStuff["typeList"] = acctType
 	accountStuff["statusList"] = acctStatus
-
 	return accountStuff
 }
 

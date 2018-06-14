@@ -39,7 +39,7 @@ func LedgerBalanceReportTable(ctx context.Context, ri *ReporterInfo) gotable.Tab
 		tbl.AddRow()
 		tbl.Puts(-1, 0, acct.GLNumber)
 		tbl.Puts(-1, 1, acct.Name)
-		if acct.AllowPost != 0 {
+		if acct.AllowPost {
 			b, err := rlib.GetAccountBalance(ctx, bid, acct.LID, &ri.D2)
 			if err != nil {
 				rlib.LogAndPrintError(funcname, err)

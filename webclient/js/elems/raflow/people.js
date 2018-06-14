@@ -74,7 +74,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'LastName', type: 'text', required: false, html: {caption: "LastName"}},
                 {name: 'MiddleName', type: 'text', required: false, html: {caption: "MiddleName"}},
                 {name: 'Employer', type: 'text', required: false, html: {caption: "Employer"}},
-                {name: 'IsCompany', type: 'int', required: true, html: {caption: "IsCompany"}}
+                {name: 'IsCompany', type: 'checkbox', required: true, html: {caption: "IsCompany"}}
             ],
             actions: {
                 reset: function () {
@@ -127,7 +127,7 @@ window.loadRAPeopleForm = function () {
                     size: '100%',
                     style: 'text-align: left;',
                     render: function (record) {
-                        if (record.IsCompany > 0) {
+                        if (record.IsCompany) {
                             return record.Employer;
                         } else {
                             return getFullName(record);
@@ -250,7 +250,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'FirstName',                 type: 'text',       required: false },
                 {name: 'MiddleName',                type: 'text',       required: false },
                 {name: 'LastName',                  type: 'text',       required: false },
-                {name: 'IsCompany',                 type: 'int',        required: true },
+                {name: 'IsCompany',                 type: 'checkbox',   required: true  },
                 {name: 'DateofBirth',               type: 'date',       required: false },  // Date of births of applicants
                 {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
                 {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
@@ -444,7 +444,7 @@ window.loadRAPeopleForm = function () {
 // setRABGInfoFormHeader
 // It set RABGInfoForm header title
 window.setRABGInfoFormHeader = function (record) {
-    if (record.IsCompany > 0) {
+    if (record.IsCompany) {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.Employer;
     } else {
         w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
@@ -525,9 +525,7 @@ window.updateRABGInfoFormCheckboxes = function (record) {
     record.IsRenter = int_to_bool(record.IsRenter);
     record.IsOccupant = int_to_bool(record.IsOccupant);
     record.IsGuarantor = int_to_bool(record.IsGuarantor);
-
-    // record.IsCompany = int_to_bool(record.IsCompany);
-
+    record.IsCompany = int_to_bool(record.IsCompany);
     record.Evicted = int_to_bool(record.Evicted);
     record.Bankruptcy = int_to_bool(record.Bankruptcy);
     record.Convicted = int_to_bool(record.Convicted);
@@ -547,7 +545,7 @@ window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
         FirstName: "",
         MiddleName: "",
         LastName: "",
-        IsCompany: 0,
+        IsCompany: false,
         DateofBirth: "",
         SSN: "",
         DriverLicNo: "",

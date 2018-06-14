@@ -26,7 +26,7 @@ type LedgerGrid struct {
 	GLNumber  string
 	Name      string
 	Active    string
-	AllowPost string
+	AllowPost bool
 	Balance   float64
 	LMDate    string
 	LMAmount  float64
@@ -171,7 +171,6 @@ func searchLedgers(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	dt := time.Time(d.wsSearchReq.SearchDtStart)
 	i := int64(d.wsSearchReq.Offset)
 	state := "??"
-	posts := "yes"
 	active := "active"
 	for rows.Next() {
 		var acct rlib.GLAccount
@@ -199,9 +198,6 @@ func searchLedgers(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		if 1 == acct.Status {
 			active = "inactive"
 		}
-		if acct.AllowPost == 0 {
-			posts = "no"
-		}
 		j := int(lm.State)
 		if 0 <= j && j <= 3 {
 			state = LMStates[j]
@@ -212,7 +208,7 @@ func searchLedgers(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			GLNumber:  acct.GLNumber,
 			Name:      acct.Name,
 			Active:    active,
-			AllowPost: posts,
+			AllowPost: acct.AllowPost,
 			Balance:   bal,
 			LMDate:    lm.Dt.In(rlib.RRdb.Zone).Format("Jan _2, 2006 15:04:05 MST"),
 			LMAmount:  lm.Balance,

@@ -48,15 +48,15 @@ docsvtest "j5" "-r r5.csv -L 6,${BUD}" "Rentables"
 docsvtest "k5" "-C ra5.csv -L 9,${BUD}" "RentalAgreements"
 
 # now add Daniel Costea in current RA occupied by Rita with web service as Payor
-echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidRAPayorPicker%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22BID%22%3A1%2C%22TCID%22%3A4%2C%22RAID%22%3A1%2C%22FirstName%22%3A%22Daniel%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Costea%22%2C%22IsCompany%22%3A0%2C%22CompanyName%22%3A%22%22%2C%22DtStart%22%3A%226%2F15%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F2017%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidRAPayorPicker%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22BID%22%3A1%2C%22TCID%22%3A4%2C%22RAID%22%3A1%2C%22FirstName%22%3A%22Daniel%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Costea%22%2C%22IsCompany%22%3Afalse%2C%22CompanyName%22%3A%22%22%2C%22DtStart%22%3A%226%2F15%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F2017%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/rapayor/1/1" "request" "ws501" "WebService--AddPayor-DanielCostea-15Jun2016-01Jan2017"
 
 # now add Daniel Costea in current RA occupied by Rita with web service as User
-echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidRUserPicker%22%2C%22record%22%3A%7B%22recid%22%3A1%2C%22BID%22%3A1%2C%22TCID%22%3A4%2C%22RID%22%3A1%2C%22RentableName%22%3A%22309%201%2F2%20Rexford%22%2C%22FirstName%22%3A%22Daniel%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Costea%22%2C%22IsCompany%22%3A0%2C%22CompanyName%22%3A%22%22%2C%22DtStart%22%3A%226%2F15%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F2017%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidRUserPicker%22%2C%22record%22%3A%7B%22recid%22%3A1%2C%22BID%22%3A1%2C%22TCID%22%3A4%2C%22RID%22%3A1%2C%22RentableName%22%3A%22309%201%2F2%20Rexford%22%2C%22FirstName%22%3A%22Daniel%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Costea%22%2C%22IsCompany%22%3Afalse%2C%22CompanyName%22%3A%22%22%2C%22DtStart%22%3A%226%2F15%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F2017%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/ruser/1/1" "request" "ws502" "WebService--AddUser-DanielCostea-15Jun2016-01Jan2017"
 
 # now add Child1 Costea in current RA occupied by Rita with web service as User
-echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidRUserPicker%22%2C%22record%22%3A%7B%22recid%22%3A1%2C%22BID%22%3A1%2C%22TCID%22%3A5%2C%22RID%22%3A1%2C%22RentableName%22%3A%22309%201%2F2%20Rexford%22%2C%22FirstName%22%3A%22Child1%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Costea%22%2C%22IsCompany%22%3A0%2C%22CompanyName%22%3A%22%22%2C%22DtStart%22%3A%226%2F15%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F2017%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22formname%22%3A%22tcidRUserPicker%22%2C%22record%22%3A%7B%22recid%22%3A1%2C%22BID%22%3A1%2C%22TCID%22%3A5%2C%22RID%22%3A1%2C%22RentableName%22%3A%22309%201%2F2%20Rexford%22%2C%22FirstName%22%3A%22Child1%22%2C%22MiddleName%22%3A%22%22%2C%22LastName%22%3A%22Costea%22%2C%22IsCompany%22%3Afalse%2C%22CompanyName%22%3A%22%22%2C%22DtStart%22%3A%226%2F15%2F2016%22%2C%22DtStop%22%3A%221%2F1%2F2017%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/ruser/1/1" "request" "ws503" "WebService--AddUser-Child1Costea-15Jun2016-01Jan2017"
 
 # create Assessment from 1st Jan 2016 to 1st Jan 2017 with all instances, with contract Rent at 3500$
