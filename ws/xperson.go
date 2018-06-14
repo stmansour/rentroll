@@ -63,13 +63,13 @@ type RPerson struct {
 	EmergencyContactTelephone string
 	EmergencyEmail            string
 	AlternateAddress          string
-	EligibleFutureUser        rlib.XJSONYesNo
+	EligibleFutureUser        bool
 	Industry                  string
 	SourceSLSID               int64
 	CreditLimit               float64
 	TaxpayorID                string
 	AccountRep                int64
-	EligibleFuturePayor       rlib.XJSONYesNo
+	EligibleFuturePayor       bool
 	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
 	CreateTS                  rlib.JSONDateTime
@@ -139,8 +139,8 @@ type RPersonForm struct {
 type RPersonOther struct {
 	State               string
 	EmployerState       string
-	EligibleFutureUser  string
-	EligibleFuturePayor string
+	EligibleFutureUser  bool
+	EligibleFuturePayor bool
 }
 
 // GetTransactantResponse is the response data to requests to get a transactant
@@ -561,24 +561,11 @@ func saveXPerson(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		SvcErrorReturn(w, e, funcname)
 		return
 	}
-	var ok bool
 
 	xp.Trn.State = gxpo.State
-	xp.Usr.EligibleFutureUser, ok = rlib.YesNoMap[gxpo.EligibleFutureUser]
-	if !ok {
-		e := fmt.Errorf("Could not map EligibleFutureUser value: %s", gxpo.EligibleFutureUser)
-		rlib.Ulog("%s", e.Error())
-		SvcErrorReturn(w, e, funcname)
-		return
-	}
+	xp.Usr.EligibleFutureUser = gxpo.EligibleFutureUser
 	xp.Psp.EmployerState = gxpo.EmployerState
-	xp.Pay.EligibleFuturePayor, ok = rlib.YesNoMap[gxpo.EligibleFuturePayor]
-	if !ok {
-		e := fmt.Errorf("Could not map EligibleFuturePayor value: %s", gxpo.EligibleFuturePayor)
-		rlib.Ulog("%s", e.Error())
-		SvcErrorReturn(w, e, funcname)
-		return
-	}
+	xp.Pay.EligibleFuturePayor = gxpo.EligibleFuturePayor
 
 	//===============================================================
 	// save or update

@@ -752,7 +752,7 @@ type User struct {
 	EmergencyContactTelephone string
 	EmergencyEmail            string
 	AlternateAddress          string
-	EligibleFutureUser        int64
+	EligibleFutureUser        bool
 	Industry                  string
 	SourceSLSID               int64
 	LastModTime               time.Time
@@ -809,7 +809,7 @@ type Payor struct {
 	CreditLimit         float64
 	TaxpayorID          string
 	AccountRep          int64
-	EligibleFuturePayor int64
+	EligibleFuturePayor bool
 	LastModTime         time.Time
 	LastModBy           int64
 	CreateTS            time.Time // when was this record created

@@ -285,7 +285,7 @@ func CreatePeopleFromCSV(ctx context.Context, sa []string, lineno int) (int, err
 		case EligibleFutureUser:
 			if len(s) > 0 {
 				var err error
-				t.EligibleFutureUser, err = rlib.YesNoToInt(s)
+				t.EligibleFutureUser, err = rlib.YesNoToBool(s)
 				if err != nil {
 					return CsvErrorSensitivity, fmt.Errorf("%s: line %d - %s", funcname, lineno, err.Error())
 				}

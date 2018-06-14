@@ -34,13 +34,13 @@ window.getTransactantInitRecord = function (BID, BUD) {
         EmergencyContactTelephone: "",
         EmergencyEmail: "",
         AlternateAddress: "",
-        EligibleFutureUser: "yes",
+        EligibleFutureUser: true,
         Industry: "",
         SourceSLSID: 0,
         CreditLimit: 0.00,
         TaxpayorID: "",
         AccountRep: 0,
-        EligibleFuturePayor: "yes",
+        EligibleFuturePayor: true,
         EmployerName: "",
         EmployerStreetAddress: "",
         EmployerCity: "",
@@ -193,7 +193,7 @@ $().w2grid({
             { field: 'BUD', type: 'list', options: {items: app.businesses}, required: false, html: { page: 0, column: 0 } },
             { field: 'NLID', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: 'CompanyName', type: 'text', required: false, html: { page: 0, column: 0 } },
-            { field: 'IsCompany', type: 'checkbox', options: { required: true, html: { page: 0, column: 0 } } },
+            { field: 'IsCompany', type: 'checkbox', required: true, html: { page: 0, column: 0 } },
             { field: 'SecondaryEmail', type: 'email', required: false, html: { page: 0, column: 0 } },
             { field: 'WorkPhone', type: 'phone', required: false, html: { page: 0, column: 0 } },
             { field: 'CellPhone', type: 'phone', required: false, html: { page: 0, column: 0 } },
@@ -215,13 +215,13 @@ $().w2grid({
             { field: 'EmergencyContactTelephone', type: 'text', required: false, html: { page: 1, column: 0 } },
             { field: 'EmergencyEmail', type: 'text', required: false, html: { page: 1, column: 0 } },
             { field: 'AlternateAddress', type: 'text', required: false, html: { page: 1, column: 0 } },
-            { field: 'EligibleFutureUser', type: 'list', options: {items: app.yesNoList}, required: false, html: { page: 1, column: 0 } },
+            { field: 'EligibleFutureUser', type: 'checkbox', required: false, html: { page: 1, column: 0 } },
             { field: 'Industry', type: 'text', required: false, html: { page: 1, column: 0 } },
             { field: 'SourceSLSID', type: 'w2int', required: false, html: { page: 1, column: 0 } },
             { field: 'CreditLimit', type: 'money', required: false, html: {page: 2, column: 0 } },
             { field: 'TaxpayorID', type: 'text', required: false, html: {page: 2, column: 0 } },
             { field: 'AccountRep', type: 'text', required: false, html: {page: 2, column: 0 } },
-            { field: 'EligibleFuturePayor', type: 'list', options: {items: app.yesNoList}, required: false, html: {page: 2, column: 0 } },
+            { field: 'EligibleFuturePayor', type: 'checkbox', required: false, html: {page: 2, column: 0 } },
             { field: 'EmployerName', type: 'text', required: false, html: {page: 3, column: 0 } },
             { field: 'EmployerStreetAddress', type: 'text', required: false, html: {page: 3, column: 0 } },
             { field: 'EmployerCity', type: 'text', required: false, html: {page: 3, column: 0 } },
@@ -406,6 +406,8 @@ $().w2grid({
             // server request form data
             getFormSubmitData(data.postData.record);
             data.postData.record.IsCompany = int_to_bool(data.postData.record.IsCompany);
+            data.postData.record.EligibleFutureUser = int_to_bool(data.postData.record.EligibleFutureUser);
+            data.postData.record.EligibleFuturePayor = int_to_bool(data.postData.record.EligibleFuturePayor);
         },
     });
 

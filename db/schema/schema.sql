@@ -920,7 +920,7 @@ CREATE TABLE Payor (
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AccountRep BIGINT NOT NULL DEFAULT 0,                   -- Accord (renting company) Phonebook UID of account rep
-    EligibleFuturePayor SMALLINT NOT NULL DEFAULT 1,        -- yes/no
+    EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,        -- yes/no
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- when was this record created
