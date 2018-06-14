@@ -80,18 +80,18 @@ doValidateFile "a12" "WebService--Ledger_Activity_Report"
 
 # Force an error on Account Update. Try to make an account (Accounts Receivable - 11000) a summary
 # account when it is called out by an AccountRule...
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22LID%22%3A5%2C%22PLID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2211000%22%2C%22Status%22%3A2%2C%22Type%22%3A0%2C%22Name%22%3A%22Accounts%2BReceivable%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3A0%2C%22Description%22%3A%22update%2Bby%2Bfunctional%2Btest%22%2C%22LastModTime%22%3A%222017-07-19T15%3A58%3A00Z%22%2C%22LastModBy%22%3A0%2C%22recid%22%3A%22%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22LID%22%3A5%2C%22PLID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2211000%22%2C%22Status%22%3A2%2C%22Type%22%3A0%2C%22Name%22%3A%22Accounts%2BReceivable%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3Afalse%2C%22Description%22%3A%22update%2Bby%2Bfunctional%2Btest%22%2C%22LastModTime%22%3A%222017-07-19T15%3A58%3A00Z%22%2C%22LastModBy%22%3A0%2C%22recid%22%3A%22%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a13"  "WebService--ERROR-Set_Incorrect_AllowPost"
 
-# Read it back and make sure that AllowPosts is 1
+# Read it back and make sure that AllowPosts is true
 echo "%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a14"  "WebService--ERROR-VRFY-1"
 
-# Force an error on Account Update. Try to make a summary account (Cash - 10000) AllowPosts = 1
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22LID%22%3A1%2C%22PLID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210000%22%2C%22Status%22%3A2%2C%22Type%22%3A0%2C%22Name%22%3A%22Cash%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3A1%2C%22Description%22%3A%22%22%2C%22LastModTime%22%3A%222017-07-04T17%3A41%3A00Z%22%2C%22LastModBy%22%3A0%2C%22CreateTS%22%3A%222017-07-04T17%3A41%3A00Z%22%2C%22CreateBy%22%3A0%2C%22recid%22%3A%22%22%7D%7D" > request
+# Force an error on Account Update. Try to make a summary account (Cash - 10000) AllowPosts = true
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22LID%22%3A1%2C%22PLID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210000%22%2C%22Status%22%3A2%2C%22Type%22%3A0%2C%22Name%22%3A%22Cash%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3Atrue%2C%22Description%22%3A%22%22%2C%22LastModTime%22%3A%222017-07-04T17%3A41%3A00Z%22%2C%22LastModBy%22%3A0%2C%22CreateTS%22%3A%222017-07-04T17%3A41%3A00Z%22%2C%22CreateBy%22%3A0%2C%22recid%22%3A%22%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/1/1" "request" "a15"  "WebService--ERROR-Set_Incorrect_AllowPost2"
 
-# Read it back and make sure that AllowPosts is 0
+# Read it back and make sure that AllowPosts is false
 echo "%7B%22cmd%22%3A%22get%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/1/1" "request" "a16"  "WebService--ERROR-VRFY-2"
 
@@ -118,18 +118,18 @@ dojsonPOST "http://localhost:8270/v1/account/1/5" "request" "a18"  "WebService--
 #  Expected Results:
 #	1.	There should be no error in adding the account to either business.
 #       Even though the account is named "Lockbox" in both cases, it is not
-#       a problem because they are in different businesses.  
+#       a problem because they are in different businesses.
 #------------------------------------------------------------------------------
 
 # Add Lockbox account to business 1 (REX)
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A9%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB+92844+Lockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3A1%2C%22FLAGS%22%3A0%2C%22OffsetAccount%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A9%2C%22BID%22%3A1%2C%22BUD%22%3A%22REX%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB%2B92844%2BLockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3Atrue%2C%22FLAGS%22%3A0%2C%22OffsetAccount%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/1/0" "request" "a19"  "WebService--Add-LockboxAcct-toREX"
 
 #--------------------------------------------------------------------------------------------
 # Add Lockbox account to business 2 (PAC) with same account name and same account number
 # This should be allowed because it is going to a different business
 #--------------------------------------------------------------------------------------------
-echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A0%2C%22BID%22%3A2%2C%22BUD%22%3A%22PAC%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB+92844+Lockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3A1%2C%22FLAGS%22%3A0%2C%22OffsetAccount%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22accountForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22LID%22%3A0%2C%22PLID%22%3A0%2C%22BID%22%3A2%2C%22BUD%22%3A%22PAC%22%2C%22RAID%22%3A0%2C%22TCID%22%3A0%2C%22GLNumber%22%3A%2210102%22%2C%22Status%22%3A2%2C%22Name%22%3A%22FRB%2B92844%2BLockbox%22%2C%22AcctType%22%3A%22Cash%22%2C%22AllowPost%22%3Atrue%2C%22FLAGS%22%3A0%2C%22OffsetAccount%22%3A0%2C%22Description%22%3A%22%22%7D%7D" > request
 dojsonPOST "http://localhost:8270/v1/account/2/0" "request" "a20"  "WebService--Add-LockboxAcct-toPAC"
 
 #--------------------------------------------------------------------------------------------

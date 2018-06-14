@@ -21,7 +21,7 @@ window.getAccountInitRecord = function (BID, BUD, previousFormRecord){
         Status: 2, // Default Status state is Active.
         Name: '',
         AcctType: '',
-        AllowPost: 1,
+        AllowPost: true,
         FLAGS: 0,
         OffsetAccount: 0,
         Description: '',
@@ -232,7 +232,7 @@ window.buildAccountElements = function() {
             // { field: "Type", required: true, type: 'list', options: { items: app.account_stuff.typeList, selected: {}, maxDropHeight: 350 }, html: { caption: "Type", page: 0, column: 0 } },
             { field: "Name", required: true, type: 'text', html: { caption: "Name", page: 0, column: 0 } },
             { field: "AcctType", required: true, type: 'list', options: { items: app.qbAcctType, selected: {}, maxDropHeight: 350 }, html: { caption: "Account Type", page: 0, column: 0 } },
-//            { field: "AllowPost", required: true, type: 'list', options: { items: app.account_stuff.allowPostList, selected: {}, maxDropHeight: 350 }, html: { caption: "AllowPost", page: 0, column: 0 } },
+//            { field: "AllowPost", required: true, type: 'checkbox', html: { caption: "AllowPost", page: 0, column: 0 } },
             { field: 'FLAGS', type: 'int', required: false, html: { page: 0, column: 0 } },
             { field: "Description", required: false, type: 'text', html: { caption: "Description", page: 0, column: 0 } },
             { field: "LastModTime", required: false, type: 'time', html: { caption: "LastModTime", page: 0, column: 0 } },
@@ -373,7 +373,6 @@ window.buildAccountElements = function() {
                     PLIDSel = {},
                     acctTypeSel = {};
                     // typeSel = {},
-                    // allowPostSel = {};
 
                 // PLID selected
                 app.parent_accounts[BUD].forEach(function(item) {
@@ -403,14 +402,6 @@ window.buildAccountElements = function() {
                 //     }
                 // });
 
-                // AllowPost selected
-                // app.account_stuff.allowPostList.forEach(function(item) {
-                //     if (r.AllowPost == item.id) {
-                //         $.extend(allowPostSel, item);
-                //     }
-                // });
-
-
                 // $("#accountForm").find('input[name=PLID]').data("selected", PLIDSel).change();
                 // Reference: http://jsfiddle.net/vtoah4t5/7/
                 // $("#accountForm").find('input[name=PLID]').w2field('list',{
@@ -418,7 +409,6 @@ window.buildAccountElements = function() {
                 //     selected: PLIDSel,
                 // }).data("selected", PLIDSel).change();
 
-                // f.get("AllowPost").options.selected = allowPostSel; // items are pre-defined, just give the value
                 // f.get("Type").options.selected = typeSel;
                 f.get("PLID").options.selected = PLIDSel;
                 f.get("AcctType").options.selected = acctTypeSel;

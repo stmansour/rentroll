@@ -1396,7 +1396,7 @@ type GLAccount struct {
 	Status      int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Name        string    // descriptive name for the GLAccount
 	AcctType    string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
-	AllowPost   int64     // 0 = no posting, 1 = posting is allowed
+	AllowPost   bool      // 0 = no posting, 1 = posting is allowed
 	FLAGS       uint64    //
 	Description string    // description for this account
 	LastModTime time.Time // auto updated

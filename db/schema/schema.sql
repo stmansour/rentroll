@@ -1354,7 +1354,7 @@ CREATE TABLE GLAccount (
     AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,
                                                               --    Cost of Goods Sold, Other Income, Other Expense
-    AllowPost SMALLINT NOT NULL DEFAULT 0,                    -- 0 - do not allow posts to this ledger. 1 = allow posts
+    AllowPost TINYINT(1) NOT NULL DEFAULT 0,                  -- 0 - do not allow posts to this ledger. 1 = allow posts
     -- RARequired SMALLINT NOT NULL DEFAULT 0,                -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
     FLAGS BIGINT NOT NULL DEFAULT 0,                          --
     Description VARCHAR(1024) NOT NULL DEFAULT '',            -- describe the assessment

@@ -629,7 +629,7 @@ CREATE TABLE `GLAccount` (
   `Status` smallint(6) NOT NULL DEFAULT '0',
   `Name` varchar(100) NOT NULL DEFAULT '',
   `AcctType` varchar(100) NOT NULL DEFAULT '',
-  `AllowPost` smallint(6) NOT NULL DEFAULT '0',
+  `AllowPost` tinyint(1) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `Description` varchar(1024) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -2505,4 +2505,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-14 14:34:46
+-- Dump completed on 2018-06-14 17:08:32

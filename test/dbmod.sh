@@ -385,6 +385,9 @@ DBNAME="rentroll"
 # Jun 14, 2018
 # ALTER TABLE Payor MODIFY EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 0;
 
+# Jun 14, 2018
+# ALTER TABLE GLAccount MODIFY AllowPost TINYINT(1) NOT NULL DEFAULT 0;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

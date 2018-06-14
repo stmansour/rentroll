@@ -186,7 +186,7 @@ func SaveGLAccount(ctx context.Context, l *rlib.GLAccount) []BizError {
 	// possible that any other account has listed it as a parent.
 	//-------------------------------------------------------------------------
 	if l.LID > 0 { //  is this an existing ledger?
-		if l.AllowPost == 1 { // if so, is it allowing posts?
+		if l.AllowPost { // if so, is it allowing posts?
 			//-------------------------------------------------------
 			// Posts are allowed as long as no account refers to this
 			// account as its parent. Make sure that's the case.
@@ -203,7 +203,7 @@ func SaveGLAccount(ctx context.Context, l *rlib.GLAccount) []BizError {
 				return errlist
 			}
 		}
-		if l.AllowPost == 0 { // is this a summary account
+		if !l.AllowPost { // is this a summary account
 			//-------------------------------------------------------
 			// AllowPost can be 0 unless there is already an Account
 			// Rule that uses it for debit or credit.  Make sure no
@@ -229,9 +229,9 @@ func SaveGLAccount(ctx context.Context, l *rlib.GLAccount) []BizError {
 	// account is not a Parent to any other account then it is OK to
 	// allow posts and we should set the value to 1.
 	//---------------------------------------------------------------
-	if l.AllowPost == 0 {
+	if !l.AllowPost {
 		if l.LID == 0 { // is this a new account?
-			l.AllowPost = 1 // if so, then we can allow posts until we find relationships that don't allow it
+			l.AllowPost = true // if so, then we can allow posts until we find relationships that don't allow it
 		} else {
 			found := false // assume this is not a parent to any account
 			for _, v := range accts {
@@ -241,7 +241,7 @@ func SaveGLAccount(ctx context.Context, l *rlib.GLAccount) []BizError {
 				}
 			}
 			if !found { // is l.PID free of all Parent-child relationships?
-				l.AllowPost = 1 // if so, then we can allow posts
+				l.AllowPost = true // if so, then we can allow posts
 			}
 		}
 	}
