@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22
+-- Server version	5.7.22-0ubuntu0.16.04.1-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -634,7 +634,7 @@ CREATE TABLE `GLAccount` (
   `Status` smallint(6) NOT NULL DEFAULT '0',
   `Name` varchar(100) NOT NULL DEFAULT '',
   `AcctType` varchar(100) NOT NULL DEFAULT '',
-  `AllowPost` smallint(6) NOT NULL DEFAULT '0',
+  `AllowPost` tinyint(1) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `Description` varchar(1024) NOT NULL DEFAULT '',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1243,7 +1243,7 @@ CREATE TABLE `Payor` (
   `TaxpayorID` varchar(25) NOT NULL DEFAULT '',
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `AccountRep` bigint(20) NOT NULL DEFAULT '0',
-  `EligibleFuturePayor` smallint(6) NOT NULL DEFAULT '1',
+  `EligibleFuturePayor` tinyint(1) NOT NULL DEFAULT '1',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2403,7 +2403,7 @@ CREATE TABLE `Transactant` (
   `LastName` varchar(100) NOT NULL DEFAULT '',
   `PreferredName` varchar(100) NOT NULL DEFAULT '',
   `CompanyName` varchar(100) NOT NULL DEFAULT '',
-  `IsCompany` smallint(6) NOT NULL DEFAULT '0',
+  `IsCompany` tinyint(1) NOT NULL DEFAULT '0',
   `PrimaryEmail` varchar(100) NOT NULL DEFAULT '',
   `SecondaryEmail` varchar(100) NOT NULL DEFAULT '',
   `WorkPhone` varchar(100) NOT NULL DEFAULT '',
@@ -2450,7 +2450,7 @@ CREATE TABLE `User` (
   `EmergencyContactTelephone` varchar(100) NOT NULL DEFAULT '',
   `EmergencyEmail` varchar(100) NOT NULL DEFAULT '',
   `AlternateAddress` varchar(100) NOT NULL DEFAULT '',
-  `EligibleFutureUser` smallint(6) NOT NULL DEFAULT '1',
+  `EligibleFutureUser` tinyint(1) NOT NULL DEFAULT '1',
   `Industry` varchar(100) NOT NULL DEFAULT '',
   `SourceSLSID` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -2518,4 +2518,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-07 21:03:07
+-- Dump completed on 2018-06-14 18:10:24

@@ -424,7 +424,7 @@ func (t *RentalAgreement) GetTheRentableName(ctx context.Context, d1, d2 *time.T
 // is a person or the CompanyName if it is a company
 //-----------------------------------------------------------------------------
 func (t *Transactant) GetTransactantLastName() string {
-	if t.IsCompany > 0 {
+	if t.IsCompany {
 		return t.CompanyName
 	}
 	return t.LastName
@@ -433,7 +433,7 @@ func (t *Transactant) GetTransactantLastName() string {
 // GetPayorName returns an array of strings that contains the last names
 // of every Payor responsible for this Rental Agreement during the timespan d1,d2.
 func (t *Transactant) GetPayorName() string {
-	if t.IsCompany > 0 {
+	if t.IsCompany {
 		return t.CompanyName
 	}
 	return t.FirstName + " " + t.LastName
@@ -443,7 +443,7 @@ func (t *Transactant) GetPayorName() string {
 // person or the CompanyName if it is a company
 //-----------------------------------------------------------------------------
 func (t *Transactant) GetFullTransactantName() string {
-	if t.IsCompany > 0 {
+	if t.IsCompany {
 		return t.CompanyName
 	}
 	s := t.FirstName
@@ -480,7 +480,7 @@ func (t *Transactant) IDtoShortString() string {
 // GetUserName returns a string with the user's first, middle, and last name
 //-----------------------------------------------------------------------------
 func (t *Transactant) GetUserName() string {
-	if t.IsCompany > 0 {
+	if t.IsCompany {
 		return t.CompanyName
 	}
 	s := t.FirstName + " "

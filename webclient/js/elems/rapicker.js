@@ -50,12 +50,12 @@ window.buildRAPicker = function (){
                 },
             },
             // INDEX 2
-            { field: 'RentableName', type: 'list', required: true, options: { items: [] } },
-            { field: 'RAID',         type: 'int',  required: true  },
-            { field: 'FirstName',    type: 'text', required: false },
-            { field: 'LastName',     type: 'text', required: false },
-            { field: 'CompanyName',  type: 'text', required: false },
-            { field: 'IsCompany',    type: 'int',  required: false },
+            { field: 'RentableName', type: 'list',      required: true, options: { items: [] } },
+            { field: 'RAID',         type: 'int',       required: true  },
+            { field: 'FirstName',    type: 'text',      required: false },
+            { field: 'LastName',     type: 'text',      required: false },
+            { field: 'CompanyName',  type: 'text',      required: false },
+            { field: 'IsCompany',    type: 'checkbox',  required: false },
         ],
         onRefresh: function(/*event*/) {
             w2ui.rentalAgrPicker.fields[1].options.url = '/v1/rentalagrtd/' + app.RentalAgrPicker.BID;
@@ -89,7 +89,7 @@ window.popupRentalAgrPicker = function (s) {
     w2ui.rentalAgrPicker.record.TCID = -1;
     w2ui.rentalAgrPicker.record.RAID = -1;
     w2ui.rentalAgrPicker.record.PayorName = '';
-    w2ui.rentalAgrPicker.record.IsCompany = -1;
+    w2ui.rentalAgrPicker.record.IsCompany = false;
     w2ui.rentalAgrPicker.record.CompanyName = '';
     w2ui.rentalAgrPicker.record.FirstName = '';
     w2ui.rentalAgrPicker.record.LastName = '';
@@ -169,7 +169,7 @@ window.rentalAgrPickerDropRender = function (item) {
 //-----------------------------------------------------------------------------
 window.rentalAgrPickerRender = function (item) {
     var s;
-    if (item.IsCompany > 0) {
+    if (item.IsCompany) {
         s = item.CompanyName;
     } else {
         s = item.FirstName + ' ' + item.LastName;

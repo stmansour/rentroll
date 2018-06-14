@@ -691,7 +691,7 @@ type Transactant struct {
 	LastName       string
 	PreferredName  string
 	CompanyName    string // sometimes the entity will be a company
-	IsCompany      int64  // 1 => the entity is a company, 0 = not a company
+	IsCompany      bool   // 1 => the entity is a company, 0 = not a company
 	PrimaryEmail   string
 	SecondaryEmail string
 	WorkPhone      string
@@ -750,7 +750,7 @@ type User struct {
 	EmergencyContactTelephone string
 	EmergencyEmail            string
 	AlternateAddress          string
-	EligibleFutureUser        int64
+	EligibleFutureUser        bool
 	Industry                  string
 	SourceSLSID               int64
 	LastModTime               time.Time
@@ -767,7 +767,7 @@ type TransactantTypeDown struct {
 	MiddleName  string
 	LastName    string
 	CompanyName string
-	IsCompany   int64
+	IsCompany   bool
 	Recid       int64 `json:"recid"`
 }
 
@@ -807,7 +807,7 @@ type Payor struct {
 	CreditLimit         float64
 	TaxpayorID          string
 	AccountRep          int64
-	EligibleFuturePayor int64
+	EligibleFuturePayor bool
 	LastModTime         time.Time
 	LastModBy           int64
 	CreateTS            time.Time // when was this record created
@@ -1394,7 +1394,7 @@ type GLAccount struct {
 	Status      int64     // Whether a GL Account is currently unknown=0, inactive=1, active=2
 	Name        string    // descriptive name for the GLAccount
 	AcctType    string    // QB Acct Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable, Other Current Asset, Other Asset, Accounts Payable, Other Current Liability, Cost of Goods Sold, Other Income, Other Expense
-	AllowPost   int64     // 0 = no posting, 1 = posting is allowed
+	AllowPost   bool      // 0 = no posting, 1 = posting is allowed
 	FLAGS       uint64    //
 	Description string    // description for this account
 	LastModTime time.Time // auto updated

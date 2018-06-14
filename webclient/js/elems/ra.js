@@ -806,7 +806,7 @@ window.popupTcidRAPayorPicker = function (sTitle,bid) {
     w2ui.tcidRAPayorPicker.record.DtStop = w2uiDateControlString(ny);
     w2ui.tcidRAPayorPicker.record.TCID = -1;
     w2ui.tcidRAPayorPicker.record.pickedName = '';
-    w2ui.tcidRAPayorPicker.record.IsCompany = -1;
+    w2ui.tcidRAPayorPicker.record.IsCompany = false;
     w2ui.tcidRAPayorPicker.record.CompanyName = '';
     w2ui.tcidRAPayorPicker.refresh();
     var raid = w2ui.rentalagrForm.record.RAID;
@@ -879,7 +879,7 @@ window.popupTcidRUserPicker = function (sTitle,bid,raid) {
     w2ui.tcidRUserPicker.record.DtStop = w2uiDateControlString(ny);
     w2ui.tcidRUserPicker.record.TCID = -1;
     w2ui.tcidRUserPicker.record.pickedName = '';
-    w2ui.tcidRUserPicker.record.IsCompany = -1;
+    w2ui.tcidRUserPicker.record.IsCompany = false;
     w2ui.tcidRUserPicker.record.CompanyName = '';
     w2ui.tcidRUserPicker.refresh();
 
@@ -931,7 +931,7 @@ window.saveNewRAPayor = function () {
         FirstName: w2ui.tcidRAPayorPicker.record.FirstName, // ignored
         MiddleName: "",                                     // ignored
         LastName: w2ui.tcidRAPayorPicker.record.LastName,   // ignored
-        IsCompany: w2ui.tcidRAPayorPicker.record.IsCompany,
+        IsCompany: int_to_bool(w2ui.tcidRAPayorPicker.record.IsCompany),
         CompanyName: w2ui.tcidRAPayorPicker.record.CompanyName,   // ignored
         DtStart: w2ui.tcidRAPayorPicker.record.DtStart, // start
         DtStop: w2ui.tcidRAPayorPicker.record.DtStop,                  // end
@@ -985,7 +985,7 @@ window.buildRAPayorPicker = function (){
             { field: 'FirstName', type: 'text', required: false },
             { field: 'LastName', type: 'text', required: false },
             { field: 'CompanyName', type: 'text', required: false },
-            { field: 'IsCompany', type: 'int', required: false },
+            { field: 'IsCompany', type: 'checkbox', required: false },
         ],
         onRefresh: function(/*event*/) {
             w2ui.tcidRAPayorPicker.fields[1].options.url = '/v1/transactantstd/' + app.TcidRAPayorPicker.BID;
@@ -1040,7 +1040,7 @@ window.buildRUserPicker = function (){
             { field: 'FirstName', type: 'text', required: false },
             { field: 'LastName', type: 'text', required: false },
             { field: 'CompanyName', type: 'text', required: false },
-            { field: 'IsCompany', type: 'int', required: false },
+            { field: 'IsCompany', type: 'checkbox', required: false },
         ],
         onRefresh: function(event) {
             event.onComplete = function() {

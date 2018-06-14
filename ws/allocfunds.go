@@ -165,7 +165,7 @@ func getUnallocFundPayors(w http.ResponseWriter, r *http.Request, d *ServiceData
 		q.Recid = i
 		q.TCID = t.TCID
 		q.BID = t.BID
-		if t.IsCompany != 0 {
+		if t.IsCompany {
 			q.Name = t.CompanyName
 		} else {
 			q.Name = t.FirstName + " " + t.LastName
