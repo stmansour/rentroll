@@ -267,15 +267,17 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 		//-------------------------------------
 		// PROSPECT...
 		//-------------------------------------
+		ec := rlib.Stripchars(GenerateRandomCity(), ".@ ")
+		cmp := rlib.Stripchars(t.CompanyName, ".@ ")
 		var pr = rlib.Prospect{
 			TCID:                   t.TCID,
 			BID:                    t.BID,
 			EmployerName:           t.CompanyName,
 			EmployerStreetAddress:  GenerateRandomAddress(),
-			EmployerCity:           GenerateRandomCity(),
+			EmployerCity:           ec,
 			EmployerState:          GenerateRandomState(),
 			EmployerPostalCode:     fmt.Sprintf("%05d", rand.Intn(100000)),
-			EmployerEmail:          GenerateRandomEmail(t.CompanyName, "abcdef"),
+			EmployerEmail:          GenerateRandomEmail(ec, cmp),
 			EmployerPhone:          GenerateRandomPhoneNumber(),
 			Occupation:             "",
 			ApplicationFee:         0,
@@ -294,7 +296,6 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 		if err != nil {
 			return err
 		}
-
 
 		//-----------------------------------------
 		// create vehicles.
