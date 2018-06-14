@@ -127,7 +127,7 @@ export function gridCellsTest(recordsAPIResponse, w2uiGridColumns, win, testConf
                         valueForCell = appSettings.ARTypes[valueForCell];
                         break;
                     case "Status":
-                        types = appSettings.GLAccountStatuses;
+                        types = appSettings.account_stuff.statusList;
                         type = types.find(types => types.id === valueForCell);
                         valueForCell = type.text;
                         break;
@@ -319,7 +319,7 @@ export function detailFormTest(recordDetailFromAPIResponse, testConfig) {
                         break;
                     case  "Status":
                         // Chart of accounts
-                        types = appSettings.GLAccountStatuses;
+                        types = appSettings.account_stuff.statusList;
                         type = types.find(types => types.id === fieldValue);
                         fieldValue = type.text;
                         break;
