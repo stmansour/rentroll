@@ -204,6 +204,9 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			t.CellPhone = GenerateRandomPhoneNumber()
 		}
 
+		//-------------------------------------
+		// TRANSACTION...
+		//-------------------------------------
 		t.Address = GenerateRandomAddress()
 		t.City = GenerateRandomCity()
 		t.State = GenerateRandomState()
@@ -215,6 +218,81 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 		t.WorkPhone = GenerateRandomPhoneNumber()
 
 		_, err := rlib.InsertTransactant(ctx, &t)
+		if err != nil {
+			return err
+		}
+
+		//-------------------------------------
+		// USER...
+		//-------------------------------------
+		now := time.Now()
+		ecfirst := GenerateRandomFirstName()
+		eclast := GenerateRandomLastName()
+		var u = rlib.User{
+			TCID: t.TCID,
+			BID:  t.BID,
+			// Points:                  int64(IG.Rand.Intn(5000)),
+			DateofBirth:               now.AddDate(-20-IG.Rand.Intn(45), 0, -IG.Rand.Intn(365)),
+			EmergencyContactName:      ecfirst + " " + eclast,
+			EmergencyContactAddress:   GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
+			EmergencyContactTelephone: GenerateRandomPhoneNumber(),
+			EmergencyEmail:            GenerateRandomEmail(eclast, ecfirst),
+			AlternateAddress:          GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
+			EligibleFutureUser:        int64(IG.Rand.Intn(2)),
+			// Industry:
+			// SourceSLSID:
+		}
+
+		_, err = rlib.InsertUser(ctx, &u)
+		if err != nil {
+			return err
+		}
+
+		//-------------------------------------
+		// PAYOR...
+		//-------------------------------------
+		var p = rlib.Payor{
+			TCID:                t.TCID,
+			BID:                 t.BID,
+			CreditLimit:         float64(IG.Rand.Intn(30000)),
+			TaxpayorID:          fmt.Sprintf("%08d", IG.Rand.Intn(10000000)),
+			AccountRep:          int64(IG.Rand.Intn(250)),
+			EligibleFuturePayor: 1,
+		}
+		_, err = rlib.InsertPayor(ctx, &p)
+		if err != nil {
+			return err
+		}
+
+		//-------------------------------------
+		// PROSPECT...
+		//-------------------------------------
+		ec := rlib.Stripchars(GenerateRandomCity(), ".@ ")
+		cmp := rlib.Stripchars(t.CompanyName, ".@ ")
+		var pr = rlib.Prospect{
+			TCID:                   t.TCID,
+			BID:                    t.BID,
+			EmployerName:           t.CompanyName,
+			EmployerStreetAddress:  GenerateRandomAddress(),
+			EmployerCity:           ec,
+			EmployerState:          GenerateRandomState(),
+			EmployerPostalCode:     fmt.Sprintf("%05d", rand.Intn(100000)),
+			EmployerEmail:          GenerateRandomEmail(ec, cmp),
+			EmployerPhone:          GenerateRandomPhoneNumber(),
+			Occupation:             "",
+			ApplicationFee:         0,
+			DesiredUsageStartDate:  now,
+			RentableTypePreference: 0,
+			FLAGS:              0,
+			Approver:           int64(IG.Rand.Intn(280)),
+			DeclineReasonSLSID: 0,
+			OtherPreferences:   "",
+			FollowUpDate:       now.AddDate(0, 0, 2),
+			CSAgent:            int64(IG.Rand.Intn(280)),
+			OutcomeSLSID:       0,
+			FloatingDeposit:    0,
+		}
+		_, err = rlib.InsertProspect(ctx, &pr)
 		if err != nil {
 			return err
 		}

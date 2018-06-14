@@ -58,7 +58,7 @@ type RAPeopleFlowData struct {
 	FirstName    string
 	MiddleName   string
 	LastName     string
-	DateofBirth  string
+	DateofBirth  rlib.JSONDate
 	IsCompany    int64
 	SSN          string
 	DriverLicNo  string

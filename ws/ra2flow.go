@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -284,21 +285,12 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
-
-	//---------------------------------------
-	// sample code to get this working...
-	//---------------------------------------
-	var p rlib.Transactant
-	err := rlib.GetTransactant(r.Context(), 1, &p)
-	if err != nil {
-		SvcErrorReturn(w, err, funcname)
-		return
-	}
-	var rap RAPeopleFlowData
-	rlib.MigrateStructVals(&p, &rap)
 	currentDateTime := time.Now()
 	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
 
+	//-------------------------------------------------------------
+	// This is the datastructure we need to fill out and save...
+	//-------------------------------------------------------------
 	var raf = RAFlowJSONData{
 		Dates: RADatesFlowData{
 			BID:             d.BID,
@@ -309,7 +301,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 			PossessionStart: rlib.JSONDate(currentDateTime),
 			PossessionStop:  rlib.JSONDate(nextYearDateTime),
 		},
-		People:      []RAPeopleFlowData{rap},
+		People:      []RAPeopleFlowData{},
 		Pets:        []RAPetsFlowData{},
 		Vehicles:    []RAVehiclesFlowData{},
 		Rentables:   []RARentablesFlowData{},
@@ -322,6 +314,60 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		Meta: RAFlowMetaInfo{RAID: d.ID},
 	}
 
+	if d.ID < 1 {
+		SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
+		return
+	}
+	ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
+
+	//-------------------------------------------------------------------------
+	//  TBD: check to see if a flow already exists for this RAID. If so, just
+	//  use it.
+	//-------------------------------------------------------------------------
+
+	//-------------------------------------------------------------------------
+	// Fill out the datastructure and save it to the db as a flow...
+	//-------------------------------------------------------------------------
+
+	//-------------------------------------------------------------------------
+	// Add Payors...
+	//-------------------------------------------------------------------------
+	m, err := rlib.GetRentalAgreementPayorsInRange(r.Context(), ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	for i := 0; i < len(m); i++ {
+		if err = addRAPtoFlow(r.Context(), m[i].TCID, &raf, false, true, false); err != nil {
+			SvcErrorReturn(w, err, funcname)
+			return
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	// Add Users...
+	//-------------------------------------------------------------------------
+	n, err := rlib.GetAllRentalAgreementRentables(r.Context(), ra.RAID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+		return
+	}
+	for j := 0; j < len(n); j++ {
+		rulist, err := rlib.GetRentableUsersInRange(r.Context(), n[j].RID, &ra.AgreementStart, &ra.AgreementStop)
+		if err != nil {
+			SvcErrorReturn(w, err, funcname)
+		}
+		for k := 0; k < len(rulist); k++ {
+			addRAPtoFlow(r.Context(), rulist[k].TCID, &raf, true, false, true)
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	// Save the flow to the db
+	//-------------------------------------------------------------------------
 	raflowJSONData, err := json.Marshal(&raf)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
@@ -329,7 +375,6 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	// initial Flow struct
-	rlib.Console("New Flow\n")
 	a := rlib.Flow{
 		BID:       d.BID,
 		FlowID:    0, // it's new flowID,
@@ -339,8 +384,6 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		CreateBy:  d.sess.UID,
 		LastModBy: d.sess.UID,
 	}
-
-	rlib.Console("New flow UserRefNo = %s\n", a.UserRefNo)
 
 	// insert new flow
 	flowID, err := rlib.InsertFlow(r.Context(), &a)
@@ -360,38 +403,88 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	g.Record = flow
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)
+}
 
-	// // var raFlowData RAFlowJSONData
-	// if d.ID < 1 {
-	// 	SvcErrorReturn(w, fmt.Errorf("Invalid RAID: %d", d.ID), funcname)
-	// 	return
-	// }
-	// ra, err := rlib.GetRentalAgreement(r.Context(), d.ID)
-	// if err != nil {
-	// 	SvcErrorReturn(w, err, funcname)
-	// }
+// addRAPtoFlow adds a new person to raf.People.  The renter/occupant flags
+// are only set if the corresponding input bool value is set.
+//
+// INPUTS
+//     tcid  = the tcid of the transactant to load
+//      raf  - pointer to the flow struct to update
+//      chk  - check to see if the tcid exists in raf.People before adding.
+//             This is not always necessary, but only the caller knows.
+// isRenter  - true if we need to set the RAPerson isRenter bool to true
+// isOccupant- true if we need to set the RAPerson isOccupant bool to true
+//
+// RETURNS
+//     any error encountered
+//     raf is updated
+//-----------------------------------------------------------------------------
+func addRAPtoFlow(ctx context.Context, tcid int64, raf *RAFlowJSONData, chk, isRenter, isOccupant bool) error {
+	// Is this user already present?
+	if chk {
+		for l := 0; l < len(raf.People); l++ {
+			if raf.People[l].TCID == tcid {
+				if isRenter {
+					raf.People[l].IsRenter = true
+				}
+				if isOccupant {
+					raf.People[l].IsOccupant = true
+				}
+				return nil
+			}
+		}
+	}
 
-	// m,err := rlib.GetRentalAgreementPayorsInRange(ctx, ra.RAID, &ra.AgreementStart, &ra.AgreementStop)
-	// 	for i := 0; i < len(m); i++ {
-	// 		var p RAPeopleFlowData
-	// 		err = rlib.GetTransactant(r.Context(), m[i].TCID, &p.rec)
-	// 		if err != nil {
-	// 			SvcErrorReturn(w, err, funcname)
-	// 			return
-	// 		}
-	// 		var xr RAPeople
-	// 		fmt.Printf("before migrate: m[i].DtStart = %s, m[i].DtStop = %s\n", m[i].DtStart.Format(rlib.RRDATEFMT3), m[i].DtStop.Format(rlib.RRDATEFMT3))
-	// 		rlib.MigrateStructVals(&p, &xr)
-	// 		rlib.MigrateStructVals(&m[i], &xr)
-	// 		xr1 := time.Time(xr.DtStart)
-	// 		xr2 := time.Time(xr.DtStop)
-	// 		fmt.Printf("after migrate: xr.DtStart = %s, xr.DtStop = %s\n", xr1.Format(rlib.RRDATEFMT3), xr2.Format(rlib.RRDATEFMT3))
-	// 		xr.Recid = int64(i + 1) // must set AFTER MigrateStructVals in case src contains recid
-	// 		gxp.Records = append(gxp.Records, xr)
-	// 	}
+	rap, err := createRAFlowPerson(ctx, tcid)
+	if err != nil {
+		return err
+	}
+	if isRenter {
+		rap.IsRenter = true
+	}
+	if isOccupant {
+		rap.IsOccupant = true
+	}
+	raf.People = append(raf.People, rap)
+	return nil
+}
 
-	// err = fmt.Errorf("Work in progress:  RAID = %d", ra.RAID)
-	// SvcErrorReturn(w, err, funcname)
+// createRAFlowPerson returns a new RAPeopleFlowData based on the supplied tcid.
+// It does not set the Renter or Occupant flags
+//
+// INPUTS
+//     tcid  = the tcid of the transactant to load
+//
+// RETURNS
+//     RAPeopleFlowData structure
+//     any error encountered
+//-----------------------------------------------------------------------------
+func createRAFlowPerson(ctx context.Context, tcid int64) (RAPeopleFlowData, error) {
+	var p rlib.Transactant
+	var pu rlib.User
+	var pp rlib.Payor
+	var pr rlib.Prospect
+	var rap RAPeopleFlowData
+	var err error
+
+	if err = rlib.GetTransactant(ctx, tcid, &p); err != nil {
+		return rap, err
+	}
+	if err = rlib.GetUser(ctx, tcid, &pu); err != nil {
+		return rap, err
+	}
+	if err = rlib.GetPayor(ctx, tcid, &pp); err != nil {
+		return rap, err
+	}
+	if err = rlib.GetProspect(ctx, tcid, &pr); err != nil {
+		return rap, err
+	}
+	rlib.MigrateStructVals(&p, &rap)
+	rlib.MigrateStructVals(&pp, &rap)
+	rlib.MigrateStructVals(&pu, &rap)
+	rlib.MigrateStructVals(&pr, &rap)
+	return rap, nil
 }
 
 // wsdoc {

@@ -5800,22 +5800,15 @@ func GetRentableMarketRate(ctx context.Context, xbiz *XBusiness, RID int64, d1, 
 	return marketRateValue, err
 }
 
-// GetRentableUsersInRange returns an array of payors (in the form of payors)
+// GetRentableUsersInRange returns an array of user (in the form of user)
 // associated with the supplied RentalAgreement ID during the time range d1-d2
 //-----------------------------------------------------------------------------
 func GetRentableUsersInRange(ctx context.Context, rid int64, d1, d2 *time.Time) ([]RentableUser, error) {
+	var err error
+	var t []RentableUser
 
-	var (
-		err error
-		t   []RentableUser
-	)
-
-	// session... context
-	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
-		_, ok := SessionFromContext(ctx)
-		if !ok {
-			return t, ErrSessionRequired
-		}
+	if sessionCheck(ctx) {
+		return t, ErrSessionRequired
 	}
 
 	var rows *sql.Rows

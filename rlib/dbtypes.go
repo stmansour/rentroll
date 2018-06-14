@@ -804,7 +804,6 @@ type Vehicle struct {
 // Payor is attributes of the person financially responsible
 // for the rent.
 type Payor struct {
-	// PayorID             int64
 	TCID                int64
 	BID                 int64
 	CreditLimit         float64
