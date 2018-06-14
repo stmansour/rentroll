@@ -104,6 +104,37 @@ func GetTLDs(ctx context.Context, bid int64) (map[string][]IDTextMap, error) {
 
 }
 
+//
+//----------------------------------------------------------------------------------
+/*StringList: {
+	"REX":{
+		"HowFound": {
+			SLID: 1,
+			SLString: [
+			{ID: 0, Text: " -- Select SourceSLSID -- "},
+			{ID: 1, Text: "Appartment.com"},....
+		]},
+		"WhyLeaving": {
+			SLID: 2,
+			SLString: [
+			{ID: 0, Text: " -- Select Reason For Leaving -- "},
+			{ID: 1, Text: "Criminal Activity"},...
+			]},....
+	},
+	"ISO":{
+
+	}
+}*/
+//func GetStringLists(ctx context.Context, bid int64) (error){
+//	rlib.Console("Entered GetStringLists\n")
+//	var a rlib.StringList
+//	err := rlib.GetStringListByName(ctx, bid, "HowFound", &a)
+//	if err != nil {
+//		return err
+//	}
+//	return err
+//}
+
 // SvcUIErrAndVarResponse encapsulates a lot of lines that would need to appear
 // in each case of a switch.  This just makes things a lot more readable and
 // it bottlenecks the handling so it is easy to extend or modify.
@@ -159,6 +190,10 @@ func SvcUIVal(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	case "app.TaskListDefinitions":
 		tlds, err := GetTLDs(r.Context(), d.BID)
 		SvcUIErrAndVarResponse(w, funcname, err, tlds)
+	case "app.Applicants":
+		var a []rlib.StringList
+		a, err := rlib.GetAllStringLists(r.Context(), d.BID)
+		SvcUIErrAndVarResponse(w, funcname, err, a)
 	default:
 		e := fmt.Errorf("Unknown variable requested: %s", d.DetVal)
 		SvcErrorReturn(w, e, funcname)

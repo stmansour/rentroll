@@ -6,12 +6,12 @@
     getRAFlowAllParts, saveActiveCompData, toggleHaveCheckBoxDisablity, getRAFlowCompData,
     openNewTransactantForm, getRAAddTransactantFormInitRec,
     acceptTransactant, loadRAPeopleForm,
-    setRABGInfoFormHeader, showHideRABGInfoFormFields,
+    setRATransactantFormHeader, showHideRATransactantFormFields,
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
-    updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
+    updateRATransactantFormCheckboxes, getRATransactantFormInitRecord, loadRATransactantForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields
-    savePetsCompData, saveVehiclesCompData, setRAFlowCompData
+    savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringList, getSLStringList
 */
 
 "use strict";
@@ -183,7 +183,7 @@ window.loadRAPeopleForm = function () {
                             return false;
                         },
                         yes_callBack = function (grid, recid) {
-                            var form = w2ui.RABGInfoForm;
+                            var form = w2ui.RATransactantForm;
 
                             app.last.grid_sel_recid = parseInt(recid);
 
@@ -202,7 +202,7 @@ window.loadRAPeopleForm = function () {
                             form.record.recid = raBGInfoGridRecord.recid;
 
                             // Set the form title
-                            setRABGInfoFormHeader(form.record);
+                            setRATransactantFormHeader(form.record);
 
                             form.refresh(); // need to refresh for form changes
                         };
@@ -217,188 +217,6 @@ window.loadRAPeopleForm = function () {
         });
 
         // background info form
-        // $().w2form({
-        //     name: 'RABGInfoForm',
-        //     header: 'Background Information',
-        //     style: 'border: 0px; background-color: transparent; display: block;',
-        //     formURL: '/webclient/html/formrabginfo.html',
-        //     toolbar: {
-        //         items: [
-        //             {id: 'bt3', type: 'spacer'},
-        //             // {id: 'addInfo', type: 'button', icon: 'fas fa-plus-circle'}, // TODO: Remove this in production. This button is for development purpose
-        //             {id: 'btnClose', type: 'button', icon: 'fas fa-times'}
-        //         ],
-        //         onClick: function (event) {
-        //             switch (event.target) {
-        //                 case 'btnClose':
-        //                     hideSliderContent();
-        //                     break;
-        //                 case 'addInfo':
-        //                     addDummyBackgroundInfo();
-        //                     break;
-        //             }
-        //         }
-        //     },
-        //     fields: [
-        //         {name: 'recid',                     type: 'int',        required: true },
-        //         {name: 'BID',                       type: 'int',        required: true,     html: {caption: 'BID', page: 0, column: 0}},
-        //         {name: 'TMPTCID',                   type: 'int',        required: true },
-        //         {name: 'TCID',                      type: 'int',        required: true,     html: {caption: 'TCID', page: 0, column: 0}},
-        //         {name: 'IsRenter',                  type: 'checkbox',   required: false },  // will be responsible for paying rent
-        //         {name: 'IsOccupant',                type: 'checkbox',   required: false },  // will reside in and/or use the items rented
-        //         {name: 'IsGuarantor',               type: 'checkbox',   required: false },  // responsible for making sure all rent is paid
-        //         {name: 'FirstName',                 type: 'text',       required: false },
-        //         {name: 'MiddleName',                type: 'text',       required: false },
-        //         {name: 'LastName',                  type: 'text',       required: false },
-        //         {name: 'IsCompany',                 type: 'int',        required: true },
-        //         {name: 'DateofBirth',               type: 'date',       required: false },  // Date of births of applicants
-        //         {name: 'SSN',                       type: 'text',       required: false },  // Social security number of applicants
-        //         {name: 'DriverLicNo',               type: 'text'},                          // Driving licence number of applicants
-        //         {name: 'CellPhone',                 type: 'text',       required: false },  // Telephone no of applicants
-        //         {name: 'PrimaryEmail',              type: 'email',      required: false },  // Email Address of applicants
-        //         {name: 'CurrentAddress',            type: 'text',       required: false },  // Current Address
-        //         {name: 'CurrentLandLordName',       type: 'text',       required: false },  // Current landlord's name
-        //         {name: 'CurrentLandLordPhoneNo',    type: 'text',       required: false },  // Current landlord's phone number
-        //         {name: 'CurrentLengthOfResidency',  type: 'int',        required: false },  // Length of residency at current address
-        //         {name: 'CurrentReasonForMoving',    type: 'text',       required: false },  // Reason of moving from current address
-        //         {name: 'PriorAddress',              type: 'text'},                          // Prior Address
-        //         {name: 'PriorLandLordName',         type: 'text'},                          // Prior landlord's name
-        //         {name: 'PriorLandLordPhoneNo',      type: 'text'},                          // Prior landlord's phone number
-        //         {name: 'PriorLengthOfResidency',    type: 'int'},                           // Length of residency at Prior address
-        //         {name: 'PriorReasonForMoving',      type: 'text'},                          // Reason of moving from Prior address
-        //         {name: 'Evicted',                   type: 'checkbox',   required: false },  // have you ever been Evicted
-        //         {name: 'EvictedDes',                type: 'text',       required: false },
-        //         {name: 'Convicted',                 type: 'checkbox',   required: false },  // have you ever been Arrested or convicted of a crime
-        //         {name: 'ConvictedDes',              type: 'text',       required: false },
-        //         {name: 'Bankruptcy',                type: 'checkbox',   required: false },  // have you ever been Declared Bankruptcy
-        //         {name: 'BankruptcyDes',             type: 'text',       required: false },
-        //         {name: 'Employer',                  type: 'text',       required: false },
-        //         {name: 'WorkPhone',                 type: 'text',       required: false },
-        //         {name: 'Address',                   type: 'text',       required: false },
-        //         {name: 'Address2',                  type: 'text',       required: false },
-        //         {name: 'City',                      type: 'text',       required: false },
-        //         {name: 'State',                     type: 'list',       required: false,    options: {items: app.usStateAbbr}, },
-        //         {name: 'PostalCode',                type: 'text',       required: false },
-        //         {name: 'Country',                   type: 'text',       required: false },
-        //         {name: 'Position',                  type: 'text',       required: false },
-        //         {name: 'GrossIncome',               type: 'money',      required: false },
-        //         {name: 'Comment',                   type: 'text'},                          // In an effort to accommodate you, please advise us of any special needs
-        //         {name: 'EmergencyContactName',      type: 'text',       required: false },  // Name of emergency contact
-        //         {name: 'EmergencyContactPhone',     type: 'text',       required: false },  // Phone number of emergency contact
-        //         {name: 'EmergencyContactAddress',   type: 'text',       required: false }   // Address of emergency contact
-        //     ],
-        //     actions: {
-        //         save: function () {
-        //             var form = this,
-        //                 TMPTCID = form.record.TMPTCID;
-        //
-        //             var errors = form.validate();
-        //             if (errors.length > 0) return;
-        //
-        //             var peopleData = getFormSubmitData(form.record, true);
-        //
-        //             // If transanctant role isn't selected than display error.
-        //             if (!(peopleData.IsRenter || peopleData.IsOccupant || peopleData.IsGuarantor)) {
-        //                 form.message("Please select transanctant role.");
-        //                 return;
-        //             }
-        //
-        //             // Convert integer to bool checkboxes fields
-        //             updateRABGInfoFormCheckboxes(peopleData);
-        //
-        //             setPeopleLocalData(TMPTCID, peopleData);
-        //
-        //             // clean dirty flag of form
-        //             app.form_is_dirty = false;
-        //
-        //             // save this records in json Data
-        //             savePeopleCompData()
-        //                 .done(function (data) {
-        //                     if (data.status === 'success') {
-        //
-        //                         form.clear();
-        //
-        //                         // update RAPeopleGrid
-        //                         ReassignPeopleGridRecords();
-        //
-        //                         // close the form
-        //                         hideSliderContent();
-        //                     } else {
-        //                         form.message(data.message);
-        //                     }
-        //                 })
-        //                 .fail(function (data) {
-        //                     console.log("failure " + data);
-        //                 });
-        //         },
-        //         delete: function () {
-        //             var form = this;
-        //             // get local data from TMPPETID
-        //             var compData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
-        //             var itemIndex = getPeopleLocalData(form.record.TMPTCID, true);
-        //             compData.splice(itemIndex, 1);
-        //
-        //             savePeopleCompData()
-        //                 .done(function (data) {
-        //                     if (data.status === 'success') {
-        //
-        //                         form.clear();
-        //
-        //                         // update RAPeopleGrid
-        //                         ReassignPeopleGridRecords();
-        //
-        //                         // close the form
-        //                         hideSliderContent();
-        //                     } else {
-        //                         form.message(data.message);
-        //                     }
-        //                 })
-        //                 .fail(function (data) {
-        //                     console.log("failure " + data);
-        //                 });
-        //         },
-        //         reset: function () {
-        //             w2ui.RABGInfoForm.clear();
-        //         }
-        //     },
-        //     onChange: function (event) {
-        //         event.onComplete = function () {
-        //             $("#EvictedDes").prop("disabled", !this.record.Evicted);
-        //             $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-        //             $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
-        //
-        //             manageBGInfoFormFields(this.record);
-        //
-        //             this.refresh();
-        //
-        //             // formRecDiffer: 1=current record, 2=original record, 3=diff object
-        //             var diff = formRecDiffer(this.record, app.active_form_original, {});
-        //             // if diff == {} then make dirty flag as false, else true
-        //             if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
-        //                 app.form_is_dirty = false;
-        //             } else {
-        //                 app.form_is_dirty = true;
-        //             }
-        //         };
-        //     },
-        //     onRefresh: function (event) {
-        //         var form = this;
-        //         event.onComplete = function () {
-        //             // hide delete button if it is NewRecord
-        //             var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
-        //             if (isNewRecord) {
-        //                 $(form.box).find("button[name=delete]").addClass("hidden");
-        //             } else {
-        //                 $(form.box).find("button[name=delete]").removeClass("hidden");
-        //             }
-        //
-        //             $("#EvictedDes").prop("disabled", !this.record.Evicted);
-        //             $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-        //             $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
-        //         };
-        //     }
-        // });
-
         $().w2form({
             name: 'RATransactantForm',
             header: 'Background Information',
@@ -463,7 +281,7 @@ window.loadRAPeopleForm = function () {
                 {field: 'AlternateAddress',          type: 'text',      required: false, html: {page: 1, column: 0}},
                 {field: 'EligibleFutureUser',        type: 'list',      required: false, html: {page: 1, column: 0}, options: {items: app.yesNoList}},
                 {field: 'Industry',                  type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}, options: {items: app.usStateAbbr}}, // TODO(Akshay): stringlist "HowFound"
+                {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}}, // TODO(Akshay): Mention list option
                 {field: 'CreditLimit',               type: 'money',     required: false, html: {page: 2, column: 0}},
                 {field: 'TaxpayorID',                type: 'text',      required: false, html: {page: 2, column: 0}},
                 {field: 'AccountRep',                type: 'text',      required: false, html: {page: 2, column: 0}},
@@ -481,12 +299,12 @@ window.loadRAPeopleForm = function () {
                 {field: 'CurrentLandLordName',       type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's name
                 {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's phone number
                 {field: 'CurrentLengthOfResidency',  type: 'int',       required: false, html: {page: 3, column: 0}},  // Length of residency at current address
-                {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}, options: {items: app.usStateAbbr}},  // Reason of moving from current address // TODO(Akshay): stringlist "WhyLeaving"
+                {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address // TODO(Akshay): stringlist "WhyLeaving"
                 {field: 'PriorAddress',              type: 'text',      required: false, html: {page: 3, column: 0}},                          // Prior Address
                 {field: 'PriorLandLordName',         type: 'text',      required: false, html: {page: 3, column: 0}},                          // Prior landlord's name
                 {field: 'PriorLandLordPhoneNo',      type: 'text',      required: false, html: {page: 3, column: 0}},                          // Prior landlord's phone number
                 {field: 'PriorLengthOfResidency',    type: 'int',       required: false, html: {page: 3, column: 0}},                           // Length of residency at Prior address
-                {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 3, column: 0}, options: {items: app.usStateAbbr}},                          // Reason of moving from Prior address // TODO(Akshay): stringlist "WhyLeaving"
+                {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 3, column: 0}},                          // Reason of moving from Prior address // TODO(Akshay): stringlist "WhyLeaving"
                 {field: 'Evicted',                   type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Evicted
                 {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 3, column: 0}},
                 {field: 'Convicted',                 type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Arrested or convicted of a crime
@@ -498,7 +316,7 @@ window.loadRAPeopleForm = function () {
                 {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 3, column: 0}},
                 {field: 'FLAGS',                     type: 'text',      required: false, html: {page: 3, column: 0}},
                 {field: 'Approver',                  type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'DeclineReasonSLSID',        type: 'list',      required: false, html: {page: 3, column: 0}, options: {items: app.usStateAbbr}}, // TODO(Akshay): ApplDeny String list
+                {field: 'DeclineReasonSLSID',        type: 'list',      required: false, html: {page: 3, column: 0}}, // TODO(Akshay): ApplDeny String list
                 {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 3, column: 0}},
                 {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 3, column: 0}},
                 {field: 'CSAgent',                   type: 'text',      required: false, html: {page: 3, column: 0}},
@@ -530,7 +348,7 @@ window.loadRAPeopleForm = function () {
                     }
 
                     // Convert integer to bool checkboxes fields
-                    updateRABGInfoFormCheckboxes(peopleData);
+                    updateRATransactantFormCheckboxes(peopleData);
 
                     setPeopleLocalData(TMPTCID, peopleData);
 
@@ -614,45 +432,45 @@ window.loadRAPeopleForm = function () {
                     });
                 },
                 reset: function () {
-                    w2ui.RABGInfoForm.clear();
+                    w2ui.RATransactantForm.clear();
                 }
             },
-            // onChange: function (event) {
-            //     event.onComplete = function () {
-            //         $("#EvictedDes").prop("disabled", !this.record.Evicted);
-            //         $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-            //         $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
-            //
-            //         manageBGInfoFormFields(this.record);
-            //
-            //         this.refresh();
-            //
-            //         // formRecDiffer: 1=current record, 2=original record, 3=diff object
-            //         var diff = formRecDiffer(this.record, app.active_form_original, {});
-            //         // if diff == {} then make dirty flag as false, else true
-            //         if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
-            //             app.form_is_dirty = false;
-            //         } else {
-            //             app.form_is_dirty = true;
-            //         }
-            //     };
-            // },
-            // onRefresh: function (event) {
-            //     var form = this;
-            //     event.onComplete = function () {
-            //         // hide delete button if it is NewRecord
-            //         var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
-            //         if (isNewRecord) {
-            //             $(form.box).find("button[name=delete]").addClass("hidden");
-            //         } else {
-            //             $(form.box).find("button[name=delete]").removeClass("hidden");
-            //         }
-            //
-            //         $("#EvictedDes").prop("disabled", !this.record.Evicted);
-            //         $("#ConvictedDes").prop("disabled", !this.record.Convicted);
-            //         $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
-            //     };
-            // }
+            onChange: function (event) {
+                event.onComplete = function () {
+                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
+                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+
+                    manageBGInfoFormFields(this.record);
+
+                    this.refresh();
+
+                    // formRecDiffer: 1=current record, 2=original record, 3=diff object
+                    var diff = formRecDiffer(this.record, app.active_form_original, {});
+                    // if diff == {} then make dirty flag as false, else true
+                    if ($.isPlainObject(diff) && $.isEmptyObject(diff)) {
+                        app.form_is_dirty = false;
+                    } else {
+                        app.form_is_dirty = true;
+                    }
+                };
+            },
+            onRefresh: function (event) {
+                var form = this;
+                event.onComplete = function () {
+                    // hide delete button if it is NewRecord
+                    var isNewRecord = (w2ui.RAPeopleGrid.get(form.record.recid, true) === null);
+                    if (isNewRecord) {
+                        $(form.box).find("button[name=delete]").addClass("hidden");
+                    } else {
+                        $(form.box).find("button[name=delete]").removeClass("hidden");
+                    }
+
+                    $("#EvictedDes").prop("disabled", !this.record.Evicted);
+                    $("#ConvictedDes").prop("disabled", !this.record.Convicted);
+                    $("#BankruptcyDes").prop("disabled", !this.record.Bankruptcy);
+                };
+            }
         });
     }
 
@@ -662,24 +480,27 @@ window.loadRAPeopleForm = function () {
 
     // load existing info in PeopleForm and PeopleGrid
     setTimeout(function () {
+        var BID = getCurrentBID(),
+            BUD = getBUDfromBID(BID);
+
         // Operation on RAPeopleGrid
         ReassignPeopleGridRecords();
     }, 500);
 };
 
-// setRABGInfoFormHeader
-// It set RABGInfoForm header title
-window.setRABGInfoFormHeader = function (record) {
+// setRATransactantFormHeader
+// It set RATransactantForm header title
+window.setRATransactantFormHeader = function (record) {
     if (record.IsCompany > 0) {
-        w2ui.RABGInfoForm.header = 'Background Information - ' + record.Employer;
+        w2ui.RATransactantForm.header = 'Background Information - ' + record.Employer;
     } else {
-        w2ui.RABGInfoForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
+        w2ui.RATransactantForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
     }
 };
 
-// showHideRABGInfoFormFields
+// showHideRATransactantFormFields
 // hide fields if transanctant is only user
-window.showHideRABGInfoFormFields = function (listOfHiddenFields, hidden) {
+window.showHideRATransactantFormFields = function (listOfHiddenFields, hidden) {
     if (hidden) {
         $("#cureentInfolabel").hide();
         $("#priorInfolabel").hide();
@@ -688,7 +509,7 @@ window.showHideRABGInfoFormFields = function (listOfHiddenFields, hidden) {
         $("#priorInfolabel").show();
     }
     for (var fieldIndex = 0; fieldIndex < listOfHiddenFields.length; fieldIndex++) {
-        w2ui.RABGInfoForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
+        w2ui.RATransactantForm.get(listOfHiddenFields[fieldIndex]).hidden = hidden;
     }
 };
 
@@ -696,7 +517,7 @@ window.showHideRABGInfoFormFields = function (listOfHiddenFields, hidden) {
 // define fields are not required if transanctant is only user
 window.setNotRequiredFields = function (listOfNotRequiredFields, required) {
     for (var fieldIndex = 0; fieldIndex < listOfNotRequiredFields.length; fieldIndex++) {
-        w2ui.RABGInfoForm.get(listOfNotRequiredFields[fieldIndex]).required = required;
+        w2ui.RATransactantForm.get(listOfNotRequiredFields[fieldIndex]).required = required;
     }
 };
 
@@ -745,9 +566,9 @@ window.getRAPeopleGridRecord = function (records, TCID) {
     return raBGInfoGridrecord;
 };
 
-// updateRABGInfoFormCheckboxes
+// updateRATransactantFormCheckboxes
 // Convert checkboxes w2ui int(1/0) value to bool(true/false)
-window.updateRABGInfoFormCheckboxes = function (record) {
+window.updateRATransactantFormCheckboxes = function (record) {
     record.IsRenter = int_to_bool(record.IsRenter);
     record.IsOccupant = int_to_bool(record.IsOccupant);
     record.IsGuarantor = int_to_bool(record.IsGuarantor);
@@ -846,10 +667,20 @@ window.openNewTransactantForm = function () {
     var recid = w2ui.RAPeopleGrid.records.length + 1;
 
     w2ui.RATransactantForm.header = 'Background Information';
-    // w2ui.RABGInfoForm.record = getRABGInfoFormInitRecord(BID, TCID, recid);
     w2ui.RATransactantForm.record = getTransactantInitRecord(BID, BUD);
+    getStringList(BID, BUD).done(function () {
+        var form = w2ui.RATransactantForm;
+        console.log("List..................");
+        console.log(getSLStringList(BID, "HowFound"));
 
-	// setTransactantDefaultRole(w2ui.RABGInfoForm.record);
+        form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
+        form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+        form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+        form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+        form.refresh();
+    });
+
+	// setTransactantDefaultRole(w2ui.RATransactantForm.record);
 
     showSliderContentW2UIComp(w2ui.RATransactantForm, RACompConfig.people.sliderWidth);
 
@@ -921,11 +752,11 @@ window.manageBGInfoFormFields = function (record) {
     // Display/Required field based on transanctant type
     var haveToHide = record.IsOccupant && !record.IsRenter && !record.IsGuarantor; // true: hide fields, false: show fields
     // hide/show fields
-    showHideRABGInfoFormFields(listOfHiddenFields, haveToHide);
+    showHideRATransactantFormFields(listOfHiddenFields, haveToHide);
 };
 
 window.addDummyBackgroundInfo = function () {
-    var form = w2ui.RABGInfoForm;
+    var form = w2ui.RATransactantForm;
     var record = form.record;
     record.FirstName = Math.random().toString(32).slice(2);
     record.MiddleName = Math.random().toString(32).slice(2);
@@ -1042,4 +873,57 @@ window.setTransactantDefaultRole = function (transactantRec) {
 
 	// Each transactant must be occupant by default. It can be change via BGInfo detail form
 	transactantRec.IsOccupant = true;
+};
+
+//-----------------------------------------------------------------------------
+// getStringList - return the promise object of request to get latest
+//                           string list for given BID.
+//                           It updates the "app.ReceiptRules" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+window.getStringList = function (BID, BUD) {
+    // if not BUD in app.ReceiptRules then initialize it with blank list
+    if (!(BUD in app.StringList)) {
+        app.StringList[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.Applicants", null, null, "json").done(function(data) {
+        // if it doesn't meet this condition, then save the data
+        if (!('status' in data && data.status !== "success")) {
+            console.log(data);
+            app.StringList[BUD] = data;
+        }
+    });
+};
+
+// getSLStringList - It provide string list of `SLName`
+window.getSLStringList = function(BID, SLName){
+  var BUD = getBUDfromBID(BID);
+  app[SLName] = [];
+  app.StringList[BUD].forEach(function (SLObject) {
+      if(SLObject.Name === SLName){
+          var defaultItem;
+          switch (SLName){
+              case "HowFound":
+                  defaultItem = {id: 0, text: " -- Select Source SLSID -- "};
+                  break;
+              case "WhyLeaving":
+                  defaultItem = {id: 0, text: " -- Select reason for leaving -- "};
+                  break;
+              case "ApplDeny":
+                  defaultItem = {id: 0, text: " -- Select DeclineReasonSLSID -- "};
+                  break;
+              default:
+                  console.log("SLName doesn't exists");
+          }
+          app[SLName].push(defaultItem);
+          for(var index = 0 ; index < SLObject.S.length ; index++){
+              app[SLName].push({id: SLObject.S[index].SLSID, text: SLObject.S[index].Value});
+          }
+      }
+  });
+  return app[SLName];
 };
