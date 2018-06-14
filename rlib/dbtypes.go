@@ -711,7 +711,6 @@ type Transactant struct {
 
 // Prospect contains info over and above
 type Prospect struct {
-	// ProspectID             int64
 	TCID                   int64
 	BID                    int64
 	EmployerName           string
@@ -742,7 +741,6 @@ type Prospect struct {
 
 // User contains all info common to a person
 type User struct {
-	// UserID                    int64
 	TCID                      int64
 	BID                       int64
 	Points                    int64
@@ -1876,6 +1874,7 @@ var RRdb struct {
 	BUDlist  Str2Int64Map                 // list of known business Designations
 	DBFields map[string]string            // map of db table fields DBFields[tablename] = field list
 	Zone     *time.Location               // what timezone should the server use?
+	Key      []byte                       // crypto key
 	noAuth   bool                         // if enable that means auth is not required, (should be moved in some common app struct!)
 	Rand     *rand.Rand                   // for generating Reference Numbers or other UniqueIDs
 	// TODO(sudip): NoAuth will be moved to something internal pkg app struct

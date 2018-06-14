@@ -676,7 +676,10 @@ logcheck() {
 		echo "DONE"
 	elif [ "${SKIPCOMPARE}" = "0" ]; then
 		echo -n "PHASE x: Log file check...  "
-		if [ ! -f ${GOLD}/${LOGFILE}.gold -o ! -f ${LOGFILE} ]; then
+		if [ ! -f ${GOLD}/${LOGFILE}.gold ]; then
+			echo "replace with known-good output" > ${LOGFILE}/${LOGFILE}.gold
+		fi
+		if [ ! -f ${LOGFILE} ]; then
 			echo "Missing file -- Required files for this check: log.gold and log"
 			failmsg
 			exit 1
@@ -732,7 +735,11 @@ genericlogcheck() {
 	printf "PHASE %2s  %3s  %s... " ${TESTCOUNT} $1 $3
 
 	checkPause
-
+	if [ ! -d ${GOLD} ]; then
+		echo "${GOLD} directory is missing. Creating it..."
+		mkdir ${GOLD}
+		echo "replace with known-good output" > ${GOLD}/${1}.gold
+	fi
 	if [ "${FORCEGOOD}" = "1" ]; then
 		goldpath
 		cp ${1} ${GOLD}/${1}.gold
