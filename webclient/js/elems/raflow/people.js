@@ -264,7 +264,6 @@ window.loadRAPeopleForm = function () {
                         TMPTCID = form.record.TMPTCID;
 
                     var errors = form.validate();
-                    console.log(errors);
                     if (errors.length > 0) return;
 
                     var peopleData = getFormSubmitData(form.record, true);
@@ -279,7 +278,6 @@ window.loadRAPeopleForm = function () {
                     updateRATransactantFormCheckboxes(peopleData);
 
                     setPeopleLocalData(TMPTCID, peopleData);
-                    console.log(peopleData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
