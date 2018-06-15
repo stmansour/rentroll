@@ -467,7 +467,8 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor, a.LastModBy, a.TCID}
+	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor,
+		a.FLAGS, a.SSN, a.DriversLicense, a.GrossIncome, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePayor)
 		defer stmt.Close()
@@ -492,7 +493,11 @@ func UpdateProspect(ctx context.Context, a *Prospect) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity, a.EmployerState, a.EmployerPostalCode, a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee, a.DesiredUsageStartDate, a.RentableTypePreference, a.FLAGS, a.Approver, a.DeclineReasonSLSID, a.OtherPreferences, a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit, a.RAID, a.LastModBy, a.TCID}
+	fields := []interface{}{a.BID, a.EmployerName, a.EmployerStreetAddress, a.EmployerCity, a.EmployerState, a.EmployerPostalCode,
+		a.EmployerEmail, a.EmployerPhone, a.Occupation, a.ApplicationFee, a.DesiredUsageStartDate, a.RentableTypePreference,
+		a.FLAGS, a.EvictedDes, a.ConvictedDes, a.BankruptcyDes,
+		a.Approver, a.DeclineReasonSLSID, a.OtherPreferences, a.FollowUpDate, a.CSAgent, a.OutcomeSLSID, a.FloatingDeposit,
+		a.RAID, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateProspect)
 		defer stmt.Close()
@@ -1133,7 +1138,7 @@ func UpdateTask(ctx context.Context, a *Task) error {
 
 	fields := []interface{}{a.BID, a.TLID, a.Name, a.Worker, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.DoneUID, a.PreDoneUID, a.Comment, a.LastModBy, a.TID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTask)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
@@ -1150,7 +1155,7 @@ func UpdateTaskList(ctx context.Context, a *TaskList) error {
 	}
 	fields := []interface{}{a.BID, a.PTLID, a.TLDID, a.Name, a.Cycle, a.DtDue, a.DtPreDue, a.DtDone, a.DtPreDone, a.FLAGS, a.DoneUID, a.PreDoneUID, a.EmailList, a.DtLastNotify, a.DurWait, a.Comment, a.LastModBy, a.TLID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTaskList)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
@@ -1168,7 +1173,7 @@ func UpdateTaskDescriptor(ctx context.Context, a *TaskDescriptor) error {
 
 	fields := []interface{}{a.BID, a.TLDID, a.Name, a.Worker, a.EpochDue, a.EpochPreDue, a.FLAGS, a.Comment, a.LastModBy, a.TDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTaskDescriptor)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
@@ -1185,7 +1190,7 @@ func UpdateTaskListDefinition(ctx context.Context, a *TaskListDefinition) error 
 	}
 	fields := []interface{}{a.BID, a.Name, a.Cycle, a.Epoch, a.EpochDue, a.EpochPreDue, a.FLAGS, a.EmailList, a.DurWait, a.Comment, a.LastModBy, a.TLDID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
-		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
+		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTaskListDefinition)
 		defer stmt.Close()
 		_, err = stmt.Exec(fields...)
 	} else {
@@ -1210,7 +1215,7 @@ func UpdateTransactant(ctx context.Context, a *Transactant) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.LastModBy, a.TCID}
+	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
 		defer stmt.Close()

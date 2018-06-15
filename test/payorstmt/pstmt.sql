@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22-0ubuntu0.16.04.1-log
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1281,6 +1281,9 @@ CREATE TABLE `Prospect` (
   `DesiredUsageStartDate` date NOT NULL DEFAULT '1970-01-01',
   `RentableTypePreference` bigint(20) NOT NULL DEFAULT '0',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `EvictedDes` varchar(2048) NOT NULL DEFAULT '',
+  `ConvictedDes` varchar(2048) NOT NULL DEFAULT '',
+  `BankruptcyDes` varchar(2048) NOT NULL DEFAULT '',
   `Approver` bigint(20) NOT NULL DEFAULT '0',
   `DeclineReasonSLSID` bigint(20) NOT NULL DEFAULT '0',
   `OtherPreferences` varchar(1024) NOT NULL DEFAULT '',
@@ -1304,7 +1307,7 @@ CREATE TABLE `Prospect` (
 
 LOCK TABLES `Prospect` WRITE;
 /*!40000 ALTER TABLE `Prospect` DISABLE KEYS */;
-INSERT INTO `Prospect` VALUES (1,'','','','','','','','',0.0000,'1900-01-01',0,0,0,0,'','1900-01-01',0,0,0.0000,0,'2017-08-31 17:56:26',0,'2017-08-31 17:56:26',0,1),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,0,0,'','1900-01-01',0,0,0.0000,0,'2017-08-31 17:57:13',0,'2017-08-31 17:57:13',0,2),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,0,0,'','1900-01-01',0,0,0.0000,0,'2017-08-31 17:57:55',0,'2017-08-31 17:57:55',0,3);
+INSERT INTO `Prospect` VALUES (1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-08-31 17:56:26',0,'2017-08-31 17:56:26',0,1),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-08-31 17:57:13',0,'2017-08-31 17:57:13',0,2),(1,'','','','','','','','',0.0000,'1900-01-01',0,0,'','','',0,0,'','1900-01-01',0,0,0.0000,0,'2017-08-31 17:57:55',0,'2017-08-31 17:57:55',0,3);
 /*!40000 ALTER TABLE `Prospect` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2410,6 +2413,7 @@ CREATE TABLE `Transactant` (
   `PostalCode` varchar(100) NOT NULL DEFAULT '',
   `Country` varchar(100) NOT NULL DEFAULT '',
   `Website` varchar(100) NOT NULL DEFAULT '',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2424,7 +2428,7 @@ CREATE TABLE `Transactant` (
 
 LOCK TABLES `Transactant` WRITE;
 /*!40000 ALTER TABLE `Transactant` DISABLE KEYS */;
-INSERT INTO `Transactant` VALUES (1,1,0,'Bill','','Williams','','',0,'bill@bill.com','','','890-678-1234','7745 Elm Street','','Springfield','MO','65619','USA','','2017-09-09 04:40:14',0,'2017-08-31 17:56:26',0),(2,1,0,'Sally','','Struthers','','',0,'sally@strut.com','','','456-789-1230','345 Maple Ave','','Springfield','MO','65619','USA','','2017-09-09 04:41:09',0,'2017-08-31 17:57:13',0),(3,1,0,'Mark','','Markson','','',0,'mark@markson.com','','','123-456-7890','742 Timberlake Drive','','Springfield','MO','65619','USA','','2017-09-09 04:41:48',0,'2017-08-31 17:57:55',0);
+INSERT INTO `Transactant` VALUES (1,1,0,'Bill','','Williams','','',0,'bill@bill.com','','','890-678-1234','7745 Elm Street','','Springfield','MO','65619','USA','',0,'2017-09-09 04:40:14',0,'2017-08-31 17:56:26',0),(2,1,0,'Sally','','Struthers','','',0,'sally@strut.com','','','456-789-1230','345 Maple Ave','','Springfield','MO','65619','USA','',0,'2017-09-09 04:41:09',0,'2017-08-31 17:57:13',0),(3,1,0,'Mark','','Markson','','',0,'mark@markson.com','','','123-456-7890','742 Timberlake Drive','','Springfield','MO','65619','USA','',0,'2017-09-09 04:41:48',0,'2017-08-31 17:57:55',0);
 /*!40000 ALTER TABLE `Transactant` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2513,4 +2517,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-14 18:09:48
+-- Dump completed on 2018-06-14 17:09:29
