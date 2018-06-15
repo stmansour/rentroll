@@ -20,7 +20,7 @@ window.getPetFormInitRecord = function (previousFormRecord){
         recid:                  0,
         TMPPETID:               0,
         PETID:                  0,
-        TCID:                   0,
+        TMPTCID:                0,
         BID:                    BID,
         Name:                   "",
         Breed:                  "",
@@ -78,7 +78,7 @@ window.loadRAPetsGrid = function () {
                 { field: 'TMPPETID',                type: 'int',    required: true  },
                 { field: 'BID',                     type: 'int',    required: true,     html: { caption: 'BID', page: 0, column: 0 } },
                 { field: 'PETID',                   type: 'int',    required: true,     html: { caption: 'PETID', page: 0, column: 0 } },
-                { field: 'TCID',                    type: 'int',    required: true  },
+                { field: 'TMPTCID',                 type: 'list',   required: true,     options: {items: app.raflow.peopleW2UIItems, selected: {}} },
                 { field: 'Name',                    type: 'text',   required: true  },
                 { field: 'Breed',                   type: 'text',   required: true  },
                 { field: 'Type',                    type: 'text',   required: true  },
@@ -99,6 +99,15 @@ window.loadRAPetsGrid = function () {
 
                     // there is NO PETID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid", header);
+
+                    // selection of contact person
+                    var TMPTCIDSel = {};
+                    app.raflow.peopleW2UIItems.forEach(function(item) {
+                        if (item.id === f.record.TMPTCID) {
+                            $.extend(TMPTCIDSel, item);
+                        }
+                    });
+                    f.get("TMPTCID").options.selected = TMPTCIDSel;
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAPetsGrid.get(f.record.recid, true) === null);
@@ -265,12 +274,23 @@ window.loadRAPetsGrid = function () {
                     hidden: true
                 },
                 {
-                    field: 'TCID',
+                    field: 'BID',
                     hidden: true
                 },
                 {
-                    field: 'BID',
-                    hidden: true
+                    field: 'TMPTCID',
+                    caption: 'Contact<br>Person',
+                    size: '150px',
+                    render: function (record/*, index, col_index*/) {
+                        var html = '';
+                        if (record) {
+                            var items = app.raflow.peopleW2UIItems;
+                            for (var s in items) {
+                                if (items[s].id == record.TMPTCID) html = items[s].text;
+                            }
+                        }
+                        return html;
+                    }
                 },
                 {
                     field: 'Name',
