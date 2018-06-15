@@ -11,7 +11,8 @@
     updateRABGInfoFormCheckboxes, getRABGInfoFormInitRecord, loadRABGInfoForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole,
-    savePetsCompData, saveVehiclesCompData, setRAFlowCompData
+    savePetsCompData, saveVehiclesCompData, setRAFlowCompData,
+    managePeopleW2UIItems
 */
 
 "use strict";
@@ -597,6 +598,10 @@ window.ReassignPeopleGridRecords = function () {
 
         // Operation on RAPeopleForm
         w2ui.RAPeopleForm.refresh();
+
+        // manage people w2ui items list
+        managePeopleW2UIItems();
+
     } else {
         // Operation on RAPeopleForm
         w2ui.RAPeopleForm.actions.reset();
@@ -814,3 +819,69 @@ window.setTransactantDefaultRole = function (transactantRec) {
 	// Each transactant must be occupant by default. It can be change via BGInfo detail form
 	transactantRec.IsOccupant = true;
 };
+
+//-------------------------------------------------------------------------------
+// managePeopleW2UIItems - maintain people w2ui items list
+//                       - it will keep TMPTCID as in id of w2ui list item object
+//-------------------------------------------------------------------------------
+window.managePeopleW2UIItems = function() {
+
+    // reset it first
+    app.raflow.peopleW2UIItems = [];
+
+    // inner function to push item in "app.raflow.peopleW2UIItems"
+    var pushItem = function(peopleItem, atIndex) {
+        var found = false;
+        app.raflow.peopleW2UIItems.forEach(function(item) {
+            if (item.id === peopleItem.id) {
+                found = true;
+                return false;
+            }
+        });
+
+        // if not found the push item in app.raflow.peopleW2UIItems
+        if (!found) {
+            // deleting 0 item, then insert peopleItem
+            app.raflow.peopleW2UIItems.splice(atIndex, 0, peopleItem);
+        }
+    };
+
+    // get comp data
+    var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
+
+    // first build the list of rentables and sort it out in asc order of TMPTCID
+    peopleCompData.forEach(function(peopleItem) {
+        var TMPTCID = peopleItem.TMPTCID,
+            Name = "";
+
+        // get name
+        if (peopleItem.IsCompany) {
+            Name = peopleItem.Employer;
+        } else {
+            Name = getFullName(peopleItem);
+        }
+
+        // w2ui list item for people list
+        var item = {id: TMPTCID, text: Name};
+        pushItem(item, app.raflow.peopleW2UIItems.length);
+    });
+
+    // sort it out in asc order of TMPTCID value
+    app.raflow.peopleW2UIItems.sort(function(a, b) {
+        return a.id - b.id;
+    });
+
+    // if there is only one parent rentable then pre-select it for all child rentable
+    // otherwise built drop down menu
+    if (app.raflow.peopleW2UIItems.length != 1) {
+        var item = {id: 0, text: " -- select person -- "};
+        pushItem(item, 0);
+    } else {
+        app.raflow.peopleW2UIItems.forEach(function(item, index) {
+            if (item.id === 0) {
+                app.raflow.peopleW2UIItems.splice(index, 1);
+            }
+        });
+    }
+};
+

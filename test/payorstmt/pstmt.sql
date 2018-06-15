@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22
+-- Server version	5.7.22-0ubuntu0.16.04.1-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1180,7 +1180,7 @@ CREATE TABLE `OtherDeliverables` (
   `ODID` bigint(20) NOT NULL AUTO_INCREMENT,
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `Name` varchar(256) DEFAULT NULL,
-  `Active` smallint(6) NOT NULL DEFAULT '0',
+  `Active` tinyint(1) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CreateBy` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -2522,4 +2522,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-14 18:03:11
+-- Dump completed on 2018-06-15 17:48:44

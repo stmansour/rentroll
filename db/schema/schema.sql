@@ -412,7 +412,7 @@ CREATE TABLE OtherDeliverables (
     ODID BIGINT NOT NULL AUTO_INCREMENT,                      -- Unique ID for this OtherDeliverables
     BID BIGINT NOT NULL DEFAULT 0,                            -- Business
     Name VARCHAR(256),                                        -- Description of the other deliverables. Ex: 2 Seaworld tickets
-    Active SMALLINT NOT NULL DEFAULT 0,                       -- Flag: Is this list still active?  0 = not active, 1 = active
+    Active TINYINT(1) NOT NULL DEFAULT 0,                       -- Flag: Is this list still active?  0 = not active, 1 = active
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                      -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,    -- when was this record created
@@ -868,7 +868,7 @@ CREATE TABLE Prospect (
                                                                     1<<2 - Previously Evicted: 0 = no, 1 = yes
                                                                     1<<3 - Previously Convicted of a felony: 0 = no, 1 = yes
                                                                     1<<4 - Previously declared bankruptcy: 0 = no, 1 = yes
-    */     
+    */
     EvictedDes VARCHAR(2048) NOT NULL DEFAULT '',                -- explanation when FLAGS & (1<<2) > 0
     ConvictedDes VARCHAR(2048) NOT NULL DEFAULT '',              -- explanation when FLAGS & (1<<3) > 0
     BankruptcyDes VARCHAR(2048) NOT NULL DEFAULT '',             -- explanation when FLAGS & (1<<4) > 0
@@ -925,8 +925,8 @@ CREATE TABLE User (
 CREATE TABLE Payor (
     TCID BIGINT NOT NULL,                                        -- associated Transactant
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
-    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',     
-    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,     
+    TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
+    CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AccountRep BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*

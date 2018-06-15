@@ -24,7 +24,7 @@ window.getVehicleFormInitalRecord = function (previousFormRecord) {
         TMPVID:                  0,
         VID:                    0,
         BID:                    BID,
-        TCID:                   0,
+        TMPTCID:                0,
         VIN:                    "",
         Type:                   "",
         Make:                   "",
@@ -75,8 +75,9 @@ window.loadRAVehiclesGrid = function () {
                 }
             },
             fields  : [
-                { field: 'recid',               type: 'int',    required: false, html: { caption: 'recid', page: 0, column: 0 } },
+                { field: 'recid',               type: 'int',    required: false,    html: { caption: 'recid', page: 0, column: 0 } },
                 { field: 'TMPVID',              type: 'int',    required: true  },
+                { field: 'TMPTCID',             type: 'list',   required: true,     options: {items: app.raflow.peopleW2UIItems, selected: {}} },
                 { field: 'Type',                type: 'text',   required: true  },
                 { field: 'Make',                type: 'text',   required: true  },
                 { field: 'Model',               type: 'text',   required: true  },
@@ -87,10 +88,10 @@ window.loadRAVehiclesGrid = function () {
                 { field: 'VIN',                 type: 'text',   required: true  },
                 { field: 'ParkingPermitNumber', type: 'text',   required: true  },
                 { field: 'ParkingPermitFee',    type: 'money',  required: true  },
-                { field: 'DtStart',             type: 'date',   required: false, html: { caption: 'DtStart', page: 0, column: 0 } },
-                { field: 'DtStop',              type: 'date',   required: false, html: { caption: 'DtStop', page: 0, column: 0 } },
-                { field: 'LastModTime',         type: 'time',   required: false, html: { caption: 'LastModTime', page: 0, column: 0 } },
-                { field: 'LastModBy',           type: 'int',    required: false, html: { caption: 'LastModBy', page: 0, column: 0 } },
+                { field: 'DtStart',             type: 'date',   required: false,    html: { caption: 'DtStart', page: 0, column: 0 } },
+                { field: 'DtStop',              type: 'date',   required: false,    html: { caption: 'DtStop', page: 0, column: 0 } },
+                { field: 'LastModTime',         type: 'time',   required: false,    html: { caption: 'LastModTime', page: 0, column: 0 } },
+                { field: 'LastModBy',           type: 'int',    required: false,    html: { caption: 'LastModBy', page: 0, column: 0 } },
             ],
             onRefresh: function(event) {
                 event.onComplete = function() {
@@ -99,6 +100,15 @@ window.loadRAVehiclesGrid = function () {
 
                     // there is NO VID actually, so have to work around with recid key
                     formRefreshCallBack(f, "recid", header);
+
+                    // selection of contact person
+                    var TMPTCIDSel = {};
+                    app.raflow.peopleW2UIItems.forEach(function(item) {
+                        if (item.id === f.record.TMPTCID) {
+                            $.extend(TMPTCIDSel, item);
+                        }
+                    });
+                    f.get("TMPTCID").options.selected = TMPTCIDSel;
 
                     // hide delete button if it is NewRecord
                     var isNewRecord = (w2ui.RAVehiclesGrid.get(f.record.recid, true) === null);
@@ -261,8 +271,19 @@ window.loadRAVehiclesGrid = function () {
                     hidden: true
                 },
                 {
-                    field: 'TCID',
-                    hidden: true
+                    field: 'TMPTCID',
+                    caption: 'Contact<br>Person',
+                    size: '150px',
+                    render: function (record/*, index, col_index*/) {
+                        var html = '';
+                        if (record) {
+                            var items = app.raflow.peopleW2UIItems;
+                            for (var s in items) {
+                                if (items[s].id == record.TMPTCID) html = items[s].text;
+                            }
+                        }
+                        return html;
+                    }
                 },
                 {
                     field: 'Type',
