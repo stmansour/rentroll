@@ -399,6 +399,10 @@ DBNAME="rentroll"
 # ALTER TABLE Payor ADD GrossIncome DECIMAL(19,4) NOT NULL DEFAULT 0.0 AFTER DriversLicense;
 # ALTER TABLE User ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER EligibleFutureUser;
 
+# June 15, 2018
+# Rename AccountRep to ThirdPartySource
+# ALTER TABLE Payor CHANGE AccountRep ThirdPartySource bigint(20);
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

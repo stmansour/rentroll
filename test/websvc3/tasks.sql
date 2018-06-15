@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
 --
--- Host: localhost    Database: rentroll
+-- Host: 127.0.0.1    Database: rentroll
 -- ------------------------------------------------------
 -- Server version	5.7.22
 
@@ -1234,7 +1234,7 @@ CREATE TABLE `Payor` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `TaxpayorID` varchar(25) NOT NULL DEFAULT '',
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
-  `AccountRep` bigint(20) NOT NULL DEFAULT '0',
+  `ThirdPartySource` bigint(20) DEFAULT NULL,
   `EligibleFuturePayor` tinyint(1) NOT NULL DEFAULT '1',
   `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `SSN` char(128) NOT NULL DEFAULT '',
@@ -2511,4 +2511,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-14 18:03:30
+-- Dump completed on 2018-06-15 14:34:30
