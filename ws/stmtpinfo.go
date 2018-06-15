@@ -50,7 +50,7 @@ func SvcGetPayorStmInfo(w http.ResponseWriter, r *http.Request, d *ServiceData) 
 		return
 	}
 	rlib.MigrateStructVals(&t, &g.Record)
-	g.Record.PayorIsCompany = t.IsCompany == 1
+	g.Record.PayorIsCompany = t.IsCompany == true
 	g.Record.Address = t.SingleLineAddress()
 	rlib.Console("g.Record = %#v\n", g.Record)
 

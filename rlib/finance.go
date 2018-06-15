@@ -437,7 +437,7 @@ func GetAccountTypeBalance(ctx context.Context, a string, bid int64, dt *time.Ti
 	for rows.Next() {
 		var r GLAccount
 		ReadGLAccounts(rows, &r)
-		if r.AcctType == a && r.AllowPost == 1 {
+		if r.AcctType == a && r.AllowPost {
 			b, err := GetAccountBalance(ctx, bid, r.LID, dt)
 			if err != nil {
 				return bal, err
@@ -486,7 +486,7 @@ func GetRAAccountBalance(ctx context.Context, bid, lid, raid int64, dt *time.Tim
 	}
 
 	// fmt.Printf("GetRALedgerMarkerOnOrBeforeDeprecated(bid,lid,raid,dt) = lm.LMID = %d, lm.Dt = %s\n", lm.LMID, lm.Dt.Format(RRDATEFMT4))
-	if lm.LMID > 0 && RRdb.BizTypes[bid].GLAccounts[lid].AllowPost != 0 {
+	if lm.LMID > 0 && RRdb.BizTypes[bid].GLAccounts[lid].AllowPost {
 		bal += lm.Balance // we initialize the balance to this amount
 		// fmt.Printf("LedgerMarker( bid=%d, lid=%d, raid=%d ) --> LM%08d,  dt = %10s, lm.Balance = %8.2f ==>  bal = %8.2f\n", bid, lid, raid, lm.LMID, lm.Dt.Format(RRDATEFMT4), lm.Balance, bal)
 	}

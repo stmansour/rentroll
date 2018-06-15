@@ -818,7 +818,7 @@ CREATE TABLE Transactant (
     LastName VARCHAR(100) NOT NULL DEFAULT '',
     PreferredName VARCHAR(100) NOT NULL DEFAULT '',
     CompanyName VARCHAR(100) NOT NULL DEFAULT '',
-    IsCompany SMALLINT NOT NULL DEFAULT 0,                  -- 0 == this is a person,  1 == this is a company
+    IsCompany TINYINT(1) NOT NULL DEFAULT 0,                  -- 0 == this is a person,  1 == this is a company
     PrimaryEmail VARCHAR(100) NOT NULL DEFAULT '',
     SecondaryEmail VARCHAR(100) NOT NULL DEFAULT '',
     WorkPhone VARCHAR(100) NOT NULL DEFAULT '',
@@ -900,7 +900,7 @@ CREATE TABLE User (
     EmergencyContactTelephone VARCHAR(100) NOT NULL DEFAULT '',
     EmergencyEmail VARCHAR(100) NOT NULL DEFAULT '',
     AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
-    EligibleFutureUser SMALLINT NOT NULL DEFAULT 1,              -- yes/no
+    EligibleFutureUser TINYINT(1) NOT NULL DEFAULT 1,              -- yes/no
     Industry VARCHAR(100) NOT NULL DEFAULT '',                   -- (e.g., construction, retail, banking etc.)
     SourceSLSID BIGINT NOT NULL DEFAULT 0,                       -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
@@ -920,7 +920,7 @@ CREATE TABLE Payor (
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     AccountRep BIGINT NOT NULL DEFAULT 0,                   -- Accord (renting company) Phonebook UID of account rep
-    EligibleFuturePayor SMALLINT NOT NULL DEFAULT 1,        -- yes/no
+    EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,        -- yes/no
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
     LastModBy BIGINT NOT NULL DEFAULT 0,                    -- employee UID (from phonebook) that modified it
     CreateTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- when was this record created
@@ -1354,7 +1354,7 @@ CREATE TABLE GLAccount (
     AcctType VARCHAR(100) NOT NULL DEFAULT '',                -- Quickbooks Type: Income, Expense, Fixed Asset, Bank, Loan, Credit Card, Equity, Accounts Receivable,
                                                               --    Other Current Asset, Other Asset, Accounts Payable, Other Current Liability,
                                                               --    Cost of Goods Sold, Other Income, Other Expense
-    AllowPost SMALLINT NOT NULL DEFAULT 0,                    -- 0 - do not allow posts to this ledger. 1 = allow posts
+    AllowPost TINYINT(1) NOT NULL DEFAULT 0,                  -- 0 - do not allow posts to this ledger. 1 = allow posts
     -- RARequired SMALLINT NOT NULL DEFAULT 0,                -- 0 = during rental period, 1 = valid prior or during, 2 = valid during or after, 3 = valid before, during, and after
     FLAGS BIGINT NOT NULL DEFAULT 0,                          --
     Description VARCHAR(1024) NOT NULL DEFAULT '',            -- describe the assessment
@@ -1407,7 +1407,7 @@ CREATE TABLE ClosePeriod (
 CREATE TABLE Flow (
     FlowID BIGINT NOT NULL AUTO_INCREMENT,
     BID BIGINT NOT NULL DEFAULT 0,                                                         -- Business id
-    UserRefNo VARCHAR(50) NOT NULL DEFAULT '',                                             -- reference id to share with the user(s)    
+    UserRefNo VARCHAR(50) NOT NULL DEFAULT '',                                             -- reference id to share with the user(s)
     FlowType VARCHAR(50) NOT NULL DEFAULT '',                                              -- for which flow we're storing data ("RA=Rental Agreement Flow")
     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated

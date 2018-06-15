@@ -31,7 +31,7 @@ type PayorHistory struct {
 	TCID            int64
 	DtStart         time.Time
 	DtStop          time.Time
-	IsCompany       int
+	IsCompany       bool
 	FirstName       string
 	LastName        string
 	CompanyName     string
@@ -101,7 +101,7 @@ func SvcGetStatementInfo(w http.ResponseWriter, r *http.Request, d *ServiceData)
 			return
 		}
 		name := ""
-		if p.IsCompany > 0 {
+		if p.IsCompany {
 			name = p.CompanyName
 		} else {
 			name = p.FirstName + " " + p.LastName

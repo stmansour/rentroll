@@ -57,7 +57,7 @@ func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, err
 		{"Description", Description},
 	}
 
-	l.AllowPost = 1 // default is to allow, server will modify as needed
+	l.AllowPost = true // default is to allow, server will modify as needed
 
 	y, err := ValidateCSVColumnsErr(csvCols, sa, funcname, lineno)
 	if y {
@@ -233,8 +233,8 @@ func CreateLedgerMarkers(ctx context.Context, sa []string, lineno int) (int, err
 	// AllowPost attribute is set properly
 	//--------------------------------------------------------------
 	if l.PLID > 0 && l.PLID == parent.LID {
-		if parent.AllowPost == 1 {
-			parent.AllowPost = 0
+		if parent.AllowPost {
+			parent.AllowPost = false
 			err = rlib.UpdateLedger(ctx, &parent)
 			if err != nil {
 				return CsvErrorSensitivity, fmt.Errorf("%s: line %d - Could not update rlib.GLAccount marker, err = %s", funcname, lineno, err.Error())

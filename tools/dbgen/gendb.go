@@ -238,7 +238,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			EmergencyContactTelephone: GenerateRandomPhoneNumber(),
 			EmergencyEmail:            GenerateRandomEmail(eclast, ecfirst),
 			AlternateAddress:          GenerateRandomAddress() + "," + GenerateRandomCity() + "," + GenerateRandomState() + " " + fmt.Sprintf("%05d", rand.Intn(100000)),
-			EligibleFutureUser:        int64(IG.Rand.Intn(2)),
+			EligibleFutureUser:        IG.Rand.Intn(2) > 0,
 			// Industry:
 			// SourceSLSID:
 		}
@@ -257,7 +257,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			CreditLimit:         float64(IG.Rand.Intn(30000)),
 			TaxpayorID:          fmt.Sprintf("%08d", IG.Rand.Intn(10000000)),
 			AccountRep:          int64(IG.Rand.Intn(250)),
-			EligibleFuturePayor: 1,
+			EligibleFuturePayor: true,
 		}
 		_, err = rlib.InsertPayor(ctx, &p)
 		if err != nil {
