@@ -538,7 +538,7 @@ type OtherDeliverables struct {
 	ODID        int64     // Unique ID for this OtherDeliverables
 	BID         int64     // Business
 	Name        string    // Description of the other deliverables. Ex: 2 Seaworld tickets
-	Active      int64     // Flag: Is this list still active?  dropdown interface lists only the active ones
+	Active      bool      // Flag: Is this list still active?  dropdown interface lists only the active ones
 	LastModTime time.Time // when was this record last written
 	LastModBy   int64     // employee UID (from phonebook) that modified it
 	CreateTS    time.Time // when was this record created
