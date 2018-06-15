@@ -10,14 +10,14 @@
     setNotRequiredFields, getRATransanctantDetail, getRAPeopleGridRecord,
     updateRATransactantFormCheckboxes, getRATransactantFormInitRecord, loadRATransactantForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
-    getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields
-    savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringListData, getSLStringList
+    getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields,
+    savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringListData, getSLStringList, updateRATransactantFormCheckboxes
 */
 
 "use strict";
 
 /*
-* Note: Reuse method from transactant.js: getStringListData, getSLStringList
+* Note: Reuse method from transactant.js: getStringListData, getSLStringList, updateRATransactantFormCheckboxes
 * */
 
 // -------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ window.loadRAPeopleForm = function () {
                     style: 'text-align: left;',
                     render: function (record) {
                         if (record.IsCompany) {
-                            return record.Employer;
+                            return record.EmployerName;
                         } else {
                             return getFullName(record);
                         }
@@ -255,103 +255,15 @@ window.loadRAPeopleForm = function () {
                     }
                 }
             },
-            fields: [
-                {field: 'recid',                     type: 'int',       required: false, html: {page: 0, column: 0}},
-                {field: 'TCID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
-                {field: 'TMPTCID',                   type: 'int',       required: true,  html: {page: 0, column: 0}},
-                {field: 'BID',                       type: 'int',       required: false, html: {page: 0, column: 0}},
-                {field: 'BUD',                       type: 'list',      required: false, html: {page: 0, column: 0}, options: {items: app.businesses}},
-                {field: 'NLID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
-                {field: 'IsRenter',                  type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will be responsible for paying rent
-                {field: 'IsOccupant',                type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will reside in and/or use the items rented
-                {field: 'IsGuarantor',               type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // responsible for making sure all rent is paid
-                {field: 'FirstName',                 type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'MiddleName',                type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'LastName',                  type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'PreferredName',             type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'IsCompany',                 type: 'int',       required: true,  html: {page: 0, column: 0}},
-                {field: 'EmployerName',              type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'SSN',                       type: 'text',      required: false, html: {page: 0, column: 0}},  // Social security number of applicants
-                {field: 'DriverLicNo',               type: 'text',      required: false, html: {page: 0, column: 0}},  // Driving licence number of applicants
-                {field: 'PrimaryEmail',              type: 'email',     required: false, html: {page: 0, column: 0}},
-                {field: 'SecondaryEmail',            type: 'email',     required: false, html: {page: 0, column: 0}},
-                {field: 'WorkPhone',                 type: 'phone',     required: false, html: {page: 0, column: 0}},
-                {field: 'CellPhone',                 type: 'phone',     required: false, html: {page: 0, column: 0}},
-                {field: 'Address',                   type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'Address2',                  type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'City',                      type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'State',                     type: 'list',      required: false, html: {page: 0, column: 0}, options: {items: app.usStateAbbr}},
-                {field: 'PostalCode',                type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'Country',                   type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'Website',                   type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'Points',                    type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'DateofBirth',               type: 'date',      required: false, html: {page: 1, column: 0}},
-                {field: 'EmergencyContactName',      type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'EmergencyContactAddress',   type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'EmergencyContactEmail',     type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'AlternateAddress',          type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'EligibleFutureUser',        type: 'checkbox',  required: false, html: {page: 1, column: 0}},
-                {field: 'Industry',                  type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}}, // TODO(Akshay): Mention list option
-                {field: 'CreditLimit',               type: 'money',     required: false, html: {page: 2, column: 0}},
-                {field: 'TaxpayorID',                type: 'text',      required: false, html: {page: 2, column: 0}},
-                {field: 'ThirdPartySource',                type: 'text',      required: false, html: {page: 2, column: 0}},
-                {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0}},
-                {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},
-                {field: 'EmployerStreetAddress',     type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'EmployerCity',              type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'EmployerState',             type: 'list',      required: false, html: {page: 3, column: 0}, options: {items: app.usStateAbbr}},
-                {field: 'EmployerPostalCode',        type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'EmployerEmail',             type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'EmployerPhone',             type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'Occupation',                type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'CurrentAddress',            type: 'text',      required: false, html: {page: 3, column: 0}},  // Current Address
-                {field: 'CurrentLandLordName',       type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's name
-                {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's phone number
-                {field: 'CurrentLengthOfResidency',  type: 'int',       required: false, html: {page: 3, column: 0}},  // Length of residency at current address
-                {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address // TODO(Akshay): stringlist "WhyLeaving"
-                {field: 'PriorAddress',              type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior Address
-                {field: 'PriorLandLordName',         type: 'text',      required: false, html: {page: 3, column: 0}},                          // Prior landlord's name
-                {field: 'PriorLandLordPhoneNo',      type: 'text',      required: false, html: {page: 3, column: 0}},                          // Prior landlord's phone number
-                {field: 'PriorLengthOfResidency',    type: 'int',       required: false, html: {page: 3, column: 0}},                           // Length of residency at Prior address
-                {field: 'PriorReasonForMoving',      type: 'list',      required: false, html: {page: 3, column: 0}},                          // Reason of moving from Prior address // TODO(Akshay): stringlist "WhyLeaving"
-                {field: 'Evicted',                   type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Evicted
-                {field: 'EvictedDes',                type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'Convicted',                 type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Arrested or convicted of a crime
-                {field: 'ConvictedDes',              type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'Bankruptcy',                type: 'checkbox',  required: false, html: {page: 3, column: 0}},  // have you ever been Declared Bankruptcy
-                {field: 'BankruptcyDes',             type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'ApplicationFee',            type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'DesiredUsageStartDate',     type: 'date',      required: false, html: {page: 3, column: 0}},
-                {field: 'RentableTypePreference',    type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'FLAGS',                     type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'Approver',                  type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'DeclineReasonSLSID',        type: 'list',      required: false, html: {page: 3, column: 0}}, // TODO(Akshay): ApplDeny String list
-                {field: 'OtherPreferences',          type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'FollowUpDate',              type: 'date',      required: false, html: {page: 3, column: 0}},
-                {field: 'CSAgent',                   type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'OutcomeSLSID',              type: 'text',      required: false, html: {page: 3, column: 0}},
-                {field: 'FloatingDeposit',           type: 'w2float',   required: false, html: {page: 3, column: 0}},
-                {field: 'RAID',                      type: 'w2int',     required: false, html: {page: 3, column: 0}},
-                {field: 'Comment',                   type: 'text',      required: false, html: {page: 3, column: 0}},  // In an effort to accommodate you, please advise us of any special needs,
-                {field: 'LastModTime',               type: 'time',      required: false, html: {page: 0, column: 0}},
-                {field: 'LastModBy',                 type: 'int',       required: false, html: {page: 0, column: 0}},
-                {field: 'CreateTS',                  type: 'time',      required: false, html: {page: 0, column: 0}},
-                {field: 'CreateBy',                  type: 'int',       required: false, html: {page: 0, column: 0}}
-            ],
-            tabs: [
-                {id: 'tab1', caption: app.sTransactant},
-                {id: 'tab2', caption: app.sUser},
-                {id: 'tab3', caption: app.sPayor},
-                {id: 'tab4', caption: app.sProspect}
-            ],
+            fields: app.transactantFields,
+            tabs: app.transactantTabs,
             actions: {
                 save: function () {
                     var form = this,
                         TMPTCID = form.record.TMPTCID;
 
                     var errors = form.validate();
+                    console.log(errors);
                     if (errors.length > 0) return;
 
                     var peopleData = getFormSubmitData(form.record, true);
@@ -366,6 +278,7 @@ window.loadRAPeopleForm = function () {
                     updateRATransactantFormCheckboxes(peopleData);
 
                     setPeopleLocalData(TMPTCID, peopleData);
+                    console.log(peopleData);
 
                     // clean dirty flag of form
                     app.form_is_dirty = false;
@@ -507,7 +420,7 @@ window.loadRAPeopleForm = function () {
 // It set RATransactantForm header title
 window.setRATransactantFormHeader = function (record) {
     if (record.IsCompany > 0) {
-        w2ui.RATransactantForm.header = 'Background Information - ' + record.Employer;
+        w2ui.RATransactantForm.header = 'Background Information - ' + record.EmployerName;
     } else {
         w2ui.RATransactantForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
     }
@@ -547,7 +460,6 @@ window.getRATransanctantDetail = function (TCID) {
         "FlowID": app.raflow.activeFlowID
     };
 
-
     return $.ajax({
         url: "/v1/raflow-persondetails/" + bid.toString() + "/" + app.raflow.activeFlowID.toString(),
         method: "POST",
@@ -579,18 +491,6 @@ window.getRAPeopleGridRecord = function (records, TCID) {
         }
     }
     return raBGInfoGridrecord;
-};
-
-// updateRATransactantFormCheckboxes
-// Convert checkboxes w2ui int(1/0) value to bool(true/false)
-window.updateRATransactantFormCheckboxes = function (record) {
-    record.IsRenter = int_to_bool(record.IsRenter);
-    record.IsOccupant = int_to_bool(record.IsOccupant);
-    record.IsGuarantor = int_to_bool(record.IsGuarantor);
-    record.IsCompany = int_to_bool(record.IsCompany);
-    record.Evicted = int_to_bool(record.Evicted);
-    record.Bankruptcy = int_to_bool(record.Bankruptcy);
-    record.Convicted = int_to_bool(record.Convicted);
 };
 
 //--------------------------------------------------------------------

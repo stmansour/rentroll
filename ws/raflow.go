@@ -87,12 +87,12 @@ type RAPeopleFlowData struct {
 	AlternateAddress        string
 	EligibleFutureUser      bool
 	Industry                string
-	SourceSLSID             string // TODO(Akshay): ask sudip about its type
+	SourceSLSID             int64
 
 	// Payor fields
 	CreditLimit         float64
 	TaxpayorID          string
-	ThirdPartySource    string
+	ThirdPartySource    int64
 	GrossIncome         float64
 	EligibleFuturePayor bool
 
@@ -110,14 +110,14 @@ type RAPeopleFlowData struct {
 	CurrentLandLordName      string
 	CurrentLengthOfResidency int
 	CurrentLandLordPhoneNo   string
-	CurrentReasonForMoving   string // Reason for moving
+	CurrentReasonForMoving   int64 // Reason for moving
 
 	// Prior Address information
 	PriorAddress           string
 	PriorLandLordName      string
 	PriorLengthOfResidency int
 	PriorLandLordPhoneNo   string
-	PriorReasonForMoving   string // Reason for moving
+	PriorReasonForMoving   int64 // Reason for moving
 
 	// Have you ever been
 	Evicted                bool // Evicted
@@ -126,16 +126,16 @@ type RAPeopleFlowData struct {
 	ConvictedDes           string
 	Bankruptcy             bool // Declared Bankruptcy
 	BankruptcyDes          string
-	ApplicationFee         string
+	ApplicationFee         float64
 	DesiredUsageStartDate  rlib.JSONDate
-	RentableTypePreference string
-	FLAGS                  string
-	Approver               string
-	DeclineReasonSLSID     string
+	RentableTypePreference int64
+	FLAGS                  int64
+	Approver               int64
+	DeclineReasonSLSID     int64
 	OtherPreferences       string
 	FollowUpDate           rlib.JSONDate
-	CSAgent                string
-	OutcomeSLSID           string
+	CSAgent                int64
+	OutcomeSLSID           int64
 	FloatingDeposit        float64
 	RAID                   int
 
