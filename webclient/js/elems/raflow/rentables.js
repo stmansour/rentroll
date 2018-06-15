@@ -1127,7 +1127,7 @@ window.manageParentRentableW2UIItems = function() {
     // if there is only one parent rentable then pre-select it for all child rentable
     // otherwise built drop down menu
     if (app.raflow.parentRentableW2UIItems.length != 1) {
-        var item = {id: 0, text: " -- select parent rentable -- "};
+        var item = {id: 0, text: " -- select rentable -- "};
         pushItem(item, 0);
     } else {
         app.raflow.parentRentableW2UIItems.forEach(function(item, index) {

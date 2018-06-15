@@ -399,6 +399,9 @@ DBNAME="rentroll"
 # ALTER TABLE Payor ADD GrossIncome DECIMAL(19,4) NOT NULL DEFAULT 0.0 AFTER DriversLicense;
 # ALTER TABLE User ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER EligibleFutureUser;
 
+# Jun 15, 2018
+# ALTER TABLE OtherDeliverables MODIFY Active TINYINT(1) NOT NULL DEFAULT 0;
+
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================

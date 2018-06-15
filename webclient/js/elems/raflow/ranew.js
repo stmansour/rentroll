@@ -1,7 +1,8 @@
 /*global
     getRAFlowAllParts, initRAFlowAjax, requiredFieldsFulFilled,
     RACompConfig, w2ui,
-    getFlowDataAjax, manageParentRentableW2UIItems
+    getFlowDataAjax, manageParentRentableW2UIItems,
+    managePeopleW2UIItems
 */
 
 "use strict";
@@ -44,6 +45,9 @@ window.setToNewRAForm = function (bid, FlowID) {
 
             // set BID in raflow settings
             app.raflow.BID = bid;
+
+            // calculate people items
+            managePeopleW2UIItems();
 
             // calculate parent rentable items
             manageParentRentableW2UIItems();
