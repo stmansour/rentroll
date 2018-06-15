@@ -876,3 +876,106 @@ export function printReceiptUITest() {
     // Close the popup
     cy.get(selectors.getClosePopupButtonSelector()).click();
 }
+
+// test for Saving a new Record in Form
+export function testSaveNewRecord(testConfig) {
+    // record list in w2ui form
+    let getW2UIFormRecords;
+
+    // field list in w2ui form
+    let getW2UIFormFields;
+
+    // get form name
+    let formName = testConfig.form;
+
+    // get form selector
+    let formSelector = selectors.getFormSelector(formName);
+
+    // get record and field list from the w2ui form object
+    cy.window().then((win) => {
+
+        // get w2ui form records
+        getW2UIFormRecords = win.w2ui[formName].record;
+        cy.log(getW2UIFormRecords);
+        // get w2ui form fields
+        getW2UIFormFields = win.w2ui[formName].fields;
+
+    });
+
+    let fieldID;
+    let field;
+    let fieldValue;
+
+    testConfig.skipFields.push('BUD');
+
+    if(testConfig.form == "rtForm") {
+        testConfig.skipFields.push('ManageToBudget');        
+    }
+    
+    cy.fixture(testConfig.fixtureFile).then((json) => {
+
+        cy.get(formSelector)
+            .find('input.w2ui-input:not(:hidden)') // get all input field from the form in DOM which doesn't have type as hidden
+            .each(($el, index, $list) => {
+
+                // get id of the field
+                fieldID = $el.context.id;
+
+                cy.log(getW2UIFormRecords);
+
+                // get default value of field
+                fieldValue = json.record[fieldID];
+
+                // get field from w2ui form field list
+                field = getW2UIFormFields.find(fieldList => fieldList.field === fieldID);
+
+                // Check field visibility and match default value from w2ui
+                if (!isInArray(fieldID, testConfig.skipFields)) {
+
+                    // Check if type of input field is list
+                    if($list[index].getAttribute("type") === "list") {
+
+                        // Get dropdown field, check visiblity and click on it
+                        cy.get(selectors.getFieldSelector(fieldID)).parent().should('be.visible').click();
+                        // Get dropdown value, check visiblity and click on it
+                        cy.get(selectors.getDropDownValueFieldSelector(fieldValue)).should('be.visible').click();
+                    }
+                    else if($list[index].getAttribute("type") === "checkbox") {
+                        if(!$el[0].checked){
+                            if(!$el.context.disabled){
+                                // Get checkbox, check visiblity and click on it
+                                cy.get(selectors.getFieldSelector(fieldID))
+                                    .should('be.visible')
+                                    .should('not.be.disabled')
+                                    .should('not.be.checked').click();
+                            }
+                        }
+                    }
+                    else if($list[index].getAttribute("type") === "text") {
+
+                        // Check visibility and match the default value of the fields.
+                        cy.get(selectors.getFieldSelector(fieldID))
+                            .should('be.visible').clear().type(fieldValue)
+                            .should('have.value', fieldValue);
+                    }
+                }
+            });
+    });
+
+    // Route request for adding new record
+    cy.server();
+    cy.route(testConfig.methodType, getDetailRecordAPIEndPoint(testConfig.module, 0)).as('addRecord');
+
+    // Get save button and click on it
+    cy.get(selectors.getButtonSelector('save')).click();
+
+    // check response status of API end point
+    cy.wait('@addRecord').its('status').should('eq', constants.HTTP_OK_STATUS);
+
+    // get API Endpoint response
+    cy.get('@addRecord').then(function (xhr) {
+
+        // Check status flag in API Endpoint response
+        expect(xhr.responseBody).to.have.property('status', constants.API_RESPONSE_SUCCESS_FLAG);
+    });
+}
