@@ -442,7 +442,7 @@ window.loadRAPeopleForm = function () {
                 {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}}, // TODO(Akshay): Mention list option
                 {field: 'CreditLimit',               type: 'money',     required: false, html: {page: 2, column: 0}},
                 {field: 'TaxpayorID',                type: 'text',      required: false, html: {page: 2, column: 0}},
-                {field: 'AccountRep',                type: 'text',      required: false, html: {page: 2, column: 0}},
+                {field: 'ThirdPartySource',                type: 'text',      required: false, html: {page: 2, column: 0}},
                 {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0}},
                 {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},
                 {field: 'EmployerStreetAddress',     type: 'text',      required: false, html: {page: 3, column: 0}},

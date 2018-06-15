@@ -92,7 +92,7 @@ type RAPeopleFlowData struct {
 	// Payor fields
 	CreditLimit         float64
 	TaxpayorID          string
-	AccountRep          string
+	ThirdPartySource    string
 	GrossIncome         float64
 	EligibleFuturePayor bool
 

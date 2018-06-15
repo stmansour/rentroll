@@ -39,7 +39,7 @@ type PeopleCSV struct {
 	PostalCode                string
 	Country                   string
 	Points                    string
-	AccountRep                string
+	ThirdPartySource          string
 	DateofBirth               string
 	EmergencyContactName      string
 	EmergencyContactAddress   string

@@ -2528,7 +2528,7 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor,
+	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.ThirdPartySource, a.EligibleFuturePayor,
 		a.FLAGS, a.SSN, a.DriversLicense, a.GrossIncome, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)

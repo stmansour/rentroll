@@ -467,7 +467,7 @@ func UpdatePayor(ctx context.Context, a *Payor) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor,
+	fields := []interface{}{a.BID, a.CreditLimit, a.TaxpayorID, a.ThirdPartySource, a.EligibleFuturePayor,
 		a.FLAGS, a.SSN, a.DriversLicense, a.GrossIncome, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdatePayor)

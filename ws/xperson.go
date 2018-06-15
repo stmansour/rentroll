@@ -68,7 +68,7 @@ type RPerson struct {
 	SourceSLSID               int64
 	CreditLimit               float64
 	TaxpayorID                string
-	AccountRep                int64
+	ThirdPartySource          int64
 	EligibleFuturePayor       bool
 	LastModTime               rlib.JSONDateTime
 	LastModBy                 int64
@@ -128,7 +128,7 @@ type RPersonForm struct {
 	SourceSLSID               int64
 	CreditLimit               float64
 	TaxpayorID                string
-	AccountRep                int64
+	ThirdPartySource          int64
 	BID                       int64
 	BUD                       rlib.XJSONBud
 	IsCompany                 bool // 1 => the entity is a company, 0 = not a company
