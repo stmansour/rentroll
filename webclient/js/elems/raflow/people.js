@@ -192,11 +192,21 @@ window.loadRAPeopleForm = function () {
 
                             var raBGInfoGridRecord = grid.get(event.recid); // record from the w2ui grid
 
+                            getStringList(BID, BUD).done(function (data) {
+                                form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
+                                form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
+                                form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                                form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
+                                form.refresh(); // need to refresh for changes
+                            }).fail(function (data) {
+                                form.message(data.message);
+                            });
+
                             // show slider content in w2ui comp
                             showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
                             // show/hide list of fields based on role
-                            // manageBGInfoFormFields(raBGInfoGridRecord);
+                            manageBGInfoFormFields(raBGInfoGridRecord);
 
                             form.record = getPeopleLocalData(raBGInfoGridRecord.TMPTCID);
                             form.record.recid = raBGInfoGridRecord.recid;
@@ -248,23 +258,23 @@ window.loadRAPeopleForm = function () {
                 {field: 'PrimaryEmail',              type: 'email',     required: false, html: {page: 0, column: 0}},
                 {field: 'TCID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
                 {field: 'BID',                       type: 'int',       required: false, html: {page: 0, column: 0}},
-                {field: 'TMPTCID',                   type: 'int',       required: true, html: {page: 0, column: 0}},
+                {field: 'TMPTCID',                   type: 'int',       required: true,  html: {page: 0, column: 0}},
                 {field: 'IsRenter',                  type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will be responsible for paying rent
                 {field: 'IsOccupant',                type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // will reside in and/or use the items rented
                 {field: 'IsGuarantor',               type: 'checkbox',  required: false, html: {page: 0, column: 0}},  // responsible for making sure all rent is paid
                 {field: 'BUD',                       type: 'list',      required: false, html: {page: 0, column: 0}, options: {items: app.businesses}},
                 {field: 'NLID',                      type: 'int',       required: false, html: {page: 0, column: 0}},
-                {field: 'IsCompany',                 type: 'int',       required: true, html: {page: 0, column: 0}},
+                {field: 'IsCompany',                 type: 'int',       required: true,  html: {page: 0, column: 0}},
                 {field: 'CompanyName',               type: 'text',      required: false, html: {page: 0, column: 0}},
                 {field: 'SSN',                       type: 'text',      required: false, html: {page: 0, column: 0}},  // Social security number of applicants
-                {field: 'DriverLicNo',               type: 'text',      required: false, html: {page: 0, column: 0}},                          // Driving licence number of applicants
+                {field: 'DriverLicNo',               type: 'text',      required: false, html: {page: 0, column: 0}},  // Driving licence number of applicants
                 {field: 'SecondaryEmail',            type: 'email',     required: false, html: {page: 0, column: 0}},
                 {field: 'WorkPhone',                 type: 'phone',     required: false, html: {page: 0, column: 0}},
                 {field: 'CellPhone',                 type: 'phone',     required: false, html: {page: 0, column: 0}},
                 {field: 'Address',                   type: 'text',      required: false, html: {page: 0, column: 0}},
                 {field: 'Address2',                  type: 'text',      required: false, html: {page: 0, column: 0}},
                 {field: 'City',                      type: 'text',      required: false, html: {page: 0, column: 0}},
-                {field: 'State',                     type: 'list',      required: false, html: {page: 0, column: 0}, options: {items: app.usStateAbbr}, },
+                {field: 'State',                     type: 'list',      required: false, html: {page: 0, column: 0}, options: {items: app.usStateAbbr}},
                 {field: 'PostalCode',                type: 'text',      required: false, html: {page: 0, column: 0}},
                 {field: 'Country',                   type: 'text',      required: false, html: {page: 0, column: 0}},
                 {field: 'Website',                   type: 'text',      required: false, html: {page: 0, column: 0}},
@@ -279,14 +289,14 @@ window.loadRAPeopleForm = function () {
                 {field: 'EmergencyContactTelephone', type: 'text',      required: false, html: {page: 1, column: 0}},
                 {field: 'EmergencyEmail',            type: 'text',      required: false, html: {page: 1, column: 0}},
                 {field: 'AlternateAddress',          type: 'text',      required: false, html: {page: 1, column: 0}},
-                {field: 'EligibleFutureUser',        type: 'list',      required: false, html: {page: 1, column: 0}, options: {items: app.yesNoList}},
+                {field: 'EligibleFutureUser',        type: 'checkbox',  required: false, html: {page: 1, column: 0}},
                 {field: 'Industry',                  type: 'text',      required: false, html: {page: 1, column: 0}},
                 {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}}, // TODO(Akshay): Mention list option
                 {field: 'CreditLimit',               type: 'money',     required: false, html: {page: 2, column: 0}},
                 {field: 'TaxpayorID',                type: 'text',      required: false, html: {page: 2, column: 0}},
                 {field: 'AccountRep',                type: 'text',      required: false, html: {page: 2, column: 0}},
-                {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0} },
-                {field: 'EligibleFuturePayor',       type: 'list',      required: false, html: {page: 2, column: 0}, options: {items: app.yesNoList}},
+                {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0}},
+                {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},
                 {field: 'EmployerName',              type: 'text',      required: false, html: {page: 3, column: 0}},
                 {field: 'EmployerStreetAddress',     type: 'text',      required: false, html: {page: 3, column: 0}},
                 {field: 'EmployerCity',              type: 'text',      required: false, html: {page: 3, column: 0}},
@@ -300,7 +310,7 @@ window.loadRAPeopleForm = function () {
                 {field: 'CurrentLandLordPhoneNo',    type: 'text',      required: false, html: {page: 3, column: 0}},  // Current landlord's phone number
                 {field: 'CurrentLengthOfResidency',  type: 'int',       required: false, html: {page: 3, column: 0}},  // Length of residency at current address
                 {field: 'CurrentReasonForMoving',    type: 'list',      required: false, html: {page: 3, column: 0}},  // Reason of moving from current address // TODO(Akshay): stringlist "WhyLeaving"
-                {field: 'PriorAddress',              type: 'text',      required: false, html: {page: 3, column: 0}},                          // Prior Address
+                {field: 'PriorAddress',              type: 'text',      required: false, html: {page: 3, column: 0}},  // Prior Address
                 {field: 'PriorLandLordName',         type: 'text',      required: false, html: {page: 3, column: 0}},                          // Prior landlord's name
                 {field: 'PriorLandLordPhoneNo',      type: 'text',      required: false, html: {page: 3, column: 0}},                          // Prior landlord's phone number
                 {field: 'PriorLengthOfResidency',    type: 'int',       required: false, html: {page: 3, column: 0}},                           // Length of residency at Prior address
@@ -323,7 +333,7 @@ window.loadRAPeopleForm = function () {
                 {field: 'OutcomeSLSID',              type: 'text',      required: false, html: {page: 3, column: 0}},
                 {field: 'FloatingDeposit',           type: 'w2float',   required: false, html: {page: 3, column: 0}},
                 {field: 'RAID',                      type: 'w2int',     required: false, html: {page: 3, column: 0}},
-                {field: 'Comment',                   type: 'text',      required: false, html: {page: 3, column: 0}}                          // In an effort to accommodate you, please advise us of any special needs
+                {field: 'Comment',                   type: 'text',      required: false, html: {page: 3, column: 0}}  // In an effort to accommodate you, please advise us of any special needs
             ],
             tabs: [
                 {id: 'tab1', caption: app.sTransactant},
@@ -578,59 +588,6 @@ window.updateRATransactantFormCheckboxes = function (record) {
     record.Convicted = int_to_bool(record.Convicted);
 };
 
-//
-window.getRABGInfoFormInitRecord = function (BID, TCID, RECID) {
-
-    return {
-        recid: RECID,
-        TMPTCID: 0,
-        TCID: TCID,
-        BID: BID,
-        IsRenter: false,
-        IsOccupant: true,
-        IsGuarantor: false,
-        FirstName: "",
-        MiddleName: "",
-        LastName: "",
-        IsCompany: false,
-        DateofBirth: "",
-        SSN: "",
-        DriverLicNo: "",
-        CellPhone: "",
-        PrimaryEmail: "",
-        CurrentAddress: "",
-        CurrentLandLordName: "",
-        CurrentLandLordPhoneNo: "",
-        CurrentLengthOfResidency: 0,
-        CurrentReasonForMoving: "",
-        PriorAddress: "",
-        PriorLandLordName: "",
-        PriorLandLordPhoneNo: "",
-        PriorLengthOfResidency: 0,
-        PriorReasonForMoving: "",
-        Evicted: false,
-        EvictedDes: "",
-        Convicted: false,
-        ConvictedDes: "",
-        Bankruptcy: false,
-        BankruptcyDes: "",
-        Employer: "",
-        WorkPhone: "",
-        Address: "",
-        Address2: "",
-        City: "",
-        State: "",
-        PostalCode: "",
-        Country: "",
-        Position: "",
-        GrossIncome: 0,
-        Comment: "",
-        EmergencyContactName: "",
-        EmergencyContactPhone: "",
-        EmergencyContactAddress: ""
-    };
-};
-
 //--------------------------------------------------------------------
 // ReassignPeopleGridRecords
 //--------------------------------------------------------------------
@@ -658,31 +615,31 @@ window.ReassignPeopleGridRecords = function () {
 //-----------------------------------------------------------------------------
 window.openNewTransactantForm = function () {
     var BID = getCurrentBID(),
-        BUD = getBUDfromBID(BID);
+        BUD = getBUDfromBID(BID),
+        form = w2ui.RATransactantForm;
 
     // For new form TCID is 0
     var TCID = 0;
     var recid = w2ui.RAPeopleGrid.records.length + 1;
 
-    w2ui.RATransactantForm.header = 'Background Information';
-    w2ui.RATransactantForm.record = getTransactantInitRecord(BID, BUD);
-    getStringList(BID, BUD).done(function () {
-        var form = w2ui.RATransactantForm;
-        console.log("List..................");
-        console.log(getSLStringList(BID, "HowFound"));
+    form.header = 'Background Information';
+    form.record = getTransactantInitRecord(BID, BUD);
+    setTransactantDefaultRole(form.record);
 
+    getStringList(BID, BUD).done(function (data) {
         form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
         form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
         form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
         form.get('PriorReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
-        form.refresh();
+        form.refresh(); // need to refresh for changes
+    }).fail(function (data) {
+        form.message(data.message);
     });
 
-	// setTransactantDefaultRole(w2ui.RATransactantForm.record);
 
-    showSliderContentW2UIComp(w2ui.RATransactantForm, RACompConfig.people.sliderWidth);
+    showSliderContentW2UIComp(form, RACompConfig.people.sliderWidth);
 
-    w2ui.RATransactantForm.refresh(); // need to refresh for header changes
+    form.refresh(); // need to refresh for header changes
 };
 
 //-----------------------------------------------------------------------------
