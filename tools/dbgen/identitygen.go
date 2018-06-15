@@ -147,6 +147,18 @@ func GenerateRandomLicensePlate() string {
 	return string(l)
 }
 
+// GenerateRandomSSN returns a random social security number
+//-----------------------------------------------------------------------------
+func GenerateRandomSSN() string {
+	return fmt.Sprintf("%03d-%02d-%04d", IG.Rand.Intn(1000), IG.Rand.Intn(100), IG.Rand.Intn(10000))
+}
+
+// GenerateRandomDriversLicense returns a random drivers license number
+//-----------------------------------------------------------------------------
+func GenerateRandomDriversLicense() string {
+	return fmt.Sprintf("%c%07d", Alphabet[IG.Rand.Intn(26)], IG.Rand.Intn(10000000))
+}
+
 // GenerateRandomPhoneNumber returns a string with a random phone number
 //-----------------------------------------------------------------------------
 func GenerateRandomPhoneNumber() string {

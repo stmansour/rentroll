@@ -1425,6 +1425,7 @@ type Flow struct {
 	FlowID      int64           // primary auto increment key
 	UserRefNo   string          // user reference string
 	FlowType    string          // RA="Rental Agreement Flow" etc...
+	ID          int64           // id from permanent table, for FlowType "RA" it would be RAID
 	Data        json.RawMessage // json data in mysql
 	LastModTime time.Time       // last modified time
 	LastModBy   int64           // last modified by whom
@@ -1837,6 +1838,7 @@ type RRprepSQL struct {
 	UpdateClosePeriod                       *sql.Stmt
 	DeleteClosePeriod                       *sql.Stmt
 	GetFlowMetaDataInRange                  *sql.Stmt
+	GetFlowForRAID                          *sql.Stmt
 }
 
 // DeleteBusinessFromDB deletes information from all tables if it is part of the supplied BID.

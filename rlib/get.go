@@ -7694,6 +7694,37 @@ func GetFlow(ctx context.Context, flowID int64) (Flow, error) {
 	return a, ReadFlow(row, &a)
 }
 
+// GetFlowForRAID reads a Flow structure based on the supplied
+// FlowType and ID
+//
+// INPUTS:
+//     flowtype = type of flow. "RA" or whatever
+//           ID - the id that refers to a permanent table association.
+//                for FlowType "RA", ID is the RAID
+//
+// RETURNS
+//     The Flow struct
+//     Any error encountered
+//-----------------------------------------------------------------------------
+func GetFlowForRAID(ctx context.Context, flowtype string, ID int64) (Flow, error) {
+	var a Flow
+
+	if sessionCheck(ctx) {
+		return a, ErrSessionRequired
+	}
+
+	var row *sql.Row
+	fields := []interface{}{flowtype, ID}
+	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
+		stmt := tx.Stmt(RRdb.Prepstmt.GetFlowForRAID)
+		defer stmt.Close()
+		row = stmt.QueryRow(fields...)
+	} else {
+		row = RRdb.Prepstmt.GetFlowForRAID.QueryRow(fields...)
+	}
+	return a, ReadFlow(row, &a)
+}
+
 // GetFlowsByFlowType reads all flowID for the current user
 func GetFlowsByFlowType(ctx context.Context, flowType string) ([]Flow, error) {
 

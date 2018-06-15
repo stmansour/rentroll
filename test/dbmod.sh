@@ -401,6 +401,7 @@ DBNAME="rentroll"
 
 # Jun 15, 2018
 # ALTER TABLE OtherDeliverables MODIFY Active TINYINT(1) NOT NULL DEFAULT 0;
+# ALTER TABLE Flow ADD ID BIGINT NOT NULL DEFAULT 0 AFTER FlowType;
 
 #=====================================================
 #  Put modifications to schema in the lines below

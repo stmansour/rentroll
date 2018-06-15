@@ -347,7 +347,7 @@ func buildPreparedStatements() {
 	//==========================================
 	// Flow
 	//==========================================
-	flds = "FlowID,BID,UserRefNo,FlowType,Data,CreateTS,CreateBy,LastModTime,LastModBy"
+	flds = "FlowID,BID,UserRefNo,FlowType,ID,Data,CreateTS,CreateBy,LastModTime,LastModBy"
 	RRdb.DBFields["Flow"] = flds
 	RRdb.Prepstmt.GetFlowMetaDataInRange, err = RRdb.Dbrr.Prepare("SELECT FlowID,BID,UserRefNo,FlowType,CreateTS,CreateBy,LastModTime,LastModBy FROM Flow WHERE ? <= CreateTS AND CreateTS < ?")
 	Errcheck(err)
@@ -356,6 +356,8 @@ func buildPreparedStatements() {
 	RRdb.Prepstmt.GetFlowsByFlowType, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow where FlowType=?")
 	Errcheck(err)
 	RRdb.Prepstmt.GetFlowIDsByUser, err = RRdb.Dbrr.Prepare("SELECT DISTINCT FlowID FROM Flow where CreateBy=?")
+	Errcheck(err)
+	RRdb.Prepstmt.GetFlowForRAID, err = RRdb.Dbrr.Prepare("SELECT " + flds + " FROM Flow WHERE FlowType=? AND ID=?")
 	Errcheck(err)
 	s1, s2, s3, _, _ = GenSQLInsertAndUpdateStrings(flds)
 	RRdb.Prepstmt.InsertFlow, err = RRdb.Dbrr.Prepare("INSERT INTO Flow (" + s1 + ") VALUES(" + s2 + ")")

@@ -285,6 +285,7 @@ func saveRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 // wsdoc }
 func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	const funcname = "getRA2Flow"
+	var flow rlib.Flow
 	currentDateTime := time.Now()
 	nextYearDateTime := currentDateTime.AddDate(1, 0, 0)
 
@@ -324,9 +325,20 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 	}
 
 	//-------------------------------------------------------------------------
-	//  TBD: check to see if a flow already exists for this RAID. If so, just
+	//  Check to see if a flow already exists for this RAID. If so, just
 	//  use it.
 	//-------------------------------------------------------------------------
+	flow, err = rlib.GetFlowForRAID(r.Context(), "RA", ra.RAID)
+	if err != nil {
+		SvcErrorReturn(w, err, funcname)
+	}
+	if flow.ID == ra.RAID {
+		var g FlowResponse
+		g.Record = flow
+		g.Status = "success"
+		SvcWriteResponse(d.BID, &g, w)
+		return
+	}
 
 	//-------------------------------------------------------------------------
 	// Fill out the datastructure and save it to the db as a flow...
@@ -380,6 +392,7 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		FlowID:    0, // it's new flowID,
 		UserRefNo: rlib.GenerateUserRefNo(),
 		FlowType:  rlib.RAFlow,
+		ID:        ra.RAID,
 		Data:      raflowJSONData,
 		CreateBy:  d.sess.UID,
 		LastModBy: d.sess.UID,
@@ -392,14 +405,14 @@ func getRA2Flow(w http.ResponseWriter, r *http.Request, d *ServiceData) {
 		return
 	}
 
-	flow, err := rlib.GetFlow(r.Context(), flowID)
+	flow, err = rlib.GetFlow(r.Context(), flowID)
 	if err != nil {
 		SvcErrorReturn(w, err, funcname)
 		return
 	}
-	var g FlowResponse
 
 	// set the response
+	var g FlowResponse
 	g.Record = flow
 	g.Status = "success"
 	SvcWriteResponse(d.BID, &g, w)

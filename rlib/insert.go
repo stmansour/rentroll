@@ -694,7 +694,7 @@ func InsertFlow(ctx context.Context, a *Flow) (int64, error) {
 
 	// as a.Data is type of json.RawMessage - convert it to byte stream so that it can be inserted
 	// in mysql `json` type column
-	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, []byte(a.Data), a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.UserRefNo, a.FlowType, a.ID, []byte(a.Data), a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertFlow)
 		defer stmt.Close()
@@ -2534,12 +2534,12 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 
 	b1, err := Encrypt(a.SSN)
 	if err != nil {
-		return rid,err
+		return rid, err
 	}
 	b := hex.EncodeToString(b1)
 	d1, err := Encrypt(a.DriversLicense)
 	if err != nil {
-		return rid,err
+		return rid, err
 	}
 	d := hex.EncodeToString(d1)
 	// Console("Encrypted SSN: %s\n", b)

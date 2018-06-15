@@ -258,6 +258,8 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			TaxpayorID:          fmt.Sprintf("%08d", IG.Rand.Intn(10000000)),
 			AccountRep:          int64(IG.Rand.Intn(250)),
 			EligibleFuturePayor: true,
+			SSN:                 GenerateRandomSSN(),
+			DriversLicense:      GenerateRandomDriversLicense(),
 		}
 		_, err = rlib.InsertPayor(ctx, &p)
 		if err != nil {

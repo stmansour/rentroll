@@ -1422,6 +1422,7 @@ CREATE TABLE Flow (
     BID BIGINT NOT NULL DEFAULT 0,                                                         -- Business id
     UserRefNo VARCHAR(50) NOT NULL DEFAULT '',                                             -- reference id to share with the user(s)
     FlowType VARCHAR(50) NOT NULL DEFAULT '',                                              -- for which flow we're storing data ("RA=Rental Agreement Flow")
+    ID BIGINT NOT NULL DEFAULT 0,                                                          -- ID associated with flow type, typically a permanent table ID, RAID for flow "RA"
     Data JSON DEFAULT NULL,                                                                -- JSON Data for each flow type
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was it last updated
     LastModBy BIGINT NOT NULL DEFAULT 0,                                                   -- who modified it last

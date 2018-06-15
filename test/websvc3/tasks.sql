@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: rentroll
 -- ------------------------------------------------------
--- Server version	5.7.22-0ubuntu0.16.04.1-log
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -594,6 +594,7 @@ CREATE TABLE `Flow` (
   `BID` bigint(20) NOT NULL DEFAULT '0',
   `UserRefNo` varchar(50) NOT NULL DEFAULT '',
   `FlowType` varchar(50) NOT NULL DEFAULT '',
+  `ID` bigint(20) NOT NULL DEFAULT '0',
   `Data` json DEFAULT NULL,
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
@@ -2511,4 +2512,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-15 17:50:05
+-- Dump completed on 2018-06-15 12:15:36

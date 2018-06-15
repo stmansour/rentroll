@@ -174,14 +174,14 @@ func ReadExpenses(rows *sql.Rows, a *Expense) error {
 
 // ReadFlow reads a full Flow structure from the database based on the supplied row object
 func ReadFlow(row *sql.Row, a *Flow) error {
-	err := row.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	err := row.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.ID, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
 }
 
 // ReadFlows reads a full Flow structure from the database based on the supplied rows object
 func ReadFlows(rows *sql.Rows, a *Flow) error {
-	return rows.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	return rows.Scan(&a.FlowID, &a.BID, &a.UserRefNo, &a.FlowType, &a.ID, &a.Data, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
 //------------------
