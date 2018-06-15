@@ -464,3 +464,56 @@ $().w2grid({
     });
 
 };
+
+//-----------------------------------------------------------------------------
+// getStringListData - return the promise object of request to get latest
+//                           string list for given BID.
+//                           It updates the "app.ReceiptRules" variable for requested BUD
+// @params  - BID : Business ID (expected current one)
+//          - BUD : Business Unit Designation
+// @return  - promise object from $.get
+//-----------------------------------------------------------------------------
+window.getStringListData = function (BID, BUD) {
+    // if not BUD in app.ReceiptRules then initialize it with blank list
+    if (!(BUD in app.StringList)) {
+        app.StringList[BUD] = [];
+    }
+
+    // return promise
+    return $.get("/v1/uival/" + BID + "/app.Applicants", null, null, "json").done(function(data) {
+        // if it doesn't meet this condition, then save the data
+        if (!('status' in data && data.status !== "success")) {
+            console.log(data);
+            app.StringList[BUD] = data;
+        }
+    });
+};
+
+// getSLStringList - It provide string list of `SLName`
+window.getSLStringList = function(BID, SLName){
+    var BUD = getBUDfromBID(BID);
+    app[SLName] = [];
+    app.StringList[BUD].forEach(function (SLObject) {
+        if(SLObject.Name === SLName){
+            var defaultItem;
+            switch (SLName){
+                case "HowFound":
+                    defaultItem = {id: 0, text: " -- Select Source SLSID -- "};
+                    break;
+                case "WhyLeaving":
+                    defaultItem = {id: 0, text: " -- Select reason for leaving -- "};
+                    break;
+                case "ApplDeny":
+                    defaultItem = {id: 0, text: " -- Select DeclineReasonSLSID -- "};
+                    break;
+                default:
+                    console.log("SLName doesn't exists");
+            }
+            app[SLName].push(defaultItem);
+            for(var index = 0 ; index < SLObject.S.length ; index++){
+                app[SLName].push({id: SLObject.S[index].SLSID, text: SLObject.S[index].Value});
+            }
+        }
+    });
+    return app[SLName];
+};

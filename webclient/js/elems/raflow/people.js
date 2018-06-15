@@ -11,10 +11,14 @@
     updateRATransactantFormCheckboxes, getRATransactantFormInitRecord, loadRATransactantForm, ReassignPeopleGridRecords,
     manageBGInfoFormFields, addDummyBackgroundInfo, savePeopleCompData, getPeopleLocalData, setPeopleLocalData,
     getPeopleLocalDataByTCID, setTransactantDefaultRole, transactantTabs, transactantFields
-    savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringList, getSLStringList
+    savePetsCompData, saveVehiclesCompData, setRAFlowCompData, getStringListData, getSLStringList
 */
 
 "use strict";
+
+/*
+* Note: Reuse method from transactant.js: getStringListData, getSLStringList
+* */
 
 // -------------------------------------------------------------------------------
 // Rental Agreement - People form, People Grid, Background information form
@@ -194,7 +198,7 @@ window.loadRAPeopleForm = function () {
 
                             var raBGInfoGridRecord = grid.get(event.recid); // record from the w2ui grid
 
-                            getStringList(BID, BUD).done(function (data) {
+                            getStringListData(BID, BUD).done(function (data) {
                                 form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
                                 form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
                                 form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
@@ -476,7 +480,7 @@ window.loadRAPeopleForm = function () {
                 {field: 'OutcomeSLSID',              type: 'text',      required: false, html: {page: 3, column: 0}},
                 {field: 'FloatingDeposit',           type: 'w2float',   required: false, html: {page: 3, column: 0}},
                 {field: 'RAID',                      type: 'w2int',     required: false, html: {page: 3, column: 0}},
-                {field: 'Comment',                   type: 'text',      required: false, html: {page: 3, column: 0}}  // In an effort to accommodate you, please advise us of any special needs,
+                {field: 'Comment',                   type: 'text',      required: false, html: {page: 3, column: 0}},  // In an effort to accommodate you, please advise us of any special needs,
                 {field: 'LastModTime',               type: 'time',      required: false, html: {page: 0, column: 0}},
                 {field: 'LastModBy',                 type: 'int',       required: false, html: {page: 0, column: 0}},
                 {field: 'CreateTS',                  type: 'time',      required: false, html: {page: 0, column: 0}},
@@ -627,7 +631,7 @@ window.openNewTransactantForm = function () {
     form.record = getTransactantInitRecord(BID, BUD);
     setTransactantDefaultRole(form.record);
 
-    getStringList(BID, BUD).done(function (data) {
+    getStringListData(BID, BUD).done(function (data) {
         form.get('SourceSLSID').options.items = getSLStringList(BID, "HowFound");
         form.get('DeclineReasonSLSID').options.items = getSLStringList(BID, "ApplDeny");
         form.get('CurrentReasonForMoving').options.items = getSLStringList(BID, "WhyLeaving");
@@ -829,57 +833,4 @@ window.setTransactantDefaultRole = function (transactantRec) {
 
 	// Each transactant must be occupant by default. It can be change via BGInfo detail form
 	transactantRec.IsOccupant = true;
-};
-
-//-----------------------------------------------------------------------------
-// getStringList - return the promise object of request to get latest
-//                           string list for given BID.
-//                           It updates the "app.ReceiptRules" variable for requested BUD
-// @params  - BID : Business ID (expected current one)
-//          - BUD : Business Unit Designation
-// @return  - promise object from $.get
-//-----------------------------------------------------------------------------
-window.getStringList = function (BID, BUD) {
-    // if not BUD in app.ReceiptRules then initialize it with blank list
-    if (!(BUD in app.StringList)) {
-        app.StringList[BUD] = [];
-    }
-
-    // return promise
-    return $.get("/v1/uival/" + BID + "/app.Applicants", null, null, "json").done(function(data) {
-        // if it doesn't meet this condition, then save the data
-        if (!('status' in data && data.status !== "success")) {
-            console.log(data);
-            app.StringList[BUD] = data;
-        }
-    });
-};
-
-// getSLStringList - It provide string list of `SLName`
-window.getSLStringList = function(BID, SLName){
-  var BUD = getBUDfromBID(BID);
-  app[SLName] = [];
-  app.StringList[BUD].forEach(function (SLObject) {
-      if(SLObject.Name === SLName){
-          var defaultItem;
-          switch (SLName){
-              case "HowFound":
-                  defaultItem = {id: 0, text: " -- Select Source SLSID -- "};
-                  break;
-              case "WhyLeaving":
-                  defaultItem = {id: 0, text: " -- Select reason for leaving -- "};
-                  break;
-              case "ApplDeny":
-                  defaultItem = {id: 0, text: " -- Select DeclineReasonSLSID -- "};
-                  break;
-              default:
-                  console.log("SLName doesn't exists");
-          }
-          app[SLName].push(defaultItem);
-          for(var index = 0 ; index < SLObject.S.length ; index++){
-              app[SLName].push({id: SLObject.S[index].SLSID, text: SLObject.S[index].Value});
-          }
-      }
-  });
-  return app[SLName];
 };
