@@ -1,6 +1,9 @@
 package rlib
 
-import "database/sql"
+import (
+	"database/sql"
+	"encoding/hex"
+)
 
 // As the database structures change, having the calls that Read from the database into these structures located
 // in one place simplifies maintenance
@@ -733,10 +736,27 @@ func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) error {
 
 // ReadPayor reads a full Payor structure from the database based on the supplied row object
 func ReadPayor(row *sql.Row, a *Payor) error {
+	var b1, d1 string
 	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor,
-		&a.FLAGS, &a.SSN, &a.DriversLicense, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+		&a.FLAGS, &b1, &d1, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
-	return err
+	if err != nil {
+		return err
+	}
+	b, err := hex.DecodeString(b1)
+	if err != nil {
+		return err
+	}
+	a.SSN, err = DecryptOrEmpty(b)
+	if err != nil {
+		return err
+	}
+	d, err := hex.DecodeString(d1)
+	a.DriversLicense, err = DecryptOrEmpty(d)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object

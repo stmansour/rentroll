@@ -3,6 +3,7 @@ package rlib
 import (
 	"context"
 	"database/sql"
+	"encoding/hex"
 	"extres"
 )
 
@@ -2484,7 +2485,10 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 	}
 
 	// transaction... context
-	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS, a.CreateBy, a.LastModBy}
+	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName,
+		a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone,
+		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS,
+		a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertTransactant)
 		defer stmt.Close()
@@ -2510,10 +2514,11 @@ func InsertTransactant(ctx context.Context, a *Transactant) (int64, error) {
 func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 
 	var (
-		rid = int64(0)
+		rid int64
 		err error
 		// res sql.Result
 	)
+	rid = a.TCID
 
 	// session... context
 	if !(RRdb.noAuth && AppConfig.Env != extres.APPENVPROD) {
@@ -2527,9 +2532,22 @@ func InsertPayor(ctx context.Context, a *Payor) (int64, error) {
 		a.LastModBy = a.CreateBy
 	}
 
+	b1, err := Encrypt(a.SSN)
+	if err != nil {
+		return rid,err
+	}
+	b := hex.EncodeToString(b1)
+	d1, err := Encrypt(a.DriversLicense)
+	if err != nil {
+		return rid,err
+	}
+	d := hex.EncodeToString(d1)
+	// Console("Encrypted SSN: %s\n", b)
+	// Console("Encrypted DriversLicense: %s\n", d)
+
 	// transaction... context
 	fields := []interface{}{a.TCID, a.BID, a.CreditLimit, a.TaxpayorID, a.AccountRep, a.EligibleFuturePayor,
-		a.FLAGS, a.SSN, a.DriversLicense, a.GrossIncome, a.CreateBy, a.LastModBy}
+		a.FLAGS, b, d, a.GrossIncome, a.CreateBy, a.LastModBy}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.InsertPayor)
 		defer stmt.Close()

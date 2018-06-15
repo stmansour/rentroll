@@ -28,6 +28,7 @@ RENTROLLSERVERAUTH="-noauth"
 startRentRollServer
 
 
+
 #------------------------------------------------------------------------------
 #  TEST a
 #  Basic TaskListDefinition Test Suite
@@ -182,6 +183,37 @@ dorrtest "f0" "-b ${BUD} -r 25,1" "Tasklist"
 #------------------------------------------------------------------------------
 echo "%7B%22cmd%22%3A%22get%22%7D" > request
 dojsonPOST "http://localhost:8270/v1/closeperiod/1" "request" "g0"  "WebService--Get_Tasks"
+
+
+#------------------------------------------------------------------------------
+#  TEST x
+#  Save a new user with some Prospect information that will be encrypted.
+#  This kind of a test is a little out of place here, but it doesn't hurt
+#  anything, and the database used had a small number of Transactants, so
+#  debugging was easy.
+#
+#  Scenario:
+#		Save a Transactant with lots of information in Prospect, User,
+#       and Payor parts. Read back info. Make sure the encrypted / decrypted
+#       values (SSN, DriversLicense) work correctly.
+#
+#  Expected Results:
+#	x0 - Save the user
+#   x1 - Update the user
+#   x2 - Read the user 
+#------------------------------------------------------------------------------
+
+# INSERT
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22transactantForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22TCID%22%3A0%2C%22BID%22%3A1%2C%22BUD%22%3A%22%22%2C%22NLID%22%3A0%2C%22FirstName%22%3A%22Grazyna%22%2C%22MiddleName%22%3A%22Carol%22%2C%22LastName%22%3A%22Nieves%22%2C%22PreferredName%22%3A%22Rocco%22%2C%22CompanyName%22%3A%22Jack%2BIn%2BThe%2BBox%2BInc.%22%2C%22IsCompany%22%3Afalse%2C%22PrimaryEmail%22%3A%22GNieves628%40yahoo.com%22%2C%22SecondaryEmail%22%3A%22GNieves7765%40yahoo.com%22%2C%22WorkPhone%22%3A%22(735)%2B303-9714%22%2C%22CellPhone%22%3A%22(384)%2B789-3137%22%2C%22Address%22%3A%2241344%2BCedar%22%2C%22Address2%22%3A%22%22%2C%22City%22%3A%22Normal%22%2C%22State%22%3A%22LA%22%2C%22PostalCode%22%3A%2298081%22%2C%22Country%22%3A%22USA%22%2C%22EmployerName%22%3A%22Jack%2BIn%2BThe%2BBox%2BInc.%22%2C%22EmployerStreetAddress%22%3A%2283853%2BJackson%22%2C%22EmployerCity%22%3A%22Glendale%22%2C%22EmployerState%22%3A%22AL%22%2C%22EmployerPostalCode%22%3A%2284059%22%2C%22EmployerEmail%22%3A%22JackInTheBoxIncG157%40aol.com%22%2C%22EmployerPhone%22%3A%22(477)%2B124-9172%22%2C%22Website%22%3A%22%22%2C%22Occupation%22%3A%22%22%2C%22ApplicationFee%22%3A0%2C%22DesiredUsageStartDate%22%3A%226%2F15%2F2018%22%2C%22RentableTypePreference%22%3A0%2C%22FLAGS%22%3A0%2C%22Approver%22%3A152%2C%22DeclineReasonSLSID%22%3A0%2C%22OtherPreferences%22%3A%22%22%2C%22FollowUpDate%22%3A%226%2F17%2F2018%22%2C%22CSAgent%22%3A208%2C%22OutcomeSLSID%22%3A0%2C%22FloatingDeposit%22%3A0%2C%22RAID%22%3A0%2C%22Points%22%3A0%2C%22DateofBirth%22%3A%223%2F24%2F1977%22%2C%22EmergencyContactName%22%3A%22Justa%2BBolton%22%2C%22EmergencyContactAddress%22%3A%2284978%2B12th%2CStamford%2CNE%2B27887%22%2C%22EmergencyContactTelephone%22%3A%22(488)%2B376-5373%22%2C%22EmergencyEmail%22%3A%22JustaB9853%40gmail.com%22%2C%22AlternateAddress%22%3A%221358%2BThirteenth%2CKaneohe%2CRI%2B31847%22%2C%22EligibleFutureUser%22%3Afalse%2C%22Industry%22%3A%22%22%2C%22SourceSLSID%22%3A0%2C%22CreditLimit%22%3A5693%2C%22TaxpayorID%22%3A%2206018360%22%2C%22AccountRep%22%3A99%2C%22EligibleFuturePayor%22%3Atrue%2C%22SSN%22%3A%22123-45-6789%22%2C%22DriversLicense%22%3A%22U1234567%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/person/1/0" "request" "x0" "WebService--NewTransactant"
+
+# UPDATE
+echo "%7B%22cmd%22%3A%22save%22%2C%22recid%22%3A0%2C%22name%22%3A%22transactantForm%22%2C%22record%22%3A%7B%22recid%22%3A0%2C%22TCID%22%3A16%2C%22BID%22%3A1%2C%22BUD%22%3A%22%22%2C%22NLID%22%3A0%2C%22FirstName%22%3A%22Grazyna%22%2C%22MiddleName%22%3A%22Carol%22%2C%22LastName%22%3A%22Nieves%22%2C%22PreferredName%22%3A%22Rocco%22%2C%22CompanyName%22%3A%22Jack%2BIn%2BThe%2BBox%2BInc.%22%2C%22IsCompany%22%3Afalse%2C%22PrimaryEmail%22%3A%22GNieves628%40yahoo.com%22%2C%22SecondaryEmail%22%3A%22GNieves7765%40yahoo.com%22%2C%22WorkPhone%22%3A%22(735)%2B303-9714%22%2C%22CellPhone%22%3A%22(384)%2B789-3137%22%2C%22Address%22%3A%2241344%2BCedar%22%2C%22Address2%22%3A%22%22%2C%22City%22%3A%22Normal%22%2C%22State%22%3A%22LA%22%2C%22PostalCode%22%3A%2298081%22%2C%22Country%22%3A%22USA%22%2C%22EmployerName%22%3A%22Jack%2BIn%2BThe%2BBox%2BInc.%22%2C%22EmployerStreetAddress%22%3A%2283853%2BJackson%22%2C%22EmployerCity%22%3A%22Glendale%22%2C%22EmployerState%22%3A%22AL%22%2C%22EmployerPostalCode%22%3A%2284059%22%2C%22EmployerEmail%22%3A%22JackInTheBoxIncG157%40aol.com%22%2C%22EmployerPhone%22%3A%22(477)%2B124-9172%22%2C%22Website%22%3A%22%22%2C%22Occupation%22%3A%22%22%2C%22ApplicationFee%22%3A0%2C%22DesiredUsageStartDate%22%3A%226%2F15%2F2018%22%2C%22RentableTypePreference%22%3A0%2C%22FLAGS%22%3A0%2C%22Approver%22%3A152%2C%22DeclineReasonSLSID%22%3A0%2C%22OtherPreferences%22%3A%22%22%2C%22FollowUpDate%22%3A%226%2F17%2F2018%22%2C%22CSAgent%22%3A208%2C%22OutcomeSLSID%22%3A0%2C%22FloatingDeposit%22%3A0%2C%22RAID%22%3A0%2C%22Points%22%3A0%2C%22DateofBirth%22%3A%223%2F24%2F1977%22%2C%22EmergencyContactName%22%3A%22Justa%2BBolton%22%2C%22EmergencyContactAddress%22%3A%2284978%2B12th%2CStamford%2CNE%2B27887%22%2C%22EmergencyContactTelephone%22%3A%22(488)%2B376-5373%22%2C%22EmergencyEmail%22%3A%22JustaB9853%40gmail.com%22%2C%22AlternateAddress%22%3A%221358%2BThirteenth%2CKaneohe%2CRI%2B31847%22%2C%22EligibleFutureUser%22%3Afalse%2C%22Industry%22%3A%22%22%2C%22SourceSLSID%22%3A0%2C%22CreditLimit%22%3A5693%2C%22TaxpayorID%22%3A%2206018360%22%2C%22AccountRep%22%3A99%2C%22EligibleFuturePayor%22%3Atrue%2C%22SSN%22%3A%22123-45-6789%22%2C%22DriversLicense%22%3A%22U1234567%22%7D%7D" > request
+dojsonPOST "http://localhost:8270/v1/person/1/16" "request" "x1" "WebService--UpdateTransactant"
+
+# GET
+echo "%7B%22cmd%22%3A%22get%22%2C%22selected%22%3A%5B%5D%2C%22limit%22%3A100%2C%22offset%22%3A0%2C%22TCID%22%3A16%7D" > request
+dojsonPOST "http://localhost:8270/v1/person/1/16" "request" "x2" "WebService--GetTransactant"
 
 #------------------------------------------------------------------------------
 #  FINISH
