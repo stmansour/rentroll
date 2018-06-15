@@ -1,0 +1,24 @@
+{
+  "cmd": "save",
+  "recid": 0,
+  "name": "accountForm",
+  "record": {
+    "recid": 0,
+    "BID": 1,
+    "BUD": "REX",
+    "Name": "Chart Of Accounts Name",
+    "Description": "Automatic Save Button Tests",
+    "GLNumber": "Chart Of Accounts GLnumber",
+    "AllowPost": 1,
+    "FLAGS": 0,
+    "LID": 0,
+    "RAID": 0,
+    "TCID": 0,
+    "OffsetAccount": 0,
+    "LastModBy": 0,
+    "LastModTime": "",
+    "PLID": 1,
+    "Status": 1,
+    "AcctType": 0
+  }
+}

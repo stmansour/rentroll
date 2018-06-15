@@ -1,0 +1,22 @@
+{
+  "cmd": "save",
+  "recid": 0,
+  "name": "arsForm",
+  "record": {
+    "recid": 0,
+    "BID": 1,
+    "BUD": "REX",
+    "Name": "Account Rules Name",
+    "Description": "Automatic Save Button Tests",
+    "ARID": 0,
+    "DtStart": "1/1/2018",
+    "DtStop": "12/31/9999",
+    "PriorToRAStart": true,
+    "PriorToRAStop": true,
+    "RAIDrqd": false,
+    "ARType": 1,
+    "CreditLID": 1,
+    "DebitLID": 1,
+    "DefaultAmount": "$000"
+  }
+}

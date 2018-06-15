@@ -1,0 +1,16 @@
+{
+  "cmd": "save",
+  "recid": 0,
+  "name": "rtForm",
+  "record": {
+    "recid": 0,
+    "BID": 1,
+    "BUD": "REX",
+    "Style": "Rentable Type Style",
+    "Name": "Rentable Type Name",
+    "RentCycle": 6,
+    "Proration": 4,
+    "GSRPC": 4,
+    "ARID": 0
+  }
+}

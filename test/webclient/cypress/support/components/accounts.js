@@ -22,4 +22,5 @@ export let conf = {
     skipFields: [],
     primaryId: "LID",
     haveDateValue: false,
+    fixtureFile: "chartOfAccounts.json"
 };
