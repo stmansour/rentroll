@@ -47,7 +47,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         SourceSLSID: 0,
         CreditLimit: 0.00,
         TaxpayorID: "",
-        AccountRep: 0,
+        ThirdPartySource: 0,
         GrossIncome: 0,
         EligibleFuturePayor: true,
         EmployerStreetAddress: "",
@@ -136,7 +136,7 @@ window.buildTransactElements = function() {
         {field: 'SourceSLSID',               type: 'list',      required: false, html: {page: 1, column: 0}}, // TODO(Akshay): Mention list option
         {field: 'CreditLimit',               type: 'money',     required: false, html: {page: 2, column: 0}},
         {field: 'TaxpayorID',                type: 'text',      required: false, html: {page: 2, column: 0}},
-        {field: 'AccountRep',                type: 'text',      required: false, html: {page: 2, column: 0}},
+        {field: 'ThirdPartySource',                type: 'text',      required: false, html: {page: 2, column: 0}},
         {field: 'GrossIncome',               type: 'money',     required: false, html: {page: 2, column: 0}},
         {field: 'EligibleFuturePayor',       type: 'checkbox',  required: false, html: {page: 2, column: 0}},
         {field: 'EmployerName',              type: 'text',      required: false, html: {page: 3, column: 0}},

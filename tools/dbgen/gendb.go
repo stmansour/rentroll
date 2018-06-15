@@ -256,7 +256,7 @@ func createTransactants(ctx context.Context, dbConf *GenDBConf) error {
 			BID:                 t.BID,
 			CreditLimit:         float64(IG.Rand.Intn(30000)),
 			TaxpayorID:          fmt.Sprintf("%08d", IG.Rand.Intn(10000000)),
-			AccountRep:          int64(IG.Rand.Intn(250)),
+			ThirdPartySource:    int64(IG.Rand.Intn(250)),
 			EligibleFuturePayor: true,
 		}
 		_, err = rlib.InsertPayor(ctx, &p)

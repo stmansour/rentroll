@@ -733,7 +733,7 @@ func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) error {
 
 // ReadPayor reads a full Payor structure from the database based on the supplied row object
 func ReadPayor(row *sql.Row, a *Payor) error {
-	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor,
+	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
 		&a.FLAGS, &a.SSN, &a.DriversLicense, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -741,7 +741,7 @@ func ReadPayor(row *sql.Row, a *Payor) error {
 
 // ReadPayors reads a full Payor structure from the database based on the supplied rows object
 func ReadPayors(rows *sql.Rows, a *Payor) error {
-	return rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor,
+	return rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.ThirdPartySource, &a.EligibleFuturePayor,
 		&a.FLAGS, &a.SSN, &a.DriversLicense, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

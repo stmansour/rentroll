@@ -778,7 +778,7 @@ type Payor struct {
 	BID                 int64
 	CreditLimit         float64
 	TaxpayorID          string
-	AccountRep          int64
+	ThirdPartySource    int64
 	EligibleFuturePayor bool
 	FLAGS               uint64
 	SSN                 string // encrypted in database, decrypted here

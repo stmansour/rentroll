@@ -927,7 +927,7 @@ CREATE TABLE Payor (
     BID BIGINT NOT NULL DEFAULT 0,                               -- which business
     TaxpayorID VARCHAR(25) NOT NULL DEFAULT '',     
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,     
-    AccountRep BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
+    ThirdPartySource BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
     FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
                                                                   */
