@@ -183,7 +183,9 @@ window.loadRAPeopleForm = function () {
                             return false;
                         },
                         yes_callBack = function (grid, recid) {
-                            var form = w2ui.RATransactantForm;
+                            var form = w2ui.RATransactantForm,
+                                BID = getCurrentBID(),
+                                BUD = getBUDfromBID(BID);
 
                             app.last.grid_sel_recid = parseInt(recid);
 
