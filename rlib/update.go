@@ -1215,7 +1215,10 @@ func UpdateTransactant(ctx context.Context, a *Transactant) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName, a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone, a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS, a.LastModBy, a.TCID}
+	fields := []interface{}{a.BID, a.NLID, a.FirstName, a.MiddleName, a.LastName, a.PreferredName,
+		a.CompanyName, a.IsCompany, a.PrimaryEmail, a.SecondaryEmail, a.WorkPhone, a.CellPhone,
+		a.Address, a.Address2, a.City, a.State, a.PostalCode, a.Country, a.Website, a.FLAGS,
+		a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateTransactant)
 		defer stmt.Close()
@@ -1240,7 +1243,9 @@ func UpdateUser(ctx context.Context, a *User) error {
 		a.LastModBy = sess.UID
 	}
 
-	fields := []interface{}{a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress, a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.Industry, a.SourceSLSID, a.LastModBy, a.TCID}
+	fields := []interface{}{a.BID, a.Points, a.DateofBirth, a.EmergencyContactName, a.EmergencyContactAddress,
+		a.EmergencyContactTelephone, a.EmergencyEmail, a.AlternateAddress, a.EligibleFutureUser, a.FLAGS,
+		a.Industry, a.SourceSLSID, a.LastModBy, a.TCID}
 	if tx, ok := DBTxFromContext(ctx); ok { // if transaction is supplied
 		stmt := tx.Stmt(RRdb.Prepstmt.UpdateUser)
 		defer stmt.Close()

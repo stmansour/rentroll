@@ -1238,6 +1238,10 @@ CREATE TABLE `Payor` (
   `CreditLimit` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `AccountRep` bigint(20) NOT NULL DEFAULT '0',
   `EligibleFuturePayor` tinyint(1) NOT NULL DEFAULT '1',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
+  `SSN` char(128) NOT NULL DEFAULT '',
+  `DriversLicense` char(128) NOT NULL DEFAULT '',
+  `GrossIncome` decimal(19,4) NOT NULL DEFAULT '0.0000',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `LastModBy` bigint(20) NOT NULL DEFAULT '0',
   `CreateTS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2439,6 +2443,7 @@ CREATE TABLE `User` (
   `EmergencyEmail` varchar(100) NOT NULL DEFAULT '',
   `AlternateAddress` varchar(100) NOT NULL DEFAULT '',
   `EligibleFutureUser` tinyint(1) NOT NULL DEFAULT '1',
+  `FLAGS` bigint(20) NOT NULL DEFAULT '0',
   `Industry` varchar(100) NOT NULL DEFAULT '',
   `SourceSLSID` bigint(20) NOT NULL DEFAULT '0',
   `LastModTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -2505,4 +2510,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-14 17:09:23
+-- Dump completed on 2018-06-14 18:03:04

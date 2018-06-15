@@ -908,6 +908,8 @@ CREATE TABLE User (
     EmergencyEmail VARCHAR(100) NOT NULL DEFAULT '',
     AlternateAddress VARCHAR(100) NOT NULL DEFAULT '',
     EligibleFutureUser TINYINT(1) NOT NULL DEFAULT 1,            -- yes/no
+    FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
+                                                                  */
     Industry VARCHAR(100) NOT NULL DEFAULT '',                   -- (e.g., construction, retail, banking etc.)
     SourceSLSID BIGINT NOT NULL DEFAULT 0,                       -- (e.g., resident referral, newspaper, radio, post card, expedia, travelocity, etc.)
     LastModTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- when was this record last written
@@ -927,6 +929,8 @@ CREATE TABLE Payor (
     CreditLimit DECIMAL(19,4) NOT NULL DEFAULT 0.0,     
     AccountRep BIGINT NOT NULL DEFAULT 0,                        -- Accord (renting company) Phonebook UID of account rep
     EligibleFuturePayor TINYINT(1) NOT NULL DEFAULT 1,           -- yes/no
+    FLAGS BIGINT NOT NULL DEFAULT 0,                             /*
+                                                                  */
     SSN CHAR(128) NOT NULL DEFAULT '',                           -- ssn - encrypted
     DriversLicense CHAR(128) NOT NULL DEFAULT '',                -- drivers license number - encrypted
     GrossIncome DECIMAL(19,4) NOT NULL DEFAULT 0.0,              -- gross wages

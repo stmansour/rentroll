@@ -393,16 +393,16 @@ DBNAME="rentroll"
 # ALTER TABLE Prospect ADD EvictedDes  VARCHAR(2048) NOT NULL DEFAULT '' AFTER FLAGS;
 # ALTER TABLE Prospect ADD ConvictedDes  VARCHAR(2048) NOT NULL DEFAULT '' AFTER EvictedDes;
 # ALTER TABLE Prospect ADD BankruptcyDes  VARCHAR(2048) NOT NULL DEFAULT '' AFTER ConvictedDes;
+# ALTER TABLE Payor ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER EligibleFuturePayor;
+# ALTER TABLE Payor ADD SSN CHAR(128) NOT NULL DEFAULT '' AFTER FLAGS;
+# ALTER TABLE Payor ADD DriversLicense CHAR(128) NOT NULL DEFAULT '' AFTER SSN;
+# ALTER TABLE Payor ADD GrossIncome DECIMAL(19,4) NOT NULL DEFAULT 0.0 AFTER DriversLicense;
+# ALTER TABLE User ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER EligibleFutureUser;
 
 #=====================================================
 #  Put modifications to schema in the lines below
 #=====================================================
 cat >${MODFILE} <<EOF
-ALTER TABLE Payor ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER EligibleFuturePayor;
-ALTER TABLE Payor ADD SSN CHAR(128) NOT NULL DEFAULT '' AFTER FLAGS;
-ALTER TABLE Payor ADD DriversLicense CHAR(128) NOT NULL DEFAULT '' AFTER SSN;
-ALTER TABLE Payor ADD GrossIncome DECIMAL(19,4) NOT NULL DEFAULT 0.0 AFTER DriversLicense;
-ALTER TABLE User ADD FLAGS BIGINT NOT NULL DEFAULT 0 AFTER EligibleFutureUser;
 EOF
 
 #==============================================================================
