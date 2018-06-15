@@ -200,10 +200,7 @@ window.AssignTiePeopleGridRecords = function() {
         var PRID = 0;
         var tiePeople = getTiePeopleLocalData(peopleData.TMPTCID);
 
-        // if it's a payor/guarantor then ignore to set in grid
-        if (peopleData.IsRenter || peopleData.IsGuarantor) {
-            return; // return from forEach method
-        }
+        // NOTE: list down every single person added in people section
 
         // parent Rentable ID found then for initial load in grid
         if (tiePeople.PRID) {
