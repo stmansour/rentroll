@@ -347,48 +347,10 @@ window.requiredFieldsFulFilled = function (compID) {
             done = parentChildValid;
             break;
         case "tie":
-            var tiePetsValid = false,
-                tieVehiclesValid = false,
-                tiePeopleValid = false;
+            var tiePeopleValid = false;
 
             // any parent rentable exist
             if(app.raflow.parentRentableW2UIItems.length > 0) {
-
-                // ------ pets validation ------
-                var petsCompData = getRAFlowCompData("pets", app.raflow.activeFlowID);
-                if (petsCompData.length > 0) {
-                    if (compData.pets.length > 0) {
-                        validData = true;
-                        compData.pets.forEach(function(item) {
-                            if (item.PRID === 0 || item.TMPPETID === 0) {
-                                validData = false;
-                                return false;
-                            }
-                        });
-                        tiePetsValid = validData;
-                    }
-                } else {
-                    // TODO(Akshay & Sudip): we should store this setting in compData somewhere
-                    // check for whether "have pets" checkbox setting is checked
-                }
-
-                // ------ vehicles validation ------
-                var vehiclesCompData = getRAFlowCompData("vehicles", app.raflow.activeFlowID);
-                if (vehiclesCompData.length > 0) {
-                    if (compData.vehicles.length > 0) {
-                        validData = true;
-                        compData.vehicles.forEach(function(item) {
-                            if (item.PRID === 0 || item.TMPVID === 0) {
-                                validData = false;
-                                return false;
-                            }
-                        });
-                        tieVehiclesValid = validData;
-                    }
-                } else {
-                    // TODO(Akshay & Sudip): we should store this setting in compData somewhere
-                    // check for whether "have vehicles" checkbox setting is checked
-                }
 
                 // ------ people validation ------
                 var peopleCompData = getRAFlowCompData("people", app.raflow.activeFlowID) || [];
@@ -412,7 +374,7 @@ window.requiredFieldsFulFilled = function (compID) {
             }
 
             // if loop passed successfully then mark it as successfully
-            done = tiePetsValid && tieVehiclesValid && tiePeopleValid;
+            done = tiePeopleValid;
             break;
         case "final":
             break;
@@ -472,8 +434,6 @@ window.loadTargetSection = function (target, previousActiveCompID) {
             break;
         case "tie":
             // modCompData = compData;
-            w2ui.RATiePetsGrid.clear();
-            w2ui.RATieVehiclesGrid.clear();
             w2ui.RATiePeopleGrid.clear();
             break;
         case "final":
