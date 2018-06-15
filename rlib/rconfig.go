@@ -59,5 +59,8 @@ func RRReadConfig(fPath ...string) error {
 		fmt.Printf("Error loading timezone %s : %s\n", AppConfig.Timezone, err.Error())
 		Ulog("Error loading timezone %s : %s", AppConfig.Timezone, err.Error())
 	}
-	return err
+
+	RRdb.Key = []byte(AppConfig.CryptoKey)
+
+	return nil
 }

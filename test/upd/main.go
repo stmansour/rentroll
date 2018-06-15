@@ -333,7 +333,7 @@ func updatePerson(ctx context.Context, biz *rlib.Business) {
 	xp.Usr.EmergencyContactTelephone = ecp
 	err = rlib.UpdateUser(ctx, &xp.Usr)
 	if err != nil {
-		fmt.Printf("Error updating Transactant: %s\n", err.Error())
+		fmt.Printf("Error updating User: %s\n", err.Error())
 		os.Exit(1)
 	}
 

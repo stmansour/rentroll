@@ -367,23 +367,12 @@ func ReadPaymentTypes(rows *sql.Rows, a *PaymentType) error {
 	return rows.Scan(&a.PMTID, &a.BID, &a.Name, &a.Description, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
-// ReadPayor reads a full Payor structure from the database based on the supplied row object
-func ReadPayor(row *sql.Row, a *Payor) error {
-	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
-	SkipSQLNoRowsError(&err)
-	return err
-}
-
-// ReadPayors reads a full Payor structure from the database based on the supplied rows object
-func ReadPayors(rows *sql.Rows, a *Payor) error {
-	return rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
-}
-
 // ReadProspect reads a full Prospect structure from the database based on the supplied row object
 func ReadProspect(row *sql.Row, a *Prospect) error {
 	err := row.Scan(&a.TCID, &a.BID, &a.EmployerName, &a.EmployerStreetAddress,
 		&a.EmployerCity, &a.EmployerState, &a.EmployerPostalCode, &a.EmployerEmail, &a.EmployerPhone, &a.Occupation,
-		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS, &a.Approver, &a.DeclineReasonSLSID,
+		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
+		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
@@ -394,7 +383,8 @@ func ReadProspect(row *sql.Row, a *Prospect) error {
 func ReadProspects(rows *sql.Rows, a *Prospect) error {
 	return rows.Scan(&a.TCID, &a.BID, &a.EmployerName, &a.EmployerStreetAddress,
 		&a.EmployerCity, &a.EmployerState, &a.EmployerPostalCode, &a.EmployerEmail, &a.EmployerPhone, &a.Occupation,
-		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS, &a.Approver, &a.DeclineReasonSLSID,
+		&a.ApplicationFee, &a.DesiredUsageStartDate, &a.RentableTypePreference, &a.FLAGS,
+		&a.EvictedDes, &a.ConvictedDes, &a.BankruptcyDes, &a.Approver, &a.DeclineReasonSLSID,
 		&a.OtherPreferences, &a.FollowUpDate, &a.CSAgent, &a.OutcomeSLSID, &a.FloatingDeposit, &a.RAID,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
@@ -722,7 +712,7 @@ func ReadTaskListDefinitions(rows *sql.Rows, a *TaskListDefinition) error {
 func ReadTransactant(row *sql.Row, a *Transactant) error {
 	err := row.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName,
 		&a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone,
-		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website,
+		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.FLAGS,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -732,7 +722,7 @@ func ReadTransactant(row *sql.Row, a *Transactant) error {
 func ReadTransactants(rows *sql.Rows, a *Transactant) error {
 	return rows.Scan(&a.TCID, &a.BID, &a.NLID, &a.FirstName, &a.MiddleName, &a.LastName, &a.PreferredName,
 		&a.CompanyName, &a.IsCompany, &a.PrimaryEmail, &a.SecondaryEmail, &a.WorkPhone, &a.CellPhone,
-		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website,
+		&a.Address, &a.Address2, &a.City, &a.State, &a.PostalCode, &a.Country, &a.Website, &a.FLAGS,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 
@@ -741,10 +731,24 @@ func ReadTransactantTypeDowns(rows *sql.Rows, a *TransactantTypeDown) error {
 	return rows.Scan(&a.TCID, &a.FirstName, &a.MiddleName, &a.LastName, &a.CompanyName, &a.IsCompany)
 }
 
+// ReadPayor reads a full Payor structure from the database based on the supplied row object
+func ReadPayor(row *sql.Row, a *Payor) error {
+	err := row.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor,
+		&a.FLAGS, &a.SSN, &a.DriversLicense, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+	SkipSQLNoRowsError(&err)
+	return err
+}
+
+// ReadPayors reads a full Payor structure from the database based on the supplied rows object
+func ReadPayors(rows *sql.Rows, a *Payor) error {
+	return rows.Scan(&a.TCID, &a.BID, &a.CreditLimit, &a.TaxpayorID, &a.AccountRep, &a.EligibleFuturePayor,
+		&a.FLAGS, &a.SSN, &a.DriversLicense, &a.GrossIncome, &a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
+}
+
 // ReadUser reads a full User structure from the database based on the supplied row object
 func ReadUser(row *sql.Row, a *User) error {
 	err := row.Scan(&a.TCID, &a.BID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress,
-		&a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID,
+		&a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 	SkipSQLNoRowsError(&err)
 	return err
@@ -753,7 +757,7 @@ func ReadUser(row *sql.Row, a *User) error {
 // ReadUsers reads a full User structure from the database based on the supplied rows object
 func ReadUsers(rows *sql.Rows, a *User) error {
 	return rows.Scan(&a.TCID, &a.BID, &a.Points, &a.DateofBirth, &a.EmergencyContactName, &a.EmergencyContactAddress,
-		&a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.Industry, &a.SourceSLSID,
+		&a.EmergencyContactTelephone, &a.EmergencyEmail, &a.AlternateAddress, &a.EligibleFutureUser, &a.FLAGS, &a.Industry, &a.SourceSLSID,
 		&a.CreateTS, &a.CreateBy, &a.LastModTime, &a.LastModBy)
 }
 

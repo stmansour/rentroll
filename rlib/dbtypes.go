@@ -703,15 +703,21 @@ type Transactant struct {
 	PostalCode     string
 	Country        string
 	Website        string // person's website
-	LastModTime    time.Time
-	LastModBy      int64
-	CreateTS       time.Time // when was this record created
-	CreateBy       int64     // employee UID (from phonebook) that created it
+	/*
+	   FLAG BITS:
+	   1<<0 OptIntoMarketingCampaign -- Does the user want to receive mkting info
+	   1<<1 AcceptGeneralEmail       -- Will user accept email
+	   1<<2 VIP                      -- Is this person a VIP
+	*/
+	FLAGS       int64
+	LastModTime time.Time
+	LastModBy   int64
+	CreateTS    time.Time // when was this record created
+	CreateBy    int64     // employee UID (from phonebook) that created it
 }
 
 // Prospect contains info over and above
 type Prospect struct {
-	// ProspectID             int64
 	TCID                   int64
 	BID                    int64
 	EmployerName           string
@@ -726,6 +732,9 @@ type Prospect struct {
 	DesiredUsageStartDate  time.Time // predicted rent start date
 	RentableTypePreference int64     // RentableType
 	FLAGS                  uint64    // 0 = Approved/NotApproved,
+	EvictedDes             string    // explanation when FLAGS & (1<<2) > 0
+	ConvictedDes           string    // explanation when FLAGS & (1<<3) > 0
+	BankruptcyDes          string    // explanation when FLAGS & (1<<4) > 0
 	Approver               int64     // UID from Directory
 	DeclineReasonSLSID     int64     // SLSid of reason
 	OtherPreferences       string    // arbitrary text
@@ -742,7 +751,6 @@ type Prospect struct {
 
 // User contains all info common to a person
 type User struct {
-	// UserID                    int64
 	TCID                      int64
 	BID                       int64
 	Points                    int64
@@ -753,6 +761,7 @@ type User struct {
 	EmergencyEmail            string
 	AlternateAddress          string
 	EligibleFutureUser        bool
+	FLAGS                     uint64
 	Industry                  string
 	SourceSLSID               int64
 	LastModTime               time.Time
@@ -760,6 +769,33 @@ type User struct {
 	Vehicles                  []Vehicle
 	CreateTS                  time.Time // when was this record created
 	CreateBy                  int64     // employee UID (from phonebook) that created it
+}
+
+// Payor is attributes of the person financially responsible
+// for the rent.
+type Payor struct {
+	TCID                int64
+	BID                 int64
+	CreditLimit         float64
+	TaxpayorID          string
+	AccountRep          int64
+	EligibleFuturePayor bool
+	FLAGS               uint64
+	SSN                 string // encrypted in database, decrypted here
+	DriversLicense      string // encrypted in database, decrypted here
+	GrossIncome         float64
+	LastModTime         time.Time
+	LastModBy           int64
+	CreateTS            time.Time // when was this record created
+	CreateBy            int64     // employee UID (from phonebook) that created it
+}
+
+// XPerson of all person related attributes
+type XPerson struct {
+	Trn Transactant
+	Usr User
+	Psp Prospect
+	Pay Payor
 }
 
 // TransactantTypeDown is the struct needed to match names in typedown controls
@@ -799,29 +835,6 @@ type Vehicle struct {
 	LastModBy           int64
 	CreateTS            time.Time // when was this record created
 	CreateBy            int64     // employee UID (from phonebook) that created it
-}
-
-// Payor is attributes of the person financially responsible
-// for the rent.
-type Payor struct {
-	TCID                int64
-	BID                 int64
-	CreditLimit         float64
-	TaxpayorID          string
-	AccountRep          int64
-	EligibleFuturePayor bool
-	LastModTime         time.Time
-	LastModBy           int64
-	CreateTS            time.Time // when was this record created
-	CreateBy            int64     // employee UID (from phonebook) that created it
-}
-
-// XPerson of all person related attributes
-type XPerson struct {
-	Trn Transactant
-	Usr User
-	Psp Prospect
-	Pay Payor
 }
 
 // Assessment is a charge associated with a Rentable
@@ -1876,6 +1889,7 @@ var RRdb struct {
 	BUDlist  Str2Int64Map                 // list of known business Designations
 	DBFields map[string]string            // map of db table fields DBFields[tablename] = field list
 	Zone     *time.Location               // what timezone should the server use?
+	Key      []byte                       // crypto key
 	noAuth   bool                         // if enable that means auth is not required, (should be moved in some common app struct!)
 	Rand     *rand.Rand                   // for generating Reference Numbers or other UniqueIDs
 	// TODO(sudip): NoAuth will be moved to something internal pkg app struct
