@@ -61,7 +61,7 @@ type RAPeopleFlowData struct {
 	LastName       string
 	PreferredName  string
 	IsCompany      bool
-	EmployerName   string
+	CompanyName    string
 	SSN            string
 	DriverLicNo    string
 	PrimaryEmail   string

@@ -774,7 +774,7 @@ window.managePeopleW2UIItems = function() {
 
         // get name
         if (peopleItem.IsCompany) {
-            Name = peopleItem.Employer;
+            Name = peopleItem.CompanyName;
         } else {
             Name = getFullName(peopleItem);
         }
