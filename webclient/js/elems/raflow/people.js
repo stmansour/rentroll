@@ -52,7 +52,7 @@ window.loadRAPeopleForm = function () {
                             w2ui.RAPeopleForm.record.FirstName = item.FirstName;
                             w2ui.RAPeopleForm.record.LastName = item.LastName;
                             w2ui.RAPeopleForm.record.MiddleName = item.MiddleName;
-                            w2ui.RAPeopleForm.record.Employer = item.Employer;
+                            w2ui.RAPeopleForm.record.CompanyName = item.CompanyName;
                             w2ui.RAPeopleForm.record.IsCompany = item.IsCompany;
                             return s;
                         },
@@ -78,7 +78,7 @@ window.loadRAPeopleForm = function () {
                 {name: 'FirstName', type: 'text', required: false, html: {caption: "FirstName"}},
                 {name: 'LastName', type: 'text', required: false, html: {caption: "LastName"}},
                 {name: 'MiddleName', type: 'text', required: false, html: {caption: "MiddleName"}},
-                {name: 'Employer', type: 'text', required: false, html: {caption: "Employer"}},
+                {name: 'CompanyName', type: 'text', required: false, html: {caption: "CompanyName"}},
                 {name: 'IsCompany', type: 'checkbox', required: true, html: {caption: "IsCompany"}}
             ],
             actions: {
@@ -133,7 +133,7 @@ window.loadRAPeopleForm = function () {
                     style: 'text-align: left;',
                     render: function (record) {
                         if (record.IsCompany) {
-                            return record.EmployerName;
+                            return record.CompanyName;
                         } else {
                             return getFullName(record);
                         }
@@ -419,7 +419,7 @@ window.loadRAPeopleForm = function () {
 // It set RATransactantForm header title
 window.setRATransactantFormHeader = function (record) {
     if (record.IsCompany > 0) {
-        w2ui.RATransactantForm.header = 'Background Information - ' + record.EmployerName;
+        w2ui.RATransactantForm.header = 'Background Information - ' + record.CompanyName;
     } else {
         w2ui.RATransactantForm.header = 'Background Information - ' + record.FirstName + ' ' + record.MiddleName + ' ' + record.LastName;
     }
@@ -639,7 +639,7 @@ window.addDummyBackgroundInfo = function () {
     record.PriorLandLordPhoneNo = Math.random().toString(32).slice(2);
     record.PriorLengthOfResidency = 36;
     record.PriorReasonForMoving = Math.random().toString(32).slice(2);
-    record.Employer = Math.random().toString(32).slice(2);
+    record.CompanyName = Math.random().toString(32).slice(2);
     record.WorkPhone = Math.random().toString(32).slice(2);
     record.Address = Math.random().toString(32).slice(2);
     record.Position = Math.random().toString(32).slice(2);

@@ -21,7 +21,7 @@ window.getTransactantInitRecord = function (BID, BUD) {
         MiddleName: "",
         PreferredName: "",
         IsCompany: false,
-        EmployerName: "",
+        CompanyName: "",
         PrimaryEmail: "",
         SecondaryEmail: "",
         SSN: "",
@@ -109,7 +109,7 @@ window.buildTransactElements = function() {
         {field: 'LastName',                  type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'PreferredName',             type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'IsCompany',                 type: 'checkbox',  required: true,  html: {page: 0, column: 0}},
-        {field: 'EmployerName',              type: 'text',      required: false, html: {page: 0, column: 0}},
+        {field: 'CompanyName',              type: 'text',      required: false, html: {page: 0, column: 0}},
         {field: 'SSN',                       type: 'text',      required: false, html: {page: 0, column: 0}},  // Social security number of applicants
         {field: 'DriverLicNo',               type: 'text',      required: false, html: {page: 0, column: 0}},  // Driving licence number of applicants
         {field: 'PrimaryEmail',              type: 'email',     required: false, html: {page: 0, column: 0}},
